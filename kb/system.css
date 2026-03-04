@@ -1,0 +1,220 @@
+/* System page styles */
+
+.sys-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem 0 1.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+    flex-wrap: wrap;
+}
+
+.sys-name {
+    font-size: var(--text-hero);
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    margin-top: 0.25rem;
+}
+
+.sys-meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.sys-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.sys-meta-item .stat {
+    font-size: 18px;
+}
+
+/* Security level colors */
+.security-high { color: hsl(var(--smui-green)); }
+.security-med  { color: hsl(var(--smui-yellow)); }
+.security-low  { color: hsl(var(--smui-red)); }
+.security-label {
+    font-size: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    vertical-align: middle;
+}
+
+/* Sections */
+.sys-section {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.sys-section:last-child {
+    border-bottom: none;
+}
+
+.section-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.section-head h3 {
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Resource groups */
+.resource-group {
+    margin-bottom: 1.5rem;
+}
+
+.resource-group:last-child {
+    margin-bottom: 0;
+}
+
+.resource-group h4 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Richness bar */
+.richness-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-ui);
+}
+
+.richness-bar::before {
+    content: '';
+    display: inline-block;
+    width: 60px;
+    height: 6px;
+    background: hsl(var(--muted));
+    position: relative;
+}
+
+.richness-bar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 6px;
+    width: calc(60px * var(--r) / 100);
+    background: hsl(var(--smui-frost-2));
+}
+
+/* Simpler richness bar using background gradient */
+.richness-bar {
+    position: relative;
+}
+
+.richness-bar::before {
+    content: '';
+    display: inline-block;
+    width: 60px;
+    height: 6px;
+    background: linear-gradient(
+        to right,
+        hsl(var(--smui-frost-2)) var(--r),
+        hsl(var(--muted)) var(--r)
+    );
+}
+
+/* Base cards */
+.base-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    padding: 1.25rem;
+}
+
+.base-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.base-header h4 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.base-stats {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.base-desc {
+    font-size: var(--text-ui);
+    color: hsl(var(--muted-foreground));
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.base-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Services */
+.service-list {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.4rem;
+}
+
+.service-tag {
+    font-size: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--muted-foreground));
+}
+
+.service-tag.available {
+    color: hsl(var(--smui-green));
+    border-color: hsl(var(--smui-green));
+}
+
+.service-tag.unavailable {
+    color: hsl(var(--smui-red));
+    border-color: hsl(var(--smui-red));
+    opacity: 0.6;
+}
+
+/* Facility table */
+.facility-table {
+    margin-top: 0.4rem;
+}
+
+.facility-table td:last-child {
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Site footer (duplicated here since system pages load this) */
+.site-footer {
+    padding: 1.5rem;
+    text-align: center;
+    font-size: var(--text-label);
+    color: hsl(var(--muted-foreground));
+    letter-spacing: 0.5px;
+    border-top: 1px solid hsl(var(--border));
+    margin-top: 3rem;
+}

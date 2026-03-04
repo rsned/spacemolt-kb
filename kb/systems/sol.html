@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sol - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="./">Systems</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="container page-content">
+
+        <!-- System header -->
+        <div class="sys-header">
+            <div>
+                <span class="label">System</span>
+                <h2 class="sys-name">Sol</h2>
+            </div>
+            <div class="sys-meta">
+                <div class="sys-meta-item">
+                    <span class="label">Security</span>
+                    <span class="stat security-high">100 <span class="security-label">High</span></span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Empire</span>
+                    <span class="stat">Solarian</span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Position</span>
+                    <span class="stat">0.00, 0.00</span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">System ID</span>
+                    <span class="stat text-muted">sol</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connected Systems -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Connected Systems</h3>
+                <span class="badge badge-frost">2</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>System</th>
+                        <th>Security</th>
+                        <th>Empire</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="alpha_centauri.html">Alpha Centauri</a></td>
+                        <td><span class="security-high">80 High</span></td>
+                        <td>Solarian</td>
+                    </tr>
+                    <tr>
+                        <td><a href="sirius.html">Sirius</a></td>
+                        <td><span class="security-high">80 High</span></td>
+                        <td>Solarian</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Points of Interest -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Points of Interest</h3>
+                <span class="badge badge-frost">8</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Position</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sol Central</td>
+                        <td><span class="badge badge-frost">station</span></td>
+                        <td>The administrative hub of the Solarian Confederacy.</td>
+                        <td>0.80, &minus;0.20</td>
+                    </tr>
+                    <tr>
+                        <td>Earth</td>
+                        <td><span class="badge badge-green">planet</span></td>
+                        <td>The cradle of humanity. Now a pristine memorial world.</td>
+                        <td>1.00, 0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Mars</td>
+                        <td><span class="badge badge-green">planet</span></td>
+                        <td>The first terraformed world. Industrial heart of Sol.</td>
+                        <td>1.50, 0.30</td>
+                    </tr>
+                    <tr>
+                        <td>Jupiter</td>
+                        <td><span class="badge badge-green">planet</span></td>
+                        <td>Gas giant. Home to massive orbital refineries.</td>
+                        <td>5.00, 1.00</td>
+                    </tr>
+                    <tr>
+                        <td>Main Belt</td>
+                        <td><span class="badge badge-orange">asteroid_belt</span></td>
+                        <td>Rich asteroid field between Mars and Jupiter. Contains rare Sol Alloy deposits.</td>
+                        <td>3.00, 0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Jovian Extraction Zone</td>
+                        <td><span class="badge badge-purple">gas_cloud</span></td>
+                        <td>Atmospheric skimming operations in Jupiter's upper clouds.</td>
+                        <td>5.20, 1.30</td>
+                    </tr>
+                    <tr>
+                        <td>Kuiper Ice Fields</td>
+                        <td><span class="badge">ice_field</span></td>
+                        <td>Frozen bodies beyond Neptune's orbit. Cometary ice provides water and volatiles.</td>
+                        <td>7.00, &minus;0.50</td>
+                    </tr>
+                    <tr>
+                        <td>Sol</td>
+                        <td><span class="badge badge-yellow">sun</span></td>
+                        <td>The yellow dwarf star that nurtured humanity's evolution.</td>
+                        <td>0.00, 0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Resources -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Resources</h3>
+                <span class="badge badge-frost">3 locations</span>
+            </div>
+
+            <div class="resource-group">
+                <h4>Main Belt <span class="badge badge-orange">asteroid_belt</span></h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Richness</th>
+                            <th>Remaining</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Iron Ore</td>
+                            <td><span class="richness-bar" style="--r: 80%">80</span></td>
+                            <td class="text-muted">depleting</td>
+                        </tr>
+                        <tr>
+                            <td>Nickel Ore</td>
+                            <td><span class="richness-bar" style="--r: 70%">70</span></td>
+                            <td class="text-muted">depleting</td>
+                        </tr>
+                        <tr>
+                            <td>Copper Ore</td>
+                            <td><span class="richness-bar" style="--r: 60%">60</span></td>
+                            <td>3,506</td>
+                        </tr>
+                        <tr>
+                            <td>Titanium Ore</td>
+                            <td><span class="richness-bar" style="--r: 25%">25</span></td>
+                            <td>11,093</td>
+                        </tr>
+                        <tr>
+                            <td>Sol Alloy Ore</td>
+                            <td><span class="richness-bar" style="--r: 15%">15</span></td>
+                            <td>4,977</td>
+                        </tr>
+                        <tr>
+                            <td>Antimatter</td>
+                            <td><span class="richness-bar" style="--r: 5%">5</span></td>
+                            <td>205</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="resource-group">
+                <h4>Jovian Extraction Zone <span class="badge badge-purple">gas_cloud</span></h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Richness</th>
+                            <th>Remaining</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Compressed Hydrogen</td>
+                            <td><span class="richness-bar" style="--r: 85%">85</span></td>
+                            <td>50,000</td>
+                        </tr>
+                        <tr>
+                            <td>Argon Gas</td>
+                            <td><span class="richness-bar" style="--r: 60%">60</span></td>
+                            <td>50,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="resource-group">
+                <h4>Kuiper Ice Fields <span class="badge">ice_field</span></h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Richness</th>
+                            <th>Remaining</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Water Ice</td>
+                            <td><span class="richness-bar" style="--r: 80%">80</span></td>
+                            <td>50,000</td>
+                        </tr>
+                        <tr>
+                            <td>Nitrogen Ice</td>
+                            <td><span class="richness-bar" style="--r: 65%">65</span></td>
+                            <td>49,978</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Bases -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Bases &amp; Stations</h3>
+                <span class="badge badge-frost">1</span>
+            </div>
+
+            <div class="base-card">
+                <div class="base-header">
+                    <div>
+                        <h4>Confederacy Central Command</h4>
+                        <span class="label">Solarian</span>
+                    </div>
+                    <div class="base-stats">
+                        <span class="badge badge-green">Public</span>
+                        <span class="badge badge-frost">Defense 100</span>
+                        <span class="badge badge-yellow">Drones</span>
+                    </div>
+                </div>
+                <p class="base-desc">The seat of Solarian government and commerce. Everything here is certified, warrantied, and documented in triplicate &mdash; from the precision drydocks to the quantum-entangled trade exchange.</p>
+
+                <div class="base-sections">
+                    <div>
+                        <span class="label">Services</span>
+                        <div class="service-list">
+                            <span class="service-tag available">Cloning</span>
+                            <span class="service-tag available">Crafting</span>
+                            <span class="service-tag available">Insurance</span>
+                            <span class="service-tag available">Market</span>
+                            <span class="service-tag available">Missions</span>
+                            <span class="service-tag available">Refuel</span>
+                            <span class="service-tag available">Repair</span>
+                            <span class="service-tag available">Shipyard</span>
+                            <span class="service-tag available">Storage</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Facilities</span>
+                        <table class="facility-table">
+                            <thead>
+                                <tr>
+                                    <th>Facility</th>
+                                    <th>Category</th>
+                                    <th>Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Solarian Fusion Plant</td><td><span class="badge">infrastructure</span></td><td>5</td></tr>
+                                <tr><td>Solarian Life Support</td><td><span class="badge">infrastructure</span></td><td>5</td></tr>
+                                <tr><td>Circuit Fabricator</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Copper Wire Mill</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Fuel Cell Plant</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Iron Refinery</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Polymer Synthesizer</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Power Cell Assembler</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Repair Kit Factory</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Sensor Assembly</td><td><span class="badge badge-orange">production</span></td><td>2</td></tr>
+                                <tr><td>Sol Fuel Grid</td><td><span class="badge badge-orange">production</span></td><td>5</td></tr>
+                                <tr><td>Sol Galley</td><td><span class="badge badge-orange">production</span></td><td>1</td></tr>
+                                <tr><td>Grand Solarian Exchange</td><td><span class="badge badge-frost">service</span></td><td>5</td></tr>
+                                <tr><td>Sol Admin Bureau</td><td><span class="badge badge-frost">service</span></td><td>5</td></tr>
+                                <tr><td>Sol Bonded Warehouse</td><td><span class="badge badge-frost">service</span></td><td>5</td></tr>
+                                <tr><td>Sol Naval Shipyard</td><td><span class="badge badge-frost">service</span></td><td>5</td></tr>
+                                <tr><td>Sol Precision Drydock</td><td><span class="badge badge-frost">service</span></td><td>5</td></tr>
+                                <tr><td>Sol Research Labs</td><td><span class="badge badge-frost">service</span></td><td>5</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        Data sourced from Spacemolt game client &middot; Auto-generated
+    </footer>
+
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
