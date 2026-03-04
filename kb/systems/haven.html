@@ -48,6 +48,80 @@
             </div>
         </div>
 
+        <!-- System Map -->
+        <div class="sys-map">
+            <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                <!-- Axis crosshair -->
+                <line x1="0" y1="300" x2="800" y2="300" stroke="#8b95ab" stroke-width="0.5" opacity="0.90" />
+                <line x1="400" y1="0" x2="400" y2="600" stroke="#8b95ab" stroke-width="0.5" opacity="0.90" />
+
+                <!-- Orbital paths -->
+                <circle cx="400" cy="300" r="276" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+                <circle cx="400" cy="300" r="315" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+                <circle cx="400" cy="300" r="359" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+
+                <!-- Jump gate ring -->
+                <circle cx="400" cy="300" r="404" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.60" stroke-dasharray="8,6" />
+
+                <!-- Market Prime jump gate -->
+                <g class="poi-marker">
+                    <title>Jump Gate: Market Prime (Lawless)</title>
+                    <circle cx="63" cy="105" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5" />
+                    <line x1="63" y1="97" x2="63" y2="113" stroke="#81a1c1" stroke-width="1" />
+                    <line x1="55" y1="105" x2="71" y2="105" stroke="#81a1c1" stroke-width="1" />
+                    <text x="63" y="91" text-anchor="middle" class="gate-label" fill="#81a1c1">Market Prime</text>
+                </g>
+                <!-- Trader's Rest jump gate -->
+                <g class="poi-marker">
+                    <title>Jump Gate: Trader's Rest (Lawless)</title>
+                    <circle cx="737" cy="495" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5" />
+                    <line x1="737" y1="487" x2="737" y2="503" stroke="#81a1c1" stroke-width="1" />
+                    <line x1="729" y1="495" x2="745" y2="495" stroke="#81a1c1" stroke-width="1" />
+                    <text x="737" y="516" text-anchor="middle" class="gate-label" fill="#81a1c1">Trader's Rest</text>
+                </g>
+
+                <!-- Dashed lines from jump gates toward center -->
+                <line x1="71" y1="97" x2="380" y2="290" stroke="#81a1c1" stroke-width="0.5" opacity="0.45" stroke-dasharray="6,4" />
+                <line x1="729" y1="503" x2="420" y2="310" stroke="#81a1c1" stroke-width="0.5" opacity="0.45" stroke-dasharray="6,4" />
+
+                <!-- Haven Star (sun) with radial glow -->
+                <defs>
+                    <radialGradient id="sun-glow">
+                        <stop offset="0%" stop-color="#EBCB8B" stop-opacity="1.00" />
+                        <stop offset="40%" stop-color="#D08770" stop-opacity="0.45" />
+                        <stop offset="100%" stop-color="#D08770" stop-opacity="0" />
+                    </radialGradient>
+                </defs>
+                <g class="poi-marker">
+                    <title>Haven Star &#8212; Stable golden star, symbol of prosperity.</title>
+                    <circle cx="400" cy="300" r="24" fill="url(#sun-glow)" />
+                    <circle cx="400" cy="300" r="10" fill="#EBCB8B" />
+                    <text x="400" y="338" text-anchor="middle" class="map-label">Haven Star</text>
+                </g>
+
+                <!-- Haven Prime (planet) -->
+                <g class="poi-marker">
+                    <title>Haven Prime</title>
+                    <circle cx="715" cy="300" r="7" fill="#A3BE8C" opacity="1.00" />
+                    <text x="715" y="320" text-anchor="middle" class="map-label">Haven Prime</text>
+                </g>
+
+                <!-- Federation Vaults (station) -->
+                <g class="poi-marker">
+                    <title>Federation Vaults &#8212; Secure storage for trillions in assets.</title>
+                    <polygon points="673,336 679,340 679,346 673,350 667,346 667,340" fill="none" stroke="#81a1c1" stroke-width="1.5" />
+                    <text x="673" y="364" text-anchor="middle" class="map-label">Federation Vaults</text>
+                </g>
+
+                <!-- Grand Exchange (station) -->
+                <g class="poi-marker">
+                    <title>Grand Exchange &#8212; The largest market in the known galaxy.</title>
+                    <polygon points="757,252 763,256 763,262 757,266 751,262 751,256" fill="none" stroke="#81a1c1" stroke-width="1.5" />
+                    <text x="757" y="280" text-anchor="middle" class="map-label">Grand Exchange</text>
+                </g>
+            </svg>
+        </div>
+
         <!-- Connected Systems -->
         <section class="sys-section">
             <div class="section-head">
@@ -55,13 +129,7 @@
                 <span class="badge badge-frost">2</span>
             </div>
             <table>
-                <thead>
-                    <tr>
-                        <th>System</th>
-                        <th>Security</th>
-                        <th>Empire</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>System</th><th>Security</th><th>Empire</th></tr></thead>
                 <tbody>
                     <tr>
                         <td><a href="market_prime.html">Market Prime</a></td>
@@ -84,14 +152,7 @@
                 <span class="badge badge-frost">4</span>
             </div>
             <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Description</th>
-                        <th>Position</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Name</th><th>Type</th><th>Description</th><th>Position</th></tr></thead>
                 <tbody>
                     <tr>
                         <td>Federation Vaults</td>
