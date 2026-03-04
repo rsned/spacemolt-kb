@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Centauri - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="./">Systems</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="container page-content">
+
+        <!-- System header -->
+        <div class="sys-header">
+            <div>
+                <span class="label">System</span>
+                <h2 class="sys-name">Alpha Centauri</h2>
+            </div>
+            <div class="sys-meta">
+                <div class="sys-meta-item">
+                    <span class="label">Security</span>
+                    <span class="stat security-high">80 <span class="security-label">High</span></span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Empire</span>
+                    <span class="stat">Solarian</span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Position</span>
+                    <span class="stat">5.00, 0.00</span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">System ID</span>
+                    <span class="stat text-muted">alpha_centauri</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Map -->
+        <div class="sys-map">
+            <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                <!-- Axis crosshair -->
+                <line x1="0" y1="300" x2="800" y2="300" stroke="#8b95ab" stroke-width="0.5" opacity="0.90" />
+                <line x1="400" y1="0" x2="400" y2="600" stroke="#8b95ab" stroke-width="0.5" opacity="0.90" />
+
+                <!-- Orbital paths -->
+                <circle cx="400" cy="300" r="74"  fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+                <circle cx="400" cy="300" r="127" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+                <circle cx="400" cy="300" r="257" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+                <circle cx="400" cy="300" r="318" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+                <circle cx="400" cy="300" r="383" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.90" stroke-dasharray="4,4" />
+
+                <!-- Jump gate ring -->
+                <circle cx="400" cy="300" r="440" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.60" stroke-dasharray="8,6" />
+
+                <!-- Sol jump gate -->
+                <a href="sol.html" class="gate-link">
+                <g class="poi-marker">
+                    <title>Jump Gate: Sol (Security 100)</title>
+                    <circle cx="5" cy="300" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5" />
+                    <line x1="5" y1="292" x2="5" y2="308" stroke="#81a1c1" stroke-width="1" />
+                    <line x1="-3" y1="300" x2="13" y2="300" stroke="#81a1c1" stroke-width="1" />
+                    <text x="20" y="304" text-anchor="start" class="gate-label" fill="#81a1c1">Sol</text>
+                </g>
+                </a>
+                <!-- Tau Ceti jump gate (no page) -->
+                <g class="poi-marker">
+                    <title>Jump Gate: Tau Ceti</title>
+                    <circle cx="711" cy="5" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5" />
+                    <line x1="711" y1="-3" x2="711" y2="13" stroke="#81a1c1" stroke-width="1" />
+                    <line x1="703" y1="5" x2="719" y2="5" stroke="#81a1c1" stroke-width="1" />
+                    <text x="711" y="26" text-anchor="middle" class="gate-label" fill="#81a1c1">Tau Ceti</text>
+                </g>
+
+                <!-- Dashed lines from jump gates toward center -->
+                <line x1="13" y1="300" x2="380" y2="300" stroke="#81a1c1" stroke-width="0.5" opacity="0.45" stroke-dasharray="6,4" />
+                <line x1="703" y1="13" x2="420" y2="290" stroke="#81a1c1" stroke-width="0.5" opacity="0.45" stroke-dasharray="6,4" />
+
+                <!-- Ice field debris (Alpha Centauri Frost Ring) — 160 diamonds -->
+                <polygon points="202.8,535.1 204.4,536.6 202.8,538.2 201.3,536.6" fill="#88C0D0" opacity="0.41" transform="rotate(52,202.8,536.6)" />
+                <polygon points="255.4,590.3 256.6,591.4 255.4,592.6 254.2,591.4" fill="#88C0D0" opacity="0.51" transform="rotate(15,255.4,591.4)" />
+                <polygon points="659.6,124.5 661.8,126.7 659.6,128.9 657.4,126.7" fill="#88C0D0" opacity="0.58" transform="rotate(332,659.6,126.7)" />
+                <polygon points="304.9,599.3 306.8,601.2 304.9,603.1 303.0,601.2" fill="#88C0D0" opacity="0.44" transform="rotate(3,304.9,601.2)" />
+                <polygon points="417.2,608.4 419.0,610.2 417.2,612.1 415.3,610.2" fill="#88C0D0" opacity="0.44" transform="rotate(110,417.2,610.2)" />
+                <polygon points="702.9,382.3 704.1,383.5 702.9,384.6 701.8,383.5" fill="#88C0D0" opacity="0.35" transform="rotate(176,702.9,383.5)" />
+                <polygon points="142.7,493.9 145.2,496.3 142.7,498.8 140.2,496.3" fill="#88C0D0" opacity="0.57" transform="rotate(193,142.7,496.3)" />
+                <polygon points="675.7,148.9 678.0,151.1 675.7,153.4 673.5,151.1" fill="#88C0D0" opacity="0.74" transform="rotate(185,675.7,151.1)" />
+                <polygon points="115.6,449.1 116.7,450.2 115.6,451.3 114.6,450.2" fill="#88C0D0" opacity="0.41" transform="rotate(148,115.6,450.2)" />
+                <polygon points="723.2,327.4 725.9,330.1 723.2,332.8 720.5,330.1" fill="#88C0D0" opacity="0.49" transform="rotate(232,723.2,330.1)" />
+                <polygon points="192.8,535.3 194.6,537.0 192.8,538.8 191.1,537.0" fill="#88C0D0" opacity="0.40" transform="rotate(136,192.8,537.0)" />
+                <polygon points="304.3,605.4 305.4,606.6 304.3,607.7 303.1,606.6" fill="#88C0D0" opacity="0.62" transform="rotate(273,304.3,606.6)" />
+                <polygon points="359.4,606.3 361.1,608.1 359.4,609.9 357.6,608.1" fill="#88C0D0" opacity="0.79" transform="rotate(327,359.4,608.1)" />
+                <polygon points="281.8,587.0 283.5,588.6 281.8,590.3 280.2,588.6" fill="#88C0D0" opacity="0.68" transform="rotate(28,281.8,588.6)" />
+                <polygon points="440.4,-7.1 442.1,-5.5 440.4,-3.8 438.8,-5.5" fill="#88C0D0" opacity="0.43" transform="rotate(108,440.4,-5.5)" />
+                <polygon points="672.5,463.1 675.0,465.5 672.5,467.9 670.1,465.5" fill="#88C0D0" opacity="0.41" transform="rotate(255,672.5,465.5)" />
+                <polygon points="141.8,99.4 143.7,101.3 141.8,103.3 139.9,101.3" fill="#88C0D0" opacity="0.43" transform="rotate(126,141.8,101.3)" />
+                <polygon points="390.0,615.6 392.5,618.1 390.0,620.6 387.5,618.1" fill="#88C0D0" opacity="0.51" transform="rotate(298,390.0,618.1)" />
+                <polygon points="148.4,112.7 151.4,115.7 148.4,118.7 145.4,115.7" fill="#88C0D0" opacity="0.55" transform="rotate(46,148.4,115.7)" />
+                <polygon points="411.8,623.2 413.1,624.5 411.8,625.8 410.5,624.5" fill="#88C0D0" opacity="0.38" transform="rotate(348,411.8,624.5)" />
+                <polygon points="127.4,153.2 129.2,154.9 127.4,156.7 125.7,154.9" fill="#88C0D0" opacity="0.80" transform="rotate(270,127.4,154.9)" />
+                <polygon points="397.2,-21.4 400.1,-18.6 397.2,-15.7 394.3,-18.6" fill="#88C0D0" opacity="0.64" transform="rotate(58,397.2,-18.6)" />
+                <polygon points="267.6,587.9 269.1,589.4 267.6,590.9 266.1,589.4" fill="#88C0D0" opacity="0.62" transform="rotate(57,267.6,589.4)" />
+                <polygon points="316.1,-0.1 317.1,0.9 316.1,1.9 315.1,0.9" fill="#88C0D0" opacity="0.66" transform="rotate(134,316.1,0.9)" />
+                <polygon points="717.7,354.7 719.7,356.7 717.7,358.7 715.7,356.7" fill="#88C0D0" opacity="0.35" transform="rotate(320,717.7,356.7)" />
+                <polygon points="304.0,-7.8 306.2,-5.6 304.0,-3.3 301.8,-5.6" fill="#88C0D0" opacity="0.38" transform="rotate(82,304.0,-5.6)" />
+                <polygon points="86.8,377.1 88.8,379.1 86.8,381.2 84.7,379.1" fill="#88C0D0" opacity="0.30" transform="rotate(165,86.8,379.1)" />
+                <polygon points="91.1,276.1 92.8,277.8 91.1,279.6 89.3,277.8" fill="#88C0D0" opacity="0.79" transform="rotate(157,91.1,277.8)" />
+                <polygon points="420.7,-13.8 422.8,-11.6 420.7,-9.5 418.5,-11.6" fill="#88C0D0" opacity="0.34" transform="rotate(248,420.7,-11.6)" />
+                <polygon points="531.8,597.3 533.9,599.3 531.8,601.4 529.8,599.3" fill="#88C0D0" opacity="0.36" transform="rotate(337,531.8,599.3)" />
+                <polygon points="85.3,249.2 86.9,250.7 85.3,252.3 83.8,250.7" fill="#88C0D0" opacity="0.74" transform="rotate(216,85.3,250.7)" />
+                <polygon points="717.9,369.9 720.4,372.4 717.9,374.9 715.4,372.4" fill="#88C0D0" opacity="0.64" transform="rotate(159,717.9,372.4)" />
+                <polygon points="141.6,108.0 143.3,109.7 141.6,111.5 139.8,109.7" fill="#88C0D0" opacity="0.75" transform="rotate(231,141.6,109.7)" />
+                <polygon points="626.1,83.3 627.8,85.0 626.1,86.7 624.4,85.0" fill="#88C0D0" opacity="0.59" transform="rotate(117,626.1,85.0)" />
+                <polygon points="138.6,459.9 141.1,462.3 138.6,464.7 136.2,462.3" fill="#88C0D0" opacity="0.33" transform="rotate(34,138.6,462.3)" />
+                <polygon points="669.0,480.7 670.2,481.8 669.0,482.9 667.9,481.8" fill="#88C0D0" opacity="0.42" transform="rotate(342,669.0,481.8)" />
+                <polygon points="83.1,268.4 85.5,270.9 83.1,273.3 80.6,270.9" fill="#88C0D0" opacity="0.74" transform="rotate(295,83.1,270.9)" />
+                <polygon points="81.6,242.2 84.2,244.8 81.6,247.4 78.9,244.8" fill="#88C0D0" opacity="0.40" transform="rotate(49,81.6,244.8)" />
+                <polygon points="229.7,562.7 231.6,564.5 229.7,566.4 227.9,564.5" fill="#88C0D0" opacity="0.73" transform="rotate(27,229.7,564.5)" />
+                <polygon points="248.5,588.8 249.7,590.0 248.5,591.2 247.3,590.0" fill="#88C0D0" opacity="0.50" transform="rotate(173,248.5,590.0)" />
+                <polygon points="496.8,592.8 498.2,594.2 496.8,595.6 495.4,594.2" fill="#88C0D0" opacity="0.57" transform="rotate(71,496.8,594.2)" />
+                <polygon points="123.9,150.9 125.4,152.4 123.9,153.9 122.4,152.4" fill="#88C0D0" opacity="0.76" transform="rotate(226,123.9,152.4)" />
+                <polygon points="515.7,602.1 516.9,603.3 515.7,604.5 514.5,603.3" fill="#88C0D0" opacity="0.63" transform="rotate(276,515.7,603.3)" />
+                <polygon points="568.2,577.4 571.1,580.3 568.2,583.1 565.4,580.3" fill="#88C0D0" opacity="0.72" transform="rotate(85,568.2,580.3)" />
+                <polygon points="136.1,121.4 138.9,124.1 136.1,126.8 133.4,124.1" fill="#88C0D0" opacity="0.75" transform="rotate(84,136.1,124.1)" />
+                <polygon points="162.9,72.9 164.5,74.5 162.9,76.0 161.4,74.5" fill="#88C0D0" opacity="0.69" transform="rotate(232,162.9,74.5)" />
+                <polygon points="329.4,-16.0 331.9,-13.6 329.4,-11.1 326.9,-13.6" fill="#88C0D0" opacity="0.69" transform="rotate(338,329.4,-13.6)" />
+                <polygon points="338.8,602.9 340.3,604.5 338.8,606.1 337.2,604.5" fill="#88C0D0" opacity="0.78" transform="rotate(296,338.8,604.5)" />
+                <polygon points="372.4,605.9 374.0,607.5 372.4,609.1 370.7,607.5" fill="#88C0D0" opacity="0.33" transform="rotate(244,372.4,607.5)" />
+                <polygon points="75.5,304.5 76.8,305.8 75.5,307.1 74.2,305.8" fill="#88C0D0" opacity="0.78" transform="rotate(41,75.5,305.8)" />
+                <polygon points="583.7,547.2 584.8,548.3 583.7,549.5 582.5,548.3" fill="#88C0D0" opacity="0.73" transform="rotate(206,583.7,548.3)" />
+                <polygon points="637.3,76.0 638.8,77.5 637.3,79.0 635.8,77.5" fill="#88C0D0" opacity="0.60" transform="rotate(317,637.3,77.5)" />
+                <polygon points="679.0,139.9 681.2,142.0 679.0,144.2 676.9,142.0" fill="#88C0D0" opacity="0.46" transform="rotate(133,679.0,142.0)" />
+                <polygon points="491.2,-10.1 492.7,-8.6 491.2,-7.1 489.7,-8.6" fill="#88C0D0" opacity="0.50" transform="rotate(343,491.2,-8.6)" />
+                <polygon points="206.7,547.9 209.6,550.8 206.7,553.7 203.9,550.8" fill="#88C0D0" opacity="0.77" transform="rotate(4,206.7,550.8)" />
+                <polygon points="83.7,212.2 86.7,215.1 83.7,218.1 80.7,215.1" fill="#88C0D0" opacity="0.34" transform="rotate(109,83.7,215.1)" />
+                <polygon points="90.1,309.8 91.8,311.5 90.1,313.2 88.4,311.5" fill="#88C0D0" opacity="0.33" transform="rotate(125,90.1,311.5)" />
+                <polygon points="188.0,70.2 190.7,72.9 188.0,75.6 185.3,72.9" fill="#88C0D0" opacity="0.65" transform="rotate(313,188.0,72.9)" />
+                <polygon points="722.0,330.7 724.0,332.8 722.0,334.8 719.9,332.8" fill="#88C0D0" opacity="0.63" transform="rotate(283,722.0,332.8)" />
+                <polygon points="302.1,-8.3 304.9,-5.5 302.1,-2.6 299.2,-5.5" fill="#88C0D0" opacity="0.37" transform="rotate(59,302.1,-5.5)" />
+                <polygon points="648.0,504.6 649.3,505.9 648.0,507.2 646.7,505.9" fill="#88C0D0" opacity="0.44" transform="rotate(107,648.0,505.9)" />
+                <polygon points="337.0,602.9 339.3,605.1 337.0,607.4 334.8,605.1" fill="#88C0D0" opacity="0.43" transform="rotate(250,337.0,605.1)" />
+                <polygon points="397.7,-26.8 398.8,-25.7 397.7,-24.6 396.6,-25.7" fill="#88C0D0" opacity="0.62" transform="rotate(141,397.7,-25.7)" />
+                <polygon points="702.2,212.8 703.5,214.1 702.2,215.3 700.9,214.1" fill="#88C0D0" opacity="0.79" transform="rotate(82,702.2,214.1)" />
+                <polygon points="382.5,616.2 384.3,618.1 382.5,619.9 380.6,618.1" fill="#88C0D0" opacity="0.30" transform="rotate(38,382.5,618.1)" />
+                <polygon points="702.4,407.4 703.7,408.7 702.4,410.0 701.1,408.7" fill="#88C0D0" opacity="0.32" transform="rotate(189,702.4,408.7)" />
+                <polygon points="130.3,452.6 131.6,453.8 130.3,455.1 129.1,453.8" fill="#88C0D0" opacity="0.45" transform="rotate(20,130.3,453.8)" />
+                <polygon points="650.9,483.4 652.4,484.9 650.9,486.4 649.4,484.9" fill="#88C0D0" opacity="0.35" transform="rotate(286,650.9,484.9)" />
+                <polygon points="635.6,507.8 637.9,510.0 635.6,512.3 633.4,510.0" fill="#88C0D0" opacity="0.38" transform="rotate(121,635.6,510.0)" />
+                <polygon points="615.7,543.2 618.3,545.8 615.7,548.5 613.0,545.8" fill="#88C0D0" opacity="0.74" transform="rotate(12,615.7,545.8)" />
+                <polygon points="540.0,3.0 542.5,5.6 540.0,8.2 537.4,5.6" fill="#88C0D0" opacity="0.51" transform="rotate(342,540.0,5.6)" />
+                <polygon points="612.6,542.5 614.2,544.1 612.6,545.6 611.1,544.1" fill="#88C0D0" opacity="0.69" transform="rotate(55,612.6,544.1)" />
+                <polygon points="171.9,90.6 173.9,92.6 171.9,94.5 170.0,92.6" fill="#88C0D0" opacity="0.40" transform="rotate(235,171.9,92.6)" />
+                <polygon points="210.2,34.8 212.9,37.5 210.2,40.3 207.4,37.5" fill="#88C0D0" opacity="0.41" transform="rotate(337,210.2,37.5)" />
+                <polygon points="509.9,3.0 512.6,5.8 509.9,8.5 507.1,5.8" fill="#88C0D0" opacity="0.78" transform="rotate(142,509.9,5.8)" />
+                <polygon points="211.4,42.0 213.8,44.3 211.4,46.7 209.1,44.3" fill="#88C0D0" opacity="0.72" transform="rotate(169,211.4,44.3)" />
+                <polygon points="687.5,412.5 690.4,415.4 687.5,418.4 684.6,415.4" fill="#88C0D0" opacity="0.39" transform="rotate(135,687.5,415.4)" />
+                <polygon points="710.2,222.3 711.9,224.0 710.2,225.6 708.6,224.0" fill="#88C0D0" opacity="0.69" transform="rotate(223,710.2,224.0)" />
+                <polygon points="150.4,494.9 152.2,496.6 150.4,498.4 148.7,496.6" fill="#88C0D0" opacity="0.59" transform="rotate(130,150.4,496.6)" />
+                <polygon points="704.0,210.9 706.0,212.9 704.0,215.0 702.0,212.9" fill="#88C0D0" opacity="0.70" transform="rotate(351,704.0,212.9)" />
+                <polygon points="338.5,614.1 340.8,616.4 338.5,618.8 336.1,616.4" fill="#88C0D0" opacity="0.48" transform="rotate(35,338.5,616.4)" />
+                <polygon points="709.2,400.7 711.5,402.9 709.2,405.1 707.0,402.9" fill="#88C0D0" opacity="0.63" transform="rotate(63,709.2,402.9)" />
+                <polygon points="340.8,606.2 342.4,607.9 340.8,609.5 339.2,607.9" fill="#88C0D0" opacity="0.50" transform="rotate(206,340.8,607.9)" />
+                <polygon points="296.3,599.8 297.6,601.2 296.3,602.6 294.9,601.2" fill="#88C0D0" opacity="0.63" transform="rotate(194,296.3,601.2)" />
+                <polygon points="256.4,590.0 258.7,592.2 256.4,594.4 254.2,592.2" fill="#88C0D0" opacity="0.45" transform="rotate(280,256.4,592.2)" />
+                <polygon points="557.5,569.8 558.9,571.2 557.5,572.6 556.0,571.2" fill="#88C0D0" opacity="0.69" transform="rotate(310,557.5,571.2)" />
+                <polygon points="221.4,559.8 223.3,561.7 221.4,563.6 219.6,561.7" fill="#88C0D0" opacity="0.41" transform="rotate(242,221.4,561.7)" />
+                <polygon points="488.6,612.0 491.1,614.4 488.6,616.9 486.2,614.4" fill="#88C0D0" opacity="0.63" transform="rotate(145,488.6,614.4)" />
+                <polygon points="81.3,329.4 83.0,331.0 81.3,332.7 79.7,331.0" fill="#88C0D0" opacity="0.71" transform="rotate(120,81.3,331.0)" />
+                <polygon points="254.5,574.6 255.9,576.0 254.5,577.4 253.1,576.0" fill="#88C0D0" opacity="0.31" transform="rotate(125,254.5,576.0)" />
+                <polygon points="718.1,329.7 720.6,332.2 718.1,334.8 715.6,332.2" fill="#88C0D0" opacity="0.53" transform="rotate(322,718.1,332.2)" />
+                <polygon points="113.8,445.6 115.6,447.3 113.8,449.1 112.1,447.3" fill="#88C0D0" opacity="0.50" transform="rotate(75,113.8,447.3)" />
+                <polygon points="228.8,553.1 231.3,555.6 228.8,558.1 226.3,555.6" fill="#88C0D0" opacity="0.69" transform="rotate(54,228.8,555.6)" />
+                <polygon points="455.4,604.3 458.0,606.9 455.4,609.5 452.8,606.9" fill="#88C0D0" opacity="0.65" transform="rotate(237,455.4,606.9)" />
+                <polygon points="697.1,200.3 699.8,203.0 697.1,205.7 694.4,203.0" fill="#88C0D0" opacity="0.53" transform="rotate(237,697.1,203.0)" />
+                <polygon points="238.0,582.2 240.2,584.3 238.0,586.5 235.8,584.3" fill="#88C0D0" opacity="0.78" transform="rotate(226,238.0,584.3)" />
+                <polygon points="155.4,507.3 157.4,509.3 155.4,511.3 153.4,509.3" fill="#88C0D0" opacity="0.72" transform="rotate(280,155.4,509.3)" />
+                <polygon points="107.1,193.7 109.8,196.4 107.1,199.2 104.4,196.4" fill="#88C0D0" opacity="0.53" transform="rotate(126,107.1,196.4)" />
+                <polygon points="567.5,561.9 570.1,564.5 567.5,567.0 565.0,564.5" fill="#88C0D0" opacity="0.54" transform="rotate(122,567.5,564.5)" />
+                <polygon points="352.4,-6.9 354.0,-5.4 352.4,-3.8 350.9,-5.4" fill="#88C0D0" opacity="0.44" transform="rotate(163,352.4,-5.4)" />
+                <polygon points="641.9,491.2 643.2,492.5 641.9,493.8 640.6,492.5" fill="#88C0D0" opacity="0.49" transform="rotate(78,641.9,492.5)" />
+                <polygon points="316.5,595.5 318.3,597.3 316.5,599.1 314.7,597.3" fill="#88C0D0" opacity="0.57" transform="rotate(212,316.5,597.3)" />
+                <polygon points="699.7,174.6 701.4,176.4 699.7,178.2 697.9,176.4" fill="#88C0D0" opacity="0.68" transform="rotate(356,699.7,176.4)" />
+                <polygon points="722.7,258.0 724.8,260.2 722.7,262.4 720.5,260.2" fill="#88C0D0" opacity="0.54" transform="rotate(180,722.7,260.2)" />
+                <polygon points="305.2,-3.5 308.0,-0.7 305.2,2.1 302.4,-0.7" fill="#88C0D0" opacity="0.72" transform="rotate(275,305.2,-0.7)" />
+                <polygon points="395.0,616.2 397.2,618.4 395.0,620.6 392.8,618.4" fill="#88C0D0" opacity="0.41" transform="rotate(112,395.0,618.4)" />
+                <polygon points="354.4,-15.7 356.2,-13.9 354.4,-12.1 352.7,-13.9" fill="#88C0D0" opacity="0.63" transform="rotate(207,354.4,-13.9)" />
+                <polygon points="347.6,617.2 350.5,620.1 347.6,622.9 344.8,620.1" fill="#88C0D0" opacity="0.79" transform="rotate(273,347.6,620.1)" />
+                <polygon points="710.9,244.7 713.0,246.8 710.9,248.9 708.7,246.8" fill="#88C0D0" opacity="0.31" transform="rotate(329,710.9,246.8)" />
+                <polygon points="107.3,157.8 108.7,159.1 107.3,160.5 105.9,159.1" fill="#88C0D0" opacity="0.43" transform="rotate(167,107.3,159.1)" />
+                <polygon points="474.9,-7.5 477.4,-5.0 474.9,-2.4 472.4,-5.0" fill="#88C0D0" opacity="0.49" transform="rotate(215,474.9,-5.0)" />
+                <polygon points="395.6,-10.1 396.6,-9.1 395.6,-8.1 394.5,-9.1" fill="#88C0D0" opacity="0.57" transform="rotate(179,395.6,-9.1)" />
+                <polygon points="449.8,-7.7 452.7,-4.8 449.8,-1.9 446.9,-4.8" fill="#88C0D0" opacity="0.32" transform="rotate(15,449.8,-4.8)" />
+                <polygon points="696.0,395.9 697.0,397.0 696.0,398.0 695.0,397.0" fill="#88C0D0" opacity="0.38" transform="rotate(64,696.0,397.0)" />
+                <polygon points="94.5,245.9 97.4,248.8 94.5,251.7 91.6,248.8" fill="#88C0D0" opacity="0.53" transform="rotate(131,94.5,248.8)" />
+                <polygon points="432.9,606.9 435.2,609.1 432.9,611.3 430.7,609.1" fill="#88C0D0" opacity="0.67" transform="rotate(58,432.9,609.1)" />
+                <polygon points="454.0,604.4 455.6,606.0 454.0,607.7 452.4,606.0" fill="#88C0D0" opacity="0.59" transform="rotate(159,454.0,606.0)" />
+                <polygon points="110.6,447.5 112.3,449.3 110.6,451.0 108.8,449.3" fill="#88C0D0" opacity="0.77" transform="rotate(101,110.6,449.3)" />
+                <polygon points="685.4,150.1 687.6,152.3 685.4,154.6 683.1,152.3" fill="#88C0D0" opacity="0.35" transform="rotate(154,685.4,152.3)" />
+                <polygon points="588.3,556.9 589.5,558.1 588.3,559.4 587.0,558.1" fill="#88C0D0" opacity="0.79" transform="rotate(21,588.3,558.1)" />
+                <polygon points="218.7,39.3 220.5,41.1 218.7,42.8 217.0,41.1" fill="#88C0D0" opacity="0.55" transform="rotate(174,218.7,41.1)" />
+                <polygon points="714.9,272.9 716.9,274.9 714.9,276.9 712.9,274.9" fill="#88C0D0" opacity="0.52" transform="rotate(185,714.9,274.9)" />
+                <polygon points="186.6,541.5 189.0,543.9 186.6,546.3 184.2,543.9" fill="#88C0D0" opacity="0.52" transform="rotate(267,186.6,543.9)" />
+                <polygon points="705.6,364.7 708.2,367.3 705.6,370.0 703.0,367.3" fill="#88C0D0" opacity="0.57" transform="rotate(247,705.6,367.3)" />
+                <polygon points="83.8,226.9 86.0,229.1 83.8,231.3 81.7,229.1" fill="#88C0D0" opacity="0.46" transform="rotate(125,83.8,229.1)" />
+                <polygon points="550.2,567.5 553.0,570.3 550.2,573.1 547.5,570.3" fill="#88C0D0" opacity="0.42" transform="rotate(237,550.2,570.3)" />
+                <polygon points="109.5,434.7 111.2,436.3 109.5,438.0 107.9,436.3" fill="#88C0D0" opacity="0.55" transform="rotate(166,109.5,436.3)" />
+                <polygon points="529.5,13.8 532.1,16.4 529.5,19.0 526.9,16.4" fill="#88C0D0" opacity="0.47" transform="rotate(305,529.5,16.4)" />
+                <polygon points="305.5,597.4 306.5,598.4 305.5,599.4 304.5,598.4" fill="#88C0D0" opacity="0.77" transform="rotate(43,305.5,598.4)" />
+                <polygon points="417.1,-17.3 419.2,-15.2 417.1,-13.1 415.0,-15.2" fill="#88C0D0" opacity="0.42" transform="rotate(243,417.1,-15.2)" />
+                <polygon points="206.9,549.2 209.5,551.8 206.9,554.4 204.4,551.8" fill="#88C0D0" opacity="0.35" transform="rotate(113,206.9,551.8)" />
+                <polygon points="142.3,121.1 144.6,123.5 142.3,125.8 140.0,123.5" fill="#88C0D0" opacity="0.48" transform="rotate(283,142.3,123.5)" />
+                <polygon points="89.9,358.5 92.4,361.0 89.9,363.5 87.4,361.0" fill="#88C0D0" opacity="0.47" transform="rotate(359,89.9,361.0)" />
+                <polygon points="99.5,208.7 101.0,210.1 99.5,211.6 98.1,210.1" fill="#88C0D0" opacity="0.66" transform="rotate(161,99.5,210.1)" />
+                <polygon points="632.6,80.3 635.1,82.8 632.6,85.3 630.1,82.8" fill="#88C0D0" opacity="0.39" transform="rotate(110,632.6,82.8)" />
+                <polygon points="377.6,610.0 379.8,612.2 377.6,614.4 375.4,612.2" fill="#88C0D0" opacity="0.68" transform="rotate(305,377.6,612.2)" />
+                <polygon points="336.3,-4.3 337.7,-2.9 336.3,-1.5 334.9,-2.9" fill="#88C0D0" opacity="0.41" transform="rotate(91,336.3,-2.9)" />
+                <polygon points="296.3,-5.7 297.5,-4.5 296.3,-3.2 295.0,-4.5" fill="#88C0D0" opacity="0.32" transform="rotate(27,296.3,-4.5)" />
+                <polygon points="96.4,404.5 97.7,405.8 96.4,407.0 95.2,405.8" fill="#88C0D0" opacity="0.73" transform="rotate(251,96.4,405.8)" />
+                <polygon points="646.0,113.5 647.6,115.1 646.0,116.7 644.4,115.1" fill="#88C0D0" opacity="0.54" transform="rotate(174,646.0,115.1)" />
+                <polygon points="523.7,14.5 526.5,17.3 523.7,20.2 520.8,17.3" fill="#88C0D0" opacity="0.54" transform="rotate(33,523.7,17.3)" />
+                <polygon points="149.2,117.2 151.5,119.5 149.2,121.8 147.0,119.5" fill="#88C0D0" opacity="0.33" transform="rotate(76,149.2,119.5)" />
+                <polygon points="522.4,601.5 523.5,602.7 522.4,603.9 521.2,602.7" fill="#88C0D0" opacity="0.42" transform="rotate(285,522.4,602.7)" />
+                <polygon points="429.0,615.7 431.5,618.3 429.0,620.9 426.4,618.3" fill="#88C0D0" opacity="0.41" transform="rotate(267,429.0,618.3)" />
+                <polygon points="162.1,76.0 163.7,77.6 162.1,79.2 160.5,77.6" fill="#88C0D0" opacity="0.59" transform="rotate(219,162.1,77.6)" />
+                <polygon points="290.9,-3.0 293.1,-0.7 290.9,1.5 288.7,-0.7" fill="#88C0D0" opacity="0.67" transform="rotate(106,290.9,-0.7)" />
+                <polygon points="179.5,520.7 180.7,521.9 179.5,523.1 178.4,521.9" fill="#88C0D0" opacity="0.42" transform="rotate(282,179.5,521.9)" />
+                <polygon points="674.0,158.4 675.9,160.3 674.0,162.2 672.1,160.3" fill="#88C0D0" opacity="0.60" transform="rotate(149,674.0,160.3)" />
+                <polygon points="706.7,234.6 708.3,236.2 706.7,237.8 705.1,236.2" fill="#88C0D0" opacity="0.73" transform="rotate(36,706.7,236.2)" />
+                <polygon points="275.0,598.5 277.6,601.1 275.0,603.6 272.5,601.1" fill="#88C0D0" opacity="0.61" transform="rotate(338,275.0,601.1)" />
+                <polygon points="503.5,592.5 504.7,593.8 503.5,595.0 502.3,593.8" fill="#88C0D0" opacity="0.41" transform="rotate(76,503.5,593.8)" />
+                <polygon points="671.8,475.2 673.0,476.3 671.8,477.5 670.7,476.3" fill="#88C0D0" opacity="0.38" transform="rotate(157,671.8,476.3)" />
+                <polygon points="132.1,479.3 134.9,482.2 132.1,485.0 129.2,482.2" fill="#88C0D0" opacity="0.52" transform="rotate(239,132.1,482.2)" />
+                <polygon points="279.2,595.0 282.1,597.9 279.2,600.8 276.3,597.9" fill="#88C0D0" opacity="0.55" transform="rotate(252,279.2,597.9)" />
+                <polygon points="104.7,175.4 107.4,178.2 104.7,181.0 101.9,178.2" fill="#88C0D0" opacity="0.67" transform="rotate(309,104.7,178.2)" />
+                <polygon points="399.3,-12.2 402.2,-9.3 399.3,-6.4 396.4,-9.3" fill="#88C0D0" opacity="0.72" transform="rotate(294,399.3,-9.3)" />
+                <polygon points="137.1,457.7 139.6,460.3 137.1,462.8 134.5,460.3" fill="#88C0D0" opacity="0.71" transform="rotate(295,137.1,460.3)" />
+                <polygon points="712.4,217.4 714.3,219.3 712.4,221.3 710.4,219.3" fill="#88C0D0" opacity="0.63" transform="rotate(142,712.4,219.3)" />
+                <polygon points="533.2,7.6 535.5,9.9 533.2,12.2 530.9,9.9" fill="#88C0D0" opacity="0.55" transform="rotate(46,533.2,9.9)" />
+                <polygon points="89.9,239.2 91.6,240.9 89.9,242.5 88.3,240.9" fill="#88C0D0" opacity="0.35" transform="rotate(82,89.9,240.9)" />
+
+                <!-- Alpha Centauri A (sun) with radial glow -->
+                <defs>
+                    <radialGradient id="sun-glow">
+                        <stop offset="0%" stop-color="#EBCB8B" stop-opacity="1.00" />
+                        <stop offset="40%" stop-color="#D08770" stop-opacity="0.45" />
+                        <stop offset="100%" stop-color="#D08770" stop-opacity="0" />
+                    </radialGradient>
+                </defs>
+                <g class="poi-marker">
+                    <title>Alpha Centauri A</title>
+                    <circle cx="400" cy="300" r="24" fill="url(#sun-glow)" />
+                    <circle cx="400" cy="300" r="10" fill="#EBCB8B" />
+                    <text x="400" y="338" text-anchor="middle" class="map-label">Alpha Centauri A</text>
+                </g>
+
+                <!-- Alpha Centauri Colonial Station (station) -->
+                <g class="poi-marker">
+                    <title>Alpha Centauri Colonial Station</title>
+                    <polygon points="464,256 470,260 470,266 464,270 458,266 458,260" fill="none" stroke="#81a1c1" stroke-width="1.5" />
+                    <text x="464" y="248" text-anchor="middle" class="map-label">Colonial Station</text>
+                </g>
+
+                <!-- New Providence (planet) -->
+                <g class="poi-marker">
+                    <title>New Providence</title>
+                    <circle cx="527" cy="300" r="7" fill="#A3BE8C" opacity="1.00" />
+                    <text x="527" y="320" text-anchor="middle" class="map-label">New Providence</text>
+                </g>
+
+                <!-- Centauri Station (planet) -->
+                <g class="poi-marker">
+                    <title>Centauri Station</title>
+                    <circle cx="654" cy="338" r="7" fill="#A3BE8C" opacity="1.00" />
+                    <text x="654" y="358" text-anchor="middle" class="map-label">Centauri Station</text>
+                </g>
+
+                <!-- Farwatch (planet) -->
+                <g class="poi-marker">
+                    <title>Farwatch</title>
+                    <circle cx="781" cy="338" r="7" fill="#A3BE8C" opacity="1.00" />
+                    <text x="770" y="358" text-anchor="end" class="map-label">Farwatch</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Connected Systems -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Connected Systems</h3>
+                <span class="badge badge-frost">2</span>
+            </div>
+            <table>
+                <thead><tr><th>System</th><th>Security</th><th>Empire</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><a href="sol.html">Sol</a></td>
+                        <td><span class="security-high">100 High</span></td>
+                        <td>Solarian</td>
+                    </tr>
+                    <tr>
+                        <td>Tau Ceti</td>
+                        <td class="text-muted">&mdash;</td>
+                        <td class="text-muted">&mdash;</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Points of Interest -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Points of Interest</h3>
+                <span class="badge badge-frost">6</span>
+            </div>
+            <table>
+                <thead><tr><th>Name</th><th>Type</th><th>Description</th><th>Position</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>Alpha Centauri A</td>
+                        <td><span class="badge badge-yellow">sun</span></td>
+                        <td class="text-muted">&mdash;</td>
+                        <td>0.00, 0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Alpha Centauri Colonial Station</td>
+                        <td><span class="badge badge-frost">station</span></td>
+                        <td class="text-muted">&mdash;</td>
+                        <td>0.00, 0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Alpha Centauri Frost Ring</td>
+                        <td><span class="badge badge-frost">ice_field</span></td>
+                        <td class="text-muted">&mdash;</td>
+                        <td>0.00, 0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Centauri Station</td>
+                        <td><span class="badge badge-green">planet</span></td>
+                        <td class="text-muted">&mdash;</td>
+                        <td>2.00, &minus;0.30</td>
+                    </tr>
+                    <tr>
+                        <td>Farwatch</td>
+                        <td><span class="badge badge-green">planet</span></td>
+                        <td class="text-muted">&mdash;</td>
+                        <td>3.00, &minus;0.30</td>
+                    </tr>
+                    <tr>
+                        <td>New Providence</td>
+                        <td><span class="badge badge-green">planet</span></td>
+                        <td class="text-muted">&mdash;</td>
+                        <td>1.00, 0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Resources -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Resources</h3>
+            </div>
+            <p class="text-muted">No mineable resources recorded in this system.</p>
+        </section>
+
+        <!-- Bases -->
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Bases &amp; Stations</h3>
+            </div>
+            <p class="text-muted">No base data recorded for this system.</p>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        Data sourced from Spacemolt game client &middot; Auto-generated
+    </footer>
+
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
