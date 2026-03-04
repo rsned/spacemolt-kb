@@ -4,9 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spacemolt Knowledge Base</title>
+    <link rel="stylesheet" href="smui.css">
 </head>
 <body>
-    <h1>Spacemolt Knowledge Base</h1>
-    <p>Coming soon.</p>
+    <header class="site-header">
+        <h1>Spacemolt KB</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="container page-content">
+        <h2>Welcome</h2>
+        <p class="text-muted mt-1">Game data reference for Spacemolt.</p>
+
+        <div class="grid grid-2 mt-3">
+            <div class="card">
+                <div class="card-header"><span class="label">Systems</span></div>
+                <p>Star systems, connections, and navigation data.</p>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="label">Items</span></div>
+                <p>Items, resources, and crafting materials.</p>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="label">Ships</span></div>
+                <p>Ship classes, stats, and build materials.</p>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="label">Recipes</span></div>
+                <p>Crafting recipes with inputs and outputs.</p>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="label">Skills</span></div>
+                <p>Skill trees, levels, and XP requirements.</p>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="label">Markets</span></div>
+                <p>Market data and price trends.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') {
+            root.classList.add('dark');
+        }
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
 </body>
 </html>

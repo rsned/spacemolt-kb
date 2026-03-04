@@ -1,0 +1,317 @@
+/* SMUI Theme - Nord-inspired palette from https://smui.statico.io/ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+/* Light theme (default) */
+:root {
+  --background: 218 27% 94%;
+  --foreground: 220 16% 22%;
+  --card: 218 27% 89%;
+  --card-foreground: 220 16% 22%;
+  --popover: 218 27% 89%;
+  --popover-foreground: 220 16% 22%;
+  --primary: 213 32% 40%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 219 28% 84%;
+  --secondary-foreground: 220 16% 22%;
+  --muted: 219 28% 84%;
+  --muted-foreground: 220 17% 28%;
+  --accent: 213 20% 86%;
+  --accent-foreground: 213 32% 40%;
+  --destructive: 355 60% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 219 18% 72%;
+  --input: 219 18% 72%;
+  --ring: 213 32% 40%;
+  --radius: 0rem;
+
+  --chart-1: 213 32% 44%;
+  --chart-2: 210 34% 42%;
+  --chart-3: 92 30% 36%;
+  --chart-4: 40 70% 35%;
+  --chart-5: 311 28% 42%;
+
+  --smui-frost-1: 176 30% 35%;
+  --smui-frost-2: 193 40% 38%;
+  --smui-frost-3: 210 34% 40%;
+  --smui-frost-4: 213 32% 36%;
+  --smui-red: 355 55% 44%;
+  --smui-orange: 14 55% 44%;
+  --smui-yellow: 40 70% 34%;
+  --smui-green: 92 35% 34%;
+  --smui-purple: 311 28% 40%;
+  --smui-surface-0: 218 27% 94%;
+  --smui-surface-1: 218 27% 89%;
+  --smui-surface-2: 219 28% 84%;
+  --smui-surface-3: 219 20% 76%;
+  --smui-border-hover: 220 17% 50%;
+
+  --font-sans: 'JetBrains Mono', monospace;
+  --text-label: 11px;
+  --text-ui: 13px;
+  --text-heading: 22px;
+  --text-stat: 26px;
+  --text-hero: 42px;
+}
+
+/* Dark theme */
+.dark {
+  --background: 213 16% 12%;
+  --foreground: 213 27% 88%;
+  --card: 217 16% 15.5%;
+  --card-foreground: 213 27% 88%;
+  --popover: 217 16% 15.5%;
+  --popover-foreground: 213 27% 88%;
+  --primary: 193 44% 67%;
+  --primary-foreground: 213 16% 12%;
+  --secondary: 216 15% 19%;
+  --secondary-foreground: 213 27% 88%;
+  --muted: 216 15% 19%;
+  --muted-foreground: 213 14% 65%;
+  --accent: 193 10% 16%;
+  --accent-foreground: 193 44% 67%;
+  --destructive: 355 52% 65%;
+  --destructive-foreground: 219 28% 94%;
+  --border: 217 17% 28%;
+  --input: 217 17% 28%;
+  --ring: 193 44% 67%;
+
+  --chart-1: 193 44% 67%;
+  --chart-2: 213 32% 52%;
+  --chart-3: 92 28% 65%;
+  --chart-4: 40 71% 73%;
+  --chart-5: 311 24% 63%;
+
+  --smui-frost-1: 176 25% 65%;
+  --smui-frost-2: 193 44% 67%;
+  --smui-frost-3: 210 34% 63%;
+  --smui-frost-4: 213 32% 52%;
+  --smui-red: 355 52% 64%;
+  --smui-orange: 14 51% 63%;
+  --smui-yellow: 40 71% 73%;
+  --smui-green: 92 28% 65%;
+  --smui-purple: 311 24% 63%;
+  --smui-surface-0: 213 16% 12%;
+  --smui-surface-1: 217 16% 15.5%;
+  --smui-surface-2: 216 15% 19%;
+  --smui-surface-3: 215 14% 22%;
+  --smui-border-hover: 216 12% 37%;
+}
+
+/* Base reset and styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-ui);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  line-height: 1.6;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 { font-size: var(--text-hero); letter-spacing: -1px; }
+h2 { font-size: var(--text-heading); }
+h3 { font-size: var(--text-stat); font-weight: 500; }
+
+.label {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 400;
+}
+
+.stat {
+  font-size: var(--text-stat);
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+
+/* Links */
+a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: hsl(var(--smui-frost-2));
+  text-decoration: underline;
+}
+
+/* Cards */
+.card {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.card-header {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+  margin-bottom: 0.75rem;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-ui);
+}
+
+th {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 400;
+  color: hsl(var(--muted-foreground));
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+tr:hover td {
+  background-color: hsl(var(--accent));
+}
+
+/* Badges / Tags */
+.badge {
+  display: inline-block;
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+}
+
+.badge-frost    { color: hsl(var(--smui-frost-2)); border-color: hsl(var(--smui-frost-2)); }
+.badge-green    { color: hsl(var(--smui-green));   border-color: hsl(var(--smui-green)); }
+.badge-red      { color: hsl(var(--smui-red));     border-color: hsl(var(--smui-red)); }
+.badge-orange   { color: hsl(var(--smui-orange));  border-color: hsl(var(--smui-orange)); }
+.badge-yellow   { color: hsl(var(--smui-yellow));  border-color: hsl(var(--smui-yellow)); }
+.badge-purple   { color: hsl(var(--smui-purple));  border-color: hsl(var(--smui-purple)); }
+
+/* Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Site header */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+  background-color: hsl(var(--card));
+}
+
+.site-header h1 {
+  font-size: var(--text-heading);
+  margin: 0;
+}
+
+.site-header nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.site-header nav a {
+  font-size: var(--text-ui);
+  color: hsl(var(--muted-foreground));
+}
+
+.site-header nav a:hover {
+  color: hsl(var(--foreground));
+  text-decoration: none;
+}
+
+/* Theme toggle */
+.theme-toggle {
+  background: none;
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  padding: 0.35rem 0.6rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-ui);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  border-color: hsl(var(--smui-border-hover));
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Hide sun in light, moon in dark */
+.theme-toggle .icon-moon { display: inline-block; }
+.theme-toggle .icon-sun  { display: none; }
+.dark .theme-toggle .icon-moon { display: none; }
+.dark .theme-toggle .icon-sun  { display: inline-block; }
+
+/* Page content area */
+.page-content {
+  padding: 2rem 0;
+}
+
+/* Grid layout for index-style pages */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+/* Utility */
+.text-muted { color: hsl(var(--muted-foreground)); }
+.text-primary { color: hsl(var(--primary)); }
+.text-frost { color: hsl(var(--smui-frost-2)); }
+.text-green { color: hsl(var(--smui-green)); }
+.text-red { color: hsl(var(--smui-red)); }
+.text-orange { color: hsl(var(--smui-orange)); }
+.text-yellow { color: hsl(var(--smui-yellow)); }
+.text-purple { color: hsl(var(--smui-purple)); }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
