@@ -5,12 +5,198 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spacemolt Knowledge Base</title>
     <link rel="stylesheet" href="smui.css">
+    <style>
+        .hero {
+            padding: 3rem 0 1.5rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        .hero-title {
+            font-size: var(--text-hero);
+            font-weight: 300;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+        }
+        .hero-title strong {
+            font-weight: 700;
+        }
+        .hero-sub {
+            font-size: var(--text-ui);
+            color: hsl(var(--muted-foreground));
+            margin-top: 0.75rem;
+            max-width: 520px;
+            line-height: 1.7;
+        }
+
+        /* Category grid */
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: hsl(var(--border));
+            border: 1px solid hsl(var(--border));
+            margin-top: 2.5rem;
+        }
+        @media (max-width: 720px) {
+            .categories { grid-template-columns: 1fr; }
+        }
+
+        /* Individual category panel */
+        .cat {
+            background: hsl(var(--card));
+            padding: 1.75rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            transition: background-color 0.15s ease;
+        }
+        .cat:hover {
+            background: hsl(var(--accent));
+            text-decoration: none;
+        }
+        .cat:hover .cat-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .cat:hover .cat-glyph {
+            opacity: 1;
+        }
+
+        /* Accent stripe on the left edge */
+        .cat::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--cat-accent);
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .cat:hover::before { opacity: 1; }
+
+        .cat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cat-label {
+            font-size: var(--text-label);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 400;
+            color: var(--cat-accent);
+        }
+        .cat-stat {
+            font-size: var(--text-label);
+            color: hsl(var(--muted-foreground));
+            letter-spacing: 0.5px;
+        }
+
+        .cat-name {
+            font-size: var(--text-heading);
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .cat-arrow {
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            color: var(--cat-accent);
+        }
+
+        .cat-glyph {
+            font-size: 18px;
+            color: var(--cat-accent);
+            opacity: 0.6;
+            transition: opacity 0.15s ease;
+            line-height: 1;
+            white-space: pre;
+            flex-shrink: 0;
+        }
+
+        .cat-desc {
+            font-size: var(--text-ui);
+            color: hsl(var(--muted-foreground));
+            line-height: 1.7;
+        }
+
+        .cat-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+        .cat-tag {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.15rem 0.5rem;
+            border: 1px solid hsl(var(--border));
+            color: hsl(var(--muted-foreground));
+        }
+        .cat:hover .cat-tag {
+            border-color: var(--cat-accent);
+            color: var(--cat-accent);
+        }
+
+        /* Full-width last item when odd count */
+        .cat-wide {
+            grid-column: 1 / -1;
+        }
+
+        /* Ships external note */
+        .cat-external {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: var(--text-label);
+            color: hsl(var(--muted-foreground));
+            letter-spacing: 0.5px;
+        }
+        .cat-external svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        /* Footer */
+        .site-footer {
+            padding: 1.5rem;
+            text-align: center;
+            font-size: var(--text-label);
+            color: hsl(var(--muted-foreground));
+            letter-spacing: 0.5px;
+            border-top: 1px solid hsl(var(--border));
+            margin-top: 3rem;
+        }
+
+        /* Staggered load animation */
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cat {
+            animation: panelIn 0.3s ease both;
+        }
+        .cat:nth-child(1) { animation-delay: 0.05s; }
+        .cat:nth-child(2) { animation-delay: 0.1s; }
+        .cat:nth-child(3) { animation-delay: 0.15s; }
+        .cat:nth-child(4) { animation-delay: 0.2s; }
+        .cat:nth-child(5) { animation-delay: 0.25s; }
+    </style>
 </head>
 <body>
     <header class="site-header">
         <h1>Spacemolt KB</h1>
         <nav>
-            <a href="index.html">Home</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -18,37 +204,110 @@
         </nav>
     </header>
 
-    <main class="container page-content">
-        <h2>Welcome</h2>
-        <p class="text-muted mt-1">Game data reference for Spacemolt.</p>
+    <main class="container">
+        <div class="hero">
+            <h2 class="hero-title"><strong>Knowledge</strong> Base</h2>
+            <p class="hero-sub">Reference data for the Spacemolt galaxy. Systems, items, skills, recipes, and ships &mdash; sourced from live game data.</p>
+        </div>
 
-        <div class="grid grid-2 mt-3">
-            <div class="card">
-                <div class="card-header"><span class="label">Systems</span></div>
-                <p>Star systems, connections, and navigation data.</p>
-            </div>
-            <div class="card">
-                <div class="card-header"><span class="label">Items</span></div>
-                <p>Items, resources, and crafting materials.</p>
-            </div>
-            <div class="card">
-                <div class="card-header"><span class="label">Ships</span></div>
-                <p>Ship classes, stats, and build materials.</p>
-            </div>
-            <div class="card">
-                <div class="card-header"><span class="label">Recipes</span></div>
-                <p>Crafting recipes with inputs and outputs.</p>
-            </div>
-            <div class="card">
-                <div class="card-header"><span class="label">Skills</span></div>
-                <p>Skill trees, levels, and XP requirements.</p>
-            </div>
-            <div class="card">
-                <div class="card-header"><span class="label">Markets</span></div>
-                <p>Market data and price trends.</p>
-            </div>
+        <div class="categories">
+            <a href="systems/" class="cat" style="--cat-accent: hsl(var(--smui-frost-2))">
+                <div class="cat-top">
+                    <span class="cat-label">01 &mdash; Navigation</span>
+                    <span class="cat-stat">500+ systems</span>
+                </div>
+                <div class="cat-name">
+                    <span class="cat-glyph">&#x2726;</span>
+                    Systems
+                    <span class="cat-arrow">&rarr;</span>
+                </div>
+                <p class="cat-desc">Every solar system in the galaxy. Star data, jump connections, security levels, and territorial control.</p>
+                <div class="cat-tags">
+                    <span class="cat-tag">POIs</span>
+                    <span class="cat-tag">Stations</span>
+                    <span class="cat-tag">Connections</span>
+                    <span class="cat-tag">Resources</span>
+                </div>
+            </a>
+
+            <a href="items/" class="cat" style="--cat-accent: hsl(var(--smui-orange))">
+                <div class="cat-top">
+                    <span class="cat-label">02 &mdash; Catalog</span>
+                    <span class="cat-stat">all categories</span>
+                </div>
+                <div class="cat-name">
+                    <span class="cat-glyph">&#x25A8;</span>
+                    Items
+                    <span class="cat-arrow">&rarr;</span>
+                </div>
+                <p class="cat-desc">Ore, refined materials, components, modules, and trade goods. Everything the galaxy is built from.</p>
+                <div class="cat-tags">
+                    <span class="cat-tag">Ore</span>
+                    <span class="cat-tag">Components</span>
+                    <span class="cat-tag">Modules</span>
+                    <span class="cat-tag">Materials</span>
+                </div>
+            </a>
+
+            <a href="skills/" class="cat" style="--cat-accent: hsl(var(--smui-green))">
+                <div class="cat-top">
+                    <span class="cat-label">03 &mdash; Progression</span>
+                    <span class="cat-stat">all skill trees</span>
+                </div>
+                <div class="cat-name">
+                    <span class="cat-glyph">&#x2191;</span>
+                    Skills
+                    <span class="cat-arrow">&rarr;</span>
+                </div>
+                <p class="cat-desc">XP categories, level thresholds, and unlock requirements. What you need to learn to do everything.</p>
+                <div class="cat-tags">
+                    <span class="cat-tag">XP Curves</span>
+                    <span class="cat-tag">Levels</span>
+                    <span class="cat-tag">Unlocks</span>
+                </div>
+            </a>
+
+            <a href="recipes/" class="cat" style="--cat-accent: hsl(var(--smui-yellow))">
+                <div class="cat-top">
+                    <span class="cat-label">04 &mdash; Crafting</span>
+                    <span class="cat-stat">all recipes</span>
+                </div>
+                <div class="cat-name">
+                    <span class="cat-glyph">&#x2692;</span>
+                    Recipes
+                    <span class="cat-arrow">&rarr;</span>
+                </div>
+                <p class="cat-desc">How to make everything. Input materials, output products, skill requirements, and crafting chains.</p>
+                <div class="cat-tags">
+                    <span class="cat-tag">Inputs</span>
+                    <span class="cat-tag">Outputs</span>
+                    <span class="cat-tag">Requirements</span>
+                </div>
+            </a>
+
+            <a href="https://spacemolt.com/ships" class="cat cat-wide" style="--cat-accent: hsl(var(--smui-purple))" target="_blank" rel="noopener">
+                <div class="cat-top">
+                    <span class="cat-label">05 &mdash; Fleet</span>
+                    <span class="cat-external">spacemolt.com/ships <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+                </div>
+                <div class="cat-name">
+                    <span class="cat-glyph">&#x2394;</span>
+                    Ships
+                    <span class="cat-arrow">&rarr;</span>
+                </div>
+                <p class="cat-desc">Ship classes, stats, and build costs. Primary ship data is maintained on spacemolt.com &mdash; alternative views may appear here over time.</p>
+                <div class="cat-tags">
+                    <span class="cat-tag">Classes</span>
+                    <span class="cat-tag">Stats</span>
+                    <span class="cat-tag">Build Materials</span>
+                </div>
+            </a>
         </div>
     </main>
+
+    <footer class="site-footer">
+        Data sourced from Spacemolt game client &middot; Auto-generated
+    </footer>
 
     <script>
     (function() {
