@@ -1,0 +1,136 @@
+/* Items section styles */
+
+/* Category card grid (index page) */
+.item-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: hsl(var(--border));
+  border: 1px solid hsl(var(--border));
+  margin-top: 1.5rem;
+}
+
+.item-cat-card {
+  background: hsl(var(--card));
+  padding: 1.25rem 1.25rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-cat-card:hover {
+  background: hsl(var(--accent));
+  text-decoration: none;
+}
+
+.item-cat-card .cat-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  text-transform: capitalize;
+}
+
+.item-cat-card .cat-count {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.item-cat-card .cat-desc {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.7;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.breadcrumb a {
+  color: hsl(var(--muted-foreground));
+}
+
+.breadcrumb a:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Category table thumbnails */
+.thumb img {
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+/* Item detail page image */
+.item-image {
+  text-align: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.item-image img {
+  image-rendering: pixelated;
+}
+
+/* Key-value label in detail tables */
+.kv-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  width: 140px;
+}
+
+/* Section label within cards */
+.section-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--smui-surface-2));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Rarity badge colors using SMUI palette */
+.badge-common    { color: hsl(var(--smui-green));  border-color: hsl(var(--smui-green)); }
+.badge-uncommon  { color: hsl(var(--smui-frost-2)); border-color: hsl(var(--smui-frost-2)); }
+.badge-rare      { color: hsl(var(--smui-frost-4)); border-color: hsl(var(--smui-frost-4)); }
+.badge-exotic    { color: hsl(var(--smui-orange)); border-color: hsl(var(--smui-orange)); }
+.badge-legendary { color: hsl(var(--smui-purple)); border-color: hsl(var(--smui-purple)); }
+
+/* Numeric value columns */
+td.value { text-align: right; }
+td.size { text-align: right; }
+
+/* Sortable table headers */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  color: hsl(var(--primary));
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  font-size: 10px;
+}
+
+/* Item description blockquote */
+.item-desc {
+  border-left: 3px solid hsl(var(--border));
+  padding: 0.75rem 1rem;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+  margin: 1rem 0;
+}

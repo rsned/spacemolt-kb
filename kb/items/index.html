@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Items - Spacemolt KB</title>
     <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../items/items.css">
 </head>
 <body>
     <header class="site-header">
         <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../">Home</a>
+            <a href="../items/">Items</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -19,8 +21,79 @@
     </header>
     <main class="container page-content">
         <h2>Items</h2>
-        <p class="text-muted mt-1">Ore, components, modules, and trade goods.</p>
-        <p class="mt-3">Content will be generated from game data.</p>
+        <p class="text-muted mt-1">14 categories of ore, components, modules, and trade goods.</p>
+        <div class="item-categories">
+            <a href="artifact/" class="item-cat-card">
+                <div class="cat-count">15 items</div>
+                <div class="cat-name">Artifact</div>
+                <div class="cat-desc">Rare relics and ancient objects from lost civilizations.</div>
+            </a>
+            <a href="component/" class="item-cat-card">
+                <div class="cat-count">120 items</div>
+                <div class="cat-name">Component</div>
+                <div class="cat-desc">Crafted parts and assemblies used to build ships, stations, and equipment.</div>
+            </a>
+            <a href="consumable/" class="item-cat-card">
+                <div class="cat-count">121 items</div>
+                <div class="cat-name">Consumable</div>
+                <div class="cat-desc">Single-use items including ammunition, stims, repair kits, and fuel.</div>
+            </a>
+            <a href="contraband/" class="item-cat-card">
+                <div class="cat-count">12 items</div>
+                <div class="cat-name">Contraband</div>
+                <div class="cat-desc">Illegal goods that carry severe penalties if caught in possession.</div>
+            </a>
+            <a href="data_chip/" class="item-cat-card">
+                <div class="cat-count">5 items</div>
+                <div class="cat-name">Data Chip</div>
+                <div class="cat-desc">Encoded data chips containing navigation, trade, and intelligence data.</div>
+            </a>
+            <a href="defense/" class="item-cat-card">
+                <div class="cat-count">48 items</div>
+                <div class="cat-name">Defense</div>
+                <div class="cat-desc">Defensive equipment and shield systems.</div>
+            </a>
+            <a href="drone/" class="item-cat-card">
+                <div class="cat-count">9 items</div>
+                <div class="cat-name">Drone</div>
+                <div class="cat-desc">Autonomous craft for combat, mining, repair, and reconnaissance.</div>
+            </a>
+            <a href="material/" class="item-cat-card">
+                <div class="cat-count">2 items</div>
+                <div class="cat-name">Material</div>
+                <div class="cat-desc">Rare raw materials with special properties.</div>
+            </a>
+            <a href="mining/" class="item-cat-card">
+                <div class="cat-count">13 items</div>
+                <div class="cat-name">Mining</div>
+                <div class="cat-desc">Mining equipment, laser upgrades, and extraction tools.</div>
+            </a>
+            <a href="misc/" class="item-cat-card">
+                <div class="cat-count">29 items</div>
+                <div class="cat-name">Misc</div>
+                <div class="cat-desc">Collectibles, souvenirs, medals, and other miscellaneous items.</div>
+            </a>
+            <a href="ore/" class="item-cat-card">
+                <div class="cat-count">84 items</div>
+                <div class="cat-name">Ore</div>
+                <div class="cat-desc">Raw ores, gases, ice, and biological samples harvested from space.</div>
+            </a>
+            <a href="refined/" class="item-cat-card">
+                <div class="cat-count">77 items</div>
+                <div class="cat-name">Refined</div>
+                <div class="cat-desc">Processed materials refined from raw ores and gases.</div>
+            </a>
+            <a href="utility/" class="item-cat-card">
+                <div class="cat-count">82 items</div>
+                <div class="cat-name">Utility</div>
+                <div class="cat-desc">Utility modules, scanners, cloaking devices, and support equipment.</div>
+            </a>
+            <a href="weapon/" class="item-cat-card">
+                <div class="cat-count">71 items</div>
+                <div class="cat-name">Weapon</div>
+                <div class="cat-desc">Weapons and weapon systems.</div>
+            </a>
+        </div>
     </main>
     <script>
     (function() {
