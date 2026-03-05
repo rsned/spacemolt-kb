@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weapon Crafting - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../skills/skills.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../skills/">Skills</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="index.html">Skills</a> / <a href="cat_crafting.html">Crafting</a> / Weapon Crafting</div>
+        <h2>Weapon Crafting</h2>
+        <p class="text-muted mt-1">Arms manufacturing. Create weapons and ammunition.</p>
+        <dl class="skill-meta">
+            <dt>Category</dt>
+            <dd><a href="cat_crafting.html">Crafting</a></dd>
+            <dt>Max Level</dt>
+            <dd>10</dd>
+            <dt>Prerequisites</dt>
+            <dd><div class="prereq-list"><a href="crafting_basic.html">Basic Crafting</a> <span class="badge badge-frost">Lv3</span></div></dd>
+            <dt>Training</dt>
+            <dd>Craft Weapons category recipes.</dd>
+        </dl>
+        <div class="level-tables"><div>
+            <h3>XP per Level</h3>
+            <table>
+                <thead><tr><th>Level</th><th>XP Required</th><th>Cumulative</th></tr></thead>
+                <tbody><tr><td>1</td><td class="num">500</td><td class="num">500</td></tr><tr><td>2</td><td class="num">1,500</td><td class="num">2,000</td></tr><tr><td>3</td><td class="num">3,000</td><td class="num">5,000</td></tr><tr><td>4</td><td class="num">5,000</td><td class="num">10,000</td></tr><tr><td>5</td><td class="num">8,000</td><td class="num">18,000</td></tr><tr><td>6</td><td class="num">12,000</td><td class="num">30,000</td></tr><tr><td>7</td><td class="num">17,000</td><td class="num">47,000</td></tr><tr><td>8</td><td class="num">23,000</td><td class="num">70,000</td></tr><tr><td>9</td><td class="num">30,000</td><td class="num">100,000</td></tr><tr><td>10</td><td class="num">40,000</td><td class="num">140,000</td></tr></tbody>
+            </table>
+        </div><div>
+            <h3>Bonuses per Level</h3>
+            <table>
+                <thead><tr><th>Level</th><th>weaponCraftingQuality</th></tr></thead>
+                <tbody><tr><td>1</td><td class="num">+5</td></tr><tr><td>2</td><td class="num">+10</td></tr><tr><td>3</td><td class="num">+15</td></tr><tr><td>4</td><td class="num">+20</td></tr><tr><td>5</td><td class="num">+25</td></tr><tr><td>6</td><td class="num">+30</td></tr><tr><td>7</td><td class="num">+35</td></tr><tr><td>8</td><td class="num">+40</td></tr><tr><td>9</td><td class="num">+45</td></tr><tr><td>10</td><td class="num">+50</td></tr></tbody>
+            </table>
+        </div></div>
+        <div class="recipe-section">
+            <h3>Recipes Requiring This Skill</h3>
+            <table class="mt-1">
+                <thead>
+                    <tr><th>Recipe</th><th>Req Lv</th><th>Inputs</th><th>Outputs</th><th>Other Skills</th></tr>
+                </thead>
+                <tbody><tr>
+                    <td><a href="../recipes/">Assemble Standard Mines</a></td>
+                    <td class="num">2</td>
+                    <td>1x refined_steel, 1x comp_warhead_assembly, 1x refined_circuits</td>
+                    <td>5x mines_standard</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Auto-Targeting System</a></td>
+                    <td class="num">2</td>
+                    <td>1x comp_cpu_core, 1x comp_sensor_array, 2x refined_circuits</td>
+                    <td>1x auto_targeting_system</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Autocannon II</a></td>
+                    <td class="num">2</td>
+                    <td>8x refined_steel, 3x refined_circuits, 1x comp_weapon_housing, 1x comp_engine_core</td>
+                    <td>1x weapon_cannon_2</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Flak Cannon I</a></td>
+                    <td class="num">2</td>
+                    <td>4x refined_steel, 1x comp_tracking_system, 2x refined_circuits</td>
+                    <td>1x flak_cannon_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Blaster I</a></td>
+                    <td class="num">2</td>
+                    <td>3x refined_ion_solution, 3x refined_circuits, 1x comp_ion_emitter, 1x comp_weapon_housing</td>
+                    <td>1x ion_blaster_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Cannon I</a></td>
+                    <td class="num">2</td>
+                    <td>1x comp_ion_emitter, 1x comp_weapon_housing, 3x refined_circuits</td>
+                    <td>1x ion_cannon_1</td>
+                    <td>Electronic Warfare Lv1</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Missile Launcher I</a></td>
+                    <td class="num">2</td>
+                    <td>2x refined_alloy, 3x refined_circuits, 1x comp_weapon_housing, 1x comp_sensor_array</td>
+                    <td>1x weapon_missile_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Cannon I</a></td>
+                    <td class="num">2</td>
+                    <td>1x comp_plasma_injector, 1x comp_weapon_housing, 2x refined_ceramite, 2x refined_circuits</td>
+                    <td>1x plasma_cannon_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Repeater I</a></td>
+                    <td class="num">2</td>
+                    <td>1x comp_plasma_injector, 2x refined_ceramite, 3x refined_circuits, 1x comp_weapon_housing</td>
+                    <td>1x plasma_repeater_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Point Defense I</a></td>
+                    <td class="num">2</td>
+                    <td>1x comp_weapon_housing, 1x comp_tracking_system, 3x refined_circuits, 3x refined_steel</td>
+                    <td>1x point_defense_1</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Pulse Laser II</a></td>
+                    <td class="num">2</td>
+                    <td>4x refined_steel, 4x refined_circuits, 2x refined_crystal, 1x comp_laser_focus, 1x comp_weapon_housing</td>
+                    <td>1x weapon_laser_2</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Targeting Computer</a></td>
+                    <td class="num">2</td>
+                    <td>4x refined_circuits, 1x comp_cpu_core, 1x refined_crystal</td>
+                    <td>1x comp_targeting_computer</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Tracking Computer I</a></td>
+                    <td class="num">2</td>
+                    <td>1x comp_cpu_core, 1x comp_tracking_system, 2x refined_circuits</td>
+                    <td>1x tracking_computer_1</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture AP Rounds</a></td>
+                    <td class="num">2</td>
+                    <td>1x refined_steel, 1x ore_tungsten</td>
+                    <td>4x rounds_armor_piercing</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Corrosive Plasma Cells</a></td>
+                    <td class="num">2</td>
+                    <td>1x refined_steel, 1x refined_chlorine_compound</td>
+                    <td>3x plasma_corrosive</td>
+                    <td>Basic Crafting Lv3, Gas Processing Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Cryo Slugs</a></td>
+                    <td class="num">2</td>
+                    <td>2x refined_steel, 2x refined_ceramic</td>
+                    <td>4x slugs_cryo</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Frag Rounds</a></td>
+                    <td class="num">2</td>
+                    <td>1x refined_steel, 1x refined_silicate</td>
+                    <td>4x rounds_fragmenting</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Incendiary Rounds</a></td>
+                    <td class="num">2</td>
+                    <td>1x refined_steel, 1x refined_plasma_core</td>
+                    <td>4x rounds_incendiary</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Armor-Buster Missiles</a></td>
+                    <td class="num">3</td>
+                    <td>1x refined_durasteel, 1x comp_warhead_assembly, 2x refined_circuits</td>
+                    <td>3x missiles_armor_buster</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble EMP Mines</a></td>
+                    <td class="num">3</td>
+                    <td>1x refined_steel, 1x refined_superconductor, 1x refined_circuits</td>
+                    <td>4x mines_emp</td>
+                    <td>Basic Crafting Lv4, Electronic Warfare Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble EMP Missiles</a></td>
+                    <td class="num">3</td>
+                    <td>1x refined_alloy, 2x refined_superconductor, 1x comp_tracking_system</td>
+                    <td>3x missiles_emp</td>
+                    <td>Advanced Crafting Lv3, Electronic Warfare Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Fragmentation Mines</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_steel, 1x comp_warhead_assembly, 1x refined_circuits</td>
+                    <td>4x mines_fragmentation</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Incendiary Missiles</a></td>
+                    <td class="num">3</td>
+                    <td>1x refined_alloy, 1x refined_ion_solution, 1x refined_circuits</td>
+                    <td>4x missiles_incendiary</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Plasma Mines</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_steel, 1x refined_plasma_core, 1x comp_warhead_assembly</td>
+                    <td>3x mines_plasma</td>
+                    <td>Advanced Crafting Lv3, Gas Processing Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Standard Torpedoes</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_durasteel, 1x comp_warhead_assembly, 1x refined_circuits</td>
+                    <td>3x torpedoes_standard</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Swarm Missiles</a></td>
+                    <td class="num">3</td>
+                    <td>1x refined_alloy, 2x refined_circuits, 1x comp_warhead_assembly</td>
+                    <td>4x missiles_swarm</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ammo Fabricator</a></td>
+                    <td class="num">3</td>
+                    <td>1x comp_weapon_core, 4x refined_steel, 2x refined_circuits</td>
+                    <td>1x comp_ammo_fabricator</td>
+                    <td>Engineering Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build EM Disruptor I</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_superconductor, 4x refined_circuits, 1x comp_ion_emitter, 1x comp_weapon_housing</td>
+                    <td>1x weapon_disruptor_1</td>
+                    <td>Electronic Warfare Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build EMP Cannon I</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_superconductor, 2x comp_power_cell, 1x comp_weapon_housing, 4x refined_circuits</td>
+                    <td>1x emp_cannon_1</td>
+                    <td>Electronic Warfare Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build EMP Pulse I</a></td>
+                    <td class="num">3</td>
+                    <td>3x refined_superconductor, 2x comp_power_cell, 5x refined_circuits, 1x comp_weapon_housing</td>
+                    <td>1x emp_pulse_1</td>
+                    <td>Electronic Warfare Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Focused Beam I</a></td>
+                    <td class="num">3</td>
+                    <td>3x refined_crystal, 3x refined_circuits, 1x comp_laser_focus, 1x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x weapon_beam_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Blaster II</a></td>
+                    <td class="num">3</td>
+                    <td>5x refined_ion_solution, 4x refined_circuits, 2x comp_ion_emitter, 1x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x ion_blaster_2</td>
+                    <td>Electronic Warfare Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Mine Launcher I</a></td>
+                    <td class="num">3</td>
+                    <td>4x refined_alloy, 3x refined_circuits, 1x comp_warhead_assembly, 1x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x mine_launcher_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Missile Launcher II</a></td>
+                    <td class="num">3</td>
+                    <td>4x refined_alloy, 4x refined_circuits, 1x comp_weapon_housing, 1x comp_sensor_array, 1x comp_tracking_system</td>
+                    <td>1x weapon_missile_2</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Piercing Railgun I</a></td>
+                    <td class="num">3</td>
+                    <td>1x comp_railgun_capacitor, 3x refined_durasteel, 2x refined_superconductor, 1x comp_weapon_housing</td>
+                    <td>1x railgun_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Injector</a></td>
+                    <td class="num">3</td>
+                    <td>1x refined_plasma_core, 2x refined_ceramite, 3x refined_copper_wire</td>
+                    <td>1x comp_plasma_injector</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Point Defense II</a></td>
+                    <td class="num">3</td>
+                    <td>1x comp_weapon_housing, 2x comp_tracking_system, 1x comp_sensor_array, 2x refined_superconductor, 3x refined_durasteel</td>
+                    <td>1x point_defense_2</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Point Defense Turret</a></td>
+                    <td class="num">3</td>
+                    <td>1x flak_cannon_1, 1x comp_drone_ai_core, 3x refined_alloy</td>
+                    <td>1x point_defense_turret</td>
+                    <td>Drone Operation Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Railgun I</a></td>
+                    <td class="num">3</td>
+                    <td>3x refined_durasteel, 2x refined_superconductor, 1x comp_railgun_capacitor, 1x comp_weapon_housing</td>
+                    <td>1x weapon_railgun_1</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Scrapgun</a></td>
+                    <td class="num">3</td>
+                    <td>8x refined_steel, 2x refined_circuits, 1x comp_weapon_housing, 1x comp_heat_sink</td>
+                    <td>1x scrapgun</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Weapon Battery</a></td>
+                    <td class="num">3</td>
+                    <td>2x comp_weapon_housing, 1x comp_weapon_core, 1x comp_targeting_computer</td>
+                    <td>1x comp_weapon_battery</td>
+                    <td>Engineering Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Weapon Core</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_tungsten_rod, 2x refined_steel, 1x refined_battery</td>
+                    <td>1x comp_weapon_core</td>
+                    <td>Engineering Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Weapon Overload Capacitor</a></td>
+                    <td class="num">3</td>
+                    <td>2x comp_power_cell, 1x refined_plasma_core</td>
+                    <td>2x weapon_overload</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Forge Crimson Siege Plating</a></td>
+                    <td class="num">3</td>
+                    <td>2x comp_armor_plate, 1x refined_crimson_fury_alloy, 2x refined_durasteel</td>
+                    <td>1x comp_crimson_siege_plating</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture EMP Slugs</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_steel, 2x refined_superconductor, 1x comp_railgun_capacitor</td>
+                    <td>3x slugs_emp</td>
+                    <td>Advanced Crafting Lv3, Electronic Warfare Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Shaped Charge Slugs</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_steel, 1x comp_warhead_assembly</td>
+                    <td>4x slugs_shaped_charge</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Tungsten Slugs</a></td>
+                    <td class="num">3</td>
+                    <td>3x ore_tungsten, 1x refined_steel</td>
+                    <td>4x slugs_tungsten</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Breacher Torpedoes</a></td>
+                    <td class="num">4</td>
+                    <td>2x refined_durasteel, 2x comp_warhead_assembly, 2x ore_tungsten</td>
+                    <td>2x torpedoes_breacher</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Cluster Missiles</a></td>
+                    <td class="num">4</td>
+                    <td>1x refined_durasteel, 2x comp_warhead_assembly, 2x refined_circuits, 1x comp_tracking_system</td>
+                    <td>3x missiles_cluster</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble EMP Torpedoes</a></td>
+                    <td class="num">4</td>
+                    <td>2x refined_durasteel, 3x refined_superconductor, 1x comp_warhead_assembly, 1x comp_railgun_capacitor</td>
+                    <td>2x torpedoes_emp</td>
+                    <td>Advanced Crafting Lv4, Electronic Warfare Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Nuclear Mines</a></td>
+                    <td class="num">4</td>
+                    <td>2x refined_durasteel, 1x refined_plutonium, 2x comp_warhead_assembly, 1x refined_circuits</td>
+                    <td>2x mines_nuclear</td>
+                    <td>Advanced Crafting Lv5, Radioactive Handling Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Plasma Torpedoes</a></td>
+                    <td class="num">4</td>
+                    <td>2x refined_durasteel, 1x refined_plasma_core, 1x comp_warhead_assembly, 2x refined_ceramite</td>
+                    <td>2x torpedoes_plasma</td>
+                    <td>Advanced Crafting Lv4, Gas Processing Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Crimson Berserker Core</a></td>
+                    <td class="num">4</td>
+                    <td>2x refined_plasma_core, 1x comp_cpu_core, 1x refined_neural_extract, 2x comp_power_cell</td>
+                    <td>1x crimson_berserker_core</td>
+                    <td>Advanced Crafting Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Crimson Ordnance Bay</a></td>
+                    <td class="num">4</td>
+                    <td>2x comp_weapon_core, 1x comp_ammo_fabricator, 1x refined_crimson_fury_alloy</td>
+                    <td>1x comp_crimson_ordnance_bay</td>
+                    <td>Engineering Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Defense Platform</a></td>
+                    <td class="num">4</td>
+                    <td>8x refined_durasteel, 2x comp_weapon_housing, 1x comp_sensor_array, 1x comp_cpu_core</td>
+                    <td>1x comp_defense_platform</td>
+                    <td>Station Management Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build EM Smartbomb</a></td>
+                    <td class="num">4</td>
+                    <td>4x refined_superconductor, 3x comp_power_cell, 1x comp_ion_emitter, 1x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x smartbomb_em</td>
+                    <td>Electronic Warfare Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build EMP Pulse II</a></td>
+                    <td class="num">4</td>
+                    <td>4x refined_superconductor, 3x comp_power_cell, 6x refined_circuits, 1x comp_ion_emitter, 1x comp_weapon_housing</td>
+                    <td>1x emp_pulse_2</td>
+                    <td>Electronic Warfare Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Explosive Smartbomb</a></td>
+                    <td class="num">4</td>
+                    <td>4x refined_alloy, 2x comp_warhead_assembly, 1x comp_tracking_system, 1x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x smartbomb_explosive</td>
+                    <td>Advanced Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Flak Cannon II</a></td>
+                    <td class="num">4</td>
+                    <td>3x refined_durasteel, 1x comp_tracking_system, 1x comp_sensor_array, 3x refined_circuits</td>
+                    <td>1x flak_cannon_2</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Focused Beam II</a></td>
+                    <td class="num">4</td>
+                    <td>5x refined_crystal, 3x refined_optical_fiber, 2x comp_laser_focus, 2x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x weapon_beam_2</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Graviton Beam I</a></td>
+                    <td class="num">4</td>
+                    <td>4x refined_superconductor, 3x refined_graphene, 2x comp_power_cell, 1x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x graviton_beam_1</td>
+                    <td>Advanced Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Heavy Combat Drone</a></td>
+                    <td class="num">4</td>
+                    <td>1x comp_drone_chassis, 1x comp_drone_ai_core, 2x comp_weapon_core, 3x refined_durasteel, 1x comp_shield_emitter</td>
+                    <td>1x heavy_combat_drone</td>
+                    <td>Advanced Crafting Lv6, Drone Operation Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Cannon II</a></td>
+                    <td class="num">4</td>
+                    <td>2x comp_ion_emitter, 1x comp_weapon_housing, 2x refined_superconductor, 1x comp_power_cell</td>
+                    <td>1x ion_cannon_2</td>
+                    <td>Electronic Warfare Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Emitter</a></td>
+                    <td class="num">4</td>
+                    <td>3x refined_xenon, 2x refined_superconductor, 1x comp_power_cell</td>
+                    <td>1x comp_ion_emitter</td>
+                    <td>Electronic Warfare Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Emitter (Gas Method)</a></td>
+                    <td class="num">4</td>
+                    <td>3x refined_ion_solution, 1x refined_superconductor, 1x comp_power_cell</td>
+                    <td>1x comp_ion_emitter</td>
+                    <td>Gas Processing Lv7</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Kinetic Smartbomb</a></td>
+                    <td class="num">4</td>
+                    <td>4x refined_durasteel, 2x comp_warhead_assembly, 1x comp_sensor_array, 3x refined_circuits, 1x comp_weapon_housing</td>
+                    <td>1x smartbomb_kinetic</td>
+                    <td>Advanced Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Mine Launcher II</a></td>
+                    <td class="num">4</td>
+                    <td>5x refined_alloy, 4x refined_circuits, 2x comp_warhead_assembly, 1x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x mine_launcher_2</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Cannon II</a></td>
+                    <td class="num">4</td>
+                    <td>2x comp_plasma_injector, 1x comp_weapon_housing, 3x refined_ceramite, 1x refined_superconductor</td>
+                    <td>1x plasma_cannon_2</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Repeater II</a></td>
+                    <td class="num">4</td>
+                    <td>2x comp_plasma_injector, 4x refined_ceramite, 4x refined_circuits, 2x comp_heat_sink, 1x comp_weapon_housing</td>
+                    <td>1x plasma_repeater_2</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Proximity Mine Launcher</a></td>
+                    <td class="num">4</td>
+                    <td>4x refined_alloy, 5x refined_circuits, 1x comp_warhead_assembly, 2x comp_sensor_array, 1x comp_tracking_system, 1x comp_weapon_housing</td>
+                    <td>1x proximity_mine</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Pulse Laser III</a></td>
+                    <td class="num">4</td>
+                    <td>4x refined_crystal, 2x refined_superconductor, 2x comp_laser_focus, 1x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x weapon_laser_3</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Railgun Capacitor</a></td>
+                    <td class="num">4</td>
+                    <td>3x refined_superconductor, 2x comp_power_cell, 4x refined_circuits</td>
+                    <td>1x comp_railgun_capacitor</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Railgun II</a></td>
+                    <td class="num">4</td>
+                    <td>5x refined_durasteel, 3x refined_superconductor, 2x comp_railgun_capacitor, 3x refined_tungsten_rod, 1x comp_weapon_housing</td>
+                    <td>1x weapon_railgun_2</td>
+                    <td>Advanced Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Thermal Smartbomb</a></td>
+                    <td class="num">4</td>
+                    <td>2x comp_plasma_injector, 4x refined_ceramite, 2x comp_heat_sink, 1x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x smartbomb_thermal</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Tracking Computer II</a></td>
+                    <td class="num">4</td>
+                    <td>1x comp_cpu_core, 2x comp_tracking_system, 4x refined_circuits, 1x refined_optical_fiber</td>
+                    <td>1x tracking_computer_2</td>
+                    <td>Advanced Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture DU Rounds</a></td>
+                    <td class="num">4</td>
+                    <td>1x refined_uranium_rod, 2x refined_steel, 1x refined_tungsten_rod</td>
+                    <td>3x rounds_depleted_uranium</td>
+                    <td>Advanced Crafting Lv3, Radioactive Handling Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Neutronium Slugs</a></td>
+                    <td class="num">4</td>
+                    <td>1x refined_neutronium, 1x refined_durasteel</td>
+                    <td>3x slugs_neutronium</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Siege Torpedoes</a></td>
+                    <td class="num">5</td>
+                    <td>3x refined_durasteel, 3x comp_warhead_assembly, 1x refined_plutonium</td>
+                    <td>2x torpedoes_siege</td>
+                    <td>Advanced Crafting Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Warhead Core</a></td>
+                    <td class="num">5</td>
+                    <td>1x refined_plutonium, 2x refined_durasteel, 2x refined_circuits</td>
+                    <td>2x comp_warhead_assembly</td>
+                    <td>Radioactive Handling Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build EMP Missile Launcher</a></td>
+                    <td class="num">5</td>
+                    <td>1x weapon_missile_1, 1x comp_ion_emitter, 2x refined_superconductor, 2x comp_power_cell</td>
+                    <td>1x emp_missile_launcher</td>
+                    <td>Electronic Warfare Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Flak Cannon III</a></td>
+                    <td class="num">5</td>
+                    <td>5x refined_durasteel, 2x comp_tracking_system, 2x comp_sensor_array, 1x refined_metamaterial, 1x comp_weapon_housing</td>
+                    <td>1x flak_cannon_3</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Heavy Torpedo Launcher</a></td>
+                    <td class="num">5</td>
+                    <td>4x refined_durasteel, 2x comp_warhead_assembly, 1x comp_tracking_system, 1x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x weapon_torpedo_1</td>
+                    <td>Advanced Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Beam Array</a></td>
+                    <td class="num">5</td>
+                    <td>3x comp_ion_emitter, 2x refined_crystal, 3x refined_superconductor, 2x comp_power_cell</td>
+                    <td>1x ion_beam_array</td>
+                    <td>Electronic Warfare Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Blaster III</a></td>
+                    <td class="num">5</td>
+                    <td>6x refined_ion_solution, 3x refined_superconductor, 3x comp_ion_emitter, 2x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x ion_blaster_3</td>
+                    <td>Electronic Warfare Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Jury-Rigged Cannon</a></td>
+                    <td class="num">5</td>
+                    <td>12x refined_steel, 3x refined_durasteel, 2x comp_weapon_housing, 3x comp_heat_sink, 3x refined_circuits</td>
+                    <td>1x jury_rigged_cannon</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Neural Disruptor</a></td>
+                    <td class="num">5</td>
+                    <td>4x refined_superconductor, 2x refined_neural_gel, 2x comp_ion_emitter, 5x refined_circuits, 1x comp_weapon_housing</td>
+                    <td>1x weapon_disruptor_2</td>
+                    <td>Electronic Warfare Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Piercing Railgun II</a></td>
+                    <td class="num">5</td>
+                    <td>2x comp_railgun_capacitor, 5x refined_durasteel, 3x refined_superconductor, 1x power_core</td>
+                    <td>1x railgun_2</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Torpedo Launcher</a></td>
+                    <td class="num">5</td>
+                    <td>2x comp_plasma_injector, 1x comp_tracking_system, 4x refined_durasteel, 2x comp_power_cell</td>
+                    <td>1x plasma_torpedo_launcher</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build System Disabler</a></td>
+                    <td class="num">5</td>
+                    <td>4x refined_superconductor, 2x comp_ion_emitter, 2x comp_sensor_array, 6x refined_circuits, 1x comp_weapon_housing</td>
+                    <td>1x system_disabler</td>
+                    <td>Electronic Warfare Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build EMP Pulse III</a></td>
+                    <td class="num">6</td>
+                    <td>6x refined_superconductor, 4x comp_power_cell, 2x refined_metamaterial, 2x comp_ion_emitter, 1x comp_weapon_housing</td>
+                    <td>1x emp_pulse_3</td>
+                    <td>Electronic Warfare Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Entropy Beam</a></td>
+                    <td class="num">6</td>
+                    <td>3x refined_void_condensate, 2x refined_darksteel, 2x comp_laser_focus, 2x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x entropy_beam</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Focused Beam III</a></td>
+                    <td class="num">6</td>
+                    <td>3x refined_crystalline_lattice, 4x refined_optical_fiber, 3x comp_laser_focus, 3x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x weapon_beam_3</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Graviton Beam II</a></td>
+                    <td class="num">6</td>
+                    <td>5x refined_superconductor, 4x refined_graphene, 2x refined_metamaterial, 3x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x graviton_beam_2</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Heavy Pulse Laser</a></td>
+                    <td class="num">6</td>
+                    <td>2x refined_crystalline_lattice, 5x refined_crystal, 3x comp_laser_focus, 2x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x weapon_laser_4</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Cannon III</a></td>
+                    <td class="num">6</td>
+                    <td>3x comp_plasma_injector, 5x refined_ceramite, 2x refined_crimson_fury_alloy, 3x comp_heat_sink, 1x comp_weapon_housing</td>
+                    <td>1x plasma_cannon_3</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Tracking Mine Launcher</a></td>
+                    <td class="num">6</td>
+                    <td>5x refined_alloy, 6x refined_circuits, 2x comp_warhead_assembly, 2x comp_tracking_system, 2x comp_sensor_array, 1x comp_weapon_housing</td>
+                    <td>1x tracking_mine</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Void Lance I</a></td>
+                    <td class="num">6</td>
+                    <td>3x refined_void_condensate, 2x refined_crystalline_lattice, 3x comp_power_cell, 2x refined_exotic, 1x comp_weapon_housing</td>
+                    <td>1x void_lance_1</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Blood Reaver</a></td>
+                    <td class="num">7</td>
+                    <td>4x refined_crimson_fury_alloy, 3x refined_darksteel, 3x comp_weapon_core, 2x comp_heat_sink, 1x comp_weapon_housing</td>
+                    <td>1x blood_reaver</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Mass Driver</a></td>
+                    <td class="num">7</td>
+                    <td>4x refined_darksteel, 5x refined_superconductor, 3x comp_railgun_capacitor, 2x refined_adamantite, 1x comp_weapon_housing</td>
+                    <td>1x weapon_railgun_3</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Phase Disruptor</a></td>
+                    <td class="num">7</td>
+                    <td>3x refined_voidborn_null_matter, 2x refined_void_condensate, 2x refined_exotic, 3x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x phase_disruptor</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Plasma Cannon IV</a></td>
+                    <td class="num">7</td>
+                    <td>3x comp_weapon_core, 2x refined_plasma_core, 8x refined_titanium, 1x exotic_crystal</td>
+                    <td>1x plasma_cannon_4</td>
+                    <td>Advanced Crafting Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Solar Lance</a></td>
+                    <td class="num">7</td>
+                    <td>3x refined_solarian_composite, 3x refined_crystalline_lattice, 3x comp_laser_focus, 3x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x solar_lance</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Storm Lance</a></td>
+                    <td class="num">7</td>
+                    <td>3x refined_nebulium, 2x refined_nebula_essence, 3x comp_ion_emitter, 3x comp_power_cell, 1x comp_weapon_housing</td>
+                    <td>1x storm_lance</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Siege Railgun</a></td>
+                    <td class="num">8</td>
+                    <td>4x comp_railgun_capacitor, 2x refined_neutronium, 6x refined_superconductor, 3x power_core</td>
+                    <td>1x siege_railgun</td>
+                    <td>Advanced Crafting Lv6</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Void Cannon</a></td>
+                    <td class="num">8</td>
+                    <td>2x void_crystal, 1x comp_weapon_housing, 2x refined_exotic, 3x comp_power_cell</td>
+                    <td>1x void_cannon</td>
+                    <td>Advanced Crafting Lv6</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Void Torpedo Launcher</a></td>
+                    <td class="num">9</td>
+                    <td>3x void_crystal, 1x comp_phase_drive, 1x comp_tracking_system, 1x refined_antimatter</td>
+                    <td>1x void_torpedo_launcher</td>
+                    <td>Advanced Crafting Lv7</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Void Laser</a></td>
+                    <td class="num">10</td>
+                    <td>3x void_crystal, 5x exotic_crystal, 4x refined_quantum_matrix, 1x jump_drive_core, 3x power_core</td>
+                    <td>1x void_laser</td>
+                    <td>Advanced Crafting Lv8</td>
+                </tr></tbody>
+            </table>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

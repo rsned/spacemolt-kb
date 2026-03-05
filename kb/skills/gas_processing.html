@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Processing - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../skills/skills.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../skills/">Skills</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="index.html">Skills</a> / <a href="cat_mining.html">Mining</a> / Gas Processing</div>
+        <h2>Gas Processing</h2>
+        <p class="text-muted mt-1">Refine harvested gases into fuels and chemicals.</p>
+        <dl class="skill-meta">
+            <dt>Category</dt>
+            <dd><a href="cat_mining.html">Mining</a></dd>
+            <dt>Max Level</dt>
+            <dd>10</dd>
+            <dt>Prerequisites</dt>
+            <dd><div class="prereq-list"><a href="gas_harvesting.html">Gas Harvesting</a> <span class="badge badge-frost">Lv5</span> <a href="refinement.html">Ore Refinement</a> <span class="badge badge-frost">Lv3</span></div></dd>
+            <dt>Training</dt>
+            <dd>Craft Gas Processing recipes. Start with Compress Hydrogen Gas (refine_hydrogen) — no skill required — to begin training.</dd>
+        </dl>
+        <div class="level-tables"><div>
+            <h3>XP per Level</h3>
+            <table>
+                <thead><tr><th>Level</th><th>XP Required</th><th>Cumulative</th></tr></thead>
+                <tbody><tr><td>1</td><td class="num">500</td><td class="num">500</td></tr><tr><td>2</td><td class="num">1,500</td><td class="num">2,000</td></tr><tr><td>3</td><td class="num">3,000</td><td class="num">5,000</td></tr><tr><td>4</td><td class="num">5,000</td><td class="num">10,000</td></tr><tr><td>5</td><td class="num">8,000</td><td class="num">18,000</td></tr><tr><td>6</td><td class="num">12,000</td><td class="num">30,000</td></tr><tr><td>7</td><td class="num">17,000</td><td class="num">47,000</td></tr><tr><td>8</td><td class="num">23,000</td><td class="num">70,000</td></tr><tr><td>9</td><td class="num">30,000</td><td class="num">100,000</td></tr><tr><td>10</td><td class="num">40,000</td><td class="num">140,000</td></tr></tbody>
+            </table>
+        </div><div>
+            <h3>Bonuses per Level</h3>
+            <table>
+                <thead><tr><th>Level</th><th>fuelProduction</th><th>gasRefiningYield</th></tr></thead>
+                <tbody><tr><td>1</td><td class="num">+3</td><td class="num">+5</td></tr><tr><td>2</td><td class="num">+6</td><td class="num">+10</td></tr><tr><td>3</td><td class="num">+9</td><td class="num">+15</td></tr><tr><td>4</td><td class="num">+12</td><td class="num">+20</td></tr><tr><td>5</td><td class="num">+15</td><td class="num">+25</td></tr><tr><td>6</td><td class="num">+18</td><td class="num">+30</td></tr><tr><td>7</td><td class="num">+21</td><td class="num">+35</td></tr><tr><td>8</td><td class="num">+24</td><td class="num">+40</td></tr><tr><td>9</td><td class="num">+27</td><td class="num">+45</td></tr><tr><td>10</td><td class="num">+30</td><td class="num">+50</td></tr></tbody>
+            </table>
+        </div></div>
+        <div class="recipe-section">
+            <h3>Recipes Requiring This Skill</h3>
+            <table class="mt-1">
+                <thead>
+                    <tr><th>Recipe</th><th>Req Lv</th><th>Inputs</th><th>Outputs</th><th>Other Skills</th></tr>
+                </thead>
+                <tbody><tr>
+                    <td><a href="../recipes/">Build Sensor Booster</a></td>
+                    <td class="num">1</td>
+                    <td>2x refined_neon, 1x refined_circuits</td>
+                    <td>3x sensor_booster</td>
+                    <td>Basic Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Ionize Neon Gas</a></td>
+                    <td class="num">1</td>
+                    <td>6x gas_neon</td>
+                    <td>3x refined_neon</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Dispersal Plasma Cells</a></td>
+                    <td class="num">2</td>
+                    <td>1x refined_ion_solution, 1x refined_ceramite</td>
+                    <td>4x plasma_dispersal</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Plasma Cells</a></td>
+                    <td class="num">2</td>
+                    <td>1x refined_plasma_core, 1x refined_ceramite</td>
+                    <td>5x plasma_standard</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Purify Argon</a></td>
+                    <td class="num">2</td>
+                    <td>5x gas_argon</td>
+                    <td>3x refined_argon</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Plasma Mines</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_steel, 1x refined_plasma_core, 1x comp_warhead_assembly</td>
+                    <td>3x mines_plasma</td>
+                    <td>Advanced Crafting Lv3, Weapon Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Assemble Plasma Torpedoes</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_durasteel, 1x refined_plasma_core, 1x comp_warhead_assembly, 2x refined_ceramite</td>
+                    <td>2x torpedoes_plasma</td>
+                    <td>Advanced Crafting Lv4, Weapon Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Extract Xenon</a></td>
+                    <td class="num">3</td>
+                    <td>6x gas_xenon</td>
+                    <td>3x refined_xenon</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Focused Plasma Cells</a></td>
+                    <td class="num">3</td>
+                    <td>2x refined_plasma_core, 1x refined_ceramite</td>
+                    <td>4x plasma_focused</td>
+                    <td>Basic Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Gas Harvester II</a></td>
+                    <td class="num">4</td>
+                    <td>1x gas_harvester_1, 2x refined_ceramite, 1x refined_superconductor, 1x comp_power_cell</td>
+                    <td>1x gas_harvester_2</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Overcharged Plasma Cells</a></td>
+                    <td class="num">4</td>
+                    <td>2x refined_plasma_core, 1x refined_ceramite, 1x refined_superconductor</td>
+                    <td>3x plasma_overcharged</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Stabilize Plasma Gas</a></td>
+                    <td class="num">4</td>
+                    <td>5x gas_plasma, 1x refined_superconductor</td>
+                    <td>1x refined_plasma_core</td>
+                    <td>Ore Refinement Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Chlorine Circuit Etching</a></td>
+                    <td class="num">5</td>
+                    <td>2x ore_silicon, 1x refined_chlorine_compound</td>
+                    <td>3x refined_circuits</td>
+                    <td>Basic Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Manufacture Corrosive Plasma Cells</a></td>
+                    <td class="num">5</td>
+                    <td>1x refined_steel, 1x refined_chlorine_compound</td>
+                    <td>3x plasma_corrosive</td>
+                    <td>Basic Crafting Lv3, Weapon Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Stabilize Chlorine Gas</a></td>
+                    <td class="num">5</td>
+                    <td>8x gas_chlorine, 1x refined_polymer</td>
+                    <td>3x refined_chlorine_compound</td>
+                    <td>Ore Refinement Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Distill Nebula Gases</a></td>
+                    <td class="num">6</td>
+                    <td>10x gas_nebula</td>
+                    <td>2x refined_nebula_essence, 1x rare_element</td>
+                    <td>Ore Refinement Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Grow Nebula Sensor Crystal</a></td>
+                    <td class="num">6</td>
+                    <td>2x refined_nebula_essence, 1x refined_crystal, 2x refined_circuits</td>
+                    <td>2x comp_sensor_array</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Gas Harvester III</a></td>
+                    <td class="num">7</td>
+                    <td>1x gas_harvester_2, 2x refined_ion_solution, 1x refined_krypton, 2x comp_power_cell, 1x refined_superconductor</td>
+                    <td>1x gas_harvester_3</td>
+                    <td>Advanced Crafting Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Emitter (Gas Method)</a></td>
+                    <td class="num">7</td>
+                    <td>3x refined_ion_solution, 1x refined_superconductor, 1x comp_power_cell</td>
+                    <td>1x comp_ion_emitter</td>
+                    <td>Weapon Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Ion Thruster</a></td>
+                    <td class="num">7</td>
+                    <td>2x refined_ion_solution, 1x refined_alloy, 1x comp_power_cell</td>
+                    <td>2x comp_thruster_nozzle</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Concentrate Ion Gas</a></td>
+                    <td class="num">7</td>
+                    <td>8x gas_ion, 1x refined_superconductor</td>
+                    <td>2x refined_ion_solution</td>
+                    <td>Ore Refinement Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Synthesize Afterburner Fuel</a></td>
+                    <td class="num">7</td>
+                    <td>1x refined_ion_solution, 3x refined_hydrogen</td>
+                    <td>5x afterburner_fuel</td>
+                    <td>Basic Crafting Lv2</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Precision Optics</a></td>
+                    <td class="num">8</td>
+                    <td>2x refined_krypton, 1x refined_crystal, 1x comp_neon_signaling_array</td>
+                    <td>3x comp_sensor_array</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Distill Krypton</a></td>
+                    <td class="num">8</td>
+                    <td>6x gas_krypton</td>
+                    <td>2x refined_krypton</td>
+                    <td>Ore Refinement Lv5</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Synthesize Cloaking Dust</a></td>
+                    <td class="num">8</td>
+                    <td>1x refined_krypton, 2x refined_polymer</td>
+                    <td>3x cloaking_dust</td>
+                    <td>Advanced Crafting Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Fabricate Overclock Chip</a></td>
+                    <td class="num">9</td>
+                    <td>1x refined_fluorine_acid, 2x refined_circuits, 1x ore_gold</td>
+                    <td>3x overclock_chip</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Fluorine Nano-Etch Circuits</a></td>
+                    <td class="num">9</td>
+                    <td>2x ore_silicon, 1x refined_fluorine_acid</td>
+                    <td>5x refined_circuits</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Synthesize Fluorine Etchant</a></td>
+                    <td class="num">9</td>
+                    <td>6x gas_fluorine, 1x refined_ceramite</td>
+                    <td>2x refined_fluorine_acid</td>
+                    <td>Ore Refinement Lv6</td>
+                </tr></tbody>
+            </table>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salvaging - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../skills/skills.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../skills/">Skills</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="index.html">Skills</a> / <a href="cat_salvaging.html">Salvaging</a> / Salvaging</div>
+        <h2>Salvaging</h2>
+        <p class="text-muted mt-1">Extract materials from ship wrecks. Basic recovery.</p>
+        <dl class="skill-meta">
+            <dt>Category</dt>
+            <dd><a href="cat_salvaging.html">Salvaging</a></dd>
+            <dt>Max Level</dt>
+            <dd>10</dd>
+            <dt>Prerequisites</dt>
+            <dd><span class="text-muted">None</span></dd>
+            <dt>Training</dt>
+            <dd>Salvage wrecks from destroyed ships.</dd>
+        </dl>
+        <div class="level-tables"><div>
+            <h3>XP per Level</h3>
+            <table>
+                <thead><tr><th>Level</th><th>XP Required</th><th>Cumulative</th></tr></thead>
+                <tbody><tr><td>1</td><td class="num">100</td><td class="num">100</td></tr><tr><td>2</td><td class="num">300</td><td class="num">400</td></tr><tr><td>3</td><td class="num">600</td><td class="num">1,000</td></tr><tr><td>4</td><td class="num">1,000</td><td class="num">2,000</td></tr><tr><td>5</td><td class="num">1,500</td><td class="num">3,500</td></tr><tr><td>6</td><td class="num">2,100</td><td class="num">5,600</td></tr><tr><td>7</td><td class="num">2,800</td><td class="num">8,400</td></tr><tr><td>8</td><td class="num">3,600</td><td class="num">12,000</td></tr><tr><td>9</td><td class="num">4,500</td><td class="num">16,500</td></tr><tr><td>10</td><td class="num">5,500</td><td class="num">22,000</td></tr></tbody>
+            </table>
+        </div><div>
+            <h3>Bonuses per Level</h3>
+            <table>
+                <thead><tr><th>Level</th><th>salvageYield</th></tr></thead>
+                <tbody><tr><td>1</td><td class="num">+5</td></tr><tr><td>2</td><td class="num">+10</td></tr><tr><td>3</td><td class="num">+15</td></tr><tr><td>4</td><td class="num">+20</td></tr><tr><td>5</td><td class="num">+25</td></tr><tr><td>6</td><td class="num">+30</td></tr><tr><td>7</td><td class="num">+35</td></tr><tr><td>8</td><td class="num">+40</td></tr><tr><td>9</td><td class="num">+45</td></tr><tr><td>10</td><td class="num">+50</td></tr></tbody>
+            </table>
+        </div></div>
+        <div class="recipe-section">
+            <h3>Recipes Requiring This Skill</h3>
+            <table class="mt-1">
+                <thead>
+                    <tr><th>Recipe</th><th>Req Lv</th><th>Inputs</th><th>Outputs</th><th>Other Skills</th></tr>
+                </thead>
+                <tbody><tr>
+                    <td><a href="../recipes/">Field Hull Patch</a></td>
+                    <td class="num">1</td>
+                    <td>6x salvage_metal</td>
+                    <td>2x hull_patch</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Reclaim Steel from Scrap</a></td>
+                    <td class="num">1</td>
+                    <td>8x salvage_metal</td>
+                    <td>1x refined_steel</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Salvage Drone</a></td>
+                    <td class="num">2</td>
+                    <td>1x comp_drone_chassis, 1x comp_repair_nanites, 2x refined_circuits, 2x refined_steel</td>
+                    <td>1x salvage_drone</td>
+                    <td>Basic Crafting Lv5, Drone Operation Lv3</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Drain Fuel Reserves</a></td>
+                    <td class="num">2</td>
+                    <td>5x salvage_components</td>
+                    <td>2x fuel_cell</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Reforge Hull Plating</a></td>
+                    <td class="num">2</td>
+                    <td>12x salvage_metal, 2x salvage_components</td>
+                    <td>1x comp_hull_plate</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Strip Wiring from Components</a></td>
+                    <td class="num">2</td>
+                    <td>3x salvage_components</td>
+                    <td>1x comp_wiring_harness</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Recover Heat Sinks</a></td>
+                    <td class="num">3</td>
+                    <td>4x salvage_components</td>
+                    <td>1x comp_heat_sink</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Salvager&#x27;s Repair Kit</a></td>
+                    <td class="num">3</td>
+                    <td>10x salvage_metal, 4x salvage_components</td>
+                    <td>2x repair_kit</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Build Outer Rim Salvage Array</a></td>
+                    <td class="num">4</td>
+                    <td>2x comp_sensor_array, 3x refined_nanoplastic, 4x refined_circuits, 1x comp_repair_nanites</td>
+                    <td>1x outerrim_salvage_array</td>
+                    <td>Advanced Crafting Lv4</td>
+                </tr><tr>
+                    <td><a href="../recipes/">Rebuild Power Cells</a></td>
+                    <td class="num">4</td>
+                    <td>2x salvage_rare, 3x salvage_components</td>
+                    <td>1x comp_power_cell</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Reclaim Circuit Boards</a></td>
+                    <td class="num">5</td>
+                    <td>3x salvage_rare, 5x salvage_components</td>
+                    <td>1x refined_circuits</td>
+                    <td></td>
+                </tr><tr>
+                    <td><a href="../recipes/">Reprogrammed Repair Nanites</a></td>
+                    <td class="num">5</td>
+                    <td>3x salvage_rare, 6x salvage_components</td>
+                    <td>4x repair_nanites</td>
+                    <td></td>
+                </tr></tbody>
+            </table>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

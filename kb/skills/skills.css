@@ -1,0 +1,168 @@
+/* Skills section styles */
+
+/* Category card grid (index page) */
+.skill-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: hsl(var(--border));
+  border: 1px solid hsl(var(--border));
+  margin-top: 1.5rem;
+}
+
+.skill-cat-card {
+  background: hsl(var(--card));
+  padding: 1.25rem 1.25rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skill-cat-card:hover {
+  background: hsl(var(--accent));
+  text-decoration: none;
+}
+
+.skill-cat-card .cat-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.skill-cat-card .cat-count {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.skill-cat-card .cat-skills {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.7;
+}
+
+/* Skill tree SVG container */
+.tree-container {
+  overflow-x: auto;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.tree-container svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Make Graphviz SVGs theme-aware */
+.dark .tree-container svg text {
+  fill: hsl(var(--foreground)) !important;
+}
+.dark .tree-container svg polygon[fill="white"],
+.dark .tree-container svg polygon[fill="#ffffff"] {
+  fill: hsl(var(--card)) !important;
+}
+.dark .tree-container svg path[stroke="black"],
+.dark .tree-container svg polygon[stroke="black"],
+.dark .tree-container svg ellipse[stroke="black"] {
+  stroke: hsl(var(--foreground)) !important;
+}
+.dark .tree-container svg polygon[fill="none"][stroke="black"] {
+  stroke: hsl(var(--border)) !important;
+}
+
+/* Category page skill table */
+.skill-table td:first-child {
+  white-space: nowrap;
+}
+
+/* Skill detail page */
+.skill-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1.5rem;
+  margin: 1rem 0;
+  font-size: var(--text-ui);
+}
+
+.skill-meta dt {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: hsl(var(--muted-foreground));
+  padding: 0.3rem 0;
+}
+
+.skill-meta dd {
+  padding: 0.3rem 0;
+}
+
+/* XP and bonus tables */
+.level-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .level-tables {
+    grid-template-columns: 1fr;
+  }
+}
+
+.level-tables h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.level-tables table {
+  font-size: var(--text-ui);
+}
+
+.level-tables td.num,
+.level-tables th:not(:first-child) {
+  text-align: right;
+}
+
+/* Recipes section */
+.recipe-section {
+  margin-top: 1.5rem;
+}
+
+.recipe-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.breadcrumb a {
+  color: hsl(var(--muted-foreground));
+}
+
+.breadcrumb a:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Prereq badges */
+.prereq-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
