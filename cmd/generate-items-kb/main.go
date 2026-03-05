@@ -29,6 +29,8 @@ type Item struct {
 	Stackable   bool
 	Tradeable   bool
 
+	HasImage bool
+
 	ProducedBy []ProducedBy
 	UsedIn     []UsedIn
 }
@@ -121,6 +123,13 @@ func main() {
 	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		log.Fatalf("create output dir: %v", err)
+	}
+
+	// Check which items have images.
+	imgDir := filepath.Join(outDir, "images")
+	for _, it := range items {
+		_, err := os.Stat(filepath.Join(imgDir, it.ID+".png"))
+		it.HasImage = err == nil
 	}
 
 	// Group items by category.
@@ -505,7 +514,7 @@ var htmlCatTemplate = `<!DOCTYPE html>
 {{- range .Items}}
         <tr>
           <td><a href="{{.ID}}.html">{{.Name}}</a></td>
-          <td class="thumb"><img src="../images/{{.ID}}.png" alt="{{.Name}}"></td>
+          <td class="thumb">{{if .HasImage}}<img src="../images/{{.ID}}.png" alt="{{.Name}}">{{end}}</td>
           <td><span class="{{rarityClass .Rarity}}">{{.Rarity}}</span></td>
           <td class="size" data-sort="{{.Size}}">{{.Size}}</td>
           <td class="value" data-sort="{{.BaseValue}}">{{fmtValue .BaseValue}}</td>
@@ -538,9 +547,11 @@ var htmlItemTemplate = `<!DOCTYPE html>
         <h2>{{.Name}}</h2>
 
         <div class="card mt-2" style="padding:0">
+{{- if .HasImage}}
           <div class="item-image">
             <img src="../images/{{.ID}}.png" alt="{{.Name}}" height="200">
           </div>
+{{- end}}
           <div class="section-label">General</div>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{titleCase .Category}}</a></td></tr>
