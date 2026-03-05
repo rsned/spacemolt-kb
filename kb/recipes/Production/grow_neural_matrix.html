@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grow Neural Matrix - Recipes - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../recipes/recipes.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../items/">Items</a>
+            <a href="../../recipes/">Recipes</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Recipes</a> / <a href="./">Production</a> / Grow Neural Matrix</div>
+        <h2>Grow Neural Matrix</h2>
+
+        <blockquote class="item-desc">Quantum computing substrates cultivated in null-energy growth chambers. Art and engineering in equal measure.</blockquote>
+
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Output</div>
+          <table>
+            <thead><tr><th></th><th>Item</th><th>Quantity</th></tr></thead>
+            <tbody>
+            <tr>
+              <td class="thumb"><img src="../../items/images/voidborn_neural_matrix.png" alt="Voidborn Neural Matrix"></td>
+              <td><a href="../../items/component/voidborn_neural_matrix.html">Voidborn Neural Matrix</a></td>
+              <td>2</td>
+            </tr>
+            </tbody>
+          </table>
+
+          <div class="section-label">Inputs</div>
+          <table>
+            <thead><tr><th></th><th>Item</th><th>Quantity</th></tr></thead>
+            <tbody>
+            </tbody>
+          </table>
+
+          <div class="section-label">Details</div>
+          <table>
+            <tr><td class="kv-label">Category</td><td><a href="./">Production</a></td></tr>
+            <tr><td class="kv-label">Crafting Time</td><td>5 ticks</td></tr>
+            <tr><td class="kv-label">Base Quality</td><td>100</td></tr>
+            <tr><td class="kv-label">Skill Quality Mod</td><td>0</td></tr>
+          </table>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Phase Disruptor - Recipes - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../recipes/recipes.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../items/">Items</a>
+            <a href="../../recipes/">Recipes</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Recipes</a> / <a href="./">Weapons</a> / Build Phase Disruptor</div>
+        <h2>Build Phase Disruptor</h2>
+
+        <blockquote class="item-desc">Voidborn weapon that shifts between dimensions to strike.</blockquote>
+
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Output</div>
+          <table>
+            <thead><tr><th></th><th>Item</th><th>Quantity</th></tr></thead>
+            <tbody>
+            <tr>
+              <td class="thumb"></td>
+              <td><a href="../../items/weapon/phase_disruptor.html">Phase Disruptor</a></td>
+              <td>1</td>
+            </tr>
+            </tbody>
+          </table>
+
+          <div class="section-label">Inputs</div>
+          <table>
+            <thead><tr><th></th><th>Item</th><th>Quantity</th></tr></thead>
+            <tbody>
+            <tr>
+              <td class="thumb"><img src="../../items/images/power_cell.png" alt="Power Cell"></td>
+              <td><a href="../../items/component/power_cell.html">Power Cell</a></td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td class="thumb"><img src="../../items/images/processed_null_matter.png" alt="Processed Null Matter"></td>
+              <td><a href="../../items/refined/processed_null_matter.html">Processed Null Matter</a></td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td class="thumb"><img src="../../items/images/stabilized_exotic.png" alt="Stabilized Exotic"></td>
+              <td><a href="../../items/refined/stabilized_exotic.html">Stabilized Exotic</a></td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td class="thumb"><img src="../../items/images/void_condensate.png" alt="Void Condensate"></td>
+              <td><a href="../../items/refined/void_condensate.html">Void Condensate</a></td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td class="thumb"><img src="../../items/images/weapon_housing.png" alt="Weapon Housing"></td>
+              <td><a href="../../items/component/weapon_housing.html">Weapon Housing</a></td>
+              <td>1</td>
+            </tr>
+            </tbody>
+          </table>
+
+          <div class="section-label">Details</div>
+          <table>
+            <tr><td class="kv-label">Category</td><td><a href="./">Weapons</a></td></tr>
+            <tr><td class="kv-label">Crafting Time</td><td>50 ticks</td></tr>
+            <tr><td class="kv-label">Base Quality</td><td>25</td></tr>
+            <tr><td class="kv-label">Skill Quality Mod</td><td>8</td></tr>
+          </table>
+          <div class="section-label">Required Skills</div>
+          <table>
+            <thead><tr><th>Skill</th><th>Level</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a></td>
+              <td>4</td>
+            </tr>
+            <tr>
+              <td><a href="../../skills/weapon_crafting.html">Weapon Crafting</a></td>
+              <td>7</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

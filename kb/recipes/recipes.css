@@ -1,0 +1,141 @@
+/* Recipes section styles — extends items.css patterns */
+
+/* Category card grid (index page) — reuse .item-categories/.item-cat-card from items.css */
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.breadcrumb a {
+  color: hsl(var(--muted-foreground));
+}
+
+.breadcrumb a:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Reuse items.css card patterns */
+.section-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--smui-surface-2));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.kv-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  width: 160px;
+}
+
+/* Category card grid */
+.item-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: hsl(var(--border));
+  border: 1px solid hsl(var(--border));
+  margin-top: 1.5rem;
+}
+
+.item-cat-card {
+  background: hsl(var(--card));
+  padding: 1.25rem 1.25rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-cat-card:hover {
+  background: hsl(var(--accent));
+  text-decoration: none;
+}
+
+.item-cat-card .cat-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.item-cat-card .cat-count {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.item-cat-card .cat-desc {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.7;
+}
+
+/* Recipe table — compact inputs column */
+.recipe-inputs {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Output item with inline thumbnail */
+.recipe-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.recipe-item:hover {
+  color: hsl(var(--primary));
+}
+
+.recipe-thumb {
+  height: 24px;
+  image-rendering: pixelated;
+}
+
+/* Detail page thumbnails */
+.thumb img {
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+/* Numeric columns */
+td.time { text-align: right; }
+
+/* Sortable table headers */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  color: hsl(var(--primary));
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  font-size: 10px;
+}
+
+/* Description blockquote */
+.item-desc {
+  border-left: 3px solid hsl(var(--border));
+  padding: 0.75rem 1rem;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+  margin: 1rem 0;
+}

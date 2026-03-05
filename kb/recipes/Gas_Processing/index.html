@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Processing - Recipes - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../recipes/recipes.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../items/">Items</a>
+            <a href="../../recipes/">Recipes</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Recipes</a> / Gas Processing</div>
+        <h2>Gas Processing</h2>
+        <p class="text-muted mt-1">Compression and refinement of harvested nebula gases.</p>
+        <div class="card mt-3" style="padding:0">
+        <table class="sortable">
+        <thead>
+        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable" style="text-align:right">Time</th><th>Skills</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td><a href="compress_hydrogen_gas.html">Compress Hydrogen Gas</a></td>
+          <td><a href="../../items/refined/liquid_hydrogen.html" class="recipe-item"><img src="../../items/images/liquid_hydrogen.png" alt="Liquid Hydrogen" class="recipe-thumb">Liquid Hydrogen &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/compressed_hydrogen.html">Compressed Hydrogen</a>&nbsp;&times;8</td>
+          <td class="time" data-sort="2">2 ticks</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><a href="concentrate_ion_gas.html">Concentrate Ion Gas</a></td>
+          <td><a href="../../items/refined/ion_solution.html" class="recipe-item"><img src="../../items/images/ion_solution.png" alt="Ion Solution" class="recipe-thumb">Ion Solution &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/ion_gas.html">Ion Gas</a>&nbsp;&times;8, <a href="../../items/refined/superconductor.html">Superconductor</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;7, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="distill_krypton.html">Distill Krypton</a></td>
+          <td><a href="../../items/refined/purified_krypton.html" class="recipe-item"><img src="../../items/images/purified_krypton.png" alt="Purified Krypton" class="recipe-thumb">Purified Krypton &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/krypton_gas.html">Krypton Gas</a>&nbsp;&times;6</td>
+          <td class="time" data-sort="12">12 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;8, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="distill_nebula_gases.html">Distill Nebula Gases</a></td>
+          <td><a href="../../items/refined/nebula_essence.html" class="recipe-item"><img src="../../items/images/nebula_essence.png" alt="Nebula Essence" class="recipe-thumb">Nebula Essence &times;2</a><a href="../../items/refined/trace_exotic_element.html" class="recipe-item"><img src="../../items/images/trace_exotic_element.png" alt="Trace Exotic Element" class="recipe-thumb">Trace Exotic Element</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/nebula_gas.html">Nebula Gas</a>&nbsp;&times;10</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;6, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="extract_xenon.html">Extract Xenon</a></td>
+          <td><a href="../../items/refined/purified_xenon.html" class="recipe-item"><img src="../../items/images/purified_xenon.png" alt="Purified Xenon" class="recipe-thumb">Purified Xenon &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/xenon_gas.html">Xenon Gas</a>&nbsp;&times;6</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="ionize_neon_gas.html">Ionize Neon Gas</a></td>
+          <td><a href="../../items/refined/ionized_neon.html" class="recipe-item"><img src="../../items/images/ionized_neon.png" alt="Ionized Neon" class="recipe-thumb">Ionized Neon &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/neon_gas.html">Neon Gas</a>&nbsp;&times;6</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="purify_argon.html">Purify Argon</a></td>
+          <td><a href="../../items/refined/purified_argon.html" class="recipe-item"><img src="../../items/images/purified_argon.png" alt="Purified Argon" class="recipe-thumb">Purified Argon &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/argon_gas.html">Argon Gas</a>&nbsp;&times;5</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="stabilize_chlorine_gas.html">Stabilize Chlorine Gas</a></td>
+          <td><a href="../../items/refined/chlorine_compound.html" class="recipe-item"><img src="../../items/images/chlorine_compound.png" alt="Chlorine Compound" class="recipe-thumb">Chlorine Compound &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/chlorine_gas.html">Chlorine Gas</a>&nbsp;&times;8, <a href="../../items/refined/flex_polymer.html">Flex Polymer</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;5, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="stabilize_plasma_gas.html">Stabilize Plasma Gas</a></td>
+          <td><a href="../../items/refined/refined_plasma_core.html" class="recipe-item"><img src="../../items/images/refined_plasma_core.png" alt="Refined Plasma Core" class="recipe-thumb">Refined Plasma Core</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/plasma_gas.html">Plasma Gas</a>&nbsp;&times;5, <a href="../../items/refined/superconductor.html">Superconductor</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;4, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_fluorine_etchant.html">Synthesize Fluorine Etchant</a></td>
+          <td><a href="../../items/refined/fluorine_etchant.html" class="recipe-item"><img src="../../items/images/fluorine_etchant.png" alt="Fluorine Etchant" class="recipe-thumb">Fluorine Etchant &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;1, <a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a>&nbsp;&times;6</td>
+          <td class="time" data-sort="15">15 ticks</td>
+          <td><a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;9, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;6</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+    </main>
+    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+    </script>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

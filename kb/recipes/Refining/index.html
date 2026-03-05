@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refining - Recipes - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../recipes/recipes.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../items/">Items</a>
+            <a href="../../recipes/">Recipes</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Recipes</a> / Refining</div>
+        <h2>Refining</h2>
+        <p class="text-muted mt-1">Smelting ores into refined metals, alloys, and processed materials.</p>
+        <div class="card mt-3" style="padding:0">
+        <table class="sortable">
+        <thead>
+        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable" style="text-align:right">Time</th><th>Skills</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td><a href="alloy_electrum_ingot.html">Alloy Electrum Ingot</a></td>
+          <td><a href="../../items/refined/electrum_ingot.html" class="recipe-item"><img src="../../items/images/electrum_ingot.png" alt="Electrum Ingot" class="recipe-thumb">Electrum Ingot &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/gold_ore.html">Gold Ore</a>&nbsp;&times;2, <a href="../../items/ore/silver_ore.html">Silver Ore</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="assemble_power_battery.html">Assemble Power Battery</a></td>
+          <td><a href="../../items/refined/power_battery.html" class="recipe-item"><img src="../../items/images/power_battery.png" alt="Power Battery" class="recipe-thumb">Power Battery</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/cobalt_ore.html">Cobalt Ore</a>&nbsp;&times;2, <a href="../../items/ore/lithium_ore.html">Lithium Ore</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="assemble_quantum_stabilizer.html">Assemble Quantum Stabilizer</a></td>
+          <td><a href="../../items/component/quantum_stabilizer.html" class="recipe-item"><img src="../../items/images/quantum_stabilizer.png" alt="Quantum Stabilizer" class="recipe-thumb">Quantum Stabilizer</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/circuit_board.html">Circuit Board</a>&nbsp;&times;2, <a href="../../items/refined/processed_null_matter.html">Processed Null Matter</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="attune_phase_matrix.html">Attune Phase Matrix</a></td>
+          <td><a href="../../items/refined/phase_matrix.html" class="recipe-item"><img src="../../items/images/phase_matrix.png" alt="Phase Matrix" class="recipe-thumb">Phase Matrix</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;1, <a href="../../items/ore/phase_crystal.html">Phase Crystal</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="basic_copper_processing.html">Basic Copper Processing</a></td>
+          <td><a href="../../items/refined/copper_wiring.html" class="recipe-item"><img src="../../items/images/copper_wiring.png" alt="Copper Wiring" class="recipe-thumb">Copper Wiring</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/copper_ore.html">Copper Ore</a>&nbsp;&times;8</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><a href="basic_iron_smelting.html">Basic Iron Smelting</a></td>
+          <td><a href="../../items/refined/steel_plate.html" class="recipe-item"><img src="../../items/images/steel_plate.png" alt="Steel Plate" class="recipe-thumb">Steel Plate</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/iron_ore.html">Iron Ore</a>&nbsp;&times;10</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><a href="basic_silicon_refinement.html">Basic Silicon Refinement</a></td>
+          <td><a href="../../items/refined/flex_polymer.html" class="recipe-item"><img src="../../items/images/flex_polymer.png" alt="Flex Polymer" class="recipe-thumb">Flex Polymer</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/nickel_ore.html">Nickel Ore</a>&nbsp;&times;4, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;8</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><a href="breed_plutonium.html">Breed Plutonium</a></td>
+          <td><a href="../../items/refined/weapons_grade_plutonium.html" class="recipe-item"><img src="../../items/images/weapons_grade_plutonium.png" alt="Weapons-Grade Plutonium" class="recipe-thumb">Weapons-Grade Plutonium</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/deuterium.html">Deuterium</a>&nbsp;&times;3, <a href="../../items/refined/enriched_uranium_rod.html">Enriched Uranium Rod</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="25">25 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;5, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;8, <a href="../../skills/radioactive_handling.html">Radioactive Handling</a>&nbsp;6</td>
+        </tr>
+        <tr>
+          <td><a href="build_universal_nav_core.html">Build Universal Nav Core</a></td>
+          <td><a href="../../items/component/universal_nav_core.html" class="recipe-item"><img src="../../items/images/universal_nav_core.png" alt="Universal Nav Core" class="recipe-thumb">Universal Nav Core</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/circuit_board.html">Circuit Board</a>&nbsp;&times;1, <a href="../../items/refined/condensed_dark_matter.html">Condensed Dark Matter</a>&nbsp;&times;1, <a href="../../items/component/trade_cipher.html">Trade Cipher</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="chlorine_circuit_etching.html">Chlorine Circuit Etching</a></td>
+          <td><a href="../../items/refined/circuit_board.html" class="recipe-item"><img src="../../items/images/circuit_board.png" alt="Circuit Board" class="recipe-thumb">Circuit Board &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/chlorine_compound.html">Chlorine Compound</a>&nbsp;&times;1, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/basic_crafting.html">Basic Crafting</a>&nbsp;3, <a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="compress_synthetic_diamond.html">Compress Synthetic Diamond</a></td>
+          <td><a href="../../items/refined/synthetic_diamond.html" class="recipe-item"><img src="../../items/images/synthetic_diamond.png" alt="Synthetic Diamond" class="recipe-thumb">Synthetic Diamond</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/carbon_ore.html">Carbon Ore</a>&nbsp;&times;8, <a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="condense_dark_matter.html">Condense Dark Matter</a></td>
+          <td><a href="../../items/refined/condensed_dark_matter.html" class="recipe-item"><img src="../../items/images/condensed_dark_matter.png" alt="Condensed Dark Matter" class="recipe-thumb">Condensed Dark Matter</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/dark_matter_residue.html">Dark Matter Residue</a>&nbsp;&times;2, <a href="../../items/refined/durasteel_plate.html">Durasteel Plate</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="condense_void_essence.html">Condense Void Essence</a></td>
+          <td><a href="../../items/refined/void_condensate.html" class="recipe-item"><img src="../../items/images/void_condensate.png" alt="Void Condensate" class="recipe-thumb">Void Condensate</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;1, <a href="../../items/ore/void_essence.html">Void Essence</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="create_ceramite_plating.html">Create Ceramite Plating</a></td>
+          <td><a href="../../items/refined/ceramite_plating.html" class="recipe-item"><img src="../../items/images/ceramite_plating.png" alt="Ceramite Plating" class="recipe-thumb">Ceramite Plating &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;4, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;2, <a href="../../items/ore/titanium_ore.html">Titanium Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/basic_crafting.html">Basic Crafting</a>&nbsp;4, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="create_silver_superconductor.html">Create Silver Superconductor</a></td>
+          <td><a href="../../items/refined/superconductor.html" class="recipe-item"><img src="../../items/images/superconductor.png" alt="Superconductor" class="recipe-thumb">Superconductor</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/iridium_ore.html">Iridium Ore</a>&nbsp;&times;1, <a href="../../items/ore/palladium_ore.html">Palladium Ore</a>&nbsp;&times;2, <a href="../../items/refined/silver_wiring.html">Silver Wiring</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5, <a href="../../skills/shield_crafting.html">Shield Crafting</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="create_superconductor.html">Create Superconductor</a></td>
+          <td><a href="../../items/refined/superconductor.html" class="recipe-item"><img src="../../items/images/superconductor.png" alt="Superconductor" class="recipe-thumb">Superconductor</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/copper_wiring.html">Copper Wiring</a>&nbsp;&times;3, <a href="../../items/ore/iridium_ore.html">Iridium Ore</a>&nbsp;&times;1, <a href="../../items/ore/palladium_ore.html">Palladium Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5, <a href="../../skills/shield_crafting.html">Shield Crafting</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="crystallize_exotic_matter.html">Crystallize Exotic Matter</a></td>
+          <td><a href="../../items/material/exotic_crystal.html" class="recipe-item"><img src="../../items/images/exotic_crystal.png" alt="Exotic Crystal" class="recipe-thumb">Exotic Crystal</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/exotic_matter.html">Exotic Matter</a>&nbsp;&times;3, <a href="../../items/refined/focused_crystal.html">Focused Crystal</a>&nbsp;&times;1, <a href="../../items/refined/silicate_composite.html">Silicate Composite</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;3, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="crystallize_void_essence.html">Crystallize Void Essence</a></td>
+          <td><a href="../../items/material/void_crystal.html" class="recipe-item"><img src="../../items/images/void_crystal.png" alt="Void Crystal" class="recipe-thumb">Void Crystal</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/focused_crystal.html">Focused Crystal</a>&nbsp;&times;1, <a href="../../items/refined/void_condensate.html">Void Condensate</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="cultivate_alien_spores.html">Cultivate Alien Spores</a></td>
+          <td><a href="../../items/refined/bioactive_compound.html" class="recipe-item"><img src="../../items/images/bioactive_compound.png" alt="Bioactive Compound" class="recipe-thumb">Bioactive Compound &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/alien_spores.html">Alien Spores</a>&nbsp;&times;5, <a href="../../items/refined/purified_water.html">Purified Water</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/biological_processing.html">Biological Processing</a>&nbsp;3, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="culture_bioluminescent_cells.html">Culture Bioluminescent Cells</a></td>
+          <td><a href="../../items/refined/bioluminescent_culture.html" class="recipe-item"><img src="../../items/images/bioluminescent_culture.png" alt="Bioluminescent Culture" class="recipe-thumb">Bioluminescent Culture &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/bioluminescent_polyps.html">Bioluminescent Polyps</a>&nbsp;&times;3, <a href="../../items/refined/purified_water.html">Purified Water</a>&nbsp;&times;2, <a href="../../items/refined/synthetic_compound.html">Synthetic Compound</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/biological_processing.html">Biological Processing</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="draw_gold_wire.html">Draw Gold Wire</a></td>
+          <td><a href="../../items/refined/gold_wiring.html" class="recipe-item"><img src="../../items/images/gold_wiring.png" alt="Gold Wiring" class="recipe-thumb">Gold Wiring</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/gold_ore.html">Gold Ore</a>&nbsp;&times;4</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="draw_silver_wire.html">Draw Silver Wire</a></td>
+          <td><a href="../../items/refined/silver_wiring.html" class="recipe-item"><img src="../../items/images/silver_wiring.png" alt="Silver Wiring" class="recipe-thumb">Silver Wiring</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/silver_ore.html">Silver Ore</a>&nbsp;&times;4</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="draw_tungsten_rod.html">Draw Tungsten Rod</a></td>
+          <td><a href="../../items/refined/tungsten_rod.html" class="recipe-item"><img src="../../items/images/tungsten_rod.png" alt="Tungsten Rod" class="recipe-thumb">Tungsten Rod</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/tungsten_ore.html">Tungsten Ore</a>&nbsp;&times;4</td>
+          <td class="time" data-sort="5">5 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="encode_trade_cipher.html">Encode Trade Cipher</a></td>
+          <td><a href="../../items/component/trade_cipher.html" class="recipe-item"><img src="../../items/images/trade_cipher.png" alt="Trade Cipher" class="recipe-thumb">Trade Cipher &times;5</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/trade_crystal.html">Trade Crystal</a>&nbsp;&times;10</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/basic_crafting.html">Basic Crafting</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="enrich_uranium.html">Enrich Uranium</a></td>
+          <td><a href="../../items/refined/enriched_uranium_rod.html" class="recipe-item"><img src="../../items/images/enriched_uranium_rod.png" alt="Enriched Uranium Rod" class="recipe-thumb">Enriched Uranium Rod</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/liquid_nitrogen.html">Liquid Nitrogen</a>&nbsp;&times;2, <a href="../../items/ore/uranium_ore.html">Uranium Ore</a>&nbsp;&times;8</td>
+          <td class="time" data-sort="15">15 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;6, <a href="../../skills/radioactive_handling.html">Radioactive Handling</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="exfoliate_graphene.html">Exfoliate Graphene</a></td>
+          <td><a href="../../items/refined/graphene_sheet.html" class="recipe-item"><img src="../../items/images/graphene_sheet.png" alt="Graphene Sheet" class="recipe-thumb">Graphene Sheet</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/carbon_ore.html">Carbon Ore</a>&nbsp;&times;6</td>
+          <td class="time" data-sort="5">5 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="extract_neural_compounds.html">Extract Neural Compounds</a></td>
+          <td><a href="../../items/refined/neural_extract.html" class="recipe-item"><img src="../../items/images/neural_extract.png" alt="Neural Extract" class="recipe-thumb">Neural Extract</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/circuit_board.html">Circuit Board</a>&nbsp;&times;3, <a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;1, <a href="../../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="12">12 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="extrude_nanoplastic.html">Extrude Nanoplastic</a></td>
+          <td><a href="../../items/refined/nanoplastic_composite.html" class="recipe-item"><img src="../../items/images/nanoplastic_composite.png" alt="Nanoplastic Composite" class="recipe-thumb">Nanoplastic Composite &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/carbon_ore.html">Carbon Ore</a>&nbsp;&times;2, <a href="../../items/refined/flex_polymer.html">Flex Polymer</a>&nbsp;&times;4</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/basic_crafting.html">Basic Crafting</a>&nbsp;3, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="fabricate_circuit_boards.html">Fabricate Circuit Boards</a></td>
+          <td><a href="../../items/refined/circuit_board.html" class="recipe-item"><img src="../../items/images/circuit_board.png" alt="Circuit Board" class="recipe-thumb">Circuit Board &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/copper_ore.html">Copper Ore</a>&nbsp;&times;3, <a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;1, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td><a href="../../skills/basic_crafting.html">Basic Crafting</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="fabricate_fusion_fuel_rod.html">Fabricate Fusion Fuel Rod</a></td>
+          <td><a href="../../items/refined/fusion_fuel_rod.html" class="recipe-item"><img src="../../items/images/fusion_fuel_rod.png" alt="Fusion Fuel Rod" class="recipe-thumb">Fusion Fuel Rod</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/processed_thorium.html">Processed Thorium</a>&nbsp;&times;1, <a href="../../items/ore/uranium_ore.html">Uranium Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="fabricate_silver_circuit_boards.html">Fabricate Silver Circuit Boards</a></td>
+          <td><a href="../../items/refined/circuit_board.html" class="recipe-item"><img src="../../items/images/circuit_board.png" alt="Circuit Board" class="recipe-thumb">Circuit Board &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;1, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2, <a href="../../items/refined/silver_wiring.html">Silver Wiring</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td><a href="../../skills/basic_crafting.html">Basic Crafting</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="fire_thermal_ceramic.html">Fire Thermal Ceramic</a></td>
+          <td><a href="../../items/refined/thermal_ceramic.html" class="recipe-item"><img src="../../items/images/thermal_ceramic.png" alt="Thermal Ceramic" class="recipe-thumb">Thermal Ceramic</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a>&nbsp;&times;4, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="fluorine_nano_etch_circuits.html">Fluorine Nano-Etch Circuits</a></td>
+          <td><a href="../../items/refined/circuit_board.html" class="recipe-item"><img src="../../items/images/circuit_board.png" alt="Circuit Board" class="recipe-thumb">Circuit Board &times;5</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/fluorine_etchant.html">Fluorine Etchant</a>&nbsp;&times;1, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;4, <a href="../../skills/gas_processing.html">Gas Processing</a>&nbsp;9</td>
+        </tr>
+        <tr>
+          <td><a href="focus_energy_crystal.html">Focus Energy Crystal</a></td>
+          <td><a href="../../items/refined/focused_crystal.html" class="recipe-item"><img src="../../items/images/focused_crystal.png" alt="Focused Crystal" class="recipe-thumb">Focused Crystal</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;4, <a href="../../items/ore/palladium_ore.html">Palladium Ore</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/basic_crafting.html">Basic Crafting</a>&nbsp;3, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="forge_adamantite.html">Forge Adamantite</a></td>
+          <td><a href="../../items/refined/adamantite_bar.html" class="recipe-item"><img src="../../items/images/adamantite_bar.png" alt="Adamantite Bar" class="recipe-thumb">Adamantite Bar</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/adamantite_ore.html">Adamantite Ore</a>&nbsp;&times;5, <a href="../../items/material/exotic_crystal.html">Exotic Crystal</a>&nbsp;&times;2, <a href="../../items/refined/neutronium_ingot.html">Neutronium Ingot</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="45">45 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;7, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;9</td>
+        </tr>
+        <tr>
+          <td><a href="forge_darksteel_plating.html">Forge Darksteel Plating</a></td>
+          <td><a href="../../items/refined/darksteel_plating.html" class="recipe-item"><img src="../../items/images/darksteel_plating.png" alt="Darksteel Plating" class="recipe-thumb">Darksteel Plating</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/darksteel_ore.html">Darksteel Ore</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="forge_durasteel.html">Forge Durasteel</a></td>
+          <td><a href="../../items/refined/durasteel_plate.html" class="recipe-item"><img src="../../items/images/durasteel_plate.png" alt="Durasteel Plate" class="recipe-thumb">Durasteel Plate &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;4, <a href="../../items/ore/tungsten_ore.html">Tungsten Ore</a>&nbsp;&times;2, <a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;3, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="forge_fury_tempered_plating.html">Forge Fury-Tempered Plating</a></td>
+          <td><a href="../../items/component/fury_tempered_plating.html" class="recipe-item">Fury-Tempered Plating</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/fury_alloy.html">Fury Alloy</a>&nbsp;&times;1, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="forge_solarian_composite.html">Forge Solarian Composite</a></td>
+          <td><a href="../../items/refined/solarian_composite.html" class="recipe-item"><img src="../../items/images/solarian_composite.png" alt="Solarian Composite" class="recipe-thumb">Solarian Composite</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/sol_alloy_ore.html">Sol Alloy Ore</a>&nbsp;&times;3, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="forge_titanium_alloy.html">Forge Titanium Alloy</a></td>
+          <td><a href="../../items/refined/titanium_alloy.html" class="recipe-item"><img src="../../items/images/titanium_alloy.png" alt="Titanium Alloy" class="recipe-thumb">Titanium Alloy</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;1, <a href="../../items/ore/titanium_ore.html">Titanium Ore</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="5">5 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="fuse_galactic_standard_alloy.html">Fuse Galactic Standard Alloy</a></td>
+          <td><a href="../../items/component/galactic_standard_alloy.html" class="recipe-item">Galactic Standard Alloy</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/fury_alloy.html">Fury Alloy</a>&nbsp;&times;1, <a href="../../items/refined/solarian_composite.html">Solarian Composite</a>&nbsp;&times;1, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="fuse_reinforced_glass.html">Fuse Reinforced Glass</a></td>
+          <td><a href="../../items/refined/reinforced_glass.html" class="recipe-item"><img src="../../items/images/reinforced_glass.png" alt="Reinforced Glass" class="recipe-thumb">Reinforced Glass</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;5</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="generate_antimatter.html">Generate Antimatter</a></td>
+          <td><a href="../../items/refined/contained_antimatter.html" class="recipe-item"><img src="../../items/images/contained_antimatter.png" alt="Contained Antimatter" class="recipe-thumb">Contained Antimatter</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a>&nbsp;&times;10, <a href="../../items/component/power_core.html">Power Core</a>&nbsp;&times;3, <a href="../../items/refined/superconductor.html">Superconductor</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="60">60 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;7, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;9, <a href="../../skills/radioactive_handling.html">Radioactive Handling</a>&nbsp;7</td>
+        </tr>
+        <tr>
+          <td><a href="grind_precision_optic.html">Grind Precision Optic</a></td>
+          <td><a href="../../items/component/precision_optic.html" class="recipe-item"><img src="../../items/images/precision_optic.png" alt="Precision Optic" class="recipe-thumb">Precision Optic</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/reinforced_glass.html">Reinforced Glass</a>&nbsp;&times;1, <a href="../../items/refined/solarian_composite.html">Solarian Composite</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="grow_crystalline_lattice.html">Grow Crystalline Lattice</a></td>
+          <td><a href="../../items/refined/crystalline_lattice.html" class="recipe-item"><img src="../../items/images/crystalline_lattice.png" alt="Crystalline Lattice" class="recipe-thumb">Crystalline Lattice</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/focused_crystal.html">Focused Crystal</a>&nbsp;&times;3, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;5, <a href="../../items/refined/synthetic_compound.html">Synthetic Compound</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="20">20 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;4, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;6</td>
+        </tr>
+        <tr>
+          <td><a href="grow_quantum_dot_matrix.html">Grow Quantum Dot Matrix</a></td>
+          <td><a href="../../items/refined/quantum_dot_matrix.html" class="recipe-item"><img src="../../items/images/quantum_dot_matrix.png" alt="Quantum Dot Matrix" class="recipe-thumb">Quantum Dot Matrix</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/gold_wiring.html">Gold Wiring</a>&nbsp;&times;1, <a href="../../items/ore/quantum_fragments.html">Quantum Fragments</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="onboard_alloy_synthesis.html">Onboard Alloy Synthesis</a></td>
+          <td><a href="../../items/refined/titanium_alloy.html" class="recipe-item"><img src="../../items/images/titanium_alloy.png" alt="Titanium Alloy" class="recipe-thumb">Titanium Alloy</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/iron_ore.html">Iron Ore</a>&nbsp;&times;2, <a href="../../items/ore/titanium_ore.html">Titanium Ore</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="0">0 ticks</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><a href="polish_nebula_prism_lens.html">Polish Nebula Prism Lens</a></td>
+          <td><a href="../../items/refined/prismatic_lens.html" class="recipe-item"><img src="../../items/images/prismatic_lens.png" alt="Prismatic Lens" class="recipe-thumb">Prismatic Lens</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/focused_crystal.html">Focused Crystal</a>&nbsp;&times;2, <a href="../../items/ore/prismatic_nebulite.html">Prismatic Nebulite</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="process_copper_wiring.html">Process Copper Wiring</a></td>
+          <td><a href="../../items/refined/copper_wiring.html" class="recipe-item"><img src="../../items/images/copper_wiring.png" alt="Copper Wiring" class="recipe-thumb">Copper Wiring &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/copper_ore.html">Copper Ore</a>&nbsp;&times;4</td>
+          <td class="time" data-sort="2">2 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="process_nebulium_core.html">Process Nebulium Core</a></td>
+          <td><a href="../../items/refined/nebulium_core.html" class="recipe-item"><img src="../../items/images/nebulium_core.png" alt="Nebulium Core" class="recipe-thumb">Nebulium Core</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/focused_crystal.html">Focused Crystal</a>&nbsp;&times;1, <a href="../../items/ore/nebulium.html">Nebulium</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;3, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;6</td>
+        </tr>
+        <tr>
+          <td><a href="process_null_matter.html">Process Null Matter</a></td>
+          <td><a href="../../items/refined/processed_null_matter.html" class="recipe-item"><img src="../../items/images/processed_null_matter.png" alt="Processed Null Matter" class="recipe-thumb">Processed Null Matter</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/null_matter.html">Null Matter</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="process_thorium.html">Process Thorium</a></td>
+          <td><a href="../../items/refined/processed_thorium.html" class="recipe-item"><img src="../../items/images/processed_thorium.png" alt="Processed Thorium" class="recipe-thumb">Processed Thorium &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/thorium_ore.html">Thorium Ore</a>&nbsp;&times;6</td>
+          <td class="time" data-sort="12">12 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5, <a href="../../skills/radioactive_handling.html">Radioactive Handling</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="reclaim_steel_from_scrap.html">Reclaim Steel from Scrap</a></td>
+          <td><a href="../../items/refined/steel_plate.html" class="recipe-item"><img src="../../items/images/steel_plate.png" alt="Steel Plate" class="recipe-thumb">Steel Plate</a></td>
+          <td class="recipe-inputs"><a href="../../items/component/salvage_metal.html">Salvage Metal</a>&nbsp;&times;8</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/salvaging.html">Salvaging</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="refine_solarian_legacy_ore.html">Refine Solarian Legacy Ore</a></td>
+          <td><a href="../../items/refined/solarian_legacy_alloy.html" class="recipe-item"><img src="../../items/images/solarian_legacy_alloy.png" alt="Solarian Legacy Alloy" class="recipe-thumb">Solarian Legacy Alloy</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/legacy_ore.html">Legacy Ore</a>&nbsp;&times;3, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="8">8 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="refine_steel.html">Refine Steel</a></td>
+          <td><a href="../../items/refined/steel_plate.html" class="recipe-item"><img src="../../items/images/steel_plate.png" alt="Steel Plate" class="recipe-thumb">Steel Plate &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/iron_ore.html">Iron Ore</a>&nbsp;&times;5</td>
+          <td class="time" data-sort="2">2 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="refine_titanium.html">Refine Titanium</a></td>
+          <td><a href="../../items/refined/titanium_ingot.html" class="recipe-item"><img src="../../items/images/titanium_ingot.png" alt="Titanium Ingot" class="recipe-thumb">Titanium Ingot</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/titanium_ore.html">Titanium Ore</a>&nbsp;&times;5</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="seal_dark_matter_cell.html">Seal Dark Matter Cell</a></td>
+          <td><a href="../../items/component/dark_matter_cell.html" class="recipe-item"><img src="../../items/images/dark_matter_cell.png" alt="Dark Matter Cell" class="recipe-thumb">Dark Matter Cell</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/condensed_dark_matter.html">Condensed Dark Matter</a>&nbsp;&times;1, <a href="../../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="sinter_silicate_composite.html">Sinter Silicate Composite</a></td>
+          <td><a href="../../items/refined/silicate_composite.html" class="recipe-item"><img src="../../items/images/silicate_composite.png" alt="Silicate Composite" class="recipe-thumb">Silicate Composite</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/nickel_ore.html">Nickel Ore</a>&nbsp;&times;2, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;4</td>
+          <td class="time" data-sort="4">4 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="smelt_aluminum_sheet.html">Smelt Aluminum Sheet</a></td>
+          <td><a href="../../items/refined/aluminum_sheet.html" class="recipe-item"><img src="../../items/images/aluminum_sheet.png" alt="Aluminum Sheet" class="recipe-thumb">Aluminum Sheet &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a>&nbsp;&times;5</td>
+          <td class="time" data-sort="3">3 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="spin_optical_fiber.html">Spin Optical Fiber</a></td>
+          <td><a href="../../items/refined/optical_fiber_bundle.html" class="recipe-item"><img src="../../items/images/optical_fiber_bundle.png" alt="Optical Fiber Bundle" class="recipe-thumb">Optical Fiber Bundle</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;2, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="5">5 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;3</td>
+        </tr>
+        <tr>
+          <td><a href="stabilize_exotic_matter.html">Stabilize Exotic Matter</a></td>
+          <td><a href="../../items/refined/stabilized_exotic.html" class="recipe-item"><img src="../../items/images/stabilized_exotic.png" alt="Stabilized Exotic" class="recipe-thumb">Stabilized Exotic</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/exotic_matter.html">Exotic Matter</a>&nbsp;&times;3, <a href="../../items/refined/focused_crystal.html">Focused Crystal</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="15">15 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;3, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;7</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_metamaterial.html">Synthesize Metamaterial</a></td>
+          <td><a href="../../items/refined/metamaterial_panel.html" class="recipe-item"><img src="../../items/images/metamaterial_panel.png" alt="Metamaterial Panel" class="recipe-thumb">Metamaterial Panel</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/circuit_board.html">Circuit Board</a>&nbsp;&times;3, <a href="../../items/refined/crystalline_lattice.html">Crystalline Lattice</a>&nbsp;&times;2, <a href="../../items/material/exotic_crystal.html">Exotic Crystal</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="25">25 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;5, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;7</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_neural_gel.html">Synthesize Neural Gel</a></td>
+          <td><a href="../../items/refined/neural_interface_gel.html" class="recipe-item"><img src="../../items/images/neural_interface_gel.png" alt="Neural Interface Gel" class="recipe-thumb">Neural Interface Gel</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/energy_crystal.html">Energy Crystal</a>&nbsp;&times;2, <a href="../../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="5">5 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;2</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_neutronium.html">Synthesize Neutronium</a></td>
+          <td><a href="../../items/refined/neutronium_ingot.html" class="recipe-item"><img src="../../items/images/neutronium_ingot.png" alt="Neutronium Ingot" class="recipe-thumb">Neutronium Ingot</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/durasteel_plate.html">Durasteel Plate</a>&nbsp;&times;3, <a href="../../items/component/power_core.html">Power Core</a>&nbsp;&times;2, <a href="../../items/refined/weapons_grade_plutonium.html">Weapons-Grade Plutonium</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="30">30 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;6, <a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;8, <a href="../../skills/radioactive_handling.html">Radioactive Handling</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_organic_compound.html">Synthesize Organic Compound</a></td>
+          <td><a href="../../items/refined/synthetic_compound.html" class="recipe-item"><img src="../../items/images/synthetic_compound.png" alt="Synthetic Compound" class="recipe-thumb">Synthetic Compound &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/purified_water.html">Purified Water</a>&nbsp;&times;1, <a href="../../items/ore/raw_organic_compound.html">Raw Organic Compound</a>&nbsp;&times;4</td>
+          <td class="time" data-sort="6">6 ticks</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_pan_galactic_matrix.html">Synthesize Pan-Galactic Matrix</a></td>
+          <td><a href="../../items/component/pan_galactic_matrix.html" class="recipe-item"><img src="../../items/images/pan_galactic_matrix.png" alt="Pan-Galactic Matrix" class="recipe-thumb">Pan-Galactic Matrix</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/circuit_board.html">Circuit Board</a>&nbsp;&times;1, <a href="../../items/refined/processed_null_matter.html">Processed Null Matter</a>&nbsp;&times;1, <a href="../../items/refined/solarian_composite.html">Solarian Composite</a>&nbsp;&times;1, <a href="../../items/component/trade_cipher.html">Trade Cipher</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_polymer.html">Synthesize Polymer</a></td>
+          <td><a href="../../items/refined/flex_polymer.html" class="recipe-item"><img src="../../items/images/flex_polymer.png" alt="Flex Polymer" class="recipe-thumb">Flex Polymer &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/nickel_ore.html">Nickel Ore</a>&nbsp;&times;2, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;3</td>
+          <td class="time" data-sort="2">2 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;1</td>
+        </tr>
+        <tr>
+          <td><a href="temper_crimson_fury_alloy.html">Temper Crimson Fury Alloy</a></td>
+          <td><a href="../../items/refined/fury_alloy.html" class="recipe-item"><img src="../../items/images/fury_alloy.png" alt="Fury Alloy" class="recipe-thumb">Fury Alloy</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/fury_crystal.html">Fury Crystal</a>&nbsp;&times;3, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="weave_biofiber.html">Weave Biofiber</a></td>
+          <td><a href="../../items/refined/biofiber_mesh.html" class="recipe-item"><img src="../../items/images/biofiber_mesh.png" alt="Biofiber Mesh" class="recipe-thumb">Biofiber Mesh &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/bioactive_compound.html">Bioactive Compound</a>&nbsp;&times;3, <a href="../../items/refined/nanoplastic_composite.html">Nanoplastic Composite</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="12">12 ticks</td>
+          <td><a href="../../skills/advanced_crafting.html">Advanced Crafting</a>&nbsp;2, <a href="../../skills/biological_processing.html">Biological Processing</a>&nbsp;4</td>
+        </tr>
+        <tr>
+          <td><a href="weave_void_shield_matrix.html">Weave Void Shield Matrix</a></td>
+          <td><a href="../../items/component/void_shield_matrix.html" class="recipe-item"><img src="../../items/images/void_shield_matrix.png" alt="Void Shield Matrix" class="recipe-thumb">Void Shield Matrix</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/focused_crystal.html">Focused Crystal</a>&nbsp;&times;1, <a href="../../items/refined/fury_alloy.html">Fury Alloy</a>&nbsp;&times;1, <a href="../../items/refined/processed_null_matter.html">Processed Null Matter</a>&nbsp;&times;1</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        <tr>
+          <td><a href="wire_trade_authenticator.html">Wire Trade Authenticator</a></td>
+          <td><a href="../../items/component/trade_authenticator.html" class="recipe-item"><img src="../../items/images/trade_authenticator.png" alt="Trade Authenticator" class="recipe-thumb">Trade Authenticator</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/copper_wiring.html">Copper Wiring</a>&nbsp;&times;1, <a href="../../items/component/trade_cipher.html">Trade Cipher</a>&nbsp;&times;2</td>
+          <td class="time" data-sort="10">10 ticks</td>
+          <td><a href="../../skills/ore_refinement.html">Ore Refinement</a>&nbsp;5</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+    </main>
+    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+    </script>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
