@@ -1,0 +1,73 @@
+/* Ships page styles */
+
+/* TOC list */
+.toc-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+}
+
+.toc-list li {
+  font-size: var(--text-ui);
+}
+
+/* Class sub-TOC */
+.class-toc {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1.25rem;
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid hsl(var(--border));
+}
+
+.class-toc li {
+  font-size: var(--text-label);
+}
+
+/* Category sections */
+.ship-category {
+  padding-top: 1rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.ship-category h2 {
+  margin-bottom: 0.5rem;
+}
+
+/* Class sections */
+.ship-class h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--smui-frost-2));
+}
+
+/* Faction group */
+.faction-group h4 {
+  margin-bottom: 0.25rem;
+}
+
+/* Numeric cells right-aligned */
+td.num, th:not(:first-child) {
+  text-align: right;
+}
+
+/* Compact tables */
+.faction-group table {
+  margin-bottom: 0.5rem;
+}
+
+.faction-group td,
+.faction-group th {
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+}
+
+/* Scroll on small screens */
+.faction-group {
+  overflow-x: auto;
+}
