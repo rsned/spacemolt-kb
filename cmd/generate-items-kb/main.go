@@ -136,6 +136,36 @@ var categoryDescriptions = map[string]string{
 	"utility":    "Utility modules, scanners, cloaking devices, and support equipment.",
 }
 
+// System holds data for a star system page.
+type System struct {
+	ID             string
+	Name           string
+	PositionX      float64
+	PositionY      float64
+	PoliceLevel    int
+	Empire         string
+	Description    string
+	IsStronghold   bool
+	SecurityStatus string
+	Connections    []SystemConnection
+	POIs           []SystemPOI
+}
+
+// SystemConnection is a jump gate connection to another system.
+type SystemConnection struct {
+	SystemID string
+	Name     string
+	Distance int
+}
+
+// SystemPOI is a point of interest within a system.
+type SystemPOI struct {
+	ID          string
+	Name        string
+	Type        string
+	Description string
+}
+
 var recipeCategoryDescriptions = map[string]string{
 	"Components":          "Intermediate parts and assemblies used to build ships, modules, and equipment.",
 	"Consumables":         "Ammunition, repair kits, fuel cells, mines, and other single-use items.",
@@ -290,6 +320,28 @@ func main() {
 	}
 
 	fmt.Printf("Generated %d recipe pages + %d category pages in %s/\n", len(recipes), len(recipeCategories), recipeOutDir)
+
+	// --- System generation ---
+	knowledgeDBPath := filepath.Join(filepath.Dir(filepath.Dir(dbPath)), "spacemolt-knowledge.db")
+	systemOutDir := "kb/systems"
+
+	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
+	if err != nil {
+		log.Printf("warning: open knowledge database: %v (system pages will be skipped)", err)
+	} else {
+		defer func() { _ = knowledgeDB.Close() }()
+
+		systems, err := loadSystems(knowledgeDB)
+		if err != nil {
+			log.Fatalf("load systems: %v", err)
+		}
+
+		if err := writeSystemPages(systemOutDir, systems); err != nil {
+			log.Fatalf("write system pages: %v", err)
+		}
+
+		fmt.Printf("Generated %d system pages in %s/\n", len(systems), systemOutDir)
+	}
 }
 
 func loadItems(db *sql.DB) (map[string]*Item, error) {
@@ -479,6 +531,184 @@ func loadShipBuildMaterials(shipCatalogPath string, items map[string]*Item) erro
 		})
 	}
 	return nil
+}
+
+func loadSystems(db *sql.DB) ([]*System, error) {
+	rows, err := db.Query(`SELECT id, name, position_x, position_y, police_level, COALESCE(empire,''), COALESCE(description,''), is_stronghold, COALESCE(security_status,'') FROM systems ORDER BY name`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	systemMap := make(map[string]*System)
+	var systems []*System
+	for rows.Next() {
+		var s System
+		if err := rows.Scan(&s.ID, &s.Name, &s.PositionX, &s.PositionY, &s.PoliceLevel, &s.Empire, &s.Description, &s.IsStronghold, &s.SecurityStatus); err != nil {
+			return nil, err
+		}
+		systemMap[s.ID] = &s
+		systems = append(systems, &s)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Load connections.
+	connRows, err := db.Query(`SELECT from_system, to_system, distance FROM connections ORDER BY from_system`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = connRows.Close() }()
+
+	for connRows.Next() {
+		var fromID, toID string
+		var distance int
+		if err := connRows.Scan(&fromID, &toID, &distance); err != nil {
+			return nil, err
+		}
+		if from, ok := systemMap[fromID]; ok {
+			toName := toID
+			if to, ok := systemMap[toID]; ok {
+				toName = to.Name
+			}
+			from.Connections = append(from.Connections, SystemConnection{
+				SystemID: toID,
+				Name:     toName,
+				Distance: distance,
+			})
+		}
+	}
+	if err := connRows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Sort connections by name.
+	for _, s := range systems {
+		slices.SortFunc(s.Connections, func(a, b SystemConnection) int {
+			return cmp.Compare(a.Name, b.Name)
+		})
+	}
+
+	// Load POIs.
+	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(description,'') FROM pois ORDER BY system_id, name`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = poiRows.Close() }()
+
+	for poiRows.Next() {
+		var systemID string
+		var poi SystemPOI
+		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Description); err != nil {
+			return nil, err
+		}
+		if s, ok := systemMap[systemID]; ok {
+			s.POIs = append(s.POIs, poi)
+		}
+	}
+	return systems, poiRows.Err()
+}
+
+func writeSystemPages(outDir string, systems []*System) error {
+	funcs := htmltpl.FuncMap{
+		"titleCase":     titleCase,
+		"securityClass": securityClass,
+		"securityLabel": securityLabel,
+		"fmtCoord":      func(f float64) string { return fmt.Sprintf("%.1f", f) },
+		"poiIcon":       poiIcon,
+	}
+	indexTmpl := htmltpl.Must(htmltpl.New("idx").Funcs(funcs).Parse(systemIndexTemplate))
+	detailTmpl := htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(systemDetailTemplate))
+
+	// Clean generated HTML files, preserving CSS.
+	entries, err := os.ReadDir(outDir)
+	if err == nil {
+		for _, e := range entries {
+			if !e.IsDir() && strings.HasSuffix(e.Name(), ".html") {
+				_ = os.Remove(filepath.Join(outDir, e.Name()))
+			}
+		}
+	}
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return err
+	}
+
+	// Index page.
+	idxPath := filepath.Join(outDir, "index.html")
+	f, err := os.Create(idxPath)
+	if err != nil {
+		return err
+	}
+	if err := indexTmpl.Execute(f, systems); err != nil {
+		_ = f.Close()
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	// Individual system pages.
+	for _, sys := range systems {
+		path := filepath.Join(outDir, sys.ID+".html")
+		f, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+		if err := detailTmpl.Execute(f, sys); err != nil {
+			_ = f.Close()
+			return err
+		}
+		if err := f.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func securityClass(policeLevel int) string {
+	switch {
+	case policeLevel >= 60:
+		return "security-high"
+	case policeLevel >= 30:
+		return "security-med"
+	default:
+		return "security-low"
+	}
+}
+
+func securityLabel(policeLevel int) string {
+	switch {
+	case policeLevel >= 60:
+		return "High"
+	case policeLevel >= 30:
+		return "Medium"
+	case policeLevel > 0:
+		return "Low"
+	default:
+		return "Lawless"
+	}
+}
+
+func poiIcon(poiType string) string {
+	switch poiType {
+	case "sun":
+		return "\u2600" // ☀
+	case "planet":
+		return "\u25CF" // ●
+	case "station":
+		return "\u2B21" // ⬡
+	case "asteroid_belt":
+		return "\u25C8" // ◈
+	case "gas_cloud":
+		return "\u2601" // ☁
+	case "ice_field":
+		return "\u2744" // ❄
+	case "relic":
+		return "\u2726" // ✦
+	default:
+		return "\u25CB" // ○
+	}
 }
 
 func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
@@ -737,6 +967,7 @@ var siteHeader = `    <header class="site-header">
         <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../">Home</a>
+            <a href="../systems/">Systems</a>
             <a href="../items/">Items</a>
             <a href="../recipes/">Recipes</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
@@ -751,6 +982,7 @@ var siteHeaderSub = `    <header class="site-header">
         <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../../">Home</a>
+            <a href="../../systems/">Systems</a>
             <a href="../../items/">Items</a>
             <a href="../../recipes/">Recipes</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
@@ -1104,6 +1336,140 @@ var recipeDetailTemplate = `<!DOCTYPE html>
           </table>
 {{- end}}
         </div>
+    </main>
+` + themeScript + `
+</body>
+</html>
+`
+
+// System templates.
+
+var systemIndexTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systems - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+    <link rel="stylesheet" href="../items/items.css">
+</head>
+<body>
+` + siteHeader + `
+    <main class="container page-content">
+        <h2>Systems</h2>
+        <p class="text-muted mt-1">{{len .}} star systems in the galaxy.</p>
+        <div class="card mt-3" style="padding:0">
+        <table class="sortable">
+        <thead>
+        <tr><th class="sortable">System</th><th class="sortable">Empire</th><th class="sortable">Security</th><th class="sortable" style="text-align:right">Connections</th><th class="sortable" style="text-align:right">POIs</th><th class="sortable">Stronghold</th></tr>
+        </thead>
+        <tbody>
+{{- range .}}
+        <tr>
+          <td><a href="{{.ID}}.html">{{.Name}}</a></td>
+          <td>{{if .Empire}}{{titleCase .Empire}}{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
+          <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
+          <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
+          <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
+          <td>{{if .IsStronghold}}Yes{{end}}</td>
+        </tr>
+{{- end}}
+        </tbody>
+        </table>
+        </div>
+    </main>
+` + sortScript + `
+` + themeScript + `
+</body>
+</html>
+`
+
+var systemDetailTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}} - Systems - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+    <link rel="stylesheet" href="../items/items.css">
+</head>
+<body>
+` + siteHeader + `
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="./">Systems</a> / {{.Name}}</div>
+
+        <div class="sys-header">
+            <div>
+                <span class="label">System</span>
+                <h2 class="sys-name">{{.Name}}</h2>
+            </div>
+            <div class="sys-meta">
+                <div class="sys-meta-item">
+                    <span class="label">Security</span>
+                    <span class="stat {{securityClass .PoliceLevel}}">{{if .PoliceLevel}}{{.PoliceLevel}} <span class="security-label">{{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Empire</span>
+                    <span class="stat">{{if .Empire}}{{titleCase .Empire}}{{else}}<span class="text-muted">Unknown</span>{{end}}</span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Position</span>
+                    <span class="stat">{{fmtCoord .PositionX}}, {{fmtCoord .PositionY}}</span>
+                </div>
+{{- if .IsStronghold}}
+                <div class="sys-meta-item">
+                    <span class="label">Status</span>
+                    <span class="stat security-high">Stronghold</span>
+                </div>
+{{- end}}
+            </div>
+        </div>
+
+{{- if .Description}}
+        <blockquote class="item-desc">{{.Description}}</blockquote>
+{{- end}}
+
+{{- if .Connections}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Jump Connections ({{len .Connections}})</div>
+          <table>
+            <thead><tr><th>System</th><th style="text-align:right">Distance</th></tr></thead>
+            <tbody>
+{{- range .Connections}}
+            <tr>
+              <td><a href="{{.SystemID}}.html">{{.Name}}</a></td>
+              <td style="text-align:right">{{if .Distance}}{{.Distance}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+        </div>
+{{- end}}
+
+{{- if .POIs}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Points of Interest ({{len .POIs}})</div>
+          <table>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+{{- range .POIs}}
+            <tr>
+              <td style="text-align:center;font-size:16px">{{poiIcon .Type}}</td>
+              <td>{{.Name}}</td>
+              <td>{{titleCase .Type}}</td>
+              <td>{{if .Description}}{{.Description}}{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+        </div>
+{{- end}}
+
+{{- if not (or .Connections .POIs .Description)}}
+        <p class="text-muted mt-3">This system has not been explored yet. Data will appear as agents visit and scan.</p>
+{{- end}}
     </main>
 ` + themeScript + `
 </body>

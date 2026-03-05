@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Prime - Systems - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+    <link rel="stylesheet" href="../items/items.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/">Systems</a>
+            <a href="../items/">Items</a>
+            <a href="../recipes/">Recipes</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="./">Systems</a> / Nexus Prime</div>
+
+        <div class="sys-header">
+            <div>
+                <span class="label">System</span>
+                <h2 class="sys-name">Nexus Prime</h2>
+            </div>
+            <div class="sys-meta">
+                <div class="sys-meta-item">
+                    <span class="label">Security</span>
+                    <span class="stat security-high">100 <span class="security-label">High</span></span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Empire</span>
+                    <span class="stat">Voidborn</span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Position</span>
+                    <span class="stat">0.0, 0.0</span>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Jump Connections (2)</div>
+          <table>
+            <thead><tr><th>System</th><th style="text-align:right">Distance</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="node_alpha.html">Node Alpha</a></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td><a href="node_beta.html">Node Beta</a></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Points of Interest (7)</div>
+          <table>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr>
+              <td style="text-align:center;font-size:16px">❄</td>
+              <td>Cryogenic Reserve</td>
+              <td>Ice Field</td>
+              <td>Frozen volatiles maintained at near-absolute-zero by the void between stars. The Collective preserves these reserves for life support synthesis.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">◈</td>
+              <td>Material Harvesters</td>
+              <td>Asteroid Belt</td>
+              <td>Automated mining operations for construction.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">☀</td>
+              <td>Nexus Star</td>
+              <td>Sun</td>
+              <td>Stable red giant. Its energy powers the Collective.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">◈</td>
+              <td>Null Matter Anomaly</td>
+              <td>Asteroid Belt</td>
+              <td>A region where reality thins and matter behaves strangely. The Voidborn harvest raw null matter from the boundary — material that absorbs energy and light, existing in a state between dimensions.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">✦</td>
+              <td>Processing Nodes</td>
+              <td>Relic</td>
+              <td>Vast computational substrate floating in space.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">☁</td>
+              <td>Stellar Siphon</td>
+              <td>Gas Cloud</td>
+              <td>Automated collectors orbiting the red giant, drawing hydrogen and noble gases from its outer atmosphere. The Collective wastes nothing.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">⬡</td>
+              <td>The Core</td>
+              <td>Station</td>
+              <td>The central consciousness of the Voidborn.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
