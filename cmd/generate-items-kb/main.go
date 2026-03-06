@@ -236,6 +236,7 @@ var recipeCategoryDescriptions = map[string]string{
 
 func main() {
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
+	catalogDir := "../spacemolt/data/game-api/craftsman-3"
 	outDir := "kb/items"
 
 	if len(os.Args) > 1 {
@@ -257,7 +258,7 @@ func main() {
 	}
 
 	// Overlay additional fields from catalog JSON (power_bonus, hazardous, hidden).
-	itemCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_items.json")
+	itemCatalogPath := filepath.Join(catalogDir, "catalog_items.json")
 	if err := loadItemOverlay(itemCatalogPath, items); err != nil {
 		log.Printf("warning: load item overlay: %v (extra fields will be omitted)", err)
 	}
@@ -271,7 +272,7 @@ func main() {
 	}
 
 	// Load ship build materials and passive recipes from catalog JSON.
-	shipCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_ships.json")
+	shipCatalogPath := filepath.Join(catalogDir, "catalog_ships.json")
 	if err := loadShipBuildMaterials(shipCatalogPath, items); err != nil {
 		log.Printf("warning: load ship build materials: %v (ship links will be omitted)", err)
 	}
@@ -333,7 +334,7 @@ func main() {
 	}
 
 	// Overlay hidden flag from catalog JSON.
-	recipeCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_recipes.json")
+	recipeCatalogPath := filepath.Join(catalogDir, "catalog_recipes.json")
 	if err := loadRecipeOverlay(recipeCatalogPath, recipes); err != nil {
 		log.Printf("warning: load recipe overlay: %v (hidden flag will be omitted)", err)
 	}
@@ -382,7 +383,7 @@ func main() {
 	fmt.Printf("Generated %d recipe pages + %d category pages in %s/\n", len(recipes), len(recipeCategories), recipeOutDir)
 
 	// --- System generation ---
-	knowledgeDBPath := filepath.Join(filepath.Dir(filepath.Dir(dbPath)), "spacemolt-knowledge.db")
+	knowledgeDBPath := "../spacemolt-knowledge.db"
 	systemOutDir := "kb/systems"
 
 	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
@@ -404,7 +405,7 @@ func main() {
 	}
 
 	// --- Skill generation ---
-	skillCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_skills.json")
+	skillCatalogPath := filepath.Join(catalogDir, "catalog_skills.json")
 	skillOutDir := "kb/skills"
 	skills, err := loadSkills(skillCatalogPath)
 	if err != nil {
