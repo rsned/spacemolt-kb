@@ -7,8 +7,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	htmltpl "html/template"
 	"log"
+	"math"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"slices"
@@ -138,17 +141,19 @@ var categoryDescriptions = map[string]string{
 
 // System holds data for a star system page.
 type System struct {
-	ID             string
-	Name           string
-	PositionX      float64
-	PositionY      float64
-	PoliceLevel    int
-	Empire         string
-	Description    string
-	IsStronghold   bool
-	SecurityStatus string
-	Connections    []SystemConnection
-	POIs           []SystemPOI
+	ID              string
+	Name            string
+	PositionX       float64
+	PositionY       float64
+	PoliceLevel     int
+	Empire          string
+	Description     string
+	IsStronghold    bool
+	SecurityStatus  string
+	LastUpdatedTick int
+	Connections     []SystemConnection
+	POIs            []SystemPOI
+	Bases           []SystemBase
 }
 
 // SystemConnection is a jump gate connection to another system.
@@ -164,6 +169,44 @@ type SystemPOI struct {
 	Name        string
 	Type        string
 	Description string
+	PositionX   float64
+	PositionY   float64
+	Resources   []POIResource
+}
+
+// POIResource is a resource found at a POI.
+type POIResource struct {
+	ResourceID   string
+	ResourceName string
+	Richness     float64
+	Remaining    float64
+}
+
+// SystemBase is a base/station in a system.
+type SystemBase struct {
+	ID           string
+	POIID        string
+	Name         string
+	Description  string
+	Empire       string
+	DefenseLevel int
+	HasDrones    bool
+	PublicAccess bool
+	Services     []BaseService
+	Facilities   []BaseFacility
+}
+
+// BaseService is a service available at a base.
+type BaseService struct {
+	Name      string
+	Available bool
+}
+
+// BaseFacility is a facility at a base.
+type BaseFacility struct {
+	Name     string
+	Category string
+	Level    int
 }
 
 var recipeCategoryDescriptions = map[string]string{
@@ -534,7 +577,7 @@ func loadShipBuildMaterials(shipCatalogPath string, items map[string]*Item) erro
 }
 
 func loadSystems(db *sql.DB) ([]*System, error) {
-	rows, err := db.Query(`SELECT id, name, position_x, position_y, police_level, COALESCE(empire,''), COALESCE(description,''), is_stronghold, COALESCE(security_status,'') FROM systems ORDER BY name`)
+	rows, err := db.Query(`SELECT id, name, position_x, position_y, police_level, COALESCE(empire,''), COALESCE(description,''), is_stronghold, COALESCE(security_status,''), last_updated_tick FROM systems ORDER BY name`)
 	if err != nil {
 		return nil, err
 	}
@@ -544,7 +587,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	var systems []*System
 	for rows.Next() {
 		var s System
-		if err := rows.Scan(&s.ID, &s.Name, &s.PositionX, &s.PositionY, &s.PoliceLevel, &s.Empire, &s.Description, &s.IsStronghold, &s.SecurityStatus); err != nil {
+		if err := rows.Scan(&s.ID, &s.Name, &s.PositionX, &s.PositionY, &s.PoliceLevel, &s.Empire, &s.Description, &s.IsStronghold, &s.SecurityStatus, &s.LastUpdatedTick); err != nil {
 			return nil, err
 		}
 		systemMap[s.ID] = &s
@@ -591,32 +634,149 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 
 	// Load POIs.
-	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(description,'') FROM pois ORDER BY system_id, name`)
+	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(description,''), position_x, position_y FROM pois ORDER BY system_id, name`)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = poiRows.Close() }()
 
+	poiLookup := make(map[string]*SystemPOI) // poi ID → pointer for attaching resources
 	for poiRows.Next() {
 		var systemID string
 		var poi SystemPOI
-		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Description); err != nil {
+		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Description, &poi.PositionX, &poi.PositionY); err != nil {
 			return nil, err
 		}
 		if s, ok := systemMap[systemID]; ok {
 			s.POIs = append(s.POIs, poi)
+			poiLookup[poi.ID] = &s.POIs[len(s.POIs)-1]
 		}
 	}
-	return systems, poiRows.Err()
+	if err := poiRows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Load POI resources.
+	resRows, err := db.Query(`
+		SELECT pr.poi_id, pr.resource_id, COALESCE(i.name, pr.resource_id), pr.richness, pr.remaining
+		FROM poi_resources pr
+		LEFT JOIN items i ON pr.resource_id = i.id
+		ORDER BY pr.poi_id, i.name`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resRows.Close() }()
+
+	for resRows.Next() {
+		var poiID string
+		var r POIResource
+		if err := resRows.Scan(&poiID, &r.ResourceID, &r.ResourceName, &r.Richness, &r.Remaining); err != nil {
+			return nil, err
+		}
+		if poi, ok := poiLookup[poiID]; ok {
+			poi.Resources = append(poi.Resources, r)
+		}
+	}
+	if err := resRows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Load bases (linked to POIs, which link to systems).
+	baseRows, err := db.Query(`
+		SELECT b.id, b.poi_id, b.name, COALESCE(b.description,''), COALESCE(b.empire,''),
+		       b.defense_level, b.has_drones, b.public_access, p.system_id
+		FROM bases b
+		JOIN pois p ON b.poi_id = p.id
+		ORDER BY p.system_id, b.name`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = baseRows.Close() }()
+
+	baseLookup := make(map[string]*SystemBase)
+	for baseRows.Next() {
+		var systemID string
+		var base SystemBase
+		if err := baseRows.Scan(&base.ID, &base.POIID, &base.Name, &base.Description,
+			&base.Empire, &base.DefenseLevel, &base.HasDrones, &base.PublicAccess, &systemID); err != nil {
+			return nil, err
+		}
+		if s, ok := systemMap[systemID]; ok {
+			s.Bases = append(s.Bases, base)
+			baseLookup[base.ID] = &s.Bases[len(s.Bases)-1]
+		}
+	}
+	if err := baseRows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Load base services.
+	svcRows, err := db.Query(`SELECT base_id, service_name, available FROM base_services ORDER BY base_id, service_name`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = svcRows.Close() }()
+
+	for svcRows.Next() {
+		var baseID string
+		var svc BaseService
+		if err := svcRows.Scan(&baseID, &svc.Name, &svc.Available); err != nil {
+			return nil, err
+		}
+		if base, ok := baseLookup[baseID]; ok {
+			base.Services = append(base.Services, svc)
+		}
+	}
+	if err := svcRows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Load base facilities.
+	facRows, err := db.Query(`SELECT base_id, facility_name, COALESCE(category,'unknown'), level FROM base_facilities ORDER BY base_id, category, facility_name`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = facRows.Close() }()
+
+	for facRows.Next() {
+		var baseID string
+		var fac BaseFacility
+		if err := facRows.Scan(&baseID, &fac.Name, &fac.Category, &fac.Level); err != nil {
+			return nil, err
+		}
+		if base, ok := baseLookup[baseID]; ok {
+			base.Facilities = append(base.Facilities, fac)
+		}
+	}
+	if err := facRows.Err(); err != nil {
+		return nil, err
+	}
+
+	return systems, nil
 }
 
 func writeSystemPages(outDir string, systems []*System) error {
+	// Build lookup for galaxy-position of connected systems.
+	sysLookup := make(map[string]*System, len(systems))
+	for _, s := range systems {
+		sysLookup[s.ID] = s
+	}
+
 	funcs := htmltpl.FuncMap{
 		"titleCase":     titleCase,
 		"securityClass": securityClass,
 		"securityLabel": securityLabel,
 		"fmtCoord":      func(f float64) string { return fmt.Sprintf("%.1f", f) },
 		"poiIcon":       poiIcon,
+		"hasResources":  func(pois []SystemPOI) bool { return poiHasResources(pois) },
+		"resourcePOIs":  func(pois []SystemPOI) []SystemPOI { return filterResourcePOIs(pois) },
+		"fmtRemaining":  fmtRemaining,
+		"fmtRichness":   func(r float64) string { return fmt.Sprintf("%.0f", r) },
+		"facilityBadge": facilityBadge,
+		"titleCaseID":   titleCaseID,
+		"systemMap": func(sys *System) htmltpl.HTML {
+			return htmltpl.HTML(renderSystemMap(sys, sysLookup))
+		},
 	}
 	indexTmpl := htmltpl.Must(htmltpl.New("idx").Funcs(funcs).Parse(systemIndexTemplate))
 	detailTmpl := htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(systemDetailTemplate))
@@ -664,6 +824,343 @@ func writeSystemPages(outDir string, systems []*System) error {
 		}
 	}
 	return nil
+}
+
+// renderSystemMap generates the complete SVG system map HTML for a system page.
+func renderSystemMap(sys *System, allSystems map[string]*System) string {
+	const (
+		viewW  = 800
+		viewH  = 600
+		cx     = 400.0
+		cy     = 300.0
+		maxSVG = 250.0 // max radius in SVG pixels for outermost POI orbit
+	)
+
+	var b strings.Builder
+	b.WriteString(`<div class="sys-map">`)
+	b.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">`, viewW, viewH))
+
+	// Determine if explored (has POI data).
+	explored := len(sys.POIs) > 0
+
+	// Compute scale and gate radius.
+	var scale, gateRadius float64
+	if explored {
+		var maxR float64
+		for _, poi := range sys.POIs {
+			r := math.Hypot(poi.PositionX, poi.PositionY)
+			if r > maxR {
+				maxR = r
+			}
+		}
+		if maxR < 1 {
+			maxR = 1 // avoid division by zero for systems with only a sun at origin
+		}
+		scale = maxSVG / maxR
+		gateRadius = maxSVG + 30
+	} else {
+		scale = 100 // arbitrary; fog covers everything
+		gateRadius = 230
+	}
+
+	if explored {
+		// Axis crosshairs.
+		b.WriteString(fmt.Sprintf(`<line x1="0" y1="%.0f" x2="%d" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cy, viewW, cy))
+		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="0" x2="%.0f" y2="%d" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, cx, viewH))
+
+		// Orbital rings for each non-sun POI.
+		for _, poi := range sys.POIs {
+			if poi.Type == "sun" {
+				continue
+			}
+			r := math.Hypot(poi.PositionX, poi.PositionY) * scale
+			if r < 1 {
+				continue
+			}
+			b.WriteString(fmt.Sprintf(`<circle cx="%.0f" cy="%.0f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/>`, cx, cy, r))
+		}
+	}
+
+	// Jump gate ring (dashed, just inside the gate markers).
+	b.WriteString(fmt.Sprintf(`<circle cx="%.0f" cy="%.0f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.6" stroke-dasharray="8,6"/>`, cx, cy, gateRadius+5))
+
+	// Jump gate markers.
+	for _, conn := range sys.Connections {
+		angle := computeGateAngle(sys, conn.SystemID, allSystems)
+		gx := cx + gateRadius*math.Cos(angle)
+		gy := cy - gateRadius*math.Sin(angle) // Y inverted
+		// Clamp to viewBox with margin.
+		gx = math.Max(30, math.Min(float64(viewW)-30, gx))
+		gy = math.Max(20, math.Min(float64(viewH)-30, gy))
+
+		// Dashed line from gate toward center.
+		lineEndX := cx + 20*math.Cos(angle)
+		lineEndY := cy - 20*math.Sin(angle)
+		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#81a1c1" stroke-width="0.5" opacity="0.45" stroke-dasharray="6,4"/>`,
+			gx, gy, lineEndX, lineEndY))
+
+		// Gate marker: circle + crosshair + label, wrapped in <a>.
+		b.WriteString(fmt.Sprintf(`<a href="%s.html" class="gate-link">`, conn.SystemID))
+		b.WriteString(`<g class="poi-marker">`)
+		b.WriteString(fmt.Sprintf(`<title>Jump Gate: %s</title>`, htmlEscape(conn.Name)))
+		b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5"/>`, gx, gy))
+		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#81a1c1" stroke-width="1"/>`, gx, gy-8, gx, gy+8))
+		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#81a1c1" stroke-width="1"/>`, gx-8, gy, gx+8, gy))
+		b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="gate-label" fill="#81a1c1">%s</text>`, gx, gy+21, htmlEscape(conn.Name)))
+		b.WriteString(`</g></a>`)
+	}
+
+	if explored {
+		// Sun gradient definition.
+		b.WriteString(`<defs><radialGradient id="sun-glow">`)
+		b.WriteString(`<stop offset="0%" stop-color="#EBCB8B" stop-opacity="1"/>`)
+		b.WriteString(`<stop offset="40%" stop-color="#D08770" stop-opacity="0.45"/>`)
+		b.WriteString(`<stop offset="100%" stop-color="#D08770" stop-opacity="0"/>`)
+		b.WriteString(`</radialGradient></defs>`)
+
+		// Render POIs by type.
+		for _, poi := range sys.POIs {
+			px := cx + poi.PositionX*scale
+			py := cy - poi.PositionY*scale
+			r := math.Hypot(poi.PositionX, poi.PositionY) * scale
+
+			switch poi.Type {
+			case "sun":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="24" fill="url(#sun-glow)"/>`, cx, cy))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="10" fill="#EBCB8B"/>`, cx, cy))
+				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, cx, cy+28, htmlEscape(poi.Name)))
+				b.WriteString(`</g>`)
+
+			case "planet":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#A3BE8C"/>`, px, py))
+				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-8, htmlEscape(poi.Name)))
+				b.WriteString(`</g>`)
+
+			case "station":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(renderHexagon(px, py, 6))
+				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py+20, htmlEscape(poi.Name)))
+				b.WriteString(`</g>`)
+
+			case "asteroid_belt":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#D08770" stroke-width="1" stroke-dasharray="3,3"/>`, cx, cy, r))
+				b.WriteString(generateAsteroidParticles(cx, cy, r, poiSeed(poi.ID)))
+				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-12, htmlEscape(poi.Name)))
+				b.WriteString(`</g>`)
+
+			case "ice_field":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#88C0D0" stroke-width="1" stroke-dasharray="3,3"/>`, cx, cy, r))
+				b.WriteString(generateIceParticles(cx, cy, r, poiSeed(poi.ID)))
+				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-12, htmlEscape(poi.Name)))
+				b.WriteString(`</g>`)
+
+			case "gas_cloud":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="18" fill="#B48EAD" opacity="0.15"/>`, px-5, py+3))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="14" fill="#B48EAD" opacity="0.20"/>`, px+8, py-4))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="16" fill="#B48EAD" opacity="0.18"/>`, px+2, py+6))
+				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-20, htmlEscape(poi.Name)))
+				b.WriteString(`</g>`)
+
+			case "relic":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(renderFourPointStar(px, py, 7))
+				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-12, htmlEscape(poi.Name)))
+				b.WriteString(`</g>`)
+			}
+		}
+	} else {
+		// Unexplored: star + fog of war.
+		b.WriteString(`<defs>`)
+		b.WriteString(`<radialGradient id="sun-glow">`)
+		b.WriteString(`<stop offset="0%" stop-color="#EBCB8B" stop-opacity="1"/>`)
+		b.WriteString(`<stop offset="40%" stop-color="#D08770" stop-opacity="0.45"/>`)
+		b.WriteString(`<stop offset="100%" stop-color="#D08770" stop-opacity="0"/>`)
+		b.WriteString(`</radialGradient>`)
+		b.WriteString(`<radialGradient id="fog">`)
+		b.WriteString(`<stop offset="0%" stop-color="#8b95ab" stop-opacity="0"/>`)
+		b.WriteString(`<stop offset="30%" stop-color="#8b95ab" stop-opacity="0"/>`)
+		b.WriteString(`<stop offset="60%" stop-color="#8b95ab" stop-opacity="0.15"/>`)
+		b.WriteString(`<stop offset="100%" stop-color="#8b95ab" stop-opacity="0.25"/>`)
+		b.WriteString(`</radialGradient>`)
+		b.WriteString(`</defs>`)
+
+		// Star.
+		b.WriteString(`<g class="poi-marker">`)
+		b.WriteString(fmt.Sprintf(`<title>%s</title>`, htmlEscape(sys.Name)))
+		b.WriteString(fmt.Sprintf(`<circle cx="%.0f" cy="%.0f" r="24" fill="url(#sun-glow)"/>`, cx, cy))
+		b.WriteString(fmt.Sprintf(`<circle cx="%.0f" cy="%.0f" r="10" fill="#EBCB8B"/>`, cx, cy))
+		b.WriteString(fmt.Sprintf(`<text x="%.0f" y="%.0f" text-anchor="middle" class="map-label">%s</text>`, cx, cy+28, htmlEscape(sys.Name)))
+		b.WriteString(`</g>`)
+
+		// Fog circle.
+		b.WriteString(fmt.Sprintf(`<circle cx="%.0f" cy="%.0f" r="200" fill="url(#fog)"/>`, cx, cy))
+	}
+
+	b.WriteString(`</svg></div>`)
+	return b.String()
+}
+
+// computeGateAngle returns the angle (radians) from sys to the connected system
+// based on galaxy-map coordinates.
+func computeGateAngle(sys *System, targetID string, allSystems map[string]*System) float64 {
+	target, ok := allSystems[targetID]
+	if !ok {
+		return 0
+	}
+	dx := target.PositionX - sys.PositionX
+	dy := target.PositionY - sys.PositionY
+	return math.Atan2(dy, dx)
+}
+
+// poiSeed returns a deterministic seed from a POI ID.
+func poiSeed(id string) uint64 {
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(id))
+	return h.Sum64()
+}
+
+// poiTitle builds a tooltip string for a POI.
+func poiTitle(poi SystemPOI) string {
+	if poi.Description != "" {
+		return poi.Name + " \u2014 " + poi.Description
+	}
+	return poi.Name
+}
+
+// htmlEscape escapes a string for safe inclusion in SVG/HTML attributes.
+func htmlEscape(s string) string {
+	s = strings.ReplaceAll(s, "&", "&amp;")
+	s = strings.ReplaceAll(s, "<", "&lt;")
+	s = strings.ReplaceAll(s, ">", "&gt;")
+	s = strings.ReplaceAll(s, `"`, "&quot;")
+	return s
+}
+
+// renderHexagon returns an SVG polygon for a hexagon centered at (cx, cy) with the given radius.
+func renderHexagon(hx, hy, r float64) string {
+	var pts []string
+	for i := range 6 {
+		angle := math.Pi/6 + float64(i)*math.Pi/3
+		px := hx + r*math.Cos(angle)
+		py := hy + r*math.Sin(angle)
+		pts = append(pts, fmt.Sprintf("%.0f,%.0f", px, py))
+	}
+	return fmt.Sprintf(`<polygon points="%s" fill="none" stroke="#81a1c1" stroke-width="1.5"/>`, strings.Join(pts, " "))
+}
+
+// renderFourPointStar returns an SVG polygon for a 4-pointed star.
+func renderFourPointStar(sx, sy, r float64) string {
+	inner := r * 0.4
+	var pts []string
+	for i := range 8 {
+		angle := float64(i)*math.Pi/4 - math.Pi/2
+		rad := r
+		if i%2 == 1 {
+			rad = inner
+		}
+		px := sx + rad*math.Cos(angle)
+		py := sy + rad*math.Sin(angle)
+		pts = append(pts, fmt.Sprintf("%.1f,%.1f", px, py))
+	}
+	return fmt.Sprintf(`<polygon points="%s" fill="#EBCB8B" opacity="0.9"/>`, strings.Join(pts, " "))
+}
+
+// generateAsteroidParticles creates ~100 small triangle particles scattered along an orbital ring.
+func generateAsteroidParticles(orbitCX, orbitCY, radius float64, seed uint64) string {
+	rng := rand.New(rand.NewPCG(seed, seed^0xdeadbeef))
+	var b strings.Builder
+	count := 100
+	for range count {
+		angle := rng.Float64() * 2 * math.Pi
+		jitter := 1.0 + (rng.Float64()-0.5)*0.3 // ±15%
+		r := radius * jitter
+		px := orbitCX + r*math.Cos(angle)
+		py := orbitCY + r*math.Sin(angle)
+		size := 2.0 + rng.Float64()*3.0
+		opacity := 0.3 + rng.Float64()*0.4
+		rotation := rng.Float64() * 360
+
+		// Triangle: three points centered around (px, py).
+		h := size * 0.866 // sqrt(3)/2
+		p1x := px - size/2
+		p1y := py + h/2
+		p2x := px
+		p2y := py - h/2
+		p3x := px + size/2
+		p3y := py + h/2
+		b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#D08770" opacity="%.2f" transform="rotate(%.0f,%.1f,%.1f)"/>`,
+			p1x, p1y, p2x, p2y, p3x, p3y, opacity, rotation, px, py))
+	}
+	return b.String()
+}
+
+// generateIceParticles creates ~80 small diamond particles scattered along an orbital ring.
+func generateIceParticles(orbitCX, orbitCY, radius float64, seed uint64) string {
+	rng := rand.New(rand.NewPCG(seed, seed^0xcafebabe))
+	var b strings.Builder
+	count := 80
+	for range count {
+		angle := rng.Float64() * 2 * math.Pi
+		jitter := 1.0 + (rng.Float64()-0.5)*0.3
+		r := radius * jitter
+		px := orbitCX + r*math.Cos(angle)
+		py := orbitCY + r*math.Sin(angle)
+		size := 2.0 + rng.Float64()*3.0
+		opacity := 0.3 + rng.Float64()*0.3
+
+		// Diamond: four points.
+		b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#88C0D0" opacity="%.2f"/>`,
+			px, py-size, px+size*0.6, py, px, py+size, px-size*0.6, py, opacity))
+	}
+	return b.String()
+}
+
+func poiHasResources(pois []SystemPOI) bool {
+	for _, poi := range pois {
+		if len(poi.Resources) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func filterResourcePOIs(pois []SystemPOI) []SystemPOI {
+	var result []SystemPOI
+	for _, poi := range pois {
+		if len(poi.Resources) > 0 {
+			result = append(result, poi)
+		}
+	}
+	return result
+}
+
+func fmtRemaining(r float64) string {
+	if r <= 0 {
+		return "depleted"
+	}
+	return humanize.Comma(int64(r))
+}
+
+func facilityBadge(category string) string {
+	switch category {
+	case "production":
+		return "badge-orange"
+	case "service":
+		return "badge-frost"
+	case "infrastructure":
+		return ""
+	default:
+		return ""
+	}
+}
+
+func titleCaseID(s string) string {
+	return titleCase(strings.ReplaceAll(s, "_", " "))
 }
 
 func securityClass(policeLevel int) string {
@@ -1431,6 +1928,8 @@ var systemDetailTemplate = `<!DOCTYPE html>
         <blockquote class="item-desc">{{.Description}}</blockquote>
 {{- end}}
 
+        {{systemMap .}}
+
 {{- if .Connections}}
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Jump Connections ({{len .Connections}})</div>
@@ -1467,9 +1966,103 @@ var systemDetailTemplate = `<!DOCTYPE html>
         </div>
 {{- end}}
 
+{{- if hasResources .POIs}}
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Resources</h3>
+                <span class="badge badge-frost">{{len (resourcePOIs .POIs)}} locations</span>
+            </div>
+{{- range resourcePOIs .POIs}}
+            <div class="resource-group">
+                <h4>{{.Name}} <span class="badge badge-orange">{{.Type}}</span></h4>
+                <table>
+                    <thead><tr><th>Resource</th><th>Richness</th><th>Remaining</th></tr></thead>
+                    <tbody>
+{{- range .Resources}}
+                        <tr>
+                          <td>{{.ResourceName}}</td>
+                          <td><span class="richness-bar" style="--r: {{fmtRichness .Richness}}%">{{fmtRichness .Richness}}</span></td>
+                          <td>{{fmtRemaining .Remaining}}</td>
+                        </tr>
+{{- end}}
+                    </tbody>
+                </table>
+            </div>
+{{- end}}
+        </section>
+{{- end}}
+
+{{- if .Bases}}
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Bases &amp; Stations</h3>
+                <span class="badge badge-frost">{{len .Bases}}</span>
+            </div>
+{{- range .Bases}}
+            <div class="base-card">
+                <div class="base-header">
+                    <div>
+                        <h4>{{.Name}}</h4>
+{{- if .Empire}}
+                        <span class="label">{{titleCase .Empire}}</span>
+{{- end}}
+                    </div>
+                    <div class="base-stats">
+{{- if .PublicAccess}}
+                        <span class="badge badge-green">Public</span>
+{{- else}}
+                        <span class="badge badge-red">Private</span>
+{{- end}}
+{{- if .DefenseLevel}}
+                        <span class="badge badge-frost">Defense {{.DefenseLevel}}</span>
+{{- end}}
+{{- if .HasDrones}}
+                        <span class="badge badge-yellow">Drones</span>
+{{- end}}
+                    </div>
+                </div>
+{{- if .Description}}
+                <p class="base-desc">{{.Description}}</p>
+{{- end}}
+                <div class="base-sections">
+{{- if .Services}}
+                    <div>
+                        <span class="label">Services</span>
+                        <div class="service-list">
+{{- range .Services}}
+                            <span class="service-tag{{if .Available}} available{{else}} unavailable{{end}}">{{titleCaseID .Name}}</span>
+{{- end}}
+                        </div>
+                    </div>
+{{- end}}
+{{- if .Facilities}}
+                    <div>
+                        <span class="label">Facilities</span>
+                        <table class="facility-table">
+                            <thead><tr><th>Facility</th><th>Category</th><th>Level</th></tr></thead>
+                            <tbody>
+{{- range .Facilities}}
+                                <tr>
+                                  <td>{{titleCaseID .Name}}</td>
+                                  <td><span class="badge {{facilityBadge .Category}}">{{.Category}}</span></td>
+                                  <td>{{.Level}}</td>
+                                </tr>
+{{- end}}
+                            </tbody>
+                        </table>
+                    </div>
+{{- end}}
+                </div>
+            </div>
+{{- end}}
+        </section>
+{{- end}}
+
 {{- if not (or .Connections .POIs .Description)}}
         <p class="text-muted mt-3">This system has not been explored yet. Data will appear as agents visit and scan.</p>
 {{- end}}
+
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: {{if .LastUpdatedTick}}{{.LastUpdatedTick}}{{else}}—{{end}}</p>
     </main>
 ` + themeScript + `
 </body>
