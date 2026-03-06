@@ -12,7 +12,11 @@
         <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../">Home</a>
+            <a href="../systems/">Systems</a>
+            <a href="../items/">Items</a>
+            <a href="../recipes/">Recipes</a>
             <a href="../skills/">Skills</a>
+            <a href="../ships/">Ships</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -20,66 +24,78 @@
         </nav>
     </header>
     <main class="container page-content">
-        
         <h2>Skills</h2>
-        <p class="text-muted mt-1">138 skills across 14 categories. XP curves, bonuses, prerequisites, and recipe unlocks.</p>
+        <p class="text-muted mt-1">28 + 12 + 8 + 10 + 8 + 9 + 3 + 10 + 5 + 10 + 4 + 7 + 15 + 11 skills across 14 categories.</p>
         <div class="skill-categories">
             <a href="cat_combat.html" class="skill-cat-card">
-                <div class="cat-count">26 skills</div>
+                <div class="cat-count">28 skills</div>
                 <div class="cat-name">Combat</div>
-                <div class="cat-skills">Armor Hardening, Basic Weapons, Bounty Hunting, Evasive Maneuvers, Piracy, Shield Operation, +20 more</div>
-            </a><a href="cat_crafting.html" class="skill-cat-card">
-                <div class="cat-count">11 skills</div>
+                <div class="cat-skills">Advanced Armor, Advanced Shields, Advanced Weapons, Anti-Drone Warfare, Armor Hardening, Basic Weapons, Boarding Combat, Bounty Hunting, Capital Weapon Systems, Combat Maneuvering, ECM Resistance, Electronic Warfare, Energy Weapons, Evasive Maneuvers, Gravity Manipulation, Ion Weapons, Kinetic Weapons, Missile Systems, Piracy, Plasma Weapons, Point Defense Systems, Shield Hardening, Shield Operation, Siege Warfare, Target Painting, Targeting Systems, Void Manipulation, Weapons Mastery</div>
+            </a>
+            <a href="cat_crafting.html" class="skill-cat-card">
+                <div class="cat-count">12 skills</div>
                 <div class="cat-name">Crafting</div>
-                <div class="cat-skills">Basic Crafting, Advanced Crafting, Electronics Crafting, Shield Crafting, Weapon Crafting, Blueprint Research, +5 more</div>
-            </a><a href="cat_drones.html" class="skill-cat-card">
+                <div class="cat-skills">Advanced Crafting, Basic Crafting, Biological Processing, Blueprint Research, Crafting Mastery, Electronics Crafting, Mass Production, Module Crafting, Quality Control, Shield Crafting, Ship Construction, Weapon Crafting</div>
+            </a>
+            <a href="cat_drones.html" class="skill-cat-card">
                 <div class="cat-count">8 skills</div>
                 <div class="cat-name">Drones</div>
-                <div class="cat-skills">Drone Operation, Combat Drones, Drone Control, Drone Durability, Mining Drones, Salvage Drones, +2 more</div>
-            </a><a href="cat_empire.html" class="skill-cat-card">
+                <div class="cat-skills">Combat Drones, Drone Control, Drone Durability, Drone Interfacing, Drone Operation, Mining Drones, Repair Drones, Salvage Drones</div>
+            </a>
+            <a href="cat_empire.html" class="skill-cat-card">
                 <div class="cat-count">10 skills</div>
                 <div class="cat-name">Empire</div>
-                <div class="cat-skills">Crimson Fury, Solarian Discipline, Crimson Bloodlust, Nebula Attunement, Outer Rim Survival, Solarian Doctrine, +4 more</div>
-            </a><a href="cat_engineering.html" class="skill-cat-card">
+                <div class="cat-skills">Crimson Bloodlust, Crimson Fury, Nebula Attunement, Nebula Communion, Outer Rim Scavenger, Outer Rim Survival, Solarian Discipline, Solarian Doctrine, Voidborn Entropy, Voidborn Phase Mastery</div>
+            </a>
+            <a href="cat_engineering.html" class="skill-cat-card">
                 <div class="cat-count">8 skills</div>
                 <div class="cat-name">Engineering</div>
-                <div class="cat-skills">Damage Control, Engineering, Advanced Engineering, CPU Management, Capacitor Systems, Power Grid Management, +2 more</div>
-            </a><a href="cat_exploration.html" class="skill-cat-card">
+                <div class="cat-skills">Advanced Engineering, CPU Management, Capacitor Systems, Damage Control, Engineering, Power Grid Management, Repair Systems, Rigging</div>
+            </a>
+            <a href="cat_exploration.html" class="skill-cat-card">
                 <div class="cat-count">9 skills</div>
                 <div class="cat-name">Exploration</div>
-                <div class="cat-skills">Exploration, Astrometrics, Environmental Hazard Resistance, First Contact Protocols, Survey, Anomaly Detection, +3 more</div>
-            </a><a href="cat_faction.html" class="skill-cat-card">
+                <div class="cat-skills">Anomaly Detection, Anomaly Exploitation, Astrometrics, Cartography, Environmental Hazard Resistance, Exploration, First Contact Protocols, Survey, Wormhole Navigation</div>
+            </a>
+            <a href="cat_faction.html" class="skill-cat-card">
                 <div class="cat-count">3 skills</div>
                 <div class="cat-name">Faction</div>
                 <div class="cat-skills">Corporation Management, Faction Warfare, Station Management</div>
-            </a><a href="cat_mining.html" class="skill-cat-card">
-                <div class="cat-count">11 skills</div>
+            </a>
+            <a href="cat_mining.html" class="skill-cat-card">
+                <div class="cat-count">10 skills</div>
                 <div class="cat-name">Mining</div>
-                <div class="cat-skills">Mining, Ore Refinement, Advanced Mining, Advanced Refinement, Biological Processing, Gas Harvesting, +5 more</div>
-            </a><a href="cat_navigation.html" class="skill-cat-card">
+                <div class="cat-skills">Advanced Mining, Advanced Refinement, Deep Core Mining, Gas Harvesting, Gas Processing, Ice Mining, Ice Refining, Mining, Ore Refinement, Radioactive Handling</div>
+            </a>
+            <a href="cat_navigation.html" class="skill-cat-card">
                 <div class="cat-count">5 skills</div>
                 <div class="cat-name">Navigation</div>
-                <div class="cat-skills">Fuel Efficiency, Navigation, Jump Drive Operation, Warp Efficiency, Jump Calibration</div>
-            </a><a href="cat_prestige.html" class="skill-cat-card">
+                <div class="cat-skills">Fuel Efficiency, Jump Calibration, Jump Drive Operation, Navigation, Warp Efficiency</div>
+            </a>
+            <a href="cat_prestige.html" class="skill-cat-card">
                 <div class="cat-count">10 skills</div>
                 <div class="cat-name">Prestige</div>
-                <div class="cat-skills">Drone Sovereign, Legendary Pilot, Master Craftsman, Master Trader, Shadow Operative, Industrial Magnate, +4 more</div>
-            </a><a href="cat_salvaging.html" class="skill-cat-card">
+                <div class="cat-skills">Drone Sovereign, Grand Admiral, Industrial Magnate, Legendary Pilot, Master Craftsman, Master Trader, Pathfinder, Shadow Operative, Titan Pilot, Warlord</div>
+            </a>
+            <a href="cat_salvaging.html" class="skill-cat-card">
                 <div class="cat-count">4 skills</div>
                 <div class="cat-name">Salvaging</div>
-                <div class="cat-skills">Salvaging, Advanced Salvaging, Archaeology, Relic Identification</div>
-            </a><a href="cat_ships.html" class="skill-cat-card">
+                <div class="cat-skills">Advanced Salvaging, Archaeology, Relic Identification, Salvaging</div>
+            </a>
+            <a href="cat_ships.html" class="skill-cat-card">
                 <div class="cat-count">7 skills</div>
                 <div class="cat-name">Ships</div>
-                <div class="cat-skills">Small Ships, Industrial Ships, Medium Ships, Covert Operations, Large Ships, Capital Ships, +1 more</div>
-            </a><a href="cat_support.html" class="skill-cat-card">
+                <div class="cat-skills">Capital Ships, Covert Operations, Fleet Command, Industrial Ships, Large Ships, Medium Ships, Small Ships</div>
+            </a>
+            <a href="cat_support.html" class="skill-cat-card">
                 <div class="cat-count">15 skills</div>
                 <div class="cat-name">Support</div>
-                <div class="cat-skills">Diplomacy, Leadership, Scanning, Advanced Scanning, Alliance Management, Cloaking, +9 more</div>
-            </a><a href="cat_trading.html" class="skill-cat-card">
+                <div class="cat-skills">Advanced Cloaking, Advanced Scanning, Alliance Management, Cloaking, Counter-Hacking, Counter-Intelligence, Diplomacy, Espionage, Fleet Coordination, Hacking, Leadership, Mentoring, Propaganda, Reputation Management, Scanning</div>
+            </a>
+            <a href="cat_trading.html" class="skill-cat-card">
                 <div class="cat-count">11 skills</div>
                 <div class="cat-name">Trading</div>
-                <div class="cat-skills">Trading, Auction Mastery, Contracts, Hauling, Insurance Brokering, Negotiation, +5 more</div>
+                <div class="cat-skills">Auction Mastery, Black Market Trading, Bulk Trading, Contracts, Hauling, Insurance Brokering, Loan Management, Negotiation, Rare Goods Expertise, Smuggling, Trading</div>
             </a>
         </div>
     </main>

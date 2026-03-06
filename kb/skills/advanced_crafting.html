@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jump Drive Operation - Spacemolt KB</title>
+    <title>Advanced Crafting - Spacemolt KB</title>
     <link rel="stylesheet" href="../smui.css">
     <link rel="stylesheet" href="../skills/skills.css">
 </head>
@@ -12,7 +12,11 @@
         <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../">Home</a>
+            <a href="../systems/">Systems</a>
+            <a href="../items/">Items</a>
+            <a href="../recipes/">Recipes</a>
             <a href="../skills/">Skills</a>
+            <a href="../ships/">Ships</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -20,18 +24,18 @@
         </nav>
     </header>
     <main class="container page-content">
-        <div class="breadcrumb"><a href="index.html">Skills</a> / <a href="cat_navigation.html">Navigation</a> / Jump Drive Operation</div>
-        <h2>Jump Drive Operation</h2>
-        <p class="text-muted mt-1">Hyperspace expertise. Reduces jump time and fuel cost.</p>
+        <div class="breadcrumb"><a href="index.html">Skills</a> / <a href="cat_crafting.html">Crafting</a> / Advanced Crafting</div>
+        <h2>Advanced Crafting</h2>
+        <p class="text-muted mt-1">Expert manufacturing. Craft advanced components.</p>
         <dl class="skill-meta">
             <dt>Category</dt>
-            <dd><a href="cat_navigation.html">Navigation</a></dd>
+            <dd><a href="cat_crafting.html">Crafting</a></dd>
             <dt>Max Level</dt>
             <dd>10</dd>
             <dt>Prerequisites</dt>
-            <dd><div class="prereq-list"><a href="navigation.html">Navigation</a> <span class="badge badge-frost">Lv3</span></div></dd>
+            <dd><div class="prereq-list"><a href="basic_crafting.html">Basic Crafting</a> <span class="badge badge-frost">Lv5</span> </div></dd>
             <dt>Training</dt>
-            <dd>Travel between star systems. Also earned by crafting recipes that require this skill.</dd>
+            <dd>Craft any recipe (requires basic_crafting level 5).</dd>
         </dl>
         <div class="level-tables"><div>
             <h3>XP per Level</h3>
@@ -42,37 +46,11 @@
         </div><div>
             <h3>Bonuses per Level</h3>
             <table>
-                <thead><tr><th>Level</th><th>jumpFuel</th><th>jumpTime</th></tr></thead>
-                <tbody><tr><td>1</td><td class="num">+-3</td><td class="num">+-5</td></tr><tr><td>2</td><td class="num">+-6</td><td class="num">+-10</td></tr><tr><td>3</td><td class="num">+-9</td><td class="num">+-15</td></tr><tr><td>4</td><td class="num">+-12</td><td class="num">+-20</td></tr><tr><td>5</td><td class="num">+-15</td><td class="num">+-25</td></tr><tr><td>6</td><td class="num">+-18</td><td class="num">+-30</td></tr><tr><td>7</td><td class="num">+-21</td><td class="num">+-35</td></tr><tr><td>8</td><td class="num">+-24</td><td class="num">+-40</td></tr><tr><td>9</td><td class="num">+-27</td><td class="num">+-45</td></tr><tr><td>10</td><td class="num">+-30</td><td class="num">+-50</td></tr></tbody>
+                <thead><tr><th>Level</th><th>craftingQuality</th></tr></thead>
+                <tbody><tr><td>1</td><td class="num">+3</td></tr><tr><td>2</td><td class="num">+6</td></tr><tr><td>3</td><td class="num">+9</td></tr><tr><td>4</td><td class="num">+12</td></tr><tr><td>5</td><td class="num">+15</td></tr><tr><td>6</td><td class="num">+18</td></tr><tr><td>7</td><td class="num">+21</td></tr><tr><td>8</td><td class="num">+24</td></tr><tr><td>9</td><td class="num">+27</td></tr><tr><td>10</td><td class="num">+30</td></tr></tbody>
             </table>
         </div></div>
-        <div class="recipe-section">
-            <h3>Recipes Requiring This Skill</h3>
-            <table class="mt-1">
-                <thead>
-                    <tr><th>Recipe</th><th>Req Lv</th><th>Inputs</th><th>Outputs</th><th>Other Skills</th></tr>
-                </thead>
-                <tbody><tr>
-                    <td><a href="../recipes/">Fabricate Jump Coil</a></td>
-                    <td class="num">3</td>
-                    <td>2x refined_exotic, 3x refined_superconductor, 2x comp_power_cell</td>
-                    <td>1x comp_jump_coil</td>
-                    <td>Advanced Crafting Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Jump Calculator</a></td>
-                    <td class="num">4</td>
-                    <td>2x comp_cpu_core, 1x refined_quantum_matrix, 5x refined_circuits</td>
-                    <td>1x comp_jump_calculator</td>
-                    <td>Advanced Crafting Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Phase Drive</a></td>
-                    <td class="num">6</td>
-                    <td>3x refined_exotic, 2x refined_quantum_matrix, 1x comp_jump_coil, 3x power_core</td>
-                    <td>1x comp_phase_drive</td>
-                    <td>Advanced Crafting Lv7</td>
-                </tr></tbody>
-            </table>
-        </div>
+
     </main>
     <script>
     (function() {

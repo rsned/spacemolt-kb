@@ -12,7 +12,11 @@
         <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../">Home</a>
+            <a href="../systems/">Systems</a>
+            <a href="../items/">Items</a>
+            <a href="../recipes/">Recipes</a>
             <a href="../skills/">Skills</a>
+            <a href="../ships/">Ships</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -29,9 +33,9 @@
             <dt>Max Level</dt>
             <dd>10</dd>
             <dt>Prerequisites</dt>
-            <dd><div class="prereq-list"><a href="crafting_basic.html">Basic Crafting</a> <span class="badge badge-frost">Lv3</span></div></dd>
+            <dd><div class="prereq-list"><a href="basic_crafting.html">Basic Crafting</a> <span class="badge badge-frost">Lv3</span> </div></dd>
             <dt>Training</dt>
-            <dd>Craft Shields or Defense category recipes.</dd>
+            <dd>Craft Shields or Defense category recipes. Requires basic_crafting 3.</dd>
         </dl>
         <div class="level-tables"><div>
             <h3>XP per Level</h3>
@@ -46,153 +50,7 @@
                 <tbody><tr><td>1</td><td class="num">+5</td></tr><tr><td>2</td><td class="num">+10</td></tr><tr><td>3</td><td class="num">+15</td></tr><tr><td>4</td><td class="num">+20</td></tr><tr><td>5</td><td class="num">+25</td></tr><tr><td>6</td><td class="num">+30</td></tr><tr><td>7</td><td class="num">+35</td></tr><tr><td>8</td><td class="num">+40</td></tr><tr><td>9</td><td class="num">+45</td></tr><tr><td>10</td><td class="num">+50</td></tr></tbody>
             </table>
         </div></div>
-        <div class="recipe-section">
-            <h3>Recipes Requiring This Skill</h3>
-            <table class="mt-1">
-                <thead>
-                    <tr><th>Recipe</th><th>Req Lv</th><th>Inputs</th><th>Outputs</th><th>Other Skills</th></tr>
-                </thead>
-                <tbody><tr>
-                    <td><a href="../recipes/">Build EM Shield Hardener</a></td>
-                    <td class="num">2</td>
-                    <td>1x comp_shield_emitter, 3x refined_circuits, 1x refined_superconductor</td>
-                    <td>1x shield_hardener_em</td>
-                    <td>Basic Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Explosive Shield Hardener</a></td>
-                    <td class="num">2</td>
-                    <td>1x comp_shield_emitter, 2x refined_durasteel, 2x refined_circuits</td>
-                    <td>1x shield_hardener_explosive</td>
-                    <td>Basic Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Kinetic Shield Hardener</a></td>
-                    <td class="num">2</td>
-                    <td>1x comp_shield_emitter, 2x refined_titanium, 2x refined_circuits</td>
-                    <td>1x shield_hardener_kinetic</td>
-                    <td>Basic Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Shield Booster II</a></td>
-                    <td class="num">2</td>
-                    <td>1x comp_shield_emitter, 3x refined_circuits, 2x refined_crystal, 3x refined_alloy</td>
-                    <td>1x shield_booster_2</td>
-                    <td>Basic Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Shield Recharger II</a></td>
-                    <td class="num">2</td>
-                    <td>1x comp_shield_emitter, 3x refined_circuits, 2x refined_crystal, 1x refined_superconductor</td>
-                    <td>1x shield_recharger_2</td>
-                    <td>Basic Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Solar Collector Array</a></td>
-                    <td class="num">2</td>
-                    <td>2x comp_sensor_array, 1x refined_solarian_composite, 2x refined_optical_fiber</td>
-                    <td>1x comp_solarian_solar_collector</td>
-                    <td>Engineering Lv4</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Create Shield Charge</a></td>
-                    <td class="num">2</td>
-                    <td>2x ore_crystal, 1x refined_superconductor</td>
-                    <td>2x shield_booster_charge</td>
-                    <td></td>
-                </tr><tr>
-                    <td><a href="../recipes/">Create Silver Superconductor</a></td>
-                    <td class="num">2</td>
-                    <td>2x ore_palladium, 1x ore_iridium, 2x refined_silver_wire</td>
-                    <td>1x refined_superconductor</td>
-                    <td>Ore Refinement Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Create Superconductor</a></td>
-                    <td class="num">2</td>
-                    <td>2x ore_palladium, 1x ore_iridium, 3x refined_copper_wire</td>
-                    <td>1x refined_superconductor</td>
-                    <td>Ore Refinement Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Adaptive Shield I</a></td>
-                    <td class="num">3</td>
-                    <td>1x comp_shield_emitter, 1x comp_sensor_array, 4x refined_circuits, 1x refined_metamaterial</td>
-                    <td>1x adaptive_shield_1</td>
-                    <td>Basic Crafting Lv4</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Ancillary Shield Booster</a></td>
-                    <td class="num">3</td>
-                    <td>2x comp_shield_emitter, 1x comp_power_cell, 2x refined_superconductor, 3x refined_circuits</td>
-                    <td>1x ancillary_shield_booster</td>
-                    <td>Advanced Crafting Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Hull Integrity Field</a></td>
-                    <td class="num">3</td>
-                    <td>1x comp_shield_emitter, 4x refined_durasteel, 2x refined_superconductor, 2x comp_power_cell</td>
-                    <td>1x hull_integrity_field</td>
-                    <td>Advanced Crafting Lv5, Repair Systems Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Shield Array</a></td>
-                    <td class="num">3</td>
-                    <td>2x comp_shield_emitter, 1x comp_power_cell, 3x refined_circuits</td>
-                    <td>1x comp_shield_array</td>
-                    <td>Engineering Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Shield Emitter</a></td>
-                    <td class="num">3</td>
-                    <td>2x refined_superconductor, 1x refined_crystal, 2x refined_circuits</td>
-                    <td>1x comp_shield_emitter</td>
-                    <td></td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Shield Overcharge Unit</a></td>
-                    <td class="num">3</td>
-                    <td>2x refined_superconductor, 2x comp_power_cell</td>
-                    <td>2x shield_overcharge</td>
-                    <td>Advanced Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Construct Electrum Shield Matrix</a></td>
-                    <td class="num">3</td>
-                    <td>2x refined_graphene, 1x refined_silicate, 1x refined_electrum_ingot, 1x refined_argon</td>
-                    <td>1x comp_shield_matrix</td>
-                    <td>Engineering Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Construct Shield Matrix</a></td>
-                    <td class="num">3</td>
-                    <td>2x refined_graphene, 1x refined_silicate, 1x refined_gold_wire, 1x refined_argon</td>
-                    <td>1x comp_shield_matrix</td>
-                    <td>Engineering Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Shield Booster III</a></td>
-                    <td class="num">4</td>
-                    <td>2x comp_shield_emitter, 3x refined_superconductor, 3x refined_crystal, 1x comp_power_cell</td>
-                    <td>1x shield_booster_3</td>
-                    <td>Advanced Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Shield Command Link</a></td>
-                    <td class="num">4</td>
-                    <td>1x comp_cpu_core, 2x comp_shield_emitter, 4x refined_circuits, 2x refined_superconductor</td>
-                    <td>1x warfare_link_shield</td>
-                    <td>Advanced Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Adaptive Shield II</a></td>
-                    <td class="num">5</td>
-                    <td>2x comp_shield_emitter, 1x comp_cpu_core, 2x refined_metamaterial, 1x refined_quantum_matrix</td>
-                    <td>1x adaptive_shield_2</td>
-                    <td>Advanced Crafting Lv4</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Voidborn Null Matrix</a></td>
-                    <td class="num">5</td>
-                    <td>1x comp_shield_matrix, 5x refined_voidborn_null_matter, 1x comp_cpu_core</td>
-                    <td>1x comp_voidborn_null_matrix</td>
-                    <td>Engineering Lv4</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Quantum Shield IV</a></td>
-                    <td class="num">7</td>
-                    <td>3x comp_shield_matrix, 2x refined_quantum_matrix, 2x exotic_crystal, 5x refined_circuits</td>
-                    <td>1x quantum_shield_4</td>
-                    <td>Advanced Crafting Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Quantum Entanglement Shield</a></td>
-                    <td class="num">10</td>
-                    <td>2x void_crystal, 6x refined_quantum_matrix, 4x exotic_crystal, 5x comp_shield_matrix, 4x power_core</td>
-                    <td>1x quantum_entanglement_shield</td>
-                    <td>Advanced Crafting Lv8</td>
-                </tr></tbody>
-            </table>
-        </div>
+
     </main>
     <script>
     (function() {

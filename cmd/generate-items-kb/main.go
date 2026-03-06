@@ -33,6 +33,10 @@ type Item struct {
 	Stackable   bool
 	Tradeable   bool
 
+	PowerBonus int
+	Hazardous  bool
+	Hidden     bool
+
 	HasImage bool
 
 	ProducedBy  []ProducedBy
@@ -93,6 +97,7 @@ type Recipe struct {
 	CraftingTime    int
 	BaseQuality     int
 	SkillQualityMod int
+	Hidden          bool
 	Inputs          []RecipeItem
 	Outputs         []RecipeItem
 	Skills          []SkillReq
@@ -251,6 +256,12 @@ func main() {
 		log.Fatalf("load items: %v", err)
 	}
 
+	// Overlay additional fields from catalog JSON (power_bonus, hazardous, hidden).
+	itemCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_items.json")
+	if err := loadItemOverlay(itemCatalogPath, items); err != nil {
+		log.Printf("warning: load item overlay: %v (extra fields will be omitted)", err)
+	}
+
 	if err := loadProducedBy(db, items); err != nil {
 		log.Fatalf("load produced-by: %v", err)
 	}
@@ -259,8 +270,8 @@ func main() {
 		log.Fatalf("load used-in: %v", err)
 	}
 
-	// Load ship build materials from catalog JSON.
-	shipCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-1", "catalog_ships.json")
+	// Load ship build materials and passive recipes from catalog JSON.
+	shipCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_ships.json")
 	if err := loadShipBuildMaterials(shipCatalogPath, items); err != nil {
 		log.Printf("warning: load ship build materials: %v (ship links will be omitted)", err)
 	}
@@ -319,6 +330,12 @@ func main() {
 	recipes, err := loadRecipes(db)
 	if err != nil {
 		log.Fatalf("load recipes: %v", err)
+	}
+
+	// Overlay hidden flag from catalog JSON.
+	recipeCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_recipes.json")
+	if err := loadRecipeOverlay(recipeCatalogPath, recipes); err != nil {
+		log.Printf("warning: load recipe overlay: %v (hidden flag will be omitted)", err)
 	}
 
 	// Check which recipe output items have images.
@@ -384,6 +401,35 @@ func main() {
 		}
 
 		fmt.Printf("Generated %d system pages in %s/\n", len(systems), systemOutDir)
+	}
+
+	// --- Skill generation ---
+	skillCatalogPath := filepath.Join(filepath.Dir(dbPath), "..", "game-api", "craftsman-3", "catalog_skills.json")
+	skillOutDir := "kb/skills"
+	skills, err := loadSkills(skillCatalogPath)
+	if err != nil {
+		log.Printf("warning: load skills: %v (skill pages will be skipped)", err)
+	} else {
+		if err := writeSkillPages(skillOutDir, skills); err != nil {
+			log.Fatalf("write skill pages: %v", err)
+		}
+		fmt.Printf("Generated %d skill pages in %s/\n", len(skills), skillOutDir)
+	}
+
+	// --- Ship generation ---
+	shipCatalog, err := loadShipCatalog(shipCatalogPath)
+	if err != nil {
+		log.Printf("warning: load ship catalog: %v (ship pages will be skipped)", err)
+	} else {
+		// Build recipe name lookup for passive recipe display.
+		recipeNames := make(map[string]string)
+		for _, r := range recipes {
+			recipeNames[r.ID] = r.Name
+		}
+		if err := writeShipPages("kb/ships", shipCatalog, recipeNames); err != nil {
+			log.Fatalf("write ship pages: %v", err)
+		}
+		fmt.Printf("Generated %d ship entries in kb/ships/\n", len(shipCatalog))
 	}
 }
 
@@ -572,6 +618,58 @@ func loadShipBuildMaterials(shipCatalogPath string, items map[string]*Item) erro
 		slices.SortFunc(it.UsedInShips, func(a, b ShipBuildRef) int {
 			return cmp.Compare(a.ShipName, b.ShipName)
 		})
+	}
+	return nil
+}
+
+func loadItemOverlay(catalogPath string, items map[string]*Item) error {
+	data, err := os.ReadFile(catalogPath)
+	if err != nil {
+		return err
+	}
+
+	var catalog struct {
+		Items []struct {
+			ID         string `json:"id"`
+			PowerBonus int    `json:"power_bonus"`
+			Hazardous  bool   `json:"hazardous"`
+			Hidden     bool   `json:"hidden"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal(data, &catalog); err != nil {
+		return err
+	}
+
+	for _, ci := range catalog.Items {
+		if it, ok := items[ci.ID]; ok {
+			it.PowerBonus = ci.PowerBonus
+			it.Hazardous = ci.Hazardous
+			it.Hidden = ci.Hidden
+		}
+	}
+	return nil
+}
+
+func loadRecipeOverlay(catalogPath string, recipes map[string]*Recipe) error {
+	data, err := os.ReadFile(catalogPath)
+	if err != nil {
+		return err
+	}
+
+	var catalog struct {
+		Items []struct {
+			ID     string `json:"id"`
+			Hidden bool   `json:"hidden"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal(data, &catalog); err != nil {
+		return err
+	}
+
+	for _, cr := range catalog.Items {
+		if r, ok := recipes[cr.ID]; ok {
+			r.Hidden = cr.Hidden
+		}
 	}
 	return nil
 }
@@ -829,8 +927,6 @@ func writeSystemPages(outDir string, systems []*System) error {
 // renderSystemMap generates the complete SVG system map HTML for a system page.
 func renderSystemMap(sys *System, allSystems map[string]*System) string {
 	const (
-		viewW  = 800
-		viewH  = 600
 		cx     = 400.0
 		cy     = 300.0
 		maxSVG = 250.0 // max radius in SVG pixels for outermost POI orbit
@@ -838,7 +934,6 @@ func renderSystemMap(sys *System, allSystems map[string]*System) string {
 
 	var b strings.Builder
 	b.WriteString(`<div class="sys-map">`)
-	b.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">`, viewW, viewH))
 
 	// Determine if explored (has POI data).
 	explored := len(sys.POIs) > 0
@@ -863,10 +958,34 @@ func renderSystemMap(sys *System, allSystems map[string]*System) string {
 		gateRadius = 230
 	}
 
+	// Compute viewBox so outermost orbit fills 80% of width, with cropping.
+	maxOrbitR := gateRadius + 5 // include gate ring
 	if explored {
-		// Axis crosshairs.
-		b.WriteString(fmt.Sprintf(`<line x1="0" y1="%.0f" x2="%d" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cy, viewW, cy))
-		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="0" x2="%.0f" y2="%d" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, cx, viewH))
+		for _, poi := range sys.POIs {
+			if poi.Type == "sun" {
+				continue
+			}
+			r := math.Hypot(poi.PositionX, poi.PositionY) * scale
+			if r > maxOrbitR {
+				maxOrbitR = r
+			}
+		}
+	}
+	vbW := 2 * maxOrbitR / 0.8
+	vbH := 2 * maxOrbitR * 1.25 // tall enough for full content
+	vbX := cx - vbW/2
+	vbY := cy - vbH/2
+	b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="xMidYMid slice" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, vbX, vbY, vbW, vbH))
+
+	// Compute visible Y range for gate clamping (assume ~2:1 display aspect).
+	visH := vbW * 0.5
+	visTop := cy - visH/2 + 25
+	visBottom := cy + visH/2 - 25
+
+	if explored {
+		// Axis crosshairs (span full viewBox).
+		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, vbX, cy, vbX+vbW, cy))
+		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, vbY, cx, vbY+vbH))
 
 		// Orbital rings for each non-sun POI.
 		for _, poi := range sys.POIs {
@@ -889,9 +1008,9 @@ func renderSystemMap(sys *System, allSystems map[string]*System) string {
 		angle := computeGateAngle(sys, conn.SystemID, allSystems)
 		gx := cx + gateRadius*math.Cos(angle)
 		gy := cy - gateRadius*math.Sin(angle) // Y inverted
-		// Clamp to viewBox with margin.
-		gx = math.Max(30, math.Min(float64(viewW)-30, gx))
-		gy = math.Max(20, math.Min(float64(viewH)-30, gy))
+		// Clamp to visible area.
+		gx = math.Max(vbX+30, math.Min(vbX+vbW-30, gx))
+		gy = math.Max(visTop, math.Min(visBottom, gy))
 
 		// Dashed line from gate toward center.
 		lineEndX := cx + 20*math.Cos(angle)
@@ -918,60 +1037,136 @@ func renderSystemMap(sys *System, allSystems map[string]*System) string {
 		b.WriteString(`<stop offset="100%" stop-color="#D08770" stop-opacity="0"/>`)
 		b.WriteString(`</radialGradient></defs>`)
 
-		// Render POIs by type.
+		// Render POIs by type; collect label info for de-overlap.
+		type labelInfo struct {
+			x, y float64
+			name string
+			above bool // true = label above POI
+		}
+		var labels []labelInfo
+
 		for _, poi := range sys.POIs {
 			px := cx + poi.PositionX*scale
 			py := cy - poi.PositionY*scale
 			r := math.Hypot(poi.PositionX, poi.PositionY) * scale
 
+			// Label direction: game y >= 0 (SVG y <= center) -> above; game y < 0 -> below.
+			labelAbove := poi.PositionY >= 0
+
 			switch poi.Type {
 			case "sun":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, cx, cy))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="24" fill="url(#sun-glow)"/>`, cx, cy))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="10" fill="#EBCB8B"/>`, cx, cy))
-				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, cx, cy+28, htmlEscape(poi.Name)))
 				b.WriteString(`</g>`)
+				// Sun label always below.
+				labels = append(labels, labelInfo{x: cx, y: cy + 28, name: poi.Name, above: false})
 
 			case "planet":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#A3BE8C"/>`, px, py))
-				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-8, htmlEscape(poi.Name)))
 				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 8, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 16, name: poi.Name, above: false})
+				}
 
 			case "station":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(renderHexagon(px, py, 6))
-				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py+20, htmlEscape(poi.Name)))
 				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 8, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 20, name: poi.Name, above: false})
+				}
 
 			case "asteroid_belt":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#D08770" stroke-width="1" stroke-dasharray="3,3"/>`, cx, cy, r))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/>`, cx, cy, r))
 				b.WriteString(generateAsteroidParticles(cx, cy, r, poiSeed(poi.ID)))
-				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-12, htmlEscape(poi.Name)))
 				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 18, name: poi.Name, above: false})
+				}
 
 			case "ice_field":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#88C0D0" stroke-width="1" stroke-dasharray="3,3"/>`, cx, cy, r))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/>`, cx, cy, r))
 				b.WriteString(generateIceParticles(cx, cy, r, poiSeed(poi.ID)))
-				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-12, htmlEscape(poi.Name)))
 				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 18, name: poi.Name, above: false})
+				}
 
 			case "gas_cloud":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="18" fill="#B48EAD" opacity="0.15"/>`, px-5, py+3))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="14" fill="#B48EAD" opacity="0.20"/>`, px+8, py-4))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="16" fill="#B48EAD" opacity="0.18"/>`, px+2, py+6))
-				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-20, htmlEscape(poi.Name)))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#B48EAD" opacity="0.35"/>`, px-4, py+2))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="3" fill="#B48EAD" opacity="0.45"/>`, px+5, py-3))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="4" fill="#B48EAD" opacity="0.40"/>`, px+1, py+4))
+				// 3 extra random small bubbles.
+				gcRng := rand.New(rand.NewPCG(poiSeed(poi.ID), poiSeed(poi.ID)^0xbeef))
+				for range 3 {
+					bx := px + (gcRng.Float64()-0.5)*16
+					by := py + (gcRng.Float64()-0.5)*16
+					br := 2.0 + gcRng.Float64()*3.0
+					bo := 0.25 + gcRng.Float64()*0.2
+					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="#B48EAD" opacity="%.2f"/>`, bx, by, br, bo))
+				}
 				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 18, name: poi.Name, above: false})
+				}
 
 			case "relic":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(renderFourPointStar(px, py, 7))
-				b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, px, py-12, htmlEscape(poi.Name)))
 				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 18, name: poi.Name, above: false})
+				}
 			}
+		}
+
+		// De-overlap labels: push overlapping labels in their stacking direction.
+		const labelH = 12.0
+		for i := range labels {
+			for j := range labels {
+				if i == j {
+					continue
+				}
+				if math.Abs(labels[i].x-labels[j].x) > 50 {
+					continue
+				}
+				if math.Abs(labels[i].y-labels[j].y) < labelH {
+					if labels[i].above {
+						labels[i].y = labels[j].y - labelH
+					} else {
+						labels[i].y = labels[j].y + labelH
+					}
+				}
+			}
+		}
+
+		// Render labels.
+		for _, lbl := range labels {
+			b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, lbl.x, lbl.y, htmlEscape(lbl.name)))
 		}
 	} else {
 		// Unexplored: star + fog of war.
@@ -1106,8 +1301,12 @@ func generateIceParticles(orbitCX, orbitCY, radius float64, seed uint64) string 
 	count := 80
 	for range count {
 		angle := rng.Float64() * 2 * math.Pi
-		jitter := 1.0 + (rng.Float64()-0.5)*0.3
-		r := radius * jitter
+		// Cap spread at ±15px from orbit ring.
+		maxJitter := 15.0
+		if radius > 0 {
+			maxJitter = math.Min(15.0, radius*0.15)
+		}
+		r := radius + (rng.Float64()-0.5)*2*maxJitter
 		px := orbitCX + r*math.Cos(angle)
 		py := orbitCY + r*math.Sin(angle)
 		size := 2.0 + rng.Float64()*3.0
@@ -1467,6 +1666,8 @@ var siteHeader = `    <header class="site-header">
             <a href="../systems/">Systems</a>
             <a href="../items/">Items</a>
             <a href="../recipes/">Recipes</a>
+            <a href="../skills/">Skills</a>
+            <a href="../ships/">Ships</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1482,6 +1683,8 @@ var siteHeaderSub = `    <header class="site-header">
             <a href="../../systems/">Systems</a>
             <a href="../../items/">Items</a>
             <a href="../../recipes/">Recipes</a>
+            <a href="../../skills/">Skills</a>
+            <a href="../../ships/">Ships</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1582,7 +1785,7 @@ var htmlCatTemplate = `<!DOCTYPE html>
         <tbody>
 {{- range .Items}}
         <tr>
-          <td><a href="{{.ID}}.html">{{.Name}}</a></td>
+          <td><a href="{{.ID}}.html">{{.Name}}</a>{{if .Hazardous}} <span class="badge badge-hazardous" title="Hazardous">&#x2622;</span>{{end}}{{if .Hidden}} <span class="badge badge-hidden" title="Hidden">H</span>{{end}}</td>
           <td class="thumb">{{if .HasImage}}<img src="../images/{{.ID}}.png" alt="{{.Name}}">{{end}}</td>
           <td><span class="{{rarityClass .Rarity}}">{{.Rarity}}</span></td>
           <td class="size" data-sort="{{.Size}}">{{.Size}}</td>
@@ -1613,7 +1816,7 @@ var htmlItemTemplate = `<!DOCTYPE html>
 ` + siteHeaderSub + `
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Items</a> / <a href="./">{{titleCase .Category}}</a> / {{.Name}}</div>
-        <h2>{{.Name}}</h2>
+        <h2>{{.Name}}{{if .Hazardous}} <span class="badge badge-hazardous" title="Hazardous Material">&#x2622; Hazardous</span>{{end}}{{if .Hidden}} <span class="badge badge-hidden" title="Hidden Item">Hidden</span>{{end}}</h2>
 
         <div class="card mt-2" style="padding:0">
 {{- if .HasImage}}
@@ -1628,6 +1831,9 @@ var htmlItemTemplate = `<!DOCTYPE html>
             <tr><td class="kv-label">Size</td><td>{{.Size}}</td></tr>
             <tr><td class="kv-label">Stackable</td><td>{{yesno .Stackable}}</td></tr>
             <tr><td class="kv-label">Tradeable</td><td>{{yesno .Tradeable}}</td></tr>
+{{- if .PowerBonus}}
+            <tr><td class="kv-label">Power Bonus</td><td><span class="stat-positive">+{{.PowerBonus}}</span></td></tr>
+{{- end}}
           </table>
           <div class="section-label">Market</div>
           <table>
@@ -1747,7 +1953,7 @@ var recipeCatTemplate = `<!DOCTYPE html>
         <tbody>
 {{- range .Recipes}}
         <tr>
-          <td><a href="{{.ID}}.html">{{.Name}}</a></td>
+          <td><a href="{{.ID}}.html">{{.Name}}</a>{{if .Hidden}} <span class="badge badge-hidden" title="Hidden">H</span>{{end}}</td>
           <td>{{- range .Outputs}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html" class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</a>{{end}}</td>
           <td class="recipe-inputs">{{- range $i, $inp := .Inputs}}{{if $i}}, {{end}}<a href="../../items/{{$inp.ItemCategory}}/{{$inp.ItemID}}.html">{{$inp.ItemName}}</a>&nbsp;&times;{{$inp.Quantity}}{{end}}</td>
           <td class="time" data-sort="{{.CraftingTime}}">{{.CraftingTime}} ticks</td>
@@ -1777,7 +1983,7 @@ var recipeDetailTemplate = `<!DOCTYPE html>
 ` + siteHeaderSub + `
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Recipes</a> / <a href="./">{{.Category}}</a> / {{.Name}}</div>
-        <h2>{{.Name}}</h2>
+        <h2>{{.Name}}{{if .Hidden}} <span class="badge badge-hidden" title="Hidden Recipe">Hidden</span>{{end}}</h2>
 
         <blockquote class="item-desc">{{.Description}}</blockquote>
 

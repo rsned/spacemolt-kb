@@ -12,7 +12,11 @@
         <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../">Home</a>
+            <a href="../systems/">Systems</a>
+            <a href="../items/">Items</a>
+            <a href="../recipes/">Recipes</a>
             <a href="../skills/">Skills</a>
+            <a href="../ships/">Ships</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -20,18 +24,18 @@
         </nav>
     </header>
     <main class="container page-content">
-        <div class="breadcrumb"><a href="index.html">Skills</a> / <a href="cat_mining.html">Mining</a> / Biological Processing</div>
+        <div class="breadcrumb"><a href="index.html">Skills</a> / <a href="cat_crafting.html">Crafting</a> / Biological Processing</div>
         <h2>Biological Processing</h2>
-        <p class="text-muted mt-1">Handle organic compounds and biological samples safely.</p>
+        <p class="text-muted mt-1">Culture and process biological materials for industrial and pharmaceutical use.</p>
         <dl class="skill-meta">
             <dt>Category</dt>
-            <dd><a href="cat_mining.html">Mining</a></dd>
+            <dd><a href="cat_crafting.html">Crafting</a></dd>
             <dt>Max Level</dt>
             <dd>10</dd>
             <dt>Prerequisites</dt>
-            <dd><div class="prereq-list"><a href="refinement.html">Ore Refinement</a> <span class="badge badge-frost">Lv5</span></div></dd>
+            <dd><div class="prereq-list"><a href="basic_crafting.html">Basic Crafting</a> <span class="badge badge-frost">Lv3</span> </div></dd>
             <dt>Training</dt>
-            <dd>Craft recipes that require this skill (e.g., biological compound processing).</dd>
+            <dd>Craft Biological Refining category recipes.</dd>
         </dl>
         <div class="level-tables"><div>
             <h3>XP per Level</h3>
@@ -39,94 +43,8 @@
                 <thead><tr><th>Level</th><th>XP Required</th><th>Cumulative</th></tr></thead>
                 <tbody><tr><td>1</td><td class="num">500</td><td class="num">500</td></tr><tr><td>2</td><td class="num">1,500</td><td class="num">2,000</td></tr><tr><td>3</td><td class="num">3,000</td><td class="num">5,000</td></tr><tr><td>4</td><td class="num">5,000</td><td class="num">10,000</td></tr><tr><td>5</td><td class="num">8,000</td><td class="num">18,000</td></tr><tr><td>6</td><td class="num">12,000</td><td class="num">30,000</td></tr><tr><td>7</td><td class="num">17,000</td><td class="num">47,000</td></tr><tr><td>8</td><td class="num">23,000</td><td class="num">70,000</td></tr><tr><td>9</td><td class="num">30,000</td><td class="num">100,000</td></tr><tr><td>10</td><td class="num">40,000</td><td class="num">140,000</td></tr></tbody>
             </table>
-        </div><div>
-            <h3>Bonuses per Level</h3>
-            <table>
-                <thead><tr><th>Level</th><th>bioProcessingYield</th><th>contaminationResistance</th></tr></thead>
-                <tbody><tr><td>1</td><td class="num">+5</td><td class="num">+3</td></tr><tr><td>2</td><td class="num">+10</td><td class="num">+6</td></tr><tr><td>3</td><td class="num">+15</td><td class="num">+9</td></tr><tr><td>4</td><td class="num">+20</td><td class="num">+12</td></tr><tr><td>5</td><td class="num">+25</td><td class="num">+15</td></tr><tr><td>6</td><td class="num">+30</td><td class="num">+18</td></tr><tr><td>7</td><td class="num">+35</td><td class="num">+21</td></tr><tr><td>8</td><td class="num">+40</td><td class="num">+24</td></tr><tr><td>9</td><td class="num">+45</td><td class="num">+27</td></tr><tr><td>10</td><td class="num">+50</td><td class="num">+30</td></tr></tbody>
-            </table>
         </div></div>
-        <div class="recipe-section">
-            <h3>Recipes Requiring This Skill</h3>
-            <table class="mt-1">
-                <thead>
-                    <tr><th>Recipe</th><th>Req Lv</th><th>Inputs</th><th>Outputs</th><th>Other Skills</th></tr>
-                </thead>
-                <tbody><tr>
-                    <td><a href="../recipes/">Build Life Support Unit</a></td>
-                    <td class="num">2</td>
-                    <td>4x refined_polymer, 3x refined_circuits, 2x refined_biocompound, 3x refined_water</td>
-                    <td>1x comp_life_support_unit</td>
-                    <td>Advanced Crafting Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Culture Repair Nanites</a></td>
-                    <td class="num">2</td>
-                    <td>2x refined_neural_gel, 1x refined_ceramic, 1x refined_silicate</td>
-                    <td>1x comp_repair_nanites</td>
-                    <td>Repair Systems Lv3</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Cultivate Alien Spores</a></td>
-                    <td class="num">3</td>
-                    <td>5x bio_spores, 2x refined_water</td>
-                    <td>2x refined_biocompound</td>
-                    <td>Ore Refinement Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Synthesize Focus Enhancer</a></td>
-                    <td class="num">3</td>
-                    <td>2x refined_biocompound, 1x refined_biolume_culture</td>
-                    <td>3x stim_focus</td>
-                    <td>Basic Crafting Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Synthesize Reflex Enhancer</a></td>
-                    <td class="num">3</td>
-                    <td>1x refined_neural_extract, 2x refined_biocompound</td>
-                    <td>3x stim_reflex</td>
-                    <td>Basic Crafting Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Cryogenic Pod</a></td>
-                    <td class="num">4</td>
-                    <td>5x refined_nitrogen, 1x comp_life_support_unit, 3x refined_durasteel, 4x refined_circuits</td>
-                    <td>1x comp_cryogenic_pod</td>
-                    <td>Advanced Crafting Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Culture Bioluminescent Cells</a></td>
-                    <td class="num">4</td>
-                    <td>3x bio_bioluminescent, 2x refined_water, 1x refined_compound</td>
-                    <td>2x refined_biolume_culture</td>
-                    <td></td>
-                </tr><tr>
-                    <td><a href="../recipes/">Synthesize Berserker Compound</a></td>
-                    <td class="num">4</td>
-                    <td>1x refined_neural_extract, 2x refined_compound, 1x rare_element</td>
-                    <td>2x stim_berserker</td>
-                    <td>Radioactive Handling Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Synthesize Endurance Booster</a></td>
-                    <td class="num">4</td>
-                    <td>3x refined_biocompound, 2x refined_compound</td>
-                    <td>2x stim_endurance</td>
-                    <td></td>
-                </tr><tr>
-                    <td><a href="../recipes/">Weave Biofiber</a></td>
-                    <td class="num">4</td>
-                    <td>3x refined_biocompound, 2x refined_nanoplastic</td>
-                    <td>2x refined_biofiber</td>
-                    <td>Advanced Crafting Lv2</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Build Nebula Bio-Regenerator</a></td>
-                    <td class="num">5</td>
-                    <td>3x refined_biofiber, 4x refined_biocompound, 2x refined_biolume_culture, 1x comp_life_support_unit</td>
-                    <td>1x nebula_regenerator</td>
-                    <td>Advanced Crafting Lv5</td>
-                </tr><tr>
-                    <td><a href="../recipes/">Synthesize Regeneration Serum</a></td>
-                    <td class="num">5</td>
-                    <td>1x refined_neural_extract, 1x refined_biofiber, 2x refined_biocompound</td>
-                    <td>2x stim_regeneration</td>
-                    <td>Repair Systems Lv2</td>
-                </tr></tbody>
-            </table>
-        </div>
+
     </main>
     <script>
     (function() {
