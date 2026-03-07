@@ -214,6 +214,42 @@ type BaseFacility struct {
 	Level    int
 }
 
+// EmpireGroup holds an empire's systems for the systems index page.
+type EmpireGroup struct {
+	Name    string       // Canonical empire name (title case)
+	ID      string       // Lowercase slug for anchor links
+	Color   string       // CSS hex color
+	Systems []*System
+	MapSVG  htmltpl.HTML // Pre-rendered SVG map HTML
+}
+
+// empireColors maps lowercase empire names to their theme colors.
+var empireColors = map[string]string{
+	"solarian": "#FFD700",
+	"voidborn": "#9932CC",
+	"crimson":  "#DC143C",
+	"nebula":   "#00CED1",
+	"outerrim": "#2E8B57",
+}
+
+// empireOrder defines the display order for empires.
+var empireOrder = []string{"solarian", "voidborn", "crimson", "nebula", "outerrim"}
+
+// empireCapitals maps empire name to its capital system ID.
+var empireCapitals = map[string]string{
+	"solarian": "sol",
+	"voidborn": "nexus",
+	"crimson":  "krynn",
+	"nebula":   "haven",
+	"outerrim": "frontier",
+}
+
+// SystemsIndexData holds all data for the systems index template.
+type SystemsIndexData struct {
+	Systems []*System
+	Empires []EmpireGroup
+}
+
 var recipeCategoryDescriptions = map[string]string{
 	"Components":          "Intermediate parts and assemblies used to build ships, modules, and equipment.",
 	"Consumables":         "Ammunition, repair kits, fuel cells, mines, and other single-use items.",
@@ -893,13 +929,48 @@ func writeSystemPages(outDir string, systems []*System) error {
 		return err
 	}
 
+	// Build empire groups.
+	empireMap := make(map[string][]*System)
+	for _, s := range systems {
+		key := strings.ToLower(strings.TrimSpace(s.Empire))
+		if key == "" || key == "neutral" {
+			continue
+		}
+		empireMap[key] = append(empireMap[key], s)
+	}
+
+	var empires []EmpireGroup
+	for _, eid := range empireOrder {
+		eSystems := empireMap[eid]
+		if len(eSystems) == 0 {
+			continue
+		}
+		slices.SortFunc(eSystems, func(a, b *System) int {
+			return cmp.Compare(a.Name, b.Name)
+		})
+		color := empireColors[eid]
+		eg := EmpireGroup{
+			Name:    titleCase(eid),
+			ID:      eid,
+			Color:   color,
+			Systems: eSystems,
+		}
+		eg.MapSVG = htmltpl.HTML(renderEmpireMap(eg, sysLookup))
+		empires = append(empires, eg)
+	}
+
+	indexData := SystemsIndexData{
+		Systems: systems,
+		Empires: empires,
+	}
+
 	// Index page.
 	idxPath := filepath.Join(outDir, "index.html")
 	f, err := os.Create(idxPath)
 	if err != nil {
 		return err
 	}
-	if err := indexTmpl.Execute(f, systems); err != nil {
+	if err := indexTmpl.Execute(f, indexData); err != nil {
 		_ = f.Close()
 		return err
 	}
@@ -1317,6 +1388,192 @@ func generateIceParticles(orbitCX, orbitCY, radius float64, seed uint64) string 
 		b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#88C0D0" opacity="%.2f"/>`,
 			px, py-size, px+size*0.6, py, px, py+size, px-size*0.6, py, opacity))
 	}
+	return b.String()
+}
+
+// renderEmpireMap generates an SVG showing the network of systems in an empire.
+// Systems are rendered as dots with connections drawn between them, and the whole
+// region is highlighted with the empire's color using an SVG metaball filter.
+func renderEmpireMap(empire EmpireGroup, sysLookup map[string]*System) string {
+	systems := empire.Systems
+	if len(systems) == 0 {
+		return ""
+	}
+
+	// Build a set of system IDs in this empire for fast lookup.
+	inEmpire := make(map[string]bool, len(systems))
+	for _, s := range systems {
+		inEmpire[s.ID] = true
+	}
+
+	// Compute bounding box.
+	minX, minY := systems[0].PositionX, systems[0].PositionY
+	maxX, maxY := minX, minY
+	for _, s := range systems[1:] {
+		if s.PositionX < minX {
+			minX = s.PositionX
+		}
+		if s.PositionX > maxX {
+			maxX = s.PositionX
+		}
+		if s.PositionY < minY {
+			minY = s.PositionY
+		}
+		if s.PositionY > maxY {
+			maxY = s.PositionY
+		}
+	}
+
+	// Add padding.
+	padX := (maxX - minX) * 0.15
+	padY := (maxY - minY) * 0.15
+	if padX < 30 {
+		padX = 30
+	}
+	if padY < 30 {
+		padY = 30
+	}
+	minX -= padX
+	minY -= padY
+	maxX += padX
+	maxY += padY
+
+	rangeX := maxX - minX
+	rangeY := maxY - minY
+	if rangeX < 1 {
+		rangeX = 1
+	}
+	if rangeY < 1 {
+		rangeY = 1
+	}
+
+	// SVG dimensions — square panel.
+	const svgSize = 500.0
+	scale := svgSize / max(rangeX, rangeY)
+
+	// Transform galaxy coords to SVG coords.
+	tx := func(x float64) float64 {
+		return (x - minX) * scale
+	}
+	ty := func(y float64) float64 {
+		return (y - minY) * scale
+	}
+	svgW := rangeX * scale
+	svgH := rangeY * scale
+
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %.0f %.0f" xmlns="http://www.w3.org/2000/svg" class="empire-map-svg">`, svgW, svgH))
+
+	// Metaball filter for territory blob.
+	filterID := "goo-" + empire.ID
+	b.WriteString(fmt.Sprintf(`<defs><filter id="%s" x="-20%%" y="-20%%" width="140%%" height="140%%" colorInterpolationFilters="sRGB">`, filterID))
+	b.WriteString(`<feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/>`)
+	b.WriteString(`<feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -12" result="blob"/>`)
+	b.WriteString(`<feComponentTransfer in="blob" result="fill"><feFuncA type="linear" slope="0.25" intercept="0"/></feComponentTransfer>`)
+	b.WriteString(`</filter></defs>`)
+
+	// Territory blob — circles at each system position plus thick connector
+	// lines, all merged by the blur filter into one contiguous shape.
+	blobR := 28.0 * (svgSize / 500.0)
+	if blobR < 18 {
+		blobR = 18
+	}
+	b.WriteString(fmt.Sprintf(`<g filter="url(#%s)">`, filterID))
+	// Thick connection lines so the blob merges across edges.
+	drawnBlob := make(map[string]bool)
+	for _, s := range systems {
+		for _, conn := range s.Connections {
+			if !inEmpire[conn.SystemID] {
+				continue
+			}
+			key := s.ID + "|" + conn.SystemID
+			rev := conn.SystemID + "|" + s.ID
+			if drawnBlob[key] || drawnBlob[rev] {
+				continue
+			}
+			drawnBlob[key] = true
+			target := sysLookup[conn.SystemID]
+			if target == nil {
+				continue
+			}
+			b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%.0f"/>`,
+				tx(s.PositionX), ty(s.PositionY), tx(target.PositionX), ty(target.PositionY), empire.Color, blobR*1.2))
+		}
+	}
+	for _, s := range systems {
+		b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="%s"/>`, tx(s.PositionX), ty(s.PositionY), blobR, empire.Color))
+	}
+	b.WriteString(`</g>`)
+
+	// Connection lines (visible, on top of blob).
+	b.WriteString(`<g stroke="#c8d0e0" stroke-width="1.5" opacity="0.6">`)
+	drawn := make(map[string]bool)
+	for _, s := range systems {
+		for _, conn := range s.Connections {
+			if !inEmpire[conn.SystemID] {
+				continue
+			}
+			key := s.ID + "|" + conn.SystemID
+			rev := conn.SystemID + "|" + s.ID
+			if drawn[key] || drawn[rev] {
+				continue
+			}
+			drawn[key] = true
+			target := sysLookup[conn.SystemID]
+			if target == nil {
+				continue
+			}
+			b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f"/>`,
+				tx(s.PositionX), ty(s.PositionY), tx(target.PositionX), ty(target.PositionY)))
+		}
+	}
+	b.WriteString(`</g>`)
+
+	// System dots and labels.
+	capitalID := empireCapitals[empire.ID]
+	for _, s := range systems {
+		sx, sy := tx(s.PositionX), ty(s.PositionY)
+
+		// Dot.
+		dotColor := empire.Color
+		if s.IsStronghold {
+			dotColor = "#FF0000"
+		}
+		b.WriteString(fmt.Sprintf(`<a href="%s.html"><circle cx="%.1f" cy="%.1f" r="3.5" fill="%s" stroke="#000" stroke-width="0.5" class="empire-sys-dot"><title>%s</title></circle>`,
+			s.ID, sx, sy, dotColor, s.Name))
+
+		// Capital star overlay.
+		if s.ID == capitalID {
+			b.WriteString(renderFivePointStar(sx, sy, 10, empire.Color))
+		}
+
+		b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" class="empire-sys-label" fill="#d8dee9">%s</text></a>`,
+			sx+7, sy+5, s.Name))
+	}
+
+	b.WriteString(`</svg>`)
+	return b.String()
+}
+
+// renderFivePointStar draws a 5-point star centered at (cx, cy) with the given outer radius.
+func renderFivePointStar(cx, cy, r float64, color string) string {
+	var b strings.Builder
+	inner := r * 0.4
+	b.WriteString(`<polygon points="`)
+	for i := range 10 {
+		angle := math.Pi/2 + float64(i)*math.Pi/5 // start at top
+		rad := r
+		if i%2 == 1 {
+			rad = inner
+		}
+		px := cx + rad*math.Cos(angle)
+		py := cy - rad*math.Sin(angle)
+		if i > 0 {
+			b.WriteString(" ")
+		}
+		b.WriteString(fmt.Sprintf("%.1f,%.1f", px, py))
+	}
+	b.WriteString(fmt.Sprintf(`" fill="%s" stroke="#000" stroke-width="0.5" opacity="0.9"/>`, color))
 	return b.String()
 }
 
@@ -2062,14 +2319,55 @@ var systemIndexTemplate = `<!DOCTYPE html>
 ` + siteHeader + `
     <main class="container page-content">
         <h2>Systems</h2>
-        <p class="text-muted mt-1">{{len .}} star systems in the galaxy.</p>
-        <div class="card mt-3" style="padding:0">
+        <p class="text-muted mt-1">{{len .Systems}} star systems in the galaxy.</p>
+
+{{- if .Empires}}
+        <nav class="empire-toc mt-3">
+            <span class="label">Empires</span>
+            <div class="empire-toc-links">
+{{- range .Empires}}
+                <a href="#empire-{{.ID}}" class="empire-toc-link" style="border-color: {{.Color}}; color: {{.Color}}">{{.Name}} <span class="text-muted">({{len .Systems}})</span></a>
+{{- end}}
+            </div>
+        </nav>
+
+{{- range .Empires}}
+        <section id="empire-{{.ID}}" class="empire-section mt-3">
+            <h3 class="empire-title" style="color: {{.Color}}">{{.Name}}</h3>
+            <div class="empire-map-panel">
+                {{.MapSVG}}
+            </div>
+            <div class="card mt-2" style="padding:0">
+            <div class="section-label">{{.Name}} Systems ({{len .Systems}})</div>
+            <table class="sortable">
+            <thead>
+            <tr><th class="sortable">System</th><th class="sortable">Security</th><th class="sortable" style="text-align:right">Connections</th><th class="sortable" style="text-align:right">POIs</th><th class="sortable">Stronghold</th></tr>
+            </thead>
+            <tbody>
+{{- range .Systems}}
+            <tr>
+              <td><a href="{{.ID}}.html">{{.Name}}</a></td>
+              <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
+              <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
+              <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
+              <td>{{if .IsStronghold}}Yes{{end}}</td>
+            </tr>
+{{- end}}
+            </tbody>
+            </table>
+            </div>
+        </section>
+{{- end}}
+{{- end}}
+
+        <h3 class="mt-3">All Systems</h3>
+        <div class="card mt-2" style="padding:0">
         <table class="sortable">
         <thead>
         <tr><th class="sortable">System</th><th class="sortable">Empire</th><th class="sortable">Security</th><th class="sortable" style="text-align:right">Connections</th><th class="sortable" style="text-align:right">POIs</th><th class="sortable">Stronghold</th></tr>
         </thead>
         <tbody>
-{{- range .}}
+{{- range .Systems}}
         <tr>
           <td><a href="{{.ID}}.html">{{.Name}}</a></td>
           <td>{{if .Empire}}{{titleCase .Empire}}{{else}}<span class="text-muted">Unknown</span>{{end}}</td>

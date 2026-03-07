@@ -255,6 +255,77 @@
     font-weight: 500;
 }
 
+/* Empire TOC */
+.empire-toc {
+    padding: 1rem 1.25rem;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+}
+
+.empire-toc .label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.empire-toc-links {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.empire-toc-link {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid;
+    font-size: var(--text-ui);
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+
+.empire-toc-link:hover {
+    opacity: 0.8;
+}
+
+/* Empire sections */
+.empire-section {
+    scroll-margin-top: 1rem;
+}
+
+.empire-title {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.75rem;
+}
+
+.empire-map-panel {
+    background: #0a0e18;
+    border: 1px solid hsl(var(--border));
+    padding: 0.5rem;
+}
+
+.empire-map-svg {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    display: block;
+}
+
+.empire-sys-dot {
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.empire-sys-dot:hover {
+    opacity: 0.8;
+}
+
+.empire-sys-label {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    pointer-events: none;
+}
+
 /* Site footer (duplicated here since system pages load this) */
 .site-footer {
     padding: 1.5rem;
