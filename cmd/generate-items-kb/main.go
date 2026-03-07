@@ -1529,6 +1529,23 @@ func renderEmpireMap(empire EmpireGroup, sysLookup map[string]*System) string {
 	}
 	b.WriteString(`</g>`)
 
+	// Outgoing connections to systems outside this empire (dashed).
+	b.WriteString(`<g stroke="#c8d0e0" stroke-width="1.5" opacity="0.6" stroke-dasharray="6,4">`)
+	for _, s := range systems {
+		for _, conn := range s.Connections {
+			if inEmpire[conn.SystemID] {
+				continue
+			}
+			target := sysLookup[conn.SystemID]
+			if target == nil {
+				continue
+			}
+			b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f"/>`,
+				tx(s.PositionX), ty(s.PositionY), tx(target.PositionX), ty(target.PositionY)))
+		}
+	}
+	b.WriteString(`</g>`)
+
 	// System dots and labels.
 	capitalID := empireCapitals[empire.ID]
 	for _, s := range systems {
