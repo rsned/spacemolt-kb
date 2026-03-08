@@ -97,11 +97,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 	vbX := cx - vbW/2
 	vbY := cy - vbH/2
 
-	if standalone {
-		b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="xMidYMid slice" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, vbX, vbY, vbW, vbH))
-	} else {
-		b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="xMidYMid slice" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, vbX, vbY, vbW, vbH))
-	}
+	b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="xMidYMid slice" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, vbX, vbY, vbW, vbH))
 
 	// Compute visible Y range for gate clamping (assume ~2:1 display aspect).
 	visH := vbW * 0.5
@@ -267,7 +263,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			case "relic":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
-				b.WriteString(renderFourPointStar(px, py, 7))
+				b.WriteString(renderCompassRose(px, py, 10))
 				b.WriteString(`</g>`)
 				if labelAbove {
 					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
@@ -390,21 +386,28 @@ func renderHexagon(hx, hy, r float64) string {
 	return fmt.Sprintf(`<polygon points="%s" fill="none" stroke="#81a1c1" stroke-width="1.5"/>`, strings.Join(pts, " "))
 }
 
-// renderFourPointStar returns an SVG polygon for a 4-pointed star.
-func renderFourPointStar(sx, sy, r float64) string {
-	inner := r * 0.4
-	var pts []string
-	for i := range 8 {
-		angle := float64(i)*math.Pi/4 - math.Pi/2
-		rad := r
-		if i%2 == 1 {
-			rad = inner
-		}
-		px := sx + rad*math.Cos(angle)
-		py := sy + rad*math.Sin(angle)
-		pts = append(pts, fmt.Sprintf("%.1f,%.1f", px, py))
-	}
-	return fmt.Sprintf(`<polygon points="%s" fill="#EBCB8B" opacity="0.9"/>`, strings.Join(pts, " "))
+// renderCompassRose returns an SVG compass rose centered at (cx, cy) with the given outer radius.
+// It draws four elongated diamond points on the cardinal axes with a small circle at the center.
+func renderCompassRose(cx, cy, r float64) string {
+	var b strings.Builder
+	// Each cardinal point is a thin diamond: tip at r, base at r*0.3, width r*0.2.
+	half := r * 0.2 // half-width of each diamond
+	base := r * 0.3 // distance from center to the inner base of each point
+	// N point (up in SVG = -Y).
+	b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#EBCB8B" opacity="0.9"/>`,
+		cx, cy-r, cx+half, cy-base, cx, cy, cx-half, cy-base))
+	// S point.
+	b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#EBCB8B" opacity="0.9"/>`,
+		cx, cy+r, cx-half, cy+base, cx, cy, cx+half, cy+base))
+	// E point.
+	b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#EBCB8B" opacity="0.9"/>`,
+		cx+r, cy, cx+base, cy-half, cx, cy, cx+base, cy+half))
+	// W point.
+	b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#EBCB8B" opacity="0.9"/>`,
+		cx-r, cy, cx-base, cy+half, cx, cy, cx-base, cy-half))
+	// Center dot.
+	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="#EBCB8B" opacity="0.9"/>`, cx, cy, r*0.15))
+	return b.String()
 }
 
 // generateAsteroidParticles creates ~100 small triangle particles scattered along an orbital ring.
