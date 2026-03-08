@@ -92,26 +92,32 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			}
 		}
 	}
-	vbW := 2 * maxOrbitR / 0.8
-	vbH := 2 * maxOrbitR * 1.25 // tall enough for full content
-	vbX := cx - vbW/2
-	vbY := cy - vbH/2
+	fillRatio := 0.8 // orbit fills 80% of viewBox (10% padding per side)
+	if standalone {
+		fillRatio = 0.9 // orbit fills 90% of viewBox (5% padding per side)
+	}
+	vbSize := 2 * maxOrbitR / fillRatio
+	vbX := cx - vbSize/2
+	vbY := cy - vbSize/2
 
-	b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="xMidYMid slice" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, vbX, vbY, vbW, vbH))
+	aspectRatio := "xMidYMid slice"
+	if standalone {
+		aspectRatio = "xMidYMid meet"
+	}
+	b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="%s" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, aspectRatio, vbX, vbY, vbSize, vbSize))
 
 	if standalone {
-		b.WriteString(fmt.Sprintf(`<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#000"/>`, vbX, vbY, vbW, vbH))
+		b.WriteString(fmt.Sprintf(`<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#000"/>`, vbX, vbY, vbSize, vbSize))
 	}
 
-	// Compute visible Y range for gate clamping (assume ~2:1 display aspect).
-	visH := vbW * 0.5
-	visTop := cy - visH/2 + 25
-	visBottom := cy + visH/2 - 25
+	// Compute visible range for gate clamping.
+	visTop := vbY + 25
+	visBottom := vbY + vbSize - 25
 
 	if explored {
 		// Axis crosshairs (span full viewBox).
-		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, vbX, cy, vbX+vbW, cy))
-		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, vbY, cx, vbY+vbH))
+		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, vbX, cy, vbX+vbSize, cy))
+		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, vbY, cx, vbY+vbSize))
 
 		// Orbital rings for each non-sun POI.
 		for _, poi := range sys.POIs {
@@ -135,7 +141,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		gx := cx + gateRadius*math.Cos(angle)
 		gy := cy - gateRadius*math.Sin(angle) // Y inverted
 		// Clamp to visible area.
-		gx = math.Max(vbX+30, math.Min(vbX+vbW-30, gx))
+		gx = math.Max(vbX+30, math.Min(vbX+vbSize-30, gx))
 		gy = math.Max(visTop, math.Min(visBottom, gy))
 
 		// Dashed line from gate toward center.
@@ -418,7 +424,7 @@ func renderCompassRose(cx, cy, r float64) string {
 func generateAsteroidParticles(orbitCX, orbitCY, radius float64, seed uint64) string {
 	rng := rand.New(rand.NewPCG(seed, seed^0xdeadbeef))
 	var b strings.Builder
-	count := 100
+	count := 150
 	for range count {
 		angle := rng.Float64() * 2 * math.Pi
 		jitter := 1.0 + (rng.Float64()-0.5)*0.3 // +/-15%

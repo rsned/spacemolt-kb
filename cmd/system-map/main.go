@@ -4,6 +4,7 @@
 // Usage:
 //
 //	system-map -json path/to/get_system.json
+//	system-map -json file.json -map get_map.json
 //	system-map -db path/to/knowledge.db -system sol
 //	system-map -json file.json -o map.svg
 package main
@@ -50,6 +51,7 @@ type jsonConn struct {
 
 func main() {
 	jsonPath := flag.String("json", "", "path to get_system JSON response file")
+	mapPath := flag.String("map", "", "path to get_map JSON file (for gate angles in -json mode)")
 	dbPath := flag.String("db", "", "path to SQLite knowledge database")
 	systemID := flag.String("system", "", "system ID to render (required with -db)")
 	outPath := flag.String("o", "", "output file path (default: stdout)")
@@ -68,7 +70,7 @@ func main() {
 	var err error
 
 	if hasJSON {
-		svg, err = renderFromJSON(*jsonPath)
+		svg, err = renderFromJSON(*jsonPath, *mapPath)
 	} else {
 		if *systemID == "" {
 			fmt.Fprintln(os.Stderr, "error: -system is required with -db")
@@ -93,7 +95,21 @@ func main() {
 	}
 }
 
-func renderFromJSON(path string) (string, error) {
+// getMapResponse is the top-level structure of a get_map JSON response.
+type getMapResponse struct {
+	Systems []mapSystem `json:"systems"`
+}
+
+type mapSystem struct {
+	SystemID string   `json:"system_id"`
+	Name     string   `json:"name"`
+	Position struct {
+		X float64 `json:"x"`
+		Y float64 `json:"y"`
+	} `json:"position"`
+}
+
+func renderFromJSON(path, mapFilePath string) (string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return "", fmt.Errorf("reading JSON file: %w", err)
@@ -105,7 +121,53 @@ func renderFromJSON(path string) (string, error) {
 	}
 
 	sys := convertJSONSystem(resp.System)
-	return systemmap.RenderSystemMap(sys, nil, true), nil
+
+	var allSystems map[string]*systemmap.System
+	if mapFilePath != "" {
+		allSystems, err = loadMapSystems(mapFilePath, sys)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return systemmap.RenderSystemMap(sys, allSystems, true), nil
+}
+
+// loadMapSystems reads a get_map JSON file and builds the allSystems lookup
+// needed for gate angle computation. It also sets the galaxy coordinates on
+// the current system from the map data.
+func loadMapSystems(path string, sys *systemmap.System) (map[string]*systemmap.System, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading map file: %w", err)
+	}
+
+	var resp getMapResponse
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return nil, fmt.Errorf("parsing map JSON: %w", err)
+	}
+
+	allSystems := make(map[string]*systemmap.System, len(resp.Systems))
+	for _, ms := range resp.Systems {
+		s := &systemmap.System{
+			ID:        ms.SystemID,
+			Name:      ms.Name,
+			PositionX: ms.Position.X,
+			PositionY: ms.Position.Y,
+		}
+		allSystems[ms.SystemID] = s
+
+		// Set galaxy coordinates on the current system.
+		if ms.SystemID == sys.ID {
+			sys.PositionX = ms.Position.X
+			sys.PositionY = ms.Position.Y
+		}
+	}
+
+	// Ensure the current system is in the map.
+	allSystems[sys.ID] = sys
+
+	return allSystems, nil
 }
 
 func convertJSONSystem(js jsonSystem) *systemmap.System {
