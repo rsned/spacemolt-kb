@@ -99,6 +99,10 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 
 	b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="xMidYMid slice" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, vbX, vbY, vbW, vbH))
 
+	if standalone {
+		b.WriteString(fmt.Sprintf(`<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#000"/>`, vbX, vbY, vbW, vbH))
+	}
+
 	// Compute visible Y range for gate clamping (assume ~2:1 display aspect).
 	visH := vbW * 0.5
 	visTop := cy - visH/2 + 25
