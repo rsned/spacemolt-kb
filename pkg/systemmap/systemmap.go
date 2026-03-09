@@ -382,7 +382,8 @@ func computeGateAngle(sys *System, targetID string, allSystems map[string]*Syste
 		return 0
 	}
 	dx := target.PositionX - sys.PositionX
-	dy := target.PositionY - sys.PositionY
+	// Galaxy map Y-axis is inverted relative to the official game map.
+	dy := -(target.PositionY - sys.PositionY)
 	return math.Atan2(dy, dx)
 }
 
