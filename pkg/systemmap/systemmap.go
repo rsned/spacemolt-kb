@@ -119,6 +119,32 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, vbX, cy, vbX+vbSize, cy))
 		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, vbY, cx, vbY+vbSize))
 
+		// Tick marks at whole-number game coordinate intervals.
+		tickLen := 4.0 // half-length of each tick mark
+		minGame := int(math.Floor((vbX - cx) / scale))
+		maxGame := int(math.Ceil((vbX + vbSize - cx) / scale))
+		for n := minGame; n <= maxGame; n++ {
+			if n == 0 {
+				continue
+			}
+			// X-axis tick (vertical line at game X = n).
+			sx := cx + float64(n)*scale
+			b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, sx, cy-tickLen, sx, cy+tickLen))
+			// Y-axis tick (horizontal line at game Y = n; SVG Y is inverted).
+			sy := cy - float64(n)*scale
+			b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx-tickLen, sy, cx+tickLen, sy))
+		}
+
+		// Scale indicator in top-left corner: "1 AU" bar.
+		scaleX := vbX + 20
+		scaleY := vbY + 25
+		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="1" opacity="0.9"/>`, scaleX, scaleY, scaleX+scale, scaleY))
+		// End caps.
+		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="1" opacity="0.9"/>`, scaleX, scaleY-3, scaleX, scaleY+3))
+		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="1" opacity="0.9"/>`, scaleX+scale, scaleY-3, scaleX+scale, scaleY+3))
+		// Label.
+		b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" fill="#8b95ab" font-size="10" font-family="sans-serif">1 AU</text>`, scaleX+scale/2, scaleY-6))
+
 		// Orbital rings for each non-sun POI.
 		for _, poi := range sys.POIs {
 			if poi.Type == "sun" {
