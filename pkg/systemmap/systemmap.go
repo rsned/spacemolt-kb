@@ -200,7 +200,22 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		b.WriteString(`<stop offset="0%" stop-color="#EBCB8B" stop-opacity="1"/>`)
 		b.WriteString(`<stop offset="40%" stop-color="#D08770" stop-opacity="0.45"/>`)
 		b.WriteString(`<stop offset="100%" stop-color="#D08770" stop-opacity="0"/>`)
-		b.WriteString(`</radialGradient></defs>`)
+		b.WriteString(`</radialGradient>`)
+		// Wormhole glow gradient (orange-red).
+		b.WriteString(`<radialGradient id="wormhole-glow">`)
+		b.WriteString(`<stop offset="0%" stop-color="#1a0a00" stop-opacity="1"/>`)
+		b.WriteString(`<stop offset="35%" stop-color="#BF360C" stop-opacity="0.9"/>`)
+		b.WriteString(`<stop offset="60%" stop-color="#D84315" stop-opacity="0.5"/>`)
+		b.WriteString(`<stop offset="100%" stop-color="#D08770" stop-opacity="0"/>`)
+		b.WriteString(`</radialGradient>`)
+		// Collapsed wormhole glow gradient (yellow).
+		b.WriteString(`<radialGradient id="collapsed-wormhole-glow">`)
+		b.WriteString(`<stop offset="0%" stop-color="#1a1a00" stop-opacity="1"/>`)
+		b.WriteString(`<stop offset="35%" stop-color="#F9A825" stop-opacity="0.7"/>`)
+		b.WriteString(`<stop offset="60%" stop-color="#FDD835" stop-opacity="0.35"/>`)
+		b.WriteString(`<stop offset="100%" stop-color="#FDD835" stop-opacity="0"/>`)
+		b.WriteString(`</radialGradient>`)
+		b.WriteString(`</defs>`)
 
 		// Render POIs by type; collect label info for de-overlap.
 		type labelInfo struct {
@@ -306,6 +321,28 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 				} else {
 					labels = append(labels, labelInfo{x: px, y: py + 18, name: poi.Name, above: false})
 				}
+
+			case "wormhole":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
+				b.WriteString(renderWormhole(px, py, 10, false))
+				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 14, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 20, name: poi.Name, above: false})
+				}
+
+			case "collapsed_wormhole":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
+				b.WriteString(renderWormhole(px, py, 10, true))
+				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 14, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 20, name: poi.Name, above: false})
+				}
 			}
 		}
 
@@ -333,6 +370,9 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		for _, lbl := range labels {
 			b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, lbl.x, lbl.y, htmlEscape(lbl.name)))
 		}
+
+		// Legend: collect unique POI types present in this system.
+		b.WriteString(renderLegend(sys.POIs, vbX, vbY, vbSize))
 	} else {
 		// Unexplored: star + fog of war.
 		b.WriteString(`<defs>`)
@@ -447,6 +487,93 @@ func renderCompassRose(cx, cy, r float64) string {
 	return b.String()
 }
 
+// renderWormhole returns an SVG black-hole-style marker centered at (cx, cy) with the given radius.
+// When collapsed is true, the accretion disk is fragmented and colored yellow instead of orange-red.
+func renderWormhole(cx, cy, r float64, collapsed bool) string {
+	var b strings.Builder
+	gradientID := "wormhole-glow"
+	diskColor := "#D84315"
+	diskColorOuter := "#BF360C"
+	rimColor := "#D08770"
+	centerColor := "#0a0000"
+	if collapsed {
+		gradientID = "collapsed-wormhole-glow"
+		diskColor = "#FDD835"
+		diskColorOuter = "#F9A825"
+		rimColor = "#FFEE58"
+		centerColor = "#0a0a00"
+	}
+
+	// Outer glow.
+	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="url(#%s)"/>`,
+		cx, cy, r*1.8, gradientID))
+
+	// Tilted accretion disk (ellipse, ~30° tilt via scaleY).
+	diskRX := r * 1.3
+	diskRY := r * 0.45
+
+	if collapsed {
+		// Fragmented arcs for collapsed wormhole.
+		for i, arc := range []struct {
+			start, sweep float64
+			opacity      float64
+		}{
+			{20, 70, 0.7},
+			{120, 50, 0.5},
+			{210, 80, 0.6},
+			{330, 40, 0.4},
+		} {
+			_ = i
+			startRad := arc.start * math.Pi / 180
+			endRad := (arc.start + arc.sweep) * math.Pi / 180
+			x1 := cx + diskRX*math.Cos(startRad)
+			y1 := cy + diskRY*math.Sin(startRad)
+			x2 := cx + diskRX*math.Cos(endRad)
+			y2 := cy + diskRY*math.Sin(endRad)
+			largeArc := 0
+			if arc.sweep > 180 {
+				largeArc = 1
+			}
+			b.WriteString(fmt.Sprintf(`<path d="M%.1f,%.1f A%.1f,%.1f 0 %d,1 %.1f,%.1f" fill="none" stroke="%s" stroke-width="2" opacity="%.2f"/>`,
+				x1, y1, diskRX, diskRY, largeArc, x2, y2, diskColor, arc.opacity))
+		}
+		// Faint outer rim fragments.
+		for _, arc := range []struct {
+			start, sweep float64
+		}{
+			{40, 50},
+			{180, 60},
+		} {
+			startRad := arc.start * math.Pi / 180
+			endRad := (arc.start + arc.sweep) * math.Pi / 180
+			outerRX := diskRX * 1.15
+			outerRY := diskRY * 1.15
+			x1 := cx + outerRX*math.Cos(startRad)
+			y1 := cy + outerRY*math.Sin(startRad)
+			x2 := cx + outerRX*math.Cos(endRad)
+			y2 := cy + outerRY*math.Sin(endRad)
+			b.WriteString(fmt.Sprintf(`<path d="M%.1f,%.1f A%.1f,%.1f 0 0,1 %.1f,%.1f" fill="none" stroke="%s" stroke-width="1" opacity="0.3"/>`,
+				x1, y1, outerRX, outerRY, x2, y2, rimColor))
+		}
+	} else {
+		// Solid accretion disk for active wormhole.
+		b.WriteString(fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="2.5" opacity="0.85"/>`,
+			cx, cy, diskRX, diskRY, diskColor))
+		// Outer rim glow.
+		b.WriteString(fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="1.5" opacity="0.5"/>`,
+			cx, cy, diskRX*1.15, diskRY*1.15, diskColorOuter))
+		// Inner bright rim.
+		b.WriteString(fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="none" stroke="%s" stroke-width="1" opacity="0.6"/>`,
+			cx, cy, diskRX*0.85, diskRY*0.85, rimColor))
+	}
+
+	// Dark center void.
+	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="%s"/>`,
+		cx, cy, r*0.55, centerColor))
+
+	return b.String()
+}
+
 // generateAsteroidParticles creates ~100 small triangle particles scattered along an orbital ring.
 func generateAsteroidParticles(orbitCX, orbitCY, radius float64, seed uint64) string {
 	rng := rand.New(rand.NewPCG(seed, seed^0xdeadbeef))
@@ -499,4 +626,132 @@ func generateIceParticles(orbitCX, orbitCY, radius float64, seed uint64) string 
 			px, py-size, px+size*0.6, py, px, py+size, px-size*0.6, py, opacity))
 	}
 	return b.String()
+}
+
+// legendEntry defines a POI type for the map legend.
+type legendEntry struct {
+	poiType string
+	label   string
+}
+
+// legendTypes lists all POI types in display order.
+var legendTypes = []legendEntry{
+	{"sun", "Star"},
+	{"planet", "Planet"},
+	{"station", "Station"},
+	{"asteroid_belt", "Asteroid Belt"},
+	{"ice_field", "Ice Field"},
+	{"gas_cloud", "Gas Cloud"},
+	{"relic", "Relic"},
+	{"wormhole", "Wormhole"},
+	{"collapsed_wormhole", "Collapsed Wormhole"},
+}
+
+// renderLegend draws a legend box in the bottom-right corner of the map showing
+// only the POI types present in the current system.
+func renderLegend(pois []POI, vbX, vbY, vbSize float64) string {
+	// Collect present types.
+	present := make(map[string]bool)
+	for _, poi := range pois {
+		present[poi.Type] = true
+	}
+
+	// Build ordered list of entries to show.
+	var entries []legendEntry
+	for _, lt := range legendTypes {
+		if present[lt.poiType] {
+			entries = append(entries, lt)
+		}
+	}
+	if len(entries) == 0 {
+		return ""
+	}
+
+	const (
+		rowH    = 16.0  // height per row
+		padX    = 8.0   // horizontal padding
+		padY    = 8.0   // vertical padding
+		swatchW = 16.0  // swatch area width
+		gap     = 6.0   // gap between swatch and label
+		marginR = 10.0  // margin from viewBox right edge
+		marginB = 10.0  // margin from viewBox bottom edge
+		charW   = 5.0   // approximate character width at 9px font
+	)
+
+	// Compute box dimensions.
+	maxLabelW := 0.0
+	for _, e := range entries {
+		w := float64(len(e.label)) * charW
+		if w > maxLabelW {
+			maxLabelW = w
+		}
+	}
+	boxW := padX + swatchW + gap + maxLabelW + padX
+	boxH := padY + float64(len(entries))*rowH + padY - (rowH - 12) // tighten bottom
+
+	// Position: bottom-right of viewBox.
+	boxX := vbX + vbSize - marginR - boxW
+	boxY := vbY + vbSize - marginB - boxH
+
+	var b strings.Builder
+
+	// Background.
+	b.WriteString(fmt.Sprintf(`<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="4" fill="#000" fill-opacity="0.6" stroke="#8b95ab" stroke-width="0.5" stroke-opacity="0.5"/>`,
+		boxX, boxY, boxW, boxH))
+
+	// Rows.
+	for i, e := range entries {
+		rowY := boxY + padY + float64(i)*rowH
+		swatchCX := boxX + padX + swatchW/2
+		swatchCY := rowY + 6 // vertical center of swatch
+		labelX := boxX + padX + swatchW + gap
+		labelY := rowY + 10 // text baseline
+
+		// Render mini swatch per type.
+		b.WriteString(renderLegendSwatch(e.poiType, swatchCX, swatchCY))
+
+		// Label text.
+		b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" font-size="9" font-family="sans-serif" fill="#d8dee9">%s</text>`,
+			labelX, labelY, e.label))
+	}
+
+	return b.String()
+}
+
+// renderLegendSwatch draws a tiny version of the POI marker for the legend.
+func renderLegendSwatch(poiType string, cx, cy float64) string {
+	switch poiType {
+	case "sun":
+		return fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#EBCB8B"/>`, cx, cy)
+	case "planet":
+		return fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="4" fill="#A3BE8C"/>`, cx, cy)
+	case "station":
+		return renderHexagon(cx, cy, 5)
+	case "asteroid_belt":
+		// Small triangle.
+		return fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#D08770" opacity="0.8"/>`,
+			cx-4, cy+3, cx, cy-4, cx+4, cy+3)
+	case "ice_field":
+		// Small diamond.
+		return fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#88C0D0" opacity="0.8"/>`,
+			cx, cy-4, cx+3, cy, cx, cy+4, cx-3, cy)
+	case "gas_cloud":
+		// Cluster of small circles.
+		return fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="3" fill="#B48EAD" opacity="0.5"/>`+
+			`<circle cx="%.1f" cy="%.1f" r="2" fill="#B48EAD" opacity="0.6"/>`,
+			cx-2, cy+1, cx+3, cy-1)
+	case "relic":
+		return renderCompassRose(cx, cy, 5)
+	case "wormhole":
+		// Mini black hole: dark center + orange ring.
+		return fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="6" ry="2.5" fill="none" stroke="#D84315" stroke-width="1.5" opacity="0.85"/>`+
+			`<circle cx="%.1f" cy="%.1f" r="2.5" fill="#0a0000"/>`,
+			cx, cy, cx, cy)
+	case "collapsed_wormhole":
+		// Mini broken hole: dark center + yellow dashed ring.
+		return fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="6" ry="2.5" fill="none" stroke="#FDD835" stroke-width="1.5" opacity="0.7" stroke-dasharray="3,2"/>`+
+			`<circle cx="%.1f" cy="%.1f" r="2.5" fill="#0a0a00"/>`,
+			cx, cy, cx, cy)
+	}
+	return ""
 }
