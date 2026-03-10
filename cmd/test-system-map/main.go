@@ -254,6 +254,41 @@ func main() {
 				{ID: "p1", Type: "planet", Class: "terran", Name: "Circumbinary", PositionX: 3, PositionY: 0},
 			},
 		},
+
+		// MATRIX TEST PATTERN - All combinations
+		"matrix-all": {
+			ID:   "matrix-all",
+			Name: "MK Classification Matrix (80 stars: 10 spectral × 8 luminosity)",
+			POIs: func() []systemmap.POI {
+				spectrals := []string{"O", "B", "A", "F", "G", "K", "M", "L", "T", "Y"}
+				luminosities := []string{"Ia", "Ib", "II", "III", "IV", "V", "VI", "VII"}
+
+				var pois []systemmap.POI
+				// Grid spacing: x from -18 to +18, y from -10 to +10
+				xSpacing := 4.0
+				ySpacing := 3.0
+				xOffset := -18.0
+				yOffset := 10.5
+
+				for li, lum := range luminosities {
+					for si, spec := range spectrals {
+						class := fmt.Sprintf("%s %s", spec, lum)
+						x := xOffset + float64(si)*xSpacing
+						y := yOffset - float64(li)*ySpacing
+						id := fmt.Sprintf("%s_%s", spec, lum)
+						pois = append(pois, systemmap.POI{
+							ID:         id,
+							Type:       "sun",
+							Class:      class,
+							Name:       fmt.Sprintf("%s %s", spec, lum),
+							PositionX:  x,
+							PositionY:  y,
+						})
+					}
+				}
+				return pois
+			}(),
+		},
 	}
 
 	fmt.Printf("Generating %d MK classification test systems...\n\n", len(systems))

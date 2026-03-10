@@ -279,7 +279,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			case "sun":
 				if poi.Class != "" {
 					// Use classified star rendering
-					b.WriteString(renderStar(poi, cx, cy))
+					b.WriteString(renderStar(poi, px, py))
 					// Label is handled by renderStar
 				} else {
 					// Use default sun rendering
