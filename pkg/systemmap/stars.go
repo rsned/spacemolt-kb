@@ -42,3 +42,21 @@ var luminosityClasses = map[string]LuminosityClass{
 	"VI":  {Roman: "VI", Name: "Subdwarf", Multiplier: 0.8, Size: 8},
 	"VII": {Roman: "VII", Name: "White Dwarf", Multiplier: 0.6, Size: 6},
 }
+
+// GetStarColor returns the hex color for a spectral type (OBAFGKMLTY).
+// Returns default sun color (#EBCB8B) for unknown types.
+func GetStarColor(spectral string) string {
+	if st, ok := spectralTypes[spectral]; ok {
+		return st.Color
+	}
+	return "#EBCB8B" // Default sun color
+}
+
+// GetStarSize returns the pixel radius for a luminosity class (Roman numerals).
+// Returns default main sequence size (10) for unknown classes.
+func GetStarSize(luminosity string) float64 {
+	if lc, ok := luminosityClasses[luminosity]; ok {
+		return lc.Size
+	}
+	return 10 // Default main sequence size
+}
