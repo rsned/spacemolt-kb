@@ -92,8 +92,8 @@ func ParseStarClass(class string) (string, string, error) {
 		return spectral, luminosity, nil
 	}
 
-	// Try compact format (e.g., "G2V", "B3Ia")
-	re := regexp.MustCompile(`^([OBAFGKM])([0-9]?)((?:Ia|Ib|I{1,3}|IV|V|VI|VII))?$`)
+	// Try compact format (e.g., "G2V", "B3Ia", "L5V")
+	re := regexp.MustCompile(`^([OBAFGKMLTY])([0-9]?)((?:Ia|Ib|I{1,3}|IV|V|VI|VII))?$`)
 	matches := re.FindStringSubmatch(class)
 	if len(matches) > 0 {
 		spectral := matches[1]
@@ -104,8 +104,8 @@ func ParseStarClass(class string) (string, string, error) {
 		return spectral, luminosity, nil
 	}
 
-	// Try just spectral type with number (e.g., "G2", "M9")
-	re2 := regexp.MustCompile(`^([OBAFGKM])([0-9]?)$`)
+	// Try just spectral type with number (e.g., "G2", "M9", "L5")
+	re2 := regexp.MustCompile(`^([OBAFGKMLTY])([0-9]?)$`)
 	matches2 := re2.FindStringSubmatch(class)
 	if len(matches2) > 0 {
 		return matches2[1], "V", nil
@@ -116,7 +116,7 @@ func ParseStarClass(class string) (string, string, error) {
 
 // parseSpectralLetter extracts the spectral type letter from a string.
 func parseSpectralLetter(s string) string {
-	re := regexp.MustCompile(`^([OBAFGKM])`)
+	re := regexp.MustCompile(`^([OBAFGKMLTY])`)
 	matches := re.FindStringSubmatch(s)
 	if len(matches) > 1 {
 		return matches[1]
