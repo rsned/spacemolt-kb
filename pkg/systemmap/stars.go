@@ -1,5 +1,11 @@
 package systemmap
 
+import (
+	"errors"
+	"regexp"
+	"strings"
+)
+
 // SpectralType holds data for a Harvard spectral class (OBAFGKMLTY).
 type SpectralType struct {
 	Letter    string
@@ -59,4 +65,69 @@ func GetStarSize(luminosity string) float64 {
 		return lc.Size
 	}
 	return 10 // Default main sequence size
+}
+
+// ParseStarClass parses a star classification string in MK system notation.
+// Supports formats:
+//   - With space: "G2 V"
+//   - Without space: "G2V"
+//   - Compact luminosity: "B3Ia"
+//   - Without luminosity (defaults to V): "M9"
+// Returns spectral type (OBAFGKM), luminosity class, and error.
+func ParseStarClass(class string) (string, string, error) {
+	class = strings.TrimSpace(class)
+	if class == "" {
+		return "", "", errors.New("empty class string")
+	}
+
+	// Try splitting on space first
+	parts := strings.Fields(class)
+	if len(parts) == 2 {
+		spectral := parseSpectralLetter(parts[0])
+		luminosity := parts[1]
+		if spectral == "" || !isValidLuminosity(luminosity) {
+			return "", "", errors.New("invalid class format")
+		}
+		return spectral, luminosity, nil
+	}
+
+	// Try compact format (e.g., "G2V", "B3Ia")
+	re := regexp.MustCompile(`^([OBAFGKM])([0-9]?)((?:Ia|Ib|I{1,3}|IV|V|VI|VII))?$`)
+	matches := re.FindStringSubmatch(class)
+	if len(matches) > 0 {
+		spectral := matches[1]
+		luminosity := matches[3]
+		if luminosity == "" {
+			luminosity = "V" // Default to main sequence
+		}
+		return spectral, luminosity, nil
+	}
+
+	// Try just spectral type with number (e.g., "G2", "M9")
+	re2 := regexp.MustCompile(`^([OBAFGKM])([0-9]?)$`)
+	matches2 := re2.FindStringSubmatch(class)
+	if len(matches2) > 0 {
+		return matches2[1], "V", nil
+	}
+
+	return "", "", errors.New("invalid class format")
+}
+
+// parseSpectralLetter extracts the spectral type letter from a string.
+func parseSpectralLetter(s string) string {
+	re := regexp.MustCompile(`^([OBAFGKM])`)
+	matches := re.FindStringSubmatch(s)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
+}
+
+// isValidLuminosity checks if a string is a valid Yerkes luminosity class.
+func isValidLuminosity(lum string) bool {
+	valid := map[string]bool{
+		"Ia": true, "Ib": true, "II": true, "III": true,
+		"IV": true, "V": true, "VI": true, "VII": true,
+	}
+	return valid[lum]
 }

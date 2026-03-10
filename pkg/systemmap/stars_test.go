@@ -43,3 +43,38 @@ func TestGetStarSize(t *testing.T) {
 		})
 	}
 }
+
+func TestParseStarClass(t *testing.T) {
+	tests := []struct {
+		name           string
+		class          string
+		wantSpectral   string
+		wantLuminosity string
+		wantErr        bool
+	}{
+		{"G2 V with space", "G2 V", "G", "V", false},
+		{"G2V without space", "G2V", "G", "V", false},
+		{"B3Ia compact", "B3Ia", "B", "Ia", false},
+		{"M9 main sequence", "M9V", "M", "V", false},
+		{"M9 without luminosity defaults to V", "M9", "M", "V", false},
+		{"G without number", "G V", "G", "V", false},
+		{"V only invalid (no spectral)", "V", "", "", true},
+		{"empty string", "", "", "", true},
+		{"invalid spectral", "X9 V", "", "", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotSpectral, gotLuminosity, err := ParseStarClass(tt.class)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseStarClass(%q) error = %v, wantErr %v", tt.class, err, tt.wantErr)
+				return
+			}
+			if gotSpectral != tt.wantSpectral {
+				t.Errorf("ParseStarClass(%q) spectral = %q, want %q", tt.class, gotSpectral, tt.wantSpectral)
+			}
+			if gotLuminosity != tt.wantLuminosity {
+				t.Errorf("ParseStarClass(%q) luminosity = %q, want %q", tt.class, gotLuminosity, tt.wantLuminosity)
+			}
+		})
+	}
+}
