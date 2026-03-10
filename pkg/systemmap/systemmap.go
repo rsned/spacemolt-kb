@@ -31,6 +31,7 @@ type POI struct {
 	ID          string
 	Name        string
 	Type        string
+	Class       string // Star class (e.g., "G2 V") or planet class (e.g., "terran")
 	Description string
 	PositionX   float64
 	PositionY   float64

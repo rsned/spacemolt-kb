@@ -2,6 +2,7 @@ package systemmap
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -130,4 +131,67 @@ func isValidLuminosity(lum string) bool {
 		"IV": true, "V": true, "VI": true, "VII": true,
 	}
 	return valid[lum]
+}
+
+// renderStar generates SVG for a star POI with color and size based on classification.
+func renderStar(poi POI, cx, cy float64) string {
+	var b strings.Builder
+
+	// Parse classification
+	spectral, luminosity, err := ParseStarClass(poi.Class)
+	var color string
+	var size float64
+
+	if err != nil {
+		// Malformed class, use default rendering
+		color = "#EBCB8B"
+		size = 10
+	} else {
+		color = GetStarColor(spectral)
+		size = GetStarSize(luminosity)
+
+		// Brown dwarfs (L/T/Y) are always small, regardless of luminosity
+		if spectral == "L" || spectral == "T" || spectral == "Y" {
+			size = 8
+		}
+	}
+
+	// Create gradient ID unique to this POI
+	gradientID := fmt.Sprintf("star-glow-%s", poi.ID)
+
+	b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, poiTitle(poi)))
+
+	// Selection circle (dashed)
+	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, cx, cy, size+4))
+
+	// Outer glow gradient
+	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="url(#%s)"/>`, cx, cy, size*2.4, gradientID))
+
+	// Core star
+	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="%s"/>`, cx, cy, size, color))
+
+	b.WriteString(`</g>`)
+
+	// Label with classification
+	labelText := poi.Name
+	if spectral != "" && luminosity != "" {
+		labelText = fmt.Sprintf("%s %s%s", spectral, strings.TrimPrefix(poi.Class, spectral), luminosity)
+	}
+	b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, cx, cy+size+8, htmlEscape(labelText)))
+
+	return b.String()
+}
+
+// renderStarGlowGradient generates an SVG radial gradient definition for star glow.
+func renderStarGlowGradient(poi POI, color string, isBrownDwarf bool) string {
+	opacity := 0.45
+	if isBrownDwarf {
+		opacity = 0.15 // Muted glow for brown dwarfs
+	}
+
+	return fmt.Sprintf(`<radialGradient id="star-glow-%s">
+<stop offset="0%%" stop-color="%s" stop-opacity="1"/>
+<stop offset="40%%" stop-color="%s" stop-opacity="%.2f"/>
+<stop offset="100%%" stop-color="%s" stop-opacity="0"/>
+</radialGradient>`, poi.ID, color, color, opacity, color)
 }
