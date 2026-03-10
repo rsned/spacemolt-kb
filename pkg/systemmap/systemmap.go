@@ -80,6 +80,36 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		gateRadius = 230
 	}
 
+	// Check for star-orbit conflicts when explored
+	if explored {
+		for _, poi := range sys.POIs {
+			if poi.Type == "sun" && poi.Class != "" {
+				_, luminosity, err := ParseStarClass(poi.Class)
+				if err != nil {
+					continue
+				}
+				starRadius := GetStarSize(luminosity)
+
+				// Find nearest orbit
+				var minOrbitR float64 = -1
+				for _, otherPoi := range sys.POIs {
+					if otherPoi.Type != "sun" {
+						r := math.Hypot(otherPoi.PositionX, otherPoi.PositionY) * scale
+						if minOrbitR < 0 || r < minOrbitR {
+							minOrbitR = r
+						}
+					}
+				}
+
+				// Check if star overlaps orbit (with 5px margin)
+				if minOrbitR > 0 && starRadius+5 > minOrbitR-20 {
+					fmt.Printf("WARNING: System %s: Star radius %.0fpx overlaps nearest orbit at %.0fpx (class: %s)\n",
+						sys.ID, starRadius, minOrbitR-20, poi.Class)
+				}
+			}
+		}
+	}
+
 	// Compute viewBox so outermost orbit fills 80% of width, with cropping.
 	maxOrbitR := gateRadius + 5 // include gate ring
 	if explored {
@@ -216,6 +246,17 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		b.WriteString(`<stop offset="60%" stop-color="#FDD835" stop-opacity="0.35"/>`)
 		b.WriteString(`<stop offset="100%" stop-color="#FDD835" stop-opacity="0"/>`)
 		b.WriteString(`</radialGradient>`)
+		// Add star-specific gradients for classified stars
+		for _, poi := range sys.POIs {
+			if poi.Type == "sun" && poi.Class != "" {
+				spectral, _, err := ParseStarClass(poi.Class)
+				if err == nil {
+					color := GetStarColor(spectral)
+					isBrownDwarf := (spectral == "L" || spectral == "T" || spectral == "Y")
+					b.WriteString(renderStarGlowGradient(poi, color, isBrownDwarf))
+				}
+			}
+		}
 		b.WriteString(`</defs>`)
 
 		// Render POIs by type; collect label info for de-overlap.
@@ -236,23 +277,36 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 
 			switch poi.Type {
 			case "sun":
-				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, cx, cy))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="24" fill="url(#sun-glow)"/>`, cx, cy))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="10" fill="#EBCB8B"/>`, cx, cy))
-				b.WriteString(`</g>`)
-				// Sun label always below.
-				labels = append(labels, labelInfo{x: cx, y: cy + 28, name: poi.Name, above: false})
+				if poi.Class != "" {
+					// Use classified star rendering
+					b.WriteString(renderStar(poi, cx, cy))
+					// Label is handled by renderStar
+				} else {
+					// Use default sun rendering
+					b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, cx, cy))
+					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="24" fill="url(#sun-glow)"/>`, cx, cy))
+					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="10" fill="#EBCB8B"/>`, cx, cy))
+					b.WriteString(`</g>`)
+					labels = append(labels, labelInfo{x: cx, y: cy + 28, name: poi.Name, above: false})
+				}
 
 			case "planet":
-				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#A3BE8C"/>`, px, py))
-				b.WriteString(`</g>`)
-				if labelAbove {
-					labels = append(labels, labelInfo{x: px, y: py - 8, name: poi.Name, above: true})
+				if poi.Class != "" {
+					// Use classified planet rendering
+					b.WriteString(renderPlanet(poi, px, py))
+					// Label is handled by renderPlanet
 				} else {
-					labels = append(labels, labelInfo{x: px, y: py + 16, name: poi.Name, above: false})
+					// Use default planet rendering
+					b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
+					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#A3BE8C"/>`, px, py))
+					b.WriteString(`</g>`)
+					if labelAbove {
+						labels = append(labels, labelInfo{x: px, y: py - 8, name: poi.Name, above: true})
+					} else {
+						labels = append(labels, labelInfo{x: px, y: py + 16, name: poi.Name, above: false})
+					}
 				}
 
 			case "station":
