@@ -16,7 +16,8 @@ This generates HTML files in the current directory showing:
 - `test-spectral-B.html` - B-type blue-white giant
 - `test-spectral-A.html` - A-type white main sequence
 - `test-spectral-F.html` - F-type yellow-white subgiant
-- `test-spectral-G.html` - G-type yellow main sequence (Sun-like)
+- `test-spectral-G.html` - G-type yellow main sequence (Sun-like, G2)
+- `test-spectral-G-subtype-gradient.html` - G-type gradient (G0→G5→G9) showing subtype color refinement
 - `test-spectral-K.html` - K-type orange main sequence
 - `test-spectral-M.html` - M-type red dwarf
 - `test-spectral-L.html` - L-type brown dwarf
@@ -90,6 +91,30 @@ This generates HTML files in the current directory showing:
 | dwarf | #c4a484 (Tan-brown) | No | Pluto |
 | proto | #cc6666 (Reddish) | No | Forming planet |
 | captured | #b0a0c0 (Gray-purple) | No | Rogue planet |
+
+## Subtype Color Refinement
+
+The rendering system includes subtype-based color interpolation for continuous temperature gradients within spectral classes.
+
+**How it works:**
+- Each spectral class (O, B, A, F, G, K, M) has 10 subtypes numbered 0-9
+- Subtype 0 is the hottest within the class (nearest the previous spectral type)
+- Subtype 9 is the coolest within the class (nearest the next spectral type)
+- Subtype 5 represents the "pure" color of that spectral type
+
+**Color blending:**
+- **G0 V** (hottest G) → 60% blend toward F (white-yellow)
+- **G5 V** (pure G) → 100% G yellow (#fff4a0)
+- **G9 V** (coolest G) → 80% blend toward K (orange-yellow)
+- **G9** and **K0** are nearly indistinguishable (as they are in reality)
+- Similarly, B9 ≈ A0, A9 ≈ F0, F9 ≈ G0, etc.
+
+**Exceptions:**
+- Brown dwarfs (L, T, Y) don't blend - maintain their distinctive dark colors
+- Invalid/unknown subtypes default to subtype 5 (pure spectral color)
+- Edge cases (O0, Y9) have no adjacent type to blend toward
+
+This creates smooth, realistic color transitions across the entire stellar temperature sequence from O0 (hottest) to Y9 (coolest).
 
 ## Special Rendering Features
 
