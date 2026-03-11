@@ -28,6 +28,14 @@ var spectralTypes = map[string]SpectralType{
 	"L": {Letter: "L", Color: "#cc4020", Name: "Dark Red", TempRange: "1,300–2,400 K"},
 	"T": {Letter: "T", Color: "#882010", Name: "Infrared", TempRange: "700–1,300 K"},
 	"Y": {Letter: "Y", Color: "#440a05", Name: "Near-IR", TempRange: "<700 K"},
+	// White dwarf spectral types (use same spectral scale for temperature)
+	"DA": {Letter: "DA", Color: "#f0f8ff", Name: "White Dwarf (H lines)", TempRange: "4,000–150,000 K"},
+	"DB": {Letter: "DB", Color: "#e8eeff", Name: "White Dwarf (He I)", TempRange: "11,000–40,000 K"},
+	"DC": {Letter: "DC", Color: "#e8e8e8", Name: "White Dwarf (featureless)", TempRange: "<5,000 K"},
+	"DO": {Letter: "DO", Color: "#d8e8ff", Name: "White Dwarf (He II)", TempRange: "45,000–150,000 K"},
+	"DQ": {Letter: "DQ", Color: "#f0e8d8", Name: "White Dwarf (carbon)", TempRange: "8,000–18,000 K"},
+	"DZ": {Letter: "DZ", Color: "#e8f0f8", Name: "White Dwarf (metal)", TempRange: "5,000–15,000 K"},
+	"DX": {Letter: "DX", Color: "#e8e8e8", Name: "White Dwarf (unclassifiable)", TempRange: "unknown"},
 }
 
 // LuminosityClass holds data for a Yerkes luminosity class (Roman numerals).
@@ -59,9 +67,19 @@ var spectralIndex = map[string]int{
 	"O": 0, "B": 1, "A": 2, "F": 3, "G": 4, "K": 5, "M": 6, "L": 7, "T": 8, "Y": 9,
 }
 
-// GetStarColor returns the hex color for a spectral type (OBAFGKMLTY).
+// GetStarColor returns the hex color for a spectral type (OBAFGKMLTY) or white dwarf type.
+// For white dwarfs with secondary features (e.g., "DAP", "DAV"), extracts the base type (e.g., "DA").
 // Returns default sun color (#EBCB8B) for unknown types.
 func GetStarColor(spectral string) string {
+	// Check for white dwarf with secondary features (e.g., "DAP", "DAV", "DBQ")
+	if len(spectral) == 3 && strings.HasPrefix(spectral, "D") {
+		// Extract base white dwarf type (first 2 characters: DA, DB, DC, DO, DQ, DZ, DX)
+		baseType := spectral[:2]
+		if st, ok := spectralTypes[baseType]; ok {
+			return st.Color
+		}
+	}
+
 	if st, ok := spectralTypes[spectral]; ok {
 		return st.Color
 	}
@@ -143,11 +161,26 @@ func GetStarSize(luminosity string) float64 {
 //   - Compact luminosity: "B3Ia"
 //   - Without luminosity (defaults to V): "M9"
 //   - Without subtype (defaults to 5): "G V"
-// Returns spectral type (OBAFGKMLTY), subtype (0-9, -1 if unknown), luminosity class, and error.
+//   - White dwarf types: "DA", "DB", "DC", "DO", "DQ", "DZ", "DX", "DAP", "DAV", etc.
+// Returns spectral type (OBAFGKMLTY or white dwarf type), subtype (0-9, -1 if unknown), luminosity class, and error.
 func ParseStarClass(class string) (string, int, string, error) {
 	class = strings.TrimSpace(class)
 	if class == "" {
 		return "", -1, "", errors.New("empty class string")
+	}
+
+	// Check for white dwarf classification first (starts with D followed by spectral type)
+	// White dwarfs: DA, DB, DC, DO, DQ, DZ, DX, with optional secondary features (P, H, E, V)
+	reWD := regexp.MustCompile(`^(D[ABCQOXZ])([PHEV])?$`)
+	matchesWD := reWD.FindStringSubmatch(class)
+	if len(matchesWD) > 0 {
+		// White dwarf - use the specific type (e.g., "DA") as the spectral type
+		wdType := matchesWD[1]
+		secondary := matchesWD[2]
+		if secondary != "" {
+			wdType = wdType + secondary // e.g., "DA" + "P" = "DAP"
+		}
+		return wdType, -1, "VII", nil // White dwarfs are always luminosity class VII
 	}
 
 	// Try splitting on space first
@@ -267,12 +300,21 @@ func renderStar(poi POI, cx, cy float64) string {
 		color = "#EBCB8B"
 		size = 10
 	} else {
-		color = GetStarColorRefined(spectral, subtype)
-		size = GetStarSize(luminosity)
+		// Check if this is a white dwarf (starts with "D")
+		isWhiteDwarf := strings.HasPrefix(spectral, "D")
 
-		// Brown dwarfs (L/T/Y) are always small, regardless of luminosity
-		if spectral == "L" || spectral == "T" || spectral == "Y" {
-			size = 8
+		if isWhiteDwarf {
+			// White dwarfs use their specific color and fixed size
+			color = GetStarColor(spectral) // Use base color, no subtype refinement for white dwarfs
+			size = 6 // White dwarfs are always luminosity VII size
+		} else {
+			color = GetStarColorRefined(spectral, subtype)
+			size = GetStarSize(luminosity)
+
+			// Brown dwarfs (L/T/Y) are always small, regardless of luminosity
+			if spectral == "L" || spectral == "T" || spectral == "Y" {
+				size = 8
+			}
 		}
 	}
 

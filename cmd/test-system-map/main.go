@@ -2,11 +2,18 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strings"
 
 	"github.com/rsned/spacemolt-kb/pkg/systemmap"
 )
+
+// polarToXY converts polar coordinates (radius, angle in degrees) to Cartesian (x, y)
+func polarToXY(radius, angleDegrees float64) (float64, float64) {
+	angleRad := angleDegrees * math.Pi / 180.0
+	return radius * math.Cos(angleRad), radius * math.Sin(angleRad)
+}
 
 func main() {
 	// Define all sample systems demonstrating every classification type
@@ -94,6 +101,71 @@ func main() {
 			},
 		},
 
+		// WHITE DWARF SPECTRAL TYPES
+		"wd-DA": {
+			ID:   "wd-DA",
+			Name: "White Dwarf DA (Hydrogen lines present)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DA", Name: "Sirius B (DA)", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DB": {
+			ID:   "wd-DB",
+			Name: "White Dwarf DB (Helium I lines)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DB", Name: "DB White Dwarf", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DC": {
+			ID:   "wd-DC",
+			Name: "White Dwarf DC (Continuous spectrum, no lines)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DC", Name: "Featureless WD", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DO": {
+			ID:   "wd-DO",
+			Name: "White Dwarf DO (Helium II lines)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DO", Name: "Hot DO White Dwarf", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DQ": {
+			ID:   "wd-DQ",
+			Name: "White Dwarf DQ (Carbon lines present)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DQ", Name: "DQ White Dwarf", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DZ": {
+			ID:   "wd-DZ",
+			Name: "White Dwarf DZ (Metal lines present)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DZ", Name: "DZ White Dwarf", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DX": {
+			ID:   "wd-DX",
+			Name: "White Dwarf DX (Unclear or unclassifiable spectrum)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DX", Name: "Mysterious WD", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DAP": {
+			ID:   "wd-DAP",
+			Name: "White Dwarf DAP (Magnetic with detectable polarization)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DAP", Name: "Magnetic DA (P)", PositionX: 0, PositionY: 0},
+			},
+		},
+		"wd-DAV": {
+			ID:   "wd-DAV",
+			Name: "White Dwarf DAV (Variable - ZZ Ceti star)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "DAV", Name: "ZZ Ceti Variable", PositionX: 0, PositionY: 0},
+			},
+		},
+
 		// LUMINOSITY CLASSES (Ia-VII)
 		"lum-Ia": {
 			ID:   "lum-Ia",
@@ -148,19 +220,35 @@ func main() {
 		},
 		"lum-VII": {
 			ID:   "lum-VII",
-			Name: "White Dwarf (VII) - Smallest (6px)",
+			Name: "White Dwarf (VII) - Smallest (6px) - Note: White dwarfs use D-prefix classification",
 			POIs: []systemmap.POI{
-				{ID: "star", Type: "sun", Class: "DA VII", Name: "Sirius B", PositionX: 0, PositionY: 0},
+				{ID: "star", Type: "sun", Class: "DA", Name: "Sirius B", PositionX: 0, PositionY: 0},
 			},
 		},
 
-		// PLANET CLASSES
-		"planet-terran": {
-			ID:   "planet-terran",
-			Name: "Terran World (blue-green #4a9c6d)",
+		// PLANET CLASSES (actual game types)
+		"planet-arid": {
+			ID:   "planet-arid",
+			Name: "Arid World (dry, tan-brown #d4b596)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "K5 V", Name: "Orange Dwarf", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "arid", Name: "Arid World", PositionX: 1, PositionY: 0},
+			},
+		},
+		"planet-glacial": {
+			ID:   "planet-glacial",
+			Name: "Glacial World (icy, blue-white #b0e0e6)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "M3 V", Name: "Red Dwarf", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "glacial", Name: "Glacial World", PositionX: 0.5, PositionY: 0},
+			},
+		},
+		"planet-ice_world": {
+			ID:   "planet-ice_world",
+			Name: "Ice World (frozen, pale blue #9fc5e8)",
 			POIs: []systemmap.POI{
 				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
-				{ID: "p1", Type: "planet", Class: "terran", Name: "Earth-like", PositionX: 1, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "ice_world", Name: "Ice World", PositionX: 15, PositionY: 0},
 			},
 		},
 		"planet-jovian": {
@@ -171,36 +259,44 @@ func main() {
 				{ID: "p1", Type: "planet", Class: "jovian", Name: "Saturn-like", PositionX: 10, PositionY: 0},
 			},
 		},
-		"planet-ice_giant": {
-			ID:   "planet-ice_giant",
-			Name: "Ice Giant (pale blue #9fc5e8)",
+		"planet-oceanic": {
+			ID:   "planet-oceanic",
+			Name: "Oceanic World (water world, deep blue #4a90d9)",
 			POIs: []systemmap.POI{
 				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
-				{ID: "p1", Type: "planet", Class: "ice_giant", Name: "Neptune-like", PositionX: 15, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "oceanic", Name: "Oceanic World", PositionX: 1.2, PositionY: 0},
 			},
 		},
-		"planet-gas_dwarf": {
-			ID:   "planet-gas_dwarf",
-			Name: "Gas Dwarf / Mini-Neptune (tan #d4b596)",
+		"planet-scorched": {
+			ID:   "planet-scorched",
+			Name: "Scorched World (burnt, dark red-orange #d46a4e)",
 			POIs: []systemmap.POI{
-				{ID: "star", Type: "sun", Class: "M3 V", Name: "Red Dwarf", PositionX: 0, PositionY: 0},
-				{ID: "p1", Type: "planet", Class: "gas_dwarf", Name: "Sub-Neptune", PositionX: 0.5, PositionY: 0},
+				{ID: "star", Type: "sun", Class: "O3 V", Name: "Hot Blue Star", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "scorched", Name: "Scorched World", PositionX: 0.3, PositionY: 0},
 			},
 		},
-		"planet-rocky": {
-			ID:   "planet-rocky",
-			Name: "Rocky Planet (brown-gray #8b7355)",
+		"planet-super_terran": {
+			ID:   "planet-super_terran",
+			Name: "Super Terran World (large earth-like, deep green #3d8b5d)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "super_terran", Name: "Super Earth", PositionX: 2, PositionY: 0},
+			},
+		},
+		"planet-terran": {
+			ID:   "planet-terran",
+			Name: "Terran World (earth-like, blue-green #4a9c6d)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "terran", Name: "Earth-like", PositionX: 1, PositionY: 0},
+			},
+		},
+		"planet-tundra": {
+			ID:   "planet-tundra",
+			Name: "Tundra World (cold, grayish-green #9cad8e)",
 			POIs: []systemmap.POI{
 				{ID: "star", Type: "sun", Class: "K5 V", Name: "Orange Dwarf", PositionX: 0, PositionY: 0},
-				{ID: "p1", Type: "planet", Class: "rocky", Name: "Mercury-like", PositionX: 0.8, PositionY: 0},
-			},
-		},
-		"planet-dwarf": {
-			ID:   "planet-dwarf",
-			Name: "Dwarf Planet (tan-brown #c4a484)",
-			POIs: []systemmap.POI{
-				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
-				{ID: "p1", Type: "planet", Class: "dwarf", Name: "Pluto-like", PositionX: 6, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "tundra", Name: "Tundra World", PositionX: 0.8, PositionY: 0},
 			},
 		},
 
@@ -250,9 +346,9 @@ func main() {
 				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
 				{ID: "p1", Type: "planet", Class: "terran", Name: "Earth-like", PositionX: 0.5, PositionY: 0},
 				{ID: "p2", Type: "planet", Class: "jovian", Name: "Gas Giant", PositionX: 2, PositionY: 0},
-				{ID: "p3", Type: "planet", Class: "ice_giant", Name: "Ice Giant", PositionX: 4, PositionY: 0},
-				{ID: "p4", Type: "planet", Class: "rocky", Name: "Rocky", PositionX: 0.3, PositionY: 0},
-				{ID: "p5", Type: "planet", Class: "dwarf", Name: "Dwarf", PositionX: 8, PositionY: 0},
+				{ID: "p3", Type: "planet", Class: "ice_world", Name: "Ice World", PositionX: 4, PositionY: 0},
+				{ID: "p4", Type: "planet", Class: "arid", Name: "Arid", PositionX: 0.3, PositionY: 0},
+				{ID: "p5", Type: "planet", Class: "oceanic", Name: "Oceanic", PositionX: 8, PositionY: 0},
 			},
 		},
 		"complex-binary": {
@@ -366,6 +462,294 @@ func main() {
 				return pois
 			}(),
 		},
+
+		// MARKERS GRID - All POI markers with subtypes in orbital layout
+		"markers-all": {
+			ID:   "markers-all",
+			Name: "Resources & Structures (stations, asteroid belts, gas clouds, ice fields, nebulae, relics)",
+			POIs: func() []systemmap.POI {
+				var pois []systemmap.POI
+
+				// Central star
+				pois = append(pois, systemmap.POI{
+					ID:   "sun1",
+					Type: "sun",
+					Class: "G2 V",
+					Name: "Central Star",
+					PositionX: 0,
+					PositionY: 0,
+				})
+
+				// Asteroid belts at radii 2, 4, 6, 8
+				abRadii := []float64{2, 4, 6, 8}
+				abTypes := []struct{id, class, name string}{
+					{"ab1", "metallic", "Metallic Belt"},
+					{"ab2", "mixed", "Mixed Belt"},
+					{"ab3", "carbonaceous", "Carbonaceous"},
+					{"ab4", "icy", "Icy Belt"},
+				}
+				for i, ab := range abTypes {
+					angle := float64(i) * 90.0 // Spread evenly: 0, 90, 180, 270 degrees
+					x, y := polarToXY(abRadii[i], angle)
+					pois = append(pois, systemmap.POI{
+						ID:   ab.id,
+						Type: "asteroid_belt",
+						Class: ab.class,
+						Name: ab.name,
+						PositionX: x,
+						PositionY: y,
+					})
+				}
+
+				// Ice fields at radii 11 and 14
+				iceTypes := []struct{id, class, name string; radius float64}{
+					{"if1", "kuiper", "Kuiper Belt", 11},
+					{"if2", "cometary", "Cometary", 14},
+				}
+				for i, ice := range iceTypes {
+					angle := float64(i) * 180.0 // Opposite sides: 0, 180
+					x, y := polarToXY(ice.radius, angle)
+					pois = append(pois, systemmap.POI{
+						ID:   ice.id,
+						Type: "ice_field",
+						Class: ice.class,
+						Name: ice.name,
+						PositionX: x,
+						PositionY: y,
+					})
+				}
+
+				// Gas clouds, nebula, and relics at radius 16 (7 items spread evenly)
+				r16Items := []struct{id, ptype, class, name string}{
+					{"gc1", "gas_cloud", "molecular_cloud", "Molecular Cloud"},
+					{"gc2", "gas_cloud", "emission", "Emission Cloud"},
+					{"gc3", "gas_cloud", "atmospheric", "Atmospheric"},
+					{"nebula", "nebula", "stellar_nursery", "Stellar Nursery"},
+					{"relic1", "relic", "derelict", "Derelict Ship"},
+					{"relic2", "relic", "megastructure", "Megastructure"},
+					{"relic3", "relic", "alien_artifact", "Alien Artifact"},
+				}
+				for i, item := range r16Items {
+					angle := float64(i) * (360.0 / 7.0) // Evenly spaced: ~51.4 degrees apart
+					x, y := polarToXY(16, angle)
+					pois = append(pois, systemmap.POI{
+						ID:   item.id,
+						Type: item.ptype,
+						Class: item.class,
+						Name: item.name,
+						PositionX: x,
+						PositionY: y,
+					})
+				}
+
+				// Add station
+				pois = append(pois, systemmap.POI{
+					ID:   "station",
+					Type: "station",
+					Name: "Space Station",
+					PositionX: 0,
+					PositionY: 10,
+				})
+
+				return pois
+			}(),
+		},
+
+		// MARKERS GRID - All planet types
+		"markers-planets": {
+			ID:   "markers-planets",
+			Name: "All Planet Types (12 classes with size variations)",
+			POIs: func() []systemmap.POI {
+				var pois []systemmap.POI
+
+				// Grid layout: 3 rows × 4 columns
+				xSpacing := 10.0
+				ySpacing := 7.0
+				xOffset := -15.0
+				yOffset := 7.0
+
+				// Row 1: Small planets (4)
+				pois = append(pois, systemmap.POI{
+					ID: "p_scorched", Type: "planet", Class: "scorched", Name: "Scorched (3px)", PositionX: xOffset, PositionY: yOffset,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_arid", Type: "planet", Class: "arid", Name: "Arid (4.5px)", PositionX: xOffset + xSpacing, PositionY: yOffset,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_tundra", Type: "planet", Class: "tundra", Name: "Tundra (4.5px)", PositionX: xOffset + 2*xSpacing, PositionY: yOffset,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_lava", Type: "planet", Class: "lava_world", Name: "Lava World (4px)", PositionX: xOffset + 3*xSpacing, PositionY: yOffset,
+				})
+
+				// Row 2: Medium planets (4)
+				planet2Y := yOffset - ySpacing
+				pois = append(pois, systemmap.POI{
+					ID: "p_terran", Type: "planet", Class: "terran", Name: "Terran (5px)", PositionX: xOffset, PositionY: planet2Y,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_oceanic", Type: "planet", Class: "oceanic", Name: "Oceanic (5px)", PositionX: xOffset + xSpacing, PositionY: planet2Y,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_glacial", Type: "planet", Class: "glacial", Name: "Glacial (5px)", PositionX: xOffset + 2*xSpacing, PositionY: planet2Y,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_hothouse", Type: "planet", Class: "hothouse", Name: "Hothouse (5px)", PositionX: xOffset + 3*xSpacing, PositionY: planet2Y,
+				})
+
+				// Row 3: Large planets (4)
+				planet3Y := yOffset - 2*ySpacing
+				pois = append(pois, systemmap.POI{
+					ID: "p_ice_world", Type: "planet", Class: "ice_world", Name: "Ice World (5.5px)", PositionX: xOffset, PositionY: planet3Y,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_super_terran", Type: "planet", Class: "super_terran", Name: "Super Terran (6.25px)", PositionX: xOffset + xSpacing, PositionY: planet3Y,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_ice_giant", Type: "planet", Class: "ice_giant", Name: "Ice Giant (7px)", PositionX: xOffset + 2*xSpacing, PositionY: planet3Y,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "p_jovian", Type: "planet", Class: "jovian", Name: "Jovian (10px)", PositionX: xOffset + 3*xSpacing, PositionY: planet3Y,
+				})
+
+				return pois
+			}(),
+		},
+
+		// MARKERS GRID - Anomalies (wormholes, black holes)
+		"markers-anomalies": {
+			ID:   "markers-anomalies",
+			Name: "Cosmic Anomalies (wormholes, black holes, neutron stars)",
+			POIs: func() []systemmap.POI {
+				var pois []systemmap.POI
+
+				// Grid layout: 2 rows × 4 columns
+				xSpacing := 10.0
+				ySpacing := 8.0
+				xOffset := -15.0
+				yOffset := 7.0
+
+				// Row 1: Wormholes (4)
+				pois = append(pois, systemmap.POI{
+					ID: "wh1", Type: "wormhole", Name: "Active Wormhole", PositionX: xOffset, PositionY: yOffset,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "wh2", Type: "collapsed_wormhole", Name: "Collapsed Wormhole", PositionX: xOffset + xSpacing, PositionY: yOffset,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "star1", Type: "sun", Class: "G2 V", Name: "Nearby Star", PositionX: xOffset + 2*xSpacing, PositionY: yOffset - 2,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "star2", Type: "sun", Class: "M3 V", Name: "Red Dwarf", PositionX: xOffset + 3*xSpacing, PositionY: yOffset - 2,
+				})
+
+				// Row 2: Black holes + Neutron star (4)
+				anomalyY := yOffset - ySpacing
+				pois = append(pois, systemmap.POI{
+					ID: "bh1", Type: "black_hole", Name: "Black Hole", PositionX: xOffset, PositionY: anomalyY,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "star3", Type: "sun", Class: "G2 V", Name: "Nearby Star", PositionX: xOffset + xSpacing, PositionY: anomalyY - 2,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "ns1", Type: "sun", Class: "NS", Name: "Neutron Star", PositionX: xOffset + 2*xSpacing, PositionY: anomalyY - 2,
+				})
+				pois = append(pois, systemmap.POI{
+					ID: "star4", Type: "sun", Class: "DA", Name: "White Dwarf", PositionX: xOffset + 3*xSpacing, PositionY: anomalyY - 2,
+				})
+
+				return pois
+			}(),
+		},
+
+		// NEW PLANET TYPES
+		"planet-hothouse": {
+			ID:   "planet-hothouse",
+			Name: "Hothouse World (extreme greenhouse, bright green #58c868)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "F5 V", Name: "Hot Star", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "hothouse", Name: "Hothouse World", PositionX: 0.7, PositionY: 0},
+			},
+		},
+		"planet-lava_world": {
+			ID:   "planet-lava_world",
+			Name: "Lava World (molten, bright red-orange #ff4500)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "M2 V", Name: "Red Dwarf", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "lava_world", Name: "Lava World", PositionX: 0.2, PositionY: 0},
+			},
+		},
+		"planet-ice_giant": {
+			ID:   "planet-ice_giant",
+			Name: "Ice Giant (pale blue #9fc5e8, 1.4x)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "ice_giant", Name: "Ice Giant", PositionX: 15, PositionY: 0},
+			},
+		},
+
+		// POI SUBTYPES
+		"asteroid-metallic": {
+			ID:   "asteroid-metallic",
+			Name: "Metallic Asteroid Belt (silver-gray, most common)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
+				{ID: "ab1", Type: "asteroid_belt", Class: "metallic", Name: "Metallic Belt", PositionX: 3, PositionY: 0},
+			},
+		},
+		"asteroid-carbonaceous": {
+			ID:   "asteroid-carbonaceous",
+			Name: "Carbonaceous Asteroid Belt (dark brown)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
+				{ID: "ab1", Type: "asteroid_belt", Class: "carbonaceous", Name: "Carbonaceous Belt", PositionX: 4, PositionY: 0},
+			},
+		},
+		"gas-molecular": {
+			ID:   "gas-molecular",
+			Name: "Molecular Cloud (purple, dense)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
+				{ID: "gc1", Type: "gas_cloud", Class: "molecular_cloud", Name: "Molecular Cloud", PositionX: 5, PositionY: 2},
+			},
+		},
+		"gas-emission": {
+			ID:   "gas-emission",
+			Name: "Emission Nebula (reddish)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "O3 V", Name: "Hot Star", PositionX: 0, PositionY: 0},
+				{ID: "gc1", Type: "gas_cloud", Class: "emission", Name: "Emission Cloud", PositionX: 3, PositionY: -1},
+			},
+		},
+		"ice-kuiper": {
+			ID:   "ice-kuiper",
+			Name: "Kuiper Belt (pale cyan)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sun", PositionX: 0, PositionY: 0},
+				{ID: "if1", Type: "ice_field", Class: "kuiper", Name: "Kuiper Belt", PositionX: 8, PositionY: 0},
+			},
+		},
+		"relic-derelict": {
+			ID:   "relic-derelict",
+			Name: "Derelict Ship (brown hull)",
+			POIs: []systemmap.POI{
+				{ID: "relic1", Type: "relic", Class: "derelict", Name: "Abandoned Ship", PositionX: 2, PositionY: 1},
+			},
+		},
+		"relic-megastructure": {
+			ID:   "relic-megastructure",
+			Name: "Megastructure (gold ring)",
+			POIs: []systemmap.POI{
+				{ID: "relic1", Type: "relic", Class: "megastructure", Name: "Dyson Swarm", PositionX: -3, PositionY: 2},
+			},
+		},
+		"nebula-stellar": {
+			ID:   "nebula-stellar",
+			Name: "Stellar Nursery Nebula (pink hydrogen emission)",
+			POIs: []systemmap.POI{
+				{ID: "neb1", Type: "nebula", Class: "stellar_nursery", Name: "Rose Nebula", PositionX: 5, PositionY: 3},
+			},
+		},
 	}
 
 	// Dummy neighbor systems for gate angle computation in ship traffic tests.
@@ -385,7 +769,7 @@ func main() {
 		f, _ := os.Create(filename)
 
 		// Write HTML header
-		f.WriteString(fmt.Sprintf(`<!DOCTYPE html>
+		_, _ = fmt.Fprintf(f, `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -395,13 +779,14 @@ body { background: #000; color: #d8dee9; font-family: sans-serif; padding: 20px;
 h1 { color: #88c0d0; }
 .info { color: #64748b; font-size: 14px; margin: 20px 0; }
 .map-container { padding: 20px; border: 1px solid #4c566a; border-radius: 8px; margin: 20px 0; }
+.map-label { font: 11px sans-serif; fill: #ffffff; }
 </style>
 </head>
 <body>
 <h1>%s</h1>
 <div class="info">%s</div>
 <div class="info"><strong>POIs:</strong></div>
-`, sys.Name, sys.Name, sys.ID))
+`, sys.Name, sys.Name, sys.ID)
 
 		// List POIs
 		for _, poi := range sys.POIs {
@@ -409,17 +794,17 @@ h1 { color: #88c0d0; }
 			if classInfo == "" {
 				classInfo = "<em>unclassified</em>"
 			}
-			f.WriteString(fmt.Sprintf("<div class=\"info\">  • %s (%s): %s</div>\n", poi.Name, poi.Type, classInfo))
+			_, _ = fmt.Fprintf(f, "<div class=\"info\">  • %s (%s): %s</div>\n", poi.Name, poi.Type, classInfo)
 		}
 
 		// Add rendered map
-		f.WriteString("<div class=\"map-container\">\n")
+		_, _ = f.WriteString("<div class=\"map-container\">\n")
 		mapSVG := systemmap.RenderSystemMap(sys, systems, false)
-		f.WriteString(mapSVG)
-		f.WriteString("</div>\n")
+		_, _ = f.WriteString(mapSVG)
+		_, _ = f.WriteString("</div>\n")
 
-		f.WriteString("</body>\n</html>\n")
-		f.Close()
+		_, _ = f.WriteString("</body>\n</html>\n")
+		_ = f.Close()
 
 		fmt.Printf("✓ %s\n", filename)
 	}
@@ -427,7 +812,14 @@ h1 { color: #88c0d0; }
 	fmt.Printf("\nGenerated %d test files covering:\n", len(systems))
 	fmt.Println("  • All 10 spectral types (O-Y) with various luminosity classes")
 	fmt.Println("  • All 8 luminosity classes (Ia-VII)")
-	fmt.Println("  • 8 planet classes (terran, jovian, ice_giant, gas_dwarf, rocky, dwarf, proto, captured)")
+	fmt.Println("  • All 9 white dwarf spectral types (DA, DB, DC, DO, DQ, DZ, DX) with secondary features (P, H, E, V)")
+	fmt.Println("  • All 12 planet classes (arid, glacial, hothouse, ice_giant, ice_world, jovian, lava_world, oceanic, scorched, super_terran, terran, tundra)")
+	fmt.Println("  • Asteroid belt subtypes (metallic, mixed, carbonaceous, icy)")
+	fmt.Println("  • Gas cloud subtypes (molecular_cloud, emission, atmospheric)")
+	fmt.Println("  • Ice field subtypes (kuiper, cometary)")
+	fmt.Println("  • Relic subtypes (derelict, megastructure, alien_artifact)")
+	fmt.Println("  • Nebula types (stellar_nursery)")
+	fmt.Println("  • All POI markers in grid layout (stars, planets, stations, anomalies)")
 	fmt.Println("  • Edge cases (unclassified, invalid, compact formats, brown dwarf giants)")
 	fmt.Println("  • Complex multi-planet systems")
 	fmt.Println("\nOpen any HTML file in a browser to see the rendered system map!")

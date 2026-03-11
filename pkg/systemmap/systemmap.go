@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"hash/fnv"
 	"math"
-	"math/rand/v2"
 	"strings"
 )
 
@@ -272,7 +271,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		b.WriteString(`<defs>`)
 		if standalone {
 			b.WriteString(`<style>`)
-			b.WriteString(`.map-label { font: 11px sans-serif; fill: #d8dee9; }`)
+			b.WriteString(`.map-label { font: 11px sans-serif; fill: #ffffff; }`)
 			b.WriteString(`.gate-label { font: 10px sans-serif; fill: #81a1c1; }`)
 			b.WriteString(`</style>`)
 		}
@@ -386,7 +385,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/>`, cx, cy, r))
-				b.WriteString(generateAsteroidParticles(cx, cy, r, poiSeed(poi.ID)))
+				b.WriteString(generateAsteroidParticlesWithSubtype(cx, cy, r, poiSeed(poi.ID), poi.Class))
 				b.WriteString(`</g>`)
 				if labelAbove {
 					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
@@ -398,7 +397,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/>`, cx, cy, r))
-				b.WriteString(generateIceParticles(cx, cy, r, poiSeed(poi.ID)))
+				b.WriteString(generateIceParticlesWithSubtype(cx, cy, r, poiSeed(poi.ID), poi.Class))
 				b.WriteString(`</g>`)
 				if labelAbove {
 					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
@@ -409,18 +408,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			case "gas_cloud":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#B48EAD" opacity="0.35"/>`, px-4, py+2))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="3" fill="#B48EAD" opacity="0.45"/>`, px+5, py-3))
-				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="4" fill="#B48EAD" opacity="0.40"/>`, px+1, py+4))
-				// 3 extra random small bubbles.
-				gcRng := rand.New(rand.NewPCG(poiSeed(poi.ID), poiSeed(poi.ID)^0xbeef))
-				for range 3 {
-					bx := px + (gcRng.Float64()-0.5)*16
-					by := py + (gcRng.Float64()-0.5)*16
-					br := 2.0 + gcRng.Float64()*3.0
-					bo := 0.25 + gcRng.Float64()*0.2
-					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="#B48EAD" opacity="%.2f"/>`, bx, by, br, bo))
-				}
+				b.WriteString(generateGasCloudWithSubtype(px, py, poiSeed(poi.ID), poi.Class))
 				b.WriteString(`</g>`)
 				if labelAbove {
 					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
@@ -431,7 +419,18 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			case "relic":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
-				b.WriteString(renderCompassRose(px, py, 10))
+				b.WriteString(renderRelicWithSubtype(px, py, poi.Class))
+				b.WriteString(`</g>`)
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 18, name: poi.Name, above: false})
+				}
+
+			case "nebula":
+				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
+				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
+				b.WriteString(renderNebula(px, py, poiSeed(poi.ID)))
 				b.WriteString(`</g>`)
 				if labelAbove {
 					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
@@ -511,7 +510,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		b.WriteString(`<defs>`)
 		if standalone {
 			b.WriteString(`<style>`)
-			b.WriteString(`.map-label { font: 11px sans-serif; fill: #d8dee9; }`)
+			b.WriteString(`.map-label { font: 11px sans-serif; fill: #ffffff; }`)
 			b.WriteString(`.gate-label { font: 10px sans-serif; fill: #81a1c1; }`)
 			b.WriteString(`</style>`)
 		}
@@ -707,60 +706,6 @@ func renderWormhole(cx, cy, r float64, collapsed bool) string {
 	return b.String()
 }
 
-// generateAsteroidParticles creates ~100 small triangle particles scattered along an orbital ring.
-func generateAsteroidParticles(orbitCX, orbitCY, radius float64, seed uint64) string {
-	rng := rand.New(rand.NewPCG(seed, seed^0xdeadbeef))
-	var b strings.Builder
-	count := 150
-	for range count {
-		angle := rng.Float64() * 2 * math.Pi
-		jitter := 1.0 + (rng.Float64()-0.5)*0.3 // +/-15%
-		r := radius * jitter
-		px := orbitCX + r*math.Cos(angle)
-		py := orbitCY + r*math.Sin(angle)
-		size := 2.0 + rng.Float64()*3.0
-		opacity := 0.3 + rng.Float64()*0.4
-		rotation := rng.Float64() * 360
-
-		// Triangle: three points centered around (px, py).
-		h := size * 0.866 // sqrt(3)/2
-		p1x := px - size/2
-		p1y := py + h/2
-		p2x := px
-		p2y := py - h/2
-		p3x := px + size/2
-		p3y := py + h/2
-		b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#D08770" opacity="%.2f" transform="rotate(%.0f,%.1f,%.1f)"/>`,
-			p1x, p1y, p2x, p2y, p3x, p3y, opacity, rotation, px, py))
-	}
-	return b.String()
-}
-
-// generateIceParticles creates ~80 small diamond particles scattered along an orbital ring.
-func generateIceParticles(orbitCX, orbitCY, radius float64, seed uint64) string {
-	rng := rand.New(rand.NewPCG(seed, seed^0xcafebabe))
-	var b strings.Builder
-	count := 80
-	for range count {
-		angle := rng.Float64() * 2 * math.Pi
-		// Cap spread at +/-15px from orbit ring.
-		maxJitter := 15.0
-		if radius > 0 {
-			maxJitter = math.Min(15.0, radius*0.15)
-		}
-		r := radius + (rng.Float64()-0.5)*2*maxJitter
-		px := orbitCX + r*math.Cos(angle)
-		py := orbitCY + r*math.Sin(angle)
-		size := 2.0 + rng.Float64()*3.0
-		opacity := 0.3 + rng.Float64()*0.3
-
-		// Diamond: four points.
-		b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="#88C0D0" opacity="%.2f"/>`,
-			px, py-size, px+size*0.6, py, px, py+size, px-size*0.6, py, opacity))
-	}
-	return b.String()
-}
-
 // legendEntry defines a POI type for the map legend.
 type legendEntry struct {
 	poiType string
@@ -775,6 +720,7 @@ var legendTypes = []legendEntry{
 	{"asteroid_belt", "Asteroid Belt"},
 	{"ice_field", "Ice Field"},
 	{"gas_cloud", "Gas Cloud"},
+	{"nebula", "Nebula"},
 	{"relic", "Relic"},
 	{"wormhole", "Wormhole"},
 	{"collapsed_wormhole", "Collapsed Wormhole"},
@@ -874,6 +820,11 @@ func renderLegendSwatch(poiType string, cx, cy float64) string {
 		return fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="3" fill="#B48EAD" opacity="0.5"/>`+
 			`<circle cx="%.1f" cy="%.1f" r="2" fill="#B48EAD" opacity="0.6"/>`,
 			cx-2, cy+1, cx+3, cy-1)
+	case "nebula":
+		// Pink stellar nursery glow.
+		return fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="4" fill="#FF6B9D" opacity="0.4"/>`+
+			`<circle cx="%.1f" cy="%.1f" r="3" fill="#FFB6C1" opacity="0.5"/>`,
+			cx, cy, cx+1, cy-1)
 	case "relic":
 		return renderCompassRose(cx, cy, 5)
 	case "wormhole":
