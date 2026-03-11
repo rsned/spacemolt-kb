@@ -104,7 +104,9 @@ func generateIceParticlesWithSubtype(orbitCX, orbitCY, radius float64, seed uint
 
 	rng := rand.New(rand.NewPCG(seed, seed^0xcafebabe))
 	var b strings.Builder
-	count := 80
+	count := 160 // Twice as many particles for denser ice fields
+	isCometary := subtype == "cometary"
+
 	for range count {
 		angle := rng.Float64() * 2 * math.Pi
 		// Cap spread at +/-15px from orbit ring.
@@ -125,9 +127,48 @@ func generateIceParticlesWithSubtype(orbitCX, orbitCY, radius float64, seed uint
 			opacity = 1.0
 		}
 
-		// Diamond: four points.
-		b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="%s" opacity="%.2f"/>`,
-			px, py-size, px+size*0.6, py, px, py+size, px-size*0.6, py, style.BaseColor, opacity))
+		if isCometary {
+			// Octagon for cometary ice - 8 points
+			oct := size * 0.8
+			oct45 := oct * 0.7071 // cos(45°) = sin(45°) ≈ 0.707
+			b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="%s" opacity="%.2f"/>`,
+				px+oct, py,
+				px+oct45, py+oct45,
+				px, py+oct,
+				px-oct45, py+oct45,
+				px-oct, py,
+				px-oct45, py-oct45,
+				px, py-oct,
+				px+oct45, py-oct45,
+				style.BaseColor, opacity))
+
+			// Comet tail pointing in direction of orbital travel (tangent to orbit)
+			// For counterclockwise motion: velocity direction is (-sin(θ), cos(θ))
+			tailDirX := -math.Sin(angle)
+			tailDirY := math.Cos(angle)
+			tailLength := size * 2.5
+			tailWidth := size * 0.5
+
+			// Tail is a trapezoid extending behind the comet
+			tailTipX := px + tailDirX*tailLength
+			tailTipY := py + tailDirY*tailLength
+
+			// Perpendicular direction for tail width
+			perpX := -tailDirY * tailWidth * 0.5
+			perpY := tailDirX * tailWidth * 0.5
+
+			// Lighter color for tail (add white)
+			b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="%s" opacity="%.2f"/>`,
+				px-perpX, py-perpY,
+				px+perpX, py+perpY,
+				tailTipX+perpX*0.3, tailTipY+perpY*0.3,
+				tailTipX-perpX*0.3, tailTipY-perpY*0.3,
+				style.BaseColor, opacity*0.5))
+		} else {
+			// Diamond: four points for other ice types.
+			b.WriteString(fmt.Sprintf(`<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="%s" opacity="%.2f"/>`,
+				px, py-size, px+size*0.6, py, px, py+size, px-size*0.6, py, style.BaseColor, opacity))
+		}
 	}
 	return b.String()
 }
