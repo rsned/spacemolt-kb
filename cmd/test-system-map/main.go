@@ -264,6 +264,17 @@ func main() {
 			},
 		},
 
+		// BLACK HOLE FEEDING ON STAR
+		"black-hole-feeding": {
+			ID:   "black-hole-feeding",
+			Name: "Black Hole Consuming a Star (animated accretion stream)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "K5 V", Name: "Doomed Star", PositionX: 0, PositionY: 0},
+				{ID: "bh1", Type: "black_hole", Name: "Maw of Darkness", PositionX: 0.5, PositionY: 0.25},
+				{ID: "ab1", Type: "asteroid_belt", Name: "Debris Ring", PositionX: 3, PositionY: 0},
+			},
+		},
+
 		// MATRIX TEST PATTERN - All combinations
 		"matrix-all": {
 			ID:   "matrix-all",

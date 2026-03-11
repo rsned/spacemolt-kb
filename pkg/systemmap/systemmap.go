@@ -218,6 +218,54 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		b.WriteString(`</g></a>`)
 	}
 
+	// Pre-compute black hole → star stream data for gradient definitions.
+	type bhStreamEntry struct {
+		stream *blackHoleStreamInfo
+		bx, by float64 // BH SVG coordinates
+	}
+	bhStreams := make(map[string]*bhStreamEntry)
+	if explored {
+		for _, poi := range sys.POIs {
+			if poi.Type != "black_hole" {
+				continue
+			}
+			bhSX := cx + poi.PositionX*scale
+			bhSY := cy - poi.PositionY*scale
+
+			// Find the nearest star to draw the accretion stream.
+			var nearest *POI
+			var minDist float64 = -1
+			for i, other := range sys.POIs {
+				if other.Type != "sun" {
+					continue
+				}
+				d := math.Hypot(poi.PositionX-other.PositionX, poi.PositionY-other.PositionY)
+				if minDist < 0 || d < minDist {
+					minDist = d
+					nearest = &sys.POIs[i]
+				}
+			}
+
+			entry := &bhStreamEntry{bx: bhSX, by: bhSY}
+			if nearest != nil {
+				spectral, subtype, luminosity, err := ParseStarClass(nearest.Class)
+				starColor := "#EBCB8B"
+				starSize := 10.0
+				if err == nil {
+					starColor = GetStarColorRefined(spectral, subtype)
+					starSize = GetStarSize(luminosity)
+				}
+				entry.stream = &blackHoleStreamInfo{
+					sx:        cx + nearest.PositionX*scale,
+					sy:        cy - nearest.PositionY*scale,
+					starColor: starColor,
+					starSize:  starSize,
+				}
+			}
+			bhStreams[poi.ID] = entry
+		}
+	}
+
 	if explored {
 		// Sun gradient definition.
 		b.WriteString(`<defs>`)
@@ -254,6 +302,15 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 					color := GetStarColorRefined(spectral, subtype)
 					isBrownDwarf := (spectral == "L" || spectral == "T" || spectral == "Y")
 					b.WriteString(renderStarGlowGradient(poi, color, isBrownDwarf))
+				}
+			}
+		}
+		// Add black hole gradients (glow + accretion stream).
+		for _, poi := range sys.POIs {
+			if poi.Type == "black_hole" {
+				entry := bhStreams[poi.ID]
+				if entry != nil {
+					b.WriteString(renderBlackHoleGradients(poi, entry.stream, entry.bx, entry.by))
 				}
 			}
 		}
@@ -397,6 +454,19 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 					labels = append(labels, labelInfo{x: px, y: py - 14, name: poi.Name, above: true})
 				} else {
 					labels = append(labels, labelInfo{x: px, y: py + 20, name: poi.Name, above: false})
+				}
+
+			case "black_hole":
+				entry := bhStreams[poi.ID]
+				var stream *blackHoleStreamInfo
+				if entry != nil {
+					stream = entry.stream
+				}
+				b.WriteString(renderBlackHole(poi, px, py, stream))
+				if labelAbove {
+					labels = append(labels, labelInfo{x: px, y: py - 22, name: poi.Name, above: true})
+				} else {
+					labels = append(labels, labelInfo{x: px, y: py + 26, name: poi.Name, above: false})
 				}
 			}
 		}
@@ -700,6 +770,7 @@ var legendTypes = []legendEntry{
 	{"relic", "Relic"},
 	{"wormhole", "Wormhole"},
 	{"collapsed_wormhole", "Collapsed Wormhole"},
+	{"black_hole", "Black Hole"},
 }
 
 // renderLegend draws a legend box in the bottom-right corner of the map showing
@@ -807,6 +878,12 @@ func renderLegendSwatch(poiType string, cx, cy float64) string {
 		return fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="6" ry="2.5" fill="none" stroke="#FDD835" stroke-width="1.5" opacity="0.7" stroke-dasharray="3,2"/>`+
 			`<circle cx="%.1f" cy="%.1f" r="2.5" fill="#0a0a00"/>`,
 			cx, cy, cx, cy)
+	case "black_hole":
+		// Mini black hole: dark center + orange spiral hint.
+		return fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="5" fill="#0a0010"/>`+
+			`<circle cx="%.1f" cy="%.1f" r="5" fill="none" stroke="#D84315" stroke-width="1" opacity="0.7"/>`+
+			`<circle cx="%.1f" cy="%.1f" r="2" fill="#020005"/>`,
+			cx, cy, cx, cy, cx, cy)
 	}
 	return ""
 }
