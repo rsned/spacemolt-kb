@@ -15,6 +15,7 @@ type System struct {
 	Name        string
 	PositionX   float64
 	PositionY   float64
+	Security    int // 0-100; affects ambient ship traffic density
 	Connections []Connection
 	POIs        []POI
 }
@@ -314,6 +315,10 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 				}
 			}
 		}
+		// Ship icon symbols for ambient traffic.
+		if len(sys.Connections) > 0 {
+			b.WriteString(renderShipSymbols())
+		}
 		b.WriteString(`</defs>`)
 
 		// Render POIs by type; collect label info for de-overlap.
@@ -470,6 +475,9 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 				}
 			}
 		}
+
+		// Ambient ship traffic (rendered over orbital rings, under labels).
+		b.WriteString(generateShipRoutes(sys, allSystems, scale, cx, cy, gateRadius, vbX, vbSize, visTop, visBottom))
 
 		// De-overlap labels: push overlapping labels in their stacking direction.
 		const labelH = 12.0

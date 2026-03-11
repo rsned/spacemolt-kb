@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/rsned/spacemolt-kb/pkg/systemmap"
 )
@@ -264,6 +265,62 @@ func main() {
 			},
 		},
 
+		// SOL SYSTEM (from get_system.sol.json)
+		"sol": {
+			ID:       "sol",
+			Name:     "Sol — Maximum Security (empire capital)",
+			Security: 100,
+			Connections: []systemmap.Connection{
+				{SystemID: "sirius", Name: "Sirius", Distance: 715},
+				{SystemID: "alpha_centauri", Name: "Alpha Centauri", Distance: 279},
+			},
+			POIs: []systemmap.POI{
+				{ID: "sol_star", Type: "sun", Class: "G2 V", Name: "Sol Star", PositionX: 0, PositionY: 0},
+				{ID: "mercury", Type: "planet", Class: "rocky", Name: "Mercury", PositionX: -0.4, PositionY: 0.1},
+				{ID: "venus", Type: "planet", Class: "rocky", Name: "Venus", PositionX: -0.3, PositionY: 0.6},
+				{ID: "earth", Type: "planet", Class: "terran", Name: "Earth", PositionX: -0.6, PositionY: -0.8},
+				{ID: "sol_central", Type: "station", Name: "Sol Central", PositionX: -0.3, PositionY: -1.1},
+				{ID: "mars", Type: "planet", Class: "rocky", Name: "Mars", PositionX: 0.1, PositionY: 1.5},
+				{ID: "main_belt", Type: "asteroid_belt", Name: "Main Belt", PositionX: 3, PositionY: 0},
+				{ID: "jupiter", Type: "planet", Class: "jovian", Name: "Jupiter", PositionX: 3.3, PositionY: 3.9},
+				{ID: "jovian_extraction_zone", Type: "gas_cloud", Name: "Jovian Extraction Zone", PositionX: 3.1, PositionY: 4.4},
+				{ID: "saturn", Type: "planet", Class: "jovian", Name: "Saturn", PositionX: -5.1, PositionY: 2.9},
+				{ID: "uranus", Type: "planet", Class: "ice_giant", Name: "Uranus", PositionX: -6, PositionY: -2.2},
+				{ID: "neptune", Type: "planet", Class: "ice_giant", Name: "Neptune", PositionX: 4.3, PositionY: -5.1},
+				{ID: "kuiper_ice_fields", Type: "ice_field", Name: "Kuiper Ice Fields", PositionX: 6.6, PositionY: 2.4},
+				{ID: "phantom_wormhole", Type: "wormhole", Name: "Wormhole Anomaly I", PositionX: 2.6, PositionY: -3.4},
+				{ID: "ex_wormhole", Type: "collapsed_wormhole", Name: "Faded Wormhole", PositionX: -2.6, PositionY: -3.4},
+			},
+		},
+
+		// SHIP TRAFFIC
+		"ship-traffic": {
+			ID:       "ship-traffic",
+			Name:     "High Security System with Ship Traffic (Security 75)",
+			Security: 75,
+			Connections: []systemmap.Connection{
+				{SystemID: "neighbor-alpha", Name: "Alpha Gate", Distance: 12},
+				{SystemID: "neighbor-beta", Name: "Beta Gate", Distance: 8},
+			},
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G2 V", Name: "Sol Prime", PositionX: 0, PositionY: 0},
+				{ID: "station1", Type: "station", Name: "Haven Station", PositionX: 2, PositionY: 1},
+				{ID: "ab1", Type: "asteroid_belt", Name: "Ore Belt", PositionX: 5, PositionY: 0},
+				{ID: "p1", Type: "planet", Class: "terran", Name: "New Eden", PositionX: 3, PositionY: -1},
+			},
+		},
+		"ship-traffic-pirate": {
+			ID:       "ship-traffic-pirate",
+			Name:     "Dead-End Pirate Stronghold (Security 0)",
+			Security: 0,
+			Connections: []systemmap.Connection{
+				{SystemID: "neighbor-alpha", Name: "Skull Gate", Distance: 20},
+			},
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "M3 V", Name: "Blood Eye", PositionX: 0, PositionY: 0},
+			},
+		},
+
 		// BLACK HOLE FEEDING ON STAR
 		"black-hole-feeding": {
 			ID:   "black-hole-feeding",
@@ -311,10 +368,19 @@ func main() {
 		},
 	}
 
+	// Dummy neighbor systems for gate angle computation in ship traffic tests.
+	systems["neighbor-alpha"] = &systemmap.System{ID: "neighbor-alpha", Name: "Alpha", PositionX: 10, PositionY: 5}
+	systems["neighbor-beta"] = &systemmap.System{ID: "neighbor-beta", Name: "Beta", PositionX: -8, PositionY: 3}
+	systems["sirius"] = &systemmap.System{ID: "sirius", Name: "Sirius", PositionX: 6, PositionY: -3}
+	systems["alpha_centauri"] = &systemmap.System{ID: "alpha_centauri", Name: "Alpha Centauri", PositionX: -4, PositionY: 7}
+
 	fmt.Printf("Generating %d MK classification test systems...\n\n", len(systems))
 
-	// Generate HTML files
+	// Generate HTML files (skip dummy neighbor systems).
 	for sysID, sys := range systems {
+		if strings.HasPrefix(sysID, "neighbor-") || sysID == "sirius" || sysID == "alpha_centauri" {
+			continue
+		}
 		filename := fmt.Sprintf("test-%s.html", sysID)
 		f, _ := os.Create(filename)
 
