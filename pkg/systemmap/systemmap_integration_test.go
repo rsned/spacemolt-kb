@@ -12,7 +12,7 @@ func TestRenderSystemMapWithClassifications(t *testing.T) {
 					ID:        "star-1",
 					Type:      "sun",
 					Name:      "Test Star",
-					Class:     "G2 V",
+					Class:     "G5 V", // Use G5 for pure color (no blending)
 					PositionX: 0,
 					PositionY: 0,
 				},
@@ -33,8 +33,8 @@ func TestRenderSystemMapWithClassifications(t *testing.T) {
 
 	// Check that output contains expected elements
 	expectedStrings := []string{
-		`G2 V`,                   // Star classification in label
-		`#fff4a0`,                // G-type color
+		`G5 V`,                   // Star classification in label
+		`#fff4a0`,                // G-type pure color (G5 has no blending)
 		`#4a9c6d`,                // Terran planet color
 		`Test Star`,              // Star name
 		`Test Planet`,            // Planet name

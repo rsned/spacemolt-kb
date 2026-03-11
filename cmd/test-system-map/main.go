@@ -47,6 +47,15 @@ func main() {
 				{ID: "p1", Type: "planet", Class: "terran", Name: "Earth", PositionX: 1, PositionY: 0},
 			},
 		},
+		"spectral-G-subtype-gradient": {
+			ID:   "spectral-G-subtype-gradient",
+			Name: "G-Type Subtype Gradient (G0→G5→G9 showing temperature refinement)",
+			POIs: []systemmap.POI{
+				{ID: "star", Type: "sun", Class: "G0 V", Name: "G0 (hottest G, blends toward F)", PositionX: -4, PositionY: 0},
+				{ID: "star2", Type: "sun", Class: "G5 V", Name: "G5 (pure G yellow)", PositionX: 0, PositionY: 0},
+				{ID: "star3", Type: "sun", Class: "G9 V", Name: "G9 (coolest G, blends toward K)", PositionX: 4, PositionY: 0},
+			},
+		},
 		"spectral-K": {
 			ID:   "spectral-K",
 			Name: "K-Type Orange Main Sequence (K5 V, 3.7-5.2K)",

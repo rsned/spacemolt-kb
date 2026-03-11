@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -50,6 +51,14 @@ var luminosityClasses = map[string]LuminosityClass{
 	"VII": {Roman: "VII", Name: "White Dwarf", Multiplier: 0.6, Size: 6},
 }
 
+// spectralOrder defines the temperature sequence from hottest to coolest.
+var spectralOrder = []string{"O", "B", "A", "F", "G", "K", "M", "L", "T", "Y"}
+
+// spectralIndex maps spectral letter to its position in the temperature sequence.
+var spectralIndex = map[string]int{
+	"O": 0, "B": 1, "A": 2, "F": 3, "G": 4, "K": 5, "M": 6, "L": 7, "T": 8, "Y": 9,
+}
+
 // GetStarColor returns the hex color for a spectral type (OBAFGKMLTY).
 // Returns default sun color (#EBCB8B) for unknown types.
 func GetStarColor(spectral string) string {
@@ -57,6 +66,65 @@ func GetStarColor(spectral string) string {
 		return st.Color
 	}
 	return "#EBCB8B" // Default sun color
+}
+
+// GetStarColorRefined returns the hex color for a spectral type with subtype refinement.
+// The subtype (0-9) interpolates between spectral types for smooth temperature gradients.
+// For example, G9 blends toward K, while G0 blends toward F.
+func GetStarColorRefined(spectral string, subtype int) string {
+	// If no subtype or out of range, use base color
+	if subtype < 0 || subtype > 9 {
+		return GetStarColor(spectral)
+	}
+
+	// For brown dwarfs (L, T, Y), don't blend - use their distinctive colors
+	if spectral == "L" || spectral == "T" || spectral == "Y" {
+		return GetStarColor(spectral)
+	}
+
+	// Get the base spectral color
+	baseColor := GetStarColor(spectral)
+	if baseColor == "#EBCB8B" { // Unknown spectral type
+		return baseColor
+	}
+
+	// Subtype 5 is the "pure" spectral type - no blending needed
+	if subtype == 5 {
+		return baseColor
+	}
+
+	// Determine which direction to blend
+	idx, exists := spectralIndex[spectral]
+	if !exists {
+		return baseColor
+	}
+
+	var blendColor string
+	var blendFactor float64
+
+	if subtype < 5 {
+		// Blend toward hotter (previous) spectral type
+		// G0 (40% toward F) to G4 (10% toward F)
+		if idx == 0 {
+			// O-type has nothing hotter to blend toward
+			return baseColor
+		}
+		hotterSpectral := spectralOrder[idx-1]
+		blendColor = GetStarColor(hotterSpectral)
+		blendFactor = 1.0 - (float64(subtype) / 5.0) // 0→1.0, 4→0.2
+	} else {
+		// Blend toward cooler (next) spectral type
+		// G6 (10% toward K) to G9 (40% toward K)
+		if idx == len(spectralOrder)-1 {
+			// Y-type has nothing cooler to blend toward
+			return baseColor
+		}
+		coolerSpectral := spectralOrder[idx+1]
+		blendColor = GetStarColor(coolerSpectral)
+		blendFactor = (float64(subtype) - 5.0) / 5.0 // 6→0.2, 9→1.0
+	}
+
+	return blendHexColors(baseColor, blendColor, blendFactor)
 }
 
 // GetStarSize returns the pixel radius for a luminosity class (Roman numerals).
@@ -74,22 +142,23 @@ func GetStarSize(luminosity string) float64 {
 //   - Without space: "G2V"
 //   - Compact luminosity: "B3Ia"
 //   - Without luminosity (defaults to V): "M9"
-// Returns spectral type (OBAFGKM), luminosity class, and error.
-func ParseStarClass(class string) (string, string, error) {
+//   - Without subtype (defaults to 5): "G V"
+// Returns spectral type (OBAFGKMLTY), subtype (0-9, -1 if unknown), luminosity class, and error.
+func ParseStarClass(class string) (string, int, string, error) {
 	class = strings.TrimSpace(class)
 	if class == "" {
-		return "", "", errors.New("empty class string")
+		return "", -1, "", errors.New("empty class string")
 	}
 
 	// Try splitting on space first
 	parts := strings.Fields(class)
 	if len(parts) == 2 {
-		spectral := parseSpectralLetter(parts[0])
+		spectral, subtype := parseSpectralWithSubtype(parts[0])
 		luminosity := parts[1]
 		if spectral == "" || !isValidLuminosity(luminosity) {
-			return "", "", errors.New("invalid class format")
+			return "", -1, "", errors.New("invalid class format")
 		}
-		return spectral, luminosity, nil
+		return spectral, subtype, luminosity, nil
 	}
 
 	// Try compact format (e.g., "G2V", "B3Ia", "L5V")
@@ -97,31 +166,48 @@ func ParseStarClass(class string) (string, string, error) {
 	matches := re.FindStringSubmatch(class)
 	if len(matches) > 0 {
 		spectral := matches[1]
+		subtype := parseSubtype(matches[2])
 		luminosity := matches[3]
 		if luminosity == "" {
 			luminosity = "V" // Default to main sequence
 		}
-		return spectral, luminosity, nil
+		return spectral, subtype, luminosity, nil
 	}
 
 	// Try just spectral type with number (e.g., "G2", "M9", "L5")
 	re2 := regexp.MustCompile(`^([OBAFGKMLTY])([0-9]?)$`)
 	matches2 := re2.FindStringSubmatch(class)
 	if len(matches2) > 0 {
-		return matches2[1], "V", nil
+		spectral := matches2[1]
+		subtype := parseSubtype(matches2[2])
+		return spectral, subtype, "V", nil
 	}
 
-	return "", "", errors.New("invalid class format")
+	return "", -1, "", errors.New("invalid class format")
 }
 
-// parseSpectralLetter extracts the spectral type letter from a string.
-func parseSpectralLetter(s string) string {
-	re := regexp.MustCompile(`^([OBAFGKMLTY])`)
+// parseSpectralWithSubtype extracts both the spectral letter and subtype number.
+func parseSpectralWithSubtype(s string) (string, int) {
+	re := regexp.MustCompile(`^([OBAFGKMLTY])([0-9]?)$`)
 	matches := re.FindStringSubmatch(s)
-	if len(matches) > 1 {
-		return matches[1]
+	if len(matches) < 2 {
+		return "", -1
 	}
-	return ""
+	spectral := matches[1]
+	subtype := parseSubtype(matches[2])
+	return spectral, subtype
+}
+
+// parseSubtype converts a string subtype to int, defaulting to 5 (middle of range).
+func parseSubtype(s string) int {
+	if s == "" {
+		return 5 // Default to subtype 5 if not specified
+	}
+	val, err := strconv.Atoi(s)
+	if err != nil || val < 0 || val > 9 {
+		return 5 // Invalid subtype defaults to 5
+	}
+	return val
 }
 
 // isValidLuminosity checks if a string is a valid Yerkes luminosity class.
@@ -133,12 +219,46 @@ func isValidLuminosity(lum string) bool {
 	return valid[lum]
 }
 
+// blendHexColors blends two hex colors by a given factor (0.0 to 1.0).
+// Factor 0.0 returns color1, factor 1.0 returns color2, intermediate values blend.
+func blendHexColors(color1, color2 string, factor float64) string {
+	// Parse hex colors
+	r1, g1, b1 := parseHexColor(color1)
+	r2, g2, b2 := parseHexColor(color2)
+
+	// Blend
+	r := r1 + (r2-r1)*factor
+	g := g1 + (g2-g1)*factor
+	b := b1 + (b2-b1)*factor
+
+	return fmt.Sprintf("#%02x%02x%02x", uint8(r), uint8(g), uint8(b))
+}
+
+// parseHexColor parses a hex color string (#RRGGBB) into RGB components.
+func parseHexColor(hex string) (r, g, b float64) {
+	// Remove # if present
+	hex = strings.TrimPrefix(hex, "#")
+
+	// Parse as integer
+	val, err := strconv.ParseInt(hex, 16, 32)
+	if err != nil {
+		return 235, 203, 139 // Default to #EBCB8B
+	}
+
+	r = float64((val>>16)&0xFF) / 255.0
+	g = float64((val>>8)&0xFF) / 255.0
+	b = float64(val&0xFF) / 255.0
+
+	// Convert to 0-255 range
+	return r * 255, g * 255, b * 255
+}
+
 // renderStar generates SVG for a star POI with color and size based on classification.
 func renderStar(poi POI, cx, cy float64) string {
 	var b strings.Builder
 
 	// Parse classification
-	spectral, luminosity, err := ParseStarClass(poi.Class)
+	spectral, subtype, luminosity, err := ParseStarClass(poi.Class)
 	var color string
 	var size float64
 
@@ -147,7 +267,7 @@ func renderStar(poi POI, cx, cy float64) string {
 		color = "#EBCB8B"
 		size = 10
 	} else {
-		color = GetStarColor(spectral)
+		color = GetStarColorRefined(spectral, subtype)
 		size = GetStarSize(luminosity)
 
 		// Brown dwarfs (L/T/Y) are always small, regardless of luminosity

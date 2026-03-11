@@ -84,7 +84,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 	if explored {
 		for _, poi := range sys.POIs {
 			if poi.Type == "sun" && poi.Class != "" {
-				_, luminosity, err := ParseStarClass(poi.Class)
+				_, _, luminosity, err := ParseStarClass(poi.Class)
 				if err != nil {
 					continue
 				}
@@ -249,9 +249,9 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		// Add star-specific gradients for classified stars
 		for _, poi := range sys.POIs {
 			if poi.Type == "sun" && poi.Class != "" {
-				spectral, _, err := ParseStarClass(poi.Class)
+				spectral, subtype, _, err := ParseStarClass(poi.Class)
 				if err == nil {
-					color := GetStarColor(spectral)
+					color := GetStarColorRefined(spectral, subtype)
 					isBrownDwarf := (spectral == "L" || spectral == "T" || spectral == "Y")
 					b.WriteString(renderStarGlowGradient(poi, color, isBrownDwarf))
 				}
