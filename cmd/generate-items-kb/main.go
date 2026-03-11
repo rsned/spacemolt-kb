@@ -172,6 +172,7 @@ type SystemPOI struct {
 	ID          string
 	Name        string
 	Type        string
+	Class       string
 	Description string
 	PositionX   float64
 	PositionY   float64
@@ -768,7 +769,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 
 	// Load POIs.
-	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(description,''), position_x, position_y FROM pois ORDER BY system_id, name`)
+	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(class,''), COALESCE(description,''), position_x, position_y FROM pois ORDER BY system_id, name`)
 	if err != nil {
 		return nil, err
 	}
@@ -778,7 +779,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	for poiRows.Next() {
 		var systemID string
 		var poi SystemPOI
-		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Description, &poi.PositionX, &poi.PositionY); err != nil {
+		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY); err != nil {
 			return nil, err
 		}
 		if s, ok := systemMap[systemID]; ok {
@@ -908,6 +909,19 @@ func writeSystemPages(outDir string, systems []*System) error {
 		"fmtRichness":   func(r float64) string { return fmt.Sprintf("%.0f", r) },
 		"facilityBadge": facilityBadge,
 		"titleCaseID":   titleCaseID,
+		"sortPOIsByDist": func(pois []SystemPOI) []SystemPOI {
+			sorted := make([]SystemPOI, len(pois))
+			copy(sorted, pois)
+			slices.SortFunc(sorted, func(a, b SystemPOI) int {
+				da := math.Hypot(a.PositionX, a.PositionY)
+				db := math.Hypot(b.PositionX, b.PositionY)
+				return cmp.Compare(da, db)
+			})
+			return sorted
+		},
+		"poiDist": func(p SystemPOI) string {
+			return fmt.Sprintf("%.1f", math.Hypot(p.PositionX, p.PositionY))
+		},
 		"systemMap": func(sys *System) htmltpl.HTML {
 			allMap := make(map[string]*systemmap.System, len(sysLookup))
 			for k, v := range sysLookup {
@@ -1005,6 +1019,7 @@ func toMapSystem(s *System) *systemmap.System {
 		Name:      s.Name,
 		PositionX: s.PositionX,
 		PositionY: s.PositionY,
+		Security:  s.PoliceLevel,
 	}
 	for _, c := range s.Connections {
 		ms.Connections = append(ms.Connections, systemmap.Connection{
@@ -1018,6 +1033,7 @@ func toMapSystem(s *System) *systemmap.System {
 			ID:          p.ID,
 			Name:        p.Name,
 			Type:        p.Type,
+			Class:       p.Class,
 			Description: p.Description,
 			PositionX:   p.PositionX,
 			PositionY:   p.PositionY,
@@ -2108,13 +2124,15 @@ var systemDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest ({{len .POIs}})</div>
           <table>
-            <thead><tr><th></th><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance (AU)</th><th>Description</th></tr></thead>
             <tbody>
-{{- range .POIs}}
+{{- range sortPOIsByDist .POIs}}
             <tr>
               <td style="text-align:center;font-size:16px">{{poiIcon .Type}}</td>
               <td>{{.Name}}</td>
               <td>{{titleCase .Type}}</td>
+              <td>{{if .Class}}{{.Class}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+              <td style="text-align:right">{{poiDist .}}</td>
               <td>{{if .Description}}{{.Description}}{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
             </tr>
 {{- end}}
