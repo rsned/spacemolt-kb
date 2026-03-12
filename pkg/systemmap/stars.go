@@ -334,8 +334,11 @@ func renderStar(poi POI, cx, cy float64) string {
 
 	b.WriteString(`</g>`)
 
-	// Label with classification
-	labelText := poi.Class
+	// Label with POI name (fall back to classification if unnamed)
+	labelText := poi.Name
+	if labelText == "" {
+		labelText = poi.Class
+	}
 	b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" class="map-label">%s</text>`, cx, cy+size+8, htmlEscape(labelText)))
 
 	return b.String()

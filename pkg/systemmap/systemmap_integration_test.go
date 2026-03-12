@@ -33,10 +33,9 @@ func TestRenderSystemMapWithClassifications(t *testing.T) {
 
 	// Check that output contains expected elements
 	expectedStrings := []string{
-		`G5 V`,                   // Star classification in label
 		`#fff4a0`,                // G-type pure color (G5 has no blending)
 		`#4a9c6d`,                // Terran planet color
-		`Test Star`,              // Star name
+		`Test Star`,              // Star name in label
 		`Test Planet`,            // Planet name
 		`xmlns="http://www.w3.org/2000/svg"`, // Standalone SVG
 	}
