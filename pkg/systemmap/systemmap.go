@@ -320,6 +320,20 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		}
 		b.WriteString(`</defs>`)
 
+		// Compute innermost resource belt radius (AU) for orbital animation speed.
+		// All belts rotate at the same linear speed: the innermost belt completes
+		// one full revolution in 3600 seconds, outer belts take proportionally longer.
+		var innerBeltRadiusAU float64
+		for _, poi := range sys.POIs {
+			if poi.Type != "asteroid_belt" && poi.Type != "ice_field" {
+				continue
+			}
+			r := math.Hypot(poi.PositionX, poi.PositionY)
+			if r > 0 && (innerBeltRadiusAU == 0 || r < innerBeltRadiusAU) {
+				innerBeltRadiusAU = r
+			}
+		}
+
 		// Render POIs by type; collect label info for de-overlap.
 		type labelInfo struct {
 			x, y  float64
@@ -385,7 +399,15 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/>`, cx, cy, r))
+				beltRadiusAU := math.Hypot(poi.PositionX, poi.PositionY)
+				if innerBeltRadiusAU > 0 && beltRadiusAU > 0 {
+					dur := 900.0 * beltRadiusAU / innerBeltRadiusAU
+					b.WriteString(fmt.Sprintf(`<g><animateTransform attributeName="transform" type="rotate" from="0 %.0f %.0f" to="-360 %.0f %.0f" dur="%.0fs" repeatCount="indefinite"/>`, cx, cy, cx, cy, dur))
+				}
 				b.WriteString(generateAsteroidParticlesWithSubtype(cx, cy, r, poiSeed(poi.ID), poi.Class))
+				if innerBeltRadiusAU > 0 && beltRadiusAU > 0 {
+					b.WriteString(`</g>`)
+				}
 				b.WriteString(`</g>`)
 				if labelAbove {
 					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})
@@ -397,7 +419,15 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/>`, cx, cy, r))
+				beltRadiusAU := math.Hypot(poi.PositionX, poi.PositionY)
+				if innerBeltRadiusAU > 0 && beltRadiusAU > 0 {
+					dur := 900.0 * beltRadiusAU / innerBeltRadiusAU
+					b.WriteString(fmt.Sprintf(`<g><animateTransform attributeName="transform" type="rotate" from="0 %.0f %.0f" to="-360 %.0f %.0f" dur="%.0fs" repeatCount="indefinite"/>`, cx, cy, cx, cy, dur))
+				}
 				b.WriteString(generateIceParticlesWithSubtype(cx, cy, r, poiSeed(poi.ID), poi.Class))
+				if innerBeltRadiusAU > 0 && beltRadiusAU > 0 {
+					b.WriteString(`</g>`)
+				}
 				b.WriteString(`</g>`)
 				if labelAbove {
 					labels = append(labels, labelInfo{x: px, y: py - 12, name: poi.Name, above: true})

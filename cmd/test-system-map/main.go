@@ -750,6 +750,66 @@ func main() {
 				{ID: "neb1", Type: "nebula", Class: "stellar_nursery", Name: "Rose Nebula", PositionX: 5, PositionY: 3},
 			},
 		},
+
+		// BELT ROTATION - Demonstrates animated resource belt orbits
+		"belt-rotation": {
+			ID:   "belt-rotation",
+			Name: "Belt Rotation (inner belt 3AU=1800s, outer belts same linear speed)",
+			POIs: func() []systemmap.POI {
+				var pois []systemmap.POI
+
+				// Central star
+				pois = append(pois, systemmap.POI{
+					ID: "sun1", Type: "sun", Class: "G2 V", Name: "Central Star",
+					PositionX: 0, PositionY: 0,
+				})
+
+				// Inner planet for reference
+				pois = append(pois, systemmap.POI{
+					ID: "p1", Type: "planet", Class: "terran", Name: "Inner World",
+					PositionX: 1.5, PositionY: 0,
+				})
+
+				// Asteroid belts at 3, 5, 7 AU — inner belt sets the speed
+				// Inner: 1800s, Middle: 1800*5/3=3000s, Outer: 1800*7/3=4200s
+				abx3, aby3 := polarToXY(3, 45)
+				pois = append(pois, systemmap.POI{
+					ID: "ab_inner", Type: "asteroid_belt", Class: "metallic",
+					Name: "Inner Belt (3 AU, 1800s)",
+					PositionX: abx3, PositionY: aby3,
+				})
+
+				abx5, aby5 := polarToXY(5, 160)
+				pois = append(pois, systemmap.POI{
+					ID: "ab_mid", Type: "asteroid_belt", Class: "mixed",
+					Name: "Middle Belt (5 AU, 3000s)",
+					PositionX: abx5, PositionY: aby5,
+				})
+
+				abx7, aby7 := polarToXY(7, 280)
+				pois = append(pois, systemmap.POI{
+					ID: "ab_outer", Type: "asteroid_belt", Class: "carbonaceous",
+					Name: "Outer Belt (7 AU, 4200s)",
+					PositionX: abx7, PositionY: aby7,
+				})
+
+				// Ice field at 10 AU — same linear speed, 1800*10/3=6000s
+				icex, icey := polarToXY(10, 90)
+				pois = append(pois, systemmap.POI{
+					ID: "if1", Type: "ice_field", Class: "cometary",
+					Name: "Kuiper Ring (10 AU, 6000s)",
+					PositionX: icex, PositionY: icey,
+				})
+
+				// Station for visual reference (static)
+				pois = append(pois, systemmap.POI{
+					ID: "st1", Type: "station", Name: "Orbital Station",
+					PositionX: 2, PositionY: -1,
+				})
+
+				return pois
+			}(),
+		},
 	}
 
 	// Dummy neighbor systems for gate angle computation in ship traffic tests.
