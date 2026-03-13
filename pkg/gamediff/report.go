@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	htmltpl "html/template"
+	"strings"
 	"time"
 )
 
@@ -87,6 +88,7 @@ var templateFuncs = htmltpl.FuncMap{
 	"formatDate":     func(d time.Time) string { return d.Format("January 2, 2006") },
 	"dateStr":        func(d time.Time) string { return d.Format("2006-01-02") },
 	"add":            func(a, b int) int { return a + b },
+	"slugify":        func(s string) string { return strings.ToLower(strings.ReplaceAll(s, " ", "-")) },
 }
 
 // RenderDayReport renders a single day's diff report page as HTML.
@@ -142,6 +144,9 @@ const dayTemplate = `<!DOCTYPE html>
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
 .no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
 </style>
 </head>
 <body>
@@ -167,8 +172,11 @@ const dayTemplate = `<!DOCTYPE html>
 {{if eq (add $adds (add $dels $mods)) 0}}No changes detected across any catalog.
 {{else}}{{$adds}} addition{{if ne $adds 1}}s{{end}}, {{$dels}} deletion{{if ne $dels 1}}s{{end}}, {{$mods}} modification{{if ne $mods 1}}s{{end}} across {{$cats}} catalog{{if ne $cats 1}}s{{end}}.
 {{end}}</div>
+<ul class="diff-toc">{{range .Catalogs}}
+<li><a href="#{{slugify .Name}}">{{.Name}}</a>{{if .HasChanges}} <span class="diff-add">+{{len .Additions}}</span> <span class="diff-del">&minus;{{len .Deletions}}</span> <span class="diff-mod">~{{uniqueModCount .Changes}}</span>{{end}}</li>{{end}}
+</ul>
 {{range .Catalogs}}
-<div class="catalog-section">
+<div class="catalog-section" id="{{slugify .Name}}">
 <div class="catalog-header">
     <h3>{{.Name}}</h3>
     <div class="catalog-counts">

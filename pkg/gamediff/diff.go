@@ -45,7 +45,15 @@ func DiffCatalog(oldData, newData []byte) (*CatalogDiff, error) {
 	if err != nil {
 		return nil, fmt.Errorf("new: %w", err)
 	}
-	return diffMaps(oldItems, newItems, "name"), nil
+	return diffMaps(oldItems, newItems, "name", nil), nil
+}
+
+// mapIgnoreFields lists fields to skip when diffing map data (e.g. "online"
+// changes on every snapshot and is not interesting for structural diffs).
+var mapIgnoreFields = map[string]bool{
+	"online":     true,
+	"visited":    true,
+	"visited_at": true,
 }
 
 // DiffMap compares two map JSON blobs (top-level {"systems":[...]}).
@@ -58,7 +66,7 @@ func DiffMap(oldData, newData []byte) (*CatalogDiff, error) {
 	if err != nil {
 		return nil, fmt.Errorf("new: %w", err)
 	}
-	return diffMaps(oldSystems, newSystems, "name"), nil
+	return diffMaps(oldSystems, newSystems, "name", mapIgnoreFields), nil
 }
 
 // extractArray parses JSON, pulls out the named top-level array, and indexes
@@ -89,7 +97,7 @@ func extractArray(data []byte, arrayField, keyField string) (map[string]map[stri
 
 // diffMaps compares two indexed maps and returns additions, deletions, and
 // field-level changes. nameField is used for display names.
-func diffMaps(oldMap, newMap map[string]map[string]any, nameField string) *CatalogDiff {
+func diffMaps(oldMap, newMap map[string]map[string]any, nameField string, ignoreFields map[string]bool) *CatalogDiff {
 	result := &CatalogDiff{}
 
 	for id, oldItem := range oldMap {
@@ -103,6 +111,9 @@ func diffMaps(oldMap, newMap map[string]map[string]any, nameField string) *Catal
 		}
 		// Field-level changes.
 		for key, newVal := range newItem {
+			if ignoreFields[key] {
+				continue
+			}
 			oldVal, exists := oldItem[key]
 			if !exists {
 				continue

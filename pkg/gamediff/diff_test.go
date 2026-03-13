@@ -112,6 +112,19 @@ func TestDiffCatalog_SortsResults(t *testing.T) {
 	}
 }
 
+func TestDiffMap_IgnoresVolatileFields(t *testing.T) {
+	old := []byte(`{"systems":[{"system_id":"sol","name":"Sol","online":5,"visited":false,"visited_at":""}]}`)
+	new := []byte(`{"systems":[{"system_id":"sol","name":"Sol","online":42,"visited":true,"visited_at":"2026-03-12"}]}`)
+
+	result, err := DiffMap(old, new)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Changes) != 0 {
+		t.Errorf("want 0 changes (volatile fields ignored), got %d: %v", len(result.Changes), result.Changes)
+	}
+}
+
 func TestHasChanges(t *testing.T) {
 	empty := &CatalogDiff{}
 	if empty.HasChanges() {
