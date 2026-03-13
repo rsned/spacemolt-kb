@@ -127,33 +127,33 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 	if standalone {
 		fillRatio = 0.9 // orbit fills 90% of viewBox (5% padding per side)
 	}
-	vbSize := 2 * maxOrbitR / fillRatio
-	vbX := cx - vbSize/2
-	vbY := cy - vbSize/2
+	vbH := 2 * maxOrbitR / fillRatio
+	vbW := vbH
+	vbX := cx - vbW/2
+	vbY := cy - vbH/2
 
-	aspectRatio := "xMidYMid slice"
-	if standalone {
-		aspectRatio = "xMidYMid meet"
-	}
-	b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="%s" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, aspectRatio, vbX, vbY, vbSize, vbSize))
+	// Use "meet" so the full viewBox is always visible regardless of
+	// the container's aspect ratio — prevents cropping the legend,
+	// scale bar, or gate markers near the edges.
+	b.WriteString(fmt.Sprintf(`<svg preserveAspectRatio="xMidYMid meet" viewBox="%.1f %.1f %.1f %.1f" xmlns="http://www.w3.org/2000/svg">`, vbX, vbY, vbW, vbH))
 
 	if standalone {
-		b.WriteString(fmt.Sprintf(`<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#000"/>`, vbX, vbY, vbSize, vbSize))
+		b.WriteString(fmt.Sprintf(`<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="#000"/>`, vbX, vbY, vbW, vbH))
 	}
 
 	// Compute visible range for gate clamping.
 	visTop := vbY + 25
-	visBottom := vbY + vbSize - 25
+	visBottom := vbY + vbH - 25
 
 	if explored {
 		// Axis crosshairs (span full viewBox).
-		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, vbX, cy, vbX+vbSize, cy))
-		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, vbY, cx, vbY+vbSize))
+		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, vbX, cy, vbX+vbW, cy))
+		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, vbY, cx, vbY+vbH))
 
 		// Tick marks at whole-number game coordinate intervals.
 		tickLen := 4.0 // half-length of each tick mark
 		minGame := int(math.Floor((vbX - cx) / scale))
-		maxGame := int(math.Ceil((vbX + vbSize - cx) / scale))
+		maxGame := int(math.Ceil((vbX + vbW - cx) / scale))
 		for n := minGame; n <= maxGame; n++ {
 			if n == 0 {
 				continue
@@ -198,7 +198,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		gx := cx + gateRadius*math.Cos(angle)
 		gy := cy - gateRadius*math.Sin(angle) // Y inverted
 		// Clamp to visible area.
-		gx = math.Max(vbX+30, math.Min(vbX+vbSize-30, gx))
+		gx = math.Max(vbX+30, math.Min(vbX+vbW-30, gx))
 		gy = math.Max(visTop, math.Min(visBottom, gy))
 
 		// Dashed line from gate toward center.
@@ -506,7 +506,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		}
 
 		// Ambient ship traffic (rendered over orbital rings, under labels).
-		b.WriteString(generateShipRoutes(sys, allSystems, scale, cx, cy, gateRadius, vbX, vbSize, visTop, visBottom))
+		b.WriteString(generateShipRoutes(sys, allSystems, scale, cx, cy, gateRadius, vbX, vbW, visTop, visBottom))
 
 		// De-overlap labels: push overlapping labels in their stacking direction.
 		const labelH = 12.0
@@ -534,7 +534,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		}
 
 		// Legend: collect unique POI types present in this system.
-		b.WriteString(renderLegend(sys.POIs, vbX, vbY, vbSize))
+		b.WriteString(renderLegend(sys.POIs, vbX, vbY, vbW, vbH))
 	} else {
 		// Unexplored: star + fog of war.
 		b.WriteString(`<defs>`)
@@ -759,7 +759,7 @@ var legendTypes = []legendEntry{
 
 // renderLegend draws a legend box in the bottom-right corner of the map showing
 // only the POI types present in the current system.
-func renderLegend(pois []POI, vbX, vbY, vbSize float64) string {
+func renderLegend(pois []POI, vbX, vbY, vbW, vbH float64) string {
 	// Collect present types.
 	present := make(map[string]bool)
 	for _, poi := range pois {
@@ -800,8 +800,8 @@ func renderLegend(pois []POI, vbX, vbY, vbSize float64) string {
 	boxH := padY + float64(len(entries))*rowH + padY - (rowH - 12) // tighten bottom
 
 	// Position: bottom-right of viewBox.
-	boxX := vbX + vbSize - marginR - boxW
-	boxY := vbY + vbSize - marginB - boxH
+	boxX := vbX + vbW - marginR - boxW
+	boxY := vbY + vbH - marginB - boxH
 
 	var b strings.Builder
 
