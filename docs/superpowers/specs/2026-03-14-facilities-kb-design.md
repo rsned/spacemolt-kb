@@ -80,6 +80,7 @@ type MaterialRef struct {
 type RecipeSummary struct {
     ID           string
     Name         string
+    Category     string // Populated from full recipe data for linking
     CraftingTime int
     Inputs       []MaterialRef
     Outputs      []MaterialRef
