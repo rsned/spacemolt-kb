@@ -340,6 +340,11 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">{{titleCase .Category}}</a> / {{.Name}}</div>
 
         <h2>{{.Name}} {{if .Buildable}}<span class="badge badge-buildable">Buildable</span>{{else}}<span class="badge badge-locked">Not Buildable</span>{{end}}</h2>
+
+        {{if .Description}}
+        <p>{{.Description}}</p>
+        {{end}}
+
         <div class="stats-row">
             <div class="stat-item">
                 <span class="stat-label">Level</span>
@@ -359,22 +364,11 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
             </div>
         </div>
 
-        {{if .Description}}
-        <p>{{.Description}}</p>
-        {{end}}
-
         {{if .UpgradeChain}}
         <section class="detail-section">
             <h3>Upgrade Path</h3>
-            <div class="upgrade-path">
-            {{- range $i, $link := .UpgradeChain.Links}}
-                {{- if $i}} &rarr; {{end}}
-                {{- if $link.IsCurrent}}
-                    <strong>{{$link.Name}}</strong>
-                {{- else}}
-                    <a href="../{{dirName $link.ID}}/">{{$link.Name}}</a>
-                {{- end}}
-            {{- end}}
+            <div class="upgrade-diagram">
+            {{- upgradeSVG .UpgradeChain}}
             </div>
         </section>
         {{end}}
@@ -447,20 +441,6 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         </section>
         {{end}}
 
-        {{if .SatisfiedDescription}}
-        <section class="detail-section">
-            <h3>Satisfied State</h3>
-            <p>{{.SatisfiedDescription}}</p>
-        </section>
-        {{end}}
-
-        {{if .DegradedDescription}}
-        <section class="detail-section">
-            <h3>Degraded State</h3>
-            <p>{{.DegradedDescription}}</p>
-        </section>
-        {{end}}
-
         {{if .Hint}}
         <div class="hint-box">
             <strong>Hint:</strong> {{.Hint}}
@@ -506,9 +486,10 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 
 	// Create template functions
 	funcs := htmltpl.FuncMap{
-		"fmtValue":  fmtValue,
-		"titleCase": titleCase,
-		"dirName":   dirName,
+		"fmtValue":   fmtValue,
+		"titleCase":  titleCase,
+		"dirName":    dirName,
+		"upgradeSVG": generateUpgradeSVG,
 	}
 
 	// Parse templates
@@ -688,6 +669,111 @@ func buildUpgradeChains(facilities map[string]*Facility) {
 
 		fac.UpgradeChain = chain
 	}
+}
+
+// generateUpgradeSVG creates an SVG diagram showing the upgrade path.
+func generateUpgradeSVG(chain *UpgradeChain) htmltpl.HTML {
+	if len(chain.Links) == 0 {
+		return ""
+	}
+
+	const (
+		boxWidth      = 140
+		boxHeight     = 60
+		boxSpacing    = 40
+		arrowLength   = 30
+		startPadding  = 20
+		vertCenter    = 45
+		fontSize      = 11
+		lineHeight    = 14
+	)
+
+	numLinks := len(chain.Links)
+	totalWidth := startPadding*2 + (numLinks-1)*(boxWidth+boxSpacing+arrowLength) + boxWidth
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf(`<svg width="100%%" height="%d" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">`, boxHeight+20, totalWidth, boxHeight+20))
+	sb.WriteString(`<style>`)
+	sb.WriteString(`.upgrade-box { fill: transparent; stroke: #999; stroke-width: 1.5; }`)
+	sb.WriteString(`.upgrade-box-current { fill: transparent; stroke: #000; stroke-width: 2; }`)
+	sb.WriteString(`.upgrade-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #666; text-anchor: middle; }`)
+	sb.WriteString(`.upgrade-text-current { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #000; font-weight: 600; text-anchor: middle; }`)
+	sb.WriteString(`.upgrade-link { text-decoration: none; }`)
+	sb.WriteString(`.upgrade-arrow { stroke: #999; stroke-width: 1.5; fill: none; }`)
+	sb.WriteString(`</style>`)
+
+	for i, link := range chain.Links {
+		x := startPadding + i*(boxWidth+boxSpacing+arrowLength)
+		y := vertCenter - boxHeight/2
+
+		// Draw arrow from previous box (except for first item)
+		if i > 0 {
+			prevX := startPadding + (i-1)*(boxWidth+boxSpacing+arrowLength) + boxWidth
+			arrowStartX := prevX
+			arrowEndX := x - 5
+			midY := vertCenter
+			sb.WriteString(fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" class="upgrade-arrow"/>`, arrowStartX, midY, arrowEndX, midY))
+			// Arrowhead
+			sb.WriteString(fmt.Sprintf(`<polygon points="%d,%d %d,%d %d,%d" fill="#999"/>`, arrowEndX+5, midY, arrowEndX, midY-4, arrowEndX, midY+4))
+		}
+
+		// Draw box
+		boxClass := "upgrade-box"
+		textClass := "upgrade-text"
+		if link.IsCurrent {
+			boxClass = "upgrade-box-current"
+			textClass = "upgrade-text-current"
+		}
+
+		if link.IsCurrent {
+			sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" rx="4" class="%s"/>`, x, y, boxWidth, boxHeight, boxClass))
+		} else {
+			sb.WriteString(fmt.Sprintf(`<a href="../%s/" class="upgrade-link">`, dirName(link.ID)))
+			sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" rx="4" class="%s"/>`, x, y, boxWidth, boxHeight, boxClass))
+			sb.WriteString(`</a>`)
+		}
+
+		// Draw text with line wrapping
+		words := strings.Fields(link.Name)
+		var lines []string
+		currentLine := ""
+		for _, word := range words {
+			testLine := currentLine
+			if testLine == "" {
+				testLine = word
+			} else {
+				testLine += " " + word
+			}
+			// Rough character width estimation
+			if len(testLine) > 18 && currentLine != "" {
+				lines = append(lines, currentLine)
+				currentLine = word
+			} else {
+				currentLine = testLine
+			}
+		}
+		if currentLine != "" {
+			lines = append(lines, currentLine)
+		}
+
+		// Calculate vertical position to center text
+		totalTextHeight := len(lines) * lineHeight
+		startY := vertCenter - totalTextHeight/2 + lineHeight/3
+
+		for lineIdx, line := range lines {
+			textY := startY + lineIdx*lineHeight
+			if link.IsCurrent {
+				sb.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="%s">%s</text>`, x+boxWidth/2, textY, textClass, line))
+			} else {
+				sb.WriteString(fmt.Sprintf(`<a href="../%s/" class="upgrade-link">`, dirName(link.ID)))
+				sb.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="%s">%s</text>`, x+boxWidth/2, textY, textClass, line))
+				sb.WriteString(`</a>`)
+			}
+		}
+	}
+
+	sb.WriteString("</svg>")
+	return htmltpl.HTML(sb.String())
 }
 
 
