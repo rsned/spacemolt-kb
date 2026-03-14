@@ -406,7 +406,7 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
           <td class="value" data-sort="{{.BuildCost}}">{{fmtValue .BuildCost}}</td>
           <td data-sort="{{.LaborCost}}">{{.LaborCost}}</td>
           <td data-sort="{{.RentPerCycle}}">{{.RentPerCycle}}</td>
-          <td>{{if .Recipe}}<a href="../../recipes/{{dirName .Recipe.Category}}/{{.Recipe.ID}}.html">{{.Recipe.Outputs}}</a>{{else}}-{{end}}</td>
+          <td>{{if .Recipe}}<a href="../../recipes/{{dirName .Recipe.Category}}/{{.Recipe.ID}}.html">{{.Recipe.Name}}</a>{{else}}-{{end}}</td>
         </tr>
 {{- end}}
         </tbody>
@@ -482,7 +482,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         <!-- Description -->
         <p class="mt-3">{{.Description}}</p>
 
-        {{if .UpgradesFromName or .UpgradesToName}}
+        {{if or .UpgradesFromName .UpgradesToName}}
         <!-- Upgrade Chain -->
         <div class="card mt-3">
             <h3>Upgrade Chain</h3>
@@ -565,7 +565,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 
         {{if .SatisfiedDescription}}
         <!-- Satisfied Description -->
-        <div class="card mt-3" style="border-left: 3px solid hsl(var(--success));">
+        <div class="card mt-3" style="border-left: 3px solid hsl(var(--smui-green));">
             <h4>Operational</h4>
             <p>{{.SatisfiedDescription}}</p>
         </div>
@@ -573,7 +573,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 
         {{if .DegradedDescription}}
         <!-- Degraded Description -->
-        <div class="card mt-3" style="border-left: 3px solid hsl(var(--destructive));">
+        <div class="card mt-3" style="border-left: 3px solid hsl(var(--smui-red));">
             <h4>Degraded</h4>
             <p>{{.DegradedDescription}}</p>
         </div>
@@ -1002,8 +1002,8 @@ Add to the end of `kb/smui.css`:
 
 /* Buildable badge */
 .badge-buildable {
-    background: hsl(var(--success));
-    color: hsl(var(--success-foreground));
+    background: hsl(var(--smui-green));
+    color: hsl(var(--foreground));
 }
 ```
 
