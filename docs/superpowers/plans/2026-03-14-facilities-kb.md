@@ -99,6 +99,7 @@ type MaterialRef struct {
 type RecipeSummary struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
+	Category     string        `json:"category"` // Required for linking to recipe pages
 	CraftingTime int           `json:"crafting_time"`
 	Inputs       []MaterialRef `json:"inputs"`
 	Outputs      []MaterialRef `json:"outputs"`
@@ -658,17 +659,8 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility) error {
 		return fmt.Errorf("create output dir: %w", err)
 	}
 
-	// Write main index
-	topPath := filepath.Join(outDir, "index.html")
-	f, err := os.Create(topPath)
-	if err != nil {
-		return err
-	}
-	if err := topTmpl.Execute(f, categories); err != nil {
-		_ = f.Close()
-		return err
-	}
-	if err := f.Close(); err != nil {
+	// Write main index (using writeTemplate helper from skills.go)
+	if err := writeTemplate(filepath.Join(outDir, "index.html"), topTmpl, categories); err != nil {
 		return err
 	}
 
@@ -680,31 +672,14 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility) error {
 		}
 
 		// Category index
-		catPath := filepath.Join(catDir, "index.html")
-		f, err := os.Create(catPath)
-		if err != nil {
-			return err
-		}
-		if err := catTmpl.Execute(f, cat); err != nil {
-			_ = f.Close()
-			return err
-		}
-		if err := f.Close(); err != nil {
+		if err := writeTemplate(filepath.Join(catDir, "index.html"), catTmpl, cat); err != nil {
 			return err
 		}
 
 		// Individual facility pages
 		for _, fac := range cat.Facilities {
 			facPath := filepath.Join(catDir, fac.ID+".html")
-			f, err := os.Create(facPath)
-			if err != nil {
-				return err
-			}
-			if err := facTmpl.Execute(f, fac); err != nil {
-				_ = f.Close()
-				return err
-			}
-			if err := f.Close(); err != nil {
+			if err := writeTemplate(facPath, facTmpl, fac); err != nil {
 				return err
 			}
 		}
@@ -730,6 +705,7 @@ git commit -m "feat(facilities): add page generation function"
 
 ```go
 // validateFacilityRecipes checks facility recipes against the recipe map.
+// Also populates the Category field on RecipeSummary from the full recipe data.
 func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string]*Recipe) {
 	for _, fac := range facilities {
 		if fac.Recipe == nil {
@@ -741,6 +717,9 @@ func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string
 			log.Printf("warning: facility %s recipe %s not found in recipe KB", fac.ID, fac.Recipe.ID)
 			continue
 		}
+
+		// Populate Category field from recipe data
+		fac.Recipe.Category = recipe.Category
 
 		// Compare inputs
 		if len(fac.Recipe.Inputs) != len(recipe.Inputs) {
