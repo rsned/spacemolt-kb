@@ -324,12 +324,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 <body>
 ` + siteHeaderFacilitiesSub + `
     <main class="container page-content">
-        <nav class="breadcrumb">
-            <a href="../../">Home</a>
-            <a href="../">Facilities</a>
-            <a href="./">{{titleCase .Category}}</a>
-            <span>{{.Name}}</span>
-        </nav>
+        <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">{{titleCase .Category}}</a> / {{.Name}}</div>
 
         <h2>{{.Name}} {{if .Buildable}}<span class="badge badge-buildable">Buildable</span>{{else}}<span class="badge badge-locked">Not Buildable</span>{{end}}</h2>
         <div class="stats-row">
