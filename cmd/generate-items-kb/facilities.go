@@ -2,11 +2,14 @@
 package main
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
+	htmltpl "html/template"
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -308,3 +311,335 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
 </body>
 </html>
 `
+
+// htmlFacilityDetailTemplate is the template for kb/facilities/{category}/{facility-id}.html
+var htmlFacilityDetailTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}} - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+</head>
+<body>
+` + siteHeaderFacilitiesSub + `
+    <main class="container page-content">
+        <nav class="breadcrumb">
+            <a href="../../">Home</a>
+            <a href="../">Facilities</a>
+            <a href="./">{{titleCase .Category}}</a>
+            <span>{{.Name}}</span>
+        </nav>
+
+        <h2>{{.Name}}</h2>
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-label">Level</span>
+                <span class="stat-value">{{.Level}}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Build Cost</span>
+                <span class="stat-value">{{fmtValue .BuildCost}}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Labor</span>
+                <span class="stat-value">{{.LaborCost}}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Rent/Cycle</span>
+                <span class="stat-value">{{fmtValue .RentPerCycle}}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Buildable</span>
+                <span class="stat-value">{{if .Buildable}}Yes{{else}}No{{end}}</span>
+            </div>
+        </div>
+
+        {{if .Description}}
+        <p>{{.Description}}</p>
+        {{end}}
+
+        {{if or .UpgradesFromName .UpgradesToName}}
+        <div class="upgrade-chain">
+            {{if .UpgradesFromName}}
+            <div class="upgrade-step">
+                <span class="upgrade-label">Upgrades From</span>
+                <a href="../{{dirName .UpgradesFrom}}/" class="upgrade-link">{{.UpgradesFromName}}</a>
+            </div>
+            {{end}}
+            <div class="upgrade-step current">
+                <span class="upgrade-label">Current</span>
+                <span class="upgrade-link">{{.Name}}</span>
+            </div>
+            {{if .UpgradesToName}}
+            <div class="upgrade-step">
+                <span class="upgrade-label">Upgrades To</span>
+                <a href="../{{dirName .UpgradesTo}}/" class="upgrade-link">{{.UpgradesToName}}</a>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+
+        {{if .Recipe}}
+        <section class="detail-section">
+            <h3>Recipe</h3>
+            <p><strong>Output:</strong> <a href="../../recipes/{{dirName .Recipe.Category}}/{{dirName .Recipe.ID}}/">{{.Recipe.Name}}</a> (×{{printf "%.2f" .RecipeMultiplier}})</p>
+            <p><strong>Crafting Time:</strong> {{.Recipe.CraftingTime}}s</p>
+            {{if .Recipe.Inputs}}
+            <p><strong>Inputs:</strong></p>
+            <ul>
+            {{- range .Recipe.Inputs}}
+                <li>{{.Quantity}}x <a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></li>
+            {{- end}}
+            </ul>
+            {{end}}
+            {{if .Recipe.Outputs}}
+            <p><strong>Outputs:</strong></p>
+            <ul>
+            {{- range .Recipe.Outputs}}
+                <li>{{.Quantity}}x <a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></li>
+            {{- end}}
+            </ul>
+            {{end}}
+        </section>
+        {{end}}
+
+        {{if .BuildMaterials}}
+        <section class="detail-section">
+            <h3>Build Materials</h3>
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{- range .BuildMaterials}}
+                    <tr>
+                        <td><a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></td>
+                        <td>{{.Quantity}}</td>
+                    </tr>
+                {{- end}}
+                </tbody>
+            </table>
+        </section>
+        {{end}}
+
+        {{if .MaintenancePerCycle}}
+        <section class="detail-section">
+            <h3>Maintenance per Cycle</h3>
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{- range .MaintenancePerCycle}}
+                    <tr>
+                        <td><a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></td>
+                        <td>{{.Quantity}}</td>
+                    </tr>
+                {{- end}}
+                </tbody>
+            </table>
+        </section>
+        {{end}}
+
+        {{if .SatisfiedDescription}}
+        <section class="detail-section">
+            <h3>Satisfied State</h3>
+            <p>{{.SatisfiedDescription}}</p>
+        </section>
+        {{end}}
+
+        {{if .DegradedDescription}}
+        <section class="detail-section">
+            <h3>Degraded State</h3>
+            <p>{{.DegradedDescription}}</p>
+        </section>
+        {{end}}
+
+        {{if .Hint}}
+        <div class="hint-box">
+            <strong>Hint:</strong> {{.Hint}}
+        </div>
+        {{end}}
+    </main>
+` + sortScript + themeScript + `
+</body>
+</html>
+`
+
+// writeFacilityPages generates all facility HTML pages.
+func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes map[string]*Recipe) error {
+	// Group facilities by category
+	catFacilities := make(map[string][]*Facility)
+	for _, fac := range facilities {
+		catFacilities[fac.Category] = append(catFacilities[fac.Category], fac)
+	}
+
+	// Sort facilities within each category
+	for _, facList := range catFacilities {
+		slices.SortFunc(facList, func(a, b *Facility) int {
+			return cmp.Compare(a.Name, b.Name)
+		})
+	}
+
+	// Build category info
+	categories := make([]FacilityCategoryInfo, 0, len(catFacilities))
+	for cat, facList := range catFacilities {
+		categories = append(categories, FacilityCategoryInfo{
+			Name:        cat,
+			Description: facilityCategoryDescriptions[cat],
+			Count:       len(facList),
+			Facilities:  facList,
+		})
+	}
+	slices.SortFunc(categories, func(a, b FacilityCategoryInfo) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+
+	// Create template functions
+	funcs := htmltpl.FuncMap{
+		"fmtValue":  fmtValue,
+		"titleCase": titleCase,
+		"dirName":   dirName,
+	}
+
+	// Parse templates
+	topTmpl := htmltpl.Must(htmltpl.New("top").Funcs(funcs).Parse(htmlFacilitiesTopTemplate))
+	catTmpl := htmltpl.Must(htmltpl.New("cat").Funcs(funcs).Parse(htmlFacilitiesCategoryTemplate))
+	facTmpl := htmltpl.Must(htmltpl.New("fac").Funcs(funcs).Parse(htmlFacilityDetailTemplate))
+
+	// Create output directory
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return fmt.Errorf("create output dir: %w", err)
+	}
+
+	// Write main index (using writeTemplate helper from skills.go)
+	if err := writeTemplate(filepath.Join(outDir, "index.html"), topTmpl, categories); err != nil {
+		return err
+	}
+
+	// Write category indexes and facility pages
+	for _, cat := range categories {
+		catDir := filepath.Join(outDir, cat.Name)
+		if err := os.MkdirAll(catDir, 0o755); err != nil {
+			return err
+		}
+
+		// Category index
+		if err := writeTemplate(filepath.Join(catDir, "index.html"), catTmpl, cat); err != nil {
+			return err
+		}
+
+		// Individual facility pages
+		for _, fac := range cat.Facilities {
+			facPath := filepath.Join(catDir, fac.ID+".html")
+			if err := writeTemplate(facPath, facTmpl, fac); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// validateFacilityRecipes checks that embedded recipe summaries match the full recipe data.
+func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string]*Recipe) {
+	for _, fac := range facilities {
+		if fac.Recipe == nil {
+			continue
+		}
+
+		recipe, exists := recipes[fac.Recipe.ID]
+		if !exists {
+			log.Printf("warning: facility %s references unknown recipe %s", fac.ID, fac.Recipe.ID)
+			continue
+		}
+
+		// Populate category from full recipe
+		fac.Recipe.Category = recipe.Category
+
+		// Compare inputs
+		if len(fac.Recipe.Inputs) != len(recipe.Inputs) {
+			log.Printf("warning: facility %s recipe %s input count mismatch: facility has %d, recipe has %d",
+				fac.ID, fac.Recipe.ID, len(fac.Recipe.Inputs), len(recipe.Inputs))
+		}
+
+		// Build maps for comparison
+		facInputs := make(map[string]int)
+		for _, input := range fac.Recipe.Inputs {
+			facInputs[input.ItemID] = input.Quantity
+		}
+
+		recipeInputs := make(map[string]int)
+		for _, input := range recipe.Inputs {
+			recipeInputs[input.ItemID] = input.Quantity
+		}
+
+		// Check for missing or different quantities in facility
+		for itemID, qty := range recipeInputs {
+			facQty, ok := facInputs[itemID]
+			if !ok {
+				log.Printf("warning: facility %s recipe %s missing input item %s", fac.ID, fac.Recipe.ID, itemID)
+			} else if facQty != qty {
+				log.Printf("warning: facility %s recipe %s input %s quantity mismatch: facility has %d, recipe has %d",
+					fac.ID, fac.Recipe.ID, itemID, facQty, qty)
+			}
+		}
+
+		// Check for extra items in facility
+		for itemID := range facInputs {
+			if _, ok := recipeInputs[itemID]; !ok {
+				log.Printf("warning: facility %s recipe %s has extra input item %s", fac.ID, fac.Recipe.ID, itemID)
+			}
+		}
+
+		// Compare outputs
+		if len(fac.Recipe.Outputs) != len(recipe.Outputs) {
+			log.Printf("warning: facility %s recipe %s output count mismatch: facility has %d, recipe has %d",
+				fac.ID, fac.Recipe.ID, len(fac.Recipe.Outputs), len(recipe.Outputs))
+		}
+
+		// Build maps for comparison
+		facOutputs := make(map[string]int)
+		for _, output := range fac.Recipe.Outputs {
+			facOutputs[output.ItemID] = output.Quantity
+		}
+
+		recipeOutputs := make(map[string]int)
+		for _, output := range recipe.Outputs {
+			recipeOutputs[output.ItemID] = output.Quantity
+		}
+
+		// Check for missing or different quantities in facility
+		for itemID, qty := range recipeOutputs {
+			facQty, ok := facOutputs[itemID]
+			if !ok {
+				log.Printf("warning: facility %s recipe %s missing output item %s", fac.ID, fac.Recipe.ID, itemID)
+			} else if facQty != qty {
+				log.Printf("warning: facility %s recipe %s output %s quantity mismatch: facility has %d, recipe has %d",
+					fac.ID, fac.Recipe.ID, itemID, facQty, qty)
+			}
+		}
+
+		// Check for extra items in facility
+		for itemID := range facOutputs {
+			if _, ok := recipeOutputs[itemID]; !ok {
+				log.Printf("warning: facility %s recipe %s has extra output item %s", fac.ID, fac.Recipe.ID, itemID)
+			}
+		}
+
+		// Compare crafting time
+		if fac.Recipe.CraftingTime != recipe.CraftingTime {
+			log.Printf("warning: facility %s recipe %s crafting time mismatch: facility has %d, recipe has %d",
+				fac.ID, fac.Recipe.ID, fac.Recipe.CraftingTime, recipe.CraftingTime)
+		}
+	}
+}
+
+
