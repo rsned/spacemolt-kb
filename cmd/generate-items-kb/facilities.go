@@ -184,11 +184,11 @@ func convertJSONToFacility(raw *facilityJSON) *Facility {
 
 // facilityCategoryDescriptions maps categories to their descriptions.
 var facilityCategoryDescriptions = map[string]string{
-	"production":     "428 buildable facilities for crafting items, weapons, and equipment.",
-	"service":        "68 station facilities providing trade, storage, repair, and services.",
-	"faction":        "24 faction-specific buildings for diplomacy and warfare.",
-	"infrastructure": "21 stations supporting power, fuel, and station operations.",
-	"personal":       "4 compact facilities for personal crafting and storage.",
+	"production":     "Buildable facilities for crafting items, weapons, and equipment.",
+	"service":        "Station facilities providing trade, storage, repair, and services.",
+	"faction":        "Faction-specific buildings for diplomacy and warfare.",
+	"infrastructure": "Facilities supporting power, fuel, and station operations.",
+	"personal":       "Compact facilities for personal crafting and storage.",
 }
 
 // siteHeaderFacilities is the header for facilities main index.
