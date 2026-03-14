@@ -345,24 +345,35 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         <p>{{.Description}}</p>
         {{end}}
 
-        <div class="stats-row">
-            <div class="stat-item">
-                <span class="stat-label">Level</span>
-                <span class="stat-value">{{.Level}}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Build Cost</span>
-                <span class="stat-value">{{fmtValue .BuildCost}}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Labor</span>
-                <span class="stat-value">{{.LaborCost}}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Rent/Cycle</span>
-                <span class="stat-value">{{fmtValue .RentPerCycle}}</span>
-            </div>
-        </div>
+        <section class="detail-section">
+            <h3>Stats</h3>
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Level</td>
+                        <td>{{.Level}}</td>
+                    </tr>
+                    <tr>
+                        <td>Build Cost</td>
+                        <td>{{fmtValue .BuildCost}}</td>
+                    </tr>
+                    <tr>
+                        <td>Labor</td>
+                        <td>{{.LaborCost}}</td>
+                    </tr>
+                    <tr>
+                        <td>Rent/Cycle</td>
+                        <td>{{fmtValue .RentPerCycle}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
         {{if .UpgradeChain}}
         <section class="detail-section">
