@@ -287,7 +287,7 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
                     <tr>
                         <td>
                             <a href="{{dirName .ID}}/">{{.Name}}</a>
-                            {{if .Buildable}}<span class="badge-buildable">buildable</span>{{end}}
+                            {{if .Buildable}}<span class="badge badge-buildable">✓ Buildable</span>{{else}}<span class="badge badge-locked">✗ Not Buildable</span>{{end}}
                         </td>
                         <td data-sort="{{.Level}}">{{.Level}}</td>
                         <td data-sort="{{.BuildCost}}">{{fmtValue .BuildCost}}</td>
@@ -331,7 +331,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
             <span>{{.Name}}</span>
         </nav>
 
-        <h2>{{.Name}}</h2>
+        <h2>{{.Name}} {{if .Buildable}}<span class="badge badge-buildable">Buildable</span>{{else}}<span class="badge badge-locked">Not Buildable</span>{{end}}</h2>
         <div class="stats-row">
             <div class="stat-item">
                 <span class="stat-label">Level</span>
