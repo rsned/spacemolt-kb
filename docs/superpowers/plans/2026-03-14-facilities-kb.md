@@ -614,7 +614,7 @@ git commit -m "feat(facilities): add facility detail page template"
 
 ```go
 // writeFacilityPages generates all facility HTML pages.
-func writeFacilityPages(outDir string, facilities map[string]*Facility) error {
+func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes map[string]*Recipe) error {
 	// Group facilities by category
 	catFacilities := make(map[string][]*Facility)
 	for _, fac := range facilities {
@@ -721,16 +721,59 @@ func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string
 		// Populate Category field from recipe data
 		fac.Recipe.Category = recipe.Category
 
-		// Compare inputs
-		if len(fac.Recipe.Inputs) != len(recipe.Inputs) {
-			log.Printf("warning: facility %s recipe input count mismatch: facility=%d, recipe=%d",
-				fac.ID, len(fac.Recipe.Inputs), len(recipe.Inputs))
+		// Compare input items in detail
+		facInputs := make(map[string]int)
+		for _, input := range fac.Recipe.Inputs {
+			facInputs[input.ItemID] = input.Quantity
+		}
+		recipeInputs := make(map[string]int)
+		for _, input := range recipe.Inputs {
+			recipeInputs[input.ItemID] = input.Quantity
 		}
 
-		// Compare outputs
-		if len(fac.Recipe.Outputs) != len(recipe.Outputs) {
-			log.Printf("warning: facility %s recipe output count mismatch: facility=%d, recipe=%d",
-				fac.ID, len(fac.Recipe.Outputs), len(recipe.Outputs))
+		// Find missing and extra items
+		var missingInRecipe, extraInRecipe []string
+		for itemID := range facInputs {
+			if _, ok := recipeInputs[itemID]; !ok {
+				missingInRecipe = append(missingInRecipe, itemID)
+			}
+		}
+		for itemID := range recipeInputs {
+			if _, ok := facInputs[itemID]; !ok {
+				extraInRecipe = append(extraInRecipe, itemID)
+			}
+		}
+
+		if len(missingInRecipe) > 0 || len(extraInRecipe) > 0 {
+			log.Printf("warning: facility %s recipe %s input mismatch: missing in recipe [%s], extra in recipe [%s]",
+				fac.ID, fac.Recipe.ID, strings.Join(missingInRecipe, ", "), strings.Join(extraInRecipe, ", "))
+		}
+
+		// Compare output items in detail
+		facOutputs := make(map[string]int)
+		for _, output := range fac.Recipe.Outputs {
+			facOutputs[output.ItemID] = output.Quantity
+		}
+		recipeOutputs := make(map[string]int)
+		for _, output := range recipe.Outputs {
+			recipeOutputs[output.ItemID] = output.Quantity
+		}
+
+		var missingOutRecipe, extraOutRecipe []string
+		for itemID := range facOutputs {
+			if _, ok := recipeOutputs[itemID]; !ok {
+				missingOutRecipe = append(missingOutRecipe, itemID)
+			}
+		}
+		for itemID := range recipeOutputs {
+			if _, ok := facOutputs[itemID]; !ok {
+				extraOutRecipe = append(extraOutRecipe, itemID)
+			}
+		}
+
+		if len(missingOutRecipe) > 0 || len(extraOutRecipe) > 0 {
+			log.Printf("warning: facility %s recipe %s output mismatch: missing in recipe [%s], extra in recipe [%s]",
+				fac.ID, fac.Recipe.ID, strings.Join(missingOutRecipe, ", "), strings.Join(extraOutRecipe, ", "))
 		}
 	}
 }
@@ -788,7 +831,7 @@ if err != nil {
     // Validate facility recipes against loaded recipes
     validateFacilityRecipes(facilities, recipes)
 
-    if err := writeFacilityPages(facilityOutDir, facilities); err != nil {
+    if err := writeFacilityPages(facilityOutDir, facilities, recipes); err != nil {
         log.Fatalf("write facility pages: %v", err)
     }
     fmt.Printf("Generated %d facility pages in kb/facilities/\n", len(facilities))
@@ -948,13 +991,15 @@ Add the Facilities card after the Ships card (before the closing `</div>` of cat
 </a>
 ```
 
-- [ ] **Step 4: Add cyan CSS variable if needed**
+- [ ] **Step 4: Add cyan CSS variable**
 
-Check if `--smui-cyan` exists in `kb/smui.css`. If not, add to the CSS variables section around line 80:
+Add the cyan color variable to `kb/smui.css` in the CSS variables section around line 42 (after --smui-purple):
 
 ```css
---smui-cyan: #00ced1;
+--smui-cyan: 174 48% 46%;
 ```
+
+Note: This uses HSL format (hue, saturation, lightness) to match other smui color variables.
 
 - [ ] **Step 5: Commit**
 
@@ -1002,8 +1047,8 @@ Add to the end of `kb/smui.css`:
 
 /* Buildable badge */
 .badge-buildable {
-    background: hsl(var(--smui-green));
-    color: hsl(var(--foreground));
+    color: hsl(var(--smui-green));
+    border-color: hsl(var(--smui-green));
 }
 ```
 
@@ -1085,7 +1130,7 @@ git commit -m "test: verify facilities KB generation"
 - [ ] **Step 1: Check main facilities index**
 
 ```bash
-grep -c "cat-cat-card" kb/facilities/index.html
+grep -c "item-cat-card" kb/facilities/index.html
 ```
 
 Expected: 5 (one per category)
