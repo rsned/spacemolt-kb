@@ -1,6 +1,15 @@
 // Command generate-items-kb facilities support.
 package main
 
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
 // Facility represents a station-based building entity.
 type Facility struct {
 	// Identity
@@ -85,4 +94,87 @@ type facilityJSON struct {
 	UpgradesToName       string          `json:"upgrades_to_name"`
 	SatisfiedDescription string          `json:"satisfied_description"`
 	DegradedDescription  string          `json:"degraded_description"`
+}
+
+// loadFacilitiesFromJSON loads all facility JSON files from the given directory.
+func loadFacilitiesFromJSON(dir string) (map[string]*Facility, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, fmt.Errorf("read facility directory: %w", err)
+	}
+
+	facilities := make(map[string]*Facility)
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+			continue
+		}
+
+		path := filepath.Join(dir, entry.Name())
+		data, err := os.ReadFile(path)
+		if err != nil {
+			log.Printf("warning: read facility file %s: %v", entry.Name(), err)
+			continue
+		}
+
+		var raw facilityJSON
+		if err := json.Unmarshal(data, &raw); err != nil {
+			log.Printf("warning: unmarshal facility file %s: %v", entry.Name(), err)
+			continue
+		}
+
+		if raw.Action != "types" {
+			log.Printf("warning: facility file %s has unexpected action: %s", entry.Name(), raw.Action)
+			continue
+		}
+
+		fac := convertJSONToFacility(&raw)
+		facilities[fac.ID] = fac
+	}
+
+	return facilities, nil
+}
+
+// convertJSONToFacility converts raw JSON to Facility struct.
+func convertJSONToFacility(raw *facilityJSON) *Facility {
+	fac := &Facility{
+		ID:               raw.TypeID,
+		Name:             raw.Name,
+		Description:      raw.Description,
+		Category:         raw.Category,
+		Level:            raw.Level,
+		Buildable:        raw.Buildable,
+		BuildCost:        raw.BuildCost,
+		BuildTime:        raw.BuildTime,
+		LaborCost:        raw.LaborCost,
+		RentPerCycle:     raw.RentPerCycle,
+		RecipeMultiplier: raw.RecipeMultiplier,
+		BuildMaterials:   raw.BuildMaterials,
+		MaintenancePerCycle: raw.MaintenancePerCycle,
+		Recipe:           raw.Recipe,
+	}
+
+	// Handle optional string pointer fields
+	if raw.UpgradesFrom != "" {
+		fac.UpgradesFrom = &raw.UpgradesFrom
+	}
+	if raw.UpgradesFromName != "" {
+		fac.UpgradesFromName = &raw.UpgradesFromName
+	}
+	if raw.UpgradesTo != "" {
+		fac.UpgradesTo = &raw.UpgradesTo
+	}
+	if raw.UpgradesToName != "" {
+		fac.UpgradesToName = &raw.UpgradesToName
+	}
+	if raw.SatisfiedDescription != "" {
+		fac.SatisfiedDescription = &raw.SatisfiedDescription
+	}
+	if raw.DegradedDescription != "" {
+		fac.DegradedDescription = &raw.DegradedDescription
+	}
+	if raw.Hint != "" {
+		fac.Hint = &raw.Hint
+	}
+
+	return fac
 }
