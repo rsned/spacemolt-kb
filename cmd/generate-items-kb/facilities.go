@@ -35,6 +35,7 @@ type Facility struct {
 	UpgradesFromName *string
 	UpgradesTo       *string // facility ID
 	UpgradesToName   *string
+	UpgradeChain     *UpgradeChain // Computed full upgrade path
 
 	// Embedded data
 	BuildMaterials      []MaterialRef
@@ -52,6 +53,18 @@ type MaterialRef struct {
 	ItemID   string `json:"item_id"`
 	Name     string `json:"name"`
 	Quantity int    `json:"quantity"`
+}
+
+// UpgradeChainLink represents a single link in the upgrade chain.
+type UpgradeChainLink struct {
+	ID        string
+	Name      string
+	IsCurrent bool
+}
+
+// UpgradeChain represents the full upgrade path.
+type UpgradeChain struct {
+	Links []UpgradeChainLink
 }
 
 // RecipeSummary is a simplified recipe representation embedded in a facility.
@@ -350,25 +363,20 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         <p>{{.Description}}</p>
         {{end}}
 
-        {{if or .UpgradesFromName .UpgradesToName}}
-        <div class="upgrade-chain">
-            {{if .UpgradesFromName}}
-            <div class="upgrade-step">
-                <span class="upgrade-label">Upgrades From</span>
-                <a href="../{{dirName .UpgradesFrom}}/" class="upgrade-link">{{.UpgradesFromName}}</a>
+        {{if .UpgradeChain}}
+        <section class="detail-section">
+            <h3>Upgrade Path</h3>
+            <div class="upgrade-path">
+            {{- range $i, $link := .UpgradeChain.Links}}
+                {{- if $i}} &rarr; {{end}}
+                {{- if $link.IsCurrent}}
+                    <strong>{{$link.Name}}</strong>
+                {{- else}}
+                    <a href="../{{dirName $link.ID}}/">{{$link.Name}}</a>
+                {{- end}}
+            {{- end}}
             </div>
-            {{end}}
-            <div class="upgrade-step current">
-                <span class="upgrade-label">Current</span>
-                <span class="upgrade-link">{{.Name}}</span>
-            </div>
-            {{if .UpgradesToName}}
-            <div class="upgrade-step">
-                <span class="upgrade-label">Upgrades To</span>
-                <a href="../{{dirName .UpgradesTo}}/" class="upgrade-link">{{.UpgradesToName}}</a>
-            </div>
-            {{end}}
-        </div>
+        </section>
         {{end}}
 
         {{if .Recipe}}
@@ -466,6 +474,9 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 
 // writeFacilityPages generates all facility HTML pages.
 func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes map[string]*Recipe) error {
+	// Build upgrade chains for all facilities
+	buildUpgradeChains(facilities)
+
 	// Group facilities by category
 	catFacilities := make(map[string][]*Facility)
 	for _, fac := range facilities {
@@ -630,6 +641,52 @@ func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string
 			log.Printf("warning: facility %s recipe %s crafting time mismatch: facility has %d, recipe has %d",
 				fac.ID, fac.Recipe.ID, fac.Recipe.CraftingTime, recipe.CraftingTime)
 		}
+	}
+}
+
+// buildUpgradeChains populates the UpgradeChain field for all facilities.
+func buildUpgradeChains(facilities map[string]*Facility) {
+	for _, fac := range facilities {
+		chain := &UpgradeChain{Links: []UpgradeChainLink{}}
+
+		// Walk backwards to find all previous upgrades
+		backLinks := []UpgradeChainLink{}
+		current := fac
+		for current.UpgradesFrom != nil && *current.UpgradesFrom != "" {
+			prevFac, exists := facilities[*current.UpgradesFrom]
+			if !exists {
+				break
+			}
+			backLinks = append([]UpgradeChainLink{{
+				ID:   prevFac.ID,
+				Name: prevFac.Name,
+			}}, backLinks...)
+			current = prevFac
+		}
+
+		// Add current facility
+		chain.Links = append(chain.Links, backLinks...)
+		chain.Links = append(chain.Links, UpgradeChainLink{
+			ID:        fac.ID,
+			Name:      fac.Name,
+			IsCurrent: true,
+		})
+
+		// Walk forwards to find all next upgrades
+		current = fac
+		for current.UpgradesTo != nil && *current.UpgradesTo != "" {
+			nextFac, exists := facilities[*current.UpgradesTo]
+			if !exists {
+				break
+			}
+			chain.Links = append(chain.Links, UpgradeChainLink{
+				ID:   nextFac.ID,
+				Name: nextFac.Name,
+			})
+			current = nextFac
+		}
+
+		fac.UpgradeChain = chain
 	}
 }
 

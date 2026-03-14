@@ -341,6 +341,30 @@ tr:hover td {
     font-weight: bold;
 }
 
+/* Upgrade path inline display */
+.upgrade-path {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: var(--text-ui);
+    line-height: 1.6;
+}
+
+.upgrade-path a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+}
+
+.upgrade-path a:hover {
+    text-decoration: underline;
+}
+
+.upgrade-path strong {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+}
+
 /* Buildable badge */
 .badge-buildable {
     color: hsl(var(--smui-green));
