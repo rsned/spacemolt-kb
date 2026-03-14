@@ -317,3 +317,32 @@ tr:hover td {
 .mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem; }
 .mb-3 { margin-bottom: 1.5rem; }
+
+/* Upgrade chain diagram */
+.upgrade-chain {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: var(--text-ui);
+}
+
+.upgrade-chain a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+}
+
+.upgrade-chain a:hover {
+    text-decoration: underline;
+}
+
+.upgrade-arrow {
+    color: hsl(var(--muted-foreground));
+    font-weight: bold;
+}
+
+/* Buildable badge */
+.badge-buildable {
+    color: hsl(var(--smui-green));
+    border-color: hsl(var(--smui-green));
+}
