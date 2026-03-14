@@ -422,7 +422,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         {{end}}
 
         {{if .MaintenancePerCycle}}
-        <section class="detail-section">
+        <section class="detail-section mt-3">
             <h3>Maintenance per Cycle</h3>
             <table class="detail-table">
                 <thead>
