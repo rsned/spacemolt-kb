@@ -344,10 +344,6 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <span class="stat-label">Rent/Cycle</span>
                 <span class="stat-value">{{fmtValue .RentPerCycle}}</span>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">Buildable</span>
-                <span class="stat-value">{{if .Buildable}}Yes{{else}}No{{end}}</span>
-            </div>
         </div>
 
         {{if .Description}}
