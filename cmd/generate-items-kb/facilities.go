@@ -262,13 +262,13 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{titleCase .Category}} - Facilities - Spacemolt KB</title>
+    <title>{{titleCase .Name}} - Facilities - Spacemolt KB</title>
     <link rel="stylesheet" href="../../smui.css">
 </head>
 <body>
 ` + siteHeaderFacilitiesSub + `
     <main class="container page-content">
-        <h2>{{titleCase .Category}} <span class="text-muted">{{.Count}} facilities</span></h2>
+        <h2>{{titleCase .Name}} <span class="text-muted">{{.Count}} facilities</span></h2>
         <p class="text-muted mt-1">{{.Description}}</p>
         <div class="table-container">
             <table class="sortable">

@@ -272,7 +272,7 @@ var recipeCategoryDescriptions = map[string]string{
 
 func main() {
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
-	catalogDir := "../spacemolt/data/game-api/craftsman-3"
+	catalogDir := "../spacemolt/data/game-api/prophet-2"
 	outDir := "kb/items"
 
 	if len(os.Args) > 1 {
