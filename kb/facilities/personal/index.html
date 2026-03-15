@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal - Facilities - Spacemolt KB</title>
     <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../facilities/facilities.css">
 </head>
 <body>
     <header class="site-header">
@@ -24,6 +25,7 @@
         </nav>
     </header>
     <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Facilities</a> / Personal</div>
         <h2>Personal <span class="text-muted">13 facilities</span></h2>
         <p class="text-muted mt-1">Compact facilities for personal crafting and storage.</p>
         <div class="table-container">
@@ -31,6 +33,7 @@
                 <thead>
                     <tr>
                         <th class="sortable">Name</th>
+                        <th class="sortable">Buildable</th>
                         <th class="sortable">Level</th>
                         <th class="sortable">Build Cost</th>
                         <th class="sortable">Labor</th>
@@ -40,10 +43,8 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>
-                            <a href="brokerage/">Brokerage</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="brokerage/">Brokerage</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="1500000">1,500,000 cr</td>
                         <td data-sort="700">700</td>
@@ -53,10 +54,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="captains_estate/">Captain&#39;s Estate</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="captains_estate/">Captain&#39;s Estate</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="4">4</td>
                         <td data-sort="1000000">1,000,000 cr</td>
                         <td data-sort="750">750</td>
@@ -66,10 +65,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="command_center/">Command Center</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="command_center/">Command Center</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="1500000">1,500,000 cr</td>
                         <td data-sort="700">700</td>
@@ -79,10 +76,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="control_hub/">Control Hub</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="control_hub/">Control Hub</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="300000">300,000 cr</td>
                         <td data-sort="350">350</td>
@@ -92,10 +87,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="crew_bunk/">Crew Bunk</a>
-                            <span class="badge badge-buildable">✓ Buildable</span>
-                        </td>
+                        <td><a href="crew_bunk/">Crew Bunk</a></td>
+                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="10000">10,000 cr</td>
                         <td data-sort="50">50</td>
@@ -105,10 +98,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="engineering_lab/">Engineering Lab</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="engineering_lab/">Engineering Lab</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="750000">750,000 cr</td>
                         <td data-sort="500">500</td>
@@ -118,10 +109,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="ledger_desk/">Ledger Desk</a>
-                            <span class="badge badge-buildable">✓ Buildable</span>
-                        </td>
+                        <td><a href="ledger_desk/">Ledger Desk</a></td>
+                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="50000">50,000 cr</td>
                         <td data-sort="150">150</td>
@@ -131,10 +120,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="officers_suite/">Officer&#39;s Suite</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="officers_suite/">Officer&#39;s Suite</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="250000">250,000 cr</td>
                         <td data-sort="300">300</td>
@@ -144,10 +131,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="private_cabin/">Private Cabin</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="private_cabin/">Private Cabin</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="50000">50,000 cr</td>
                         <td data-sort="125">125</td>
@@ -157,10 +142,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="signal_relay/">Signal Relay</a>
-                            <span class="badge badge-buildable">✓ Buildable</span>
-                        </td>
+                        <td><a href="signal_relay/">Signal Relay</a></td>
+                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="50000">50,000 cr</td>
                         <td data-sort="150">150</td>
@@ -170,10 +153,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="trading_office/">Trading Office</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="trading_office/">Trading Office</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="300000">300,000 cr</td>
                         <td data-sort="350">350</td>
@@ -183,10 +164,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="workbench/">Workbench</a>
-                            <span class="badge badge-buildable">✓ Buildable</span>
-                        </td>
+                        <td><a href="workbench/">Workbench</a></td>
+                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="25000">25,000 cr</td>
                         <td data-sort="100">100</td>
@@ -196,10 +175,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <a href="workshop/">Workshop</a>
-                            <span class="badge badge-locked">✗ Not Buildable</span>
-                        </td>
+                        <td><a href="workshop/">Workshop</a></td>
+                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="150000">150,000 cr</td>
                         <td data-sort="250">250</td>

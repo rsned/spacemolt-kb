@@ -1,0 +1,99 @@
+/* Facilities section styles — extends items.css patterns */
+
+/* Category card grid (index page) */
+.item-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: hsl(var(--border));
+  border: 1px solid hsl(var(--border));
+  margin-top: 1.5rem;
+}
+
+.item-cat-card {
+  background: hsl(var(--card));
+  padding: 1.25rem 1.25rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-cat-card:hover {
+  background: hsl(var(--accent));
+  text-decoration: none;
+}
+
+.item-cat-card .cat-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  text-transform: capitalize;
+}
+
+.item-cat-card .cat-count {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.item-cat-card .cat-desc {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.7;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.breadcrumb a {
+  color: hsl(var(--muted-foreground));
+}
+
+.breadcrumb a:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Section label within cards */
+.section-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--smui-surface-2));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Key-value label in detail tables */
+.kv-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  width: 160px;
+}
+
+/* Sortable table headers */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  color: hsl(var(--primary));
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  font-size: 10px;
+}

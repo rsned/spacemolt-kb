@@ -248,6 +248,7 @@ var htmlFacilitiesTopTemplate = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facilities - Spacemolt KB</title>
     <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../facilities/facilities.css">
 </head>
 <body>
 ` + siteHeaderFacilities + `
@@ -277,10 +278,12 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{titleCase .Name}} - Facilities - Spacemolt KB</title>
     <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../facilities/facilities.css">
 </head>
 <body>
 ` + siteHeaderFacilitiesSub + `
     <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Facilities</a> / {{titleCase .Name}}</div>
         <h2>{{titleCase .Name}} <span class="text-muted">{{.Count}} facilities</span></h2>
         <p class="text-muted mt-1">{{.Description}}</p>
         <div class="table-container">
@@ -288,6 +291,7 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
                 <thead>
                     <tr>
                         <th class="sortable">Name</th>
+                        <th class="sortable">Buildable</th>
                         <th class="sortable">Level</th>
                         <th class="sortable">Build Cost</th>
                         <th class="sortable">Labor</th>
@@ -298,10 +302,8 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
                 <tbody>
 {{- range .Facilities}}
                     <tr>
-                        <td>
-                            <a href="{{dirName .ID}}/">{{.Name}}</a>
-                            {{if .Buildable}}<span class="badge badge-buildable">✓ Buildable</span>{{else}}<span class="badge badge-locked">✗ Not Buildable</span>{{end}}
-                        </td>
+                        <td><a href="{{dirName .ID}}/">{{.Name}}</a></td>
+                        <td data-sort="{{if .Buildable}}1{{else}}0{{end}}">{{if .Buildable}}<span class="badge badge-buildable">Yes</span>{{else}}<span class="badge badge-locked">No</span>{{end}}</td>
                         <td data-sort="{{.Level}}">{{.Level}}</td>
                         <td data-sort="{{.BuildCost}}">{{fmtValue .BuildCost}}</td>
                         <td data-sort="{{.LaborCost}}">{{.LaborCost}}</td>
@@ -333,6 +335,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Name}} - Spacemolt KB</title>
     <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../facilities/facilities.css">
 </head>
 <body>
 ` + siteHeaderFacilitiesSub + `
