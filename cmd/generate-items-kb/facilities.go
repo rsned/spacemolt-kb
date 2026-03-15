@@ -302,7 +302,7 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
                 <tbody>
 {{- range .Facilities}}
                     <tr>
-                        <td><a href="{{dirName .ID}}/">{{.Name}}</a></td>
+                        <td><a href="{{.ID}}.html">{{.Name}}</a></td>
                         <td data-sort="{{if .Buildable}}1{{else}}0{{end}}">{{if .Buildable}}<span class="badge badge-buildable">Yes</span>{{else}}<span class="badge badge-locked">No</span>{{end}}</td>
                         <td data-sort="{{.Level}}">{{.Level}}</td>
                         <td data-sort="{{.BuildCost}}">{{fmtValue .BuildCost}}</td>
@@ -742,7 +742,7 @@ func generateUpgradeSVG(chain *UpgradeChain) htmltpl.HTML {
 		if link.IsCurrent {
 			sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" rx="4" class="%s"/>`, x, y, boxWidth, boxHeight, boxClass))
 		} else {
-			sb.WriteString(fmt.Sprintf(`<a href="../%s/" class="upgrade-link">`, dirName(link.ID)))
+			sb.WriteString(fmt.Sprintf(`<a href="%s.html" class="upgrade-link">`, link.ID))
 			sb.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" rx="4" class="%s"/>`, x, y, boxWidth, boxHeight, boxClass))
 			sb.WriteString(`</a>`)
 		}
@@ -779,7 +779,7 @@ func generateUpgradeSVG(chain *UpgradeChain) htmltpl.HTML {
 			if link.IsCurrent {
 				sb.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="%s">%s</text>`, x+boxWidth/2, textY, textClass, line))
 			} else {
-				sb.WriteString(fmt.Sprintf(`<a href="../%s/" class="upgrade-link">`, dirName(link.ID)))
+				sb.WriteString(fmt.Sprintf(`<a href="%s.html" class="upgrade-link">`, link.ID))
 				sb.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="%s">%s</text>`, x+boxWidth/2, textY, textClass, line))
 				sb.WriteString(`</a>`)
 			}
