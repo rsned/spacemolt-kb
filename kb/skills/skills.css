@@ -45,36 +45,13 @@
   line-height: 1.7;
 }
 
-/* Skill tree SVG container */
-.tree-container {
-  overflow-x: auto;
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--card));
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-.tree-container svg {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* Make Graphviz SVGs theme-aware */
-.dark .tree-container svg text {
-  fill: hsl(var(--foreground)) !important;
-}
-.dark .tree-container svg polygon[fill="white"],
-.dark .tree-container svg polygon[fill="#ffffff"] {
-  fill: hsl(var(--card)) !important;
-}
-.dark .tree-container svg path[stroke="black"],
-.dark .tree-container svg polygon[stroke="black"],
-.dark .tree-container svg ellipse[stroke="black"] {
-  stroke: hsl(var(--foreground)) !important;
-}
-.dark .tree-container svg polygon[fill="none"][stroke="black"] {
-  stroke: hsl(var(--border)) !important;
+/* Table of contents */
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 1rem 0 1.5rem;
+  font-size: var(--text-ui);
 }
 
 /* Category page skill table */

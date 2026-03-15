@@ -58,7 +58,6 @@ type ProducedBy struct {
 	RecipeCategory string
 	Quantity       int
 	CraftingTime   int
-	Skills         []SkillReq
 }
 
 // UsedIn describes a recipe that consumes this item and what it produces.
@@ -72,13 +71,6 @@ type UsedIn struct {
 	OutputCategory string
 }
 
-// SkillReq pairs a skill name with its required level.
-type SkillReq struct {
-	ID    string
-	Name  string
-	Level int
-}
-
 // CategoryInfo groups items for page generation.
 type CategoryInfo struct {
 	Name        string
@@ -87,19 +79,16 @@ type CategoryInfo struct {
 	Items       []*Item
 }
 
-// Recipe holds a crafting recipe with its inputs, outputs, and skill requirements.
+// Recipe holds a crafting recipe with its inputs and outputs.
 type Recipe struct {
-	ID              string
-	Name            string
-	Description     string
-	Category        string
-	CraftingTime    int
-	BaseQuality     int
-	SkillQualityMod int
-	Hidden          bool
-	Inputs          []RecipeItem
-	Outputs         []RecipeItem
-	Skills          []SkillReq
+	ID           string
+	Name         string
+	Description  string
+	Category     string
+	CraftingTime int
+	Hidden       bool
+	Inputs       []RecipeItem
+	Outputs      []RecipeItem
 }
 
 // RecipeItem is an item reference within a recipe (input or output).
@@ -507,55 +496,32 @@ func loadItems(db *sql.DB) (map[string]*Item, error) {
 
 func loadProducedBy(db *sql.DB, items map[string]*Item) error {
 	rows, err := db.Query(`
-		SELECT ro.item_id, r.id, r.name, COALESCE(r.category,''), ro.quantity, r.crafting_time,
-		       COALESCE(s.id, ''), COALESCE(s.name, ''), COALESCE(rs.level_required, 0)
+		SELECT ro.item_id, r.id, r.name, COALESCE(r.category,''), ro.quantity, r.crafting_time
 		FROM recipe_outputs ro
 		JOIN recipes r ON ro.recipe_id = r.id
-		LEFT JOIN recipe_skills rs ON r.id = rs.recipe_id
-		LEFT JOIN skills s ON rs.skill_id = s.id
-		ORDER BY ro.item_id, r.id, s.name`)
+		ORDER BY ro.item_id, r.id`)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = rows.Close() }()
 
-	type key struct{ itemID, recipeID string }
-	seen := make(map[key]*ProducedBy)
-	var order []key
-
 	for rows.Next() {
-		var itemID, recipeID, recipeName, recipeCat, skillID, skillName string
-		var qty, craftTime, skillLevel int
-		if err := rows.Scan(&itemID, &recipeID, &recipeName, &recipeCat, &qty, &craftTime, &skillID, &skillName, &skillLevel); err != nil {
+		var itemID, recipeID, recipeName, recipeCat string
+		var qty, craftTime int
+		if err := rows.Scan(&itemID, &recipeID, &recipeName, &recipeCat, &qty, &craftTime); err != nil {
 			return err
 		}
-		k := key{itemID, recipeID}
-		pb, ok := seen[k]
-		if !ok {
-			pb = &ProducedBy{
+		if it, ok := items[itemID]; ok {
+			it.ProducedBy = append(it.ProducedBy, ProducedBy{
 				RecipeID:       recipeID,
 				RecipeName:     recipeName,
 				RecipeCategory: recipeCat,
 				Quantity:       qty,
 				CraftingTime:   craftTime,
-			}
-			seen[k] = pb
-			order = append(order, k)
-		}
-		if skillName != "" {
-			pb.Skills = append(pb.Skills, SkillReq{ID: skillID, Name: skillName, Level: skillLevel})
+			})
 		}
 	}
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	for _, k := range order {
-		if it, ok := items[k.itemID]; ok {
-			it.ProducedBy = append(it.ProducedBy, *seen[k])
-		}
-	}
-	return nil
+	return rows.Err()
 }
 
 func loadUsedIn(db *sql.DB, items map[string]*Item) error {
@@ -741,6 +707,11 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 		var s System
 		if err := rows.Scan(&s.ID, &s.Name, &s.PositionX, &s.PositionY, &s.PoliceLevel, &s.Empire, &s.Description, &s.IsStronghold, &s.SecurityStatus, &s.LastUpdatedTick); err != nil {
 			return nil, err
+		}
+		if s.ID == "" {
+			log.Printf("WARNING: skipping system with empty id: name=%q empire=%q pos=(%.1f,%.1f) police=%d stronghold=%v security=%q tick=%d",
+				s.Name, s.Empire, s.PositionX, s.PositionY, s.PoliceLevel, s.IsStronghold, s.SecurityStatus, s.LastUpdatedTick)
+			continue
 		}
 		systemMap[s.ID] = &s
 		systems = append(systems, &s)
@@ -1351,7 +1322,7 @@ func poiIcon(poiType string) string {
 }
 
 func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
-	rows, err := db.Query(`SELECT id, name, COALESCE(description,''), COALESCE(category,''), crafting_time, base_quality, skill_quality_mod FROM recipes ORDER BY id`)
+	rows, err := db.Query(`SELECT id, name, COALESCE(description,''), COALESCE(category,''), crafting_time FROM recipes ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
@@ -1360,7 +1331,7 @@ func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
 	recipes := make(map[string]*Recipe)
 	for rows.Next() {
 		var r Recipe
-		if err := rows.Scan(&r.ID, &r.Name, &r.Description, &r.Category, &r.CraftingTime, &r.BaseQuality, &r.SkillQualityMod); err != nil {
+		if err := rows.Scan(&r.ID, &r.Name, &r.Description, &r.Category, &r.CraftingTime); err != nil {
 			return nil, err
 		}
 		recipes[r.ID] = &r
@@ -1371,10 +1342,10 @@ func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
 
 	// Load inputs.
 	inputRows, err := db.Query(`
-		SELECT ri.recipe_id, ri.item_id, COALESCE(i.name,''), COALESCE(i.category,''), ri.quantity
+		SELECT ri.recipe_id, ri.item_id, COALESCE(i.name, ri.item_id), COALESCE(i.category,''), ri.quantity
 		FROM recipe_inputs ri
 		LEFT JOIN items i ON ri.item_id = i.id
-		ORDER BY ri.recipe_id, i.name`)
+		ORDER BY ri.recipe_id, COALESCE(i.name, ri.item_id)`)
 	if err != nil {
 		return nil, err
 	}
@@ -1396,10 +1367,10 @@ func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
 
 	// Load outputs.
 	outputRows, err := db.Query(`
-		SELECT ro.recipe_id, ro.item_id, COALESCE(i.name,''), COALESCE(i.category,''), ro.quantity
+		SELECT ro.recipe_id, ro.item_id, COALESCE(i.name, ro.item_id), COALESCE(i.category,''), ro.quantity
 		FROM recipe_outputs ro
 		LEFT JOIN items i ON ro.item_id = i.id
-		ORDER BY ro.recipe_id, i.name`)
+		ORDER BY ro.recipe_id, COALESCE(i.name, ro.item_id)`)
 	if err != nil {
 		return nil, err
 	}
@@ -1419,28 +1390,7 @@ func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
 		return nil, err
 	}
 
-	// Load skills.
-	skillRows, err := db.Query(`
-		SELECT rs.recipe_id, rs.skill_id, COALESCE(s.name,''), rs.level_required
-		FROM recipe_skills rs
-		LEFT JOIN skills s ON rs.skill_id = s.id
-		ORDER BY rs.recipe_id, s.name`)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = skillRows.Close() }()
-
-	for skillRows.Next() {
-		var recipeID string
-		var sr SkillReq
-		if err := skillRows.Scan(&recipeID, &sr.ID, &sr.Name, &sr.Level); err != nil {
-			return nil, err
-		}
-		if r, ok := recipes[recipeID]; ok {
-			r.Skills = append(r.Skills, sr)
-		}
-	}
-	return recipes, skillRows.Err()
+	return recipes, nil
 }
 
 func writeRecipePages(outDir string, categories []RecipeCategoryInfo) error {
@@ -1606,12 +1556,12 @@ var siteHeader = `    <header class="site-header">
         <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../">Home</a>
-            <a href="../systems/">Systems</a>
-            <a href="../items/">Items</a>
-            <a href="../recipes/">Recipes</a>
-            <a href="../skills/">Skills</a>
-            <a href="../ships/">Ships</a>
-            <a href="../facilities/">Facilities</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1624,12 +1574,12 @@ var siteHeaderSub = `    <header class="site-header">
         <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../../">Home</a>
-            <a href="../../systems/">Systems</a>
-            <a href="../../items/">Items</a>
-            <a href="../../recipes/">Recipes</a>
-            <a href="../../skills/">Skills</a>
-            <a href="../../ships/">Ships</a>
-            <a href="../../facilities/">Facilities</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1793,14 +1743,13 @@ var htmlItemTemplate = `<!DOCTYPE html>
 {{- if .ProducedBy}}
           <div class="section-label">Produced By</div>
           <table>
-            <thead><tr><th>Recipe</th><th>Qty</th><th>Crafting Time</th><th>Skills</th></tr></thead>
+            <thead><tr><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
             <tbody>
 {{- range .ProducedBy}}
             <tr>
               <td><a href="../../recipes/{{dirName .RecipeCategory}}/{{.RecipeID}}.html">{{.RecipeName}}</a></td>
               <td>{{.Quantity}}</td>
               <td>{{.CraftingTime}} ticks</td>
-              <td>{{- if .Skills}}{{range $i, $s := .Skills}}{{if $i}}, {{end}}<a href="../../skills/{{$s.ID}}.html">{{$s.Name}}</a> {{$s.Level}}{{end}}{{else}}None{{end}}</td>
             </tr>
 {{- end}}
             </tbody>
@@ -1893,7 +1842,7 @@ var recipeCatTemplate = `<!DOCTYPE html>
         <div class="card mt-3" style="padding:0">
         <table class="sortable">
         <thead>
-        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable" style="text-align:right">Time</th><th>Skills</th></tr>
+        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable" style="text-align:right">Time</th></tr>
         </thead>
         <tbody>
 {{- range .Recipes}}
@@ -1902,7 +1851,6 @@ var recipeCatTemplate = `<!DOCTYPE html>
           <td>{{- range .Outputs}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html" class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</a>{{end}}</td>
           <td class="recipe-inputs">{{- range $i, $inp := .Inputs}}{{if $i}}, {{end}}<a href="../../items/{{$inp.ItemCategory}}/{{$inp.ItemID}}.html">{{$inp.ItemName}}</a>&nbsp;&times;{{$inp.Quantity}}{{end}}</td>
           <td class="time" data-sort="{{.CraftingTime}}">{{.CraftingTime}} ticks</td>
-          <td>{{- if .Skills}}{{range $i, $s := .Skills}}{{if $i}}, {{end}}<a href="../../skills/{{$s.ID}}.html">{{$s.Name}}</a>&nbsp;{{$s.Level}}{{end}}{{else}}None{{end}}</td>
         </tr>
 {{- end}}
         </tbody>
@@ -1965,24 +1913,7 @@ var recipeDetailTemplate = `<!DOCTYPE html>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
             <tr><td class="kv-label">Crafting Time</td><td>{{.CraftingTime}} ticks</td></tr>
-            <tr><td class="kv-label">Base Quality</td><td>{{.BaseQuality}}</td></tr>
-            <tr><td class="kv-label">Skill Quality Mod</td><td>{{.SkillQualityMod}}</td></tr>
           </table>
-
-{{- if .Skills}}
-          <div class="section-label">Required Skills</div>
-          <table>
-            <thead><tr><th>Skill</th><th>Level</th></tr></thead>
-            <tbody>
-{{- range .Skills}}
-            <tr>
-              <td><a href="../../skills/{{.ID}}.html">{{.Name}}</a></td>
-              <td>{{.Level}}</td>
-            </tr>
-{{- end}}
-            </tbody>
-          </table>
-{{- end}}
         </div>
     </main>
 ` + themeScript + `
