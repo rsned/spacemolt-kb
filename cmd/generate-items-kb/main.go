@@ -480,7 +480,7 @@ func main() {
 		// Validate facility recipes against loaded recipes
 		validateFacilityRecipes(facilities, recipes)
 
-		if err := writeFacilityPages(facilityOutDir, facilities, recipes); err != nil {
+		if err := writeFacilityPages(facilityOutDir, facilities, recipes, items); err != nil {
 			log.Fatalf("write facility pages: %v", err)
 		}
 		fmt.Printf("Generated %d facility pages in kb/facilities/\n", len(facilities))

@@ -53,6 +53,7 @@ type MaterialRef struct {
 	ItemID   string `json:"item_id"`
 	Name     string `json:"name"`
 	Quantity int    `json:"quantity"`
+	Category string `json:"-"` // populated from items data for linking
 }
 
 // UpgradeChainLink represents a single link in the upgrade chain.
@@ -310,7 +311,7 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
                         <td data-sort="{{.RentPerCycle}}">{{fmtValue .RentPerCycle}}</td>
                         <td>
 {{- if .Recipe}}
-                            <a href="../../recipes/{{dirName .Recipe.Category}}/{{dirName .Recipe.ID}}/">{{.Recipe.Name}}</a>
+                            <a href="../../recipes/{{dirName .Recipe.Category}}/{{.Recipe.ID}}.html">{{.Recipe.Name}}</a>
                             <span class="text-muted">&times;{{printf "%.2f" .RecipeMultiplier}}</span>
 {{- else}}
                             <span class="text-muted">none</span>
@@ -390,13 +391,13 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         {{if .Recipe}}
         <section class="detail-section">
             <h3>Recipe</h3>
-            <p><strong>Output:</strong> <a href="../../recipes/{{dirName .Recipe.Category}}/{{dirName .Recipe.ID}}/">{{.Recipe.Name}}</a> (×{{printf "%.2f" .RecipeMultiplier}})</p>
+            <p><strong>Output:</strong> <a href="../../recipes/{{dirName .Recipe.Category}}/{{.Recipe.ID}}.html">{{.Recipe.Name}}</a> (×{{printf "%.2f" .RecipeMultiplier}})</p>
             <p><strong>Crafting Time:</strong> {{.Recipe.CraftingTime}}s</p>
             {{if .Recipe.Inputs}}
             <p><strong>Inputs:</strong></p>
             <ul>
             {{- range .Recipe.Inputs}}
-                <li>{{.Quantity}}x <a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></li>
+                <li>{{.Quantity}}x <a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></li>
             {{- end}}
             </ul>
             {{end}}
@@ -404,7 +405,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
             <p><strong>Outputs:</strong></p>
             <ul>
             {{- range .Recipe.Outputs}}
-                <li>{{.Quantity}}x <a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></li>
+                <li>{{.Quantity}}x <a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></li>
             {{- end}}
             </ul>
             {{end}}
@@ -424,7 +425,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <tbody>
                 {{- range .BuildMaterials}}
                     <tr>
-                        <td><a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></td>
+                        <td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td>
                         <td>{{.Quantity}}</td>
                     </tr>
                 {{- end}}
@@ -446,7 +447,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <tbody>
                 {{- range .MaintenancePerCycle}}
                     <tr>
-                        <td><a href="../../items/{{dirName .ItemID}}/">{{.Name}}</a></td>
+                        <td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td>
                         <td>{{.Quantity}}</td>
                     </tr>
                 {{- end}}
@@ -467,9 +468,12 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 `
 
 // writeFacilityPages generates all facility HTML pages.
-func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes map[string]*Recipe) error {
+func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes map[string]*Recipe, items map[string]*Item) error {
 	// Build upgrade chains for all facilities
 	buildUpgradeChains(facilities)
+
+	// Populate item categories on all MaterialRefs for correct linking
+	populateMaterialCategories(facilities, items)
 
 	// Group facilities by category
 	catFacilities := make(map[string][]*Facility)
@@ -635,6 +639,34 @@ func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string
 		if fac.Recipe.CraftingTime != recipe.CraftingTime {
 			log.Printf("warning: facility %s recipe %s crafting time mismatch: facility has %d, recipe has %d",
 				fac.ID, fac.Recipe.ID, fac.Recipe.CraftingTime, recipe.CraftingTime)
+		}
+	}
+}
+
+// populateMaterialCategories resolves item categories on all MaterialRefs for correct HTML linking.
+func populateMaterialCategories(facilities map[string]*Facility, items map[string]*Item) {
+	for _, fac := range facilities {
+		for i := range fac.BuildMaterials {
+			if item, ok := items[fac.BuildMaterials[i].ItemID]; ok {
+				fac.BuildMaterials[i].Category = item.Category
+			}
+		}
+		for i := range fac.MaintenancePerCycle {
+			if item, ok := items[fac.MaintenancePerCycle[i].ItemID]; ok {
+				fac.MaintenancePerCycle[i].Category = item.Category
+			}
+		}
+		if fac.Recipe != nil {
+			for i := range fac.Recipe.Inputs {
+				if item, ok := items[fac.Recipe.Inputs[i].ItemID]; ok {
+					fac.Recipe.Inputs[i].Category = item.Category
+				}
+			}
+			for i := range fac.Recipe.Outputs {
+				if item, ok := items[fac.Recipe.Outputs[i].ItemID]; ok {
+					fac.Recipe.Outputs[i].Category = item.Category
+				}
+			}
 		}
 	}
 }
