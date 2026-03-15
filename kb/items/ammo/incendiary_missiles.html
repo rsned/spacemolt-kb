@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incendiary Missiles - Items - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../items/items.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../systems/">Systems</a>
+            <a href="../../items/">Items</a>
+            <a href="../../recipes/">Recipes</a>
+            <a href="../../skills/">Skills</a>
+            <a href="../../ships/">Ships</a>
+            <a href="../../facilities/">Facilities</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Items</a> / <a href="./">Ammo</a> / Incendiary Missiles</div>
+        <h2>Incendiary Missiles</h2>
+
+        <div class="card mt-2" style="padding:0">
+          <div class="item-image">
+            <img src="../images/incendiary_missiles.png" alt="Incendiary Missiles" height="200">
+          </div>
+          <div class="section-label">General</div>
+          <table>
+            <tr><td class="kv-label">Category</td><td><a href="./">Ammo</a></td></tr>
+            <tr><td class="kv-label">Rarity</td><td><span class="badge badge-uncommon">uncommon</span></td></tr>
+            <tr><td class="kv-label">Size</td><td>1</td></tr>
+            <tr><td class="kv-label">Stackable</td><td>Yes</td></tr>
+            <tr><td class="kv-label">Tradeable</td><td>Yes</td></tr>
+          </table>
+          <div class="section-label">Market</div>
+          <table>
+            <tr><td class="kv-label">Base Value</td><td>40 cr</td></tr>
+          </table>
+        </div>
+
+        <blockquote class="item-desc">Thermite warheads that burn through hull after detonation. Less explosive force, more sustained damage.</blockquote>
+        <div class="card" style="padding:0">
+          <div class="section-label">Produced By</div>
+          <table>
+            <thead><tr><th>Recipe</th><th>Qty</th><th>Crafting Time</th><th>Skills</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../../recipes/Consumables/assemble_incendiary_missiles.html">Assemble Incendiary Missiles</a></td>
+              <td>4</td>
+              <td>10 ticks</td>
+              <td><a href="../../skills/basic_crafting.html">Basic Crafting</a> 4, <a href="../../skills/weapon_crafting.html">Weapon Crafting</a> 3</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
