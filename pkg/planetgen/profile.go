@@ -299,9 +299,35 @@ var Profiles = map[string]*PlanetProfile{
 		StormCount:       0,
 		StormSize:        0.05,
 	},
+
+	// Unknown/unclassified planets — neutral gray rocky appearance
+	"unknown": {
+		Type:     "unknown",
+		Renderer: "rocky",
+		Palette: []ColorStop{
+			{0.0, rgba(90, 90, 95)},
+			{0.2, rgba(110, 110, 115)},
+			{0.4, rgba(130, 130, 132)},
+			{0.6, rgba(150, 148, 145)},
+			{0.8, rgba(170, 168, 165)},
+			{1.0, rgba(195, 192, 190)},
+		},
+		NoiseOctaves:     7,
+		NoiseLacunarity:  2.0,
+		NoisePersistence: 0.5,
+		NoiseScale:       2.5,
+		CraterCount:      25,
+		CraterMinRadius:  0.004,
+		CraterMaxRadius:  0.04,
+		CraterDepth:      0.12,
+	},
 }
 
-// GetProfile returns the planet profile for the given type, or nil if unknown.
+// GetProfile returns the planet profile for the given type.
+// Returns the "unknown" profile for unrecognized types.
 func GetProfile(planetType string) *PlanetProfile {
-	return Profiles[planetType]
+	if p, ok := Profiles[planetType]; ok {
+		return p
+	}
+	return Profiles["unknown"]
 }

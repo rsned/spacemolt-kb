@@ -96,6 +96,11 @@ var baselines = map[string]planetBaseline{
 		TemperatureK: 72, AtmPressureAtm: 0, AtmDescription: "H2/He/CH4 (no surface)",
 		DayLengthMin: 14, DayLengthMax: 19,
 	},
+	"unknown": {
+		TypeName: "Unclassified", RadiusKm: 5500, MassEarths: 0.8, GravityG: 0.85,
+		TemperatureK: 250, AtmPressureAtm: 0.5, AtmDescription: "Unknown composition",
+		DayLengthMin: 15, DayLengthMax: 60,
+	},
 }
 
 // GenerateStats produces physical stats for a planet, seeded by name.
@@ -103,7 +108,7 @@ var baselines = map[string]planetBaseline{
 func GenerateStats(planetType, planetName string, orbitalDistanceAU float64) PlanetStats {
 	baseline, ok := baselines[planetType]
 	if !ok {
-		baseline = baselines["terran"]
+		baseline = baselines["unknown"]
 	}
 
 	seed := hashSeed(planetName)

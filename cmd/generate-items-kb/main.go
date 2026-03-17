@@ -920,7 +920,7 @@ func writeSystemPages(outDir string, systems []*System) error {
 			return fmt.Sprintf("%.1f", math.Hypot(p.PositionX, p.PositionY))
 		},
 		"poiDetailLink": func(p SystemPOI) string {
-			if p.Type == "planet" && p.Class != "" {
+			if p.Type == "planet" {
 				return fmt.Sprintf("planet_%s.html", sanitizeName(p.Name))
 			}
 			return ""
