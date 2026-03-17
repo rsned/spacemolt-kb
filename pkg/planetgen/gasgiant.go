@@ -2,6 +2,7 @@ package planetgen
 
 import (
 	"image"
+	"image/color"
 	"math"
 	"math/rand/v2"
 )
@@ -35,7 +36,7 @@ func RenderGasGiant(profile *PlanetProfile, seed int64, width, height int) *imag
 			distortedLat += (flowDistort - 0.5) * profile.TurbulenceAmp
 
 			// Get band color
-			bandColor := getBandColor(bands, distortedLat)
+			bandColor := getBandColor(bands, distortedLat, profile.BandBlendWidth)
 
 			// Fine detail: cloud texture within bands
 			detail := detailNg.FractalNoise3D(sx*8, sy*2, sz*8, 5, 2.0, 0.5, 4.0)
@@ -45,12 +46,31 @@ func RenderGasGiant(profile *PlanetProfile, seed int64, width, height int) *imag
 			// Storm spots
 			for _, storm := range storms {
 				dist := stormDistance(lat, float64(x)/float64(width)*2*math.Pi, storm)
-				if dist < 1.0 {
-					// Inside storm: swirl color
-					swirl := ng.FractalNoise3D(sx*12, sy*12, sz*12, 4, 2.0, 0.5, 6.0)
-					stormColor := brighten(storm.Color.Color, 0.8+swirl*0.4)
-					blend := (1.0 - dist) * (1.0 - dist) // Smooth falloff
-					c = blendColor(c, stormColor, blend*0.7)
+				if dist < 1.5 {
+					// Swirling flow around storm (1.0-1.5 range)
+					if dist >= 1.0 {
+						outerT := (1.5 - dist) / 0.5
+						outerT *= outerT
+						// Deflect surrounding band colors slightly
+						deflect := ng.FractalNoise3D(sx*6, sy*6, sz*6, 3, 2.0, 0.5, 4.0)
+						deflected := brighten(c, 0.9+deflect*0.2)
+						c = blendColor(c, deflected, outerT*0.3)
+					} else {
+						// Inside storm: swirling vortex
+						// Concentric swirl pattern
+						angle := math.Atan2(lat-storm.Lat, (float64(x)/float64(width)*2*math.Pi-storm.Lon)*math.Cos(lat))
+						swirl := ng.FractalNoise3D(sx*10+math.Cos(angle)*dist*3, sy*10+math.Sin(angle)*dist*3, sz*10, 5, 2.0, 0.5, 5.0)
+						stormColor := brighten(storm.Color.Color, 0.8+swirl*0.4)
+
+						// Darker rim, brighter center
+						rimFactor := 1.0 - dist*0.25
+						stormColor = brighten(stormColor, rimFactor)
+
+						// Full opacity at center, smooth falloff to edge
+						blend := (1.0 - dist)
+						blend = blend * blend * (3 - 2*blend) // smoothstep
+						c = blendColor(c, stormColor, blend)
+					}
 				}
 			}
 
@@ -68,36 +88,96 @@ type band struct {
 	Color    ColorStop
 }
 
-// generateBands creates the horizontal band structure.
+// generateBands creates the horizontal band structure with alternating
+// zone (light) and belt (dark) colors, like real gas giants.
+// Band widths vary significantly — some are wide prominent features,
+// others are thin streaks.
 func generateBands(rng *rand.Rand, count int, palette []ColorStop) []band {
+	// Generate random widths with high variance
+	widths := make([]float64, count)
+	total := 0.0
+	for i := range count {
+		// Use exponential-ish distribution for more variety:
+		// some very thin bands, some wide ones
+		w := 0.3 + rng.Float64()*rng.Float64()*3.0
+		widths[i] = w
+		total += w
+	}
+
+	// Normalize to sum to 1.0
 	bands := make([]band, count)
 	pos := 0.0
 	for i := range count {
-		width := 1.0/float64(count) + (rng.Float64()-0.5)*0.03
-		if i == count-1 {
-			width = 1.0 - pos
+		w := widths[i] / total
+
+		// Alternate between zone (light) and belt (dark) colors
+		var colorIdx float64
+		if i%2 == 0 {
+			colorIdx = 0.55 + rng.Float64()*0.45
+		} else {
+			colorIdx = rng.Float64() * 0.45
 		}
-		// Alternate between palette entries for zone/belt pattern
-		colorIdx := float64(i) / float64(count-1)
+
 		bands[i] = band{
 			LatStart: pos,
-			LatEnd:   pos + width,
+			LatEnd:   pos + w,
 			Color:    ColorStop{Position: colorIdx, Color: sampleGradient(palette, colorIdx)},
 		}
-		pos += width
+		pos += w
 	}
 	return bands
 }
 
-// getBandColor returns the interpolated color at the given latitude.
-func getBandColor(bands []band, lat float64) ColorStop {
+// getBandColor returns the smoothly interpolated color at the given latitude.
+// Near band borders, colors blend smoothly between adjacent bands.
+// blendFraction controls how much of each band's width is used for blending (0 = default 0.2).
+func getBandColor(bands []band, lat float64, blendFraction float64) ColorStop {
 	lat = math.Max(0, math.Min(1, lat))
-	for _, b := range bands {
-		if lat >= b.LatStart && lat < b.LatEnd {
-			return b.Color
+	if blendFraction == 0 {
+		blendFraction = 0.2
+	}
+
+	// Find which band we're in
+	idx := len(bands) - 1
+	for i, b := range bands {
+		if lat < b.LatEnd {
+			idx = i
+			break
 		}
 	}
-	return bands[len(bands)-1].Color
+
+	b := bands[idx]
+	bandWidth := b.LatEnd - b.LatStart
+
+	// Blend zone: blendFraction of band width at each edge
+	blendSize := bandWidth * blendFraction
+	if blendSize < 0.003 {
+		blendSize = 0.003
+	}
+
+	// Distance from band edges
+	distFromStart := lat - b.LatStart
+	distFromEnd := b.LatEnd - lat
+
+	// Blend with previous band at start edge
+	if distFromStart < blendSize && idx > 0 {
+		t := distFromStart / blendSize
+		t = t * t * (3 - 2*t) // smoothstep
+		prev := bands[idx-1]
+		blended := lerpColor(prev.Color.Color, b.Color.Color, t)
+		return ColorStop{Color: blended}
+	}
+
+	// Blend with next band at end edge
+	if distFromEnd < blendSize && idx < len(bands)-1 {
+		t := distFromEnd / blendSize
+		t = t * t * (3 - 2*t) // smoothstep
+		next := bands[idx+1]
+		blended := lerpColor(next.Color.Color, b.Color.Color, t)
+		return ColorStop{Color: blended}
+	}
+
+	return b.Color
 }
 
 // storm represents an atmospheric storm feature.
@@ -110,22 +190,42 @@ type storm struct {
 }
 
 // generateStorms creates storm features at random locations.
+// The first storm is always the largest (Great Red Spot equivalent).
 func generateStorms(rng *rand.Rand, count int, size float64) []storm {
 	storms := make([]storm, count)
 	for i := range count {
 		// Storms tend to appear at mid-latitudes
-		lat := (rng.Float64() - 0.5) * math.Pi * 0.6
+		lat := (rng.Float64() - 0.5) * math.Pi * 0.5
 		lon := rng.Float64() * 2 * math.Pi
+
+		var sizeX, sizeY float64
+		var col color.RGBA
+		if i == 0 {
+			// Primary storm: large "Great Red Spot" — saturated red-orange
+			sizeX = size * (2.5 + rng.Float64()*1.0)
+			sizeY = size * (1.2 + rng.Float64()*0.6)
+			col = rgba(
+				uint8(200+rng.IntN(30)),
+				uint8(80+rng.IntN(30)),
+				uint8(50+rng.IntN(20)),
+			)
+		} else {
+			// Secondary storms: smaller, lighter
+			sizeX = size * (1.0 + rng.Float64()*0.8)
+			sizeY = size * (0.5 + rng.Float64()*0.4)
+			col = rgba(
+				uint8(190+rng.IntN(40)),
+				uint8(150+rng.IntN(50)),
+				uint8(110+rng.IntN(40)),
+			)
+		}
+
 		storms[i] = storm{
 			Lat:   lat,
 			Lon:   lon,
-			SizeX: size * (1.5 + rng.Float64()),
-			SizeY: size * (0.6 + rng.Float64()*0.4),
-			Color: ColorStop{Color: rgba(
-				uint8(180+rng.IntN(40)),
-				uint8(100+rng.IntN(60)),
-				uint8(60+rng.IntN(40)),
-			)},
+			SizeX: sizeX,
+			SizeY: sizeY,
+			Color: ColorStop{Color: col},
 		}
 	}
 	return storms

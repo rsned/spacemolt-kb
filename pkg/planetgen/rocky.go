@@ -73,10 +73,14 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 			if profile.HasPolarCaps && profile.PolarCapSize > 0 {
 				capThreshold := 1.0 - profile.PolarCapSize
 				if absLat > capThreshold {
-					// Noisy edge
+					// Noisy edge — use profile noise amount or default
 					sx, sy, sz := SphericalCoords(x, y, width, height)
 					capEdgeNoise := capNoise.FractalNoise3D(sx, sy, sz, 4, 2.0, 0.5, 8.0)
-					adjustedThreshold := capThreshold + (capEdgeNoise-0.5)*0.08
+					noiseAmt := profile.PolarCapNoise
+					if noiseAmt == 0 {
+						noiseAmt = 0.08
+					}
+					adjustedThreshold := capThreshold + (capEdgeNoise-0.5)*noiseAmt
 
 					if absLat > adjustedThreshold {
 						blend := math.Min(1.0, (absLat-adjustedThreshold)*15)

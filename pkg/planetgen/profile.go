@@ -17,12 +17,14 @@ type PlanetProfile struct {
 	CraterDepth      float64 // How deep craters cut into heightmap
 	HasPolarCaps     bool
 	PolarCapSize     float64 // Latitude fraction (0-0.3)
+	PolarCapNoise    float64 // Edge roughness (0 = default 0.08)
 	OceanLevel       float64 // Below this = ocean (0 = no ocean)
 	OceanColor       color.RGBA
 
 	// Gas giant specific
 	BandCount      int
 	TurbulenceAmp  float64 // How much bands are distorted
+	BandBlendWidth float64 // Fraction of band width to blend (0 = default 0.2)
 	StormCount     int
 	StormSize      float64 // Angular radius of storm ovals
 }
@@ -73,7 +75,8 @@ var Profiles = map[string]*PlanetProfile{
 		CraterMaxRadius:  0.06,
 		CraterDepth:      0.2,
 		HasPolarCaps:     true,
-		PolarCapSize:     0.08,
+		PolarCapSize:     0.18,
+		PolarCapNoise:    0.15,
 	},
 	"terran": {
 		Type:     "terran",
@@ -96,7 +99,7 @@ var Profiles = map[string]*PlanetProfile{
 		CraterDepth:      0.08,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.15,
-		OceanLevel:       0.45,
+		OceanLevel:       0.55,
 		OceanColor:       rgba(30, 60, 140),
 	},
 	"tundra": {
@@ -186,7 +189,7 @@ var Profiles = map[string]*PlanetProfile{
 		CraterDepth:      0.08,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.1,
-		OceanLevel:       0.40,
+		OceanLevel:       0.50,
 		OceanColor:       rgba(25, 50, 120),
 	},
 	"hothouse": {
@@ -270,28 +273,29 @@ var Profiles = map[string]*PlanetProfile{
 		NoiseLacunarity:  2.0,
 		NoisePersistence: 0.5,
 		NoiseScale:       2.0,
-		BandCount:        12,
-		TurbulenceAmp:    0.06,
-		StormCount:       2,
-		StormSize:        0.08,
+		BandCount:        26,
+		TurbulenceAmp:    0.012,
+		StormCount:       3,
+		StormSize:        0.25,
 	},
 	"ice_giant": {
 		Type:     "ice_giant",
 		Renderer: "gas_giant",
 		Palette: []ColorStop{
-			{0.0, rgba(120, 160, 190)},  // Medium blue
-			{0.2, rgba(140, 180, 200)},  // Light blue
-			{0.4, rgba(130, 170, 195)},  // Blue
-			{0.6, rgba(160, 195, 210)},  // Pale teal
-			{0.8, rgba(150, 185, 205)},  // Blue-gray
-			{1.0, rgba(170, 200, 215)},  // Light teal
+			{0.0, rgba(100, 150, 185)},  // Darker blue belt
+			{0.2, rgba(115, 160, 190)},  // Medium blue
+			{0.4, rgba(125, 170, 200)},  // Blue
+			{0.6, rgba(140, 180, 205)},  // Slightly lighter
+			{0.8, rgba(150, 190, 210)},  // Light teal
+			{1.0, rgba(165, 200, 218)},  // Lightest zone
 		},
 		NoiseOctaves:     5,
 		NoiseLacunarity:  2.0,
 		NoisePersistence: 0.45,
 		NoiseScale:       1.5,
-		BandCount:        10,
-		TurbulenceAmp:    0.03,
+		BandCount:        22,
+		TurbulenceAmp:    0.008,
+		BandBlendWidth:   0.45,
 		StormCount:       0,
 		StormSize:        0.05,
 	},
