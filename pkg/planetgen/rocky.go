@@ -27,6 +27,30 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 		}
 	}
 
+	// Step 1b: Normalize heightmap to use full [0,1] range
+	// Simplex noise tends to cluster around 0.5, so stretch to ensure
+	// peaks and valleys actually reach the extremes.
+	var hMin, hMax float64
+	hMin = 1.0
+	for y := range height {
+		for x := range width {
+			if heightmap[y][x] < hMin {
+				hMin = heightmap[y][x]
+			}
+			if heightmap[y][x] > hMax {
+				hMax = heightmap[y][x]
+			}
+		}
+	}
+	if hMax > hMin {
+		hRange := hMax - hMin
+		for y := range height {
+			for x := range width {
+				heightmap[y][x] = (heightmap[y][x] - hMin) / hRange
+			}
+		}
+	}
+
 	// Step 2: Stamp craters
 	if profile.CraterCount > 0 {
 		craters := GenerateCraters(rng, profile.CraterCount,
@@ -83,26 +107,42 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 				c = blendColor(c, whiteSnow, snowBlend*0.85)
 			}
 
-			// Ocean: color below ocean level with depth and surface variation
+			// Ocean/lava: color below ocean level with depth and surface variation
 			if profile.OceanLevel > 0 && h < profile.OceanLevel {
 				depth := (profile.OceanLevel - h) / profile.OceanLevel
-
-				// Surface variation: currents and waves
 				sx, sy, sz := SphericalCoords(x, y, width, height)
 				surfaceVar := oceanNoise.FractalNoise3D(sx, sy, sz, 4, 2.0, 0.5, 6.0)
 
-				// Shallow water near coastlines is lighter
-				shallowFactor := 1.0
-				if depth < 0.15 {
-					shallowFactor = 1.3 - depth*2.0
+				isLava := profile.Type == "lava_world"
+				if isLava {
+					// Lava: brighter when deeper, with hot shimmer
+					brightness := 0.7 + depth*0.3
+					// Near-shore cooling effect (darker at edges)
+					if depth < 0.2 {
+						brightness *= 0.6 + depth*2.0
+					}
+					// Hot shimmer variation
+					brightness += (surfaceVar - 0.5) * 0.25
+					brightness = math.Max(0.4, math.Min(1.2, brightness))
+
+					// Vary lava color between orange and bright yellow
+					lavaColor := lerpColor(
+						profile.OceanColor,
+						rgba(255, 160, 20), // bright yellow-orange
+						surfaceVar*0.4,
+					)
+					c = brighten(lavaColor, brightness)
+				} else {
+					// Water: darker when deeper, lighter near shore
+					shallowFactor := 1.0
+					if depth < 0.15 {
+						shallowFactor = 1.3 - depth*2.0
+					}
+					brightness := (1.0 - depth*0.5) * shallowFactor
+					brightness += (surfaceVar - 0.5) * 0.15
+					brightness = math.Max(0.5, math.Min(1.3, brightness))
+					c = brighten(profile.OceanColor, brightness)
 				}
-
-				// Combine depth darkening with surface variation
-				brightness := (1.0 - depth*0.5) * shallowFactor
-				brightness += (surfaceVar - 0.5) * 0.15
-				brightness = math.Max(0.5, math.Min(1.3, brightness))
-
-				c = brighten(profile.OceanColor, brightness)
 			}
 
 			// Polar caps

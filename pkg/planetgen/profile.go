@@ -85,45 +85,50 @@ var Profiles = map[string]*PlanetProfile{
 		Type:     "terran",
 		Renderer: "rocky",
 		Palette: []ColorStop{
-			{0.0, rgba(40, 100, 40)},    // Lowland green
-			{0.2, rgba(30, 85, 30)},     // Dark forest
-			{0.4, rgba(55, 110, 45)},    // Forest green
-			{0.6, rgba(100, 130, 70)},   // Light woodland
-			{0.7, rgba(130, 120, 80)},   // Brown foothills
-			{0.8, rgba(150, 140, 120)},  // Rocky highlands
-			{0.9, rgba(170, 165, 155)},  // Gray peaks
-			{1.0, rgba(200, 200, 195)},  // Bare rock
+			{0.0, rgba(12, 50, 10)},     // Deep dark forest
+			{0.1, rgba(10, 42, 8)},      // Dense jungle
+			{0.2, rgba(18, 55, 15)},     // Dark forest
+			{0.3, rgba(30, 75, 25)},     // Forest
+			{0.4, rgba(50, 100, 40)},    // Forest green
+			{0.5, rgba(75, 115, 55)},    // Woodland
+			{0.6, rgba(110, 125, 70)},   // Light grassland
+			{0.68, rgba(135, 120, 78)},  // Brown foothills
+			{0.75, rgba(150, 140, 118)}, // Rocky highlands
+			{0.82, rgba(170, 165, 152)}, // Gray mountain
+			{0.9, rgba(190, 188, 182)},  // Bare rock
+			{1.0, rgba(220, 220, 218)},  // Mountain peak
 		},
 		NoiseOctaves:     8,
-		NoiseLacunarity:  2.0,
-		NoisePersistence: 0.55,
-		NoiseScale:       2.5,
+		NoiseLacunarity:  2.1,
+		NoisePersistence: 0.62,
+		NoiseScale:       3.0,
 		CraterCount:      10,
 		CraterMinRadius:  0.003,
 		CraterMaxRadius:  0.02,
 		CraterDepth:      0.08,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.15,
-		OceanLevel:       0.55,
+		OceanLevel:       0.50,
 		OceanColor:       rgba(30, 60, 140),
-		SnowLine:         0.85,
+		SnowLine:         0.78,
 		EquatorialPalette: []ColorStop{
-			{0.0, rgba(160, 140, 90)},   // Sandy lowland
-			{0.2, rgba(180, 155, 100)},  // Desert sand
-			{0.4, rgba(170, 145, 85)},   // Dry savanna
-			{0.6, rgba(140, 120, 70)},   // Arid scrub
-			{0.7, rgba(130, 115, 75)},   // Dry hills
-			{0.8, rgba(150, 140, 120)},  // Rocky
-			{0.9, rgba(170, 165, 155)},  // Gray peaks
+			{0.0, rgba(190, 170, 120)},  // Sandy lowland
+			{0.15, rgba(200, 180, 130)}, // Light sand
+			{0.3, rgba(185, 165, 110)},  // Desert tan
+			{0.45, rgba(170, 150, 95)},  // Dry savanna
+			{0.6, rgba(145, 125, 75)},   // Arid scrub
+			{0.7, rgba(135, 118, 78)},   // Dry hills
+			{0.8, rgba(155, 145, 125)},  // Rocky
+			{0.9, rgba(175, 170, 158)},  // Gray peaks
 			{1.0, rgba(200, 200, 195)},  // Bare rock
 		},
 		PolarPalette: []ColorStop{
-			{0.0, rgba(70, 100, 65)},    // Cold scrub
-			{0.2, rgba(90, 110, 80)},    // Boreal green
-			{0.4, rgba(110, 120, 90)},   // Taiga
-			{0.6, rgba(140, 140, 120)},  // Tundra brown
-			{0.7, rgba(160, 155, 145)},  // Rocky tundra
-			{0.8, rgba(180, 175, 170)},  // Frost rock
+			{0.0, rgba(65, 95, 58)},     // Cold scrub
+			{0.2, rgba(85, 105, 75)},    // Boreal green
+			{0.4, rgba(105, 115, 88)},   // Taiga
+			{0.6, rgba(135, 135, 115)},  // Tundra brown
+			{0.7, rgba(158, 152, 142)},  // Rocky tundra
+			{0.8, rgba(178, 174, 168)},  // Frost rock
 			{0.9, rgba(200, 198, 195)},  // Icy peaks
 			{1.0, rgba(225, 225, 222)},  // Snow
 		},
@@ -265,14 +270,12 @@ var Profiles = map[string]*PlanetProfile{
 		Type:     "lava_world",
 		Renderer: "rocky",
 		Palette: []ColorStop{
-			{0.0, rgba(20, 15, 10)},     // Dark basalt
-			{0.3, rgba(40, 30, 20)},     // Dark rock
-			{0.45, rgba(60, 40, 25)},    // Brown rock
-			{0.55, rgba(180, 60, 10)},   // Orange lava glow
-			{0.65, rgba(255, 100, 0)},   // Bright lava
-			{0.75, rgba(200, 50, 5)},    // Cooling lava
-			{0.85, rgba(50, 35, 25)},    // Cooled crust
-			{1.0, rgba(30, 20, 15)},     // Dark peaks
+			{0.0, rgba(20, 15, 10)},     // Deep basalt
+			{0.2, rgba(35, 25, 18)},     // Dark rock
+			{0.4, rgba(50, 35, 22)},     // Brown rock
+			{0.6, rgba(65, 45, 28)},     // Warm rock
+			{0.8, rgba(55, 38, 25)},     // Dark crust
+			{1.0, rgba(40, 28, 18)},     // Dark peaks
 		},
 		NoiseOctaves:     8,
 		NoiseLacunarity:  2.2,
@@ -282,6 +285,8 @@ var Profiles = map[string]*PlanetProfile{
 		CraterMinRadius:  0.004,
 		CraterMaxRadius:  0.04,
 		CraterDepth:      0.15,
+		OceanLevel:       0.52,
+		OceanColor:       rgba(220, 80, 5),
 	},
 	"oceanic": {
 		Type:     "oceanic",
@@ -300,7 +305,7 @@ var Profiles = map[string]*PlanetProfile{
 		CraterCount:      0,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.08,
-		OceanLevel:       0.65,
+		OceanLevel:       0.62,
 		OceanColor:       rgba(15, 45, 120),
 	},
 
