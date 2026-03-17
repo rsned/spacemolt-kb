@@ -983,9 +983,13 @@ func writeSystemPages(outDir string, systems []*System) error {
 		return err
 	}
 
-	// Individual system pages.
+	// Individual system pages (in subdirectories).
 	for _, sys := range systems {
-		path := filepath.Join(outDir, sys.ID+".html")
+		sysDir := filepath.Join(outDir, sys.ID)
+		if err := os.MkdirAll(sysDir, 0o755); err != nil {
+			return err
+		}
+		path := filepath.Join(sysDir, "index.html")
 		f, err := os.Create(path)
 		if err != nil {
 			return err
@@ -1964,7 +1968,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
             <tbody>
 {{- range .Systems}}
             <tr>
-              <td><a href="{{.ID}}.html">{{.Name}}</a></td>
+              <td><a href="{{.ID}}/">{{.Name}}</a></td>
               <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
               <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
               <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
@@ -1987,7 +1991,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
         <tbody>
 {{- range .Systems}}
         <tr>
-          <td><a href="{{.ID}}.html">{{.Name}}</a></td>
+          <td><a href="{{.ID}}/">{{.Name}}</a></td>
           <td>{{if .Empire}}{{titleCase .Empire}}{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
           <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
           <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
@@ -2011,14 +2015,14 @@ var systemDetailTemplate = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Name}} - Systems - Spacemolt KB</title>
-    <link rel="stylesheet" href="../smui.css">
-    <link rel="stylesheet" href="../system.css">
-    <link rel="stylesheet" href="../items/items.css">
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../system.css">
+    <link rel="stylesheet" href="../../items/items.css">
 </head>
 <body>
-` + siteHeader + `
+` + siteHeaderSub + `
     <main class="container page-content">
-        <div class="breadcrumb"><a href="./">Systems</a> / {{.Name}}</div>
+        <div class="breadcrumb"><a href="../">Systems</a> / {{.Name}}</div>
 
         <div class="sys-header">
             <div>
@@ -2061,7 +2065,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
             <tbody>
 {{- range .Connections}}
             <tr>
-              <td><a href="{{.SystemID}}.html">{{.Name}}</a></td>
+              <td><a href="../{{.SystemID}}/">{{.Name}}</a></td>
               <td style="text-align:right">{{if .Distance}}{{.Distance}}{{else}}<span class="text-muted">—</span>{{end}}</td>
             </tr>
 {{- end}}
