@@ -427,6 +427,15 @@ func main() {
 		}
 
 		fmt.Printf("Generated %d system pages in %s/\n", len(systems), systemOutDir)
+
+		// Generate planet surface maps and detail pages.
+		planetImgDir := "kb/images/planets"
+		if err := os.MkdirAll(planetImgDir, 0o755); err != nil {
+			log.Fatalf("create planet image dir: %v", err)
+		}
+		if err := writePlanetPages(systemOutDir, planetImgDir, systems); err != nil {
+			log.Fatalf("write planet pages: %v", err)
+		}
 	}
 
 	// --- Skill generation ---
@@ -909,6 +918,12 @@ func writeSystemPages(outDir string, systems []*System) error {
 		},
 		"poiDist": func(p SystemPOI) string {
 			return fmt.Sprintf("%.1f", math.Hypot(p.PositionX, p.PositionY))
+		},
+		"poiDetailLink": func(p SystemPOI) string {
+			if p.Type == "planet" && p.Class != "" {
+				return fmt.Sprintf("planet_%s.html", sanitizeName(p.Name))
+			}
+			return ""
 		},
 		"systemMap": func(sys *System) htmltpl.HTML {
 			allMap := make(map[string]*systemmap.System, len(sysLookup))
@@ -2083,7 +2098,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
 {{- range sortPOIsByDist .POIs}}
             <tr>
               <td style="text-align:center;font-size:16px">{{poiIcon .Type}}</td>
-              <td>{{.Name}}</td>
+              <td>{{- if poiDetailLink .}}<a href="{{poiDetailLink .}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td>
               <td>{{titleCase .Type}}</td>
               <td>{{if .Class}}{{.Class}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{poiDist .}}</td>
