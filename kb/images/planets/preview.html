@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Planet Surface Map Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #111; color: #ccc; font-family: system-ui, sans-serif; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 10px; font-size: 1.4em; }
+  .controls { text-align: center; margin-bottom: 20px; }
+  .controls select { padding: 6px 12px; font-size: 1em; background: #222; color: #ccc; border: 1px solid #444; border-radius: 4px; }
+  .controls label { margin-right: 8px; }
+  .container { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .panel { background: #1a1a1a; border-radius: 8px; padding: 16px; }
+  .panel h2 { font-size: 1em; margin-bottom: 10px; color: #888; text-align: center; }
+  #flat-img { width: 600px; height: 300px; object-fit: cover; border-radius: 4px; display: block; }
+  #sphere-canvas { display: block; border-radius: 4px; cursor: grab; }
+  #sphere-canvas:active { cursor: grabbing; }
+  .hint { text-align: center; color: #555; font-size: 0.8em; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Planet Surface Map Preview</h1>
+
+<div class="controls">
+  <label for="type-select">Planet Type:</label>
+  <select id="type-select">
+    <option value="scorched">Scorched</option>
+    <option value="arid">Arid</option>
+    <option value="terran" selected>Terran</option>
+    <option value="tundra">Tundra</option>
+    <option value="glacial">Glacial</option>
+    <option value="ice_world">Ice World</option>
+    <option value="super_terran">Super Terran</option>
+    <option value="hothouse">Hothouse</option>
+    <option value="lava_world">Lava World</option>
+    <option value="oceanic">Oceanic</option>
+    <option value="jovian">Jovian</option>
+    <option value="ice_giant">Ice Giant</option>
+  </select>
+  <label for="variant-select" style="margin-left: 16px;">Variant:</label>
+  <select id="variant-select">
+    <option value="1">1</option>
+    <option value="2">2</option>
+  </select>
+</div>
+
+<div class="container">
+  <div class="panel">
+    <h2>Equirectangular (Flat)</h2>
+    <img id="flat-img" src="terran_1.png" alt="Flat map">
+  </div>
+  <div class="panel">
+    <h2>Sphere Projection</h2>
+    <canvas id="sphere-canvas" width="500" height="500"></canvas>
+    <div class="hint">Click and drag to rotate</div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('sphere-canvas');
+const ctx = canvas.getContext('2d');
+const flatImg = document.getElementById('flat-img');
+const typeSelect = document.getElementById('type-select');
+const variantSelect = document.getElementById('variant-select');
+
+const W = canvas.width;
+const H = canvas.height;
+const CX = W / 2;
+const CY = H / 2;
+const RADIUS = 220;
+
+let texture = null;
+let textureData = null;
+let texW = 0, texH = 0;
+
+// Rotation state
+let rotY = 0.4;  // longitude rotation
+let rotX = 0.15; // latitude tilt
+let dragging = false;
+let lastMX = 0, lastMY = 0;
+let autoRotate = true;
+let autoRotateSpeed = 0.003;
+
+function loadTexture(src) {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const tc = document.createElement('canvas');
+    tc.width = img.width;
+    tc.height = img.height;
+    const tctx = tc.getContext('2d');
+    tctx.drawImage(img, 0, 0);
+    textureData = tctx.getImageData(0, 0, img.width, img.height).data;
+    texW = img.width;
+    texH = img.height;
+    texture = img;
+  };
+  img.src = src;
+}
+
+function sampleTexture(u, v) {
+  // u: [0,1] longitude, v: [0,1] latitude (0=top, 1=bottom)
+  if (!textureData) return [80, 80, 80];
+  let px = Math.floor(u * texW) % texW;
+  let py = Math.floor(v * texH);
+  if (px < 0) px += texW;
+  if (py < 0) py = 0;
+  if (py >= texH) py = texH - 1;
+  const i = (py * texW + px) * 4;
+  return [textureData[i], textureData[i+1], textureData[i+2]];
+}
+
+function render() {
+  const imageData = ctx.createImageData(W, H);
+  const data = imageData.data;
+
+  const cosRX = Math.cos(rotX);
+  const sinRX = Math.sin(rotX);
+  const cosRY = Math.cos(rotY);
+  const sinRY = Math.sin(rotY);
+
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const dx = px - CX;
+      const dy = py - CY;
+      const distSq = dx * dx + dy * dy;
+
+      const idx = (py * W + px) * 4;
+
+      if (distSq > RADIUS * RADIUS) {
+        // Background
+        data[idx] = 17;
+        data[idx+1] = 17;
+        data[idx+2] = 17;
+        data[idx+3] = 255;
+        continue;
+      }
+
+      // Point on unit sphere (screen-space)
+      const nx = dx / RADIUS;
+      const ny = -dy / RADIUS;
+      const nz = Math.sqrt(Math.max(0, 1 - nx*nx - ny*ny));
+
+      // Apply rotation (inverse: rotate the ray into texture space)
+      // First rotate around X (tilt)
+      const y1 = ny * cosRX - nz * sinRX;
+      const z1 = ny * sinRX + nz * cosRX;
+      // Then rotate around Y (spin)
+      const x2 = nx * cosRY + z1 * sinRY;
+      const z2 = -nx * sinRY + z1 * cosRY;
+
+      // Spherical coordinates to UV
+      const lat = Math.asin(Math.max(-1, Math.min(1, y1)));
+      const lon = Math.atan2(x2, z2);
+
+      const u = (lon / (2 * Math.PI)) + 0.5;
+      const v = 0.5 - lat / Math.PI;
+
+      const [r, g, b] = sampleTexture(u, v);
+
+      // Simple diffuse lighting from upper-left
+      const lightX = -0.4, lightY = 0.5, lightZ = 0.7;
+      const lightLen = Math.sqrt(lightX*lightX + lightY*lightY + lightZ*lightZ);
+      const dot = (nx * lightX + (-ny) * lightY + nz * lightZ) / lightLen;
+      const lighting = Math.max(0.08, dot * 0.7 + 0.3);
+
+      // Atmosphere rim glow
+      const rim = 1 - nz;
+      const rimGlow = rim * rim * rim * 0.3;
+
+      data[idx]   = Math.min(255, Math.floor(r * lighting + rimGlow * 80));
+      data[idx+1] = Math.min(255, Math.floor(g * lighting + rimGlow * 120));
+      data[idx+2] = Math.min(255, Math.floor(b * lighting + rimGlow * 180));
+      data[idx+3] = 255;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function animate() {
+  if (autoRotate && !dragging) {
+    rotY += autoRotateSpeed;
+  }
+  render();
+  requestAnimationFrame(animate);
+}
+
+// Mouse drag rotation
+canvas.addEventListener('mousedown', (e) => {
+  dragging = true;
+  autoRotate = false;
+  lastMX = e.clientX;
+  lastMY = e.clientY;
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  const dx = e.clientX - lastMX;
+  const dy = e.clientY - lastMY;
+  rotY += dx * 0.01;
+  rotX += dy * 0.01;
+  rotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotX));
+  lastMX = e.clientX;
+  lastMY = e.clientY;
+});
+
+window.addEventListener('mouseup', () => {
+  if (dragging) {
+    dragging = false;
+    // Resume auto-rotate after 3 seconds of no interaction
+    setTimeout(() => { if (!dragging) autoRotate = true; }, 3000);
+  }
+});
+
+// Image selection
+function updateImage() {
+  const type = typeSelect.value;
+  const variant = variantSelect.value;
+  const src = `${type}_${variant}.png`;
+  flatImg.src = src;
+  loadTexture(src);
+}
+
+typeSelect.addEventListener('change', updateImage);
+variantSelect.addEventListener('change', updateImage);
+
+// Add variant 3 option for jovian
+typeSelect.addEventListener('change', () => {
+  const opt3 = variantSelect.querySelector('option[value="3"]');
+  if (typeSelect.value === 'jovian') {
+    if (!opt3) {
+      const o = document.createElement('option');
+      o.value = '3';
+      o.textContent = '3';
+      variantSelect.appendChild(o);
+    }
+  } else {
+    if (opt3) { opt3.remove(); }
+    if (variantSelect.value === '3') {
+      variantSelect.value = '1';
+      updateImage();
+    }
+  }
+});
+
+// Init
+loadTexture('terran_1.png');
+animate();
+</script>
+</body>
+</html>
