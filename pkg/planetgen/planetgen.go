@@ -38,3 +38,8 @@ func hashSeed(name string) int64 {
 	h.Write([]byte(name))
 	return int64(h.Sum64())
 }
+
+// HashSeedPublic is the exported version of hashSeed for test tooling.
+func HashSeedPublic(name string) int64 {
+	return hashSeed(name)
+}

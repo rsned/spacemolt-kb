@@ -34,10 +34,13 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 		ApplyCraters(heightmap, craters, width, height, profile.CraterDepth)
 	}
 
-	// Step 3 + 4 + 5: Colorize with ocean and polar caps
+	// Step 3 + 4 + 5: Colorize with biomes, ocean, snow, and polar caps
 	// Pre-compute secondary noise generators
 	capNoise := NewNoiseGenerator(seed + 42)
 	oceanNoise := NewNoiseGenerator(seed + 77)
+	biomeNoise := NewNoiseGenerator(seed + 99)
+
+	hasBiomes := len(profile.EquatorialPalette) > 0 || len(profile.PolarPalette) > 0
 
 	for y := range height {
 		lat := math.Pi/2 - float64(y)/float64(height)*math.Pi // [pi/2, -pi/2]
@@ -45,7 +48,40 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 
 		for x := range width {
 			h := heightmap[y][x]
+
+			// Base terrain color — blend between biome palettes by latitude
 			var c = sampleGradient(profile.Palette, h)
+			if hasBiomes {
+				// Add noise to biome boundaries so they're not perfectly zonal
+				sx, sy, sz := SphericalCoords(x, y, width, height)
+				biomeVar := biomeNoise.FractalNoise3D(sx, sy, sz, 3, 2.0, 0.5, 4.0)
+				adjustedLat := absLat + (biomeVar-0.5)*0.15
+
+				if len(profile.EquatorialPalette) > 0 && adjustedLat < 0.35 {
+					// Blend equatorial palette near equator
+					eqColor := sampleGradient(profile.EquatorialPalette, h)
+					eqBlend := 1.0 - adjustedLat/0.35 // 1.0 at equator, 0.0 at lat 0.35
+					eqBlend *= eqBlend                  // smooth curve
+					c = blendColor(c, eqColor, eqBlend*0.8)
+				}
+				if len(profile.PolarPalette) > 0 && adjustedLat > 0.6 {
+					// Blend polar palette near poles (before ice caps)
+					polColor := sampleGradient(profile.PolarPalette, h)
+					polBlend := (adjustedLat - 0.6) / 0.4 // 0.0 at lat 0.6, 1.0 at pole
+					polBlend *= polBlend
+					c = blendColor(c, polColor, polBlend*0.7)
+				}
+			}
+
+			// Snow line: high elevation peaks get snow
+			if profile.SnowLine > 0 && h > profile.SnowLine {
+				snowBlend := (h - profile.SnowLine) / (1.0 - profile.SnowLine)
+				snowBlend = math.Min(1.0, snowBlend*1.5)
+				// More snow at higher latitudes
+				latBoost := 1.0 + absLat*0.5
+				snowBlend = math.Min(1.0, snowBlend*latBoost)
+				c = blendColor(c, whiteSnow, snowBlend*0.85)
+			}
 
 			// Ocean: color below ocean level with depth and surface variation
 			if profile.OceanLevel > 0 && h < profile.OceanLevel {
@@ -98,3 +134,4 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 }
 
 var whiteIce = rgba(240, 245, 250)
+var whiteSnow = rgba(235, 240, 245)

@@ -20,6 +20,9 @@ type PlanetProfile struct {
 	PolarCapNoise    float64 // Edge roughness (0 = default 0.08)
 	OceanLevel       float64 // Below this = ocean (0 = no ocean)
 	OceanColor       color.RGBA
+	SnowLine         float64     // Elevation above this gets snow (0 = disabled)
+	EquatorialPalette []ColorStop // If set, blended in near equator
+	PolarPalette      []ColorStop // If set, blended in near poles (before ice caps)
 
 	// Gas giant specific
 	BandCount      int
@@ -82,12 +85,14 @@ var Profiles = map[string]*PlanetProfile{
 		Type:     "terran",
 		Renderer: "rocky",
 		Palette: []ColorStop{
-			{0.0, rgba(30, 80, 30)},     // Deep lowland green
-			{0.3, rgba(60, 120, 50)},     // Forest green
-			{0.5, rgba(100, 140, 70)},    // Light green
-			{0.65, rgba(140, 130, 90)},   // Brown highlands
-			{0.8, rgba(160, 150, 130)},   // Rocky peaks
-			{1.0, rgba(230, 230, 230)},   // Snow peaks
+			{0.0, rgba(40, 100, 40)},    // Lowland green
+			{0.2, rgba(30, 85, 30)},     // Dark forest
+			{0.4, rgba(55, 110, 45)},    // Forest green
+			{0.6, rgba(100, 130, 70)},   // Light woodland
+			{0.7, rgba(130, 120, 80)},   // Brown foothills
+			{0.8, rgba(150, 140, 120)},  // Rocky highlands
+			{0.9, rgba(170, 165, 155)},  // Gray peaks
+			{1.0, rgba(200, 200, 195)},  // Bare rock
 		},
 		NoiseOctaves:     8,
 		NoiseLacunarity:  2.0,
@@ -101,6 +106,27 @@ var Profiles = map[string]*PlanetProfile{
 		PolarCapSize:     0.15,
 		OceanLevel:       0.55,
 		OceanColor:       rgba(30, 60, 140),
+		SnowLine:         0.85,
+		EquatorialPalette: []ColorStop{
+			{0.0, rgba(160, 140, 90)},   // Sandy lowland
+			{0.2, rgba(180, 155, 100)},  // Desert sand
+			{0.4, rgba(170, 145, 85)},   // Dry savanna
+			{0.6, rgba(140, 120, 70)},   // Arid scrub
+			{0.7, rgba(130, 115, 75)},   // Dry hills
+			{0.8, rgba(150, 140, 120)},  // Rocky
+			{0.9, rgba(170, 165, 155)},  // Gray peaks
+			{1.0, rgba(200, 200, 195)},  // Bare rock
+		},
+		PolarPalette: []ColorStop{
+			{0.0, rgba(70, 100, 65)},    // Cold scrub
+			{0.2, rgba(90, 110, 80)},    // Boreal green
+			{0.4, rgba(110, 120, 90)},   // Taiga
+			{0.6, rgba(140, 140, 120)},  // Tundra brown
+			{0.7, rgba(160, 155, 145)},  // Rocky tundra
+			{0.8, rgba(180, 175, 170)},  // Frost rock
+			{0.9, rgba(200, 198, 195)},  // Icy peaks
+			{1.0, rgba(225, 225, 222)},  // Snow
+		},
 	},
 	"tundra": {
 		Type:     "tundra",
@@ -172,12 +198,14 @@ var Profiles = map[string]*PlanetProfile{
 		Type:     "super_terran",
 		Renderer: "rocky",
 		Palette: []ColorStop{
-			{0.0, rgba(20, 70, 25)},
-			{0.3, rgba(40, 100, 40)},
-			{0.5, rgba(70, 120, 55)},
-			{0.65, rgba(110, 110, 70)},
-			{0.8, rgba(140, 130, 110)},
-			{1.0, rgba(210, 210, 210)},
+			{0.0, rgba(25, 80, 30)},     // Deep green
+			{0.2, rgba(20, 70, 25)},     // Dark forest
+			{0.4, rgba(45, 100, 40)},    // Forest
+			{0.6, rgba(80, 115, 55)},    // Light woodland
+			{0.7, rgba(110, 110, 70)},   // Brown foothills
+			{0.8, rgba(140, 130, 110)},  // Rocky
+			{0.9, rgba(170, 165, 155)},  // Gray peaks
+			{1.0, rgba(200, 200, 195)},  // Bare rock
 		},
 		NoiseOctaves:     8,
 		NoiseLacunarity:  2.0,
@@ -191,6 +219,27 @@ var Profiles = map[string]*PlanetProfile{
 		PolarCapSize:     0.1,
 		OceanLevel:       0.50,
 		OceanColor:       rgba(25, 50, 120),
+		SnowLine:         0.88,
+		EquatorialPalette: []ColorStop{
+			{0.0, rgba(140, 125, 75)},
+			{0.2, rgba(160, 140, 85)},
+			{0.4, rgba(145, 130, 70)},
+			{0.6, rgba(120, 110, 65)},
+			{0.7, rgba(115, 105, 70)},
+			{0.8, rgba(140, 130, 110)},
+			{0.9, rgba(170, 165, 155)},
+			{1.0, rgba(200, 200, 195)},
+		},
+		PolarPalette: []ColorStop{
+			{0.0, rgba(60, 90, 55)},
+			{0.2, rgba(75, 100, 70)},
+			{0.4, rgba(100, 115, 85)},
+			{0.6, rgba(130, 130, 110)},
+			{0.7, rgba(155, 150, 140)},
+			{0.8, rgba(175, 172, 168)},
+			{0.9, rgba(195, 195, 192)},
+			{1.0, rgba(220, 220, 218)},
+		},
 	},
 	"hothouse": {
 		Type:     "hothouse",
