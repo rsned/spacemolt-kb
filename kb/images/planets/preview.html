@@ -69,7 +69,7 @@ const W = canvas.width;
 const H = canvas.height;
 const CX = W / 2;
 const CY = H / 2;
-const RADIUS = 220;
+const RADIUS = 190;
 
 let texture = null;
 let textureData = null;
@@ -77,11 +77,45 @@ let texW = 0, texH = 0;
 
 // Rotation state
 let rotY = 0.4;  // longitude rotation
-let rotX = 0.15; // latitude tilt
+let rotX = 0.35; // latitude tilt (higher default so rings are visible)
 let dragging = false;
 let lastMX = 0, lastMY = 0;
 let autoRotate = true;
 let autoRotateSpeed = 0.003;
+
+// Ring configuration per planet type
+const ringConfig = {
+  jovian: {
+    innerRadius: 1.3,   // multiplier of planet RADIUS
+    outerRadius: 2.2,
+    colors: [
+      { pos: 0.0, r: 180, g: 150, b: 110, a: 0.0 },   // inner edge - transparent
+      { pos: 0.08, r: 180, g: 150, b: 110, a: 0.4 },   // inner ring
+      { pos: 0.2, r: 160, g: 130, b: 95, a: 0.55 },    // dense inner
+      { pos: 0.35, r: 170, g: 145, b: 105, a: 0.3 },   // gap
+      { pos: 0.45, r: 155, g: 125, b: 90, a: 0.6 },    // main ring
+      { pos: 0.6, r: 175, g: 150, b: 115, a: 0.65 },   // bright band
+      { pos: 0.75, r: 145, g: 120, b: 85, a: 0.45 },   // outer ring
+      { pos: 0.9, r: 160, g: 135, b: 100, a: 0.2 },    // fading
+      { pos: 1.0, r: 150, g: 130, b: 95, a: 0.0 },     // outer edge - transparent
+    ],
+    tilt: 0.4, // ring tilt in radians relative to equator
+  },
+  ice_giant: {
+    innerRadius: 1.25,
+    outerRadius: 1.75,
+    colors: [
+      { pos: 0.0, r: 150, g: 180, b: 210, a: 0.0 },
+      { pos: 0.1, r: 150, g: 180, b: 210, a: 0.3 },
+      { pos: 0.3, r: 140, g: 170, b: 200, a: 0.4 },
+      { pos: 0.5, r: 160, g: 185, b: 215, a: 0.35 },
+      { pos: 0.7, r: 145, g: 175, b: 205, a: 0.3 },
+      { pos: 0.9, r: 155, g: 180, b: 210, a: 0.15 },
+      { pos: 1.0, r: 150, g: 175, b: 205, a: 0.0 },
+    ],
+    tilt: 0.3,
+  },
+};
 
 function loadTexture(src) {
   const img = new Image();
@@ -101,7 +135,6 @@ function loadTexture(src) {
 }
 
 function sampleTexture(u, v) {
-  // u: [0,1] longitude, v: [0,1] latitude (0=top, 1=bottom)
   if (!textureData) return [80, 80, 80];
   let px = Math.floor(u * texW) % texW;
   let py = Math.floor(v * texH);
@@ -110,6 +143,30 @@ function sampleTexture(u, v) {
   if (py >= texH) py = texH - 1;
   const i = (py * texW + px) * 4;
   return [textureData[i], textureData[i+1], textureData[i+2]];
+}
+
+function sampleRingColor(colors, t) {
+  t = Math.max(0, Math.min(1, t));
+  if (colors.length === 0) return { r: 128, g: 128, b: 128, a: 0 };
+  if (t <= colors[0].pos) return colors[0];
+  if (t >= colors[colors.length-1].pos) return colors[colors.length-1];
+  for (let i = 1; i < colors.length; i++) {
+    if (t <= colors[i].pos) {
+      const lt = (t - colors[i-1].pos) / (colors[i].pos - colors[i-1].pos);
+      const a = colors[i-1], b = colors[i];
+      return {
+        r: a.r + (b.r - a.r) * lt,
+        g: a.g + (b.g - a.g) * lt,
+        b: a.b + (b.b - a.b) * lt,
+        a: a.a + (b.a - a.a) * lt,
+      };
+    }
+  }
+  return colors[colors.length-1];
+}
+
+function getCurrentRingConfig() {
+  return ringConfig[typeSelect.value] || null;
 }
 
 function render() {
@@ -121,58 +178,148 @@ function render() {
   const cosRY = Math.cos(rotY);
   const sinRY = Math.sin(rotY);
 
+  const rings = getCurrentRingConfig();
+  const ringInner = rings ? rings.innerRadius * RADIUS : 0;
+  const ringOuter = rings ? rings.outerRadius * RADIUS : 0;
+
+  // Light direction
+  const lightX = -0.4, lightY = 0.5, lightZ = 0.7;
+  const lightLen = Math.sqrt(lightX*lightX + lightY*lightY + lightZ*lightZ);
+
+  // Precompute ring plane normal (tilted equatorial plane, rotated by view)
+  // Ring plane normal in world space is (0, 1, 0) rotated by rotX
+  const ringNY = cosRX;   // y component of ring normal in screen space
+  const ringNZ = -sinRX;  // z component
+
   for (let py = 0; py < H; py++) {
     for (let px = 0; px < W; px++) {
       const dx = px - CX;
       const dy = py - CY;
       const distSq = dx * dx + dy * dy;
-
       const idx = (py * W + px) * 4;
 
-      if (distSq > RADIUS * RADIUS) {
-        // Background
-        data[idx] = 17;
-        data[idx+1] = 17;
-        data[idx+2] = 17;
-        data[idx+3] = 255;
-        continue;
+      let planetR = 17, planetG = 17, planetB = 17;
+      let onPlanet = false;
+      let planetZ = -999; // z-depth of planet surface at this pixel
+
+      // Check planet sphere
+      if (distSq <= RADIUS * RADIUS) {
+        onPlanet = true;
+        const nx = dx / RADIUS;
+        const ny = -dy / RADIUS;
+        const nz = Math.sqrt(Math.max(0, 1 - nx*nx - ny*ny));
+        planetZ = nz;
+
+        // Rotate into texture space
+        const y1 = ny * cosRX - nz * sinRX;
+        const z1 = ny * sinRX + nz * cosRX;
+        const x2 = nx * cosRY + z1 * sinRY;
+        const z2 = -nx * sinRY + z1 * cosRY;
+
+        const lat = Math.asin(Math.max(-1, Math.min(1, y1)));
+        const lon = Math.atan2(x2, z2);
+        const u = (lon / (2 * Math.PI)) + 0.5;
+        const v = 0.5 - lat / Math.PI;
+
+        const [tr, tg, tb] = sampleTexture(u, v);
+
+        const dot = (nx * lightX + (-ny) * lightY + nz * lightZ) / lightLen;
+        const lighting = Math.max(0.08, dot * 0.7 + 0.3);
+        const rim = 1 - nz;
+        const rimGlow = rim * rim * rim * 0.3;
+
+        planetR = Math.min(255, Math.floor(tr * lighting + rimGlow * 80));
+        planetG = Math.min(255, Math.floor(tg * lighting + rimGlow * 120));
+        planetB = Math.min(255, Math.floor(tb * lighting + rimGlow * 180));
       }
 
-      // Point on unit sphere (screen-space)
-      const nx = dx / RADIUS;
-      const ny = -dy / RADIUS;
-      const nz = Math.sqrt(Math.max(0, 1 - nx*nx - ny*ny));
+      // Check ring plane intersection
+      let ringR = 0, ringG = 0, ringB = 0, ringA = 0;
+      if (rings) {
+        // Ray from screen pixel: origin (dx, -dy, 0), direction (0, 0, 1)
+        // Ring plane: y*ringNY + z*ringNZ = 0 (passes through center)
+        // Solve: (-dy)*ringNY + t*ringNZ = 0 => t = (dy * ringNY) / ringNZ
+        if (Math.abs(ringNZ) > 0.001) {
+          const t = (dy * ringNY) / ringNZ;
+          // Ring intersection point in screen space
+          const ringX = dx;
+          const ringY = -dy;
+          const ringZDepth = t; // z position of ring at this pixel
+          // Distance from center in the ring plane
+          const ringDist = Math.sqrt(ringX * ringX + (ringY - t * sinRX) * (ringY - t * sinRX) / (cosRX * cosRX || 1));
 
-      // Apply rotation (inverse: rotate the ray into texture space)
-      // First rotate around X (tilt)
-      const y1 = ny * cosRX - nz * sinRX;
-      const z1 = ny * sinRX + nz * cosRX;
-      // Then rotate around Y (spin)
-      const x2 = nx * cosRY + z1 * sinRY;
-      const z2 = -nx * sinRY + z1 * cosRY;
+          // Simpler: distance in screen space projected
+          const ringScreenDist = Math.sqrt(dx * dx + (dy + t * 0) * (dy + t * 0));
+          // Actually compute ring distance properly in 3D
+          const ix = dx;
+          const iy = -dy;
+          const iz = t;
+          // Rotate back to world space to find distance from planet center in ring plane
+          // In screen space the ring is an ellipse. Distance from center:
+          const dist3d = Math.sqrt(ix*ix + iy*iy + iz*iz);
 
-      // Spherical coordinates to UV
-      const lat = Math.asin(Math.max(-1, Math.min(1, y1)));
-      const lon = Math.atan2(x2, z2);
+          if (dist3d >= ringInner && dist3d <= ringOuter) {
+            const ringT = (dist3d - ringInner) / (ringOuter - ringInner);
+            const rc = sampleRingColor(rings.colors, ringT);
 
-      const u = (lon / (2 * Math.PI)) + 0.5;
-      const v = 0.5 - lat / Math.PI;
+            // Simple lighting on ring: darken the side away from light
+            const ringLit = 0.6 + 0.4 * Math.max(0, (lightY * ringNY + lightZ * ringNZ) / lightLen);
 
-      const [r, g, b] = sampleTexture(u, v);
+            ringR = rc.r * ringLit;
+            ringG = rc.g * ringLit;
+            ringB = rc.b * ringLit;
+            ringA = rc.a;
 
-      // Simple diffuse lighting from upper-left
-      const lightX = -0.4, lightY = 0.5, lightZ = 0.7;
-      const lightLen = Math.sqrt(lightX*lightX + lightY*lightY + lightZ*lightZ);
-      const dot = (nx * lightX + (-ny) * lightY + nz * lightZ) / lightLen;
-      const lighting = Math.max(0.08, dot * 0.7 + 0.3);
+            // Shadow: if ring point is behind planet, reduce alpha
+            // Ring is behind planet if its z-depth is less than planet surface z
+            if (onPlanet && ringZDepth < 0) {
+              // Ring is behind the planet at this pixel
+              ringA = 0;
+            }
 
-      // Atmosphere rim glow
-      const rim = 1 - nz;
-      const rimGlow = rim * rim * rim * 0.3;
+            // Shadow of planet on ring: if ring point is in planet's shadow
+            if (!onPlanet && ringA > 0) {
+              // Check if this ring point is in the planet's circular shadow
+              // (simplified: just check if ring point projects into planet disc)
+              // Already handled by: ring behind planet check above
+            }
+          }
+        }
+      }
 
-      data[idx]   = Math.min(255, Math.floor(r * lighting + rimGlow * 80));
-      data[idx+1] = Math.min(255, Math.floor(g * lighting + rimGlow * 120));
-      data[idx+2] = Math.min(255, Math.floor(b * lighting + rimGlow * 180));
+      // Composite: ring behind planet, ring in front of planet, or ring only
+      if (onPlanet && ringA > 0) {
+        // Ring in front of planet (ring z > 0 means in front)
+        // We need to check if ring is in front or behind
+        // Ring z-depth: t from above. If t > 0, ring is in front of screen center
+        // Actually for proper depth: ring is at z=t, planet surface is at z=planetZ*RADIUS
+        // If ring is in front (closer to camera), draw ring over planet
+        const ringZWorld = (dy * ringNY) / ringNZ;
+        if (ringZWorld > 0) {
+          // Ring is in front
+          data[idx]   = Math.floor(planetR * (1-ringA) + ringR * ringA);
+          data[idx+1] = Math.floor(planetG * (1-ringA) + ringG * ringA);
+          data[idx+2] = Math.floor(planetB * (1-ringA) + ringB * ringA);
+        } else {
+          // Ring is behind planet — planet occludes
+          data[idx]   = planetR;
+          data[idx+1] = planetG;
+          data[idx+2] = planetB;
+        }
+      } else if (onPlanet) {
+        data[idx]   = planetR;
+        data[idx+1] = planetG;
+        data[idx+2] = planetB;
+      } else if (ringA > 0) {
+        // Ring only (no planet behind)
+        data[idx]   = Math.floor(17 * (1-ringA) + ringR * ringA);
+        data[idx+1] = Math.floor(17 * (1-ringA) + ringG * ringA);
+        data[idx+2] = Math.floor(17 * (1-ringA) + ringB * ringA);
+      } else {
+        data[idx]   = 17;
+        data[idx+1] = 17;
+        data[idx+2] = 17;
+      }
       data[idx+3] = 255;
     }
   }
@@ -210,7 +357,6 @@ window.addEventListener('mousemove', (e) => {
 window.addEventListener('mouseup', () => {
   if (dragging) {
     dragging = false;
-    // Resume auto-rotate after 3 seconds of no interaction
     setTimeout(() => { if (!dragging) autoRotate = true; }, 3000);
   }
 });
