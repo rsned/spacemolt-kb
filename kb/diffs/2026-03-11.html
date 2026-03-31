@@ -25,6 +25,11 @@
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
 .no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
 .diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
 .diff-toc li { padding: 0.15rem 0; }
 .diff-toc a { color: hsl(var(--primary)); }

@@ -2,8 +2,10 @@ package gamediff
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	htmltpl "html/template"
+	"slices"
 	"strings"
 	"time"
 )
@@ -83,6 +85,239 @@ type IndexEntry struct {
 	Summary string // e.g. "19 additions, 33 deletions" or "No changes"
 }
 
+// renderFieldDiff returns HTML for a single field change. For complex values
+// (arrays of objects or objects) it produces a two-column comparison table.
+// For simple scalars it falls back to the inline old → new format.
+func renderFieldDiff(field, oldVal, newVal string) htmltpl.HTML {
+	// Try to detect complex JSON values (arrays or objects).
+	oldVal = strings.TrimSpace(oldVal)
+	newVal = strings.TrimSpace(newVal)
+
+	if isJSONArray(oldVal) || isJSONArray(newVal) {
+		if html, ok := renderArrayDiff(field, oldVal, newVal); ok {
+			return html
+		}
+	}
+	if isJSONObject(oldVal) || isJSONObject(newVal) {
+		if html, ok := renderObjectDiff(field, oldVal, newVal); ok {
+			return html
+		}
+	}
+
+	// Simple scalar: inline format.
+	return htmltpl.HTML(fmt.Sprintf(
+		`<div class="diff-field"><span class="diff-field-name">%s:</span> <span class="diff-del">%s</span> &rarr; <span class="diff-add">%s</span></div>`,
+		htmltpl.HTMLEscapeString(field),
+		htmltpl.HTMLEscapeString(oldVal),
+		htmltpl.HTMLEscapeString(newVal),
+	))
+}
+
+func isJSONArray(s string) bool  { return strings.HasPrefix(s, "[") }
+func isJSONObject(s string) bool { return strings.HasPrefix(s, "{") }
+
+// renderArrayDiff renders two JSON arrays of objects as a side-by-side table.
+// Elements are matched by the first string field found (e.g. "type", "name").
+func renderArrayDiff(field, oldVal, newVal string) (htmltpl.HTML, bool) {
+	var oldArr, newArr []map[string]any
+	if oldVal == "null" || oldVal == "" {
+		oldArr = nil
+	} else if err := json.Unmarshal([]byte(oldVal), &oldArr); err != nil {
+		return "", false
+	}
+	if newVal == "null" || newVal == "" {
+		newArr = nil
+	} else if err := json.Unmarshal([]byte(newVal), &newArr); err != nil {
+		return "", false
+	}
+
+	// Find the best key field to match on.
+	keyField := findKeyField(oldArr, newArr)
+
+	// Index both arrays by key.
+	oldByKey := indexByField(oldArr, keyField)
+	newByKey := indexByField(newArr, keyField)
+
+	// Collect all keys, sorted.
+	allKeys := make(map[string]bool)
+	for k := range oldByKey {
+		allKeys[k] = true
+	}
+	for k := range newByKey {
+		allKeys[k] = true
+	}
+	sorted := make([]string, 0, len(allKeys))
+	for k := range allKeys {
+		sorted = append(sorted, k)
+	}
+	slices.Sort(sorted)
+
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf(
+		`<div class="diff-field"><span class="diff-field-name">%s:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody>`,
+		htmltpl.HTMLEscapeString(field),
+	))
+
+	for _, key := range sorted {
+		oldObj := oldByKey[key]
+		newObj := newByKey[key]
+		oldText := formatObject(oldObj)
+		newText := formatObject(newObj)
+
+		if oldObj == nil {
+			// Added
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-empty"></td><td class="diff-add">%s</td></tr>`, htmltpl.HTMLEscapeString(newText)))
+		} else if newObj == nil {
+			// Removed
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-del">%s</td><td class="diff-empty"></td></tr>`, htmltpl.HTMLEscapeString(oldText)))
+		} else if oldText == newText {
+			// Unchanged
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-unchanged">%s</td><td class="diff-unchanged">%s</td></tr>`, htmltpl.HTMLEscapeString(oldText), htmltpl.HTMLEscapeString(newText)))
+		} else {
+			// Modified
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-del">%s</td><td class="diff-add">%s</td></tr>`, htmltpl.HTMLEscapeString(oldText), htmltpl.HTMLEscapeString(newText)))
+		}
+	}
+
+	b.WriteString(`</tbody></table></div>`)
+	return htmltpl.HTML(b.String()), true
+}
+
+// renderObjectDiff renders two JSON objects as a side-by-side table keyed by field name.
+func renderObjectDiff(field, oldVal, newVal string) (htmltpl.HTML, bool) {
+	var oldObj, newObj map[string]any
+	if oldVal == "null" || oldVal == "" {
+		oldObj = nil
+	} else if err := json.Unmarshal([]byte(oldVal), &oldObj); err != nil {
+		return "", false
+	}
+	if newVal == "null" || newVal == "" {
+		newObj = nil
+	} else if err := json.Unmarshal([]byte(newVal), &newObj); err != nil {
+		return "", false
+	}
+
+	allKeys := make(map[string]bool)
+	for k := range oldObj {
+		allKeys[k] = true
+	}
+	for k := range newObj {
+		allKeys[k] = true
+	}
+	sorted := make([]string, 0, len(allKeys))
+	for k := range allKeys {
+		sorted = append(sorted, k)
+	}
+	slices.Sort(sorted)
+
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf(
+		`<div class="diff-field"><span class="diff-field-name">%s:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody>`,
+		htmltpl.HTMLEscapeString(field),
+	))
+
+	for _, key := range sorted {
+		oldV, oldOK := oldObj[key]
+		newV, newOK := newObj[key]
+		oldText := formatValue(oldV)
+		newText := formatValue(newV)
+
+		if !oldOK {
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-empty"></td><td class="diff-add">%s: %s</td></tr>`, htmltpl.HTMLEscapeString(key), htmltpl.HTMLEscapeString(newText)))
+		} else if !newOK {
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-del">%s: %s</td><td class="diff-empty"></td></tr>`, htmltpl.HTMLEscapeString(key), htmltpl.HTMLEscapeString(oldText)))
+		} else if oldText == newText {
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-unchanged">%s: %s</td><td class="diff-unchanged">%s: %s</td></tr>`, htmltpl.HTMLEscapeString(key), htmltpl.HTMLEscapeString(oldText), htmltpl.HTMLEscapeString(key), htmltpl.HTMLEscapeString(newText)))
+		} else {
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-del">%s: %s</td><td class="diff-add">%s: %s</td></tr>`, htmltpl.HTMLEscapeString(key), htmltpl.HTMLEscapeString(oldText), htmltpl.HTMLEscapeString(key), htmltpl.HTMLEscapeString(newText)))
+		}
+	}
+
+	b.WriteString(`</tbody></table></div>`)
+	return htmltpl.HTML(b.String()), true
+}
+
+// findKeyField picks the best string field to use as a match key across two arrays of objects.
+func findKeyField(a, b []map[string]any) string {
+	candidates := []string{"type", "name", "id", "key"}
+	all := append(a, b...)
+	for _, c := range candidates {
+		found := true
+		for _, obj := range all {
+			if _, ok := obj[c].(string); !ok {
+				found = false
+				break
+			}
+		}
+		if found && len(all) > 0 {
+			return c
+		}
+	}
+	// Fallback: use first string field alphabetically.
+	for _, obj := range all {
+		keys := make([]string, 0, len(obj))
+		for k := range obj {
+			if _, ok := obj[k].(string); ok {
+				keys = append(keys, k)
+			}
+		}
+		slices.Sort(keys)
+		if len(keys) > 0 {
+			return keys[0]
+		}
+	}
+	return ""
+}
+
+func indexByField(arr []map[string]any, field string) map[string]map[string]any {
+	m := make(map[string]map[string]any, len(arr))
+	for i, obj := range arr {
+		key, _ := obj[field].(string)
+		if key == "" {
+			key = fmt.Sprintf("_item_%d", i)
+		}
+		m[key] = obj
+	}
+	return m
+}
+
+// formatObject renders a map as "key: val, key: val" with sorted keys.
+func formatObject(obj map[string]any) string {
+	if obj == nil {
+		return ""
+	}
+	keys := make([]string, 0, len(obj))
+	for k := range obj {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	parts := make([]string, 0, len(keys))
+	for _, k := range keys {
+		parts = append(parts, fmt.Sprintf("%s: %s", k, formatValue(obj[k])))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func formatValue(v any) string {
+	if v == nil {
+		return ""
+	}
+	switch val := v.(type) {
+	case string:
+		return val
+	case float64:
+		if val == float64(int64(val)) {
+			return fmt.Sprintf("%d", int64(val))
+		}
+		return fmt.Sprintf("%g", val)
+	case bool:
+		return fmt.Sprintf("%t", val)
+	default:
+		b, _ := json.Marshal(v)
+		return string(b)
+	}
+}
+
 var templateFuncs = htmltpl.FuncMap{
 	"groupChanges":   GroupedChanges,
 	"uniqueModCount": UniqueModifiedCount,
@@ -90,6 +325,7 @@ var templateFuncs = htmltpl.FuncMap{
 	"dateStr":        func(d time.Time) string { return d.Format("2006-01-02") },
 	"add":            func(a, b int) int { return a + b },
 	"slugify":        func(s string) string { return strings.ToLower(strings.ReplaceAll(s, " ", "-")) },
+	"renderFieldDiff": renderFieldDiff,
 	"formatDateStr": func(s string) string {
 		if t, err := time.Parse("2006-01-02", s); err == nil {
 			return t.Format("January 2, 2006")
@@ -151,6 +387,11 @@ const dayTemplate = `<!DOCTYPE html>
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
 .no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
 .diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
 .diff-toc li { padding: 0.15rem 0; }
 .diff-toc a { color: hsl(var(--primary)); }
@@ -205,7 +446,7 @@ const dayTemplate = `<!DOCTYPE html>
 <ul class="diff-list">{{range .Deletions}}<li class="diff-del">&minus; {{.Name}} <span class="text-muted">({{.ID}})</span></li>{{end}}</ul>{{end}}
 {{if .Changes}}<h4>Modified</h4>
 {{range $id, $changes := groupChanges .Changes}}<div class="diff-item-id">{{$id}}</div>
-{{range $changes}}<div class="diff-field"><span class="diff-field-name">{{.Field}}:</span> <span class="diff-del">{{.OldVal}}</span> &rarr; <span class="diff-add">{{.NewVal}}</span></div>{{end}}
+{{range $changes}}{{renderFieldDiff .Field .OldVal .NewVal}}{{end}}
 {{end}}{{end}}
 {{end}}
 </div>
