@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
+	"strings"
 )
 
 // Entry is a named item that was added or removed.
@@ -194,6 +195,12 @@ func normalizeValue(v any) any {
 		for i, item := range val {
 			out[i] = normalizeValue(item)
 		}
+		// Sort arrays so element reordering doesn't produce false diffs.
+		slices.SortFunc(out, func(a, b any) int {
+			aj, _ := json.Marshal(a)
+			bj, _ := json.Marshal(b)
+			return strings.Compare(string(aj), string(bj))
+		})
 		return out
 	default:
 		return v
