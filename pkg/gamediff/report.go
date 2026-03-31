@@ -171,16 +171,21 @@ func renderScalarArrayDiff(field, oldVal, newVal string) (htmltpl.HTML, bool) {
 	))
 
 	for _, val := range sorted {
-		inOld := oldSet[val] > 0
-		inNew := newSet[val] > 0
+		oc := oldSet[val]
+		nc := newSet[val]
 		esc := htmltpl.HTMLEscapeString(val)
 
-		switch {
-		case inOld && inNew:
+		// Matched pairs (unchanged).
+		matched := min(oc, nc)
+		for range matched {
 			b.WriteString(fmt.Sprintf(`<tr><td class="diff-unchanged">%s</td><td class="diff-unchanged">%s</td></tr>`, esc, esc))
-		case inOld:
+		}
+		// Extra old copies (removed).
+		for range oc - matched {
 			b.WriteString(fmt.Sprintf(`<tr><td class="diff-del">%s</td><td class="diff-empty"></td></tr>`, esc))
-		default:
+		}
+		// Extra new copies (added).
+		for range nc - matched {
 			b.WriteString(fmt.Sprintf(`<tr><td class="diff-empty"></td><td class="diff-add">%s</td></tr>`, esc))
 		}
 	}
