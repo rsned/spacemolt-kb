@@ -10,10 +10,11 @@ import (
 
 // DayReport holds all data needed to render a single day's diff page.
 type DayReport struct {
-	Date     time.Time
-	PrevDate string // "YYYY-MM-DD" or "" if none
-	NextDate string // "YYYY-MM-DD" or "" if none
-	Catalogs []CatalogDiff
+	Date        time.Time
+	CompareDate string // "YYYY-MM-DD" date of the snapshot being compared against
+	PrevDate    string // "YYYY-MM-DD" or "" if none
+	NextDate    string // "YYYY-MM-DD" or "" if none
+	Catalogs    []CatalogDiff
 }
 
 // TotalAdditions returns the sum of additions across all catalogs.
@@ -89,6 +90,12 @@ var templateFuncs = htmltpl.FuncMap{
 	"dateStr":        func(d time.Time) string { return d.Format("2006-01-02") },
 	"add":            func(a, b int) int { return a + b },
 	"slugify":        func(s string) string { return strings.ToLower(strings.ReplaceAll(s, " ", "-")) },
+	"formatDateStr": func(s string) string {
+		if t, err := time.Parse("2006-01-02", s); err == nil {
+			return t.Format("January 2, 2006")
+		}
+		return s
+	},
 }
 
 // RenderDayReport renders a single day's diff report page as HTML.
@@ -122,7 +129,7 @@ const dayTemplate = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Data Changes — {{formatDate .Date}}</title>
+<title>Game Data Changes — {{formatDate .Date}}{{if .CompareDate}} vs {{formatDateStr .CompareDate}}{{end}}</title>
 <link rel="stylesheet" href="../smui.css">
 <style>
 .diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
@@ -166,7 +173,7 @@ const dayTemplate = `<!DOCTYPE html>
     <a href="index.html">All Reports</a>
     <span>{{if .NextDate}}<a href="{{.NextDate}}.html">{{.NextDate}} &rarr;</a>{{else}}&nbsp;{{end}}</span>
 </div>
-<h2>Game Data Changes &mdash; {{formatDate .Date}}</h2>
+<h2>Game Data Changes &mdash; {{formatDate .Date}}{{if .CompareDate}} vs {{formatDateStr .CompareDate}}{{end}}</h2>
 <div class="diff-summary">
 {{- $adds := .TotalAdditions}}{{$dels := .TotalDeletions}}{{$mods := .TotalModifications}}{{$cats := .CatalogsWithChanges -}}
 {{if eq (add $adds (add $dels $mods)) 0}}No changes detected across any catalog.

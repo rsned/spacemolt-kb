@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Data Changes — March 24, 2026</title>
+<title>Game Data Changes — March 24, 2026 vs March 20, 2026</title>
 <link rel="stylesheet" href="../smui.css">
 <style>
 .diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
@@ -25,7 +25,8 @@
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
 .no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
-.diff-toc { display: flex; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 0; font-size: var(--text-ui); }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
 .diff-toc a { color: hsl(var(--primary)); }
 </style>
 </head>
@@ -46,10 +47,16 @@
     <a href="index.html">All Reports</a>
     <span><a href="2026-03-27.html">2026-03-27 &rarr;</a></span>
 </div>
-<h2>Game Data Changes &mdash; March 24, 2026</h2>
-<div class="diff-summary">49 additions, 3 deletions, 604 modifications across 5 catalogs.
+<h2>Game Data Changes &mdash; March 24, 2026 vs March 20, 2026</h2>
+<div class="diff-summary">49 additions, 3 deletions, 524 modifications across 4 catalogs.
 </div>
-<div class="diff-toc"><a href="#recipes">Recipes *</a><a href="#items">Items *</a><a href="#ships">Ships *</a><a href="#skills">Skills *</a><a href="#map">Map *</a></div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+25</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~1</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+21</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~273</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+3</span> <span class="diff-del">&minus;3</span> <span class="diff-mod">~244</span></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~6</span></li>
+<li><a href="#map">Map</a></li>
+</ul>
 
 <div class="catalog-section" id="recipes">
 <div class="catalog-header">
@@ -1106,7 +1113,7 @@
 <div class="diff-item-id">syndicate</div>
 <div class="diff-field"><span class="diff-field-name">build_materials:</span> <span class="diff-del">[{&#34;item_id&#34;:&#34;titanium_alloy&#34;,&#34;quantity&#34;:110},{&#34;item_id&#34;:&#34;processing_core&#34;,&#34;quantity&#34;:11},{&#34;item_id&#34;:&#34;life_support_unit&#34;,&#34;quantity&#34;:30},{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:25},{&#34;item_id&#34;:&#34;power_distribution_grid&#34;,&#34;quantity&#34;:1},{&#34;item_id&#34;:&#34;prismatic_lens&#34;,&#34;quantity&#34;:15},{&#34;item_id&#34;:&#34;cargo_container&#34;,&#34;quantity&#34;:55},{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:60},{&#34;item_id&#34;:&#34;navigation_core&#34;,&#34;quantity&#34;:19},{&#34;item_id&#34;:&#34;shield_emitter&#34;,&#34;quantity&#34;:25}]</span> &rarr; <span class="diff-add">[{&#34;item_id&#34;:&#34;power_distribution_grid&#34;,&#34;quantity&#34;:1},{&#34;item_id&#34;:&#34;prismatic_lens&#34;,&#34;quantity&#34;:15},{&#34;item_id&#34;:&#34;cargo_container&#34;,&#34;quantity&#34;:55},{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:60},{&#34;item_id&#34;:&#34;shield_emitter&#34;,&#34;quantity&#34;:25},{&#34;item_id&#34;:&#34;titanium_alloy&#34;,&#34;quantity&#34;:110},{&#34;item_id&#34;:&#34;processing_core&#34;,&#34;quantity&#34;:11},{&#34;item_id&#34;:&#34;navigation_core&#34;,&#34;quantity&#34;:19},{&#34;item_id&#34;:&#34;life_support_unit&#34;,&#34;quantity&#34;:30},{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:25}]</span></div>
 <div class="diff-item-id">tariff</div>
-<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">32</span> &rarr; <span class="diff-add">38</span></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Cruiser&#34;</span> &rarr; <span class="diff-add">&#34;Customs Cruiser&#34;</span></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;The Tariff-class is what happens when the Federation decides to protect its trade lanes with something heavier than a light escort. Three weapon mounts, strong shields, and surprising speed for its tonnage make the Tariff a credible threat to pirates and a reassuring sight for convoy captains. The energy barrier systems drain power from approaching hostiles before conventional weapons even fire. The name is deliberate — crossing Federation space without permission costs you one way or another. &#34;</span> &rarr; <span class="diff-add">&#34;The Tariff-class is what happens when the Federation decides that border security deserves capital-class investment. Three weapon mounts discourage resistance, heavy shields absorb the occasional disagreement, and the integrated scanner suite resolves cargo contents through military-grade hull plating at ranges that make jettisoning evidence impractical. The expanded cargo bay holds confiscated goods — the Federation does not waste seized merchandise, it redistributes it through official channels after a reasonable holding period and a modest handling charge. The name is deliberate — crossing Federation space without permission costs you one way or another. &#34;</span></div><div class="diff-field"><span class="diff-field-name">base_hull:</span> <span class="diff-del">400</span> &rarr; <span class="diff-add">380</span></div><div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Combat&#34;</span> &rarr; <span class="diff-add">&#34;Combat Support&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Nebula energy cruiser. The cost of crossing Federation space without a trade license.&#34;</span> &rarr; <span class="diff-add">&#34;Nebula customs cruiser. The Federation&#39;s answer to every smuggler who thought scale-1 ships were the only thing watching the borders.&#34;</span></div><div class="diff-field"><span class="diff-field-name">flavor_tags:</span> <span class="diff-del">[&#34;energy-cruiser&#34;,&#34;combat&#34;,&#34;fast-for-class&#34;]</span> &rarr; <span class="diff-add">[&#34;customs-cruiser&#34;,&#34;scanner-heavy&#34;,&#34;cargo-capable&#34;]</span></div><div class="diff-field"><span class="diff-field-name">build_materials:</span> <span class="diff-del">[{&#34;item_id&#34;:&#34;titanium_alloy&#34;,&#34;quantity&#34;:110},{&#34;item_id&#34;:&#34;prismatic_lens&#34;,&#34;quantity&#34;:16},{&#34;item_id&#34;:&#34;cargo_container&#34;,&#34;quantity&#34;:20},{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:40},{&#34;item_id&#34;:&#34;shield_emitter&#34;,&#34;quantity&#34;:25},{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:30},{&#34;item_id&#34;:&#34;processing_core&#34;,&#34;quantity&#34;:3},{&#34;item_id&#34;:&#34;navigation_core&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;life_support_unit&#34;,&#34;quantity&#34;:18},{&#34;item_id&#34;:&#34;reinforced_bulkhead&#34;,&#34;quantity&#34;:1}]</span> &rarr; <span class="diff-add">[{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:40},{&#34;item_id&#34;:&#34;life_support_unit&#34;,&#34;quantity&#34;:18},{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:30},{&#34;item_id&#34;:&#34;sensor_array&#34;,&#34;quantity&#34;:15},{&#34;item_id&#34;:&#34;processing_core&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;navigation_core&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;shield_emitter&#34;,&#34;quantity&#34;:25},{&#34;item_id&#34;:&#34;titanium_alloy&#34;,&#34;quantity&#34;:110},{&#34;item_id&#34;:&#34;prismatic_lens&#34;,&#34;quantity&#34;:16},{&#34;item_id&#34;:&#34;cargo_container&#34;,&#34;quantity&#34;:25}]</span></div><div class="diff-field"><span class="diff-field-name">build_time:</span> <span class="diff-del">3900</span> &rarr; <span class="diff-add">4200</span></div><div class="diff-field"><span class="diff-field-name">cargo_capacity:</span> <span class="diff-del">105</span> &rarr; <span class="diff-add">150</span></div><div class="diff-field"><span class="diff-field-name">base_armor:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">18</span></div><div class="diff-field"><span class="diff-field-name">price:</span> <span class="diff-del">38000</span> &rarr; <span class="diff-add">42000</span></div><div class="diff-field"><span class="diff-field-name">base_shield:</span> <span class="diff-del">280</span> &rarr; <span class="diff-add">260</span></div><div class="diff-field"><span class="diff-field-name">power_capacity:</span> <span class="diff-del">100</span> &rarr; <span class="diff-add">95</span></div>
+<div class="diff-field"><span class="diff-field-name">price:</span> <span class="diff-del">38000</span> &rarr; <span class="diff-add">42000</span></div><div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Combat&#34;</span> &rarr; <span class="diff-add">&#34;Combat Support&#34;</span></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Cruiser&#34;</span> &rarr; <span class="diff-add">&#34;Customs Cruiser&#34;</span></div><div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">32</span> &rarr; <span class="diff-add">38</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Nebula energy cruiser. The cost of crossing Federation space without a trade license.&#34;</span> &rarr; <span class="diff-add">&#34;Nebula customs cruiser. The Federation&#39;s answer to every smuggler who thought scale-1 ships were the only thing watching the borders.&#34;</span></div><div class="diff-field"><span class="diff-field-name">flavor_tags:</span> <span class="diff-del">[&#34;energy-cruiser&#34;,&#34;combat&#34;,&#34;fast-for-class&#34;]</span> &rarr; <span class="diff-add">[&#34;customs-cruiser&#34;,&#34;scanner-heavy&#34;,&#34;cargo-capable&#34;]</span></div><div class="diff-field"><span class="diff-field-name">build_materials:</span> <span class="diff-del">[{&#34;item_id&#34;:&#34;titanium_alloy&#34;,&#34;quantity&#34;:110},{&#34;item_id&#34;:&#34;prismatic_lens&#34;,&#34;quantity&#34;:16},{&#34;item_id&#34;:&#34;cargo_container&#34;,&#34;quantity&#34;:20},{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:40},{&#34;item_id&#34;:&#34;shield_emitter&#34;,&#34;quantity&#34;:25},{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:30},{&#34;item_id&#34;:&#34;processing_core&#34;,&#34;quantity&#34;:3},{&#34;item_id&#34;:&#34;navigation_core&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;life_support_unit&#34;,&#34;quantity&#34;:18},{&#34;item_id&#34;:&#34;reinforced_bulkhead&#34;,&#34;quantity&#34;:1}]</span> &rarr; <span class="diff-add">[{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:40},{&#34;item_id&#34;:&#34;life_support_unit&#34;,&#34;quantity&#34;:18},{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:30},{&#34;item_id&#34;:&#34;sensor_array&#34;,&#34;quantity&#34;:15},{&#34;item_id&#34;:&#34;processing_core&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;navigation_core&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;shield_emitter&#34;,&#34;quantity&#34;:25},{&#34;item_id&#34;:&#34;titanium_alloy&#34;,&#34;quantity&#34;:110},{&#34;item_id&#34;:&#34;prismatic_lens&#34;,&#34;quantity&#34;:16},{&#34;item_id&#34;:&#34;cargo_container&#34;,&#34;quantity&#34;:25}]</span></div><div class="diff-field"><span class="diff-field-name">base_armor:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">18</span></div><div class="diff-field"><span class="diff-field-name">base_hull:</span> <span class="diff-del">400</span> &rarr; <span class="diff-add">380</span></div><div class="diff-field"><span class="diff-field-name">power_capacity:</span> <span class="diff-del">100</span> &rarr; <span class="diff-add">95</span></div><div class="diff-field"><span class="diff-field-name">build_time:</span> <span class="diff-del">3900</span> &rarr; <span class="diff-add">4200</span></div><div class="diff-field"><span class="diff-field-name">base_shield:</span> <span class="diff-del">280</span> &rarr; <span class="diff-add">260</span></div><div class="diff-field"><span class="diff-field-name">cargo_capacity:</span> <span class="diff-del">105</span> &rarr; <span class="diff-add">150</span></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;The Tariff-class is what happens when the Federation decides to protect its trade lanes with something heavier than a light escort. Three weapon mounts, strong shields, and surprising speed for its tonnage make the Tariff a credible threat to pirates and a reassuring sight for convoy captains. The energy barrier systems drain power from approaching hostiles before conventional weapons even fire. The name is deliberate — crossing Federation space without permission costs you one way or another. &#34;</span> &rarr; <span class="diff-add">&#34;The Tariff-class is what happens when the Federation decides that border security deserves capital-class investment. Three weapon mounts discourage resistance, heavy shields absorb the occasional disagreement, and the integrated scanner suite resolves cargo contents through military-grade hull plating at ranges that make jettisoning evidence impractical. The expanded cargo bay holds confiscated goods — the Federation does not waste seized merchandise, it redistributes it through official channels after a reasonable holding period and a modest handling charge. The name is deliberate — crossing Federation space without permission costs you one way or another. &#34;</span></div>
 <div class="diff-item-id">technically_legal</div>
 <div class="diff-field"><span class="diff-field-name">build_materials:</span> <span class="diff-del">[{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:2},{&#34;item_id&#34;:&#34;aluminum_sheet&#34;,&#34;quantity&#34;:35},{&#34;item_id&#34;:&#34;flex_polymer&#34;,&#34;quantity&#34;:10},{&#34;item_id&#34;:&#34;thruster_nozzle&#34;,&#34;quantity&#34;:7},{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:5}]</span> &rarr; <span class="diff-add">[{&#34;item_id&#34;:&#34;aluminum_sheet&#34;,&#34;quantity&#34;:35},{&#34;item_id&#34;:&#34;flex_polymer&#34;,&#34;quantity&#34;:10},{&#34;item_id&#34;:&#34;thruster_nozzle&#34;,&#34;quantity&#34;:7},{&#34;item_id&#34;:&#34;fuel_tank&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;hull_plating&#34;,&#34;quantity&#34;:2}]</span></div>
 <div class="diff-item-id">terms_and_conditions</div>
@@ -1192,178 +1199,12 @@
     <h3>Map</h3>
     <div class="catalog-counts">
         
-        <span class="diff-add">+0</span>
-        <span class="diff-del">&minus;0</span>
-        <span class="diff-mod">~80</span>
+        <span class="no-changes">unchanged</span>
         
     </div>
 </div>
 <div class="catalog-body">
-
-
-
-<h4>Modified</h4>
-<div class="diff-item-id">achernar</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">acrux</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">acubens</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">6</span></div>
-<div class="diff-item-id">alathfar</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">alfirk</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">alpha_centauri</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">alrakis</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">altais</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">3</span></div>
-<div class="diff-item-id">ancha</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">antares</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">ashford</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">birchwood</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">blood_forge</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">caph</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">cargo_lanes</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">9</span></div>
-<div class="diff-item-id">cedarhold</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">cervantes</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">cloverfield</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">deep_range</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">41</span> &rarr; <span class="diff-add">37</span></div>
-<div class="diff-item-id">dheneb</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">epsilon_eridani</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">fang</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">first_step</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">frontier</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">21</span> &rarr; <span class="diff-add">8</span></div>
-<div class="diff-item-id">frostpeak</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">furud</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">gienah</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">gliese_436</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
-<div class="diff-item-id">gold_run</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">31</span></div>
-<div class="diff-item-id">gsc_0009</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">gsc_0023</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">gsc_0044</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">gsc_0051</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">hatysa</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">haven</div>
-<div class="diff-field"><span class="diff-field-name">visited:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div><div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">83</span> &rarr; <span class="diff-add">67</span></div><div class="diff-field"><span class="diff-field-name">visited_at:</span> <span class="diff-del">&#34;2026-02-08 08:52:34&#34;</span> &rarr; <span class="diff-add">&#34;&#34;</span></div>
-<div class="diff-item-id">hd_20794</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">5</span></div>
-<div class="diff-item-id">horizon</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">intercrus</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">iron_reach</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">11</span></div>
-<div class="diff-item-id">ironhearth</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">51</span> &rarr; <span class="diff-add">44</span></div>
-<div class="diff-item-id">keelbreak</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">khambalia</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">8</span></div>
-<div class="diff-item-id">kitalpha</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">krynn</div>
-<div class="diff-field"><span class="diff-field-name">visited:</span> <span class="diff-del">false</span> &rarr; <span class="diff-add">true</span></div><div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">42</span> &rarr; <span class="diff-add">36</span></div><div class="diff-field"><span class="diff-field-name">visited_at:</span> <span class="diff-del">&#34;&#34;</span> &rarr; <span class="diff-add">&#34;2026-02-08 08:52:44&#34;</span></div>
-<div class="diff-item-id">lacaille_9352</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
-<div class="diff-item-id">lanternwick</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">last_light</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">lhs_1140</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">markab</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">market_prime</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">9</span></div>
-<div class="diff-item-id">mirzam</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">nashira</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">nexus_prime</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">26</span> &rarr; <span class="diff-add">37</span></div>
-<div class="diff-item-id">nihal</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">node_alpha</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">node_beta</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">20</span></div>
-<div class="diff-item-id">node_gamma</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">nova_terra</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">32</span> &rarr; <span class="diff-add">27</span></div>
-<div class="diff-item-id">ogma</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">6</span></div>
-<div class="diff-item-id">procyon</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">3</span></div>
-<div class="diff-item-id">propus</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">ridgecrest</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">ross_154</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">ruchbah</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">sirius</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">4</span></div>
-<div class="diff-item-id">sol</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">42</span> &rarr; <span class="diff-add">44</span></div>
-<div class="diff-item-id">spica</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">starfall</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">25</span></div>
-<div class="diff-item-id">struve_1321</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">synchrony</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">5</span></div>
-<div class="diff-item-id">tau_ceti</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">2</span></div>
-<div class="diff-item-id">thabit</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">the_anvil</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">the_crucible</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">the_experiment</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">9</span></div>
-<div class="diff-item-id">tidewater</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">treasure_cache</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
-<div class="diff-item-id">unknown_edge</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">valor</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">westmark</div>
-<div class="diff-field"><span class="diff-field-name">online:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-
+<p class="no-changes">No changes</p>
 
 </div>
 </div>
