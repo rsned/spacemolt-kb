@@ -94,6 +94,9 @@ func renderFieldDiff(field, oldVal, newVal string) htmltpl.HTML {
 	newVal = strings.TrimSpace(newVal)
 
 	if isJSONArray(oldVal) || isJSONArray(newVal) {
+		if html, ok := renderScalarArrayDiff(field, oldVal, newVal); ok {
+			return html
+		}
 		if html, ok := renderArrayDiff(field, oldVal, newVal); ok {
 			return html
 		}
@@ -115,6 +118,76 @@ func renderFieldDiff(field, oldVal, newVal string) htmltpl.HTML {
 
 func isJSONArray(s string) bool  { return strings.HasPrefix(s, "[") }
 func isJSONObject(s string) bool { return strings.HasPrefix(s, "{") }
+
+// renderScalarArrayDiff renders two JSON arrays of scalars (strings, numbers)
+// as a side-by-side table, matching elements by value and sorting alphabetically.
+func renderScalarArrayDiff(field, oldVal, newVal string) (htmltpl.HTML, bool) {
+	var oldArr, newArr []any
+	if oldVal != "null" && oldVal != "" {
+		if err := json.Unmarshal([]byte(oldVal), &oldArr); err != nil {
+			return "", false
+		}
+	}
+	if newVal != "null" && newVal != "" {
+		if err := json.Unmarshal([]byte(newVal), &newArr); err != nil {
+			return "", false
+		}
+	}
+
+	// Only handle scalar arrays — bail if any element is an object or array.
+	for _, v := range append(oldArr, newArr...) {
+		switch v.(type) {
+		case map[string]any, []any:
+			return "", false
+		}
+	}
+
+	oldSet := make(map[string]int)
+	for _, v := range oldArr {
+		oldSet[formatValue(v)]++
+	}
+	newSet := make(map[string]int)
+	for _, v := range newArr {
+		newSet[formatValue(v)]++
+	}
+
+	allVals := make(map[string]bool)
+	for k := range oldSet {
+		allVals[k] = true
+	}
+	for k := range newSet {
+		allVals[k] = true
+	}
+	sorted := make([]string, 0, len(allVals))
+	for k := range allVals {
+		sorted = append(sorted, k)
+	}
+	slices.Sort(sorted)
+
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf(
+		`<div class="diff-field"><span class="diff-field-name">%s:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody>`,
+		htmltpl.HTMLEscapeString(field),
+	))
+
+	for _, val := range sorted {
+		inOld := oldSet[val] > 0
+		inNew := newSet[val] > 0
+		esc := htmltpl.HTMLEscapeString(val)
+
+		switch {
+		case inOld && inNew:
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-unchanged">%s</td><td class="diff-unchanged">%s</td></tr>`, esc, esc))
+		case inOld:
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-del">%s</td><td class="diff-empty"></td></tr>`, esc))
+		default:
+			b.WriteString(fmt.Sprintf(`<tr><td class="diff-empty"></td><td class="diff-add">%s</td></tr>`, esc))
+		}
+	}
+
+	b.WriteString(`</tbody></table></div>`)
+	return htmltpl.HTML(b.String()), true
+}
 
 // renderArrayDiff renders two JSON arrays of objects as a side-by-side table.
 // Elements are matched by the first string field found (e.g. "type", "name").
