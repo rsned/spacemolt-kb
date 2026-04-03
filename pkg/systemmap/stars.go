@@ -154,6 +154,49 @@ func GetStarSize(luminosity string) float64 {
 	return 10 // Default main sequence size
 }
 
+// GetSpectralColorName returns the human-readable color name for a spectral type.
+func GetSpectralColorName(spectral string) string {
+	if st, ok := spectralTypes[spectral]; ok {
+		return st.Name
+	}
+	// Try base white dwarf type (e.g., "DAP" → "DA").
+	if len(spectral) == 3 && strings.HasPrefix(spectral, "D") {
+		if st, ok := spectralTypes[spectral[:2]]; ok {
+			return st.Name
+		}
+	}
+	return "Unknown"
+}
+
+// GetSpectralTempRange returns the temperature range string for a spectral type.
+func GetSpectralTempRange(spectral string) string {
+	if st, ok := spectralTypes[spectral]; ok {
+		return st.TempRange
+	}
+	if len(spectral) == 3 && strings.HasPrefix(spectral, "D") {
+		if st, ok := spectralTypes[spectral[:2]]; ok {
+			return st.TempRange
+		}
+	}
+	return "unknown"
+}
+
+// GetLuminosityName returns the human-readable name for a luminosity class.
+func GetLuminosityName(luminosity string) string {
+	if lc, ok := luminosityClasses[luminosity]; ok {
+		return lc.Name
+	}
+	return "Unknown"
+}
+
+// GetLuminosityMultiplier returns the size multiplier for a luminosity class.
+func GetLuminosityMultiplier(luminosity string) float64 {
+	if lc, ok := luminosityClasses[luminosity]; ok {
+		return lc.Multiplier
+	}
+	return 1.0
+}
+
 // ParseStarClass parses a star classification string in MK system notation.
 // Supports formats:
 //   - With space: "G2 V"

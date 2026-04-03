@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+	"github.com/rsned/spacemolt-kb/pkg/kbdb"
 	"github.com/rsned/spacemolt-kb/pkg/systemmap"
 	_ "modernc.org/sqlite"
 )
@@ -417,6 +418,11 @@ func main() {
 	} else {
 		defer func() { _ = knowledgeDB.Close() }()
 
+		// Ensure POI metadata tables exist.
+		if err := kbdb.Migrate(knowledgeDB); err != nil {
+			log.Fatalf("migrate metadata tables: %v", err)
+		}
+
 		systems, err := loadSystems(knowledgeDB)
 		if err != nil {
 			log.Fatalf("load systems: %v", err)
@@ -428,14 +434,22 @@ func main() {
 
 		fmt.Printf("Generated %d system pages in %s/\n", len(systems), systemOutDir)
 
-		// Generate planet surface maps and detail pages.
-		planetImgDir := "kb/images/planets"
-		if err := os.MkdirAll(planetImgDir, 0o755); err != nil {
-			log.Fatalf("create planet image dir: %v", err)
+		// Persist star metadata for all sun POIs.
+		if err := persistStarMetadata(knowledgeDB, systems); err != nil {
+			log.Fatalf("persist star metadata: %v", err)
 		}
-		if err := writePlanetPages(systemOutDir, planetImgDir, systems); err != nil {
+
+		// Generate planet detail pages (textures are generated separately via generate-planet-maps).
+		if err := writePlanetPages(knowledgeDB, systemOutDir, systems); err != nil {
 			log.Fatalf("write planet pages: %v", err)
 		}
+
+		// Generate resource index page.
+		resourceOutDir := "kb/resources"
+		if err := writeResourcePages(resourceOutDir, knowledgeDB); err != nil {
+			log.Fatalf("write resource pages: %v", err)
+		}
+		fmt.Printf("Generated resource index in %s/\n", resourceOutDir)
 	}
 
 	// --- Skill generation ---
@@ -1581,6 +1595,7 @@ var siteHeader = `    <header class="site-header">
             <a href="../skills/index.html">Skills</a>
             <a href="../ships/index.html">Ships</a>
             <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1599,6 +1614,7 @@ var siteHeaderSub = `    <header class="site-header">
             <a href="../../skills/index.html">Skills</a>
             <a href="../../ships/index.html">Ships</a>
             <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
