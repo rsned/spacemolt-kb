@@ -262,7 +262,7 @@ var recipeCategoryDescriptions = map[string]string{
 
 func main() {
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
-	catalogDir := "../spacemolt/data/game-api/prophet-2"
+	catalogDir := findLatestCatalogDir("../spacemolt/data/game-api")
 	outDir := "kb/items"
 
 	if len(os.Args) > 1 {
@@ -717,6 +717,35 @@ func loadRecipeOverlay(catalogPath string, recipes map[string]*Recipe) error {
 	return nil
 }
 
+// findLatestCatalogDir finds the most recent YYYYMMDD snapshot directory
+// under the given base path. Falls back to the base path itself if no
+// date-named subdirectories exist.
+func findLatestCatalogDir(base string) string {
+	entries, err := os.ReadDir(base)
+	if err != nil {
+		log.Printf("warning: cannot read catalog base dir %s: %v (using as-is)", base, err)
+		return base
+	}
+	var latest string
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		name := e.Name()
+		// Match YYYYMMDD pattern (8 digits).
+		if len(name) == 8 && name > latest {
+			latest = name
+		}
+	}
+	if latest == "" {
+		log.Printf("warning: no date-stamped snapshot dirs in %s (using as-is)", base)
+		return base
+	}
+	dir := filepath.Join(base, latest)
+	log.Printf("Using catalog snapshot: %s", dir)
+	return dir
+}
+
 func loadSystems(db *sql.DB) ([]*System, error) {
 	rows, err := db.Query(`SELECT id, name, position_x, position_y, police_level, COALESCE(empire,''), COALESCE(description,''), is_stronghold, COALESCE(security_status,''), last_updated_tick FROM systems ORDER BY name`)
 	if err != nil {
@@ -786,7 +815,6 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 	defer func() { _ = poiRows.Close() }()
 
-	poiLookup := make(map[string]*SystemPOI) // poi ID → pointer for attaching resources
 	for poiRows.Next() {
 		var systemID string
 		var poi SystemPOI
@@ -795,11 +823,18 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 		}
 		if s, ok := systemMap[systemID]; ok {
 			s.POIs = append(s.POIs, poi)
-			poiLookup[poi.ID] = &s.POIs[len(s.POIs)-1]
 		}
 	}
 	if err := poiRows.Err(); err != nil {
 		return nil, err
+	}
+
+	// Build POI lookup after all appends are done so pointers remain stable.
+	poiLookup := make(map[string]*SystemPOI)
+	for _, s := range systems {
+		for i := range s.POIs {
+			poiLookup[s.POIs[i].ID] = &s.POIs[i]
+		}
 	}
 
 	// Load POI resources.

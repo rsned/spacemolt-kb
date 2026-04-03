@@ -45,7 +45,7 @@
 
         <div class="planet-header">
             <h2>Gold Run IV</h2>
-            <span class="badge-type">Jovian</span>
+            <span class="badge-type">Unclassified</span>
         </div>
         <blockquote class="item-desc" style="opacity:0.5">No survey data available. This world remains unexplored.</blockquote>
         <div class="explorer-note">
@@ -65,35 +65,35 @@
             <div class="stats-grid">
                 <div class="stat-item">
                     <span class="label">Radius</span>
-                    <span class="value">61763.0 km</span>
+                    <span class="value">5834 km</span>
                 </div>
                 <div class="stat-item">
                     <span class="label">Mass</span>
-                    <span class="value">113.7 M⊕</span>
+                    <span class="value">0.96 M⊕</span>
                 </div>
                 <div class="stat-item">
                     <span class="label">Surface Gravity</span>
-                    <span class="value">1.00 g</span>
+                    <span class="value">0.80 g</span>
                 </div>
                 <div class="stat-item">
                     <span class="label">Temperature</span>
-                    <span class="value">120 K (-154°C)</span>
+                    <span class="value">223 K (-50°C)</span>
                 </div>
                 <div class="stat-item">
                     <span class="label">Atmosphere</span>
-                    <span class="value">None — H2/He (no surface)</span>
+                    <span class="value">0.421 atm — Unknown composition</span>
                 </div>
                 <div class="stat-item">
                     <span class="label">Day Length</span>
-                    <span class="value">10.4 hours</span>
+                    <span class="value">17.8 hours</span>
                 </div>
                 <div class="stat-item">
                     <span class="label">Orbital Period</span>
-                    <span class="value">8.1 years</span>
+                    <span class="value">8.0 years</span>
                 </div>
                 <div class="stat-item">
                     <span class="label">Orbital Distance</span>
-                    <span class="value">4.03 AU</span>
+                    <span class="value">4.01 AU</span>
                 </div>
             </div>
         </div>
@@ -104,10 +104,10 @@
 const canvas = document.getElementById('sphere-canvas');
 const ctx = canvas.getContext('2d');
 const W = canvas.width, H = canvas.height;
-const CX = W/2, CY = H/2, RADIUS = 160;
+const CX = W/2, CY = H/2, RADIUS = 180;
 
 let textureData = null, texW = 0, texH = 0;
-let rotY = 0.4, rotX = 0.35;
+let rotY = 0.4, rotX = 0.15;
 let dragging = false, lastMX = 0, lastMY = 0;
 let autoRotate = true;
 
@@ -134,36 +134,13 @@ function sampleTex(u, v) {
 }
 
 
-const ringCfg = {
-    inner: 1.3*RADIUS, outer: 2.2*RADIUS,
-    colors: [
-        {pos:0,r:180,g:150,b:110,a:0},{pos:0.08,r:180,g:150,b:110,a:0.4},
-        {pos:0.2,r:160,g:130,b:95,a:0.55},{pos:0.35,r:170,g:145,b:105,a:0.3},
-        {pos:0.45,r:155,g:125,b:90,a:0.6},{pos:0.6,r:175,g:150,b:115,a:0.65},
-        {pos:0.75,r:145,g:120,b:85,a:0.45},{pos:0.9,r:160,g:135,b:100,a:0.2},
-        {pos:1,r:150,g:130,b:95,a:0}
-    ]
-};
-
-function sampleRing(colors, t) {
-    t = Math.max(0, Math.min(1, t));
-    for (let i=1; i<colors.length; i++) {
-        if (t <= colors[i].pos) {
-            const lt = (t-colors[i-1].pos)/(colors[i].pos-colors[i-1].pos);
-            const a=colors[i-1], b=colors[i];
-            return {r:a.r+(b.r-a.r)*lt, g:a.g+(b.g-a.g)*lt, b:a.b+(b.b-a.b)*lt, a:a.a+(b.a-a.a)*lt};
-        }
-    }
-    return colors[colors.length-1];
-}
-
 
 function render() {
     const id = ctx.createImageData(W, H);
     const d = id.data;
     const cRX=Math.cos(rotX), sRX=Math.sin(rotX), cRY=Math.cos(rotY), sRY=Math.sin(rotY);
     const lx=-0.4, ly=0.5, lz=0.7, ll=Math.sqrt(lx*lx+ly*ly+lz*lz);
-    const rNY=cRX, rNZ=-sRX;
+    
 
     for (let py=0; py<H; py++) {
         for (let px=0; px<W; px++) {
@@ -188,26 +165,7 @@ function render() {
             }
 
             
-            let ringA=0, ringR=0, ringG=0, ringB=0, ringZ=0;
-            if (Math.abs(rNZ) > 0.001) {
-                const t = (dy*rNY)/rNZ;
-                ringZ = t;
-                const ix=dx, iy=-dy, iz=t;
-                const dist3d = Math.sqrt(ix*ix+iy*iy+iz*iz);
-                if (dist3d >= ringCfg.inner && dist3d <= ringCfg.outer) {
-                    const rt = (dist3d-ringCfg.inner)/(ringCfg.outer-ringCfg.inner);
-                    const rc = sampleRing(ringCfg.colors, rt);
-                    const rLit = 0.6+0.4*Math.max(0,(ly*rNY+lz*rNZ)/ll);
-                    ringR=rc.r*rLit; ringG=rc.g*rLit; ringB=rc.b*rLit; ringA=rc.a;
-                    if (onP && t < 0) ringA=0;
-                }
-            }
-            if (onP && ringA > 0) {
-                if (ringZ > 0) { d[idx]=Math.floor(pR*(1-ringA)+ringR*ringA); d[idx+1]=Math.floor(pG*(1-ringA)+ringG*ringA); d[idx+2]=Math.floor(pB*(1-ringA)+ringB*ringA); }
-                else { d[idx]=pR; d[idx+1]=pG; d[idx+2]=pB; }
-            } else if (onP) { d[idx]=pR; d[idx+1]=pG; d[idx+2]=pB; }
-            else if (ringA > 0) { d[idx]=Math.floor(17*(1-ringA)+ringR*ringA); d[idx+1]=Math.floor(17*(1-ringA)+ringG*ringA); d[idx+2]=Math.floor(17*(1-ringA)+ringB*ringA); }
-            else { d[idx]=17; d[idx+1]=17; d[idx+2]=17; }
+            d[idx]=pR; d[idx+1]=pG; d[idx+2]=pB;
             
             d[idx+3]=255;
         }
