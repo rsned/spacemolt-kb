@@ -179,16 +179,22 @@ type POIResource struct {
 
 // SystemBase is a base/station in a system.
 type SystemBase struct {
-	ID           string
-	POIID        string
-	Name         string
-	Description  string
-	Empire       string
-	DefenseLevel int
-	HasDrones    bool
-	PublicAccess bool
-	Services     []BaseService
-	Facilities   []BaseFacility
+	ID                string
+	POIID             string
+	Name              string
+	Description       string
+	Story             string
+	Empire            string
+	DefenseLevel      int
+	HasDrones         bool
+	PublicAccess      bool
+	Condition         string
+	ConditionText     string
+	SatisfactionPct   int
+	SatisfiedCount    int
+	TotalServiceInfra int
+	Services          []BaseService
+	Facilities        []BaseFacility
 }
 
 // BaseService is a service available at a base.
@@ -202,6 +208,14 @@ type BaseFacility struct {
 	Name     string
 	Category string
 	Level    int
+}
+
+// CondensedFacility is a facility with a count for duplicate collapsing.
+type CondensedFacility struct {
+	Name     string
+	Category string
+	Level    int
+	Count    int
 }
 
 // EmpireGroup holds an empire's systems for the systems index page.
@@ -864,8 +878,12 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 
 	// Load bases (linked to POIs, which link to systems).
 	baseRows, err := db.Query(`
-		SELECT b.id, b.poi_id, b.name, COALESCE(b.description,''), COALESCE(b.empire,''),
-		       b.defense_level, b.has_drones, b.public_access, p.system_id
+		SELECT b.id, b.poi_id, b.name, COALESCE(b.description,''), COALESCE(b.story,''),
+		       COALESCE(b.empire,''),
+		       b.defense_level, b.has_drones, b.public_access,
+		       COALESCE(b.condition,''), COALESCE(b.condition_text,''),
+		       b.satisfaction_pct, b.satisfied_count, b.total_service_infra,
+		       p.system_id
 		FROM bases b
 		JOIN pois p ON b.poi_id = p.id
 		ORDER BY p.system_id, b.name`)
@@ -874,21 +892,29 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 	defer func() { _ = baseRows.Close() }()
 
-	baseLookup := make(map[string]*SystemBase)
 	for baseRows.Next() {
 		var systemID string
 		var base SystemBase
-		if err := baseRows.Scan(&base.ID, &base.POIID, &base.Name, &base.Description,
-			&base.Empire, &base.DefenseLevel, &base.HasDrones, &base.PublicAccess, &systemID); err != nil {
+		if err := baseRows.Scan(&base.ID, &base.POIID, &base.Name, &base.Description, &base.Story,
+			&base.Empire, &base.DefenseLevel, &base.HasDrones, &base.PublicAccess,
+			&base.Condition, &base.ConditionText, &base.SatisfactionPct,
+			&base.SatisfiedCount, &base.TotalServiceInfra, &systemID); err != nil {
 			return nil, err
 		}
 		if s, ok := systemMap[systemID]; ok {
 			s.Bases = append(s.Bases, base)
-			baseLookup[base.ID] = &s.Bases[len(s.Bases)-1]
 		}
 	}
 	if err := baseRows.Err(); err != nil {
 		return nil, err
+	}
+
+	// Build base lookup after all appends are done so pointers remain stable.
+	baseLookup := make(map[string]*SystemBase)
+	for _, s := range systems {
+		for i := range s.Bases {
+			baseLookup[s.Bases[i].ID] = &s.Bases[i]
+		}
 	}
 
 	// Load base services.
@@ -953,7 +979,9 @@ func writeSystemPages(outDir string, systems []*System) error {
 		"resourcePOIs":  func(pois []SystemPOI) []SystemPOI { return filterResourcePOIs(pois) },
 		"fmtRemaining":  fmtRemaining,
 		"fmtRichness":   func(r float64) string { return fmt.Sprintf("%.0f", r) },
-		"facilityBadge": facilityBadge,
+		"facilityBadge":      facilityBadge,
+		"condenseFacilities": condenseFacilities,
+		"conditionBadge":     conditionBadge,
 		"titleCaseID":   titleCaseID,
 		"sortPOIsByDist": func(pois []SystemPOI) []SystemPOI {
 			sorted := make([]SystemPOI, len(pois))
@@ -1310,6 +1338,33 @@ func poiHasResources(pois []SystemPOI) bool {
 	return false
 }
 
+func condenseFacilities(facs []BaseFacility) []CondensedFacility {
+	type key struct {
+		Name     string
+		Category string
+		Level    int
+	}
+	counts := make(map[key]int)
+	var order []key
+	for _, f := range facs {
+		k := key(f)
+		if counts[k] == 0 {
+			order = append(order, k)
+		}
+		counts[k]++
+	}
+	result := make([]CondensedFacility, 0, len(order))
+	for _, k := range order {
+		result = append(result, CondensedFacility{
+			Name:     k.Name,
+			Category: k.Category,
+			Level:    k.Level,
+			Count:    counts[k],
+		})
+	}
+	return result
+}
+
 func filterResourcePOIs(pois []SystemPOI) []SystemPOI {
 	var result []SystemPOI
 	for _, poi := range pois {
@@ -1335,6 +1390,23 @@ func facilityBadge(category string) string {
 		return "badge-frost"
 	case "infrastructure":
 		return ""
+	default:
+		return ""
+	}
+}
+
+func conditionBadge(condition string) string {
+	switch strings.ToLower(condition) {
+	case "pristine", "excellent":
+		return "badge-green"
+	case "good", "operational":
+		return "badge-frost"
+	case "fair", "struggling":
+		return "badge-yellow"
+	case "poor", "critical":
+		return "badge-red"
+	case "degraded":
+		return "badge-orange"
 	default:
 		return ""
 	}
@@ -2214,11 +2286,25 @@ var systemDetailTemplate = `<!DOCTYPE html>
 {{- if .HasDrones}}
                         <span class="badge badge-yellow">Drones</span>
 {{- end}}
+{{- if .Condition}}
+                        <span class="badge {{conditionBadge .Condition}}">{{titleCase .Condition}}</span>
+{{- end}}
                     </div>
                 </div>
+{{- if .ConditionText}}
+                <p class="base-desc" style="font-style:italic; opacity:0.85">{{.ConditionText}}</p>
+{{- end}}
 {{- if .Description}}
                 <p class="base-desc">{{.Description}}</p>
 {{- end}}
+{{- if .Story}}
+                <details class="base-story"><summary>Station Log</summary><p>{{.Story}}</p></details>
+{{- end}}
+                <div class="base-meta">
+{{- if .SatisfactionPct}}
+                    <span class="label">Satisfaction: {{.SatisfactionPct}}% ({{.SatisfiedCount}}/{{.TotalServiceInfra}} infrastructure)</span>
+{{- end}}
+                </div>
                 <div class="base-sections">
 {{- if .Services}}
                     <div>
@@ -2236,9 +2322,9 @@ var systemDetailTemplate = `<!DOCTYPE html>
                         <table class="facility-table">
                             <thead><tr><th>Facility</th><th>Category</th><th>Level</th></tr></thead>
                             <tbody>
-{{- range .Facilities}}
+{{- range condenseFacilities .Facilities}}
                                 <tr>
-                                  <td>{{titleCaseID .Name}}</td>
+                                  <td>{{titleCaseID .Name}}{{if gt .Count 1}} <span class="badge badge-muted">x{{.Count}}</span>{{end}}</td>
                                   <td><span class="badge {{facilityBadge .Category}}">{{.Category}}</span></td>
                                   <td>{{.Level}}</td>
                                 </tr>
