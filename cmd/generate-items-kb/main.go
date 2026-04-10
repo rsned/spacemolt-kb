@@ -325,12 +325,8 @@ func main() {
 		log.Fatalf("create output dir: %v", err)
 	}
 
-	// Check which items have images.
-	imgDir := filepath.Join(outDir, "images")
-	for _, it := range items {
-		_, err := os.Stat(filepath.Join(imgDir, it.ID+".png"))
-		it.HasImage = err == nil
-	}
+	// Item thumbnails are fan-made — intentionally skip setting HasImage
+	// so images are kept on disk but not displayed in the KB.
 
 	// Group items by category.
 	catItems := make(map[string][]*Item)
@@ -379,17 +375,8 @@ func main() {
 		log.Printf("warning: load recipe overlay: %v (hidden flag will be omitted)", err)
 	}
 
-	// Check which recipe output items have images.
-	for _, r := range recipes {
-		for i, out := range r.Outputs {
-			_, err := os.Stat(filepath.Join(imgDir, out.ItemID+".png"))
-			r.Outputs[i].HasImage = err == nil
-		}
-		for i, inp := range r.Inputs {
-			_, err := os.Stat(filepath.Join(imgDir, inp.ItemID+".png"))
-			r.Inputs[i].HasImage = err == nil
-		}
-	}
+	// Item thumbnails are fan-made — skip setting HasImage on recipe
+	// inputs/outputs so they are not displayed in the KB.
 
 	// Group recipes by category.
 	catRecipes := make(map[string][]*Recipe)
