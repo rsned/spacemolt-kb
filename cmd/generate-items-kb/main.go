@@ -6,6 +6,7 @@ import (
 	"cmp"
 	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
 	htmltpl "html/template"
 	"log"
@@ -275,15 +276,25 @@ var recipeCategoryDescriptions = map[string]string{
 }
 
 func main() {
+	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
+	flag.Parse()
+
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
 	catalogDir := findLatestCatalogDir("../spacemolt/data/game-api")
 	outDir := "kb/items"
 
-	if len(os.Args) > 1 {
-		dbPath = os.Args[1]
+	args := flag.Args()
+	if len(args) > 0 {
+		dbPath = args[0]
 	}
-	if len(os.Args) > 2 {
-		outDir = os.Args[2]
+	if len(args) > 1 {
+		outDir = args[1]
+	}
+
+	// --- Single-system mode ---
+	if *systemOnly != "" {
+		generateOneSystem(*systemOnly)
+		return
 	}
 
 	db, err := sql.Open("sqlite", dbPath)
@@ -360,8 +371,8 @@ func main() {
 
 	// --- Recipe generation ---
 	recipeOutDir := "kb/recipes"
-	if len(os.Args) > 3 {
-		recipeOutDir = os.Args[3]
+	if len(args) > 2 {
+		recipeOutDir = args[2]
 	}
 
 	recipes, err := loadRecipes(db)
@@ -410,48 +421,7 @@ func main() {
 	fmt.Printf("Generated %d recipe pages + %d category pages in %s/\n", len(recipes), len(recipeCategories), recipeOutDir)
 
 	// --- System generation ---
-	knowledgeDBPath := "../spacemolt-knowledge.db"
-	systemOutDir := "kb/systems"
-
-	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
-	if err != nil {
-		log.Printf("warning: open knowledge database: %v (system pages will be skipped)", err)
-	} else {
-		defer func() { _ = knowledgeDB.Close() }()
-
-		// Ensure POI metadata tables exist.
-		if err := kbdb.Migrate(knowledgeDB); err != nil {
-			log.Fatalf("migrate metadata tables: %v", err)
-		}
-
-		systems, err := loadSystems(knowledgeDB)
-		if err != nil {
-			log.Fatalf("load systems: %v", err)
-		}
-
-		if err := writeSystemPages(systemOutDir, systems); err != nil {
-			log.Fatalf("write system pages: %v", err)
-		}
-
-		fmt.Printf("Generated %d system pages in %s/\n", len(systems), systemOutDir)
-
-		// Persist star metadata for all sun POIs.
-		if err := persistStarMetadata(knowledgeDB, systems); err != nil {
-			log.Fatalf("persist star metadata: %v", err)
-		}
-
-		// Generate planet detail pages (textures are generated separately via generate-planet-maps).
-		if err := writePlanetPages(knowledgeDB, systemOutDir, systems); err != nil {
-			log.Fatalf("write planet pages: %v", err)
-		}
-
-		// Generate resource index page.
-		resourceOutDir := "kb/resources"
-		if err := writeResourcePages(resourceOutDir, knowledgeDB); err != nil {
-			log.Fatalf("write resource pages: %v", err)
-		}
-		fmt.Printf("Generated resource index in %s/\n", resourceOutDir)
-	}
+	generateAllSystems()
 
 	// --- Skill generation ---
 	skillCatalogPath := filepath.Join(catalogDir, "catalog_skills.json")
@@ -497,6 +467,92 @@ func main() {
 			log.Fatalf("write facility pages: %v", err)
 		}
 		fmt.Printf("Generated %d facility pages in kb/facilities/\n", len(facilities))
+	}
+}
+
+// generateAllSystems loads all systems and generates all system/planet/resource pages.
+func generateAllSystems() {
+	knowledgeDBPath := "../spacemolt-knowledge.db"
+	systemOutDir := "kb/systems"
+
+	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
+	if err != nil {
+		log.Printf("warning: open knowledge database: %v (system pages will be skipped)", err)
+		return
+	}
+	defer func() { _ = knowledgeDB.Close() }()
+
+	if err := kbdb.Migrate(knowledgeDB); err != nil {
+		log.Fatalf("migrate metadata tables: %v", err)
+	}
+
+	systems, err := loadSystems(knowledgeDB)
+	if err != nil {
+		log.Fatalf("load systems: %v", err)
+	}
+
+	if err := writeSystemPages(systemOutDir, systems); err != nil {
+		log.Fatalf("write system pages: %v", err)
+	}
+	fmt.Printf("Generated %d system pages in %s/\n", len(systems), systemOutDir)
+
+	if err := persistStarMetadata(knowledgeDB, systems); err != nil {
+		log.Fatalf("persist star metadata: %v", err)
+	}
+
+	if err := writePlanetPages(knowledgeDB, systemOutDir, systems); err != nil {
+		log.Fatalf("write planet pages: %v", err)
+	}
+
+	resourceOutDir := "kb/resources"
+	if err := writeResourcePages(resourceOutDir, knowledgeDB); err != nil {
+		log.Fatalf("write resource pages: %v", err)
+	}
+	fmt.Printf("Generated resource index in %s/\n", resourceOutDir)
+}
+
+// generateOneSystem regenerates pages for a single system by ID.
+func generateOneSystem(systemID string) {
+	knowledgeDBPath := "../spacemolt-knowledge.db"
+	systemOutDir := "kb/systems"
+
+	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
+	if err != nil {
+		log.Fatalf("open knowledge database: %v", err)
+	}
+	defer func() { _ = knowledgeDB.Close() }()
+
+	if err := kbdb.Migrate(knowledgeDB); err != nil {
+		log.Fatalf("migrate metadata tables: %v", err)
+	}
+
+	// Load all systems — needed for connection/map rendering on the target page.
+	systems, err := loadSystems(knowledgeDB)
+	if err != nil {
+		log.Fatalf("load systems: %v", err)
+	}
+
+	// Find the target system.
+	var target *System
+	for _, s := range systems {
+		if s.ID == systemID {
+			target = s
+			break
+		}
+	}
+	if target == nil {
+		log.Fatalf("system %q not found in knowledge database", systemID)
+	}
+
+	// Write only this system's page (no index rebuild, no cleanup of other pages).
+	if err := writeOneSystemPage(systemOutDir, target, systems); err != nil {
+		log.Fatalf("write system page: %v", err)
+	}
+	fmt.Printf("Generated system page for %s in %s/%s/\n", target.Name, systemOutDir, target.ID)
+
+	// Regenerate planet pages for this system.
+	if err := writePlanetPages(knowledgeDB, systemOutDir, []*System{target}); err != nil {
+		log.Fatalf("write planet pages: %v", err)
 	}
 }
 
@@ -949,14 +1005,10 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	return systems, nil
 }
 
-func writeSystemPages(outDir string, systems []*System) error {
-	// Build lookup for galaxy-position of connected systems.
-	sysLookup := make(map[string]*System, len(systems))
-	for _, s := range systems {
-		sysLookup[s.ID] = s
-	}
-
-	funcs := htmltpl.FuncMap{
+// systemTemplateFuncs returns the FuncMap used by system page templates.
+// sysLookup must contain all systems for connection/map rendering.
+func systemTemplateFuncs(sysLookup map[string]*System) htmltpl.FuncMap {
+	return htmltpl.FuncMap{
 		"titleCase":     titleCase,
 		"securityClass": securityClass,
 		"securityLabel": securityLabel,
@@ -997,6 +1049,15 @@ func writeSystemPages(outDir string, systems []*System) error {
 			return htmltpl.HTML(systemmap.RenderSystemMap(toMapSystem(sys), allMap, false))
 		},
 	}
+}
+
+func writeSystemPages(outDir string, systems []*System) error {
+	sysLookup := make(map[string]*System, len(systems))
+	for _, s := range systems {
+		sysLookup[s.ID] = s
+	}
+
+	funcs := systemTemplateFuncs(sysLookup)
 	indexTmpl := htmltpl.Must(htmltpl.New("idx").Funcs(funcs).Parse(systemIndexTemplate))
 	detailTmpl := htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(systemDetailTemplate))
 
@@ -1082,6 +1143,32 @@ func writeSystemPages(outDir string, systems []*System) error {
 		}
 	}
 	return nil
+}
+
+// writeOneSystemPage regenerates a single system's detail page.
+func writeOneSystemPage(outDir string, target *System, allSystems []*System) error {
+	sysLookup := make(map[string]*System, len(allSystems))
+	for _, s := range allSystems {
+		sysLookup[s.ID] = s
+	}
+
+	funcs := systemTemplateFuncs(sysLookup)
+	detailTmpl := htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(systemDetailTemplate))
+
+	sysDir := filepath.Join(outDir, target.ID)
+	if err := os.MkdirAll(sysDir, 0o755); err != nil {
+		return err
+	}
+	path := filepath.Join(sysDir, "index.html")
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	if err := detailTmpl.Execute(f, target); err != nil {
+		_ = f.Close()
+		return err
+	}
+	return f.Close()
 }
 
 func toMapSystem(s *System) *systemmap.System {
