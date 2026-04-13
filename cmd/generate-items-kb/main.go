@@ -2295,7 +2295,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest ({{len .POIs}})</div>
           <table>
-            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance (AU)</th><th style="text-align:right">Position</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance From Sun (AU)</th><th style="text-align:right">Position</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
             <tbody>
 {{- range sortPOIsByDist .POIs}}
             <tr>
