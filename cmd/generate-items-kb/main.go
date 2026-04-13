@@ -167,6 +167,8 @@ type SystemPOI struct {
 	Description string
 	PositionX   float64
 	PositionY   float64
+	Hidden      bool
+	RevealDifficulty int
 	Resources   []POIResource
 }
 
@@ -866,7 +868,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 
 	// Load POIs.
-	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(class,''), COALESCE(description,''), position_x, position_y FROM pois ORDER BY system_id, name`)
+	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(class,''), COALESCE(description,''), position_x, position_y, hidden, reveal_difficulty FROM pois ORDER BY system_id, name`)
 	if err != nil {
 		return nil, err
 	}
@@ -875,7 +877,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	for poiRows.Next() {
 		var systemID string
 		var poi SystemPOI
-		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY); err != nil {
+		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY, &poi.Hidden, &poi.RevealDifficulty); err != nil {
 			return nil, err
 		}
 		if s, ok := systemMap[systemID]; ok {
@@ -2290,7 +2292,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest ({{len .POIs}})</div>
           <table>
-            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance (AU)</th><th>Description</th></tr></thead>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance (AU)</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
             <tbody>
 {{- range sortPOIsByDist .POIs}}
             <tr>
@@ -2299,6 +2301,8 @@ var systemDetailTemplate = `<!DOCTYPE html>
               <td>{{titleCase .Type}}</td>
               <td>{{if .Class}}{{.Class}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{poiDist .}}</td>
+              <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
+              <td style="text-align:right">{{if .Hidden}}{{.RevealDifficulty}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td>{{if .Description}}{{.Description}}{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
             </tr>
 {{- end}}
