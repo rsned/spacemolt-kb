@@ -1037,6 +1037,9 @@ func systemTemplateFuncs(sysLookup map[string]*System) htmltpl.FuncMap {
 		"poiDist": func(p SystemPOI) string {
 			return fmt.Sprintf("%.1f", math.Hypot(p.PositionX, p.PositionY))
 		},
+		"poiPos": func(p SystemPOI) string {
+			return fmt.Sprintf("(%.1f, %.1f)", p.PositionX, p.PositionY)
+		},
 		"poiDetailLink": func(p SystemPOI) string {
 			if p.Type == "planet" {
 				return fmt.Sprintf("planet_%s.html", sanitizeName(p.Name))
@@ -2292,7 +2295,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest ({{len .POIs}})</div>
           <table>
-            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance (AU)</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance (AU)</th><th style="text-align:right">Position</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
             <tbody>
 {{- range sortPOIsByDist .POIs}}
             <tr>
@@ -2301,6 +2304,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
               <td>{{titleCase .Type}}</td>
               <td>{{if .Class}}{{.Class}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{poiDist .}}</td>
+              <td style="text-align:right">{{poiPos .}}</td>
               <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{if .Hidden}}{{.RevealDifficulty}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td>{{if .Description}}{{.Description}}{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
