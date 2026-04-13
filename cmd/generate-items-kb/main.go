@@ -2295,7 +2295,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest ({{len .POIs}})</div>
           <table>
-            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance From Sun (AU)</th><th style="text-align:right">Position</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance From Sun (AU)</th><th style="text-align:right;white-space:nowrap">Position</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
             <tbody>
 {{- range sortPOIsByDist .POIs}}
             <tr>
@@ -2304,7 +2304,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
               <td>{{titleCase .Type}}</td>
               <td>{{if .Class}}{{.Class}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{poiDist .}}</td>
-              <td style="text-align:right">{{poiPos .}}</td>
+              <td style="text-align:right;white-space:nowrap">{{poiPos .}}</td>
               <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{if .Hidden}}{{.RevealDifficulty}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td>{{if .Description}}{{.Description}}{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
