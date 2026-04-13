@@ -468,7 +468,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 					labels = append(labels, labelInfo{x: px, y: py + 18, name: poi.Name, above: false})
 				}
 
-			case "wormhole":
+			case "wormhole", "wormhole_entrance", "wormhole_exit":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(renderWormhole(px, py, 10, false))
@@ -763,7 +763,11 @@ func renderLegend(pois []POI, vbX, vbY, vbW, vbH float64) string {
 	// Collect present types.
 	present := make(map[string]bool)
 	for _, poi := range pois {
-		present[poi.Type] = true
+		t := poi.Type
+		if t == "wormhole_entrance" || t == "wormhole_exit" {
+			t = "wormhole"
+		}
+		present[t] = true
 	}
 
 	// Build ordered list of entries to show.
@@ -857,7 +861,7 @@ func renderLegendSwatch(poiType string, cx, cy float64) string {
 			cx, cy, cx+1, cy-1)
 	case "relic":
 		return renderCompassRose(cx, cy, 5)
-	case "wormhole":
+	case "wormhole", "wormhole_entrance", "wormhole_exit":
 		// Mini black hole: dark center + orange ring.
 		return fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="6" ry="2.5" fill="none" stroke="#D84315" stroke-width="1.5" opacity="0.85"/>`+
 			`<circle cx="%.1f" cy="%.1f" r="2.5" fill="#0a0000"/>`,
