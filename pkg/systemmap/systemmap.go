@@ -479,7 +479,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 					labels = append(labels, labelInfo{x: px, y: py + 20, name: poi.Name, above: false})
 				}
 
-			case "collapsed_wormhole":
+			case "wormhole_collapsed":
 				b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, htmlEscape(poiTitle(poi))))
 				b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, px, py))
 				b.WriteString(renderWormhole(px, py, 10, true))
@@ -753,7 +753,7 @@ var legendTypes = []legendEntry{
 	{"nebula", "Nebula"},
 	{"relic", "Relic"},
 	{"wormhole", "Wormhole"},
-	{"collapsed_wormhole", "Collapsed Wormhole"},
+	{"wormhole_collapsed", "Collapsed Wormhole"},
 	{"black_hole", "Black Hole"},
 }
 
@@ -862,7 +862,7 @@ func renderLegendSwatch(poiType string, cx, cy float64) string {
 		return fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="6" ry="2.5" fill="none" stroke="#D84315" stroke-width="1.5" opacity="0.85"/>`+
 			`<circle cx="%.1f" cy="%.1f" r="2.5" fill="#0a0000"/>`,
 			cx, cy, cx, cy)
-	case "collapsed_wormhole":
+	case "wormhole_collapsed":
 		// Mini broken hole: dark center + yellow dashed ring.
 		return fmt.Sprintf(`<ellipse cx="%.1f" cy="%.1f" rx="6" ry="2.5" fill="none" stroke="#FDD835" stroke-width="1.5" opacity="0.7" stroke-dasharray="3,2"/>`+
 			`<circle cx="%.1f" cy="%.1f" r="2.5" fill="#0a0a00"/>`,
