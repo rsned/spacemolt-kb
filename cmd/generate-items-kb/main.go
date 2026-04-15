@@ -1940,6 +1940,7 @@ var htmlItemTemplate = `<!DOCTYPE html>
             <img src="../images/{{.ID}}.png" alt="{{.Name}}" height="200">
           </div>
 {{- end}}
+          <blockquote class="item-desc">{{.Description}}</blockquote>
           <div class="section-label">General</div>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{titleCase .Category}}</a></td></tr>
@@ -1956,8 +1957,6 @@ var htmlItemTemplate = `<!DOCTYPE html>
             <tr><td class="kv-label">Base Value</td><td>{{fmtValue .BaseValue}}</td></tr>
           </table>
         </div>
-
-        <blockquote class="item-desc">{{.Description}}</blockquote>
 
 {{- if or .ProducedBy .UsedIn .UsedInShips}}
         <div class="card" style="padding:0">
