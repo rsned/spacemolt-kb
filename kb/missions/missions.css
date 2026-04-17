@@ -1,0 +1,202 @@
+/* Missions section styles — extends items.css patterns */
+
+.item-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: hsl(var(--border));
+  border: 1px solid hsl(var(--border));
+  margin-top: 1.5rem;
+}
+
+.item-cat-card {
+  background: hsl(var(--card));
+  padding: 1.25rem 1.25rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-cat-card:hover {
+  background: hsl(var(--accent));
+  text-decoration: none;
+}
+
+.item-cat-card .cat-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  text-transform: capitalize;
+}
+
+.item-cat-card .cat-count {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.item-cat-card .cat-desc {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  line-height: 1.7;
+}
+
+.breadcrumb {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.breadcrumb a {
+  color: hsl(var(--muted-foreground));
+}
+
+.breadcrumb a:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Chain navigation (Prev/Next) above mission title */
+.chain-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.5rem 0 1rem;
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.chain-nav a {
+  color: hsl(var(--muted-foreground));
+  padding: 0.3rem 0.6rem;
+  border: 1px solid hsl(var(--border));
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.chain-nav a:hover {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--smui-frost-2));
+  text-decoration: none;
+}
+
+.chain-nav .chain-next {
+  margin-left: auto;
+}
+
+/* Difficulty stars */
+.difficulty {
+  color: hsl(var(--smui-yellow));
+  letter-spacing: 1px;
+  font-size: 14px;
+}
+
+/* Mission detail description blurb */
+.mission-desc {
+  border-left: 3px solid hsl(var(--border));
+  padding: 0.75rem 1rem;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+  margin: 1rem 0;
+  line-height: 1.7;
+}
+
+/* Objective list */
+.objectives {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 0;
+}
+
+.objectives li {
+  padding: 0.6rem 0;
+  border-bottom: 1px dashed hsl(var(--border));
+}
+
+.objectives li:last-child {
+  border-bottom: none;
+}
+
+.obj-desc {
+  font-weight: 500;
+}
+
+.obj-meta {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  margin-top: 0.15rem;
+}
+
+.obj-type {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 10px;
+  color: hsl(var(--smui-frost-2));
+}
+
+.reward-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.reward-list li {
+  padding: 0.2rem 0;
+}
+
+/* Dialog blockquotes */
+.dialog-label {
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+  margin: 0.75rem 0 0.25rem;
+}
+
+.dialog {
+  border-left: 3px solid hsl(var(--smui-frost-2));
+  background: hsl(var(--smui-surface-1));
+  padding: 0.75rem 1rem;
+  margin: 0;
+  color: hsl(var(--foreground));
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* Key-value labels inside detail tables */
+.kv-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  width: 140px;
+}
+
+/* Badges used on detail pages */
+.badge-repeatable {
+  color: hsl(var(--smui-green));
+  border-color: hsl(var(--smui-green));
+}
+
+/* Numeric columns align right */
+td.value { text-align: right; }
+
+/* Sortable headers */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  color: hsl(var(--primary));
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  font-size: 10px;
+}

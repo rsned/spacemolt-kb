@@ -470,6 +470,39 @@ func main() {
 		}
 		fmt.Printf("Generated %d facility pages in kb/facilities/\n", len(facilities))
 	}
+
+	// --- Missions generation ---
+	generateAllMissions(items)
+}
+
+// generateAllMissions loads mission templates from the knowledge database and
+// writes out the missions KB section.
+func generateAllMissions(items map[string]*Item) {
+	knowledgeDBPath := "../spacemolt-knowledge.db"
+	missionOutDir := "kb/missions"
+
+	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
+	if err != nil {
+		log.Printf("warning: open knowledge database for missions: %v (mission pages will be skipped)", err)
+		return
+	}
+	defer func() { _ = knowledgeDB.Close() }()
+
+	missions, err := loadMissions(knowledgeDB)
+	if err != nil {
+		log.Printf("warning: load missions: %v (mission pages will be skipped)", err)
+		return
+	}
+
+	enrichMissionItemLinks(missions, items)
+	if err := enrichMissionLocationNames(knowledgeDB, missions); err != nil {
+		log.Printf("warning: enrich mission location names: %v", err)
+	}
+
+	if err := writeMissionPages(missionOutDir, missions); err != nil {
+		log.Fatalf("write mission pages: %v", err)
+	}
+	fmt.Printf("Generated %d mission pages in %s/\n", len(missions), missionOutDir)
 }
 
 // generateAllSystems loads all systems and generates all system/planet/resource pages.
@@ -1782,6 +1815,7 @@ var siteHeader = `    <header class="site-header">
             <a href="../ships/index.html">Ships</a>
             <a href="../facilities/index.html">Facilities</a>
             <a href="../resources/index.html">Resources</a>
+            <a href="../missions/index.html">Missions</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1801,6 +1835,7 @@ var siteHeaderSub = `    <header class="site-header">
             <a href="../../ships/index.html">Ships</a>
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
