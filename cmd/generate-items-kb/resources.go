@@ -98,6 +98,34 @@ func loadResourceEntries(db *sql.DB) ([]ResourceEntry, error) {
 	return entries, nil
 }
 
+// loadSystemsForStats loads minimal system data for exploration statistics.
+func loadSystemsForStats(db *sql.DB) ([]struct {
+	ID              string
+	LastUpdatedTick int
+}, error) {
+	rows, err := db.Query(`SELECT id, last_updated_tick FROM systems`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var systems []struct {
+		ID              string
+		LastUpdatedTick int
+	}
+	for rows.Next() {
+		var s struct {
+			ID              string
+			LastUpdatedTick int
+		}
+		if err := rows.Scan(&s.ID, &s.LastUpdatedTick); err != nil {
+			return nil, err
+		}
+		systems = append(systems, s)
+	}
+	return systems, rows.Err()
+}
+
 // loadAllResourceItems loads all items from ore and material categories that should appear as resources,
 // even if they haven't been discovered yet.
 func loadAllResourceItems(db *sql.DB) (map[string]struct {
@@ -238,14 +266,37 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 
 	tmpl := htmltpl.Must(htmltpl.New("resources").Funcs(funcs).Parse(resourceIndexTemplate))
 
+	// Load systems to calculate exploration statistics.
+	systems, err := loadSystemsForStats(db)
+	if err != nil {
+		return fmt.Errorf("load systems for stats: %w", err)
+	}
+	totalSystems := len(systems)
+	exploredSystems := 0
+	for _, s := range systems {
+		if s.LastUpdatedTick > 0 {
+			exploredSystems++
+		}
+	}
+	explorationPct := 0.0
+	if totalSystems > 0 {
+		explorationPct = 100.0 * float64(exploredSystems) / float64(totalSystems)
+	}
+
 	data := struct {
-		Groups     []ResourceGroup
-		TotalPOIs  int
-		TotalTypes int
+		Groups           []ResourceGroup
+		TotalPOIs        int
+		TotalTypes       int
+		TotalSystems     int
+		ExploredSystems  int
+		ExplorationPct   float64
 	}{
-		Groups:     groups,
-		TotalPOIs:  len(entries),
-		TotalTypes: len(groups),
+		Groups:          groups,
+		TotalPOIs:       len(entries),
+		TotalTypes:      len(groups),
+		TotalSystems:    totalSystems,
+		ExploredSystems: exploredSystems,
+		ExplorationPct:  explorationPct,
 	}
 
 	outPath := filepath.Join(outDir, "index.html")
@@ -316,6 +367,21 @@ var resourceIndexTemplate = `<!DOCTYPE html>
             <div class="summary-card">
                 <div class="num">{{.TotalPOIs}}</div>
                 <div class="label">Total Deposits</div>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="num">{{.TotalSystems}}</div>
+                <div class="label">Star Systems</div>
+            </div>
+            <div class="summary-card">
+                <div class="num">{{.ExploredSystems}}</div>
+                <div class="label">Systems Explored</div>
+            </div>
+            <div class="summary-card">
+                <div class="num">{{printf "%.1f" .ExplorationPct}}%</div>
+                <div class="label">Galaxy Explored</div>
             </div>
         </div>
 

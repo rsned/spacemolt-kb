@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="../smui.css">
     <link rel="stylesheet" href="../system.css">
     <link rel="stylesheet" href="../items/items.css">
+    <style>
+        .summary-cards { display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
+        .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
+        .summary-card .num { font-size: 1.8em; font-weight: 700; }
+        .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+    </style>
 </head>
 <body>
     <header class="site-header">
@@ -30,6 +36,21 @@
     <main class="container page-content">
         <h2>Systems</h2>
         <p class="text-muted mt-1">505 star systems in the galaxy.</p>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="num">505</div>
+                <div class="label">Total Systems</div>
+            </div>
+            <div class="summary-card">
+                <div class="num">232</div>
+                <div class="label">Systems Explored</div>
+            </div>
+            <div class="summary-card">
+                <div class="num">45.9%</div>
+                <div class="label">Galaxy Explored</div>
+            </div>
+        </div>
         <nav class="empire-toc mt-3">
             <span class="label">Empires</span>
             <div class="empire-toc-links">
@@ -1253,7 +1274,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="3">3</td>
-          <td style="text-align:right" data-sort="0">0</td>
+          <td style="text-align:right" data-sort="3">3</td>
           <td></td>
         </tr>
         <tr>
@@ -1501,7 +1522,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="2">2</td>
-          <td style="text-align:right" data-sort="0">0</td>
+          <td style="text-align:right" data-sort="4">4</td>
           <td></td>
         </tr>
         <tr>
@@ -1749,7 +1770,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="4">4</td>
-          <td style="text-align:right" data-sort="0">0</td>
+          <td style="text-align:right" data-sort="3">3</td>
           <td></td>
         </tr>
         <tr>
@@ -1821,7 +1842,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="6">6</td>
-          <td style="text-align:right" data-sort="0">0</td>
+          <td style="text-align:right" data-sort="7">7</td>
           <td></td>
         </tr>
         <tr>
@@ -2005,7 +2026,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="4">4</td>
-          <td style="text-align:right" data-sort="1">1</td>
+          <td style="text-align:right" data-sort="2">2</td>
           <td></td>
         </tr>
         <tr>
@@ -2213,7 +2234,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="4">4</td>
-          <td style="text-align:right" data-sort="4">4</td>
+          <td style="text-align:right" data-sort="5">5</td>
           <td></td>
         </tr>
         <tr>
@@ -3493,7 +3514,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="5">5</td>
-          <td style="text-align:right" data-sort="0">0</td>
+          <td style="text-align:right" data-sort="5">5</td>
           <td></td>
         </tr>
         <tr>
@@ -4077,7 +4098,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="4">4</td>
-          <td style="text-align:right" data-sort="0">0</td>
+          <td style="text-align:right" data-sort="3">3</td>
           <td></td>
         </tr>
         <tr>
@@ -4085,7 +4106,7 @@
           <td><span class="text-muted">Unknown</span></td>
           <td><span class="text-muted">Unknown</span></td>
           <td style="text-align:right" data-sort="4">4</td>
-          <td style="text-align:right" data-sort="0">0</td>
+          <td style="text-align:right" data-sort="3">3</td>
           <td></td>
         </tr>
         <tr>

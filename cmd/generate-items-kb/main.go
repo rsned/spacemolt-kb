@@ -270,8 +270,11 @@ var empireCapitals = map[string]string{
 
 // SystemsIndexData holds all data for the systems index template.
 type SystemsIndexData struct {
-	Systems []*System
-	Empires []EmpireGroup
+	Systems            []*System
+	Empires           []EmpireGroup
+	TotalSystems      int
+	ExploredSystems   int
+	ExplorationPct    float64
 }
 
 var recipeCategoryDescriptions = map[string]string{
@@ -1159,9 +1162,25 @@ func writeSystemPages(outDir string, systems []*System) error {
 		empires = append(empires, eg)
 	}
 
+	// Calculate exploration statistics.
+	totalSystems := len(systems)
+	exploredSystems := 0
+	for _, s := range systems {
+		if s.LastUpdatedTick > 0 {
+			exploredSystems++
+		}
+	}
+	explorationPct := 0.0
+	if totalSystems > 0 {
+		explorationPct = 100.0 * float64(exploredSystems) / float64(totalSystems)
+	}
+
 	indexData := SystemsIndexData{
-		Systems: systems,
-		Empires: empires,
+		Systems:          systems,
+		Empires:         empires,
+		TotalSystems:    totalSystems,
+		ExploredSystems: exploredSystems,
+		ExplorationPct:  explorationPct,
 	}
 
 	// Index page.
@@ -2209,12 +2228,33 @@ var systemIndexTemplate = `<!DOCTYPE html>
     <link rel="stylesheet" href="../smui.css">
     <link rel="stylesheet" href="../system.css">
     <link rel="stylesheet" href="../items/items.css">
+    <style>
+        .summary-cards { display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
+        .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
+        .summary-card .num { font-size: 1.8em; font-weight: 700; }
+        .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+    </style>
 </head>
 <body>
 ` + siteHeader + `
     <main class="container page-content">
         <h2>Systems</h2>
         <p class="text-muted mt-1">{{len .Systems}} star systems in the galaxy.</p>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="num">{{.TotalSystems}}</div>
+                <div class="label">Total Systems</div>
+            </div>
+            <div class="summary-card">
+                <div class="num">{{.ExploredSystems}}</div>
+                <div class="label">Systems Explored</div>
+            </div>
+            <div class="summary-card">
+                <div class="num">{{printf "%.1f" .ExplorationPct}}%</div>
+                <div class="label">Galaxy Explored</div>
+            </div>
+        </div>
 
 {{- if .Empires}}
         <nav class="empire-toc mt-3">
