@@ -2233,6 +2233,8 @@ var systemIndexTemplate = `<!DOCTYPE html>
         .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
         .summary-card .num { font-size: 1.8em; font-weight: 700; }
         .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+        .system-unexplored { font-style: italic; color: var(--text-muted); opacity: 0.7; }
+        .system-unexplored:hover { opacity: 1; color: var(--link); }
     </style>
 </head>
 <body>
@@ -2281,7 +2283,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
             <tbody>
 {{- range .Systems}}
             <tr>
-              <td><a href="{{.ID}}/">{{.Name}}</a></td>
+              <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}</td>
               <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
               <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
               <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
@@ -2304,7 +2306,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
         <tbody>
 {{- range .Systems}}
         <tr>
-          <td><a href="{{.ID}}/">{{.Name}}</a></td>
+          <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}</td>
           <td>{{if .Empire}}{{titleCase .Empire}}{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
           <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
           <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
