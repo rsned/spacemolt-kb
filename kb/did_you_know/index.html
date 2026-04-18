@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Did You Know? - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../items/items.css">
+    <style>
+        .factoid-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .factoid-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid #6c5ce7;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .factoid-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .factoid-card h3 {
+            margin: 0 0 8px 0;
+            color: var(--link);
+            font-size: 1.1em;
+        }
+        .factoid-card p {
+            margin: 0 0 12px 0;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+        .factoid-card .meta {
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+        .factoid-card .meta span {
+            margin-right: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="./">Did You Know?</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <h2>Did You Know?</h2>
+        <p class="text-muted mt-1">Fascinating facts and statistics about the galaxy, discovered through exploration data analysis.</p>
+
+        <div class="factoid-grid">
+            <a href="most_remote_systems.html" class="factoid-card">
+                <h3>Most Remote Systems</h3>
+                <p>Which systems are the farthest from civilization? Discover the edge of explored space and the journey required to reach these frontier worlds.</p>
+                <div class="meta">
+                    <span>📍 Systems Analysis</span>
+                    <span>📊 Distance Metrics</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="card mt-3" style="padding: 20px;">
+            <h3>About This Section</h3>
+            <p>This section contains interesting facts and statistics derived from analyzing the knowledge database. As your exploration agents survey the galaxy and catalog systems, resources, and facilities, these queries reveal patterns and insights about the universe.</p>
+            <p class="text-muted mt-2">New factoids are added as interesting discoveries are made in the data.</p>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Most Remote Systems - Did You Know? - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../items/items.css">
+    <style>
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .stat-box .number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--link);
+        }
+        .stat-box .label {
+            font-size: 0.9em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .highlight-system {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid #dc143c;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .highlight-system h3 {
+            margin: 0 0 8px 0;
+            color: #dc143c;
+        }
+        .distance-table {
+            width: 100%;
+            font-size: 0.9em;
+            margin: 20px 0;
+        }
+        .distance-table th, .distance-table td {
+            padding: 8px 12px;
+            text-align: center;
+        }
+        .distance-table tr:nth-child(even) {
+            background: var(--bg-hover, rgba(128,128,128,0.08));
+        }
+        .distribution-table {
+            width: 100%;
+            font-size: 0.9em;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+        .distribution-table th, .distribution-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .distribution-table th {
+            background: var(--bg-hover, rgba(128,128,128,0.08));
+            font-weight: 600;
+        }
+        .distribution-table tr:nth-child(even) {
+            background: var(--bg-hover, rgba(128,128,128,0.05));
+        }
+        .distribution-table .hop-header {
+            background: var(--bg-card);
+            font-weight: 700;
+            color: var(--link);
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
+            <a href="../">Did You Know?</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Did You Know?</a> / Most Remote Systems</div>
+        <h2>Most Remote Systems from Stations</h2>
+        <p class="text-muted mt-1">Which systems are the farthest from civilization? A breadth-first search analysis reveals the edge of explored space.</p>
+
+        <blockquote class="item-desc">
+            Using graph traversal algorithms on the jump gate network, we can calculate which systems require the most jumps to reach from any station or base. These represent the true frontier of explored space.
+        </blockquote>
+
+        <div class="stat-box">
+            <div class="number">16 hops</div>
+            <div class="label">Maximum Distance from Station</div>
+        </div>
+
+        <div class="highlight-system">
+            <h3>🌌 Barnard 44</h3>
+            <table>
+                <tr><td class="kv-label">System ID</td><td><code>barnard_44</code></td></tr>
+                <tr><td class="kv-label">Empire</td><td>Unknown/Neutral</td></tr>
+                <tr><td class="kv-label">Security</td><td><span style="color: #d04040;">Lawless</span> (police level: 0)</td></tr>
+                <tr><td class="kv-label">Position</td><td>(3930.8, 2052.6)</td></tr>
+                <tr><td class="kv-label">Connections</td><td>1</td></tr>
+                <tr><td class="kv-label">Distance</td><td><strong>16 hops</strong> from nearest station</td></tr>
+            </table>
+        </div>
+
+        <div class="highlight-system">
+            <h3>🌌 Bellatrix</h3>
+            <table>
+                <tr><td class="kv-label">System ID</td><td><code>bellatrix</code></td></tr>
+                <tr><td class="kv-label">Empire</td><td>Unknown/Neutral</td></tr>
+                <tr><td class="kv-label">Security</td><td><span style="color: #d04040;">Lawless</span> (police level: 0)</td></tr>
+                <tr><td class="kv-label">Position</td><td>(6132.2, -265.3)</td></tr>
+                <tr><td class="kv-label">Connections</td><td>1</td></tr>
+                <tr><td class="kv-label">Distance</td><td><strong>16 hops</strong> from nearest station</td></tr>
+            </table>
+        </div>
+
+        <h3 class="mt-3">Distance Distribution</h3>
+        <p class="text-muted">How many systems exist at each distance from the nearest station:</p>
+
+        <table class="distribution-table">
+            <thead>
+                <tr>
+                    <th class="hop-header">Hops</th>
+                    <th>0</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th>8</th>
+                    <th>9</th>
+                    <th>10</th>
+                    <th>11</th>
+                    <th>12</th>
+                    <th>13</th>
+                    <th>14</th>
+                    <th>15</th>
+                    <th>16</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="hop-header">Systems</td>
+                    <td>21</td>
+                    <td>39</td>
+                    <td>50</td>
+                    <td>55</td>
+                    <td>59</td>
+                    <td>53</td>
+                    <td>49</td>
+                    <td>53</td>
+                    <td>40</td>
+                    <td>28</td>
+                    <td>17</td>
+                    <td>12</td>
+                    <td>7</td>
+                    <td>7</td>
+                    <td>7</td>
+                    <td>6</td>
+                    <td>2</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="distance-table">
+            <thead>
+                <tr>
+                    <th>Hops</th>
+                    <th>Cumulative Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>0 hops</td><td>21 (stations with bases)</td></tr>
+                <tr><td>0-1 hops</td><td>60</td></tr>
+                <tr><td>0-2 hops</td><td>110</td></tr>
+                <tr><td>0-3 hops</td><td>165</td></tr>
+                <tr><td>0-4 hops</td><td>224</td></tr>
+                <tr><td>0-5 hops</td><td>277</td></tr>
+                <tr><td>0-6 hops</td><td>326</td></tr>
+                <tr><td>0-7 hops</td><td>379</td></tr>
+                <tr><td>0-8 hops</td><td>419</td></tr>
+                <tr><td>0-9 hops</td><td>447</td></tr>
+                <tr><td>0-10 hops</td><td>464</td></tr>
+                <tr><td>0-11 hops</td><td>476</td></tr>
+                <tr><td>0-12 hops</td><td>483</td></tr>
+                <tr><td>0-13 hops</td><td>490</td></tr>
+                <tr><td>0-14 hops</td><td>497</td></tr>
+                <tr><td>0-15 hops</td><td>503</td></tr>
+                <tr><td>0-16 hops</td><td>505 (all systems)</td></tr>
+            </tbody>
+        </table>
+
+        <div class="card" style="padding: 16px;">
+            <h3>Analysis Notes</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li><strong>Galaxy is fully connected:</strong> All 505 systems are reachable from stations via the jump gate network</li>
+                <li><strong>Station coverage:</strong> 21 systems have stations/bases (4.2% of all systems)</li>
+                <li><strong>Frontier worlds:</strong> The most remote systems have only 1 connection each, making them dead ends that must be backtracked from</li>
+                <li><strong>Exploration strategy:</strong> Systems at 7+ hops represent deep space exploration requiring careful route planning</li>
+                <li><strong>Safety:</strong> Both most remote systems are lawless, presenting additional challenges for exploration agents</li>
+            </ul>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-top: 16px;">
+            <h3>Data Source</h3>
+            <p class="text-muted">This analysis uses the systems, connections, bases, and pois tables from the knowledge database. Distance is calculated as the minimum number of jump gate traversals required to reach any system with a station or base.</p>
+            <p class="text-muted mt-2">Last updated: <script>document.write(new Date().toLocaleDateString());</script></p>
+        </div>
+
+        <p class="text-muted mt-3"><a href="./">← Back to Did You Know?</a></p>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
