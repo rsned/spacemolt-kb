@@ -116,6 +116,23 @@ func dirName(s string) string {
 	return strings.ReplaceAll(s, " ", "_")
 }
 
+// resourceAnchor converts an item ID (with underscores) to a resource page anchor (with dashes).
+// For example: "aluminum_ore" -> "aluminum-ore", "argon_gas" -> "argon-gas"
+func resourceAnchor(itemID string) string {
+	return strings.ReplaceAll(itemID, "_", "-")
+}
+
+// isResourceItem returns true if the item category is one that appears in the Resources KB section.
+// The Resources section includes: ore, material (crystals, exotic matter, etc.)
+func isResourceItem(category string) bool {
+	switch category {
+	case "ore", "material":
+		return true
+	default:
+		return false
+	}
+}
+
 var categoryDescriptions = map[string]string{
 	"artifact":   "Rare relics and ancient objects from lost civilizations.",
 	"component":  "Crafted parts and assemblies used to build ships, stations, and equipment.",
@@ -1741,11 +1758,13 @@ func cleanGeneratedFiles(outDir string) error {
 
 func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*Item) error {
 	funcs := htmltpl.FuncMap{
-		"yesno":       yesno,
-		"fmtValue":    fmtValue,
-		"rarityClass": rarityClass,
-		"titleCase":   titleCase,
-		"dirName":     dirName,
+		"yesno":          yesno,
+		"fmtValue":       fmtValue,
+		"rarityClass":    rarityClass,
+		"titleCase":      titleCase,
+		"dirName":        dirName,
+		"resourceAnchor": resourceAnchor,
+		"isResourceItem": isResourceItem,
 	}
 	topTmpl := htmltpl.Must(htmltpl.New("top").Funcs(funcs).Parse(htmlTopTemplate))
 	catTmpl := htmltpl.Must(htmltpl.New("cat").Funcs(funcs).Parse(htmlCatTemplate))
@@ -1983,6 +2002,9 @@ var htmlItemTemplate = `<!DOCTYPE html>
             <tr><td class="kv-label">Size</td><td>{{.Size}}</td></tr>
             <tr><td class="kv-label">Stackable</td><td>{{yesno .Stackable}}</td></tr>
             <tr><td class="kv-label">Tradeable</td><td>{{yesno .Tradeable}}</td></tr>
+{{- if (isResourceItem .Category)}}
+            <tr><td class="kv-label">Resource Locations</td><td><a href="../../resources/index.html#{{resourceAnchor .ID}}">View systems with {{.Name}}</a></td></tr>
+{{- end}}
 {{- if .PowerBonus}}
             <tr><td class="kv-label">Power Bonus</td><td><span class="stat-positive">+{{.PowerBonus}}</span></td></tr>
 {{- end}}
