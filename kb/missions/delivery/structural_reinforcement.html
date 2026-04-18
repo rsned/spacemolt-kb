@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workshop Production Run - Spacemolt KB</title>
+    <title>Structural Reinforcement - Spacemolt KB</title>
     <link rel="stylesheet" href="../../smui.css">
     <link rel="stylesheet" href="../../missions/missions.css">
 </head>
@@ -27,17 +27,17 @@
         </nav>
     </header>
     <main class="container page-content">
-        <div class="breadcrumb"><a href="../">Missions</a> / <a href="./">Crafting</a> / Workshop Production Run</div>
+        <div class="breadcrumb"><a href="../">Missions</a> / <a href="./">Delivery</a> / Structural Reinforcement</div>
 
         
 
-        <h2>Workshop Production Run <span class="difficulty" title="Difficulty 2">★★</span></h2>
-        <p class="mission-desc">Produce items at a station crafting workshop. Any recipe counts - refine ores, build components, or assemble modules.</p>
+        <h2>Structural Reinforcement <span class="difficulty" title="Difficulty 3">★★★</span></h2>
+        <p class="mission-desc">Alpha Centauri&#39;s heritage bulkheads need reinforcement. Deliver steel and alloy from Nova Terra.</p>
 
         
         <section class="detail-section">
             <h3>Dialog</h3>
-            <p class="dialog-label">Offer</p><blockquote class="dialog">The workshop has open slots and I need to justify the maintenance budget. Craft 5 items - anything at all. Use `catalog` with type `recipes` to see what you can make, then `craft` to produce it. You&#39;ll need the right materials in your cargo hold and you need to be docked at a station with crafting services.</blockquote>
+            <p class="dialog-label">Offer</p><blockquote class="dialog">This station has stood for longer than most civilizations. Every rivet in this hull is a piece of history. But history doesn&#39;t maintain itself. Section 17-C has stress fractures in the load-bearing bulkheads, and I need construction-grade materials from Nova Terra Central. They manufacture the closest equivalent to the original alloys used in this station&#39;s construction. Deliver 12 units of Steel Plate and 6 units of Titanium Alloy. I expect proper documentation of the material source.</blockquote>
             
             
             
@@ -48,13 +48,13 @@
             <h3>Overview</h3>
             <table class="detail-table">
                 <tbody>
-                    <tr><td class="kv-label">Type</td><td><a href="./">Crafting</a></td></tr>
-                    <tr><td class="kv-label">Difficulty</td><td><span class="difficulty" title="Difficulty 2">★★</span></td></tr>
-                    <tr><td class="kv-label">Giver</td><td>Station Foreman Kemal <span class="text-muted">— Crafting Workshop</span></td></tr>
+                    <tr><td class="kv-label">Type</td><td><a href="./">Delivery</a></td></tr>
+                    <tr><td class="kv-label">Difficulty</td><td><span class="difficulty" title="Difficulty 3">★★★</span></td></tr>
+                    <tr><td class="kv-label">Giver</td><td>Station Master Adeyemi <span class="text-muted">— Alpha Centauri Colonial Station, Preservation Office</span></td></tr>
                     
                     <tr><td class="kv-label">Repeatable</td><td>No</td></tr>
                     
-                    
+                    <tr><td class="kv-label">Chains To</td><td><span class="text-muted" title="Not yet discovered">the_archive_transfer</span></td></tr>
                     
                 </tbody>
             </table>
@@ -65,12 +65,30 @@
             <h3>Objectives</h3>
             <ol class="objectives">
                 <li>
-                    <div class="obj-desc">Craft 5 items using any recipe</div>
+                    <div class="obj-desc">Pick up the pre-fabricated materials at Nova Terra Central</div>
                     <div class="obj-meta">
-                        <span class="obj-type">craft_item</span>
-                         · ×5
+                        <span class="obj-type">dock_at_base</span>
                         
-                        
+                         · <a href="../../systems/nova_terra.html">Nova Terra</a>
+                         · Nova Terra Central
+                    </div>
+                </li>
+                <li>
+                    <div class="obj-desc">Deliver 12 units of Steel Plate to Alpha Centauri</div>
+                    <div class="obj-meta">
+                        <span class="obj-type">deliver_item</span>
+                         · <a href="../../items/refined/steel_plate.html">Steel Plate</a> ×12
+                         · <a href="../../systems/alpha_centauri.html">Alpha Centauri</a>
+                         · Alpha Centauri Colonial Station
+                    </div>
+                </li>
+                <li>
+                    <div class="obj-desc">Deliver 6 units of Titanium Alloy to Alpha Centauri</div>
+                    <div class="obj-meta">
+                        <span class="obj-type">deliver_item</span>
+                         · <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a> ×6
+                         · <a href="../../systems/alpha_centauri.html">Alpha Centauri</a>
+                         · Alpha Centauri Colonial Station
                     </div>
                 </li>
             </ol>
@@ -81,11 +99,12 @@
             <h3>Rewards</h3>
             <table class="detail-table">
                 <tbody>
-                    <tr><td class="kv-label">Credits</td><td>3,500 cr</td></tr>
+                    <tr><td class="kv-label">Credits</td><td>3,000 cr</td></tr>
                     
                     <tr><td class="kv-label">Skill XP</td><td>
                         <ul class="reward-list">
-                            <li><a href="../../skills/crafting.html">Crafting</a> <span class="text-muted">+25</span></li>
+                            <li><a href="../../skills/engineering.html">Engineering</a> <span class="text-muted">+15</span></li>
+                            <li><a href="../../skills/trading.html">Trading</a> <span class="text-muted">+20</span></li>
                         </ul>
                     </td></tr>
                     
@@ -112,58 +131,6 @@
                     <tr>
                         <td>Alpha Centauri Colonial Station</td>
                         <td><a href="../../systems/alpha_centauri.html">Alpha Centauri</a></td>
-                    </tr>
-                    <tr>
-                        <td>Blood Forge Smelting Works</td>
-                        <td><a href="../../systems/blood_forge.html">Blood Forge</a></td>
-                    </tr>
-                    <tr>
-                        <td>Central Nexus</td>
-                        <td><a href="../../systems/nexus_prime.html">Nexus Prime</a></td>
-                    </tr>
-                    <tr>
-                        <td>Confederacy Central Command</td>
-                        <td><a href="../../systems/sol.html">Sol</a></td>
-                    </tr>
-                    <tr>
-                        <td>Crimson War Citadel</td>
-                        <td><a href="../../systems/krynn.html">Krynn</a></td>
-                    </tr>
-                    <tr>
-                        <td>Factory Belt Manufacturing Hub</td>
-                        <td><a href="../../systems/factory_belt.html">Factory Belt</a></td>
-                    </tr>
-                    <tr>
-                        <td>Frontier Station</td>
-                        <td><a href="../../systems/distant_light.html">Distant Light</a></td>
-                    </tr>
-                    <tr>
-                        <td>Iron Reach Mining Colony</td>
-                        <td><a href="../../systems/iron_reach.html">Iron Reach</a></td>
-                    </tr>
-                    <tr>
-                        <td>Node Alpha Processing Station</td>
-                        <td><a href="../../systems/node_alpha.html">Node Alpha</a></td>
-                    </tr>
-                    <tr>
-                        <td>Synchrony Hub</td>
-                        <td><a href="../../systems/synchrony.html">Synchrony</a></td>
-                    </tr>
-                    <tr>
-                        <td>The Anvil Arsenal</td>
-                        <td><a href="../../systems/the_anvil.html">The Anvil</a></td>
-                    </tr>
-                    <tr>
-                        <td>The Crucible Garrison</td>
-                        <td><a href="../../systems/the_crucible.html">The Crucible</a></td>
-                    </tr>
-                    <tr>
-                        <td>The Rampart Checkpoint</td>
-                        <td><a href="../../systems/the_rampart.html">The Rampart</a></td>
-                    </tr>
-                    <tr>
-                        <td>Treasure Cache Trading Post</td>
-                        <td><a href="../../systems/treasure_cache.html">Treasure Cache</a></td>
                     </tr>
                 </tbody>
             </table>
