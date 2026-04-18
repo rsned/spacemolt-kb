@@ -28,6 +28,9 @@
         .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
         .summary-card .num { font-size: 1.8em; font-weight: 700; }
         .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+        .undiscovered { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid #999; padding: 16px; margin-top: 16px; border-radius: 4px; }
+        .undiscovered h4 { margin: 0 0 8px 0; color: #666; font-size: 0.95em; }
+        .undiscovered p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         @media (max-width: 768px) { .toc { columns: 2; } }
         @media (max-width: 480px) { .toc { columns: 1; } }
     </style>
@@ -57,7 +60,7 @@
 
         <div class="summary-cards">
             <div class="summary-card">
-                <div class="num">50</div>
+                <div class="num">54</div>
                 <div class="label">Resource Types</div>
             </div>
             <div class="summary-card">
@@ -69,6 +72,7 @@
         <div class="card" style="padding: 12px 16px">
             <div class="section-label">Jump To Resource</div>
             <div class="toc">
+                <a href="#adamantite-ore">Adamantite Ore (Undiscovered)</a>
                 <a href="#aluminum-ore">Aluminum Ore (8)</a>
                 <a href="#antimatter-containment-cell">Antimatter Containment Cell (14)</a>
                 <a href="#argon-gas">Argon Gas (47)</a>
@@ -80,6 +84,8 @@
                 <a href="#darksteel-ore">Darksteel Ore (7)</a>
                 <a href="#deuterium-ice">Deuterium Ice (15)</a>
                 <a href="#energy-crystal">Energy Crystal (9)</a>
+                <a href="#exotic-crystal">Exotic Crystal (Undiscovered)</a>
+                <a href="#exotic-matter">Exotic Matter (Undiscovered)</a>
                 <a href="#fluorine-gas">Fluorine Gas (3)</a>
                 <a href="#fury-crystal">Fury Crystal (1)</a>
                 <a href="#gold-ore">Gold Ore (7)</a>
@@ -116,9 +122,17 @@
                 <a href="#tungsten-ore">Tungsten Ore (9)</a>
                 <a href="#uranium-ore">Uranium Ore (4)</a>
                 <a href="#vanadium-ore">Vanadium Ore (9)</a>
+                <a href="#void-crystal">Void Crystal (Undiscovered)</a>
                 <a href="#void-essence">Void Essence (1)</a>
                 <a href="#water-ice">Water Ice (51)</a>
                 <a href="#xenon-gas">Xenon Gas (23)</a>
+            </div>
+        </div>
+        <div id="adamantite-ore" class="resource-section">
+            <h3>Adamantite Ore <span class="badge" style="font-size:0.7em; vertical-align:middle;">Undiscovered</span> <small style="font-size:0.8em; font-weight:normal;"><a href="../items/ore/adamantite_ore.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
+            <div class="undiscovered">
+                <h4>Not Yet Discovered</h4>
+                <p>This resource has not been found in any surveyed system yet. Exploration agents may discover it in uncharted regions of the galaxy.</p>
             </div>
         </div>
         <div id="aluminum-ore" class="resource-section">
@@ -162,9 +176,9 @@
                         <td><code>aluminum_ore</code></td>
                         <td>20</td>
                         <td>30,000</td>
-                        <td>3,478</td>
-                        <td><span class="depletion high">88%</span></td>
-                        <td>551446</td>
+                        <td>10,000</td>
+                        <td><span class="depletion medium">67%</span></td>
+                        <td>601727</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/cervantes/index.html">Cervantes</a></td>
@@ -741,7 +755,7 @@
                         <td>50,000</td>
                         <td>50,000</td>
                         <td><span class="depletion low">0%</span></td>
-                        <td>551424</td>
+                        <td>601707</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/hr_8832/index.html">HR 8832</a></td>
@@ -2062,9 +2076,9 @@
                         <td><code>copper_ore</code></td>
                         <td>30</td>
                         <td>100,000</td>
-                        <td>3,417</td>
-                        <td><span class="depletion high">97%</span></td>
-                        <td>551446</td>
+                        <td>11,740</td>
+                        <td><span class="depletion high">88%</span></td>
+                        <td>601727</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/cedarhold/index.html">Cedarhold</a></td>
@@ -2530,9 +2544,9 @@
                         <td><code>copper_ore</code></td>
                         <td>22</td>
                         <td>100,000</td>
-                        <td>95,228</td>
-                        <td><span class="depletion low">5%</span></td>
-                        <td>551473</td>
+                        <td>100,000</td>
+                        <td><span class="depletion low">0%</span></td>
+                        <td>601757</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/homam/index.html">Homam</a></td>
@@ -3730,6 +3744,20 @@
                 </tbody>
             </table>
         </div>
+        <div id="exotic-crystal" class="resource-section">
+            <h3>Exotic Crystal <span class="badge" style="font-size:0.7em; vertical-align:middle;">Undiscovered</span> <small style="font-size:0.8em; font-weight:normal;"><a href="../items/material/exotic_crystal.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
+            <div class="undiscovered">
+                <h4>Not Yet Discovered</h4>
+                <p>This resource has not been found in any surveyed system yet. Exploration agents may discover it in uncharted regions of the galaxy.</p>
+            </div>
+        </div>
+        <div id="exotic-matter" class="resource-section">
+            <h3>Exotic Matter <span class="badge" style="font-size:0.7em; vertical-align:middle;">Undiscovered</span> <small style="font-size:0.8em; font-weight:normal;"><a href="../items/ore/exotic_matter.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
+            <div class="undiscovered">
+                <h4>Not Yet Discovered</h4>
+                <p>This resource has not been found in any surveyed system yet. Exploration agents may discover it in uncharted regions of the galaxy.</p>
+            </div>
+        </div>
         <div id="fluorine-gas" class="resource-section">
             <h3>Fluorine Gas <span class="badge" style="font-size:0.7em; vertical-align:middle;">3 deposits</span> <small style="font-size:0.8em; font-weight:normal;"><a href="../items/ore/fluorine_gas.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
             <table class="sortable">
@@ -4407,7 +4435,7 @@
                         <td>50,000</td>
                         <td>50,000</td>
                         <td><span class="depletion low">0%</span></td>
-                        <td>551424</td>
+                        <td>601707</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/hr_8832/index.html">HR 8832</a></td>
@@ -5355,9 +5383,9 @@
                         <td><code>iron_ore</code></td>
                         <td>40</td>
                         <td>100,000</td>
-                        <td>2,305</td>
-                        <td><span class="depletion high">98%</span></td>
-                        <td>551446</td>
+                        <td>10,535</td>
+                        <td><span class="depletion high">89%</span></td>
+                        <td>601727</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/cedarhold/index.html">Cedarhold</a></td>
@@ -5823,9 +5851,9 @@
                         <td><code>iron_ore</code></td>
                         <td>37</td>
                         <td>100,000</td>
-                        <td>90,909</td>
-                        <td><span class="depletion low">9%</span></td>
-                        <td>551473</td>
+                        <td>99,158</td>
+                        <td><span class="depletion low">1%</span></td>
+                        <td>601757</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/homam/index.html">Homam</a></td>
@@ -7899,7 +7927,7 @@
                         <td>50,000</td>
                         <td>50,000</td>
                         <td><span class="depletion low">0%</span></td>
-                        <td>551469</td>
+                        <td>601753</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/homam/index.html">Homam</a></td>
@@ -9219,7 +9247,7 @@
                         <td>5,500</td>
                         <td>200</td>
                         <td><span class="depletion high">96%</span></td>
-                        <td>551446</td>
+                        <td>601727</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/ross_128/index.html">Ross 128</a></td>
@@ -9850,7 +9878,7 @@
                         <td>6,829</td>
                         <td>2,800</td>
                         <td><span class="depletion medium">59%</span></td>
-                        <td>551473</td>
+                        <td>601757</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/khambalia/index.html">Khambalia</a></td>
@@ -10268,6 +10296,13 @@
                 </tbody>
             </table>
         </div>
+        <div id="void-crystal" class="resource-section">
+            <h3>Void Crystal <span class="badge" style="font-size:0.7em; vertical-align:middle;">Undiscovered</span> <small style="font-size:0.8em; font-weight:normal;"><a href="../items/material/void_crystal.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
+            <div class="undiscovered">
+                <h4>Not Yet Discovered</h4>
+                <p>This resource has not been found in any surveyed system yet. Exploration agents may discover it in uncharted regions of the galaxy.</p>
+            </div>
+        </div>
         <div id="void-essence" class="resource-section">
             <h3>Void Essence <span class="badge" style="font-size:0.7em; vertical-align:middle;">1 deposits</span> <small style="font-size:0.8em; font-weight:normal;"><a href="../items/ore/void_essence.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
             <table class="sortable">
@@ -10619,7 +10654,7 @@
                         <td>50,000</td>
                         <td>50,000</td>
                         <td><span class="depletion low">0%</span></td>
-                        <td>551469</td>
+                        <td>601753</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/homam/index.html">Homam</a></td>
@@ -11187,7 +11222,7 @@
                         <td>10,000</td>
                         <td>10,000</td>
                         <td><span class="depletion low">0%</span></td>
-                        <td>551424</td>
+                        <td>601707</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/hr_8832/index.html">HR 8832</a></td>

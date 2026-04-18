@@ -98,15 +98,57 @@ func loadResourceEntries(db *sql.DB) ([]ResourceEntry, error) {
 	return entries, nil
 }
 
+// loadAllResourceItems loads all items from ore and material categories that should appear as resources,
+// even if they haven't been discovered yet.
+func loadAllResourceItems(db *sql.DB) (map[string]struct {
+	Name     string
+	Category string
+}, error) {
+	rows, err := db.Query(`
+		SELECT id, COALESCE(name, id), COALESCE(category, '')
+		FROM items
+		WHERE category IN ('ore', 'material')
+		ORDER BY name
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	items := make(map[string]struct {
+		Name     string
+		Category string
+	})
+	for rows.Next() {
+		var id, name, category string
+		if err := rows.Scan(&id, &name, &category); err != nil {
+			return nil, err
+		}
+		items[id] = struct {
+			Name     string
+			Category string
+		}{Name: name, Category: category}
+	}
+	return items, rows.Err()
+}
+
 func writeResourcePages(outDir string, db *sql.DB) error {
 	entries, err := loadResourceEntries(db)
 	if err != nil {
 		return fmt.Errorf("load resource entries: %w", err)
 	}
 
-	// Group by resource name.
+	// Load all ore and material items to include undiscovered ones.
+	allResourceItems, err := loadAllResourceItems(db)
+	if err != nil {
+		return fmt.Errorf("load all resource items: %w", err)
+	}
+
+	// Group by resource name, including undiscovered items.
 	groupMap := make(map[string]*ResourceGroup)
 	var groupOrder []string
+
+	// First, add all discovered resources.
 	for _, e := range entries {
 		g, ok := groupMap[e.ResourceID]
 		if !ok {
@@ -119,6 +161,19 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 			groupOrder = append(groupOrder, e.ResourceID)
 		}
 		g.Entries = append(g.Entries, e)
+	}
+
+	// Then, add undiscovered resources (ore and material items with no entries).
+	for id, item := range allResourceItems {
+		if _, exists := groupMap[id]; !exists {
+			groupMap[id] = &ResourceGroup{
+				ResourceName:     item.Name,
+				ResourceID:       id,
+				ResourceCategory: item.Category,
+				Entries:          []ResourceEntry{}, // Empty entries = undiscovered
+			}
+			groupOrder = append(groupOrder, id)
+		}
 	}
 
 	groups := make([]ResourceGroup, 0, len(groupMap))
@@ -240,6 +295,9 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
         .summary-card .num { font-size: 1.8em; font-weight: 700; }
         .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+        .undiscovered { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid #999; padding: 16px; margin-top: 16px; border-radius: 4px; }
+        .undiscovered h4 { margin: 0 0 8px 0; color: #666; font-size: 0.95em; }
+        .undiscovered p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         @media (max-width: 768px) { .toc { columns: 2; } }
         @media (max-width: 480px) { .toc { columns: 1; } }
     </style>
@@ -265,14 +323,20 @@ var resourceIndexTemplate = `<!DOCTYPE html>
             <div class="section-label">Jump To Resource</div>
             <div class="toc">
 {{- range .Groups}}
-                <a href="#{{anchorID .ResourceName}}">{{.ResourceName}} ({{len .Entries}})</a>
+                <a href="#{{anchorID .ResourceName}}">{{.ResourceName}} ({{if eq (len .Entries) 0}}Undiscovered{{else}}{{len .Entries}}{{end}})</a>
 {{- end}}
             </div>
         </div>
 
 {{- range .Groups}}
         <div id="{{anchorID .ResourceName}}" class="resource-section">
-            <h3>{{.ResourceName}} <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{len .Entries}} deposits</span>{{if .ResourceCategory}} <small style="font-size:0.8em; font-weight:normal;"><a href="{{itemPageURL .ResourceCategory .ResourceID}}">Details</a></small>{{end}} <a href="#" class="back-top">[top]</a></h3>
+            <h3>{{.ResourceName}} <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{if eq (len .Entries) 0}}Undiscovered{{else}}{{len .Entries}} deposits{{end}}</span>{{if .ResourceCategory}} <small style="font-size:0.8em; font-weight:normal;"><a href="{{itemPageURL .ResourceCategory .ResourceID}}">Details</a></small>{{end}} <a href="#" class="back-top">[top]</a></h3>
+{{- if eq (len .Entries) 0}}
+            <div class="undiscovered">
+                <h4>Not Yet Discovered</h4>
+                <p>This resource has not been found in any surveyed system yet. Exploration agents may discover it in uncharted regions of the galaxy.</p>
+            </div>
+{{- else}}
             <table class="sortable">
                 <thead>
                     <tr>
@@ -307,6 +371,7 @@ var resourceIndexTemplate = `<!DOCTYPE html>
 {{- end}}
                 </tbody>
             </table>
+{{- end}}
         </div>
 {{- end}}
     </main>
