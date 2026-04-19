@@ -36,6 +36,8 @@ var spectralTypes = map[string]SpectralType{
 	"DQ": {Letter: "DQ", Color: "#f0e8d8", Name: "White Dwarf (carbon)", TempRange: "8,000–18,000 K"},
 	"DZ": {Letter: "DZ", Color: "#e8f0f8", Name: "White Dwarf (metal)", TempRange: "5,000–15,000 K"},
 	"DX": {Letter: "DX", Color: "#e8e8e8", Name: "White Dwarf (unclassifiable)", TempRange: "unknown"},
+	// Exotic objects
+	"BH": {Letter: "BH", Color: "#1a0033", Name: "Black Hole", TempRange: "Singularity"},
 }
 
 // LuminosityClass holds data for a Yerkes luminosity class (Roman numerals).
@@ -210,6 +212,12 @@ func ParseStarClass(class string) (string, int, string, error) {
 	class = strings.TrimSpace(class)
 	if class == "" {
 		return "", -1, "", errors.New("empty class string")
+	}
+
+	// Check for special object classifications
+	// Black holes
+	if class == "BH" {
+		return "BH", -1, "", nil // Black holes use "BH" as spectral type with no luminosity class
 	}
 
 	// Check for white dwarf classification first (starts with D followed by spectral type)
