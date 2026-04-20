@@ -1106,6 +1106,23 @@ func systemTemplateFuncs(sysLookup map[string]*System) htmltpl.FuncMap {
 			}
 			return htmltpl.HTML(systemmap.RenderSystemMap(toMapSystem(sys), allMap, false))
 		},
+		"isKnownEmpire": func(empire string) bool {
+			for _, e := range empireOrder {
+				if e == empire {
+					return true
+				}
+			}
+			return false
+		},
+		"formatEmpire": func(empire string, lastUpdatedTick int) string {
+			if lastUpdatedTick == 0 {
+				return "Unknown"
+			}
+			if empire == "" {
+				return "Neutral"
+			}
+			return titleCase(empire)
+		},
 	}
 }
 
@@ -2284,7 +2301,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
 {{- range .Systems}}
             <tr>
               <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}</td>
-              <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
+              <td>{{if ne .LastUpdatedTick 0}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
               <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
               <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
               <td>{{if .IsStronghold}}Yes{{end}}</td>
@@ -2307,8 +2324,8 @@ var systemIndexTemplate = `<!DOCTYPE html>
 {{- range .Systems}}
         <tr>
           <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}</td>
-          <td>{{if .Empire}}{{titleCase .Empire}}{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
-          <td>{{if .PoliceLevel}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
+          <td>{{if eq (formatEmpire .Empire .LastUpdatedTick) "Unknown"}}<span class="text-muted">Unknown</span>{{else}}{{formatEmpire .Empire .LastUpdatedTick}}{{end}}</td>
+          <td>{{if ne .LastUpdatedTick 0}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
           <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
           <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
           <td>{{if .IsStronghold}}Yes{{end}}</td>
@@ -2347,11 +2364,11 @@ var systemDetailTemplate = `<!DOCTYPE html>
             <div class="sys-meta">
                 <div class="sys-meta-item">
                     <span class="label">Security</span>
-                    <span class="stat {{securityClass .PoliceLevel}}">{{if .PoliceLevel}}{{.PoliceLevel}} <span class="security-label">{{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</span>
+                    <span class="stat {{securityClass .PoliceLevel}}">{{if ne .LastUpdatedTick 0}}{{.PoliceLevel}} <span class="security-label">{{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</span>
                 </div>
                 <div class="sys-meta-item">
                     <span class="label">Empire</span>
-                    <span class="stat">{{if .Empire}}{{titleCase .Empire}}{{else}}<span class="text-muted">Unknown</span>{{end}}</span>
+                    <span class="stat">{{if eq (formatEmpire .Empire .LastUpdatedTick) "Unknown"}}<span class="text-muted">Unknown</span>{{else}}{{formatEmpire .Empire .LastUpdatedTick}}{{end}}</span>
                 </div>
                 <div class="sys-meta-item">
                     <span class="label">Position</span>
