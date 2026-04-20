@@ -34,6 +34,13 @@ type Connection struct {
 	Distance int
 }
 
+// POI is a point of interest.
+type POI struct {
+	SystemID string
+	Type     string
+	Name     string
+}
+
 func main() {
 	knowledgeDBPath := "../spacemolt/data/spacemolt-knowledge.db"
 
@@ -48,6 +55,12 @@ func main() {
 		log.Fatalf("load systems: %v", err)
 	}
 
+	pois, err := loadPOIs(db)
+	if err != nil {
+		log.Printf("warning: failed to load POIs: %v", err)
+		pois = make(map[string][]POI) // Continue without POI data
+	}
+
 	// Create output directory.
 	outDir := "kb"
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
@@ -55,7 +68,7 @@ func main() {
 	}
 
 	// Generate the galaxy map page.
-	if err := writeGalaxyMapPage(outDir, systems); err != nil {
+	if err := writeGalaxyMapPage(outDir, systems, pois); err != nil {
 		log.Fatalf("write galaxy map page: %v", err)
 	}
 
@@ -125,7 +138,28 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	return systems, nil
 }
 
-func writeGalaxyMapPage(outDir string, systems []*System) error {
+func loadPOIs(db *sql.DB) (map[string][]POI, error) {
+	rows, err := db.Query(`SELECT system_id, type, name FROM pois WHERE type = 'station'`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	poiMap := make(map[string][]POI)
+	for rows.Next() {
+		var poi POI
+		if err := rows.Scan(&poi.SystemID, &poi.Type, &poi.Name); err != nil {
+			return nil, err
+		}
+		poiMap[poi.SystemID] = append(poiMap[poi.SystemID], poi)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return poiMap, nil
+}
+
+func writeGalaxyMapPage(outDir string, systems []*System, pois map[string][]POI) error {
 	// Separate explored and unexplored systems.
 	var explored, unexplored []*System
 	for _, s := range systems {
@@ -136,9 +170,21 @@ func writeGalaxyMapPage(outDir string, systems []*System) error {
 		}
 	}
 
-	// Build system lookup.
+	// Build system lookup and identify pirate strongholds.
 	systemMap := make(map[string]*System, len(systems))
 	for _, s := range systems {
+		// Mark pirate strongholds (systems with stations named "Stronghold", "Fortress", or " Port")
+		if !s.IsStronghold {
+			for _, poi := range pois[s.ID] {
+				if poi.Type == "station" {
+					name := strings.ToLower(poi.Name)
+					if strings.Contains(name, "stronghold") || strings.Contains(name, "fortress") || strings.Contains(name, " port") {
+						s.IsStronghold = true
+						break
+					}
+				}
+			}
+		}
 		systemMap[s.ID] = s
 	}
 
@@ -409,11 +455,11 @@ func renderGalaxyMap(explored, unexplored []*System, systemMap map[string]*Syste
 // isCapital returns true if the system is an empire capital.
 func isCapital(systemID string) bool {
 	capitals := map[string]bool{
-		"sol":      true, // Solarian
-		"nexus":    true, // Voidborn
-		"krynn":    true, // Crimson
-		"haven":    true, // Nebula
-		"frontier": true, // Outerrim
+		"sol":         true, // Solarian
+		"nexus_prime": true, // Voidborn
+		"krynn":       true, // Crimson
+		"haven":       true, // Nebula
+		"frontier":    true, // Outerrim
 	}
 	return capitals[systemID]
 }
