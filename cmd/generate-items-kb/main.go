@@ -2334,6 +2334,9 @@ var systemIndexTemplate = `<!DOCTYPE html>
         </tbody>
         </table>
         </div>
+        <p class="text-muted" style="font-size:0.85em; margin-top:0.5rem;">
+            {{.ExploredSystems}} systems explored / {{printf "%.1f" .ExplorationPct}}% explored · <a href="../galaxy-map.html" target="_blank">View galaxy map</a> ↗
+        </p>
     </main>
 ` + sortScript + `
 ` + themeScript + `
