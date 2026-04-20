@@ -2425,7 +2425,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
               <td style="text-align:right;white-space:nowrap">{{poiPos .}}</td>
               <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{if .Hidden}}{{.RevealDifficulty}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-              <td>{{if .Description}}{{.Description}}{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
+              <td>{{if .Description}}{{.Description}}{{else if $.LastUpdatedTick}}<span class="text-muted">—</span>{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
             </tr>
 {{- end}}
             </tbody>
