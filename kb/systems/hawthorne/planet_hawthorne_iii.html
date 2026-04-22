@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hawthorne III - Hawthorne - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../system.css">
+    <link rel="stylesheet" href="../../items/items.css">
+    <style>
+        .planet-sphere { display: flex; justify-content: center; margin: 20px 0; }
+        .planet-sphere canvas { cursor: grab; border-radius: 8px; }
+        .planet-sphere canvas:active { cursor: grabbing; }
+        .sphere-hint { text-align: center; color: var(--text-muted); font-size: 0.8em; margin-top: 4px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; padding: 16px; }
+        .stat-item { display: flex; flex-direction: column; }
+        .stat-item .label { font-size: 0.75em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px; }
+        .stat-item .value { font-size: 1.05em; }
+        .planet-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .planet-header .badge-type { padding: 3px 10px; border-radius: 4px; font-size: 0.8em; background: var(--bg-card); border: 1px solid var(--border); }
+        .explorer-note { border-left: 3px solid #6a8a5a; padding: 12px 16px; margin: 16px 0; background: var(--bg-card); border-radius: 0 6px 6px 0; font-style: italic; line-height: 1.6; }
+        .explorer-note .attribution { font-style: normal; font-size: 0.8em; color: var(--text-muted); margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Systems</a> / <a href="./">Hawthorne</a> / Hawthorne III</div>
+
+        <div class="planet-header">
+            <h2>Hawthorne III</h2>
+            <span class="badge-type">Terran</span>
+        </div>
+        <blockquote class="item-desc" style="opacity:0.5">No survey data available. This world remains unexplored.</blockquote>
+
+        <div class="planet-sphere">
+            <div>
+                <canvas id="sphere-canvas" width="400" height="400"></canvas>
+                <div class="sphere-hint">Click and drag to rotate</div>
+            </div>
+        </div>
+
+        <div class="card" style="padding:0">
+            <div class="section-label">Physical Properties</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="label">Radius</span>
+                    <span class="value">7174 km</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Mass</span>
+                    <span class="value">1.08 M⊕</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Surface Gravity</span>
+                    <span class="value">1.12 g</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Temperature</span>
+                    <span class="value">289 K (16°C)</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Atmosphere</span>
+                    <span class="value">1.2 atm — N2/O2</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Day Length</span>
+                    <span class="value">22.5 hours</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Orbital Period</span>
+                    <span class="value">5.2 years</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Orbital Distance</span>
+                    <span class="value">3.01 AU</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+(function() {
+const canvas = document.getElementById('sphere-canvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const CX = W/2, CY = H/2, RADIUS = 180;
+
+let textureData = null, texW = 0, texH = 0;
+let rotY = 0.4, rotX = 0.15;
+let dragging = false, lastMX = 0, lastMY = 0;
+let autoRotate = true;
+
+const img = new Image();
+img.crossOrigin = 'anonymous';
+img.onload = function() {
+    const tc = document.createElement('canvas');
+    tc.width = img.width; tc.height = img.height;
+    const tctx = tc.getContext('2d');
+    tctx.drawImage(img, 0, 0);
+    textureData = tctx.getImageData(0, 0, img.width, img.height).data;
+    texW = img.width; texH = img.height;
+};
+img.src = '..\/..\/images\/planets\/hawthorne_hawthorne_iii.png';
+
+function sampleTex(u, v) {
+    if (!textureData) return [80,80,80];
+    let px = Math.floor(u * texW) % texW;
+    let py = Math.floor(v * texH);
+    if (px < 0) px += texW;
+    py = Math.max(0, Math.min(texH-1, py));
+    const i = (py * texW + px) * 4;
+    return [textureData[i], textureData[i+1], textureData[i+2]];
+}
+
+
+
+function render() {
+    const id = ctx.createImageData(W, H);
+    const d = id.data;
+    const cRX=Math.cos(rotX), sRX=Math.sin(rotX), cRY=Math.cos(rotY), sRY=Math.sin(rotY);
+    const lx=-0.4, ly=0.5, lz=0.7, ll=Math.sqrt(lx*lx+ly*ly+lz*lz);
+    
+
+    for (let py=0; py<H; py++) {
+        for (let px=0; px<W; px++) {
+            const dx=px-CX, dy=py-CY, dSq=dx*dx+dy*dy;
+            const idx=(py*W+px)*4;
+            let pR=17, pG=17, pB=17, onP=false;
+
+            if (dSq <= RADIUS*RADIUS) {
+                onP = true;
+                const nx=dx/RADIUS, ny=-dy/RADIUS, nz=Math.sqrt(Math.max(0,1-nx*nx-ny*ny));
+                const y1=ny*cRX-nz*sRX, z1=ny*sRX+nz*cRX;
+                const x2=nx*cRY+z1*sRY, z2=-nx*sRY+z1*cRY;
+                const lat=Math.asin(Math.max(-1,Math.min(1,y1)));
+                const lon=Math.atan2(x2,z2);
+                const [tr,tg,tb] = sampleTex((lon/(2*Math.PI))+0.5, 0.5-lat/Math.PI);
+                const dot=(nx*lx+(-ny)*ly+nz*lz)/ll;
+                const lit=Math.max(0.08, dot*0.7+0.3);
+                const rim=1-nz, rg=rim*rim*rim*0.3;
+                pR=Math.min(255,Math.floor(tr*lit+rg*80));
+                pG=Math.min(255,Math.floor(tg*lit+rg*120));
+                pB=Math.min(255,Math.floor(tb*lit+rg*180));
+            }
+
+            
+            d[idx]=pR; d[idx+1]=pG; d[idx+2]=pB;
+            
+            d[idx+3]=255;
+        }
+    }
+    ctx.putImageData(id, 0, 0);
+}
+
+function animate() {
+    if (autoRotate && !dragging) rotY += 0.003;
+    render();
+    requestAnimationFrame(animate);
+}
+
+canvas.addEventListener('mousedown', e => { dragging=true; autoRotate=false; lastMX=e.clientX; lastMY=e.clientY; });
+window.addEventListener('mousemove', e => { if(!dragging)return; rotY+=(e.clientX-lastMX)*0.01; rotX+=(e.clientY-lastMY)*0.01; rotX=Math.max(-Math.PI/2,Math.min(Math.PI/2,rotX)); lastMX=e.clientX; lastMY=e.clientY; });
+window.addEventListener('mouseup', () => { if(dragging){dragging=false; setTimeout(()=>{if(!dragging)autoRotate=true;},3000);} });
+animate();
+})();
+</script>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

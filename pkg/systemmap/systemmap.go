@@ -208,7 +208,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			gx, gy, lineEndX, lineEndY))
 
 		// Gate marker: circle + crosshair + label, wrapped in <a>.
-		b.WriteString(fmt.Sprintf(`<a href="%s.html" class="gate-link">`, conn.SystemID))
+		b.WriteString(fmt.Sprintf(`<a href="../%s/" class="gate-link">`, conn.SystemID))
 		b.WriteString(`<g class="poi-marker">`)
 		b.WriteString(fmt.Sprintf(`<title>Jump Gate: %s</title>`, htmlEscape(conn.Name)))
 		b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5"/>`, gx, gy))
