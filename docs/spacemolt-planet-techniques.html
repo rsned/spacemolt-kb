@@ -1,0 +1,2551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procedural planet generation — technique demos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Major+Mono+Display&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #131826;
+  --surface-2: #1a2030;
+  --border: #1f2937;
+  --border-strong: #2a3548;
+  --text: #e8e6e0;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --tier-s: #fbbf24;
+  --tier-s-bg: rgba(251, 191, 36, 0.1);
+  --tier-a: #5eead4;
+  --tier-a-bg: rgba(94, 234, 212, 0.1);
+  --tier-b: #a78bfa;
+  --tier-b-bg: rgba(167, 139, 250, 0.1);
+  --rule: rgba(232, 230, 224, 0.08);
+  --font-display: "Major Mono Display", "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-body: "Spectral", "Iowan Old Style", Georgia, serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); }
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  font-weight: 400;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(94, 234, 212, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(251, 191, 36, 0.03) 0%, transparent 50%),
+    var(--bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(232, 230, 224, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+}
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.navinner {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.brand {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--tier-a);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--tier-a);
+}
+.navlinks {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+.navlinks a {
+  color: var(--text-2);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.navlinks a:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 2;
+}
+.hero {
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--rule);
+}
+.hero .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--tier-a);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero .eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--tier-a), transparent);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 6vw, 64px);
+  line-height: 1.05;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+  color: var(--text);
+  text-transform: lowercase;
+}
+.hero .lede {
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--text-2);
+  max-width: 640px;
+  margin-bottom: 32px;
+}
+.hero .stats {
+  display: flex;
+  gap: 32px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  flex-wrap: wrap;
+}
+.hero .stats span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero .stats strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.intro {
+  padding: 48px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.intro h2 {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 20px;
+}
+.intro p {
+  margin-bottom: 14px;
+  color: var(--text);
+}
+.intro p:last-child { margin-bottom: 0; }
+.legend {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-2);
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.legend-dot.tier-s { background: var(--tier-s); box-shadow: 0 0 8px var(--tier-s); }
+.legend-dot.tier-a { background: var(--tier-a); box-shadow: 0 0 8px var(--tier-a); }
+.legend-dot.tier-b { background: var(--tier-b); box-shadow: 0 0 8px var(--tier-b); }
+.technique {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.techmeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.num {
+  color: var(--text-3);
+  font-size: 14px;
+}
+.num::before {
+  content: "TECHNIQUE / ";
+  color: var(--text-3);
+  opacity: 0.6;
+}
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+.tier-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.tier-badge.tier-s { background: var(--tier-s-bg); color: var(--tier-s); }
+.tier-badge.tier-s::before { background: var(--tier-s); box-shadow: 0 0 6px var(--tier-s); }
+.tier-badge.tier-a { background: var(--tier-a-bg); color: var(--tier-a); }
+.tier-badge.tier-a::before { background: var(--tier-a); box-shadow: 0 0 6px var(--tier-a); }
+.tier-badge.tier-b { background: var(--tier-b-bg); color: var(--tier-b); }
+.tier-badge.tier-b::before { background: var(--tier-b); box-shadow: 0 0 6px var(--tier-b); }
+.technique h2 {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.technique .subtitle {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text-2);
+  margin-bottom: 28px;
+}
+.problem, .lookfor, .impl {
+  padding: 18px 22px;
+  background: var(--surface);
+  border-left: 2px solid var(--border-strong);
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 24px;
+  font-size: 15px;
+}
+.problem strong, .lookfor strong, .impl strong {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  display: block;
+  margin-bottom: 8px;
+}
+.lookfor { border-left-color: var(--tier-a); }
+.impl { border-left-color: var(--tier-s); }
+.demo-frame {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  margin: 28px 0;
+}
+.demo-frame canvas {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+  border-radius: 4px;
+}
+.panels-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.panels-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.panel-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 10px;
+}
+.panel-sub {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-2);
+  margin-top: 2px;
+  line-height: 1.45;
+}
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 4px;
+}
+.controls.two { grid-template-columns: repeat(2, 1fr); }
+.ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ctrl-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-2);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.ctrl-row .val { color: var(--tier-a); }
+.ctrl input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.ctrl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--tier-a);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(94, 234, 212, 0.4);
+  transition: transform 0.1s;
+}
+.ctrl input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.ctrl input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--tier-a);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 8px rgba(94, 234, 212, 0.4);
+}
+.strip-pair {
+  margin-bottom: 16px;
+}
+.strip-pair-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
+}
+.strip-grid {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  row-gap: 6px;
+  column-gap: 12px;
+  align-items: center;
+}
+.strip-mode {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.strip-grid canvas {
+  width: 100%;
+  height: 24px;
+  border-radius: 3px;
+  display: block;
+}
+.summary {
+  padding: 80px 0 48px;
+}
+.summary h2 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 16px;
+  text-transform: lowercase;
+}
+.summary p.lede {
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--text-2);
+  margin-bottom: 32px;
+  max-width: 640px;
+}
+.summary table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-family: var(--font-body);
+}
+.summary thead th {
+  text-align: left;
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border-strong);
+}
+.summary tbody tr {
+  border-bottom: 1px solid var(--rule);
+}
+.summary tbody td {
+  padding: 14px;
+  vertical-align: top;
+  color: var(--text);
+}
+.summary tbody td:first-child {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-3);
+  width: 50px;
+}
+.summary tbody td:nth-child(2) {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  width: 200px;
+  letter-spacing: -0.01em;
+}
+.summary tbody td:nth-child(3) {
+  width: 90px;
+}
+.summary tbody td:nth-child(4) {
+  font-style: italic;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+footer {
+  padding: 48px 0 80px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+@media (max-width: 720px) {
+  .panels-3 { grid-template-columns: 1fr; }
+  .panels-2 { grid-template-columns: 1fr; }
+  .controls { grid-template-columns: 1fr; }
+  .summary tbody td:nth-child(2) { width: auto; }
+  .strip-grid { grid-template-columns: 50px 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="navinner">
+    <a href="#top" class="brand">SpaceMolt / Planet techniques</a>
+    <div class="navlinks">
+      <a href="#t1">01 Coast</a>
+      <a href="#t2">02 Crater</a>
+      <a href="#t3">03 Gas</a>
+      <a href="#t4">04 Civ</a>
+      <a href="#t5">05 OkLab</a>
+      <a href="#t6">06 Plate</a>
+      <a href="#t7">07 Cloud</a>
+      <a href="#t8">08 Cont</a>
+      <a href="#t9">09 River</a>
+      <a href="#t10">10 Wind</a>
+      <a href="#summary">Index</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <header class="hero" id="top">
+    <div class="eyebrow">Internal review · spacemolt-kb · /pkg/planetgen</div>
+    <h1>Procedural<br>planet techniques</h1>
+    <p class="lede">Ten interactive demos comparing the current generator's output against techniques from the design-research pass. Each panel is rendered live in your browser — sliders trigger regeneration, no precomputed images.</p>
+    <div class="stats">
+      <span><strong>10</strong> techniques</span>
+      <span><strong>5</strong> tier-S/A priority</span>
+      <span><strong>~2 weeks</strong> for the top 5</span>
+    </div>
+  </header>
+
+  <section class="intro">
+    <h2>How to read these</h2>
+    <p>Each demo presents a side-by-side comparison: the current method (or a naïve baseline) against the proposed technique. Sliders re-render both panels with new parameters in real time so you can see the technique behave under stress, not just in its best case.</p>
+    <p>The tier badge reflects estimated visual impact ÷ implementation effort. Tier S items are the highest-leverage changes — small code changes with dramatic visual upgrades. Tier A items require more work but unlock entire new aesthetic categories. Tier B items are polish layers that make the difference between "convincing" and "hand-painted."</p>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot tier-s"></div>Tier S — implement first</div>
+      <div class="legend-item"><div class="legend-dot tier-a"></div>Tier A — significant uplift</div>
+      <div class="legend-item"><div class="legend-dot tier-b"></div>Tier B — polish &amp; depth</div>
+    </div>
+  </section>
+
+  <section id="t1" class="technique">
+    <div class="techmeta">
+      <span class="num">01</span>
+      <span class="tier-badge tier-s">Tier S · highest impact</span>
+    </div>
+    <h2>Coastlines, biomes, the whole terran package</h2>
+    <p class="subtitle">Domain warping + coastal-noise enhancement + Whittaker T×M biome lookup. Three tier-S techniques composed in one demo.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Current generator thresholds fBm against ocean level. Coastlines are blobby (no fjords or fingering), have identical character at every scale, and biomes are pure latitude bands — so deserts and rainforests can't coexist at the same latitude.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-3">
+        <div>
+          <canvas id="d1c1" width="220" height="110"></canvas>
+          <div class="panel-label">Plain fBm + threshold</div>
+          <div class="panel-sub">Current method. Blobby coast, single palette.</div>
+        </div>
+        <div>
+          <canvas id="d1c2" width="220" height="110"></canvas>
+          <div class="panel-label">+ Domain warping</div>
+          <div class="panel-sub">Quilez warp. Fjord-finger coastlines.</div>
+        </div>
+        <div>
+          <canvas id="d1c3" width="220" height="110"></canvas>
+          <div class="panel-label">+ Coastal noise + Whittaker</div>
+          <div class="panel-sub">Archipelagos at sea level, T×M biomes.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Sea level</span><span class="val" id="d1seaOut">0.50</span></div>
+          <input type="range" id="d1sea" min="30" max="70" value="50" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Warp strength</span><span class="val" id="d1warpOut">0.60</span></div>
+          <input type="range" id="d1warp" min="0" max="120" value="60" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d1seedOut">7</span></div>
+          <input type="range" id="d1seed" min="1" max="40" value="7" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      Drop warp strength to 0 and coastlines collapse to the blobby threshold look. Push past 0.8 and fjord fingering plus outlying island groups appear with no extra noise octaves. The third panel adds the (1−e⁴) coastal-noise bell so detail concentrates only at sea level — interior land and deep ocean stay smooth, archipelagos appear at every zoom for free.
+    </div>
+    <div class="impl">
+      <strong>Implementation</strong>
+      Domain warping is one Quilez pass: <code>q = p + amp · vec3(noise(p+a), noise(p+b), noise(p+c))</code>. Whittaker biome lookup is a 4×4 grid of base colors interpolated bilinearly in (T, M). Coastal noise is <code>(1 − e⁴)</code> as a bell to mask high-frequency detail near sea level. ~150 lines of Go combined.
+    </div>
+  </section>
+
+  <section id="t2" class="technique">
+    <div class="techmeta">
+      <span class="num">02</span>
+      <span class="tier-badge tier-a">Tier A</span>
+    </div>
+    <h2>Crater systems for barren bodies</h2>
+    <p class="subtitle">Power-law size distribution, density mask for maria, per-crater age decay, ejecta rays as albedo features, multi-ring basins.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Current generator places uniform-random circles with fixed-range sizes. Real bodies have power-law size-frequency distributions, regional density variation (lunar maria vs highlands), per-crater age, and the most striking visual feature — bright ejecta rays from young impacts — is missing entirely.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-2">
+        <div>
+          <canvas id="d2c1" width="320" height="160"></canvas>
+          <div class="panel-label">Uniform random circles</div>
+          <div class="panel-sub">Current. Fixed-range sizes, no albedo features.</div>
+        </div>
+        <div>
+          <canvas id="d2c2" width="320" height="160"></canvas>
+          <div class="panel-label">Full crater system</div>
+          <div class="panel-sub">Hartmann SFD + maria + age + rings + ejecta.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d2seedOut">5</span></div>
+          <input type="range" id="d2seed" min="1" max="40" value="5" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Density</span><span class="val" id="d2densOut">220</span></div>
+          <input type="range" id="d2dens" min="50" max="400" value="220" step="10">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Surface age</span><span class="val" id="d2ageOut">0.50</span></div>
+          <input type="range" id="d2age" min="0" max="100" value="50" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      Drop density and the power-law SFD becomes obvious — a few large basins with a swarm of tiny craters. Push surface age up and bright Tycho-style rays appear from the largest fresh impacts. Multi-ring basins activate above radius 0.10. The maria mask reproduces the lunar dichotomy: smooth dark plains vs heavily cratered highlands.
+    </div>
+  </section>
+
+  <section id="t3" class="technique">
+    <div class="techmeta">
+      <span class="num">03</span>
+      <span class="tier-badge tier-a">Tier A</span>
+    </div>
+    <h2>Gas giant flow advection</h2>
+    <p class="subtitle">Backward semi-Lagrangian advection through curl-noise + zonal jets + storm vortices. Replaces band turbulence with genuine fluid character.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Current gas giant generator uses latitude bands + light turbulence + oval storms. The bands look like static stripes and storms are painted over rather than deflecting surrounding flow. Real Jovian visualizations show ribboning at band boundaries and storms that genuinely curve the flow around themselves.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-2">
+        <div>
+          <canvas id="d3c1" width="320" height="160"></canvas>
+          <div class="panel-label">Direct band lookup</div>
+          <div class="panel-sub">Current. Static bands, oval storms painted on.</div>
+        </div>
+        <div>
+          <canvas id="d3c2" width="320" height="160"></canvas>
+          <div class="panel-label">Curl-noise advection</div>
+          <div class="panel-sub">Backward semi-Lagrangian, divergence-free flow.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d3seedOut">3</span></div>
+          <input type="range" id="d3seed" min="1" max="40" value="3" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Turbulence</span><span class="val" id="d3turbOut">1.40</span></div>
+          <input type="range" id="d3turb" min="0" max="300" value="140" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Iterations</span><span class="val" id="d3itersOut">10</span></div>
+          <input type="range" id="d3iters" min="1" max="16" value="10" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      At iterations=1 the right panel barely differs from the left. Push to 12+ and the bands ribbon, eddy, and develop Kelvin-Helmholtz wisps along boundaries. Storm vortices now genuinely deflect the surrounding flow rather than being painted over it. Same technique as Stephen Cameron's <code>gaseous-giganticus</code>.
+    </div>
+  </section>
+
+  <section id="t4" class="technique">
+    <div class="techmeta">
+      <span class="num">04</span>
+      <span class="tier-badge tier-b">Tier B</span>
+    </div>
+    <h2>Civilization signs from orbit</h2>
+    <p class="subtitle">Habitability-scored Poisson-disc settlements with Zipfian populations, minimum-spanning-tree highway networks, dayside and nightside variants.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Inhabited terran and super-terran worlds show no signs of habitation. Real planets viewed from orbit show city light clusters, agricultural mosaics, and highway corridors. The most distinctive visual signature of a populated world is missing.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-2">
+        <div>
+          <canvas id="d4c1" width="320" height="160"></canvas>
+          <div class="panel-label">Dayside biomes</div>
+          <div class="panel-sub">Whittaker biome map, no civilization markers.</div>
+        </div>
+        <div>
+          <canvas id="d4c2" width="320" height="160"></canvas>
+          <div class="panel-label">Nightside lights + roads</div>
+          <div class="panel-sub">Habitability-scored settlements + MST highways.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d4seedOut">11</span></div>
+          <input type="range" id="d4seed" min="1" max="40" value="11" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Civ tier</span><span class="val" id="d4tierOut">0.65</span></div>
+          <input type="range" id="d4tier" min="0" max="100" value="65" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Sea level</span><span class="val" id="d4seaOut">0.50</span></div>
+          <input type="range" id="d4sea" min="35" max="65" value="50" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      Civ tier at 0 is a dead-quiet planet. Around 0.3 you get sparse agrarian amber pinpoints. At 0.7+ the highway necklaces between megacities appear. Lights actively avoid mountains, deserts, and high latitudes because the habitability score weights coast proximity, temperate latitudes, and moderate moisture.
+    </div>
+  </section>
+
+  <section id="t5" class="technique">
+    <div class="techmeta">
+      <span class="num">05</span>
+      <span class="tier-badge tier-s">Tier S · highest impact</span>
+    </div>
+    <h2>OkLab biome blending</h2>
+    <p class="subtitle">Replace component-wise RGB color interpolation with OkLab perceptual interpolation. ~30 lines of code, single biggest aesthetic win in the entire report.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Biome color lookup currently interpolates in RGB space. This passes through dingy gray midpoints between saturated colors — desert→forest goes through olive-brown muck, lava→ice through dead purple. Every biome boundary is a visible muddy zone where neither side reads as itself.
+    </div>
+    <div class="demo-frame">
+      <div id="d5pairs" style="margin-bottom: 24px;"></div>
+      <div class="panels-2">
+        <div>
+          <canvas id="d5p1" width="320" height="160"></canvas>
+          <div class="panel-label">Whittaker biomes, RGB lerp</div>
+          <div class="panel-sub">Boundaries pass through muddy midpoints.</div>
+        </div>
+        <div>
+          <canvas id="d5p2" width="320" height="160"></canvas>
+          <div class="panel-label">Whittaker biomes, OkLab lerp</div>
+          <div class="panel-sub">Edges curve through clean saturated tones.</div>
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      The desert↔forest strip is the cleanest demonstration — RGB passes through olive-brown around 50%, OkLab curves through a livelier mustard-yellow. Lava↔ice is most dramatic; RGB goes dead gray-purple, OkLab stays saturated. On the planet patches, biome boundary zones are noticeably crisper in OkLab.
+    </div>
+    <div class="impl">
+      <strong>Implementation</strong>
+      Use <code>lucasb-eyer/go-colorful</code>'s <code>BlendOklab</code> wherever your Whittaker biome lookup currently does component-wise RGB lerp. The transform is sRGB → linear → LMS via 3×3 matrix → cube root → OkLab via second 3×3, reversed for output. ~30 LOC inline if you don't want the dependency.
+    </div>
+  </section>
+
+  <section id="t6" class="technique">
+    <div class="techmeta">
+      <span class="num">06</span>
+      <span class="tier-badge tier-a">Tier A</span>
+    </div>
+    <h2>Mountain belts masked by plate distance</h2>
+    <p class="subtitle">Voronoi continental plates, distance-to-plate-boundary mask, ridged multifractal restricted to convergent edges.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Adding ridged multifractal to terrain produces "spaghetti mountains" — chaotic ridges everywhere with no structural plan. Real continents have organized mountain belts that align with plate boundaries (Andes, Himalayas, Rockies). The structural information needs to come from somewhere other than noise.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-3">
+        <div>
+          <canvas id="d6c1" width="220" height="110"></canvas>
+          <div class="panel-label">Plain ridged multifractal</div>
+          <div class="panel-sub">Spaghetti mountains. No structural plan.</div>
+        </div>
+        <div>
+          <canvas id="d6c2" width="220" height="110"></canvas>
+          <div class="panel-label">Plate boundary distance</div>
+          <div class="panel-sub">Voronoi cells, d2 − d1 at every pixel.</div>
+        </div>
+        <div>
+          <canvas id="d6c3" width="220" height="110"></canvas>
+          <div class="panel-label">Continents + masked ridges</div>
+          <div class="panel-sub">Mountain belts align with convergent edges.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d6seedOut">9</span></div>
+          <input type="range" id="d6seed" min="1" max="40" value="9" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Plate count</span><span class="val" id="d6platesOut">12</span></div>
+          <input type="range" id="d6plates" min="4" max="20" value="12" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Belt width</span><span class="val" id="d6beltOut">0.06</span></div>
+          <input type="range" id="d6belt" min="20" max="160" value="60" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      Drop belt width to minimum and the right panel reverts almost to bare continents — too tight a mask. Push past 0.10 and ranges thicken into wide cordilleras. Bump plates to 20 for fragmented small plates with frequent triple-junctions; drop to 4 for continent-spanning belts. The orange traces in the middle panel show exactly where mountains will appear in the right panel.
+    </div>
+  </section>
+
+  <section id="t7" class="technique">
+    <div class="techmeta">
+      <span class="num">07</span>
+      <span class="tier-badge tier-b">Tier B</span>
+    </div>
+    <h2>Cloud layer with Coriolis cyclones</h2>
+    <p class="subtitle">Latitude-banded coverage, domain-warped fBm density, log-spiral cyclonic vortices with hemisphere-flipping rotation.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Bare biome maps look like Cassini flyby stills, not photos of inhabited Earth-like worlds. The atmospheric layer is what gives a planet visual depth, soft edges, and the unmistakable "real planet" feeling. Latitude bands of coverage (ITCZ, subtropical highs, storm tracks, polar haze) plus cyclonic spirals at storm centers reproduce most Earth-from-orbit photographs.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-2">
+        <div>
+          <canvas id="d7c1" width="320" height="160"></canvas>
+          <div class="panel-label">Surface biomes only</div>
+          <div class="panel-sub">Bare planet. Cassini flyby aesthetic.</div>
+        </div>
+        <div>
+          <canvas id="d7c2" width="320" height="160"></canvas>
+          <div class="panel-label">+ Cloud layer overlay</div>
+          <div class="panel-sub">ITCZ, storm tracks, polar haze, two cyclones.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d7seedOut">14</span></div>
+          <input type="range" id="d7seed" min="1" max="40" value="14" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Coverage</span><span class="val" id="d7covOut">0.85</span></div>
+          <input type="range" id="d7cov" min="0" max="150" value="85" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Storm strength</span><span class="val" id="d7stormOut">1.00</span></div>
+          <input type="range" id="d7storm" min="0" max="200" value="100" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      The two cyclones are the giveaway — one in each hemisphere with opposite spiral handedness (Coriolis sign flip at the equator). Drop coverage to ~0.2 and the latitude bands appear: equatorial ITCZ stripe, gaps at subtropical highs near ±18°, haze again at storm tracks ±32° and the poles.
+    </div>
+  </section>
+
+  <section id="t8" class="technique">
+    <div class="techmeta">
+      <span class="num">08</span>
+      <span class="tier-badge tier-a">Tier A</span>
+    </div>
+    <h2>Continentality via distance-to-coast</h2>
+    <p class="subtitle">BFS (or JFA) distance field from ocean inland, modulating moisture as M = M_base · exp(−D / L_cont). Foundation for many downstream effects.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Random moisture noise scatters deserts and forests evenly across continents. Real continents have wet coasts and dry interiors (Sahara, Gobi, American Midwest). The signal "distance from the moisture source" is missing entirely from pure-noise approaches.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-3">
+        <div>
+          <canvas id="d8c1" width="220" height="110"></canvas>
+          <div class="panel-label">Naïve random moisture</div>
+          <div class="panel-sub">Deserts and forests scatter across continents.</div>
+        </div>
+        <div>
+          <canvas id="d8c2" width="220" height="110"></canvas>
+          <div class="panel-label">Distance-to-coast field</div>
+          <div class="panel-sub">Bright at shore, dark inland. BFS from ocean.</div>
+        </div>
+        <div>
+          <canvas id="d8c3" width="220" height="110"></canvas>
+          <div class="panel-label">Biomes with continentality</div>
+          <div class="panel-sub">Wet coasts, deserts in continental hearts.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d8seedOut">8</span></div>
+          <input type="range" id="d8seed" min="1" max="40" value="8" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Sea level</span><span class="val" id="d8seaOut">0.50</span></div>
+          <input type="range" id="d8sea" min="35" max="65" value="50" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Interior dryness</span><span class="val" id="d8dryOut">0.65</span></div>
+          <input type="range" id="d8dry" min="0" max="100" value="65" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      The middle panel is the diagnostic — bright yellow at the coast fading to dark brown inland is the D field in M = M_base · exp(−D/L_cont). Crank dryness and the third panel's continental hearts collapse into desert while coasts stay green. The same distance field is reusable for atmospheric haze, glowing province borders, and river seeding.
+    </div>
+  </section>
+
+  <section id="t9" class="technique">
+    <div class="techmeta">
+      <span class="num">09</span>
+      <span class="tier-badge tier-b">Tier B</span>
+    </div>
+    <h2>D8 flow accumulation rivers</h2>
+    <p class="subtitle">D8 flow direction, topological sort, accumulation by stream order, threshold for river identification, green corridor moisture boost (Nile-through-Sahara).</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      No rivers anywhere. Continents are climatic monoliths — what should be the Nile slicing green through the Sahara, or the Amazon threading the Brazilian highlands, is just biome desert. Rivers are both visually distinctive features and ecological force-multipliers carrying moisture inland past where rain shadow says it should be dry.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-2">
+        <div>
+          <canvas id="d9c1" width="320" height="160"></canvas>
+          <div class="panel-label">No hydrology</div>
+          <div class="panel-sub">Climate alone — interiors stay arid by latitude.</div>
+        </div>
+        <div>
+          <canvas id="d9c2" width="320" height="160"></canvas>
+          <div class="panel-label">+ Rivers + green corridors</div>
+          <div class="panel-sub">D8 flow accumulation + moisture boost near streams.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d9seedOut">17</span></div>
+          <input type="range" id="d9seed" min="1" max="40" value="17" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Sea level</span><span class="val" id="d9seaOut">0.50</span></div>
+          <input type="range" id="d9sea" min="35" max="60" value="50" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>River density</span><span class="val" id="d9densOut">1.20</span></div>
+          <input type="range" id="d9dens" min="50" max="220" value="120" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      Drop river density and only main stems remain (Mississippi or Amazon trunks reduced to skeletons); push it up and the dendritic full-network appears down to small brooks. Notice how interiors that would be dry desert in the left panel become green ribbons in the right one — the Nile-through-Sahara effect.
+    </div>
+  </section>
+
+  <section id="t10" class="technique">
+    <div class="techmeta">
+      <span class="num">10</span>
+      <span class="tier-badge tier-b">Tier B</span>
+    </div>
+    <h2>Orographic rain shadow</h2>
+    <p class="subtitle">Latitude-banded prevailing winds (trades, westerlies, polar easterlies) with carry sweep that picks up moisture over ocean and drops it on windward slopes.</p>
+    <div class="problem">
+      <strong>Problem</strong>
+      Mountains have no climate effect. In reality, prevailing winds picking up moisture over ocean, dropping it on the windward side of mountains, and leaving a desert in the lee is responsible for the Atacama, the Gobi, the Patagonian steppe, and most distinct biome boundaries on Earth. Without this, deserts and forests have no relationship to terrain.
+    </div>
+    <div class="demo-frame">
+      <div class="panels-2">
+        <div>
+          <canvas id="d10c1" width="320" height="160"></canvas>
+          <div class="panel-label">Random moisture</div>
+          <div class="panel-sub">No relationship to terrain or wind direction.</div>
+        </div>
+        <div>
+          <canvas id="d10c2" width="320" height="160"></canvas>
+          <div class="panel-label">+ Prevailing wind rain shadow</div>
+          <div class="panel-sub">Carry sweep through latitude-banded winds.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Seed</span><span class="val" id="d10seedOut">22</span></div>
+          <input type="range" id="d10seed" min="1" max="40" value="22" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Wind strength</span><span class="val" id="d10windOut">1.00</span></div>
+          <input type="range" id="d10wind" min="20" max="200" value="100" step="1">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-row"><span>Sea level</span><span class="val" id="d10seaOut">0.48</span></div>
+          <input type="range" id="d10sea" min="38" max="60" value="48" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="lookfor">
+      <strong>What to look for</strong>
+      In the tropics (mid-canvas excluding equator) trade winds blow east-to-west: windward = right, lee desert = left. In the mid-latitudes the westerlies blow west-to-east: the asymmetry flips. The same mountain creates desert on opposite sides in different bands. This is exactly why the Atacama (mid-latitude lee) and the Sahara (trade-wind interior) sit on different sides of their respective continents.
+    </div>
+  </section>
+
+  <section id="summary" class="summary">
+    <h2>priority index</h2>
+    <p class="lede">Estimated implementation order if optimizing for visual impact per unit effort. Numbers reference the demo above.</p>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Technique</th><th>Tier</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>05</td><td>OkLab biome blending</td><td><span class="tier-badge tier-s">S</span></td><td>~30 LOC via go-colorful. Single biggest aesthetic win available.</td></tr>
+        <tr><td>01</td><td>Coastlines (warp+Whittaker)</td><td><span class="tier-badge tier-s">S</span></td><td>Domain warp + coastal-noise + Whittaker. Three Tier-S items in one section.</td></tr>
+        <tr><td>11</td><td>Crater system upgrade</td><td><span class="tier-badge tier-a">A</span></td><td>Power-law SFD + maria + age + ejecta rays. ~250 LOC.</td></tr>
+        <tr><td>03</td><td>Gas giant curl-noise advection</td><td><span class="tier-badge tier-a">A</span></td><td>Backward semi-Lagrangian. Most dramatic single change for gas giants.</td></tr>
+        <tr><td>06</td><td>Ridged mountains masked by plates</td><td><span class="tier-badge tier-a">A</span></td><td>Mountains align with continental structure instead of spaghetti.</td></tr>
+        <tr><td>08</td><td>Continentality via JFA distance</td><td><span class="tier-badge tier-a">A</span></td><td>Reusable distance field. Foundation for many downstream effects.</td></tr>
+        <tr><td>10</td><td>Wind-driven rain shadow</td><td><span class="tier-badge tier-b">B</span></td><td>Linear sweep per row. Pairs naturally with rivers and continentality.</td></tr>
+        <tr><td>09</td><td>D8 flow rivers + green corridors</td><td><span class="tier-badge tier-b">B</span></td><td>D8 + topo-sort + accumulation. Pairs naturally with continentality.</td></tr>
+        <tr><td>07</td><td>Cloud layer overlay</td><td><span class="tier-badge tier-b">B</span></td><td>Latitude bands + cyclones. Earth-from-orbit realism.</td></tr>
+        <tr><td>04</td><td>Civilization signs (day+night)</td><td><span class="tier-badge tier-b">B</span></td><td>Habitability scoring + Zipfian + MST highways. Distinctive showcase.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    <span>Generated for spacemolt-kb pkg/planetgen review</span>
+    <span>All demos render in-browser · no external API calls</span>
+  </footer>
+</main>
+
+<script>
+window.SM = (function(){
+  function hash2(x, y) {
+    let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263)) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h = h ^ (h >>> 16);
+    return ((h >>> 0) / 4294967295);
+  }
+  function smooth(t) { return t * t * (3 - 2 * t); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function vnoise(x, y) {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    const a = hash2(xi, yi), b = hash2(xi + 1, yi);
+    const c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1);
+    const u = smooth(xf), v = smooth(yf);
+    return lerp(lerp(a, b, u), lerp(c, d, u), v);
+  }
+  function fbm(x, y, oct) {
+    let v = 0, amp = 1, freq = 1, max = 0;
+    for (let i = 0; i < oct; i++) {
+      v += vnoise(x * freq + i * 13.7, y * freq + i * 7.3) * amp;
+      max += amp;
+      amp *= 0.5;
+      freq *= 2.0;
+    }
+    return v / max;
+  }
+  function ridgedMulti(x, y, oct, off) {
+    let v = 0, amp = 1, freq = 1, max = 0, weight = 1;
+    for (let i = 0; i < oct; i++) {
+      let n = vnoise(x * freq + off + i * 7.13, y * freq + off * 1.7 + i * 3.71) * 2 - 1;
+      n = 1 - Math.abs(n);
+      n = n * n;
+      n *= weight;
+      weight = Math.min(1, n * 2);
+      v += n * amp;
+      max += amp;
+      amp *= 0.5;
+      freq *= 2.0;
+    }
+    return v / max;
+  }
+  function mulberry32(a) {
+    return function() {
+      let t = a = (a + 0x6D2B79F5) | 0;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function elevation(x, y, s) {
+    const wx = (fbm(x * 1.6 + s * 3.1, y * 1.6 + s * 9.4, 4) - 0.5) * 2;
+    const wy = (fbm(x * 1.6 + s * 17.3, y * 1.6 + s * 23.5, 4) - 0.5) * 2;
+    let e = fbm(x * 3.4 + wx * 0.7 + s * 11.1, y * 3.4 + wy * 0.7 + s * 4.7, 6);
+    const en = (e - 0.5) * 2;
+    const bell = Math.max(0, 1 - Math.pow(Math.abs(en), 4));
+    const detail = fbm(x * 28 + s * 8.1, y * 28 + s * 5.6, 4) - 0.5;
+    e += bell * detail * 0.16;
+    const wTaper = Math.sin(Math.PI * y);
+    return e * (0.55 + 0.45 * wTaper);
+  }
+  function moistureBase(x, y, s) {
+    return fbm(x * 2.3 + s * 31.7, y * 2.3 + s * 19.1, 4);
+  }
+  function tempField(y, h, s) {
+    const lat = Math.abs(y - 0.5) * 2;
+    let T = 1 - lat * 1.05 + (fbm(0.7 + s * 41, y * 4 + s * 13, 3) - 0.5) * 0.15;
+    T -= Math.max(0, h - 0.5) * 0.7;
+    return T;
+  }
+  function oceanColor(depth) {
+    const t = Math.max(0, Math.min(1, depth));
+    return [40 + (1 - t) * 65, 75 + (1 - t) * 90, 135 + (1 - t) * 60];
+  }
+  const biomeGrid = [
+    [[160, 170, 168], [130, 145, 138], [85, 110, 95], [60, 90, 75]],
+    [[200, 180, 140], [180, 185, 130], [115, 145, 85], [70, 115, 60]],
+    [[215, 195, 145], [200, 200, 125], [120, 165, 75], [50, 125, 60]],
+    [[230, 210, 160], [220, 200, 130], [165, 180, 95], [40, 115, 60]]
+  ];
+  function whittaker(T, M, h) {
+    T = Math.max(0, Math.min(0.999, T));
+    M = Math.max(0, Math.min(0.999, M));
+    const ti = T * 3, mi = M * 3;
+    const t0 = Math.floor(ti), t1 = Math.min(3, t0 + 1);
+    const m0 = Math.floor(mi), m1 = Math.min(3, m0 + 1);
+    const tf = ti - t0, mf = mi - m0;
+    const c00 = biomeGrid[t0][m0], c01 = biomeGrid[t0][m1];
+    const c10 = biomeGrid[t1][m0], c11 = biomeGrid[t1][m1];
+    let r = (1 - tf) * ((1 - mf) * c00[0] + mf * c01[0]) + tf * ((1 - mf) * c10[0] + mf * c11[0]);
+    let g = (1 - tf) * ((1 - mf) * c00[1] + mf * c01[1]) + tf * ((1 - mf) * c10[1] + mf * c11[1]);
+    let b = (1 - tf) * ((1 - mf) * c00[2] + mf * c01[2]) + tf * ((1 - mf) * c10[2] + mf * c11[2]);
+    if (h > 0.72) {
+      const m = Math.min(1, (h - 0.72) / 0.22);
+      const k = m * m;
+      r = lerp(r, 215, k); g = lerp(g, 210, k); b = lerp(b, 200, k);
+      if (h > 0.86) {
+        const k2 = Math.min(1, (h - 0.86) / 0.10);
+        r = lerp(r, 240, k2); g = lerp(g, 245, k2); b = lerp(b, 248, k2);
+      }
+    }
+    return [r, g, b];
+  }
+  function srgbToLin(c) { return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  function linToSrgb(c) { return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055; }
+  function rgbToOklab(r, g, b) {
+    const lr = srgbToLin(r / 255), lg = srgbToLin(g / 255), lb = srgbToLin(b / 255);
+    const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+    const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+    const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+    const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s);
+    return [
+      0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+      1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+      0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+    ];
+  }
+  function oklabToRgb(L, a, b) {
+    const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+    const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
+    const lr = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+    const lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+    const lb = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+    return [
+      Math.max(0, Math.min(1, linToSrgb(lr))) * 255,
+      Math.max(0, Math.min(1, linToSrgb(lg))) * 255,
+      Math.max(0, Math.min(1, linToSrgb(lb))) * 255
+    ];
+  }
+  function lerpRgb(c1, c2, t) {
+    return [c1[0] + (c2[0] - c1[0]) * t, c1[1] + (c2[1] - c1[1]) * t, c1[2] + (c2[2] - c1[2]) * t];
+  }
+  function lerpOklab(c1, c2, t) {
+    const a = rgbToOklab(c1[0], c1[1], c1[2]);
+    const b = rgbToOklab(c2[0], c2[1], c2[2]);
+    return oklabToRgb(
+      a[0] + (b[0] - a[0]) * t,
+      a[1] + (b[1] - a[1]) * t,
+      a[2] + (b[2] - a[2]) * t
+    );
+  }
+  function bfsDistance(W, H, mask) {
+    const dist = new Float32Array(W * H).fill(-1);
+    const queue = [];
+    for (let i = 0; i < W * H; i++) {
+      if (mask[i]) {
+        dist[i] = 0;
+        queue.push(i % W, Math.floor(i / W));
+      }
+    }
+    let head = 0;
+    while (head < queue.length) {
+      const x = queue[head++], y = queue[head++];
+      const d = dist[y * W + x];
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = (x + dx + W) % W;
+          const ny = y + dy;
+          if (ny < 0 || ny >= H) continue;
+          if (dist[ny * W + nx] < 0) {
+            const step = (Math.abs(dx) + Math.abs(dy) === 2) ? 1.414 : 1.0;
+            dist[ny * W + nx] = d + step;
+            queue.push(nx, ny);
+          }
+        }
+      }
+    }
+    return dist;
+  }
+  return {
+    hash2, smooth, lerp, vnoise, fbm, ridgedMulti, mulberry32,
+    elevation, moistureBase, tempField, oceanColor,
+    biomeGrid, whittaker,
+    rgbToOklab, oklabToRgb, lerpRgb, lerpOklab,
+    bfsDistance
+  };
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  function elev1(x, y, s) {
+    return SM.fbm(x * 3.5 + s * 11.1, y * 3.5 + s * 4.7, 6);
+  }
+  function elev2(x, y, s, warp) {
+    const wx = (SM.fbm(x * 1.6 + s * 3.1, y * 1.6 + s * 9.4, 4) - 0.5) * 2;
+    const wy = (SM.fbm(x * 1.6 + s * 17.3, y * 1.6 + s * 23.5, 4) - 0.5) * 2;
+    return SM.fbm(x * 3.5 + wx * warp + s * 11.1, y * 3.5 + wy * warp + s * 4.7, 6);
+  }
+  function elev3(x, y, s, warp) {
+    const wx = (SM.fbm(x * 1.6 + s * 3.1, y * 1.6 + s * 9.4, 4) - 0.5) * 2;
+    const wy = (SM.fbm(x * 1.6 + s * 17.3, y * 1.6 + s * 23.5, 4) - 0.5) * 2;
+    let e = SM.fbm(x * 3.5 + wx * warp + s * 11.1, y * 3.5 + wy * warp + s * 4.7, 6);
+    const en = (e - 0.5) * 2;
+    const bell = Math.max(0, 1 - Math.pow(Math.abs(en), 4));
+    const detail = SM.fbm(x * 28 + s * 8.1, y * 28 + s * 5.6, 5) - 0.5;
+    e += bell * detail * 0.18;
+    return e;
+  }
+  function landSimple(h) {
+    if (h < 0.65) return [Math.round(95 + h * 40), Math.round(135 + h * 30), Math.round(75 + h * 20)];
+    if (h < 0.82) return [Math.round(140 + (h - 0.65) * 200), Math.round(135 + (h - 0.65) * 150), Math.round(105 + (h - 0.65) * 200)];
+    return [220, 220, 218];
+  }
+  function render(canvasId, mode) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const sea = parseInt($('d1sea').value, 10) / 100;
+    const warp = parseInt($('d1warp').value, 10) / 100;
+    const seed = parseInt($('d1seed').value, 10) * 0.137;
+    for (let py = 0; py < H; py++) {
+      const y = py / H;
+      const wTaper = Math.sin(Math.PI * y);
+      for (let px = 0; px < W; px++) {
+        const x = px / W;
+        let e;
+        if (mode === 1) e = elev1(x, y, seed);
+        else if (mode === 2) e = elev2(x, y, seed, warp);
+        else e = elev3(x, y, seed, warp);
+        const eAdj = e * (0.55 + 0.45 * wTaper);
+        let col;
+        if (eAdj < sea) {
+          col = SM.oceanColor((sea - eAdj) / sea);
+        } else if (mode === 3) {
+          const T = SM.tempField(y, eAdj, seed);
+          const M = SM.moistureBase(x, y, seed);
+          col = SM.whittaker(T, M, eAdj);
+        } else {
+          col = landSimple((eAdj - sea) / (1 - sea));
+        }
+        if (mode === 3 && eAdj >= sea && Math.abs(y - 0.5) > 0.42) {
+          const k = Math.min(1, (Math.abs(y - 0.5) - 0.42) / 0.08);
+          col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+        }
+        const i = (py * W + px) * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    $('d1seaOut').textContent = (parseInt($('d1sea').value, 10) / 100).toFixed(2);
+    $('d1warpOut').textContent = (parseInt($('d1warp').value, 10) / 100).toFixed(2);
+    $('d1seedOut').textContent = $('d1seed').value;
+    render('d1c1', 1); render('d1c2', 2); render('d1c3', 3);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d1sea', 'd1warp', 'd1seed'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  function maria(x, y, seed) { return SM.fbm(x * 1.4 + seed * 0.31, y * 1.4 + seed * 0.71, 3); }
+  function genSimple(seed, n) {
+    const r = SM.mulberry32(seed * 1000 + 1);
+    const out = [];
+    for (let i = 0; i < n; i++) out.push({ x: r(), y: r(), rad: 0.012 + r() * 0.045 });
+    return out;
+  }
+  function genFull(seed, target, ageGlobal) {
+    const r = SM.mulberry32(seed * 1000 + 7);
+    const out = [];
+    let placed = 0, attempts = 0;
+    const Dmin = 0.006, Dmax = 0.14, alpha = -2.5;
+    const tDmin = Math.pow(Dmin, 1 - alpha), tDmax = Math.pow(Dmax, 1 - alpha);
+    while (placed < target && attempts < target * 6) {
+      attempts++;
+      const x = r(), y = r();
+      const m = SM.fbm(x * 1.4 + seed * 0.31, y * 1.4 + seed * 0.71, 3);
+      const accept = m > 0.56 ? 0.18 : 1.0;
+      if (r() > accept) continue;
+      const u = r();
+      const rad = Math.pow(u * (tDmax - tDmin) + tDmin, 1 / (1 - alpha));
+      const age = Math.max(0, Math.min(1, r() * 0.5 + ageGlobal * 0.5));
+      const isYoung = age > 0.62, isLarge = rad > 0.06, isHuge = rad > 0.10;
+      out.push({
+        x, y, rad, age,
+        rays: isYoung && isLarge,
+        rings: isHuge ? 2 : (rad > 0.07 ? 1 : 0),
+        rayCount: 5 + Math.floor(r() * 7),
+        rayPhase: r() * Math.PI * 2,
+        sharp: 6 + r() * 12
+      });
+      placed++;
+    }
+    out.sort((a, b) => b.rad - a.rad);
+    return out;
+  }
+  function renderPanel(canvasId, mode, craters, seed) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const aspect = W / H;
+    const padded = craters.map(c => ({ c, reach: c.rays ? c.rad * 5 : c.rad * (c.rings ? 2.5 : 1.4) }));
+    for (let py = 0; py < H; py++) {
+      const y = py / H;
+      for (let px = 0; px < W; px++) {
+        const x = px / W;
+        const tex = SM.fbm(x * 14 + seed * 0.5, y * 14 + seed * 1.1, 4);
+        let bright = 0.62 + tex * 0.18;
+        let albedoMod = 0;
+        if (mode === 2) {
+          const m = maria(x, y, seed);
+          if (m > 0.56) {
+            const t = Math.min(1, (m - 0.56) / 0.15);
+            bright = SM.lerp(bright, 0.32 + tex * 0.10, t);
+          }
+        }
+        for (let k = 0; k < padded.length; k++) {
+          const p = padded[k], c = p.c;
+          const dxn = x - c.x;
+          const dyn = (y - c.y) / aspect;
+          if (Math.abs(dxn) > p.reach || Math.abs(dyn) > p.reach) continue;
+          const d = Math.sqrt(dxn * dxn + dyn * dyn);
+          if (d > p.reach) continue;
+          if (mode === 1) {
+            if (d < c.rad) {
+              const t = d / c.rad;
+              bright -= (1 - t * t) * 0.20;
+              if (t > 0.85) bright += 0.13;
+            }
+          } else {
+            const ageK = 0.35 + 0.65 * c.age;
+            if (d < c.rad * 0.88) {
+              const t = d / (c.rad * 0.88);
+              bright -= (1 - t * t * t) * 0.24 * ageK;
+            } else if (d < c.rad * 1.05) {
+              const t = (d - c.rad * 0.88) / (c.rad * 0.17);
+              bright += Math.sin(t * Math.PI) * 0.22 * ageK;
+            }
+            if (c.rings >= 1 && d > c.rad * 1.35 && d < c.rad * 1.65) {
+              const t = (d - c.rad * 1.35) / (c.rad * 0.30);
+              bright += Math.sin(t * Math.PI) * 0.11 * ageK;
+            }
+            if (c.rings >= 2 && d > c.rad * 1.95 && d < c.rad * 2.20) {
+              const t = (d - c.rad * 1.95) / (c.rad * 0.25);
+              bright += Math.sin(t * Math.PI) * 0.07 * ageK;
+            }
+            if (d > c.rad && d < c.rad * 1.6) {
+              const t = (d - c.rad) / (c.rad * 0.6);
+              albedoMod += (1 - t) * 0.10 * c.age;
+            }
+            if (c.rays && d > c.rad * 1.1 && d < p.reach) {
+              const ang = Math.atan2(dyn, dxn) - c.rayPhase;
+              const beam = Math.cos(c.rayCount * 0.5 * ang) * 0.5 + 0.5;
+              const sharp = Math.pow(beam, c.sharp);
+              const fall = Math.exp(-(d - c.rad) / (c.rad * 2.2));
+              const streak = 0.55 + SM.vnoise(ang * 4 + c.x * 91, d * 28 + c.y * 71) * 0.5;
+              albedoMod += sharp * fall * streak * 0.30 * c.age * c.age;
+            }
+          }
+        }
+        bright += albedoMod;
+        bright = Math.max(0, Math.min(1, bright));
+        const i = (py * W + px) * 4;
+        data[i] = Math.round(bright * 240);
+        data[i+1] = Math.round(bright * 218);
+        data[i+2] = Math.round(bright * 188);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d2seed').value, 10);
+    const dens = parseInt($('d2dens').value, 10);
+    const age = parseInt($('d2age').value, 10) / 100;
+    $('d2seedOut').textContent = seed;
+    $('d2densOut').textContent = dens;
+    $('d2ageOut').textContent = age.toFixed(2);
+    const cs = genSimple(seed, Math.max(40, Math.round(dens * 0.4)));
+    const cf = genFull(seed, dens, age);
+    renderPanel('d2c1', 1, cs, seed);
+    renderPanel('d2c2', 2, cf, seed);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d2seed', 'd2dens', 'd2age'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const palette = [
+    [0.00, [148, 110, 70]], [0.20, [195, 158, 110]], [0.40, [222, 200, 165]],
+    [0.55, [232, 222, 200]], [0.70, [212, 188, 150]], [0.85, [184, 144, 100]], [1.00, [148, 105, 65]]
+  ];
+  function paletteSample(t) {
+    t = Math.max(0, Math.min(1, t));
+    if (t <= palette[0][0]) return palette[0][1];
+    if (t >= palette[palette.length - 1][0]) return palette[palette.length - 1][1];
+    for (let i = 1; i < palette.length; i++) {
+      if (t <= palette[i][0]) {
+        const lt = (t - palette[i-1][0]) / (palette[i][0] - palette[i-1][0]);
+        const a = palette[i-1][1], b = palette[i][1];
+        return [a[0] + (b[0]-a[0])*lt, a[1] + (b[1]-a[1])*lt, a[2] + (b[2]-a[2])*lt];
+      }
+    }
+    return palette[palette.length-1][1];
+  }
+  function bandSignal(y, x, seed) {
+    const lat = y - 0.5;
+    const s1 = Math.sin(lat * Math.PI * 18 + 0.7);
+    const s2 = Math.sin(lat * Math.PI * 7 + 1.9);
+    const s3 = Math.sin(lat * Math.PI * 32 + 0.3) * 0.4;
+    const slow = (SM.fbm(x * 0.6 + seed * 0.7, y * 5 + seed * 1.1, 3) - 0.5) * 0.5;
+    return (Math.tanh((s1 * 0.55 + s2 * 0.30 + s3 * 0.15 + slow) * 2.2) + 1) * 0.5;
+  }
+  function renderGas(canvasId, mode, params) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const seed = params.seed * 0.137;
+    const turb = params.turb;
+    const iters = (mode === 1) ? 1 : params.iters;
+    const dt = 0.010;
+    const storms = [
+      { x: 0.30, y: 0.66, r: 0.085, ry: 0.045, sign: -1, color: [205, 80, 50], strength: 0.55 },
+      { x: 0.72, y: 0.34, r: 0.045, ry: 0.025, sign: 1, color: [232, 220, 200], strength: 0.30 },
+      { x: 0.10, y: 0.80, r: 0.038, ry: 0.020, sign: -1, color: [225, 180, 135], strength: 0.25 },
+      { x: 0.55, y: 0.22, r: 0.030, ry: 0.018, sign: -1, color: [222, 205, 170], strength: 0.20 }
+    ];
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const ox = px / W, oy = py / H;
+        let x = ox, y = oy;
+        for (let n = 0; n < iters; n++) {
+          const lat = y - 0.5;
+          const vJet = Math.sin(lat * Math.PI * 9 + 0.4) * 1.6 + Math.sin(lat * Math.PI * 5 + 1.2) * 0.6;
+          let vcx = 0, vcy = 0;
+          if (mode === 2) {
+            const eps = 0.010;
+            const p1 = SM.fbm((x + eps) * 3.5 + seed * 3.1, y * 1.0 + seed * 7.7, 3);
+            const p2 = SM.fbm((x - eps) * 3.5 + seed * 3.1, y * 1.0 + seed * 7.7, 3);
+            const p3 = SM.fbm(x * 3.5 + seed * 3.1, (y + eps) * 1.0 + seed * 7.7, 3);
+            const p4 = SM.fbm(x * 3.5 + seed * 3.1, (y - eps) * 1.0 + seed * 7.7, 3);
+            vcx = (p3 - p4) / (2 * eps) * turb;
+            vcy = -(p1 - p2) / (2 * eps) * turb * 0.5;
+          } else {
+            vcy = (SM.fbm(x * 4 + seed * 2, y * 4 + seed * 5, 3) - 0.5) * turb * 0.4;
+          }
+          let vsx = 0, vsy = 0;
+          if (mode === 2) {
+            for (let k = 0; k < storms.length; k++) {
+              const s = storms[k];
+              let dx = x - s.x;
+              if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+              const dy = y - s.y;
+              const d = Math.sqrt(dx * dx + dy * dy);
+              if (d < s.r * 3.5 && d > 1e-5) {
+                const tang = (d < s.r) ? s.strength * d * 4 : s.strength * s.r * s.r / d * 4;
+                vsx += -dy / d * tang * s.sign;
+                vsy += dx / d * tang * s.sign;
+              }
+            }
+          }
+          x -= dt * (vJet + vcx + vsx);
+          y -= dt * (vcy + vsy);
+          x = x - Math.floor(x);
+          y = Math.max(0.001, Math.min(0.999, y));
+        }
+        const t = bandSignal(y, x, seed);
+        let col = paletteSample(t);
+        const detail = SM.fbm(x * 12 + seed * 4, y * 7 + seed * 6, 4);
+        const dF = 0.86 + detail * 0.28;
+        col = [col[0] * dF, col[1] * dF, col[2] * dF];
+        for (let k = 0; k < storms.length; k++) {
+          const s = storms[k];
+          let dx = ox - s.x;
+          if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+          const dy = oy - s.y;
+          const dn = Math.sqrt((dx / s.r) * (dx / s.r) + (dy / s.ry) * (dy / s.ry));
+          if (dn < 1.2) {
+            const inside = Math.min(1, Math.max(0, 1 - dn));
+            const blend = inside * inside * (3 - 2 * inside);
+            let sCol = s.color;
+            if (mode === 2 && dn < 1) {
+              const ang = Math.atan2(dy / s.ry, dx / s.r);
+              const swirl = SM.vnoise(ang * 4 + dn * 6 + s.x * 50, dn * 8 + s.y * 70);
+              const sf = 0.85 + swirl * 0.30;
+              sCol = [s.color[0] * sf, s.color[1] * sf, s.color[2] * sf];
+            }
+            col = [col[0] * (1 - blend) + sCol[0] * blend, col[1] * (1 - blend) + sCol[1] * blend, col[2] * (1 - blend) + sCol[2] * blend];
+          }
+        }
+        const i = (py * W + px) * 4;
+        data[i] = Math.min(255, Math.max(0, col[0]));
+        data[i+1] = Math.min(255, Math.max(0, col[1]));
+        data[i+2] = Math.min(255, Math.max(0, col[2]));
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d3seed').value, 10);
+    const turb = parseInt($('d3turb').value, 10) / 100;
+    const iters = parseInt($('d3iters').value, 10);
+    $('d3seedOut').textContent = seed;
+    $('d3turbOut').textContent = turb.toFixed(2);
+    $('d3itersOut').textContent = iters;
+    const params = { seed, turb, iters };
+    renderGas('d3c1', 1, params);
+    renderGas('d3c2', 2, params);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d3seed', 'd3turb', 'd3iters'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const W = 320, H = 160;
+  let cache = { key: '', settlements: null, mst: null };
+  function habitability(x, y, seed, sea) {
+    const e = SM.elevation(x, y, seed);
+    if (e < sea) return 0;
+    if (e > 0.78) return 0;
+    const lat = Math.abs(y - 0.5) * 2;
+    const T = SM.tempField(y, e, seed);
+    const M = SM.moistureBase(x, y, seed);
+    let score = 1.0;
+    score *= Math.max(0, 1 - Math.pow(Math.abs(lat - 0.4), 2) * 1.5);
+    score *= Math.max(0, 1 - Math.pow(Math.abs(T - 0.55), 2) * 2.5);
+    score *= Math.max(0, 1 - Math.pow(Math.abs(M - 0.55), 2) * 1.8);
+    score *= Math.max(0, 1 - Math.pow(Math.max(0, e - 0.55), 2) * 4);
+    let coast = 0;
+    const r = 0.025;
+    for (let dy = -r; dy <= r; dy += r * 0.5) {
+      for (let dx = -r; dx <= r; dx += r * 0.5) {
+        const nx = ((x + dx) % 1 + 1) % 1;
+        const ny = Math.max(0, Math.min(0.9999, y + dy));
+        if (SM.elevation(nx, ny, seed) < sea) { coast = 1; break; }
+      }
+      if (coast) break;
+    }
+    score *= 1 + coast * 0.4;
+    return Math.max(0, score);
+  }
+  function placeSettlements(seed, sea) {
+    const r = SM.mulberry32(Math.floor(seed * 1000) + 17);
+    const candidates = [];
+    for (let i = 0; i < 1200; i++) {
+      const x = r(), y = 0.05 + r() * 0.9;
+      const h = habitability(x, y, seed, sea);
+      if (h > 0.05) candidates.push({ x, y, h });
+    }
+    candidates.sort((a, b) => b.h - a.h);
+    const out = [];
+    const minDist = 0.04;
+    for (const c of candidates) {
+      let ok = true;
+      for (const s of out) {
+        let dx = c.x - s.x;
+        if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+        const dy = c.y - s.y;
+        if (Math.sqrt(dx * dx + dy * dy) < minDist) { ok = false; break; }
+      }
+      if (ok) {
+        const rank = out.length + 1;
+        out.push({ x: c.x, y: c.y, h: c.h, pop: Math.pow(rank, -1.07), rank });
+        if (out.length >= 80) break;
+      }
+    }
+    return out;
+  }
+  function buildMST(settlements) {
+    if (settlements.length < 2) return [];
+    const top = settlements.slice(0, Math.min(16, settlements.length));
+    const N = top.length;
+    const inTree = new Array(N).fill(false);
+    const minDist = new Array(N).fill(Infinity);
+    const parent = new Array(N).fill(-1);
+    inTree[0] = true; minDist[0] = 0;
+    for (let j = 1; j < N; j++) {
+      let dx = top[j].x - top[0].x;
+      if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+      const dy = top[j].y - top[0].y;
+      minDist[j] = Math.sqrt(dx * dx + dy * dy);
+      parent[j] = 0;
+    }
+    for (let i = 1; i < N; i++) {
+      let bestIdx = -1, bestD = Infinity;
+      for (let j = 0; j < N; j++) {
+        if (!inTree[j] && minDist[j] < bestD) { bestD = minDist[j]; bestIdx = j; }
+      }
+      if (bestIdx < 0) break;
+      inTree[bestIdx] = true;
+      for (let j = 0; j < N; j++) {
+        if (!inTree[j]) {
+          let dx = top[j].x - top[bestIdx].x;
+          if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+          const dy = top[j].y - top[bestIdx].y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < minDist[j]) { minDist[j] = d; parent[j] = bestIdx; }
+        }
+      }
+    }
+    const edges = [];
+    for (let i = 1; i < N; i++) if (parent[i] >= 0) edges.push([top[parent[i]], top[i]]);
+    return edges;
+  }
+  function ensureCache() {
+    const seedNum = parseInt($('d4seed').value, 10);
+    const sea = parseInt($('d4sea').value, 10) / 100;
+    const key = `${seedNum}-${sea}`;
+    if (cache.key !== key) {
+      cache.key = key;
+      cache.settlements = placeSettlements(seedNum * 0.137, sea);
+      cache.mst = buildMST(cache.settlements);
+    }
+  }
+  function renderDayside(canvasId, seed, sea) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const e = SM.elevation(px / W, py / H, seed);
+        let col;
+        if (e < sea) {
+          col = SM.oceanColor((sea - e) / sea);
+        } else {
+          const T = SM.tempField(py / H, e, seed);
+          const M = SM.moistureBase(px / W, py / H, seed);
+          col = SM.whittaker(T, M, e);
+          if (Math.abs(py / H - 0.5) > 0.42) {
+            const k = Math.min(1, (Math.abs(py / H - 0.5) - 0.42) / 0.08);
+            col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+          }
+        }
+        const i = (py * W + px) * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderNight(canvasId, seed, sea, tier) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const e = SM.elevation(px / W, py / H, seed);
+        const i = (py * W + px) * 4;
+        if (e < sea) {
+          data[i] = 4; data[i+1] = 8; data[i+2] = 18;
+        } else {
+          data[i] = 10; data[i+1] = 14; data[i+2] = 22;
+        }
+        data[i+3] = 255;
+      }
+    }
+    function addLight(cx, cy, intensity, radius, color) {
+      const xMin = Math.max(0, Math.floor(cx * W - radius * W));
+      const xMax = Math.min(W - 1, Math.ceil(cx * W + radius * W));
+      const yMin = Math.max(0, Math.floor(cy * H - radius * H));
+      const yMax = Math.min(H - 1, Math.ceil(cy * H + radius * H));
+      const r2 = radius * radius;
+      for (let py = yMin; py <= yMax; py++) {
+        for (let px = xMin; px <= xMax; px++) {
+          const dx = (px / W - cx);
+          const dy = (py / H - cy);
+          const d2 = dx * dx + dy * dy;
+          if (d2 > r2) continue;
+          const t = Math.exp(-d2 / (r2 * 0.3));
+          const i = (py * W + px) * 4;
+          data[i] = Math.min(255, data[i] + color[0] * t * intensity);
+          data[i+1] = Math.min(255, data[i+1] + color[1] * t * intensity);
+          data[i+2] = Math.min(255, data[i+2] + color[2] * t * intensity);
+        }
+      }
+    }
+    if (cache.mst) {
+      for (const [a, b] of cache.mst) {
+        let dx = b.x - a.x;
+        if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+        const dy = b.y - a.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const steps = Math.ceil(len * 80);
+        for (let i = 0; i < steps; i++) {
+          const t = i / steps;
+          let x = (a.x + dx * t + 1) % 1;
+          const y = a.y + dy * t;
+          if (SM.elevation(x, y, seed) < sea) continue;
+          addLight(x, y, 0.7 * tier, 0.005, [120, 95, 30]);
+        }
+      }
+    }
+    for (const s of cache.settlements) {
+      const intensity = (s.h * tier) * (0.5 + 1.5 * Math.pow(s.pop / s.rank, 0.4));
+      const radius = 0.005 + s.h * 0.012 * tier;
+      addLight(s.x, s.y, intensity * 6, radius, [255, 215, 145]);
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d4seed').value, 10);
+    const tier = parseInt($('d4tier').value, 10) / 100;
+    const sea = parseInt($('d4sea').value, 10) / 100;
+    $('d4seedOut').textContent = seed;
+    $('d4tierOut').textContent = tier.toFixed(2);
+    $('d4seaOut').textContent = sea.toFixed(2);
+    ensureCache();
+    renderDayside('d4c1', seed * 0.137, sea);
+    renderNight('d4c2', seed * 0.137, sea, tier);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d4seed', 'd4tier', 'd4sea'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const pairs = [
+    { name: 'Hot desert → Tropical rainforest', a: [225, 200, 145], b: [40, 115, 55] },
+    { name: 'Polar snow → Boreal forest', a: [240, 245, 250], b: [55, 95, 60] },
+    { name: 'Tundra → Savanna', a: [180, 175, 155], b: [215, 175, 80] },
+    { name: 'Lava flow → Glacial cap', a: [240, 95, 35], b: [185, 220, 240] },
+    { name: 'Deep ocean → Beach sand', a: [25, 60, 130], b: [225, 210, 160] }
+  ];
+  function buildPair(pair) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'strip-pair';
+    const name = document.createElement('div');
+    name.className = 'strip-pair-name';
+    name.textContent = pair.name;
+    wrapper.appendChild(name);
+    const grid = document.createElement('div');
+    grid.className = 'strip-grid';
+    function makeRow(label, mode) {
+      const lbl = document.createElement('div');
+      lbl.className = 'strip-mode';
+      lbl.textContent = label;
+      const cv = document.createElement('canvas');
+      cv.width = 320; cv.height = 24;
+      grid.appendChild(lbl); grid.appendChild(cv);
+      const ctx = cv.getContext('2d');
+      const img = ctx.createImageData(cv.width, cv.height);
+      for (let x = 0; x < cv.width; x++) {
+        const t = x / (cv.width - 1);
+        const col = mode === 'rgb' ? SM.lerpRgb(pair.a, pair.b, t) : SM.lerpOklab(pair.a, pair.b, t);
+        for (let y = 0; y < cv.height; y++) {
+          const i = (y * cv.width + x) * 4;
+          img.data[i] = Math.round(col[0]);
+          img.data[i+1] = Math.round(col[1]);
+          img.data[i+2] = Math.round(col[2]);
+          img.data[i+3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+    }
+    makeRow('RGB', 'rgb');
+    makeRow('OkLab', 'oklab');
+    wrapper.appendChild(grid);
+    return wrapper;
+  }
+  const container = $('d5pairs');
+  pairs.forEach(p => container.appendChild(buildPair(p)));
+  function whittakerLerped(T, M, h, mode) {
+    T = Math.max(0, Math.min(0.999, T));
+    M = Math.max(0, Math.min(0.999, M));
+    const ti = T * 3, mi = M * 3;
+    const t0 = Math.floor(ti), t1 = Math.min(3, t0 + 1);
+    const m0 = Math.floor(mi), m1 = Math.min(3, m0 + 1);
+    const tf = ti - t0, mf = mi - m0;
+    const grid = SM.biomeGrid;
+    const c00 = grid[t0][m0], c01 = grid[t0][m1];
+    const c10 = grid[t1][m0], c11 = grid[t1][m1];
+    const lerpFn = mode === 'rgb' ? SM.lerpRgb : SM.lerpOklab;
+    const top = lerpFn(c00, c01, mf);
+    const bot = lerpFn(c10, c11, mf);
+    let col = lerpFn(top, bot, tf);
+    if (h > 0.72) {
+      const m = Math.min(1, (h - 0.72) / 0.22);
+      const k = m * m;
+      col = lerpFn(col, [215, 210, 200], k);
+      if (h > 0.86) {
+        const k2 = Math.min(1, (h - 0.86) / 0.10);
+        col = lerpFn(col, [240, 245, 248], k2);
+      }
+    }
+    return col;
+  }
+  function renderPatch(canvasId, mode) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const seed = 1.7, sea = 0.50;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const e = SM.elevation(px / W, py / H, seed);
+        let col;
+        if (e < sea) {
+          col = SM.oceanColor((sea - e) / sea);
+        } else {
+          const T = SM.tempField(py / H, e, seed);
+          const M = SM.moistureBase(px / W, py / H, seed);
+          col = whittakerLerped(T, M, e, mode);
+        }
+        const i = (py * W + px) * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  renderPatch('d5p1', 'rgb');
+  renderPatch('d5p2', 'oklab');
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  function placeSeeds(seed, n) {
+    const r = SM.mulberry32(seed * 1000 + 31);
+    const seeds = [{ x: r(), y: r() }];
+    for (let i = 1; i < n; i++) {
+      let bestX = 0, bestY = 0, bestD = -1;
+      for (let trial = 0; trial < 20; trial++) {
+        const x = r(), y = r();
+        let minD = Infinity;
+        for (const s of seeds) {
+          let dx = x - s.x;
+          if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+          const dy = y - s.y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < minD) minD = d;
+        }
+        if (minD > bestD) { bestD = minD; bestX = x; bestY = y; }
+      }
+      seeds.push({ x: bestX, y: bestY });
+    }
+    return seeds;
+  }
+  function nearest2(x, y, seeds) {
+    let d1 = Infinity, d2 = Infinity, idx1 = 0;
+    for (let i = 0; i < seeds.length; i++) {
+      const s = seeds[i];
+      let dx = x - s.x;
+      if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+      const dy = y - s.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < d1) { d2 = d1; d1 = d; idx1 = i; }
+      else if (d < d2) { d2 = d; }
+    }
+    return { d1, d2, plate: idx1 };
+  }
+  function continentE(x, y, s) {
+    const wx = (SM.fbm(x * 1.6 + s * 3.1, y * 1.6 + s * 9.4, 4) - 0.5) * 2;
+    const wy = (SM.fbm(x * 1.6 + s * 17.3, y * 1.6 + s * 23.5, 4) - 0.5) * 2;
+    return SM.fbm(x * 3.4 + wx * 0.7 + s * 11.1, y * 3.4 + wy * 0.7 + s * 4.7, 6);
+  }
+  const platePalette = [
+    [202, 158, 124], [188, 174, 134], [165, 144, 178], [148, 178, 188],
+    [200, 188, 152], [178, 158, 130], [144, 168, 178], [188, 168, 188],
+    [212, 188, 158], [168, 188, 168], [188, 144, 144], [144, 188, 168],
+    [188, 158, 188], [168, 168, 188], [200, 168, 144], [144, 168, 188],
+    [188, 188, 168], [158, 144, 168], [200, 200, 188], [168, 188, 188]
+  ];
+  function renderPanel(canvasId, mode, seeds, beltWidth, seedNum) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const seed = seedNum * 0.137;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const x = px / W, y = py / H;
+        let col;
+        if (mode === 1) {
+          const r = SM.ridgedMulti(x * 5 + seedNum * 7, y * 5 + seedNum * 3, 5, seedNum * 0.5);
+          const t = Math.min(1, r * 2);
+          col = [SM.lerp(110, 220, t), SM.lerp(140, 215, t), SM.lerp(95, 190, t)];
+        } else if (mode === 2) {
+          const n = nearest2(x, y, seeds);
+          const boundary = Math.exp(-(n.d2 - n.d1) / beltWidth);
+          const baseColor = platePalette[n.plate % platePalette.length];
+          const beltColor = [240, 165, 65];
+          col = [
+            SM.lerp(baseColor[0], beltColor[0], boundary),
+            SM.lerp(baseColor[1], beltColor[1], boundary),
+            SM.lerp(baseColor[2], beltColor[2], boundary)
+          ];
+        } else {
+          const e = continentE(x, y, seed);
+          const sea = 0.50;
+          if (e < sea) {
+            col = SM.oceanColor((sea - e) / sea);
+          } else {
+            const n = nearest2(x, y, seeds);
+            const mountainMask = Math.exp(-(n.d2 - n.d1) / beltWidth);
+            const ridge = SM.ridgedMulti(x * 8 + seedNum * 11, y * 8 + seedNum * 13, 5, seedNum * 0.5);
+            const finalE = e + ridge * mountainMask * 0.45;
+            const T = SM.tempField(y, finalE, seed);
+            const M = SM.moistureBase(x, y, seed);
+            col = SM.whittaker(T, M, finalE);
+          }
+        }
+        const i = (py * W + px) * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d6seed').value, 10);
+    const plates = parseInt($('d6plates').value, 10);
+    const belt = parseInt($('d6belt').value, 10) / 1000;
+    $('d6seedOut').textContent = seed;
+    $('d6platesOut').textContent = plates;
+    $('d6beltOut').textContent = belt.toFixed(2);
+    const seeds = placeSeeds(seed, plates);
+    renderPanel('d6c1', 1, seeds, belt, seed);
+    renderPanel('d6c2', 2, seeds, belt, seed);
+    renderPanel('d6c3', 3, seeds, belt, seed);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d6seed', 'd6plates', 'd6belt'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  function placeStorms(seed) {
+    const r = SM.mulberry32(seed * 1000 + 91);
+    const out = [];
+    for (let i = 0; i < 3; i++) {
+      const y = 0.18 + r() * 0.64;
+      out.push({
+        x: r(), y,
+        sign: y < 0.5 ? 1 : -1,
+        scale: 0.10 + r() * 0.08,
+        phase: r() * Math.PI * 2,
+        strength: 0.6 + r() * 0.4
+      });
+    }
+    return out;
+  }
+  function cloudDensity(x, y, seed, coverage, stormStrength, storms) {
+    const lat = (y - 0.5) * 2;
+    const absLat = Math.abs(lat);
+    let bandCov = 0;
+    bandCov += Math.exp(-Math.pow(absLat / 0.04, 2)) * 0.85;
+    bandCov -= Math.exp(-Math.pow((absLat - 0.18) / 0.06, 2)) * 0.45;
+    bandCov += Math.exp(-Math.pow((absLat - 0.32) / 0.10, 2)) * 0.55;
+    if (absLat > 0.40) bandCov += (absLat - 0.40) / 0.20 * 0.35;
+    bandCov *= coverage;
+    bandCov = Math.max(0, Math.min(1, 0.30 + bandCov));
+    const wx = (SM.fbm(x * 2 + seed * 3.1, y * 2 + seed * 9.4, 3) - 0.5) * 0.3;
+    const wy = (SM.fbm(x * 2 + seed * 17.3, y * 2 + seed * 23.5, 3) - 0.5) * 0.3;
+    const noise = SM.fbm(x * 4 + wx + seed * 1.7, y * 4 + wy + seed * 5.3, 5);
+    let density = Math.max(0, Math.min(1, (noise - (1 - bandCov)) / 0.4));
+    for (const st of storms) {
+      let dx = x - st.x;
+      if (dx > 0.5) dx -= 1; if (dx < -0.5) dx += 1;
+      const dy = y - st.y;
+      const rd = Math.sqrt(dx * dx + dy * dy);
+      const rN = rd / st.scale;
+      if (rN > 2.5) continue;
+      const baseAngle = Math.atan2(dy, dx);
+      const spiralAngle = baseAngle - st.sign * 1.7 * Math.log(rN + 0.05);
+      const arms = Math.cos(2 * spiralAngle - st.phase) * 0.5 + 0.5;
+      const radial = Math.exp(-rN * 1.2);
+      const stormD = arms * radial * st.strength * stormStrength;
+      density = Math.min(1, density + stormD);
+    }
+    return density;
+  }
+  function renderBare(canvasId) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const seed = parseInt($('d7seed').value, 10) * 0.137;
+    const sea = 0.50;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const x = px / W, y = py / H;
+        const e = SM.elevation(x, y, seed);
+        let col;
+        if (e < sea) {
+          col = SM.oceanColor((sea - e) / sea);
+        } else {
+          const T = SM.tempField(y, e, seed);
+          const M = SM.moistureBase(x, y, seed);
+          col = SM.whittaker(T, M, e);
+          if (Math.abs(y - 0.5) > 0.42) {
+            const k = Math.min(1, (Math.abs(y - 0.5) - 0.42) / 0.08);
+            col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+          }
+        }
+        const i = (py * W + px) * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderClouds(canvasId) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const W = cv.width, H = cv.height;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const seedInt = parseInt($('d7seed').value, 10);
+    const seed = seedInt * 0.137;
+    const coverage = parseInt($('d7cov').value, 10) / 100;
+    const stormStrength = parseInt($('d7storm').value, 10) / 100;
+    const sea = 0.50;
+    const storms = placeStorms(seedInt);
+    const cloud = new Float32Array(W * H);
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        cloud[py * W + px] = cloudDensity(px / W, py / H, seed, coverage, stormStrength, storms);
+      }
+    }
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const x = px / W, y = py / H;
+        const e = SM.elevation(x, y, seed);
+        let col;
+        if (e < sea) {
+          col = SM.oceanColor((sea - e) / sea);
+        } else {
+          const T = SM.tempField(y, e, seed);
+          const M = SM.moistureBase(x, y, seed);
+          col = SM.whittaker(T, M, e);
+          if (Math.abs(y - 0.5) > 0.42) {
+            const k = Math.min(1, (Math.abs(y - 0.5) - 0.42) / 0.08);
+            col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+          }
+        }
+        const cD = cloud[py * W + px];
+        if (cD > 0.05) {
+          const cE = cloud[py * W + ((px + 1) % W)];
+          const cW2 = cloud[py * W + ((px - 1 + W) % W)];
+          const dx = (cE - cW2) * 0.5;
+          const shade = Math.max(0.7, 1 - dx * 1.5);
+          const cloudCol = [240 * shade, 245 * shade, 250 * shade];
+          col = [
+            SM.lerp(col[0], cloudCol[0], cD * 0.85),
+            SM.lerp(col[1], cloudCol[1], cD * 0.85),
+            SM.lerp(col[2], cloudCol[2], cD * 0.85)
+          ];
+        }
+        const i = (py * W + px) * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d7seed').value, 10);
+    const cov = parseInt($('d7cov').value, 10) / 100;
+    const storm = parseInt($('d7storm').value, 10) / 100;
+    $('d7seedOut').textContent = seed;
+    $('d7covOut').textContent = cov.toFixed(2);
+    $('d7stormOut').textContent = storm.toFixed(2);
+    renderBare('d7c1');
+    renderClouds('d7c2');
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d7seed', 'd7cov', 'd7storm'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  function buildState(seedNum, sea) {
+    const W = 220, H = 110;
+    const seed = seedNum * 0.137;
+    const elev = new Float32Array(W * H);
+    const isOcean = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const e = SM.elevation(x / W, y / H, seed);
+        elev[y * W + x] = e;
+        if (e < sea) isOcean[y * W + x] = 1;
+      }
+    }
+    const dist = SM.bfsDistance(W, H, isOcean);
+    let maxD = 0;
+    for (let i = 0; i < dist.length; i++) if (dist[i] > maxD) maxD = dist[i];
+    return { W, H, elev, isOcean, dist, maxD, seed };
+  }
+  function renderPanel1(state, sea) {
+    const cv = $('d8c1');
+    const ctx = cv.getContext('2d');
+    const { W, H, elev, seed } = state;
+    const img = ctx.createImageData(W, H);
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const idx = py * W + px;
+        const e = elev[idx];
+        let col;
+        if (e < sea) col = SM.oceanColor((sea - e) / sea);
+        else {
+          const T = SM.tempField(py / H, e, seed);
+          const M = SM.moistureBase(px / W, py / H, seed);
+          col = SM.whittaker(T, M, e);
+          if (Math.abs(py / H - 0.5) > 0.42) {
+            const k = Math.min(1, (Math.abs(py / H - 0.5) - 0.42) / 0.08);
+            col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+          }
+        }
+        const i = idx * 4;
+        img.data[i] = Math.round(col[0]); img.data[i+1] = Math.round(col[1]); img.data[i+2] = Math.round(col[2]); img.data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderPanel2(state, sea) {
+    const cv = $('d8c2');
+    const ctx = cv.getContext('2d');
+    const { W, H, elev, isOcean, dist, maxD } = state;
+    const img = ctx.createImageData(W, H);
+    const scale = maxD > 0 ? maxD : 1;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const idx = py * W + px;
+        let col;
+        if (isOcean[idx]) {
+          const e = elev[idx];
+          const depth = Math.max(0, (sea - e) / sea);
+          col = [25 + (1 - depth) * 25, 45 + (1 - depth) * 30, 90 + (1 - depth) * 25];
+        } else {
+          const t = Math.min(1, dist[idx] / scale);
+          const ts = Math.pow(t, 0.7);
+          col = [SM.lerp(245, 75, ts), SM.lerp(220, 50, ts), SM.lerp(155, 25, ts)];
+        }
+        const i = idx * 4;
+        img.data[i] = Math.round(col[0]); img.data[i+1] = Math.round(col[1]); img.data[i+2] = Math.round(col[2]); img.data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderPanel3(state, sea, dryness) {
+    const cv = $('d8c3');
+    const ctx = cv.getContext('2d');
+    const { W, H, elev, dist, seed } = state;
+    const img = ctx.createImageData(W, H);
+    const lcont = SM.lerp(80, 12, dryness);
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const idx = py * W + px;
+        const e = elev[idx];
+        let col;
+        if (e < sea) col = SM.oceanColor((sea - e) / sea);
+        else {
+          const T = SM.tempField(py / H, e, seed);
+          const Mb = SM.moistureBase(px / W, py / H, seed);
+          const falloff = Math.exp(-dist[idx] / lcont);
+          const M = Math.max(0.05, Mb * falloff);
+          col = SM.whittaker(T, M, e);
+          if (Math.abs(py / H - 0.5) > 0.42) {
+            const k = Math.min(1, (Math.abs(py / H - 0.5) - 0.42) / 0.08);
+            col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+          }
+        }
+        const i = idx * 4;
+        img.data[i] = Math.round(col[0]); img.data[i+1] = Math.round(col[1]); img.data[i+2] = Math.round(col[2]); img.data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d8seed').value, 10);
+    const sea = parseInt($('d8sea').value, 10) / 100;
+    const dry = parseInt($('d8dry').value, 10) / 100;
+    $('d8seedOut').textContent = seed;
+    $('d8seaOut').textContent = sea.toFixed(2);
+    $('d8dryOut').textContent = dry.toFixed(2);
+    const state = buildState(seed, sea);
+    renderPanel1(state, sea);
+    renderPanel2(state, sea);
+    renderPanel3(state, sea, dry);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d8seed', 'd8sea', 'd8dry'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  function buildState(seedNum, sea, threshold) {
+    const W = 320, H = 160;
+    const seed = seedNum * 0.137;
+    const elev = new Float32Array(W * H);
+    const isOcean = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const e = SM.elevation(x / W, y / H, seed);
+        elev[y * W + x] = e;
+        if (e < sea) isOcean[y * W + x] = 1;
+      }
+    }
+    const dxs = [1, 1, 0, -1, -1, -1, 0, 1];
+    const dys = [0, 1, 1, 1, 0, -1, -1, -1];
+    const dirs = new Int32Array(W * H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const idx = y * W + x;
+        if (isOcean[idx]) { dirs[idx] = -1; continue; }
+        const h = elev[idx];
+        let lowest = h, dir = -1;
+        for (let k = 0; k < 8; k++) {
+          const nx = (x + dxs[k] + W) % W;
+          const ny = y + dys[k];
+          if (ny < 0 || ny >= H) continue;
+          const nh = elev[ny * W + nx];
+          if (nh < lowest) { lowest = nh; dir = k; }
+        }
+        dirs[idx] = dir;
+      }
+    }
+    const sortedArr = new Array(W * H);
+    for (let i = 0; i < W * H; i++) sortedArr[i] = i;
+    sortedArr.sort((a, b) => elev[b] - elev[a]);
+    const acc = new Float32Array(W * H).fill(1);
+    for (let i = 0; i < sortedArr.length; i++) {
+      const idx = sortedArr[i];
+      const dir = dirs[idx];
+      if (dir < 0) continue;
+      const x = idx % W, y = (idx / W) | 0;
+      const nx = (x + dxs[dir] + W) % W;
+      const ny = y + dys[dir];
+      if (ny < 0 || ny >= H) continue;
+      acc[ny * W + nx] += acc[idx];
+    }
+    const isRiver = new Uint8Array(W * H);
+    for (let i = 0; i < W * H; i++) {
+      if (isOcean[i]) continue;
+      if (Math.log10(acc[i] + 1) > threshold) isRiver[i] = 1;
+    }
+    const distRiver = SM.bfsDistance(W, H, isRiver);
+    return { W, H, seed, elev, isOcean, acc, isRiver, distRiver };
+  }
+  function renderPanel(canvasId, state, sea, withRivers) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const { W, H, seed, elev, isOcean, acc, isRiver, distRiver } = state;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const idx = py * W + px;
+        const e = elev[idx];
+        let col;
+        if (isOcean[idx]) {
+          col = SM.oceanColor((sea - e) / sea);
+        } else if (withRivers && isRiver[idx]) {
+          const la = Math.log10(acc[idx] + 1);
+          const t = Math.min(1, (la - 1.0) / 1.5);
+          col = [40 + t * 25, 90 + t * 30, 155 + t * 35];
+        } else {
+          const T = SM.tempField(py / H, e, seed);
+          let M = SM.moistureBase(px / W, py / H, seed);
+          if (withRivers) {
+            const boost = Math.exp(-distRiver[idx] / 7.0) * 0.55;
+            M = Math.min(1, M + boost);
+          }
+          col = SM.whittaker(T, M, e);
+          if (Math.abs(py / H - 0.5) > 0.42) {
+            const k = Math.min(1, (Math.abs(py / H - 0.5) - 0.42) / 0.08);
+            col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+          }
+        }
+        const i = idx * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d9seed').value, 10);
+    const sea = parseInt($('d9sea').value, 10) / 100;
+    const dens = parseInt($('d9dens').value, 10) / 100;
+    $('d9seedOut').textContent = seed;
+    $('d9seaOut').textContent = sea.toFixed(2);
+    $('d9densOut').textContent = dens.toFixed(2);
+    const threshold = SM.lerp(2.4, 0.6, dens / 2.2);
+    const state = buildState(seed, sea, threshold);
+    renderPanel('d9c1', state, sea, false);
+    renderPanel('d9c2', state, sea, true);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d9seed', 'd9sea', 'd9dens'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  function elevation10(x, y, s) {
+    const wx = (SM.fbm(x * 1.6 + s * 3.1, y * 1.6 + s * 9.4, 4) - 0.5) * 2;
+    const wy = (SM.fbm(x * 1.6 + s * 17.3, y * 1.6 + s * 23.5, 4) - 0.5) * 2;
+    let e = SM.fbm(x * 3.0 + wx * 0.7 + s * 11.1, y * 3.0 + wy * 0.7 + s * 4.7, 6);
+    const mtnMask = SM.fbm(x * 1.2 + s * 43.0, y * 1.2 + s * 51.0, 3);
+    if (e > 0.48 && mtnMask > 0.50) {
+      const ridge = SM.ridgedMulti(x * 5.0, y * 5.0, 5, s * 0.5);
+      const intensity = (mtnMask - 0.50) / 0.50;
+      e += ridge * 0.40 * intensity;
+    }
+    const en = (e - 0.5) * 2;
+    const bell = Math.max(0, 1 - Math.pow(Math.abs(en), 4));
+    const detail = SM.fbm(x * 28 + s * 8.1, y * 28 + s * 5.6, 4) - 0.5;
+    e += bell * detail * 0.14;
+    const wTaper = Math.sin(Math.PI * y);
+    return e * (0.55 + 0.45 * wTaper);
+  }
+  function windDirAtLat(y) {
+    const absLat = Math.abs((y - 0.5) * 2);
+    if (absLat < 0.30) return -1;
+    if (absLat < 0.62) return 1;
+    return -1;
+  }
+  function buildState(seedNum, sea, windStrength) {
+    const W = 320, H = 160;
+    const seed = seedNum * 0.137;
+    const elev = new Float32Array(W * H);
+    const isOcean = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const e = elevation10(x / W, y / H, seed);
+        elev[y * W + x] = e;
+        if (e < sea) isOcean[y * W + x] = 1;
+      }
+    }
+    const rainMoist = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) {
+      const yNorm = y / H;
+      const windDir = windDirAtLat(yNorm);
+      const xs = new Int32Array(W);
+      if (windDir > 0) for (let x = 0; x < W; x++) xs[x] = x;
+      else for (let x = 0; x < W; x++) xs[x] = W - 1 - x;
+      let carry = 0;
+      for (let i = 0; i < W; i++) {
+        const x = xs[i];
+        const idx = y * W + x;
+        const prevX = xs[(i - 1 + W) % W];
+        const prevE = elev[y * W + prevX];
+        const e = elev[idx];
+        if (isOcean[idx]) {
+          carry = Math.min(1.6 * windStrength, carry + 0.07 * windStrength);
+          rainMoist[idx] = 0.75;
+        } else {
+          const upslope = Math.max(0, e - prevE);
+          const drop = Math.min(carry, upslope * 14 * windStrength);
+          carry -= drop;
+          carry *= 0.985;
+          rainMoist[idx] = Math.min(1.0, drop * 4 + 0.05);
+        }
+      }
+    }
+    return { W, H, seed, elev, isOcean, rainMoist };
+  }
+  function renderPanel(canvasId, state, sea, useRainShadow) {
+    const cv = $(canvasId);
+    const ctx = cv.getContext('2d');
+    const { W, H, seed, elev, isOcean, rainMoist } = state;
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    for (let py = 0; py < H; py++) {
+      for (let px = 0; px < W; px++) {
+        const idx = py * W + px;
+        const e = elev[idx];
+        let col;
+        if (isOcean[idx]) {
+          col = SM.oceanColor((sea - e) / sea);
+        } else {
+          const T = SM.tempField(py / H, e, seed);
+          const M = useRainShadow ? rainMoist[idx] : SM.moistureBase(px / W, py / H, seed);
+          col = SM.whittaker(T, M, e);
+          if (Math.abs(py / H - 0.5) > 0.42) {
+            const k = Math.min(1, (Math.abs(py / H - 0.5) - 0.42) / 0.08);
+            col = [SM.lerp(col[0], 245, k * 0.85), SM.lerp(col[1], 248, k * 0.85), SM.lerp(col[2], 250, k * 0.85)];
+          }
+        }
+        const i = idx * 4;
+        data[i] = Math.round(col[0]);
+        data[i+1] = Math.round(col[1]);
+        data[i+2] = Math.round(col[2]);
+        data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  function renderAll() {
+    const seed = parseInt($('d10seed').value, 10);
+    const wind = parseInt($('d10wind').value, 10) / 100;
+    const sea = parseInt($('d10sea').value, 10) / 100;
+    $('d10seedOut').textContent = seed;
+    $('d10windOut').textContent = wind.toFixed(2);
+    $('d10seaOut').textContent = sea.toFixed(2);
+    const state = buildState(seed, sea, wind);
+    renderPanel('d10c1', state, sea, false);
+    renderPanel('d10c2', state, sea, true);
+  }
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; renderAll(); });
+  }
+  ['d10seed', 'd10wind', 'd10sea'].forEach(id => $(id).addEventListener('input', schedule));
+  renderAll();
+})();
+</script>
+
+</body>
+</html>
