@@ -36,6 +36,7 @@ function loadDefaultProfile() {
     return;
   }
   profileTextarea.value = prettifyJSON(json);
+  renderPanels();
 }
 
 function prettifyJSON(s) {
@@ -64,6 +65,7 @@ async function regenerate() {
     return;
   }
   status.textContent = `Rendered in ${(performance.now() - t0).toFixed(0)} ms`;
+  renderPanels();
 }
 
 async function paintToCanvas(canvas, pngBytes) {
@@ -90,6 +92,37 @@ exportBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(profileTextarea.value);
   status.textContent = 'JSON copied to clipboard';
 });
-applyBtn.addEventListener('click', regenerate);
+applyBtn.addEventListener('click', () => {
+  renderPanels();
+  regenerate();
+});
+
+function renderPanels() {
+  const panels = $('#param-panels');
+  panels.innerHTML = '';
+  let profile;
+  try { profile = JSON.parse(profileTextarea.value); }
+  catch { return; }
+
+  // Palette panel — read-only swatch.
+  const palette = profile.Palette;
+  if (Array.isArray(palette)) {
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.innerHTML = '<h3>Palette</h3>';
+    const strip = document.createElement('div');
+    strip.style.height = '24px';
+    strip.style.borderRadius = '3px';
+    const stops = palette.map(s =>
+      `${rgbaCSS(s.Color)} ${(s.Position*100).toFixed(0)}%`).join(', ');
+    strip.style.background = `linear-gradient(to right, ${stops})`;
+    panel.appendChild(strip);
+    panels.appendChild(panel);
+  }
+}
+
+function rgbaCSS(c) {
+  return `rgba(${c.R}, ${c.G}, ${c.B}, ${(c.A/255).toFixed(2)})`;
+}
 
 init();
