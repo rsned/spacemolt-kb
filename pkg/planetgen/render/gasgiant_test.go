@@ -17,7 +17,7 @@ func TestRenderGasGiantAllPixelsOpaque(t *testing.T) {
 		StormCount:    3,
 		StormSize:     0.25,
 		Palette: []planetcolor.ColorStop{
-			{0.0, color.RGBA{R: 180, G: 140, B: 100, A: 255}},
+			{Position: 0.0, Color: color.RGBA{R: 180, G: 140, B: 100, A: 255}},
 		},
 	}
 	cm := RenderGasGiant(prof, 1234, 64)
@@ -38,7 +38,7 @@ func TestRenderGasGiantDeterministic(t *testing.T) {
 		TurbulenceAmp:  0.008,
 		BandBlendWidth: 0.45,
 		Palette: []planetcolor.ColorStop{
-			{0.0, color.RGBA{R: 100, G: 150, B: 185, A: 255}},
+			{Position: 0.0, Color: color.RGBA{R: 100, G: 150, B: 185, A: 255}},
 		},
 	}
 	a := RenderGasGiant(prof, 99, 32)
@@ -61,7 +61,7 @@ func TestRenderGasGiantDeterministicWithStorms(t *testing.T) {
 		StormCount:    3,
 		StormSize:     0.25,
 		Palette: []planetcolor.ColorStop{
-			{0.0, color.RGBA{R: 180, G: 140, B: 100, A: 255}},
+			{Position: 0.0, Color: color.RGBA{R: 180, G: 140, B: 100, A: 255}},
 		},
 	}
 	a := RenderGasGiant(prof, 42, 32)

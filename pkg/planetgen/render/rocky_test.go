@@ -21,7 +21,7 @@ func TestRenderRockyAllPixelsOpaque(t *testing.T) {
 		CraterMaxRadius:  0.08,
 		CraterDepth:      0.25,
 		Palette: []planetcolor.ColorStop{
-			{0.0, color.RGBA{R: 40, G: 40, B: 40, A: 255}},
+			{Position: 0.0, Color: color.RGBA{R: 40, G: 40, B: 40, A: 255}},
 		},
 	}
 	cm := RenderRocky(prof, 1234, 64)
@@ -50,7 +50,7 @@ func TestRenderRockyDeterministic(t *testing.T) {
 		PolarCapSize:     0.18,
 		PolarCapNoise:    0.15,
 		Palette: []planetcolor.ColorStop{
-			{0.0, color.RGBA{R: 100, G: 60, B: 30, A: 255}},
+			{Position: 0.0, Color: color.RGBA{R: 100, G: 60, B: 30, A: 255}},
 		},
 	}
 	a := RenderRocky(prof, 7, 32)
