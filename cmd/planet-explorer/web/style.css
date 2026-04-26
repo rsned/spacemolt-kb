@@ -1,0 +1,31 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font: 14px/1.4 system-ui, sans-serif; background: #1a1a1d; color: #e6e6e6; }
+header { padding: 12px 16px; background: #2a2a2e; display: flex; align-items: baseline; gap: 16px; }
+header h1 { font-size: 18px; font-weight: 600; }
+#status { font-size: 13px; color: #9da; }
+main { display: grid; grid-template-columns: 360px 1fr; gap: 16px; padding: 16px; }
+aside { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+aside section { background: #25252a; border-radius: 6px; padding: 12px; }
+aside label { display: block; margin-bottom: 8px; font-size: 12px; color: #aaa; }
+aside select, aside input[type="text"], aside input[type="number"], aside textarea {
+  display: block; width: 100%; padding: 6px 8px;
+  background: #16161a; border: 1px solid #333; color: #e6e6e6; border-radius: 4px;
+  font: 13px monospace;
+}
+aside button {
+  padding: 6px 12px; margin-top: 4px;
+  background: #3a3a44; color: #e6e6e6; border: 1px solid #444; border-radius: 4px;
+  cursor: pointer; font: 13px sans-serif;
+}
+aside button:hover { background: #4a4a54; }
+.viewport { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.viewport h2 { font-size: 13px; color: #aaa; font-weight: normal; text-transform: uppercase; letter-spacing: 0.05em; }
+.viewport canvas { background: #0c0c0e; border: 1px solid #333; max-width: 100%; height: auto; }
+#param-panels:empty { display: none; }
+#param-panels .panel { border-top: 1px solid #333; padding-top: 8px; margin-top: 8px; }
+#param-panels .panel:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+#param-panels .panel h3 { font-size: 12px; color: #9da; text-transform: uppercase; margin-bottom: 6px; }
+#param-panels label.row { display: grid; grid-template-columns: 1fr 80px; gap: 8px; align-items: center; margin-bottom: 4px; }
+#param-panels label.row span { font-size: 12px; color: #aaa; }
+#param-panels input[type="range"] { width: 100%; }
+#param-panels input[type="number"] { width: 70px; padding: 2px 4px; font: 12px monospace; }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Planet Explorer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Planet Explorer</h1>
+  <span id="status">Loading…</span>
+</header>
+<main>
+  <aside>
+    <section class="header">
+      <label>Type
+        <select id="type-picker">
+          <option value="scorched">Scorched</option>
+          <option value="arid">Arid</option>
+          <option value="terran" selected>Terran</option>
+          <option value="tundra">Tundra</option>
+          <option value="glacial">Glacial</option>
+          <option value="ice_world">Ice World</option>
+          <option value="super_terran">Super Terran</option>
+          <option value="hothouse">Hothouse</option>
+          <option value="lava_world">Lava World</option>
+          <option value="oceanic">Oceanic</option>
+          <option value="jovian">Jovian</option>
+          <option value="ice_giant">Ice Giant</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </label>
+      <label>Seed <input id="seed-input" type="text" value="Earth"></label>
+      <label>Face <select id="face-size">
+        <option value="128">128</option>
+        <option value="256" selected>256</option>
+        <option value="512">512</option>
+        <option value="1024">1024 (slow)</option>
+      </select></label>
+      <button id="render-btn">Regenerate</button>
+      <button id="export-json-btn">Export JSON</button>
+    </section>
+    <section id="param-panels">
+      <!-- Slider panels added by each Tier-S task -->
+    </section>
+    <section class="footer">
+      <details><summary>Profile JSON</summary>
+        <textarea id="profile-json" rows="12" spellcheck="false"></textarea>
+        <button id="apply-json-btn">Apply</button>
+      </details>
+    </section>
+  </aside>
+  <section class="viewport">
+    <h2>Cube map (cross)</h2>
+    <canvas id="cube-canvas" width="1024" height="768"></canvas>
+    <h2>Equirect bake</h2>
+    <canvas id="equirect-canvas" width="800" height="400"></canvas>
+  </section>
+</main>
+<script src="wasm_exec.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
