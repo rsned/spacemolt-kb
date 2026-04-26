@@ -11,6 +11,20 @@ type ColorStop struct {
 	Color    color.RGBA
 }
 
+// Spline is a Fritsch-Carlson monotone-cubic spline mapping
+// a control-field value (input) to its terrain contribution (output).
+// Knots must be sorted by Input ascending; the first and last knots
+// define the function's domain (clamped outside).
+type Spline struct {
+	Knots []SplineKnot
+}
+
+// SplineKnot is a single (input, output) point in a spline.
+type SplineKnot struct {
+	Input  float64
+	Output float64
+}
+
 // Lerp interpolates between two colors by t [0,1].
 func Lerp(a, b color.RGBA, t float64) color.RGBA {
 	t = math.Max(0, math.Min(1, t))

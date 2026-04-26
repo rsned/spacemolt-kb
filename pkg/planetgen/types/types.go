@@ -38,7 +38,7 @@ type PlanetProfile struct {
 	// Tier-S Phase 1: multi-noise control fields and per-field height splines.
 	// Empty/zero values mean "use the legacy single-FBM path" (backward compat).
 	ControlConfig ControlConfig
-	Splines       [5]Spline // Continentalness, Erosion, PV, T, H — order matches ControlConfig fields
+	Splines       [5]planetcolor.Spline // Continentalness, Erosion, PV, T, H — order matches ControlConfig fields
 }
 
 // ControlField is a single 3D fBm control field used to drive the
@@ -58,18 +58,4 @@ type ControlConfig struct {
 	PeaksValleys    ControlField
 	Temperature     ControlField
 	Humidity        ControlField
-}
-
-// Spline is a Fritsch-Carlson monotone-cubic spline mapping
-// a control-field value (input) to its terrain contribution (output).
-// Knots must be sorted by Input ascending; the first and last knots
-// define the function's domain (clamped outside).
-type Spline struct {
-	Knots []SplineKnot
-}
-
-// SplineKnot is a single (input, output) point in a spline.
-type SplineKnot struct {
-	Input  float64
-	Output float64
 }
