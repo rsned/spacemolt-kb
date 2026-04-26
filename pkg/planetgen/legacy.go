@@ -6,11 +6,18 @@ package planetgen
 
 import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/color"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 )
 
 // ColorStop is a legacy alias for color.ColorStop.
 type ColorStop = color.ColorStop
+
+// Crater is a legacy alias for feature.Crater.
+type Crater = feature.Crater
+
+// GenerateCraters is a legacy alias for feature.GenerateCraters.
+var GenerateCraters = feature.GenerateCraters
 
 // NoiseGenerator is a legacy alias for noise.Generator.
 type NoiseGenerator = noise.Generator

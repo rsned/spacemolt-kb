@@ -63,7 +63,7 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 	if profile.CraterCount > 0 {
 		craters := GenerateCraters(rng, profile.CraterCount,
 			profile.CraterMinRadius, profile.CraterMaxRadius)
-		ApplyCraters(heightmap, craters, width, height, profile.CraterDepth)
+		applyCratersLegacy(heightmap, craters, width, height, profile.CraterDepth)
 	}
 
 	// Step 3 + 4 + 5: Colorize with biomes, ocean, snow, and polar caps
