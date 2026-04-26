@@ -4,6 +4,6 @@
 // and Worley noise (Phase 3+).
 //
 // All functions are pure and deterministic given a seeded
-// NoiseGenerator. Sampling is done in 3D (unit sphere directions)
+// Generator. Sampling is done in 3D (unit sphere directions)
 // to keep generation seamless across cube-map faces.
 package noise
