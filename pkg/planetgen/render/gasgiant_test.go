@@ -30,3 +30,16 @@ func TestRenderGasGiantDeterministic(t *testing.T) {
 		}
 	}
 }
+
+func TestRenderGasGiantDeterministicWithStorms(t *testing.T) {
+	prof := planetgen.Profiles["jovian"] // StormCount: 3
+	a := RenderGasGiant(prof, 42, 32)
+	b := RenderGasGiant(prof, 42, 32)
+	for face := range len(a.Faces) {
+		for i := range a.Faces[face] {
+			if a.Faces[face][i] != b.Faces[face][i] {
+				t.Fatalf("face %d pixel %d differs across runs", face, i)
+			}
+		}
+	}
+}
