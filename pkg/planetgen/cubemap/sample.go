@@ -88,12 +88,14 @@ func (cm *CubeMap) sampleFaceUV(face Face, u, v float64) color.RGBA {
 	S := cm.Size
 	fx := u*float64(S) - 0.5
 	fy := v*float64(S) - 0.5
-	x0 := clampi(int(math.Floor(fx)), 0, S-1)
-	y0 := clampi(int(math.Floor(fy)), 0, S-1)
+	fxFloor := math.Floor(fx)
+	fyFloor := math.Floor(fy)
+	x0 := clampi(int(fxFloor), 0, S-1)
+	y0 := clampi(int(fyFloor), 0, S-1)
 	x1 := clampi(x0+1, 0, S-1)
 	y1 := clampi(y0+1, 0, S-1)
-	tx := fx - math.Floor(fx)
-	ty := fy - math.Floor(fy)
+	tx := fx - fxFloor
+	ty := fy - fyFloor
 	c00 := cm.Get(face, x0, y0)
 	c10 := cm.Get(face, x1, y0)
 	c01 := cm.Get(face, x0, y1)
@@ -101,18 +103,22 @@ func (cm *CubeMap) sampleFaceUV(face Face, u, v float64) color.RGBA {
 	return blendRGBA4(c00, c10, c01, c11, tx, ty)
 }
 
-// Sample returns the bilinearly-filtered float at the given 3D direction.
+// Sample returns the bilinearly-filtered float at the given 3D
+// direction. Coordinates are clamped to face edges; see package
+// docs for seam behavior.
 func (cmf *CubeMapF) Sample(x, y, z float64) float64 {
 	face, u, v := DirToFaceUV(x, y, z)
 	S := cmf.Size
 	fx := u*float64(S) - 0.5
 	fy := v*float64(S) - 0.5
-	x0 := clampi(int(math.Floor(fx)), 0, S-1)
-	y0 := clampi(int(math.Floor(fy)), 0, S-1)
+	fxFloor := math.Floor(fx)
+	fyFloor := math.Floor(fy)
+	x0 := clampi(int(fxFloor), 0, S-1)
+	y0 := clampi(int(fyFloor), 0, S-1)
 	x1 := clampi(x0+1, 0, S-1)
 	y1 := clampi(y0+1, 0, S-1)
-	tx := fx - math.Floor(fx)
-	ty := fy - math.Floor(fy)
+	tx := fx - fxFloor
+	ty := fy - fyFloor
 	v00 := cmf.Get(face, x0, y0)
 	v10 := cmf.Get(face, x1, y0)
 	v01 := cmf.Get(face, x0, y1)
