@@ -23,8 +23,12 @@ func RenderGasGiant(profile *PlanetProfile, seed int64, width, height int) *imag
 
 	for y := range height {
 		for x := range width {
-			sx, sy, sz := SphericalCoords(x, y, width, height)
+			// Inline SphericalCoords
+			lon := float64(x) / float64(width) * 2 * math.Pi
 			lat := math.Pi/2 - float64(y)/float64(height)*math.Pi
+			sx := math.Cos(lat) * math.Cos(lon)
+			sy := math.Sin(lat)
+			sz := math.Cos(lat) * math.Sin(lon)
 			normalizedLat := (lat + math.Pi/2) / math.Pi // [0, 1]
 
 			// Turbulence: distort the latitude to warp bands

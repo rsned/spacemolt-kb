@@ -69,7 +69,12 @@ func ApplyCraters(heightmap [][]float64, craters []Crater, width, height int, de
 				wpx := ((px % width) + width) % width
 
 				// Get 3D position of this pixel
-				sx, sy, sz := SphericalCoords(wpx, py, width, height)
+				// Inline SphericalCoords
+				crater_lon := float64(wpx) / float64(width) * 2 * math.Pi
+				crater_lat := math.Pi/2 - float64(py)/float64(height)*math.Pi
+				sx := math.Cos(crater_lat) * math.Cos(crater_lon)
+				sy := math.Sin(crater_lat)
+				sz := math.Cos(crater_lat) * math.Sin(crater_lon)
 
 				// Angular distance on sphere
 				dot := sx*cx + sy*cy + sz*cz

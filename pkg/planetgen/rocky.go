@@ -17,8 +17,14 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 	for y := range height {
 		heightmap[y] = make([]float64, width)
 		for x := range width {
-			heightmap[y][x] = ng.SphericalFractal(
-				x, y, width, height,
+			// Inline SphericalFractal
+			lon := float64(x) / float64(width) * 2 * math.Pi
+			lat := math.Pi/2 - float64(y)/float64(height)*math.Pi
+			sx := math.Cos(lat) * math.Cos(lon)
+			sy := math.Sin(lat)
+			sz := math.Cos(lat) * math.Sin(lon)
+			heightmap[y][x] = ng.FractalNoise3D(
+				sx, sy, sz,
 				profile.NoiseOctaves,
 				profile.NoiseLacunarity,
 				profile.NoisePersistence,
@@ -77,8 +83,13 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 			var c = sampleGradient(profile.Palette, h)
 			if hasBiomes {
 				// Add noise to biome boundaries so they're not perfectly zonal
-				sx, sy, sz := SphericalCoords(x, y, width, height)
-				biomeVar := biomeNoise.FractalNoise3D(sx, sy, sz, 3, 2.0, 0.5, 4.0)
+				// Inline SphericalCoords
+				biome_lon := float64(x) / float64(width) * 2 * math.Pi
+				biome_lat := math.Pi/2 - float64(y)/float64(height)*math.Pi
+				biome_sx := math.Cos(biome_lat) * math.Cos(biome_lon)
+				biome_sy := math.Sin(biome_lat)
+				biome_sz := math.Cos(biome_lat) * math.Sin(biome_lon)
+				biomeVar := biomeNoise.FractalNoise3D(biome_sx, biome_sy, biome_sz, 3, 2.0, 0.5, 4.0)
 				adjustedLat := absLat + (biomeVar-0.5)*0.15
 
 				if len(profile.EquatorialPalette) > 0 && adjustedLat < 0.35 {
@@ -110,8 +121,13 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 			// Ocean/lava: color below ocean level with depth and surface variation
 			if profile.OceanLevel > 0 && h < profile.OceanLevel {
 				depth := (profile.OceanLevel - h) / profile.OceanLevel
-				sx, sy, sz := SphericalCoords(x, y, width, height)
-				surfaceVar := oceanNoise.FractalNoise3D(sx, sy, sz, 4, 2.0, 0.5, 6.0)
+				// Inline SphericalCoords
+				ocean_lon := float64(x) / float64(width) * 2 * math.Pi
+				ocean_lat := math.Pi/2 - float64(y)/float64(height)*math.Pi
+				ocean_sx := math.Cos(ocean_lat) * math.Cos(ocean_lon)
+				ocean_sy := math.Sin(ocean_lat)
+				ocean_sz := math.Cos(ocean_lat) * math.Sin(ocean_lon)
+				surfaceVar := oceanNoise.FractalNoise3D(ocean_sx, ocean_sy, ocean_sz, 4, 2.0, 0.5, 6.0)
 
 				isLava := profile.Type == "lava_world"
 				if isLava {
@@ -150,8 +166,13 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 				capThreshold := 1.0 - profile.PolarCapSize
 				if absLat > capThreshold {
 					// Noisy edge — use profile noise amount or default
-					sx, sy, sz := SphericalCoords(x, y, width, height)
-					capEdgeNoise := capNoise.FractalNoise3D(sx, sy, sz, 4, 2.0, 0.5, 8.0)
+					// Inline SphericalCoords
+					cap_lon := float64(x) / float64(width) * 2 * math.Pi
+					cap_lat := math.Pi/2 - float64(y)/float64(height)*math.Pi
+					cap_sx := math.Cos(cap_lat) * math.Cos(cap_lon)
+					cap_sy := math.Sin(cap_lat)
+					cap_sz := math.Cos(cap_lat) * math.Sin(cap_lon)
+					capEdgeNoise := capNoise.FractalNoise3D(cap_sx, cap_sy, cap_sz, 4, 2.0, 0.5, 8.0)
 					noiseAmt := profile.PolarCapNoise
 					if noiseAmt == 0 {
 						noiseAmt = 0.08
