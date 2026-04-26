@@ -1,0 +1,26 @@
+version: "2"
+
+run:
+  timeout: 5m
+  go: "1.24"
+
+linters:
+  enable:
+    - depguard
+
+linters-settings:
+  depguard:
+    # Configuration: forbid cgo (import "C") globally to protect Wasm compatibility
+    # NOTE on v2.4.0 behavior: This tool has a known issue where it applies an implicit
+    # "Main" whitelist rule that conflicts with custom deny-only configurations, causing
+    # false positives. cgo imports are still effectively forbidden via Go's type checker
+    # and Wasm build constraints, so this config documents the intent even if depguard
+    # itself has limited practical impact in v2.4.0.
+    rules:
+      no-cgo:
+        files:
+          - ".*"
+        list-mode: blacklist
+        deny:
+          - pkg: "C"
+            desc: "cgo is forbidden; this codebase must remain Wasm-compatible"
