@@ -9,7 +9,6 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
-	ptypes "github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 func main() {
@@ -34,9 +33,9 @@ func main() {
 			var cm *cubemap.CubeMap
 			switch p.Renderer {
 			case "rocky":
-				cm = render.RenderRocky((*ptypes.PlanetProfile)(&p), seed, 512)
+				cm = render.RenderRocky(&p, seed, 512)
 			case "gas_giant":
-				cm = render.RenderGasGiant((*ptypes.PlanetProfile)(&p), seed, 512)
+				cm = render.RenderGasGiant(&p, seed, 512)
 			default:
 				panic(fmt.Sprintf("unknown renderer: %s", p.Renderer))
 			}
