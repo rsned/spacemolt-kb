@@ -8,6 +8,7 @@ import (
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
@@ -28,16 +29,33 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	heightmap := cubemap.NewF(S)
 
 	// Step 1: base fractal heightmap on the unit sphere.
-	for face := range cubemap.Face(cubemap.NumFaces) {
-		for py := range S {
-			for px := range S {
-				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
-				h := ng.FractalNoise3D(dx, dy, dz,
-					profile.NoiseOctaves,
-					profile.NoiseLacunarity,
-					profile.NoisePersistence,
-					profile.NoiseScale)
-				heightmap.Set(face, px, py, h)
+	useControl := !isZeroControlConfig(profile.ControlConfig) && hasSplines(profile.Splines)
+	if useControl {
+		fields := field.GenerateControlFields(seed, profile.ControlConfig, S)
+		for face := range cubemap.Face(cubemap.NumFaces) {
+			for py := range S {
+				for px := range S {
+					var h float64
+					for i := 0; i < 5; i++ {
+						h += planetcolor.EvalSpline(profile.Splines[i], fields[i].Get(face, px, py))
+					}
+					heightmap.Set(face, px, py, h)
+				}
+			}
+		}
+	} else {
+		// Legacy single-FBM path (unchanged from Phase 0)
+		for face := range cubemap.Face(cubemap.NumFaces) {
+			for py := range S {
+				for px := range S {
+					dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+					h := ng.FractalNoise3D(dx, dy, dz,
+						profile.NoiseOctaves,
+						profile.NoiseLacunarity,
+						profile.NoisePersistence,
+						profile.NoiseScale)
+					heightmap.Set(face, px, py, h)
+				}
 			}
 		}
 	}
@@ -160,4 +178,21 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	}
 
 	return out
+}
+
+func isZeroControlConfig(c types.ControlConfig) bool {
+	return c.Continentalness == (types.ControlField{}) &&
+		c.Erosion == (types.ControlField{}) &&
+		c.PeaksValleys == (types.ControlField{}) &&
+		c.Temperature == (types.ControlField{}) &&
+		c.Humidity == (types.ControlField{})
+}
+
+func hasSplines(s [5]planetcolor.Spline) bool {
+	for i := range s {
+		if len(s[i].Knots) > 0 {
+			return true
+		}
+	}
+	return false
 }
