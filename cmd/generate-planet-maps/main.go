@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 
 	_ "modernc.org/sqlite"
 )
@@ -27,11 +28,12 @@ func main() {
 	var (
 		singleType = flag.String("type", "", "generate only this planet type (for testing)")
 		singleSeed = flag.String("seed", "", "planet name to use as seed (for testing)")
-		outFile    = flag.String("out", "", "output file path (single image mode)")
+		outFile    = flag.String("out", "", "output equirect PNG path (single image mode)")
 		dbPath     = flag.String("db", "../spacemolt-knowledge.db", "path to knowledge database")
 		outDir     = flag.String("outdir", "kb/images/planets", "output directory for planet images")
-		width      = flag.Int("width", planetgen.DefaultWidth, "image width in pixels")
-		height     = flag.Int("height", planetgen.DefaultHeight, "image height in pixels")
+		faceSize   = flag.Int("face", planetgen.DefaultFaceSize, "cube-map face size in pixels")
+		eqWidth    = flag.Int("width", planetgen.DefaultWidth, "equirect bake width in pixels")
+		eqHeight   = flag.Int("height", planetgen.DefaultHeight, "equirect bake height in pixels")
 		workers    = flag.Int("workers", 8, "number of parallel workers")
 	)
 	flag.Parse()
@@ -42,10 +44,17 @@ func main() {
 		if out == "" {
 			out = fmt.Sprintf("%s_%s.png", *singleType, sanitize(*singleSeed))
 		}
-		if err := generateSingle(*singleType, *singleSeed, *width, *height, out); err != nil {
+		if err := generateSingle(*singleType, *singleSeed, *faceSize, *eqWidth, *eqHeight, out); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("Generated %s (%dx%d)\n", out, *width, *height)
+		cubePath := out
+		if ext := filepath.Ext(cubePath); ext != "" {
+			cubePath = cubePath[:len(cubePath)-len(ext)] + ".cube" + ext
+		} else {
+			cubePath += ".cube.png"
+		}
+		fmt.Printf("Generated %s + %s (face %d, equirect %dx%d)\n",
+			out, cubePath, *faceSize, *eqWidth, *eqHeight)
 		return
 	}
 
@@ -82,7 +91,7 @@ func main() {
 				filename := fmt.Sprintf("%s_%s.png", sanitize(p.SystemName), sanitize(p.PlanetName))
 				outPath := filepath.Join(*outDir, filename)
 
-				if err := generateSingle(p.PlanetType, p.PlanetName, *width, *height, outPath); err != nil {
+				if err := generateSingle(p.PlanetType, p.PlanetName, *faceSize, *eqWidth, *eqHeight, outPath); err != nil {
 					log.Printf("ERROR: %s/%s (%s): %v", p.SystemName, p.PlanetName, p.PlanetType, err)
 					mu.Lock()
 					skipped++
@@ -110,13 +119,26 @@ func main() {
 	fmt.Printf("Done: %d generated, %d skipped in %s\n", generated, skipped, elapsed.Round(time.Millisecond))
 }
 
-func generateSingle(planetType, planetName string, width, height int, outPath string) error {
-	img, err := planetgen.GenerateEquirect(planetType, planetName, width, height)
+func generateSingle(planetType, planetName string, faceSize, equirectW, equirectH int, equirectPath string) error {
+	cm, err := planetgen.Generate(planetType, planetName, faceSize)
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Create(outPath)
+	// Derive the cube-map path from the equirect path: insert ".cube" before
+	// the extension. foo.png → foo.cube.png. If no extension, append .cube.png.
+	cubePath := equirectPath
+	if ext := filepath.Ext(cubePath); ext != "" {
+		cubePath = cubePath[:len(cubePath)-len(ext)] + ".cube" + ext
+	} else {
+		cubePath += ".cube.png"
+	}
+	if err := cubemap.WriteCrossPNG(cm, cubePath); err != nil {
+		return err
+	}
+
+	img := cubemap.BakeEquirect(cm, equirectW, equirectH)
+	f, err := os.Create(equirectPath)
 	if err != nil {
 		return err
 	}
