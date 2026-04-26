@@ -47,12 +47,7 @@ func main() {
 		if err := generateSingle(*singleType, *singleSeed, *faceSize, *eqWidth, *eqHeight, out); err != nil {
 			log.Fatal(err)
 		}
-		cubePath := out
-		if ext := filepath.Ext(cubePath); ext != "" {
-			cubePath = cubePath[:len(cubePath)-len(ext)] + ".cube" + ext
-		} else {
-			cubePath += ".cube.png"
-		}
+		cubePath := cubePathFor(out)
 		fmt.Printf("Generated %s + %s (face %d, equirect %dx%d)\n",
 			out, cubePath, *faceSize, *eqWidth, *eqHeight)
 		return
@@ -127,12 +122,7 @@ func generateSingle(planetType, planetName string, faceSize, equirectW, equirect
 
 	// Derive the cube-map path from the equirect path: insert ".cube" before
 	// the extension. foo.png → foo.cube.png. If no extension, append .cube.png.
-	cubePath := equirectPath
-	if ext := filepath.Ext(cubePath); ext != "" {
-		cubePath = cubePath[:len(cubePath)-len(ext)] + ".cube" + ext
-	} else {
-		cubePath += ".cube.png"
-	}
+	cubePath := cubePathFor(equirectPath)
 	if err := cubemap.WriteCrossPNG(cm, cubePath); err != nil {
 		return err
 	}
@@ -174,4 +164,13 @@ func loadPlanets(db *sql.DB) ([]planet, error) {
 func sanitize(name string) string {
 	r := strings.NewReplacer(" ", "_", "'", "", "/", "_", "\\", "_")
 	return strings.ToLower(r.Replace(name))
+}
+
+// cubePathFor derives the cube-map output path from the equirect path.
+// foo/bar.png → foo/bar.cube.png; foo (no extension) → foo.cube.png.
+func cubePathFor(equirectPath string) string {
+	if ext := filepath.Ext(equirectPath); ext != "" {
+		return equirectPath[:len(equirectPath)-len(ext)] + ".cube" + ext
+	}
+	return equirectPath + ".cube.png"
 }
