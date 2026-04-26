@@ -1,6 +1,7 @@
 package cubemap
 
 import (
+	"image/color"
 	"math"
 	"math/rand/v2"
 	"testing"
@@ -84,5 +85,41 @@ func TestFacePixelToDirCenter(t *testing.T) {
 	x, _, _ := FacePixelToDir(FacePosX, 3, 3, 8)
 	if x < 0.95 {
 		t.Errorf("FacePosX (3,3) S=8 dir.x = %f, expected near 1", x)
+	}
+}
+
+func TestCubeMapSampleFlatFace(t *testing.T) {
+	cm := New(16)
+	red := color.RGBA{R: 255, A: 255}
+	for face := range Face(NumFaces) {
+		for py := 0; py < cm.Size; py++ {
+			for px := 0; px < cm.Size; px++ {
+				cm.Set(face, px, py, red)
+			}
+		}
+	}
+	// Sample at every face center
+	for _, dir := range [][3]float64{
+		{1, 0, 0}, {-1, 0, 0},
+		{0, 1, 0}, {0, -1, 0},
+		{0, 0, 1}, {0, 0, -1},
+	} {
+		got := cm.Sample(dir[0], dir[1], dir[2])
+		if got != red {
+			t.Errorf("Sample at (%v) = %v, want red", dir, got)
+		}
+	}
+}
+
+func TestCubeMapFSampleFlatFace(t *testing.T) {
+	cm := NewF(16)
+	for face := range Face(NumFaces) {
+		for i := range cm.Faces[face] {
+			cm.Faces[face][i] = 0.7
+		}
+	}
+	got := cm.Sample(1, 0, 0)
+	if got < 0.69 || got > 0.71 {
+		t.Errorf("CubeMapF.Sample = %f, want ~0.7", got)
 	}
 }
