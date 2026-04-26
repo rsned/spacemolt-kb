@@ -1,9 +1,11 @@
-package planetgen
+package stats
 
 import (
 	"fmt"
 	"math"
 	"math/rand/v2"
+
+	planetgen "github.com/rsned/spacemolt-kb/pkg/planetgen"
 )
 
 // PlanetStats holds the physical properties of a planet.
@@ -111,7 +113,7 @@ func GenerateStats(planetType, planetName string, orbitalDistanceAU float64) Pla
 		baseline = baselines["unknown"]
 	}
 
-	seed := hashSeed(planetName)
+	seed := planetgen.HashSeedPublic(planetName)
 	rng := rand.New(rand.NewPCG(uint64(seed), uint64(seed*37+13)))
 
 	// Vary each stat ±20% around baseline

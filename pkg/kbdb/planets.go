@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/stats"
 )
 
 // PlanetMetadata holds the persisted metadata for a planet POI.
@@ -27,8 +28,8 @@ type PlanetMetadata struct {
 }
 
 // Stats converts persisted metadata back to a PlanetStats for template rendering.
-func (m PlanetMetadata) Stats() planetgen.PlanetStats {
-	return planetgen.PlanetStats{
+func (m PlanetMetadata) Stats() stats.PlanetStats {
+	return stats.PlanetStats{
 		Type:              m.PlanetClass,
 		TypeName:          m.TypeName,
 		RadiusKm:          m.RadiusKm,
@@ -45,23 +46,23 @@ func (m PlanetMetadata) Stats() planetgen.PlanetStats {
 }
 
 // FromPlanetStats creates a PlanetMetadata from a generated PlanetStats.
-func FromPlanetStats(poiID, poiName string, stats planetgen.PlanetStats) PlanetMetadata {
+func FromPlanetStats(poiID, poiName string, ps stats.PlanetStats) PlanetMetadata {
 	return PlanetMetadata{
 		POIID:             poiID,
 		POIName:           poiName,
 		Seed:              planetgen.HashSeedPublic(poiName),
-		PlanetClass:       stats.Type,
-		TypeName:          stats.TypeName,
-		RadiusKm:          stats.RadiusKm,
-		MassEarths:        stats.MassEarths,
-		GravityG:          stats.GravityG,
-		TemperatureK:      stats.TemperatureK,
-		TemperatureC:      stats.TemperatureC,
-		AtmPressureAtm:    stats.AtmPressureAtm,
-		AtmDescription:    stats.AtmDescription,
-		DayLengthHours:    stats.DayLengthHours,
-		OrbitalPeriodDays: stats.OrbitalPeriodDays,
-		OrbitalDistanceAU: stats.OrbitalDistanceAU,
+		PlanetClass:       ps.Type,
+		TypeName:          ps.TypeName,
+		RadiusKm:          ps.RadiusKm,
+		MassEarths:        ps.MassEarths,
+		GravityG:          ps.GravityG,
+		TemperatureK:      ps.TemperatureK,
+		TemperatureC:      ps.TemperatureC,
+		AtmPressureAtm:    ps.AtmPressureAtm,
+		AtmDescription:    ps.AtmDescription,
+		DayLengthHours:    ps.DayLengthHours,
+		OrbitalPeriodDays: ps.OrbitalPeriodDays,
+		OrbitalDistanceAU: ps.OrbitalDistanceAU,
 	}
 }
 

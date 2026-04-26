@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/rsned/spacemolt-kb/pkg/kbdb"
-	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/stats"
 )
 
 // writePlanetPages generates surface map images and detail pages for all planets.
@@ -68,9 +68,9 @@ func writePlanetPages(db *sql.DB, outDir string, systems []*System) error {
 
 			// Generate stats and persist to metadata table.
 			orbitalDist := math.Hypot(poi.PositionX, poi.PositionY)
-			stats := planetgen.GenerateStats(planetClass, poi.Name, orbitalDist)
+			ps := stats.GenerateStats(planetClass, poi.Name, orbitalDist)
 
-			meta := kbdb.FromPlanetStats(poi.ID, poi.Name, stats)
+			meta := kbdb.FromPlanetStats(poi.ID, poi.Name, ps)
 			if err := kbdb.UpsertPlanet(db, meta); err != nil {
 				log.Printf("WARNING: failed to persist planet metadata for %s: %v", poi.Name, err)
 			} else {
@@ -95,7 +95,7 @@ func writePlanetPages(db *sql.DB, outDir string, systems []*System) error {
 				SystemName:   sys.Name,
 				SystemID:     sys.ID,
 				Description:  poi.Description,
-				Stats:        stats,
+				Stats:        ps,
 				ImagePath:    "../../images/planets/" + imgFilename,
 				HasRings:     hasRings,
 				RingType:     planetClass,
@@ -165,7 +165,7 @@ type planetPageData struct {
 	SystemName   string
 	SystemID     string
 	Description  string
-	Stats        planetgen.PlanetStats
+	Stats        stats.PlanetStats
 	ImagePath    string
 	HasRings     bool
 	RingType     string
