@@ -2,11 +2,11 @@ package planetgen
 
 import (
 	"fmt"
-	"hash/fnv"
 	"image"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
 )
 
 // DefaultFaceSize is the default cube-map face edge length in pixels.
@@ -48,13 +48,14 @@ func GenerateEquirect(planetType, planetName string, width, height int) (*image.
 }
 
 // hashSeed converts a planet name to a deterministic int64 seed.
+// Thin wrapper around seed.Hash retained for in-package callers.
 func hashSeed(name string) int64 {
-	h := fnv.New64a()
-	h.Write([]byte(name))
-	return int64(h.Sum64())
+	return seed.Hash(name)
 }
 
-// HashSeedPublic is the exported version of hashSeed for test tooling.
+// HashSeedPublic is the exported wrapper for external callers
+// (e.g. pkg/kbdb). Phase 1+ callers should prefer pkg/planetgen/seed.Hash
+// directly.
 func HashSeedPublic(name string) int64 {
-	return hashSeed(name)
+	return seed.Hash(name)
 }
