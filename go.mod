@@ -12,6 +12,7 @@ require (
 require (
 	github.com/anthropics/anthropic-sdk-go v1.27.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/ojrac/opensimplex-go v1.0.2 // indirect
