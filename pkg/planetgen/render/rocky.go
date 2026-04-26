@@ -82,22 +82,22 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 				absLat := math.Abs(lat) / (math.Pi / 2)
 
 				h := heightmap.Get(face, px, py)
-				c := planetcolor.SampleGradient(profile.Palette, h)
+				c := planetcolor.SampleGradientOkLab(profile.Palette, h)
 
 				if hasBiomes {
 					biomeVar := biomeNoise.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 4.0)
 					adjustedLat := absLat + (biomeVar-0.5)*0.15
 					if len(profile.EquatorialPalette) > 0 && adjustedLat < 0.35 {
-						eqColor := planetcolor.SampleGradient(profile.EquatorialPalette, h)
+						eqColor := planetcolor.SampleGradientOkLab(profile.EquatorialPalette, h)
 						eqBlend := 1.0 - adjustedLat/0.35
 						eqBlend *= eqBlend
-						c = planetcolor.Blend(c, eqColor, eqBlend*0.8)
+						c = planetcolor.BlendOkLab(c, eqColor, eqBlend*0.8)
 					}
 					if len(profile.PolarPalette) > 0 && adjustedLat > 0.6 {
-						polColor := planetcolor.SampleGradient(profile.PolarPalette, h)
+						polColor := planetcolor.SampleGradientOkLab(profile.PolarPalette, h)
 						polBlend := (adjustedLat - 0.6) / 0.4
 						polBlend *= polBlend
-						c = planetcolor.Blend(c, polColor, polBlend*0.7)
+						c = planetcolor.BlendOkLab(c, polColor, polBlend*0.7)
 					}
 				}
 
@@ -106,7 +106,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 					snowBlend = math.Min(1.0, snowBlend*1.5)
 					latBoost := 1.0 + absLat*0.5
 					snowBlend = math.Min(1.0, snowBlend*latBoost)
-					c = planetcolor.Blend(c, whiteSnow, snowBlend*0.85)
+					c = planetcolor.BlendOkLab(c, whiteSnow, snowBlend*0.85)
 				}
 
 				if profile.OceanLevel > 0 && h < profile.OceanLevel {
@@ -149,7 +149,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 						if absLat > adjustedThreshold {
 							blend := math.Min(1.0, (absLat-adjustedThreshold)*15)
 							capColor := planetcolor.Brighten(whiteIce, 0.9+capEdgeNoise*0.2)
-							c = planetcolor.Blend(c, capColor, blend)
+							c = planetcolor.BlendOkLab(c, capColor, blend)
 						}
 					}
 				}

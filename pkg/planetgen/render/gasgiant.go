@@ -63,7 +63,7 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 							// Deflect surrounding band colors slightly
 							deflect := ng.FractalNoise3D(sx*6, sy*6, sz*6, 3, 2.0, 0.5, 4.0)
 							deflected := planetcolor.Brighten(c, 0.9+deflect*0.2)
-							c = planetcolor.Blend(c, deflected, outerT*0.3)
+							c = planetcolor.BlendOkLab(c, deflected, outerT*0.3)
 						} else {
 							// Inside storm: swirling vortex
 							// Concentric swirl pattern
@@ -78,7 +78,7 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 							// Full opacity at center, smooth falloff to edge
 							blend := (1.0 - dist)
 							blend = blend * blend * (3 - 2*blend) // smoothstep
-							c = planetcolor.Blend(c, stormColor, blend)
+							c = planetcolor.BlendOkLab(c, stormColor, blend)
 						}
 					}
 				}
@@ -131,7 +131,7 @@ func generateGasBands(rng *rand.Rand, count int, palette []planetcolor.ColorStop
 		bands[i] = gasBand{
 			LatStart: pos,
 			LatEnd:   pos + w,
-			Color:    planetcolor.ColorStop{Position: colorIdx, Color: planetcolor.SampleGradient(palette, colorIdx)},
+			Color:    planetcolor.ColorStop{Position: colorIdx, Color: planetcolor.SampleGradientOkLab(palette, colorIdx)},
 		}
 		pos += w
 	}
