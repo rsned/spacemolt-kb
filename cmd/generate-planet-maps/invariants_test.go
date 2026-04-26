@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/color"
-	"math"
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
@@ -93,21 +92,6 @@ func TestInvariantsCubeMapContinuity(t *testing.T) {
 			absI(int(c1.B)-int(c2.B))
 		if d > 8 {
 			t.Errorf("%s: +X-axis +/- eps RGB delta = %d, want ≤ 8", pt, d)
-		}
-	}
-}
-
-func TestInvariantsNoNaN(t *testing.T) {
-	for _, pt := range invariantTypes {
-		img, err := planetgen.GenerateEquirect(pt, "NaNSeed-"+pt, 200, 100)
-		if err != nil {
-			t.Fatalf("%s: %v", pt, err)
-		}
-		for i := 0; i < len(img.Pix); i++ {
-			v := float64(img.Pix[i])
-			if math.IsNaN(v) || math.IsInf(v, 0) {
-				t.Fatalf("%s: NaN/Inf at byte %d", pt, i)
-			}
 		}
 	}
 }
