@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
+	ptypes "github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 func main() {
@@ -15,10 +18,10 @@ func main() {
 		panic(err)
 	}
 
-	types := []string{"terran", "super_terran", "oceanic", "lava_world"}
+	planetTypes := []string{"terran", "super_terran", "oceanic", "lava_world"}
 	landPcts := []int{25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85}
 
-	for _, tp := range types {
+	for _, tp := range planetTypes {
 		fmt.Printf("Generating %s...\n", tp)
 		for _, pct := range landPcts {
 			// Clone the profile and adjust ocean level
@@ -27,7 +30,17 @@ func main() {
 			p.OceanLevel = 1.0 - float64(pct)/100.0
 
 			seed := planetgen.HashSeedPublic(fmt.Sprintf("ratio_test_%s_%d", tp, pct))
-			img := planetgen.RenderRocky(&p, seed, 600, 300)
+			// Dispatch to render based on profile type
+			var cm *cubemap.CubeMap
+			switch p.Renderer {
+			case "rocky":
+				cm = render.RenderRocky((*ptypes.PlanetProfile)(&p), seed, 512)
+			case "gas_giant":
+				cm = render.RenderGasGiant((*ptypes.PlanetProfile)(&p), seed, 512)
+			default:
+				panic(fmt.Sprintf("unknown renderer: %s", p.Renderer))
+			}
+			img := cubemap.BakeEquirect(cm, 600, 300)
 
 			filename := fmt.Sprintf("%s_land%d.png", tp, pct)
 			f, err := os.Create(filepath.Join(outDir, filename))
@@ -56,7 +69,7 @@ h2 { margin-top: 30px; color: #aaa; }
 </style></head><body>
 <h1>Land/Liquid Ratio Test Grid</h1>
 `
-	for _, tp := range types {
+	for _, tp := range planetTypes {
 		html += fmt.Sprintf("<h2>%s</h2>\n<div class=\"row\">\n", tp)
 		for _, pct := range landPcts {
 			filename := fmt.Sprintf("%s_land%d.png", tp, pct)

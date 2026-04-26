@@ -111,7 +111,7 @@ func main() {
 }
 
 func generateSingle(planetType, planetName string, width, height int, outPath string) error {
-	img, err := planetgen.Generate(planetType, planetName, width, height)
+	img, err := planetgen.GenerateEquirect(planetType, planetName, width, height)
 	if err != nil {
 		return err
 	}

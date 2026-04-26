@@ -1,47 +1,26 @@
 package planetgen
 
-import "image/color"
+import (
+	"image/color"
 
-// PlanetProfile defines the visual parameters for a planet type.
-type PlanetProfile struct {
-	Type             string
-	Renderer         string // "rocky" or "gas_giant"
-	Palette          []ColorStop
-	NoiseOctaves     int
-	NoiseLacunarity  float64
-	NoisePersistence float64
-	NoiseScale       float64
-	CraterCount      int
-	CraterMinRadius  float64 // Angular radius on sphere (radians)
-	CraterMaxRadius  float64
-	CraterDepth      float64 // How deep craters cut into heightmap
-	HasPolarCaps     bool
-	PolarCapSize     float64 // Latitude fraction (0-0.3)
-	PolarCapNoise    float64 // Edge roughness (0 = default 0.08)
-	OceanLevel       float64 // Below this = ocean (0 = no ocean)
-	OceanColor       color.RGBA
-	SnowLine         float64     // Elevation above this gets snow (0 = disabled)
-	EquatorialPalette []ColorStop // If set, blended in near equator
-	PolarPalette      []ColorStop // If set, blended in near poles (before ice caps)
+	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
+)
 
-	// Gas giant specific
-	BandCount      int
-	TurbulenceAmp  float64 // How much bands are distorted
-	BandBlendWidth float64 // Fraction of band width to blend (0 = default 0.2)
-	StormCount     int
-	StormSize      float64 // Angular radius of storm ovals
-}
+// PlanetProfile is the exported alias for types.PlanetProfile.
+// It's kept here for backward compatibility with callers that reference it as planetgen.PlanetProfile.
+type PlanetProfile = types.PlanetProfile
 
 func rgba(r, g, b uint8) color.RGBA {
 	return color.RGBA{R: r, G: g, B: b, A: 255}
 }
 
 // Profiles contains the visual parameters for all planet types.
-var Profiles = map[string]*PlanetProfile{
+var Profiles = map[string]*types.PlanetProfile{
 	"scorched": {
 		Type:     "scorched",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(40, 40, 40)},
 			{0.2, rgba(80, 75, 70)},
 			{0.4, rgba(120, 115, 105)},
@@ -61,7 +40,7 @@ var Profiles = map[string]*PlanetProfile{
 	"arid": {
 		Type:     "arid",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(100, 60, 30)},
 			{0.2, rgba(140, 80, 45)},
 			{0.4, rgba(180, 120, 70)},
@@ -84,7 +63,7 @@ var Profiles = map[string]*PlanetProfile{
 	"terran": {
 		Type:     "terran",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(12, 50, 10)},     // Deep dark forest
 			{0.1, rgba(10, 42, 8)},      // Dense jungle
 			{0.2, rgba(18, 55, 15)},     // Dark forest
@@ -111,7 +90,7 @@ var Profiles = map[string]*PlanetProfile{
 		OceanLevel:       0.50,
 		OceanColor:       rgba(30, 60, 140),
 		SnowLine:         0.78,
-		EquatorialPalette: []ColorStop{
+		EquatorialPalette: []planetcolor.ColorStop{
 			{0.0, rgba(190, 170, 120)},  // Sandy lowland
 			{0.15, rgba(200, 180, 130)}, // Light sand
 			{0.3, rgba(185, 165, 110)},  // Desert tan
@@ -122,7 +101,7 @@ var Profiles = map[string]*PlanetProfile{
 			{0.9, rgba(175, 170, 158)},  // Gray peaks
 			{1.0, rgba(200, 200, 195)},  // Bare rock
 		},
-		PolarPalette: []ColorStop{
+		PolarPalette: []planetcolor.ColorStop{
 			{0.0, rgba(65, 95, 58)},     // Cold scrub
 			{0.2, rgba(85, 105, 75)},    // Boreal green
 			{0.4, rgba(105, 115, 88)},   // Taiga
@@ -136,7 +115,7 @@ var Profiles = map[string]*PlanetProfile{
 	"tundra": {
 		Type:     "tundra",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(90, 100, 80)},
 			{0.25, rgba(120, 130, 100)},
 			{0.5, rgba(150, 155, 130)},
@@ -158,7 +137,7 @@ var Profiles = map[string]*PlanetProfile{
 	"glacial": {
 		Type:     "glacial",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(160, 180, 200)},
 			{0.3, rgba(180, 200, 220)},
 			{0.5, rgba(200, 215, 230)},
@@ -180,7 +159,7 @@ var Profiles = map[string]*PlanetProfile{
 	"ice_world": {
 		Type:     "ice_world",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(140, 170, 200)},
 			{0.2, rgba(160, 190, 215)},
 			{0.4, rgba(175, 205, 225)},
@@ -202,7 +181,7 @@ var Profiles = map[string]*PlanetProfile{
 	"super_terran": {
 		Type:     "super_terran",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(25, 80, 30)},     // Deep green
 			{0.2, rgba(20, 70, 25)},     // Dark forest
 			{0.4, rgba(45, 100, 40)},    // Forest
@@ -225,7 +204,7 @@ var Profiles = map[string]*PlanetProfile{
 		OceanLevel:       0.50,
 		OceanColor:       rgba(25, 50, 120),
 		SnowLine:         0.88,
-		EquatorialPalette: []ColorStop{
+		EquatorialPalette: []planetcolor.ColorStop{
 			{0.0, rgba(140, 125, 75)},
 			{0.2, rgba(160, 140, 85)},
 			{0.4, rgba(145, 130, 70)},
@@ -235,7 +214,7 @@ var Profiles = map[string]*PlanetProfile{
 			{0.9, rgba(170, 165, 155)},
 			{1.0, rgba(200, 200, 195)},
 		},
-		PolarPalette: []ColorStop{
+		PolarPalette: []planetcolor.ColorStop{
 			{0.0, rgba(60, 90, 55)},
 			{0.2, rgba(75, 100, 70)},
 			{0.4, rgba(100, 115, 85)},
@@ -249,7 +228,7 @@ var Profiles = map[string]*PlanetProfile{
 	"hothouse": {
 		Type:     "hothouse",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(120, 130, 60)},
 			{0.2, rgba(140, 150, 70)},
 			{0.4, rgba(100, 120, 50)},
@@ -269,7 +248,7 @@ var Profiles = map[string]*PlanetProfile{
 	"lava_world": {
 		Type:     "lava_world",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(20, 15, 10)},     // Deep basalt
 			{0.2, rgba(35, 25, 18)},     // Dark rock
 			{0.4, rgba(50, 35, 22)},     // Brown rock
@@ -291,7 +270,7 @@ var Profiles = map[string]*PlanetProfile{
 	"oceanic": {
 		Type:     "oceanic",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(80, 150, 80)},    // Low islands
 			{0.3, rgba(100, 160, 90)},   // Green land
 			{0.5, rgba(140, 155, 100)},  // Sandy highlands
@@ -313,7 +292,7 @@ var Profiles = map[string]*PlanetProfile{
 	"jovian": {
 		Type:     "jovian",
 		Renderer: "gas_giant",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(180, 140, 100)},  // Tan
 			{0.15, rgba(210, 180, 140)}, // Light tan
 			{0.3, rgba(200, 160, 120)},  // Brown
@@ -335,7 +314,7 @@ var Profiles = map[string]*PlanetProfile{
 	"ice_giant": {
 		Type:     "ice_giant",
 		Renderer: "gas_giant",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(100, 150, 185)},  // Darker blue belt
 			{0.2, rgba(115, 160, 190)},  // Medium blue
 			{0.4, rgba(125, 170, 200)},  // Blue
@@ -358,7 +337,7 @@ var Profiles = map[string]*PlanetProfile{
 	"unknown": {
 		Type:     "unknown",
 		Renderer: "rocky",
-		Palette: []ColorStop{
+		Palette: []planetcolor.ColorStop{
 			{0.0, rgba(90, 90, 95)},
 			{0.2, rgba(110, 110, 115)},
 			{0.4, rgba(130, 130, 132)},
@@ -379,7 +358,7 @@ var Profiles = map[string]*PlanetProfile{
 
 // GetProfile returns the planet profile for the given type.
 // Returns the "unknown" profile for unrecognized types.
-func GetProfile(planetType string) *PlanetProfile {
+func GetProfile(planetType string) *types.PlanetProfile {
 	if p, ok := Profiles[planetType]; ok {
 		return p
 	}

@@ -5,14 +5,14 @@ import (
 	"math"
 	"math/rand/v2"
 
-	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 // RenderGasGiant generates a gas giant planet cube map.
-func RenderGasGiant(profile *planetgen.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
+func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
 	rng := rand.New(rand.NewPCG(uint64(seed), uint64(seed*31+7)))
 	ng := noise.New(seed)
 	detailNg := noise.New(seed + 100)

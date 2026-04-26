@@ -5,11 +5,11 @@ import (
 	"math"
 	"math/rand/v2"
 
-	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 )
 
 // RenderRocky generates a rocky planet cube map.
-func RenderRocky(profile *planetgen.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
+func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
 	rng := rand.New(rand.NewPCG(uint64(seed), uint64(seed*31+7)))
 	ng := noise.New(seed)
 	capNoise := noise.New(seed + 42)
