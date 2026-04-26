@@ -64,3 +64,11 @@ func FaceUVToDir(face Face, u, v float64) (x, y, z float64) {
 	inv := 1.0 / math.Sqrt(x*x+y*y+z*z)
 	return x * inv, y * inv, z * inv
 }
+
+// FacePixelToDir returns the unit vector pointing at the center of
+// pixel (px, py) on a face of side S.
+func FacePixelToDir(face Face, px, py, S int) (x, y, z float64) {
+	u := (float64(px) + 0.5) / float64(S)
+	v := (float64(py) + 0.5) / float64(S)
+	return FaceUVToDir(face, u, v)
+}

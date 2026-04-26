@@ -57,3 +57,32 @@ func TestDirFaceUVRoundtrip(t *testing.T) {
 		t.Errorf("max roundtrip error = %g, want < 1e-12", maxErr)
 	}
 }
+
+func TestFacePixelToDirCoverage(t *testing.T) {
+	const S = 8
+	for face := range Face(NumFaces) {
+		for py := 0; py < S; py++ {
+			for px := 0; px < S; px++ {
+				x, y, z := FacePixelToDir(face, px, py, S)
+				mag := math.Sqrt(x*x + y*y + z*z)
+				if math.Abs(mag-1.0) > 1e-12 {
+					t.Errorf("face %d (%d,%d): |dir| = %f, want 1",
+						face, px, py, mag)
+				}
+			}
+		}
+	}
+}
+
+func TestFacePixelToDirCenter(t *testing.T) {
+	// The center pixel of FacePosX (at S/2-1, S/2-1 with bilinear-ish
+	// rounding) should be very close to (1, 0, 0). With S=8 and
+	// pixel-center sampling, pixel (3,3) center is at u=v=0.4375, which
+	// gives sc=tc=-0.125 → direction roughly (1, 0.125, 0.125)
+	// pre-normalisation. Just check we get the right *face* and that
+	// the dominant axis is correct.
+	x, _, _ := FacePixelToDir(FacePosX, 3, 3, 8)
+	if x < 0.95 {
+		t.Errorf("FacePosX (3,3) S=8 dir.x = %f, expected near 1", x)
+	}
+}
