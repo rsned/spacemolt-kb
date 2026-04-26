@@ -34,4 +34,42 @@ type PlanetProfile struct {
 	BandBlendWidth float64 // Fraction of band width to blend (0 = default 0.2)
 	StormCount     int
 	StormSize      float64 // Angular radius of storm ovals
+
+	// Tier-S Phase 1: multi-noise control fields and per-field height splines.
+	// Empty/zero values mean "use the legacy single-FBM path" (backward compat).
+	ControlConfig ControlConfig
+	Splines       [5]Spline // Continentalness, Erosion, PV, T, H — order matches ControlConfig fields
+}
+
+// ControlField is a single 3D fBm control field used to drive the
+// height and biome pipelines (see master plan §5.2).
+type ControlField struct {
+	Amp         float64 // amplitude multiplier
+	Freq        float64 // base frequency
+	Octaves     int     // number of fBm octaves
+	Lacunarity  float64 // frequency multiplier per octave (default 2.0)
+	Persistence float64 // amplitude multiplier per octave (default 0.5)
+}
+
+// ControlConfig holds the five control fields used by the rocky pipeline.
+type ControlConfig struct {
+	Continentalness ControlField
+	Erosion         ControlField
+	PeaksValleys    ControlField
+	Temperature     ControlField
+	Humidity        ControlField
+}
+
+// Spline is a Fritsch-Carlson monotone-cubic spline mapping
+// a control-field value (input) to its terrain contribution (output).
+// Knots must be sorted by Input ascending; the first and last knots
+// define the function's domain (clamped outside).
+type Spline struct {
+	Knots []SplineKnot
+}
+
+// SplineKnot is a single (input, output) point in a spline.
+type SplineKnot struct {
+	Input  float64
+	Output float64
 }
