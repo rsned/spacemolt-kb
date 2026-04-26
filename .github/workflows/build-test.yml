@@ -1,0 +1,43 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test ./...
+      - name: Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+
+  wasm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Wasm build (planetgen + future planet-explorer)
+        env:
+          GOOS: js
+          GOARCH: wasm
+        run: |
+          go build ./pkg/planetgen/...
+          # cmd/planet-explorer is added in Phase 1; the build will
+          # extend automatically once it exists.
+          if [ -d cmd/planet-explorer/wasm ]; then
+            go build ./cmd/planet-explorer/wasm/...
+          fi
