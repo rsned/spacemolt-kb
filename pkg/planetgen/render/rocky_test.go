@@ -13,7 +13,6 @@ func TestRenderRockyAllPixelsOpaque(t *testing.T) {
 		for i, c := range cm.Faces[face] {
 			if c.A != 255 {
 				t.Fatalf("face %d pixel %d alpha=%d", face, i, c.A)
-				_ = i
 			}
 		}
 	}
