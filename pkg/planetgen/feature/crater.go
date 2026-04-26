@@ -43,14 +43,19 @@ func ApplyCraters(cm *cubemap.CubeMapF, craters []Crater, depth float64) {
 		cy := math.Sin(c.Lat)
 		cz := math.Cos(c.Lat) * math.Sin(c.Lon)
 		// A face is touched if any of its pixels is within 1.5×Radius
-		// of the crater axis. We conservatively scan all 6 faces; the
-		// per-pixel angular check filters non-affected pixels cheaply.
+		// of the crater axis. We use a per-face pre-filter to skip faces
+		// that are far from the cone, then the per-pixel angular check
+		// filters non-affected pixels cheaply.
+		threshold := math.Cos(c.Radius * 1.5)
 		for face := range cubemap.Face(cubemap.NumFaces) {
+			if !faceIntersectsCone(face, cx, cy, cz, threshold) {
+				continue
+			}
 			for py := range S {
 				for px := range S {
 					dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
 					dot := dx*cx + dy*cy + dz*cz
-					if dot < math.Cos(c.Radius*1.5) {
+					if dot < threshold {
 						continue
 					}
 					// dot < -1 is unreachable: the early-exit above
@@ -81,4 +86,44 @@ func ApplyCraters(cm *cubemap.CubeMapF, craters []Crater, depth float64) {
 			}
 		}
 	}
+}
+
+// faceIntersectsCone reports whether ANY pixel of `face` could lie within
+// the angular cone defined by axis (cx,cy,cz) (unit-length) and threshold
+// = cos(coneHalfAngle). Conservative: false positives (face accepted but
+// no pixel inside) are tolerated; false negatives (face rejected when a
+// pixel IS inside) are bugs.
+//
+// Method: a face's most-distant interior point from the +face axis is a
+// corner, at angular distance acos(1/sqrt(3)) ≈ 0.9553 rad ≈ 54.7° from
+// the face axis. Any pixel of the face is within that distance of the
+// face axis. So if angularDistance(faceAxis, coneAxis) > coneHalfAngle +
+// faceHalfDiag, no pixel can fall inside the cone.
+func faceIntersectsCone(face cubemap.Face, cx, cy, cz, threshold float64) bool {
+	centerDot := faceCenterDot(face, cx, cy, cz)
+	if centerDot >= threshold {
+		return true
+	}
+	const faceHalfDiag = 0.9553166181245093 // acos(1/sqrt(3))
+	coneHalfAngle := math.Acos(threshold)
+	return math.Acos(centerDot) <= coneHalfAngle+faceHalfDiag
+}
+
+// faceCenterDot returns the dot product of the +face axis with (cx,cy,cz).
+func faceCenterDot(face cubemap.Face, cx, cy, cz float64) float64 {
+	switch face {
+	case cubemap.FacePosX:
+		return cx
+	case cubemap.FaceNegX:
+		return -cx
+	case cubemap.FacePosY:
+		return cy
+	case cubemap.FaceNegY:
+		return -cy
+	case cubemap.FacePosZ:
+		return cz
+	case cubemap.FaceNegZ:
+		return -cz
+	}
+	return 0
 }

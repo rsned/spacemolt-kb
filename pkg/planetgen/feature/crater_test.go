@@ -51,3 +51,18 @@ func TestApplyCratersStampSingle(t *testing.T) {
 		t.Errorf("opposite-side h=%f, want 0.5", hOpposite)
 	}
 }
+
+func BenchmarkApplyCraters(b *testing.B) {
+	cm := cubemap.NewF(256)
+	craters := GenerateCraters(rand.New(rand.NewPCG(1, 2)), 200, 0.005, 0.08)
+	b.ResetTimer()
+	for b.Loop() {
+		// Reset between iterations so each call does the same work.
+		for face := range cubemap.Face(cubemap.NumFaces) {
+			for i := range cm.Faces[face] {
+				cm.Faces[face][i] = 0.5
+			}
+		}
+		ApplyCraters(cm, craters, 0.2)
+	}
+}
