@@ -36,10 +36,12 @@ func TestApplyCratersStampSingle(t *testing.T) {
 	ApplyCraters(cm, craters, 0.3)
 
 	// Pixel at +X face center (px=S/2, py=S/2) is at direction ~(1,0,0),
-	// inside the crater. Should be < 0.5 after deposit.
+	// inside the crater. Bowl formula at t≈0 gives mod≈-0.3, so the
+	// pre-filled 0.5 should drop to ~0.2; require a meaningful drop
+	// to catch wrong-sign or wrong-formula bugs.
 	hCenter := cm.Get(cubemap.FacePosX, 32, 32)
-	if hCenter >= 0.5 {
-		t.Errorf("crater center h=%f, want < 0.5", hCenter)
+	if hCenter >= 0.35 {
+		t.Errorf("crater center h=%f, want < 0.35 (significant deposit)", hCenter)
 	}
 
 	// Pixel at -X face center is at direction (-1,0,0), arc π away —

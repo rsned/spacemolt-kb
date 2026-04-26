@@ -53,6 +53,8 @@ func ApplyCraters(cm *cubemap.CubeMapF, craters []Crater, depth float64) {
 					if dot < math.Cos(c.Radius*1.5) {
 						continue
 					}
+					// dot < -1 is unreachable: the early-exit above
+					// guarantees dot >= cos(Radius*1.5) > -1.
 					if dot > 1 {
 						dot = 1
 					}
