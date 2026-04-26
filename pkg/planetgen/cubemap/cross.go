@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"io"
 	"os"
 )
 
@@ -21,9 +22,20 @@ var crossCells = [NumFaces]struct{ col, row int }{
 // WriteCrossPNG saves cm as a 4S × 3S horizontal-cross PNG with
 // empty cells transparent.
 func WriteCrossPNG(cm *CubeMap, path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = f.Close() }()
+	return WriteCrossPNGTo(cm, f)
+}
+
+// WriteCrossPNGTo encodes cm as a 4S × 3S horizontal-cross PNG to w.
+// Same format as WriteCrossPNG; convenient for callers that don't have
+// a filesystem (e.g. wasm).
+func WriteCrossPNGTo(cm *CubeMap, w io.Writer) error {
 	S := cm.Size
 	img := image.NewRGBA(image.Rect(0, 0, 4*S, 3*S))
-	// Empty cells are zero-RGBA (alpha=0) by default.
 	for face := range Face(NumFaces) {
 		cell := crossCells[face]
 		ox, oy := cell.col*S, cell.row*S
@@ -33,12 +45,7 @@ func WriteCrossPNG(cm *CubeMap, path string) error {
 			}
 		}
 	}
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = f.Close() }()
-	return png.Encode(f, img)
+	return png.Encode(w, img)
 }
 
 // ReadCrossPNG loads a 4×3 horizontal-cross PNG produced by
@@ -50,7 +57,12 @@ func ReadCrossPNG(path string) (*CubeMap, error) {
 		return nil, err
 	}
 	defer func() { _ = f.Close() }()
-	img, err := png.Decode(f)
+	return ReadCrossPNGFrom(f)
+}
+
+// ReadCrossPNGFrom is the io.Reader-driven counterpart of ReadCrossPNG.
+func ReadCrossPNGFrom(r io.Reader) (*CubeMap, error) {
+	img, err := png.Decode(r)
 	if err != nil {
 		return nil, err
 	}
@@ -66,9 +78,9 @@ func ReadCrossPNG(path string) (*CubeMap, error) {
 		ox, oy := cell.col*S, cell.row*S
 		for py := range S {
 			for px := range S {
-				r, g, bl, a := img.At(ox+px, oy+py).RGBA()
+				r2, g, bl, a := img.At(ox+px, oy+py).RGBA()
 				cm.Set(face, px, py, color.RGBA{
-					R: uint8(r >> 8), G: uint8(g >> 8),
+					R: uint8(r2 >> 8), G: uint8(g >> 8),
 					B: uint8(bl >> 8), A: uint8(a >> 8),
 				})
 			}
