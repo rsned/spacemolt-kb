@@ -4,6 +4,8 @@ import (
 	"image"
 	"math"
 	"math/rand/v2"
+
+	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 )
 
 // RenderRocky generates a rocky planet surface map.
@@ -80,7 +82,7 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 			h := heightmap[y][x]
 
 			// Base terrain color — blend between biome palettes by latitude
-			var c = sampleGradient(profile.Palette, h)
+			var c = planetcolor.SampleGradient(profile.Palette, h)
 			if hasBiomes {
 				// Add noise to biome boundaries so they're not perfectly zonal
 				// Inline SphericalCoords
@@ -94,17 +96,17 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 
 				if len(profile.EquatorialPalette) > 0 && adjustedLat < 0.35 {
 					// Blend equatorial palette near equator
-					eqColor := sampleGradient(profile.EquatorialPalette, h)
+					eqColor := planetcolor.SampleGradient(profile.EquatorialPalette, h)
 					eqBlend := 1.0 - adjustedLat/0.35 // 1.0 at equator, 0.0 at lat 0.35
 					eqBlend *= eqBlend                  // smooth curve
-					c = blendColor(c, eqColor, eqBlend*0.8)
+					c = planetcolor.Blend(c, eqColor, eqBlend*0.8)
 				}
 				if len(profile.PolarPalette) > 0 && adjustedLat > 0.6 {
 					// Blend polar palette near poles (before ice caps)
-					polColor := sampleGradient(profile.PolarPalette, h)
+					polColor := planetcolor.SampleGradient(profile.PolarPalette, h)
 					polBlend := (adjustedLat - 0.6) / 0.4 // 0.0 at lat 0.6, 1.0 at pole
 					polBlend *= polBlend
-					c = blendColor(c, polColor, polBlend*0.7)
+					c = planetcolor.Blend(c, polColor, polBlend*0.7)
 				}
 			}
 
@@ -115,7 +117,7 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 				// More snow at higher latitudes
 				latBoost := 1.0 + absLat*0.5
 				snowBlend = math.Min(1.0, snowBlend*latBoost)
-				c = blendColor(c, whiteSnow, snowBlend*0.85)
+				c = planetcolor.Blend(c, whiteSnow, snowBlend*0.85)
 			}
 
 			// Ocean/lava: color below ocean level with depth and surface variation
@@ -142,12 +144,12 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 					brightness = math.Max(0.4, math.Min(1.2, brightness))
 
 					// Vary lava color between orange and bright yellow
-					lavaColor := lerpColor(
+					lavaColor := planetcolor.Lerp(
 						profile.OceanColor,
 						rgba(255, 160, 20), // bright yellow-orange
 						surfaceVar*0.4,
 					)
-					c = brighten(lavaColor, brightness)
+					c = planetcolor.Brighten(lavaColor, brightness)
 				} else {
 					// Water: darker when deeper, lighter near shore
 					shallowFactor := 1.0
@@ -157,7 +159,7 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 					brightness := (1.0 - depth*0.5) * shallowFactor
 					brightness += (surfaceVar - 0.5) * 0.15
 					brightness = math.Max(0.5, math.Min(1.3, brightness))
-					c = brighten(profile.OceanColor, brightness)
+					c = planetcolor.Brighten(profile.OceanColor, brightness)
 				}
 			}
 
@@ -181,8 +183,8 @@ func RenderRocky(profile *PlanetProfile, seed int64, width, height int) *image.R
 
 					if absLat > adjustedThreshold {
 						blend := math.Min(1.0, (absLat-adjustedThreshold)*15)
-						capColor := brighten(whiteIce, 0.9+capEdgeNoise*0.2)
-						c = blendColor(c, capColor, blend)
+						capColor := planetcolor.Brighten(whiteIce, 0.9+capEdgeNoise*0.2)
+						c = planetcolor.Blend(c, capColor, blend)
 					}
 				}
 			}

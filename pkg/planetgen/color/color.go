@@ -1,4 +1,4 @@
-package planetgen
+package color
 
 import (
 	"image/color"
@@ -11,8 +11,8 @@ type ColorStop struct {
 	Color    color.RGBA
 }
 
-// lerpColor interpolates between two colors by t [0,1].
-func lerpColor(a, b color.RGBA, t float64) color.RGBA {
+// Lerp interpolates between two colors by t [0,1].
+func Lerp(a, b color.RGBA, t float64) color.RGBA {
 	t = math.Max(0, math.Min(1, t))
 	return color.RGBA{
 		R: uint8(float64(a.R)*(1-t) + float64(b.R)*t),
@@ -22,8 +22,8 @@ func lerpColor(a, b color.RGBA, t float64) color.RGBA {
 	}
 }
 
-// sampleGradient returns the interpolated color at position t [0,1] in a gradient.
-func sampleGradient(stops []ColorStop, t float64) color.RGBA {
+// SampleGradient returns the interpolated color at position t [0,1] in a gradient.
+func SampleGradient(stops []ColorStop, t float64) color.RGBA {
 	t = math.Max(0, math.Min(1, t))
 	if len(stops) == 0 {
 		return color.RGBA{128, 128, 128, 255}
@@ -37,14 +37,14 @@ func sampleGradient(stops []ColorStop, t float64) color.RGBA {
 	for i := 1; i < len(stops); i++ {
 		if t <= stops[i].Position {
 			localT := (t - stops[i-1].Position) / (stops[i].Position - stops[i-1].Position)
-			return lerpColor(stops[i-1].Color, stops[i].Color, localT)
+			return Lerp(stops[i-1].Color, stops[i].Color, localT)
 		}
 	}
 	return stops[len(stops)-1].Color
 }
 
-// blendColor blends src over dst with the given alpha [0,1].
-func blendColor(dst, src color.RGBA, alpha float64) color.RGBA {
+// Blend blends src over dst with the given alpha [0,1].
+func Blend(dst, src color.RGBA, alpha float64) color.RGBA {
 	alpha = math.Max(0, math.Min(1, alpha))
 	return color.RGBA{
 		R: uint8(float64(dst.R)*(1-alpha) + float64(src.R)*alpha),
@@ -54,8 +54,8 @@ func blendColor(dst, src color.RGBA, alpha float64) color.RGBA {
 	}
 }
 
-// brighten adjusts a color's brightness by factor (>1 = brighter, <1 = darker).
-func brighten(c color.RGBA, factor float64) color.RGBA {
+// Brighten adjusts a color's brightness by factor (>1 brighter, <1 darker).
+func Brighten(c color.RGBA, factor float64) color.RGBA {
 	return color.RGBA{
 		R: uint8(math.Min(255, float64(c.R)*factor)),
 		G: uint8(math.Min(255, float64(c.G)*factor)),

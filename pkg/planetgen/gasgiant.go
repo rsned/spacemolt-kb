@@ -5,6 +5,8 @@ import (
 	"image/color"
 	"math"
 	"math/rand/v2"
+
+	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 )
 
 // RenderGasGiant generates a gas giant planet surface map.
@@ -45,7 +47,7 @@ func RenderGasGiant(profile *PlanetProfile, seed int64, width, height int) *imag
 			// Fine detail: cloud texture within bands
 			detail := detailNg.FractalNoise3D(sx*8, sy*2, sz*8, 5, 2.0, 0.5, 4.0)
 			detailFactor := 0.85 + detail*0.3
-			c := brighten(bandColor.Color, detailFactor)
+			c := planetcolor.Brighten(bandColor.Color, detailFactor)
 
 			// Storm spots
 			for _, storm := range storms {
@@ -57,23 +59,23 @@ func RenderGasGiant(profile *PlanetProfile, seed int64, width, height int) *imag
 						outerT *= outerT
 						// Deflect surrounding band colors slightly
 						deflect := ng.FractalNoise3D(sx*6, sy*6, sz*6, 3, 2.0, 0.5, 4.0)
-						deflected := brighten(c, 0.9+deflect*0.2)
-						c = blendColor(c, deflected, outerT*0.3)
+						deflected := planetcolor.Brighten(c, 0.9+deflect*0.2)
+						c = planetcolor.Blend(c, deflected, outerT*0.3)
 					} else {
 						// Inside storm: swirling vortex
 						// Concentric swirl pattern
 						angle := math.Atan2(lat-storm.Lat, (float64(x)/float64(width)*2*math.Pi-storm.Lon)*math.Cos(lat))
 						swirl := ng.FractalNoise3D(sx*10+math.Cos(angle)*dist*3, sy*10+math.Sin(angle)*dist*3, sz*10, 5, 2.0, 0.5, 5.0)
-						stormColor := brighten(storm.Color.Color, 0.8+swirl*0.4)
+						stormColor := planetcolor.Brighten(storm.Color.Color, 0.8+swirl*0.4)
 
 						// Darker rim, brighter center
 						rimFactor := 1.0 - dist*0.25
-						stormColor = brighten(stormColor, rimFactor)
+						stormColor = planetcolor.Brighten(stormColor, rimFactor)
 
 						// Full opacity at center, smooth falloff to edge
 						blend := (1.0 - dist)
 						blend = blend * blend * (3 - 2*blend) // smoothstep
-						c = blendColor(c, stormColor, blend)
+						c = planetcolor.Blend(c, stormColor, blend)
 					}
 				}
 			}
@@ -125,7 +127,7 @@ func generateBands(rng *rand.Rand, count int, palette []ColorStop) []band {
 		bands[i] = band{
 			LatStart: pos,
 			LatEnd:   pos + w,
-			Color:    ColorStop{Position: colorIdx, Color: sampleGradient(palette, colorIdx)},
+			Color:    ColorStop{Position: colorIdx, Color: planetcolor.SampleGradient(palette, colorIdx)},
 		}
 		pos += w
 	}
@@ -168,7 +170,7 @@ func getBandColor(bands []band, lat float64, blendFraction float64) ColorStop {
 		t := distFromStart / blendSize
 		t = t * t * (3 - 2*t) // smoothstep
 		prev := bands[idx-1]
-		blended := lerpColor(prev.Color.Color, b.Color.Color, t)
+		blended := planetcolor.Lerp(prev.Color.Color, b.Color.Color, t)
 		return ColorStop{Color: blended}
 	}
 
@@ -177,7 +179,7 @@ func getBandColor(bands []band, lat float64, blendFraction float64) ColorStop {
 		t := distFromEnd / blendSize
 		t = t * t * (3 - 2*t) // smoothstep
 		next := bands[idx+1]
-		blended := lerpColor(next.Color.Color, b.Color.Color, t)
+		blended := planetcolor.Lerp(next.Color.Color, b.Color.Color, t)
 		return ColorStop{Color: blended}
 	}
 
