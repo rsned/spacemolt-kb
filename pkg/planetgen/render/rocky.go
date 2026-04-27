@@ -25,6 +25,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	capNoise := noise.New(seed + 42)
 	oceanNoise := noise.New(seed + 77)
 	biomeNoise := noise.New(seed + 99)
+	warper := noise.NewWarper(seed, profile.Warp)
 
 	heightmap := cubemap.NewF(S)
 
@@ -49,6 +50,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 			for py := range S {
 				for px := range S {
 					dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+					dx, dy, dz = warper.Warp(dx, dy, dz)
 					h := ng.FractalNoise3D(dx, dy, dz,
 						profile.NoiseOctaves,
 						profile.NoiseLacunarity,
@@ -96,6 +98,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 		for py := range S {
 			for px := range S {
 				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+				dx, dy, dz = warper.Warp(dx, dy, dz)
 				lat := math.Asin(dy)
 				absLat := math.Abs(lat) / (math.Pi / 2)
 

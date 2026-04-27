@@ -17,6 +17,7 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 	ng := noise.New(seed)
 	detailNg := noise.New(seed + 100)
 	turbNg := noise.New(seed + 200)
+	warper := noise.NewWarper(seed, profile.Warp)
 
 	// Step 1: Generate band boundaries
 	bands := generateGasBands(rng, profile.BandCount, profile.Palette)
@@ -29,6 +30,7 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 		for py := range S {
 			for px := range S {
 				sx, sy, sz := cubemap.FacePixelToDir(face, px, py, S)
+				sx, sy, sz = warper.Warp(sx, sy, sz)
 				lat := math.Asin(sy)
 				lonForX := math.Atan2(sz, sx)
 				if lonForX < 0 {
