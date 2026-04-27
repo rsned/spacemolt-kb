@@ -111,6 +111,40 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.9, rgba(200, 198, 195)},  // Icy peaks
 			{1.0, rgba(225, 225, 222)},  // Snow
 		},
+		ControlConfig: types.ControlConfig{
+			Temperature: types.ControlField{Amp: 1, Freq: 1, Octaves: 3, Lacunarity: 2, Persistence: 0.5},
+			Humidity:    types.ControlField{Amp: 1, Freq: 1, Octaves: 3, Lacunarity: 2, Persistence: 0.5},
+		},
+		BiomeTable: types.BiomeTable{
+			TBuckets: 4,
+			MBuckets: 4,
+			Cells: [][]types.BiomeCell{
+				{ // T=0 cold
+					{Low: types.ColorRGB{200, 210, 220}, High: types.ColorRGB{240, 245, 250}}, // dry tundra → snow
+					{Low: types.ColorRGB{180, 190, 195}, High: types.ColorRGB{230, 235, 240}},
+					{Low: types.ColorRGB{160, 175, 180}, High: types.ColorRGB{220, 225, 235}},
+					{Low: types.ColorRGB{120, 150, 170}, High: types.ColorRGB{200, 220, 235}}, // wet ice/glacier
+				},
+				{ // T=1 cool
+					{Low: types.ColorRGB{160, 150, 130}, High: types.ColorRGB{200, 195, 180}},
+					{Low: types.ColorRGB{110, 130, 95}, High: types.ColorRGB{170, 180, 165}},
+					{Low: types.ColorRGB{75, 105, 70}, High: types.ColorRGB{150, 165, 145}},
+					{Low: types.ColorRGB{55, 90, 60}, High: types.ColorRGB{130, 150, 135}},
+				},
+				{ // T=2 warm
+					{Low: types.ColorRGB{195, 180, 145}, High: types.ColorRGB{220, 215, 190}}, // dry savanna
+					{Low: types.ColorRGB{145, 155, 80}, High: types.ColorRGB{195, 195, 165}},
+					{Low: types.ColorRGB{75, 130, 50}, High: types.ColorRGB{160, 175, 130}}, // grassland
+					{Low: types.ColorRGB{30, 90, 25}, High: types.ColorRGB{110, 140, 90}}, // forest
+				},
+				{ // T=3 hot
+					{Low: types.ColorRGB{225, 195, 130}, High: types.ColorRGB{240, 225, 180}}, // dry desert
+					{Low: types.ColorRGB{200, 180, 105}, High: types.ColorRGB{220, 210, 155}},
+					{Low: types.ColorRGB{145, 170, 80}, High: types.ColorRGB{195, 200, 140}},
+					{Low: types.ColorRGB{20, 80, 35}, High: types.ColorRGB{90, 130, 80}}, // tropical jungle
+				},
+			},
+		},
 	},
 	"tundra": {
 		Type:     "tundra",

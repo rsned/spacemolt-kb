@@ -40,6 +40,7 @@ type PlanetProfile struct {
 	ControlConfig ControlConfig
 	Splines       [5]planetcolor.Spline // Continentalness, Erosion, PV, T, H — order matches ControlConfig fields
 	Warp          WarpConfig
+	BiomeTable    BiomeTable // Whittaker biome lookup table (empty = use legacy palette path)
 }
 
 // ControlField is a single 3D fBm control field used to drive the

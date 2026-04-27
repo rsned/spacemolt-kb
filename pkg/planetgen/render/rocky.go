@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand/v2"
 
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/biome"
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
@@ -92,6 +93,11 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 
 	// Step 3+4+5: colorise (biome, ocean, snow, polar caps).
 	hasBiomes := len(profile.EquatorialPalette) > 0 || len(profile.PolarPalette) > 0
+	useBiomeTable := len(profile.BiomeTable.Cells) > 0
+	var tField, mField *cubemap.CubeMapF
+	if useBiomeTable {
+		tField, mField = biome.GenerateClimateFields(seed, profile, S)
+	}
 	out := cubemap.New(S)
 
 	for face := range cubemap.Face(cubemap.NumFaces) {
@@ -103,22 +109,27 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 				absLat := math.Abs(lat) / (math.Pi / 2)
 
 				h := heightmap.Get(face, px, py)
-				c := planetcolor.SampleGradientOkLab(profile.Palette, h)
+				var c color.RGBA
+				if useBiomeTable {
+					c = biome.LookupColor(profile.BiomeTable, tField.Get(face, px, py), mField.Get(face, px, py), h)
+				} else {
+					c = planetcolor.SampleGradientOkLab(profile.Palette, h)
 
-				if hasBiomes {
-					biomeVar := biomeNoise.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 4.0)
-					adjustedLat := absLat + (biomeVar-0.5)*0.15
-					if len(profile.EquatorialPalette) > 0 && adjustedLat < 0.35 {
-						eqColor := planetcolor.SampleGradientOkLab(profile.EquatorialPalette, h)
-						eqBlend := 1.0 - adjustedLat/0.35
-						eqBlend *= eqBlend
-						c = planetcolor.BlendOkLab(c, eqColor, eqBlend*0.8)
-					}
-					if len(profile.PolarPalette) > 0 && adjustedLat > 0.6 {
-						polColor := planetcolor.SampleGradientOkLab(profile.PolarPalette, h)
-						polBlend := (adjustedLat - 0.6) / 0.4
-						polBlend *= polBlend
-						c = planetcolor.BlendOkLab(c, polColor, polBlend*0.7)
+					if hasBiomes {
+						biomeVar := biomeNoise.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 4.0)
+						adjustedLat := absLat + (biomeVar-0.5)*0.15
+						if len(profile.EquatorialPalette) > 0 && adjustedLat < 0.35 {
+							eqColor := planetcolor.SampleGradientOkLab(profile.EquatorialPalette, h)
+							eqBlend := 1.0 - adjustedLat/0.35
+							eqBlend *= eqBlend
+							c = planetcolor.BlendOkLab(c, eqColor, eqBlend*0.8)
+						}
+						if len(profile.PolarPalette) > 0 && adjustedLat > 0.6 {
+							polColor := planetcolor.SampleGradientOkLab(profile.PolarPalette, h)
+							polBlend := (adjustedLat - 0.6) / 0.4
+							polBlend *= polBlend
+							c = planetcolor.BlendOkLab(c, polColor, polBlend*0.7)
+						}
 					}
 				}
 
