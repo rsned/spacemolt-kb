@@ -120,21 +120,22 @@ function renderPanels() {
     panels.appendChild(panel);
   }
   renderControlFieldsPanel(profile, panels);
-  renderSplinesPanel(profile, panels);
 }
 
 function renderControlFieldsPanel(profile, panels) {
   const cc = profile.ControlConfig;
   if (!cc) return;
+  if (!Array.isArray(profile.Splines)) profile.Splines = [{}, {}, {}, {}, {}];
   const panel = document.createElement('div');
   panel.className = 'panel';
   panel.innerHTML = '<h3>Control fields</h3>';
   const fields = ['Continentalness', 'Erosion', 'PeaksValleys', 'Temperature', 'Humidity'];
-  for (const fieldName of fields) {
+  for (let i = 0; i < fields.length; i++) {
+    const fieldName = fields[i];
     const cf = cc[fieldName];
     if (!cf) continue;
     const sub = document.createElement('div');
-    sub.style.marginBottom = '6px';
+    sub.style.marginBottom = '12px';
     sub.innerHTML = `<strong style="font-size:12px">${fieldName}</strong>`;
     for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
       const row = document.createElement('label');
@@ -151,22 +152,11 @@ function renderControlFieldsPanel(profile, panels) {
       row.appendChild(input);
       sub.appendChild(row);
     }
-    panel.appendChild(sub);
-  }
-  panels.appendChild(panel);
-}
-
-function renderSplinesPanel(profile, panels) {
-  if (!Array.isArray(profile.Splines)) return;
-  const panel = document.createElement('div');
-  panel.className = 'panel';
-  panel.innerHTML = '<h3>Height splines</h3>';
-  const labels = ['Continentalness', 'Erosion', 'PeaksValleys', 'Temperature', 'Humidity'];
-  for (let i = 0; i < 5; i++) {
+    const knotsLabel = document.createElement('div');
+    knotsLabel.style.cssText = 'font-size:11px;color:#888;margin-top:4px';
+    knotsLabel.textContent = 'Knots';
+    sub.appendChild(knotsLabel);
     const sp = profile.Splines[i] || {Knots: []};
-    const sub = document.createElement('div');
-    sub.style.marginBottom = '6px';
-    sub.innerHTML = `<strong style="font-size:12px">${labels[i]}</strong>`;
     const ta = document.createElement('textarea');
     ta.rows = 2;
     ta.style.fontSize = '11px';
