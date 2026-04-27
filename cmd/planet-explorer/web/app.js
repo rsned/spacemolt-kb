@@ -16,6 +16,15 @@ const equirectCanvas = $('#equirect-canvas');
 
 let wasmReady = false;
 
+// Snapshot of the profile as it was loaded (from the type-picker default
+// or an imported file). Used by per-panel Reset buttons to restore the
+// originally-loaded values without losing the user's other edits.
+let originalProfile = null;
+function snapshotOriginal(profile) {
+  try { originalProfile = JSON.parse(JSON.stringify(profile)); }
+  catch { originalProfile = null; }
+}
+
 async function init() {
   status.textContent = 'Loading wasm…';
   const go = new Go();
@@ -36,6 +45,7 @@ function loadDefaultProfile() {
     return;
   }
   profileTextarea.value = prettifyJSON(json);
+  try { snapshotOriginal(JSON.parse(profileTextarea.value)); } catch {}
   renderPanels();
 }
 
@@ -105,8 +115,9 @@ if (importFileInput) {
     if (!file) return;
     try {
       const text = await file.text();
-      JSON.parse(text); // validate before assigning
+      const parsed = JSON.parse(text); // validate before assigning
       profileTextarea.value = prettifyJSON(text);
+      snapshotOriginal(parsed);
       status.textContent = `Imported ${file.name}`;
       renderPanels();
       regenerate();
@@ -235,20 +246,24 @@ function makePanel(title, helpText) {
   return panel;
 }
 
-function makeSubPanel(title, helpText, onReset, onRandomize) {
+function makeSubPanel(title, helpText, opts = {}) {
   const sub = document.createElement('details');
   sub.className = 'subpanel';
   sub.open = true;
   const summary = document.createElement('summary');
   summary.title = helpText;
   summary.innerHTML = `<strong>${title}</strong>`;
-  if (onRandomize) {
+  if (opts.onRandomize) {
     summary.appendChild(makeAuxBtn('Randomize',
-      `Roll new random in-range values for ${title}`, onRandomize));
+      `Roll new random in-range values for ${title}`, opts.onRandomize));
   }
-  if (onReset) {
+  if (opts.onReset) {
     summary.appendChild(makeAuxBtn('Reset',
-      `Zero out all values for ${title}`, onReset));
+      `Restore ${title} to the loaded JSON values`, opts.onReset));
+  }
+  if (opts.onClear) {
+    summary.appendChild(makeAuxBtn('Clear',
+      `Zero out all values for ${title}`, opts.onClear));
   }
   sub.appendChild(summary);
   return sub;
@@ -319,6 +334,15 @@ function renderWarpPanel(profile, panels) {
   const panel = makePanel('Domain warp',
     'Quilez domain warp. Displaces sphere directions before sampling noise so features bend/curl instead of being axis-aligned. Amp=0 disables warp entirely.');
   const reset = () => {
+    if (originalProfile?.Warp) {
+      profile.Warp = JSON.parse(JSON.stringify(originalProfile.Warp));
+    } else {
+      profile.Warp = {Amp: 0, Freq: 0, Octaves: 0, Lacunarity: 0, Persistence: 0};
+    }
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
     profile.Warp = {Amp: 0, Freq: 0, Octaves: 0, Lacunarity: 0, Persistence: 0};
     commitProfile(profile);
     renderPanels();
@@ -330,7 +354,8 @@ function renderWarpPanel(profile, panels) {
   };
   const summary = panel.querySelector('summary');
   summary.appendChild(makeAuxBtn('Randomize', 'Roll new random in-range warp params', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Zero out all warp params', reset));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore Warp to the loaded JSON values', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Zero out all warp params', clear));
   for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
     panel.appendChild(makeParamRow(param,
       () => profile.Warp[param] || 0,
@@ -352,7 +377,16 @@ function renderControlFieldsPanel(profile, panels) {
     const cf = cc[fieldName];
     if (!cf) continue;
     const reset = () => {
+      const orig = originalProfile?.ControlConfig?.[fieldName];
+      if (orig) Object.assign(cf, orig);
+      const origKnots = originalProfile?.Splines?.[i]?.Knots;
+      profile.Splines[i] = {Knots: origKnots ? JSON.parse(JSON.stringify(origKnots)) : []};
+      commitProfile(profile);
+      renderPanels();
+    };
+    const clear = () => {
       cf.Amp = 0; cf.Freq = 0; cf.Octaves = 0; cf.Lacunarity = 0; cf.Persistence = 0;
+      profile.Splines[i] = {Knots: []};
       commitProfile(profile);
       renderPanels();
     };
@@ -361,7 +395,8 @@ function renderControlFieldsPanel(profile, panels) {
       commitProfile(profile);
       renderPanels();
     };
-    const sub = makeSubPanel(fieldName, FIELD_HELP[fieldName], reset, randomize);
+    const sub = makeSubPanel(fieldName, FIELD_HELP[fieldName],
+      {onReset: reset, onClear: clear, onRandomize: randomize});
     for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
       sub.appendChild(makeParamRow(param,
         () => cf[param],
