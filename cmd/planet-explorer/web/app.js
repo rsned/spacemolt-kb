@@ -145,7 +145,7 @@ function renderControlFieldsPanel(profile, panels) {
       input.type = 'number';
       input.step = (param === 'Octaves') ? '1' : '0.1';
       input.value = cf[param];
-      input.addEventListener('change', () => {
+      input.addEventListener('input', () => {
         cf[param] = (param === 'Octaves') ? parseInt(input.value, 10) : parseFloat(input.value);
         profileTextarea.value = prettifyJSON(JSON.stringify(profile));
       });
@@ -161,7 +161,7 @@ function renderControlFieldsPanel(profile, panels) {
     ta.rows = 2;
     ta.style.fontSize = '11px';
     ta.value = JSON.stringify(sp.Knots || []);
-    ta.addEventListener('change', () => {
+    ta.addEventListener('input', () => {
       try {
         const knots = JSON.parse(ta.value);
         profile.Splines[i] = {Knots: knots};
