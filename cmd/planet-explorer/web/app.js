@@ -117,6 +117,45 @@ function renderPanels() {
   renderControlFieldsPanel(profile, panels);
   renderWarpPanel(profile, panels);
   renderBiomePanel(profile, panels);
+  renderLUTPanel(profile, panels);
+}
+
+function renderLUTPanel(profile, panels) {
+  const panel = makePanel('Color LUT',
+    'Final color-grade pass. Each archetype ships with a 16³ LUT that applies a subtle hue/sat/value shift for "look unification". Bypass to compare against the un-graded output.');
+  const status = document.createElement('div');
+  status.className = 'lut-status';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'reset-btn';
+  let savedLUT = profile.LUT;
+  function refresh() {
+    if (profile.LUT) {
+      status.textContent = `Active: ${profile.LUT.Name || 'unnamed'} (${profile.LUT.Size}³)`;
+      btn.textContent = 'Bypass LUT';
+    } else if (savedLUT) {
+      status.textContent = 'Bypassed';
+      btn.textContent = 'Restore LUT';
+    } else {
+      status.textContent = 'No LUT';
+      btn.textContent = 'Restore LUT';
+      btn.disabled = true;
+    }
+  }
+  btn.addEventListener('click', () => {
+    if (profile.LUT) {
+      savedLUT = profile.LUT;
+      profile.LUT = null;
+    } else if (savedLUT) {
+      profile.LUT = savedLUT;
+    }
+    commitProfile(profile);
+    refresh();
+  });
+  refresh();
+  panel.appendChild(status);
+  panel.appendChild(btn);
+  panels.appendChild(panel);
 }
 
 function renderBiomePanel(profile, panels) {
