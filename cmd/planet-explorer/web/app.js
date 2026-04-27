@@ -120,6 +120,30 @@ function renderPanels() {
     panels.appendChild(panel);
   }
   renderControlFieldsPanel(profile, panels);
+  renderWarpPanel(profile, panels);
+}
+
+function renderWarpPanel(profile, panels) {
+  if (!profile.Warp) profile.Warp = {Amp: 0, Freq: 0, Octaves: 0, Lacunarity: 0, Persistence: 0};
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.innerHTML = '<h3>Domain warp</h3>';
+  for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
+    const row = document.createElement('label');
+    row.className = 'row';
+    row.innerHTML = `<span>${param}</span>`;
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.step = (param === 'Octaves') ? '1' : '0.05';
+    input.value = profile.Warp[param] || 0;
+    input.addEventListener('input', () => {
+      profile.Warp[param] = (param === 'Octaves') ? parseInt(input.value, 10) : parseFloat(input.value);
+      profileTextarea.value = prettifyJSON(JSON.stringify(profile));
+    });
+    row.appendChild(input);
+    panel.appendChild(row);
+  }
+  panels.appendChild(panel);
 }
 
 function renderControlFieldsPanel(profile, panels) {
