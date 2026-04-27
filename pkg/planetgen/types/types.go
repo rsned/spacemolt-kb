@@ -43,7 +43,7 @@ type PlanetProfile struct {
 	BiomeTable    BiomeTable // Whittaker biome lookup table (empty = use legacy palette path)
 
 	// Tier-S Phase 1 Task 26: per-archetype LUT for final color grading
-	LUT *planetcolor.LUT
+	LUT string
 }
 
 // ControlField is a single 3D fBm control field used to drive the

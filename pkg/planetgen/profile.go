@@ -1,7 +1,6 @@
 package planetgen
 
 import (
-	_ "embed"
 	"image/color"
 
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
@@ -12,70 +11,22 @@ import (
 // It's kept here for backward compatibility with callers that reference it as planetgen.PlanetProfile.
 type PlanetProfile = types.PlanetProfile
 
-//go:embed color/luts/scorched.cube
-var lutScorchedRaw string
 
-//go:embed color/luts/arid.cube
-var lutAridRaw string
 
-//go:embed color/luts/terran.cube
-var lutTerranRaw string
 
-//go:embed color/luts/tundra.cube
-var lutTundraRaw string
 
-//go:embed color/luts/glacial.cube
-var lutGlacialRaw string
 
-//go:embed color/luts/ice_world.cube
-var lutIceWorldRaw string
 
-//go:embed color/luts/super_terran.cube
-var lutSuperTerranRaw string
 
-//go:embed color/luts/hothouse.cube
-var lutHothouseRaw string
 
-//go:embed color/luts/lava_world.cube
-var lutLavaWorldRaw string
 
-//go:embed color/luts/oceanic.cube
-var lutOceanicRaw string
 
-//go:embed color/luts/jovian.cube
-var lutJovianRaw string
 
-//go:embed color/luts/ice_giant.cube
-var lutIceGiantRaw string
 
-//go:embed color/luts/unknown.cube
-var lutUnknownRaw string
 
 // mustParseLUT parses a .cube file and panics on error.
-func mustParseLUT(s string) *planetcolor.LUT {
-	lut, err := planetcolor.ParseCubeLUT(s)
-	if err != nil {
-		panic(err)
-	}
-	return &lut
-}
 
 // Parsed LUT instances
-var (
-	lutScorched    = mustParseLUT(lutScorchedRaw)
-	lutArid        = mustParseLUT(lutAridRaw)
-	lutTerran      = mustParseLUT(lutTerranRaw)
-	lutTundra      = mustParseLUT(lutTundraRaw)
-	lutGlacial     = mustParseLUT(lutGlacialRaw)
-	lutIceWorld    = mustParseLUT(lutIceWorldRaw)
-	lutSuperTerran = mustParseLUT(lutSuperTerranRaw)
-	lutHothouse    = mustParseLUT(lutHothouseRaw)
-	lutLavaWorld   = mustParseLUT(lutLavaWorldRaw)
-	lutOceanic     = mustParseLUT(lutOceanicRaw)
-	lutJovian      = mustParseLUT(lutJovianRaw)
-	lutIceGiant    = mustParseLUT(lutIceGiantRaw)
-	lutUnknown     = mustParseLUT(lutUnknownRaw)
-)
 
 func rgba(r, g, b uint8) color.RGBA {
 	return color.RGBA{R: r, G: g, B: b, A: 255}
@@ -102,7 +53,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterMinRadius:  0.005,
 		CraterMaxRadius:  0.08,
 		CraterDepth:      0.25,
-		LUT:              lutScorched,
+			LUT:              "scorched",
 	},
 	"arid": {
 		Type:     "arid",
@@ -126,7 +77,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		HasPolarCaps:     true,
 		PolarCapSize:     0.18,
 		PolarCapNoise:    0.15,
-		LUT:              lutArid,
+			LUT:              "arid",
 	},
 	"terran": {
 		Type:     "terran",
@@ -213,7 +164,7 @@ var Profiles = map[string]*types.PlanetProfile{
 				},
 			},
 		},
-		LUT: lutTerran,
+			LUT:              "terran",
 	},
 	"tundra": {
 		Type:     "tundra",
@@ -236,7 +187,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterDepth:      0.12,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.25,
-		LUT:              lutTundra,
+			LUT:              "tundra",
 	},
 	"glacial": {
 		Type:     "glacial",
@@ -259,7 +210,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterDepth:      0.1,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.35,
-		LUT:              lutGlacial,
+			LUT:              "glacial",
 	},
 	"ice_world": {
 		Type:     "ice_world",
@@ -282,7 +233,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterDepth:      0.15,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.3,
-		LUT:              lutIceWorld,
+			LUT:              "ice_world",
 	},
 	"super_terran": {
 		Type:     "super_terran",
@@ -330,7 +281,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.9, rgba(195, 195, 192)},
 			{1.0, rgba(220, 220, 218)},
 		},
-		LUT: lutSuperTerran,
+			LUT:              "super_terran",
 	},
 	"hothouse": {
 		Type:     "hothouse",
@@ -351,7 +302,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterMinRadius:  0.004,
 		CraterMaxRadius:  0.03,
 		CraterDepth:      0.1,
-		LUT:              lutHothouse,
+			LUT:              "hothouse",
 	},
 	"lava_world": {
 		Type:     "lava_world",
@@ -374,7 +325,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterDepth:      0.15,
 		OceanLevel:       0.52,
 		OceanColor:       rgba(220, 80, 5),
-		LUT:              lutLavaWorld,
+			LUT:              "lava_world",
 	},
 	"oceanic": {
 		Type:     "oceanic",
@@ -395,7 +346,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		PolarCapSize:     0.08,
 		OceanLevel:       0.62,
 		OceanColor:       rgba(15, 45, 120),
-		LUT:              lutOceanic,
+			LUT:              "oceanic",
 	},
 
 	// Gas giants
@@ -420,7 +371,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		TurbulenceAmp:    0.012,
 		StormCount:       3,
 		StormSize:        0.25,
-		LUT:              lutJovian,
+			LUT:              "jovian",
 	},
 	"ice_giant": {
 		Type:     "ice_giant",
@@ -442,7 +393,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		BandBlendWidth:   0.45,
 		StormCount:       0,
 		StormSize:        0.05,
-		LUT:              lutIceGiant,
+			LUT:              "ice_giant",
 	},
 
 	// Unknown/unclassified planets — neutral gray rocky appearance
@@ -465,7 +416,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterMinRadius:  0.004,
 		CraterMaxRadius:  0.04,
 		CraterDepth:      0.12,
-		LUT:              lutUnknown,
+			LUT:              "unknown",
 	},
 }
 

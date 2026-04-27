@@ -86,8 +86,10 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 				}
 
 				// Tier-S Phase 1 Task 26: Apply per-archetype LUT as final color grade
-				if profile.LUT != nil {
-					c = planetcolor.ApplyLUT(*profile.LUT, c)
+				if name := profile.LUT; name != "" {
+					if lut := planetcolor.LookupLUT(name); lut != nil {
+						c = planetcolor.ApplyLUT(*lut, c)
+					}
 				}
 
 				out.Set(face, px, py, c)

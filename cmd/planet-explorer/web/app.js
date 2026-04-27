@@ -151,7 +151,7 @@ function renderLUTPanel(profile, panels) {
   let savedLUT = profile.LUT;
   function refresh() {
     if (profile.LUT) {
-      status.textContent = `Active: ${profile.LUT.Name || 'unnamed'} (${profile.LUT.Size}³)`;
+      status.textContent = `Active: ${profile.LUT}`;
       btn.textContent = 'Bypass LUT';
     } else if (savedLUT) {
       status.textContent = 'Bypassed';
@@ -165,7 +165,7 @@ function renderLUTPanel(profile, panels) {
   btn.addEventListener('click', () => {
     if (profile.LUT) {
       savedLUT = profile.LUT;
-      profile.LUT = null;
+      profile.LUT = '';
     } else if (savedLUT) {
       profile.LUT = savedLUT;
     }
