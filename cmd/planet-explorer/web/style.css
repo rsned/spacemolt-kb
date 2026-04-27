@@ -21,6 +21,20 @@ aside button:hover { background: #4a4a54; }
 .viewport { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .viewport h2 { font-size: 13px; color: #aaa; font-weight: normal; text-transform: uppercase; letter-spacing: 0.05em; }
 .viewport canvas { background: #0c0c0e; border: 1px solid #333; max-width: 100%; height: auto; }
+.help-panel details { padding: 0; }
+.help-panel summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.help-panel summary::-webkit-details-marker { display: none; }
+.help-panel summary::before { content: '▾'; color: #666; font-size: 10px; transition: transform 0.15s; }
+.help-panel:not([open]) summary::before, .help-panel details:not([open]) summary::before { transform: rotate(-90deg); display: inline-block; }
+.help-panel h3 { font-size: 12px; color: #9da; text-transform: uppercase; margin: 0; }
+.help-panel .help-body { margin-top: 10px; font-size: 12px; line-height: 1.45; color: #ccc; }
+.help-panel .help-body h4 { font-size: 11px; color: #9da; text-transform: uppercase; margin: 10px 0 4px 0; letter-spacing: 0.04em; }
+.help-panel .help-body p, .help-panel .help-body ul, .help-panel .help-body ol { margin: 4px 0; }
+.help-panel .help-body ul, .help-panel .help-body ol { padding-left: 20px; }
+.help-panel .help-body li { margin: 2px 0; }
+.help-panel .help-body code { font-family: monospace; background: #1a1a1d; padding: 1px 4px; border-radius: 2px; font-size: 11px; }
+.help-panel .help-body pre { background: #1a1a1d; padding: 6px 8px; border-radius: 3px; font-size: 11px; overflow-x: auto; margin: 4px 0; }
+
 #param-panels:empty { display: none; }
 #param-panels details.panel { border-top: 1px solid #333; padding-top: 8px; margin-top: 8px; }
 #param-panels details.panel:first-child { border-top: none; padding-top: 0; margin-top: 0; }
