@@ -39,6 +39,7 @@ type PlanetProfile struct {
 	// Empty/zero values mean "use the legacy single-FBM path" (backward compat).
 	ControlConfig ControlConfig
 	Splines       [5]planetcolor.Spline // Continentalness, Erosion, PV, T, H — order matches ControlConfig fields
+	Warp          WarpConfig
 }
 
 // ControlField is a single 3D fBm control field used to drive the
@@ -58,4 +59,14 @@ type ControlConfig struct {
 	PeaksValleys    ControlField
 	Temperature     ControlField
 	Humidity        ControlField
+}
+
+// WarpConfig parameterizes a single Quilez domain-warp pass.
+// Apply to a unit-sphere direction before sampling the underlying field.
+type WarpConfig struct {
+	Amp         float64 // displacement magnitude (in unit-sphere units)
+	Freq        float64 // input frequency for the warp noise
+	Octaves     int     // warp-noise octaves
+	Lacunarity  float64
+	Persistence float64
 }
