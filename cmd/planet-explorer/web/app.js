@@ -116,6 +116,36 @@ function renderPanels() {
   }
   renderControlFieldsPanel(profile, panels);
   renderWarpPanel(profile, panels);
+  renderBiomePanel(profile, panels);
+}
+
+function renderBiomePanel(profile, panels) {
+  const t = profile.BiomeTable;
+  if (!t || !Array.isArray(t.Cells) || t.Cells.length === 0) return;
+  const panel = makePanel('Biome table (T × M)',
+    'Whittaker biome cells. Rows = Temperature (cold→hot), columns = Moisture (dry→wet). Each swatch is a 2-stop gradient (Low→High) used to color heightmap values, then bilinearly OkLab-blended across neighboring cells. Edit colors directly in the Profile JSON textarea below.');
+  const grid = document.createElement('div');
+  grid.style.cssText = `display:grid;grid-template-columns:repeat(${t.MBuckets}, 1fr);gap:2px;margin-top:6px;margin-left:16px`;
+  for (let i = 0; i < t.TBuckets; i++) {
+    for (let j = 0; j < t.MBuckets; j++) {
+      const cell = t.Cells[i][j];
+      const sw = document.createElement('div');
+      sw.style.cssText = 'height:36px;border-radius:2px';
+      sw.style.background = `linear-gradient(to right, ${rgbCSS(cell.Low)}, ${rgbCSS(cell.High)})`;
+      sw.title = `T=${i} M=${j}\nLow rgb(${cell.Low.R}, ${cell.Low.G}, ${cell.Low.B})\nHigh rgb(${cell.High.R}, ${cell.High.G}, ${cell.High.B})`;
+      grid.appendChild(sw);
+    }
+  }
+  panel.appendChild(grid);
+  const legend = document.createElement('div');
+  legend.style.cssText = 'font-size:10px;color:#777;margin:4px 0 0 16px';
+  legend.textContent = `↓ T=cold→hot (rows)   → M=dry→wet (cols)`;
+  panel.appendChild(legend);
+  panels.appendChild(panel);
+}
+
+function rgbCSS(c) {
+  return `rgb(${c.R}, ${c.G}, ${c.B})`;
 }
 
 const FIELD_HELP = {
