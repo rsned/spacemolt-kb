@@ -70,3 +70,26 @@ type WarpConfig struct {
 	Lacunarity  float64
 	Persistence float64
 }
+
+// BiomeTable is a 2D grid of biome cells indexed by (T, M) ∈ [0,1]².
+// The T axis is rows (0 = cold, last = hot); M axis is columns
+// (0 = dry, last = wet). Each cell has a 2-stop palette used to
+// color a heightmap value via SampleGradientOkLab.
+type BiomeTable struct {
+	TBuckets int
+	MBuckets int
+	Cells    [][]BiomeCell // [tBucket][mBucket]
+}
+
+// BiomeCell is a 2-stop palette used to color heightmap values
+// in a single (T, M) cell. Output is bilinearly OkLab-blended
+// across neighboring cells based on the sample's exact (T, M).
+type BiomeCell struct {
+	Low  ColorRGB // height=0 color
+	High ColorRGB // height=1 color
+}
+
+// ColorRGB is a JSON-serializable RGB color (alpha is implicit 255).
+type ColorRGB struct {
+	R, G, B uint8
+}
