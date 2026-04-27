@@ -88,9 +88,47 @@ The generator is layered across `pkg/planetgen` subpackages:
 | `pkg/planetgen/feature` | `Crater`, `GenerateCraters`, `ApplyCraters`; future civ/dunes/clouds |
 | `pkg/planetgen/render` | `RenderRocky`, `RenderGasGiant` (orchestration) |
 | `pkg/planetgen/types` | `PlanetProfile` struct (leaf package; breaks root↔render import cycle) |
-| `pkg/planetgen/field` | (empty in Phase 0; populated Phase 2+) |
-| `pkg/planetgen/biome` | (empty in Phase 0; populated Phase 1+) |
+| `pkg/planetgen/field` | `GenerateControlFields` (5-fbm with named-domain seeds) |
+| `pkg/planetgen/biome` | `GenerateClimateFields`, `LookupColor` (Whittaker T+M) |
+| `pkg/planetgen/seed` | `Hash`, `Domain` (orthogonal sub-seed mixing) |
 | `pkg/planetgen/stats` | per-planet physical-property metadata generator |
+
+## Phase 1 (current)
+
+The render pipeline gained five Tier-S algorithms:
+
+- **OkLab biome blending** (`pkg/planetgen/color/oklab.go`) — `BlendOkLab` /
+  `SampleGradientOkLab` replace the RGB-space lerp in both renderers.
+  Produces cleaner color transitions, especially across saturated palette
+  stops. The legacy `Blend` / `SampleGradient` remain for explicit RGB ops
+  (e.g., `Lerp`, `Brighten`).
+- **Multi-noise control fields with monotone cubic splines**
+  (`pkg/planetgen/field/control.go`, `pkg/planetgen/color/spline.go`).
+  Five 3D-fBm fields (Continentalness, Erosion, PeaksValleys, Temperature,
+  Humidity), each seeded by `seed.Domain(master, "control.<name>")` so
+  adding a new field never shifts existing field outputs. Each field
+  passes through a Fritsch-Carlson monotone-cubic spline; the heightmap
+  is the sum of the five spline outputs. `RenderRocky` falls back to the
+  legacy single-fBm path when `ControlConfig` and `Splines` are unset.
+- **Domain warping** (`pkg/planetgen/noise/warp.go`) — Quilez per-axis
+  fBm warp applied at every per-pixel sphere lookup in both renderers.
+  `Warp.Amp == 0` short-circuits to identity; non-zero produces curling,
+  non-axis-aligned features.
+- **Whittaker T+M biome lookup** (`pkg/planetgen/biome/`) — climate
+  fields driven by Temperature noise + cos(latitude) bias and Humidity
+  noise. A profile's `BiomeTable` (a 2D grid of 2-stop palettes indexed
+  by T and M) is bilinearly OkLab-blended per pixel. Profiles without a
+  `BiomeTable` continue to use the legacy `Palette` / `EquatorialPalette`
+  / `PolarPalette` path.
+- **Per-archetype color LUT** (`pkg/planetgen/color/lut.go`,
+  `pkg/planetgen/color/luts/*.cube`) — every planet type ships a 16³
+  Resolve-format LUT loaded via `//go:embed`. Applied as the final
+  per-pixel grade in both renderers; subtle 5–10 % hue/sat/value shifts
+  unify the look across an archetype. Bypass at runtime by setting
+  `profile.LUT = nil`.
+
+The interactive slider tool at `cmd/planet-explorer/` is the canonical
+workflow for tuning these parameters live in a browser.
 
 ## Testing and the golden-diff workflow
 
