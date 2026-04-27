@@ -104,16 +104,11 @@ function renderPanels() {
   try { profile = JSON.parse(profileTextarea.value); }
   catch { return; }
 
-  // Palette panel — read-only swatch.
-  const palette = profile.Palette;
-  if (Array.isArray(palette)) {
-    const panel = document.createElement('div');
-    panel.className = 'panel';
-    panel.innerHTML = '<h3>Palette</h3>';
+  if (Array.isArray(profile.Palette)) {
+    const panel = makePanel('Palette', 'Read-only swatch of the legacy gradient palette. Used as the base color when no BiomeTable is set.');
     const strip = document.createElement('div');
-    strip.style.height = '24px';
-    strip.style.borderRadius = '3px';
-    const stops = palette.map(s =>
+    strip.style.cssText = 'height:24px;border-radius:3px;margin-top:6px';
+    const stops = profile.Palette.map(s =>
       `${rgbaCSS(s.Color)} ${(s.Position*100).toFixed(0)}%`).join(', ');
     strip.style.background = `linear-gradient(to right, ${stops})`;
     panel.appendChild(strip);
@@ -123,25 +118,98 @@ function renderPanels() {
   renderWarpPanel(profile, panels);
 }
 
+const FIELD_HELP = {
+  Continentalness: 'Macro land/ocean shape. Spline output adds to height — typical curve is steep in the middle for sharp coastlines.',
+  Erosion: 'Smooths highlands. Spline output is usually negative — subtracted from height where erosion is high.',
+  PeaksValleys: 'High-frequency mountain detail. Spline output adds small-scale roughness on top of the macro shape.',
+  Temperature: 'Drives biome row selection in the Whittaker table. Combined with cos(latitude) so poles are colder than the equator.',
+  Humidity: 'Drives biome column selection. No latitude bias — purely from this noise field.',
+};
+
+const PARAM_HELP = {
+  Amp: 'Amplitude. Output multiplier on top of the [0,1] fBm result. Spline Input domain runs from 0 to Amp. Typical: 1.0.',
+  Freq: 'Base frequency. 1.0 ≈ one noise period across the planet. Higher = smaller, more fragmented features. Useful range: 0.5–8.',
+  Octaves: 'Number of stacked noise layers. Each octave adds finer detail at exponentially smaller scale. Typical: 3–5.',
+  Lacunarity: 'Frequency multiplier per octave. Standard fBm = 2.0. Higher spreads the octaves wider in scale.',
+  Persistence: 'Amplitude decay per octave. Standard fBm = 0.5. Higher = noisier output (more high-frequency detail).',
+};
+
+function makePanel(title, helpText) {
+  const panel = document.createElement('details');
+  panel.className = 'panel';
+  panel.open = true;
+  const summary = document.createElement('summary');
+  summary.title = helpText;
+  summary.innerHTML = `<h3>${title}</h3>`;
+  panel.appendChild(summary);
+  return panel;
+}
+
+function makeSubPanel(title, helpText, onReset) {
+  const sub = document.createElement('details');
+  sub.className = 'subpanel';
+  sub.open = true;
+  const summary = document.createElement('summary');
+  summary.title = helpText;
+  summary.innerHTML = `<strong>${title}</strong>`;
+  if (onReset) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'reset-btn';
+    btn.textContent = 'Reset';
+    btn.title = `Zero out all values for ${title}`;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onReset();
+    });
+    summary.appendChild(btn);
+  }
+  sub.appendChild(summary);
+  return sub;
+}
+
+function makeParamRow(param, getValue, setValue, helpText) {
+  const row = document.createElement('label');
+  row.className = 'row';
+  row.title = helpText;
+  row.innerHTML = `<span>${param}</span>`;
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.step = (param === 'Octaves') ? '1' : '0.1';
+  input.value = getValue();
+  input.addEventListener('input', () => {
+    setValue((param === 'Octaves') ? parseInt(input.value, 10) : parseFloat(input.value));
+  });
+  row.appendChild(input);
+  return row;
+}
+
+function commitProfile(profile) {
+  profileTextarea.value = prettifyJSON(JSON.stringify(profile));
+}
+
 function renderWarpPanel(profile, panels) {
   if (!profile.Warp) profile.Warp = {Amp: 0, Freq: 0, Octaves: 0, Lacunarity: 0, Persistence: 0};
-  const panel = document.createElement('div');
-  panel.className = 'panel';
-  panel.innerHTML = '<h3>Domain warp</h3>';
+  const panel = makePanel('Domain warp',
+    'Quilez domain warp. Displaces sphere directions before sampling noise so features bend/curl instead of being axis-aligned. Amp=0 disables warp entirely.');
+  const reset = () => {
+    profile.Warp = {Amp: 0, Freq: 0, Octaves: 0, Lacunarity: 0, Persistence: 0};
+    commitProfile(profile);
+    renderPanels();
+  };
+  const resetBtn = document.createElement('button');
+  resetBtn.type = 'button';
+  resetBtn.className = 'reset-btn';
+  resetBtn.textContent = 'Reset';
+  resetBtn.title = 'Zero out all warp params';
+  resetBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); reset(); });
+  panel.querySelector('summary').appendChild(resetBtn);
   for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
-    const row = document.createElement('label');
-    row.className = 'row';
-    row.innerHTML = `<span>${param}</span>`;
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.step = (param === 'Octaves') ? '1' : '0.05';
-    input.value = profile.Warp[param] || 0;
-    input.addEventListener('input', () => {
-      profile.Warp[param] = (param === 'Octaves') ? parseInt(input.value, 10) : parseFloat(input.value);
-      profileTextarea.value = prettifyJSON(JSON.stringify(profile));
-    });
-    row.appendChild(input);
-    panel.appendChild(row);
+    panel.appendChild(makeParamRow(param,
+      () => profile.Warp[param] || 0,
+      (v) => { profile.Warp[param] = v; commitProfile(profile); },
+      `Warp ${param}: ${PARAM_HELP[param]}`));
   }
   panels.appendChild(panel);
 }
@@ -150,46 +218,40 @@ function renderControlFieldsPanel(profile, panels) {
   const cc = profile.ControlConfig;
   if (!cc) return;
   if (!Array.isArray(profile.Splines)) profile.Splines = [{}, {}, {}, {}, {}];
-  const panel = document.createElement('div');
-  panel.className = 'panel';
-  panel.innerHTML = '<h3>Control fields</h3>';
+  const panel = makePanel('Control fields',
+    'Five 3D fBm noise fields. Continentalness/Erosion/PeaksValleys are summed via splines to build the heightmap. Temperature/Humidity feed the Whittaker biome lookup. Each field has independent fBm settings + an optional spline.');
   const fields = ['Continentalness', 'Erosion', 'PeaksValleys', 'Temperature', 'Humidity'];
   for (let i = 0; i < fields.length; i++) {
     const fieldName = fields[i];
     const cf = cc[fieldName];
     if (!cf) continue;
-    const sub = document.createElement('div');
-    sub.style.marginBottom = '12px';
-    sub.innerHTML = `<strong style="font-size:12px">${fieldName}</strong>`;
+    const reset = () => {
+      cf.Amp = 0; cf.Freq = 0; cf.Octaves = 0; cf.Lacunarity = 0; cf.Persistence = 0;
+      commitProfile(profile);
+      renderPanels();
+    };
+    const sub = makeSubPanel(fieldName, FIELD_HELP[fieldName], reset);
     for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
-      const row = document.createElement('label');
-      row.className = 'row';
-      row.innerHTML = `<span>${param}</span>`;
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.step = (param === 'Octaves') ? '1' : '0.1';
-      input.value = cf[param];
-      input.addEventListener('input', () => {
-        cf[param] = (param === 'Octaves') ? parseInt(input.value, 10) : parseFloat(input.value);
-        profileTextarea.value = prettifyJSON(JSON.stringify(profile));
-      });
-      row.appendChild(input);
-      sub.appendChild(row);
+      sub.appendChild(makeParamRow(param,
+        () => cf[param],
+        (v) => { cf[param] = v; commitProfile(profile); },
+        `${fieldName} ${param}: ${PARAM_HELP[param]}`));
     }
     const knotsLabel = document.createElement('div');
-    knotsLabel.style.cssText = 'font-size:11px;color:#888;margin-top:4px';
+    knotsLabel.className = 'knots-label';
     knotsLabel.textContent = 'Knots';
+    knotsLabel.title = 'Fritsch-Carlson monotone-cubic spline knots. Maps fBm output [0, Amp] to a height contribution. JSON array like [{"Input":0,"Output":0},{"Input":1,"Output":0.5}]. Sorted by Input ascending. Knots outside [first, last] are clamped.';
     sub.appendChild(knotsLabel);
     const sp = profile.Splines[i] || {Knots: []};
     const ta = document.createElement('textarea');
     ta.rows = 2;
-    ta.style.fontSize = '11px';
     ta.value = JSON.stringify(sp.Knots || []);
+    ta.title = knotsLabel.title;
     ta.addEventListener('input', () => {
       try {
         const knots = JSON.parse(ta.value);
         profile.Splines[i] = {Knots: knots};
-        profileTextarea.value = prettifyJSON(JSON.stringify(profile));
+        commitProfile(profile);
       } catch (e) {
         status.textContent = 'Bad knots JSON';
       }
