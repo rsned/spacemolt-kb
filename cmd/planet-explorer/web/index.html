@@ -101,7 +101,13 @@
     <section class="footer">
       <details><summary>Profile JSON</summary>
         <textarea id="profile-json" rows="12" spellcheck="false"></textarea>
-        <button id="apply-json-btn">Apply</button>
+        <div class="json-buttons">
+          <button id="apply-json-btn" title="Re-parse the JSON above and render">Apply &amp; render</button>
+          <label class="import-file-label" title="Load a profile JSON file from disk">
+            Import file
+            <input id="import-json-file" type="file" accept=".json,application/json">
+          </label>
+        </div>
       </details>
     </section>
   </aside>

@@ -97,6 +97,26 @@ applyBtn.addEventListener('click', () => {
   regenerate();
 });
 
+const importFileInput = $('#import-json-file');
+if (importFileInput) {
+  importFileInput.addEventListener('change', async () => {
+    const file = importFileInput.files && importFileInput.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      JSON.parse(text); // validate before assigning
+      profileTextarea.value = prettifyJSON(text);
+      status.textContent = `Imported ${file.name}`;
+      renderPanels();
+      regenerate();
+    } catch (e) {
+      status.textContent = `Import failed: ${e.message || e}`;
+    } finally {
+      importFileInput.value = ''; // allow re-picking same file
+    }
+  });
+}
+
 function renderPanels() {
   const panels = $('#param-panels');
   panels.innerHTML = '';
