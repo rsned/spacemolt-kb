@@ -41,6 +41,9 @@ type PlanetProfile struct {
 	Splines       [5]planetcolor.Spline // Continentalness, Erosion, PV, T, H — order matches ControlConfig fields
 	Warp          WarpConfig
 	BiomeTable    BiomeTable // Whittaker biome lookup table (empty = use legacy palette path)
+
+	// Tier-S Phase 1 Task 26: per-archetype LUT for final color grading
+	LUT *planetcolor.LUT
 }
 
 // ControlField is a single 3D fBm control field used to drive the
