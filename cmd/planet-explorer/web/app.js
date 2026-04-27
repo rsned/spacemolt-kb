@@ -235,10 +235,24 @@ const PARAM_HELP = {
   Persistence: 'Amplitude decay per octave. Standard fBm = 0.5. Higher = noisier output (more high-frequency detail).',
 };
 
+// Tracks which panels the user has manually collapsed. Survives panel
+// rebuilds caused by renderPanels(), so collapsing a panel and then
+// clicking any input/button on a sibling panel keeps it collapsed.
+const collapsedPanels = new Set();
+
+function bindCollapseState(details, key) {
+  details.dataset.panelKey = key;
+  details.open = !collapsedPanels.has(key);
+  details.addEventListener('toggle', () => {
+    if (details.open) collapsedPanels.delete(key);
+    else collapsedPanels.add(key);
+  });
+}
+
 function makePanel(title, helpText) {
   const panel = document.createElement('details');
   panel.className = 'panel';
-  panel.open = true;
+  bindCollapseState(panel, `panel:${title}`);
   const summary = document.createElement('summary');
   summary.title = helpText;
   summary.innerHTML = `<h3>${title}</h3>`;
@@ -249,7 +263,7 @@ function makePanel(title, helpText) {
 function makeSubPanel(title, helpText, opts = {}) {
   const sub = document.createElement('details');
   sub.className = 'subpanel';
-  sub.open = true;
+  bindCollapseState(sub, `sub:${title}`);
   const summary = document.createElement('summary');
   summary.title = helpText;
   summary.innerHTML = `<strong>${title}</strong>`;
