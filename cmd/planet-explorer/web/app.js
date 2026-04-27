@@ -119,6 +119,71 @@ function renderPanels() {
     panel.appendChild(strip);
     panels.appendChild(panel);
   }
+  renderControlFieldsPanel(profile, panels);
+  renderSplinesPanel(profile, panels);
+}
+
+function renderControlFieldsPanel(profile, panels) {
+  const cc = profile.ControlConfig;
+  if (!cc) return;
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.innerHTML = '<h3>Control fields</h3>';
+  const fields = ['Continentalness', 'Erosion', 'PeaksValleys', 'Temperature', 'Humidity'];
+  for (const fieldName of fields) {
+    const cf = cc[fieldName];
+    if (!cf) continue;
+    const sub = document.createElement('div');
+    sub.style.marginBottom = '6px';
+    sub.innerHTML = `<strong style="font-size:12px">${fieldName}</strong>`;
+    for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
+      const row = document.createElement('label');
+      row.className = 'row';
+      row.innerHTML = `<span>${param}</span>`;
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.step = (param === 'Octaves') ? '1' : '0.1';
+      input.value = cf[param];
+      input.addEventListener('change', () => {
+        cf[param] = (param === 'Octaves') ? parseInt(input.value, 10) : parseFloat(input.value);
+        profileTextarea.value = prettifyJSON(JSON.stringify(profile));
+      });
+      row.appendChild(input);
+      sub.appendChild(row);
+    }
+    panel.appendChild(sub);
+  }
+  panels.appendChild(panel);
+}
+
+function renderSplinesPanel(profile, panels) {
+  if (!Array.isArray(profile.Splines)) return;
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.innerHTML = '<h3>Height splines</h3>';
+  const labels = ['Continentalness', 'Erosion', 'PeaksValleys', 'Temperature', 'Humidity'];
+  for (let i = 0; i < 5; i++) {
+    const sp = profile.Splines[i] || {Knots: []};
+    const sub = document.createElement('div');
+    sub.style.marginBottom = '6px';
+    sub.innerHTML = `<strong style="font-size:12px">${labels[i]}</strong>`;
+    const ta = document.createElement('textarea');
+    ta.rows = 2;
+    ta.style.fontSize = '11px';
+    ta.value = JSON.stringify(sp.Knots || []);
+    ta.addEventListener('change', () => {
+      try {
+        const knots = JSON.parse(ta.value);
+        profile.Splines[i] = {Knots: knots};
+        profileTextarea.value = prettifyJSON(JSON.stringify(profile));
+      } catch (e) {
+        status.textContent = 'Bad knots JSON';
+      }
+    });
+    sub.appendChild(ta);
+    panel.appendChild(sub);
+  }
+  panels.appendChild(panel);
 }
 
 function rgbaCSS(c) {
