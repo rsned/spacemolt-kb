@@ -66,6 +66,7 @@ async function regenerate() {
   }
   status.textContent = `Rendered in ${(performance.now() - t0).toFixed(0)} ms`;
   renderPanels();
+  refreshSphereTexture();
 }
 
 async function paintToCanvas(canvas, pngBytes) {
@@ -353,6 +354,107 @@ function renderControlFieldsPanel(profile, panels) {
 
 function rgbaCSS(c) {
   return `rgba(${c.R}, ${c.G}, ${c.B}, ${(c.A/255).toFixed(2)})`;
+}
+
+// --- Rotating-sphere preview (adapted from kb planet-detail pages) ---
+// Pure 2D canvas, no external libs. Texture is the equirect bake;
+// since equirect is generated from the cube map, the sphere visually
+// represents the cube-map content.
+
+const sphereCanvas = $('#sphere-canvas');
+let sphereTextureData = null, sphereTexW = 0, sphereTexH = 0;
+let sphereRotY = 0.4, sphereRotX = 0.15;
+let sphereDragging = false, sphereLastMX = 0, sphereLastMY = 0;
+let sphereAutoRotate = true;
+let sphereResumeTimer = null;
+
+function refreshSphereTexture() {
+  if (!equirectCanvas.width || !equirectCanvas.height) return;
+  const ectx = equirectCanvas.getContext('2d', { willReadFrequently: true });
+  try {
+    sphereTextureData = ectx.getImageData(0, 0, equirectCanvas.width, equirectCanvas.height).data;
+    sphereTexW = equirectCanvas.width;
+    sphereTexH = equirectCanvas.height;
+  } catch (e) {
+    sphereTextureData = null;
+  }
+}
+
+function sampleSphereTex(u, v) {
+  if (!sphereTextureData) return [80, 80, 80];
+  let px = Math.floor(u * sphereTexW) % sphereTexW;
+  let py = Math.floor(v * sphereTexH);
+  if (px < 0) px += sphereTexW;
+  py = Math.max(0, Math.min(sphereTexH - 1, py));
+  const i = (py * sphereTexW + px) * 4;
+  return [sphereTextureData[i], sphereTextureData[i + 1], sphereTextureData[i + 2]];
+}
+
+function renderSphere() {
+  if (!sphereCanvas) return;
+  const ctx = sphereCanvas.getContext('2d');
+  const W = sphereCanvas.width, H = sphereCanvas.height;
+  const CX = W / 2, CY = H / 2, RADIUS = Math.min(W, H) / 2 - 20;
+  const id = ctx.createImageData(W, H);
+  const d = id.data;
+  const cRX = Math.cos(sphereRotX), sRX = Math.sin(sphereRotX);
+  const cRY = Math.cos(sphereRotY), sRY = Math.sin(sphereRotY);
+  const lx = -0.4, ly = 0.5, lz = 0.7;
+  const ll = Math.sqrt(lx * lx + ly * ly + lz * lz);
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const dx = px - CX, dy = py - CY, dSq = dx * dx + dy * dy;
+      const idx = (py * W + px) * 4;
+      let pR = 17, pG = 17, pB = 17;
+      if (dSq <= RADIUS * RADIUS) {
+        const nx = dx / RADIUS, ny = -dy / RADIUS;
+        const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+        const y1 = ny * cRX - nz * sRX, z1 = ny * sRX + nz * cRX;
+        const x2 = nx * cRY + z1 * sRY, z2 = -nx * sRY + z1 * cRY;
+        const lat = Math.asin(Math.max(-1, Math.min(1, y1)));
+        const lon = Math.atan2(x2, z2);
+        const [tr, tg, tb] = sampleSphereTex((lon / (2 * Math.PI)) + 0.5, 0.5 - lat / Math.PI);
+        const dot = (nx * lx + (-ny) * ly + nz * lz) / ll;
+        const lit = Math.max(0.08, dot * 0.7 + 0.3);
+        const rim = 1 - nz, rg = rim * rim * rim * 0.3;
+        pR = Math.min(255, Math.floor(tr * lit + rg * 80));
+        pG = Math.min(255, Math.floor(tg * lit + rg * 120));
+        pB = Math.min(255, Math.floor(tb * lit + rg * 180));
+      }
+      d[idx] = pR; d[idx + 1] = pG; d[idx + 2] = pB; d[idx + 3] = 255;
+    }
+  }
+  ctx.putImageData(id, 0, 0);
+}
+
+function animateSphere() {
+  if (sphereAutoRotate && !sphereDragging) sphereRotY += 0.003;
+  renderSphere();
+  requestAnimationFrame(animateSphere);
+}
+
+if (sphereCanvas) {
+  sphereCanvas.addEventListener('mousedown', e => {
+    sphereDragging = true; sphereAutoRotate = false;
+    sphereLastMX = e.clientX; sphereLastMY = e.clientY;
+    if (sphereResumeTimer) clearTimeout(sphereResumeTimer);
+  });
+  window.addEventListener('mousemove', e => {
+    if (!sphereDragging) return;
+    sphereRotY += (e.clientX - sphereLastMX) * 0.01;
+    sphereRotX += (e.clientY - sphereLastMY) * 0.01;
+    sphereRotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, sphereRotX));
+    sphereLastMX = e.clientX; sphereLastMY = e.clientY;
+  });
+  window.addEventListener('mouseup', () => {
+    if (sphereDragging) {
+      sphereDragging = false;
+      sphereResumeTimer = setTimeout(() => {
+        if (!sphereDragging) sphereAutoRotate = true;
+      }, 3000);
+    }
+  });
+  animateSphere();
 }
 
 init();

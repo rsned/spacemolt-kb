@@ -21,6 +21,10 @@ aside button:hover { background: #4a4a54; }
 .viewport { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .viewport h2 { font-size: 13px; color: #aaa; font-weight: normal; text-transform: uppercase; letter-spacing: 0.05em; }
 .viewport canvas { background: #0c0c0e; border: 1px solid #333; max-width: 100%; height: auto; }
+.planet-sphere { display: flex; justify-content: center; margin: 8px 0 0 0; }
+.planet-sphere canvas { cursor: grab; border-radius: 8px; }
+.planet-sphere canvas:active { cursor: grabbing; }
+.sphere-hint { text-align: center; color: #777; font-size: 11px; margin-top: 4px; }
 .help-panel details { padding: 0; }
 .help-panel summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 .help-panel summary::-webkit-details-marker { display: none; }
