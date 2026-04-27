@@ -235,28 +235,63 @@ function makePanel(title, helpText) {
   return panel;
 }
 
-function makeSubPanel(title, helpText, onReset) {
+function makeSubPanel(title, helpText, onReset, onRandomize) {
   const sub = document.createElement('details');
   sub.className = 'subpanel';
   sub.open = true;
   const summary = document.createElement('summary');
   summary.title = helpText;
   summary.innerHTML = `<strong>${title}</strong>`;
+  if (onRandomize) {
+    summary.appendChild(makeAuxBtn('Randomize',
+      `Roll new random in-range values for ${title}`, onRandomize));
+  }
   if (onReset) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'reset-btn';
-    btn.textContent = 'Reset';
-    btn.title = `Zero out all values for ${title}`;
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onReset();
-    });
-    summary.appendChild(btn);
+    summary.appendChild(makeAuxBtn('Reset',
+      `Zero out all values for ${title}`, onReset));
   }
   sub.appendChild(summary);
   return sub;
+}
+
+function makeAuxBtn(label, tooltip, handler) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'reset-btn';
+  btn.textContent = label;
+  btn.title = tooltip;
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handler();
+  });
+  return btn;
+}
+
+function round2(v) { return Math.round(v * 100) / 100; }
+
+// Reasonable in-range fBm draws for control fields.
+// Ranges come from the Help panel: Amp 0.5–2, Freq 0.5–6, Octaves 2–6,
+// Lacunarity 1.5–3, Persistence 0.2–0.8.
+function randomFBMParams() {
+  return {
+    Amp: round2(0.5 + Math.random() * 1.5),
+    Freq: round2(0.5 + Math.random() * 5.5),
+    Octaves: 2 + Math.floor(Math.random() * 5),
+    Lacunarity: round2(1.5 + Math.random() * 1.5),
+    Persistence: round2(0.2 + Math.random() * 0.6),
+  };
+}
+
+// Tighter ranges for warp — high warp Amp gets chaotic fast.
+function randomWarpParams() {
+  return {
+    Amp: round2(Math.random() * 0.4),
+    Freq: round2(0.5 + Math.random() * 3.5),
+    Octaves: 1 + Math.floor(Math.random() * 4),
+    Lacunarity: round2(1.5 + Math.random() * 1.5),
+    Persistence: round2(0.2 + Math.random() * 0.6),
+  };
 }
 
 function makeParamRow(param, getValue, setValue, helpText) {
@@ -288,13 +323,14 @@ function renderWarpPanel(profile, panels) {
     commitProfile(profile);
     renderPanels();
   };
-  const resetBtn = document.createElement('button');
-  resetBtn.type = 'button';
-  resetBtn.className = 'reset-btn';
-  resetBtn.textContent = 'Reset';
-  resetBtn.title = 'Zero out all warp params';
-  resetBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); reset(); });
-  panel.querySelector('summary').appendChild(resetBtn);
+  const randomize = () => {
+    profile.Warp = randomWarpParams();
+    commitProfile(profile);
+    renderPanels();
+  };
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll new random in-range warp params', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Zero out all warp params', reset));
   for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
     panel.appendChild(makeParamRow(param,
       () => profile.Warp[param] || 0,
@@ -320,7 +356,12 @@ function renderControlFieldsPanel(profile, panels) {
       commitProfile(profile);
       renderPanels();
     };
-    const sub = makeSubPanel(fieldName, FIELD_HELP[fieldName], reset);
+    const randomize = () => {
+      Object.assign(cf, randomFBMParams());
+      commitProfile(profile);
+      renderPanels();
+    };
+    const sub = makeSubPanel(fieldName, FIELD_HELP[fieldName], reset, randomize);
     for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
       sub.appendChild(makeParamRow(param,
         () => cf[param],
