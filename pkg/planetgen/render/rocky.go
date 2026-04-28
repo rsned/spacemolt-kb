@@ -11,6 +11,7 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
+	pgseed "github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
@@ -35,12 +36,33 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	useControl := !isZeroControlConfig(cfFields) && hasAnySpline(cfFields)
 	if useControl {
 		fields := field.GenerateControlFields(seed, profile.ControlConfig, S)
+		var ridgedGen *noise.Generator
+		if profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
+			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))
+		}
 		for face := range cubemap.Face(cubemap.NumFaces) {
 			for py := range S {
 				for px := range S {
 					var h float64
 					for i := 0; i < 5; i++ {
 						h += planetcolor.EvalSpline(cfFields[i].Spline, fields[i].Get(face, px, py))
+					}
+					if ridgedGen != nil {
+						cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
+						mask := smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, cont)
+						if mask > 0 {
+							dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+							dx, dy, dz = warper.Warp(dx, dy, dz)
+							r := ridgedGen.RidgedFractal3D(
+								dx*profile.Ridged.Freq,
+								dy*profile.Ridged.Freq,
+								dz*profile.Ridged.Freq,
+								profile.Ridged.Octaves,
+								profile.Ridged.Lacunarity,
+								profile.Ridged.Gain,
+								profile.Ridged.Offset)
+							h += profile.Ridged.Amp * mask * r
+						}
 					}
 					heightmap.Set(face, px, py, h)
 				}
@@ -104,9 +126,13 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range S {
 			for px := range S {
-				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
-				dx, dy, dz = warper.Warp(dx, dy, dz)
-				lat := math.Asin(dy)
+				rawX, rawY, rawZ := cubemap.FacePixelToDir(face, px, py, S)
+				dx, dy, dz := warper.Warp(rawX, rawY, rawZ)
+				// Latitude-driven overlays (polar caps + equatorial/polar
+				// palette blending) read from the *unwarped* direction so
+				// they stay as clean lat bands. Noise sampling below uses
+				// the warped (dx, dy, dz) so features still bend.
+				lat := math.Asin(rawY)
 				absLat := math.Abs(lat) / (math.Pi / 2)
 
 				h := heightmap.Get(face, px, py)
@@ -222,6 +248,23 @@ func isZeroControlConfig(fields [5]types.ControlField) bool {
 		}
 	}
 	return true
+}
+
+// smoothstep returns 0 when x ≤ lo, 1 when x ≥ hi, and a smooth Hermite
+// interpolation 3t²-2t³ between. Used for masking ridged contributions
+// by Continentalness output so ridges fade in across the coastline band.
+func smoothstep(lo, hi, x float64) float64 {
+	if hi <= lo {
+		return 0
+	}
+	t := (x - lo) / (hi - lo)
+	if t < 0 {
+		t = 0
+	}
+	if t > 1 {
+		t = 1
+	}
+	return t * t * (3 - 2*t)
 }
 
 func hasAnySpline(fields [5]types.ControlField) bool {

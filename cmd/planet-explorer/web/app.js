@@ -179,6 +179,7 @@ function renderPanels() {
     'Optional palette blended in near the poles (before ice caps). Read-only — edit via JSON if needed.');
   renderControlFieldsPanel(profile, panels);
   renderWarpPanel(profile, panels);
+  renderRidgedPanel(profile, panels);
   renderOceanPanel(profile, panels);
   renderCryospherePanel(profile, panels);
   renderCratersPanel(profile, panels);
@@ -528,6 +529,64 @@ function renderCryospherePanel(profile, panels) {
     'Elevation [0,1] above which pixels get a snow tint. 0 = disabled.',
     profile.SnowLine || 0, 0, 1, '0.01',
     v => { profile.SnowLine = v; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
+function renderRidgedPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  if (!profile.Ridged) {
+    profile.Ridged = {Amp:0, Freq:0, Octaves:0, Lacunarity:0, Gain:0, Offset:0, MaskLow:0, MaskHigh:0};
+  }
+  const panel = makePanel('Ridged mountains',
+    'Ridged-multifractal mountain belts. Masked by Continentalness output so ridges only form on land. Amp=0 disables.');
+
+  const reset = () => {
+    if (originalProfile && originalProfile.Ridged) {
+      profile.Ridged = JSON.parse(JSON.stringify(originalProfile.Ridged));
+    } else {
+      profile.Ridged = {Amp:0, Freq:0, Octaves:0, Lacunarity:0, Gain:0, Offset:0, MaskLow:0, MaskHigh:0};
+    }
+    commitProfile(profile); renderPanels();
+  };
+  const clear = () => {
+    profile.Ridged = {Amp:0, Freq:0, Octaves:0, Lacunarity:0, Gain:0, Offset:0, MaskLow:0, MaskHigh:0};
+    commitProfile(profile); renderPanels();
+  };
+  const randomize = () => {
+    profile.Ridged = {
+      Amp:        round2(0.05 + Math.random() * 0.25),
+      Freq:       round2(0.5 + Math.random() * 4),
+      Octaves:    3 + Math.floor(Math.random() * 4),
+      Lacunarity: round2(1.8 + Math.random() * 0.6),
+      Gain:       round2(0.4 + Math.random() * 0.4),
+      Offset:     round2(0.8 + Math.random() * 0.4),
+      MaskLow:    round2(0.3 + Math.random() * 0.2),
+      MaskHigh:   round2(0.6 + Math.random() * 0.2),
+    };
+    commitProfile(profile); renderPanels();
+  };
+
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll random in-range ridged params', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore Ridged to loaded JSON values', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Zero out all ridged params', clear));
+
+  const help = {
+    Amp:        'Overall mountain contribution to the heightmap. 0 = disabled. Useful 0.05–0.3.',
+    Freq:       'Base spatial frequency of the ridges. Higher = more rugged. Useful 0.5–5.',
+    Octaves:    'Stacked ridged-fbm layers. More = more detail. Typical 4–6.',
+    Lacunarity: 'Frequency multiplier per octave. Standard = 2.0.',
+    Gain:       'Per-octave weight gain. Standard = 0.5. Higher = sharper ridges.',
+    Offset:     'Ridge sharpness. 1.0 default; values > 1 produce sharper peaks.',
+    MaskLow:    'Continentalness-spline output ≤ this = no ridges (deep ocean).',
+    MaskHigh:   'Continentalness-spline output ≥ this = full ridges (interior).',
+  };
+  for (const param of ['Amp','Freq','Octaves','Lacunarity','Gain','Offset','MaskLow','MaskHigh']) {
+    const isInt = (param === 'Octaves');
+    panel.appendChild(makeNumberRow(param, help[param],
+      profile.Ridged[param] || 0, 0, isInt ? 8 : 5, isInt ? '1' : '0.01',
+      v => { profile.Ridged[param] = v; commitProfile(profile); }));
+  }
   panels.appendChild(panel);
 }
 

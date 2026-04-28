@@ -41,8 +41,26 @@ type PlanetProfile struct {
 	Warp          WarpConfig
 	BiomeTable    BiomeTable // Whittaker biome lookup table (empty = use legacy palette path)
 
+	// Tier-A Phase 3: ridged-multifractal mountain belts. Amp=0 disables.
+	Ridged RidgedConfig
+
 	// Tier-S Phase 1 Task 26: per-archetype LUT for final color grading
 	LUT string
+}
+
+// RidgedConfig parameterizes a ridged-multifractal mountain pass.
+// Applied after the control-field heightmap, masked by the
+// Continentalness spline output so ridges only form on land.
+// Amp=0 disables the pass entirely.
+type RidgedConfig struct {
+	Amp        float64 // overall mountain contribution (0 = disabled)
+	Freq       float64 // base spatial frequency
+	Octaves    int     // ridged-fbm octaves (typical 4-6)
+	Lacunarity float64 // freq multiplier per octave (default 2.0)
+	Gain       float64 // per-octave weight gain (default 0.5)
+	Offset     float64 // ridge sharpness (default 1.0; >1 sharper)
+	MaskLow    float64 // Continentalness output ≤ this = no ridges
+	MaskHigh   float64 // Continentalness output ≥ this = full ridges
 }
 
 // ControlField is a single 3D fBm control field used to drive the
