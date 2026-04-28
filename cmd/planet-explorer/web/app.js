@@ -180,6 +180,7 @@ function renderPanels() {
   renderControlFieldsPanel(profile, panels);
   renderWarpPanel(profile, panels);
   renderRidgedPanel(profile, panels);
+  renderProvincePanel(profile, panels);
   renderOceanPanel(profile, panels);
   renderCryospherePanel(profile, panels);
   renderCratersPanel(profile, panels);
@@ -529,6 +530,53 @@ function renderCryospherePanel(profile, panels) {
     'Elevation [0,1] above which pixels get a snow tint. 0 = disabled.',
     profile.SnowLine || 0, 0, 1, '0.01',
     v => { profile.SnowLine = v; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
+function renderProvincePanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  if (!profile.Provinces) profile.Provinces = {Count: 0, Jitter: 0, WarpAmp: 0};
+  const panel = makePanel('Provinces',
+    'Voronoi cells over the sphere, each with a per-cell amp/freq scalar applied to the control fields. Gives each archetype regional roughness variety. Count=0 disables.');
+
+  const reset = () => {
+    if (originalProfile && originalProfile.Provinces) {
+      profile.Provinces = JSON.parse(JSON.stringify(originalProfile.Provinces));
+    } else {
+      profile.Provinces = {Count: 0, Jitter: 0, WarpAmp: 0};
+    }
+    commitProfile(profile); renderPanels();
+  };
+  const clear = () => {
+    profile.Provinces = {Count: 0, Jitter: 0, WarpAmp: 0};
+    commitProfile(profile); renderPanels();
+  };
+  const randomize = () => {
+    profile.Provinces = {
+      Count:   8 + Math.floor(Math.random() * 24),  // 8-32
+      Jitter:  round2(0.1 + Math.random() * 0.3),   // 0.1-0.4
+      WarpAmp: round2(Math.random() * 0.15),        // 0-0.15
+    };
+    commitProfile(profile); renderPanels();
+  };
+
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll random province params', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore Provinces to loaded JSON', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Disable provinces', clear));
+
+  panel.appendChild(makeNumberRow('Count',
+    'Number of Voronoi cells (8-40 typical; 0 = disabled).',
+    profile.Provinces.Count, 0, 64, '1',
+    v => { profile.Provinces.Count = Math.max(0, Math.round(v)); commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Jitter',
+    'Per-cell scalar jitter strength. 0 = uniform; 0.5 = high regional variety.',
+    profile.Provinces.Jitter, 0, 0.5, '0.01',
+    v => { profile.Provinces.Jitter = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('WarpAmp',
+    'Sphere-warp displacement before nearest-cell lookup. 0 = clean Voronoi; >0 = curvy boundaries.',
+    profile.Provinces.WarpAmp, 0, 0.3, '0.01',
+    v => { profile.Provinces.WarpAmp = v; commitProfile(profile); }));
   panels.appendChild(panel);
 }
 

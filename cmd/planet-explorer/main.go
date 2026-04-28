@@ -7,9 +7,11 @@ package main
 import (
 	"flag"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
@@ -33,10 +35,49 @@ func main() {
 		http.ServeFile(w, r, *wasmPath)
 	})
 
-	log.Printf("planet-explorer dev server: http://localhost%s", *addr)
+	log.Printf("planet-explorer dev server reachable at:")
+	for _, url := range listenURLs(*addr) {
+		log.Printf("  %s", url)
+	}
 	log.Printf("serving web assets from: %s", abs)
 	log.Printf("serving wasm from: %s", *wasmPath)
 	if err := http.ListenAndServe(*addr, mux); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// listenURLs builds the list of HTTP URLs the dev server is reachable at,
+// given a flag-provided -addr like ":8080" or "0.0.0.0:8080".  When the
+// host portion is empty/0.0.0.0/[::], the server binds to every interface
+// on the host, so we enumerate non-loopback addresses for LAN access.
+func listenURLs(addr string) []string {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return []string{"http://" + addr}
+	}
+	if host != "" && host != "0.0.0.0" && host != "::" {
+		return []string{"http://" + net.JoinHostPort(host, port)}
+	}
+	out := []string{"http://localhost:" + port}
+	ifaces, err := net.InterfaceAddrs()
+	if err != nil {
+		return out
+	}
+	for _, a := range ifaces {
+		ipnet, ok := a.(*net.IPNet)
+		if !ok || ipnet.IP.IsLoopback() {
+			continue
+		}
+		ip := ipnet.IP
+		if ip4 := ip.To4(); ip4 != nil {
+			out = append(out, "http://"+net.JoinHostPort(ip4.String(), port))
+			continue
+		}
+		// IPv6: skip link-local (fe80::/10); they won't resolve from LAN peers.
+		if strings.HasPrefix(ip.String(), "fe80:") {
+			continue
+		}
+		out = append(out, "http://"+net.JoinHostPort(ip.String(), port))
+	}
+	return out
 }

@@ -44,6 +44,9 @@ type PlanetProfile struct {
 	// Tier-A Phase 3: ridged-multifractal mountain belts. Amp=0 disables.
 	Ridged RidgedConfig
 
+	// Tier-A Phase 3: Voronoi province modulation. Count=0 disables.
+	Provinces ProvinceConfig
+
 	// Tier-S Phase 1 Task 26: per-archetype LUT for final color grading
 	LUT string
 }
@@ -76,6 +79,16 @@ type ControlField struct {
 	Lacunarity  float64 // frequency multiplier per octave (default 2.0)
 	Persistence float64 // amplitude multiplier per octave (default 0.5)
 	Spline      planetcolor.Spline
+}
+
+// ProvinceConfig parameterizes per-region roughness modulation: Voronoi
+// cells over the sphere, each with its own amp/freq scalar applied to the
+// underlying control fields. Gives each archetype regional variety so the
+// whole planet doesn't read as one uniform texture.
+type ProvinceConfig struct {
+	Count   int     // number of Voronoi cells (8-40 typical; 0 = disabled)
+	Jitter  float64 // per-cell scalar jitter strength (0 = uniform; 0.5 = high variety)
+	WarpAmp float64 // sphere-warp displacement before nearest-cell lookup; 0 = clean Voronoi
 }
 
 // ControlConfig holds the five control fields used by the rocky pipeline.

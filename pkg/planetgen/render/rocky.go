@@ -40,12 +40,23 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 		if profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
 			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))
 		}
+		var provRamp, provRFreq *cubemap.CubeMapF
+		if profile.Provinces.Count > 0 {
+			_, provRamp, provRFreq = field.GenerateProvinces(seed, profile.Provinces, S)
+		}
 		for face := range cubemap.Face(cubemap.NumFaces) {
 			for py := range S {
 				for px := range S {
+					var rampMod, freqMod float64 = 1, 1
+					if provRamp != nil {
+						rampMod = provRamp.Get(face, px, py)
+						freqMod = provRFreq.Get(face, px, py)
+					}
 					var h float64
 					for i := 0; i < 5; i++ {
-						h += planetcolor.EvalSpline(cfFields[i].Spline, fields[i].Get(face, px, py))
+						v := fields[i].Get(face, px, py) * freqMod
+						contribution := planetcolor.EvalSpline(cfFields[i].Spline, v) * rampMod
+						h += contribution
 					}
 					if ridgedGen != nil {
 						cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
