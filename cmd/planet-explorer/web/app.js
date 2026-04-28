@@ -53,8 +53,40 @@ function prettifyJSON(s) {
   try { return JSON.stringify(JSON.parse(s), null, 2); } catch { return s; }
 }
 
+// Sweep all in-DOM knots textareas and apply their current values to
+// the profile JSON in the big textarea. Catches the case where a user
+// typed valid JSON into a knots textarea but the per-keystroke input
+// event never landed a successful commit (e.g., focus moved before
+// the final valid state). Silently ignores textareas whose content
+// isn't valid JSON.
+function syncKnotsFromDOM() {
+  let profile;
+  try { profile = JSON.parse(profileTextarea.value); }
+  catch { return; }
+  if (!profile.ControlConfig) return;
+  let dirty = false;
+  const tas = document.querySelectorAll('textarea.knots-input');
+  for (const ta of tas) {
+    const fieldName = ta.dataset.fieldName;
+    const cf = profile.ControlConfig[fieldName];
+    if (!cf) continue;
+    let knots;
+    try { knots = JSON.parse(ta.value); } catch { continue; }
+    const existing = JSON.stringify((cf.Spline && cf.Spline.Knots) || null);
+    const incoming = JSON.stringify(knots);
+    if (existing !== incoming) {
+      cf.Spline = {Knots: knots};
+      dirty = true;
+    }
+  }
+  if (dirty) {
+    profileTextarea.value = prettifyJSON(JSON.stringify(profile));
+  }
+}
+
 async function regenerate() {
   if (!wasmReady) return;
+  syncKnotsFromDOM();
   status.textContent = 'Rendering…';
   await new Promise(r => setTimeout(r, 0)); // yield to repaint
 
@@ -599,18 +631,36 @@ function renderControlFieldsPanel(profile, panels) {
     if (!cf.Spline) cf.Spline = {Knots: []};
     const ta = document.createElement('textarea');
     ta.rows = 2;
+    ta.className = 'knots-input';
+    ta.dataset.fieldName = fieldName;
     ta.value = JSON.stringify(cf.Spline.Knots || []);
+    ta.placeholder = '[{"Input":0,"Output":0},{"Input":1,"Output":0.5}]';
     ta.title = knotsLabel.title;
+    const knotsErr = document.createElement('div');
+    knotsErr.className = 'knots-err';
     ta.addEventListener('input', () => {
       try {
         const knots = JSON.parse(ta.value);
+        if (!Array.isArray(knots)) throw new Error('expected array');
+        for (const k of knots) {
+          if (typeof k !== 'object' || k === null
+              || typeof k.Input !== 'number' || typeof k.Output !== 'number') {
+            throw new Error('each knot needs {"Input":<num>,"Output":<num>}');
+          }
+        }
         cf.Spline = {Knots: knots};
         commitProfile(profile);
+        knotsErr.textContent = '';
+        ta.classList.remove('knots-bad');
+        status.textContent = `Knots committed: ${fieldName} (${knots.length})`;
       } catch (e) {
-        status.textContent = 'Bad knots JSON';
+        knotsErr.textContent = `${e.message}`;
+        ta.classList.add('knots-bad');
+        status.textContent = `Bad knots JSON in ${fieldName}`;
       }
     });
     sub.appendChild(ta);
+    sub.appendChild(knotsErr);
     panel.appendChild(sub);
   }
   panels.appendChild(panel);
