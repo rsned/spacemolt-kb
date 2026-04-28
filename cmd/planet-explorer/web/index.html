@@ -45,10 +45,10 @@
       <details>
         <summary><h3>Help / Parameter reference</h3></summary>
         <div class="help-body">
-          <h4>Render flow (with ControlConfig + Splines)</h4>
+          <h4>Render flow (ControlConfig fields, each with embedded Spline)</h4>
           <ol>
             <li>Generate 5 fBm control fields (Continentalness, Erosion, PeaksValleys, Temperature, Humidity).</li>
-            <li>Each field's <strong>Spline</strong> maps its [0, Amp] output to a height contribution.</li>
+            <li>Each field's embedded <strong>Spline</strong> maps its [0, Amp] output to a height contribution.</li>
             <li>Sum spline outputs → normalize to [0,1] heightmap.</li>
             <li>Apply craters, then color the surface.</li>
             <li>If <code>BiomeTable</code> set: lookup color from (Temperature, Humidity, height) with bilinear OkLab blend.</li>
@@ -63,6 +63,16 @@
             <li><strong>Octaves</strong> — stacked noise layers. More = more detail (and compute). Typical 3–5.</li>
             <li><strong>Lacunarity</strong> — frequency multiplier per octave. Standard fBm = 2.0.</li>
             <li><strong>Persistence</strong> — amplitude decay per octave. Standard fBm = 0.5. Higher = noisier output.</li>
+          </ul>
+
+          <h4>Legacy parameters (per profile)</h4>
+          <ul>
+            <li><strong>OceanLevel</strong> — normalized [0,1] cutoff. Pixels below get OceanColor with depth shading. 0 = no oceans.</li>
+            <li><strong>OceanColor</strong> — base sea color. Depth shading darkens it for deeper pixels.</li>
+            <li><strong>HasPolarCaps / PolarCapSize / PolarCapNoise</strong> — latitude-based white overlay. Size = pole-to-equator fraction covered. Noise = edge jaggedness.</li>
+            <li><strong>SnowLine</strong> — elevation cutoff for snow tint on peaks. 0 = disabled.</li>
+            <li><strong>CraterCount / Min / Max / Depth</strong> — stamped craters on the heightmap. Radii are in radians on the unit sphere; depth in normalized height units.</li>
+            <li><strong>EquatorialPalette / PolarPalette</strong> — read-only swatches. Optional latitude-blended palettes layered on top of the base Palette.</li>
           </ul>
 
           <h4>Field semantics</h4>
@@ -90,7 +100,7 @@
           <h4>The new pipeline only activates when…</h4>
           <p>Render uses the new control-fields path only when <strong>both</strong>:
             (a) at least one ControlField has non-zero Amp/Freq/etc., AND
-            (b) at least one Spline has a non-empty Knots array.
+            (b) at least one ControlField's embedded Spline has a non-empty Knots array.
             Otherwise it falls back to the legacy single-fBM heightmap.</p>
         </div>
       </details>

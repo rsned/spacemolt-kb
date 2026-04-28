@@ -32,6 +32,14 @@ func rgba(r, g, b uint8) color.RGBA {
 	return color.RGBA{R: r, G: g, B: b, A: 255}
 }
 
+// defaultSpline is the trivial linear ramp used to gate the new
+// control-field pipeline on without yet shaping height non-linearly.
+// Tier-S Task 15 will replace per-archetype.
+var defaultSpline = planetcolor.Spline{Knots: []planetcolor.SplineKnot{
+	{Input: 0, Output: 0},
+	{Input: 1, Output: 0.5},
+}}
+
 // Profiles contains the visual parameters for all planet types.
 var Profiles = map[string]*types.PlanetProfile{
 	"scorched": {
@@ -53,7 +61,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterMinRadius:  0.005,
 		CraterMaxRadius:  0.08,
 		CraterDepth:      0.25,
-			LUT:              "scorched",
+		ControlConfig: types.ControlConfig{
+			Continentalness: types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.42, Spline: defaultSpline},
+			Erosion:         types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.5, Spline: defaultSpline},
+			PeaksValleys:    types.ControlField{Amp: 0.72, Freq: 0.66, Octaves: 6, Lacunarity: 2.9, Persistence: 0.68, Spline: defaultSpline},
+			Temperature:     types.ControlField{Amp: 1.83, Freq: 2.43, Octaves: 6, Lacunarity: 1.95, Persistence: 0.39, Spline: defaultSpline},
+			Humidity:        types.ControlField{Amp: 0.57, Freq: 5.56, Octaves: 4, Lacunarity: 1.89, Persistence: 0.5, Spline: defaultSpline},
+		},
+		LUT: "scorched",
 	},
 	"arid": {
 		Type:     "arid",
@@ -77,7 +92,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		HasPolarCaps:     true,
 		PolarCapSize:     0.18,
 		PolarCapNoise:    0.15,
-			LUT:              "arid",
+		ControlConfig: types.ControlConfig{
+			Continentalness: types.ControlField{Amp: 1.36, Freq: 5.42, Octaves: 5, Lacunarity: 2.11, Persistence: 0.6, Spline: defaultSpline},
+			Erosion:         types.ControlField{Amp: 1.44, Freq: 1.81, Octaves: 6, Lacunarity: 2.16, Persistence: 0.49, Spline: defaultSpline},
+			PeaksValleys:    types.ControlField{Amp: 0.56, Freq: 2.84, Octaves: 3, Lacunarity: 2.99, Persistence: 0.33, Spline: defaultSpline},
+			Temperature:     types.ControlField{Amp: 1.83, Freq: 0.63, Octaves: 5, Lacunarity: 1.53, Persistence: 0.38, Spline: defaultSpline},
+			Humidity:        types.ControlField{Amp: 1.04, Freq: 3.48, Octaves: 4, Lacunarity: 1.84, Persistence: 0.41, Spline: defaultSpline},
+		},
+		LUT: "arid",
 	},
 	"terran": {
 		Type:     "terran",
@@ -131,9 +153,13 @@ var Profiles = map[string]*types.PlanetProfile{
 			{1.0, rgba(225, 225, 222)},  // Snow
 		},
 		ControlConfig: types.ControlConfig{
-			Temperature: types.ControlField{Amp: 1, Freq: 1, Octaves: 3, Lacunarity: 2, Persistence: 0.5},
-			Humidity:    types.ControlField{Amp: 1, Freq: 1, Octaves: 3, Lacunarity: 2, Persistence: 0.5},
+			Continentalness: types.ControlField{Amp: 0.97, Freq: 2.02, Octaves: 5, Lacunarity: 2.12, Persistence: 0.51, Spline: defaultSpline},
+			Erosion:         types.ControlField{Amp: 0.55, Freq: 2.95, Octaves: 3, Lacunarity: 2.48, Persistence: 0.67, Spline: defaultSpline},
+			PeaksValleys:    types.ControlField{Amp: 0.96, Freq: 2.09, Octaves: 5, Lacunarity: 2.5, Persistence: 0.72, Spline: defaultSpline},
+			Temperature:     types.ControlField{Amp: 1.71, Freq: 1.27, Octaves: 4, Lacunarity: 1.89, Persistence: 0.44, Spline: defaultSpline},
+			Humidity:        types.ControlField{Amp: 1.38, Freq: 5.81, Octaves: 4, Lacunarity: 2.83, Persistence: 0.73, Spline: defaultSpline},
 		},
+		Warp: types.WarpConfig{Amp: 0.03, Freq: 2.64, Octaves: 3, Lacunarity: 2.13, Persistence: 0.22},
 		BiomeTable: types.BiomeTable{
 			TBuckets: 4,
 			MBuckets: 4,

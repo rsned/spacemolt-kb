@@ -38,7 +38,6 @@ type PlanetProfile struct {
 	// Tier-S Phase 1: multi-noise control fields and per-field height splines.
 	// Empty/zero values mean "use the legacy single-FBM path" (backward compat).
 	ControlConfig ControlConfig
-	Splines       [5]planetcolor.Spline // Continentalness, Erosion, PV, T, H — order matches ControlConfig fields
 	Warp          WarpConfig
 	BiomeTable    BiomeTable // Whittaker biome lookup table (empty = use legacy palette path)
 
@@ -47,13 +46,18 @@ type PlanetProfile struct {
 }
 
 // ControlField is a single 3D fBm control field used to drive the
-// height and biome pipelines (see master plan §5.2).
+// height and biome pipelines (see master plan §5.2). The optional
+// Spline maps the field's [0, Amp] output to a height contribution;
+// an empty Spline (no knots) means this field does not contribute to
+// the heightmap directly (e.g., Temperature/Humidity feed the biome
+// table instead).
 type ControlField struct {
 	Amp         float64 // amplitude multiplier
 	Freq        float64 // base frequency
 	Octaves     int     // number of fBm octaves
 	Lacunarity  float64 // frequency multiplier per octave (default 2.0)
 	Persistence float64 // amplitude multiplier per octave (default 0.5)
+	Spline      planetcolor.Spline
 }
 
 // ControlConfig holds the five control fields used by the rocky pipeline.

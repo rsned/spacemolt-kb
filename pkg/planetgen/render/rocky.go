@@ -31,7 +31,8 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	heightmap := cubemap.NewF(S)
 
 	// Step 1: base fractal heightmap on the unit sphere.
-	useControl := !isZeroControlConfig(profile.ControlConfig) && hasSplines(profile.Splines)
+	cfFields := orderedControlFields(profile.ControlConfig)
+	useControl := !isZeroControlConfig(cfFields) && hasAnySpline(cfFields)
 	if useControl {
 		fields := field.GenerateControlFields(seed, profile.ControlConfig, S)
 		for face := range cubemap.Face(cubemap.NumFaces) {
@@ -39,7 +40,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 				for px := range S {
 					var h float64
 					for i := 0; i < 5; i++ {
-						h += planetcolor.EvalSpline(profile.Splines[i], fields[i].Get(face, px, py))
+						h += planetcolor.EvalSpline(cfFields[i].Spline, fields[i].Get(face, px, py))
 					}
 					heightmap.Set(face, px, py, h)
 				}
@@ -201,17 +202,31 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	return out
 }
 
-func isZeroControlConfig(c types.ControlConfig) bool {
-	return c.Continentalness == (types.ControlField{}) &&
-		c.Erosion == (types.ControlField{}) &&
-		c.PeaksValleys == (types.ControlField{}) &&
-		c.Temperature == (types.ControlField{}) &&
-		c.Humidity == (types.ControlField{})
+// orderedControlFields returns the five ControlField values in canonical
+// order (Continentalness, Erosion, PeaksValleys, Temperature, Humidity)
+// matching field.GenerateControlFields' output indexing.
+func orderedControlFields(c types.ControlConfig) [5]types.ControlField {
+	return [5]types.ControlField{
+		c.Continentalness,
+		c.Erosion,
+		c.PeaksValleys,
+		c.Temperature,
+		c.Humidity,
+	}
 }
 
-func hasSplines(s [5]planetcolor.Spline) bool {
-	for i := range s {
-		if len(s[i].Knots) > 0 {
+func isZeroControlConfig(fields [5]types.ControlField) bool {
+	for _, f := range fields {
+		if f.Amp != 0 || f.Freq != 0 || f.Octaves != 0 || f.Lacunarity != 0 || f.Persistence != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func hasAnySpline(fields [5]types.ControlField) bool {
+	for _, f := range fields {
+		if len(f.Spline.Knots) > 0 {
 			return true
 		}
 	}

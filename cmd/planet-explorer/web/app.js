@@ -136,20 +136,34 @@ function renderPanels() {
   try { profile = JSON.parse(profileTextarea.value); }
   catch { return; }
 
-  if (Array.isArray(profile.Palette)) {
-    const panel = makePanel('Palette', 'Read-only swatch of the legacy gradient palette. Used as the base color when no BiomeTable is set.');
-    const strip = document.createElement('div');
-    strip.style.cssText = 'height:24px;border-radius:3px;margin-top:6px';
-    const stops = profile.Palette.map(s =>
-      `${rgbaCSS(s.Color)} ${(s.Position*100).toFixed(0)}%`).join(', ');
-    strip.style.background = `linear-gradient(to right, ${stops})`;
-    panel.appendChild(strip);
-    panels.appendChild(panel);
-  }
+  renderPaletteSwatch(profile, panels, 'Palette',
+    'Palette',
+    'Read-only swatch of the legacy gradient palette. Used as the base color when no BiomeTable is set.');
+  renderPaletteSwatch(profile, panels, 'EquatorialPalette',
+    'Equatorial palette',
+    'Optional palette blended in near the equator (cos(latitude) weight). Read-only — edit via JSON if needed.');
+  renderPaletteSwatch(profile, panels, 'PolarPalette',
+    'Polar palette',
+    'Optional palette blended in near the poles (before ice caps). Read-only — edit via JSON if needed.');
   renderControlFieldsPanel(profile, panels);
   renderWarpPanel(profile, panels);
+  renderOceanPanel(profile, panels);
+  renderCryospherePanel(profile, panels);
+  renderCratersPanel(profile, panels);
   renderBiomePanel(profile, panels);
   renderLUTPanel(profile, panels);
+}
+
+function renderPaletteSwatch(profile, panels, key, title, helpText) {
+  const stops = profile[key];
+  if (!Array.isArray(stops) || stops.length === 0) return;
+  const panel = makePanel(title, helpText);
+  const strip = document.createElement('div');
+  strip.style.cssText = 'height:24px;border-radius:3px;margin-top:6px';
+  const css = stops.map(s => `${rgbaCSS(s.Color)} ${(s.Position*100).toFixed(0)}%`).join(', ');
+  strip.style.background = `linear-gradient(to right, ${css})`;
+  panel.appendChild(strip);
+  panels.appendChild(panel);
 }
 
 function renderLUTPanel(profile, panels) {
@@ -343,6 +357,164 @@ function commitProfile(profile) {
   profileTextarea.value = prettifyJSON(JSON.stringify(profile));
 }
 
+// Generic numeric input row. Step controls precision; integer mode when step is "1".
+function makeNumberRow(label, helpText, value, min, max, step, onCommit) {
+  const row = document.createElement('label');
+  row.className = 'row';
+  row.title = helpText;
+  row.innerHTML = `<span>${label}</span>`;
+  const input = document.createElement('input');
+  input.type = 'number';
+  if (min !== undefined && min !== null) input.min = min;
+  if (max !== undefined && max !== null) input.max = max;
+  input.step = step;
+  input.value = value;
+  input.addEventListener('input', () => {
+    const v = (step === '1' || step === 1)
+      ? parseInt(input.value, 10)
+      : parseFloat(input.value);
+    if (!Number.isNaN(v)) onCommit(v);
+  });
+  row.appendChild(input);
+  return row;
+}
+
+// Color picker row. Reads/writes {R,G,B,A} where A is preserved if not 0.
+function makeColorRow(label, helpText, rgba, onCommit) {
+  const row = document.createElement('label');
+  row.className = 'row';
+  row.title = helpText;
+  row.innerHTML = `<span>${label}</span>`;
+  const input = document.createElement('input');
+  input.type = 'color';
+  const hex = (n) => Math.max(0, Math.min(255, n|0)).toString(16).padStart(2, '0');
+  input.value = '#' + hex(rgba.R) + hex(rgba.G) + hex(rgba.B);
+  input.addEventListener('input', () => {
+    const h = input.value.slice(1);
+    onCommit({
+      R: parseInt(h.slice(0,2), 16),
+      G: parseInt(h.slice(2,4), 16),
+      B: parseInt(h.slice(4,6), 16),
+      A: rgba.A != null ? rgba.A : 255,
+    });
+  });
+  row.appendChild(input);
+  return row;
+}
+
+// Boolean checkbox row.
+function makeCheckboxRow(label, helpText, value, onCommit) {
+  const row = document.createElement('label');
+  row.className = 'row';
+  row.title = helpText;
+  row.innerHTML = `<span>${label}</span>`;
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.checked = !!value;
+  input.addEventListener('input', () => onCommit(input.checked));
+  row.appendChild(input);
+  return row;
+}
+
+function renderCratersPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Craters',
+    'Stamped circular depressions on the heightmap. Applied after fBm/control fields, before coloring. Set Count=0 to disable.');
+
+  const reset = () => {
+    const orig = originalProfile || {};
+    profile.CraterCount     = orig.CraterCount     != null ? orig.CraterCount     : 0;
+    profile.CraterMinRadius = orig.CraterMinRadius != null ? orig.CraterMinRadius : 0;
+    profile.CraterMaxRadius = orig.CraterMaxRadius != null ? orig.CraterMaxRadius : 0;
+    profile.CraterDepth     = orig.CraterDepth     != null ? orig.CraterDepth     : 0;
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.CraterCount = 0;
+    profile.CraterMinRadius = 0;
+    profile.CraterMaxRadius = 0;
+    profile.CraterDepth = 0;
+    commitProfile(profile);
+    renderPanels();
+  };
+  const randomize = () => {
+    const minR = round3(0.001 + Math.random() * 0.019);   // 0.001–0.020
+    const maxR = round3(Math.max(minR + 0.005, 0.01 + Math.random() * 0.09)); // 0.01–0.10
+    profile.CraterCount     = Math.floor(Math.random() * 201);  // 0–200
+    profile.CraterMinRadius = minR;
+    profile.CraterMaxRadius = maxR;
+    profile.CraterDepth     = round2(0.02 + Math.random() * 0.28); // 0.02–0.30
+    commitProfile(profile);
+    renderPanels();
+  };
+
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll new random in-range crater params', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore craters to the loaded JSON values', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Zero out all crater params', clear));
+
+  panel.appendChild(makeNumberRow('CraterCount',
+    'How many craters to stamp. 0 = none; 200 ≈ Mercury-dense.',
+    profile.CraterCount || 0, 0, 500, '1',
+    v => { profile.CraterCount = Math.max(0, Math.round(v)); commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('CraterMinRadius',
+    'Smallest crater angular radius (radians on the unit sphere). Useful 0.001–0.02.',
+    profile.CraterMinRadius || 0, 0, 0.05, '0.001',
+    v => { profile.CraterMinRadius = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('CraterMaxRadius',
+    'Largest crater angular radius. Should be > MinRadius. Useful 0.01–0.1.',
+    profile.CraterMaxRadius || 0, 0, 0.2, '0.001',
+    v => { profile.CraterMaxRadius = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('CraterDepth',
+    'How much each crater carves into the heightmap. Useful 0.02–0.3.',
+    profile.CraterDepth || 0, 0, 0.5, '0.01',
+    v => { profile.CraterDepth = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function round3(v) { return Math.round(v * 1000) / 1000; }
+
+function renderCryospherePanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Cryosphere',
+    'Polar ice caps (latitude-based) and snow line (elevation-based). Both paint white-tinted overlays as a final color step.');
+  panel.appendChild(makeCheckboxRow('HasPolarCaps',
+    'Master toggle for polar-cap rendering.',
+    profile.HasPolarCaps,
+    v => { profile.HasPolarCaps = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('PolarCapSize',
+    'Latitude fraction covered by caps (0 = none; 0.4 ≈ Hoth-like).',
+    profile.PolarCapSize || 0, 0, 0.5, '0.01',
+    v => { profile.PolarCapSize = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('PolarCapNoise',
+    'Edge roughness of the cap boundary. 0 = smooth circle; 0.5 = jagged.',
+    profile.PolarCapNoise || 0, 0, 0.5, '0.01',
+    v => { profile.PolarCapNoise = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('SnowLine',
+    'Elevation [0,1] above which pixels get a snow tint. 0 = disabled.',
+    profile.SnowLine || 0, 0, 1, '0.01',
+    v => { profile.SnowLine = v; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
+function renderOceanPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  if (!profile.OceanColor) profile.OceanColor = {R: 0, G: 0, B: 0, A: 0};
+  const panel = makePanel('Ocean',
+    'Below the OceanLevel cutoff, height is painted with OceanColor (depth-shaded). Set OceanLevel = 0 to disable oceans entirely.');
+  panel.appendChild(makeNumberRow('OceanLevel',
+    'Normalized [0,1] sea-level cutoff. Pixels with height < OceanLevel are painted ocean.',
+    profile.OceanLevel || 0, 0, 1, '0.01',
+    v => { profile.OceanLevel = v; commitProfile(profile); }));
+  panel.appendChild(makeColorRow('OceanColor',
+    'Base ocean color. Depth shading darkens it for deeper pixels.',
+    profile.OceanColor,
+    rgba => { profile.OceanColor = rgba; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
 function renderWarpPanel(profile, panels) {
   if (!profile.Warp) profile.Warp = {Amp: 0, Freq: 0, Octaves: 0, Lacunarity: 0, Persistence: 0};
   const panel = makePanel('Domain warp',
@@ -382,7 +554,6 @@ function renderWarpPanel(profile, panels) {
 function renderControlFieldsPanel(profile, panels) {
   const cc = profile.ControlConfig;
   if (!cc) return;
-  if (!Array.isArray(profile.Splines)) profile.Splines = [{}, {}, {}, {}, {}];
   const panel = makePanel('Control fields',
     'Five 3D fBm noise fields. Continentalness/Erosion/PeaksValleys are summed via splines to build the heightmap. Temperature/Humidity feed the Whittaker biome lookup. Each field has independent fBm settings + an optional spline.');
   const fields = ['Continentalness', 'Erosion', 'PeaksValleys', 'Temperature', 'Humidity'];
@@ -392,15 +563,18 @@ function renderControlFieldsPanel(profile, panels) {
     if (!cf) continue;
     const reset = () => {
       const orig = originalProfile?.ControlConfig?.[fieldName];
-      if (orig) Object.assign(cf, orig);
-      const origKnots = originalProfile?.Splines?.[i]?.Knots;
-      profile.Splines[i] = {Knots: origKnots ? JSON.parse(JSON.stringify(origKnots)) : []};
+      if (orig) {
+        // Deep-restore so the embedded Spline knots reset back to the
+        // original loaded values, not a shared reference.
+        Object.assign(cf, JSON.parse(JSON.stringify(orig)));
+      }
+      if (!cf.Spline) cf.Spline = {Knots: []};
       commitProfile(profile);
       renderPanels();
     };
     const clear = () => {
       cf.Amp = 0; cf.Freq = 0; cf.Octaves = 0; cf.Lacunarity = 0; cf.Persistence = 0;
-      profile.Splines[i] = {Knots: []};
+      cf.Spline = {Knots: []};
       commitProfile(profile);
       renderPanels();
     };
@@ -422,15 +596,15 @@ function renderControlFieldsPanel(profile, panels) {
     knotsLabel.textContent = 'Knots';
     knotsLabel.title = 'Fritsch-Carlson monotone-cubic spline knots. Maps fBm output [0, Amp] to a height contribution. JSON array like [{"Input":0,"Output":0},{"Input":1,"Output":0.5}]. Sorted by Input ascending. Knots outside [first, last] are clamped.';
     sub.appendChild(knotsLabel);
-    const sp = profile.Splines[i] || {Knots: []};
+    if (!cf.Spline) cf.Spline = {Knots: []};
     const ta = document.createElement('textarea');
     ta.rows = 2;
-    ta.value = JSON.stringify(sp.Knots || []);
+    ta.value = JSON.stringify(cf.Spline.Knots || []);
     ta.title = knotsLabel.title;
     ta.addEventListener('input', () => {
       try {
         const knots = JSON.parse(ta.value);
-        profile.Splines[i] = {Knots: knots};
+        cf.Spline = {Knots: knots};
         commitProfile(profile);
       } catch (e) {
         status.textContent = 'Bad knots JSON';
