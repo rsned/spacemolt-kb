@@ -12,7 +12,9 @@
 
 ## Pre-flight notes
 
-**Stage inventory.** As of Phase 4 the rocky heightmap pipeline runs:
+**Stage inventory.** As of Phase 4 the rocky pipeline runs in two halves — heightmap construction, then colorization. The debug view exposes both as stage rows.
+
+Heightmap stages (grayscale "raw" + grayscale "sum_after"):
 
 | # | Stage | Has spline? | Contribution sign |
 |---|---|---|---|
@@ -28,7 +30,20 @@
 | 10 | Coastal noise (Phase 4) | no | ± |
 | 11 | Craters (bowl + rim) | no | − (bowl) / + (rim) |
 
-Each row in the debug view corresponds to one of the above. Temperature/Humidity get full thumbnails too even though they don't change the heightmap, because Phase-3+ biome lookup does consume them and the operator wants to see them.
+Color stages (RGB "after" thumbnails, no spline columns):
+
+| # | Stage | What |
+|---|---|---|
+| C1 | Palette / Biome lookup | First color from the heightmap (palette gradient or Whittaker biome cell) |
+| C2 | Ocean overlay | OceanLevel + OceanColor blend below the threshold (lava-world variant included) |
+| C3 | Snow overlay | SnowLine elevation-driven white blend |
+| C4 | Polar caps | Latitude-driven cap blending |
+| C5 | Ejecta | Crater ejecta-ray albedo (only fires when PowerLawAlpha > 0) |
+| C6 | LUT | Per-archetype 3D color LUT applied as final grade |
+
+Each color row shows one thumbnail (the cube map *after* that stage applied) plus a bypass toggle. Bypassing LUT (C6) is the most-requested case — it reveals the underlying palette/biome colors before the per-archetype grade muddies them. Bypassing C1–C5 is also legal and lets the operator isolate which overlay is responsible for a given color region.
+
+Temperature/Humidity get full heightmap thumbnails too even though they don't change the heightmap, because Phase-3+ biome lookup does consume them and the operator wants to see them.
 
 **Bypass semantics.** A bypassed stage is *skipped* but the renderer still consumes the same rng draws to keep downstream noise streams identical. Practically this means: for control fields, generate the fbm anyway and just don't add its spline output to the running sum; for ridged, generate the noise and skip the addition; for provinces, skip the mod multiplication; for continents, skip the max; for coastal, return base unchanged from `ApplyCoastal`; for craters, skip the bowl stamp.
 
@@ -423,7 +438,40 @@ func TestDebugFrameBypassParity(t *testing.T) {
 Run: `go test ./pkg/planetgen/render/ -run TestDebugFrame -v`
 Expected: PASS.
 
-- [ ] **Step 5: Run all goldens (must stay green)**
+- [ ] **Step 5: Add color-stage hooks**
+
+`colorizeRocky` runs after heightmap construction. Add the same `*DebugFrame` / `DebugBypass` parameters to it (via a `colorizeRockyDebug` helper that mirrors `generateRockyHeightmapDebug`), and append a `DebugStage` after each color step (Palette/Biome lookup, Ocean, Snow, Caps, Ejecta, LUT). For color stages set `RawFbm = nil` and `InputBands/OutputBands = nil`; populate `SumAfter` with a *color* cube map instead of a height field.
+
+`DebugStage` needs a way to carry either a heightmap (`*cubemap.CubeMapF`) or a color map (`*cubemap.CubeMap`). Extend the type:
+
+```go
+type DebugStage struct {
+    Name        string
+    Kind        string // "height" or "color"
+    RawFbm      *cubemap.CubeMapF
+    InputBands  *cubemap.CubeMap
+    OutputBands *cubemap.CubeMap
+    SumAfter    *cubemap.CubeMapF // height-stage running heightmap
+    ColorAfter  *cubemap.CubeMap  // color-stage running color cube map
+    Skipped     bool
+}
+```
+
+Bypass semantics for color stages mirror heightmap stages: skip the operation while preserving any noise draws (e.g. Polar Caps still consumes `capNoise.FractalNoise3D` so subsequent stages get the same rng state). The user-most-requested case is bypassing the LUT (C6) so the pre-LUT palette/biome color comes through unmodified.
+
+```go
+// inside colorizeRockyDebug, after each color step:
+if frame != nil {
+    frame.Stages = append(frame.Stages, DebugStage{
+        Name:       "LUT",
+        Kind:       "color",
+        ColorAfter: out.Clone(),
+        Skipped:    bypass["LUT"],
+    })
+}
+```
+
+- [ ] **Step 6: Run all goldens (must stay green)**
 
 ```bash
 go test -timeout 25m ./...
@@ -431,11 +479,11 @@ go test -timeout 25m ./...
 
 Expected: PASS — the public `RenderRocky` path is unchanged; only the internal helper signature grew.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add pkg/planetgen/cubemap/*.go pkg/planetgen/render/rocky.go pkg/planetgen/render/debug_test.go
-git commit -m "P6 T2: thread DebugFrame through generateRockyHeightmap"
+git add pkg/planetgen/cubemap/*.go pkg/planetgen/render/rocky.go pkg/planetgen/render/debug.go pkg/planetgen/render/debug_test.go
+git commit -m "P6 T2: thread DebugFrame through heightmap + color stages"
 ```
 
 ---
@@ -559,14 +607,20 @@ func generateDebug(this js.Value, args []js.Value) any {
 
     stages := make([]map[string]any, 0, len(frame.Stages))
     for _, s := range frame.Stages {
-        stages = append(stages, map[string]any{
-            "name":         s.Name,
-            "skipped":      s.Skipped,
-            "raw":          encodeF(s.RawFbm, true),
-            "input_bands":  encode(s.InputBands),
-            "output_bands": encode(s.OutputBands),
-            "sum_after":    encodeF(s.SumAfter, false),
-        })
+        row := map[string]any{
+            "name":    s.Name,
+            "kind":    s.Kind,
+            "skipped": s.Skipped,
+        }
+        if s.Kind == "color" {
+            row["color_after"] = encode(s.ColorAfter)
+        } else {
+            row["raw"] = encodeF(s.RawFbm, true)
+            row["input_bands"] = encode(s.InputBands)
+            row["output_bands"] = encode(s.OutputBands)
+            row["sum_after"] = encodeF(s.SumAfter, false)
+        }
+        stages = append(stages, row)
     }
     out, _ := json.Marshal(map[string]any{"stages": stages})
     return js.ValueOf(string(out))
@@ -737,8 +791,11 @@ function renderDebugGrid(stages) {
     label.appendChild(toggle);
     row.appendChild(label);
 
-    for (const key of ['raw', 'input_bands', 'output_bands', 'sum_after']) {
-      if (!s[key]) {
+    const keys = s.kind === 'color'
+      ? ['color_after', null, null, null]
+      : ['raw', 'input_bands', 'output_bands', 'sum_after'];
+    for (const key of keys) {
+      if (!key || !s[key]) {
         const ph = document.createElement('div');
         ph.className = 'placeholder';
         ph.textContent = '—';
@@ -836,7 +893,7 @@ Body should list T1–T7 status, gates, and which Tier-A items remain (item 9 er
 
 ## Self-review notes
 
-**Spec coverage.** User asked for: per-layer fbm thumbnails, spline input-band view, spline output-band view, running sum after each stage, half-size equirects, red palette for subtractive contributions, per-stage bypass toggles, "lots of thumbnails for now". All covered: T1 (palette + classifier), T2 (per-stage hooks in renderer), T3 (public entry), T4 (wasm + PNG transport), T5 (HTML/CSS), T6 (JS rendering + toggles), T7 (auto-refresh + README).
+**Spec coverage.** User asked for: per-layer fbm thumbnails, spline input-band view, spline output-band view, running sum after each stage, half-size equirects, red palette for subtractive contributions, per-stage bypass toggles, "lots of thumbnails for now", color-stage rows including a bypassable LUT (so the underlying palette/biome color comes through). All covered: T1 (palette + classifier), T2 (per-stage hooks in heightmap + color stages), T3 (public entry), T4 (wasm + PNG transport for both height and color rows), T5 (HTML/CSS), T6 (JS rendering branching on stage kind), T7 (auto-refresh + README).
 
 **Placeholder scan.** No "TODO" or "TBD". The Cassini ramp asset stand-in lives in Phase 4 T8, not here. Bypass semantics are explicitly documented in pre-flight notes.
 
