@@ -145,6 +145,23 @@ func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) (*c
 		}
 	}
 
+	// Phase 4 Task 5: Apply Voronoi continents baseline if enabled.
+	if profile.Continents.Seeds > 0 {
+		cont := field.GenerateContinents(seed, profile.Continents, S)
+		for face := range cubemap.Face(cubemap.NumFaces) {
+			for py := range S {
+				for px := range S {
+					h := heightmap.Get(face, px, py)
+					base := cont.Get(face, px, py)
+					if base > h {
+						h = base
+					}
+					heightmap.Set(face, px, py, h)
+				}
+			}
+		}
+	}
+
 	hMin, hMax := 1.0, 0.0
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for _, h := range heightmap.Faces[face] {

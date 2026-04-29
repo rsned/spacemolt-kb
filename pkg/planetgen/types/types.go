@@ -76,6 +76,10 @@ type PlanetProfile struct {
 	// Phase 4 Task 3: coastal noise enhancement using JFA distance-to-coast.
 	// Amp=0 disables (default).
 	Coastal CoastalConfig
+
+	// Phase 4 Task 5: Voronoi continents with per-continent base height.
+	// Seeds=0 disables (default).
+	Continents ContinentConfig
 }
 
 // RidgedConfig parameterizes a ridged-multifractal mountain pass.
@@ -101,6 +105,18 @@ type CoastalConfig struct {
 	Amp       float64 // master strength (0 = disabled; typical 0.05–0.2)
 	Threshold float64 // distance-to-coast cutoff in [0,1]; effect dies off above this
 	Freq      float64 // base frequency for the n4 fbm
+}
+
+// ContinentConfig parameterizes Voronoi continents seeded by Fibonacci-spiral
+// points on the unit sphere. Each continent has a per-seed base height drawn
+// uniformly from [HeightLo, HeightHi]. Seed positions are optionally warped
+// by a low-frequency fBm if WarpAmp > 0. Seeds=0 disables (default).
+type ContinentConfig struct {
+	Seeds    int     // 0 disables; 10–50 typical
+	WarpAmp  float64 // displacement amplitude on seed positions
+	WarpFreq float64 // displacement fbm frequency
+	HeightLo float64 // per-continent base height lower bound (default 0.3)
+	HeightHi float64 // per-continent base height upper bound (default 0.7)
 }
 
 // ControlField is a single 3D fBm control field used to drive the
