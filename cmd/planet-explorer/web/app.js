@@ -97,9 +97,17 @@ async function regenerate() {
 
   const t0 = performance.now();
   const mode = viewModeSel ? viewModeSel.value : 'color';
-  const cubePNG = (mode === 'heightmap')
-    ? planetExplorerGenerateHeightmap(profileJSON, seed, faceSize)
-    : planetExplorerGenerate(profileJSON, seed, faceSize);
+  // Route through the bypass-aware path when the debug panel has any
+  // bypasses active. Heightmap mode and gas giants stay on the fast
+  // path (the bypass-aware path falls back internally for gas giants).
+  let cubePNG;
+  if (mode === 'heightmap') {
+    cubePNG = planetExplorerGenerateHeightmap(profileJSON, seed, faceSize);
+  } else if (debugBypass.size > 0 && window.planetExplorerGenerateWithBypass) {
+    cubePNG = planetExplorerGenerateWithBypass(profileJSON, seed, faceSize, JSON.stringify([...debugBypass]));
+  } else {
+    cubePNG = planetExplorerGenerate(profileJSON, seed, faceSize);
+  }
   if (cubePNG instanceof Uint8Array) {
     await paintToCanvas(cubeCanvas, cubePNG);
     const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
@@ -1216,7 +1224,10 @@ function renderDebugGrid(stages) {
     cb.checked = debugBypass.has(s.name);
     cb.addEventListener('change', () => {
       if (cb.checked) debugBypass.add(s.name); else debugBypass.delete(s.name);
-      refreshDebugView();
+      // Toggling a bypass affects both the debug grid AND the main
+      // sphere preview, so re-render both. regenerate() refreshes the
+      // debug grid as well when the panel is open, so just call it.
+      regenerate();
     });
     toggle.appendChild(cb);
     toggle.appendChild(document.createTextNode(' bypass'));

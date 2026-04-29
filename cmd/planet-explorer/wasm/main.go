@@ -33,6 +33,7 @@ func main() {
 	js.Global().Set("planetExplorerBakeEquirect", js.FuncOf(bakeEquirect))
 	js.Global().Set("planetExplorerDefaultProfile", js.FuncOf(defaultProfile))
 	js.Global().Set("planetExplorerGenerateDebug", js.FuncOf(generateDebug))
+	js.Global().Set("planetExplorerGenerateWithBypass", js.FuncOf(generateWithBypass))
 	<-make(chan struct{}) // keep the WASM process alive
 }
 
@@ -125,6 +126,66 @@ func defaultProfile(_ js.Value, args []js.Value) any {
 		return jsError("defaultProfile: marshal: %v", err)
 	}
 	return string(b)
+}
+
+// generateWithBypass(profileJSON, seedStr, faceSize, bypassJSON) →
+// Uint8Array of cube-map cross PNG bytes for the rocky pipeline with
+// the given debug bypass set applied. Mirrors generate() but routes
+// through RenderRockyDebug so per-stage bypasses (e.g. LUT) take effect
+// on the main sphere render. Falls back to plain generate() semantics
+// when bypassJSON is empty or the profile is gas_giant.
+func generateWithBypass(_ js.Value, args []js.Value) any {
+	if len(args) != 4 {
+		return jsError("generateWithBypass: expected 4 args (profileJSON, seed, faceSize, bypassJSON), got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateWithBypass: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	var bypass render.DebugBypass
+	if args[3].Type() == js.TypeString && args[3].String() != "" {
+		var arr []string
+		if err := json.Unmarshal([]byte(args[3].String()), &arr); err == nil && len(arr) > 0 {
+			bypass = make(render.DebugBypass, len(arr))
+			for _, name := range arr {
+				bypass[name] = true
+			}
+		}
+	}
+
+	var cm *cubemap.CubeMap
+	if prof.Renderer == "rocky" && bypass != nil {
+		frame := render.RenderRockyDebug(&prof, s, faceSize, bypass)
+		// The final composited cube map is the ColorAfter of the last
+		// color-kind stage. Walk in reverse to find it.
+		for i := len(frame.Stages) - 1; i >= 0; i-- {
+			if frame.Stages[i].Kind == "color" && frame.Stages[i].ColorAfter != nil {
+				cm = frame.Stages[i].ColorAfter
+				break
+			}
+		}
+		if cm == nil {
+			return jsError("generateWithBypass: no color stage produced output")
+		}
+	} else {
+		switch prof.Renderer {
+		case "rocky":
+			cm = render.RenderRocky(&prof, s, faceSize)
+		case "gas_giant":
+			cm = render.RenderGasGiant(&prof, s, faceSize)
+		default:
+			return jsError("generateWithBypass: unknown renderer %q", prof.Renderer)
+		}
+	}
+
+	var buf bytes.Buffer
+	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+		return jsError("generateWithBypass: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
 }
 
 // generateDebug(profileJSON, seedStr, faceSize, bypassJSON) → JSON string
