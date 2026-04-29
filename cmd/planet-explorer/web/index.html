@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Planet Explorer</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="debug.css">
 </head>
 <body>
 <header>
@@ -143,6 +144,14 @@
     </div>
   </section>
 </main>
+<details id="debug-panel" class="debug-panel">
+  <summary>Pipeline debug view <small>(click to expand)</small></summary>
+  <div class="debug-controls">
+    <button id="debug-refresh">Update debug view</button>
+    <span class="debug-hint">Half-size equirects per stage. Bypass toggles dry-run a stage without zeroing values.</span>
+  </div>
+  <div id="debug-grid"></div>
+</details>
 <script src="wasm_exec.js"></script>
 <script src="app.js"></script>
 </body>

@@ -1,0 +1,25 @@
+.debug-panel {
+  border: 1px solid #444;
+  margin: 24px 0;
+  padding: 8px 12px;
+  background: #1a1a1a;
+  color: #ddd;
+}
+.debug-panel summary { cursor: pointer; padding: 4px 0; font-weight: 600; }
+.debug-controls { margin: 8px 0; display: flex; align-items: center; gap: 12px; }
+.debug-hint { color: #888; font-size: 0.9em; }
+#debug-grid { display: flex; flex-direction: column; gap: 16px; margin-top: 12px; }
+.debug-row {
+  display: grid;
+  grid-template-columns: 140px repeat(4, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  background: #222;
+  border: 1px solid #333;
+}
+.debug-row.skipped { opacity: 0.45; }
+.debug-row .label { font-weight: 600; }
+.debug-row canvas { width: 100%; max-width: 200px; height: auto; border: 1px solid #333; }
+.debug-row .bypass-toggle { display: flex; align-items: center; gap: 4px; font-size: 0.85em; }
+.debug-row .placeholder { color: #555; font-style: italic; text-align: center; }
