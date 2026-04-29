@@ -1226,11 +1226,12 @@ function renderDebugGrid(stages) {
     const keys = s.kind === 'color'
       ? ['color_after', null, null, null]
       : ['raw', 'input_bands', 'output_bands', 'sum_after'];
+    const splineStages = new Set(['Continentalness', 'Detail', 'PeaksValleys', 'Temperature', 'Humidity']);
     for (const key of keys) {
       if (!key || !s[key]) {
         const ph = document.createElement('div');
         ph.className = 'placeholder';
-        if (s.kind === 'height' && (key === 'input_bands' || key === 'output_bands')) {
+        if (s.kind === 'height' && (key === 'input_bands' || key === 'output_bands') && splineStages.has(s.name)) {
           ph.textContent = 'spline has only 1 band — nothing to visualize';
         } else {
           ph.textContent = '—';
