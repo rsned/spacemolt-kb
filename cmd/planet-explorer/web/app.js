@@ -962,6 +962,7 @@ function renderWarpPanel(profile, panels) {
 }
 
 function renderControlFieldsPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
   const cc = profile.ControlConfig;
   if (!cc) return;
   const panel = makePanel('Control fields',
