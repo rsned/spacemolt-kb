@@ -74,3 +74,21 @@ func (cm *CubeMapF) Set(face Face, px, py int, v float64) {
 func (cm *CubeMapF) Get(face Face, px, py int) float64 {
 	return cm.Faces[face][py*cm.Size+px]
 }
+
+// Clone returns a deep copy of c.
+func (c *CubeMapF) Clone() *CubeMapF {
+	out := NewF(c.Size)
+	for face := range Face(NumFaces) {
+		copy(out.Faces[face], c.Faces[face])
+	}
+	return out
+}
+
+// Clone returns a deep copy of c.
+func (c *CubeMap) Clone() *CubeMap {
+	out := New(c.Size)
+	for face := range Face(NumFaces) {
+		copy(out.Faces[face], c.Faces[face])
+	}
+	return out
+}
