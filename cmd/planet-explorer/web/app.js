@@ -1269,8 +1269,13 @@ function renderDebugGrid(stages) {
 // exists already.
 (function wireDebugRefresh() {
   const btn = $('#debug-refresh');
-  if (!btn) return;
-  btn.addEventListener('click', refreshDebugView);
+  if (btn) btn.addEventListener('click', refreshDebugView);
+  const clearBtn = $('#debug-clear-bypass');
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    if (debugBypass.size === 0) return;
+    debugBypass.clear();
+    regenerate();
+  });
 })();
 
 init();
