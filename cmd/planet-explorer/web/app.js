@@ -466,10 +466,14 @@ function renderCratersPanel(profile, panels) {
 
   const reset = () => {
     const orig = originalProfile || {};
-    profile.CraterCount     = orig.CraterCount     != null ? orig.CraterCount     : 0;
-    profile.CraterMinRadius = orig.CraterMinRadius != null ? orig.CraterMinRadius : 0;
-    profile.CraterMaxRadius = orig.CraterMaxRadius != null ? orig.CraterMaxRadius : 0;
-    profile.CraterDepth     = orig.CraterDepth     != null ? orig.CraterDepth     : 0;
+    profile.CraterCount        = orig.CraterCount        != null ? orig.CraterCount        : 0;
+    profile.CraterMinRadius    = orig.CraterMinRadius    != null ? orig.CraterMinRadius    : 0;
+    profile.CraterMaxRadius    = orig.CraterMaxRadius    != null ? orig.CraterMaxRadius    : 0;
+    profile.CraterDepth        = orig.CraterDepth        != null ? orig.CraterDepth        : 0;
+    profile.PowerLawAlpha      = orig.PowerLawAlpha      != null ? orig.PowerLawAlpha      : 0;
+    profile.MariaDensityFactor = orig.MariaDensityFactor != null ? orig.MariaDensityFactor : 0;
+    profile.SurfaceAge         = orig.SurfaceAge         != null ? orig.SurfaceAge         : 0;
+    profile.SecondaryDensity   = orig.SecondaryDensity   != null ? orig.SecondaryDensity   : 0;
     commitProfile(profile);
     renderPanels();
   };
@@ -478,16 +482,24 @@ function renderCratersPanel(profile, panels) {
     profile.CraterMinRadius = 0;
     profile.CraterMaxRadius = 0;
     profile.CraterDepth = 0;
+    profile.PowerLawAlpha = 0;
+    profile.MariaDensityFactor = 0;
+    profile.SurfaceAge = 0;
+    profile.SecondaryDensity = 0;
     commitProfile(profile);
     renderPanels();
   };
   const randomize = () => {
     const minR = round3(0.001 + Math.random() * 0.019);   // 0.001–0.020
     const maxR = round3(Math.max(minR + 0.005, 0.01 + Math.random() * 0.09)); // 0.01–0.10
-    profile.CraterCount     = Math.floor(Math.random() * 201);  // 0–200
-    profile.CraterMinRadius = minR;
-    profile.CraterMaxRadius = maxR;
-    profile.CraterDepth     = round2(0.02 + Math.random() * 0.28); // 0.02–0.30
+    profile.CraterCount        = Math.floor(Math.random() * 201);  // 0–200
+    profile.CraterMinRadius    = minR;
+    profile.CraterMaxRadius    = maxR;
+    profile.CraterDepth        = round2(0.02 + Math.random() * 0.28); // 0.02–0.30
+    profile.PowerLawAlpha      = round2(1.5 + Math.random() * 1);     // 1.5–2.5
+    profile.MariaDensityFactor = round2(Math.random() * 0.6);
+    profile.SurfaceAge         = round2(0.3 + Math.random() * 0.6);   // 0.3–0.9
+    profile.SecondaryDensity   = round2(Math.random() * 0.5);
     commitProfile(profile);
     renderPanels();
   };
@@ -513,6 +525,23 @@ function renderCratersPanel(profile, panels) {
     'How much each crater carves into the heightmap. Useful 0.02–0.3.',
     profile.CraterDepth || 0, 0, 0.5, '0.01',
     v => { profile.CraterDepth = v; commitProfile(profile); }));
+
+  panel.appendChild(makeNumberRow('PowerLawAlpha',
+    'Size-frequency slope. 0 = legacy uniform-with-quadratic-bias (also disables age + ejecta). 2.0 ≈ realistic many-small/few-large; higher = even more skewed.',
+    profile.PowerLawAlpha || 0, 0, 4, '0.1',
+    v => { profile.PowerLawAlpha = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('MariaDensityFactor',
+    'Strength of the maria mask: bright low-freq fBm regions reject 70% of crater candidates. 0 = disabled.',
+    profile.MariaDensityFactor || 0, 0, 1, '0.05',
+    v => { profile.MariaDensityFactor = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('SurfaceAge',
+    'Beta-distributed age bias. 0 = mostly young/sharp; 1 = mostly old/eroded. Default ~0.7.',
+    profile.SurfaceAge || 0, 0, 1, '0.05',
+    v => { profile.SurfaceAge = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('SecondaryDensity',
+    'Small ejecta-cluster bowls around each large primary. 0 = disabled; 1 = up to ~15 secondaries per large.',
+    profile.SecondaryDensity || 0, 0, 1, '0.05',
+    v => { profile.SecondaryDensity = v; commitProfile(profile); }));
 
   panels.appendChild(panel);
 }
