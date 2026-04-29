@@ -167,3 +167,83 @@ func TestDebugFrameColorStages(t *testing.T) {
 		}
 	}
 }
+
+// TestRenderRockyDebugAllStagesPresent verifies that RenderRockyDebug
+// returns a populated DebugFrame with both height and color stages.
+func TestRenderRockyDebugAllStagesPresent(t *testing.T) {
+	prof := types.PlanetProfile{
+		Type:     "test",
+		Renderer: "rocky",
+		ControlConfig: types.ControlConfig{
+			Continentalness: types.ControlField{
+				Amp:         1,
+				Freq:        1,
+				Octaves:     2,
+				Lacunarity:  2,
+				Persistence: 0.5,
+				Spline: planetcolor.Spline{
+					Knots: []planetcolor.SplineKnot{
+						{Input: 0, Output: 0},
+						{Input: 1, Output: 0.5},
+					},
+				},
+			},
+			Detail: types.ControlField{
+				Amp:         0.5,
+				Freq:        2,
+				Octaves:     3,
+				Lacunarity:  2,
+				Persistence: 0.5,
+				Spline: planetcolor.Spline{
+					Knots: []planetcolor.SplineKnot{
+						{Input: 0, Output: 0},
+						{Input: 1, Output: 0.3},
+					},
+				},
+			},
+		},
+		Ridged: types.RidgedConfig{
+			Amp:      0.2,
+			Freq:     2,
+			Octaves:  3,
+			Lacunarity: 2,
+			Gain:     0.5,
+			Offset:   1,
+			MaskLow:  0.3,
+			MaskHigh: 0.7,
+		},
+		Palette: []planetcolor.ColorStop{
+			{Position: 0, Color: color.RGBA{R: 50, G: 50, B: 50, A: 255}},
+			{Position: 1, Color: color.RGBA{R: 200, G: 200, B: 200, A: 255}},
+		},
+	}
+	frame := RenderRockyDebug(&prof, 7, 32, nil)
+	if frame == nil {
+		t.Fatal("RenderRockyDebug returned nil")
+	}
+	if len(frame.Stages) == 0 {
+		t.Fatal("expected at least one stage")
+	}
+
+	// Verify height stages are present
+	heightStageNames := map[string]bool{}
+	colorStageNames := map[string]bool{}
+	for _, s := range frame.Stages {
+		switch s.Kind {
+		case "height":
+			heightStageNames[s.Name] = true
+		case "color":
+			colorStageNames[s.Name] = true
+		}
+	}
+
+	// Should have at least Continentalness from height stages
+	if !heightStageNames["Continentalness"] {
+		t.Error("missing height stage Continentalness")
+	}
+
+	// Should have at least Palette from color stages
+	if !colorStageNames["Palette"] {
+		t.Error("missing color stage Palette")
+	}
+}

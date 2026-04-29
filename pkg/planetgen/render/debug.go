@@ -2,6 +2,7 @@ package render
 
 import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 // DebugBypass is the set of stage names the debug renderer should
@@ -32,4 +33,14 @@ type DebugStage struct {
 	SumAfter    *cubemap.CubeMapF
 	ColorAfter  *cubemap.CubeMap
 	Skipped     bool
+}
+
+// RenderRockyDebug runs the rocky pipeline (heightmap + colorize) with
+// per-stage intermediates captured into a DebugFrame. bypass is a set
+// of stage names to dry-run; pass nil to run all stages normally.
+func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass DebugBypass) *DebugFrame {
+	frame := &DebugFrame{}
+	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass)
+	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass)
+	return frame
 }
