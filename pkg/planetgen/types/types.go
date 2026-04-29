@@ -72,6 +72,10 @@ type PlanetProfile struct {
 
 	// Tier-S Phase 1 Task 26: per-archetype LUT for final color grading
 	LUT string
+
+	// Phase 4 Task 3: coastal noise enhancement using JFA distance-to-coast.
+	// Amp=0 disables (default).
+	Coastal CoastalConfig
 }
 
 // RidgedConfig parameterizes a ridged-multifractal mountain pass.
@@ -87,6 +91,16 @@ type RidgedConfig struct {
 	Offset     float64 // ridge sharpness (default 1.0; >1 sharper)
 	MaskLow    float64 // Continentalness output ≤ this = no ridges
 	MaskHigh   float64 // Continentalness output ≥ this = full ridges
+}
+
+// CoastalConfig parameterizes localized roughening near coastlines via
+// distance-to-coast modulation. Amp=0 disables (default). The formula is
+// e_coast = e + α·(1 − e⁴)·(n4 + n5/2 + n6/4)·falloff, where falloff
+// smoothly tapers from 1 at the coast to 0 at the threshold distance.
+type CoastalConfig struct {
+	Amp       float64 // master strength (0 = disabled; typical 0.05–0.2)
+	Threshold float64 // distance-to-coast cutoff in [0,1]; effect dies off above this
+	Freq      float64 // base frequency for the n4 fbm
 }
 
 // ControlField is a single 3D fBm control field used to drive the

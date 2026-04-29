@@ -165,6 +165,24 @@ func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) (*c
 		}
 	}
 
+	// Phase 4 Task 3: Apply coastal noise enhancement if enabled.
+	if profile.Coastal.Amp > 0 && profile.OceanLevel > 0 {
+		distField := field.DistanceToCoast(heightmap, profile.OceanLevel, S)
+		coastGen := noise.NewCoastalGen(pgseed.Domain(seed, "coastal"))
+		for face := range cubemap.Face(cubemap.NumFaces) {
+			for py := range S {
+				for px := range S {
+					dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+					h := heightmap.Get(face, px, py)
+					d := distField.Get(face, px, py)
+					heightmap.Set(face, px, py,
+						noise.ApplyCoastal(coastGen, dx, dy, dz, h, d,
+							profile.Coastal.Amp, profile.Coastal.Threshold, profile.Coastal.Freq))
+				}
+			}
+		}
+	}
+
 	var craters []feature.Crater
 	if profile.CraterCount > 0 {
 		craters = feature.GenerateCraters(seed, profile)
