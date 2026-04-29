@@ -95,6 +95,28 @@ The heart of the new pipeline. Five independent 3D fBm noise fields that replace
 
 **Why this matters:** Following Minecraft 1.18's design, orthogonal control fields combined via splines produce "designed-feeling" planets instead of generic noise textures.
 
+#### How Control Fields Combine
+
+The combination method is **pure additive summation**, not multiplication or complex mixing:
+
+1. **Per-field processing** (each of the 5 fields independently):
+   - Sample fBm noise at pixel → raw value in [0, Amp]
+   - Multiply by province frequency modifier (if provinces enabled)
+   - Evaluate the spline: `EvalSpline(field.Spline, modifiedValue)` → height contribution
+   - Multiply by province amplitude modifier (if provinces enabled)
+
+2. **Sum all 5 contributions** → raw heightmap value
+
+3. **Add ridged mountains** (if enabled, masked by Continentalness spline output)
+
+4. **Normalize entire heightmap to [0,1]** — find global min/max, remap linearly
+
+5. **Carve craters** by subtracting depth from normalized heightmap
+
+**Key insight:** The splines do the heavy lifting of shaping each field's contribution before summation. This is why Continentalness might have a sharp mid-range S-curve (for coastlines) while Erosion has a negative curve (to subtract from highlands). Summing these shaped contributions creates the final terrain character.
+
+**Province modulation** (if enabled) scales each field's contribution per-region, making some areas more mountainous, others smoother — this is applied *before* summation via the `freqMod` and `rampMod` multipliers.
+
 #### Continentalness
 **Purpose:** Macro land/ocean separation — the base shape of continents
 **Effect on height:** Spline output adds to height
