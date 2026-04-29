@@ -1258,10 +1258,49 @@ function renderDebugGrid(stages) {
         cv.height = img.height;
         cv.getContext('2d').drawImage(img, 0, 0);
       };
-      row.appendChild(cv);
+      // For band thumbnails, attach a small color/index legend below
+      // the canvas so the operator can read which palette entry
+      // corresponds to which knot interval.
+      if ((key === 'input_bands' || key === 'output_bands') && splineStages.has(s.name)) {
+        const wrap = document.createElement('div');
+        wrap.className = 'bands-cell';
+        wrap.appendChild(cv);
+        let bandCount = 0;
+        try {
+          const prof = JSON.parse(profileTextarea.value);
+          const knots = prof && prof.ControlConfig && prof.ControlConfig[s.name]
+            && prof.ControlConfig[s.name].Spline && prof.ControlConfig[s.name].Spline.Knots;
+          if (Array.isArray(knots)) bandCount = Math.max(0, knots.length - 1);
+        } catch {}
+        if (bandCount > 0) wrap.appendChild(bandLegend(bandCount));
+        row.appendChild(wrap);
+      } else {
+        row.appendChild(cv);
+      }
     }
     grid.appendChild(row);
   }
+}
+
+// Matches pkg/planetgen/render/debug_palette.go bandPalette, in CSS hex.
+const BAND_PALETTE = ['#46c8dc', '#3c6ee6', '#50c850', '#f0dc3c', '#e6503c'];
+
+function bandLegend(numBands) {
+  const wrap = document.createElement('div');
+  wrap.className = 'band-legend';
+  for (let i = 0; i < numBands; i++) {
+    const item = document.createElement('span');
+    item.className = 'band-legend-item';
+    const swatch = document.createElement('span');
+    swatch.className = 'band-legend-swatch';
+    swatch.style.background = BAND_PALETTE[i % BAND_PALETTE.length];
+    item.appendChild(swatch);
+    const label = document.createElement('span');
+    label.textContent = String(i);
+    item.appendChild(label);
+    wrap.appendChild(item);
+  }
+  return wrap;
 }
 
 // Wire the manual refresh button. Use addEventListener once when the
