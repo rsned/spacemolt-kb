@@ -1230,7 +1230,11 @@ function renderDebugGrid(stages) {
       if (!key || !s[key]) {
         const ph = document.createElement('div');
         ph.className = 'placeholder';
-        ph.textContent = '—';
+        if (s.kind === 'height' && (key === 'input_bands' || key === 'output_bands')) {
+          ph.textContent = 'spline has only 1 band — nothing to visualize';
+        } else {
+          ph.textContent = '—';
+        }
         row.appendChild(ph);
         continue;
       }

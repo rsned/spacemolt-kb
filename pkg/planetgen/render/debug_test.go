@@ -25,11 +25,42 @@ func minimalRockyProfile() types.PlanetProfile {
 				Spline: planetcolor.Spline{
 					Knots: []planetcolor.SplineKnot{
 						{Input: 0, Output: 0},
+						{Input: 0.5, Output: 0.3},
 						{Input: 1, Output: 0.5},
 					},
 				},
 			},
 		},
+	}
+}
+
+// TestDebugFrameNoBandsWhenSingleInterval verifies the band columns are
+// nil for splines with fewer than 3 knots (single interval = uniform
+// classification = no useful visualization).
+func TestDebugFrameNoBandsWhenSingleInterval(t *testing.T) {
+	prof := types.PlanetProfile{
+		Type: "test", Renderer: "rocky",
+		ControlConfig: types.ControlConfig{
+			Continentalness: types.ControlField{
+				Amp: 1, Freq: 1, Octaves: 2, Lacunarity: 2, Persistence: 0.5,
+				Spline: planetcolor.Spline{Knots: []planetcolor.SplineKnot{
+					{Input: 0, Output: 0},
+					{Input: 1, Output: 0.5},
+				}},
+			},
+		},
+	}
+	frame := &DebugFrame{}
+	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, nil)
+	if len(frame.Stages) == 0 {
+		t.Fatal("no stages recorded")
+	}
+	s := frame.Stages[0]
+	if s.InputBands != nil {
+		t.Error("2-knot spline should produce nil InputBands")
+	}
+	if s.OutputBands != nil {
+		t.Error("2-knot spline should produce nil OutputBands")
 	}
 }
 

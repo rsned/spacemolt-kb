@@ -111,12 +111,20 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 					}
 				}
 				if frame != nil {
+					// Skip band classification when the spline has fewer than
+					// 3 knots — there's only one interval and the result would
+					// be a uniform single color, which is not informative.
+					var inputBands, outputBands *cubemap.CubeMap
+					if len(cfFields[i].Spline.Knots) >= 3 {
+						inputBands = ClassifySplineInputBands(raw, cfFields[i].Spline, S)
+						outputBands = ClassifySplineOutputBands(raw, cfFields[i].Spline, S)
+					}
 					frame.Stages = append(frame.Stages, DebugStage{
 						Name:        name,
 						Kind:        "height",
 						RawFbm:      raw.Clone(),
-						InputBands:  ClassifySplineInputBands(raw, cfFields[i].Spline, S),
-						OutputBands: ClassifySplineOutputBands(raw, cfFields[i].Spline, S),
+						InputBands:  inputBands,
+						OutputBands: outputBands,
 						SumAfter:    heightmap.Clone(),
 						Skipped:     bypassed,
 					})
