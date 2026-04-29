@@ -8,6 +8,7 @@ import (
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
+	pgseed "github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
@@ -18,6 +19,12 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 	detailNg := noise.New(seed + 100)
 	turbNg := noise.New(seed + 200)
 	warper := noise.NewWarper(seed, profile.Warp)
+
+	// Initialize curl-noise generator if curl advection is enabled
+	var curlGen *noise.CurlGen
+	if profile.Curl.Amp > 0 || profile.Curl.JetAmp > 0 {
+		curlGen = noise.NewCurlGen(pgseed.Domain(seed, "gas.curl"))
+	}
 
 	// Step 1: Generate band boundaries
 	bands := generateGasBands(rng, profile.BandCount, profile.Palette)
@@ -31,6 +38,24 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 			for px := range S {
 				sx, sy, sz := cubemap.FacePixelToDir(face, px, py, S)
 				sx, sy, sz = warper.Warp(sx, sy, sz)
+
+				// Apply curl-noise backward trace advection if enabled
+				if curlGen != nil {
+					iters := profile.Curl.Iterations
+					if iters <= 0 {
+						iters = 8
+					}
+					dt := profile.Curl.DT
+					if dt <= 0 {
+						dt = 0.1
+					}
+					freq := profile.Curl.Freq
+					if freq <= 0 {
+						freq = 1
+					}
+					sx, sy, sz = curlGen.BackwardTrace(sx, sy, sz, profile.Curl.Amp, iters, dt, freq, profile.Curl.JetAmp)
+				}
+
 				lat := math.Asin(sy)
 				lonForX := math.Atan2(sz, sx)
 				if lonForX < 0 {

@@ -80,6 +80,10 @@ type PlanetProfile struct {
 	// Phase 4 Task 5: Voronoi continents with per-continent base height.
 	// Seeds=0 disables (default).
 	Continents ContinentConfig
+
+	// Phase 4 Task 7: Curl-of-fbm tangent-field advection for gas giants.
+	// Amp=0 disables (default).
+	Curl CurlConfig
 }
 
 // RidgedConfig parameterizes a ridged-multifractal mountain pass.
@@ -117,6 +121,18 @@ type ContinentConfig struct {
 	WarpFreq float64 // displacement fbm frequency
 	HeightLo float64 // per-continent base height lower bound (default 0.3)
 	HeightHi float64 // per-continent base height upper bound (default 0.7)
+}
+
+// CurlConfig parameterizes curl-of-fbm tangent-field semi-Lagrangian advection
+// for gas giants. The backward-trace integrates position against a combination
+// of zonal-jet and curl-noise displacement over 4–16 iterations.
+// Amp=0 and JetAmp=0 disable (default).
+type CurlConfig struct {
+	Amp        float64 // displacement strength per iteration (0 disables)
+	Iterations int     // 4–16 typical
+	DT         float64 // step size; 0.05–0.2 typical
+	Freq       float64 // curl-noise base frequency
+	JetAmp     float64 // zonal-jet contribution per latitude band (0 disables)
 }
 
 // ControlField is a single 3D fBm control field used to drive the
