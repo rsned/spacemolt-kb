@@ -635,7 +635,18 @@ var Profiles = map[string]*types.PlanetProfile{
 		TurbulenceAmp:    0.012,
 		StormCount:       3,
 		StormSize:        0.25,
-			LUT:              "jovian",
+		Warp: types.WarpConfig{
+			Amp: 0.34, Freq: 0.53, Octaves: 3, Lacunarity: 1.69, Persistence: 0.24,
+		},
+		Curl: types.CurlConfig{
+			Amp: 0.10, Iterations: 6, DT: 0.08, Freq: 1.83, JetAmp: 0.17,
+		},
+		StormBands: []types.StormBand{
+			{Lat: -0.34, HalfWidth: 0.12, Color: types.ColorRGB{200, 80, 80}, Strength: 0.5},
+			{Lat: 0.50, HalfWidth: 0.15, Color: types.ColorRGB{200, 80, 80}, Strength: 0.5},
+			{Lat: 0.26, HalfWidth: 0.04, Color: types.ColorRGB{200, 196, 81}, Strength: 0.5},
+		},
+		LUT: "jovian",
 	},
 	"ice_giant": {
 		Type:     "ice_giant",
@@ -657,7 +668,10 @@ var Profiles = map[string]*types.PlanetProfile{
 		BandBlendWidth:   0.45,
 		StormCount:       0,
 		StormSize:        0.05,
-			LUT:              "ice_giant",
+		Curl: types.CurlConfig{
+			Amp: 0.03, Iterations: 14, DT: 0.13, Freq: 4.08, JetAmp: 0.41,
+		},
+		LUT: "ice_giant",
 	},
 
 	// Unknown/unclassified planets — neutral gray rocky appearance

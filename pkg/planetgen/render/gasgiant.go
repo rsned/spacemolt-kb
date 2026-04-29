@@ -56,6 +56,13 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 					sx, sy, sz = curlGen.BackwardTrace(sx, sy, sz, profile.Curl.Amp, iters, dt, freq, profile.Curl.JetAmp)
 				}
 
+				// Floating-point drift in BackwardTrace's per-step renormalization can
+				// leave sy fractionally outside [-1, 1], turning Asin into NaN.
+				if sy > 1 {
+					sy = 1
+				} else if sy < -1 {
+					sy = -1
+				}
 				lat := math.Asin(sy)
 				lonForX := math.Atan2(sz, sx)
 				if lonForX < 0 {

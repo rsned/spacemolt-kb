@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	_ "image/png"
+	"math"
 )
 
 //go:embed luts/jupiter_ramp.png
@@ -32,7 +33,7 @@ func init() {
 // latitude fraction f in [0, 1] (0 = equator, 1 = pole).
 // Values outside [0,1] are clamped. Alpha is always 255.
 func JupiterRamp(f float64) color.RGBA {
-	if f < 0 {
+	if math.IsNaN(f) || f < 0 {
 		f = 0
 	}
 	if f > 1 {
