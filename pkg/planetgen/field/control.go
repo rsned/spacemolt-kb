@@ -26,7 +26,7 @@ var controlFieldDomains = [5]string{
 func GenerateControlFields(master int64, cfg types.ControlConfig, S int) [5]*cubemap.CubeMapF {
 	fieldsCfg := [5]types.ControlField{
 		cfg.Continentalness,
-		cfg.Erosion,
+		cfg.Detail,
 		cfg.PeaksValleys,
 		cfg.Temperature,
 		cfg.Humidity,

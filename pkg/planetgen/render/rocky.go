@@ -321,12 +321,12 @@ func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *c
 }
 
 // orderedControlFields returns the five ControlField values in canonical
-// order (Continentalness, Erosion, PeaksValleys, Temperature, Humidity)
+// order (Continentalness, Detail, PeaksValleys, Temperature, Humidity)
 // matching field.GenerateControlFields' output indexing.
 func orderedControlFields(c types.ControlConfig) [5]types.ControlField {
 	return [5]types.ControlField{
 		c.Continentalness,
-		c.Erosion,
+		c.Detail,
 		c.PeaksValleys,
 		c.Temperature,
 		c.Humidity,

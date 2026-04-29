@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"image/color"
 
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
@@ -34,13 +35,13 @@ type PlanetProfile struct {
 	// Secondary craters per large primary, scaled. 0 disables. Up to 5 + 10·d
 	// secondaries are spawned within ~3R of each crater whose radius
 	// exceeds half of CraterMaxRadius.
-	SecondaryDensity float64
-	HasPolarCaps     bool
-	PolarCapSize     float64 // Latitude fraction (0-0.3)
-	PolarCapNoise    float64 // Edge roughness (0 = default 0.08)
-	OceanLevel       float64 // Below this = ocean (0 = no ocean)
-	OceanColor       color.RGBA
-	SnowLine         float64     // Elevation above this gets snow (0 = disabled)
+	SecondaryDensity  float64
+	HasPolarCaps      bool
+	PolarCapSize      float64 // Latitude fraction (0-0.3)
+	PolarCapNoise     float64 // Edge roughness (0 = default 0.08)
+	OceanLevel        float64 // Below this = ocean (0 = no ocean)
+	OceanColor        color.RGBA
+	SnowLine          float64                 // Elevation above this gets snow (0 = disabled)
 	EquatorialPalette []planetcolor.ColorStop // If set, blended in near equator
 	PolarPalette      []planetcolor.ColorStop // If set, blended in near poles (before ice caps)
 
@@ -116,7 +117,7 @@ type ProvinceConfig struct {
 // ControlConfig holds the five control fields used by the rocky pipeline.
 type ControlConfig struct {
 	Continentalness ControlField
-	Erosion         ControlField
+	Detail          ControlField // formerly "Erosion"; high-frequency detail-noise layer
 	PeaksValleys    ControlField
 	Temperature     ControlField
 	Humidity        ControlField
@@ -153,4 +154,23 @@ type BiomeCell struct {
 // ColorRGB is a JSON-serializable RGB color (alpha is implicit 255).
 type ColorRGB struct {
 	R, G, B uint8
+}
+
+// UnmarshalJSON accepts both the current "Detail" key and the legacy
+// "Erosion" key so explorer JSON dumps from before the Phase-4 rename
+// keep loading. When both are present the current key wins.
+func (c *ControlConfig) UnmarshalJSON(data []byte) error {
+	type raw ControlConfig
+	aux := struct {
+		*raw
+		Erosion *ControlField `json:",omitempty"`
+	}{raw: (*raw)(c)}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	// If Erosion was provided but Detail wasn't, copy Erosion to Detail
+	if aux.Erosion != nil && c.Detail.Amp == 0 && c.Detail.Freq == 0 {
+		c.Detail = *aux.Erosion
+	}
+	return nil
 }

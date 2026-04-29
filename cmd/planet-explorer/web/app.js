@@ -275,7 +275,7 @@ function rgbCSS(c) {
 
 const FIELD_HELP = {
   Continentalness: 'Macro land/ocean shape. Spline output adds to height — typical curve is steep in the middle for sharp coastlines.',
-  Erosion: 'Smooths highlands. Spline output is usually negative — subtracted from height where erosion is high.',
+  Detail: 'High-frequency detail noise. Adds bumpy variation to the heightmap. (Despite the legacy name "Erosion", this layer is purely additive — Phase 5 will add a separate flow-based erosion stage.)',
   PeaksValleys: 'High-frequency mountain detail. Spline output adds small-scale roughness on top of the macro shape.',
   Temperature: 'Drives biome row selection in the Whittaker table. Combined with cos(latitude) so poles are colder than the equator.',
   Humidity: 'Drives biome column selection. No latitude bias — purely from this noise field.',
@@ -747,8 +747,8 @@ function renderControlFieldsPanel(profile, panels) {
   const cc = profile.ControlConfig;
   if (!cc) return;
   const panel = makePanel('Control fields',
-    'Five 3D fBm noise fields. Continentalness/Erosion/PeaksValleys are summed via splines to build the heightmap. Temperature/Humidity feed the Whittaker biome lookup. Each field has independent fBm settings + an optional spline.');
-  const fields = ['Continentalness', 'Erosion', 'PeaksValleys', 'Temperature', 'Humidity'];
+    'Five 3D fBm noise fields. Continentalness/Detail/PeaksValleys are summed via splines to build the heightmap. Temperature/Humidity feed the Whittaker biome lookup. Each field has independent fBm settings + an optional spline.');
+  const fields = ['Continentalness', 'Detail', 'PeaksValleys', 'Temperature', 'Humidity'];
   for (let i = 0; i < fields.length; i++) {
     const fieldName = fields[i];
     const cf = cc[fieldName];

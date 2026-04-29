@@ -80,7 +80,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		SecondaryDensity:   0.16,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.42, Spline: continentalShelfSpline},
-			Erosion:         types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.5, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.5, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.72, Freq: 0.66, Octaves: 6, Lacunarity: 2.9, Persistence: 0.68, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.83, Freq: 2.43, Octaves: 6, Lacunarity: 1.95, Persistence: 0.39, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 0.57, Freq: 5.56, Octaves: 4, Lacunarity: 1.89, Persistence: 0.5, Spline: defaultSpline},
@@ -115,7 +115,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		PolarCapNoise:      0.15,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.36, Freq: 5.42, Octaves: 5, Lacunarity: 2.11, Persistence: 0.6, Spline: defaultSpline},
-			Erosion:         types.ControlField{Amp: 1.44, Freq: 1.81, Octaves: 6, Lacunarity: 2.16, Persistence: 0.49, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 1.44, Freq: 1.81, Octaves: 6, Lacunarity: 2.16, Persistence: 0.49, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.56, Freq: 2.84, Octaves: 3, Lacunarity: 2.99, Persistence: 0.33, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.83, Freq: 0.63, Octaves: 5, Lacunarity: 1.53, Persistence: 0.38, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.04, Freq: 3.48, Octaves: 4, Lacunarity: 1.84, Persistence: 0.41, Spline: defaultSpline},
@@ -179,7 +179,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.97, Freq: 2.02, Octaves: 5, Lacunarity: 2.12, Persistence: 0.51, Spline: continentalShelfSpline},
-			Erosion:         types.ControlField{Amp: 0.55, Freq: 2.95, Octaves: 3, Lacunarity: 2.48, Persistence: 0.67, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 0.55, Freq: 2.95, Octaves: 3, Lacunarity: 2.48, Persistence: 0.67, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.96, Freq: 2.09, Octaves: 5, Lacunarity: 2.5, Persistence: 0.72, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.71, Freq: 1.27, Octaves: 4, Lacunarity: 1.89, Persistence: 0.44, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.38, Freq: 5.81, Octaves: 4, Lacunarity: 2.83, Persistence: 0.73, Spline: defaultSpline},
@@ -247,7 +247,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		PolarCapSize:       0.25,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.50, Freq: 2.20, Octaves: 6, Lacunarity: 2.02, Persistence: 0.44, Spline: continentalShelfSpline},
-			Erosion:         types.ControlField{Amp: 1.12, Freq: 4.07, Octaves: 4, Lacunarity: 1.78, Persistence: 0.66, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 1.12, Freq: 4.07, Octaves: 4, Lacunarity: 1.78, Persistence: 0.66, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 1.82, Freq: 3.99, Octaves: 2, Lacunarity: 1.52, Persistence: 0.48, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.37, Freq: 4.62, Octaves: 2, Lacunarity: 2.88, Persistence: 0.71, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.55, Freq: 3.50, Octaves: 2, Lacunarity: 1.67, Persistence: 0.70, Spline: defaultSpline},
@@ -285,7 +285,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		PolarCapSize:       0.35,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.84, Freq: 4.56, Octaves: 2, Lacunarity: 2.45, Persistence: 0.75, Spline: continentalShelfSpline},
-			Erosion:         types.ControlField{Amp: 1.94, Freq: 1.14, Octaves: 3, Lacunarity: 2.39, Persistence: 0.68, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 1.94, Freq: 1.14, Octaves: 3, Lacunarity: 2.39, Persistence: 0.68, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.76, Freq: 1.05, Octaves: 6, Lacunarity: 3.00, Persistence: 0.59, Spline: defaultSpline},
 		},
 		Ridged: types.RidgedConfig{
@@ -324,7 +324,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		SnowLine:           0.50,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.73, Freq: 1.53, Octaves: 2, Lacunarity: 1.56, Persistence: 0.64, Spline: continentalShelfSpline},
-			Erosion:         types.ControlField{Amp: 1.67, Freq: 4.43, Octaves: 4, Lacunarity: 2.28, Persistence: 0.63, Spline: continentalShelfSpline},
+			Detail:         types.ControlField{Amp: 1.67, Freq: 4.43, Octaves: 4, Lacunarity: 2.28, Persistence: 0.63, Spline: continentalShelfSpline},
 		},
 		Warp: types.WarpConfig{
 			Amp: 0.26, Freq: 1.10, Octaves: 2, Lacunarity: 2.69, Persistence: 0.28,
@@ -394,7 +394,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.20, Freq: 2.64, Octaves: 4, Lacunarity: 2.75, Persistence: 0.30, Spline: continentalShelfSpline},
-			Erosion:         types.ControlField{Amp: 1.30, Freq: 0.69, Octaves: 3, Lacunarity: 1.65, Persistence: 0.68, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 1.30, Freq: 0.69, Octaves: 3, Lacunarity: 1.65, Persistence: 0.68, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.51, Freq: 2.75, Octaves: 5, Lacunarity: 2.90, Persistence: 0.74, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.52, Freq: 4.73, Octaves: 4, Lacunarity: 1.66, Persistence: 0.36, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.31, Freq: 2.34, Octaves: 2, Lacunarity: 1.55, Persistence: 0.62, Spline: defaultSpline},
@@ -461,7 +461,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		SecondaryDensity:   0.09,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.24, Freq: 2.86, Octaves: 5, Lacunarity: 2.31, Persistence: 0.66, Spline: defaultSpline},
-			Erosion:         types.ControlField{Amp: 0.74, Freq: 1.87, Octaves: 6, Lacunarity: 2.24, Persistence: 0.69, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 0.74, Freq: 1.87, Octaves: 6, Lacunarity: 2.24, Persistence: 0.69, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 1.45, Freq: 4.94, Octaves: 6, Lacunarity: 2.51, Persistence: 0.70, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 0.64, Freq: 3.47, Octaves: 4, Lacunarity: 1.97, Persistence: 0.38, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 0.81, Freq: 0.99, Octaves: 4, Lacunarity: 2.33, Persistence: 0.78, Spline: defaultSpline},
@@ -502,7 +502,7 @@ var Profiles = map[string]*types.PlanetProfile{
 				Amp: 1.13, Freq: 3.82, Octaves: 6, Lacunarity: 2.29, Persistence: 0.56,
 				Spline: continentalShelfSpline,
 			},
-			Erosion: types.ControlField{
+			Detail: types.ControlField{
 				Amp: 0.89, Freq: 2.53, Octaves: 6, Lacunarity: 1.92, Persistence: 0.34,
 				Spline: planetcolor.Spline{Knots: []planetcolor.SplineKnot{
 					{Input: 0, Output: 0}, {Input: 1, Output: 0.6},
@@ -575,7 +575,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.83, Freq: 5.85, Octaves: 4, Lacunarity: 2.59, Persistence: 0.68, Spline: continentalShelfSpline},
-			Erosion:         types.ControlField{Amp: 1.29, Freq: 4.59, Octaves: 4, Lacunarity: 1.80, Persistence: 0.73, Spline: defaultSpline},
+			Detail:         types.ControlField{Amp: 1.29, Freq: 4.59, Octaves: 4, Lacunarity: 1.80, Persistence: 0.73, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 1.00, Freq: 4.22, Octaves: 3, Lacunarity: 2.97, Persistence: 0.67, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.88, Freq: 2.37, Octaves: 5, Lacunarity: 1.54, Persistence: 0.32, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.57, Freq: 0.84, Octaves: 4, Lacunarity: 2.23, Persistence: 0.35, Spline: defaultSpline},

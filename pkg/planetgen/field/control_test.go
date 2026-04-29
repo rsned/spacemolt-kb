@@ -9,7 +9,7 @@ import (
 func TestGenerateControlFieldsShape(t *testing.T) {
 	cfg := types.ControlConfig{
 		Continentalness: types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
-		Erosion:         types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
+		Detail:          types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
 		PeaksValleys:    types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
 		Temperature:     types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
 		Humidity:        types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
@@ -30,22 +30,22 @@ func TestGenerateControlFieldsOrthogonal(t *testing.T) {
 	// produce different output (otherwise the named-domain mix is broken).
 	cfg := types.ControlConfig{
 		Continentalness: types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
-		Erosion:         types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
+		Detail:          types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
 		PeaksValleys:    types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
 		Temperature:     types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
 		Humidity:        types.ControlField{Amp: 1, Freq: 1, Octaves: 4, Lacunarity: 2, Persistence: 0.5},
 	}
 	fields := GenerateControlFields(42, cfg, 16)
 	cont := fields[0].Faces[0]
-	eros := fields[1].Faces[0]
+	detail := fields[1].Faces[0]
 	identical := true
 	for i := range cont {
-		if cont[i] != eros[i] {
+		if cont[i] != detail[i] {
 			identical = false
 			break
 		}
 	}
 	if identical {
-		t.Error("Continentalness and Erosion fields are identical; named-domain mix not effective")
+		t.Error("Continentalness and Detail fields are identical; named-domain mix not effective")
 	}
 }

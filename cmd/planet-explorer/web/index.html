@@ -53,7 +53,7 @@
         <div class="help-body">
           <h4>Render flow (ControlConfig fields, each with embedded Spline)</h4>
           <ol>
-            <li>Generate 5 fBm control fields (Continentalness, Erosion, PeaksValleys, Temperature, Humidity).</li>
+            <li>Generate 5 fBm control fields (Continentalness, Detail, PeaksValleys, Temperature, Humidity).</li>
             <li>Each field's embedded <strong>Spline</strong> maps its [0, Amp] output to a height contribution.</li>
             <li>Sum spline outputs → normalize to [0,1] heightmap.</li>
             <li>Apply craters, then color the surface.</li>
@@ -84,7 +84,7 @@
           <h4>Field semantics</h4>
           <ul>
             <li><strong>Continentalness</strong> — macro land/ocean. Steep mid-section in the spline = sharp coastlines.</li>
-            <li><strong>Erosion</strong> — smooths highlands. Spline output usually negative (subtracts from height).</li>
+            <li><strong>Detail</strong> — high-frequency detail noise. Adds bumpy variation to the heightmap. (Phase 5 will add a separate flow-based erosion stage.)</li>
             <li><strong>PeaksValleys</strong> — small-scale mountain roughness on top of macro shape.</li>
             <li><strong>Temperature</strong> — biome row index. Combined with <code>cos(latitude)</code> so poles read colder.</li>
             <li><strong>Humidity</strong> — biome column index. No latitude bias.</li>
