@@ -140,7 +140,7 @@ The render pipeline gained five Tier-S algorithms:
 The interactive slider tool at `cmd/planet-explorer/` is the canonical
 workflow for tuning these parameters live in a browser.
 
-## Phase 4 (current)
+## Phase 4
 
 Four Tier-A items shipped in this phase, plus a clarifying rename:
 
@@ -167,6 +167,38 @@ Four Tier-A items shipped in this phase, plus a clarifying rename:
 The Phase-1 `Erosion` control field was renamed to `Detail` to free the
 name for Phase-5 flow-based erosion. Existing JSON dumps with the old key
 still load via a custom `UnmarshalJSON` shim on `ControlConfig`.
+
+## Phase 6 — Pipeline debug view (current)
+
+The slider tool's debug panel (collapsible at the bottom of the page)
+shows each rocky-pipeline stage as a row of half-size equirect
+thumbnails:
+
+- **raw** — the stage's signed scalar contribution as a cube map.
+  Negative pixels render in red (subtractive layers like crater bowls
+  and coastal noise are visible at a glance).
+- **input bands / output bands** — for stages with splines (the five
+  control fields), pixels classified by which knot interval they fall
+  into, on the input axis or the output axis.
+- **sum after** — the running heightmap after this stage applied.
+
+Color stages (Palette, Ocean, Snow, Polar Caps, Ejecta, LUT) appear
+below the heightmap stages, each as a single thumbnail of the cube map
+*after* that stage applied. The LUT row is intentionally bypassable —
+toggling it lets the underlying palette/biome color come through
+unmodified.
+
+Each row has a "bypass" checkbox. Bypassing a stage skips its
+contribution while keeping the rest of the pipeline noise streams
+unchanged (seeds and rng draws stay deterministic), so the operator
+can isolate the effect of any single stage without zeroing parameters.
+The panel auto-refreshes after every main render when it is open;
+collapse it to skip the expensive PNG-encoding pass.
+
+Implemented under `pkg/planetgen/render/debug.go` and
+`pkg/planetgen/render/debug_palette.go`; surfaced via the
+`planetExplorerGenerateDebug` wasm export and rendered into a
+`<details id="debug-panel">` block in the explorer UI.
 
 ## Testing and the golden-diff workflow
 

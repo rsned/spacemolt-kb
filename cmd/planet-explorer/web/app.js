@@ -113,6 +113,14 @@ async function regenerate() {
   status.textContent = `Rendered in ${(performance.now() - t0).toFixed(0)} ms`;
   renderPanels();
   refreshSphereTexture();
+
+  // Phase 6: keep the debug panel in sync with the main render when it
+  // is expanded. Skips the expensive debug pass when the panel is
+  // collapsed so the cost only lands when the operator is looking.
+  const debugPanel = document.getElementById('debug-panel');
+  if (debugPanel && debugPanel.open) {
+    refreshDebugView();
+  }
 }
 
 async function paintToCanvas(canvas, pngBytes) {
