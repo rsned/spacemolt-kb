@@ -84,6 +84,19 @@ type PlanetProfile struct {
 	// Phase 4 Task 7: Curl-of-fbm tangent-field advection for gas giants.
 	// Amp=0 disables (default).
 	Curl CurlConfig
+
+	// Phase 4 Task 8: Hand-authored storm band overlays (Great Red Spot, polar
+	// storms). Applied after the Jupiter-ramp base palette. Nil slice = no bands.
+	StormBands []StormBand
+}
+
+// StormBand places a hand-authored oval storm feature at a specific latitude.
+// Applied on top of the JupiterRamp base palette for gas giants.
+type StormBand struct {
+	Lat       float64  // latitude in radians (-π/2 … π/2)
+	HalfWidth float64  // angular half-width in radians
+	Color     ColorRGB // band tint
+	Strength  float64  // mix amount [0,1]
 }
 
 // RidgedConfig parameterizes a ridged-multifractal mountain pass.

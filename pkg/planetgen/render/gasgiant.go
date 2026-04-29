@@ -71,13 +71,31 @@ func RenderGasGiant(profile *types.PlanetProfile, seed int64, S int) *cubemap.Cu
 				flowDistort := turbNg.FractalNoise3D(sx*5, sy*1.5, sz*5, 3, 2.0, 0.5, 3.0)
 				distortedLat += (flowDistort - 0.5) * profile.TurbulenceAmp
 
-				// Get band color
+				// Phase 4 T8: Jupiter-ramp base palette driven by absolute latitude.
+				// The procedural band color is blended on top as a modulation layer.
+				latFrac := math.Abs(lat) / (math.Pi / 2)
+				baseC := planetcolor.JupiterRamp(latFrac)
+
+				// Get band color and blend it over the ramp (50 %) to preserve
+				// the procedural band-structure while grounding hues in the ramp.
 				bc := getGasBandColor(bands, distortedLat, profile.BandBlendWidth)
+				baseC = planetcolor.BlendOkLab(baseC, bc.Color, 0.5)
 
 				// Fine detail: cloud texture within bands
 				detail := detailNg.FractalNoise3D(sx*8, sy*2, sz*8, 5, 2.0, 0.5, 4.0)
 				detailFactor := 0.85 + detail*0.3
-				c := planetcolor.Brighten(bc.Color, detailFactor)
+				c := planetcolor.Brighten(baseC, detailFactor)
+
+				// Phase 4 T8: Apply hand-authored StormBand overlays.
+				for _, sb := range profile.StormBands {
+					diff := math.Abs(lat - sb.Lat)
+					if diff < sb.HalfWidth {
+						t := 1 - diff/sb.HalfWidth
+						t = t * t * sb.Strength
+						sbColor := color.RGBA{R: sb.Color.R, G: sb.Color.G, B: sb.Color.B, A: 255}
+						c = planetcolor.BlendOkLab(c, sbColor, t)
+					}
+				}
 
 				// Storm spots
 				for _, storm := range storms {
