@@ -23,3 +23,19 @@
 .debug-row canvas { width: 100%; max-width: 200px; height: auto; border: 1px solid #333; }
 .debug-row .bypass-toggle { display: flex; align-items: center; gap: 4px; font-size: 0.85em; }
 .debug-row .placeholder { color: #555; font-style: italic; text-align: center; }
+.debug-row.debug-header {
+  background: transparent;
+  border: none;
+  padding: 0 8px;
+  margin-bottom: -8px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.debug-row.debug-header .col-title {
+  font-size: 0.8em;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}

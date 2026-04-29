@@ -1181,7 +1181,28 @@ function refreshDebugView() {
 function renderDebugGrid(stages) {
   const grid = $('#debug-grid');
   grid.innerHTML = '';
+  const makeHeader = (titles) => {
+    const h = document.createElement('div');
+    h.className = 'debug-row debug-header';
+    const blank = document.createElement('div');
+    blank.className = 'label';
+    h.appendChild(blank);
+    for (const t of titles) {
+      const c = document.createElement('div');
+      c.className = 'col-title';
+      c.textContent = t;
+      h.appendChild(c);
+    }
+    return h;
+  };
+  let lastKind = null;
   for (const s of stages) {
+    if (s.kind !== lastKind) {
+      grid.appendChild(makeHeader(s.kind === 'color'
+        ? ['color after', '—', '—', '—']
+        : ['raw', 'input bands', 'output bands', 'sum after']));
+      lastKind = s.kind;
+    }
     const row = document.createElement('div');
     row.className = 'debug-row' + (s.skipped ? ' skipped' : '');
 
