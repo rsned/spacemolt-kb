@@ -189,6 +189,7 @@ function renderPanels() {
   renderShadingPanel(profile, panels);
   renderOceanPanel(profile, panels);
   renderCryospherePanel(profile, panels);
+  renderCoastalPanel(profile, panels);
   renderCratersPanel(profile, panels);
   renderBiomePanel(profile, panels);
   renderLUTPanel(profile, panels);
@@ -568,6 +569,47 @@ function renderCryospherePanel(profile, panels) {
     'Elevation [0,1] above which pixels get a snow tint. 0 = disabled.',
     profile.SnowLine || 0, 0, 1, '0.01',
     v => { profile.SnowLine = v; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
+function renderCoastalPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Coastal',
+    'Localized roughening of pixels near coast lines (requires OceanLevel > 0). Combines three high-frequency fBm bands modulated by distance-to-coast. Amp=0 disables.');
+  if (!profile.Coastal) profile.Coastal = { Amp: 0, Threshold: 0, Freq: 0 };
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.Coastal) || {};
+    profile.Coastal = { Amp: orig.Amp||0, Threshold: orig.Threshold||0, Freq: orig.Freq||0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => { profile.Coastal = { Amp: 0, Threshold: 0, Freq: 0 }; commitProfile(profile); renderPanels(); };
+  const randomize = () => {
+    profile.Coastal = {
+      Amp:       round2(0.05 + Math.random() * 0.15),
+      Threshold: round2(0.05 + Math.random() * 0.20),
+      Freq:      round2(1 + Math.random() * 4),
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range coastal values', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Zero out coastal config', clear));
+
+  panel.appendChild(makeNumberRow('Amp', 'Master strength (0 disables; useful 0.05–0.2).',
+    profile.Coastal.Amp, 0, 0.5, '0.01',
+    v => { profile.Coastal.Amp = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Threshold', 'Distance-to-coast cutoff [0,1]. Effect dies above this.',
+    profile.Coastal.Threshold, 0, 1, '0.01',
+    v => { profile.Coastal.Threshold = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Freq', 'Base fbm frequency for the n4 octave (n5/n6 derive from it).',
+    profile.Coastal.Freq, 0, 20, '0.1',
+    v => { profile.Coastal.Freq = v; commitProfile(profile); }));
+
   panels.appendChild(panel);
 }
 
