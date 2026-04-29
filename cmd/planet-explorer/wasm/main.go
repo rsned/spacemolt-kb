@@ -6,6 +6,7 @@
 //	planetExplorerGenerate(profileJSON string, seedStr string, faceSize int) Uint8Array
 //	planetExplorerBakeEquirect(cubePNG Uint8Array, w int, h int)            Uint8Array
 //	planetExplorerDefaultProfile(planetType string)                          string  // JSON
+//	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)  string  // JSON
 //
 //go:build js && wasm
 
@@ -13,6 +14,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"image/png"
@@ -30,6 +32,7 @@ func main() {
 	js.Global().Set("planetExplorerGenerateHeightmap", js.FuncOf(generateHeightmap))
 	js.Global().Set("planetExplorerBakeEquirect", js.FuncOf(bakeEquirect))
 	js.Global().Set("planetExplorerDefaultProfile", js.FuncOf(defaultProfile))
+	js.Global().Set("planetExplorerGenerateDebug", js.FuncOf(generateDebug))
 	<-make(chan struct{}) // keep the WASM process alive
 }
 
@@ -122,6 +125,82 @@ func defaultProfile(_ js.Value, args []js.Value) any {
 		return jsError("defaultProfile: marshal: %v", err)
 	}
 	return string(b)
+}
+
+// generateDebug(profileJSON, seedStr, faceSize, bypassJSON) → JSON string
+// with per-stage base64-encoded equirect PNG thumbnails. bypassJSON is an
+// optional JSON array of stage names to dry-run (pass "" to skip).
+func generateDebug(_ js.Value, args []js.Value) any {
+	if len(args) < 4 {
+		return jsError("generateDebug: expected 4 args (profileJSON, seed, faceSize, bypassJSON), got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateDebug: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	var bypass render.DebugBypass
+	if args[3].Type() == js.TypeString && args[3].String() != "" {
+		var arr []string
+		if err := json.Unmarshal([]byte(args[3].String()), &arr); err == nil && len(arr) > 0 {
+			bypass = make(render.DebugBypass, len(arr))
+			for _, name := range arr {
+				bypass[name] = true
+			}
+		}
+	}
+
+	frame := render.RenderRockyDebug(&prof, s, faceSize, bypass)
+	eqW, eqH := faceSize*2, faceSize
+
+	// encodeCM encodes a *cubemap.CubeMap as a base64 PNG string.
+	encodeCM := func(cm *cubemap.CubeMap) string {
+		if cm == nil {
+			return ""
+		}
+		img := cubemap.BakeEquirect(cm, eqW, eqH)
+		var buf bytes.Buffer
+		_ = png.Encode(&buf, img)
+		return base64.StdEncoding.EncodeToString(buf.Bytes())
+	}
+
+	// encodeCMF encodes a *cubemap.CubeMapF as a base64 PNG string.
+	// When signed is true the field is treated as signed (rendered with
+	// SignedToRGBA); otherwise it is treated as [0,1] grayscale.
+	encodeCMF := func(cmF *cubemap.CubeMapF, signed bool) string {
+		if cmF == nil {
+			return ""
+		}
+		var cm *cubemap.CubeMap
+		if signed {
+			cm = render.SignedToRGBA(cmF, cmF.Size, 1.0)
+		} else {
+			cm = cubemap.GrayscaleFromF(cmF)
+		}
+		return encodeCM(cm)
+	}
+
+	stages := make([]map[string]any, 0, len(frame.Stages))
+	for _, st := range frame.Stages {
+		row := map[string]any{
+			"name":    st.Name,
+			"kind":    st.Kind,
+			"skipped": st.Skipped,
+		}
+		if st.Kind == "color" {
+			row["color_after"] = encodeCM(st.ColorAfter)
+		} else {
+			row["raw"] = encodeCMF(st.RawFbm, true)
+			row["input_bands"] = encodeCM(st.InputBands)
+			row["output_bands"] = encodeCM(st.OutputBands)
+			row["sum_after"] = encodeCMF(st.SumAfter, false)
+		}
+		stages = append(stages, row)
+	}
+	out, _ := json.Marshal(map[string]any{"stages": stages})
+	return js.ValueOf(string(out))
 }
 
 func goBytes(uint8Array js.Value) []byte {
