@@ -38,6 +38,12 @@
         <option value="512">512</option>
         <option value="1024">1024 (slow)</option>
       </select></label>
+      <label>View
+        <select id="view-mode">
+          <option value="color" selected>Color</option>
+          <option value="heightmap">Heightmap (grayscale)</option>
+        </select>
+      </label>
       <button id="render-btn">Regenerate</button>
       <button id="export-json-btn">Export JSON</button>
     </section>
@@ -124,13 +130,17 @@
   <section class="viewport">
     <h2>Rotating sphere</h2>
     <div class="planet-sphere">
-      <canvas id="sphere-canvas" width="400" height="400"></canvas>
+      <canvas id="sphere-canvas" width="800" height="800"></canvas>
     </div>
     <div class="sphere-hint">Click and drag to rotate · auto-rotates after 3 s idle</div>
-    <h2>Cube map (cross)</h2>
-    <canvas id="cube-canvas" width="1024" height="768"></canvas>
-    <h2>Equirect bake</h2>
-    <canvas id="equirect-canvas" width="800" height="400"></canvas>
+    <!-- Hidden render targets. The sphere preview samples its texture from
+         the equirect canvas, so both stay in the DOM but hidden. -->
+    <div class="hidden-render-targets" hidden>
+      <h2>Cube map (cross)</h2>
+      <canvas id="cube-canvas" width="1024" height="768"></canvas>
+      <h2>Equirect bake</h2>
+      <canvas id="equirect-canvas" width="800" height="400"></canvas>
+    </div>
   </section>
 </main>
 <script src="wasm_exec.js"></script>

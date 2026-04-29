@@ -47,6 +47,12 @@ type PlanetProfile struct {
 	// Tier-A Phase 3: Voronoi province modulation. Count=0 disables.
 	Provinces ProvinceConfig
 
+	// Phase 3 polish: slope-based Lambertian shading. ShadingStrength=0
+	// disables (output unchanged). Exaggeration scales the heightmap
+	// gradient so subtle features still produce visible shading.
+	ShadingStrength     float64 // 0 = no shading; 1 = full diffuse modulation
+	ShadingExaggeration float64 // gradient multiplier; 0 = use 8.0 default
+
 	// Tier-S Phase 1 Task 26: per-archetype LUT for final color grading
 	LUT string
 }

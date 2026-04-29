@@ -27,9 +27,35 @@ import (
 
 func main() {
 	js.Global().Set("planetExplorerGenerate", js.FuncOf(generate))
+	js.Global().Set("planetExplorerGenerateHeightmap", js.FuncOf(generateHeightmap))
 	js.Global().Set("planetExplorerBakeEquirect", js.FuncOf(bakeEquirect))
 	js.Global().Set("planetExplorerDefaultProfile", js.FuncOf(defaultProfile))
 	<-make(chan struct{}) // keep the WASM process alive
+}
+
+// generateHeightmap(profileJSON, seedStr, faceSize) → Uint8Array of
+// grayscale cube-map cross PNG bytes. Rocky-only debug view; gas-giant
+// profiles return an error.
+func generateHeightmap(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("generateHeightmap: expected 3 args, got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateHeightmap: bad profile JSON: %v", err)
+	}
+	if prof.Renderer != "rocky" {
+		return jsError("generateHeightmap: only rocky profiles support heightmap view")
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+	cm := render.RenderRockyHeightmap(&prof, s, faceSize)
+
+	var buf bytes.Buffer
+	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+		return jsError("generateHeightmap: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
 }
 
 // generate(profileJSON, seedStr, faceSize) → Uint8Array of cube-map cross PNG bytes.

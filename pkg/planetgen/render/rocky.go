@@ -22,16 +22,46 @@ var (
 
 // RenderRocky generates a rocky planet cube map.
 func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
+	heightmap := generateRockyHeightmap(profile, seed, S)
+	return colorizeRocky(profile, seed, S, heightmap)
+}
+
+// RenderRockyHeightmap returns a grayscale cube map showing the
+// normalized heightmap. Useful as a debug view to verify ridges,
+// craters, control-field shapes, and other height-affecting algorithms
+// before the colorizer obscures them with palette/biome blending.
+func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
+	heightmap := generateRockyHeightmap(profile, seed, S)
+	out := cubemap.New(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				h := heightmap.Get(face, px, py)
+				if h < 0 {
+					h = 0
+				}
+				if h > 1 {
+					h = 1
+				}
+				v := uint8(h * 255)
+				out.Set(face, px, py, color.RGBA{R: v, G: v, B: v, A: 255})
+			}
+		}
+	}
+	return out
+}
+
+// generateRockyHeightmap runs the heightmap-only portion of the rocky
+// pipeline: control-field summation (or legacy fBm), ridged contribution,
+// province modulation, normalization, and crater stamping. Returns the
+// normalized heightmap so RenderRocky can colorize it and
+// RenderRockyHeightmap can render it as grayscale.
+func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMapF {
 	rng := rand.New(rand.NewPCG(uint64(seed), uint64(seed*31+7)))
 	ng := noise.New(seed)
-	capNoise := noise.New(seed + 42)
-	oceanNoise := noise.New(seed + 77)
-	biomeNoise := noise.New(seed + 99)
 	warper := noise.NewWarper(seed, profile.Warp)
 
 	heightmap := cubemap.NewF(S)
-
-	// Step 1: base fractal heightmap on the unit sphere.
 	cfFields := orderedControlFields(profile.ControlConfig)
 	useControl := !isZeroControlConfig(cfFields) && hasAnySpline(cfFields)
 	if useControl {
@@ -80,7 +110,6 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 			}
 		}
 	} else {
-		// Legacy single-FBM path (unchanged from Phase 0)
 		for face := range cubemap.Face(cubemap.NumFaces) {
 			for py := range S {
 				for px := range S {
@@ -97,7 +126,6 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 		}
 	}
 
-	// Step 1b: normalise to [0,1] across all faces.
 	hMin, hMax := 1.0, 0.0
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for _, h := range heightmap.Faces[face] {
@@ -118,12 +146,21 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 		}
 	}
 
-	// Step 2: craters.
 	if profile.CraterCount > 0 {
 		craters := feature.GenerateCraters(rng, profile.CraterCount,
 			profile.CraterMinRadius, profile.CraterMaxRadius)
 		feature.ApplyCraters(heightmap, craters, profile.CraterDepth)
 	}
+	return heightmap
+}
+
+// colorizeRocky paints the heightmap into a color cube map using the
+// profile's palette/biome/ocean/snow/cap/shading/LUT settings.
+func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF) *cubemap.CubeMap {
+	capNoise := noise.New(seed + 42)
+	oceanNoise := noise.New(seed + 77)
+	biomeNoise := noise.New(seed + 99)
+	warper := noise.NewWarper(seed, profile.Warp)
 
 	// Step 3+4+5: colorise (biome, ocean, snow, polar caps).
 	hasBiomes := len(profile.EquatorialPalette) > 0 || len(profile.PolarPalette) > 0
@@ -224,6 +261,19 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 					}
 				}
 
+				// Phase 3 polish: slope-based Lambertian shading.  Computes a
+				// world-space normal from the heightmap gradient via finite
+				// differences against two tangents (seam-aware via
+				// CubeMapF.Sample) and modulates color by light·normal.
+				if profile.ShadingStrength > 0 {
+					exag := profile.ShadingExaggeration
+					if exag <= 0 {
+						exag = 8.0
+					}
+					c = applySlopeShading(heightmap, c, rawX, rawY, rawZ,
+						profile.ShadingStrength, exag)
+				}
+
 				// Tier-S Phase 1 Task 26: Apply per-archetype LUT as final color grade
 				if name := profile.LUT; name != "" {
 					if lut := planetcolor.LookupLUT(name); lut != nil {
@@ -259,6 +309,66 @@ func isZeroControlConfig(fields [5]types.ControlField) bool {
 		}
 	}
 	return true
+}
+
+// applySlopeShading modulates the input color by a Lambertian dot
+// product against a fixed sun direction. The surface normal is
+// reconstructed from heightmap finite differences along two tangents
+// orthogonal to the radial direction (rawX, rawY, rawZ).  Sample uses
+// the cube-map's seam-aware lookup so face boundaries don't tear.
+//
+// strength in [0,1]: 0 = unchanged; 1 = full diffuse modulation.
+// exaggeration scales the gradient so subtle features still shade.
+func applySlopeShading(hm *cubemap.CubeMapF, c color.RGBA, rx, ry, rz, strength, exaggeration float64) color.RGBA {
+	const eps = 0.005
+	// Tangent basis orthogonal to (rx,ry,rz). Use world-up (0,1,0) unless
+	// the radial is too close to it, in which case fall back to world-x.
+	upx, upy, upz := 0.0, 1.0, 0.0
+	if math.Abs(ry) > 0.95 {
+		upx, upy, upz = 1.0, 0.0, 0.0
+	}
+	// t1 = normalize(cross(up, r))
+	t1x := upy*rz - upz*ry
+	t1y := upz*rx - upx*rz
+	t1z := upx*ry - upy*rx
+	t1n := math.Sqrt(t1x*t1x + t1y*t1y + t1z*t1z)
+	if t1n == 0 {
+		return c
+	}
+	t1x, t1y, t1z = t1x/t1n, t1y/t1n, t1z/t1n
+	// t2 = cross(r, t1)
+	t2x := ry*t1z - rz*t1y
+	t2y := rz*t1x - rx*t1z
+	t2z := rx*t1y - ry*t1x
+
+	hu1 := hm.Sample(rx+eps*t1x, ry+eps*t1y, rz+eps*t1z)
+	hu0 := hm.Sample(rx-eps*t1x, ry-eps*t1y, rz-eps*t1z)
+	hv1 := hm.Sample(rx+eps*t2x, ry+eps*t2y, rz+eps*t2z)
+	hv0 := hm.Sample(rx-eps*t2x, ry-eps*t2y, rz-eps*t2z)
+	dHdu := (hu1 - hu0) / (2 * eps) * exaggeration
+	dHdv := (hv1 - hv0) / (2 * eps) * exaggeration
+
+	// Approximate world-space normal: in the (t1, t2, r) frame the
+	// surface tangents are (1, 0, dHdu) and (0, 1, dHdv); their cross
+	// product is (-dHdu, -dHdv, 1).  Express in world coords.
+	nx := -dHdu*t1x - dHdv*t2x + rx
+	ny := -dHdu*t1y - dHdv*t2y + ry
+	nz := -dHdu*t1z - dHdv*t2z + rz
+	nn := math.Sqrt(nx*nx + ny*ny + nz*nz)
+	if nn == 0 {
+		return c
+	}
+	nx, ny, nz = nx/nn, ny/nn, nz/nn
+
+	// Fixed sun direction: upper-right-front, normalized.
+	const lx, ly, lz = 0.6172, 0.6172, 0.4881 // (1, 1, 0.7)/|(1,1,0.7)|
+	diff := nx*lx + ny*ly + nz*lz
+	if diff < 0 {
+		diff = 0
+	}
+	// Blend ambient and diffuse so flat areas read at neutral brightness.
+	bright := (1.0 - strength) + strength*(0.4+0.8*diff)
+	return planetcolor.Brighten(c, bright)
 }
 
 // smoothstep returns 0 when x ≤ lo, 1 when x ≥ hi, and a smooth Hermite

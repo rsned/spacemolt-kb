@@ -13,6 +13,7 @@ const applyBtn = $('#apply-json-btn');
 const profileTextarea = $('#profile-json');
 const cubeCanvas = $('#cube-canvas');
 const equirectCanvas = $('#equirect-canvas');
+const viewModeSel = $('#view-mode');
 
 let wasmReady = false;
 
@@ -95,7 +96,10 @@ async function regenerate() {
   const faceSize = parseInt(faceSizeSel.value, 10);
 
   const t0 = performance.now();
-  const cubePNG = planetExplorerGenerate(profileJSON, seed, faceSize);
+  const mode = viewModeSel ? viewModeSel.value : 'color';
+  const cubePNG = (mode === 'heightmap')
+    ? planetExplorerGenerateHeightmap(profileJSON, seed, faceSize)
+    : planetExplorerGenerate(profileJSON, seed, faceSize);
   if (cubePNG instanceof Uint8Array) {
     await paintToCanvas(cubeCanvas, cubePNG);
     const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
@@ -131,6 +135,7 @@ async function paintToCanvas(canvas, pngBytes) {
 
 typePicker.addEventListener('change', loadDefaultProfile);
 renderBtn.addEventListener('click', regenerate);
+if (viewModeSel) viewModeSel.addEventListener('change', regenerate);
 exportBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(profileTextarea.value);
   status.textContent = 'JSON copied to clipboard';
@@ -181,6 +186,7 @@ function renderPanels() {
   renderWarpPanel(profile, panels);
   renderRidgedPanel(profile, panels);
   renderProvincePanel(profile, panels);
+  renderShadingPanel(profile, panels);
   renderOceanPanel(profile, panels);
   renderCryospherePanel(profile, panels);
   renderCratersPanel(profile, panels);
@@ -577,6 +583,21 @@ function renderProvincePanel(profile, panels) {
     'Sphere-warp displacement before nearest-cell lookup. 0 = clean Voronoi; >0 = curvy boundaries.',
     profile.Provinces.WarpAmp, 0, 0.3, '0.01',
     v => { profile.Provinces.WarpAmp = v; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
+function renderShadingPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Shading',
+    'Slope-based Lambertian shading. Computes a surface normal from the heightmap gradient and modulates color by light·normal. Strength 0 = no shading; the planet looks flat.');
+  panel.appendChild(makeNumberRow('ShadingStrength',
+    'How strongly diffuse lighting modulates color. 0 = off; 0.5 is a reasonable starting point.',
+    profile.ShadingStrength || 0, 0, 1, '0.05',
+    v => { profile.ShadingStrength = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('ShadingExaggeration',
+    'Heightmap-gradient multiplier. Higher = more dramatic relief. 0 = use 8.0 default.',
+    profile.ShadingExaggeration || 0, 0, 50, '0.5',
+    v => { profile.ShadingExaggeration = v; commitProfile(profile); }));
   panels.appendChild(panel);
 }
 
