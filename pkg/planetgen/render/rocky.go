@@ -21,8 +21,8 @@ var (
 
 // RenderRocky generates a rocky planet cube map.
 func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
-	heightmap := generateRockyHeightmap(profile, seed, S)
-	return colorizeRocky(profile, seed, S, heightmap)
+	heightmap, craters := generateRockyHeightmap(profile, seed, S)
+	return colorizeRocky(profile, seed, S, heightmap, craters)
 }
 
 // RenderRockyHeightmap returns a grayscale cube map showing the
@@ -30,7 +30,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 // craters, control-field shapes, and other height-affecting algorithms
 // before the colorizer obscures them with palette/biome blending.
 func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
-	heightmap := generateRockyHeightmap(profile, seed, S)
+	heightmap, _ := generateRockyHeightmap(profile, seed, S)
 	out := cubemap.New(S)
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range S {
@@ -55,7 +55,7 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 // province modulation, normalization, and crater stamping. Returns the
 // normalized heightmap so RenderRocky can colorize it and
 // RenderRockyHeightmap can render it as grayscale.
-func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMapF {
+func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) (*cubemap.CubeMapF, []feature.Crater) {
 	ng := noise.New(seed)
 	warper := noise.NewWarper(seed, profile.Warp)
 
@@ -165,16 +165,17 @@ func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cu
 		}
 	}
 
+	var craters []feature.Crater
 	if profile.CraterCount > 0 {
-		craters := feature.GenerateCraters(seed, profile)
+		craters = feature.GenerateCraters(seed, profile)
 		feature.ApplyCraters(heightmap, craters, profile.CraterDepth)
 	}
-	return heightmap
+	return heightmap, craters
 }
 
 // colorizeRocky paints the heightmap into a color cube map using the
 // profile's palette/biome/ocean/snow/cap/shading/LUT settings.
-func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF) *cubemap.CubeMap {
+func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater) *cubemap.CubeMap {
 	capNoise := noise.New(seed + 42)
 	oceanNoise := noise.New(seed + 77)
 	biomeNoise := noise.New(seed + 99)
@@ -290,6 +291,18 @@ func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *c
 					}
 					c = applySlopeShading(heightmap, c, rawX, rawY, rawZ,
 						profile.ShadingStrength, exag)
+				}
+
+				// Phase 3 T8: ejecta-ray albedo overlay around fresh, large
+				// craters. Applied before the LUT so the per-archetype grade
+				// pulls the rays into the planet's color family. Uses the
+				// unwarped direction so rays anchor to the crater on the
+				// stored geometry, matching where the bowl actually sits.
+				// Only fires when the new crater pipeline is in use; legacy
+				// profiles set every crater Age=1.0 and would otherwise gain
+				// bright rays everywhere.
+				if profile.PowerLawAlpha > 0 && len(craters) > 0 {
+					c = feature.ApplyEjecta(c, rawX, rawY, rawZ, craters)
 				}
 
 				// Tier-S Phase 1 Task 26: Apply per-archetype LUT as final color grade
