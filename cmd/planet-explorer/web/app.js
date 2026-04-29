@@ -193,6 +193,8 @@ function renderPanels() {
   renderContinentsPanel(profile, panels);
   renderCratersPanel(profile, panels);
   renderBiomePanel(profile, panels);
+  renderCurlPanel(profile, panels);
+  renderStormBandsPanel(profile, panels);
   renderLUTPanel(profile, panels);
 }
 
@@ -205,6 +207,118 @@ function renderPaletteSwatch(profile, panels, key, title, helpText) {
   const css = stops.map(s => `${rgbaCSS(s.Color)} ${(s.Position*100).toFixed(0)}%`).join(', ');
   strip.style.background = `linear-gradient(to right, ${css})`;
   panel.appendChild(strip);
+  panels.appendChild(panel);
+}
+
+function renderCurlPanel(profile, panels) {
+  if (profile.Renderer !== 'gas_giant') return;
+  const panel = makePanel('Curl Advection',
+    'Semi-Lagrangian backward-trace with curl-of-fbm tangent field. Each step subtracts dt·(jet+curl) from the position. Amp=0 and JetAmp=0 disables.');
+  if (!profile.Curl) profile.Curl = { Amp: 0, Iterations: 0, DT: 0, Freq: 0, JetAmp: 0 };
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.Curl) || {};
+    profile.Curl = { Amp: orig.Amp||0, Iterations: orig.Iterations||0, DT: orig.DT||0, Freq: orig.Freq||0, JetAmp: orig.JetAmp||0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => { profile.Curl = { Amp: 0, Iterations: 0, DT: 0, Freq: 0, JetAmp: 0 }; commitProfile(profile); renderPanels(); };
+  const randomize = () => {
+    profile.Curl = {
+      Amp:        round2(0.1 + Math.random() * 0.4),
+      Iterations: Math.floor(6 + Math.random() * 12),
+      DT:         round2(0.05 + Math.random() * 0.15),
+      Freq:       round2(0.5 + Math.random() * 4),
+      JetAmp:     round2(Math.random() * 0.5),
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range curl values', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Zero out curl config', clear));
+
+  panel.appendChild(makeNumberRow('Amp', 'Displacement strength per iteration (0 disables; useful 0.1–0.5).',
+    profile.Curl.Amp, 0, 1, '0.01',
+    v => { profile.Curl.Amp = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Iterations', 'Backward-trace step count (4–16 typical).',
+    profile.Curl.Iterations, 0, 24, '1',
+    v => { profile.Curl.Iterations = Math.round(v); commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('DT', 'Step size per iteration (0.05–0.2 typical).',
+    profile.Curl.DT, 0, 0.5, '0.01',
+    v => { profile.Curl.DT = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Freq', 'Curl-noise base frequency.',
+    profile.Curl.Freq, 0, 10, '0.1',
+    v => { profile.Curl.Freq = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('JetAmp', 'Zonal-jet contribution per latitude band (0 disables).',
+    profile.Curl.JetAmp, 0, 1, '0.01',
+    v => { profile.Curl.JetAmp = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function rgbToHex(c) {
+  if (!c) return '#cccccc';
+  const h = n => Math.round(n).toString(16).padStart(2, '0');
+  return '#' + h(c.R||0) + h(c.G||0) + h(c.B||0);
+}
+
+function hexToRgb(s) {
+  const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(s);
+  if (!m) return { R: 200, G: 80, B: 80 };
+  return { R: parseInt(m[1], 16), G: parseInt(m[2], 16), B: parseInt(m[3], 16) };
+}
+
+function renderStormBandsPanel(profile, panels) {
+  if (profile.Renderer !== 'gas_giant') return;
+  const panel = makePanel('Storm Bands',
+    'Hand-authored colored bands at specific latitudes (e.g. red spot, polar collars). Each entry: Lat (radians, -π/2 … π/2), HalfWidth, Color, Strength.');
+  if (!profile.StormBands) profile.StormBands = [];
+
+  const refresh = () => { commitProfile(profile); renderPanels(); };
+
+  // Per-band rows
+  profile.StormBands.forEach((band, idx) => {
+    const row = document.createElement('div');
+    row.className = 'storm-band-row';
+    row.style.cssText = 'display:flex; gap:6px; align-items:center; margin:4px 0; padding:4px; border:1px solid #444; border-radius:4px;';
+    row.innerHTML = `
+      <span style="opacity:0.6">#${idx}</span>
+      <label>Lat <input type="number" step="0.01" min="-1.6" max="1.6" value="${band.Lat ?? 0}" data-field="Lat" style="width:70px"></label>
+      <label>HW <input type="number" step="0.01" min="0" max="1.6" value="${band.HalfWidth ?? 0.1}" data-field="HalfWidth" style="width:60px"></label>
+      <label>Color <input type="color" value="${rgbToHex(band.Color)}" data-field="Color"></label>
+      <label>Strength <input type="number" step="0.01" min="0" max="1" value="${band.Strength ?? 0.5}" data-field="Strength" style="width:60px"></label>
+      <button data-act="del">×</button>
+    `;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const f = inp.dataset.field;
+        if (f === 'Color') {
+          band.Color = hexToRgb(inp.value);
+        } else {
+          band[f] = parseFloat(inp.value);
+        }
+        commitProfile(profile);
+      });
+    });
+    row.querySelector('button[data-act="del"]').addEventListener('click', () => {
+      profile.StormBands.splice(idx, 1);
+      refresh();
+    });
+    panel.appendChild(row);
+  });
+
+  // Add-band footer
+  const addBtn = document.createElement('button');
+  addBtn.textContent = 'Add band';
+  addBtn.addEventListener('click', () => {
+    profile.StormBands.push({ Lat: 0, HalfWidth: 0.1, Color: { R: 200, G: 80, B: 80 }, Strength: 0.5 });
+    refresh();
+  });
+  panel.appendChild(addBtn);
+
   panels.appendChild(panel);
 }
 
