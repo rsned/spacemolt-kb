@@ -61,6 +61,14 @@ go run ./cmd/generate-planet-maps
 # Reads ../spacemolt-knowledge.db, writes to kb/images/planets/.
 ```
 
+Single-system mode (subset of batch — re-render every planet in one system):
+
+```bash
+go run ./cmd/generate-planet-maps -system "Sol" -outdir /tmp/sol-test
+# Filters batch to pois rows whose system matches; useful for previewing
+# a tuning change against a familiar handful of planets.
+```
+
 All flags:
 
 | Flag | Default | Meaning |
@@ -70,6 +78,7 @@ All flags:
 | `-out` | "" | equirect output path (single mode); defaults to `<type>_<seed>.png` |
 | `-db` | `../spacemolt-knowledge.db` | knowledge database path |
 | `-outdir` | `kb/images/planets` | batch output directory |
+| `-system` | "" | restrict batch mode to one system by name (exact match) |
 | `-face` | 1024 | cube-map face size in pixels |
 | `-width` | 2000 | equirect bake width |
 | `-height` | 1000 | equirect bake height |

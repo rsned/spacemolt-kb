@@ -31,6 +31,7 @@ func main() {
 		outFile    = flag.String("out", "", "output equirect PNG path (single image mode)")
 		dbPath     = flag.String("db", "../spacemolt-knowledge.db", "path to knowledge database")
 		outDir     = flag.String("outdir", "kb/images/planets", "output directory for planet images")
+		systemName = flag.String("system", "", "regenerate only planets in this system (batch mode subset)")
 		faceSize   = flag.Int("face", planetgen.DefaultFaceSize, "cube-map face size in pixels")
 		eqWidth    = flag.Int("width", planetgen.DefaultWidth, "equirect bake width in pixels")
 		eqHeight   = flag.Int("height", planetgen.DefaultHeight, "equirect bake height in pixels")
@@ -62,11 +63,15 @@ func main() {
 	}
 	defer func() { _ = db.Close() }()
 
-	planets, err := loadPlanets(db)
+	planets, err := loadPlanets(db, *systemName)
 	if err != nil {
 		log.Fatalf("failed to load planets: %v", err)
 	}
-	fmt.Printf("Found %d planets across all systems\n", len(planets))
+	if *systemName != "" {
+		fmt.Printf("Found %d planets in system %q\n", len(planets), *systemName)
+	} else {
+		fmt.Printf("Found %d planets across all systems\n", len(planets))
+	}
 
 	if err := os.MkdirAll(*outDir, 0o755); err != nil {
 		log.Fatalf("failed to create output directory: %v", err)
@@ -137,14 +142,21 @@ func generateSingle(planetType, planetName string, faceSize, equirectW, equirect
 	return png.Encode(f, img)
 }
 
-func loadPlanets(db *sql.DB) ([]planet, error) {
-	rows, err := db.Query(`
+func loadPlanets(db *sql.DB, systemName string) ([]planet, error) {
+	const baseQuery = `
 		SELECT s.name, p.name, p.class
 		FROM pois p
 		JOIN systems s ON p.system_id = s.id
-		WHERE p.type = 'planet' AND p.class != ''
-		ORDER BY s.name, p.name
-	`)
+		WHERE p.type = 'planet' AND p.class != ''`
+	var (
+		rows *sql.Rows
+		err  error
+	)
+	if systemName != "" {
+		rows, err = db.Query(baseQuery+" AND s.name = ? ORDER BY p.name", systemName)
+	} else {
+		rows, err = db.Query(baseQuery + " ORDER BY s.name, p.name")
+	}
 	if err != nil {
 		return nil, err
 	}
