@@ -190,6 +190,7 @@ function renderPanels() {
   renderOceanPanel(profile, panels);
   renderCryospherePanel(profile, panels);
   renderCoastalPanel(profile, panels);
+  renderContinentsPanel(profile, panels);
   renderCratersPanel(profile, panels);
   renderBiomePanel(profile, panels);
   renderLUTPanel(profile, panels);
@@ -609,6 +610,67 @@ function renderCoastalPanel(profile, panels) {
   panel.appendChild(makeNumberRow('Freq', 'Base fbm frequency for the n4 octave (n5/n6 derive from it).',
     profile.Coastal.Freq, 0, 20, '0.1',
     v => { profile.Coastal.Freq = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderContinentsPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Continents',
+    'Voronoi continents from Fibonacci-spiral seed points. Each seed gets a random base height in [HeightLo, HeightHi]; the heightmap is raised to that floor, so continents form a baseline. Seeds=0 disables.');
+  if (!profile.Continents) profile.Continents = { Seeds: 0, WarpAmp: 0, WarpFreq: 0, HeightLo: 0.3, HeightHi: 0.7 };
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.Continents) || {};
+    profile.Continents = {
+      Seeds:    orig.Seeds||0,
+      WarpAmp:  orig.WarpAmp||0,
+      WarpFreq: orig.WarpFreq||0,
+      HeightLo: orig.HeightLo!==undefined ? orig.HeightLo : 0.3,
+      HeightHi: orig.HeightHi!==undefined ? orig.HeightHi : 0.7,
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.Continents = { Seeds: 0, WarpAmp: 0, WarpFreq: 0, HeightLo: 0.3, HeightHi: 0.7 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const randomize = () => {
+    const lo = round2(0.25 + Math.random() * 0.20);
+    const hi = round2(lo + 0.10 + Math.random() * 0.20);
+    profile.Continents = {
+      Seeds:    Math.floor(10 + Math.random() * 40),
+      WarpAmp:  round2(Math.random() * 0.2),
+      WarpFreq: round2(0.5 + Math.random() * 4),
+      HeightLo: lo,
+      HeightHi: hi,
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range continent values', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Zero out continents config', clear));
+
+  panel.appendChild(makeNumberRow('Seeds', 'Number of continent seeds (0 disables; 10–50 typical).',
+    profile.Continents.Seeds, 0, 50, '1',
+    v => { profile.Continents.Seeds = Math.round(v); commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('WarpAmp', 'Sphere-warp displacement amplitude (0 disables warp).',
+    profile.Continents.WarpAmp, 0, 0.3, '0.01',
+    v => { profile.Continents.WarpAmp = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('WarpFreq', 'fbm frequency for the sphere-warp.',
+    profile.Continents.WarpFreq, 0, 10, '0.1',
+    v => { profile.Continents.WarpFreq = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('HeightLo', 'Per-continent base height lower bound [0,1].',
+    profile.Continents.HeightLo, 0, 1, '0.01',
+    v => { profile.Continents.HeightLo = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('HeightHi', 'Per-continent base height upper bound [0,1].',
+    profile.Continents.HeightHi, 0, 1, '0.01',
+    v => { profile.Continents.HeightHi = v; commitProfile(profile); }));
 
   panels.appendChild(panel);
 }
