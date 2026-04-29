@@ -1150,4 +1150,82 @@ if (sphereCanvas) {
   animateSphere();
 }
 
+// === Phase 6: pipeline debug view ===
+const debugBypass = new Set();
+
+function refreshDebugView() {
+  if (!window.planetExplorerGenerateDebug) {
+    console.warn('debug API not available; rebuild wasm');
+    return;
+  }
+  const profileJSON = profileTextarea.value;
+  const seed = seedInput.value;
+  const faceSize = parseInt(faceSizeSel.value, 10);
+  const bypassJSON = JSON.stringify([...debugBypass]);
+  const result = window.planetExplorerGenerateDebug(profileJSON, seed, faceSize, bypassJSON);
+  let parsed;
+  try { parsed = JSON.parse(result); }
+  catch (e) { console.error('debug parse', e); return; }
+  if (parsed.error) { console.error(parsed.error); return; }
+  renderDebugGrid(parsed.stages);
+}
+
+function renderDebugGrid(stages) {
+  const grid = $('#debug-grid');
+  grid.innerHTML = '';
+  for (const s of stages) {
+    const row = document.createElement('div');
+    row.className = 'debug-row' + (s.skipped ? ' skipped' : '');
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.appendChild(document.createTextNode(s.name));
+    const toggle = document.createElement('label');
+    toggle.className = 'bypass-toggle';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = debugBypass.has(s.name);
+    cb.addEventListener('change', () => {
+      if (cb.checked) debugBypass.add(s.name); else debugBypass.delete(s.name);
+      refreshDebugView();
+    });
+    toggle.appendChild(cb);
+    toggle.appendChild(document.createTextNode(' bypass'));
+    label.appendChild(toggle);
+    row.appendChild(label);
+
+    const keys = s.kind === 'color'
+      ? ['color_after', null, null, null]
+      : ['raw', 'input_bands', 'output_bands', 'sum_after'];
+    for (const key of keys) {
+      if (!key || !s[key]) {
+        const ph = document.createElement('div');
+        ph.className = 'placeholder';
+        ph.textContent = '—';
+        row.appendChild(ph);
+        continue;
+      }
+      const img = new Image();
+      img.src = 'data:image/png;base64,' + s[key];
+      const cv = document.createElement('canvas');
+      img.onload = () => {
+        cv.width = img.width;
+        cv.height = img.height;
+        cv.getContext('2d').drawImage(img, 0, 0);
+      };
+      row.appendChild(cv);
+    }
+    grid.appendChild(row);
+  }
+}
+
+// Wire the manual refresh button. Use addEventListener once when the
+// DOM is ready; if app.js runs after DOMContentLoaded the element
+// exists already.
+(function wireDebugRefresh() {
+  const btn = $('#debug-refresh');
+  if (!btn) return;
+  btn.addEventListener('click', refreshDebugView);
+})();
+
 init();
