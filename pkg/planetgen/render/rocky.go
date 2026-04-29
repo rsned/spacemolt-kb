@@ -3,7 +3,6 @@ package render
 import (
 	"image/color"
 	"math"
-	"math/rand/v2"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/biome"
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
@@ -57,7 +56,6 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 // normalized heightmap so RenderRocky can colorize it and
 // RenderRockyHeightmap can render it as grayscale.
 func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMapF {
-	rng := rand.New(rand.NewPCG(uint64(seed), uint64(seed*31+7)))
 	ng := noise.New(seed)
 	warper := noise.NewWarper(seed, profile.Warp)
 
@@ -168,8 +166,7 @@ func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cu
 	}
 
 	if profile.CraterCount > 0 {
-		craters := feature.GenerateCraters(rng, profile.CraterCount,
-			profile.CraterMinRadius, profile.CraterMaxRadius)
+		craters := feature.GenerateCraters(seed, profile)
 		feature.ApplyCraters(heightmap, craters, profile.CraterDepth)
 	}
 	return heightmap

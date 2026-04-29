@@ -19,6 +19,22 @@ type PlanetProfile struct {
 	CraterMinRadius  float64 // Angular radius on sphere (radians)
 	CraterMaxRadius  float64
 	CraterDepth      float64 // How deep craters cut into heightmap
+
+	// Phase 3 Tier-A: power-law size-frequency distribution. P(R) ∝ R^(-α).
+	// 0 = legacy uniform-with-quadratic-bias path (also disables age scaling
+	// so existing archetypes render unchanged).
+	PowerLawAlpha float64
+	// Probability that a candidate crater is rejected in the high-fBm region
+	// of a maria mask (low-freq noise). 0 disables; 1 zeros out 70 % of
+	// craters in the brightest half of the mask.
+	MariaDensityFactor float64
+	// Bias for per-crater age in [0,1]. 1 → mostly old (age near 1); 0 →
+	// mostly young (age near 0). Only used when PowerLawAlpha > 0.
+	SurfaceAge float64
+	// Secondary craters per large primary, scaled. 0 disables. Up to 5 + 10·d
+	// secondaries are spawned within ~3R of each crater whose radius
+	// exceeds half of CraterMaxRadius.
+	SecondaryDensity float64
 	HasPolarCaps     bool
 	PolarCapSize     float64 // Latitude fraction (0-0.3)
 	PolarCapNoise    float64 // Edge roughness (0 = default 0.08)
