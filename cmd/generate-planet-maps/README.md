@@ -102,7 +102,7 @@ The generator is layered across `pkg/planetgen` subpackages:
 | `pkg/planetgen/seed` | `Hash`, `Domain` (orthogonal sub-seed mixing) |
 | `pkg/planetgen/stats` | per-planet physical-property metadata generator |
 
-## Phase 1 (current)
+## Phase 1
 
 The render pipeline gained five Tier-S algorithms:
 
@@ -113,7 +113,7 @@ The render pipeline gained five Tier-S algorithms:
   (e.g., `Lerp`, `Brighten`).
 - **Multi-noise control fields with monotone cubic splines**
   (`pkg/planetgen/field/control.go`, `pkg/planetgen/color/spline.go`).
-  Five 3D-fBm fields (Continentalness, Erosion, PeaksValleys, Temperature,
+  Five 3D-fBm fields (Continentalness, Detail, PeaksValleys, Temperature,
   Humidity), each seeded by `seed.Domain(master, "control.<name>")` so
   adding a new field never shifts existing field outputs. Each
   `ControlField` carries its own Fritsch-Carlson monotone-cubic
@@ -139,6 +139,34 @@ The render pipeline gained five Tier-S algorithms:
 
 The interactive slider tool at `cmd/planet-explorer/` is the canonical
 workflow for tuning these parameters live in a browser.
+
+## Phase 4 (current)
+
+Four Tier-A items shipped in this phase, plus a clarifying rename:
+
+- **JFA distance-to-coast** (`pkg/planetgen/field/jfa.go`) — jump-flooding
+  distance field over the cube-sphere; reusable primitive consumed by
+  coastal noise (Phase 4) and erosion (Phase 5).
+- **Coastal noise enhancement** (`pkg/planetgen/noise/coastal.go`) — three
+  high-frequency fBm bands modulated by distance-to-coast for crinklier
+  shorelines: `e_coast = e + α·(1 − e⁴)·(n4 + n5/2 + n6/4)·falloff`.
+  Gated on `Coastal.Amp > 0`; dormant by default.
+- **Voronoi continents** (`pkg/planetgen/field/continents.go`) —
+  Fibonacci-spiral seed points on the unit sphere with low-frequency
+  warp; per-pixel nearest seed becomes a base-height contribution that
+  the existing fBm noise then varies on top. Gated on `Continents.Seeds > 0`.
+- **Curl-noise gas-giant advection** (`pkg/planetgen/noise/curl.go`) —
+  semi-Lagrangian backward-trace using the curl of an fBm vector field
+  plus a sinusoidal zonal jet. Produces ribbon-flow appearance on jovian
+  and ice_giant. Gated on `Curl.Amp > 0 || Curl.JetAmp > 0`.
+- **Cassini Jupiter ramp + StormBand** (`pkg/planetgen/color/jupiter_ramp.go`)
+  — embedded 256×1 latitude-driven base palette for gas giants (OkLab-blended
+  between four hand-picked stops) plus a `StormBands []StormBand` slice on
+  the profile for hand-authored colored ovals (Great Red Spot, polar collars).
+
+The Phase-1 `Erosion` control field was renamed to `Detail` to free the
+name for Phase-5 flow-based erosion. Existing JSON dumps with the old key
+still load via a custom `UnmarshalJSON` shim on `ControlConfig`.
 
 ## Testing and the golden-diff workflow
 
