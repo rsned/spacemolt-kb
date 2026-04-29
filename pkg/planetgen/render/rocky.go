@@ -110,6 +110,10 @@ func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cu
 			}
 		}
 	} else {
+		var ridgedGen *noise.Generator
+		if profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
+			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))
+		}
 		for face := range cubemap.Face(cubemap.NumFaces) {
 			for py := range S {
 				for px := range S {
@@ -120,6 +124,23 @@ func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cu
 						profile.NoiseLacunarity,
 						profile.NoisePersistence,
 						profile.NoiseScale)
+					if ridgedGen != nil {
+						// No Continentalness available in legacy mode; use the
+						// local fBm height itself as the mask input so high
+						// areas get ridges and low areas don't.
+						mask := smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, h)
+						if mask > 0 {
+							r := ridgedGen.RidgedFractal3D(
+								dx*profile.Ridged.Freq,
+								dy*profile.Ridged.Freq,
+								dz*profile.Ridged.Freq,
+								profile.Ridged.Octaves,
+								profile.Ridged.Lacunarity,
+								profile.Ridged.Gain,
+								profile.Ridged.Offset)
+							h += profile.Ridged.Amp * mask * r
+						}
+					}
 					heightmap.Set(face, px, py, h)
 				}
 			}

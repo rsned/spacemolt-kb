@@ -213,7 +213,20 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterDepth:      0.12,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.25,
-			LUT:              "tundra",
+		ControlConfig: types.ControlConfig{
+			Continentalness: types.ControlField{Amp: 1.50, Freq: 5.31, Octaves: 6, Lacunarity: 2.02, Persistence: 0.44, Spline: defaultSpline},
+			Erosion:         types.ControlField{Amp: 1.12, Freq: 4.07, Octaves: 4, Lacunarity: 1.78, Persistence: 0.66, Spline: defaultSpline},
+			PeaksValleys:    types.ControlField{Amp: 1.82, Freq: 3.99, Octaves: 2, Lacunarity: 1.52, Persistence: 0.48, Spline: defaultSpline},
+			Temperature:     types.ControlField{Amp: 1.37, Freq: 4.62, Octaves: 2, Lacunarity: 2.88, Persistence: 0.71, Spline: defaultSpline},
+			Humidity:        types.ControlField{Amp: 1.55, Freq: 3.50, Octaves: 2, Lacunarity: 1.67, Persistence: 0.70, Spline: defaultSpline},
+		},
+		Ridged: types.RidgedConfig{
+			Amp: 0.27, Freq: 2.40, Octaves: 3, Lacunarity: 2.02, Gain: 0.55, Offset: 1.18,
+			MaskLow: 0.39, MaskHigh: 0.77,
+		},
+		ShadingStrength:     0.5,
+		ShadingExaggeration: 8,
+		LUT:                 "tundra",
 	},
 	"glacial": {
 		Type:     "glacial",
@@ -236,7 +249,16 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterDepth:      0.1,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.35,
-			LUT:              "glacial",
+		Warp: types.WarpConfig{
+			Amp: 0.39, Freq: 1.76, Octaves: 1, Lacunarity: 1.60, Persistence: 0.70,
+		},
+		Ridged: types.RidgedConfig{
+			Amp: 0.22, Freq: 4.33, Octaves: 4, Lacunarity: 2.32, Gain: 0.75, Offset: 1.04,
+			MaskLow: 0.50, MaskHigh: 0.79,
+		},
+		ShadingStrength:     0.5,
+		ShadingExaggeration: 20,
+		LUT:                 "glacial",
 	},
 	"ice_world": {
 		Type:     "ice_world",
@@ -259,7 +281,15 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterDepth:      0.15,
 		HasPolarCaps:     true,
 		PolarCapSize:     0.3,
-			LUT:              "ice_world",
+		OceanLevel:       0.45,
+		OceanColor:       rgba(117, 174, 234),
+		SnowLine:         0.50,
+		Warp: types.WarpConfig{
+			Amp: 0.26, Freq: 1.10, Octaves: 2, Lacunarity: 2.69, Persistence: 0.28,
+		},
+		ShadingStrength:     0.5,
+		ShadingExaggeration: 0.1,
+		LUT:                 "ice_world",
 	},
 	"super_terran": {
 		Type:     "super_terran",
@@ -370,7 +400,18 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterMinRadius:  0.004,
 		CraterMaxRadius:  0.03,
 		CraterDepth:      0.1,
-			LUT:              "hothouse",
+		ControlConfig: types.ControlConfig{
+			Continentalness: types.ControlField{Amp: 1.24, Freq: 2.86, Octaves: 5, Lacunarity: 2.31, Persistence: 0.66, Spline: defaultSpline},
+			Erosion:         types.ControlField{Amp: 0.74, Freq: 1.87, Octaves: 6, Lacunarity: 2.24, Persistence: 0.69, Spline: defaultSpline},
+			PeaksValleys:    types.ControlField{Amp: 1.45, Freq: 4.94, Octaves: 6, Lacunarity: 2.51, Persistence: 0.70, Spline: defaultSpline},
+			Temperature:     types.ControlField{Amp: 0.64, Freq: 3.47, Octaves: 4, Lacunarity: 1.97, Persistence: 0.38, Spline: defaultSpline},
+			Humidity:        types.ControlField{Amp: 0.81, Freq: 0.99, Octaves: 4, Lacunarity: 2.33, Persistence: 0.78, Spline: defaultSpline},
+		},
+		Ridged: types.RidgedConfig{
+			Amp: 0.29, Freq: 2.21, Octaves: 3, Lacunarity: 2.35, Gain: 0.65, Offset: 1.02,
+			MaskLow: 0.47, MaskHigh: 0.74,
+		},
+		LUT: "hothouse",
 	},
 	"lava_world": {
 		Type:     "lava_world",

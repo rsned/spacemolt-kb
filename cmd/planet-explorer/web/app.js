@@ -431,11 +431,14 @@ function makeColorRow(label, helpText, rgba, onCommit) {
   input.value = '#' + hex(rgba.R) + hex(rgba.G) + hex(rgba.B);
   input.addEventListener('input', () => {
     const h = input.value.slice(1);
+    // The browser's color input doesn't expose alpha. Always commit A=255
+    // (otherwise a zero-default RGBA would persist transparent ocean even
+    // after the user picks a color in the picker).
     onCommit({
       R: parseInt(h.slice(0,2), 16),
       G: parseInt(h.slice(2,4), 16),
       B: parseInt(h.slice(4,6), 16),
-      A: rgba.A != null ? rgba.A : 255,
+      A: 255,
     });
   });
   row.appendChild(input);
