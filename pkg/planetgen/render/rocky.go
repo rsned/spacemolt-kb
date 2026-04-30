@@ -89,11 +89,18 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 			// ridged contribution is still applied in the final per-pixel
 			// pass below to keep the fast path bit-identical.
 			fieldNames := [5]string{"Continentalness", "Detail", "PeaksValleys", "Temperature", "Humidity"}
+			// Only the first three control fields contribute to elevation;
+			// Temperature and Humidity are climate fields that feed the
+			// Whittaker biome lookup downstream. Keep iterating all five so
+			// the debug frame still captures their fbm + spline rows; the
+			// SumAfter for Temperature/Humidity will equal SumAfter for
+			// PeaksValleys (correctly showing zero contribution to height).
+			const heightContributingFields = 3
 			for i := range 5 {
 				name := fieldNames[i]
 				raw := fields[i]
 				bypassed := bypass[name]
-				if !bypassed {
+				if !bypassed && i < heightContributingFields {
 					for face := range cubemap.Face(cubemap.NumFaces) {
 						for py := range S {
 							for px := range S {
@@ -132,6 +139,10 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 			}
 			// Apply ridged on top of summed control fields.
 			if ridgedGen != nil {
+				var hmBefore *cubemap.CubeMapF
+				if frame != nil {
+					hmBefore = heightmap.Clone()
+				}
 				bypassed := bypass["Ridged"]
 				if !bypassed {
 					for face := range cubemap.Face(cubemap.NumFaces) {
@@ -179,9 +190,16 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 					}
 				}
 				if frame != nil {
+					delta := cubemap.NewF(S)
+					for face := range cubemap.Face(cubemap.NumFaces) {
+						for i := range heightmap.Faces[face] {
+							delta.Faces[face][i] = heightmap.Faces[face][i] - hmBefore.Faces[face][i]
+						}
+					}
 					frame.Stages = append(frame.Stages, DebugStage{
 						Name:     "Ridged",
 						Kind:     "height",
+						RawFbm:   delta,
 						SumAfter: heightmap.Clone(),
 						Skipped:  bypass["Ridged"],
 					})
@@ -199,7 +217,10 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 							freqMod = provRFreq.Get(face, px, py)
 						}
 						var h float64
-						for i := range 5 {
+						// Only Continentalness, Detail, PeaksValleys (i < 3)
+						// contribute to elevation. Temperature and Humidity are
+						// climate fields consumed by the biome lookup later.
+						for i := range 3 {
 							v := fields[i].Get(face, px, py) * freqMod
 							contribution := planetcolor.EvalSpline(cfFields[i].Spline, v) * rampMod
 							h += contribution

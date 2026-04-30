@@ -61,3 +61,29 @@
   border: 1px solid #444;
   border-radius: 2px;
 }
+.debug-row canvas { cursor: zoom-in; }
+#debug-zoom-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  cursor: zoom-out;
+}
+#debug-zoom-overlay img {
+  max-width: 95vw;
+  max-height: 85vh;
+  image-rendering: pixelated;
+  border: 1px solid #555;
+  background: #111;
+}
+.debug-zoom-caption {
+  color: #ddd;
+  margin-top: 12px;
+  font-size: 0.9em;
+  letter-spacing: 0.03em;
+}

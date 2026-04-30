@@ -236,7 +236,24 @@ func generateDebug(_ js.Value, args []js.Value) any {
 		}
 		var cm *cubemap.CubeMap
 		if signed {
-			cm = render.SignedToRGBA(cmF, cmF.Size, 1.0)
+			// Auto-scale signed thumbnails to per-stage max-abs so small-
+			// amplitude deltas (e.g. Coastal at Amp=0.05) stay visible
+			// instead of mapping to near-black under a fixed hi=1.0.
+			maxAbs := 0.0
+			for face := range cmF.Faces {
+				for _, v := range cmF.Faces[face] {
+					if v < 0 {
+						v = -v
+					}
+					if v > maxAbs {
+						maxAbs = v
+					}
+				}
+			}
+			if maxAbs < 1e-9 {
+				maxAbs = 1.0
+			}
+			cm = render.SignedToRGBA(cmF, cmF.Size, maxAbs)
 		} else {
 			cm = cubemap.GrayscaleFromF(cmF)
 		}

@@ -1253,11 +1253,13 @@ function renderDebugGrid(stages) {
       const img = new Image();
       img.src = 'data:image/png;base64,' + s[key];
       const cv = document.createElement('canvas');
+      cv.title = `${s.name} — ${key.replace(/_/g, ' ')} (click to enlarge)`;
       img.onload = () => {
         cv.width = img.width;
         cv.height = img.height;
         cv.getContext('2d').drawImage(img, 0, 0);
       };
+      cv.addEventListener('click', () => openDebugZoom(img.src, `${s.name} — ${key.replace(/_/g, ' ')}`));
       // For band thumbnails, attach a small color/index legend below
       // the canvas so the operator can read which palette entry
       // corresponds to which knot interval.
@@ -1280,6 +1282,29 @@ function renderDebugGrid(stages) {
     }
     grid.appendChild(row);
   }
+}
+
+// openDebugZoom shows a debug thumbnail at its natural baked size in a
+// click-to-dismiss overlay. Thumbnails are CSS-clamped to 200px wide
+// in the grid but baked at faceSize*2 wide (128–1024+ depending on the
+// face-size slider), so the zoom view often reveals real detail.
+function openDebugZoom(src, caption) {
+  let overlay = $('#debug-zoom-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'debug-zoom-overlay';
+    overlay.addEventListener('click', () => overlay.style.display = 'none');
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = src;
+  overlay.appendChild(img);
+  const cap = document.createElement('div');
+  cap.className = 'debug-zoom-caption';
+  cap.textContent = caption + '  —  click anywhere to close';
+  overlay.appendChild(cap);
+  overlay.style.display = 'flex';
 }
 
 // Matches pkg/planetgen/render/debug_palette.go bandPalette, in CSS hex.
