@@ -131,6 +131,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaxStepsPerDrop: 50,
 			Gravity:         4,
 		},
+		HeightSmoothRadius: 2,
 		LUT: "arid",
 	},
 	"terran": {
@@ -240,6 +241,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaxStepsPerDrop: 50,
 			Gravity:         4,
 		},
+		HeightSmoothRadius: 2,
 		LUT: "terran",
 	},
 	"tundra": {
@@ -289,6 +291,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaxStepsPerDrop: 50,
 			Gravity:         4,
 		},
+		HeightSmoothRadius: 2,
 		LUT: "tundra",
 	},
 	"glacial": {
@@ -336,6 +339,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaxStepsPerDrop: 50,
 			Gravity:         4,
 		},
+		HeightSmoothRadius: 2,
 		LUT: "glacial",
 	},
 	"ice_world": {
@@ -390,6 +394,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaxStepsPerDrop: 50,
 			Gravity:         4,
 		},
+		HeightSmoothRadius: 2,
 		LUT: "ice_world",
 	},
 	"super_terran": {
@@ -500,6 +505,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaxStepsPerDrop: 50,
 			Gravity:         4,
 		},
+		HeightSmoothRadius: 2,
 		LUT: "super_terran",
 	},
 	"hothouse": {
@@ -687,6 +693,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaxStepsPerDrop: 50,
 			Gravity:         4,
 		},
+		HeightSmoothRadius: 2,
 		LUT: "oceanic",
 	},
 

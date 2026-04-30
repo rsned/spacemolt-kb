@@ -91,6 +91,12 @@ type PlanetProfile struct {
 
 	// Phase 5: particle hydraulic erosion. Droplets=0 disables (default).
 	Erosion ErosionConfig
+
+	// HeightSmoothRadius is the radius (in pixels) of a per-face disc blur
+	// applied to the heightmap after control-field summation. 0 disables.
+	// 2-3 typical for rocky archetypes; smooths fbm popcorn so erosion can
+	// form coherent channels.
+	HeightSmoothRadius int
 }
 
 // StormBand places a hand-authored oval storm feature at a specific latitude.

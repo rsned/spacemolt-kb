@@ -326,6 +326,34 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		}
 	}
 
+	// Phase 5 follow-up: smooth heightmap to reduce per-pixel popcorn so
+	// erosion can form coherent channels.
+	if profile.HeightSmoothRadius > 0 {
+		bypassed := bypass["HeightSmooth"]
+		var hmBefore *cubemap.CubeMapF
+		if frame != nil {
+			hmBefore = heightmap.Clone()
+		}
+		if !bypassed {
+			heightmap = field.SmoothHeightmap(heightmap, profile.HeightSmoothRadius, S)
+		}
+		if frame != nil {
+			delta := cubemap.NewF(S)
+			for face := range cubemap.Face(cubemap.NumFaces) {
+				for i := range heightmap.Faces[face] {
+					delta.Faces[face][i] = heightmap.Faces[face][i] - hmBefore.Faces[face][i]
+				}
+			}
+			frame.Stages = append(frame.Stages, DebugStage{
+				Name:     "HeightSmooth",
+				Kind:     "height",
+				RawFbm:   delta,
+				SumAfter: heightmap.Clone(),
+				Skipped:  bypassed,
+			})
+		}
+	}
+
 	hMin, hMax := 1.0, 0.0
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for _, h := range heightmap.Faces[face] {

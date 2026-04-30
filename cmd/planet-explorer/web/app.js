@@ -205,6 +205,7 @@ function renderPanels() {
   renderShadingPanel(profile, panels);
   renderOceanPanel(profile, panels);
   renderCryospherePanel(profile, panels);
+  renderHeightSmoothPanel(profile, panels);
   renderCoastalPanel(profile, panels);
   renderContinentsPanel(profile, panels);
   renderCratersPanel(profile, panels);
@@ -775,6 +776,17 @@ function renderCryospherePanel(profile, panels) {
     'Elevation [0,1] above which pixels get a snow tint. 0 = disabled.',
     profile.SnowLine || 0, 0, 1, '0.01',
     v => { profile.SnowLine = v; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
+function renderHeightSmoothPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Height Smoothing',
+    'Per-face disc blur applied to the heightmap before Normalize. 0 disables. 2-3 smooths fbm popcorn so erosion can form coherent channels; larger values produce broader, gentler terrain at the cost of surface texture.');
+  panel.appendChild(makeNumberRow('Radius',
+    'Blur radius in pixels. 0 disables; 2-3 typical for terran/super_terran; up to 5 for very smooth worlds.',
+    profile.HeightSmoothRadius || 0, 0, 8, '1',
+    v => { profile.HeightSmoothRadius = Math.max(0, Math.round(v)); commitProfile(profile); }));
   panels.appendChild(panel);
 }
 
