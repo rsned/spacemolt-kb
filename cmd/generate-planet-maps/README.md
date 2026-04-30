@@ -203,6 +203,32 @@ Implemented under `pkg/planetgen/render/debug.go` and
 `planetExplorerGenerateDebug` wasm export and rendered into a
 `<details id="debug-panel">` block in the explorer UI.
 
+## Phase 5 — Particle hydraulic erosion (current)
+
+Master-plan item 9. Droplets walk the cube-sphere in 3D unit-sphere
+coordinates, sampling height + gradient via seam-aware
+`cubemap.CubeMapF.Sample` so cross-face propagation is implicit.
+Each droplet carries water + sediment; capacity is `slope · speed ·
+water · capacity`; depositing happens when sediment exceeds capacity
+or the next step is uphill, eroding otherwise. Output is a
+strongly-subtractive heightmap delta with dendritic channels and
+alluvial fans.
+
+Implemented in `pkg/planetgen/field/erosion.go`. Wired into
+`RenderRocky` between Coastal and Craters. Profile knob
+`ErosionDroplets` is the canonical count at face=1024; the renderer
+auto-scales to face size with a 5000-droplet floor so face=64
+previews still communicate the look.
+
+Tuned defaults:
+- terran, super_terran, arid: enabled (~100k droplets at face=1024)
+- tundra, glacial, ice_world: light enabled (~50k)
+- oceanic: light enabled (~30k)
+- scorched, hothouse, lava_world, unknown: disabled by default
+
+Tier A (master plan items 6–13) is now complete. Tier B (items 14–20)
+and Tier C (items 21–25) remain.
+
 ## Testing and the golden-diff workflow
 
 Three layers of tests:
