@@ -199,6 +199,48 @@ func TestDebugFrameColorStages(t *testing.T) {
 	}
 }
 
+func TestDebugFrameIncludesErosion(t *testing.T) {
+	prof := minimalRockyProfile()
+	prof.Erosion = types.ErosionConfig{
+		Droplets: 200, Inertia: 0.05, Capacity: 4,
+		ErosionRate: 0.3, Deposition: 0.3, Evaporation: 0.01,
+		MaxStepsPerDrop: 30,
+	}
+	frame := RenderRockyDebug(&prof, 7, 32, nil)
+	found := false
+	for _, s := range frame.Stages {
+		if s.Name == "Erosion" {
+			found = true
+			if s.Skipped {
+				t.Error("Erosion stage marked Skipped even though active+not-bypassed")
+			}
+			if s.RawFbm == nil || s.SumAfter == nil {
+				t.Error("Erosion stage missing RawFbm or SumAfter")
+			}
+		}
+	}
+	if !found {
+		t.Error("Erosion stage missing from DebugFrame")
+	}
+}
+
+func TestDebugFrameErosionAlwaysEmittedWhenInactive(t *testing.T) {
+	prof := minimalRockyProfile() // no Erosion set → Droplets == 0
+	frame := RenderRockyDebug(&prof, 7, 32, nil)
+	found := false
+	for _, s := range frame.Stages {
+		if s.Name == "Erosion" {
+			found = true
+			if !s.Skipped {
+				t.Error("Erosion stage should be Skipped when Droplets==0")
+			}
+		}
+	}
+	if !found {
+		t.Error("Erosion stage missing — must always emit even when inactive")
+	}
+}
+
 // TestRenderRockyDebugAllStagesPresent verifies that RenderRockyDebug
 // returns a populated DebugFrame with both height and color stages.
 func TestRenderRockyDebugAllStagesPresent(t *testing.T) {

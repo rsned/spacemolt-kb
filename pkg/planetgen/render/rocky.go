@@ -396,16 +396,39 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 
 	// Phase 5: particle hydraulic erosion. Droplet count auto-scales by
 	// face area; floor at 5000 so previews at face=64 still show channels.
-	if profile.Erosion.Droplets > 0 {
-		const baseSize = 1024 // planetgen.DefaultFaceSize; hard-coded to avoid import cycle
-		scale := float64(S*S) / float64(baseSize*baseSize)
-		n := int(float64(profile.Erosion.Droplets) * scale)
-		if n < 5000 && profile.Erosion.Droplets >= 5000 {
-			n = 5000
+	{
+		active := profile.Erosion.Droplets > 0
+		bypassed := bypass["Erosion"]
+		var hmBefore *cubemap.CubeMapF
+		if frame != nil {
+			hmBefore = heightmap.Clone()
 		}
-		cfg := profile.Erosion
-		cfg.Droplets = n
-		field.Erode(seed, heightmap, cfg, S)
+		if active && !bypassed {
+			const baseSize = 1024 // planetgen.DefaultFaceSize; hard-coded to avoid import cycle
+			scale := float64(S*S) / float64(baseSize*baseSize)
+			n := int(float64(profile.Erosion.Droplets) * scale)
+			if n < 5000 && profile.Erosion.Droplets >= 5000 {
+				n = 5000
+			}
+			cfg := profile.Erosion
+			cfg.Droplets = n
+			field.Erode(seed, heightmap, cfg, S)
+		}
+		if frame != nil {
+			delta := cubemap.NewF(S)
+			for face := range cubemap.Face(cubemap.NumFaces) {
+				for i := range heightmap.Faces[face] {
+					delta.Faces[face][i] = heightmap.Faces[face][i] - hmBefore.Faces[face][i]
+				}
+			}
+			frame.Stages = append(frame.Stages, DebugStage{
+				Name:     "Erosion",
+				Kind:     "height",
+				RawFbm:   delta,
+				SumAfter: heightmap.Clone(),
+				Skipped:  bypassed || !active,
+			})
+		}
 	}
 
 	var craters []feature.Crater
