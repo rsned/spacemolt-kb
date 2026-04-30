@@ -45,6 +45,22 @@
           <option value="heightmap">Heightmap (grayscale)</option>
         </select>
       </label>
+      <label>Mode
+        <select id="render-mode">
+          <option value="sphere" selected>Sphere</option>
+          <option value="swatch">Swatch (flat face)</option>
+        </select>
+      </label>
+      <label id="swatch-face-label" hidden>Face
+        <select id="swatch-face">
+          <option value="4" selected>+Z (front)</option>
+          <option value="0">+X (right)</option>
+          <option value="1">-X (left)</option>
+          <option value="2">+Y (top)</option>
+          <option value="3">-Y (bottom)</option>
+          <option value="5">-Z (back)</option>
+        </select>
+      </label>
       <button id="render-btn">Regenerate</button>
       <button id="export-json-btn">Export JSON</button>
     </section>
@@ -129,11 +145,15 @@
     </section>
   </aside>
   <section class="viewport">
-    <h2>Rotating sphere</h2>
+    <h2 id="viewport-title">Rotating sphere</h2>
     <div class="planet-sphere">
       <canvas id="sphere-canvas" width="800" height="800"></canvas>
     </div>
     <div class="sphere-hint">Click and drag to rotate · auto-rotates after 3 s idle</div>
+    <div class="planet-swatch" hidden>
+      <canvas id="swatch-canvas" width="512" height="512"></canvas>
+      <div class="swatch-hint">Single cube-map face shown flat (no equirect bake, no sphere render).</div>
+    </div>
     <!-- Hidden render targets. The sphere preview samples its texture from
          the equirect canvas, so both stay in the DOM but hidden. -->
     <div class="hidden-render-targets" hidden>

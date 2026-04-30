@@ -14,6 +14,14 @@ const profileTextarea = $('#profile-json');
 const cubeCanvas = $('#cube-canvas');
 const equirectCanvas = $('#equirect-canvas');
 const viewModeSel = $('#view-mode');
+const renderModeSel = $('#render-mode');
+const swatchFaceSel = $('#swatch-face');
+const swatchFaceLabel = $('#swatch-face-label');
+const swatchCanvas = $('#swatch-canvas');
+const sphereDiv = $('.planet-sphere');
+const swatchDiv = $('.planet-swatch');
+const sphereHint = $('.sphere-hint');
+const viewportTitle = $('#viewport-title');
 
 let wasmReady = false;
 
@@ -33,6 +41,10 @@ async function init() {
   go.run(result.instance);
   wasmReady = true;
   status.textContent = 'Ready';
+
+  // Apply render mode visibility on startup (default is sphere, so this is a no-op
+  // unless the user had somehow selected swatch before wasm loaded).
+  applyRenderMode();
 
   // Load default profile for the initial type.
   loadDefaultProfile();
@@ -108,19 +120,30 @@ async function regenerate() {
   } else {
     cubePNG = planetExplorerGenerate(profileJSON, seed, faceSize);
   }
+  const renderMode = renderModeSel ? renderModeSel.value : 'sphere';
+
   if (cubePNG instanceof Uint8Array) {
     await paintToCanvas(cubeCanvas, cubePNG);
-    const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
-    if (equirectPNG instanceof Uint8Array) {
-      await paintToCanvas(equirectCanvas, equirectPNG);
+    if (renderMode === 'swatch') {
+      paintSwatchFromCubeCanvas();
+    } else {
+      const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
+      if (equirectPNG instanceof Uint8Array) {
+        await paintToCanvas(equirectCanvas, equirectPNG);
+      }
     }
   } else {
     status.textContent = 'Error: ' + cubePNG;
     return;
   }
-  status.textContent = `Rendered in ${(performance.now() - t0).toFixed(0)} ms`;
+  const elapsed = (performance.now() - t0).toFixed(0);
+  status.textContent = renderMode === 'swatch'
+    ? `Rendered in ${elapsed} ms (swatch)`
+    : `Rendered in ${elapsed} ms`;
   renderPanels();
-  refreshSphereTexture();
+  if (renderMode !== 'swatch') {
+    refreshSphereTexture();
+  }
 
   // Phase 6: keep the debug panel in sync with the main render when it
   // is expanded. Skips the expensive debug pass when the panel is
@@ -149,9 +172,59 @@ async function paintToCanvas(canvas, pngBytes) {
   });
 }
 
+// cube-cross face layout: crossCells[faceIndex] = {col, row}
+// Indices match the swatch-face <select> option values:
+// 0=+X (col2,row1), 1=-X (col0,row1), 2=+Y (col1,row0),
+// 3=-Y (col1,row2), 4=+Z (col1,row1), 5=-Z (col3,row1)
+const cubeCrossLayout = [
+  { col: 2, row: 1 }, // 0: +X
+  { col: 0, row: 1 }, // 1: -X
+  { col: 1, row: 0 }, // 2: +Y
+  { col: 1, row: 2 }, // 3: -Y
+  { col: 1, row: 1 }, // 4: +Z (front, default)
+  { col: 3, row: 1 }, // 5: -Z
+];
+
+function paintSwatchFromCubeCanvas() {
+  if (!swatchCanvas || !cubeCanvas || !cubeCanvas.width || !cubeCanvas.height) return;
+  const S = Math.floor(cubeCanvas.width / 4); // face size in pixels
+  const faceIdx = swatchFaceSel ? parseInt(swatchFaceSel.value, 10) : 4;
+  const { col, row } = cubeCrossLayout[faceIdx] || cubeCrossLayout[4];
+
+  const srcCtx = cubeCanvas.getContext('2d', { willReadFrequently: true });
+  const pixels = srcCtx.getImageData(col * S, row * S, S, S);
+
+  swatchCanvas.width = S;
+  swatchCanvas.height = S;
+  const dstCtx = swatchCanvas.getContext('2d');
+  dstCtx.putImageData(pixels, 0, 0);
+}
+
+function applyRenderMode() {
+  const renderMode = renderModeSel ? renderModeSel.value : 'sphere';
+  const isSwatch = renderMode === 'swatch';
+  if (sphereDiv) sphereDiv.hidden = isSwatch;
+  if (sphereHint) sphereHint.hidden = isSwatch;
+  if (swatchDiv) swatchDiv.hidden = !isSwatch;
+  if (swatchFaceLabel) swatchFaceLabel.hidden = !isSwatch;
+  if (viewportTitle) viewportTitle.textContent = isSwatch ? 'Swatch (single face)' : 'Rotating sphere';
+}
+
 typePicker.addEventListener('change', loadDefaultProfile);
 renderBtn.addEventListener('click', regenerate);
 if (viewModeSel) viewModeSel.addEventListener('change', regenerate);
+if (renderModeSel) {
+  renderModeSel.addEventListener('change', () => {
+    applyRenderMode();
+    regenerate();
+  });
+}
+if (swatchFaceSel) {
+  swatchFaceSel.addEventListener('change', () => {
+    // Re-crop from the already-rendered cubeCanvas — no wasm re-run needed.
+    paintSwatchFromCubeCanvas();
+  });
+}
 exportBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(profileTextarea.value);
   status.textContent = 'JSON copied to clipboard';
