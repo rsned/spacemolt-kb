@@ -88,6 +88,9 @@ type PlanetProfile struct {
 	// Phase 4 Task 8: Hand-authored storm band overlays (Great Red Spot, polar
 	// storms). Applied after the Jupiter-ramp base palette. Nil slice = no bands.
 	StormBands []StormBand
+
+	// Phase 5: particle hydraulic erosion. Droplets=0 disables (default).
+	Erosion ErosionConfig
 }
 
 // StormBand places a hand-authored oval storm feature at a specific latitude.
@@ -97,6 +100,31 @@ type StormBand struct {
 	HalfWidth float64  // angular half-width in radians
 	Color     ColorRGB // band tint
 	Strength  float64  // mix amount [0,1]
+}
+
+// ErosionConfig parameterizes the sphere-walk particle hydraulic erosion pass.
+// Droplets=0 disables the pass entirely (no-op).
+type ErosionConfig struct {
+	// Droplets is the canonical droplet count at face=1024; auto-scaled at lower sizes.
+	Droplets int
+	// Inertia in [0,1]; how much velocity is preserved between steps. 0.05 default.
+	Inertia float64
+	// Capacity is the sediment capacity multiplier; ~4 default.
+	Capacity float64
+	// ErosionRate is the fraction of "missing" capacity carved per step; 0.3 default.
+	ErosionRate float64
+	// Deposition is the fraction of "excess" sediment dropped per step; 0.3 default.
+	Deposition float64
+	// Evaporation is the water loss per step; 0.01 default.
+	Evaporation float64
+	// MinSlope is the floor on slope used for capacity to avoid 0; 0.01 default.
+	MinSlope float64
+	// MaxStepsPerDrop is the hard cap on steps per droplet; 50 default.
+	MaxStepsPerDrop int
+	// Gravity is the arbitrary gravitational constant; 4.0 default.
+	Gravity float64
+	// StepLen is the per-step displacement on the unit sphere; 0 = auto = 1/(2*S).
+	StepLen float64
 }
 
 // RidgedConfig parameterizes a ridged-multifractal mountain pass.
