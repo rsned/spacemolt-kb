@@ -208,6 +208,7 @@ function renderPanels() {
   renderCoastalPanel(profile, panels);
   renderContinentsPanel(profile, panels);
   renderCratersPanel(profile, panels);
+  renderErosionPanel(profile, panels);
   renderBiomePanel(profile, panels);
   renderCurlPanel(profile, panels);
   renderStormBandsPanel(profile, panels);
@@ -674,6 +675,80 @@ function renderCratersPanel(profile, panels) {
     'Small ejecta-cluster bowls around each large primary. 0 = disabled; 1 = up to ~15 secondaries per large.',
     profile.SecondaryDensity || 0, 0, 1, '0.05',
     v => { profile.SecondaryDensity = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderErosionPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Erosion',
+    'Particle hydraulic erosion: droplets walk the heightmap, carving channels and depositing sediment. Droplets=0 disables. The renderer auto-scales droplet count by face area, with a 5000 floor so face=64 previews still show channels; full canonical count runs at face=1024.');
+  if (!profile.Erosion) profile.Erosion = {};
+  const e = profile.Erosion;
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.Erosion) || {};
+    profile.Erosion = JSON.parse(JSON.stringify(orig));
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => { profile.Erosion = {}; commitProfile(profile); renderPanels(); };
+  const randomize = () => {
+    profile.Erosion = {
+      Droplets:        Math.round(50000 + Math.random() * 150000),
+      Inertia:         round2(0.02 + Math.random() * 0.15),
+      Capacity:        round2(2 + Math.random() * 6),
+      ErosionRate:     round2(0.1 + Math.random() * 0.5),
+      Deposition:      round2(0.1 + Math.random() * 0.5),
+      Evaporation:     round2(0.005 + Math.random() * 0.04),
+      MinSlope:        round2(0.005 + Math.random() * 0.03),
+      MaxStepsPerDrop: 30 + Math.floor(Math.random() * 50),
+      Gravity:         round2(2 + Math.random() * 6),
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+
+  const summary = panel.querySelector('summary');
+  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range erosion params', randomize));
+  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  summary.appendChild(makeAuxBtn('Clear', 'Zero out erosion config', clear));
+
+  panel.appendChild(makeNumberRow('Droplets',
+    'Canonical droplet count at face=1024. Auto-scaled by face area; floor 5000 so previews still carve channels. 0 disables.',
+    e.Droplets || 0, 0, 500000, '1000',
+    v => { profile.Erosion.Droplets = Math.max(0, Math.round(v)); commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Inertia',
+    '[0,1]: how much velocity carries between steps. 0.05 default; higher = straighter channels.',
+    e.Inertia || 0, 0, 1, '0.01',
+    v => { profile.Erosion.Inertia = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Capacity',
+    'Sediment capacity multiplier. 4 default; higher = droplets carry more before depositing.',
+    e.Capacity || 0, 0, 20, '0.1',
+    v => { profile.Erosion.Capacity = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('ErosionRate',
+    'Fraction of "missing capacity" carved per step. 0.3 default.',
+    e.ErosionRate || 0, 0, 1, '0.05',
+    v => { profile.Erosion.ErosionRate = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Deposition',
+    'Fraction of "excess sediment" dropped per step. 0.3 default.',
+    e.Deposition || 0, 0, 1, '0.05',
+    v => { profile.Erosion.Deposition = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Evaporation',
+    'Water lost per step. 0.01 default.',
+    e.Evaporation || 0, 0, 0.1, '0.005',
+    v => { profile.Erosion.Evaporation = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('MinSlope',
+    'Floor on slope used in capacity calc to avoid 0. 0.01 default.',
+    e.MinSlope || 0, 0, 0.5, '0.005',
+    v => { profile.Erosion.MinSlope = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('MaxStepsPerDrop',
+    'Hard cap on steps per droplet. 50 default.',
+    e.MaxStepsPerDrop || 0, 0, 200, '5',
+    v => { profile.Erosion.MaxStepsPerDrop = Math.max(0, Math.round(v)); commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('Gravity',
+    'Speed gain from -Δh per step. 4 default.',
+    e.Gravity || 0, 0, 20, '0.1',
+    v => { profile.Erosion.Gravity = v; commitProfile(profile); }));
 
   panels.appendChild(panel);
 }
