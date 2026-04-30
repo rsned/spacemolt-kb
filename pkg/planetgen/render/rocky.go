@@ -394,6 +394,20 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		}
 	}
 
+	// Phase 5: particle hydraulic erosion. Droplet count auto-scales by
+	// face area; floor at 5000 so previews at face=64 still show channels.
+	if profile.Erosion.Droplets > 0 {
+		const baseSize = 1024 // planetgen.DefaultFaceSize; hard-coded to avoid import cycle
+		scale := float64(S*S) / float64(baseSize*baseSize)
+		n := int(float64(profile.Erosion.Droplets) * scale)
+		if n < 5000 && profile.Erosion.Droplets >= 5000 {
+			n = 5000
+		}
+		cfg := profile.Erosion
+		cfg.Droplets = n
+		field.Erode(seed, heightmap, cfg, S)
+	}
+
 	var craters []feature.Crater
 	if profile.CraterCount > 0 {
 		var hmBefore *cubemap.CubeMapF
