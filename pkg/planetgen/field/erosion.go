@@ -9,6 +9,73 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
+// brushOffsets, brushWeights are a 3×3 erosion brush with 1/(1+r) falloff.
+// Weights sum to 1 so total mass eroded/deposited == amt regardless of brush shape.
+// Reference weights at r ∈ {0, 1, √2}: 1.0, 0.5, 0.4142; sum = 1 + 4·0.5 + 4·0.4142 ≈ 4.6568.
+var (
+	brushOffsetX = [9]int{-1, 0, 1, -1, 0, 1, -1, 0, 1}
+	brushOffsetY = [9]int{-1, -1, -1, 0, 0, 0, 1, 1, 1}
+	brushWeights = [9]float64{} // populated in init()
+)
+
+func init() {
+	var raw [9]float64
+	sum := 0.0
+	for i := range 9 {
+		r := math.Sqrt(float64(brushOffsetX[i]*brushOffsetX[i] + brushOffsetY[i]*brushOffsetY[i]))
+		w := 1.0 / (1.0 + r)
+		raw[i] = w
+		sum += w
+	}
+	for i := range 9 {
+		brushWeights[i] = raw[i] / sum
+	}
+}
+
+// applyErode carves amt across a 3x3 brush at (ix, iy), clipping at face
+// edges and clamping per-cell so height stays ≥ 0. Returns the total
+// height actually carved (may be < amt at clamps/edges).
+func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt float64) float64 {
+	total := 0.0
+	for i := range 9 {
+		ix2 := ix + brushOffsetX[i]
+		iy2 := iy + brushOffsetY[i]
+		if ix2 < 0 || ix2 >= S || iy2 < 0 || iy2 >= S {
+			continue
+		}
+		amtCell := amt * brushWeights[i]
+		cur := hm.Get(face, ix2, iy2)
+		if cur < amtCell {
+			amtCell = cur
+		}
+		hm.Set(face, ix2, iy2, cur-amtCell)
+		total += amtCell
+	}
+	return total
+}
+
+// applyDeposit drops amt across a 3x3 brush at (ix, iy), clipping at
+// face edges and clamping per-cell so height stays ≤ 1. Returns the
+// total height actually deposited.
+func applyDeposit(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt float64) float64 {
+	total := 0.0
+	for i := range 9 {
+		ix2 := ix + brushOffsetX[i]
+		iy2 := iy + brushOffsetY[i]
+		if ix2 < 0 || ix2 >= S || iy2 < 0 || iy2 >= S {
+			continue
+		}
+		amtCell := amt * brushWeights[i]
+		cur := hm.Get(face, ix2, iy2)
+		if cur+amtCell > 1 {
+			amtCell = 1 - cur
+		}
+		hm.Set(face, ix2, iy2, cur+amtCell)
+		total += amtCell
+	}
+	return total
+}
+
 // Erode runs particle hydraulic erosion on heightmap and returns it modified.
 // cfg.Droplets <= 0 is a no-op (returns heightmap unchanged).
 //
@@ -100,24 +167,13 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 			if deltaH > 0 && amt > deltaH {
 				amt = deltaH
 			}
-			cur := hm.Get(face, ix, iy)
-			if cur+amt > 1 {
-				amt = 1 - cur
-			}
-			hm.Set(face, ix, iy, cur+amt)
-			sediment -= amt
+			actuallyDeposited := applyDeposit(hm, face, ix, iy, S, amt)
+			sediment -= actuallyDeposited
 		} else {
 			// Erode; pick up material up to capacity.
 			amt := (cap - sediment) * erosionRate
-			if amt > -deltaH {
-				amt = -deltaH
-			}
-			cur := hm.Get(face, ix, iy)
-			if cur-amt < 0 {
-				amt = cur
-			}
-			hm.Set(face, ix, iy, cur-amt)
-			sediment += amt
+			actuallyEroded := applyErode(hm, face, ix, iy, S, amt)
+			sediment += actuallyEroded
 		}
 
 		// Advance position.

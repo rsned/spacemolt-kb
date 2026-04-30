@@ -65,6 +65,22 @@ func makeBumpyHeightmap(S int, _ float64) *cubemap.CubeMapF {
 	return out
 }
 
+func TestErodeBrushSpreadsToNeighbors(t *testing.T) {
+	hm := makePyramid(32, 0.9, 0.4)
+	// Snapshot a pixel that's a peak's 4-neighbor before Erode.
+	nbrBefore := hm.Get(cubemap.FacePosX, 17, 16)
+	cfg := types.ErosionConfig{
+		Droplets: 5000, Inertia: 0.3, Capacity: 4,
+		ErosionRate: 0.5, Deposition: 0.2, Evaporation: 0.01,
+		MaxStepsPerDrop: 60, Gravity: 4,
+	}
+	out := Erode(11, hm.Clone(), cfg, 32)
+	nbrAfter := out.Get(cubemap.FacePosX, 17, 16)
+	if nbrAfter == nbrBefore {
+		t.Errorf("brush should affect neighbors of touched pixels; before=%f after=%f", nbrBefore, nbrAfter)
+	}
+}
+
 func makePyramid(S int, peak, base float64) *cubemap.CubeMapF {
 	out := cubemap.NewF(S)
 	for face := range out.Faces {
