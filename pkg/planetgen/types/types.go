@@ -105,7 +105,8 @@ type StormBand struct {
 // ErosionConfig parameterizes the sphere-walk particle hydraulic erosion pass.
 // Droplets=0 disables the pass entirely (no-op).
 type ErosionConfig struct {
-	// Droplets is the canonical droplet count at face=1024; auto-scaled at lower sizes.
+	// Droplets is the canonical droplet count at face=1024. The renderer
+	// scales this by face area; Erode itself runs cfg.Droplets verbatim.
 	Droplets int
 	// Inertia in [0,1]; how much velocity is preserved between steps. 0.05 default.
 	Inertia float64

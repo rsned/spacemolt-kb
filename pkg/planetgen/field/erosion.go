@@ -21,9 +21,9 @@ func Erode(masterSeed int64, heightmap *cubemap.CubeMapF, cfg types.ErosionConfi
 	if cfg.Droplets <= 0 {
 		return heightmap
 	}
-	rng := rand.New(rand.NewPCG( //nolint:gosec
-		uint64(seed.Domain(masterSeed, "erosion")),
-		uint64(seed.Domain(masterSeed, "erosion")^0x5a5a5a5a),
+	rng := rand.New(rand.NewPCG(
+		uint64(seed.Domain(masterSeed, "erosion.seed")),   //nolint:gosec
+		uint64(seed.Domain(masterSeed, "erosion.stream")), //nolint:gosec
 	))
 	inertia := defaultIfZero(cfg.Inertia, 0.05)
 	capacity := defaultIfZero(cfg.Capacity, 4.0)
@@ -94,6 +94,9 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 		if sediment > cap || deltaH > 0 {
 			// Deposit excess sediment or fill uphill step.
 			amt := (sediment - cap) * deposition
+			if amt < 0 {
+				amt = 0
+			}
 			if deltaH > 0 && amt > deltaH {
 				amt = deltaH
 			}
