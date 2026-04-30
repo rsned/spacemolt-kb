@@ -124,26 +124,21 @@ async function regenerate() {
 
   if (cubePNG instanceof Uint8Array) {
     await paintToCanvas(cubeCanvas, cubePNG);
+    const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
+    if (equirectPNG instanceof Uint8Array) {
+      await paintToCanvas(equirectCanvas, equirectPNG);
+    }
     if (renderMode === 'swatch') {
       paintSwatchFromCubeCanvas();
-    } else {
-      const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
-      if (equirectPNG instanceof Uint8Array) {
-        await paintToCanvas(equirectCanvas, equirectPNG);
-      }
     }
   } else {
     status.textContent = 'Error: ' + cubePNG;
     return;
   }
   const elapsed = (performance.now() - t0).toFixed(0);
-  status.textContent = renderMode === 'swatch'
-    ? `Rendered in ${elapsed} ms (swatch)`
-    : `Rendered in ${elapsed} ms`;
+  status.textContent = `Rendered in ${elapsed} ms`;
   renderPanels();
-  if (renderMode !== 'swatch') {
-    refreshSphereTexture();
-  }
+  refreshSphereTexture();
 
   // Phase 6: keep the debug panel in sync with the main render when it
   // is expanded. Skips the expensive debug pass when the panel is
@@ -203,11 +198,8 @@ function paintSwatchFromCubeCanvas() {
 function applyRenderMode() {
   const renderMode = renderModeSel ? renderModeSel.value : 'sphere';
   const isSwatch = renderMode === 'swatch';
-  if (sphereDiv) sphereDiv.hidden = isSwatch;
-  if (sphereHint) sphereHint.hidden = isSwatch;
   if (swatchDiv) swatchDiv.hidden = !isSwatch;
   if (swatchFaceLabel) swatchFaceLabel.hidden = !isSwatch;
-  if (viewportTitle) viewportTitle.textContent = isSwatch ? 'Swatch (single face)' : 'Rotating sphere';
 }
 
 typePicker.addEventListener('change', loadDefaultProfile);

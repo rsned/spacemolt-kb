@@ -145,15 +145,16 @@
     </section>
   </aside>
   <section class="viewport">
+    <div class="planet-swatch" hidden>
+      <h3 class="swatch-title">Swatch</h3>
+      <canvas id="swatch-canvas" width="512" height="512"></canvas>
+      <div class="swatch-hint">Single cube-map face shown flat.</div>
+    </div>
     <h2 id="viewport-title">Rotating sphere</h2>
     <div class="planet-sphere">
       <canvas id="sphere-canvas" width="800" height="800"></canvas>
     </div>
     <div class="sphere-hint">Click and drag to rotate · auto-rotates after 3 s idle</div>
-    <div class="planet-swatch" hidden>
-      <canvas id="swatch-canvas" width="512" height="512"></canvas>
-      <div class="swatch-hint">Single cube-map face shown flat (no equirect bake, no sphere render).</div>
-    </div>
     <!-- Hidden render targets. The sphere preview samples its texture from
          the equirect canvas, so both stay in the DOM but hidden. -->
     <div class="hidden-render-targets" hidden>
