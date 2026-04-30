@@ -130,7 +130,7 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 	sediment := 0.0
 
 	for range maxSteps {
-		h, gx, gy, gz := sampleWithGradient(hm, px, py, pz)
+		h, gx, gy, gz := sampleWithGradient(hm, S, px, py, pz)
 		// Blend velocity toward negative gradient (downhill direction).
 		vx = inertia*vx + (1-inertia)*(-gx)
 		vy = inertia*vy + (1-inertia)*(-gy)
@@ -147,7 +147,7 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 		}
 		vxN, vyN, vzN := vx/vlen, vy/vlen, vz/vlen
 		nx, ny, nz := erosionNormalize(px+vxN*stepLen, py+vyN*stepLen, pz+vzN*stepLen)
-		nh, _, _, _ := sampleWithGradient(hm, nx, ny, nz)
+		nh, _, _, _ := sampleWithGradient(hm, S, nx, ny, nz)
 
 		deltaH := nh - h
 		speed := vlen
@@ -195,11 +195,11 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 }
 
 // sampleWithGradient returns (h, ∇hx, ∇hy, ∇hz) where the gradient is a 3D
-// vector in the tangent plane at (x, y, z). Four offset samples along the
-// local east and north tangents are used for central-difference estimation.
-func sampleWithGradient(hm *cubemap.CubeMapF, x, y, z float64) (float64, float64, float64, float64) {
+// vector in the tangent plane at (x, y, z). Stencil width is ~3 pixels so the
+// gradient reflects continental-scale slope rather than per-pixel Detail noise.
+func sampleWithGradient(hm *cubemap.CubeMapF, S int, x, y, z float64) (float64, float64, float64, float64) {
 	h := hm.Sample(x, y, z)
-	const eps = 1e-3
+	eps := 3.0 / float64(S)
 	ex, ey, ez := tangentEast(x, y, z)
 	nx, ny, nz := tangentNorth(x, y, z)
 	// Inline four samples to avoid closure boxing.
