@@ -354,15 +354,16 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	}
 
 	// Phase 4 Task 3: Apply coastal noise enhancement if enabled.
-	if profile.Coastal.Amp > 0 && profile.OceanLevel > 0 {
+	{
+		active := profile.Coastal.Amp > 0 && profile.OceanLevel > 0
+		bypassed := bypass["Coastal"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
 			hmBefore = heightmap.Clone()
 		}
-		distField := field.DistanceToCoast(heightmap, profile.OceanLevel, S)
-		coastGen := noise.NewCoastalGen(pgseed.Domain(seed, "coastal"))
-		bypassed := bypass["Coastal"]
-		if !bypassed {
+		if active && !bypassed {
+			distField := field.DistanceToCoast(heightmap, profile.OceanLevel, S)
+			coastGen := noise.NewCoastalGen(pgseed.Domain(seed, "coastal"))
 			for face := range cubemap.Face(cubemap.NumFaces) {
 				for py := range S {
 					for px := range S {
@@ -388,7 +389,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 				Kind:     "height",
 				RawFbm:   delta,
 				SumAfter: heightmap.Clone(),
-				Skipped:  bypassed,
+				Skipped:  bypassed || !active,
 			})
 		}
 	}
