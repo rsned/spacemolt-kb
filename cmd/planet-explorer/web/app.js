@@ -215,6 +215,14 @@ if (swatchFaceSel) {
   swatchFaceSel.addEventListener('change', () => {
     // Re-crop from the already-rendered cubeCanvas — no wasm re-run needed.
     paintSwatchFromCubeCanvas();
+    // In swatch mode the debug thumbnails show the selected face, so
+    // re-render the debug panel when it is open.
+    if (renderModeSel && renderModeSel.value === 'swatch') {
+      const debugPanel = document.getElementById('debug-panel');
+      if (debugPanel && debugPanel.open) {
+        refreshDebugView();
+      }
+    }
   });
 }
 exportBtn.addEventListener('click', () => {
@@ -1330,7 +1338,14 @@ function refreshDebugView() {
   const seed = seedInput.value;
   const faceSize = parseInt(faceSizeSel.value, 10);
   const bypassJSON = JSON.stringify([...debugBypass]);
-  const result = window.planetExplorerGenerateDebug(profileJSON, seed, faceSize, bypassJSON);
+  const mode = renderModeSel ? renderModeSel.value : 'sphere';
+  let result;
+  if (mode === 'swatch' && window.planetExplorerGenerateDebugSwatch) {
+    const faceIdx = swatchFaceSel ? (parseInt(swatchFaceSel.value, 10) || 4) : 4;
+    result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, faceSize, bypassJSON, faceIdx);
+  } else {
+    result = window.planetExplorerGenerateDebug(profileJSON, seed, faceSize, bypassJSON);
+  }
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) { console.error('debug parse', e); return; }

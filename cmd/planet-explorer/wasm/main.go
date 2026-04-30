@@ -3,10 +3,11 @@
 //
 // Exposes three functions on the JS global scope:
 //
-//	planetExplorerGenerate(profileJSON string, seedStr string, faceSize int) Uint8Array
-//	planetExplorerBakeEquirect(cubePNG Uint8Array, w int, h int)            Uint8Array
-//	planetExplorerDefaultProfile(planetType string)                          string  // JSON
-//	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)  string  // JSON
+//	planetExplorerGenerate(profileJSON string, seedStr string, faceSize int)                   Uint8Array
+//	planetExplorerBakeEquirect(cubePNG Uint8Array, w int, h int)                               Uint8Array
+//	planetExplorerDefaultProfile(planetType string)                                             string  // JSON
+//	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)                    string  // JSON
+//	planetExplorerGenerateDebugSwatch(profileJSON, seedStr, faceSize, bypassJSON, faceIndex)   string  // JSON
 //
 //go:build js && wasm
 
@@ -17,6 +18,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"image"
 	"image/png"
 	"syscall/js"
 
@@ -33,6 +35,7 @@ func main() {
 	js.Global().Set("planetExplorerBakeEquirect", js.FuncOf(bakeEquirect))
 	js.Global().Set("planetExplorerDefaultProfile", js.FuncOf(defaultProfile))
 	js.Global().Set("planetExplorerGenerateDebug", js.FuncOf(generateDebug))
+	js.Global().Set("planetExplorerGenerateDebugSwatch", js.FuncOf(generateDebugSwatch))
 	js.Global().Set("planetExplorerGenerateWithBypass", js.FuncOf(generateWithBypass))
 	<-make(chan struct{}) // keep the WASM process alive
 }
@@ -274,6 +277,104 @@ func generateDebug(_ js.Value, args []js.Value) any {
 			row["input_bands"] = encodeCM(st.InputBands)
 			row["output_bands"] = encodeCM(st.OutputBands)
 			row["sum_after"] = encodeCMF(st.SumAfter, false)
+		}
+		stages = append(stages, row)
+	}
+	out, _ := json.Marshal(map[string]any{"stages": stages})
+	return js.ValueOf(string(out))
+}
+
+// generateDebugSwatch is like generateDebug but encodes each stage as a
+// single-face PNG instead of an equirect bake. faceIndex selects which
+// face (0..5, matching cubemap.Face order); out-of-range falls back to
+// FacePosZ (the front-of-cube center face).
+func generateDebugSwatch(_ js.Value, args []js.Value) any {
+	if len(args) < 5 {
+		return jsError("generateDebugSwatch: expected 5 args (profileJSON, seed, faceSize, bypassJSON, faceIndex), got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateDebugSwatch: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	var bypass render.DebugBypass
+	if args[3].Type() == js.TypeString && args[3].String() != "" {
+		var arr []string
+		if err := json.Unmarshal([]byte(args[3].String()), &arr); err == nil && len(arr) > 0 {
+			bypass = make(render.DebugBypass, len(arr))
+			for _, name := range arr {
+				bypass[name] = true
+			}
+		}
+	}
+
+	faceIdx := args[4].Int()
+	if faceIdx < 0 || faceIdx >= cubemap.NumFaces {
+		faceIdx = int(cubemap.FacePosZ)
+	}
+	face := cubemap.Face(faceIdx)
+
+	frame := render.RenderRockyDebug(&prof, s, faceSize, bypass)
+
+	encodeFace := func(cm *cubemap.CubeMap) string {
+		if cm == nil {
+			return ""
+		}
+		S := cm.Size
+		img := image.NewRGBA(image.Rect(0, 0, S, S))
+		for py := range S {
+			for px := range S {
+				img.SetRGBA(px, py, cm.Get(face, px, py))
+			}
+		}
+		var buf bytes.Buffer
+		_ = png.Encode(&buf, img)
+		return base64.StdEncoding.EncodeToString(buf.Bytes())
+	}
+
+	encodeFaceF := func(cmF *cubemap.CubeMapF, signed bool) string {
+		if cmF == nil {
+			return ""
+		}
+		var cm *cubemap.CubeMap
+		if signed {
+			maxAbs := 0.0
+			for fi := range cmF.Faces {
+				for _, v := range cmF.Faces[fi] {
+					if v < 0 {
+						v = -v
+					}
+					if v > maxAbs {
+						maxAbs = v
+					}
+				}
+			}
+			if maxAbs < 1e-9 {
+				maxAbs = 1.0
+			}
+			cm = render.SignedToRGBA(cmF, cmF.Size, maxAbs)
+		} else {
+			cm = cubemap.GrayscaleFromF(cmF)
+		}
+		return encodeFace(cm)
+	}
+
+	stages := make([]map[string]any, 0, len(frame.Stages))
+	for _, st := range frame.Stages {
+		row := map[string]any{
+			"name":    st.Name,
+			"kind":    st.Kind,
+			"skipped": st.Skipped,
+		}
+		if st.Kind == "color" {
+			row["color_after"] = encodeFace(st.ColorAfter)
+		} else {
+			row["raw"] = encodeFaceF(st.RawFbm, true)
+			row["input_bands"] = encodeFace(st.InputBands)
+			row["output_bands"] = encodeFace(st.OutputBands)
+			row["sum_after"] = encodeFaceF(st.SumAfter, false)
 		}
 		stages = append(stages, row)
 	}
