@@ -117,9 +117,12 @@ The render pipeline gained five Tier-S algorithms:
   Humidity), each seeded by `seed.Domain(master, "control.<name>")` so
   adding a new field never shifts existing field outputs. Each
   `ControlField` carries its own Fritsch-Carlson monotone-cubic
-  `Spline`; the heightmap is the sum of the five spline outputs.
-  `RenderRocky` falls back to the legacy single-fBm path when
-  `ControlConfig` is zero or no field has spline knots.
+  `Spline`. The heightmap is the sum of the first three fields'
+  spline outputs (Continentalness + Detail + PeaksValleys);
+  Temperature and Humidity are climate fields consumed by the
+  Whittaker biome lookup downstream and do not contribute to
+  elevation. `RenderRocky` falls back to the legacy single-fBm path
+  when `ControlConfig` is zero or no field has spline knots.
 - **Domain warping** (`pkg/planetgen/noise/warp.go`) — Quilez per-axis
   fBm warp applied at every per-pixel sphere lookup in both renderers.
   `Warp.Amp == 0` short-circuits to identity; non-zero produces curling,
