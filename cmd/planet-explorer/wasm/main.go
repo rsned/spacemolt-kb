@@ -9,6 +9,7 @@
 //	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)                    string  // JSON
 //	planetExplorerGenerateDebugSwatch(profileJSON, seedStr, faceSize, bypassJSON, faceIndex)   string  // JSON
 //	planetExplorerGenerateFlatDebug(profileJSON, seedStr, size, bypassJSON)                    string  // JSON
+//	planetExplorerFlatCacheStats()                                                             string  // JSON {"hits":N,"misses":M}
 //
 //go:build js && wasm
 
@@ -42,6 +43,7 @@ func main() {
 	js.Global().Set("planetExplorerGenerateWithBypass", js.FuncOf(generateWithBypass))
 	js.Global().Set("planetExplorerGenerateFlat", js.FuncOf(generateFlat))
 	js.Global().Set("planetExplorerGenerateFlatDebug", js.FuncOf(generateFlatDebug))
+	js.Global().Set("planetExplorerFlatCacheStats", js.FuncOf(flatCacheStats))
 	<-make(chan struct{}) // keep the WASM process alive
 }
 
@@ -531,6 +533,13 @@ func generateFlatDebug(_ js.Value, args []js.Value) any {
 		stages = append(stages, row)
 	}
 	out, _ := json.Marshal(map[string]any{"stages": stages})
+	return js.ValueOf(string(out))
+}
+
+// flatCacheStats() → JSON string {"hits": N, "misses": M} for diagnostics.
+func flatCacheStats(_ js.Value, _ []js.Value) any {
+	hits, misses := render.FlatCacheStats()
+	out, _ := json.Marshal(map[string]any{"hits": hits, "misses": misses})
 	return js.ValueOf(string(out))
 }
 

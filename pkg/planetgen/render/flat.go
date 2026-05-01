@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"sync/atomic"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/biome"
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
@@ -30,29 +31,59 @@ var flatControlFieldDomains = [5]string{
 // RenderFlat produces a size×size flat preview using the rocky
 // pipeline minus sphere-specific stages. Noise sampling uses 3D unit-sphere
 // directions of the +Z face so patterns match the cube render.
+// Stages 1-4 (control fields → sum → smooth → normalize) are memoised in
+// flatUpstreamCache keyed by the upstream-affecting inputs; downstream-only
+// tweaks (Coastal, Erosion, Colorize) yield cache hits and skip the slow path.
 func RenderFlat(prof *types.PlanetProfile, masterSeed int64, size int) *image.RGBA {
-	// 1. Generate 5 control fields as size×size float grids.
-	fields := generateFlatControlFields(prof, masterSeed, size)
+	var fields [5][]float64
+	var heightmap []float64
 
-	// 2. Sum first 3 fields' splined contributions into heightmap.
-	cf := orderedControlFieldsFlat(prof.ControlConfig)
-	heightmap := make([]float64, size*size)
-	for i := range 3 {
-		for py := range size {
-			for px := range size {
-				v := fields[i][py*size+px]
-				heightmap[py*size+px] += planetcolor.EvalSpline(cf[i].Spline, v)
+	key := flatUpstreamKey(prof, masterSeed, size)
+	if entry, ok := flatUpstreamCache.get(key); ok {
+		// Cache hit: restore upstream results without recomputing.
+		atomic.AddUint64(&flatCacheHits, 1)
+		heightmap = make([]float64, len(entry.Heightmap))
+		copy(heightmap, entry.Heightmap)
+		fields[3] = make([]float64, len(entry.TempField))
+		copy(fields[3], entry.TempField)
+		fields[4] = make([]float64, len(entry.HumField))
+		copy(fields[4], entry.HumField)
+	} else {
+		// Cache miss: run stages 1-4 and store the result.
+		atomic.AddUint64(&flatCacheMisses, 1)
+
+		// 1. Generate 5 control fields as size×size float grids.
+		fields = generateFlatControlFields(prof, masterSeed, size)
+
+		// 2. Sum first 3 fields' splined contributions into heightmap.
+		cf := orderedControlFieldsFlat(prof.ControlConfig)
+		heightmap = make([]float64, size*size)
+		for i := range 3 {
+			for py := range size {
+				for px := range size {
+					v := fields[i][py*size+px]
+					heightmap[py*size+px] += planetcolor.EvalSpline(cf[i].Spline, v)
+				}
 			}
 		}
-	}
 
-	// 3. HeightSmooth (per-axis disc blur, edge-clipped).
-	if prof.HeightSmoothRadius > 0 {
-		heightmap = smoothFlat(heightmap, size, prof.HeightSmoothRadius)
-	}
+		// 3. HeightSmooth (per-axis disc blur, edge-clipped).
+		if prof.HeightSmoothRadius > 0 {
+			heightmap = smoothFlat(heightmap, size, prof.HeightSmoothRadius)
+		}
 
-	// 4. Normalize to [0,1].
-	normalizeFlat(heightmap)
+		// 4. Normalize to [0,1].
+		normalizeFlat(heightmap)
+
+		// Snapshot upstream results for future cache hits.
+		hmCopy := make([]float64, len(heightmap))
+		copy(hmCopy, heightmap)
+		tCopy := make([]float64, len(fields[3]))
+		copy(tCopy, fields[3])
+		mCopy := make([]float64, len(fields[4]))
+		copy(mCopy, fields[4])
+		flatUpstreamCache.put(key, flatCacheEntry{Heightmap: hmCopy, TempField: tCopy, HumField: mCopy})
+	}
 
 	// 5. Coastal (if enabled).
 	if prof.Coastal.Amp > 0 && prof.OceanLevel > 0 {

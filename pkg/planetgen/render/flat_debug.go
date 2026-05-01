@@ -37,6 +37,10 @@ type FlatDebugFrame struct {
 // FlatDebugBypass is the set of stage names to skip during flat debug capture.
 type FlatDebugBypass map[string]bool
 
+// RenderFlatDebug intentionally does NOT use flatUpstreamCache. The debug
+// panel needs to capture every stage's actual computation, so caching would
+// break the visualization.
+//
 // RenderFlatDebug mirrors RenderFlat but captures per-stage state into a
 // FlatDebugFrame. Stages listed in bypass have their mutation suppressed but
 // still emit a Skipped=true entry. Pass nil to run all stages normally.
