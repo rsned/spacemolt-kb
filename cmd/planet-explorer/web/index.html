@@ -45,13 +45,7 @@
           <option value="heightmap">Heightmap (grayscale)</option>
         </select>
       </label>
-      <label>Mode
-        <select id="render-mode">
-          <option value="sphere" selected>Sphere</option>
-          <option value="swatch">Swatch (flat face)</option>
-        </select>
-      </label>
-      <label id="swatch-face-label" hidden>Face
+      <label>Face
         <select id="swatch-face">
           <option value="4" selected>+Z (front)</option>
           <option value="0">+X (right)</option>
@@ -145,23 +139,10 @@
     </section>
   </aside>
   <section class="viewport">
-    <div class="planet-swatch" hidden>
+    <div class="planet-swatch">
       <h3 class="swatch-title">Swatch</h3>
       <canvas id="swatch-canvas" width="512" height="512"></canvas>
       <div class="swatch-hint">Single cube-map face shown flat.</div>
-    </div>
-    <h2 id="viewport-title">Rotating sphere</h2>
-    <div class="planet-sphere">
-      <canvas id="sphere-canvas" width="800" height="800"></canvas>
-    </div>
-    <div class="sphere-hint">Click and drag to rotate · auto-rotates after 3 s idle</div>
-    <!-- Hidden render targets. The sphere preview samples its texture from
-         the equirect canvas, so both stay in the DOM but hidden. -->
-    <div class="hidden-render-targets" hidden>
-      <h2>Cube map (cross)</h2>
-      <canvas id="cube-canvas" width="1024" height="768"></canvas>
-      <h2>Equirect bake</h2>
-      <canvas id="equirect-canvas" width="800" height="400"></canvas>
     </div>
   </section>
 </main>

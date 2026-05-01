@@ -11,17 +11,13 @@ const renderBtn = $('#render-btn');
 const exportBtn = $('#export-json-btn');
 const applyBtn = $('#apply-json-btn');
 const profileTextarea = $('#profile-json');
-const cubeCanvas = $('#cube-canvas');
-const equirectCanvas = $('#equirect-canvas');
+const cubeCanvas = null;
+const equirectCanvas = null;
 const viewModeSel = $('#view-mode');
-const renderModeSel = $('#render-mode');
+const renderModeSel = null;
 const swatchFaceSel = $('#swatch-face');
-const swatchFaceLabel = $('#swatch-face-label');
 const swatchCanvas = $('#swatch-canvas');
-const sphereDiv = $('.planet-sphere');
 const swatchDiv = $('.planet-swatch');
-const sphereHint = $('.sphere-hint');
-const viewportTitle = $('#viewport-title');
 
 let wasmReady = false;
 
@@ -41,10 +37,6 @@ async function init() {
   go.run(result.instance);
   wasmReady = true;
   status.textContent = 'Ready';
-
-  // Apply render mode visibility on startup (default is sphere, so this is a no-op
-  // unless the user had somehow selected swatch before wasm loaded).
-  applyRenderMode();
 
   // Load default profile for the initial type.
   loadDefaultProfile();
@@ -120,17 +112,9 @@ async function regenerate() {
   } else {
     cubePNG = planetExplorerGenerate(profileJSON, seed, faceSize);
   }
-  const renderMode = renderModeSel ? renderModeSel.value : 'sphere';
 
   if (cubePNG instanceof Uint8Array) {
-    await paintToCanvas(cubeCanvas, cubePNG);
-    const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
-    if (equirectPNG instanceof Uint8Array) {
-      await paintToCanvas(equirectCanvas, equirectPNG);
-    }
-    if (renderMode === 'swatch') {
-      paintSwatchFromCubeCanvas();
-    }
+    await paintSwatchFromCubePNG(cubePNG);
   } else {
     status.textContent = 'Error: ' + cubePNG;
     return;
@@ -138,7 +122,6 @@ async function regenerate() {
   const elapsed = (performance.now() - t0).toFixed(0);
   status.textContent = `Rendered in ${elapsed} ms`;
   renderPanels();
-  refreshSphereTexture();
 
   // Phase 6: keep the debug panel in sync with the main render when it
   // is expanded. Skips the expensive debug pass when the panel is
@@ -180,48 +163,53 @@ const cubeCrossLayout = [
   { col: 3, row: 1 }, // 5: -Z
 ];
 
-function paintSwatchFromCubeCanvas() {
-  if (!swatchCanvas || !cubeCanvas || !cubeCanvas.width || !cubeCanvas.height) return;
-  const S = Math.floor(cubeCanvas.width / 4); // face size in pixels
-  const faceIdx = swatchFaceSel ? parseInt(swatchFaceSel.value, 10) : 4;
-  const { col, row } = cubeCrossLayout[faceIdx] || cubeCrossLayout[4];
+let lastCubeBitmap = null;
+let lastCubeS = 0;
 
-  const srcCtx = cubeCanvas.getContext('2d', { willReadFrequently: true });
-  const pixels = srcCtx.getImageData(col * S, row * S, S, S);
-
+async function paintSwatchFromCubePNG(pngBytes) {
+  if (!(pngBytes instanceof Uint8Array)) return;
+  const blob = new Blob([pngBytes], { type: 'image/png' });
+  const bmp = await createImageBitmap(blob);
+  const S = Math.floor(bmp.width / 4); // face size = cube cross width / 4
+  const offscreen = new OffscreenCanvas(bmp.width, bmp.height);
+  const octx = offscreen.getContext('2d');
+  octx.drawImage(bmp, 0, 0);
+  const faceIdx = parseInt(swatchFaceSel.value, 10) || 4;
+  const layout = cubeCrossLayout[faceIdx];
+  const sx = layout.col * S;
+  const sy = layout.row * S;
+  const imgData = octx.getImageData(sx, sy, S, S);
   swatchCanvas.width = S;
   swatchCanvas.height = S;
   const dstCtx = swatchCanvas.getContext('2d');
-  dstCtx.putImageData(pixels, 0, 0);
-}
-
-function applyRenderMode() {
-  const renderMode = renderModeSel ? renderModeSel.value : 'sphere';
-  const isSwatch = renderMode === 'swatch';
-  if (swatchDiv) swatchDiv.hidden = !isSwatch;
-  if (swatchFaceLabel) swatchFaceLabel.hidden = !isSwatch;
+  dstCtx.putImageData(imgData, 0, 0);
+  // Cache the bitmap in case face dropdown changes without re-render
+  lastCubeBitmap = bmp;
+  lastCubeS = S;
 }
 
 typePicker.addEventListener('change', loadDefaultProfile);
 renderBtn.addEventListener('click', regenerate);
 if (viewModeSel) viewModeSel.addEventListener('change', regenerate);
-if (renderModeSel) {
-  renderModeSel.addEventListener('change', () => {
-    applyRenderMode();
-    regenerate();
-  });
-}
 if (swatchFaceSel) {
-  swatchFaceSel.addEventListener('change', () => {
-    // Re-crop from the already-rendered cubeCanvas — no wasm re-run needed.
-    paintSwatchFromCubeCanvas();
-    // In swatch mode the debug thumbnails show the selected face, so
-    // re-render the debug panel when it is open.
-    if (renderModeSel && renderModeSel.value === 'swatch') {
-      const debugPanel = document.getElementById('debug-panel');
-      if (debugPanel && debugPanel.open) {
-        refreshDebugView();
-      }
+  swatchFaceSel.addEventListener('change', async () => {
+    // Re-crop from the already-cached bitmap — no wasm re-run needed.
+    if (!lastCubeBitmap) return;
+    const offscreen = new OffscreenCanvas(lastCubeBitmap.width, lastCubeBitmap.height);
+    const octx = offscreen.getContext('2d');
+    octx.drawImage(lastCubeBitmap, 0, 0);
+    const faceIdx = parseInt(swatchFaceSel.value, 10) || 4;
+    const layout = cubeCrossLayout[faceIdx];
+    const sx = layout.col * lastCubeS;
+    const sy = layout.row * lastCubeS;
+    const imgData = octx.getImageData(sx, sy, lastCubeS, lastCubeS);
+    swatchCanvas.width = lastCubeS;
+    swatchCanvas.height = lastCubeS;
+    swatchCanvas.getContext('2d').putImageData(imgData, 0, 0);
+    // Refresh debug panel for the new face if it's open.
+    const debugPanel = document.getElementById('debug-panel');
+    if (debugPanel && debugPanel.open) {
+      refreshDebugView();
     }
   });
 }
@@ -1227,10 +1215,10 @@ function rgbaCSS(c) {
 
 // --- Rotating-sphere preview (adapted from kb planet-detail pages) ---
 // Pure 2D canvas, no external libs. Texture is the equirect bake;
-// since equirect is generated from the cube map, the sphere visually
-// represents the cube-map content.
+// Sphere rendering code (not used in swatch-only mode, but left in for future re-enabling).
+// All functions are defined but never called since sphereCanvas is null.
 
-const sphereCanvas = $('#sphere-canvas');
+const sphereCanvas = null;
 let sphereTextureData = null, sphereTexW = 0, sphereTexH = 0;
 let sphereRotY = 0.4, sphereRotX = 0.15;
 let sphereDragging = false, sphereLastMX = 0, sphereLastMY = 0;
@@ -1238,7 +1226,7 @@ let sphereAutoRotate = true;
 let sphereResumeTimer = null;
 
 function refreshSphereTexture() {
-  if (!equirectCanvas.width || !equirectCanvas.height) return;
+  if (!sphereCanvas || !equirectCanvas) return;
   const ectx = equirectCanvas.getContext('2d', { willReadFrequently: true });
   try {
     sphereTextureData = ectx.getImageData(0, 0, equirectCanvas.width, equirectCanvas.height).data;
@@ -1297,6 +1285,7 @@ function renderSphere() {
 }
 
 function animateSphere() {
+  if (!sphereCanvas) return;
   if (sphereAutoRotate && !sphereDragging) sphereRotY += 0.003;
   renderSphere();
   requestAnimationFrame(animateSphere);
@@ -1330,7 +1319,7 @@ if (sphereCanvas) {
 const debugBypass = new Set();
 
 function refreshDebugView() {
-  if (!window.planetExplorerGenerateDebug) {
+  if (!window.planetExplorerGenerateDebugSwatch) {
     console.warn('debug API not available; rebuild wasm');
     return;
   }
@@ -1338,14 +1327,8 @@ function refreshDebugView() {
   const seed = seedInput.value;
   const faceSize = parseInt(faceSizeSel.value, 10);
   const bypassJSON = JSON.stringify([...debugBypass]);
-  const mode = renderModeSel ? renderModeSel.value : 'sphere';
-  let result;
-  if (mode === 'swatch' && window.planetExplorerGenerateDebugSwatch) {
-    const faceIdx = swatchFaceSel ? (parseInt(swatchFaceSel.value, 10) || 4) : 4;
-    result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, faceSize, bypassJSON, faceIdx);
-  } else {
-    result = window.planetExplorerGenerateDebug(profileJSON, seed, faceSize, bypassJSON);
-  }
+  const faceIdx = swatchFaceSel ? (parseInt(swatchFaceSel.value, 10) || 4) : 4;
+  const result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, faceSize, bypassJSON, faceIdx);
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) { console.error('debug parse', e); return; }
