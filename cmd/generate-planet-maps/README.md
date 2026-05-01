@@ -203,28 +203,73 @@ Implemented under `pkg/planetgen/render/debug.go` and
 `planetExplorerGenerateDebug` wasm export and rendered into a
 `<details id="debug-panel">` block in the explorer UI.
 
-## Phase 5 — Particle hydraulic erosion (current)
+## Phase 5 — Particle hydraulic erosion
 
 Master-plan item 9. Droplets walk the cube-sphere in 3D unit-sphere
 coordinates, sampling height + gradient via seam-aware
-`cubemap.CubeMapF.Sample` so cross-face propagation is implicit.
-Each droplet carries water + sediment; capacity is `slope · speed ·
-water · capacity`; depositing happens when sediment exceeds capacity
-or the next step is uphill, eroding otherwise. Output is a
-strongly-subtractive heightmap delta with dendritic channels and
-alluvial fans.
+`cubemap.CubeMapF.Sample` so cross-face propagation is implicit. Each
+droplet carries water + sediment; capacity is `slope · speed · water ·
+capacity`; depositing happens when sediment exceeds capacity or the
+next step is uphill, eroding otherwise. Output is a strongly-subtractive
+heightmap delta with dendritic channels and alluvial fans.
 
 Implemented in `pkg/planetgen/field/erosion.go`. Wired into
 `RenderRocky` between Coastal and Craters. Profile knob
-`ErosionDroplets` is the canonical count at face=1024; the renderer
-auto-scales to face size with a 5000-droplet floor so face=64
-previews still communicate the look.
+`Erosion.Droplets` is the canonical count at face=1024; the renderer
+auto-scales to face area, with a 5000-droplet floor so face=64 previews
+still communicate the look.
 
-Tuned defaults:
-- terran, super_terran, arid: enabled (~100k droplets at face=1024)
-- tundra, glacial, ice_world: light enabled (~50k)
-- oceanic: light enabled (~30k)
-- scorched, hothouse, lava_world, unknown: disabled by default
+### Ocean awareness
+- Droplets that spawn below `OceanLevel` are skipped.
+- Droplets flowing into ocean carve a "river-mouth notch" at the coast
+  (`oceanLevel - 0.01`) instead of depositing — this is what makes river
+  outlets visibly cut into the shoreline rather than disappearing.
+- Erosion never carves below `oceanLevel - 0.01` anywhere else.
+
+### Tuning recipe for visible rivers
+
+Three knobs together produce the dendritic look:
+- **`HeightSmoothRadius` 2-4** — disc blur applied to the heightmap
+  before erosion, suppresses fbm popcorn so droplets see continental-
+  scale slope instead of pinning at every per-pixel local minimum.
+- **`Erosion.MaxStepsPerDrop` 100-250** — longer paths let each droplet
+  cover more terrain before terminating, increasing chances of multiple
+  droplets sharing routes (which reinforces channels into trunks).
+- **`Erosion.BrushFalloff` 4-8** — exponent in the `1/(1+r)^k` brush
+  weights. k=1 is diffuse 3-pixel-wide channels; k=4 concentrates ~73%
+  of mass on the center pixel; k=8 is near-single-pixel rivers. Tune up
+  for narrower, more drawn-looking channels.
+
+Plus optionally:
+- **`Erosion.Inertia` 0.10-0.15** — moderate momentum so droplets don't
+  pinball locally but still respond to terrain.
+- **`Erosion.MinSlope` 0.1** — floors capacity on flat terrain so
+  channels keep carving across plains.
+
+### Tuned defaults
+
+- **terran, super_terran, tundra, oceanic** — full tuned recipe
+  (`Droplets=250000, BrushFalloff=7, MaxStepsPerDrop=250,
+  HeightSmoothRadius=4`)
+- **arid** — earlier conservative tuning (Capacity=6, Deposition=0.5,
+  HeightSmoothRadius=2)
+- **glacial, ice_world** — lighter erosion (~50k droplets,
+  HeightSmoothRadius=2)
+- **scorched, hothouse, lava_world, unknown, jovian, ice_giant** —
+  disabled
+
+### Other Phase 5 follow-ups
+
+- **Heightmap disc-blur stage** (`HeightSmoothRadius`) sits between
+  Continents and Normalize. Per-face `1/(1+r)` falloff blur with
+  per-pixel re-normalization at edges. Suppresses high-frequency fbm
+  popcorn so erosion can form coherent channels.
+- **Flat 2D render path** in `pkg/planetgen/render/flat.go` provides a
+  fast iteration preview that bypasses the cube-sphere. Used by the
+  planet-explorer's "swatch" view. Mirrors the cube colorize stage-by-
+  stage but skips Continents/Voronoi/Craters/PolarCaps. Includes
+  per-pipeline LRU cache keyed by upstream-affecting params so
+  downstream tweaks are nearly free.
 
 Tier A (master plan items 6–13) is now complete. Tier B (items 14–20)
 and Tier C (items 21–25) remain.
