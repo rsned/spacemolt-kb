@@ -8,7 +8,7 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
-func erodeFlat(masterSeed int64, hm []float64, size int, cfg types.ErosionConfig) {
+func erodeFlat(masterSeed int64, hm []float64, size int, cfg types.ErosionConfig, oceanLevel float64) {
 	if cfg.Droplets <= 0 {
 		return
 	}
@@ -34,15 +34,21 @@ func erodeFlat(masterSeed int64, hm []float64, size int, cfg types.ErosionConfig
 
 	for range cfg.Droplets {
 		simulateDropletFlat(rng, hm, size, inertia, capacity, erosionRate,
-			deposition, evaporation, minSlope, gravity, stepLen, maxSteps)
+			deposition, evaporation, minSlope, gravity, stepLen, maxSteps, oceanLevel)
 	}
 }
 
 func simulateDropletFlat(rng *rand.Rand, hm []float64, size int,
 	inertia, capacity, erosionRate, deposition, evaporation, minSlope, gravity, stepLen float64,
-	maxSteps int) {
+	maxSteps int, oceanLevel float64) {
 	px := rng.Float64() * float64(size-1)
 	py := rng.Float64() * float64(size-1)
+
+	// Skip droplets that spawn below the ocean surface.
+	if oceanLevel > 0 && bilinFlat(hm, size, px, py) < oceanLevel {
+		return
+	}
+
 	var vx, vy float64
 	water := 1.0
 	sediment := 0.0
@@ -66,6 +72,13 @@ func simulateDropletFlat(rng *rand.Rand, hm []float64, size int,
 		}
 		nh, _, _ := sampleWithGradientFlat(hm, size, nx, ny)
 
+		// Terminate when flowing into ocean: deposit remaining sediment at coast.
+		if oceanLevel > 0 && nh < oceanLevel {
+			ix, iy := int(px), int(py)
+			applyDepositFlat(hm, size, ix, iy, sediment)
+			return
+		}
+
 		deltaH := nh - h
 		speed := vlen
 		slope := -deltaH
@@ -86,7 +99,7 @@ func simulateDropletFlat(rng *rand.Rand, hm []float64, size int,
 			sediment -= applyDepositFlat(hm, size, ix, iy, amt)
 		} else {
 			amt := (cap - sediment) * erosionRate
-			sediment += applyErodeFlat(hm, size, ix, iy, amt)
+			sediment += applyErodeFlat(hm, size, ix, iy, amt, oceanLevel)
 		}
 
 		px, py = nx, ny
@@ -164,7 +177,7 @@ func init() {
 	}
 }
 
-func applyErodeFlat(hm []float64, size, ix, iy int, amt float64) float64 {
+func applyErodeFlat(hm []float64, size, ix, iy int, amt, oceanLevel float64) float64 {
 	total := 0.0
 	for i := range 9 {
 		x, y := ix+flatBrushOX[i], iy+flatBrushOY[i]
@@ -173,8 +186,16 @@ func applyErodeFlat(hm []float64, size, ix, iy int, amt float64) float64 {
 		}
 		amtCell := amt * flatBrushW[i]
 		cur := hm[y*size+x]
-		if cur < amtCell {
-			amtCell = cur
+		// Clamp so we never carve below the ocean floor.
+		floor := 0.0
+		if oceanLevel > 0 {
+			floor = oceanLevel
+		}
+		if cur-amtCell < floor {
+			amtCell = cur - floor
+		}
+		if amtCell < 0 {
+			amtCell = 0
 		}
 		hm[y*size+x] = cur - amtCell
 		total += amtCell

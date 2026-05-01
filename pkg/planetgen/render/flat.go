@@ -76,7 +76,7 @@ func RenderFlat(prof *types.PlanetProfile, masterSeed int64, size int) *image.RG
 		if n > 0 {
 			cfg := prof.Erosion
 			cfg.Droplets = n
-			erodeFlat(masterSeed, heightmap, size, cfg)
+			erodeFlat(masterSeed, heightmap, size, cfg, prof.OceanLevel)
 		}
 	}
 

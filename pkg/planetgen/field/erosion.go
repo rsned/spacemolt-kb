@@ -33,9 +33,9 @@ func init() {
 }
 
 // applyErode carves amt across a 3x3 brush at (ix, iy), clipping at face
-// edges and clamping per-cell so height stays ≥ 0. Returns the total
-// height actually carved (may be < amt at clamps/edges).
-func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt float64) float64 {
+// edges and clamping per-cell so height stays ≥ oceanLevel (or ≥ 0 when
+// oceanLevel==0). Returns the total height actually carved.
+func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt, oceanLevel float64) float64 {
 	total := 0.0
 	for i := range 9 {
 		ix2 := ix + brushOffsetX[i]
@@ -45,8 +45,16 @@ func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt floa
 		}
 		amtCell := amt * brushWeights[i]
 		cur := hm.Get(face, ix2, iy2)
-		if cur < amtCell {
-			amtCell = cur
+		// Clamp so we never carve below the ocean floor.
+		floor := 0.0
+		if oceanLevel > 0 {
+			floor = oceanLevel
+		}
+		if cur-amtCell < floor {
+			amtCell = cur - floor
+		}
+		if amtCell < 0 {
+			amtCell = 0
 		}
 		hm.Set(face, ix2, iy2, cur-amtCell)
 		total += amtCell
@@ -79,12 +87,13 @@ func applyDeposit(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt fl
 // Erode runs particle hydraulic erosion on heightmap and returns it modified.
 // cfg.Droplets <= 0 is a no-op (returns heightmap unchanged).
 //
-// Droplets walk in 3D unit-sphere coordinates. Each droplet samples height +
-// gradient at its current position, updates a tangent-space velocity, steps to
-// a new position, and erodes or deposits at the previous pixel.
+// When oceanLevel > 0 droplets spawning below it are skipped, droplets that
+// flow into ocean water deposit remaining sediment at the coast and stop, and
+// erosion never carves below oceanLevel. Set oceanLevel to 0 to disable all
+// three guards and reproduce legacy byte-identical behaviour.
 //
-// Same seed + cfg + heightmap → same output regardless of CPU.
-func Erode(masterSeed int64, heightmap *cubemap.CubeMapF, cfg types.ErosionConfig, S int) *cubemap.CubeMapF {
+// Same seed + cfg + oceanLevel + heightmap → same output regardless of CPU.
+func Erode(masterSeed int64, heightmap *cubemap.CubeMapF, cfg types.ErosionConfig, oceanLevel float64, S int) *cubemap.CubeMapF {
 	if cfg.Droplets <= 0 {
 		return heightmap
 	}
@@ -110,20 +119,25 @@ func Erode(masterSeed int64, heightmap *cubemap.CubeMapF, cfg types.ErosionConfi
 
 	for range cfg.Droplets {
 		simulateDroplet(rng, heightmap, S, inertia, capacity, erosionRate,
-			deposition, evaporation, minSlope, gravity, stepLen, maxSteps)
+			deposition, evaporation, minSlope, gravity, stepLen, maxSteps, oceanLevel)
 	}
 	return heightmap
 }
 
 func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 	inertia, capacity, erosionRate, deposition, evaporation, minSlope, gravity, stepLen float64,
-	maxSteps int,
+	maxSteps int, oceanLevel float64,
 ) {
 	// Uniform-sphere sampling via rejection-free cylindrical method.
 	z := 1 - 2*rng.Float64() //nolint:gosec
 	phi := 2 * math.Pi * rng.Float64()
 	r := math.Sqrt(1 - z*z)
 	px, py, pz := r*math.Cos(phi), z, r*math.Sin(phi)
+
+	// Skip droplets that spawn below the ocean surface.
+	if oceanLevel > 0 && hm.Sample(px, py, pz) < oceanLevel {
+		return
+	}
 
 	var vx, vy, vz float64
 	water := 1.0
@@ -149,6 +163,13 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 		nx, ny, nz := erosionNormalize(px+vxN*stepLen, py+vyN*stepLen, pz+vzN*stepLen)
 		nh, _, _, _ := sampleWithGradient(hm, S, nx, ny, nz)
 
+		// Terminate when flowing into ocean: deposit remaining sediment at coast.
+		if oceanLevel > 0 && nh < oceanLevel {
+			face, ix, iy := cubemap.DirToFacePixel(px, py, pz, S)
+			applyDeposit(hm, face, ix, iy, S, sediment)
+			return
+		}
+
 		deltaH := nh - h
 		speed := vlen
 		slope := -deltaH
@@ -172,7 +193,7 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 		} else {
 			// Erode; pick up material up to capacity.
 			amt := (cap - sediment) * erosionRate
-			actuallyEroded := applyErode(hm, face, ix, iy, S, amt)
+			actuallyEroded := applyErode(hm, face, ix, iy, S, amt, oceanLevel)
 			sediment += actuallyEroded
 		}
 

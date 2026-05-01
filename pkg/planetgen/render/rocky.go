@@ -440,7 +440,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 			}
 			cfg := profile.Erosion
 			cfg.Droplets = n
-			field.Erode(seed, heightmap, cfg, S)
+			field.Erode(seed, heightmap, cfg, profile.OceanLevel, S)
 		}
 		if frame != nil {
 			delta := cubemap.NewF(S)
