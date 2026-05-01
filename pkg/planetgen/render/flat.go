@@ -1,0 +1,301 @@
+// Package render: flat 2D-plane render path. Produces a fast square
+// preview that mirrors the rocky cube-sphere pipeline minus the
+// sphere-specific stages (continents, voronoi, craters, polar caps).
+// For tuning only — not the canonical output.
+package render
+
+import (
+	"image"
+	"image/color"
+	"math"
+
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/biome"
+	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
+)
+
+// flatControlFieldDomains mirrors field.controlFieldDomains so the same
+// seed-derivation tree is used for the 2D render path.
+var flatControlFieldDomains = [5]string{
+	"control.continentalness",
+	"control.erosion",
+	"control.peaks-valleys",
+	"biome.temperature",
+	"biome.humidity",
+}
+
+// RenderFlat produces a size×size flat preview using the rocky
+// pipeline minus sphere-specific stages. Coordinates are mapped to the
+// unit square [0,1]² and passed to the existing 3D noise generators
+// with z=0 (decorrelated per-field via seed.Domain).
+func RenderFlat(prof *types.PlanetProfile, masterSeed int64, size int) *image.RGBA {
+	// 1. Generate 5 control fields as size×size float grids.
+	fields := generateFlatControlFields(prof, masterSeed, size)
+
+	// 2. Sum first 3 fields' splined contributions into heightmap.
+	cf := orderedControlFieldsFlat(prof.ControlConfig)
+	heightmap := make([]float64, size*size)
+	for i := range 3 {
+		for py := range size {
+			for px := range size {
+				v := fields[i][py*size+px]
+				heightmap[py*size+px] += planetcolor.EvalSpline(cf[i].Spline, v)
+			}
+		}
+	}
+
+	// 3. HeightSmooth (per-axis disc blur, edge-clipped).
+	if prof.HeightSmoothRadius > 0 {
+		heightmap = smoothFlat(heightmap, size, prof.HeightSmoothRadius)
+	}
+
+	// 4. Normalize to [0,1].
+	normalizeFlat(heightmap)
+
+	// 5. Coastal (if enabled).
+	if prof.Coastal.Amp > 0 && prof.OceanLevel > 0 {
+		dist := distanceToCoastFlat(heightmap, size, prof.OceanLevel)
+		coastGen := noise.NewCoastalGen(seed.Domain(masterSeed, "coastal"))
+		for py := range size {
+			for px := range size {
+				idx := py*size + px
+				x := float64(px) / float64(size)
+				y := float64(py) / float64(size)
+				heightmap[idx] = noise.ApplyCoastal(
+					coastGen, x, y, 0,
+					heightmap[idx], dist[idx],
+					prof.Coastal.Amp, prof.Coastal.Threshold, prof.Coastal.Freq)
+			}
+		}
+	}
+
+	// 6. Erosion (if enabled). 2D droplet sim adapted from the sphere walk.
+	if prof.Erosion.Droplets > 0 {
+		n := scaleErosionDropletsFlat(prof.Erosion.Droplets, size)
+		if n > 0 {
+			cfg := prof.Erosion
+			cfg.Droplets = n
+			erodeFlat(masterSeed, heightmap, size, cfg)
+		}
+	}
+
+	// 7. Colorize.
+	return colorizeFlat(prof, fields, heightmap, size)
+}
+
+func generateFlatControlFields(prof *types.PlanetProfile, masterSeed int64, size int) [5][]float64 {
+	cf := orderedControlFieldsFlat(prof.ControlConfig)
+	out := [5][]float64{}
+	for i := range out {
+		ng := noise.New(seed.Domain(masterSeed, flatControlFieldDomains[i]))
+		out[i] = make([]float64, size*size)
+		for py := range size {
+			for px := range size {
+				x := float64(px) / float64(size)
+				y := float64(py) / float64(size)
+				out[i][py*size+px] = ng.FractalNoise3D(
+					x, y, 0,
+					cf[i].Octaves, cf[i].Lacunarity, cf[i].Persistence, cf[i].Freq,
+				) * cf[i].Amp
+			}
+		}
+	}
+	return out
+}
+
+func orderedControlFieldsFlat(c types.ControlConfig) [5]types.ControlField {
+	return [5]types.ControlField{c.Continentalness, c.Detail, c.PeaksValleys, c.Temperature, c.Humidity}
+}
+
+func smoothFlat(hm []float64, size, r int) []float64 {
+	if r <= 0 {
+		return hm
+	}
+	side := 2*r + 1
+	weights := make([]float64, side*side)
+	sum := 0.0
+	for dy := -r; dy <= r; dy++ {
+		for dx := -r; dx <= r; dx++ {
+			d := math.Sqrt(float64(dx*dx + dy*dy))
+			w := 1.0 / (1.0 + d)
+			weights[(dy+r)*side+(dx+r)] = w
+			sum += w
+		}
+	}
+	for i := range weights {
+		weights[i] /= sum
+	}
+	out := make([]float64, size*size)
+	for py := range size {
+		for px := range size {
+			acc, wsum := 0.0, 0.0
+			for dy := -r; dy <= r; dy++ {
+				iy := py + dy
+				if iy < 0 || iy >= size {
+					continue
+				}
+				for dx := -r; dx <= r; dx++ {
+					ix := px + dx
+					if ix < 0 || ix >= size {
+						continue
+					}
+					w := weights[(dy+r)*side+(dx+r)]
+					acc += hm[iy*size+ix] * w
+					wsum += w
+				}
+			}
+			if wsum > 0 {
+				out[py*size+px] = acc / wsum
+			}
+		}
+	}
+	return out
+}
+
+func normalizeFlat(hm []float64) {
+	lo, hi := math.Inf(1), math.Inf(-1)
+	for _, v := range hm {
+		if v < lo {
+			lo = v
+		}
+		if v > hi {
+			hi = v
+		}
+	}
+	if hi-lo < 1e-9 {
+		return
+	}
+	for i := range hm {
+		hm[i] = (hm[i] - lo) / (hi - lo)
+	}
+}
+
+// distanceToCoastFlat computes per-pixel distance to the nearest ocean pixel
+// (heightmap < threshold) via forward+backward raster scan, normalized to [0,1].
+func distanceToCoastFlat(hm []float64, size int, threshold float64) []float64 {
+	const big = 1e30
+	d := make([]float64, size*size)
+	for i, v := range hm {
+		if v < threshold {
+			d[i] = 0
+		} else {
+			d[i] = big
+		}
+	}
+	// Forward pass.
+	for py := range size {
+		for px := range size {
+			idx := py*size + px
+			if d[idx] == 0 {
+				continue
+			}
+			best := d[idx]
+			if px > 0 {
+				if cand := d[idx-1] + 1; cand < best {
+					best = cand
+				}
+			}
+			if py > 0 {
+				if cand := d[idx-size] + 1; cand < best {
+					best = cand
+				}
+				if px > 0 {
+					if cand := d[idx-size-1] + math.Sqrt2; cand < best {
+						best = cand
+					}
+				}
+				if px < size-1 {
+					if cand := d[idx-size+1] + math.Sqrt2; cand < best {
+						best = cand
+					}
+				}
+			}
+			d[idx] = best
+		}
+	}
+	// Backward pass.
+	for py := size - 1; py >= 0; py-- {
+		for px := size - 1; px >= 0; px-- {
+			idx := py*size + px
+			if d[idx] == 0 {
+				continue
+			}
+			best := d[idx]
+			if px < size-1 {
+				if cand := d[idx+1] + 1; cand < best {
+					best = cand
+				}
+			}
+			if py < size-1 {
+				if cand := d[idx+size] + 1; cand < best {
+					best = cand
+				}
+				if px > 0 {
+					if cand := d[idx+size-1] + math.Sqrt2; cand < best {
+						best = cand
+					}
+				}
+				if px < size-1 {
+					if cand := d[idx+size+1] + math.Sqrt2; cand < best {
+						best = cand
+					}
+				}
+			}
+			d[idx] = best
+		}
+	}
+	// Normalize by diagonal so the result is in [0,1].
+	diag := math.Sqrt(float64(size*size + size*size))
+	for i := range d {
+		d[i] /= diag
+		if d[i] > 1 {
+			d[i] = 1
+		}
+	}
+	return d
+}
+
+func scaleErosionDropletsFlat(canonical, size int) int {
+	// Scale by pixel area relative to canonical face size of 1024.
+	const baseSize = 1024
+	scale := float64(size*size) / float64(baseSize*baseSize)
+	n := int(float64(canonical) * scale)
+	if n < 5000 && canonical >= 5000 {
+		n = 5000
+	}
+	return n
+}
+
+func colorizeFlat(prof *types.PlanetProfile, fields [5][]float64, hm []float64, size int) *image.RGBA {
+	img := image.NewRGBA(image.Rect(0, 0, size, size))
+	hasBiome := len(prof.BiomeTable.Cells) > 0
+	tField := fields[3]
+	mField := fields[4]
+	for py := range size {
+		for px := range size {
+			idx := py*size + px
+			h := hm[idx]
+			var c color.RGBA
+			if h < prof.OceanLevel {
+				c = prof.OceanColor
+				// Depth shading: darker for deeper ocean pixels.
+				t := h / prof.OceanLevel
+				if t < 0 {
+					t = 0
+				}
+				c.R = uint8(float64(c.R) * (0.5 + 0.5*t))
+				c.G = uint8(float64(c.G) * (0.5 + 0.5*t))
+				c.B = uint8(float64(c.B) * (0.5 + 0.5*t))
+			} else if hasBiome {
+				c = biome.LookupColor(prof.BiomeTable, tField[idx], mField[idx], h)
+			} else {
+				c = planetcolor.SampleGradientOkLab(prof.Palette, h)
+			}
+			c.A = 255
+			img.SetRGBA(px, py, c)
+		}
+	}
+	return img
+}

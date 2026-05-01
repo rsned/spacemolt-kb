@@ -45,7 +45,8 @@
           <option value="heightmap">Heightmap (grayscale)</option>
         </select>
       </label>
-      <label>Face
+      <!-- swatch-face hidden: flat render path renders a direct 2D image (no cube faces) -->
+      <label hidden>Face
         <select id="swatch-face">
           <option value="4" selected>+Z (front)</option>
           <option value="0">+X (right)</option>
@@ -142,7 +143,7 @@
     <div class="planet-swatch">
       <h3 class="swatch-title">Swatch</h3>
       <canvas id="swatch-canvas" width="512" height="512"></canvas>
-      <div class="swatch-hint">Single cube-map face shown flat.</div>
+      <div class="swatch-hint">2D flat preview (rocky); cube-sphere face for gas giants.</div>
     </div>
   </section>
 </main>

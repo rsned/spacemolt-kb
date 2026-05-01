@@ -97,39 +97,62 @@ async function regenerate() {
 
   const profileJSON = profileTextarea.value;
   const seed = seedInput.value;
-  const faceSize = parseInt(faceSizeSel.value, 10);
+  const size = parseInt(faceSizeSel.value, 10) || 256;
 
   const t0 = performance.now();
-  const mode = viewModeSel ? viewModeSel.value : 'color';
-  // Route through the bypass-aware path when the debug panel has any
-  // bypasses active. Heightmap mode and gas giants stay on the fast
-  // path (the bypass-aware path falls back internally for gas giants).
-  let cubePNG;
-  if (mode === 'heightmap') {
-    cubePNG = planetExplorerGenerateHeightmap(profileJSON, seed, faceSize);
-  } else if (debugBypass.size > 0 && window.planetExplorerGenerateWithBypass) {
-    cubePNG = planetExplorerGenerateWithBypass(profileJSON, seed, faceSize, JSON.stringify([...debugBypass]));
+
+  // Use the fast 2D flat path for swatch previews. Gas-giant profiles fall
+  // back to the cube-sphere path because generateFlat only supports rocky.
+  let prof;
+  try { prof = JSON.parse(profileJSON); } catch { prof = {}; }
+  if (prof.Renderer === 'rocky' && window.planetExplorerGenerateFlat) {
+    const pngBytes = planetExplorerGenerateFlat(profileJSON, seed, size);
+    if (pngBytes instanceof Uint8Array) {
+      await paintPNGToCanvas(swatchCanvas, pngBytes, size);
+    } else {
+      status.textContent = 'Error: ' + pngBytes;
+      return;
+    }
   } else {
-    cubePNG = planetExplorerGenerate(profileJSON, seed, faceSize);
+    // Non-rocky (gas giant, unknown): fall back to cube-sphere path.
+    const mode = viewModeSel ? viewModeSel.value : 'color';
+    let cubePNG;
+    if (mode === 'heightmap') {
+      cubePNG = planetExplorerGenerateHeightmap(profileJSON, seed, size);
+    } else if (debugBypass.size > 0 && window.planetExplorerGenerateWithBypass) {
+      cubePNG = planetExplorerGenerateWithBypass(profileJSON, seed, size, JSON.stringify([...debugBypass]));
+    } else {
+      cubePNG = planetExplorerGenerate(profileJSON, seed, size);
+    }
+    if (cubePNG instanceof Uint8Array) {
+      await paintSwatchFromCubePNG(cubePNG);
+    } else {
+      status.textContent = 'Error: ' + cubePNG;
+      return;
+    }
   }
 
-  if (cubePNG instanceof Uint8Array) {
-    await paintSwatchFromCubePNG(cubePNG);
-  } else {
-    status.textContent = 'Error: ' + cubePNG;
-    return;
-  }
   const elapsed = (performance.now() - t0).toFixed(0);
   status.textContent = `Rendered in ${elapsed} ms`;
   renderPanels();
 
-  // Phase 6: keep the debug panel in sync with the main render when it
-  // is expanded. Skips the expensive debug pass when the panel is
-  // collapsed so the cost only lands when the operator is looking.
-  const debugPanel = document.getElementById('debug-panel');
-  if (debugPanel && debugPanel.open) {
-    refreshDebugView();
+  // Debug panel: only supported on the cube-sphere path; skip for flat.
+  if (prof.Renderer !== 'rocky') {
+    const debugPanel = document.getElementById('debug-panel');
+    if (debugPanel && debugPanel.open) {
+      refreshDebugView();
+    }
   }
+}
+
+// paintPNGToCanvas decodes a PNG byte array and draws it to the canvas,
+// resizing the canvas to size×size first.
+async function paintPNGToCanvas(canvas, pngBytes, size) {
+  const blob = new Blob([pngBytes], { type: 'image/png' });
+  const bmp = await createImageBitmap(blob);
+  canvas.width = size;
+  canvas.height = size;
+  canvas.getContext('2d').drawImage(bmp, 0, 0);
 }
 
 async function paintToCanvas(canvas, pngBytes) {

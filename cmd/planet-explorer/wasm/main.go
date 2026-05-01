@@ -37,6 +37,7 @@ func main() {
 	js.Global().Set("planetExplorerGenerateDebug", js.FuncOf(generateDebug))
 	js.Global().Set("planetExplorerGenerateDebugSwatch", js.FuncOf(generateDebugSwatch))
 	js.Global().Set("planetExplorerGenerateWithBypass", js.FuncOf(generateWithBypass))
+	js.Global().Set("planetExplorerGenerateFlat", js.FuncOf(generateFlat))
 	<-make(chan struct{}) // keep the WASM process alive
 }
 
@@ -380,6 +381,29 @@ func generateDebugSwatch(_ js.Value, args []js.Value) any {
 	}
 	out, _ := json.Marshal(map[string]any{"stages": stages})
 	return js.ValueOf(string(out))
+}
+
+// generateFlat(profileJSON, seedStr, size) → Uint8Array of PNG bytes for the
+// 2D flat preview. Rocky-only; bypasses cube-sphere entirely for fast iteration.
+func generateFlat(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("generateFlat: expected 3 args (profileJSON, seed, size), got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateFlat: bad profile JSON: %v", err)
+	}
+	if prof.Renderer != "rocky" {
+		return jsError("generateFlat: only rocky profiles supported")
+	}
+	s := seed.Hash(args[1].String())
+	size := args[2].Int()
+	img := render.RenderFlat(&prof, s, size)
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil {
+		return jsError("generateFlat: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
 }
 
 func goBytes(uint8Array js.Value) []byte {
