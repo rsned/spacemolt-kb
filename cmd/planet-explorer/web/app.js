@@ -136,12 +136,10 @@ async function regenerate() {
   status.textContent = `Rendered in ${elapsed} ms`;
   renderPanels();
 
-  // Debug panel: only supported on the cube-sphere path; skip for flat.
-  if (prof.Renderer !== 'rocky') {
-    const debugPanel = document.getElementById('debug-panel');
-    if (debugPanel && debugPanel.open) {
-      refreshDebugView();
-    }
+  // Debug panel: now supported for both rocky (flat path) and non-rocky (cube path).
+  const debugPanel = document.getElementById('debug-panel');
+  if (debugPanel && debugPanel.open) {
+    refreshDebugView();
   }
 }
 
@@ -1342,16 +1340,29 @@ if (sphereCanvas) {
 const debugBypass = new Set();
 
 function refreshDebugView() {
+  const profileJSON = profileTextarea.value;
+  const seed = seedInput.value;
+  const size = parseInt(faceSizeSel.value, 10) || 256;
+  const bypassJSON = JSON.stringify([...debugBypass]);
+  // Rocky profiles use the flat debug path (matches the swatch render).
+  let prof;
+  try { prof = JSON.parse(profileJSON); } catch { prof = {}; }
+  if (prof.Renderer === 'rocky' && window.planetExplorerGenerateFlatDebug) {
+    const result = window.planetExplorerGenerateFlatDebug(profileJSON, seed, size, bypassJSON);
+    let parsed;
+    try { parsed = JSON.parse(result); }
+    catch (e) { console.error('debug parse', e); return; }
+    if (parsed.error) { console.error(parsed.error); return; }
+    renderDebugGrid(parsed.stages);
+    return;
+  }
+  // Non-rocky (e.g. gas giant): fall back to cube-path swatch debug.
   if (!window.planetExplorerGenerateDebugSwatch) {
     console.warn('debug API not available; rebuild wasm');
     return;
   }
-  const profileJSON = profileTextarea.value;
-  const seed = seedInput.value;
-  const faceSize = parseInt(faceSizeSel.value, 10);
-  const bypassJSON = JSON.stringify([...debugBypass]);
   const faceIdx = swatchFaceSel ? (parseInt(swatchFaceSel.value, 10) || 4) : 4;
-  const result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, faceSize, bypassJSON, faceIdx);
+  const result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, size, bypassJSON, faceIdx);
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) { console.error('debug parse', e); return; }

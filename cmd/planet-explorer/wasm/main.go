@@ -1,13 +1,14 @@
 // Wasm entrypoint for cmd/planet-explorer. Builds with GOOS=js
 // GOARCH=wasm into cmd/planet-explorer/web/planet-explorer.wasm.
 //
-// Exposes three functions on the JS global scope:
+// Exposes functions on the JS global scope:
 //
 //	planetExplorerGenerate(profileJSON string, seedStr string, faceSize int)                   Uint8Array
 //	planetExplorerBakeEquirect(cubePNG Uint8Array, w int, h int)                               Uint8Array
 //	planetExplorerDefaultProfile(planetType string)                                             string  // JSON
 //	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)                    string  // JSON
 //	planetExplorerGenerateDebugSwatch(profileJSON, seedStr, faceSize, bypassJSON, faceIndex)   string  // JSON
+//	planetExplorerGenerateFlatDebug(profileJSON, seedStr, size, bypassJSON)                    string  // JSON
 //
 //go:build js && wasm
 
@@ -19,7 +20,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/color"
 	"image/png"
+	"math"
 	"syscall/js"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
@@ -38,6 +41,7 @@ func main() {
 	js.Global().Set("planetExplorerGenerateDebugSwatch", js.FuncOf(generateDebugSwatch))
 	js.Global().Set("planetExplorerGenerateWithBypass", js.FuncOf(generateWithBypass))
 	js.Global().Set("planetExplorerGenerateFlat", js.FuncOf(generateFlat))
+	js.Global().Set("planetExplorerGenerateFlatDebug", js.FuncOf(generateFlatDebug))
 	<-make(chan struct{}) // keep the WASM process alive
 }
 
@@ -404,6 +408,130 @@ func generateFlat(_ js.Value, args []js.Value) any {
 		return jsError("generateFlat: encode: %v", err)
 	}
 	return jsBytes(buf.Bytes())
+}
+
+// generateFlatDebug(profileJSON, seedStr, size, bypassJSON) → JSON string
+// with per-stage square PNG thumbnails for the flat pipeline. bypassJSON is an
+// optional JSON array of stage names to suppress (pass "" to skip).
+func generateFlatDebug(_ js.Value, args []js.Value) any {
+	if len(args) < 4 {
+		return jsError("generateFlatDebug: expected 4 args (profileJSON, seed, size, bypassJSON), got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateFlatDebug: bad profile JSON: %v", err)
+	}
+	if prof.Renderer != "rocky" {
+		return jsError("generateFlatDebug: only rocky profiles supported")
+	}
+	s := seed.Hash(args[1].String())
+	size := args[2].Int()
+	var bypass render.FlatDebugBypass
+	if args[3].Type() == js.TypeString && args[3].String() != "" {
+		var arr []string
+		if err := json.Unmarshal([]byte(args[3].String()), &arr); err == nil && len(arr) > 0 {
+			bypass = make(render.FlatDebugBypass, len(arr))
+			for _, name := range arr {
+				bypass[name] = true
+			}
+		}
+	}
+	frame := render.RenderFlatDebug(&prof, s, size, bypass)
+
+	// encodeHeight encodes a []float64 as a square grayscale PNG.
+	encodeHeight := func(hm []float64, signed bool) string {
+		if hm == nil {
+			return ""
+		}
+		img := image.NewRGBA(image.Rect(0, 0, size, size))
+		if signed {
+			// Auto-scale signed delta so small-amplitude stages stay visible.
+			maxAbs := 0.0
+			for _, v := range hm {
+				if v < 0 {
+					v = -v
+				}
+				if v > maxAbs {
+					maxAbs = v
+				}
+			}
+			if maxAbs < 1e-9 {
+				maxAbs = 1.0
+			}
+			for py := range size {
+				for px := range size {
+					v := hm[py*size+px]
+					var c color.RGBA
+					if v >= 0 {
+						// White = positive (accumulation).
+						b := uint8(math.Min(255, 255*v/maxAbs))
+						c = color.RGBA{R: b, G: b, B: b, A: 255}
+					} else {
+						// Red = negative (erosion/carve).
+						r := uint8(math.Min(255, 255*(-v)/maxAbs))
+						c = color.RGBA{R: r, G: 0, B: 0, A: 255}
+					}
+					img.SetRGBA(px, py, c)
+				}
+			}
+		} else {
+			// Unsigned grayscale [0,1].
+			for py := range size {
+				for px := range size {
+					v := hm[py*size+px]
+					if v < 0 {
+						v = 0
+					} else if v > 1 {
+						v = 1
+					}
+					b := uint8(v * 255)
+					img.SetRGBA(px, py, color.RGBA{R: b, G: b, B: b, A: 255})
+				}
+			}
+		}
+		var buf bytes.Buffer
+		_ = png.Encode(&buf, img)
+		return base64.StdEncoding.EncodeToString(buf.Bytes())
+	}
+
+	// encodeColor encodes a []color.RGBA as a square PNG.
+	encodeColor := func(rgba []color.RGBA) string {
+		if rgba == nil {
+			return ""
+		}
+		img := image.NewRGBA(image.Rect(0, 0, size, size))
+		for py := range size {
+			for px := range size {
+				img.SetRGBA(px, py, rgba[py*size+px])
+			}
+		}
+		var buf bytes.Buffer
+		_ = png.Encode(&buf, img)
+		return base64.StdEncoding.EncodeToString(buf.Bytes())
+	}
+
+	stages := make([]map[string]any, 0, len(frame.Stages))
+	for _, st := range frame.Stages {
+		row := map[string]any{
+			"name":         st.Name,
+			"kind":         st.Kind,
+			"skipped":      st.Skipped,
+			"input_bands":  "",
+			"output_bands": "",
+		}
+		if st.Kind == "color" {
+			row["color_after"] = encodeColor(st.ColorAfter)
+			row["raw"] = ""
+			row["sum_after"] = ""
+		} else {
+			row["raw"] = encodeHeight(st.RawDelta, true)
+			row["sum_after"] = encodeHeight(st.SumAfter, false)
+			row["color_after"] = ""
+		}
+		stages = append(stages, row)
+	}
+	out, _ := json.Marshal(map[string]any{"stages": stages})
+	return js.ValueOf(string(out))
 }
 
 func goBytes(uint8Array js.Value) []byte {
