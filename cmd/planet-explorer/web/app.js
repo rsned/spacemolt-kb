@@ -132,6 +132,21 @@ async function regenerate() {
     }
   }
 
+  if (window.planetExplorerFlatCacheStats) {
+    try {
+      const statsRaw = planetExplorerFlatCacheStats();
+      if (typeof statsRaw === 'string') {
+        const stats = JSON.parse(statsRaw);
+        const total = stats.hits + stats.misses;
+        const pct = total > 0 ? Math.round(100 * stats.hits / total) : 0;
+        const el = document.getElementById('swatch-cache-stats');
+        if (el) {
+          el.textContent = `Cache: ${stats.hits} hits / ${stats.misses} misses (${pct}% hit rate)`;
+        }
+      }
+    } catch (e) {}
+  }
+
   const elapsed = (performance.now() - t0).toFixed(0);
   status.textContent = `Rendered in ${elapsed} ms`;
   renderPanels();
