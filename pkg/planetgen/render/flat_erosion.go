@@ -8,6 +8,9 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
+// riverNotchDepth is how far below oceanLevel erosion may carve a coast channel mouth. 0.01 = 1% of the normalized [0,1] height range, enough to make river mouths visibly cut into the shore.
+const riverNotchDepth = 0.01
+
 func erodeFlat(masterSeed int64, hm []float64, size int, cfg types.ErosionConfig, oceanLevel float64) {
 	if cfg.Droplets <= 0 {
 		return
@@ -72,10 +75,10 @@ func simulateDropletFlat(rng *rand.Rand, hm []float64, size int,
 		}
 		nh, _, _ := sampleWithGradientFlat(hm, size, nx, ny)
 
-		// Terminate when flowing into ocean: deposit remaining sediment at coast.
+		// Carve a river-mouth notch at the coast; sediment is discarded (washes away).
 		if oceanLevel > 0 && nh < oceanLevel {
 			ix, iy := int(px), int(py)
-			applyDepositFlat(hm, size, ix, iy, sediment)
+			applyErodeFlat(hm, size, ix, iy, 1.0, oceanLevel)
 			return
 		}
 
@@ -186,10 +189,13 @@ func applyErodeFlat(hm []float64, size, ix, iy int, amt, oceanLevel float64) flo
 		}
 		amtCell := amt * flatBrushW[i]
 		cur := hm[y*size+x]
-		// Clamp so we never carve below the ocean floor.
+		// Clamp so we never carve below the relaxed river-mouth floor.
 		floor := 0.0
 		if oceanLevel > 0 {
-			floor = oceanLevel
+			floor = oceanLevel - riverNotchDepth
+			if floor < 0 {
+				floor = 0
+			}
 		}
 		if cur-amtCell < floor {
 			amtCell = cur - floor

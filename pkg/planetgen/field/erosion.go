@@ -9,6 +9,9 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
+// riverNotchDepth is how far below oceanLevel erosion may carve a coast channel mouth. 0.01 = 1% of the normalized [0,1] height range, enough to make river mouths visibly cut into the shore.
+const riverNotchDepth = 0.01
+
 // brushOffsets, brushWeights are a 3×3 erosion brush with 1/(1+r) falloff.
 // Weights sum to 1 so total mass eroded/deposited == amt regardless of brush shape.
 // Reference weights at r ∈ {0, 1, √2}: 1.0, 0.5, 0.4142; sum = 1 + 4·0.5 + 4·0.4142 ≈ 4.6568.
@@ -45,10 +48,13 @@ func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt, oce
 		}
 		amtCell := amt * brushWeights[i]
 		cur := hm.Get(face, ix2, iy2)
-		// Clamp so we never carve below the ocean floor.
+		// Clamp so we never carve below the relaxed river-mouth floor.
 		floor := 0.0
 		if oceanLevel > 0 {
-			floor = oceanLevel
+			floor = oceanLevel - riverNotchDepth
+			if floor < 0 {
+				floor = 0
+			}
 		}
 		if cur-amtCell < floor {
 			amtCell = cur - floor
@@ -163,10 +169,10 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 		nx, ny, nz := erosionNormalize(px+vxN*stepLen, py+vyN*stepLen, pz+vzN*stepLen)
 		nh, _, _, _ := sampleWithGradient(hm, S, nx, ny, nz)
 
-		// Terminate when flowing into ocean: deposit remaining sediment at coast.
+		// Carve a river-mouth notch at the coast; sediment is discarded (washes away).
 		if oceanLevel > 0 && nh < oceanLevel {
 			face, ix, iy := cubemap.DirToFacePixel(px, py, pz, S)
-			applyDeposit(hm, face, ix, iy, S, sediment)
+			applyErode(hm, face, ix, iy, S, 1.0, oceanLevel)
 			return
 		}
 

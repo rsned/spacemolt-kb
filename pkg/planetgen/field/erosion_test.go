@@ -81,9 +81,9 @@ func TestErodeBrushSpreadsToNeighbors(t *testing.T) {
 	}
 }
 
-func TestErodeRespectsOceanLevel(t *testing.T) {
+func TestErodeRespectsOceanFloor(t *testing.T) {
 	// Half-flat heightmap: bottom half at oceanLevel (coastline), top half at 0.8 (land).
-	// Erosion must never carve any pixel below oceanLevel.
+	// Erosion may carve coast pixels down to oceanLevel-riverNotchDepth but no further.
 	S := 32
 	hm := cubemap.NewF(S)
 	oceanLevel := 0.5
@@ -103,11 +103,11 @@ func TestErodeRespectsOceanLevel(t *testing.T) {
 		ErosionRate: 0.5, Deposition: 0.2, Evaporation: 0.01, MaxStepsPerDrop: 60, Gravity: 4,
 	}
 	out := Erode(11, hm.Clone(), cfg, oceanLevel, S)
-	// No pixel should have been carved below ocean level.
+	floor := oceanLevel - riverNotchDepth
 	for face := range out.Faces {
 		for i, v := range out.Faces[face] {
-			if v < oceanLevel-1e-9 {
-				t.Errorf("face %d idx %d: ocean-floor write %f below oceanLevel %f", face, i, v, oceanLevel)
+			if v < floor-1e-9 {
+				t.Errorf("face %d idx %d: pixel %f carved below river-mouth floor %f", face, i, v, floor)
 				return
 			}
 		}
