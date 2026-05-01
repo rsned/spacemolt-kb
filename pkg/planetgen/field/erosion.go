@@ -12,33 +12,36 @@ import (
 // riverNotchDepth is how far below oceanLevel erosion may carve a coast channel mouth. 0.01 = 1% of the normalized [0,1] height range, enough to make river mouths visibly cut into the shore.
 const riverNotchDepth = 0.01
 
-// brushOffsets, brushWeights are a 3×3 erosion brush with 1/(1+r) falloff.
-// Weights sum to 1 so total mass eroded/deposited == amt regardless of brush shape.
-// Reference weights at r ∈ {0, 1, √2}: 1.0, 0.5, 0.4142; sum = 1 + 4·0.5 + 4·0.4142 ≈ 4.6568.
+// brushOffsetX, brushOffsetY are the 3×3 neighbourhood pixel offsets.
 var (
 	brushOffsetX = [9]int{-1, 0, 1, -1, 0, 1, -1, 0, 1}
 	brushOffsetY = [9]int{-1, -1, -1, 0, 0, 0, 1, 1, 1}
-	brushWeights = [9]float64{} // populated in init()
 )
 
-func init() {
+// computeBrushWeights builds normalized 3x3 brush weights for falloff k.
+// k <= 0 falls back to 1.0 (current default).
+func computeBrushWeights(k float64) [9]float64 {
+	if k <= 0 {
+		k = 1.0
+	}
 	var raw [9]float64
 	sum := 0.0
 	for i := range 9 {
-		r := math.Sqrt(float64(brushOffsetX[i]*brushOffsetX[i] + brushOffsetY[i]*brushOffsetY[i]))
-		w := 1.0 / (1.0 + r)
-		raw[i] = w
-		sum += w
+		d := math.Sqrt(float64(brushOffsetX[i]*brushOffsetX[i] + brushOffsetY[i]*brushOffsetY[i]))
+		raw[i] = 1.0 / math.Pow(1.0+d, k)
+		sum += raw[i]
 	}
+	var w [9]float64
 	for i := range 9 {
-		brushWeights[i] = raw[i] / sum
+		w[i] = raw[i] / sum
 	}
+	return w
 }
 
 // applyErode carves amt across a 3x3 brush at (ix, iy), clipping at face
 // edges and clamping per-cell so height stays ≥ oceanLevel (or ≥ 0 when
 // oceanLevel==0). Returns the total height actually carved.
-func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt, oceanLevel float64) float64 {
+func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt, oceanLevel float64, weights [9]float64) float64 {
 	total := 0.0
 	for i := range 9 {
 		ix2 := ix + brushOffsetX[i]
@@ -46,7 +49,7 @@ func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt, oce
 		if ix2 < 0 || ix2 >= S || iy2 < 0 || iy2 >= S {
 			continue
 		}
-		amtCell := amt * brushWeights[i]
+		amtCell := amt * weights[i]
 		cur := hm.Get(face, ix2, iy2)
 		// Clamp so we never carve below the relaxed river-mouth floor.
 		floor := 0.0
@@ -71,7 +74,7 @@ func applyErode(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt, oce
 // applyDeposit drops amt across a 3x3 brush at (ix, iy), clipping at
 // face edges and clamping per-cell so height stays ≤ 1. Returns the
 // total height actually deposited.
-func applyDeposit(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt float64) float64 {
+func applyDeposit(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt float64, weights [9]float64) float64 {
 	total := 0.0
 	for i := range 9 {
 		ix2 := ix + brushOffsetX[i]
@@ -79,7 +82,7 @@ func applyDeposit(hm *cubemap.CubeMapF, face cubemap.Face, ix, iy, S int, amt fl
 		if ix2 < 0 || ix2 >= S || iy2 < 0 || iy2 >= S {
 			continue
 		}
-		amtCell := amt * brushWeights[i]
+		amtCell := amt * weights[i]
 		cur := hm.Get(face, ix2, iy2)
 		if cur+amtCell > 1 {
 			amtCell = 1 - cur
@@ -123,16 +126,17 @@ func Erode(masterSeed int64, heightmap *cubemap.CubeMapF, cfg types.ErosionConfi
 		stepLen = 1.0 / float64(2*S)
 	}
 
+	weights := computeBrushWeights(cfg.BrushFalloff)
 	for range cfg.Droplets {
 		simulateDroplet(rng, heightmap, S, inertia, capacity, erosionRate,
-			deposition, evaporation, minSlope, gravity, stepLen, maxSteps, oceanLevel)
+			deposition, evaporation, minSlope, gravity, stepLen, maxSteps, oceanLevel, weights)
 	}
 	return heightmap
 }
 
 func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 	inertia, capacity, erosionRate, deposition, evaporation, minSlope, gravity, stepLen float64,
-	maxSteps int, oceanLevel float64,
+	maxSteps int, oceanLevel float64, weights [9]float64,
 ) {
 	// Uniform-sphere sampling via rejection-free cylindrical method.
 	z := 1 - 2*rng.Float64() //nolint:gosec
@@ -172,7 +176,7 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 		// Carve a river-mouth notch at the coast; sediment is discarded (washes away).
 		if oceanLevel > 0 && nh < oceanLevel {
 			face, ix, iy := cubemap.DirToFacePixel(px, py, pz, S)
-			applyErode(hm, face, ix, iy, S, 1.0, oceanLevel)
+			applyErode(hm, face, ix, iy, S, 1.0, oceanLevel, weights)
 			return
 		}
 
@@ -194,12 +198,12 @@ func simulateDroplet(rng *rand.Rand, hm *cubemap.CubeMapF, S int,
 			if deltaH > 0 && amt > deltaH {
 				amt = deltaH
 			}
-			actuallyDeposited := applyDeposit(hm, face, ix, iy, S, amt)
+			actuallyDeposited := applyDeposit(hm, face, ix, iy, S, amt, weights)
 			sediment -= actuallyDeposited
 		} else {
 			// Erode; pick up material up to capacity.
 			amt := (cap - sediment) * erosionRate
-			actuallyEroded := applyErode(hm, face, ix, iy, S, amt, oceanLevel)
+			actuallyEroded := applyErode(hm, face, ix, iy, S, amt, oceanLevel, weights)
 			sediment += actuallyEroded
 		}
 

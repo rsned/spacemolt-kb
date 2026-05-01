@@ -786,6 +786,7 @@ function renderErosionPanel(profile, panels) {
       MinSlope:        round2(0.005 + Math.random() * 0.03),
       MaxStepsPerDrop: 30 + Math.floor(Math.random() * 50),
       Gravity:         round2(2 + Math.random() * 6),
+      BrushFalloff:    round2(0.5 + Math.random() * 5),
     };
     commitProfile(profile);
     renderPanels();
@@ -832,6 +833,10 @@ function renderErosionPanel(profile, panels) {
     'Speed gain from -Δh per step. 4 default.',
     e.Gravity || 0, 0, 20, '0.1',
     v => { profile.Erosion.Gravity = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('BrushFalloff',
+    'Brush sharpness exponent in 1/(1+r)^k. 0/missing = 1.0 (3-pixel wide channels). 4-8 = near-single-pixel for narrow rivers.',
+    e.BrushFalloff || 0, 0, 16, '0.5',
+    v => { profile.Erosion.BrushFalloff = v; commitProfile(profile); }));
 
   panels.appendChild(panel);
 }

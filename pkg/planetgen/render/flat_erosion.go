@@ -35,15 +35,16 @@ func erodeFlat(masterSeed int64, hm []float64, size int, cfg types.ErosionConfig
 		stepLen = 1.0
 	}
 
+	weights := computeFlatBrushWeights(cfg.BrushFalloff)
 	for range cfg.Droplets {
 		simulateDropletFlat(rng, hm, size, inertia, capacity, erosionRate,
-			deposition, evaporation, minSlope, gravity, stepLen, maxSteps, oceanLevel)
+			deposition, evaporation, minSlope, gravity, stepLen, maxSteps, oceanLevel, weights)
 	}
 }
 
 func simulateDropletFlat(rng *rand.Rand, hm []float64, size int,
 	inertia, capacity, erosionRate, deposition, evaporation, minSlope, gravity, stepLen float64,
-	maxSteps int, oceanLevel float64) {
+	maxSteps int, oceanLevel float64, weights [9]float64) {
 	px := rng.Float64() * float64(size-1)
 	py := rng.Float64() * float64(size-1)
 
@@ -78,7 +79,7 @@ func simulateDropletFlat(rng *rand.Rand, hm []float64, size int,
 		// Carve a river-mouth notch at the coast; sediment is discarded (washes away).
 		if oceanLevel > 0 && nh < oceanLevel {
 			ix, iy := int(px), int(py)
-			applyErodeFlat(hm, size, ix, iy, 1.0, oceanLevel)
+			applyErodeFlat(hm, size, ix, iy, 1.0, oceanLevel, weights)
 			return
 		}
 
@@ -99,10 +100,10 @@ func simulateDropletFlat(rng *rand.Rand, hm []float64, size int,
 			if deltaH > 0 && amt > deltaH {
 				amt = deltaH
 			}
-			sediment -= applyDepositFlat(hm, size, ix, iy, amt)
+			sediment -= applyDepositFlat(hm, size, ix, iy, amt, weights)
 		} else {
 			amt := (cap - sediment) * erosionRate
-			sediment += applyErodeFlat(hm, size, ix, iy, amt, oceanLevel)
+			sediment += applyErodeFlat(hm, size, ix, iy, amt, oceanLevel, weights)
 		}
 
 		px, py = nx, ny
@@ -160,34 +161,40 @@ func bilinFlat(hm []float64, size int, x, y float64) float64 {
 	return (1-ty)*((1-tx)*h00+tx*h10) + ty*((1-tx)*h01+tx*h11)
 }
 
-// 3×3 brush with 1/(1+r) falloff, weights normalized to sum 1.
+// 3×3 brush pixel offsets.
 var (
 	flatBrushOX = [9]int{-1, 0, 1, -1, 0, 1, -1, 0, 1}
 	flatBrushOY = [9]int{-1, -1, -1, 0, 0, 0, 1, 1, 1}
-	flatBrushW  = [9]float64{}
 )
 
-func init() {
+// computeFlatBrushWeights builds normalized 3x3 brush weights for falloff k.
+// k <= 0 falls back to 1.0 (current default).
+func computeFlatBrushWeights(k float64) [9]float64 {
+	if k <= 0 {
+		k = 1.0
+	}
 	var raw [9]float64
 	sum := 0.0
 	for i := range 9 {
 		d := math.Sqrt(float64(flatBrushOX[i]*flatBrushOX[i] + flatBrushOY[i]*flatBrushOY[i]))
-		raw[i] = 1.0 / (1.0 + d)
+		raw[i] = 1.0 / math.Pow(1.0+d, k)
 		sum += raw[i]
 	}
+	var w [9]float64
 	for i := range 9 {
-		flatBrushW[i] = raw[i] / sum
+		w[i] = raw[i] / sum
 	}
+	return w
 }
 
-func applyErodeFlat(hm []float64, size, ix, iy int, amt, oceanLevel float64) float64 {
+func applyErodeFlat(hm []float64, size, ix, iy int, amt, oceanLevel float64, weights [9]float64) float64 {
 	total := 0.0
 	for i := range 9 {
 		x, y := ix+flatBrushOX[i], iy+flatBrushOY[i]
 		if x < 0 || x >= size || y < 0 || y >= size {
 			continue
 		}
-		amtCell := amt * flatBrushW[i]
+		amtCell := amt * weights[i]
 		cur := hm[y*size+x]
 		// Clamp so we never carve below the relaxed river-mouth floor.
 		floor := 0.0
@@ -209,14 +216,14 @@ func applyErodeFlat(hm []float64, size, ix, iy int, amt, oceanLevel float64) flo
 	return total
 }
 
-func applyDepositFlat(hm []float64, size, ix, iy int, amt float64) float64 {
+func applyDepositFlat(hm []float64, size, ix, iy int, amt float64, weights [9]float64) float64 {
 	total := 0.0
 	for i := range 9 {
 		x, y := ix+flatBrushOX[i], iy+flatBrushOY[i]
 		if x < 0 || x >= size || y < 0 || y >= size {
 			continue
 		}
-		amtCell := amt * flatBrushW[i]
+		amtCell := amt * weights[i]
 		cur := hm[y*size+x]
 		if cur+amtCell > 1 {
 			amtCell = 1 - cur

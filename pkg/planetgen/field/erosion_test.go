@@ -114,6 +114,30 @@ func TestErodeRespectsOceanFloor(t *testing.T) {
 	}
 }
 
+func TestErodeHighFalloffNarrowsBrush(t *testing.T) {
+	// With high falloff, pixels outside the brush radius should be less disturbed.
+	// Pixel (18,16) is 2 steps from center (16,16), outside the direct 3x3 brush
+	// footprint, so narrow-brush runs leave it closer to the original than wide-brush.
+	hm := makePyramid(32, 0.9, 0.4)
+	cfgWide := types.ErosionConfig{
+		Droplets: 2000, Inertia: 0.05, Capacity: 4,
+		ErosionRate: 0.5, Deposition: 0.2, Evaporation: 0.01,
+		MaxStepsPerDrop: 60, Gravity: 4, BrushFalloff: 1.0,
+	}
+	cfgNarrow := cfgWide
+	cfgNarrow.BrushFalloff = 8.0
+
+	wide := Erode(11, hm.Clone(), cfgWide, 0, 32)
+	narrow := Erode(11, hm.Clone(), cfgNarrow, 0, 32)
+	// Check 2 pixels from the peak; narrow brush should leave it more
+	// unchanged than wide brush.
+	deltaWide := math.Abs(wide.Get(cubemap.FacePosX, 18, 16) - hm.Get(cubemap.FacePosX, 18, 16))
+	deltaNarrow := math.Abs(narrow.Get(cubemap.FacePosX, 18, 16) - hm.Get(cubemap.FacePosX, 18, 16))
+	if deltaNarrow >= deltaWide {
+		t.Errorf("expected narrower brush to leave neighbor more intact: wide=%f narrow=%f", deltaWide, deltaNarrow)
+	}
+}
+
 func makePyramid(S int, peak, base float64) *cubemap.CubeMapF {
 	out := cubemap.NewF(S)
 	for face := range out.Faces {

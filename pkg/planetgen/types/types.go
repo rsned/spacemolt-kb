@@ -132,6 +132,11 @@ type ErosionConfig struct {
 	Gravity float64
 	// StepLen is the per-step displacement on the unit sphere; 0 = auto = 1/(2*S).
 	StepLen float64
+	// BrushFalloff is the exponent k in 1/(1+r)^k brush weights.
+	// 0 (or missing) = default 1.0 (diffuse 3-pixel-wide channels).
+	// 2.0 = moderate (center weight ~0.37).
+	// 4-8 = sharp (center weight ~0.73-0.97; near-single-pixel rivers).
+	BrushFalloff float64
 }
 
 // RidgedConfig parameterizes a ridged-multifractal mountain pass.
