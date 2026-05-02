@@ -11,13 +11,22 @@ Planet Explorer is a web-based interactive tool for exploring and tuning procedu
 - Exports tuned profiles as JSON for use in production code
 
 **Key Concepts from the Compass Artifact:**
-This tool implements the **Tier S** enhancements from the procedural generation guide:
+This tool implements **Tier S** and **Tier A** enhancements from the procedural generation guide:
+
+**Tier S (massive visual change, hours-to-days of work each):**
 - Multi-noise control fields (Minecraft 1.18 approach)
 - Domain warping (Quilez)
 - Whittaker biome classification with OkLab color blending
 - Per-archetype color LUTs
-- Province/roughness modulation
 - Slope-based shading
+
+**Tier A (high visual change, days of work):**
+- Ridged multifractal mountains (masked by Continentalness)
+- Province/roughness modulation (Voronoi regional variety)
+- Particle-based hydraulic erosion (realistic alluvial fans, rivers)
+- Coastal-noise enhancement (archipelagos, fjords near coastlines)
+- Curl-noise turbulent advection for gas giants (realistic banding)
+- Continent Voronoi masks (polygonal continental silhouettes)
 
 ---
 
@@ -330,6 +339,119 @@ The combination method is **pure additive summation**, not multiplication or com
 - `Count = 200, Depth = 0.25` — Heavy cratering (Mercury/Moon)
 
 **Tip:** For realistic power-law size distribution, you'd need the full crater system (see Compass Artifact §1). Current implementation is simplified.
+
+---
+
+### Erosion Panel
+
+**Purpose:** Particle-based hydraulic erosion — droplets walk the heightmap carving channels and depositing sediment
+**Effect:** Realistic alluvial fans, river valleys, and worn-down terrain
+**Renderer:** Only shown when profile's `Renderer = "rocky"`
+
+**Parameters:**
+- `Droplets` (0–500,000) — Canonical droplet count at face=1024. Auto-scaled by face area; floor 5000 so face=64 previews still show channels. 0 disables erosion.
+- `Inertia` (0–1) — How much velocity carries between steps. 0.05 default. Higher = straighter channels.
+- `Capacity` (0–20) — Sediment capacity multiplier. 4 default. Higher = droplets carry more before depositing.
+- `ErosionRate` (0–1) — Fraction of "missing capacity" carved per step. 0.3 default.
+- `Deposition` (0–1) — Fraction of "excess sediment" dropped per step. 0.3 default.
+- `Evaporation` (0–0.1) — Water lost per step. 0.01 default.
+- `MinSlope` (0–0.5) — Floor on slope used in capacity calc to avoid 0. 0.01 default.
+- `MaxStepsPerDrop` (0–200) — Hard cap on steps per droplet. 50 default.
+- `Gravity` (0–20) — Speed gain from -Δh per step. 4 default.
+- `BrushFalloff` (0–16) — Brush sharpness exponent in `1/(1+r)^k`. 0/missing = 1.0 (3-pixel wide channels). 4–8 = near-single-pixel for narrow rivers.
+
+**How it works:**
+1. Spawn N droplets at random positions on the sphere
+2. Each droplet walks downhill, carrying capacity
+3. Carve erosion when moving uphill (capacity check)
+4. Deposit sediment when capacity exceeded
+5. Evaporate water per step
+6. Apply changes to heightmap via Gaussian brush with falloff
+
+**Visual effect:**
+- `Droplets = 0` — No erosion (pure noise terrain)
+- `Droplets = 50,000` — Light channeling (early drainage networks)
+- `Droplets = 150,000` — Moderate erosion (Mars-like)
+- `Droplets = 300,000+` — Heavy erosion (Earth-like with mature river systems)
+
+**Why this matters:**
+- Self-reinforcing channels emerge naturally
+- Sediment fills receivers, creates basins
+- Distinguishes plausible planets from pure-noise ones
+- Realistic alluvial fans and river valleys
+
+**Tip:** Start with `Droplets = 50,000` at face=256 for quick iteration. Increase to 150,000+ for final renders. Higher `BrushFalloff` creates narrower, more realistic rivers.
+
+---
+
+### Coastal Panel
+
+**Purpose:** Localized roughening of pixels near coastlines via distance-to-coast modulation
+**Effect:** Archipelagos, fjords, and coastal detail at every zoom level
+**Formula:** `e_coast = e + α·(1 − e⁴)·(n4 + n5/2 + n6/4)·falloff`
+**Renderer:** Only shown when profile's `Renderer = "rocky"` and requires `OceanLevel > 0`
+
+**Parameters:**
+- `Amp` (0–0.5) — Master strength. 0 disables. Useful 0.05–0.2.
+- `Threshold` (0–1) — Distance-to-coast cutoff. Effect dies off above this.
+- `Freq` (0–20) — Base fBm frequency for the n4 octave (n5/n6 derive from it).
+
+**How it works:**
+1. Compute distance-to-coast for each pixel (from `OceanLevel` height)
+2. Apply bell-shaped multiplier: `(1 - e⁴)` peaks at sea level, decays inland/offshore
+3. Multiply by high-frequency fBm (`n4 + n5/2 + n6/4`) for detail
+4. Multiply by falloff that smoothly tapers from 1 at coast to 0 at `Threshold` distance
+5. Add result to base heightmap
+
+**Visual effect:**
+- `Amp = 0` — No coastal enhancement (smooth coastlines)
+- `Amp = 0.05–0.1` — Subtle coastal roughness
+- `Amp = 0.15–0.2` — Dramatic archipelagos, fjords
+- `Threshold = 0.05–0.2` — How far inland effect reaches
+- `Freq = 1–5` — Coastal feature scale
+
+**Why this matters:**
+- Archipelagos and atolls appear at every zoom level for free
+- Realistic fjord-like coastlines instead of smooth curves
+- The `(1 - e⁴)` bell concentrates detail at sea level naturally
+
+**Tip:** Combine with `Domain Warp` for even more organic coastal shapes. Use `Amp = 0.08–0.12` for realistic-looking coasts.
+
+---
+
+### Curl Advection Panel
+
+**Purpose:** Semi-Lagrangian backward-trace with curl-of-fBm tangent field for gas giants
+**Effect:** Realistic banding, eddies, and fluid-dynamics character
+**Renderer:** Only shown when profile's `Renderer = "gas_giant"`
+
+**Parameters:**
+- `Amp` (0–1) — Displacement strength per iteration. 0 disables (with `JetAmp = 0`). Useful 0.1–0.5.
+- `Iterations` (0–24) — Backward-trace step count. 4–16 typical.
+- `DT` (0–0.5) — Step size per iteration. 0.05–0.2 typical.
+- `Freq` (0–10) — Curl-noise base frequency.
+- `JetAmp` (0–1) — Zonal-jet contribution per latitude band. 0 disables.
+
+**How it works:**
+1. Each pixel: backward-trace `p_traced = p − dt·(zonal_jet(lat) + curlNoise(p_traced))`
+2. Repeat for N iterations — each step compounds the displacement
+3. Apply to texture sampling coordinates, not color directly
+4. Result: color appears to have been advected/swirled by the velocity field
+
+**Visual effect:**
+- `Amp = 0, JetAmp = 0` — No curl advection (static bands)
+- `Amp = 0.1–0.3, Iterations = 4–8` — Gentle eddies at band boundaries
+- `Amp = 0.4–0.6, Iterations = 12–16` — Dramatic swirling, Kelvin-Helmholtz wisps
+- `JetAmp = 0.2–0.5` — Strong zonal jet banding
+- `Iterations` = 16, DT = 0.1` — Long coherent streaks
+
+**Why this matters:**
+- Single most important gas-giant change
+- Matches `gaseous-giganticus` quality (open-source Jupiter renderer)
+- Eliminates "stretched noise" look, produces true fluid dynamics
+- Eddies, ribbons, and shears appear naturally
+
+**Tip:** Start with `Iterations = 4–8` and `Amp = 0.2` for gentle enhancement. Increase to `Iterations = 12–16` for dramatic swirling. `JetAmp > 0.3` gives strong banding like real Jupiter.
 
 ---
 
@@ -779,6 +901,12 @@ output = fbm(warped_p)
 - High `PeaksValleys` freq for cracked look
 - No snow, no ice caps
 
+**Jovian (gas giant with curl advection):**
+- `Curl.Amp = 0.2–0.4` for realistic eddies
+- `Curl.Iterations = 8–12` for gentle swirling
+- `Curl.JetAmp = 0.3–0.5` for strong banding
+- Combine with `BandCount = 6–8` and `StormBands` for authentic Jupiter look
+
 ### Common Patterns
 
 **Sharp coastlines:**
@@ -800,6 +928,17 @@ output = fbm(warped_p)
 - Warp Amp = 0.05–0.1
 - Apply to control fields for curled coastlines
 - Higher warp (>0.15) for dramatic effect
+
+**Realistic river channels (Tier A erosion):**
+- Enable erosion with `Droplets = 100,000` (face=256)
+- Set `BrushFalloff = 3–5` for narrow, realistic rivers
+- Combine with `OceanLevel = 0.4–0.6` for coastal drainage
+
+**Archipelago coastlines (Tier A coastal):**
+- Enable coastal with `Amp = 0.1–0.15`
+- Set `Threshold = 0.1–0.2` for moderate reach
+- Combine with `OceanLevel = 0.5` for sea level reference
+- Use `Freq = 2–4` for archipelago scale
 
 ### Debugging
 
@@ -1055,6 +1194,27 @@ The comprehensive procedural generation guide that inspired these enhancements:
 | PolarCapNoise | 0–0.5 | 0–0.2 | Edge roughness |
 | SnowLine | 0–1 | 0.7–0.9 | Snow elevation |
 
+### Erosion
+| Param | Range | Default | Effect |
+|-------|-------|---------|--------|
+| Droplets | 0–500000 | 50000–150000 | Particle count (auto-scaled by face area) |
+| Inertia | 0–1 | 0.05 | Velocity preservation (higher = straighter channels) |
+| Capacity | 0–20 | 4 | Sediment capacity (higher = more carried) |
+| ErosionRate | 0–1 | 0.3 | Carving fraction per step |
+| Deposition | 0–1 | 0.3 | Sediment drop fraction per step |
+| Evaporation | 0–0.1 | 0.01 | Water loss per step |
+| MinSlope | 0–0.5 | 0.01 | Capacity floor to avoid zero |
+| MaxStepsPerDrop | 0–200 | 50 | Hard cap on steps per droplet |
+| Gravity | 0–20 | 4 | Speed gain from downhill slope |
+| BrushFalloff | 0–16 | 0–2 | Brush sharpness (higher = narrower rivers) |
+
+### Coastal
+| Param | Range | Default | Effect |
+|-------|-------|---------|--------|
+| Amp | 0–0.5 | 0.05–0.2 | Roughening strength |
+| Threshold | 0–1 | 0.05–0.2 | Distance-to-coast cutoff |
+| Freq | 0–20 | 1–5 | fBm base frequency |
+
 ### Craters
 | Param | Range | Default | Effect |
 |-------|-------|---------|--------|
@@ -1065,6 +1225,6 @@ The comprehensive procedural generation guide that inspired these enhancements:
 
 ---
 
-**Version:** 1.0  
-**Last updated:** 2025-04-29  
+**Version:** 1.1  
+**Last updated:** 2026-05-01  
 **For Planet Explorer:** Phase 0 Cube Map implementation
