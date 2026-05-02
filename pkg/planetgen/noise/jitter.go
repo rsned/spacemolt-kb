@@ -161,3 +161,30 @@ func (jf *JitterField) Transform(px, py, pz float64) (float64, float64, float64)
 		ny + cell.Center[1] + cell.Offset[1],
 		nz + cell.Center[2] + cell.Offset[2]
 }
+
+// TransformPixel is the same as Transform but uses the precomputed
+// PerPixel cell-id raster to find the cell in O(1) instead of O(N).
+// Use this from Detail-field and biome-jitter inner loops where face
+// and pixel coords are already in scope. Returns the input unchanged
+// if jf is nil.
+func (jf *JitterField) TransformPixel(face cubemap.Face, px, py int, tx, ty, tz float64) (float64, float64, float64) {
+	if jf == nil {
+		return tx, ty, tz
+	}
+	cell := &jf.Cells[jf.PerPixel[face][py*jf.Size+px]]
+	// Rotate (p − Center) around RotAxis by RotAngle (Rodrigues' formula).
+	dx, dy, dz := tx-cell.Center[0], ty-cell.Center[1], tz-cell.Center[2]
+	rx, ry, rz := cell.RotAxis[0], cell.RotAxis[1], cell.RotAxis[2]
+	cosA := math.Cos(cell.RotAngle)
+	sinA := math.Sin(cell.RotAngle)
+	dot := dx*rx + dy*ry + dz*rz
+	cx := ry*dz - rz*dy
+	cy := rz*dx - rx*dz
+	cz := rx*dy - ry*dx
+	nx := dx*cosA + cx*sinA + rx*dot*(1-cosA)
+	ny := dy*cosA + cy*sinA + ry*dot*(1-cosA)
+	nz := dz*cosA + cz*sinA + rz*dot*(1-cosA)
+	return nx + cell.Center[0] + cell.Offset[0],
+		ny + cell.Center[1] + cell.Offset[1],
+		nz + cell.Center[2] + cell.Offset[2]
+}

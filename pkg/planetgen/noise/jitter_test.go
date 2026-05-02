@@ -80,3 +80,57 @@ func TestGenerateJitterDeterministic(t *testing.T) {
 		}
 	}
 }
+
+func TestJitterTransformPixelMatchesTransform(t *testing.T) {
+	profile := &types.PlanetProfile{
+		JitterEnabled: true, JitterCellCount: 16, JitterRotMax: math.Pi / 4, JitterOffsetMax: 0.05,
+	}
+	S := 8
+	jf := GenerateJitter(profile, 42, S)
+	for f := range cubemap.NumFaces {
+		face := cubemap.Face(f)
+		for py := range S {
+			for px := range S {
+				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+				ax, ay, az := jf.Transform(dx, dy, dz)
+				bx, by, bz := jf.TransformPixel(face, px, py, dx, dy, dz)
+				if math.Abs(ax-bx) > 1e-12 || math.Abs(ay-by) > 1e-12 || math.Abs(az-bz) > 1e-12 {
+					t.Fatalf("face %v px=%d py=%d: Transform(%.4f,%.4f,%.4f)=(%.6f,%.6f,%.6f) vs TransformPixel=(%.6f,%.6f,%.6f)",
+						face, px, py, dx, dy, dz, ax, ay, az, bx, by, bz)
+				}
+			}
+		}
+	}
+}
+
+func TestJitterTransformPixelNilSafe(t *testing.T) {
+	var jf *JitterField
+	px, py, pz := jf.TransformPixel(cubemap.FacePosX, 0, 0, 0.5, 0.5, 0.7)
+	if px != 0.5 || py != 0.5 || pz != 0.7 {
+		t.Errorf("nil receiver should pass through; got (%f, %f, %f)", px, py, pz)
+	}
+}
+
+func TestJitterTransformMagnitudePreserved(t *testing.T) {
+	// With OffsetMax=0, rotation around the cell center preserves the
+	// distance from the cell center for every input point. This catches
+	// sign errors in the cross product or dot-product coefficient that
+	// pass the identity-when-zero test but fail at non-zero rotations.
+	profile := &types.PlanetProfile{
+		JitterEnabled: true, JitterCellCount: 1, JitterRotMax: math.Pi / 3, JitterOffsetMax: 0,
+	}
+	jf := GenerateJitter(profile, 42, 16)
+	cellCenter := jf.Cells[0].Center
+	for _, p := range [][3]float64{
+		{1, 0, 0}, {0, 1, 0}, {0.6, 0.8, 0}, {0.5, 0.5, math.Sqrt2 / 2},
+	} {
+		ox, oy, oz := p[0]-cellCenter[0], p[1]-cellCenter[1], p[2]-cellCenter[2]
+		inDist := math.Sqrt(ox*ox + oy*oy + oz*oz)
+		rx, ry, rz := jf.Transform(p[0], p[1], p[2])
+		tx, ty, tz := rx-cellCenter[0], ry-cellCenter[1], rz-cellCenter[2]
+		outDist := math.Sqrt(tx*tx + ty*ty + tz*tz)
+		if math.Abs(outDist-inDist) > 1e-9 {
+			t.Errorf("rotation changed distance from cell center: in=%.6f out=%.6f for p=%v", inDist, outDist, p)
+		}
+	}
+}
