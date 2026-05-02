@@ -11,14 +11,21 @@ const renderBtn = $('#render-btn');
 const exportBtn = $('#export-json-btn');
 const applyBtn = $('#apply-json-btn');
 const profileTextarea = $('#profile-json');
-const cubeCanvas = null;
-const equirectCanvas = null;
+const cubeCanvas = $('#cube-canvas');
+const equirectCanvas = $('#equirect-canvas');
 const viewModeSel = $('#view-mode');
 const renderModeSel = null;
 const swatchFaceSel = $('#swatch-face');
 const swatchCanvas = $('#swatch-canvas');
 const swatchDiv = $('.planet-swatch');
 const renderModeBadge = $('#render-mode-badge');
+const cubePanel = $('.planet-cube');
+const equirectPanel = $('.planet-equirect');
+const spherePanel = $('.planet-sphere');
+const sphereHintEl = $('.sphere-hint');
+const viewportTitle = $('#viewport-title');
+const cubeTitleEl = $('#cube-title');
+const equirectTitleEl = $('#equirect-title');
 
 // useSwatchMode is set at server startup via the --use_swatch_mode flag,
 // shipped to the page through PLANET_EXPLORER_CONFIG. true (default) renders
@@ -51,6 +58,19 @@ async function init() {
     renderModeBadge.title = useSwatchMode
       ? 'Fast 2D flat path. Sphere-global stages (plates, jitter cells, JFA coastal, craters) are skipped. Restart with --use_swatch_mode=false to see them.'
       : 'Full cube-sphere pipeline. Slower; sphere-global stages run.';
+  }
+
+  // In cube mode, reveal the rotating sphere, cube cross, and equirect bake
+  // panels; the swatch (single face) panel is redundant when the full cube
+  // cross is visible, so hide it (and its sole consumer, the swatch-face
+  // picker, stays hidden).
+  // Sphere animation auto-starts at the bottom of this file when sphereCanvas
+  // is non-null (which is gated on !useSwatchMode).
+  if (!useSwatchMode) {
+    if (swatchDiv) swatchDiv.hidden = true;
+    for (const el of [viewportTitle, spherePanel, sphereHintEl, cubeTitleEl, cubePanel, equirectTitleEl, equirectPanel]) {
+      if (el) el.hidden = false;
+    }
   }
 
   // Load default profile for the initial type.
@@ -143,7 +163,16 @@ async function regenerate() {
       cubePNG = planetExplorerGenerate(profileJSON, seed, size);
     }
     if (cubePNG instanceof Uint8Array) {
-      await paintSwatchFromCubePNG(cubePNG);
+      if (useSwatchMode) {
+        await paintSwatchFromCubePNG(cubePNG);
+      } else if (cubeCanvas && equirectCanvas) {
+        await paintToCanvas(cubeCanvas, cubePNG);
+        const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
+        if (equirectPNG instanceof Uint8Array) {
+          await paintToCanvas(equirectCanvas, equirectPNG);
+          refreshSphereTexture();
+        }
+      }
     } else {
       status.textContent = 'Error: ' + cubePNG;
       return;
@@ -1274,10 +1303,10 @@ function rgbaCSS(c) {
 
 // --- Rotating-sphere preview (adapted from kb planet-detail pages) ---
 // Pure 2D canvas, no external libs. Texture is the equirect bake;
-// Sphere rendering code (not used in swatch-only mode, but left in for future re-enabling).
-// All functions are defined but never called since sphereCanvas is null.
+// since equirect is generated from the cube map, the sphere visually
+// represents the cube-map content. Active only when --use_swatch_mode=false.
 
-const sphereCanvas = null;
+const sphereCanvas = useSwatchMode ? null : $('#sphere-canvas');
 let sphereTextureData = null, sphereTexW = 0, sphereTexH = 0;
 let sphereRotY = 0.4, sphereRotX = 0.15;
 let sphereDragging = false, sphereLastMX = 0, sphereLastMY = 0;
@@ -1382,25 +1411,24 @@ function refreshDebugView() {
   const seed = seedInput.value;
   const size = parseInt(faceSizeSel.value, 10) || 256;
   const bypassJSON = JSON.stringify([...debugBypass]);
-  // Rocky profiles use the flat debug path (matches the swatch render).
   let prof;
   try { prof = JSON.parse(profileJSON); } catch { prof = {}; }
-  if (prof.Renderer === 'rocky' && window.planetExplorerGenerateFlatDebug) {
-    const result = window.planetExplorerGenerateFlatDebug(profileJSON, seed, size, bypassJSON);
-    let parsed;
-    try { parsed = JSON.parse(result); }
-    catch (e) { console.error('debug parse', e); return; }
-    if (parsed.error) { console.error(parsed.error); return; }
-    renderDebugGrid(parsed.stages);
-    return;
-  }
-  // Non-rocky (e.g. gas giant): fall back to cube-path swatch debug.
-  if (!window.planetExplorerGenerateDebugSwatch) {
+
+  // Match the routing of regenerate(): swatch mode + rocky uses the flat
+  // debug path; everything else uses a cube-path debug (full equirect in
+  // cube mode, single-face crop in swatch mode for gas giants).
+  let result;
+  if (useSwatchMode && prof.Renderer === 'rocky' && window.planetExplorerGenerateFlatDebug) {
+    result = window.planetExplorerGenerateFlatDebug(profileJSON, seed, size, bypassJSON);
+  } else if (!useSwatchMode && window.planetExplorerGenerateDebug) {
+    result = window.planetExplorerGenerateDebug(profileJSON, seed, size, bypassJSON);
+  } else if (window.planetExplorerGenerateDebugSwatch) {
+    const faceIdx = swatchFaceSel ? (parseInt(swatchFaceSel.value, 10) || 4) : 4;
+    result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, size, bypassJSON, faceIdx);
+  } else {
     console.warn('debug API not available; rebuild wasm');
     return;
   }
-  const faceIdx = swatchFaceSel ? (parseInt(swatchFaceSel.value, 10) || 4) : 4;
-  const result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, size, bypassJSON, faceIdx);
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) { console.error('debug parse', e); return; }
