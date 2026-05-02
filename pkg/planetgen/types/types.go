@@ -104,7 +104,7 @@ type PlanetProfile struct {
 	PlateConvergentT     float64 `json:",omitempty"`
 
 	// Phase 7 Tier B: Voronoi cell-coordinate jitter on Detail field and biome jitter.
-	JitterEnabled   bool    `json:",omitempty"`
+	JitterEnabled   bool    `json:"JitterEnabled"`
 	JitterCellCount int     `json:",omitempty"`
 	JitterRotMax    float64 `json:",omitempty"`
 	JitterOffsetMax float64 `json:",omitempty"`

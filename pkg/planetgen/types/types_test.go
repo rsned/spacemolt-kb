@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -54,5 +55,26 @@ func TestPlanetProfilePhase7FieldsRoundTrip(t *testing.T) {
 		got.JitterRotMax != p.JitterRotMax ||
 		got.JitterOffsetMax != p.JitterOffsetMax {
 		t.Errorf("Phase 7 fields not round-tripped: got %+v", got)
+	}
+}
+
+func TestPlanetProfilePhase7JitterDisabledSurvivesRoundTrip(t *testing.T) {
+	p := PlanetProfile{
+		JitterEnabled: false,
+		// All other fields zero — simulates a gas giant profile.
+	}
+	b, err := json.Marshal(p)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if !strings.Contains(string(b), `"JitterEnabled":false`) {
+		t.Errorf("JitterEnabled:false must serialize explicitly (no omitempty); got %s", string(b))
+	}
+	var got PlanetProfile
+	if err := json.Unmarshal(b, &got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if got.JitterEnabled != false {
+		t.Errorf("JitterEnabled did not round-trip as false: %v", got.JitterEnabled)
 	}
 }
