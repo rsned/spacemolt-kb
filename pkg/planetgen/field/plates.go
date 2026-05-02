@@ -1,14 +1,5 @@
-// Package field — Phase 7 Tier B: Voronoi tectonic plates.
-//
-// GeneratePlates produces a PlateField — per-pixel plate id, per-plate
-// motion + oceanic flag, and three boundary distance fields
-// (convergent / divergent / transform) in km — for use by Phase 8
-// consumers. Phase 7 itself only renders these as debug stages.
-//
-// Algorithm: Fibonacci-spiral N plate seeds → random flood-fill across
-// cube faces with cross-face neighbor walk → boundary classification
-// via relative-velocity dot-product → three independent JFA passes for
-// the typed SDFs.
+// Tectonic plate seed types and Fibonacci-spiral seeding.
+// Flood-fill, boundary classification, and SDFs are added in later tasks.
 package field
 
 import (
@@ -82,7 +73,7 @@ func seedPlates(profile *types.PlanetProfile, master int64) []Plate {
 		uint64(seed.Domain(master, "plates.oceanic.stream")), //nolint:gosec
 	))
 
-	const goldenAngle = math.Pi * (3.0 - 2.23606797749979) // π·(3 − √5)
+	goldenAngle := math.Pi * (3.0 - math.Sqrt(5)) // π·(3 − √5)
 	for i := range n {
 		// Fibonacci spiral point on the unit sphere.
 		y := 1.0 - 2.0*(float64(i)+0.5)/float64(n)

@@ -47,7 +47,8 @@ func TestSeedPlatesDeterministic(t *testing.T) {
 
 func TestSeedPlatesOceanicFractionInCI(t *testing.T) {
 	// With PlateCount=200 and OceanicPlateFraction=0.7, expect ~140 oceanic.
-	// Wilson 95% CI for n=200, p=0.7 is roughly [0.635, 0.757].
+	// Wide window [0.60, 0.80] chosen for CI flake-resistance; the Wilson
+	// 95% CI for n=200, p=0.7 is ~[0.635, 0.757].
 	profile := &types.PlanetProfile{PlateCount: 200, OceanicPlateFraction: 0.7}
 	plates := seedPlates(profile, 7)
 	var oceanic int
