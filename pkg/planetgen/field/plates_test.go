@@ -4,6 +4,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
@@ -196,16 +197,26 @@ func TestSDFsZeroAtSeeds(t *testing.T) {
 		PlateCount: 6, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
 	}
 	pf := GeneratePlates(profile, 17, 32)
-	if pf.Convergent[0] == nil {
-		t.Fatal("Convergent SDF not allocated")
+	if pf.Convergent[0] == nil || pf.Divergent[0] == nil || pf.Transform[0] == nil {
+		t.Fatal("SDF arrays not allocated")
 	}
-	// Re-run boundary extraction to know which pixels are seeds.
-	conv, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
-	for f := range conv {
-		for i, isSeed := range conv[f] {
-			if isSeed && pf.Convergent[f][i] != 0 {
-				t.Fatalf("convergent seed face %d idx %d distance=%f, want 0",
-					f, i, pf.Convergent[f][i])
+	conv, div, trans := extractBoundaries(pf, profile.PlateConvergentT)
+	cases := []struct {
+		name string
+		mask [cubemap.NumFaces][]bool
+		sdf  [cubemap.NumFaces][]float64
+	}{
+		{"convergent", conv, pf.Convergent},
+		{"divergent", div, pf.Divergent},
+		{"transform", trans, pf.Transform},
+	}
+	for _, c := range cases {
+		for f := range c.mask {
+			for i, isSeed := range c.mask[f] {
+				if isSeed && c.sdf[f][i] != 0 {
+					t.Fatalf("%s seed face %d idx %d distance=%f, want 0",
+						c.name, f, i, c.sdf[f][i])
+				}
 			}
 		}
 	}

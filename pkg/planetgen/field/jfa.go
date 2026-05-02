@@ -20,8 +20,10 @@ const noJFASeed = int8(-1)
 // in heightmap, divided by π (so values fall in [0, 1]).
 //
 // The algorithm uses Jump Flooding with step sizes from S/2 down to 1,
-// propagating seed positions to neighbors. Cross-face connectivity is
-// automatic via cubemap.CubeMapF.Sample at seams.
+// propagating seed positions to neighbors within each cube face.
+// Propagation is face-local — distances do not cross face seams.
+// See JumpFloodFromMask for the same constraint when seeding from a
+// boolean mask.
 func DistanceToCoast(heightmap *cubemap.CubeMapF, threshold float64, S int) *cubemap.CubeMapF {
 	seeds := make([][]jfaSeed, cubemap.NumFaces)
 	dists := cubemap.NewF(S)

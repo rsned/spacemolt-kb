@@ -37,8 +37,9 @@ type Plate struct {
 //
 // Convergent / Divergent / Transform are signed-distance fields in km
 // from each pixel to the nearest boundary of the corresponding type.
-// Pixels in a planet with no plates of that boundary type get
-// math.MaxFloat64.
+// Pixels in a face with no boundary of the corresponding type get
+// math.Pi * RadiusKm (the geodesic half-circumference, ~20015 km for
+// Earth-like radius), not math.MaxFloat64.
 type PlateField struct {
 	Size       int
 	Plates     []Plate
