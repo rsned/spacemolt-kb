@@ -186,6 +186,10 @@ func boundaryAt(pf *PlateField, face cubemap.Face, px, py int, T float64) bounda
 		}
 		return 0
 	}
+	// Position p on the unit sphere at the boundary pixel — same
+	// for every neighbor, hoist out of the loop.
+	dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+	p := [3]float64{dx, dy, dz}
 	for _, nb := range nbrs {
 		there := pf.PlateID[nb.Face][nb.PY*S+nb.PX]
 		if there == here {
@@ -193,9 +197,6 @@ func boundaryAt(pf *PlateField, face cubemap.Face, px, py int, T float64) bounda
 		}
 		a := pf.Plates[here]
 		b := pf.Plates[there]
-		// Position p on the unit sphere at the boundary pixel.
-		dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
-		p := [3]float64{dx, dy, dz}
 		// ω = AngSpeed · RotAxis. v = ω × p.
 		va := cross(scale(a.RotAxis, a.AngSpeed), p)
 		vb := cross(scale(b.RotAxis, b.AngSpeed), p)
@@ -209,11 +210,16 @@ func boundaryAt(pf *PlateField, face cubemap.Face, px, py int, T float64) bounda
 		n[1] -= proj * p[1]
 		n[2] -= proj * p[2]
 		nmag := math.Sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2])
-		if nmag > 0 {
-			n[0] /= nmag
-			n[1] /= nmag
-			n[2] /= nmag
+		// Degenerate case: tangent-plane normal collapsed to zero (would
+		// happen only for nearly-antipodal neighbor pairs, which can't
+		// occur for adjacent pixels on a cube face). Skip — don't
+		// classify with a garbage normal.
+		if nmag <= 1e-9 {
+			continue
 		}
+		n[0] /= nmag
+		n[1] /= nmag
+		n[2] /= nmag
 		kind := classifyBoundary(vRel, n, T)
 		if rank(kind) > rank(best) {
 			best = kind
@@ -237,8 +243,14 @@ func scale(a [3]float64, s float64) [3]float64 {
 // extractBoundaries computes the boundary kind for every pixel and
 // stores convergent/divergent/transform pixel masks in per-face
 // boolean slices. The returned slices are owned by the caller; this
-// function does not mutate pf. Called by GeneratePlates between
-// flood-fill and SDF (Task 6).
+// function does not mutate pf.
+//
+// Precondition: pf.PlateID must be fully assigned — no pixel may
+// hold the -1 sentinel. (GeneratePlates guarantees this after
+// floodFillPlates returns.) Calling on a partially-assigned field
+// will panic via out-of-bounds index into pf.Plates.
+//
+// Called by GeneratePlates between flood-fill and SDF (Task 6).
 func extractBoundaries(pf *PlateField, T float64) (conv, div, trans [cubemap.NumFaces][]bool) {
 	S := pf.Size
 	for f := range conv {
