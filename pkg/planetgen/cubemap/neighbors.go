@@ -1,7 +1,5 @@
 package cubemap
 
-import "math"
-
 // PixelAddr identifies a pixel on a cube map by face and (px, py).
 type PixelAddr struct {
 	Face   Face
@@ -14,8 +12,9 @@ type PixelAddr struct {
 // projecting a unit half-pixel beyond the edge through FaceUVToDir
 // and re-projecting via DirToFacePixel.
 //
-// Returned addresses always lie within [0, S) on both axes; cross-face
-// neighbors carry the adjacent face id. Order is: +x, -x, +y, -y.
+// Returned addresses always lie within [0, S) on both axes; clamping
+// is delegated to DirToFacePixel. Cross-face neighbors carry the
+// adjacent face id. Order is: +x, -x, +y, -y.
 func FacePixelNeighbors4(face Face, px, py, S int) [4]PixelAddr {
 	deltas := [4][2]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
 	var out [4]PixelAddr
@@ -31,10 +30,7 @@ func FacePixelNeighbors4(face Face, px, py, S int) [4]PixelAddr {
 		u := (float64(px) + 0.5 + float64(d[0])) / float64(S)
 		v := (float64(py) + 0.5 + float64(d[1])) / float64(S)
 		dx, dy, dz := FaceUVToDir(face, u, v)
-		// FaceUVToDir already returns a unit vector, but normalize
-		// defensively against future changes.
-		mag := math.Sqrt(dx*dx + dy*dy + dz*dz)
-		nf, npx, npy := DirToFacePixel(dx/mag, dy/mag, dz/mag, S)
+		nf, npx, npy := DirToFacePixel(dx, dy, dz, S)
 		out[i] = PixelAddr{Face: nf, PX: npx, PY: npy}
 	}
 	return out

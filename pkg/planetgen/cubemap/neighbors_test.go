@@ -44,35 +44,39 @@ func TestFacePixelNeighbors4Corner(t *testing.T) {
 func TestFacePixelNeighbors4Symmetry(t *testing.T) {
 	// Walking from an edge pixel to a cross-face neighbor and asking
 	// for that neighbor's neighbors should produce a pixel within ±1
-	// of the start. (Cube-face cross-projection is not pixel-exact;
-	// ±1 tolerance covers the rounding.)
+	// of the start. The ±1 px tolerance covers UV-to-pixel floor
+	// rounding at the seam; the projection error is always < 0.5 px
+	// per axis.
 	S := 16
 	type startPt struct {
 		Face   Face
 		PX, PY int
 	}
-	starts := []startPt{
-		{FacePosX, 0, S / 2},     // left edge
-		{FacePosX, S - 1, S / 2}, // right edge
-		{FacePosX, S / 2, 0},     // top edge
-		{FacePosX, S / 2, S - 1}, // bottom edge
-	}
-	for _, s := range starts {
-		for _, nbr := range FacePixelNeighbors4(s.Face, s.PX, s.PY, S) {
-			if nbr.Face == s.Face {
-				continue // not a cross-face hop
-			}
-			back := FacePixelNeighbors4(nbr.Face, nbr.PX, nbr.PY, S)
-			var found bool
-			for _, b := range back {
-				if b.Face == s.Face && absInt(b.PX-s.PX) <= 1 && absInt(b.PY-s.PY) <= 1 {
-					found = true
-					break
+	// absInt is defined in dirtopixel_test.go (same package).
+	for face := range Face(NumFaces) {
+		starts := []startPt{
+			{face, 0, S / 2},     // left edge
+			{face, S - 1, S / 2}, // right edge
+			{face, S / 2, 0},     // top edge
+			{face, S / 2, S - 1}, // bottom edge
+		}
+		for _, s := range starts {
+			for _, nbr := range FacePixelNeighbors4(s.Face, s.PX, s.PY, S) {
+				if nbr.Face == s.Face {
+					continue // not a cross-face hop
 				}
-			}
-			if !found {
-				t.Errorf("no return-walk from face=%v (%d,%d) via face=%v (%d,%d); back=%+v",
-					s.Face, s.PX, s.PY, nbr.Face, nbr.PX, nbr.PY, back)
+				back := FacePixelNeighbors4(nbr.Face, nbr.PX, nbr.PY, S)
+				var found bool
+				for _, b := range back {
+					if b.Face == s.Face && absInt(b.PX-s.PX) <= 1 && absInt(b.PY-s.PY) <= 1 {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("no return-walk from face=%v (%d,%d) via face=%v (%d,%d); back=%+v",
+						s.Face, s.PX, s.PY, nbr.Face, nbr.PX, nbr.PY, back)
+				}
 			}
 		}
 	}
