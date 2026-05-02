@@ -47,6 +47,90 @@ type PlateField struct {
 	Transform  [cubemap.NumFaces][]float64
 }
 
+// GeneratePlates produces a PlateField for a planet at face size S.
+// Returns nil when profile.PlateCount == 0 (no plates).
+//
+// Pipeline (Phase 7 — flood-fill only; classification + SDFs in
+// later commits):
+//  1. seedPlates: N spiral seeds + per-plate motion + oceanic flag.
+//  2. floodFillPlates: assign every pixel a plate id by random-walk frontier.
+//  3. classifyAndSDF: <added in Task 5/6>.
+//
+// All RNG draws happen inside the named-domain seeds defined in
+// pkg/planetgen/field/plates.go so adding new sub-steps in later
+// phases never shifts existing field values.
+func GeneratePlates(profile *types.PlanetProfile, master int64, S int) *PlateField {
+	plates := seedPlates(profile, master)
+	if len(plates) == 0 {
+		return nil
+	}
+	pf := &PlateField{Size: S, Plates: plates}
+	for f := range pf.PlateID {
+		pf.PlateID[f] = make([]int16, S*S)
+		for i := range pf.PlateID[f] {
+			pf.PlateID[f][i] = -1
+		}
+	}
+	floodFillPlates(pf, master, S)
+	return pf
+}
+
+// floodFillPlates assigns every pixel a plate id via random-walk
+// frontier expansion starting from each plate's spiral seed pixel.
+//
+// Termination is bounded: each loop iteration assigns exactly one
+// previously-unassigned pixel; total iterations = 6·S² − len(plates).
+func floodFillPlates(pf *PlateField, master int64, S int) {
+	rng := rand.New(rand.NewPCG(
+		uint64(seed.Domain(master, "plates.fill.random")),        //nolint:gosec
+		uint64(seed.Domain(master, "plates.fill.random.stream")), //nolint:gosec
+	))
+
+	// Mark each plate's seed pixel.
+	for i := range pf.Plates {
+		d := pf.Plates[i].Seed
+		f, px, py := cubemap.DirToFacePixel(d[0], d[1], d[2], S)
+		pf.PlateID[f][py*S+px] = int16(i)
+	}
+
+	// Frontier: list of (unassigned-pixel, claiming-plate-id) candidates.
+	type frontierItem struct {
+		Addr cubemap.PixelAddr
+		ID   int16
+	}
+	frontier := make([]frontierItem, 0, 6*S*S)
+
+	pushNeighbors := func(face cubemap.Face, px, py int, id int16) {
+		nbrs := cubemap.FacePixelNeighbors4(face, px, py, S)
+		for _, n := range nbrs {
+			if pf.PlateID[n.Face][n.PY*S+n.PX] == -1 {
+				frontier = append(frontier, frontierItem{Addr: n, ID: id})
+			}
+		}
+	}
+
+	// Seed the frontier from each plate's seed pixel.
+	for i := range pf.Plates {
+		d := pf.Plates[i].Seed
+		f, px, py := cubemap.DirToFacePixel(d[0], d[1], d[2], S)
+		pushNeighbors(f, px, py, int16(i))
+	}
+
+	for len(frontier) > 0 {
+		// Pick a random index, swap-pop.
+		idx := rng.IntN(len(frontier))
+		item := frontier[idx]
+		frontier[idx] = frontier[len(frontier)-1]
+		frontier = frontier[:len(frontier)-1]
+
+		if pf.PlateID[item.Addr.Face][item.Addr.PY*S+item.Addr.PX] != -1 {
+			continue // already filled by a different chain
+		}
+		pf.PlateID[item.Addr.Face][item.Addr.PY*S+item.Addr.PX] = item.ID
+		pushNeighbors(item.Addr.Face, item.Addr.PX, item.Addr.PY, item.ID)
+	}
+}
+
 // seedPlates returns N plates with Fibonacci-spiral unit-vector seeds,
 // random rotation axes, [0,1] angular speeds, and Bernoulli-sampled
 // oceanic flags. Deterministic for fixed (profile.PlateCount,

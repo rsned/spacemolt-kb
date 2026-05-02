@@ -70,3 +70,58 @@ func TestSeedPlatesZeroCount(t *testing.T) {
 		t.Errorf("PlateCount=0 should yield empty slice, got %d", len(plates))
 	}
 }
+
+func TestFloodFillSinglePlateCoversAll(t *testing.T) {
+	S := 16
+	profile := &types.PlanetProfile{PlateCount: 1, OceanicPlateFraction: 0.5}
+	pf := GeneratePlates(profile, 1, S)
+	if pf == nil {
+		t.Fatal("GeneratePlates returned nil")
+	}
+	for f := range pf.PlateID {
+		for i, id := range pf.PlateID[f] {
+			if id != 0 {
+				t.Fatalf("face %d idx %d: id=%d (want 0)", f, i, id)
+			}
+		}
+	}
+}
+
+func TestFloodFillCoverageAndDeterminism(t *testing.T) {
+	S := 32
+	profile := &types.PlanetProfile{PlateCount: 6, OceanicPlateFraction: 0.5}
+	a := GeneratePlates(profile, 11, S)
+	b := GeneratePlates(profile, 11, S)
+	for f := range a.PlateID {
+		for i := range a.PlateID[f] {
+			if a.PlateID[f][i] != b.PlateID[f][i] {
+				t.Fatalf("non-deterministic at face %d idx %d", f, i)
+			}
+		}
+	}
+	counts := make(map[int16]int)
+	for f := range a.PlateID {
+		for _, id := range a.PlateID[f] {
+			if id < 0 {
+				t.Fatalf("unfilled pixel: face %d id=%d", f, id)
+			}
+			counts[id]++
+		}
+	}
+	if len(counts) != 6 {
+		t.Errorf("expected 6 distinct ids, got %d (%+v)", len(counts), counts)
+	}
+	for id, c := range counts {
+		if c == 0 {
+			t.Errorf("plate %d has 0 pixels", id)
+		}
+	}
+}
+
+func TestFloodFillZeroPlatesNilField(t *testing.T) {
+	profile := &types.PlanetProfile{PlateCount: 0}
+	pf := GeneratePlates(profile, 0, 16)
+	if pf != nil {
+		t.Errorf("expected nil PlateField when PlateCount=0, got %+v", pf)
+	}
+}
