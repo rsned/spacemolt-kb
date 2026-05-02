@@ -135,3 +135,58 @@ func TestGeneratePlatesPanicsOnInt16Overflow(t *testing.T) {
 	profile := &types.PlanetProfile{PlateCount: 32768, OceanicPlateFraction: 0.5}
 	GeneratePlates(profile, 1, 8)
 }
+
+func TestClassifyBoundaryHandBuilt(t *testing.T) {
+	// Test cases verify the classifier branches by sign and threshold T.
+	// We feed (v_rel, n, T) triples directly; nothing about plate
+	// geometry needs to be modeled here.
+	cases := []struct {
+		vrel [3]float64
+		n    [3]float64
+		t    float64
+		want boundaryKind
+	}{
+		{[3]float64{0, 0, -2}, [3]float64{0, 0, 1}, 0.75, boundaryConvergent},
+		{[3]float64{0, 0, +2}, [3]float64{0, 0, 1}, 0.75, boundaryDivergent},
+		{[3]float64{0, 0, +0.1}, [3]float64{0, 0, 1}, 0.75, boundaryTransform},
+		{[3]float64{0, 0, +0.8}, [3]float64{0, 0, 1}, 0.75, boundaryDivergent},
+		{[3]float64{0, 0, -0.74}, [3]float64{0, 0, 1}, 0.75, boundaryTransform},
+	}
+	for i, c := range cases {
+		got := classifyBoundary(c.vrel, c.n, c.t)
+		if got != c.want {
+			t.Errorf("case %d: classifyBoundary(%v,%v,%v) = %v, want %v",
+				i, c.vrel, c.n, c.t, got, c.want)
+		}
+	}
+}
+
+func TestExtractBoundariesAtLeastOnePerType(t *testing.T) {
+	// With 12 random plates we expect at least one of each type. If a
+	// run produces zero of a type, the rng was unlucky — bump the seed
+	// until this test stabilizes.
+	profile := &types.PlanetProfile{
+		PlateCount: 12, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
+	}
+	pf := GeneratePlates(profile, 5, 32)
+	conv, div, trans := extractBoundaries(pf, profile.PlateConvergentT)
+	counts := map[string]int{"conv": 0, "div": 0, "trans": 0}
+	for f := range conv {
+		for i := range conv[f] {
+			if conv[f][i] {
+				counts["conv"]++
+			}
+			if div[f][i] {
+				counts["div"]++
+			}
+			if trans[f][i] {
+				counts["trans"]++
+			}
+		}
+	}
+	for kind, c := range counts {
+		if c == 0 {
+			t.Errorf("no boundaries of kind %s", kind)
+		}
+	}
+}

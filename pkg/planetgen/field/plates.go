@@ -135,6 +135,136 @@ func floodFillPlates(pf *PlateField, master int64, S int) {
 	}
 }
 
+// boundaryKind classifies a plate-boundary pixel by its relative-
+// velocity dot-product against the boundary normal. boundaryNone
+// indicates an interior pixel (no neighbor with a different plate id).
+type boundaryKind int8
+
+const (
+	boundaryNone boundaryKind = iota
+	boundaryConvergent
+	boundaryDivergent
+	boundaryTransform
+)
+
+// classifyBoundary returns the plate-boundary type at a point given
+// the relative velocity vRel between the two plates at that point and
+// the boundary normal n (unit vector from "this" plate's pixel toward
+// the differing-plate neighbor pixel, in tangent space). T is the
+// signed-velocity threshold (profile.PlateConvergentT, default 0.75).
+func classifyBoundary(vRel, n [3]float64, T float64) boundaryKind {
+	proj := vRel[0]*n[0] + vRel[1]*n[1] + vRel[2]*n[2]
+	switch {
+	case proj > +T:
+		return boundaryDivergent
+	case proj < -T:
+		return boundaryConvergent
+	default:
+		return boundaryTransform
+	}
+}
+
+// boundaryAt returns the boundary kind at face/(px,py) by examining
+// the four 4-neighbors. If no neighbor has a different plate id, the
+// pixel is interior and returns boundaryNone. If multiple neighbors
+// with differing ids exist, the kind from the highest-priority
+// neighbor is returned (priority: Convergent > Divergent > Transform).
+// T is profile.PlateConvergentT.
+func boundaryAt(pf *PlateField, face cubemap.Face, px, py int, T float64) boundaryKind {
+	S := pf.Size
+	here := pf.PlateID[face][py*S+px]
+	nbrs := cubemap.FacePixelNeighbors4(face, px, py, S)
+	best := boundaryNone
+	rank := func(k boundaryKind) int {
+		switch k {
+		case boundaryConvergent:
+			return 3
+		case boundaryDivergent:
+			return 2
+		case boundaryTransform:
+			return 1
+		}
+		return 0
+	}
+	for _, nb := range nbrs {
+		there := pf.PlateID[nb.Face][nb.PY*S+nb.PX]
+		if there == here {
+			continue
+		}
+		a := pf.Plates[here]
+		b := pf.Plates[there]
+		// Position p on the unit sphere at the boundary pixel.
+		dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+		p := [3]float64{dx, dy, dz}
+		// ω = AngSpeed · RotAxis. v = ω × p.
+		va := cross(scale(a.RotAxis, a.AngSpeed), p)
+		vb := cross(scale(b.RotAxis, b.AngSpeed), p)
+		vRel := [3]float64{va[0] - vb[0], va[1] - vb[1], va[2] - vb[2]}
+		// Normal: from here-pixel toward there-pixel in tangent plane.
+		ndx, ndy, ndz := cubemap.FacePixelToDir(nb.Face, nb.PX, nb.PY, S)
+		n := [3]float64{ndx - dx, ndy - dy, ndz - dz}
+		// Project n into tangent plane at p (subtract component along p).
+		proj := n[0]*p[0] + n[1]*p[1] + n[2]*p[2]
+		n[0] -= proj * p[0]
+		n[1] -= proj * p[1]
+		n[2] -= proj * p[2]
+		nmag := math.Sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2])
+		if nmag > 0 {
+			n[0] /= nmag
+			n[1] /= nmag
+			n[2] /= nmag
+		}
+		kind := classifyBoundary(vRel, n, T)
+		if rank(kind) > rank(best) {
+			best = kind
+		}
+	}
+	return best
+}
+
+func cross(a, b [3]float64) [3]float64 {
+	return [3]float64{
+		a[1]*b[2] - a[2]*b[1],
+		a[2]*b[0] - a[0]*b[2],
+		a[0]*b[1] - a[1]*b[0],
+	}
+}
+
+func scale(a [3]float64, s float64) [3]float64 {
+	return [3]float64{a[0] * s, a[1] * s, a[2] * s}
+}
+
+// extractBoundaries computes the boundary kind for every pixel and
+// stores convergent/divergent/transform pixel masks in per-face
+// boolean slices. The returned slices are owned by the caller; this
+// function does not mutate pf. Called by GeneratePlates between
+// flood-fill and SDF (Task 6).
+func extractBoundaries(pf *PlateField, T float64) (conv, div, trans [cubemap.NumFaces][]bool) {
+	S := pf.Size
+	for f := range conv {
+		conv[f] = make([]bool, S*S)
+		div[f] = make([]bool, S*S)
+		trans[f] = make([]bool, S*S)
+	}
+	for f := range cubemap.NumFaces {
+		for py := range S {
+			for px := range S {
+				k := boundaryAt(pf, cubemap.Face(f), px, py, T)
+				idx := py*S + px
+				switch k {
+				case boundaryConvergent:
+					conv[f][idx] = true
+				case boundaryDivergent:
+					div[f][idx] = true
+				case boundaryTransform:
+					trans[f][idx] = true
+				}
+			}
+		}
+	}
+	return
+}
+
 // seedPlates returns N plates with Fibonacci-spiral unit-vector seeds,
 // random rotation axes, [0,1] angular speeds, and Bernoulli-sampled
 // oceanic flags. Deterministic for fixed (profile.PlateCount,
