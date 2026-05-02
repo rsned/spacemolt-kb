@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"math"
 	"testing"
 )
 
@@ -24,5 +25,34 @@ func TestControlConfigDetailKeyWins(t *testing.T) {
 	}
 	if cfg.Detail.Amp != 2.5 {
 		t.Errorf("Detail should win over Erosion; got Amp=%f", cfg.Detail.Amp)
+	}
+}
+
+func TestPlanetProfilePhase7FieldsRoundTrip(t *testing.T) {
+	p := PlanetProfile{
+		PlateCount:           12,
+		OceanicPlateFraction: 0.7,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
+	}
+	b, err := json.Marshal(p)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var got PlanetProfile
+	if err := json.Unmarshal(b, &got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if got.PlateCount != p.PlateCount ||
+		got.OceanicPlateFraction != p.OceanicPlateFraction ||
+		got.PlateConvergentT != p.PlateConvergentT ||
+		got.JitterEnabled != p.JitterEnabled ||
+		got.JitterCellCount != p.JitterCellCount ||
+		got.JitterRotMax != p.JitterRotMax ||
+		got.JitterOffsetMax != p.JitterOffsetMax {
+		t.Errorf("Phase 7 fields not round-tripped: got %+v", got)
 	}
 }

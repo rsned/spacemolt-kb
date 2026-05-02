@@ -97,6 +97,17 @@ type PlanetProfile struct {
 	// 2-3 typical for rocky archetypes; smooths fbm popcorn so erosion can
 	// form coherent channels.
 	HeightSmoothRadius int
+
+	// Phase 7 Tier B: Voronoi tectonic plates. PlateCount=0 disables plates.
+	PlateCount           int     `json:",omitempty"`
+	OceanicPlateFraction float64 `json:",omitempty"`
+	PlateConvergentT     float64 `json:",omitempty"`
+
+	// Phase 7 Tier B: Voronoi cell-coordinate jitter on Detail field and biome jitter.
+	JitterEnabled   bool    `json:",omitempty"`
+	JitterCellCount int     `json:",omitempty"`
+	JitterRotMax    float64 `json:",omitempty"`
+	JitterOffsetMax float64 `json:",omitempty"`
 }
 
 // StormBand places a hand-authored oval storm feature at a specific latitude.

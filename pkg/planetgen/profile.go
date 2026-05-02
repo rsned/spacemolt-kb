@@ -2,6 +2,7 @@ package planetgen
 
 import (
 	"image/color"
+	"math"
 
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
@@ -86,6 +87,14 @@ var Profiles = map[string]*types.PlanetProfile{
 			Humidity:        types.ControlField{Amp: 0.57, Freq: 5.56, Octaves: 4, Lacunarity: 1.89, Persistence: 0.5, Spline: defaultSpline},
 		},
 		LUT: "scorched",
+		// Phase 7 Tier B
+		PlateCount:           4,
+		OceanicPlateFraction: 0.2,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 	"arid": {
 		Type:     "arid",
@@ -133,6 +142,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		HeightSmoothRadius: 2,
 		LUT: "arid",
+		// Phase 7 Tier B
+		PlateCount:           6,
+		OceanicPlateFraction: 0.3,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 	"terran": {
 		Type:     "terran",
@@ -244,6 +261,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		HeightSmoothRadius: 4,
 		LUT: "terran",
+		// Phase 7 Tier B
+		PlateCount:           12,
+		OceanicPlateFraction: 0.7,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 	"tundra": {
 		Type:     "tundra",
@@ -295,6 +320,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		HeightSmoothRadius: 4,
 		LUT: "tundra",
+		// Phase 7 Tier B
+		PlateCount:           8,
+		OceanicPlateFraction: 0.5,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 	"glacial": {
 		Type:     "glacial",
@@ -343,6 +376,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		HeightSmoothRadius: 2,
 		LUT: "glacial",
+		// Phase 7 Tier B
+		PlateCount:           6,
+		OceanicPlateFraction: 0.4,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 	"ice_world": {
 		Type:     "ice_world",
@@ -398,6 +439,11 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		HeightSmoothRadius: 2,
 		LUT: "ice_world",
+		// Phase 7 Tier B
+		JitterEnabled:   true,
+		JitterCellCount: 120,
+		JitterRotMax:    math.Pi / 4,
+		JitterOffsetMax: 0.1,
 	},
 	"super_terran": {
 		Type:     "super_terran",
@@ -510,6 +556,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		HeightSmoothRadius: 4,
 		LUT: "super_terran",
+		// Phase 7 Tier B
+		PlateCount:           12,
+		OceanicPlateFraction: 0.7,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 	"hothouse": {
 		Type:     "hothouse",
@@ -546,6 +600,11 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaskLow: 0.47, MaskHigh: 0.74,
 		},
 		LUT: "hothouse",
+		// Phase 7 Tier B
+		JitterEnabled:   true,
+		JitterCellCount: 120,
+		JitterRotMax:    math.Pi / 4,
+		JitterOffsetMax: 0.1,
 	},
 	"lava_world": {
 		Type:     "lava_world",
@@ -595,6 +654,14 @@ var Profiles = map[string]*types.PlanetProfile{
 			MaskLow: 0.44, MaskHigh: 0.65,
 		},
 		LUT: "lava_world",
+		// Phase 7 Tier B
+		PlateCount:           4,
+		OceanicPlateFraction: 0.2,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 	"oceanic": {
 		Type:     "oceanic",
@@ -699,6 +766,14 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		HeightSmoothRadius: 4,
 		LUT: "oceanic",
+		// Phase 7 Tier B
+		PlateCount:           12,
+		OceanicPlateFraction: 0.9,
+		PlateConvergentT:     0.75,
+		JitterEnabled:        true,
+		JitterCellCount:      120,
+		JitterRotMax:         math.Pi / 4,
+		JitterOffsetMax:      0.1,
 	},
 
 	// Gas giants
@@ -735,6 +810,8 @@ var Profiles = map[string]*types.PlanetProfile{
 			{Lat: 0.26, HalfWidth: 0.04, Color: types.ColorRGB{200, 196, 81}, Strength: 0.5},
 		},
 		LUT: "jovian",
+		// Phase 7 Tier B: no plates or jitter for gas giants
+		JitterEnabled: false,
 	},
 	"ice_giant": {
 		Type:     "ice_giant",
@@ -760,6 +837,8 @@ var Profiles = map[string]*types.PlanetProfile{
 			Amp: 0.03, Iterations: 14, DT: 0.13, Freq: 4.08, JetAmp: 0.41,
 		},
 		LUT: "ice_giant",
+		// Phase 7 Tier B: no plates or jitter for gas giants
+		JitterEnabled: false,
 	},
 
 	// Unknown/unclassified planets — neutral gray rocky appearance
@@ -783,6 +862,8 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterMaxRadius:  0.04,
 		CraterDepth:      0.12,
 			LUT:              "unknown",
+		// Phase 7 Tier B: no plates or jitter for unknown
+		JitterEnabled: false,
 	},
 }
 
