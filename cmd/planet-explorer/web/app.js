@@ -18,6 +18,14 @@ const renderModeSel = null;
 const swatchFaceSel = $('#swatch-face');
 const swatchCanvas = $('#swatch-canvas');
 const swatchDiv = $('.planet-swatch');
+const renderModeBadge = $('#render-mode-badge');
+
+// useSwatchMode is set at server startup via the --use_swatch_mode flag,
+// shipped to the page through PLANET_EXPLORER_CONFIG. true (default) renders
+// rocky planets via the fast 2D flat path; false uses the cube-sphere
+// pipeline so sphere-global stages (plates, jitter cells, JFA coastal,
+// craters) actually run and can be validated visually.
+const useSwatchMode = (window.PLANET_EXPLORER_CONFIG?.useSwatchMode ?? true);
 
 let wasmReady = false;
 
@@ -37,6 +45,13 @@ async function init() {
   go.run(result.instance);
   wasmReady = true;
   status.textContent = 'Ready';
+
+  if (renderModeBadge) {
+    renderModeBadge.textContent = useSwatchMode ? '[swatch]' : '[cube]';
+    renderModeBadge.title = useSwatchMode
+      ? 'Fast 2D flat path. Sphere-global stages (plates, jitter cells, JFA coastal, craters) are skipped. Restart with --use_swatch_mode=false to see them.'
+      : 'Full cube-sphere pipeline. Slower; sphere-global stages run.';
+  }
 
   // Load default profile for the initial type.
   loadDefaultProfile();
@@ -101,11 +116,14 @@ async function regenerate() {
 
   const t0 = performance.now();
 
-  // Use the fast 2D flat path for swatch previews. Gas-giant profiles fall
-  // back to the cube-sphere path because generateFlat only supports rocky.
+  // Use the fast 2D flat path for swatch previews when --use_swatch_mode
+  // is set (default). With --use_swatch_mode=false, rocky planets render
+  // via the cube-sphere pipeline so sphere-global stages run. Gas-giant
+  // profiles always fall through to the cube path since generateFlat
+  // only supports rocky.
   let prof;
   try { prof = JSON.parse(profileJSON); } catch { prof = {}; }
-  if (prof.Renderer === 'rocky' && window.planetExplorerGenerateFlat) {
+  if (useSwatchMode && prof.Renderer === 'rocky' && window.planetExplorerGenerateFlat) {
     const pngBytes = planetExplorerGenerateFlat(profileJSON, seed, size);
     if (pngBytes instanceof Uint8Array) {
       await paintPNGToCanvas(swatchCanvas, pngBytes, size);
