@@ -1,6 +1,6 @@
-// Tectonic plate seed types, Fibonacci-spiral seeding, and random
-// flood-fill across cube faces. Boundary classification and SDFs are
-// added in later tasks.
+// Tectonic plate seed types, Fibonacci-spiral seeding, random
+// flood-fill across cube faces, boundary classification, and three
+// boundary distance fields (convergent / divergent / transform).
 package field
 
 import (
@@ -51,11 +51,11 @@ type PlateField struct {
 // GeneratePlates produces a PlateField for a planet at face size S.
 // Returns nil when profile.PlateCount == 0 (no plates).
 //
-// Pipeline (Phase 7 — flood-fill only; classification + SDFs in
-// later commits):
+// Pipeline:
 //  1. seedPlates: N spiral seeds + per-plate motion + oceanic flag.
 //  2. floodFillPlates: assign every pixel a plate id by random-walk frontier.
-//  3. classifyAndSDF: <added in Task 5/6>.
+//  3. computeSDFs: classify boundaries + run three JFA passes for
+//     convergent / divergent / transform SDFs in km.
 //
 // All RNG draws happen inside the named-domain seeds defined in
 // pkg/planetgen/field/plates.go so adding new sub-steps in later
@@ -76,6 +76,7 @@ func GeneratePlates(profile *types.PlanetProfile, master int64, S int) *PlateFie
 		}
 	}
 	floodFillPlates(pf, master, S)
+	computeSDFs(pf, profile)
 	return pf
 }
 
@@ -335,4 +336,33 @@ func seedPlates(profile *types.PlanetProfile, master int64) []Plate {
 		plates[i].IsOceanic = rngOceanic.Float64() < profile.OceanicPlateFraction
 	}
 	return plates
+}
+
+// computeSDFs runs three JFA passes over the boundary-type masks and
+// scales the angular-distance output to kilometers using the planet
+// RadiusKm. RadiusKm defaults to 6371 km (Earth-like) when zero.
+//
+// JFA output is angular distance / π in [0, 1]; multiplying by π · R
+// gives geodesic km in [0, π·R].
+func computeSDFs(pf *PlateField, profile *types.PlanetProfile) {
+	conv, div, trans := extractBoundaries(pf, profile.PlateConvergentT)
+	radius := profile.RadiusKm
+	if radius == 0 {
+		radius = 6371
+	}
+	factor := math.Pi * radius
+	runOne := func(mask [cubemap.NumFaces][]bool) [cubemap.NumFaces][]float64 {
+		f := JumpFloodFromMask(mask, pf.Size)
+		var out [cubemap.NumFaces][]float64
+		for i := range f.Faces {
+			out[i] = make([]float64, len(f.Faces[i]))
+			for j, v := range f.Faces[i] {
+				out[i][j] = v * factor
+			}
+		}
+		return out
+	}
+	pf.Convergent = runOne(conv)
+	pf.Divergent = runOne(div)
+	pf.Transform = runOne(trans)
 }

@@ -108,6 +108,10 @@ type PlanetProfile struct {
 	JitterCellCount int     `json:",omitempty"`
 	JitterRotMax    float64 `json:",omitempty"`
 	JitterOffsetMax float64 `json:",omitempty"`
+
+	// Phase 7 Tier B: planet radius in km, used by computeSDFs to scale
+	// JFA angular distances. 0 means "use 6371 (Earth-like) default".
+	RadiusKm float64 `json:",omitempty"`
 }
 
 // StormBand places a hand-authored oval storm feature at a specific latitude.

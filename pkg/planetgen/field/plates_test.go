@@ -190,3 +190,47 @@ func TestExtractBoundariesAtLeastOnePerType(t *testing.T) {
 		}
 	}
 }
+
+func TestSDFsZeroAtSeeds(t *testing.T) {
+	profile := &types.PlanetProfile{
+		PlateCount: 6, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
+	}
+	pf := GeneratePlates(profile, 17, 32)
+	if pf.Convergent[0] == nil {
+		t.Fatal("Convergent SDF not allocated")
+	}
+	// Re-run boundary extraction to know which pixels are seeds.
+	conv, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
+	for f := range conv {
+		for i, isSeed := range conv[f] {
+			if isSeed && pf.Convergent[f][i] != 0 {
+				t.Fatalf("convergent seed face %d idx %d distance=%f, want 0",
+					f, i, pf.Convergent[f][i])
+			}
+		}
+	}
+}
+
+func TestSDFsKmScaling(t *testing.T) {
+	// RadiusKm=6371 (Earth-like). Max convergent distance should be
+	// bounded above by π * RadiusKm (the great-circle half-circumference).
+	// Lower bound: at least 100 km, since a 32-pixel cube face produces
+	// pixels separated by ~1000 km of arc.
+	profile := &types.PlanetProfile{
+		PlateCount: 4, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
+		RadiusKm: 6371,
+	}
+	pf := GeneratePlates(profile, 23, 32)
+	var maxConv float64
+	for f := range pf.Convergent {
+		for _, d := range pf.Convergent[f] {
+			if d > maxConv {
+				maxConv = d
+			}
+		}
+	}
+	if maxConv < 100 || maxConv > math.Pi*profile.RadiusKm+1 {
+		t.Errorf("max convergent distance %.1f km outside plausible range [100, %.1f]",
+			maxConv, math.Pi*profile.RadiusKm+1)
+	}
+}
