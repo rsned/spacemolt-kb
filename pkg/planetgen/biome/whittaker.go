@@ -16,7 +16,7 @@ import (
 //
 // Both are normalized to [0, 1].
 func GenerateClimateFields(seed int64, profile *types.PlanetProfile, S int) (T, M *cubemap.CubeMapF) {
-	fields := field.GenerateControlFields(seed, profile.ControlConfig, S)
+	fields := field.GenerateControlFields(seed, profile.ControlConfig, S, nil)
 	tNoise := fields[3]
 	mNoise := fields[4]
 

@@ -73,7 +73,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	cfFields := orderedControlFields(profile.ControlConfig)
 	useControl := !isZeroControlConfig(cfFields) && hasAnySpline(cfFields)
 	if useControl {
-		fields := field.GenerateControlFields(seed, profile.ControlConfig, S)
+		fields := field.GenerateControlFields(seed, profile.ControlConfig, S, nil)
 		var ridgedGen *noise.Generator
 		if profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
 			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))
