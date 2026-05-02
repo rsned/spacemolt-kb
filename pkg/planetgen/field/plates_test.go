@@ -125,3 +125,13 @@ func TestFloodFillZeroPlatesNilField(t *testing.T) {
 		t.Errorf("expected nil PlateField when PlateCount=0, got %+v", pf)
 	}
 }
+
+func TestGeneratePlatesPanicsOnInt16Overflow(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("expected panic for PlateCount > int16 max, got none")
+		}
+	}()
+	profile := &types.PlanetProfile{PlateCount: 32768, OceanicPlateFraction: 0.5}
+	GeneratePlates(profile, 1, 8)
+}

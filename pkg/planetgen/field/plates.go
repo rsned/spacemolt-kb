@@ -1,5 +1,6 @@
-// Tectonic plate seed types and Fibonacci-spiral seeding.
-// Flood-fill, boundary classification, and SDFs are added in later tasks.
+// Tectonic plate seed types, Fibonacci-spiral seeding, and random
+// flood-fill across cube faces. Boundary classification and SDFs are
+// added in later tasks.
 package field
 
 import (
@@ -60,6 +61,9 @@ type PlateField struct {
 // pkg/planetgen/field/plates.go so adding new sub-steps in later
 // phases never shifts existing field values.
 func GeneratePlates(profile *types.PlanetProfile, master int64, S int) *PlateField {
+	if profile.PlateCount > math.MaxInt16 {
+		panic("planetgen/field: PlateCount exceeds int16 max (32767)")
+	}
 	plates := seedPlates(profile, master)
 	if len(plates) == 0 {
 		return nil
@@ -98,7 +102,7 @@ func floodFillPlates(pf *PlateField, master int64, S int) {
 		Addr cubemap.PixelAddr
 		ID   int16
 	}
-	frontier := make([]frontierItem, 0, 6*S*S)
+	frontier := make([]frontierItem, 0, S*S)
 
 	pushNeighbors := func(face cubemap.Face, px, py int, id int16) {
 		nbrs := cubemap.FacePixelNeighbors4(face, px, py, S)
