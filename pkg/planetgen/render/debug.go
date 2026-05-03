@@ -18,6 +18,8 @@ type DebugBypass map[string]bool
 // RenderRockyDebug (added in T3).
 type DebugFrame struct {
 	Stages []DebugStage
+	Plates *field.PlateField
+	Jitter *noise.JitterField
 }
 
 // DebugStage is one row in the pipeline visualization.
@@ -35,6 +37,13 @@ type DebugStage struct {
 	SumAfter    *cubemap.CubeMapF
 	ColorAfter  *cubemap.CubeMap
 	Skipped     bool
+	// CategoricalAfter renders each unique int16 id as a distinct hue
+	// via golden-ratio HSV stepping. Negative ids map to black.
+	CategoricalAfter *cubemap.CubeMap
+	// BooleanAfter is a two-tone raster (e.g. oceanic vs continental).
+	BooleanAfter *cubemap.CubeMap
+	// ScalarAfter is a single-channel float field (e.g. plate SDF in km).
+	ScalarAfter *cubemap.CubeMapF
 }
 
 // RenderRockyDebug runs the rocky pipeline (heightmap + colorize) with
@@ -43,9 +52,25 @@ type DebugStage struct {
 func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass DebugBypass) *DebugFrame {
 	jitter := noise.GenerateJitter(profile, seed, S)
 	plates := field.GeneratePlates(profile, seed, S)
-	_ = plates
-	frame := &DebugFrame{}
+	frame := &DebugFrame{
+		Plates: plates,
+		Jitter: jitter,
+	}
 	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter)
 	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter)
+	if plates != nil {
+		frame.Stages = append(frame.Stages,
+			DebugStage{Name: "Plates: id", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(plates.PlateID, S)},
+			DebugStage{Name: "Plates: oceanic", Kind: "field", BooleanAfter: paintOceanicMask(plates, S)},
+			DebugStage{Name: "Plates: convergent", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Convergent, S)},
+			DebugStage{Name: "Plates: divergent", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Divergent, S)},
+			DebugStage{Name: "Plates: transform", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Transform, S)},
+		)
+	}
+	if jitter != nil {
+		frame.Stages = append(frame.Stages,
+			DebugStage{Name: "Jitter: cells", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(jitter.PerPixel, S)},
+		)
+	}
 	return frame
 }
