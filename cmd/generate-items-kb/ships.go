@@ -41,8 +41,9 @@ type Ship struct {
 	FlavorTags        []string `json:"flavor_tags"`
 	DefaultModules    []string `json:"default_modules"`
 	BuildMaterials    []struct {
-		ItemID   string `json:"item_id"`
-		Quantity int    `json:"quantity"`
+		ItemID       string `json:"item_id"`
+		Quantity     int    `json:"quantity"`
+		ItemCategory string `json:"-"`
 	} `json:"build_materials"`
 	PassiveRecipes   []string `json:"passive_recipes"`
 }
@@ -79,9 +80,18 @@ func loadShipCatalog(catalogPath string) ([]*Ship, error) {
 	return catalog.Items, nil
 }
 
-func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string) error {
+func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string, items map[string]*Item) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
+	}
+
+	// Populate item categories for build materials.
+	for _, ship := range ships {
+		for i := range ship.BuildMaterials {
+			if item, ok := items[ship.BuildMaterials[i].ItemID]; ok {
+				ship.BuildMaterials[i].ItemCategory = item.Category
+			}
+		}
 	}
 
 	// Group: category -> class -> faction -> ships.
@@ -422,7 +432,7 @@ var shipDetailTemplate = `<!DOCTYPE html>
             <tbody>
 {{- range .BuildMaterials}}
             <tr>
-              <td><a href="../../items/component/{{.ItemID}}.html">{{titleCase .ItemID}}</a></td>
+              <td><a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html">{{titleCase .ItemID}}</a></td>
               <td>{{.Quantity}}</td>
             </tr>
 {{- end}}

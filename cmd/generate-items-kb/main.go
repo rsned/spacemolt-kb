@@ -469,7 +469,7 @@ func main() {
 		for _, r := range recipes {
 			recipeNames[r.ID] = r.Name
 		}
-		if err := writeShipPages("kb/ships", shipCatalog, recipeNames); err != nil {
+		if err := writeShipPages("kb/ships", shipCatalog, recipeNames, items); err != nil {
 			log.Fatalf("write ship pages: %v", err)
 		}
 		fmt.Printf("Generated %d ship entries in kb/ships/\n", len(shipCatalog))
