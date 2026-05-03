@@ -29,7 +29,22 @@ type Ship struct {
 	WeaponSlots       int      `json:"weapon_slots"`
 	DefenseSlots      int      `json:"defense_slots"`
 	UtilitySlots      int      `json:"utility_slots"`
-	PassiveRecipes    []string `json:"passive_recipes"`
+	PowerCapacity     int      `json:"power_capacity"`
+	CPUCapacity       int      `json:"cpu_capacity"`
+	Scale             int      `json:"scale"`
+	BuildTime         int      `json:"build_time"`
+	Price             int      `json:"price"`
+	ShipyardTier      int      `json:"shipyard_tier"`
+	StarterShip       bool     `json:"starter_ship"`
+	Description       string   `json:"description"`
+	Lore              string   `json:"lore"`
+	FlavorTags        []string `json:"flavor_tags"`
+	DefaultModules    []string `json:"default_modules"`
+	BuildMaterials    []struct {
+		ItemID   string `json:"item_id"`
+		Quantity int    `json:"quantity"`
+	} `json:"build_materials"`
+	PassiveRecipes   []string `json:"passive_recipes"`
 }
 
 type shipCategory struct {
@@ -136,6 +151,25 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string)
 			}
 			return n
 		},
+		"titleCase": func(s string) string {
+			if s == "" {
+				return s
+			}
+			words := strings.Split(s, "_")
+			for i, w := range words {
+				if w != "" {
+					words[i] = strings.ToUpper(w[:1]) + w[1:]
+				}
+			}
+			return strings.Join(words, " ")
+		},
+		"hasDescription": func(s *Ship) bool { return s.Description != "" },
+		"hasLore": func(s *Ship) bool { return s.Lore != "" },
+		"hasFlavorTags": func(s *Ship) bool { return len(s.FlavorTags) > 0 },
+		"hasBuildMaterials": func(s *Ship) bool { return len(s.BuildMaterials) > 0 },
+		"hasDefaultModules": func(s *Ship) bool { return len(s.DefaultModules) > 0 },
+		"factionBadge": factionBadgeClass,
+		"factionDisplayName": factionDisplayName,
 	}
 
 	type pageData struct {
@@ -146,12 +180,29 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string)
 	}
 
 	tmpl := htmltpl.Must(htmltpl.New("ships").Funcs(funcs).Parse(shipPageTemplate))
-	return writeTemplate(filepath.Join(outDir, "index.html"), tmpl, pageData{
+	if err := writeTemplate(filepath.Join(outDir, "index.html"), tmpl, pageData{
 		Categories:    categories,
 		TotalShips:    totalShips,
 		TotalCats:     totalCats,
 		TotalFactions: totalFactions,
-	})
+	}); err != nil {
+		return err
+	}
+
+	// Write individual ship detail pages.
+	detailTmpl := htmltpl.Must(htmltpl.New("ship-detail").Funcs(funcs).Parse(shipDetailTemplate))
+	for _, ship := range ships {
+		shipDir := filepath.Join(outDir, ship.Category)
+		if err := os.MkdirAll(shipDir, 0o755); err != nil {
+			return err
+		}
+		shipPath := filepath.Join(shipDir, ship.ID+".html")
+		if err := writeTemplate(shipPath, detailTmpl, ship); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func slugify(s string) string {
@@ -238,7 +289,7 @@ var shipPageTemplate = `<!DOCTYPE html>
               <tbody>
 {{- range .Ships}}
             <tr>
-              <td>{{.Name}}{{if hasPassive .}} <span class="badge badge-green" title="Passive Recipes: {{range $i, $r := .PassiveRecipes}}{{if $i}}, {{end}}{{recipeName $r}}{{end}}">&#x2692; Passive</span>{{end}}</td>
+              <td><a href="{{.Category}}/{{.ID}}.html">{{.Name}}</a>{{if hasPassive .}} <span class="badge badge-green" title="Passive Recipes: {{range $i, $r := .PassiveRecipes}}{{if $i}}, {{end}}{{recipeName $r}}{{end}}">&#x2692; Passive</span>{{end}}</td>
               <td class="num">{{.Tier}}</td>
               <td class="num">{{.BaseHull}}</td>
               <td class="num">{{.BaseArmor}}</td>
@@ -260,6 +311,142 @@ var shipPageTemplate = `<!DOCTYPE html>
 {{- end}}
       </section>
 {{end}}
+    </main>
+` + themeScript + `
+</body>
+</html>
+`
+
+var shipDetailTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}} - Ships - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../ships.css">
+</head>
+<body>
+` + siteHeaderSub + `
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Ships</a> / <a href="./">{{.Category}}</a> / {{.Name}}</div>
+        <h2>{{.Name}}</h2>
+
+{{- if hasDescription .}}
+        <blockquote class="item-desc">{{.Description}}</blockquote>
+{{- end}}
+
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">General</div>
+          <table>
+            <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
+            <tr><td class="kv-label">Class</td><td><a href="../index.html#{{slugify .Category}}--{{slugify .Class}}">{{.Class}}</a></td></tr>
+            <tr><td class="kv-label">Faction</td><td><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td></tr>
+            <tr><td class="kv-label">Tier</td><td>{{.Tier}}</td></tr>
+{{- if .StarterShip}}
+            <tr><td class="kv-label">Type</td><td><span class="badge badge-green">Starter Ship</span></td></tr>
+{{- end}}
+          </table>
+
+          <div class="section-label">Statistics</div>
+          <table>
+            <tr><td class="kv-label">Hull</td><td>{{.BaseHull}}</td></tr>
+            <tr><td class="kv-label">Armor</td><td>{{.BaseArmor}}</td></tr>
+            <tr><td class="kv-label">Shield</td><td>{{.BaseShield}}</td></tr>
+            <tr><td class="kv-label">Shield Recharge</td><td>{{.BaseShieldRecharge}}/t</td></tr>
+            <tr><td class="kv-label">Speed</td><td>{{.BaseSpeed}} AU/t</td></tr>
+            <tr><td class="kv-label">Fuel Capacity</td><td>{{.BaseFuel}}</td></tr>
+            <tr><td class="kv-label">Cargo Capacity</td><td>{{.CargoCapacity}}</td></tr>
+          </table>
+
+          <div class="section-label">Slots</div>
+          <table>
+            <tr><td class="kv-label">Weapon Slots</td><td>{{.WeaponSlots}}</td></tr>
+            <tr><td class="kv-label">Defense Slots</td><td>{{.DefenseSlots}}</td></tr>
+            <tr><td class="kv-label">Utility Slots</td><td>{{.UtilitySlots}}</td></tr>
+          </table>
+
+          <div class="section-label">Capacity</div>
+          <table>
+            <tr><td class="kv-label">Power Capacity</td><td>{{.PowerCapacity}}</td></tr>
+            <tr><td class="kv-label">CPU Capacity</td><td>{{.CPUCapacity}}</td></tr>
+          </table>
+
+          <div class="section-label">Economy</div>
+          <table>
+            <tr><td class="kv-label">Price</td><td>{{if gt .Price 0}}{{.Price}} cr{{else}}Free{{end}}</td></tr>
+            <tr><td class="kv-label">Build Time</td><td>{{.BuildTime}} ticks</td></tr>
+            <tr><td class="kv-label">Shipyard Tier</td><td>{{.ShipyardTier}}</td></tr>
+          </table>
+        </div>
+
+{{- if hasLore .}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Lore</div>
+          <div class="ship-lore">{{.Lore}}</div>
+        </div>
+{{- end}}
+
+{{- if hasFlavorTags .}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Flavor Tags</div>
+          <div class="flavor-tags">
+{{- range .FlavorTags}}
+            <span class="badge badge-frost">{{titleCase .}}</span>
+{{- end}}
+          </div>
+        </div>
+{{- end}}
+
+{{- if hasDefaultModules .}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Default Modules</div>
+          <table>
+            <thead><tr><th>Module</th></tr></thead>
+            <tbody>
+{{- range .DefaultModules}}
+            <tr>
+              <td><a href="../../items/defense/{{.}}.html">{{titleCase .}}</a></td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+        </div>
+{{- end}}
+
+{{- if hasBuildMaterials .}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Build Materials</div>
+          <table>
+            <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
+            <tbody>
+{{- range .BuildMaterials}}
+            <tr>
+              <td><a href="../../items/component/{{.ItemID}}.html">{{titleCase .ItemID}}</a></td>
+              <td>{{.Quantity}}</td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+        </div>
+{{- end}}
+
+{{- if hasPassive .}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Passive Recipes</div>
+          <table>
+            <thead><tr><th>Recipe</th></tr></thead>
+            <tbody>
+{{- range .PassiveRecipes}}
+            <tr>
+              <td><a href="../../recipes/Legendary/{{.}}.html">{{recipeName .}}</a></td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+        </div>
+{{- end}}
+
     </main>
 ` + themeScript + `
 </body>
