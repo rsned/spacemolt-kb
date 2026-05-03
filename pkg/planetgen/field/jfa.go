@@ -20,10 +20,11 @@ const noJFASeed = int8(-1)
 // in heightmap, divided by π (so values fall in [0, 1]).
 //
 // The algorithm uses Jump Flooding with step sizes from S/2 down to 1,
-// propagating seed positions to neighbors within each cube face.
-// Propagation is face-local — distances do not cross face seams.
-// See JumpFloodFromMask for the same constraint when seeding from a
-// boolean mask.
+// propagating seed positions to neighbors. Propagation is cross-face
+// aware: the 8-neighbor lookup uses cubemap.OffsetPixel to project
+// across face seams when an offset leaves the current face's bounds,
+// and the great-circle metric uses each seed's stored unit direction
+// so distances are correct regardless of which face holds the seed.
 func DistanceToCoast(heightmap *cubemap.CubeMapF, threshold float64, S int) *cubemap.CubeMapF {
 	seeds := make([][]jfaSeed, cubemap.NumFaces)
 	dists := cubemap.NewF(S)
@@ -61,8 +62,10 @@ func DistanceToCoast(heightmap *cubemap.CubeMapF, threshold float64, S int) *cub
 // propagateJFA runs Jump Flooding propagation steps S/2, S/4, ..., 1
 // plus one final pass at step=1. Each pixel takes the smallest
 // great-circle angular distance (in [0,1], divided by π) to any seed
-// reachable through 8-neighbor jumps WITHIN the same face. Does not
-// propagate across face seams.
+// reachable through 8-neighbor jumps. Cross-face neighbors are
+// resolved via cubemap.OffsetPixel — propagation traverses cube
+// seams, so a face with no local seeds inherits distances from its
+// neighbors instead of holding the 1.0 sentinel.
 //
 // seeds is mutated in place. dists is mutated in place. Both are
 // allocated and partially initialized by the caller (seeds: seed
@@ -86,11 +89,8 @@ func propagateJFA(seeds [][]jfaSeed, dists *cubemap.CubeMapF, S int) {
 						{-step, 0}, {step, 0},
 						{-step, step}, {0, step}, {step, step},
 					} {
-						nx, ny := px+off[0], py+off[1]
-						if nx < 0 || nx >= S || ny < 0 || ny >= S {
-							continue
-						}
-						cand := seeds[face][ny*S+nx]
+						nf, nx, ny := cubemap.OffsetPixel(face, px, py, off[0], off[1], S)
+						cand := seeds[nf][ny*S+nx]
 						if cand.face == noJFASeed {
 							continue
 						}
@@ -120,6 +120,17 @@ func propagateJFA(seeds [][]jfaSeed, dists *cubemap.CubeMapF, S int) {
 		}
 	}
 
+	// First descending sweep: step = S/2, S/4, ..., 1.
+	for step := S / 2; step >= 1; step /= 2 {
+		propagate(step)
+	}
+	// Second descending sweep ("JFA²"): standard JFA assumes uniform
+	// 8-neighbor reachability at every step, but on a cube map an
+	// interior pixel of a seedless face can only cross a face seam at
+	// the largest-step pass — subsequent in-face sweeps need the
+	// seed to travel inward from edge pixels. A second full sweep
+	// gives all pixels another chance to refine through the now-
+	// populated cross-face neighbor faces.
 	for step := S / 2; step >= 1; step /= 2 {
 		propagate(step)
 	}
@@ -129,11 +140,11 @@ func propagateJFA(seeds [][]jfaSeed, dists *cubemap.CubeMapF, S int) {
 // JumpFloodFromMask runs JFA over a cube map starting from every
 // pixel where mask[face][py*S+px] is true. Returns a CubeMapF where
 // each pixel holds the great-circle angular distance (normalized to
-// [0, 1] by dividing by π) to the nearest seed pixel on the same
-// face. Pixels in a face with no seeds get 1.0.
-//
-// JFA propagation is face-local — cross-face seams are not bridged.
-// This is the same constraint as DistanceToCoast.
+// [0, 1] by dividing by π) to the nearest seed pixel anywhere on the
+// cube. JFA propagation is cross-face aware (see propagateJFA), so
+// a face with no local seeds still receives finite distances from
+// neighbors. Pixels only retain the 1.0 sentinel when the entire
+// cube has no seeds.
 func JumpFloodFromMask(mask [cubemap.NumFaces][]bool, S int) *cubemap.CubeMapF {
 	seeds := make([][]jfaSeed, cubemap.NumFaces)
 	dists := cubemap.NewF(S)

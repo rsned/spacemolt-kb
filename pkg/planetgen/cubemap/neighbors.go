@@ -35,3 +35,22 @@ func FacePixelNeighbors4(face Face, px, py, S int) [4]PixelAddr {
 	}
 	return out
 }
+
+// OffsetPixel returns the pixel at (px+dx, py+dy) on face, projecting
+// across face boundaries when the offset leaves the face bounds. Uses
+// half-pixel-centered direction snap. dx and dy can be any int.
+//
+// In-face offsets are returned as-is with the same Face. Off-edge
+// offsets are remapped by computing the unit-direction at the offset
+// UV and re-projecting via DirToFacePixel; the returned (Face, px, py)
+// always lies in [0, S) on both axes.
+func OffsetPixel(face Face, px, py, dx, dy, S int) (Face, int, int) {
+	nx, ny := px+dx, py+dy
+	if nx >= 0 && nx < S && ny >= 0 && ny < S {
+		return face, nx, ny
+	}
+	u := (float64(px) + 0.5 + float64(dx)) / float64(S)
+	v := (float64(py) + 0.5 + float64(dy)) / float64(S)
+	x, y, z := FaceUVToDir(face, u, v)
+	return DirToFacePixel(x, y, z, S)
+}
