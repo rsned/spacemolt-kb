@@ -1,5 +1,16 @@
 /* Ships page styles */
 
+/* Section labels */
+.section-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--smui-surface-2));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
 /* TOC list */
 .toc-list {
   list-style: none;
@@ -97,12 +108,6 @@ td.num, th:not(:first-child) {
 .ship-detail-table td,
 .ship-detail-table th {
   padding: 0.75rem 1rem;
-}
-
-/* Ensure section-label has proper spacing in ship detail pages */
-.section-label {
-  padding: 0.5rem 1.5rem;
-  margin: 0;
 }
 
 /* Ensure cards in ship detail pages have proper spacing */
