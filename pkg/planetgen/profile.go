@@ -150,6 +150,13 @@ var Profiles = map[string]*types.PlanetProfile{
 		JitterCellCount:      120,
 		JitterRotMax:         math.Pi / 4,
 		JitterOffsetMax:      0.1,
+		// Phase 8 item 15: very sparse, dry valleys
+		Flow: types.FlowConfig{RiverThreshold: 1500, RiverDepth: 0.005},
+		// Phase 8 item 16
+		RainShadow: types.RainShadowConfig{
+			WalkSteps: 12, StepArcRad: 0.087, MountainCutoff: 0.55,
+			WindRainBoost: 0.2, LeeFactor: 0.05,
+		},
 	},
 	"terran": {
 		Type:     "terran",
@@ -270,6 +277,13 @@ var Profiles = map[string]*types.PlanetProfile{
 		JitterCellCount:      120,
 		JitterRotMax:         math.Pi / 4,
 		JitterOffsetMax:      0.1,
+		// Phase 8 item 15
+		Flow: types.FlowConfig{RiverThreshold: 200, RiverDepth: 0.02},
+		// Phase 8 item 16
+		RainShadow: types.RainShadowConfig{
+			WalkSteps: 12, StepArcRad: 0.087, MountainCutoff: 0.65,
+			WindRainBoost: 0.4, LeeFactor: 0.15,
+		},
 	},
 	"tundra": {
 		Type:     "tundra",
@@ -330,6 +344,13 @@ var Profiles = map[string]*types.PlanetProfile{
 		JitterCellCount:      120,
 		JitterRotMax:         math.Pi / 4,
 		JitterOffsetMax:      0.1,
+		// Phase 8 item 15: sparser drainage in tundra
+		Flow: types.FlowConfig{RiverThreshold: 300, RiverDepth: 0.015},
+		// Phase 8 item 16
+		RainShadow: types.RainShadowConfig{
+			WalkSteps: 8, StepArcRad: 0.087, MountainCutoff: 0.7,
+			WindRainBoost: 0.3, LeeFactor: 0.2,
+		},
 	},
 	"glacial": {
 		Type:     "glacial",
@@ -387,6 +408,13 @@ var Profiles = map[string]*types.PlanetProfile{
 		JitterCellCount:      120,
 		JitterRotMax:         math.Pi / 4,
 		JitterOffsetMax:      0.1,
+		// Phase 8 item 15
+		Flow: types.FlowConfig{RiverThreshold: 400, RiverDepth: 0.018},
+		// Phase 8 item 16
+		RainShadow: types.RainShadowConfig{
+			WalkSteps: 6, StepArcRad: 0.087, MountainCutoff: 0.7,
+			WindRainBoost: 0.25, LeeFactor: 0.25,
+		},
 	},
 	"ice_world": {
 		Type:     "ice_world",
@@ -569,6 +597,13 @@ var Profiles = map[string]*types.PlanetProfile{
 		JitterCellCount:      120,
 		JitterRotMax:         math.Pi / 4,
 		JitterOffsetMax:      0.1,
+		// Phase 8 item 15
+		Flow: types.FlowConfig{RiverThreshold: 250, RiverDepth: 0.025},
+		// Phase 8 item 16
+		RainShadow: types.RainShadowConfig{
+			WalkSteps: 12, StepArcRad: 0.087, MountainCutoff: 0.65,
+			WindRainBoost: 0.4, LeeFactor: 0.15,
+		},
 	},
 	"hothouse": {
 		Type:     "hothouse",

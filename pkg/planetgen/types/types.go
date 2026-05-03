@@ -112,6 +112,23 @@ type PlanetProfile struct {
 	// Phase 7 Tier B: planet radius in km, used by computeSDFs to scale
 	// JFA angular distances. 0 means "use 6371 (Earth-like) default".
 	RadiusKm float64 `json:",omitempty"`
+
+	// Phase 8 item 15: D8 flow accumulation + Planchon-Darboux + rivers.
+	// RiverThreshold == 0 disables flow generation entirely.
+	Flow FlowConfig `json:"flow,omitempty"`
+
+	// Phase 8 item 16: wind-driven rain shadow.
+	// WalkSteps == 0 disables the pass entirely.
+	RainShadow RainShadowConfig `json:"rainShadow,omitempty"`
+}
+
+// FlowConfig parameterizes Planchon-Darboux fill + D8 flow + river mask.
+// RiverThreshold == 0 disables flow generation entirely (zero-value =
+// disabled, matching the "Erosion.Droplets == 0 → off" idiom used
+// elsewhere in this file).
+type FlowConfig struct {
+	RiverThreshold float64 `json:"riverThreshold,omitempty"` // accum cutoff
+	RiverDepth     float64 `json:"riverDepth,omitempty"`     // height units carved
 }
 
 // StormBand places a hand-authored oval storm feature at a specific latitude.
@@ -279,6 +296,18 @@ type BiomeCell struct {
 // ColorRGB is a JSON-serializable RGB color (alpha is implicit 255).
 type ColorRGB struct {
 	R, G, B uint8
+}
+
+// RainShadowConfig parameterizes wind-tangent moisture advection used by
+// the rocky biome pipeline. WalkSteps == 0 disables the pass entirely
+// (zero-value = disabled, matching the "Erosion.Droplets == 0 → off"
+// idiom used elsewhere in this file).
+type RainShadowConfig struct {
+	WalkSteps      int     `json:"walkSteps,omitempty"`
+	StepArcRad     float64 `json:"stepArcRad,omitempty"`     // typical 0.087 (5°)
+	MountainCutoff float64 `json:"mountainCutoff,omitempty"` // height threshold for orographic uplift
+	WindRainBoost  float64 `json:"windRainBoost,omitempty"`  // upwind multiplier minus 1
+	LeeFactor      float64 `json:"leeFactor,omitempty"`      // typical 0.15
 }
 
 // UnmarshalJSON accepts both the current "Detail" key and the legacy

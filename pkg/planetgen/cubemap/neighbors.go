@@ -36,6 +36,27 @@ func FacePixelNeighbors4(face Face, px, py, S int) [4]PixelAddr {
 	return out
 }
 
+// FacePixelNeighbors8 returns the eight 8-connected neighbors of
+// (face, px, py) at face size S, including diagonals. Off-edge
+// neighbors are mapped to the adjacent face via OffsetPixel.
+//
+// Returned addresses always lie within [0, S) on both axes; clamping
+// is delegated to DirToFacePixel via OffsetPixel. Cross-face
+// neighbors carry the adjacent face id. Order is:
+// +x, -x, +y, -y, +x+y, -x+y, +x-y, -x-y.
+func FacePixelNeighbors8(face Face, px, py, S int) [8]PixelAddr {
+	deltas := [8][2]int{
+		{1, 0}, {-1, 0}, {0, 1}, {0, -1},
+		{1, 1}, {-1, 1}, {1, -1}, {-1, -1},
+	}
+	var out [8]PixelAddr
+	for i, d := range deltas {
+		f, nx, ny := OffsetPixel(face, px, py, d[0], d[1], S)
+		out[i] = PixelAddr{Face: f, PX: nx, PY: ny}
+	}
+	return out
+}
+
 // OffsetPixel returns the pixel at (px+dx, py+dy) on face, projecting
 // across face boundaries when the offset leaves the face bounds. Uses
 // half-pixel-centered direction snap. dx and dy can be any int.
