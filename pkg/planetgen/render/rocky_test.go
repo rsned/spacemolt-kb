@@ -41,9 +41,42 @@ func TestRockyRenderJitterShiftsOutput(t *testing.T) {
 	}
 }
 
-// TestRockyRenderPlatesNoEffectOnProduction verifies that Phase 7 invariant:
-// changing PlateCount must NOT change the rendered output (plates are data-only).
-func TestRockyRenderPlatesNoEffectOnProduction(t *testing.T) {
+// TestRockyRenderPlatesNoEffectWhenScaleZero verifies the Phase 8 back-compat
+// invariant: when Ridged.PlateConvergentScaleKm == 0, changing PlateCount
+// must NOT change rendered output (legacy continentalness mask path).
+// Phase 8 Task 5 intentionally lets plates drive ridged mountains when
+// PlateConvergentScaleKm > 0; this test guards the fallback path.
+func TestRockyRenderPlatesNoEffectWhenScaleZero(t *testing.T) {
+	const S = 64
+	const seed int64 = 13
+
+	base := *planetgen.Profiles["terran"]
+	// Force legacy Continentalness mask so plates should not affect the heightmap.
+	base.Ridged.PlateConvergentScaleKm = 0
+
+	noPlates := base
+	noPlates.PlateCount = 0
+
+	withPlates := base
+	withPlates.PlateCount = 12
+
+	cmNo := render.RenderRocky(&noPlates, seed, S)
+	cmWith := render.RenderRocky(&withPlates, seed, S)
+
+	for face := range len(cmNo.Faces) {
+		for i := range cmNo.Faces[face] {
+			if cmNo.Faces[face][i] != cmWith.Faces[face][i] {
+				t.Fatalf("face %d pixel %d differs: PlateCount changed production output with PlateConvergentScaleKm=0", face, i)
+			}
+		}
+	}
+}
+
+// TestRockyRenderPlatesAffectOutputWhenScaleNonzero verifies the Phase 8
+// active path: when Ridged.PlateConvergentScaleKm > 0, plates drive the
+// ridged-mountain mask so changing PlateCount MUST change the rendered
+// output for archetypes with non-zero Ridged.Amp.
+func TestRockyRenderPlatesAffectOutputWhenScaleNonzero(t *testing.T) {
 	const S = 64
 	const seed int64 = 13
 
@@ -58,13 +91,20 @@ func TestRockyRenderPlatesNoEffectOnProduction(t *testing.T) {
 	cmNo := render.RenderRocky(&noPlates, seed, S)
 	cmWith := render.RenderRocky(&withPlates, seed, S)
 
+	diff := 0
+	total := 0
 	for face := range len(cmNo.Faces) {
 		for i := range cmNo.Faces[face] {
+			total++
 			if cmNo.Faces[face][i] != cmWith.Faces[face][i] {
-				t.Fatalf("face %d pixel %d differs: PlateCount changed production output", face, i)
+				diff++
 			}
 		}
 	}
+	if diff == 0 {
+		t.Fatal("expected plates to alter rendered output via convergent-SDF ridged mask; got 0 differing pixels")
+	}
+	t.Logf("plate-driven ridged shift: %d/%d pixels (%.2f%%)", diff, total, float64(diff)/float64(total)*100)
 }
 
 func TestRenderRockyAllPixelsOpaque(t *testing.T) {

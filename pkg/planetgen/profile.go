@@ -216,6 +216,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		Ridged: types.RidgedConfig{
 			Amp: 0.20, Freq: 1.21, Octaves: 6, Lacunarity: 2.09, Gain: 0.53, Offset: 0.98,
 			MaskLow: 0.45, MaskHigh: 0.80,
+			PlateConvergentScaleKm: 800,
 		},
 		BiomeTable: types.BiomeTable{
 			TBuckets: 4,
@@ -305,6 +306,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		Ridged: types.RidgedConfig{
 			Amp: 0.28, Freq: 1.35, Octaves: 6, Lacunarity: 2.02, Gain: 0.70, Offset: 0.89,
 			MaskLow: 0.40, MaskHigh: 0.68,
+			PlateConvergentScaleKm: 700,
 		},
 		Erosion: types.ErosionConfig{
 			Droplets:        250000,
@@ -362,6 +364,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		Ridged: types.RidgedConfig{
 			Amp: 0.22, Freq: 4.33, Octaves: 4, Lacunarity: 2.32, Gain: 0.75, Offset: 1.04,
 			MaskLow: 0.50, MaskHigh: 0.79,
+			PlateConvergentScaleKm: 600,
 		},
 		Erosion: types.ErosionConfig{
 			Droplets:        50000,
@@ -423,6 +426,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		Ridged: types.RidgedConfig{
 			Amp: 0.14, Freq: 4.30, Octaves: 3, Lacunarity: 2.24, Gain: 0.51, Offset: 1.17,
 			MaskLow: 0.48, MaskHigh: 0.65,
+			PlateConvergentScaleKm: 0, // ice_world has no plates → legacy Continentalness mask
 		},
 		ShadingStrength:     0.5,
 		ShadingExaggeration: 0.1,
@@ -510,6 +514,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		Ridged: types.RidgedConfig{
 			Amp: 0.23, Freq: 1.69, Octaves: 5, Lacunarity: 1.89, Gain: 0.41, Offset: 1.15,
 			MaskLow: 0.34, MaskHigh: 0.74,
+			PlateConvergentScaleKm: 800,
 		},
 		ShadingStrength: 0.05,
 		BiomeTable: types.BiomeTable{
@@ -598,6 +603,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		Ridged: types.RidgedConfig{
 			Amp: 0.29, Freq: 2.21, Octaves: 3, Lacunarity: 2.35, Gain: 0.65, Offset: 1.02,
 			MaskLow: 0.47, MaskHigh: 0.74,
+			PlateConvergentScaleKm: 0, // hothouse has no plates → legacy Continentalness mask
 		},
 		LUT: "hothouse",
 		// Phase 7 Tier B
@@ -652,6 +658,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		Ridged: types.RidgedConfig{
 			Amp: 0.14, Freq: 2.22, Octaves: 3, Lacunarity: 2.34, Gain: 0.74, Offset: 1.08,
 			MaskLow: 0.44, MaskHigh: 0.65,
+			PlateConvergentScaleKm: 400,
 		},
 		LUT: "lava_world",
 		// Phase 7 Tier B

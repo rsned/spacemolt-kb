@@ -56,7 +56,7 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 		Plates: plates,
 		Jitter: jitter,
 	}
-	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter)
+	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter, plates)
 	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter)
 	if plates != nil {
 		frame.Stages = append(frame.Stages,

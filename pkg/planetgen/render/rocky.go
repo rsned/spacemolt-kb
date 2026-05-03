@@ -23,8 +23,7 @@ var (
 func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
 	jitter := noise.GenerateJitter(profile, seed, S)
 	plates := field.GeneratePlates(profile, seed, S)
-	_ = plates
-	heightmap, craters := generateRockyHeightmapWithJitter(profile, seed, S, jitter)
+	heightmap, craters := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
 	return colorizeRocky(profile, seed, S, heightmap, craters, jitter)
 }
 
@@ -35,8 +34,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
 	jitter := noise.GenerateJitter(profile, seed, S)
 	plates := field.GeneratePlates(profile, seed, S)
-	_ = plates
-	heightmap, _ := generateRockyHeightmapWithJitter(profile, seed, S, jitter)
+	heightmap, _ := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
 	out := cubemap.New(S)
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range S {
@@ -57,9 +55,12 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 }
 
 // generateRockyHeightmapWithJitter runs the heightmap pipeline; pass
-// nil for jitter to skip the Detail-field cell transform.
-func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, S int, jitter *noise.JitterField) (*cubemap.CubeMapF, []feature.Crater) {
-	return generateRockyHeightmapDebug(profile, seed, S, nil, nil, jitter)
+// nil for jitter to skip the Detail-field cell transform. plates may be
+// nil; when non-nil and Ridged.PlateConvergentScaleKm > 0, the ridged
+// mountain mask is sourced from plates.Convergent instead of
+// Continentalness.
+func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, S int, jitter *noise.JitterField, plates *field.PlateField) (*cubemap.CubeMapF, []feature.Crater) {
+	return generateRockyHeightmapDebug(profile, seed, S, nil, nil, jitter, plates)
 }
 
 // generateRockyHeightmapDebug is the debug-aware variant of
@@ -68,7 +69,7 @@ func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, 
 // contribution is skipped while rng draws are still consumed so downstream
 // noise streams remain deterministic.
 func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int,
-	frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField) (*cubemap.CubeMapF, []feature.Crater) {
+	frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField, plates *field.PlateField) (*cubemap.CubeMapF, []feature.Crater) {
 	ng := noise.New(seed)
 	warper := noise.NewWarper(seed, profile.Warp)
 
@@ -147,12 +148,20 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 					hmBefore = heightmap.Clone()
 				}
 				bypassed := bypass["Ridged"]
+				usePlateMask := plates != nil && profile.Ridged.PlateConvergentScaleKm > 0
 				if !bypassed {
 					for face := range cubemap.Face(cubemap.NumFaces) {
 						for py := range S {
 							for px := range S {
-								cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
-								mask := smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, cont)
+								var mask float64
+								if usePlateMask {
+									distKm := plates.Convergent[face][py*S+px]
+									norm := 1.0 - clamp01(distKm/profile.Ridged.PlateConvergentScaleKm)
+									mask = smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, norm)
+								} else {
+									cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
+									mask = smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, cont)
+								}
 								if mask > 0 {
 									dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
 									dx, dy, dz = warper.Warp(dx, dy, dz)
@@ -174,8 +183,15 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 					for face := range cubemap.Face(cubemap.NumFaces) {
 						for py := range S {
 							for px := range S {
-								cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
-								mask := smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, cont)
+								var mask float64
+								if usePlateMask {
+									distKm := plates.Convergent[face][py*S+px]
+									norm := 1.0 - clamp01(distKm/profile.Ridged.PlateConvergentScaleKm)
+									mask = smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, norm)
+								} else {
+									cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
+									mask = smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, cont)
+								}
 								if mask > 0 {
 									dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
 									dx, dy, dz = warper.Warp(dx, dy, dz)
@@ -211,6 +227,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		} else {
 			// Fast path (no debug frame, no bypass): single combined pixel loop,
 			// identical to the original implementation.
+			usePlateMask := plates != nil && profile.Ridged.PlateConvergentScaleKm > 0
 			for face := range cubemap.Face(cubemap.NumFaces) {
 				for py := range S {
 					for px := range S {
@@ -229,8 +246,15 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 							h += contribution
 						}
 						if ridgedGen != nil {
-							cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
-							mask := smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, cont)
+							var mask float64
+							if usePlateMask {
+								distKm := plates.Convergent[face][py*S+px]
+								norm := 1.0 - clamp01(distKm/profile.Ridged.PlateConvergentScaleKm)
+								mask = smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, norm)
+							} else {
+								cont := planetcolor.EvalSpline(cfFields[0].Spline, fields[0].Get(face, px, py))
+								mask = smoothstep(profile.Ridged.MaskLow, profile.Ridged.MaskHigh, cont)
+							}
 							if mask > 0 {
 								dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
 								dx, dy, dz = warper.Warp(dx, dy, dz)
@@ -866,6 +890,17 @@ func applySlopeShading(hm *cubemap.CubeMapF, c color.RGBA, rx, ry, rz, strength,
 	// Blend ambient and diffuse so flat areas read at neutral brightness.
 	bright := (1.0 - strength) + strength*(0.4+0.8*diff)
 	return planetcolor.Brighten(c, bright)
+}
+
+// clamp01 clamps x to [0,1].
+func clamp01(x float64) float64 {
+	if x < 0 {
+		return 0
+	}
+	if x > 1 {
+		return 1
+	}
+	return x
 }
 
 // smoothstep returns 0 when x ≤ lo, 1 when x ≥ hi, and a smooth Hermite

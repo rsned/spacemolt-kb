@@ -155,9 +155,8 @@ type ErosionConfig struct {
 }
 
 // RidgedConfig parameterizes a ridged-multifractal mountain pass.
-// Applied after the control-field heightmap, masked by the
-// Continentalness spline output so ridges only form on land.
-// Amp=0 disables the pass entirely.
+// Applied after the control-field heightmap. The mask source depends on
+// PlateConvergentScaleKm (see below). Amp=0 disables the pass entirely.
 type RidgedConfig struct {
 	Amp        float64 // overall mountain contribution (0 = disabled)
 	Freq       float64 // base spatial frequency
@@ -165,8 +164,20 @@ type RidgedConfig struct {
 	Lacunarity float64 // freq multiplier per octave (default 2.0)
 	Gain       float64 // per-octave weight gain (default 0.5)
 	Offset     float64 // ridge sharpness (default 1.0; >1 sharper)
-	MaskLow    float64 // Continentalness output ≤ this = no ridges
-	MaskHigh   float64 // Continentalness output ≥ this = full ridges
+	MaskLow    float64 // input ≤ this = no ridges (input is Continentalness or convergent-norm; see PlateConvergentScaleKm)
+	MaskHigh   float64 // input ≥ this = full ridges
+
+	// PlateConvergentScaleKm switches the ridged-mountain mask source:
+	//   0   → mask = smoothstep(MaskLow, MaskHigh, Continentalness)  [legacy]
+	//   >0  → mask = smoothstep(MaskLow, MaskHigh,
+	//                           1 - clamp(plates.Convergent[px] / PlateConvergentScaleKm, 0, 1))
+	//
+	// The convergent-SDF mode places mountain belts along plate
+	// convergent boundaries, geologically correct for terran-class
+	// rocky planets. Falls back to the legacy Continentalness path
+	// when the planet has no plates (PlateCount == 0) regardless of
+	// this value.
+	PlateConvergentScaleKm float64 `json:"plateConvergentScaleKm,omitempty"`
 }
 
 // CoastalConfig parameterizes localized roughening near coastlines via
