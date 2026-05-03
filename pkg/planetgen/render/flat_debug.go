@@ -44,7 +44,7 @@ type FlatDebugBypass map[string]bool
 // RenderFlatDebug mirrors RenderFlat but captures per-stage state into a
 // FlatDebugFrame. Stages listed in bypass have their mutation suppressed but
 // still emit a Skipped=true entry. Pass nil to run all stages normally.
-func RenderFlatDebug(prof *types.PlanetProfile, masterSeed int64, size int, bypass FlatDebugBypass) FlatDebugFrame {
+func RenderFlatDebug(prof *types.PlanetProfile, masterSeed int64, size int, bypass FlatDebugBypass, jitter *noise.JitterField) FlatDebugFrame {
 	frame := FlatDebugFrame{Size: size}
 	n := size * size
 
@@ -230,7 +230,11 @@ func RenderFlatDebug(prof *types.PlanetProfile, masterSeed int64, size int, bypa
 						c = planetcolor.SampleGradientOkLab(prof.Palette, h)
 					}
 					if hasBiomes {
-						biomeVar := biomeNoise.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 4.0)
+						sx, sy, sz := dx, dy, dz
+						if jitter != nil {
+							sx, sy, sz = jitter.TransformPixel(cubemap.FacePosZ, px, py, dx, dy, dz)
+						}
+						biomeVar := biomeNoise.FractalNoise3D(sx, sy, sz, 3, 2.0, 0.5, 4.0)
 						if !bypassed {
 							adjustedLat := absLat + (biomeVar-0.5)*0.15
 							if len(prof.EquatorialPalette) > 0 && adjustedLat < 0.35 {

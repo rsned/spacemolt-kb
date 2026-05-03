@@ -41,6 +41,6 @@ type DebugStage struct {
 func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass DebugBypass) *DebugFrame {
 	frame := &DebugFrame{}
 	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass)
-	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass)
+	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, nil)
 	return frame
 }

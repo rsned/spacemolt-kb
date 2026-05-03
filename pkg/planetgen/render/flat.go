@@ -112,7 +112,7 @@ func RenderFlat(prof *types.PlanetProfile, masterSeed int64, size int) *image.RG
 	}
 
 	// 7. Colorize.
-	return colorizeFlat(prof, masterSeed, fields, heightmap, size)
+	return colorizeFlat(prof, masterSeed, fields, heightmap, size, nil)
 }
 
 // generateFlatControlFields samples noise at 3D unit-sphere directions of the
@@ -302,7 +302,7 @@ func scaleErosionDropletsFlat(canonical, size int) int {
 // colorizeFlat mirrors colorizeRockyDebug for the +Z face. Snow, Ocean,
 // PolarCaps, and Shading stages are applied in the same order and with the
 // same logic; the same noise seeds (masterSeed+42/77/99) guarantee parity.
-func colorizeFlat(prof *types.PlanetProfile, masterSeed int64, fields [5][]float64, hm []float64, size int) *image.RGBA {
+func colorizeFlat(prof *types.PlanetProfile, masterSeed int64, fields [5][]float64, hm []float64, size int, jitter *noise.JitterField) *image.RGBA {
 	capNoise := noise.New(masterSeed + 42)
 	oceanNoise := noise.New(masterSeed + 77)
 	biomeNoise := noise.New(masterSeed + 99)
@@ -336,7 +336,11 @@ func colorizeFlat(prof *types.PlanetProfile, masterSeed int64, fields [5][]float
 			} else {
 				c = planetcolor.SampleGradientOkLab(prof.Palette, h)
 				if hasBiomes {
-					biomeVar := biomeNoise.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 4.0)
+					sx, sy, sz := dx, dy, dz
+					if jitter != nil {
+						sx, sy, sz = jitter.TransformPixel(cubemap.FacePosZ, px, py, dx, dy, dz)
+					}
+					biomeVar := biomeNoise.FractalNoise3D(sx, sy, sz, 3, 2.0, 0.5, 4.0)
 					adjustedLat := absLat + (biomeVar-0.5)*0.15
 					if len(prof.EquatorialPalette) > 0 && adjustedLat < 0.35 {
 						eqColor := planetcolor.SampleGradientOkLab(prof.EquatorialPalette, h)

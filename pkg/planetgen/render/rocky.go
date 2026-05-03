@@ -22,7 +22,7 @@ var (
 // RenderRocky generates a rocky planet cube map.
 func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
 	heightmap, craters := generateRockyHeightmap(profile, seed, S)
-	return colorizeRocky(profile, seed, S, heightmap, craters)
+	return colorizeRocky(profile, seed, S, heightmap, craters, nil)
 }
 
 // RenderRockyHeightmap returns a grayscale cube map showing the
@@ -491,15 +491,15 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 
 // colorizeRocky paints the heightmap into a color cube map using the
 // profile's palette/biome/ocean/snow/cap/shading/LUT settings.
-func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater) *cubemap.CubeMap {
-	return colorizeRockyDebug(profile, seed, S, heightmap, craters, nil, nil)
+func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater, jitter *noise.JitterField) *cubemap.CubeMap {
+	return colorizeRockyDebug(profile, seed, S, heightmap, craters, nil, nil, jitter)
 }
 
 // colorizeRockyDebug is the debug-aware variant of colorizeRocky. When
 // frame is non-nil, it appends a DebugStage after each color pipeline
 // stage. When a stage's name is in bypass, the stage is skipped while
 // any noise draws are still consumed so downstream streams stay stable.
-func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater, frame *DebugFrame, bypass DebugBypass) *cubemap.CubeMap {
+func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater, frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField) *cubemap.CubeMap {
 	capNoise := noise.New(seed + 42)
 	oceanNoise := noise.New(seed + 77)
 	biomeNoise := noise.New(seed + 99)
@@ -535,7 +535,11 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 						c = planetcolor.SampleGradientOkLab(profile.Palette, h)
 					}
 					if hasBiomes {
-						biomeVar := biomeNoise.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 4.0)
+						sx, sy, sz := dx, dy, dz
+						if jitter != nil {
+							sx, sy, sz = jitter.TransformPixel(face, px, py, dx, dy, dz)
+						}
+						biomeVar := biomeNoise.FractalNoise3D(sx, sy, sz, 3, 2.0, 0.5, 4.0)
 						if !bypassPalette {
 							adjustedLat := absLat + (biomeVar-0.5)*0.15
 							if len(profile.EquatorialPalette) > 0 && adjustedLat < 0.35 {

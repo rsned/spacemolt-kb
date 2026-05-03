@@ -438,7 +438,7 @@ func generateFlatDebug(_ js.Value, args []js.Value) any {
 			}
 		}
 	}
-	frame := render.RenderFlatDebug(&prof, s, size, bypass)
+	frame := render.RenderFlatDebug(&prof, s, size, bypass, nil)
 
 	// encodeHeight encodes a []float64 as a square grayscale PNG.
 	encodeHeight := func(hm []float64, signed bool) string {
