@@ -585,7 +585,8 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 						h := heightmap.Get(face, px, py)
 						if h > profile.SnowLine {
 							c := out.Get(face, px, py)
-							snowBlend := (h - profile.SnowLine) / (1.0 - profile.SnowLine)
+							t := (h - profile.SnowLine) / (1.0 - profile.SnowLine)
+							snowBlend := t * t * (3 - 2*t)
 							snowBlend = math.Min(1.0, snowBlend*1.5)
 							latBoost := 1.0 + absLat*0.5
 							snowBlend = math.Min(1.0, snowBlend*latBoost)

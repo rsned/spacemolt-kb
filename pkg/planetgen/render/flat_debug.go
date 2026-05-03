@@ -281,7 +281,8 @@ func RenderFlatDebug(prof *types.PlanetProfile, masterSeed int64, size int, bypa
 						lat := math.Asin(rawY)
 						absLat := math.Abs(lat) / (math.Pi / 2)
 						c := buf[idx]
-						snowBlend := (h - prof.SnowLine) / (1.0 - prof.SnowLine)
+						t := (h - prof.SnowLine) / (1.0 - prof.SnowLine)
+						snowBlend := t * t * (3 - 2*t)
 						snowBlend = math.Min(1.0, snowBlend*1.5)
 						latBoost := 1.0 + absLat*0.5
 						snowBlend = math.Min(1.0, snowBlend*latBoost)
