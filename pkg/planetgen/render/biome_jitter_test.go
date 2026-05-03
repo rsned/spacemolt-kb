@@ -88,7 +88,10 @@ func TestBiomeJitterAffectsOutput(t *testing.T) {
 
 	pct := float64(diff) / float64(total) * 100
 	t.Logf("biome-jitter diff: %d/%d pixels (%.2f%%)", diff, total, pct)
-	if pct < 0.5 {
-		t.Errorf("expected ≥0.5%% pixels to differ, got %.2f%%", pct)
+	// 10% catches any regression that silences the transform on more than a
+	// few faces; observed value at S=32 is ~32%, so this leaves headroom for
+	// future jitter parameter tweaks without losing the regression guard.
+	if pct < 10 {
+		t.Errorf("expected ≥10%% pixels to differ, got %.2f%%", pct)
 	}
 }
