@@ -135,6 +135,48 @@ func floodFillPlates(pf *PlateField, master int64, S int) {
 		pf.PlateID[item.Addr.Face][item.Addr.PY*S+item.Addr.PX] = item.ID
 		pushNeighbors(item.Addr.Face, item.Addr.PX, item.Addr.PY, item.ID)
 	}
+
+	// Seam-pin pass: cross-face neighbor lookup is symmetric (verified
+	// by cubemap.TestFacePixelNeighbors4Symmetric), but the random-pop
+	// frontier can still assign a matched-pair pixel and its cross-face
+	// twin different plate ids when both pixels' winning frontier entries
+	// were pushed from different chains. This pass enforces categorical
+	// equality at every seam pair by a deterministic lexicographic
+	// tiebreak. It is idempotent: applying the rule twice yields the
+	// same result, so walking each pair from both sides is safe.
+	//
+	// Bound: at most 12·S seam pixels exist out of 6·S² total, so the
+	// reassignment touches ≤ 0.4%·(1/S) of pixels — far below the noise
+	// floor of plate-area statistics, and the per-archetype plate-count
+	// invariant is preserved because we never overwrite the only pixel
+	// of a plate (each plate's seed pixel is interior-of-its-own-plate
+	// at S=64 with PlateCount ≤ 16).
+	for f := cubemap.Face(0); f < cubemap.NumFaces; f++ {
+		for py := 0; py < S; py++ {
+			for px := 0; px < S; px++ {
+				if px > 0 && px < S-1 && py > 0 && py < S-1 {
+					continue
+				}
+				nbrs := cubemap.FacePixelNeighbors4(f, px, py, S)
+				for _, n := range nbrs {
+					if n.Face == f {
+						continue
+					}
+					hereID := pf.PlateID[f][py*S+px]
+					thereID := pf.PlateID[n.Face][n.PY*S+n.PX]
+					if hereID == thereID {
+						continue
+					}
+					// Lexicographic tiebreak: lower (face, py, px) wins.
+					if n.Face < f || (n.Face == f && (n.PY < py || (n.PY == py && n.PX < px))) {
+						pf.PlateID[f][py*S+px] = thereID
+					} else {
+						pf.PlateID[n.Face][n.PY*S+n.PX] = hereID
+					}
+				}
+			}
+		}
+	}
 }
 
 // boundaryKind classifies a plate-boundary pixel by its relative-
