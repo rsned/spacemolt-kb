@@ -1296,12 +1296,15 @@ function renderDebugGrid(stages) {
     }
     return h;
   };
+  const headerFor = (kind) => {
+    if (kind === 'color') return ['color after', '—', '—', '—'];
+    if (kind === 'field') return ['field', '—', '—', '—'];
+    return ['raw', 'input bands', 'output bands', 'sum after'];
+  };
   let lastKind = null;
   for (const s of stages) {
     if (s.kind !== lastKind) {
-      grid.appendChild(makeHeader(s.kind === 'color'
-        ? ['color after', '—', '—', '—']
-        : ['raw', 'input bands', 'output bands', 'sum after']));
+      grid.appendChild(makeHeader(headerFor(s.kind)));
       lastKind = s.kind;
     }
     const row = document.createElement('div');
@@ -1327,9 +1330,10 @@ function renderDebugGrid(stages) {
     label.appendChild(toggle);
     row.appendChild(label);
 
-    const keys = s.kind === 'color'
-      ? ['color_after', null, null, null]
-      : ['raw', 'input_bands', 'output_bands', 'sum_after'];
+    let keys;
+    if (s.kind === 'color') keys = ['color_after', null, null, null];
+    else if (s.kind === 'field') keys = ['field_after', null, null, null];
+    else keys = ['raw', 'input_bands', 'output_bands', 'sum_after'];
     const splineStages = new Set(['Continentalness', 'Detail', 'PeaksValleys', 'Temperature', 'Humidity']);
     for (const key of keys) {
       if (!key || !s[key]) {

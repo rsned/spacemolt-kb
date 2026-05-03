@@ -267,12 +267,21 @@ func generateDebug(_ js.Value, args []js.Value) any {
 			"kind":    st.Kind,
 			"skipped": st.Skipped,
 		}
-		if st.Kind == "color" {
+		switch st.Kind {
+		case "color":
 			row["color_after"] = encodeCM(st.ColorAfter)
-		} else {
-			// TODO(P7 Task 15): handle Kind=="field" by encoding
-			// CategoricalAfter / BooleanAfter / ScalarAfter; today
-			// those stages emit empty thumbnails in the debug grid.
+		case "field":
+			switch {
+			case st.CategoricalAfter != nil:
+				row["field_after"] = encodeCM(st.CategoricalAfter)
+			case st.BooleanAfter != nil:
+				row["field_after"] = encodeCM(st.BooleanAfter)
+			case st.ScalarAfter != nil:
+				// SDFs are in km (non-negative, range 0..π·R); auto-scale via the
+				// signed encoder so faint near-boundary values stay visible.
+				row["field_after"] = encodeCMF(st.ScalarAfter, true)
+			}
+		default:
 			row["raw"] = encodeCMF(st.RawFbm, true)
 			row["input_bands"] = encodeCM(st.InputBands)
 			row["output_bands"] = encodeCM(st.OutputBands)
