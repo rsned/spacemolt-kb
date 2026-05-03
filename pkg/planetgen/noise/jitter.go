@@ -164,9 +164,13 @@ func (jf *JitterField) Transform(px, py, pz float64) (float64, float64, float64)
 
 // TransformPixel is the same as Transform but uses the precomputed
 // PerPixel cell-id raster to find the cell in O(1) instead of O(N).
-// Use this from Detail-field and biome-jitter inner loops where face
-// and pixel coords are already in scope. Returns the input unchanged
-// if jf is nil.
+// Returns the input unchanged if jf is nil.
+//
+// Deprecated: TransformPixel uses the per-face PerPixel raster, which
+// is discontinuous at cube seams (8.7-46.6% Detail-field discontinuity
+// observed in Phase 7 seam-QA). Use Transform for production sampling;
+// it is direction-based and seam-symmetric. The PerPixel raster is
+// retained for the "Jitter: cells" debug stage only.
 func (jf *JitterField) TransformPixel(face cubemap.Face, px, py int, tx, ty, tz float64) (float64, float64, float64) {
 	if jf == nil {
 		return tx, ty, tz

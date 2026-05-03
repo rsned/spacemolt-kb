@@ -22,9 +22,14 @@ var controlFieldDomains = [5]string{
 // so adding a new control field never shifts existing field outputs.
 //
 // When jitter is non-nil, the Detail field (index 1) samples its fBm
-// through the jittered direction returned by jitter.TransformPixel,
+// through the jittered direction returned by jitter.Transform,
 // breaking visible repetition across Voronoi cell boundaries. Pass nil
 // to use the unmodified pixel direction for all fields.
+//
+// The cell lookup uses direction-based nearest-cell search (not the
+// per-face PerPixel raster), so adjacent face-edge pixels that map to
+// the same sphere direction resolve to the same cell, preserving seam
+// continuity across cube faces.
 //
 // Output values are normalized to [0, 1] per the noise.Generator
 // convention.
@@ -46,7 +51,7 @@ func GenerateControlFields(master int64, cfg types.ControlConfig, S int, jitter 
 				for px := range S {
 					dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
 					if i == 1 && jitter != nil {
-						dx, dy, dz = jitter.TransformPixel(face, px, py, dx, dy, dz)
+						dx, dy, dz = jitter.Transform(dx, dy, dz)
 					}
 					out[i].Set(face, px, py,
 						ng.FractalNoise3D(dx, dy, dz, fc.Octaves, fc.Lacunarity, fc.Persistence, fc.Freq)*fc.Amp)

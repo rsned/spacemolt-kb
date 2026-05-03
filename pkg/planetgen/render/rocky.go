@@ -540,7 +540,8 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 					if hasBiomes {
 						sx, sy, sz := dx, dy, dz
 						if jitter != nil {
-							sx, sy, sz = jitter.TransformPixel(face, px, py, dx, dy, dz)
+							// Direction-based lookup: seam-symmetric.
+							sx, sy, sz = jitter.Transform(dx, dy, dz)
 						}
 						biomeVar := biomeNoise.FractalNoise3D(sx, sy, sz, 3, 2.0, 0.5, 4.0)
 						if !bypassPalette {
