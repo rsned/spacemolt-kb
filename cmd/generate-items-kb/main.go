@@ -47,10 +47,12 @@ type Item struct {
 
 // ShipBuildRef links an item to a ship that requires it as a build material.
 type ShipBuildRef struct {
-	ShipID       string
-	ShipName     string
-	ShipCategory string
-	Quantity     int
+	ShipID        string
+	ShipName      string
+	ShipCategory  string
+	ShipClass     string
+	ShipClassSlug string
+	Quantity      int
 }
 
 // ProducedBy describes a recipe that produces this item.
@@ -745,6 +747,7 @@ func loadShipBuildMaterials(shipCatalogPath string, items map[string]*Item) erro
 			ID             string `json:"id"`
 			Name           string `json:"name"`
 			Category       string `json:"category"`
+			Class          string `json:"class"`
 			BuildMaterials []struct {
 				ItemID   string `json:"item_id"`
 				Quantity int    `json:"quantity"`
@@ -756,13 +759,16 @@ func loadShipBuildMaterials(shipCatalogPath string, items map[string]*Item) erro
 	}
 
 	for _, ship := range catalog.Items {
+		classSlug := strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(ship.Category, " ", "-"), "_", "-")) + "--" + strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(ship.Class, " ", "-"), "_", "-"))
 		for _, mat := range ship.BuildMaterials {
 			if it, ok := items[mat.ItemID]; ok {
 				it.UsedInShips = append(it.UsedInShips, ShipBuildRef{
-					ShipID:       ship.ID,
-					ShipName:     ship.Name,
-					ShipCategory: ship.Category,
-					Quantity:     mat.Quantity,
+					ShipID:        ship.ID,
+					ShipName:      ship.Name,
+					ShipCategory:  ship.Category,
+					ShipClass:     ship.Class,
+					ShipClassSlug: classSlug,
+					Quantity:      mat.Quantity,
 				})
 			}
 		}
@@ -2090,7 +2096,7 @@ var htmlItemTemplate = `<!DOCTYPE html>
             <tbody>
 {{- range .UsedInShips}}
             <tr>
-              <td>{{.ShipName}}</td>
+              <td><a href="../../ships/index.html#{{.ShipClassSlug}}">{{.ShipName}}</a></td>
               <td>{{.ShipCategory}}</td>
               <td>{{.Quantity}}</td>
             </tr>
