@@ -166,6 +166,51 @@ func scalarFromKmPerFace(km [cubemap.NumFaces][]float64, S int) *cubemap.CubeMap
 	return out
 }
 
+// paintBooleanCubeMap renders a per-face boolean mask as a two-tone
+// cube map: river-blue for true pixels, dark-land for false. Used by
+// the debug viewer to display the flow river mask.
+func paintBooleanCubeMap(mask [cubemap.NumFaces][]bool, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	on := color.RGBA{R: 64, G: 192, B: 255, A: 255}
+	off := color.RGBA{R: 16, G: 16, B: 24, A: 255}
+	for f := range mask {
+		for i, b := range mask[f] {
+			if b {
+				out.Faces[f][i] = on
+			} else {
+				out.Faces[f][i] = off
+			}
+		}
+	}
+	return out
+}
+
+// scalarFromAccum renders a flow-accumulation field as a log-scaled
+// scalar cube map. Accumulation values span orders of magnitude (a few
+// dozen at headwaters, tens of thousands at trunk rivers); log10(1+a)
+// compresses that range into a roughly [0, 4] band that the debug
+// viewer's grayscale ramp can display.
+func scalarFromAccum(accum [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF {
+	out := cubemap.NewF(S)
+	for f := range accum {
+		for i, a := range accum[f] {
+			out.Faces[f][i] = math.Log10(1 + a)
+		}
+	}
+	return out
+}
+
+// scalarFromMultiplier copies a per-pixel multiplier field (e.g. the
+// rain-shadow humidity multiplier) into a CubeMapF. The values are
+// already in a sensible [0, ~2] range so no transform is applied.
+func scalarFromMultiplier(mult [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF {
+	out := cubemap.NewF(S)
+	for f := range mult {
+		copy(out.Faces[f], mult[f])
+	}
+	return out
+}
+
 func goldenHue(id int) color.RGBA {
 	const phi = 0.61803398875
 	h := math.Mod(float64(id)*phi, 1.0)

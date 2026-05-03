@@ -1,6 +1,7 @@
 package render
 
 import (
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/biome"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
@@ -17,9 +18,11 @@ type DebugBypass map[string]bool
 // the operator each step of the rocky pipeline. Populated by
 // RenderRockyDebug (added in T3).
 type DebugFrame struct {
-	Stages []DebugStage
-	Plates *field.PlateField
-	Jitter *noise.JitterField
+	Stages     []DebugStage
+	Plates     *field.PlateField
+	Jitter     *noise.JitterField
+	Flow       *field.FlowField
+	RainShadow *biome.RainShadowField
 }
 
 // DebugStage is one row in the pipeline visualization.
@@ -70,6 +73,17 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 	if jitter != nil {
 		frame.Stages = append(frame.Stages,
 			DebugStage{Name: "Jitter: cells", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(jitter.PerPixel, S)},
+		)
+	}
+	if frame.Flow != nil {
+		frame.Stages = append(frame.Stages,
+			DebugStage{Name: "Flow: rivers", Kind: "field", BooleanAfter: paintBooleanCubeMap(frame.Flow.Rivers, S)},
+			DebugStage{Name: "Flow: accum", Kind: "field", ScalarAfter: scalarFromAccum(frame.Flow.Accum, S)},
+		)
+	}
+	if frame.RainShadow != nil {
+		frame.Stages = append(frame.Stages,
+			DebugStage{Name: "RainShadow", Kind: "field", ScalarAfter: scalarFromMultiplier(frame.RainShadow.Multiplier, S)},
 		)
 	}
 	return frame

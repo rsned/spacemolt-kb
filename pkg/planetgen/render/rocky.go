@@ -498,6 +498,42 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		}
 	}
 
+	// Phase 8 item 15: D8 flow + Planchon-Darboux fill + river carving.
+	// Runs after Erosion (which has already smoothed the surface) so rivers
+	// cut through the eroded terrain. Disabled when RiverThreshold==0.
+	{
+		active := profile.Flow.RiverThreshold > 0
+		bypassed := bypass["Flow"]
+		var hmBefore *cubemap.CubeMapF
+		if frame != nil {
+			hmBefore = heightmap.Clone()
+		}
+		if active && !bypassed {
+			ff := field.GenerateFlow(heightmap, profile.Flow)
+			if ff != nil {
+				field.CarveRivers(heightmap, ff, profile.Flow)
+				if frame != nil {
+					frame.Flow = ff
+				}
+			}
+		}
+		if frame != nil {
+			delta := cubemap.NewF(S)
+			for face := range cubemap.Face(cubemap.NumFaces) {
+				for i := range heightmap.Faces[face] {
+					delta.Faces[face][i] = heightmap.Faces[face][i] - hmBefore.Faces[face][i]
+				}
+			}
+			frame.Stages = append(frame.Stages, DebugStage{
+				Name:     "Flow",
+				Kind:     "height",
+				RawFbm:   delta,
+				SumAfter: heightmap.Clone(),
+				Skipped:  bypassed || !active,
+			})
+		}
+	}
+
 	var craters []feature.Crater
 	if profile.CraterCount > 0 {
 		var hmBefore *cubemap.CubeMapF
@@ -551,6 +587,15 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 	if useBiomeTable {
 		tField, mField = biome.GenerateClimateFields(seed, profile, S)
 	}
+	// Phase 8 item 16: orographic rain-shadow multiplier on the humidity
+	// (M) input to the Whittaker biome lookup. Disabled when WalkSteps==0.
+	var rainShadow *biome.RainShadowField
+	if useBiomeTable && profile.RainShadow.WalkSteps > 0 {
+		rainShadow = biome.GenerateRainShadow(heightmap, profile.RainShadow)
+		if frame != nil {
+			frame.RainShadow = rainShadow
+		}
+	}
 	out := cubemap.New(S)
 
 	// Stage: Palette/Biome base color.
@@ -567,7 +612,17 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 				if useBiomeTable {
 					// Consume biomeNoise draws regardless of bypass for rng stability.
 					if !bypassPalette {
-						c = biome.LookupColor(profile.BiomeTable, tField.Get(face, px, py), mField.Get(face, px, py), h)
+						m := mField.Get(face, px, py)
+						if rainShadow != nil {
+							m *= rainShadow.Multiplier[face][py*S+px]
+							if m < 0 {
+								m = 0
+							}
+							if m > 1 {
+								m = 1
+							}
+						}
+						c = biome.LookupColor(profile.BiomeTable, tField.Get(face, px, py), m, h)
 					}
 				} else {
 					if !bypassPalette {
