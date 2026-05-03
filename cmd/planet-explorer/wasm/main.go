@@ -281,6 +281,9 @@ func generateDebug(_ js.Value, args []js.Value) any {
 		if st.Kind == "color" {
 			row["color_after"] = encodeCM(st.ColorAfter)
 		} else {
+			// TODO(P7 Task 15): handle Kind=="field" by encoding
+			// CategoricalAfter / BooleanAfter / ScalarAfter; today
+			// those stages emit empty thumbnails in the debug grid.
 			row["raw"] = encodeCMF(st.RawFbm, true)
 			row["input_bands"] = encodeCM(st.InputBands)
 			row["output_bands"] = encodeCM(st.OutputBands)
