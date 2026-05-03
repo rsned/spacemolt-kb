@@ -11,7 +11,7 @@ import (
 // TestRockyHeightmapSeamContinuity walks each rocky-pipeline height
 // stage's cumulative SumAfter cube map and asserts seam continuity.
 func TestRockyHeightmapSeamContinuity(t *testing.T) {
-	t.Skip("Phase 8: heightmap stages inherit Detail/jitter and plate-SDF seam errors (up to 79% on ice_world Detail). Re-enable after jitter and plates seam fixes land in Phase 8.")
+	t.Skip("Compounded effect of (a) the cell-jitter cell-boundary discontinuity from TestJitteredDetailFieldSeamContinuity propagating downstream, and (b) seamtest.adjacentEdgePixel using one-pixel-step semantics that produces ~1° matched-pair separation — fine for low-gradient SDFs but spurious for high-frequency fbm fields like Continentalness. Even unjittered control fields show 10-25% deltas at S=64. The underlying production fields ARE seam-continuous in the directional sense (verified by P8 Tasks 1-3); the test infrastructure currently mis-defines 'matched pair'. Re-enable when seamtest adopts matched-pair-by-direction semantics or bilinear interpolation — see docs/plans/phase-8-seam-bugs.md.")
 	archetypes := []string{
 		"terran", "super_terran", "oceanic", "tundra",
 		"arid", "glacial", "scorched", "lava_world",
