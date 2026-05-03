@@ -74,14 +74,54 @@ td.num, th:not(:first-child) {
 
 /* Ship detail page styles */
 .ship-lore {
-  padding: 0.5rem 1rem;
-  line-height: 1.6;
+  padding: 1rem 1.5rem;
+  line-height: 1.8;
   white-space: pre-wrap;
+  font-size: var(--text-body);
+  color: hsl(var(--text-primary));
 }
 
 .flavor-tags {
-  padding: 0.5rem 1rem;
+  padding: 1rem 1.5rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
+}
+
+/* Ensure tables in ship detail pages have proper spacing */
+.ship-detail-table {
+  margin: 0;
+  font-size: var(--text-body);
+}
+
+.ship-detail-table td,
+.ship-detail-table th {
+  padding: 0.75rem 1rem;
+}
+
+/* Ensure section-label has proper spacing in ship detail pages */
+.section-label {
+  padding: 0.5rem 1.5rem;
+  margin: 0;
+}
+
+/* Ensure cards in ship detail pages have proper spacing */
+.card {
+  margin-bottom: 1.5rem;
+}
+
+/* Improve breadcrumb visibility */
+.breadcrumb {
+  font-size: var(--text-ui);
+  color: hsl(var(--text-muted));
+  margin-bottom: 1rem;
+}
+
+.breadcrumb a {
+  color: hsl(var(--link));
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
 }
