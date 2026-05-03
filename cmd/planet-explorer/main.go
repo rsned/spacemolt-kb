@@ -6,7 +6,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -19,7 +18,6 @@ func main() {
 	addr := flag.String("addr", ":8080", "address to listen on")
 	webDir := flag.String("web", "cmd/planet-explorer/web", "path to web assets directory")
 	wasmPath := flag.String("wasm", "cmd/planet-explorer/web/planet-explorer.wasm", "path to compiled wasm binary")
-	useSwatch := flag.Bool("use_swatch_mode", true, "render rocky planets via the fast 2D flat path (default); --use_swatch_mode=false renders the full cube-sphere pipeline so sphere-global stages (plates, jitter cells, JFA coastal) are exercised")
 	flag.Parse()
 
 	abs, err := filepath.Abs(*webDir)
@@ -34,26 +32,8 @@ func main() {
 		log.Fatalf("index.html not found at %s: %v", indexPath, err)
 	}
 
-	fileServer := http.FileServer(http.Dir(abs))
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" || r.URL.Path == "/index.html" {
-			b, err := os.ReadFile(indexPath)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			configScript := fmt.Sprintf(
-				`<script>window.PLANET_EXPLORER_CONFIG = {useSwatchMode: %t};</script>`,
-				*useSwatch,
-			)
-			out := strings.Replace(string(b), "<!--PLANET_EXPLORER_CONFIG-->", configScript, 1)
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			_, _ = w.Write([]byte(out))
-			return
-		}
-		fileServer.ServeHTTP(w, r)
-	})
+	mux.Handle("/", http.FileServer(http.Dir(abs)))
 	mux.HandleFunc("/wasm", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/wasm")
 		http.ServeFile(w, r, *wasmPath)
@@ -65,7 +45,6 @@ func main() {
 	}
 	log.Printf("serving web assets from: %s", abs)
 	log.Printf("serving wasm from: %s", *wasmPath)
-	log.Printf("use_swatch_mode: %t", *useSwatch)
 	if err := http.ListenAndServe(*addr, mux); err != nil {
 		log.Fatal(err)
 	}

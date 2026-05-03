@@ -14,25 +14,6 @@ const profileTextarea = $('#profile-json');
 const cubeCanvas = $('#cube-canvas');
 const equirectCanvas = $('#equirect-canvas');
 const viewModeSel = $('#view-mode');
-const renderModeSel = null;
-const swatchFaceSel = $('#swatch-face');
-const swatchCanvas = $('#swatch-canvas');
-const swatchDiv = $('.planet-swatch');
-const renderModeBadge = $('#render-mode-badge');
-const cubePanel = $('.planet-cube');
-const equirectPanel = $('.planet-equirect');
-const spherePanel = $('.planet-sphere');
-const sphereHintEl = $('.sphere-hint');
-const viewportTitle = $('#viewport-title');
-const cubeTitleEl = $('#cube-title');
-const equirectTitleEl = $('#equirect-title');
-
-// useSwatchMode is set at server startup via the --use_swatch_mode flag,
-// shipped to the page through PLANET_EXPLORER_CONFIG. true (default) renders
-// rocky planets via the fast 2D flat path; false uses the cube-sphere
-// pipeline so sphere-global stages (plates, jitter cells, JFA coastal,
-// craters) actually run and can be validated visually.
-const useSwatchMode = (window.PLANET_EXPLORER_CONFIG?.useSwatchMode ?? true);
 
 let wasmReady = false;
 
@@ -52,26 +33,6 @@ async function init() {
   go.run(result.instance);
   wasmReady = true;
   status.textContent = 'Ready';
-
-  if (renderModeBadge) {
-    renderModeBadge.textContent = useSwatchMode ? '[swatch]' : '[cube]';
-    renderModeBadge.title = useSwatchMode
-      ? 'Fast 2D flat path. Sphere-global stages (plates, jitter cells, JFA coastal, craters) are skipped. Restart with --use_swatch_mode=false to see them.'
-      : 'Full cube-sphere pipeline. Slower; sphere-global stages run.';
-  }
-
-  // In cube mode, reveal the rotating sphere, cube cross, and equirect bake
-  // panels; the swatch (single face) panel is redundant when the full cube
-  // cross is visible, so hide it (and its sole consumer, the swatch-face
-  // picker, stays hidden).
-  // Sphere animation auto-starts at the bottom of this file when sphereCanvas
-  // is non-null (which is gated on !useSwatchMode).
-  if (!useSwatchMode) {
-    if (swatchDiv) swatchDiv.hidden = true;
-    for (const el of [viewportTitle, spherePanel, sphereHintEl, cubeTitleEl, cubePanel, equirectTitleEl, equirectPanel]) {
-      if (el) el.hidden = false;
-    }
-  }
 
   // Load default profile for the initial type.
   loadDefaultProfile();
@@ -136,62 +97,27 @@ async function regenerate() {
 
   const t0 = performance.now();
 
-  // Use the fast 2D flat path for swatch previews when --use_swatch_mode
-  // is set (default). With --use_swatch_mode=false, rocky planets render
-  // via the cube-sphere pipeline so sphere-global stages run. Gas-giant
-  // profiles always fall through to the cube path since generateFlat
-  // only supports rocky.
-  let prof;
-  try { prof = JSON.parse(profileJSON); } catch { prof = {}; }
-  if (useSwatchMode && prof.Renderer === 'rocky' && window.planetExplorerGenerateFlat) {
-    const pngBytes = planetExplorerGenerateFlat(profileJSON, seed, size);
-    if (pngBytes instanceof Uint8Array) {
-      await paintPNGToCanvas(swatchCanvas, pngBytes, size);
-    } else {
-      status.textContent = 'Error: ' + pngBytes;
-      return;
-    }
+  // Cube-sphere path for both rocky and gas-giant profiles. Rocky uses the
+  // full pipeline (plates, jitter, JFA coastal, erosion, craters); gas
+  // giants use the gas-giant renderer.
+  const mode = viewModeSel ? viewModeSel.value : 'color';
+  let cubePNG;
+  if (mode === 'heightmap') {
+    cubePNG = planetExplorerGenerateHeightmap(profileJSON, seed, size);
+  } else if (debugBypass.size > 0 && window.planetExplorerGenerateWithBypass) {
+    cubePNG = planetExplorerGenerateWithBypass(profileJSON, seed, size, JSON.stringify([...debugBypass]));
   } else {
-    // Non-rocky (gas giant, unknown): fall back to cube-sphere path.
-    const mode = viewModeSel ? viewModeSel.value : 'color';
-    let cubePNG;
-    if (mode === 'heightmap') {
-      cubePNG = planetExplorerGenerateHeightmap(profileJSON, seed, size);
-    } else if (debugBypass.size > 0 && window.planetExplorerGenerateWithBypass) {
-      cubePNG = planetExplorerGenerateWithBypass(profileJSON, seed, size, JSON.stringify([...debugBypass]));
-    } else {
-      cubePNG = planetExplorerGenerate(profileJSON, seed, size);
-    }
-    if (cubePNG instanceof Uint8Array) {
-      if (useSwatchMode) {
-        await paintSwatchFromCubePNG(cubePNG);
-      } else if (cubeCanvas && equirectCanvas) {
-        await paintToCanvas(cubeCanvas, cubePNG);
-        const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
-        if (equirectPNG instanceof Uint8Array) {
-          await paintToCanvas(equirectCanvas, equirectPNG);
-          refreshSphereTexture();
-        }
-      }
-    } else {
-      status.textContent = 'Error: ' + cubePNG;
-      return;
-    }
+    cubePNG = planetExplorerGenerate(profileJSON, seed, size);
   }
-
-  if (window.planetExplorerFlatCacheStats) {
-    try {
-      const statsRaw = planetExplorerFlatCacheStats();
-      if (typeof statsRaw === 'string') {
-        const stats = JSON.parse(statsRaw);
-        const total = stats.hits + stats.misses;
-        const pct = total > 0 ? Math.round(100 * stats.hits / total) : 0;
-        const el = document.getElementById('swatch-cache-stats');
-        if (el) {
-          el.textContent = `Cache: ${stats.hits} hits / ${stats.misses} misses (${pct}% hit rate)`;
-        }
-      }
-    } catch (e) {}
+  if (!(cubePNG instanceof Uint8Array)) {
+    status.textContent = 'Error: ' + cubePNG;
+    return;
+  }
+  await paintToCanvas(cubeCanvas, cubePNG);
+  const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
+  if (equirectPNG instanceof Uint8Array) {
+    await paintToCanvas(equirectCanvas, equirectPNG);
+    refreshSphereTexture();
   }
 
   const elapsed = (performance.now() - t0).toFixed(0);
@@ -203,16 +129,6 @@ async function regenerate() {
   if (debugPanel && debugPanel.open) {
     refreshDebugView();
   }
-}
-
-// paintPNGToCanvas decodes a PNG byte array and draws it to the canvas,
-// resizing the canvas to size×size first.
-async function paintPNGToCanvas(canvas, pngBytes, size) {
-  const blob = new Blob([pngBytes], { type: 'image/png' });
-  const bmp = await createImageBitmap(blob);
-  canvas.width = size;
-  canvas.height = size;
-  canvas.getContext('2d').drawImage(bmp, 0, 0);
 }
 
 async function paintToCanvas(canvas, pngBytes) {
@@ -233,69 +149,9 @@ async function paintToCanvas(canvas, pngBytes) {
   });
 }
 
-// cube-cross face layout: crossCells[faceIndex] = {col, row}
-// Indices match the swatch-face <select> option values:
-// 0=+X (col2,row1), 1=-X (col0,row1), 2=+Y (col1,row0),
-// 3=-Y (col1,row2), 4=+Z (col1,row1), 5=-Z (col3,row1)
-const cubeCrossLayout = [
-  { col: 2, row: 1 }, // 0: +X
-  { col: 0, row: 1 }, // 1: -X
-  { col: 1, row: 0 }, // 2: +Y
-  { col: 1, row: 2 }, // 3: -Y
-  { col: 1, row: 1 }, // 4: +Z (front, default)
-  { col: 3, row: 1 }, // 5: -Z
-];
-
-let lastCubeBitmap = null;
-let lastCubeS = 0;
-
-async function paintSwatchFromCubePNG(pngBytes) {
-  if (!(pngBytes instanceof Uint8Array)) return;
-  const blob = new Blob([pngBytes], { type: 'image/png' });
-  const bmp = await createImageBitmap(blob);
-  const S = Math.floor(bmp.width / 4); // face size = cube cross width / 4
-  const offscreen = new OffscreenCanvas(bmp.width, bmp.height);
-  const octx = offscreen.getContext('2d');
-  octx.drawImage(bmp, 0, 0);
-  const faceIdx = parseInt(swatchFaceSel.value, 10) || 4;
-  const layout = cubeCrossLayout[faceIdx];
-  const sx = layout.col * S;
-  const sy = layout.row * S;
-  const imgData = octx.getImageData(sx, sy, S, S);
-  swatchCanvas.width = S;
-  swatchCanvas.height = S;
-  const dstCtx = swatchCanvas.getContext('2d');
-  dstCtx.putImageData(imgData, 0, 0);
-  // Cache the bitmap in case face dropdown changes without re-render
-  lastCubeBitmap = bmp;
-  lastCubeS = S;
-}
-
 typePicker.addEventListener('change', loadDefaultProfile);
 renderBtn.addEventListener('click', regenerate);
 if (viewModeSel) viewModeSel.addEventListener('change', regenerate);
-if (swatchFaceSel) {
-  swatchFaceSel.addEventListener('change', async () => {
-    // Re-crop from the already-cached bitmap — no wasm re-run needed.
-    if (!lastCubeBitmap) return;
-    const offscreen = new OffscreenCanvas(lastCubeBitmap.width, lastCubeBitmap.height);
-    const octx = offscreen.getContext('2d');
-    octx.drawImage(lastCubeBitmap, 0, 0);
-    const faceIdx = parseInt(swatchFaceSel.value, 10) || 4;
-    const layout = cubeCrossLayout[faceIdx];
-    const sx = layout.col * lastCubeS;
-    const sy = layout.row * lastCubeS;
-    const imgData = octx.getImageData(sx, sy, lastCubeS, lastCubeS);
-    swatchCanvas.width = lastCubeS;
-    swatchCanvas.height = lastCubeS;
-    swatchCanvas.getContext('2d').putImageData(imgData, 0, 0);
-    // Refresh debug panel for the new face if it's open.
-    const debugPanel = document.getElementById('debug-panel');
-    if (debugPanel && debugPanel.open) {
-      refreshDebugView();
-    }
-  });
-}
 exportBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(profileTextarea.value);
   status.textContent = 'JSON copied to clipboard';
@@ -1304,9 +1160,9 @@ function rgbaCSS(c) {
 // --- Rotating-sphere preview (adapted from kb planet-detail pages) ---
 // Pure 2D canvas, no external libs. Texture is the equirect bake;
 // since equirect is generated from the cube map, the sphere visually
-// represents the cube-map content. Active only when --use_swatch_mode=false.
+// represents the cube-map content.
 
-const sphereCanvas = useSwatchMode ? null : $('#sphere-canvas');
+const sphereCanvas = $('#sphere-canvas');
 let sphereTextureData = null, sphereTexW = 0, sphereTexH = 0;
 let sphereRotY = 0.4, sphereRotX = 0.15;
 let sphereDragging = false, sphereLastMX = 0, sphereLastMY = 0;
@@ -1407,28 +1263,15 @@ if (sphereCanvas) {
 const debugBypass = new Set();
 
 function refreshDebugView() {
+  if (!window.planetExplorerGenerateDebug) {
+    console.warn('debug API not available; rebuild wasm');
+    return;
+  }
   const profileJSON = profileTextarea.value;
   const seed = seedInput.value;
   const size = parseInt(faceSizeSel.value, 10) || 256;
   const bypassJSON = JSON.stringify([...debugBypass]);
-  let prof;
-  try { prof = JSON.parse(profileJSON); } catch { prof = {}; }
-
-  // Match the routing of regenerate(): swatch mode + rocky uses the flat
-  // debug path; everything else uses a cube-path debug (full equirect in
-  // cube mode, single-face crop in swatch mode for gas giants).
-  let result;
-  if (useSwatchMode && prof.Renderer === 'rocky' && window.planetExplorerGenerateFlatDebug) {
-    result = window.planetExplorerGenerateFlatDebug(profileJSON, seed, size, bypassJSON);
-  } else if (!useSwatchMode && window.planetExplorerGenerateDebug) {
-    result = window.planetExplorerGenerateDebug(profileJSON, seed, size, bypassJSON);
-  } else if (window.planetExplorerGenerateDebugSwatch) {
-    const faceIdx = swatchFaceSel ? (parseInt(swatchFaceSel.value, 10) || 4) : 4;
-    result = window.planetExplorerGenerateDebugSwatch(profileJSON, seed, size, bypassJSON, faceIdx);
-  } else {
-    console.warn('debug API not available; rebuild wasm');
-    return;
-  }
+  const result = window.planetExplorerGenerateDebug(profileJSON, seed, size, bypassJSON);
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) { console.error('debug parse', e); return; }
