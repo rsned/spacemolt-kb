@@ -21,8 +21,11 @@ var (
 
 // RenderRocky generates a rocky planet cube map.
 func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
-	heightmap, craters := generateRockyHeightmap(profile, seed, S)
-	return colorizeRocky(profile, seed, S, heightmap, craters, nil)
+	jitter := noise.GenerateJitter(profile, seed, S)
+	plates := field.GeneratePlates(profile, seed, S)
+	_ = plates
+	heightmap, craters := generateRockyHeightmapWithJitter(profile, seed, S, jitter)
+	return colorizeRocky(profile, seed, S, heightmap, craters, jitter)
 }
 
 // RenderRockyHeightmap returns a grayscale cube map showing the
@@ -30,7 +33,10 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 // craters, control-field shapes, and other height-affecting algorithms
 // before the colorizer obscures them with palette/biome blending.
 func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
-	heightmap, _ := generateRockyHeightmap(profile, seed, S)
+	jitter := noise.GenerateJitter(profile, seed, S)
+	plates := field.GeneratePlates(profile, seed, S)
+	_ = plates
+	heightmap, _ := generateRockyHeightmapWithJitter(profile, seed, S, jitter)
 	out := cubemap.New(S)
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range S {
@@ -51,12 +57,14 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 }
 
 // generateRockyHeightmap runs the heightmap-only portion of the rocky
-// pipeline: control-field summation (or legacy fBm), ridged contribution,
-// province modulation, normalization, and crater stamping. Returns the
-// normalized heightmap so RenderRocky can colorize it and
-// RenderRockyHeightmap can render it as grayscale.
+// pipeline without jitter.
 func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) (*cubemap.CubeMapF, []feature.Crater) {
-	return generateRockyHeightmapDebug(profile, seed, S, nil, nil)
+	return generateRockyHeightmapDebug(profile, seed, S, nil, nil, nil)
+}
+
+// generateRockyHeightmapWithJitter runs the heightmap pipeline with jitter applied to the Detail field.
+func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, S int, jitter *noise.JitterField) (*cubemap.CubeMapF, []feature.Crater) {
+	return generateRockyHeightmapDebug(profile, seed, S, nil, nil, jitter)
 }
 
 // generateRockyHeightmapDebug is the debug-aware variant of
@@ -65,7 +73,7 @@ func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) (*c
 // contribution is skipped while rng draws are still consumed so downstream
 // noise streams remain deterministic.
 func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int,
-	frame *DebugFrame, bypass DebugBypass) (*cubemap.CubeMapF, []feature.Crater) {
+	frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField) (*cubemap.CubeMapF, []feature.Crater) {
 	ng := noise.New(seed)
 	warper := noise.NewWarper(seed, profile.Warp)
 
@@ -73,7 +81,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	cfFields := orderedControlFields(profile.ControlConfig)
 	useControl := !isZeroControlConfig(cfFields) && hasAnySpline(cfFields)
 	if useControl {
-		fields := field.GenerateControlFields(seed, profile.ControlConfig, S, nil)
+		fields := field.GenerateControlFields(seed, profile.ControlConfig, S, jitter)
 		var ridgedGen *noise.Generator
 		if profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
 			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))

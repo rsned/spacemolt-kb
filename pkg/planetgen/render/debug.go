@@ -2,6 +2,8 @@ package render
 
 import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
@@ -39,8 +41,11 @@ type DebugStage struct {
 // per-stage intermediates captured into a DebugFrame. bypass is a set
 // of stage names to dry-run; pass nil to run all stages normally.
 func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass DebugBypass) *DebugFrame {
+	jitter := noise.GenerateJitter(profile, seed, S)
+	plates := field.GeneratePlates(profile, seed, S)
+	_ = plates
 	frame := &DebugFrame{}
-	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass)
-	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, nil)
+	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter)
+	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter)
 	return frame
 }

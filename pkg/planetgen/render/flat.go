@@ -112,7 +112,8 @@ func RenderFlat(prof *types.PlanetProfile, masterSeed int64, size int) *image.RG
 	}
 
 	// 7. Colorize.
-	return colorizeFlat(prof, masterSeed, fields, heightmap, size, nil)
+	jitter := noise.GenerateJitter(prof, masterSeed, size)
+	return colorizeFlat(prof, masterSeed, fields, heightmap, size, jitter)
 }
 
 // generateFlatControlFields samples noise at 3D unit-sphere directions of the

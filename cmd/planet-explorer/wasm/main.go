@@ -28,6 +28,7 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
@@ -438,7 +439,7 @@ func generateFlatDebug(_ js.Value, args []js.Value) any {
 			}
 		}
 	}
-	frame := render.RenderFlatDebug(&prof, s, size, bypass, nil)
+	frame := render.RenderFlatDebug(&prof, s, size, bypass, noise.GenerateJitter(&prof, s, size))
 
 	// encodeHeight encodes a []float64 as a square grayscale PNG.
 	encodeHeight := func(hm []float64, signed bool) string {

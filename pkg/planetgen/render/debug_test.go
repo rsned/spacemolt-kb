@@ -51,7 +51,7 @@ func TestDebugFrameNoBandsWhenSingleInterval(t *testing.T) {
 		},
 	}
 	frame := &DebugFrame{}
-	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, nil)
+	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, nil, nil)
 	if len(frame.Stages) == 0 {
 		t.Fatal("no stages recorded")
 	}
@@ -70,7 +70,7 @@ func TestDebugFrameNoBandsWhenSingleInterval(t *testing.T) {
 func TestDebugFrameStageOrder(t *testing.T) {
 	prof := minimalRockyProfile()
 	frame := &DebugFrame{}
-	_, _ = generateRockyHeightmapDebug(&prof, 42, 32, frame, nil)
+	_, _ = generateRockyHeightmapDebug(&prof, 42, 32, frame, nil, nil)
 	if len(frame.Stages) == 0 {
 		t.Fatal("expected at least one stage")
 	}
@@ -84,7 +84,7 @@ func TestDebugFrameStageOrder(t *testing.T) {
 func TestDebugFrameStageKind(t *testing.T) {
 	prof := minimalRockyProfile()
 	frame := &DebugFrame{}
-	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, nil)
+	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, nil, nil)
 	for _, s := range frame.Stages {
 		if s.Kind != "height" {
 			t.Errorf("stage %q has Kind %q; want \"height\"", s.Name, s.Kind)
@@ -97,7 +97,7 @@ func TestDebugFrameStageKind(t *testing.T) {
 func TestDebugFrameStageHasRawFbm(t *testing.T) {
 	prof := minimalRockyProfile()
 	frame := &DebugFrame{}
-	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, nil)
+	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, nil, nil)
 	if len(frame.Stages) == 0 {
 		t.Fatal("no stages recorded")
 	}
@@ -122,7 +122,7 @@ func TestDebugFrameBypassSkipFlag(t *testing.T) {
 	prof := minimalRockyProfile()
 	frame := &DebugFrame{}
 	bypass := DebugBypass{"Continentalness": true}
-	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, bypass)
+	_, _ = generateRockyHeightmapDebug(&prof, 42, 16, frame, bypass, nil)
 	if len(frame.Stages) == 0 {
 		t.Fatal("no stages recorded")
 	}
@@ -140,7 +140,7 @@ func TestDebugFrameBypassSkipFlag(t *testing.T) {
 func TestDebugFrameBypassParity(t *testing.T) {
 	prof := minimalRockyProfile()
 	bypass := DebugBypass{"Continentalness": true}
-	hm, _ := generateRockyHeightmapDebug(&prof, 42, 16, nil, bypass)
+	hm, _ := generateRockyHeightmapDebug(&prof, 42, 16, nil, bypass, nil)
 
 	// With the only stage bypassed the pre-normalize heightmap is all
 	// zeros.  After normalization a zero-range map is left as-is, so all
@@ -162,7 +162,7 @@ func TestDebugFrameBypassParity(t *testing.T) {
 // call sites and the RenderRocky fast path.
 func TestDebugFrameNilFrameNoPanic(t *testing.T) {
 	prof := minimalRockyProfile()
-	hm, _ := generateRockyHeightmapDebug(&prof, 42, 16, nil, nil)
+	hm, _ := generateRockyHeightmapDebug(&prof, 42, 16, nil, nil, nil)
 	if hm == nil {
 		t.Fatal("expected non-nil heightmap")
 	}
@@ -177,7 +177,7 @@ func TestDebugFrameColorStages(t *testing.T) {
 		{Position: 0, Color: color.RGBA{R: 50, G: 50, B: 50, A: 255}},
 		{Position: 1, Color: color.RGBA{R: 200, G: 200, B: 200, A: 255}},
 	}
-	hm, craters := generateRockyHeightmapDebug(&prof, 42, 16, nil, nil)
+	hm, craters := generateRockyHeightmapDebug(&prof, 42, 16, nil, nil, nil)
 	frame := &DebugFrame{}
 	out := colorizeRockyDebug(&prof, 42, 16, hm, craters, frame, nil, nil)
 	if out == nil {
