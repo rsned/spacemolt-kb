@@ -10,6 +10,7 @@ const faceSizeSel = $('#face-size');
 const renderBtn = $('#render-btn');
 const exportBtn = $('#export-json-btn');
 const applyBtn = $('#apply-json-btn');
+const toggleJitterBtn = $('#toggle-jitter-btn');
 const profileTextarea = $('#profile-json');
 const cubeCanvas = $('#cube-canvas');
 const equirectCanvas = $('#equirect-canvas');
@@ -48,6 +49,7 @@ function loadDefaultProfile() {
   profileTextarea.value = prettifyJSON(json);
   try { snapshotOriginal(JSON.parse(profileTextarea.value)); } catch {}
   renderPanels();
+  refreshJitterButtonLabel();
 }
 
 function prettifyJSON(s) {
@@ -131,6 +133,24 @@ async function regenerate() {
   }
 }
 
+function refreshJitterButtonLabel() {
+  if (!toggleJitterBtn) return;
+  let on = false;
+  try { on = !!JSON.parse(profileTextarea.value).JitterEnabled; } catch {}
+  toggleJitterBtn.textContent = on ? 'Jitter: ON' : 'Jitter: OFF';
+}
+
+function toggleJitter() {
+  let prof;
+  try { prof = JSON.parse(profileTextarea.value); }
+  catch { status.textContent = 'Cannot toggle jitter: profile JSON invalid'; return; }
+  prof.JitterEnabled = !prof.JitterEnabled;
+  profileTextarea.value = prettifyJSON(JSON.stringify(prof));
+  refreshJitterButtonLabel();
+  renderPanels();
+  regenerate();
+}
+
 async function paintToCanvas(canvas, pngBytes) {
   const blob = new Blob([pngBytes], { type: 'image/png' });
   const url = URL.createObjectURL(blob);
@@ -151,6 +171,7 @@ async function paintToCanvas(canvas, pngBytes) {
 
 typePicker.addEventListener('change', loadDefaultProfile);
 renderBtn.addEventListener('click', regenerate);
+if (toggleJitterBtn) toggleJitterBtn.addEventListener('click', toggleJitter);
 if (viewModeSel) viewModeSel.addEventListener('change', regenerate);
 exportBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(profileTextarea.value);
@@ -158,6 +179,7 @@ exportBtn.addEventListener('click', () => {
 });
 applyBtn.addEventListener('click', () => {
   renderPanels();
+  refreshJitterButtonLabel();
   regenerate();
 });
 
@@ -173,6 +195,7 @@ if (importFileInput) {
       snapshotOriginal(parsed);
       status.textContent = `Imported ${file.name}`;
       renderPanels();
+      refreshJitterButtonLabel();
       regenerate();
     } catch (e) {
       status.textContent = `Import failed: ${e.message || e}`;
