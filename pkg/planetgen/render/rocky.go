@@ -318,7 +318,19 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		if frame != nil {
 			hmBefore = heightmap.Clone()
 		}
-		cont := field.GenerateContinents(seed, profile.Continents, S)
+		// Phase 8 item 10: anchor continents to continental-plate
+		// centroids (non-oceanic plates). Falls back to legacy
+		// random Fibonacci-spiral seeding when plates is nil or
+		// has no continental plates.
+		var contSeeds [][3]float64
+		if plates != nil {
+			for _, p := range plates.Plates {
+				if !p.IsOceanic {
+					contSeeds = append(contSeeds, p.Seed)
+				}
+			}
+		}
+		cont := field.GenerateContinentsFromSeeds(seed, profile.Continents, S, contSeeds)
 		bypassed := bypass["Continents"]
 		if !bypassed {
 			for face := range cubemap.Face(cubemap.NumFaces) {
