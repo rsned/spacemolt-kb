@@ -354,3 +354,19 @@ The web-based parameter explorer at `cmd/planet-explorer/` (Phase 1)
 will be the canonical workflow for tuning `PlanetProfile` parameters
 interactively. Compiles `pkg/planetgen` to Wasm and renders live in
 a browser canvas.
+
+## Phase 7 — Tier B foundations (master-plan items 14, 19, 20)
+
+**Plates** (`pkg/planetgen/field/plates.go`). Voronoi tectonic plates produced via Fibonacci-spiral seeds + random flood-fill across cube faces. Per-plate motion (RotAxis + AngSpeed) classifies boundary pixels as convergent / divergent / transform; three JFA passes give per-pixel SDFs in km. Phase 7 produces the data and renders it as 5 debug stages but **does not** consume it in the production render — that wiring lands in Phase 8.
+
+Profile knobs: `PlateCount` (per-archetype, 0–12), `OceanicPlateFraction` (0–1, Bernoulli per plate), `PlateConvergentT` (default 0.75, signed-velocity threshold).
+
+**Jitter** (`pkg/planetgen/noise/jitter.go`). ~120 Voronoi cells with per-cell rotation+offset applied to the Detail control field and the Whittaker biome jitter. Breaks visible repetition without changing tuned terrain shapes.
+
+Profile knobs: `JitterEnabled` (per-archetype), `JitterCellCount` (default 120), `JitterRotMax` (default π/4), `JitterOffsetMax` (default 0.1).
+
+**Seam-QA** (`pkg/planetgen/cubemap/seamtest/`). Test-only helper exposing `WalkSeams`, `AssertSeamContinuity` (continuous fields, threshold per cent of range), `AssertSeamMatch` (categorical, exact). Used by `field/plates_seam_test.go`, `noise/jitter_seam_test.go`, `render/rocky_seam_test.go`.
+
+Default thresholds: 1% (continuous fields), 2% (SDFs and post-jitter), 0 (plate-id categorical).
+
+**Known seam bugs (deferred to Phase 8):** the Tier-B seam-QA tests are landed but `t.Skip`-marked. They surface three real seam discontinuities — cross-face flood-fill in `floodFillPlates`, per-face JFA in `computeSDFs`, and asymmetric `JitterField.TransformPixel` across cube edges. See `docs/plans/phase-8-seam-bugs.md` for the worklist.
