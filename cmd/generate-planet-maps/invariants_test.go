@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 )
 
 var invariantTypes = []string{
@@ -101,4 +103,64 @@ func absI(v int) int {
 		return -v
 	}
 	return v
+}
+
+func TestPhase7PlateInvariants(t *testing.T) {
+	archetypes := map[string]int64{
+		"terran": 1, "super_terran": 2, "oceanic": 3, "tundra": 4,
+		"arid": 5, "glacial": 6, "scorched": 7, "lava_world": 8,
+	}
+	S := 64
+	for name, master := range archetypes {
+		t.Run(name, func(t *testing.T) {
+			profile := planetgen.Profiles[name]
+			pf := field.GeneratePlates(profile, master, S)
+			if pf == nil {
+				t.Skipf("no plates for %s", name)
+			}
+			// Number of distinct plate ids equals PlateCount.
+			seen := make(map[int16]int)
+			for f := range pf.PlateID {
+				for _, id := range pf.PlateID[f] {
+					if id < 0 {
+						t.Fatalf("unfilled pixel in face %d", f)
+					}
+					seen[id]++
+				}
+			}
+			if len(seen) != profile.PlateCount {
+				t.Errorf("got %d distinct plate ids, want %d", len(seen), profile.PlateCount)
+			}
+			for id, c := range seen {
+				if c == 0 {
+					t.Errorf("plate %d has 0 pixels", id)
+				}
+			}
+		})
+	}
+}
+
+func TestPhase7JitterInvariants(t *testing.T) {
+	archetypes := map[string]int64{
+		"terran": 1, "tundra": 2, "arid": 3, "scorched": 4,
+	}
+	S := 64
+	for name, master := range archetypes {
+		t.Run(name, func(t *testing.T) {
+			profile := planetgen.Profiles[name]
+			jf := noise.GenerateJitter(profile, master, S)
+			if jf == nil {
+				t.Skipf("jitter disabled for %s", name)
+			}
+			seen := make(map[int16]int)
+			for f := range jf.PerPixel {
+				for _, id := range jf.PerPixel[f] {
+					seen[id]++
+				}
+			}
+			if len(seen) != len(jf.Cells) {
+				t.Errorf("got %d distinct cell ids, want %d", len(seen), len(jf.Cells))
+			}
+		})
+	}
 }
