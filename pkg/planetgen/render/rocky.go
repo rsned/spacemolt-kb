@@ -56,13 +56,8 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 	return out
 }
 
-// generateRockyHeightmap runs the heightmap-only portion of the rocky
-// pipeline without jitter.
-func generateRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) (*cubemap.CubeMapF, []feature.Crater) {
-	return generateRockyHeightmapDebug(profile, seed, S, nil, nil, nil)
-}
-
-// generateRockyHeightmapWithJitter runs the heightmap pipeline with jitter applied to the Detail field.
+// generateRockyHeightmapWithJitter runs the heightmap pipeline; pass
+// nil for jitter to skip the Detail-field cell transform.
 func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, S int, jitter *noise.JitterField) (*cubemap.CubeMapF, []feature.Crater) {
 	return generateRockyHeightmapDebug(profile, seed, S, nil, nil, jitter)
 }

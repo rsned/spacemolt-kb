@@ -118,6 +118,13 @@ func RenderFlat(prof *types.PlanetProfile, masterSeed int64, size int) *image.RG
 
 // generateFlatControlFields samples noise at 3D unit-sphere directions of the
 // +Z face so patterns match the cube render for the same seed.
+//
+// Note: jitter is intentionally NOT applied here, even though the cube path's
+// equivalent (field.GenerateControlFields) does jitter the Detail field. The
+// flat path memoizes stages 1-4 in flatUpstreamCache keyed by flatUpstreamKey,
+// which deliberately omits jitter parameters; applying jitter here would
+// require rekeying the cache and burns the swatch's primary speed advantage.
+// Flat is a tuning preview, not the canonical output.
 func generateFlatControlFields(prof *types.PlanetProfile, masterSeed int64, size int) [5][]float64 {
 	cf := orderedControlFieldsFlat(prof.ControlConfig)
 	out := [5][]float64{}
