@@ -71,30 +71,8 @@ func SphericalDelaunay(sites []Site) [][2]int {
 	}
 	c := [3]float64{cx / cn, cy / cn, cz / cn}
 
-	// Tangent basis (e1, e2) ⟂ c. Gram-Schmidt against the world X
-	// axis (or Y when c is colinear with X).
-	axis := [3]float64{1, 0, 0}
-	if math.Abs(c[0]) > 0.9 {
-		axis = [3]float64{0, 1, 0}
-	}
-	dot := axis[0]*c[0] + axis[1]*c[1] + axis[2]*c[2]
-	e1 := [3]float64{
-		axis[0] - dot*c[0],
-		axis[1] - dot*c[1],
-		axis[2] - dot*c[2],
-	}
-	en := math.Sqrt(e1[0]*e1[0] + e1[1]*e1[1] + e1[2]*e1[2])
-	if en < 1e-12 {
-		return nil
-	}
-	e1[0] /= en
-	e1[1] /= en
-	e1[2] /= en
-	e2 := [3]float64{
-		c[1]*e1[2] - c[2]*e1[1],
-		c[2]*e1[0] - c[0]*e1[2],
-		c[0]*e1[1] - c[1]*e1[0],
-	}
+	// Tangent basis (e1, e2) ⟂ c, shared with poisson_sphere.go.
+	e1, e2 := tangentBasis(c)
 
 	// Stereographic projection from -c onto the plane at c. For a
 	// site direction d, scale s = 2 / (1 + d·c); planar coords are
