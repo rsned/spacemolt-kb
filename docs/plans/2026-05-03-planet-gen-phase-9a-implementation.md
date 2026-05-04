@@ -27,7 +27,7 @@
 **Created:**
 - `pkg/planetgen/feature/clouds.go` — cloud cube-map generation (~250 LOC)
 - `pkg/planetgen/feature/clouds_test.go` — unit + invariants
-- `cmd/generate-planet-maps/testdata/golden/<name>.clouds.cube.png` — 4 new golden PNGs (terran, super_terran, oceanic, hothouse)
+- `cmd/generate-planet-maps/testdata/golden/<name>.clouds.cube.png` — 4 new golden PNGs (terran, super_terran, oceanic, hothouse — gas giants excluded)
 
 **Modified:**
 - `pkg/planetgen/types/types.go` — add `CloudConfig`, `Cloud CloudConfig` field on `PlanetProfile`
@@ -74,9 +74,9 @@ Add `Cloud CloudConfig` to `PlanetProfile` (append at end to avoid conflict with
 | super_terran | 0.50 | 0.26 | 6 | 0.18 | (1, 0.3, 0) |
 | oceanic | 0.65 | 0.30 | 8 | 0.22 | (1, 0.3, 0) |
 | hothouse | 0.85 | 0.40 | 4 | 0.30 | (1, 0.3, 0) (Venus-like opaque cover) |
-| jovian | 0.95 | 0.18 | 12 | 0.10 | (1, 0.3, 0) (gas-giant banding) |
-| ice_giant | 0.85 | 0.20 | 8 | 0.12 | (1, 0.3, 0) |
-| all rocky non-atmospheric (scorched, lava_world, ice_world, glacial, tundra, arid, unknown) | 0 | n/a | n/a | n/a | n/a |
+| all gas giants (jovian, ice_giant) and rocky non-atmospheric (scorched, lava_world, ice_world, glacial, tundra, arid, unknown) | 0 | n/a | n/a | n/a | n/a |
+
+**Gas giants are disabled** because their primary `RenderGasGiant` output is already a cloud-banded render — a separate cloud overlay would be redundant (and confusing, since there's no surface beneath).
 
 For each `Profiles["..."]` entry, add a `Cloud:` block with these values. Use Go zero-value (`Cloud: types.CloudConfig{}` or omit) for disabled archetypes.
 
@@ -447,7 +447,7 @@ git commit -m "P9a: cmd output + statistical invariants for cloud overlay"
 ## Task 5: Bake cloud goldens
 
 **Files:**
-- New: 6 PNGs at `cmd/generate-planet-maps/testdata/golden/<name>.clouds.cube.png` (terran, super_terran, oceanic, hothouse, jovian, ice_giant)
+- New: 4 PNGs at `cmd/generate-planet-maps/testdata/golden/<name>.clouds.cube.png` (terran, super_terran, oceanic, hothouse)
 
 - [ ] **Step 1: Bake**
 
@@ -489,7 +489,7 @@ git commit -m "P9a: cloud goldens — first bake (item 17)"
 ```markdown
 ## Phase 9a — Cloud overlay (master-plan item 17)
 
-**Clouds** (`pkg/planetgen/feature/clouds.go`). Separate cube-map output: latitude-banded coverage × domain-warped fBm × Rankine-vortex storms; fake self-shadow via density-gradient · sun-direction. Output as `<name>.clouds.cube.png` for atmospheric archetypes (terran, super_terran, oceanic, hothouse) and gas giants (jovian, ice_giant).
+**Clouds** (`pkg/planetgen/feature/clouds.go`). Separate cube-map output: latitude-banded coverage × domain-warped fBm × Rankine-vortex storms; fake self-shadow via density-gradient · sun-direction. Output as `<name>.clouds.cube.png` for atmospheric rocky archetypes (terran, super_terran, oceanic, hothouse). Gas giants (jovian, ice_giant) are excluded — their primary render is already cloud-banded.
 
 Profile knobs: `Cloud.Coverage` (0 disables), `BandLatRad`, `Freq`, `Octaves`, `WarpAmp`, `StormCount`, `StormRadiusRad`, `SunDir`, `ShadowGain`.
 
@@ -545,7 +545,7 @@ All green.
 ## Risks
 
 - **Cloud generation cost.** Domain-warped fBm + storm contribution at S=1024 ~6M pixels × ~10 fbm taps × 6 faces ≈ 360M noise calls per planet. Estimate: ~30s per atmospheric planet at S=1024. Acceptable; matches the existing rocky pipeline's per-pixel cost.
-- **Cloud-on-gas-giant ambiguity.** The "color cube-map" for jovian/ice_giant is ALREADY a cloud-band rendering (`render.RenderGasGiant`). Adding a separate `.clouds.cube.png` for gas giants doesn't make sense as an *overlay* — they don't have a separate land surface beneath. Choose: (a) skip cloud output for gas giants and only enable for atmospheric *rocky* archetypes; (b) output the cloud cube-map for gas giants but document that it's redundant with the main render. The plan above defaults to (a) — `Cloud:` blocks for jovian/ice_giant exist in profile.go but the goldens-write logic at Task 4 Step 1 should skip gas giants. Decide at implementation time.
+- **Gas giants excluded.** Cloud generation is disabled (Coverage=0) for jovian/ice_giant. Their primary `RenderGasGiant` output is already a cloud-banded render; a separate cloud overlay would be redundant and confusing (no surface beneath). The `Cloud:` block in profile.go for these archetypes uses Go zero-value, and `GenerateClouds` returns nil for them.
 - **Wasm bundle size.** Clouds add ~250 LOC + new fbm generators. Mitigation: `-ldflags="-s -w"` already applied; revisit if explorer load regresses.
 - **Storm centers may cluster at poles** under naive Fibonacci-spiral with latitude restriction. Mitigation: visual inspection in Task 5 Step 3.
 
