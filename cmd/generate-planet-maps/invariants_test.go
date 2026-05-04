@@ -6,6 +6,7 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
@@ -366,5 +367,94 @@ func TestPhase8RainShadowAsymmetry(t *testing.T) {
 	const minVar = 0.005
 	if variance < minVar {
 		t.Errorf("terran rain shadow variance %.5f < %.5f — field too uniform", variance, minVar)
+	}
+}
+
+// TestPhase9aCloudInvariants checks the statistical signature of the
+// cloud-overlay generator (pkg/planetgen/feature.GenerateClouds) for
+// the four atmospheric rocky archetypes that have non-zero cloud
+// coverage in their default profile.
+//
+// The test asserts three invariants:
+//
+//  1. Mean alpha tracks profile.Cloud.Coverage within an order-of-
+//     magnitude band. The geometric mean of cos(latitude) on a unit
+//     sphere is ~0.79 (see Phase 9a notes), so for an unweighted band
+//     mask we expect mean ≈ Coverage * O(0.5–1.0). Empirically the
+//     band-modulated field skews lower; we use a wide
+//     [0.05*Cov, 1.5*Cov] band as a regression guard.
+//
+//  2. Variance > 0.005 ensures the field is non-trivial — neither
+//     all-zero nor saturated.
+//
+//  3. Storms add measurable signal: storms contribute strictly
+//     positive alpha (capped at +0.5 per pixel in stormContribution),
+//     so a CloudField generated from the same profile with
+//     StormCount=0 has a *lower mean* than the default. We compare
+//     means rather than variances because the storm count is small
+//     (3–8 storms) relative to the field, so the variance lift is in
+//     the noise floor (~5% relative) while the mean shift is robust
+//     and directly tied to the storm-contribution path.
+func TestPhase9aCloudInvariants(t *testing.T) {
+	archetypes := []string{"terran", "super_terran", "oceanic", "hothouse"}
+	const S = 128
+	const masterSeed int64 = 42
+	for _, name := range archetypes {
+		t.Run(name, func(t *testing.T) {
+			p := planetgen.Profiles[name]
+			if p == nil {
+				t.Fatalf("missing profile for %s", name)
+			}
+			cf := feature.GenerateClouds(p, masterSeed, S)
+			if cf == nil {
+				t.Fatalf("expected non-nil CloudField for %s", name)
+			}
+			var alphas []float64
+			for f := range cf.Alpha {
+				alphas = append(alphas, cf.Alpha[f]...)
+			}
+			mean, variance := meanVarF(alphas)
+
+			// Storm-free counterfactual for variance lift comparison.
+			pNoStorm := *p
+			pNoStorm.Cloud.StormCount = 0
+			cfNoStorm := feature.GenerateClouds(&pNoStorm, masterSeed, S)
+			if cfNoStorm == nil {
+				t.Fatalf("expected non-nil CloudField for %s (no-storm)", name)
+			}
+			var alphasNoStorm []float64
+			for f := range cfNoStorm.Alpha {
+				alphasNoStorm = append(alphasNoStorm, cfNoStorm.Alpha[f]...)
+			}
+			meanNoStorm, varNoStorm := meanVarF(alphasNoStorm)
+
+			cov := p.Cloud.Coverage
+			t.Logf("%s: coverage=%.3f mean=%.4f variance=%.5f meanNoStorm=%.4f varNoStorm=%.5f stormCount=%d",
+				name, cov, mean, variance, meanNoStorm, varNoStorm, p.Cloud.StormCount)
+
+			// 1) Mean alpha within a wide band of profile coverage.
+			lo, hi := 0.05*cov, 1.5*cov
+			if mean < lo || mean > hi {
+				t.Errorf("%s: mean alpha %.4f outside [%.4f, %.4f] (coverage=%.3f)",
+					name, mean, lo, hi, cov)
+			}
+
+			// 2) Variance non-trivial.
+			const minVar = 0.005
+			if variance < minVar {
+				t.Errorf("%s: variance %.5f < %.5f — field too uniform",
+					name, variance, minVar)
+			}
+
+			// 3) Storm contribution: storms add positive alpha so the
+			// with-storms mean must exceed the no-storms mean. The
+			// gap is small in absolute terms (a few storms over the
+			// whole sphere) so we only require strict inequality
+			// rather than a lift fraction.
+			if !(mean > meanNoStorm) {
+				t.Errorf("%s: mean alpha with storms (%.5f) not > mean without storms (%.5f)",
+					name, mean, meanNoStorm)
+			}
+		})
 	}
 }

@@ -14,6 +14,7 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
 
 	_ "modernc.org/sqlite"
 )
@@ -130,6 +131,22 @@ func generateSingle(planetType, planetName string, faceSize, equirectW, equirect
 	cubePath := cubePathFor(equirectPath)
 	if err := cubemap.WriteCrossPNG(cm, cubePath); err != nil {
 		return err
+	}
+
+	// Cloud overlay: archetypes with non-zero Cloud.Coverage produce a
+	// separate <name>.clouds.cube.png companion to the main cube-map.
+	// RenderCloudCubeMap returns nil when clouds are disabled (gas
+	// giants, scorched, lava, etc.) — that's expected, not an error.
+	if profile := planetgen.GetProfile(planetType); profile != nil {
+		if cloudCM := render.RenderCloudCubeMap(profile, planetgen.HashSeedPublic(planetName), faceSize); cloudCM != nil {
+			cloudPath := strings.TrimSuffix(cubePath, ".cube.png") + ".clouds.cube.png"
+			if cloudPath == cubePath {
+				cloudPath = cubePath + ".clouds"
+			}
+			if err := cubemap.WriteCrossPNG(cloudCM, cloudPath); err != nil {
+				return err
+			}
+		}
 	}
 
 	img := cubemap.BakeEquirect(cm, equirectW, equirectH)

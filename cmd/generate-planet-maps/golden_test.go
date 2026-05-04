@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"image"
 	"image/draw"
@@ -11,6 +12,8 @@ import (
 
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
 )
 
 var updateGoldens = flag.Bool("update", false, "update golden images instead of comparing")
@@ -70,6 +73,79 @@ func TestGolden(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestGoldenClouds bakes the cloud overlay for each archetype in
+// goldenPlanets that has clouds enabled and compares the resulting
+// 4×3 cube-cross PNG against testdata/golden/<type>.clouds.cube.png.
+//
+// Archetypes whose Cloud.Coverage is zero (gas giants, scorched, lava,
+// etc.) yield a nil CloudCubeMap and are skipped — RenderCloudCubeMap
+// returning nil is the desired "no clouds" signal.
+//
+// Face size 64 keeps each golden tractable while still exercising the
+// per-face noise + storm overlays. Phase 9b can scale up later.
+func TestGoldenClouds(t *testing.T) {
+	dir := filepath.Join("testdata", "golden")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	const cloudFaceSize = 64
+	for _, p := range goldenPlanets {
+		t.Run(p.Type, func(t *testing.T) {
+			profile := planetgen.GetProfile(p.Type)
+			if profile == nil {
+				t.Fatalf("unknown planet type %s", p.Type)
+			}
+			master := planetgen.HashSeedPublic(p.Seed)
+			cm := render.RenderCloudCubeMap(profile, master, cloudFaceSize)
+			if cm == nil {
+				t.Skipf("clouds disabled for %s", p.Type)
+			}
+			// Materialize to PNG bytes via the same code path the cmd
+			// uses, then decode back to RGBA so we can run the same
+			// meanDE2000 comparison TestGolden uses.
+			var buf bytes.Buffer
+			if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+				t.Fatalf("WriteCrossPNGTo: %v", err)
+			}
+			got, err := decodePNGToRGBA(buf.Bytes())
+			if err != nil {
+				t.Fatalf("decode generated PNG: %v", err)
+			}
+			path := filepath.Join(dir, p.Type+".clouds.cube.png")
+			if *updateGoldens {
+				if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil {
+					t.Fatal(err)
+				}
+				t.Logf("updated %s", path)
+				return
+			}
+			want, err := readPNGRGBA(path)
+			if err != nil {
+				t.Fatalf("missing/unreadable golden %s: %v (run `go test -run TestGoldenClouds -update`)", path, err)
+			}
+			if want.Bounds() != got.Bounds() {
+				t.Fatalf("size %v != golden %v", got.Bounds(), want.Bounds())
+			}
+			meanDE := meanDE2000(got.Pix, want.Pix)
+			if meanDE > maxMeanDE2000 {
+				t.Errorf("mean ΔE2000 = %.3f > %.2f (run with -update after review)",
+					meanDE, maxMeanDE2000)
+			}
+		})
+	}
+}
+
+func decodePNGToRGBA(data []byte) (*image.RGBA, error) {
+	src, err := png.Decode(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	b := src.Bounds()
+	dst := image.NewRGBA(b)
+	draw.Draw(dst, b, src, b.Min, draw.Src)
+	return dst, nil
 }
 
 func writePNG(path string, img *image.RGBA) error {
