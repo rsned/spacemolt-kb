@@ -22,11 +22,15 @@ type BoMResult struct {
 }
 
 // Calculator holds state for BoM computation
+//
+// Note: This struct is a placeholder for future implementation.
+// The fields are intentionally unused as the calculator functionality
+// has not yet been implemented.
 type Calculator struct {
-	db            *sql.DB
-	recipes       map[string]*Recipe
-	itemToRecipes map[string][]*Recipe
-	items         map[string]*Item
-	memo          map[string][]MaterialRequirement
-	mu            sync.RWMutex
+	db            *sql.DB              //nolint:unused // Placeholder: database connection
+	recipes       map[string]*Recipe   //nolint:unused // Placeholder: recipe cache
+	itemToRecipes map[string][]*Recipe //nolint:unused // Placeholder: reverse lookup map
+	items         map[string]*Item     //nolint:unused // Placeholder: item cache
+	memo          map[string][]MaterialRequirement //nolint:unused // Placeholder: memoization cache
+	mu            sync.RWMutex          //nolint:unused // Placeholder: mutex for thread safety
 }

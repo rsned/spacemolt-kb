@@ -1,10 +1,14 @@
 package bom
 
 // RecipeResolver handles recipe resolution for BoM calculation
+//
+// Note: This struct is a placeholder for future implementation.
+// The fields are intentionally unused as the resolver functionality
+// is currently implemented through standalone functions.
 type RecipeResolver struct {
-	recipes       map[string]*Recipe
-	itemToRecipes map[string][]*Recipe
-	items         map[string]*Item
+	recipes       map[string]*Recipe   //nolint:unused // Placeholder: recipe cache
+	itemToRecipes map[string][]*Recipe //nolint:unused // Placeholder: reverse lookup map
+	items         map[string]*Item     //nolint:unused // Placeholder: item cache
 }
 
 // RecipeOption represents a possible recipe path with its alternatives

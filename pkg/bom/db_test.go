@@ -13,7 +13,9 @@ func setupTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("failed to create temp file: %v", err)
 	}
-	tmpfile.Close()
+	if err := tmpfile.Close(); err != nil {
+		t.Fatalf("failed to close temp file: %v", err)
+	}
 
 	db, err := sql.Open("sqlite3", tmpfile.Name())
 	if err != nil {
@@ -22,8 +24,12 @@ func setupTestDB(t *testing.T) *sql.DB {
 
 	// Clean up after test
 	t.Cleanup(func() {
-		db.Close()
-		os.Remove(tmpfile.Name())
+		if err := db.Close(); err != nil {
+			t.Logf("warning: failed to close database: %v", err)
+		}
+		if err := os.Remove(tmpfile.Name()); err != nil {
+			t.Logf("warning: failed to remove temp file: %v", err)
+		}
 	})
 
 	return db
@@ -53,7 +59,11 @@ func TestMigrate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to get table schema: %v", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			t.Logf("warning: failed to close rows: %v", err)
+		}
+	}()
 
 	columns := map[string]bool{
 		"target_id":        false,
@@ -178,7 +188,11 @@ func TestWriteBoM(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query bill_of_materials: %v", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			t.Logf("warning: failed to close rows: %v", err)
+		}
+	}()
 
 	expected := []struct {
 		targetID      string
