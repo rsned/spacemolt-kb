@@ -94,8 +94,8 @@ func PoissonOnSphere(hf *HabitabilityField, cfg types.CivConfig, master int64) [
 	}
 
 	rng := rand.New(rand.NewPCG(
-		uint64(seed.Domain(master, "civ.poisson")),
-		uint64(seed.Domain(master, "civ.poisson.stream")),
+		uint64(seed.Domain(master, "civ.poisson")),        //nolint:gosec // intentional reinterpretation
+		uint64(seed.Domain(master, "civ.poisson.stream")), //nolint:gosec // intentional reinterpretation
 	))
 
 	rRange := cfg.SiteMaxDistRad - cfg.SiteMinDistRad
