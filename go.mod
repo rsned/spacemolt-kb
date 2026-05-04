@@ -5,17 +5,18 @@ go 1.24.0
 toolchain go1.24.4
 
 require (
+	github.com/anthropics/anthropic-sdk-go v1.27.1
 	github.com/dustin/go-humanize v1.0.1
+	github.com/fogleman/delaunay v0.0.0-20180910191513-63f09b4c883d
+	github.com/lucasb-eyer/go-colorful v1.4.0
+	github.com/ojrac/opensimplex-go v1.0.2
 	modernc.org/sqlite v1.46.1
 )
 
 require (
-	github.com/anthropics/anthropic-sdk-go v1.27.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
-	github.com/ojrac/opensimplex-go v1.0.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
