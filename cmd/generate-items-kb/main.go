@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+	"github.com/rsned/spacemolt-kb/pkg/bom"
 	"github.com/rsned/spacemolt-kb/pkg/kbdb"
 	"github.com/rsned/spacemolt-kb/pkg/systemmap"
 	_ "modernc.org/sqlite"
@@ -43,6 +44,7 @@ type Item struct {
 	ProducedBy  []ProducedBy
 	UsedIn      []UsedIn
 	UsedInShips []ShipBuildRef
+	BoM *bom.BoMResult
 }
 
 // ShipBuildRef links an item to a ship that requires it as a build material.
@@ -298,6 +300,117 @@ var recipeCategoryDescriptions = map[string]string{
 	"Weapons":             "Lasers, autocannons, missile launchers, and weapon system fabrication.",
 }
 
+// loadBoMFromDB loads BoM results from the database and attaches them to items, ships, and facilities.
+func loadBoMFromDB(db *sql.DB, items map[string]*Item, ships []*Ship, facilities []*Facility) error {
+	// Load items
+	itemRows, err := db.Query(`SELECT target_id, target_type, base_item_id, quantity FROM bill_of_materials WHERE target_type = 'item'`)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = itemRows.Close() }()
+
+	// Group materials by item ID
+	itemMaterials := make(map[string][]bom.MaterialRequirement)
+	for itemRows.Next() {
+		var targetID string
+		var targetType string
+		var itemID string
+		var quantity int
+		if err := itemRows.Scan(&targetID, &targetType, &itemID, &quantity); err != nil {
+			return err
+		}
+		itemMaterials[targetID] = append(itemMaterials[targetID], bom.MaterialRequirement{
+			ItemID:  itemID,
+			Quantity: quantity,
+		})
+	}
+
+	// Attach to items
+	for itemID, materials := range itemMaterials {
+		if item, ok := items[itemID]; ok {
+			item.BoM = &bom.BoMResult{
+				TargetID:      itemID,
+				TargetType:    "item",
+				BaseMaterials: materials,
+			}
+		}
+	}
+
+	// Load ships
+	shipMaterials := make(map[string][]bom.MaterialRequirement)
+	shipRows, err := db.Query(`SELECT target_id, target_type, base_item_id, quantity FROM bill_of_materials WHERE target_type = 'ship'`)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = shipRows.Close() }()
+
+	for shipRows.Next() {
+		var targetID string
+		var targetType string
+		var itemID string
+		var quantity int
+		if err := shipRows.Scan(&targetID, &targetType, &itemID, &quantity); err != nil {
+			return err
+		}
+		shipMaterials[targetID] = append(shipMaterials[targetID], bom.MaterialRequirement{
+			ItemID:  itemID,
+			Quantity: quantity,
+		})
+	}
+
+	// Attach to ships
+	for shipID, materials := range shipMaterials {
+		for _, ship := range ships {
+			if ship.ID == shipID {
+				ship.BoM = &bom.BoMResult{
+					TargetID:      shipID,
+					TargetType:    "ship",
+					BaseMaterials: materials,
+				}
+				break
+			}
+		}
+	}
+
+	// Load facilities
+	facMaterials := make(map[string][]bom.MaterialRequirement)
+	facRows, err := db.Query(`SELECT target_id, target_type, base_item_id, quantity FROM bill_of_materials WHERE target_type = 'facility'`)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = facRows.Close() }()
+
+	for facRows.Next() {
+		var targetID string
+		var targetType string
+		var itemID string
+		var quantity int
+		if err := facRows.Scan(&targetID, &targetType, &itemID, &quantity); err != nil {
+			return err
+		}
+		facMaterials[targetID] = append(facMaterials[targetID], bom.MaterialRequirement{
+			ItemID:  itemID,
+			Quantity: quantity,
+		})
+	}
+
+	// Attach to facilities
+	for facilityID, materials := range facMaterials {
+		for _, facility := range facilities {
+			if facility.ID == facilityID {
+				facility.BoM = &bom.BoMResult{
+					TargetID:      facilityID,
+					TargetType:    "facility",
+					BaseMaterials: materials,
+				}
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 func main() {
 	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
 	flag.Parse()
@@ -412,6 +525,55 @@ func main() {
 	// Item thumbnails are fan-made — skip setting HasImage on recipe
 	// inputs/outputs so they are not displayed in the KB.
 
+	// --- BOM Calculation ---
+	// Initialize BOM calculator and calculate all items, ships, and facilities
+
+	// Convert items to bom.Item format
+	bomItems := make(map[string]*bom.Item)
+	for id, item := range items {
+		bomItems[id] = &bom.Item{
+			ID:       item.ID,
+			Name:     item.Name,
+			Category: item.Category,
+			IsBase:   item.Category == "ore" || item.Category == "material",
+		}
+	}
+
+	// Convert recipes to bom.Recipe format
+	bomRecipes := make(map[string]*bom.Recipe)
+	for id, recipe := range recipes {
+		inputs := make([]bom.RecipeItem, len(recipe.Inputs))
+		for i, inp := range recipe.Inputs {
+			inputs[i] = bom.RecipeItem{
+				ItemID:   inp.ItemID,
+				Quantity: inp.Quantity,
+			}
+		}
+		outputs := make([]bom.RecipeItem, len(recipe.Outputs))
+		for i, out := range recipe.Outputs {
+			outputs[i] = bom.RecipeItem{
+				ItemID:   out.ItemID,
+				Quantity: out.Quantity,
+			}
+		}
+		bomRecipes[id] = &bom.Recipe{
+			ID:      recipe.ID,
+			Inputs:  inputs,
+			Outputs: outputs,
+		}
+	}
+
+	calculator, err := bom.NewCalculator(db, bomRecipes, bomItems)
+	if err != nil {
+		log.Fatalf("initialize BOM calculator: %v", err)
+	}
+	log.Println("Calculating BOM for all items, ships, and facilities...")
+
+	// Convert facilities will be loaded later, so for now just calculate items
+	if err := calculator.CalculateAll(bomItems, nil, nil); err != nil {
+		log.Fatalf("calculate BOM: %v", err)
+	}
+
 	// Group recipes by category.
 	catRecipes := make(map[string][]*Recipe)
 	for _, r := range recipes {
@@ -469,6 +631,13 @@ func main() {
 		for _, r := range recipes {
 			recipeNames[r.ID] = r.Name
 		}
+
+		// Load BOM data from database for items and ships
+		log.Println("Loading BOM data from database...")
+		if err := loadBoMFromDB(db, items, shipCatalog, nil); err != nil {
+			log.Fatalf("load BOM from database: %v", err)
+		}
+
 		if err := writeShipPages("kb/ships", shipCatalog, recipeNames, items); err != nil {
 			log.Fatalf("write ship pages: %v", err)
 		}
@@ -485,6 +654,18 @@ func main() {
 	} else {
 		// Validate facility recipes against loaded recipes
 		validateFacilityRecipes(facilities, recipes)
+
+		// Convert facilities to slice for loadBoMFromDB
+		facilitySlice := make([]*Facility, 0, len(facilities))
+		for _, fac := range facilities {
+			facilitySlice = append(facilitySlice, fac)
+		}
+
+		// Load BOM data from database
+		log.Println("Loading BOM data from database...")
+		if err := loadBoMFromDB(db, items, shipCatalog, facilitySlice); err != nil {
+			log.Fatalf("load BOM from database: %v", err)
+		}
 
 		if err := writeFacilityPages(facilityOutDir, facilities, recipes, items); err != nil {
 			log.Fatalf("write facility pages: %v", err)
@@ -1804,6 +1985,44 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 		"dirName":        dirName,
 		"resourceAnchor": resourceAnchor,
 		"isResourceItem": isResourceItem,
+		"hasBoM": func(bom *bom.BoMResult) bool {
+			return bom != nil && len(bom.BaseMaterials) > 0
+		},
+		"boMTable": func(bom *bom.BoMResult) htmltpl.HTML {
+			if bom == nil || len(bom.BaseMaterials) == 0 {
+				return ""
+			}
+
+			var sb strings.Builder
+			sb.WriteString(`<div class="card" style="padding:0">`)
+			sb.WriteString(`<div class="section-label">Construction</div>`)
+			sb.WriteString(`<div class="bom-summary-table">`)
+			sb.WriteString(`<table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody>`)
+
+			for _, mat := range bom.BaseMaterials {
+				item, ok := items[mat.ItemID]
+				if !ok {
+					sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, mat.ItemID, mat.Quantity))
+					continue
+				}
+
+				var categoryLink string
+				if item.Category == "ore" {
+					categoryLink = "ore"
+				} else if item.Category == "material" {
+					categoryLink = "material"
+				} else {
+					categoryLink = item.Category
+				}
+
+				sb.WriteString(fmt.Sprintf(`<tr><td><a href="../%s/%s.html">%s</a></td><td>%d</td></tr>`,
+					categoryLink, mat.ItemID, item.Name, mat.Quantity))
+			}
+
+			sb.WriteString(`</tbody></table></div>`)
+			sb.WriteString(`</div>`)
+			return htmltpl.HTML(sb.String())
+		},
 	}
 	topTmpl := htmltpl.Must(htmltpl.New("top").Funcs(funcs).Parse(htmlTopTemplate))
 	catTmpl := htmltpl.Must(htmltpl.New("cat").Funcs(funcs).Parse(htmlCatTemplate))
@@ -2103,6 +2322,11 @@ var htmlItemTemplate = `<!DOCTYPE html>
 {{- end}}
         </div>
 {{- end}}
+
+{{- if hasBoM .BoM}}
+        {{boMTable .BoM}}
+{{- end}}
+
     </main>
 ` + themeScript + `
 </body>

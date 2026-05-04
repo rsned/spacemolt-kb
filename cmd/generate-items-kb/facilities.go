@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/rsned/spacemolt-kb/pkg/bom"
 )
 
 // Facility represents a station-based building entity.
@@ -41,6 +43,7 @@ type Facility struct {
 	BuildMaterials      []MaterialRef
 	MaintenancePerCycle []MaterialRef
 	Recipe              *RecipeSummary
+	BoM                 *bom.BoMResult
 
 	// Optional descriptive fields
 	SatisfiedDescription *string
@@ -336,19 +339,19 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Name}} - Spacemolt KB</title>
+    <title>{{.Facility.Name}} - Spacemolt KB</title>
     <link rel="stylesheet" href="../../smui.css">
     <link rel="stylesheet" href="../../facilities/facilities.css">
 </head>
 <body>
 ` + siteHeaderFacilitiesSub + `
     <main class="container page-content">
-        <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">{{titleCase .Category}}</a> / {{.Name}}</div>
+        <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">{{titleCase .Facility.Category}}</a> / {{.Facility.Name}}</div>
 
-        <h2>{{.Name}} {{if .Buildable}}<span class="badge badge-buildable">Buildable</span>{{else}}<span class="badge badge-locked">Not Buildable</span>{{end}}</h2>
+        <h2>{{.Facility.Name}} {{if .Facility.Buildable}}<span class="badge badge-buildable">Buildable</span>{{else}}<span class="badge badge-locked">Not Buildable</span>{{end}}</h2>
 
-        {{if .Description}}
-        <p>{{.Description}}</p>
+        {{if .Facility.Description}}
+        <p>{{.Facility.Description}}</p>
         {{end}}
 
         <section class="detail-section">
@@ -363,50 +366,50 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <tbody>
                     <tr>
                         <td>Level</td>
-                        <td>{{.Level}}</td>
+                        <td>{{.Facility.Level}}</td>
                     </tr>
                     <tr>
                         <td>Build Cost</td>
-                        <td>{{fmtValue .BuildCost}}</td>
+                        <td>{{fmtValue .Facility.BuildCost}}</td>
                     </tr>
                     <tr>
                         <td>Labor</td>
-                        <td>{{.LaborCost}}</td>
+                        <td>{{.Facility.LaborCost}}</td>
                     </tr>
                     <tr>
                         <td>Rent/Cycle</td>
-                        <td>{{fmtValue .RentPerCycle}}</td>
+                        <td>{{fmtValue .Facility.RentPerCycle}}</td>
                     </tr>
                 </tbody>
             </table>
         </section>
 
-        {{if .UpgradeChain}}
+        {{if .Facility.UpgradeChain}}
         <section class="detail-section">
             <h3>Upgrade Path</h3>
             <div class="upgrade-diagram">
-            {{- upgradeSVG .UpgradeChain}}
+            {{- upgradeSVG .Facility.UpgradeChain}}
             </div>
         </section>
         {{end}}
 
-        {{if .Recipe}}
+        {{if .Facility.Recipe}}
         <section class="detail-section">
             <h3>Recipe</h3>
-            <p><strong>Output:</strong> <a href="../../recipes/{{dirName .Recipe.Category}}/{{.Recipe.ID}}.html">{{.Recipe.Name}}</a> (×{{printf "%.2f" .RecipeMultiplier}})</p>
-            <p><strong>Crafting Time:</strong> {{.Recipe.CraftingTime}}s</p>
-            {{if .Recipe.Inputs}}
+            <p><strong>Output:</strong> <a href="../../recipes/{{dirName .Facility.Recipe.Category}}/{{.Facility.Recipe.ID}}.html">{{.Facility.Recipe.Name}}</a> (×{{printf "%.2f" .Facility.RecipeMultiplier}})</p>
+            <p><strong>Crafting Time:</strong> {{.Facility.Recipe.CraftingTime}}s</p>
+            {{if .Facility.Recipe.Inputs}}
             <p><strong>Inputs:</strong></p>
             <ul>
-            {{- range .Recipe.Inputs}}
+            {{- range .Facility.Recipe.Inputs}}
                 <li>{{.Quantity}}x <a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></li>
             {{- end}}
             </ul>
             {{end}}
-            {{if .Recipe.Outputs}}
+            {{if .Facility.Recipe.Outputs}}
             <p><strong>Outputs:</strong></p>
             <ul>
-            {{- range .Recipe.Outputs}}
+            {{- range .Facility.Recipe.Outputs}}
                 <li>{{.Quantity}}x <a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></li>
             {{- end}}
             </ul>
@@ -414,7 +417,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         </section>
         {{end}}
 
-        {{if .BuildMaterials}}
+        {{if .Facility.BuildMaterials}}
         <section class="detail-section">
             <h3>Build Materials</h3>
             <table class="detail-table">
@@ -425,7 +428,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                     </tr>
                 </thead>
                 <tbody>
-                {{- range .BuildMaterials}}
+                {{- range .Facility.BuildMaterials}}
                     <tr>
                         <td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td>
                         <td>{{.Quantity}}</td>
@@ -436,7 +439,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         </section>
         {{end}}
 
-        {{if .MaintenancePerCycle}}
+        {{if .Facility.MaintenancePerCycle}}
         <section class="detail-section mt-3">
             <h3>Maintenance per Cycle</h3>
             <table class="detail-table">
@@ -447,7 +450,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                     </tr>
                 </thead>
                 <tbody>
-                {{- range .MaintenancePerCycle}}
+                {{- range .Facility.MaintenancePerCycle}}
                     <tr>
                         <td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td>
                         <td>{{.Quantity}}</td>
@@ -458,10 +461,14 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         </section>
         {{end}}
 
-        {{if .Hint}}
+        {{if .Facility.Hint}}
         <div class="hint-box">
-            <strong>Hint:</strong> {{.Hint}}
+            <strong>Hint:</strong> {{.Facility.Hint}}
         </div>
+        {{end}}
+
+        {{if hasBoM .Facility.BoM}}
+        {{boMTable .Facility.BoM .Items}}
         {{end}}
     </main>
 ` + sortScript + themeScript + `
@@ -510,6 +517,44 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 		"titleCase":  titleCase,
 		"dirName":    dirName,
 		"upgradeSVG": generateUpgradeSVG,
+		"hasBoM": func(bom *bom.BoMResult) bool {
+			return bom != nil && len(bom.BaseMaterials) > 0
+		},
+		"boMTable": func(bom *bom.BoMResult, items map[string]*Item) htmltpl.HTML {
+			if bom == nil || len(bom.BaseMaterials) == 0 {
+				return ""
+			}
+
+			var sb strings.Builder
+			sb.WriteString(`<div class="card" style="padding:0">`)
+			sb.WriteString(`<div class="section-label">Construction</div>`)
+			sb.WriteString(`<div class="bom-summary-table">`)
+			sb.WriteString(`<table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody>`)
+
+			for _, mat := range bom.BaseMaterials {
+				item, ok := items[mat.ItemID]
+				if !ok {
+					sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, mat.ItemID, mat.Quantity))
+					continue
+				}
+
+				var categoryLink string
+				if item.Category == "ore" {
+					categoryLink = "ore"
+				} else if item.Category == "material" {
+					categoryLink = "material"
+				} else {
+					categoryLink = item.Category
+				}
+
+				sb.WriteString(fmt.Sprintf(`<tr><td><a href="../../items/%s/%s.html">%s</a></td><td>%d</td></tr>`,
+					categoryLink, mat.ItemID, item.Name, mat.Quantity))
+			}
+
+			sb.WriteString(`</tbody></table></div>`)
+			sb.WriteString(`</div>`)
+			return htmltpl.HTML(sb.String())
+		},
 	}
 
 	// Parse templates
@@ -542,7 +587,15 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 		// Individual facility pages
 		for _, fac := range cat.Facilities {
 			facPath := filepath.Join(catDir, fac.ID+".html")
-			if err := writeTemplate(facPath, facTmpl, fac); err != nil {
+			// Wrap facility with items for template functions
+			type facilityDetailData struct {
+				Facility *Facility
+				Items    map[string]*Item
+			}
+			if err := writeTemplate(facPath, facTmpl, facilityDetailData{
+				Facility: fac,
+				Items:    items,
+			}); err != nil {
 				return err
 			}
 		}
