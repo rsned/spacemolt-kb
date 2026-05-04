@@ -179,7 +179,7 @@ func TestDebugFrameColorStages(t *testing.T) {
 	}
 	hm, craters := generateRockyHeightmapDebug(&prof, 42, 16, nil, nil, nil, nil)
 	frame := &DebugFrame{}
-	out := colorizeRockyDebug(&prof, 42, 16, hm, craters, frame, nil, nil)
+	out := colorizeRockyDebug(&prof, 42, 16, hm, craters, frame, nil, nil, nil, nil)
 	if out == nil {
 		t.Fatal("expected non-nil color output")
 	}

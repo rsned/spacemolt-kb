@@ -24,7 +24,14 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	jitter := noise.GenerateJitter(profile, seed, S)
 	plates := field.GeneratePlates(profile, seed, S)
 	heightmap, craters := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
-	return colorizeRocky(profile, seed, S, heightmap, craters, jitter)
+	// Recompute the flow field for the civ overlay's habitability
+	// (the heightmap pipeline runs flow internally to carve rivers
+	// but does not return the FlowField in the non-debug path).
+	var flow *field.FlowField
+	if profile.Flow.RiverThreshold > 0 {
+		flow = field.GenerateFlow(heightmap, profile.Flow)
+	}
+	return colorizeRocky(profile, seed, S, heightmap, craters, jitter, plates, flow)
 }
 
 // RenderRockyHeightmap returns a grayscale cube map showing the
@@ -52,6 +59,47 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 		}
 	}
 	return out
+}
+
+// RenderNightCubeMap returns the Phase 9b Black-Marble nightside as a
+// standalone cube-map. Returns nil for archetypes with profile.Civ.Tier
+// == 0 (all current production archetypes — per-archetype civ defaults
+// land in P9b Task 6).
+//
+// Internally this duplicates the rocky heightmap generation up to the
+// point where GenerateCiv runs. We don't refactor RenderRocky to share
+// the work because the inputs (heightmap, climate fields, plates,
+// flow, rain shadow) consume seed streams in a specific order; pulling
+// them into a shared helper would force a change to RenderCloudCubeMap
+// too, and the savings (~1 heightmap pass per civ-enabled planet) are
+// not worth the regression risk against existing goldens. Documented
+// as a deliberate inline copy.
+func RenderNightCubeMap(profile *types.PlanetProfile, masterSeed int64, S int) *cubemap.CubeMap {
+	if profile == nil || profile.Civ.Tier <= 0 {
+		return nil
+	}
+	jitter := noise.GenerateJitter(profile, masterSeed, S)
+	plates := field.GeneratePlates(profile, masterSeed, S)
+	heightmap, _ := generateRockyHeightmapWithJitter(profile, masterSeed, S, jitter, plates)
+
+	useBiomeTable := len(profile.BiomeTable.Cells) > 0
+	var tField, mField *cubemap.CubeMapF
+	if useBiomeTable {
+		tField, mField = biome.GenerateClimateFields(masterSeed, profile, S)
+	}
+	var flow *field.FlowField
+	if profile.Flow.RiverThreshold > 0 {
+		flow = field.GenerateFlow(heightmap, profile.Flow)
+	}
+	var rainShadow *biome.RainShadowField
+	if useBiomeTable && profile.RainShadow.WalkSteps > 0 {
+		rainShadow = biome.GenerateRainShadow(heightmap, profile.RainShadow)
+	}
+	civ := feature.GenerateCiv(heightmap, tField, mField, plates, flow, rainShadow, profile, masterSeed, S)
+	if civ == nil {
+		return nil
+	}
+	return civ.Night
 }
 
 // RenderCloudCubeMap returns the cloud overlay as a separate cube-map
@@ -613,15 +661,19 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 
 // colorizeRocky paints the heightmap into a color cube map using the
 // profile's palette/biome/ocean/snow/cap/shading/LUT settings.
-func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater, jitter *noise.JitterField) *cubemap.CubeMap {
-	return colorizeRockyDebug(profile, seed, S, heightmap, craters, nil, nil, jitter)
+func colorizeRocky(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater, jitter *noise.JitterField, plates *field.PlateField, flow *field.FlowField) *cubemap.CubeMap {
+	return colorizeRockyDebug(profile, seed, S, heightmap, craters, nil, nil, jitter, plates, flow)
 }
 
 // colorizeRockyDebug is the debug-aware variant of colorizeRocky. When
 // frame is non-nil, it appends a DebugStage after each color pipeline
 // stage. When a stage's name is in bypass, the stage is skipped while
 // any noise draws are still consumed so downstream streams stay stable.
-func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater, frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField) *cubemap.CubeMap {
+//
+// plates and flow feed the Phase 9b Civ overlay (between Ejecta and
+// LUT). Either may be nil — the civ pipeline tolerates missing inputs
+// by zeroing the corresponding habitability term.
+func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightmap *cubemap.CubeMapF, craters []feature.Crater, frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField, plates *field.PlateField, flow *field.FlowField) *cubemap.CubeMap {
 	capNoise := noise.New(seed + 42)
 	oceanNoise := noise.New(seed + 77)
 	biomeNoise := noise.New(seed + 99)
@@ -893,6 +945,48 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 				ColorAfter: out.Clone(),
 				Skipped:    bypassed,
 			})
+		}
+	}
+
+	// Stage: Civ (Phase 9b item 18). Generates city patches +
+	// agriculture + roads as a daytime overlay; the night-side
+	// Black-Marble cube map is built but exposed separately via
+	// RenderNightCubeMap rather than blended here.
+	//
+	// Skipped silently when profile.Civ.Tier == 0 — no stage is
+	// appended in that case so the production-default archetypes
+	// (all currently Tier=0) keep their existing stage counts.
+	if profile.Civ.Tier > 0 {
+		civ := feature.GenerateCiv(heightmap, tField, mField, plates, flow, rainShadow, profile, seed, S)
+		if civ != nil {
+			bypassed := bypass["Civ"]
+			if !bypassed {
+				for face := range cubemap.Face(cubemap.NumFaces) {
+					for py := range S {
+						for px := range S {
+							idx := py*S + px
+							a := civ.DayMask[face][idx]
+							if a <= 0 {
+								continue
+							}
+							if a > 1 {
+								a = 1
+							}
+							overlay := civ.DayColor.Get(face, px, py)
+							c := out.Get(face, px, py)
+							out.Set(face, px, py, planetcolor.BlendOkLab(c, overlay, a))
+						}
+					}
+				}
+			}
+			if frame != nil {
+				frame.Stages = append(frame.Stages, DebugStage{
+					Name:       "Civ",
+					Kind:       "color",
+					ColorAfter: out.Clone(),
+					Skipped:    bypassed,
+				})
+			}
 		}
 	}
 

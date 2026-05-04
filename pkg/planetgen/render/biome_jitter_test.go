@@ -61,14 +61,14 @@ func TestBiomeJitterAffectsOutput(t *testing.T) {
 	hm, craters := generateRockyHeightmapWithJitter(&prof, seed, S, nil, nil)
 
 	// Render without jitter.
-	noJitter := colorizeRockyDebug(&prof, seed, S, hm, craters, nil, nil, nil)
+	noJitter := colorizeRockyDebug(&prof, seed, S, hm, craters, nil, nil, nil, nil, nil)
 
 	// Render with jitter.
 	jf := noise.GenerateJitter(&prof, seed, S)
 	if jf == nil {
 		t.Fatal("GenerateJitter returned nil for an enabled profile")
 	}
-	withJitter := colorizeRockyDebug(&prof, seed, S, hm, craters, nil, nil, jf)
+	withJitter := colorizeRockyDebug(&prof, seed, S, hm, craters, nil, nil, jf, nil, nil)
 
 	// Count differing pixels across all 6 faces.
 	total := 0

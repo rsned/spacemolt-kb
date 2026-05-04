@@ -61,7 +61,7 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 		Jitter: jitter,
 	}
 	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter, plates)
-	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter)
+	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter, plates, frame.Flow)
 	if plates != nil {
 		frame.Stages = append(frame.Stages,
 			DebugStage{Name: "Plates: id", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(plates.PlateID, S)},
