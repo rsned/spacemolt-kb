@@ -493,3 +493,99 @@ func TestCalculateAll(t *testing.T) {
 		t.Errorf("Expected quantity 50 for test_facility, got %d", facQty)
 	}
 }
+
+// TestCalculate_MemoizationDifferentQuantities is a regression test for the
+// per-1-unit memoization fix. The earlier implementation memoized the scaled
+// result of the first call, so a second call with a different quantity returned
+// the wrong answer. Each call must produce a result scaled to its own quantity.
+func TestCalculate_MemoizationDifferentQuantities(t *testing.T) {
+	db := setupTestDB(t)
+	defer func() { _ = db.Close() }()
+
+	recipes := map[string]*Recipe{
+		"steel_plate": {
+			ID:      "steel_plate",
+			Inputs:  []RecipeItem{{ItemID: "iron_ore", Quantity: 5}},
+			Outputs: []RecipeItem{{ItemID: "steel_plate", Quantity: 2}},
+		},
+	}
+	items := map[string]*Item{
+		"iron_ore":    {ID: "iron_ore", Name: "Iron Ore", Type: "resource", Category: "ore"},
+		"steel_plate": {ID: "steel_plate", Name: "Steel Plate", Type: "component", Category: "component"},
+	}
+
+	calc, err := NewCalculator(db, recipes, items)
+	if err != nil {
+		t.Fatalf("new calculator: %v", err)
+	}
+
+	// 1 steel_plate needs ceil(5/2) = 3 iron_ore (the per-unit answer).
+	first, err := calc.Calculate("steel_plate", 1)
+	if err != nil {
+		t.Fatalf("Calculate(steel_plate, 1): %v", err)
+	}
+	if len(first) != 1 || first[0].ItemID != "iron_ore" || first[0].Quantity != 3 {
+		t.Errorf("qty=1: got %+v, want [{iron_ore 3}]", first)
+	}
+
+	// 4 steel_plates: 4 * 3 = 12 iron_ore via memoized per-unit value.
+	four, err := calc.Calculate("steel_plate", 4)
+	if err != nil {
+		t.Fatalf("Calculate(steel_plate, 4): %v", err)
+	}
+	if len(four) != 1 || four[0].Quantity != 12 {
+		t.Errorf("qty=4: got %+v, want [{iron_ore 12}]", four)
+	}
+
+	// 6 steel_plates from cache: 6 * 3 = 18 iron_ore.
+	six, err := calc.Calculate("steel_plate", 6)
+	if err != nil {
+		t.Fatalf("Calculate(steel_plate, 6): %v", err)
+	}
+	if len(six) != 1 || six[0].Quantity != 18 {
+		t.Errorf("qty=6: got %+v, want [{iron_ore 18}]", six)
+	}
+
+	// Caller must not be able to mutate the memoized cache.
+	first[0].Quantity = 9999
+	again, err := calc.Calculate("steel_plate", 1)
+	if err != nil {
+		t.Fatalf("Calculate after caller mutation: %v", err)
+	}
+	if again[0].Quantity != 3 {
+		t.Errorf("memo cache leaked caller mutation: got %d, want 3", again[0].Quantity)
+	}
+}
+
+// TestCalculate_CircularDependency_PathOrder verifies the cycle is reported in
+// traversal order. The earlier implementation iterated a map and produced a
+// non-deterministic cycle string.
+func TestCalculate_CircularDependency_PathOrder(t *testing.T) {
+	db := setupTestDB(t)
+	defer func() { _ = db.Close() }()
+
+	recipes := map[string]*Recipe{
+		"a": {ID: "a", Inputs: []RecipeItem{{ItemID: "b", Quantity: 1}}, Outputs: []RecipeItem{{ItemID: "a", Quantity: 1}}},
+		"b": {ID: "b", Inputs: []RecipeItem{{ItemID: "c", Quantity: 1}}, Outputs: []RecipeItem{{ItemID: "b", Quantity: 1}}},
+		"c": {ID: "c", Inputs: []RecipeItem{{ItemID: "a", Quantity: 1}}, Outputs: []RecipeItem{{ItemID: "c", Quantity: 1}}},
+	}
+	items := map[string]*Item{
+		"a": {ID: "a", Category: "component"},
+		"b": {ID: "b", Category: "component"},
+		"c": {ID: "c", Category: "component"},
+	}
+
+	calc, err := NewCalculator(db, recipes, items)
+	if err != nil {
+		t.Fatalf("new calculator: %v", err)
+	}
+
+	_, err = calc.Calculate("a", 1)
+	if err == nil {
+		t.Fatal("expected circular dependency error")
+	}
+	want := "[a b c a]"
+	if !contains(err.Error(), want) {
+		t.Errorf("expected cycle %q in error, got %q", want, err.Error())
+	}
+}

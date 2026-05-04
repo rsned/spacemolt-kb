@@ -10,7 +10,7 @@ import (
 
 // MaterialRequirement represents a single material in the BoM
 type MaterialRequirement struct {
-	ItemID  string
+	ItemID   string
 	Quantity int
 }
 
@@ -24,14 +24,17 @@ type BoMResult struct {
 	RecipePath      []string
 }
 
-// Calculator holds state for BoM computation
+// Calculator holds state for BoM computation.
+//
+// memo stores per-1-unit base materials for each item; callers scale on lookup
+// via Calculate(). Cycle detection lives on the call stack via the path argument
+// to calculatePerUnit so it cannot leak across calls.
 type Calculator struct {
 	db            *sql.DB
 	recipes       map[string]*Recipe
 	itemToRecipes map[string][]*Recipe
 	items         map[string]*Item
 	memo          map[string][]MaterialRequirement
-	visited       map[string]struct{}
 	mu            sync.RWMutex
 }
 
@@ -48,66 +51,61 @@ func NewCalculator(db *sql.DB, recipes map[string]*Recipe, items map[string]*Ite
 		itemToRecipes: itemToRecipes,
 		items:         items,
 		memo:          make(map[string][]MaterialRequirement),
-		visited:       make(map[string]struct{}),
 	}, nil
 }
 
-// Calculate recursively computes base materials for an item
+// Calculate returns base materials needed to produce `quantity` units of itemID.
 func (c *Calculator) Calculate(itemID string, quantity int) ([]MaterialRequirement, error) {
+	perUnit, err := c.calculatePerUnit(itemID, nil)
+	if err != nil {
+		return nil, err
+	}
+	return scaleMaterials(perUnit, quantity), nil
+}
+
+// calculatePerUnit returns base materials for ONE unit of itemID. The path
+// argument is the current recursion stack and is used for cycle detection;
+// pass nil at the top level. The slice is treated as immutable below the
+// current frame: each recursive call creates a fresh slice header so siblings
+// don't see each other's appends.
+func (c *Calculator) calculatePerUnit(itemID string, path []string) ([]MaterialRequirement, error) {
 	c.mu.RLock()
 	item, hasItem := c.items[itemID]
 	c.mu.RUnlock()
 
 	if !hasItem {
-		// Unknown item - treat as base material
-		return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+		return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
 	}
-
-	// Check if base material (ore or material category)
 	if item.Category == "ore" || item.Category == "material" {
-		return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+		return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
 	}
 
-	// Check memo cache
+	// Per-unit memo lookup.
 	c.mu.RLock()
 	if cached, ok := c.memo[itemID]; ok {
 		c.mu.RUnlock()
-		// Scale cached result by requested quantity
-		scaled := make([]MaterialRequirement, len(cached))
-		for i, mat := range cached {
-			scaled[i] = MaterialRequirement{
-				ItemID:  mat.ItemID,
-				Quantity: mat.Quantity * quantity,
-			}
-		}
-		return scaled, nil
+		return cloneMaterials(cached), nil
 	}
 	c.mu.RUnlock()
 
-	// Check for circular dependency
-	c.mu.Lock()
-	_, inPath := c.visited[itemID]
-	if inPath {
-		c.mu.Unlock()
-		// Build cycle message for error
-		var cycle []string
-		for id := range c.visited {
-			cycle = append(cycle, id)
+	// Cycle detection: walk the stack in order so the error reports the cycle
+	// deterministically.
+	for i, prev := range path {
+		if prev == itemID {
+			cycle := append([]string(nil), path[i:]...)
+			cycle = append(cycle, itemID)
+			return nil, fmt.Errorf("circular dependency detected in BoM calculation: %v", cycle)
 		}
-		cycle = append(cycle, itemID)
-		return nil, fmt.Errorf("circular dependency detected in BoM calculation: %v", cycle)
 	}
-	c.visited[itemID] = struct{}{}
-	c.mu.Unlock()
+	// Fresh slice header so concurrent sibling recursions can't see appends
+	// past this frame's length.
+	nextPath := append(append([]string(nil), path...), itemID)
 
-	// Select recipe
 	recipe := SelectRecipe(c.itemToRecipes, itemID)
 	if recipe == nil {
-		// Not craftable - treat as base material
-		return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+		return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
 	}
 
-	// Calculate output quantity for scaling
 	var outputQty int
 	for _, output := range recipe.Outputs {
 		if output.ItemID == itemID {
@@ -115,42 +113,60 @@ func (c *Calculator) Calculate(itemID string, quantity int) ([]MaterialRequireme
 			break
 		}
 	}
-
 	if outputQty == 0 {
 		log.Printf("warning: recipe %s has zero output for item %s", recipe.ID, itemID)
-		return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+		return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
 	}
 
-	// Calculate multiplier
-	multiplier := float64(quantity) / float64(outputQty)
-
-	// Recursively calculate inputs
-	var allMaterials []MaterialRequirement
+	// Walk inputs at recipe-batch quantity, then divide-with-ceil at the end so
+	// per-unit values are correct even when a recipe outputs more than 1.
+	var batch []MaterialRequirement
 	for _, input := range recipe.Inputs {
-		inputQty := int(float64(input.Quantity) * multiplier)
-
-		subMaterials, err := c.Calculate(input.ItemID, inputQty)
+		sub, err := c.calculatePerUnit(input.ItemID, nextPath)
 		if err != nil {
 			return nil, err
 		}
+		batch = append(batch, scaleMaterials(sub, input.Quantity)...)
+	}
+	aggregated := aggregateMaterials(batch)
 
-		allMaterials = append(allMaterials, subMaterials...)
+	perUnit := make([]MaterialRequirement, len(aggregated))
+	for i, mat := range aggregated {
+		perUnit[i] = MaterialRequirement{
+			ItemID:   mat.ItemID,
+			Quantity: ceilDiv(mat.Quantity, outputQty),
+		}
 	}
 
-	// Remove from visited set
 	c.mu.Lock()
-	delete(c.visited, itemID)
+	c.memo[itemID] = perUnit
 	c.mu.Unlock()
 
-	// Aggregate materials
-	aggregated := c.aggregateMaterials(allMaterials)
+	return cloneMaterials(perUnit), nil
+}
 
-	// Memoize result
-	c.mu.Lock()
-	c.memo[itemID] = aggregated
-	c.mu.Unlock()
+// scaleMaterials returns a copy of in with each Quantity multiplied by factor.
+func scaleMaterials(in []MaterialRequirement, factor int) []MaterialRequirement {
+	out := make([]MaterialRequirement, len(in))
+	for i, m := range in {
+		out[i] = MaterialRequirement{ItemID: m.ItemID, Quantity: m.Quantity * factor}
+	}
+	return out
+}
 
-	return aggregated, nil
+// cloneMaterials returns a defensive copy so callers cannot mutate the memo cache.
+func cloneMaterials(in []MaterialRequirement) []MaterialRequirement {
+	out := make([]MaterialRequirement, len(in))
+	copy(out, in)
+	return out
+}
+
+// ceilDiv returns ceil(a/b). b==0 returns a (caller has already logged).
+func ceilDiv(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return (a + b - 1) / b
 }
 
 // ShipBuildRef links an item to a ship that requires it
@@ -180,23 +196,21 @@ type Facility struct {
 	BuildMaterials []FacilityMaterial
 }
 
-// CalculateAll computes BoM for all items, ships, and facilities
+// CalculateAll computes BoM for all items, ships, and facilities.
+//
+// All results are buffered in memory and only persisted after every calculation
+// succeeds, so a mid-run failure leaves the existing BoM data intact.
 func (c *Calculator) CalculateAll(
 	items map[string]*Item,
 	ships map[string]*Ship,
 	facilities map[string]*Facility,
 ) error {
-	// Clear previous data
-	if err := ClearBoM(c.db); err != nil {
-		return fmt.Errorf("clear bom database: %w", err)
-	}
+	var results []*BoMResult
 
 	log.Printf("Calculating BoM for %d items...", len(items))
 
-	// Calculate for items
 	for itemID, item := range items {
 		if item.Category == "ore" || item.Category == "material" {
-			// Skip base materials
 			continue
 		}
 
@@ -213,85 +227,85 @@ func (c *Calculator) CalculateAll(
 			HasAlternatives: len(c.itemToRecipes[itemID]) > 1,
 		}
 
-		// Select recipe path
-		recipe := SelectRecipe(c.itemToRecipes, itemID)
-		if recipe != nil {
+		if recipe := SelectRecipe(c.itemToRecipes, itemID); recipe != nil {
 			result.RecipePath = []string{recipe.ID}
 		}
 
-		if err := WriteBoM(c.db, result); err != nil {
-			return fmt.Errorf("write BoM for item %s: %w", itemID, err)
-		}
+		results = append(results, result)
 	}
 
-	// Calculate for ships
 	if ships != nil {
 		log.Printf("Calculating BoM for %d ships...", len(ships))
 
 		for shipID, ship := range ships {
 			var allMaterials []MaterialRequirement
+			hasAlt := false
 
 			for _, mat := range ship.BuildMaterials {
 				materials, err := c.Calculate(mat.ItemID, mat.Quantity)
 				if err != nil {
 					return fmt.Errorf("calculate BoM for ship %s material %s: %w", shipID, mat.ItemID, err)
 				}
+				if len(c.itemToRecipes[mat.ItemID]) > 1 {
+					hasAlt = true
+				}
 				allMaterials = append(allMaterials, materials...)
 			}
 
-			// Aggregate and sort
-			aggregated := c.aggregateMaterials(allMaterials)
-
-			result := &BoMResult{
-				TargetID:      shipID,
-				TargetName:    ship.Name,
-				TargetType:    "ship",
-				BaseMaterials: aggregated,
-			}
-
-			if err := WriteBoM(c.db, result); err != nil {
-				return fmt.Errorf("write BoM for ship %s: %w", shipID, err)
-			}
+			results = append(results, &BoMResult{
+				TargetID:        shipID,
+				TargetName:      ship.Name,
+				TargetType:      "ship",
+				BaseMaterials:   aggregateMaterials(allMaterials),
+				HasAlternatives: hasAlt,
+			})
 		}
 	}
 
-	// Calculate for facilities
 	if facilities != nil {
 		log.Printf("Calculating BoM for %d facilities...", len(facilities))
 
 		for facID, facility := range facilities {
 			var allMaterials []MaterialRequirement
+			hasAlt := false
 
 			for _, mat := range facility.BuildMaterials {
 				materials, err := c.Calculate(mat.ItemID, mat.Quantity)
 				if err != nil {
 					return fmt.Errorf("calculate BoM for facility %s material %s: %w", facID, mat.ItemID, err)
 				}
+				if len(c.itemToRecipes[mat.ItemID]) > 1 {
+					hasAlt = true
+				}
 				allMaterials = append(allMaterials, materials...)
 			}
 
-			// Aggregate and sort
-			aggregated := c.aggregateMaterials(allMaterials)
-
-			result := &BoMResult{
-				TargetID:      facID,
-				TargetName:    facility.Name,
-				TargetType:    "facility",
-				BaseMaterials: aggregated,
-			}
-
-			if err := WriteBoM(c.db, result); err != nil {
-				return fmt.Errorf("write BoM for facility %s: %w", facID, err)
-			}
+			results = append(results, &BoMResult{
+				TargetID:        facID,
+				TargetName:      facility.Name,
+				TargetType:      "facility",
+				BaseMaterials:   aggregateMaterials(allMaterials),
+				HasAlternatives: hasAlt,
+			})
 		}
 	}
 
-	log.Printf("BoM calculation complete")
+	// All calculations succeeded — clear the old data and persist the new set.
+	if err := ClearBoM(c.db); err != nil {
+		return fmt.Errorf("clear bom database: %w", err)
+	}
+	for _, result := range results {
+		if err := WriteBoM(c.db, result); err != nil {
+			return fmt.Errorf("write BoM for %s/%s: %w", result.TargetType, result.TargetID, err)
+		}
+	}
+
+	log.Printf("BoM calculation complete: %d targets persisted", len(results))
 	return nil
 }
 
-// aggregateMaterials combines duplicate materials by summing quantities
-func (c *Calculator) aggregateMaterials(materials []MaterialRequirement) []MaterialRequirement {
+// aggregateMaterials combines duplicate materials by summing quantities.
+func aggregateMaterials(materials []MaterialRequirement) []MaterialRequirement {
 	matMap := make(map[string]int)
 	for _, mat := range materials {
 		matMap[mat.ItemID] += mat.Quantity
@@ -302,7 +316,6 @@ func (c *Calculator) aggregateMaterials(materials []MaterialRequirement) []Mater
 		result = append(result, MaterialRequirement{ItemID: itemID, Quantity: qty})
 	}
 
-	// Sort for consistent output
 	sort.Slice(result, func(a, b int) bool {
 		return result[a].ItemID < result[b].ItemID
 	})
