@@ -140,9 +140,6 @@ func generateSingle(planetType, planetName string, faceSize, equirectW, equirect
 	if profile := planetgen.GetProfile(planetType); profile != nil {
 		if cloudCM := render.RenderCloudCubeMap(profile, planetgen.HashSeedPublic(planetName), faceSize); cloudCM != nil {
 			cloudPath := strings.TrimSuffix(cubePath, ".cube.png") + ".clouds.cube.png"
-			if cloudPath == cubePath {
-				cloudPath = cubePath + ".clouds"
-			}
 			if err := cubemap.WriteCrossPNG(cloudCM, cloudPath); err != nil {
 				return err
 			}

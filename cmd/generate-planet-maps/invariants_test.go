@@ -416,6 +416,8 @@ func TestPhase9aCloudInvariants(t *testing.T) {
 			mean, variance := meanVarF(alphas)
 
 			// Storm-free counterfactual for variance lift comparison.
+			// Shallow copy is safe here: we only mutate Cloud.StormCount
+			// (a scalar), never the slice/map fields on PlanetProfile.
 			pNoStorm := *p
 			pNoStorm.Cloud.StormCount = 0
 			cfNoStorm := feature.GenerateClouds(&pNoStorm, masterSeed, S)
@@ -451,7 +453,7 @@ func TestPhase9aCloudInvariants(t *testing.T) {
 			// gap is small in absolute terms (a few storms over the
 			// whole sphere) so we only require strict inequality
 			// rather than a lift fraction.
-			if !(mean > meanNoStorm) {
+			if mean <= meanNoStorm {
 				t.Errorf("%s: mean alpha with storms (%.5f) not > mean without storms (%.5f)",
 					name, mean, meanNoStorm)
 			}

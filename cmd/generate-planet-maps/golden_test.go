@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/draw"
 	"image/png"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -138,7 +139,11 @@ func TestGoldenClouds(t *testing.T) {
 }
 
 func decodePNGToRGBA(data []byte) (*image.RGBA, error) {
-	src, err := png.Decode(bytes.NewReader(data))
+	return decodePNGReaderToRGBA(bytes.NewReader(data))
+}
+
+func decodePNGReaderToRGBA(r io.Reader) (*image.RGBA, error) {
+	src, err := png.Decode(r)
 	if err != nil {
 		return nil, err
 	}
@@ -163,14 +168,7 @@ func readPNGRGBA(path string) (*image.RGBA, error) {
 		return nil, err
 	}
 	defer func() { _ = f.Close() }()
-	src, err := png.Decode(f)
-	if err != nil {
-		return nil, err
-	}
-	b := src.Bounds()
-	dst := image.NewRGBA(b)
-	draw.Draw(dst, b, src, b.Min, draw.Src)
-	return dst, nil
+	return decodePNGReaderToRGBA(f)
 }
 
 func meanDE2000(a, b []uint8) float64 {
