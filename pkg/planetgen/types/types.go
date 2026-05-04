@@ -143,12 +143,12 @@ type PlanetProfile struct {
 // declared up-front so the habitability writer (Task 1) can take
 // CivConfig as a typed argument without a forward-reference.
 type CivConfig struct {
-	Tier             float64 `json:",omitempty"` // 0 = disabled; 1 = full civ
-	SiteMinDistRad   float64 `json:",omitempty"` // Bridson minimum site separation, radians
-	SiteMaxDistRad   float64 `json:",omitempty"` // Bridson maximum site separation, radians
-	MaxPopulation    float64 `json:",omitempty"` // population cap for the most populous site
-	NightLightHue    float64 `json:",omitempty"` // hue (0..1) for nightside lights
-	AgricultureRatio float64 `json:",omitempty"` // farmland-to-city area ratio
+	Tier             float64 `json:"tier,omitempty"`             // 0 = disabled; 1 = full civ
+	SiteMinDistRad   float64 `json:"siteMinDistRad,omitempty"`   // Bridson minimum site separation, radians
+	SiteMaxDistRad   float64 `json:"siteMaxDistRad,omitempty"`   // Bridson maximum site separation, radians
+	MaxPopulation    float64 `json:"maxPopulation,omitempty"`    // population cap for the most populous site
+	NightLightHue    float64 `json:"nightLightHue,omitempty"`    // hue (0..1) for nightside lights
+	AgricultureRatio float64 `json:"agricultureRatio,omitempty"` // farmland-to-city area ratio
 }
 
 // CloudConfig parameterizes the separate cloud-cover cube-map output.

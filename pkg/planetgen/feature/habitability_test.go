@@ -75,6 +75,10 @@ func TestHabitabilityHighOnTemperateLowlands(t *testing.T) {
 		t.Fatalf("GenerateHabitability returned nil for enabled cfg")
 	}
 	// Sample a single pixel — the field is uniform so any pixel works.
+	// 0.4 floor is a comfortable lower bound: with h=0.40 the lowland
+	// smoothstep contributes ≈ habWeightLow * smoothstep(0.30, 0.55, 0.40),
+	// plus full temp-gaussian + full moist-gaussian peaks; well above the
+	// ocean-baseline run in TestHabitabilityZeroOnOcean (≈ 0.002).
 	score := hf.Score[cubemap.FacePosZ][0]
 	if score <= 0.4 {
 		t.Errorf("temperate lowland habitability=%.4f; want > 0.4", score)

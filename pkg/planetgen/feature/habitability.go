@@ -114,10 +114,12 @@ func GenerateHabitability(
 			}
 			score += habWeightMoist * gaussian(m*rs, habMoistMu, habMoistSigma)
 
-			// River boost: binary "is river?" → riverDistRecip = 1.0
-			// saturates the smoothstep, else 0 below the low end.
+			// River boost: binary "is river?" — the plan formula uses
+			// smoothstep(0, 0.05, riverDistRecip) but with no per-pixel
+			// river-distance SDF available we collapse to a saturated
+			// 1.0 when the pixel is on a river, 0 otherwise.
 			if rivers != nil && rivers[i] {
-				score += habWeightRiver * smoothstep(0.0, 0.05, 1.0)
+				score += habWeightRiver
 			}
 
 			// Convergent-boundary volcanism penalty: binary cutoff at
