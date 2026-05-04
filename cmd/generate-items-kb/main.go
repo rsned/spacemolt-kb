@@ -1993,6 +1993,7 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
 		},
+		"boMJSON": func(b *bom.BoMResult) string { return b.JSON() },
 		"boMTable": func(bom *bom.BoMResult) htmltpl.HTML {
 			if bom == nil || len(bom.BaseMaterials) == 0 {
 				return ""
@@ -2330,6 +2331,10 @@ var htmlItemTemplate = `<!DOCTYPE html>
 
 {{- if hasBoM .BoM}}
         {{boMTable .BoM}}
+        <details class="bom-json-details">
+          <summary>View JSON Data</summary>
+          <pre class="bom-json">{{boMJSON .BoM}}</pre>
+        </details>
 {{- end}}
 
     </main>

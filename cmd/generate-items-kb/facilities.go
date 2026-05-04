@@ -469,6 +469,10 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 
         {{if hasBoM .Facility.BoM}}
         {{boMTable .Facility.BoM}}
+        <details class="bom-json-details">
+          <summary>View JSON Data</summary>
+          <pre class="bom-json">{{boMJSON .Facility.BoM}}</pre>
+        </details>
         {{end}}
     </main>
 ` + sortScript + themeScript + `
@@ -520,6 +524,7 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
 		},
+		"boMJSON": func(b *bom.BoMResult) string { return b.JSON() },
 		"boMTable": func(b *bom.BoMResult) htmltpl.HTML {
 			if b == nil || len(b.BaseMaterials) == 0 {
 				return ""

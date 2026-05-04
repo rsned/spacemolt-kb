@@ -2,6 +2,7 @@ package bom
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"sort"
@@ -302,6 +303,28 @@ func (c *Calculator) CalculateAll(
 
 	log.Printf("BoM calculation complete: %d targets persisted", len(results))
 	return nil
+}
+
+// JSON returns a minified JSON array of the BoM's base materials in the form
+// [{"item_id":"X","quantity":N},...]. Returns "" for nil or empty results so
+// templates can drop the JSON section cleanly.
+func (r *BoMResult) JSON() string {
+	if r == nil || len(r.BaseMaterials) == 0 {
+		return ""
+	}
+	type entry struct {
+		ItemID   string `json:"item_id"`
+		Quantity int    `json:"quantity"`
+	}
+	out := make([]entry, len(r.BaseMaterials))
+	for i, mat := range r.BaseMaterials {
+		out[i] = entry(mat)
+	}
+	data, err := json.Marshal(out)
+	if err != nil {
+		return ""
+	}
+	return string(data)
 }
 
 // aggregateMaterials combines duplicate materials by summing quantities.

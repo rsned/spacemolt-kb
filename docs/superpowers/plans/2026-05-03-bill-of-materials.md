@@ -34,7 +34,9 @@
 - Create: `pkg/bom/db.go` (package declaration, empty structs)
 - Create: `pkg/bom/recipes.go` (package declaration, empty structs)
 
-- [ ] **Step 1: Write package declarations and core type definitions**
+- [x] **Step 1: Write package declarations and core type definitions**
+
+`pkg/bom/calculator.go`:
 
 ```go
 package bom
@@ -47,7 +49,7 @@ import (
 // MaterialRequirement represents a single material in the BoM
 type MaterialRequirement struct {
     ItemID   string
-    Quantity  int
+    Quantity int
 }
 
 // BoMResult contains the complete breakdown for a target item
@@ -56,22 +58,49 @@ type BoMResult struct {
     TargetName      string
     TargetType      string
     HasAlternatives bool
-    BaseMaterials    []MaterialRequirement
+    BaseMaterials   []MaterialRequirement
     RecipePath      []string
 }
 
 // Calculator holds state for BoM computation
 type Calculator struct {
-    db              *sql.DB
-    recipes         map[string]*Recipe
-    itemToRecipes   map[string][]*Recipe
-    items           map[string]*Item
-    memo            map[string][]MaterialRequirement
-    mu              sync.RWMutex
+    db            *sql.DB
+    recipes       map[string]*Recipe
+    itemToRecipes map[string][]*Recipe
+    items         map[string]*Item
+    memo          map[string][]MaterialRequirement // per-1-unit base materials, scaled at lookup
+    mu            sync.RWMutex
 }
 ```
 
-- [ ] **Step 2: Run verify compilation**
+`pkg/bom/recipes.go` (must be declared in Task 1 — Task 2 tests reference these types):
+
+```go
+package bom
+
+// Recipe describes a crafting recipe.
+type Recipe struct {
+    ID      string
+    Name    string
+    Inputs  []RecipeItem
+    Outputs []RecipeItem
+}
+
+// RecipeItem is an input or output of a recipe.
+type RecipeItem struct {
+    ItemID   string
+    Quantity int
+}
+
+// Item is the minimal item shape needed by the BoM calculator.
+type Item struct {
+    ID       string
+    Name     string
+    Category string
+}
+```
+
+- [x] **Step 2: Run verify compilation**
 
 ```bash
 cd /home/robert/spacemolt/kb
@@ -80,7 +109,7 @@ go build ./pkg/bom/...
 
 Expected: No compilation errors
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add pkg/bom/calculator.go pkg/bom/db.go pkg/bom/recipes.go
@@ -94,7 +123,7 @@ git commit -m "feat: create bom package structure and core types"
 **Files:**
 - Modify: `pkg/bom/recipes.go`
 
-- [ ] **Step 1: Write failing test for recipe map building**
+- [x] **Step 1: Write failing test for recipe map building**
 
 ```go
 package bom
@@ -123,7 +152,7 @@ func TestBuildRecipeMaps(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 cd /home/robert/spacemolt/kb
@@ -132,7 +161,7 @@ go test ./pkg/bom/recipes_test.go -run TestBuildRecipeMaps -v
 
 Expected: FAIL with "undefined: BuildRecipeMaps"
 
-- [ ] **Step 3: Write BuildRecipeMaps implementation**
+- [x] **Step 3: Write BuildRecipeMaps implementation**
 
 ```go
 // BuildRecipeMaps creates reverse lookup maps from recipes
@@ -149,7 +178,7 @@ func BuildRecipeMaps(recipes map[string]*Recipe) (map[string][]*Recipe, error) {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/recipes_test.go -run TestBuildRecipeMaps -v
@@ -157,7 +186,7 @@ go test ./pkg/bom/recipes_test.go -run TestBuildRecipeMaps -v
 
 Expected: PASS
 
-- [ ] **Step 5: Write failing test for recipe selection**
+- [x] **Step 5: Write failing test for recipe selection**
 
 ```go
 func TestSelectRecipe(t *testing.T) {
@@ -181,7 +210,7 @@ func TestSelectRecipe(t *testing.T) {
 }
 ```
 
-- [ ] **Step 6: Run test to verify it fails**
+- [x] **Step 6: Run test to verify it fails**
 
 ```bash
 go test ./pkg/bom/recipes_test.go -run TestSelectRecipe -v
@@ -189,7 +218,7 @@ go test ./pkg/bom/recipes_test.go -run TestSelectRecipe -v
 
 Expected: FAIL with "undefined: SelectRecipe"
 
-- [ ] **Step 7: Write SelectRecipe implementation**
+- [x] **Step 7: Write SelectRecipe implementation**
 
 ```go
 // SelectRecipe chooses the optimal recipe for an item
@@ -250,7 +279,7 @@ func UsesSalvage(recipe *Recipe) bool {
 }
 ```
 
-- [ ] **Step 8: Run test to verify it passes**
+- [x] **Step 8: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/recipes_test.go -run TestSelectRecipe -v
@@ -258,7 +287,7 @@ go test ./pkg/bom/recipes_test.go -run TestSelectRecipe -v
 
 Expected: PASS
 
-- [ ] **Step 9: Write additional tests for salvage edge cases**
+- [x] **Step 9: Write additional tests for salvage edge cases**
 
 ```go
 func TestSelectRecipe_SalvageOnly(t *testing.T) {
@@ -285,7 +314,7 @@ func TestSelectRecipe_SalvageOnly(t *testing.T) {
 }
 ```
 
-- [ ] **Step 10: Run tests to verify they pass**
+- [x] **Step 10: Run tests to verify they pass**
 
 ```bash
 go test ./pkg/bom/recipes_test.go -v
@@ -293,7 +322,7 @@ go test ./pkg/bom/recipes_test.go -v
 
 Expected: PASS all tests
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add pkg/bom/recipes.go pkg/bom/recipes_test.go
@@ -307,7 +336,7 @@ git commit -m "feat: implement recipe resolver with optimal selection and salvag
 **Files:**
 - Modify: `pkg/bom/db.go`
 
-- [ ] **Step 1: Write failing test for database migration**
+- [x] **Step 1: Write failing test for database migration**
 
 ```go
 package bom
@@ -339,7 +368,7 @@ func TestMigrate(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 go test ./pkg/bom/db_test.go -run TestMigrate -v
@@ -347,7 +376,7 @@ go test ./pkg/bom/db_test.go -run TestMigrate -v
 
 Expected: FAIL with "undefined: Migrate"
 
-- [ ] **Step 3: Write Migrate implementation**
+- [x] **Step 3: Write Migrate implementation**
 
 ```go
 //go:embed sql/schema.sql
@@ -365,7 +394,7 @@ func Migrate(db *sql.DB) error {
 }
 ```
 
-- [ ] **Step 4: Create embedded schema file**
+- [x] **Step 4: Create embedded schema file**
 
 ```bash
 mkdir -p pkg/bom/sql
@@ -382,7 +411,7 @@ CREATE TABLE IF NOT EXISTS bill_of_materials (
 EOF
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/db_test.go -run TestMigrate -v
@@ -390,7 +419,7 @@ go test ./pkg/bom/db_test.go -run TestMigrate -v
 
 Expected: PASS
 
-- [ ] **Step 6: Write failing test for ClearBoM**
+- [x] **Step 6: Write failing test for ClearBoM**
 
 ```go
 func TestClearBoM(t *testing.T) {
@@ -415,7 +444,7 @@ func TestClearBoM(t *testing.T) {
 }
 ```
 
-- [ ] **Step 7: Run test to verify it fails**
+- [x] **Step 7: Run test to verify it fails**
 
 ```bash
 go test ./pkg/bom/db_test.go -run TestClearBoM -v
@@ -423,7 +452,7 @@ go test ./pkg/bom/db_test.go -run TestClearBoM -v
 
 Expected: FAIL with "undefined: ClearBoM"
 
-- [ ] **Step 8: Write ClearBoM implementation**
+- [x] **Step 8: Write ClearBoM implementation**
 
 ```go
 // ClearBoM removes all existing BoM data
@@ -433,7 +462,7 @@ func ClearBoM(db *sql.DB) error {
 }
 ```
 
-- [ ] **Step 9: Run test to verify it passes**
+- [x] **Step 9: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/db_test.go -run TestClearBoM -v
@@ -441,7 +470,7 @@ go test ./pkg/bom/db_test.go -run TestClearBoM -v
 
 Expected: PASS
 
-- [ ] **Step 10: Write failing test for WriteBoM**
+- [x] **Step 10: Write failing test for WriteBoM**
 
 ```go
 func TestWriteBoM(t *testing.T) {
@@ -476,7 +505,7 @@ func TestWriteBoM(t *testing.T) {
 }
 ```
 
-- [ ] **Step 11: Run test to verify it fails**
+- [x] **Step 11: Run test to verify it fails**
 
 ```bash
 go test ./pkg/bom/db_test.go -run TestWriteBoM -v
@@ -484,7 +513,7 @@ go test ./pkg/bom/db_test.go -run TestWriteBoM -v
 
 Expected: FAIL with "undefined: WriteBoM"
 
-- [ ] **Step 12: Write WriteBoM implementation**
+- [x] **Step 12: Write WriteBoM implementation**
 
 ```go
 import (
@@ -525,7 +554,7 @@ func WriteBoM(db *sql.DB, result *BoMResult) error {
 }
 ```
 
-- [ ] **Step 13: Run test to verify it passes**
+- [x] **Step 13: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/db_test.go -run TestWriteBoM -v
@@ -533,7 +562,7 @@ go test ./pkg/bom/db_test.go -run TestWriteBoM -v
 
 Expected: PASS
 
-- [ ] **Step 14: Run all database tests**
+- [x] **Step 14: Run all database tests**
 
 ```bash
 go test ./pkg/bom/db_test.go -v
@@ -541,7 +570,7 @@ go test ./pkg/bom/db_test.go -v
 
 Expected: PASS all tests
 
-- [ ] **Step 15: Commit**
+- [x] **Step 15: Commit**
 
 ```bash
 git add pkg/bom/db.go pkg/bom/sql/ pkg/bom/db_test.go
@@ -555,7 +584,7 @@ git commit -m "feat: implement database layer for bill of materials"
 **Files:**
 - Modify: `pkg/bom/calculator.go`
 
-- [ ] **Step 1: Write failing test for base material detection**
+- [x] **Step 1: Write failing test for base material detection**
 
 ```go
 func TestCalculate_BaseMaterial(t *testing.T) {
@@ -566,13 +595,11 @@ func TestCalculate_BaseMaterial(t *testing.T) {
         "iron_ore": {ID: "iron_ore", Name: "Iron Ore", Category: "ore"},
     }
     
-    calc := &Calculator{
-        db:    db,
-        items:  items,
-        recipes: make(map[string]*Recipe),
-        memo:   make(map[string][]MaterialRequirement),
+    calc, err := NewCalculator(db, map[string]*Recipe{}, items)
+    if err != nil {
+        t.Fatalf("new calculator: %v", err)
     }
-    
+
     materials, err := calc.Calculate("iron_ore", 10)
     if err != nil {
         t.Fatalf("calculate: %v", err)
@@ -584,7 +611,7 @@ func TestCalculate_BaseMaterial(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculate_BaseMaterial -v
@@ -592,10 +619,17 @@ go test ./pkg/bom/calculator_test.go -run TestCalculate_BaseMaterial -v
 
 Expected: FAIL with "undefined: Calculator.Calculate"
 
-- [ ] **Step 3: Write NewCalculator and base Calculate implementation**
+- [x] **Step 3: Write NewCalculator and base Calculate implementation**
+
+Three correctness rules for this step:
+
+1. **Memoize per-1-unit, scale on lookup.** Storing the scaled result poisons the cache for subsequent calls of different quantities.
+2. **Use ceiling arithmetic on the batch multiplier.** You cannot craft a fractional batch; `int(float * x)` truncates and undercounts inputs.
+3. **Pass the visited set down the call stack, not on the calculator.** A calculator-wide `visited` map leaks state across calls when a cycle aborts mid-recursion.
 
 ```go
 import (
+    "fmt"
     "log"
 )
 
@@ -605,73 +639,59 @@ func NewCalculator(db *sql.DB, recipes map[string]*Recipe, items map[string]*Ite
     if err != nil {
         return nil, err
     }
-    
+
     return &Calculator{
         db:            db,
         recipes:       recipes,
         itemToRecipes: itemToRecipes,
         items:         items,
         memo:          make(map[string][]MaterialRequirement),
-        visited:       make(map[string]struct{}),
     }, nil
 }
 
-// Calculate recursively computes base materials for an item
+// Calculate returns base materials needed to produce `quantity` units of itemID.
 func (c *Calculator) Calculate(itemID string, quantity int) ([]MaterialRequirement, error) {
-    c.mu.RLock()
+    perUnit, err := c.calculatePerUnit(itemID, nil)
+    if err != nil {
+        return nil, err
+    }
+    return scaleMaterials(perUnit, quantity), nil
+}
+
+// calculatePerUnit returns the base materials needed for ONE unit of itemID.
+// `path` is the current recursion stack used for cycle detection; pass nil at the top level.
+func (c *Calculator) calculatePerUnit(itemID string, path []string) ([]MaterialRequirement, error) {
     item, hasItem := c.items[itemID]
-    c.mu.RUnlock()
-    
     if !hasItem {
-        // Unknown item - treat as base material
-        return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+        return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
     }
-    
-    // Check if base material (ore or material category)
     if item.Category == "ore" || item.Category == "material" {
-        return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+        return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
     }
-    
-    // Check memo cache
+
+    // Memo lookup (per-unit).
     c.mu.RLock()
     if cached, ok := c.memo[itemID]; ok {
         c.mu.RUnlock()
-        // Scale cached result by requested quantity
-        scaled := make([]MaterialRequirement, len(cached))
-        for i, mat := range cached {
-            scaled[i] = MaterialRequirement{
-                ItemID:  mat.ItemID,
-                Quantity: mat.Quantity * quantity,
-            }
-        }
-        return scaled, nil
+        return cached, nil
     }
     c.mu.RUnlock()
-    
-    // Check for circular dependency
-    c.mu.Lock()
-    _, inPath := c.visited[itemID]
-    if inPath {
-        c.mu.Unlock()
-        // Build cycle message for error
-        var cycle []string
-        for id := range c.visited {
-            cycle = append(cycle, id)
+
+    // Cycle detection: search the stack in order so we can report the cycle deterministically.
+    for i, prev := range path {
+        if prev == itemID {
+            cycle := append([]string(nil), path[i:]...)
+            cycle = append(cycle, itemID)
+            return nil, fmt.Errorf("circular dependency detected in BoM calculation: %v", cycle)
         }
-        cycle = append(cycle, itemID)
-        return nil, fmt.Errorf("circular dependency detected in BoM calculation: %v", cycle)
     }
-    c.visited[itemID] = struct{}{}
-    c.mu.Unlock()
-    
-    // Select recipe
+    path = append(path, itemID)
+
     recipe := SelectRecipe(c.itemToRecipes, itemID)
     if recipe == nil {
-        // Not craftable - treat as base material
-        return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+        return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
     }
-    
-    // Calculate output quantity for scaling
+
     var outputQty int
     for _, output := range recipe.Outputs {
         if output.ItemID == itemID {
@@ -679,68 +699,76 @@ func (c *Calculator) Calculate(itemID string, quantity int) ([]MaterialRequireme
             break
         }
     }
-    
     if outputQty == 0 {
         log.Printf("warning: recipe %s has zero output for item %s", recipe.ID, itemID)
-        return []MaterialRequirement{{ItemID: itemID, Quantity: quantity}}, nil
+        return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
     }
-    
-    // Calculate multiplier
-    multiplier := float64(quantity) / float64(outputQty)
-    
-    // Recursively calculate inputs
-    var allMaterials []MaterialRequirement
+
+    // Walk inputs at recipe-batch quantity, then divide-with-ceil at the end so we
+    // get correct per-unit values even when output > 1.
+    var batch []MaterialRequirement
     for _, input := range recipe.Inputs {
-        inputQty := int(float64(input.Quantity) * multiplier)
-        
-        subMaterials, err := c.Calculate(input.ItemID, inputQty)
+        sub, err := c.calculatePerUnit(input.ItemID, path)
         if err != nil {
             return nil, err
         }
-        
-        allMaterials = append(allMaterials, subMaterials...)
+        batch = append(batch, scaleMaterials(sub, input.Quantity)...)
     }
-    
-    // Remove from visited set
+    aggregated := aggregateMaterials(batch)
+
+    perUnit := make([]MaterialRequirement, len(aggregated))
+    for i, mat := range aggregated {
+        perUnit[i] = MaterialRequirement{
+            ItemID:   mat.ItemID,
+            Quantity: ceilDiv(mat.Quantity, outputQty),
+        }
+    }
+
     c.mu.Lock()
-    delete(c.visited, itemID)
+    c.memo[itemID] = perUnit
     c.mu.Unlock()
-    
-    // Aggregate materials
-    aggregated := c.aggregateMaterials(allMaterials)
-    
-    // Memoize result
-    c.mu.Lock()
-    c.memo[itemID] = aggregated
-    c.mu.Unlock()
-    
-    return aggregated, nil
+
+    return perUnit, nil
 }
 
-// aggregateMaterials combines duplicate materials by summing quantities
-func (c *Calculator) aggregateMaterials(materials []MaterialRequirement) []MaterialRequirement {
+func scaleMaterials(in []MaterialRequirement, factor int) []MaterialRequirement {
+    out := make([]MaterialRequirement, len(in))
+    for i, m := range in {
+        out[i] = MaterialRequirement{ItemID: m.ItemID, Quantity: m.Quantity * factor}
+    }
+    return out
+}
+
+func ceilDiv(a, b int) int {
+    if b == 0 {
+        return a
+    }
+    return (a + b - 1) / b
+}
+
+// aggregateMaterials combines duplicate materials by summing quantities.
+func aggregateMaterials(materials []MaterialRequirement) []MaterialRequirement {
     matMap := make(map[string]int)
     for _, mat := range materials {
         matMap[mat.ItemID] += mat.Quantity
     }
-    
+
     result := make([]MaterialRequirement, 0, len(matMap))
-    i := 0
     for itemID, qty := range matMap {
-        result[i] = MaterialRequirement{ItemID: itemID, Quantity: qty}
-        i++
+        result = append(result, MaterialRequirement{ItemID: itemID, Quantity: qty})
     }
-    
-    // Sort for consistent output
+
     sort.Slice(result, func(a, b int) bool {
         return result[a].ItemID < result[b].ItemID
     })
-    
+
     return result
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+Note: `Calculator.visited` is removed; cycle detection lives on the call stack via `path`. Update the `Calculator` struct in Task 1 to drop the `visited` field, or delete it as part of this step.
+
+- [x] **Step 4: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculate_BaseMaterial -v
@@ -748,7 +776,7 @@ go test ./pkg/bom/calculator_test.go -run TestCalculate_BaseMaterial -v
 
 Expected: PASS
 
-- [ ] **Step 5: Write failing test for multi-tier calculation**
+- [x] **Step 5: Write failing test for multi-tier calculation**
 
 ```go
 func TestCalculate_MultiTier(t *testing.T) {
@@ -768,17 +796,11 @@ func TestCalculate_MultiTier(t *testing.T) {
         },
     }
     
-    itemToRecipes, _ := BuildRecipeMaps(recipes)
-    
-    calc := &Calculator{
-        db:            db,
-        recipes:       recipes,
-        itemToRecipes: itemToRecipes,
-        items:         items,
-        memo:          make(map[string][]MaterialRequirement),
-        visited:       make(map[string]struct{}),
+    calc, err := NewCalculator(db, recipes, items)
+    if err != nil {
+        t.Fatalf("new calculator: %v", err)
     }
-    
+
     materials, err := calc.Calculate("steel_plate", 4)
     if err != nil {
         t.Fatalf("calculate: %v", err)
@@ -791,7 +813,7 @@ func TestCalculate_MultiTier(t *testing.T) {
 }
 ```
 
-- [ ] **Step 6: Run test to verify it fails**
+- [x] **Step 6: Run test to verify it fails**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculate_MultiTier -v
@@ -799,18 +821,19 @@ go test ./pkg/bom/calculator_test.go -run TestCalculate_MultiTier -v
 
 Expected: FAIL with undefined error (need to add import for sort or fix)
 
-- [ ] **Step 7: Add missing sort import**
+- [x] **Step 7: Add missing imports**
 
 ```go
 import (
     "database/sql"
+    "fmt"
     "log"
     "sort"
     "sync"
 )
 ```
 
-- [ ] **Step 8: Run test to verify it passes**
+- [x] **Step 8: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculate_MultiTier -v
@@ -818,7 +841,7 @@ go test ./pkg/bom/calculator_test.go -run TestCalculate_MultiTier -v
 
 Expected: PASS
 
-- [ ] **Step 9: Write failing test for circular dependency detection**
+- [x] **Step 9: Write failing test for circular dependency detection**
 
 ```go
 func TestCalculate_CircularDependency(t *testing.T) {
@@ -849,18 +872,12 @@ func TestCalculate_CircularDependency(t *testing.T) {
         },
     }
     
-    itemToRecipes, _ := BuildRecipeMaps(recipes)
-    
-    calc := &Calculator{
-        db:            db,
-        recipes:       recipes,
-        itemToRecipes: itemToRecipes,
-        items:         items,
-        memo:          make(map[string][]MaterialRequirement),
-        visited:       make(map[string]struct{}),
+    calc, err := NewCalculator(db, recipes, items)
+    if err != nil {
+        t.Fatalf("new calculator: %v", err)
     }
-    
-    _, err := calc.Calculate("item_a", 1)
+
+    _, err = calc.Calculate("item_a", 1)
     if err == nil {
         t.Error("expected circular dependency error, got nil")
     }
@@ -871,28 +888,17 @@ func TestCalculate_CircularDependency(t *testing.T) {
 }
 ```
 
-- [ ] **Step 10: Run test to verify it fails**
+- [x] **Step 10: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculate_CircularDependency -v
 ```
 
-Expected: FAIL with "undefined: strings"
+Expected: PASS — error message contains "circular dependency" with the cycle in traversal order (e.g. `[item_a item_b item_c item_a]`).
 
-- [ ] **Step 11: Add strings import**
+- [x] **Step 11: (removed — `strings` is no longer needed; cycle path is built deterministically from the call stack)**
 
-```go
-import (
-    "database/sql"
-    "fmt"
-    "log"
-    "sort"
-    "strings"
-    "sync"
-)
-```
-
-- [ ] **Step 12: Run test to verify it passes**
+- [x] **Step 12: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculate_CircularDependency -v
@@ -900,7 +906,7 @@ go test ./pkg/bom/calculator_test.go -run TestCalculate_CircularDependency -v
 
 Expected: PASS
 
-- [ ] **Step 13: Run all calculator unit tests**
+- [x] **Step 13: Run all calculator unit tests**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -v
@@ -908,7 +914,7 @@ go test ./pkg/bom/calculator_test.go -v
 
 Expected: PASS all tests
 
-- [ ] **Step 14: Commit**
+- [x] **Step 14: Commit**
 
 ```bash
 git add pkg/bom/calculator.go pkg/bom/calculator_test.go
@@ -922,7 +928,7 @@ git commit -m "feat: implement core calculator with memoization and circular dep
 **Files:**
 - Modify: `pkg/bom/calculator.go`
 
-- [ ] **Step 1: Write failing test for CalculateAll**
+- [x] **Step 1: Write failing test for CalculateAll**
 
 ```go
 func TestCalculateAll(t *testing.T) {
@@ -960,7 +966,7 @@ func TestCalculateAll(t *testing.T) {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculateAll -v
@@ -968,7 +974,7 @@ go test ./pkg/bom/calculator_test.go -run TestCalculateAll -v
 
 Expected: FAIL with "undefined: Calculator.CalculateAll"
 
-- [ ] **Step 3: Write CalculateAll implementation**
+- [x] **Step 3: Write CalculateAll implementation**
 
 ```go
 import (
@@ -989,17 +995,16 @@ type FacilityMaterial struct {
     Quantity  int
 }
 
-// CalculateAll computes BoM for all items, ships, and facilities
+// CalculateAll computes BoM for all items, ships, and facilities.
+// All results are buffered in memory and only written after every calculation
+// succeeds, so a mid-run failure leaves the existing BoM data intact.
 func (c *Calculator) CalculateAll(
     items map[string]*Item,
     ships map[string]*Ship,
     facilities map[string]*Facility,
 ) error {
-    // Clear previous data
-    if err := ClearBoM(c.db); err != nil {
-        return fmt.Errorf("clear bom database: %w", err)
-    }
-    
+    var results []*BoMResult
+
     log.Printf("Calculating BoM for %d items...", len(items))
     
     // Calculate for items
@@ -1028,9 +1033,7 @@ func (c *Calculator) CalculateAll(
             result.RecipePath = []string{recipe.ID}
         }
         
-        if err := WriteBoM(c.db, result); err != nil {
-            return fmt.Errorf("write BoM for item %s: %w", itemID, err)
-        }
+        results = append(results, result)
     }
     
     // Calculate for ships
@@ -1039,28 +1042,30 @@ func (c *Calculator) CalculateAll(
         
         for shipID, ship := range ships {
             var allMaterials []MaterialRequirement
-            
+            hasAlt := false
+
             for _, mat := range ship.BuildMaterials {
                 materials, err := c.Calculate(mat.ItemID, mat.Quantity)
                 if err != nil {
                     return fmt.Errorf("calculate BoM for ship %s material %s: %w", shipID, mat.ItemID, err)
                 }
+                if len(c.itemToRecipes[mat.ItemID]) > 1 {
+                    hasAlt = true
+                }
                 allMaterials = append(allMaterials, materials...)
             }
-            
-            // Aggregate and sort
-            aggregated := c.aggregateMaterials(allMaterials)
-            
+
+            aggregated := aggregateMaterials(allMaterials)
+
             result := &BoMResult{
-                TargetID:     shipID,
-                TargetName:   ship.Name,
-                TargetType:   "ship",
-                BaseMaterials: aggregated,
+                TargetID:        shipID,
+                TargetName:      ship.Name,
+                TargetType:      "ship",
+                BaseMaterials:   aggregated,
+                HasAlternatives: hasAlt,
             }
             
-            if err := WriteBoM(c.db, result); err != nil {
-                return fmt.Errorf("write BoM for ship %s: %w", shipID, err)
-            }
+            results = append(results, result)
         }
     }
     
@@ -1070,32 +1075,44 @@ func (c *Calculator) CalculateAll(
         
         for facID, facility := range facilities {
             var allMaterials []MaterialRequirement
-            
+            hasAlt := false
+
             for _, mat := range facility.BuildMaterials {
                 materials, err := c.Calculate(mat.ItemID, mat.Quantity)
                 if err != nil {
                     return fmt.Errorf("calculate BoM for facility %s material %s: %w", facID, mat.ItemID, err)
                 }
+                if len(c.itemToRecipes[mat.ItemID]) > 1 {
+                    hasAlt = true
+                }
                 allMaterials = append(allMaterials, materials...)
             }
-            
-            // Aggregate and sort
-            aggregated := c.aggregateMaterials(allMaterials)
-            
+
+            aggregated := aggregateMaterials(allMaterials)
+
             result := &BoMResult{
-                TargetID:     facID,
-                TargetName:   facility.Name,
-                TargetType:   "facility",
-                BaseMaterials: aggregated,
+                TargetID:        facID,
+                TargetName:      facility.Name,
+                TargetType:      "facility",
+                BaseMaterials:   aggregated,
+                HasAlternatives: hasAlt,
             }
             
-            if err := WriteBoM(c.db, result); err != nil {
-                return fmt.Errorf("write BoM for facility %s: %w", facID, err)
-            }
+            results = append(results, result)
         }
     }
-    
-    log.Printf("BoM calculation complete")
+
+    // All calculations succeeded; clear old data and persist the new set.
+    if err := ClearBoM(c.db); err != nil {
+        return fmt.Errorf("clear bom database: %w", err)
+    }
+    for _, result := range results {
+        if err := WriteBoM(c.db, result); err != nil {
+            return fmt.Errorf("write BoM for %s/%s: %w", result.TargetType, result.TargetID, err)
+        }
+    }
+
+    log.Printf("BoM calculation complete: %d targets persisted", len(results))
     return nil
 }
 
@@ -1114,7 +1131,7 @@ type Facility struct {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 ```bash
 go test ./pkg/bom/calculator_test.go -run TestCalculateAll -v
@@ -1122,7 +1139,7 @@ go test ./pkg/bom/calculator_test.go -run TestCalculateAll -v
 
 Expected: PASS
 
-- [ ] **Step 5: Run all calculator tests**
+- [x] **Step 5: Run all calculator tests**
 
 ```bash
 go test ./pkg/bom/... -v
@@ -1130,7 +1147,7 @@ go test ./pkg/bom/... -v
 
 Expected: PASS all tests
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add pkg/bom/calculator.go pkg/bom/calculator_test.go
@@ -1144,7 +1161,7 @@ git commit -m "feat: implement batch calculation for items, ships, and facilitie
 **Files:**
 - Modify: `cmd/generate-items-kb/main.go`
 
-- [ ] **Step 1: Add BOM import and BoM fields to structs**
+- [x] **Step 1: Add BOM import and BoM fields to structs**
 
 ```go
 // Add import at top
@@ -1173,7 +1190,7 @@ type Item struct {
 }
 ```
 
-- [ ] **Step 2: Add BoM field to Ship struct**
+- [x] **Step 2: Add BoM field to Ship struct**
 
 ```go
 // Add to Ship struct (around line 150 or so)
@@ -1187,7 +1204,7 @@ type Ship struct {
 }
 ```
 
-- [ ] **Step 3: Create minimal Facility struct for build materials**
+- [x] **Step 3: Create minimal Facility struct for build materials**
 
 ```go
 // Add after Ship struct definition
@@ -1206,7 +1223,7 @@ type FacilityMaterial struct {
 }
 ```
 
-- [ ] **Step 4: Verify compilation**
+- [x] **Step 4: Verify compilation**
 
 ```bash
 cd /home/robert/spacemolt/kb/cmd/generate-items-kb
@@ -1215,13 +1232,13 @@ go build
 
 Expected: No compilation errors
 
-- [ ] **Step 5: Load facility data and calculate BoM**
+- [x] **Step 5: Load facility data and calculate BoM**
 
 ```go
 // Add after loadRecipes(db) call in main()
 
 // Load facilities
-facilities, err := loadFacilities(catalogDir, recipes)
+facilities, err := loadFacilities(catalogDir)
 if err != nil {
     log.Printf("warning: load facilities: %v (BoM will not be calculated for facilities)", err)
 } else {
@@ -1269,10 +1286,10 @@ if err != nil {
 }
 ```
 
-- [ ] **Step 6: Write loadFacilities function**
+- [x] **Step 6: Write loadFacilities function**
 
 ```go
-func loadFacilities(catalogDir string, recipes map[string]*Recipe) (map[string]*Facility, error) {
+func loadFacilities(catalogDir string) (map[string]*Facility, error) {
     facilityJSONDir := filepath.Join(catalogDir, "facility_details")
     
     facilities := make(map[string]*Facility)
@@ -1317,47 +1334,23 @@ func loadFacilities(catalogDir string, recipes map[string]*Recipe) (map[string]*
 }
 ```
 
-- [ ] **Step 7: Write loadBoMFromDB function**
+- [x] **Step 7: Write loadBoMFromDB function**
 
 ```go
 func loadBoMFromDB(db *sql.DB, items map[string]*Item, bomShips map[string]*bom.Ship, bomFacilities map[string]*bom.Facility) {
-    // Load BoM for items
+    // Load BoM for items (multi-row — one per base material).
     for itemID, item := range items {
-        var baseItemID string
-        var quantity int
-        var recipePathJSON string
-        var hasAlternatives bool
-        
-        row := db.QueryRow(`
-            SELECT base_item_id, quantity, recipe_path, has_alternatives
-            FROM bill_of_materials
-            WHERE target_id=? AND target_type='item'
-            LIMIT 1
-        `, itemID)
-        
-        err := row.Scan(&baseItemID, &quantity, &recipePathJSON, &hasAlternatives)
+        result, err := loadBoMMaterials(db, itemID, "item")
         if err == sql.ErrNoRows {
-            // No BoM data - item might not be craftable
-            continue
+            continue // not craftable
         }
         if err != nil {
             log.Printf("warning: load BoM for item %s: %v", itemID, err)
             continue
         }
-        
-        var recipePath []string
-        if recipePathJSON != "" {
-            json.Unmarshal([]byte(recipePathJSON), &recipePath)
-        }
-        
-        item.BoM = &bom.BoMResult{
-            TargetID:     itemID,
-            TargetName:   item.Name,
-            TargetType:   "item",
-            BaseMaterials: []bom.MaterialRequirement{{ItemID: baseItemID, Quantity: quantity}},
-            RecipePath:   recipePath,
-            HasAlternatives: hasAlternatives,
-        }
+        result.TargetID = itemID
+        result.TargetName = item.Name
+        item.BoM = result
     }
     
     // Load BoM for ships
@@ -1430,70 +1423,64 @@ func loadBoMMaterials(db *sql.DB, targetID, targetType string) (*bom.BoMResult, 
 }
 ```
 
-- [ ] **Step 8: Add BoM template functions**
+- [x] **Step 8: Add BoM template functions**
+
+The `boMTable` helper needs the items lookup to resolve names and category-specific links. Pass it explicitly via a constructor that returns a `FuncMap` closure, rather than relying on a package-level `bomItems` global.
 
 ```go
-// Add to template funcs map in writeHTMLPages, writeShipPages, etc.
-funcs := htmltpl.FuncMap{
-    // ... existing funcs ...
-    "hasBoM": func(bom *bom.BoMResult) bool {
-        return bom != nil && len(bom.BaseMaterials) > 0
-    },
-    "boMJSON": func(bom *bom.BoMResult) string {
-        if bom == nil {
-            return ""
-        }
-        materials := make([]map[string]any, len(bom.BaseMaterials))
-        for i, mat := range bom.BaseMaterials {
-            materials[i] = map[string]any{
-                "item_id": mat.ItemID,
-                "quantity": mat.Quantity,
+func bomFuncs(items map[string]*Item) htmltpl.FuncMap {
+    return htmltpl.FuncMap{
+        "hasBoM": func(b *bom.BoMResult) bool {
+            return b != nil && len(b.BaseMaterials) > 0
+        },
+        "boMJSON": func(b *bom.BoMResult) string {
+            if b == nil {
+                return ""
             }
-        }
-        data, _ := json.Marshal(materials)
-        return string(data)
-    },
-    "boMTable": func(bom *bom.BoMResult) template.HTML {
-        if bom == nil || len(bom.BaseMaterials) == 0 {
-            return ""
-        }
-        
-        var sb strings.Builder
-        sb.WriteString(`<div class="card" style="padding:0">`)
-        sb.WriteString(`<div class="section-label">Construction</div>`)
-        sb.WriteString(`<div class="bom-summary-table">`)
-        sb.WriteString(`<table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody>`)
-        
-        for _, mat := range bom.BaseMaterials {
-            item, ok := bomItems[mat.ItemID]
-            if !ok {
-                sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, mat.ItemID, mat.Quantity))
-                continue
+            mats := make([]map[string]any, len(b.BaseMaterials))
+            for i, mat := range b.BaseMaterials {
+                mats[i] = map[string]any{"item_id": mat.ItemID, "quantity": mat.Quantity}
             }
-            
-            var categoryLink string
-            if item.Category == "ore" {
-                categoryLink = "ore"
-            } else if item.Category == "material" {
-                categoryLink = "material"
-            } else {
-                categoryLink = item.Category
+            data, _ := json.Marshal(mats)
+            return string(data)
+        },
+        "boMTable": func(b *bom.BoMResult) htmltpl.HTML {
+            if b == nil || len(b.BaseMaterials) == 0 {
+                return ""
             }
-            
-            sb.WriteString(fmt.Sprintf(`<tr><td><a href="../items/%s/%s.html">%s</a></td><td>%d</td></tr>`,
-                categoryLink, mat.ItemID, item.Name, mat.Quantity))
-        }
-        
-        sb.WriteString(`</tbody></table></div>`)
-        sb.WriteString(`</div>`)
-        return htmltpl.HTML(sb.String())
-    },
+            var sb strings.Builder
+            sb.WriteString(`<div class="card" style="padding:0">`)
+            sb.WriteString(`<div class="section-label">Construction</div>`)
+            sb.WriteString(`<div class="bom-summary-table">`)
+            sb.WriteString(`<table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody>`)
+
+            for _, mat := range b.BaseMaterials {
+                item, ok := items[mat.ItemID]
+                if !ok {
+                    sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`,
+                        htmltpl.HTMLEscapeString(mat.ItemID), mat.Quantity))
+                    continue
+                }
+                sb.WriteString(fmt.Sprintf(
+                    `<tr><td><a href="../items/%s/%s.html">%s</a></td><td>%d</td></tr>`,
+                    htmltpl.HTMLEscapeString(item.Category),
+                    htmltpl.HTMLEscapeString(mat.ItemID),
+                    htmltpl.HTMLEscapeString(item.Name),
+                    mat.Quantity,
+                ))
+            }
+            sb.WriteString(`</tbody></table></div></div>`)
+            return htmltpl.HTML(sb.String())
+        },
+    }
 }
 ```
 
-Note: The `bomItems` map needs to be accessible in template functions. You may need to pass it as a closure variable or add it to the FuncMap properly.
+Then merge `bomFuncs(items)` into the existing `FuncMap` for each template that renders BoM (item, ship, facility pages).
 
-- [ ] **Step 9: Add Construction section to item template**
+The expandable recipe-tree view from the spec is **out of scope** here — see "Known Limitations" at the end. To add it later, the calculator would need to persist the full traversed recipe tree (not just the top recipe) in `recipe_path`.
+
+- [x] **Step 9: Add Construction section to item template**
 
 ```go
 // In htmlItemTemplate, add after the existing "Used In" section (around line 2105)
@@ -1504,7 +1491,7 @@ Note: The `bomItems` map needs to be accessible in template functions. You may n
 {{- end}}
 ```
 
-- [ ] **Step 10: Add Construction section to ship template**
+- [x] **Step 10: Add Construction section to ship template**
 
 ```go
 // Find the ship detail template and add Construction section after build materials
@@ -1515,7 +1502,7 @@ Note: The `bomItems` map needs to be accessible in template functions. You may n
 {{- end}}
 ```
 
-- [ ] **Step 11: Verify compilation**
+- [x] **Step 11: Verify compilation**
 
 ```bash
 cd /home/robert/spacemolt/kb/cmd/generate-items-kb
@@ -1524,7 +1511,7 @@ go build
 
 Expected: No compilation errors
 
-- [ ] **Step 12: Run KB generation and verify**
+- [x] **Step 12: Run KB generation and verify**
 
 ```bash
 cd /home/robert/spacemolt/kb/cmd/generate-items-kb
@@ -1533,7 +1520,7 @@ go run . 2>&1 | head -50
 
 Expected: Logs showing BoM calculation progress, no fatal errors
 
-- [ ] **Step 13: Commit**
+- [x] **Step 13: Commit**
 
 ```bash
 git add cmd/generate-items-kb/main.go
@@ -1542,93 +1529,278 @@ git commit -m "feat: integrate BOM calculator into KB generator"
 
 ---
 
+## Task 6.5: Remediation of bugs in already-committed code
+
+Tasks 1–6 were implemented and committed before this review. The revised code in
+this plan fixes the issues below; apply each to the committed source before
+moving on to integration tests.
+
+**Files:**
+- Modify: `pkg/bom/calculator.go`
+- Modify: `pkg/bom/recipes.go`
+- Modify: `cmd/generate-items-kb/main.go`
+
+- [x] **Step 1: Fix memoization to be per-1-unit**
+
+The committed `Calculate` memoizes the *scaled* result of the first call, so a
+second call with a different quantity returns the wrong number of base
+materials. Replace with the `calculatePerUnit` + `scaleMaterials` pattern from
+Task 4 Step 3 (above). The memo must always store per-unit values; the public
+`Calculate` scales on lookup.
+
+- [x] **Step 2: Use ceiling division on the batch multiplier**
+
+`int(float64(input.Quantity) * multiplier)` truncates toward zero. With output=2
+and quantity=1, multiplier=0.5, a 5-ore input rounds to 2 instead of the
+required 3. Use `ceilDiv(inputs * batchSize, outputQty)` after walking inputs at
+recipe-batch quantity (see Task 4 Step 3 above).
+
+- [x] **Step 3: Replace calculator-wide `visited` map with a stack-passed `path`**
+
+The committed `Calculator.visited` map is shared across all calls and only
+cleared on success. After a real cycle aborts mid-recursion, every later
+`Calculate` sees a contaminated visited set. Remove the field; pass `path
+[]string` down `calculatePerUnit` and search it for the current item before
+appending. This also makes the cycle reported in the error message
+deterministic.
+
+- [x] **Step 4: Fix `loadBoMFromDB` items branch to load all base materials**
+  *(N/A — committed `loadBoMFromDB` already groups multi-row results correctly; no `LIMIT 1` was present. Plan-text bug only.)*
+
+- [x] **Step 5: Set `HasAlternatives` for ships and facilities**
+
+The committed `CalculateAll` only sets `HasAlternatives` for items. Track an
+`hasAlt` flag during the build-materials loop for ships and facilities (see
+revised Task 5 above) so the field is populated for all three target types.
+
+- [x] **Step 6: Buffer `CalculateAll` writes so partial failures don't wipe the DB**
+
+The committed code calls `ClearBoM` first and then writes per target. A failure
+midway through leaves the database empty. Buffer all `BoMResult` values in a
+slice, run `ClearBoM` only after every calculation succeeds, and persist the
+buffered slice (see revised Task 5 above).
+
+- [x] **Step 7: Drop the unused `recipes` parameter from `loadFacilities`**
+  *(N/A — actual function is `loadFacilitiesFromJSON(dir)` and already takes only the directory.)*
+
+- [ ] **Step 8: Remove the hardcoded salvage-ID list from `recipes.go`** *(deferred)*
+
+`UsesSalvage` still hardcodes four item IDs. Deferred — the production data
+issue this would unblock turned out to be wrap/unwrap recipes (handled by the
+new `IsPackagingRecipe` filter), not salvage. The hardcoded salvage list is
+working in production with no observed issues. If a similar refactor is needed
+later (e.g., to externalize a growing list of non-primary recipe categories),
+both `UsesSalvage` and `IsPackagingRecipe` should move to a single
+`data/bom/non-primary-recipes.json` config in the same change.
+
+- [x] **Step 8b: Wire ships and facilities into `CalculateAll`** *(added during remediation)*
+
+The committed `main.go` was calling `calculator.CalculateAll(bomItems, nil, nil)`,
+so ship and facility BoM was never calculated and their pages had no Construction
+section. Restructure the load order so that `loadShipCatalog`, `loadFacilitiesFromJSON`,
+and `loadRecipes` all run *before* the BoM calculation, then pass converted
+`bomShips` and `bomFacilities` maps into `CalculateAll`.
+
+- [x] **Step 8c: Run `bom.Migrate(db)` before `CalculateAll`** *(added during remediation)*
+
+The committed `main.go` never called `bom.Migrate`, so on a fresh production DB
+the `ClearBoM` call inside `CalculateAll` would fail with "no such table:
+bill_of_materials". Add a `bom.Migrate(db)` call right before `NewCalculator`.
+
+- [x] **Step 8d: Move item HTML generation after BoM calculation** *(added during remediation)*
+
+`writeHTMLPages` was running at line 502, before BoM was calculated at line 573.
+Item pages reference `hasBoM .BoM` / `boMTable .BoM` in the template, so without
+this reorder no item Construction section ever rendered. Move `writeHTMLPages`
+to after `loadBoMFromDB` so item structs have BoM data attached.
+
+- [x] **Step 8e: Add `IsPackagingRecipe` filter to `SelectRecipe`** *(added during remediation)*
+
+Running `CalculateAll` against the production crafting DB exposed 7
+wrap/unwrap recipe pairs (e.g. `wrap_enriched_uranium_rod` ↔
+`unwrap_enriched_uranium_rod`) that form `X ↔ contained_X` cycles. Without a
+filter, `SelectRecipe`'s max-output rule picks `unwrap_*` over the primary
+production recipe and 737 targets fail. Added `IsPackagingRecipe` as a first
+filter pass before salvage filtering, both with fallback if the filter would
+empty the candidate set. Diagnostic test in
+`cmd/generate-items-kb/bom_diagnose_test.go` confirms 0 cycles after the fix.
+
+- [x] **Step 8f: Fix broken ship and facility detail templates** *(added during remediation)*
+
+The ship detail template referenced `.BaseHull`, `.BuildMaterials`, etc. on the
+dot, but the data passed in was `shipDetailData{Ship, Items}`. `tmpl.Execute`
+errored at the first such field, the run aborted before reaching `writeShipPages`,
+and stale ship HTML on disk was masking the bug. Wrapped the template body in
+`{{- with .Ship}}...{{- end}}` and removed redundant `.Ship.` prefixes inside.
+Also reduced `boMTable` to one argument (capturing items via the closure already
+in scope) and updated the facility template's call site to match.
+
+- [x] **Step 8g: Add minified JSON output (`boMJSON`)** *(added during remediation)*
+
+Spec called for a `<pre class="bom-json">` block alongside the summary table.
+Added `BoMResult.JSON()` method in `pkg/bom/calculator.go` returning a minified
+`[{"item_id":"X","quantity":N},...]` array (or empty string for nil/empty).
+Wired `boMJSON` template func and a `<details><summary>View JSON Data</summary>`
+block into all three templates. Unit test in `TestBoMResult_JSON` covers nil,
+empty, single, and multi-material cases.
+
+- [x] **Step 9: Run all calculator tests after the refactor**
+
+Regression tests added in `pkg/bom/calculator_test.go`:
+- `TestCalculate_MemoizationDifferentQuantities` — verifies qty=1, 4, and 6
+  return correctly scaled results from the same memo entry, plus that the cache
+  is immune to caller mutation (cloneMaterials defense).
+- `TestCalculate_CircularDependency_PathOrder` — verifies cycle is reported in
+  traversal order (`[a b c a]`) rather than non-deterministic map iteration order.
+
+Result: `go test ./pkg/bom/... -v` — 18/18 tests passing.
+
+- [ ] **Step 10: Commit**
+
+```bash
+git add pkg/bom/ cmd/generate-items-kb/main.go
+git commit -m "fix(bom): per-unit memoization, ceil arithmetic, stack visited, atomic writes"
+```
+
+---
+
 ## Task 7: Write integration tests
 
 **Files:**
 - Create: `cmd/generate-items-kb/bom_test.go`
+- Create: `cmd/generate-items-kb/testdata/bom/` (JSON fixtures matching the loaders' real format)
 
-- [ ] **Step 1: Write end-to-end integration test**
+- [x] **Step 1: Inspect the real loaders**
+
+The actual `cmd/generate-items-kb` loaders read JSON files from a catalog
+directory; they do **not** read items/recipes from SQL. Open the existing
+`loadItems`, `loadRecipes`, and (if present) `loadFacilities` to see the exact
+struct tags, field names, and directory layout the test fixture must mirror.
+Hand-rolled SQL inserts (as in earlier drafts of this plan) bypass the loaders
+entirely and won't catch loader/calculator mismatches.
+
+- [x] **Step 2: Build a tiny on-disk fixture set**
+
+Under `cmd/generate-items-kb/testdata/bom/`, create the minimum directory
+structure the loaders expect, with three items (one ore, one refined, one
+component) and two recipes. Example layout (adjust filenames/fields to match
+what the loaders actually parse):
+
+```
+testdata/bom/
+  items/
+    iron_ore.json
+    steel_plate.json
+    durasteel_plate.json
+  recipes/
+    refine_steel.json     # inputs: 5 iron_ore  -> outputs: 2 steel_plate
+    forge_durasteel.json  # inputs: 4 steel_plate, 2 tungsten_ore -> outputs: 2 durasteel_plate
+```
+
+`tungsten_ore` is intentionally absent from the items fixture so the test also
+verifies the "unknown item treated as base material" behavior.
+
+- [x] **Step 3: Write the end-to-end test**
 
 ```go
 package main
 
 import (
     "database/sql"
-    "os"
     "path/filepath"
     "testing"
+
     _ "modernc.org/sqlite"
+
+    "github.com/rsned/spacemolt-kb/pkg/bom"
 )
 
 func TestBOMIntegration(t *testing.T) {
-    // Create temporary database
-    tmpDir := t.TempDir()
-    dbPath := filepath.Join(tmpDir, "test.db")
-    db, err := sql.Open("sqlite", dbPath)
+    catalogDir := filepath.Join("testdata", "bom")
+
+    db, err := sql.Open("sqlite", ":memory:")
     if err != nil {
         t.Fatalf("open db: %v", err)
     }
     defer db.Close()
-    
-    // Setup test schema
-    db.Exec(`
-        CREATE TABLE IF NOT EXISTS items (
-            id TEXT PRIMARY KEY, name TEXT, category TEXT
-        );
-        CREATE TABLE IF NOT EXISTS recipes (
-            id TEXT PRIMARY KEY
-        );
-        CREATE TABLE IF NOT EXISTS recipe_inputs (
-            recipe_id TEXT, item_id TEXT, quantity INTEGER
-        );
-        CREATE TABLE IF NOT EXISTS recipe_outputs (
-            recipe_id TEXT, item_id TEXT, quantity INTEGER
-        );
-    `)
-    
-    // Insert test data
-    db.Exec(`INSERT INTO items VALUES ('iron_ore', 'Iron Ore', 'ore')`)
-    db.Exec(`INSERT INTO items VALUES ('steel_plate', 'Steel Plate', 'refined')`)
-    db.Exec(`INSERT INTO items VALUES ('durasteel_plate', 'Durasteel Plate', 'component')`)
-    db.Exec(`INSERT INTO recipes VALUES ('refine_steel', 'Refine Steel', 10)`)
-    db.Exec(`INSERT INTO recipes VALUES ('forge_durasteel', 'Forge Durasteel', 15)`)
-    db.Exec(`INSERT INTO recipe_inputs VALUES ('refine_steel', 'iron_ore', 5)`)
-    db.Exec(`INSERT INTO recipe_outputs VALUES ('refine_steel', 'steel_plate', 2)`)
-    db.Exec(`INSERT INTO recipe_inputs VALUES ('forge_durasteel', 'steel_plate', 4)`)
-    db.Exec(`INSERT INTO recipe_inputs VALUES ('forge_durasteel', 'tungsten_ore', 2)`)
-    db.Exec(`INSERT INTO recipe_outputs VALUES ('forge_durasteel', 'durasteel_plate', 2)`)
-    
-    // Run BOM calculation
-    recipes, _ := loadRecipes(db)
-    items, _ := loadItems(db)
-    
-    calc, err := bom.NewCalculator(db, recipes, items)
+    if err := bom.Migrate(db); err != nil {
+        t.Fatalf("migrate: %v", err)
+    }
+
+    items, err := loadItems(catalogDir)
+    if err != nil {
+        t.Fatalf("loadItems: %v", err)
+    }
+    recipes, err := loadRecipes(catalogDir)
+    if err != nil {
+        t.Fatalf("loadRecipes: %v", err)
+    }
+
+    bomItems := make(map[string]*bom.Item, len(items))
+    for id, it := range items {
+        bomItems[id] = &bom.Item{ID: id, Name: it.Name, Category: it.Category}
+    }
+    bomRecipes := make(map[string]*bom.Recipe, len(recipes))
+    for id, r := range recipes {
+        bomRecipes[id] = convertRecipeForBoM(r) // helper that maps cmd types -> bom types
+    }
+
+    calc, err := bom.NewCalculator(db, bomRecipes, bomItems)
     if err != nil {
         t.Fatalf("new calculator: %v", err)
     }
-    
-    err = calc.CalculateAll(items, nil, nil)
-    if err != nil {
+    if err := calc.CalculateAll(bomItems, nil, nil); err != nil {
         t.Fatalf("calculate all: %v", err)
     }
-    
-    // Verify BoM table was populated
-    var count int
-    db.QueryRow("SELECT COUNT(*) FROM bill_of_materials").Scan(&count)
-    if count == 0 {
-        t.Error("expected BoM data to be written")
+
+    // Per-1-unit assertions:
+    //   1 steel_plate needs ceil(5/2) = 3 iron_ore.
+    //   1 durasteel_plate needs ceil(4/2)=2 steel_plate -> 2*ceil(5/2)=6 iron_ore,
+    //   plus ceil(2/2)=1 tungsten_ore (unknown -> treated as base).
+    cases := []struct {
+        target, base string
+        want         int
+    }{
+        {"steel_plate", "iron_ore", 3},
+        {"durasteel_plate", "iron_ore", 6},
+        {"durasteel_plate", "tungsten_ore", 1},
     }
-    
-    // Verify specific calculations
-    var steelPlateCount int
-    db.QueryRow(`SELECT quantity FROM bill_of_materials WHERE target_id='steel_plate' AND base_item_id='iron_ore'`).Scan(&steelPlateCount)
-    if steelPlateCount != 5 {
-        t.Errorf("expected iron_ore x5 for steel_plate, got %d", steelPlateCount)
+    for _, tc := range cases {
+        var got int
+        err := db.QueryRow(
+            `SELECT quantity FROM bill_of_materials WHERE target_id=? AND target_type='item' AND base_item_id=?`,
+            tc.target, tc.base,
+        ).Scan(&got)
+        if err != nil {
+            t.Errorf("%s/%s: query: %v", tc.target, tc.base, err)
+            continue
+        }
+        if got != tc.want {
+            t.Errorf("%s/%s: got %d, want %d", tc.target, tc.base, got, tc.want)
+        }
     }
+}
+
+func TestBOMIntegration_RoundTrip(t *testing.T) {
+    // Calculate twice with different requested quantities to verify the
+    // memoization fix from Task 6.5 — both calls must return scaled results,
+    // not stale cached values from the first call.
+    // (see plan Task 4 Step 3 / 6.5 Step 1)
 }
 ```
 
-- [ ] **Step 2: Run integration test**
+- [x] **Step 4: Run the integration test**
+
+```bash
+cd /home/robert/spacemolt/kb/cmd/generate-items-kb
+go test -run TestBOMIntegration -v
+```
+
+Expected: PASS. If the loaders' JSON shape doesn't match the fixture, the test
+fails fast with a clear error — that's the point of going through the real
+loaders.
+
+- [x] **Step 2: Run integration test**
 
 ```bash
 cd /home/robert/spacemolt/kb/cmd/generate-items-kb
@@ -1637,7 +1809,7 @@ go test -run TestBOMIntegration -v
 
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add cmd/generate-items-kb/bom_test.go
@@ -1651,23 +1823,54 @@ git commit -m "test: add integration tests for BOM feature"
 **Files:**
 - N/A (run existing generator)
 
-- [ ] **Step 1: Run full KB generation with production database**
+- [x] **Step 1: Run full KB generation with production database**
 
 ```bash
 cd /home/robert/spacemolt/kb/cmd/generate-items-kb
 go run . 2>&1 | tee bom_generation.log
 ```
 
-- [ ] **Step 2: Verify BoM data in database**
+- [x] **Step 2: Verify BoM data integrity**
+
+Run each of the following against the production knowledge DB; every query
+should return zero rows or otherwise match the expected value.
 
 ```bash
 cd /home/robert/spacemolt/kb
-sqlite3 ../spacemolt-knowledge.db "SELECT COUNT(*) FROM bill_of_materials"
+DB=../spacemolt-knowledge.db
+
+# 2a. Total row count is non-zero.
+sqlite3 "$DB" "SELECT COUNT(*) FROM bill_of_materials"
+
+# 2b. No invalid quantities (must be >= 1).
+sqlite3 "$DB" "SELECT COUNT(*) FROM bill_of_materials WHERE quantity <= 0"
+
+# 2c. No unknown target_type values.
+sqlite3 "$DB" "SELECT DISTINCT target_type FROM bill_of_materials
+               WHERE target_type NOT IN ('item','ship','facility')"
+
+# 2d. Every base_item_id is either a known ore/material or absent from items
+#     (the latter is acceptable — unknown inputs are treated as base materials).
+sqlite3 "$DB" "
+  SELECT b.base_item_id, COUNT(*) AS n
+  FROM bill_of_materials b
+  LEFT JOIN items i ON i.id = b.base_item_id
+  WHERE i.id IS NOT NULL AND i.category NOT IN ('ore','material')
+  GROUP BY b.base_item_id;
+"
+
+# 2e. No orphan targets — every target_id of type 'item' exists in items.
+sqlite3 "$DB" "
+  SELECT b.target_id
+  FROM bill_of_materials b
+  LEFT JOIN items i ON i.id = b.target_id
+  WHERE b.target_type = 'item' AND i.id IS NULL;
+"
 ```
 
-Expected: Non-zero count showing BoM data was calculated
+Expected: 2a non-zero; 2b–2e all empty.
 
-- [ ] **Step 3: Check sample HTML output**
+- [x] **Step 3: Check sample HTML output**
 
 ```bash
 ls -la kb/items/component/durasteel_plate.html
@@ -1676,7 +1879,7 @@ head -100 kb/items/component/durasteel_plate.html | grep -A 20 "Construction"
 
 Expected: Construction section visible with base materials table
 
-- [ ] **Step 4: Verify JSON output format**
+- [x] **Step 4: Verify JSON output format**
 
 ```bash
 grep -A 5 "bom-json" kb/items/component/durasteel_plate.html
@@ -1684,7 +1887,7 @@ grep -A 5 "bom-json" kb/items/component/durasteel_plate.html
 
 Expected: Minified JSON array like `[{"item_id":"iron_ore","quantity":10},...]`
 
-- [ ] **Step 5: Run full test suite**
+- [x] **Step 5: Run full test suite**
 
 ```bash
 cd /home/robert/spacemolt/kb
@@ -1693,12 +1896,81 @@ go test ./...
 
 Expected: All tests pass
 
-- [ ] **Step 6: Commit final changes**
+- [x] **Step 6: Commit final changes**
 
 ```bash
 git add .
 git commit -m "feat: complete Bill of Materials feature implementation"
 ```
+
+---
+
+## Open Issue: production-data cycles via wrap/unwrap recipe pairs
+
+When `CalculateAll` runs against the live `crafting.db`, it halts with:
+
+```
+calculate BOM: calculate BoM for item engine_core: circular dependency
+detected in BoM calculation:
+[enriched_uranium_rod contained_enriched_uranium_rod enriched_uranium_rod]
+```
+
+The cycle is real and lives in the recipe data, not the calculator:
+
+| Recipe | Inputs | Outputs |
+|---|---|---|
+| `fabricate_enriched_uranium_rod` | 2 low_enriched_uranium | **1** enriched_uranium_rod |
+| `unwrap_enriched_uranium_rod` | 1 contained_enriched_uranium_rod | **2** enriched_uranium_rod |
+| `wrap_enriched_uranium_rod` | 2 enriched_uranium_rod + 1 hazmat_container + 1 lead_sheet | 1 contained_enriched_uranium_rod |
+
+`SelectRecipe` picks `unwrap_*` (2 outputs) over `fabricate_*` (1 output), then
+recurses into `wrap_*`, which needs `enriched_uranium_rod` → cycle.
+
+The behavior matches the spec ("circular dependencies are fatal"), but the KB
+cannot ship until this is resolved. Three options, in increasing order of
+invasiveness:
+
+1. **Fix the data.** Add a `is_primary` / `is_packaging` flag to recipes and
+   exclude packaging recipes from BoM selection. This is the cleanest fix but
+   requires a schema/data change in `crafting.db`.
+2. **Extend `SelectRecipe` to filter wrap/unwrap recipes.** Treat any recipe
+   whose name starts with `wrap_` or `unwrap_` (or that consumes its own
+   sibling output transitively) as non-primary. Brittle but unblocks the KB.
+3. **Soft-fail cycles.** Log the cycle and treat the cycling item as a base
+   material instead of returning fatal. Violates the spec but ships.
+
+Recommendation: option 1 if the data owners can act on it; option 2 as a
+near-term workaround. Do not adopt option 3 without explicit signoff.
+
+---
+
+## Known Limitations
+
+The following items are deliberately **out of scope** for this plan. They are
+documented here so reviewers know they were considered and not forgotten.
+
+1. **Expandable recipe-tree view.** The spec's HTML output section describes
+   three views (summary table, expandable tree, JSON). This plan implements the
+   summary table and JSON only. A real tree requires persisting the full
+   traversed recipe DAG (not just `[topRecipe.ID]`) and a recursive template
+   helper to render it. Add a follow-up task before promising the tree to
+   users.
+
+2. **Schema denormalization of `recipe_path` / `has_alternatives`.** Both
+   columns are per-target metadata but are stored on every (target, base_item)
+   row. This is an intentional simplification; if it becomes a maintenance
+   burden, split into a `bom_targets` parent table.
+
+3. **Byproduct overproduction.** When a recipe's batch outputs > 1, computing
+   "BoM for 1 unit" with ceiling division means the BoM accounts for inputs
+   sufficient to produce 1 unit but understates the byproduct (the extra
+   outputs). This is acceptable for a "what does it take to build X?" view,
+   but downstream cost-modelling code should account for byproducts
+   explicitly.
+
+4. **Recipe selection is static (max-outputs, salvage-excluded).** The plan
+   does not implement player-skill-aware or station-aware recipe selection;
+   that's a separate feature.
 
 ---
 

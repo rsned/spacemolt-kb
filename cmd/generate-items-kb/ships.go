@@ -184,6 +184,7 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
 		},
+		"boMJSON": func(b *bom.BoMResult) string { return b.JSON() },
 		"boMTable": func(b *bom.BoMResult) htmltpl.HTML {
 			if b == nil || len(b.BaseMaterials) == 0 {
 				return ""
@@ -509,6 +510,10 @@ var shipDetailTemplate = `<!DOCTYPE html>
 
 {{- if hasBoM .BoM}}
         {{boMTable .BoM}}
+        <details class="bom-json-details">
+          <summary>View JSON Data</summary>
+          <pre class="bom-json">{{boMJSON .BoM}}</pre>
+        </details>
 {{- end}}
 {{- end}}
 

@@ -494,6 +494,35 @@ func TestCalculateAll(t *testing.T) {
 	}
 }
 
+// TestBoMResult_JSON verifies the minified JSON output format matches the spec.
+func TestBoMResult_JSON(t *testing.T) {
+	cases := []struct {
+		name string
+		r    *BoMResult
+		want string
+	}{
+		{"nil", nil, ""},
+		{"empty", &BoMResult{}, ""},
+		{"single", &BoMResult{
+			BaseMaterials: []MaterialRequirement{{ItemID: "iron_ore", Quantity: 5}},
+		}, `[{"item_id":"iron_ore","quantity":5}]`},
+		{"multi", &BoMResult{
+			BaseMaterials: []MaterialRequirement{
+				{ItemID: "iron_ore", Quantity: 18750},
+				{ItemID: "titanium_ore", Quantity: 4500},
+			},
+		}, `[{"item_id":"iron_ore","quantity":18750},{"item_id":"titanium_ore","quantity":4500}]`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.r.JSON()
+			if got != tc.want {
+				t.Errorf("JSON: got %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
 // TestCalculate_MemoizationDifferentQuantities is a regression test for the
 // per-1-unit memoization fix. The earlier implementation memoized the scaled
 // result of the first call, so a second call with a different quantity returned
