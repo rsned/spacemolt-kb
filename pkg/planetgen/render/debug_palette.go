@@ -6,6 +6,7 @@ import (
 
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
 )
 
@@ -195,6 +196,39 @@ func scalarFromAccum(accum [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF
 	for f := range accum {
 		for i, a := range accum[f] {
 			out.Faces[f][i] = math.Log10(1 + a)
+		}
+	}
+	return out
+}
+
+// scalarFromCubeFaces wraps an arbitrary [6][]float64 in a CubeMapF
+// for visualization. Used by stages whose underlying field is already
+// in [0, 1] (no per-face scaling needed).
+func scalarFromCubeFaces(faces [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF {
+	out := cubemap.NewF(S)
+	for f := range faces {
+		out.Faces[f] = make([]float64, S*S)
+		copy(out.Faces[f], faces[f])
+	}
+	return out
+}
+
+// paintCloudShaded renders the post-shadow cloud Density as a
+// grayscale RGBA cube-map (no alpha — debug stages render at full
+// opacity).
+func paintCloudShaded(cf *feature.CloudField, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for i, d := range cf.Density[face] {
+			v := uint8(0)
+			if d > 0 {
+				if d >= 1 {
+					v = 255
+				} else {
+					v = uint8(255 * d)
+				}
+			}
+			out.Faces[face][i] = color.RGBA{R: v, G: v, B: v, A: 255}
 		}
 	}
 	return out

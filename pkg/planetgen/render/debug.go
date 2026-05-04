@@ -3,6 +3,7 @@ package render
 import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/biome"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
@@ -84,6 +85,13 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 	if frame.RainShadow != nil {
 		frame.Stages = append(frame.Stages,
 			DebugStage{Name: "RainShadow", Kind: "field", ScalarAfter: scalarFromMultiplier(frame.RainShadow.Multiplier, S)},
+		)
+	}
+	if cf := feature.GenerateClouds(profile, seed, S); cf != nil {
+		frame.Stages = append(frame.Stages,
+			DebugStage{Name: "Cloud: alpha", Kind: "field", ScalarAfter: scalarFromCubeFaces(cf.Alpha, S)},
+			DebugStage{Name: "Cloud: density", Kind: "field", ScalarAfter: scalarFromCubeFaces(cf.Density, S)},
+			DebugStage{Name: "Cloud: shaded", Kind: "color", ColorAfter: paintCloudShaded(cf, S)},
 		)
 	}
 	return frame

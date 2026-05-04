@@ -54,6 +54,53 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 	return out
 }
 
+// RenderCloudCubeMap returns the cloud overlay as a separate cube-map
+// suitable for compositing over the base planet color cube-map.
+// Returns nil for archetypes with profile.Cloud.Coverage == 0
+// (gas giants, vacuum worlds, ice worlds without atmosphere).
+//
+// Pixels are rendered as a partially-transparent white-ish overlay:
+//
+//	RGB = uint8(255 * Density)  -- post-shadow brightness
+//	A   = uint8(255 * Alpha)    -- raw cloud fraction
+//
+// Compositing this over the base planet cube-map at standard alpha
+// blending yields the rendered planet with cloud cover.
+func RenderCloudCubeMap(profile *types.PlanetProfile, masterSeed int64, S int) *cubemap.CubeMap {
+	cf := feature.GenerateClouds(profile, masterSeed, S)
+	if cf == nil {
+		return nil
+	}
+	out := cubemap.New(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				idx := py*S + px
+				d := cf.Density[face][idx]
+				a := cf.Alpha[face][idx]
+				v := uint8(0)
+				if d > 0 {
+					if d >= 1 {
+						v = 255
+					} else {
+						v = uint8(255 * d)
+					}
+				}
+				aa := uint8(0)
+				if a > 0 {
+					if a >= 1 {
+						aa = 255
+					} else {
+						aa = uint8(255 * a)
+					}
+				}
+				out.Set(face, px, py, color.RGBA{R: v, G: v, B: v, A: aa})
+			}
+		}
+	}
+	return out
+}
+
 // generateRockyHeightmapWithJitter runs the heightmap pipeline; pass
 // nil for jitter to skip the Detail-field cell transform. plates may be
 // nil; when non-nil and Ridged.PlateConvergentScaleKm > 0, the ridged
