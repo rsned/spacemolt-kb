@@ -391,3 +391,11 @@ Profile knobs: `RainShadow.WalkSteps` (0 disables), `StepArcRad`, `MountainCutof
 - `JitterField` — production sampling uses direction-based `Transform` instead of the per-face `PerPixel` raster.
 
 The `TestPlateFieldSeamMatch` test runs as a regression gate (5% SDF threshold absorbs an inherent ~3% pixel-snap floor in `seamtest.WalkSeams`). The other two Phase 7 seam-QA tests remain `t.Skip`-marked due to seam-test infrastructure limits — see `docs/plans/phase-8-seam-bugs.md` for re-enable criteria.
+
+## Phase 9a — Cloud overlay (master-plan item 17)
+
+**Clouds** (`pkg/planetgen/feature/clouds.go`). Separate cube-map output: latitude-banded coverage × domain-warped fBm × Rankine-vortex storms; fake self-shadow via density-gradient · sun-direction. Output as `<name>.clouds.cube.png` for atmospheric rocky archetypes (terran, super_terran, oceanic, hothouse). Gas giants (jovian, ice_giant) are excluded — their primary render is already cloud-banded; dry/scorched archetypes (arid, tundra, glacial, ice_world, lava_world, scorched) ship without clouds.
+
+Profile knobs: `Cloud.Coverage` (0 disables), `BandLatRad`, `Freq`, `Octaves`, `WarpAmp`, `StormCount`, `StormRadiusRad`, `SunDir`, `ShadowGain`.
+
+The main color cube-map output is unchanged; clouds are an additional artifact alongside it. `render.RenderCloudCubeMap` returns nil when clouds are disabled — the cmd writes a cloud PNG only when this is non-nil. Cloud goldens live at `testdata/golden/<name>.clouds.cube.png` (face=64, 4 archetypes). The pipeline-debug view adds three stages — `Cloud: alpha`, `Cloud: density`, `Cloud: shaded` — after the rain-shadow stage.
