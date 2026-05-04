@@ -284,6 +284,12 @@ var Profiles = map[string]*types.PlanetProfile{
 			WalkSteps: 12, StepArcRad: 0.087, MountainCutoff: 0.65,
 			WindRainBoost: 0.4, LeeFactor: 0.15,
 		},
+		// Phase 9a item 17
+		Cloud: types.CloudConfig{
+			Coverage: 0.45, BandLatRad: 0.26, Freq: 4, Octaves: 4, WarpAmp: 0.4,
+			StormCount: 5, StormRadiusRad: 0.20,
+			SunDir: [3]float64{1, 0.3, 0}, ShadowGain: 0.5,
+		},
 	},
 	"tundra": {
 		Type:     "tundra",
@@ -604,6 +610,12 @@ var Profiles = map[string]*types.PlanetProfile{
 			WalkSteps: 12, StepArcRad: 0.087, MountainCutoff: 0.65,
 			WindRainBoost: 0.4, LeeFactor: 0.15,
 		},
+		// Phase 9a item 17
+		Cloud: types.CloudConfig{
+			Coverage: 0.50, BandLatRad: 0.26, Freq: 4, Octaves: 4, WarpAmp: 0.4,
+			StormCount: 6, StormRadiusRad: 0.18,
+			SunDir: [3]float64{1, 0.3, 0}, ShadowGain: 0.5,
+		},
 	},
 	"hothouse": {
 		Type:     "hothouse",
@@ -646,6 +658,12 @@ var Profiles = map[string]*types.PlanetProfile{
 		JitterCellCount: 120,
 		JitterRotMax:    math.Pi / 4,
 		JitterOffsetMax: 0.1,
+		// Phase 9a item 17
+		Cloud: types.CloudConfig{
+			Coverage: 0.85, BandLatRad: 0.40, Freq: 3, Octaves: 3, WarpAmp: 0.5,
+			StormCount: 4, StormRadiusRad: 0.30,
+			SunDir: [3]float64{1, 0.3, 0}, ShadowGain: 0.4,
+		},
 	},
 	"lava_world": {
 		Type:     "lava_world",
@@ -816,6 +834,12 @@ var Profiles = map[string]*types.PlanetProfile{
 		JitterCellCount:      120,
 		JitterRotMax:         math.Pi / 4,
 		JitterOffsetMax:      0.1,
+		// Phase 9a item 17
+		Cloud: types.CloudConfig{
+			Coverage: 0.65, BandLatRad: 0.30, Freq: 4, Octaves: 4, WarpAmp: 0.4,
+			StormCount: 8, StormRadiusRad: 0.22,
+			SunDir: [3]float64{1, 0.3, 0}, ShadowGain: 0.5,
+		},
 	},
 
 	// Gas giants

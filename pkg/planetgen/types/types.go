@@ -120,6 +120,25 @@ type PlanetProfile struct {
 	// Phase 8 item 16: wind-driven rain shadow.
 	// WalkSteps == 0 disables the pass entirely.
 	RainShadow RainShadowConfig `json:"rainShadow,omitempty"`
+
+	// Phase 9a item 17: separate cloud-cover cube-map.
+	// Coverage == 0 disables cloud generation entirely.
+	Cloud CloudConfig `json:"cloud,omitempty"`
+}
+
+// CloudConfig parameterizes the separate cloud-cover cube-map output.
+// Coverage == 0 disables cloud generation entirely (gas giants, vacuum
+// archetypes, ice worlds).
+type CloudConfig struct {
+	Coverage       float64    `json:"coverage,omitempty"`       // [0,1] mean cloud fraction at the equator
+	BandLatRad     float64    `json:"bandLatRad,omitempty"`     // band half-width in radians; typical π/12
+	Freq           float64    `json:"freq,omitempty"`           // base fbm frequency; typical 4
+	Octaves        int        `json:"octaves,omitempty"`        // typical 4
+	WarpAmp        float64    `json:"warpAmp,omitempty"`        // domain-warp amplitude; typical 0.4
+	StormCount     int        `json:"stormCount,omitempty"`     // Rankine-vortex storms; typical 3-8
+	StormRadiusRad float64    `json:"stormRadiusRad,omitempty"` // storm radius; typical π/16
+	SunDir         [3]float64 `json:"sunDir,omitempty"`         // unit vector for fake self-shadow; default (1, 0.3, 0)
+	ShadowGain     float64    `json:"shadowGain,omitempty"`     // multiplier on density gradient; typical 0.5
 }
 
 // FlowConfig parameterizes Planchon-Darboux fill + D8 flow + river mask.

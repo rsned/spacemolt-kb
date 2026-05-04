@@ -58,6 +58,31 @@ func TestPlanetProfilePhase7FieldsRoundTrip(t *testing.T) {
 	}
 }
 
+func TestCloudConfigJSONRoundTrip(t *testing.T) {
+	in := CloudConfig{
+		Coverage:       0.45,
+		BandLatRad:     0.26,
+		Freq:           4,
+		Octaves:        4,
+		WarpAmp:        0.4,
+		StormCount:     5,
+		StormRadiusRad: 0.20,
+		SunDir:         [3]float64{1, 0.3, 0},
+		ShadowGain:     0.5,
+	}
+	b, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out CloudConfig
+	if err := json.Unmarshal(b, &out); err != nil {
+		t.Fatal(err)
+	}
+	if in != out {
+		t.Errorf("round-trip mismatch:\n  in:  %+v\n  out: %+v", in, out)
+	}
+}
+
 func TestPlanetProfilePhase7JitterDisabledSurvivesRoundTrip(t *testing.T) {
 	p := PlanetProfile{
 		JitterEnabled: false,
