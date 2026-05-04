@@ -105,3 +105,44 @@ func TestRenderRockyDebugDoesNotAddCivStageWhenDisabled(t *testing.T) {
 		}
 	}
 }
+
+// TestRenderRockyDebugRegistersCivStages verifies all 5 civ debug
+// stages are appended when civ is enabled, and none of them are
+// nil-bodied.
+func TestRenderRockyDebugRegistersCivStages(t *testing.T) {
+	frame := render.RenderRockyDebug(civEnabledTerran(), 42, 48, nil)
+	if frame == nil {
+		t.Fatal("frame nil")
+	}
+	want := []string{
+		"Civ: habitability",
+		"Civ: sites",
+		"Civ: roads",
+		"Civ: day overlay",
+		"Civ: night lights",
+	}
+	seen := map[string]int{}
+	for i, st := range frame.Stages {
+		for _, w := range want {
+			if st.Name == w {
+				seen[w] = i
+			}
+		}
+	}
+	if len(seen) != len(want) {
+		t.Fatalf("expected %d civ stages; got %d (seen: %v)", len(want), len(seen), seen)
+	}
+	// Spot-check non-nil bodies for each stage.
+	for _, st := range frame.Stages {
+		switch st.Name {
+		case "Civ: habitability", "Civ: roads":
+			if st.ScalarAfter == nil {
+				t.Errorf("%s: ScalarAfter nil", st.Name)
+			}
+		case "Civ: sites", "Civ: day overlay", "Civ: night lights":
+			if st.ColorAfter == nil {
+				t.Errorf("%s: ColorAfter nil", st.Name)
+			}
+		}
+	}
+}

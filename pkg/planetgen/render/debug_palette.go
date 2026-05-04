@@ -213,6 +213,51 @@ func scalarFromCubeFaces(faces [cubemap.NumFaces][]float64, S int) *cubemap.Cube
 	return out
 }
 
+// paintCivSites renders civ sites as filled circles colored by
+// population: warm orange to white gradient. The background is
+// solid black so the pattern of inhabited regions stands out. Used
+// by the "Civ: sites" debug stage.
+func paintCivSites(sites []feature.Site, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	// Black background.
+	black := color.RGBA{R: 0, G: 0, B: 0, A: 255}
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				out.Set(face, px, py, black)
+			}
+		}
+	}
+	for _, s := range sites {
+		// Site center direction -> face/pixel.
+		face, cx, cy := cubemap.DirToFacePixel(s.Dir[0], s.Dir[1], s.Dir[2], S)
+		// Radius: 4 px at S=64, scales linearly with face size and
+		// with sqrt(pop) so a tier-1 metropolis dominates a tier-0.3
+		// town visually but not by orders of magnitude.
+		rPx := int(math.Round(4.0 * float64(S) / 64.0 * math.Sqrt(s.Population)))
+		if rPx < 1 {
+			rPx = 1
+		}
+		// Palette: low-pop dim red -> high-pop bright yellow-white.
+		// Population is in [0, 1] by construction (Zipfian, capped at
+		// MaxPopulation <= 1) so the additions stay within uint8 range.
+		r := uint8(180 + 60*s.Population)
+		g := uint8(60 + 180*s.Population)
+		b := uint8(20 + 80*s.Population)
+		fill := color.RGBA{R: r, G: g, B: b, A: 255}
+		for dy := -rPx; dy <= rPx; dy++ {
+			for dx := -rPx; dx <= rPx; dx++ {
+				if dx*dx+dy*dy > rPx*rPx {
+					continue
+				}
+				f, npx, npy := cubemap.OffsetPixel(face, cx, cy, dx, dy, S)
+				out.Set(f, npx, npy, fill)
+			}
+		}
+	}
+	return out
+}
+
 // paintCloudShaded renders the post-shadow cloud Density as a
 // grayscale RGBA cube-map (no alpha — debug stages render at full
 // opacity).

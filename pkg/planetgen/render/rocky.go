@@ -970,6 +970,9 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 	if profile.Civ.Tier > 0 {
 		civ := feature.GenerateCiv(heightmap, tField, mField, plates, flow, rainShadow, profile, seed, S)
 		if civ != nil {
+			if frame != nil {
+				frame.Civ = civ
+			}
 			bypassed := bypass["Civ"]
 			if !bypassed {
 				for face := range cubemap.Face(cubemap.NumFaces) {

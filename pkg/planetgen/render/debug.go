@@ -24,6 +24,7 @@ type DebugFrame struct {
 	Jitter     *noise.JitterField
 	Flow       *field.FlowField
 	RainShadow *biome.RainShadowField
+	Civ        *feature.CivField
 }
 
 // DebugStage is one row in the pipeline visualization.
@@ -93,6 +94,17 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 			DebugStage{Name: "Cloud: density", Kind: "field", ScalarAfter: scalarFromCubeFaces(cf.Density, S)},
 			DebugStage{Name: "Cloud: shaded", Kind: "color", ColorAfter: paintCloudShaded(cf, S)},
 		)
+	}
+	if frame.Civ != nil {
+		civ := frame.Civ
+		stages := []DebugStage{
+			{Name: "Civ: habitability", Kind: "field", ScalarAfter: scalarFromCubeFaces(civ.Habitability.Score, S)},
+			{Name: "Civ: sites", Kind: "color", ColorAfter: paintCivSites(civ.Sites, S)},
+			{Name: "Civ: roads", Kind: "field", ScalarAfter: scalarFromCubeFaces(civ.Roads, S)},
+			{Name: "Civ: day overlay", Kind: "color", ColorAfter: civ.DayColor},
+			{Name: "Civ: night lights", Kind: "color", ColorAfter: civ.Night},
+		}
+		frame.Stages = append(frame.Stages, stages...)
 	}
 	return frame
 }

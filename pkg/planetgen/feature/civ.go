@@ -71,12 +71,13 @@ func AssignPopulations(sites []Site, cfg types.CivConfig) {
 //   - Night is the standalone Black Marble nightside RGBA, additively
 //     accumulated as Gaussian splats per-site.
 type CivField struct {
-	Size     int
-	Sites    []Site
-	DayMask  [cubemap.NumFaces][]float64
-	DayColor *cubemap.CubeMap
-	Roads    [cubemap.NumFaces][]float64
-	Night    *cubemap.CubeMap
+	Size         int
+	Sites        []Site
+	Habitability *HabitabilityField
+	DayMask      [cubemap.NumFaces][]float64
+	DayColor     *cubemap.CubeMap
+	Roads        [cubemap.NumFaces][]float64
+	Night        *cubemap.CubeMap
 }
 
 // Civ overlay color constants. Tuned for stylized readability rather
@@ -354,10 +355,11 @@ func GenerateCiv(
 	roads := GenerateRoads(sites, heightmap, profile.Civ)
 
 	cf := &CivField{
-		Size:     S,
-		Sites:    sites,
-		DayColor: cubemap.New(S),
-		Night:    cubemap.New(S),
+		Size:         S,
+		Sites:        sites,
+		Habitability: hf,
+		DayColor:     cubemap.New(S),
+		Night:        cubemap.New(S),
 	}
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		cf.DayMask[face] = make([]float64, S*S)
