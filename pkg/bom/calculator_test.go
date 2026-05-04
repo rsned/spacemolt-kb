@@ -310,3 +310,186 @@ func TestCalculate_MultipleOutputs(t *testing.T) {
 		t.Errorf("Expected quantity 8, got %d", materials[0].Quantity)
 	}
 }
+
+// TestCalculateAll tests batch calculation for items, ships, and facilities
+func TestCalculateAll(t *testing.T) {
+	db := setupTestDB(t)
+	defer func() { _ = db.Close() }()
+
+	// Migrate the database schema
+	if err := Migrate(db); err != nil {
+		t.Fatalf("failed to migrate database: %v", err)
+	}
+
+	// Create test recipes
+	recipes := map[string]*Recipe{
+		"iron_ingot": {
+			ID: "iron_ingot",
+			Inputs: []RecipeItem{
+				{ItemID: "iron_ore", Quantity: 5},
+			},
+			Outputs: []RecipeItem{
+				{ItemID: "iron_ingot", Quantity: 1},
+			},
+		},
+		"steel_plate": {
+			ID: "steel_plate",
+			Inputs: []RecipeItem{
+				{ItemID: "iron_ingot", Quantity: 2},
+			},
+			Outputs: []RecipeItem{
+				{ItemID: "steel_plate", Quantity: 1},
+			},
+		},
+	}
+
+	// Create test items
+	items := map[string]*Item{
+		"iron_ore":    {ID: "iron_ore", Name: "Iron Ore", Type: "resource", Category: "ore"},
+		"iron_ingot":  {ID: "iron_ingot", Name: "Iron Ingot", Type: "component", Category: "component"},
+		"steel_plate": {ID: "steel_plate", Name: "Steel Plate", Type: "component", Category: "component"},
+		"copper":      {ID: "copper", Name: "Copper", Type: "material", Category: "material"},
+	}
+
+	// Create test ships
+	ships := map[string]*Ship{
+		"test_ship": {
+			ID:   "test_ship",
+			Name: "Test Ship",
+			BuildMaterials: []ShipBuildRef{
+				{ItemID: "steel_plate", Quantity: 5},
+			},
+		},
+	}
+
+	// Create test facilities
+	facilities := map[string]*Facility{
+		"test_facility": {
+			ID:   "test_facility",
+			Name: "Test Facility",
+			BuildMaterials: []FacilityMaterial{
+				{ItemID: "iron_ingot", Name: "Iron Ingot", Quantity: 10},
+			},
+		},
+	}
+
+	calc, err := NewCalculator(db, recipes, items)
+	if err != nil {
+		t.Fatalf("failed to create calculator: %v", err)
+	}
+
+	// Write some initial BoM data to verify it gets cleared
+	initialResult := &BoMResult{
+		TargetID:      "old_item",
+		TargetName:    "Old Item",
+		TargetType:    "item",
+		BaseMaterials: []MaterialRequirement{{ItemID: "old_material", Quantity: 1}},
+	}
+	if err := WriteBoM(db, initialResult); err != nil {
+		t.Fatalf("failed to write initial BoM: %v", err)
+	}
+
+	// Verify initial data exists
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM bill_of_materials").Scan(&count)
+	if err != nil {
+		t.Fatalf("failed to query initial count: %v", err)
+	}
+	if count != 1 {
+		t.Errorf("Expected 1 initial BoM entry, got %d", count)
+	}
+
+	// Run CalculateAll
+	err = calc.CalculateAll(items, ships, facilities)
+	if err != nil {
+		t.Fatalf("CalculateAll returned error: %v", err)
+	}
+
+	// Verify data was cleared and new data written
+	err = db.QueryRow("SELECT COUNT(*) FROM bill_of_materials").Scan(&count)
+	if err != nil {
+		t.Fatalf("failed to query final count: %v", err)
+	}
+
+	// Should have entries for:
+	// - iron_ingot (1 material: iron_ore)
+	// - steel_plate (1 material: iron_ore)
+	// - test_ship (1 material: iron_ore)
+	// - test_facility (1 material: iron_ore)
+	// Total: 4 entries
+	if count != 4 {
+		t.Errorf("Expected 4 BoM entries after CalculateAll, got %d", count)
+	}
+
+	// Verify item BoM was written correctly
+	var itemType string
+	var itemMaterial string
+	var itemQty int
+	err = db.QueryRow(`
+		SELECT target_type, base_item_id, quantity
+		FROM bill_of_materials
+		WHERE target_id = 'steel_plate'
+	`).Scan(&itemType, &itemMaterial, &itemQty)
+	if err != nil {
+		t.Fatalf("failed to query item BoM: %v", err)
+	}
+
+	if itemType != "item" {
+		t.Errorf("Expected target_type 'item', got '%s'", itemType)
+	}
+	if itemMaterial != "iron_ore" {
+		t.Errorf("Expected base_item_id 'iron_ore', got '%s'", itemMaterial)
+	}
+	// steel_plate = 2 iron_ingot = 10 iron_ore
+	if itemQty != 10 {
+		t.Errorf("Expected quantity 10 for steel_plate, got %d", itemQty)
+	}
+
+	// Verify ship BoM was written correctly
+	var shipType string
+	var shipMaterial string
+	var shipQty int
+	err = db.QueryRow(`
+		SELECT target_type, base_item_id, quantity
+		FROM bill_of_materials
+		WHERE target_id = 'test_ship'
+	`).Scan(&shipType, &shipMaterial, &shipQty)
+	if err != nil {
+		t.Fatalf("failed to query ship BoM: %v", err)
+	}
+
+	if shipType != "ship" {
+		t.Errorf("Expected target_type 'ship', got '%s'", shipType)
+	}
+	if shipMaterial != "iron_ore" {
+		t.Errorf("Expected base_item_id 'iron_ore', got '%s'", shipMaterial)
+	}
+	// test_ship = 5 steel_plate = 10 iron_ingot = 50 iron_ore
+	if shipQty != 50 {
+		t.Errorf("Expected quantity 50 for test_ship, got %d", shipQty)
+	}
+
+	// Verify facility BoM was written correctly
+	var facType string
+	var facMaterial string
+	var facQty int
+	err = db.QueryRow(`
+		SELECT target_type, base_item_id, quantity
+		FROM bill_of_materials
+		WHERE target_id = 'test_facility'
+	`).Scan(&facType, &facMaterial, &facQty)
+	if err != nil {
+		t.Fatalf("failed to query facility BoM: %v", err)
+	}
+
+	if facType != "facility" {
+		t.Errorf("Expected target_type 'facility', got '%s'", facType)
+	}
+	if facMaterial != "iron_ore" {
+		t.Errorf("Expected base_item_id 'iron_ore', got '%s'", facMaterial)
+	}
+	// test_facility = 10 iron_ingot = 50 iron_ore
+	if facQty != 50 {
+		t.Errorf("Expected quantity 50 for test_facility, got %d", facQty)
+	}
+}
