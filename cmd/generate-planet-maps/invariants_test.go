@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"math"
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
@@ -458,5 +459,131 @@ func TestPhase9aCloudInvariants(t *testing.T) {
 					name, mean, meanNoStorm)
 			}
 		})
+	}
+}
+
+// TestPhase9bCivInvariants exercises the civ pipeline end-to-end via
+// RenderRockyDebug and asserts statistical signatures on the resulting
+// CivField. Thresholds are deliberately wide — these are regression
+// gates ("did the code run and produce something sensible"), not
+// tight product constraints.
+//
+//  1. At least 30 sites generated for terran at S=128 (Bridson with
+//     the default per-archetype radii actually produces ~1000+ sites,
+//     but the plan's 30 floor is safe against future tuning that may
+//     reduce density).
+//  2. Population follows Zipf with slope ≈ -1.07 (the zipfAlpha
+//     exponent used in AssignPopulations); accept [-1.30, -0.85] to
+//     absorb measurement noise.
+//  3. Mean habitability of generated sites > 0.20. The 0.05 floor in
+//     PoissonOnSphere discards ocean/uninhabitable pixels; a 0.20
+//     mean confirms the distribution is well above that floor and
+//     not bunched at it.
+//  4. Road coverage in (0, 0.50]. Roads exist (catches "rasterization
+//     never ran") but do not blanket the planet (catches "carve
+//     overflowed"). Real coverage with terran's high site density is
+//     ~20-25% — the 50% ceiling is sane regression bound.
+//  5. Night cube-map has at least one lit pixel above luminance 0.05.
+//     The Zipf-decayed population means most sites paint splats below
+//     visual threshold; 0.05 is enough to confirm the splat code ran
+//     for the rank-1 city.
+func TestPhase9bCivInvariants(t *testing.T) {
+	const S = 128
+	const masterSeed int64 = 42
+	profile := planetgen.Profiles["terran"]
+	if profile == nil || profile.Civ.Tier <= 0 {
+		t.Fatal("terran must have Civ.Tier > 0 for this invariant; check profile.go")
+	}
+	frame := render.RenderRockyDebug(profile, masterSeed, S, nil)
+	if frame == nil || frame.Civ == nil {
+		t.Fatal("expected non-nil DebugFrame.Civ for terran with civ enabled")
+	}
+	civ := frame.Civ
+	sites := civ.Sites
+
+	// 1) Site count.
+	const minSites = 30
+	if len(sites) < minSites {
+		t.Errorf("got %d sites, want >= %d", len(sites), minSites)
+	}
+
+	// 2) Zipf slope of (log(rank+1), log(pop)). Use OLS on the populated
+	// portion of the slice.
+	if len(sites) >= 10 {
+		var sumX, sumY, sumXX, sumXY float64
+		n := 0
+		for i, s := range sites {
+			if s.Population <= 0 {
+				continue
+			}
+			x := math.Log(float64(i + 1))
+			y := math.Log(s.Population)
+			sumX += x
+			sumY += y
+			sumXX += x * x
+			sumXY += x * y
+			n++
+		}
+		if n >= 10 {
+			fn := float64(n)
+			meanX := sumX / fn
+			meanY := sumY / fn
+			slope := (sumXY - fn*meanX*meanY) / (sumXX - fn*meanX*meanX)
+			t.Logf("Zipf slope (rank, pop) = %.4f over %d sites", slope, n)
+			if slope < -1.30 || slope > -0.85 {
+				t.Errorf("Zipf slope %.4f outside [-1.30, -0.85]", slope)
+			}
+		}
+	}
+
+	// 3) Mean habitability.
+	if len(sites) > 0 {
+		var sumH float64
+		for _, s := range sites {
+			sumH += s.Habitability
+		}
+		meanH := sumH / float64(len(sites))
+		t.Logf("mean site habitability = %.4f over %d sites", meanH, len(sites))
+		if meanH < 0.20 {
+			t.Errorf("mean habitability %.4f < 0.20", meanH)
+		}
+	}
+
+	// 4) Road coverage in (0, 0.50].
+	var roadPx, totalPx int
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for _, v := range civ.Roads[face] {
+			if v > 0 {
+				roadPx++
+			}
+			totalPx++
+		}
+	}
+	roadRatio := float64(roadPx) / float64(totalPx)
+	t.Logf("road coverage = %.4f%% (%d/%d)", roadRatio*100, roadPx, totalPx)
+	if roadPx == 0 {
+		t.Errorf("road coverage zero — rasterization never ran")
+	} else if roadRatio > 0.50 {
+		t.Errorf("road coverage %.4f > 0.50 — rasterization overflowed", roadRatio)
+	}
+
+	// 5) Night cube-map has at least one lit pixel above luminance 0.05.
+	// Luminance via Rec. 709-ish 0.30R + 0.59G + 0.11B.
+	var litPx, nightTotal int
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				c := civ.Night.Get(face, px, py)
+				lum := 0.30*float64(c.R) + 0.59*float64(c.G) + 0.11*float64(c.B)
+				if lum/255 > 0.05 {
+					litPx++
+				}
+				nightTotal++
+			}
+		}
+	}
+	t.Logf("night lit-pixel count = %d / %d (lum > 0.05)", litPx, nightTotal)
+	if litPx == 0 {
+		t.Errorf("zero night-lit pixels above luminance 0.05 — splat code never paints")
 	}
 }

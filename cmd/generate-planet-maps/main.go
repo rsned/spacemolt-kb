@@ -137,10 +137,21 @@ func generateSingle(planetType, planetName string, faceSize, equirectW, equirect
 	// separate <name>.clouds.cube.png companion to the main cube-map.
 	// RenderCloudCubeMap returns nil when clouds are disabled (gas
 	// giants, scorched, lava, etc.) — that's expected, not an error.
+	//
+	// Civ nightside: archetypes with Civ.Tier > 0 also produce a
+	// <name>.night.cube.png Black-Marble companion. RenderNightCubeMap
+	// returns nil for archetypes without civ.
 	if profile := planetgen.GetProfile(planetType); profile != nil {
-		if cloudCM := render.RenderCloudCubeMap(profile, planetgen.HashSeedPublic(planetName), faceSize); cloudCM != nil {
+		seedHash := planetgen.HashSeedPublic(planetName)
+		if cloudCM := render.RenderCloudCubeMap(profile, seedHash, faceSize); cloudCM != nil {
 			cloudPath := strings.TrimSuffix(cubePath, ".cube.png") + ".clouds.cube.png"
 			if err := cubemap.WriteCrossPNG(cloudCM, cloudPath); err != nil {
+				return err
+			}
+		}
+		if nightCM := render.RenderNightCubeMap(profile, seedHash, faceSize); nightCM != nil {
+			nightPath := strings.TrimSuffix(cubePath, ".cube.png") + ".night.cube.png"
+			if err := cubemap.WriteCrossPNG(nightCM, nightPath); err != nil {
 				return err
 			}
 		}
