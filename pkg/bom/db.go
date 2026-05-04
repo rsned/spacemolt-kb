@@ -60,7 +60,9 @@ func WriteBoM(db *sql.DB, result *BoMResult) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
 	stmt, err := tx.Prepare(`
 		INSERT INTO bill_of_materials (target_id, target_type, base_item_id, quantity, recipe_path, has_alternatives)
@@ -69,7 +71,9 @@ func WriteBoM(db *sql.DB, result *BoMResult) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		_ = stmt.Close()
+	}()
 
 	for _, mat := range result.BaseMaterials {
 		_, err := stmt.Exec(result.TargetID, result.TargetType, mat.ItemID, mat.Quantity, string(recipePathJSON), result.HasAlternatives)
