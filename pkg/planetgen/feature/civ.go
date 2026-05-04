@@ -98,9 +98,10 @@ func civCityRadiusPx(pop float64, S int) int {
 		return 0
 	}
 	r := 6.0 * float64(S) / 64.0 * math.Sqrt(pop)
-	cap := float64(S) / 8.0
-	if r > cap {
-		r = cap
+	// Guard against degenerate sites covering more than 1/8 of a face.
+	maxR := float64(S) / 8.0
+	if r > maxR {
+		r = maxR
 	}
 	if r < 1 {
 		// Sub-pixel sites still get a single-pixel mark so very small
@@ -371,16 +372,14 @@ func GenerateCiv(
 	}
 
 	dayRng := rand.New(rand.NewPCG(
-		uint64(seed.Domain(master, "civ.day")),         //nolint:gosec // intentional reinterpretation
-		uint64(seed.Domain(master, "civ.day.stream")),  //nolint:gosec // intentional reinterpretation
+		uint64(seed.Domain(master, "civ.day")),        //nolint:gosec // intentional reinterpretation
+		uint64(seed.Domain(master, "civ.day.stream")), //nolint:gosec // intentional reinterpretation
 	))
-	// Night stream is allocated even if currently unused in the splat
-	// path; reserving the domain keeps the option of adding noisy
-	// jitter to the splat radius later without shifting other streams.
-	_ = rand.New(rand.NewPCG(
-		uint64(seed.Domain(master, "civ.night")),        //nolint:gosec // intentional reinterpretation
-		uint64(seed.Domain(master, "civ.night.stream")), //nolint:gosec // intentional reinterpretation
-	))
+	// Reserve the night-stream domain without allocating a generator —
+	// future jitter on the splat path can pick it up without disturbing
+	// other streams' seed allocation order.
+	_ = seed.Domain(master, "civ.night")
+	_ = seed.Domain(master, "civ.night.stream")
 
 	for _, s := range sites {
 		cf.rasterizeCityPatch(s, dayRng)

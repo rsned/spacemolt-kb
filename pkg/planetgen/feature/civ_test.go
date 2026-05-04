@@ -227,7 +227,4 @@ func TestCivDeterministic(t *testing.T) {
 			}
 		}
 	}
-	// math.Abs reference to silence unused-import warnings when this
-	// test is the only consumer of the math package in the file.
-	_ = math.Abs(0)
 }

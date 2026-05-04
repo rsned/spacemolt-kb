@@ -74,6 +74,12 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 // too, and the savings (~1 heightmap pass per civ-enabled planet) are
 // not worth the regression risk against existing goldens. Documented
 // as a deliberate inline copy.
+//
+// SEED-STREAM-MIRROR: this body must call the same generators in the
+// same order as colorizeRockyDebug, up to feature.GenerateCiv. If a
+// new noise stream is added there ahead of GenerateCiv, mirror it
+// here too — otherwise night-side seeds will silently diverge from
+// day-side. Grep for "SEED-STREAM-MIRROR" to find the paired site.
 func RenderNightCubeMap(profile *types.PlanetProfile, masterSeed int64, S int) *cubemap.CubeMap {
 	if profile == nil || profile.Civ.Tier <= 0 {
 		return nil
@@ -956,6 +962,11 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 	// Skipped silently when profile.Civ.Tier == 0 — no stage is
 	// appended in that case so the production-default archetypes
 	// (all currently Tier=0) keep their existing stage counts.
+	//
+	// SEED-STREAM-MIRROR: any noise stream added before this call
+	// must be mirrored in RenderNightCubeMap so its civ output
+	// matches what gets blended into the day cube-map. Grep for
+	// "SEED-STREAM-MIRROR" to find the paired site.
 	if profile.Civ.Tier > 0 {
 		civ := feature.GenerateCiv(heightmap, tField, mField, plates, flow, rainShadow, profile, seed, S)
 		if civ != nil {
