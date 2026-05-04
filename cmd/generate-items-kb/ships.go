@@ -181,11 +181,11 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		"hasFlavorTags": func(s *Ship) bool { return len(s.FlavorTags) > 0 },
 		"hasBuildMaterials": func(s *Ship) bool { return len(s.BuildMaterials) > 0 },
 		"hasDefaultModules": func(s *Ship) bool { return len(s.DefaultModules) > 0 },
-		"hasBoM": func(bom *bom.BoMResult) bool {
-			return bom != nil && len(bom.BaseMaterials) > 0
+		"hasBoM": func(b *bom.BoMResult) bool {
+			return b != nil && len(b.BaseMaterials) > 0
 		},
-		"boMTable": func(bom *bom.BoMResult, items map[string]*Item) htmltpl.HTML {
-			if bom == nil || len(bom.BaseMaterials) == 0 {
+		"boMTable": func(b *bom.BoMResult) htmltpl.HTML {
+			if b == nil || len(b.BaseMaterials) == 0 {
 				return ""
 			}
 
@@ -195,7 +195,7 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 			sb.WriteString(`<div class="bom-summary-table">`)
 			sb.WriteString(`<table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody>`)
 
-			for _, mat := range bom.BaseMaterials {
+			for _, mat := range b.BaseMaterials {
 				item, ok := items[mat.ItemID]
 				if !ok {
 					sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, mat.ItemID, mat.Quantity))
@@ -388,21 +388,22 @@ var shipDetailTemplate = `<!DOCTYPE html>
 <body>
 ` + siteHeaderSub + `
     <main class="container page-content">
-        <div class="breadcrumb"><a href="../">Ships</a> / <a href="./">{{.Ship.Category}}</a> / {{.Ship.Name}}</div>
-        <h2>{{.Ship.Name}}</h2>
+{{- with .Ship}}
+        <div class="breadcrumb"><a href="../">Ships</a> / <a href="./">{{.Category}}</a> / {{.Name}}</div>
+        <h2>{{.Name}}</h2>
 
-{{- if hasDescription .Ship}}
-        <blockquote class="item-desc">{{.Ship.Description}}</blockquote>
+{{- if hasDescription .}}
+        <blockquote class="item-desc">{{.Description}}</blockquote>
 {{- end}}
 
         <div class="card mt-2" style="padding:0">
           <div class="section-label">General</div>
           <table>
-            <tr><td class="kv-label">Category</td><td><a href="./">{{.Ship.Category}}</a></td></tr>
-            <tr><td class="kv-label">Class</td><td><a href="../index.html#{{slugify .Ship.Category}}--{{slugify .Ship.Class}}">{{.Ship.Class}}</a></td></tr>
-            <tr><td class="kv-label">Faction</td><td><span class="badge {{factionBadge .Ship.Faction}}">{{factionDisplayName .Ship.Faction}}</span></td></tr>
-            <tr><td class="kv-label">Tier</td><td>{{.Ship.Tier}}</td></tr>
-{{- if .Ship.StarterShip}}
+            <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
+            <tr><td class="kv-label">Class</td><td><a href="../index.html#{{slugify .Category}}--{{slugify .Class}}">{{.Class}}</a></td></tr>
+            <tr><td class="kv-label">Faction</td><td><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td></tr>
+            <tr><td class="kv-label">Tier</td><td>{{.Tier}}</td></tr>
+{{- if .StarterShip}}
             <tr><td class="kv-label">Type</td><td><span class="badge badge-green">Starter Ship</span></td></tr>
 {{- end}}
           </table>
@@ -490,13 +491,13 @@ var shipDetailTemplate = `<!DOCTYPE html>
         </div>
 {{- end}}
 
-{{- if hasPassive .Ship}}
+{{- if hasPassive .}}
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Passive Recipes</div>
           <table>
             <thead><tr><th>Recipe</th></tr></thead>
             <tbody>
-{{- range .Ship.PassiveRecipes}}
+{{- range .PassiveRecipes}}
             <tr>
               <td><a href="../../recipes/Legendary/{{.}}.html">{{recipeName .}}</a></td>
             </tr>
@@ -506,8 +507,9 @@ var shipDetailTemplate = `<!DOCTYPE html>
         </div>
 {{- end}}
 
-{{- if hasBoM .Ship.BoM}}
-        {{boMTable .Ship.BoM .Items}}
+{{- if hasBoM .BoM}}
+        {{boMTable .BoM}}
+{{- end}}
 {{- end}}
 
     </main>

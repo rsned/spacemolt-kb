@@ -160,3 +160,48 @@ func TestSelectRecipe_NoRecipes(t *testing.T) {
 		t.Errorf("Expected nil for nonexistent item, got %v", selected)
 	}
 }
+
+// TestSelectRecipe_PackagingFilter verifies that wrap_/unwrap_ recipes are
+// excluded when an alternative exists. Without this filter the production data
+// hits cycles like enriched_uranium_rod ↔ contained_enriched_uranium_rod.
+func TestSelectRecipe_PackagingFilter(t *testing.T) {
+	recipes := map[string]*Recipe{
+		"fabricate_enriched_uranium_rod": {
+			ID:      "fabricate_enriched_uranium_rod",
+			Inputs:  []RecipeItem{{ItemID: "low_enriched_uranium", Quantity: 2}},
+			Outputs: []RecipeItem{{ItemID: "enriched_uranium_rod", Quantity: 1}},
+		},
+		"unwrap_enriched_uranium_rod": {
+			ID:      "unwrap_enriched_uranium_rod",
+			Inputs:  []RecipeItem{{ItemID: "contained_enriched_uranium_rod", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "enriched_uranium_rod", Quantity: 2}},
+		},
+	}
+
+	itemToRecipes, _ := BuildRecipeMaps(recipes)
+	selected := SelectRecipe(itemToRecipes, "enriched_uranium_rod")
+
+	if selected == nil || selected.ID != "fabricate_enriched_uranium_rod" {
+		t.Errorf("expected fabricate_enriched_uranium_rod (max-output non-packaging), got %v", selected)
+	}
+}
+
+// TestSelectRecipe_PackagingOnlyFallback verifies that if every candidate is a
+// packaging recipe, SelectRecipe still returns one (rather than nil) so the
+// caller can resolve the item rather than treating it as base.
+func TestSelectRecipe_PackagingOnlyFallback(t *testing.T) {
+	recipes := map[string]*Recipe{
+		"unwrap_widget": {
+			ID:      "unwrap_widget",
+			Inputs:  []RecipeItem{{ItemID: "contained_widget", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "widget", Quantity: 1}},
+		},
+	}
+
+	itemToRecipes, _ := BuildRecipeMaps(recipes)
+	selected := SelectRecipe(itemToRecipes, "widget")
+
+	if selected == nil || selected.ID != "unwrap_widget" {
+		t.Errorf("expected unwrap_widget as last-resort fallback, got %v", selected)
+	}
+}

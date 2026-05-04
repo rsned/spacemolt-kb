@@ -499,13 +499,10 @@ func main() {
 		return cmp.Compare(a.Name, b.Name)
 	})
 
-	if err := writeHTMLPages(outDir, categories, items); err != nil {
-		log.Fatalf("write HTML pages: %v", err)
-	}
-
-	fmt.Printf("Generated %d item pages + %d category pages in %s/\n", len(items), len(categories), outDir)
-
 	// --- Recipe generation ---
+	// Recipes must load before BoM calculation so the calculator can resolve
+	// ingredients; ship and facility catalogs must load before BoM so build
+	// materials can be traced down to base components in the same pass.
 	recipeOutDir := "kb/recipes"
 	if len(args) > 2 {
 		recipeOutDir = args[2]
@@ -522,13 +519,22 @@ func main() {
 		log.Printf("warning: load recipe overlay: %v (hidden flag will be omitted)", err)
 	}
 
-	// Item thumbnails are fan-made — skip setting HasImage on recipe
-	// inputs/outputs so they are not displayed in the KB.
+	// Load ship catalog and facilities up-front so their build materials
+	// participate in the BoM calculation.
+	shipCatalog, shipErr := loadShipCatalog(shipCatalogPath)
+	if shipErr != nil {
+		log.Printf("warning: load ship catalog: %v (ship pages will be skipped)", shipErr)
+	}
+
+	facilityJSONDir := filepath.Join(catalogDir, "facility_details")
+	facilities, facErr := loadFacilitiesFromJSON(facilityJSONDir)
+	if facErr != nil {
+		log.Printf("warning: load facilities: %v (facility pages will be skipped)", facErr)
+	} else {
+		validateFacilityRecipes(facilities, recipes)
+	}
 
 	// --- BOM Calculation ---
-	// Initialize BOM calculator and calculate all items, ships, and facilities
-
-	// Convert items to bom.Item format
 	bomItems := make(map[string]*bom.Item)
 	for id, item := range items {
 		bomItems[id] = &bom.Item{
@@ -539,28 +545,39 @@ func main() {
 		}
 	}
 
-	// Convert recipes to bom.Recipe format
 	bomRecipes := make(map[string]*bom.Recipe)
 	for id, recipe := range recipes {
 		inputs := make([]bom.RecipeItem, len(recipe.Inputs))
 		for i, inp := range recipe.Inputs {
-			inputs[i] = bom.RecipeItem{
-				ItemID:   inp.ItemID,
-				Quantity: inp.Quantity,
-			}
+			inputs[i] = bom.RecipeItem{ItemID: inp.ItemID, Quantity: inp.Quantity}
 		}
 		outputs := make([]bom.RecipeItem, len(recipe.Outputs))
 		for i, out := range recipe.Outputs {
-			outputs[i] = bom.RecipeItem{
-				ItemID:   out.ItemID,
-				Quantity: out.Quantity,
-			}
+			outputs[i] = bom.RecipeItem{ItemID: out.ItemID, Quantity: out.Quantity}
 		}
-		bomRecipes[id] = &bom.Recipe{
-			ID:      recipe.ID,
-			Inputs:  inputs,
-			Outputs: outputs,
+		bomRecipes[id] = &bom.Recipe{ID: recipe.ID, Inputs: inputs, Outputs: outputs}
+	}
+
+	bomShips := make(map[string]*bom.Ship)
+	for _, ship := range shipCatalog {
+		buildMats := make([]bom.ShipBuildRef, len(ship.BuildMaterials))
+		for i, mat := range ship.BuildMaterials {
+			buildMats[i] = bom.ShipBuildRef{ItemID: mat.ItemID, Quantity: mat.Quantity}
 		}
+		bomShips[ship.ID] = &bom.Ship{ID: ship.ID, Name: ship.Name, BuildMaterials: buildMats}
+	}
+
+	bomFacilities := make(map[string]*bom.Facility)
+	for id, fac := range facilities {
+		buildMats := make([]bom.FacilityMaterial, len(fac.BuildMaterials))
+		for i, mat := range fac.BuildMaterials {
+			buildMats[i] = bom.FacilityMaterial{ItemID: mat.ItemID, Name: mat.Name, Quantity: mat.Quantity}
+		}
+		bomFacilities[id] = &bom.Facility{ID: fac.ID, Name: fac.Name, BuildMaterials: buildMats}
+	}
+
+	if err := bom.Migrate(db); err != nil {
+		log.Fatalf("migrate BOM schema: %v", err)
 	}
 
 	calculator, err := bom.NewCalculator(db, bomRecipes, bomItems)
@@ -568,11 +585,26 @@ func main() {
 		log.Fatalf("initialize BOM calculator: %v", err)
 	}
 	log.Println("Calculating BOM for all items, ships, and facilities...")
-
-	// Convert facilities will be loaded later, so for now just calculate items
-	if err := calculator.CalculateAll(bomItems, nil, nil); err != nil {
+	if err := calculator.CalculateAll(bomItems, bomShips, bomFacilities); err != nil {
 		log.Fatalf("calculate BOM: %v", err)
 	}
+
+	// Attach BoM data to in-memory items, ships, and facilities so all page
+	// writers (items first, then ships, then facilities) can render
+	// Construction sections.
+	facilitySlice := make([]*Facility, 0, len(facilities))
+	for _, fac := range facilities {
+		facilitySlice = append(facilitySlice, fac)
+	}
+	if err := loadBoMFromDB(db, items, shipCatalog, facilitySlice); err != nil {
+		log.Fatalf("load BOM from database: %v", err)
+	}
+
+	if err := writeHTMLPages(outDir, categories, items); err != nil {
+		log.Fatalf("write HTML pages: %v", err)
+	}
+
+	fmt.Printf("Generated %d item pages + %d category pages in %s/\n", len(items), len(categories), outDir)
 
 	// Group recipes by category.
 	catRecipes := make(map[string][]*Recipe)
@@ -622,22 +654,13 @@ func main() {
 	}
 
 	// --- Ship generation ---
-	shipCatalog, err := loadShipCatalog(shipCatalogPath)
-	if err != nil {
-		log.Printf("warning: load ship catalog: %v (ship pages will be skipped)", err)
-	} else {
-		// Build recipe name lookup for passive recipe display.
+	// shipCatalog was loaded earlier (before BoM calculation) and already has
+	// BoM data attached via loadBoMFromDB.
+	if shipErr == nil {
 		recipeNames := make(map[string]string)
 		for _, r := range recipes {
 			recipeNames[r.ID] = r.Name
 		}
-
-		// Load BOM data from database for items and ships
-		log.Println("Loading BOM data from database...")
-		if err := loadBoMFromDB(db, items, shipCatalog, nil); err != nil {
-			log.Fatalf("load BOM from database: %v", err)
-		}
-
 		if err := writeShipPages("kb/ships", shipCatalog, recipeNames, items); err != nil {
 			log.Fatalf("write ship pages: %v", err)
 		}
@@ -645,28 +668,10 @@ func main() {
 	}
 
 	// --- Facilities generation ---
-	facilityJSONDir := filepath.Join(catalogDir, "facility_details")
-	facilityOutDir := "kb/facilities"
-
-	facilities, err := loadFacilitiesFromJSON(facilityJSONDir)
-	if err != nil {
-		log.Printf("warning: load facilities: %v (facility pages will be skipped)", err)
-	} else {
-		// Validate facility recipes against loaded recipes
-		validateFacilityRecipes(facilities, recipes)
-
-		// Convert facilities to slice for loadBoMFromDB
-		facilitySlice := make([]*Facility, 0, len(facilities))
-		for _, fac := range facilities {
-			facilitySlice = append(facilitySlice, fac)
-		}
-
-		// Load BOM data from database
-		log.Println("Loading BOM data from database...")
-		if err := loadBoMFromDB(db, items, shipCatalog, facilitySlice); err != nil {
-			log.Fatalf("load BOM from database: %v", err)
-		}
-
+	// facilities were loaded earlier (before BoM calculation) and already have
+	// BoM data attached via loadBoMFromDB.
+	if facErr == nil {
+		facilityOutDir := "kb/facilities"
 		if err := writeFacilityPages(facilityOutDir, facilities, recipes, items); err != nil {
 			log.Fatalf("write facility pages: %v", err)
 		}
@@ -1985,8 +1990,8 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 		"dirName":        dirName,
 		"resourceAnchor": resourceAnchor,
 		"isResourceItem": isResourceItem,
-		"hasBoM": func(bom *bom.BoMResult) bool {
-			return bom != nil && len(bom.BaseMaterials) > 0
+		"hasBoM": func(b *bom.BoMResult) bool {
+			return b != nil && len(b.BaseMaterials) > 0
 		},
 		"boMTable": func(bom *bom.BoMResult) htmltpl.HTML {
 			if bom == nil || len(bom.BaseMaterials) == 0 {

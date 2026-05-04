@@ -468,7 +468,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         {{end}}
 
         {{if hasBoM .Facility.BoM}}
-        {{boMTable .Facility.BoM .Items}}
+        {{boMTable .Facility.BoM}}
         {{end}}
     </main>
 ` + sortScript + themeScript + `
@@ -517,11 +517,11 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 		"titleCase":  titleCase,
 		"dirName":    dirName,
 		"upgradeSVG": generateUpgradeSVG,
-		"hasBoM": func(bom *bom.BoMResult) bool {
-			return bom != nil && len(bom.BaseMaterials) > 0
+		"hasBoM": func(b *bom.BoMResult) bool {
+			return b != nil && len(b.BaseMaterials) > 0
 		},
-		"boMTable": func(bom *bom.BoMResult, items map[string]*Item) htmltpl.HTML {
-			if bom == nil || len(bom.BaseMaterials) == 0 {
+		"boMTable": func(b *bom.BoMResult) htmltpl.HTML {
+			if b == nil || len(b.BaseMaterials) == 0 {
 				return ""
 			}
 
@@ -531,7 +531,7 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 			sb.WriteString(`<div class="bom-summary-table">`)
 			sb.WriteString(`<table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody>`)
 
-			for _, mat := range bom.BaseMaterials {
+			for _, mat := range b.BaseMaterials {
 				item, ok := items[mat.ItemID]
 				if !ok {
 					sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, mat.ItemID, mat.Quantity))
