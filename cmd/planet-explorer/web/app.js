@@ -122,6 +122,25 @@ async function regenerate() {
     refreshSphereTexture();
   }
 
+  // Phase 9b nightside: when the profile has Civ.Tier > 0 the wasm
+  // exposes a separate Black-Marble cube-map. Bake it to an offscreen
+  // equirect and stash the ImageData so renderSphere can blend it onto
+  // the unlit hemisphere via the sun-direction dot product. Empty
+  // Uint8Array means civ disabled — clear the texture so we fall back
+  // to the original day-only render.
+  if (window.planetExplorerGenerateNight) {
+    const nightCubePNG = planetExplorerGenerateNight(profileJSON, seed, size);
+    if (nightCubePNG instanceof Uint8Array && nightCubePNG.length > 0) {
+      const nightEqPNG = planetExplorerBakeEquirect(nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height);
+      if (nightEqPNG instanceof Uint8Array) {
+        await paintToCanvas(nightEquirectCanvas, nightEqPNG);
+        refreshSphereNightTexture();
+      }
+    } else {
+      sphereNightTextureData = null;
+    }
+  }
+
   const elapsed = (performance.now() - t0).toFixed(0);
   status.textContent = `Rendered in ${elapsed} ms`;
   renderPanels();
@@ -1192,6 +1211,19 @@ let sphereDragging = false, sphereLastMX = 0, sphereLastMY = 0;
 let sphereAutoRotate = true;
 let sphereResumeTimer = null;
 
+// Offscreen canvas for the Phase 9b Black-Marble nightside equirect.
+// Same dimensions as the visible equirect canvas so the (u, v) sample
+// indices line up with the day texture. Document-detached so it does
+// not show up in the page; the renderSphere loop reads its ImageData
+// directly via refreshSphereNightTexture.
+const nightEquirectCanvas = (() => {
+  const c = document.createElement('canvas');
+  c.width = equirectCanvas ? equirectCanvas.width : 800;
+  c.height = equirectCanvas ? equirectCanvas.height : 400;
+  return c;
+})();
+let sphereNightTextureData = null;
+
 function refreshSphereTexture() {
   if (!sphereCanvas || !equirectCanvas) return;
   const ectx = equirectCanvas.getContext('2d', { willReadFrequently: true });
@@ -1204,6 +1236,15 @@ function refreshSphereTexture() {
   }
 }
 
+function refreshSphereNightTexture() {
+  const ectx = nightEquirectCanvas.getContext('2d', { willReadFrequently: true });
+  try {
+    sphereNightTextureData = ectx.getImageData(0, 0, nightEquirectCanvas.width, nightEquirectCanvas.height).data;
+  } catch (e) {
+    sphereNightTextureData = null;
+  }
+}
+
 function sampleSphereTex(u, v) {
   if (!sphereTextureData) return [80, 80, 80];
   let px = Math.floor(u * sphereTexW) % sphereTexW;
@@ -1212,6 +1253,16 @@ function sampleSphereTex(u, v) {
   py = Math.max(0, Math.min(sphereTexH - 1, py));
   const i = (py * sphereTexW + px) * 4;
   return [sphereTextureData[i], sphereTextureData[i + 1], sphereTextureData[i + 2]];
+}
+
+function sampleSphereNightTex(u, v) {
+  if (!sphereNightTextureData) return [0, 0, 0];
+  let px = Math.floor(u * sphereTexW) % sphereTexW;
+  let py = Math.floor(v * sphereTexH);
+  if (px < 0) px += sphereTexW;
+  py = Math.max(0, Math.min(sphereTexH - 1, py));
+  const i = (py * sphereTexW + px) * 4;
+  return [sphereNightTextureData[i], sphereNightTextureData[i + 1], sphereNightTextureData[i + 2]];
 }
 
 function renderSphere() {
@@ -1237,13 +1288,30 @@ function renderSphere() {
         const x2 = nx * cRY + z1 * sRY, z2 = -nx * sRY + z1 * cRY;
         const lat = Math.asin(Math.max(-1, Math.min(1, y1)));
         const lon = Math.atan2(x2, z2);
-        const [tr, tg, tb] = sampleSphereTex((lon / (2 * Math.PI)) + 0.5, 0.5 - lat / Math.PI);
+        const u = (lon / (2 * Math.PI)) + 0.5;
+        const v = 0.5 - lat / Math.PI;
+        const [tr, tg, tb] = sampleSphereTex(u, v);
         const dot = (nx * lx + (-ny) * ly + nz * lz) / ll;
         const lit = Math.max(0.08, dot * 0.7 + 0.3);
         const rim = 1 - nz, rg = rim * rim * rim * 0.3;
-        pR = Math.min(255, Math.floor(tr * lit + rg * 80));
-        pG = Math.min(255, Math.floor(tg * lit + rg * 120));
-        pB = Math.min(255, Math.floor(tb * lit + rg * 180));
+        // Phase 9b Black-Marble blend: when civ is enabled, lights on
+        // the unlit hemisphere glow at full intensity. nightWeight
+        // ramps from 0 at the terminator (dot=0) to 1 at the antipode
+        // of the sun (dot=-1). When sphereNightTextureData is null
+        // (civ disabled or non-rocky archetype) the term vanishes.
+        let nr = 0, ng = 0, nb = 0;
+        if (sphereNightTextureData) {
+          const nightWeight = Math.max(0, -dot);
+          if (nightWeight > 0) {
+            const [er, eg, eb] = sampleSphereNightTex(u, v);
+            nr = er * nightWeight;
+            ng = eg * nightWeight;
+            nb = eb * nightWeight;
+          }
+        }
+        pR = Math.min(255, Math.floor(tr * lit + nr + rg * 80));
+        pG = Math.min(255, Math.floor(tg * lit + ng + rg * 120));
+        pB = Math.min(255, Math.floor(tb * lit + nb + rg * 180));
       }
       d[idx] = pR; d[idx + 1] = pG; d[idx + 2] = pB; d[idx + 3] = 255;
     }

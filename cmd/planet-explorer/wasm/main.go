@@ -4,6 +4,7 @@
 // Exposes functions on the JS global scope:
 //
 //	planetExplorerGenerate(profileJSON string, seedStr string, faceSize int)                   Uint8Array
+//	planetExplorerGenerateNight(profileJSON, seedStr, faceSize)                                Uint8Array (empty when civ disabled)
 //	planetExplorerBakeEquirect(cubePNG Uint8Array, w int, h int)                               Uint8Array
 //	planetExplorerDefaultProfile(planetType string)                                             string  // JSON
 //	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)                    string  // JSON
@@ -29,6 +30,7 @@ import (
 
 func main() {
 	js.Global().Set("planetExplorerGenerate", js.FuncOf(generate))
+	js.Global().Set("planetExplorerGenerateNight", js.FuncOf(generateNight))
 	js.Global().Set("planetExplorerGenerateHeightmap", js.FuncOf(generateHeightmap))
 	js.Global().Set("planetExplorerBakeEquirect", js.FuncOf(bakeEquirect))
 	js.Global().Set("planetExplorerDefaultProfile", js.FuncOf(defaultProfile))
@@ -87,6 +89,35 @@ func generate(_ js.Value, args []js.Value) any {
 	var buf bytes.Buffer
 	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
 		return jsError("generate: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
+}
+
+// generateNight(profileJSON, seedStr, faceSize) → Uint8Array of cube-map
+// cross PNG bytes for the Phase 9b Black-Marble nightside, or an empty
+// Uint8Array when civ is disabled (Civ.Tier == 0) or the renderer
+// doesn't support civ. The JS side treats empty as "no night layer".
+func generateNight(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("generateNight: expected 3 args, got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateNight: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	if prof.Renderer != "rocky" {
+		return jsBytes(nil)
+	}
+	cm := render.RenderNightCubeMap(&prof, s, faceSize)
+	if cm == nil {
+		return jsBytes(nil)
+	}
+	var buf bytes.Buffer
+	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+		return jsError("generateNight: encode: %v", err)
 	}
 	return jsBytes(buf.Bytes())
 }
