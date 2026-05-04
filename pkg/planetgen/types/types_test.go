@@ -83,6 +83,28 @@ func TestCloudConfigJSONRoundTrip(t *testing.T) {
 	}
 }
 
+func TestCivConfigJSONRoundTrip(t *testing.T) {
+	in := CivConfig{
+		Tier:             0.5,
+		SiteMinDistRad:   0.0314,
+		SiteMaxDistRad:   0.1047,
+		MaxPopulation:    1.0,
+		NightLightHue:    0.12,
+		AgricultureRatio: 0.4,
+	}
+	b, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out CivConfig
+	if err := json.Unmarshal(b, &out); err != nil {
+		t.Fatal(err)
+	}
+	if in != out {
+		t.Errorf("round-trip mismatch:\n  in:  %+v\n  out: %+v", in, out)
+	}
+}
+
 func TestPlanetProfilePhase7JitterDisabledSurvivesRoundTrip(t *testing.T) {
 	p := PlanetProfile{
 		JitterEnabled: false,

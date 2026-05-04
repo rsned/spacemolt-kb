@@ -49,13 +49,13 @@ func TestRenderNightCubeMapTerranNonNil(t *testing.T) {
 	}
 }
 
-// TestRenderNightCubeMapDisabledForDefaultTerran verifies that the
-// production terran default (Civ.Tier=0) yields nil. Important: this
-// test guards the "Phase 9b doesn't accidentally enable civ for
-// existing archetypes" promise from the plan.
-func TestRenderNightCubeMapDisabledForDefaultTerran(t *testing.T) {
-	if got := render.RenderNightCubeMap(planetgen.Profiles["terran"], 42, 48); got != nil {
-		t.Errorf("RenderNightCubeMap returned non-nil for default terran (Civ.Tier=0)")
+// TestRenderNightCubeMapDisabledForCivlessArchetype verifies that
+// archetypes whose production default leaves Civ.Tier=0 yield nil
+// from RenderNightCubeMap. Tundra is one such archetype as of P9b
+// Task 6 — only terran and super_terran are civ-enabled by default.
+func TestRenderNightCubeMapDisabledForCivlessArchetype(t *testing.T) {
+	if got := render.RenderNightCubeMap(planetgen.Profiles["tundra"], 42, 48); got != nil {
+		t.Errorf("RenderNightCubeMap returned non-nil for tundra (Civ.Tier=0)")
 	}
 }
 
@@ -94,12 +94,14 @@ func TestRenderRockyAddsCivStage(t *testing.T) {
 }
 
 // TestRenderRockyDebugDoesNotAddCivStageWhenDisabled verifies the
-// gate: production terran (Civ.Tier=0) must NOT emit a Civ stage.
+// gate: an archetype with Civ.Tier=0 must NOT emit a Civ stage.
+// Uses tundra because terran/super_terran are civ-enabled as of
+// P9b Task 6.
 func TestRenderRockyDebugDoesNotAddCivStageWhenDisabled(t *testing.T) {
-	frame := render.RenderRockyDebug(planetgen.Profiles["terran"], 42, 48, nil)
+	frame := render.RenderRockyDebug(planetgen.Profiles["tundra"], 42, 48, nil)
 	for _, st := range frame.Stages {
 		if st.Name == "Civ" {
-			t.Fatalf("default terran (Civ.Tier=0) emitted a Civ stage; should be skipped")
+			t.Fatalf("default tundra (Civ.Tier=0) emitted a Civ stage; should be skipped")
 		}
 	}
 }

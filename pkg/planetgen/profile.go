@@ -290,6 +290,11 @@ var Profiles = map[string]*types.PlanetProfile{
 			StormCount: 5, StormRadiusRad: 0.20,
 			SunDir: [3]float64{1, 0.3, 0}, ShadowGain: 0.5,
 		},
+		// Phase 9b item 18
+		Civ: types.CivConfig{
+			Tier: 0.5, SiteMinDistRad: 0.0314, SiteMaxDistRad: 0.1047,
+			MaxPopulation: 1.0, NightLightHue: 0.12, AgricultureRatio: 0.4,
+		},
 	},
 	"tundra": {
 		Type:     "tundra",
@@ -615,6 +620,11 @@ var Profiles = map[string]*types.PlanetProfile{
 			Coverage: 0.50, BandLatRad: 0.26, Freq: 4, Octaves: 4, WarpAmp: 0.4,
 			StormCount: 6, StormRadiusRad: 0.18,
 			SunDir: [3]float64{1, 0.3, 0}, ShadowGain: 0.5,
+		},
+		// Phase 9b item 18
+		Civ: types.CivConfig{
+			Tier: 0.3, SiteMinDistRad: 0.0314, SiteMaxDistRad: 0.1047,
+			MaxPopulation: 0.8, NightLightHue: 0.12, AgricultureRatio: 0.4,
 		},
 	},
 	"hothouse": {

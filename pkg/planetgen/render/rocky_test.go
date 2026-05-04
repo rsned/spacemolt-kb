@@ -53,6 +53,10 @@ func TestRockyRenderPlatesNoEffectWhenScaleZero(t *testing.T) {
 	base := *planetgen.Profiles["terran"]
 	// Force legacy Continentalness mask so plates should not affect the heightmap.
 	base.Ridged.PlateConvergentScaleKm = 0
+	// Disable civ so habitability/site placement (which reads plates.Convergent
+	// for the volcanism penalty) cannot leak plate-count differences into the
+	// rendered output. This test isolates the heightmap+colorize path.
+	base.Civ.Tier = 0
 
 	noPlates := base
 	noPlates.PlateCount = 0
