@@ -124,6 +124,31 @@ type PlanetProfile struct {
 	// Phase 9a item 17: separate cloud-cover cube-map.
 	// Coverage == 0 disables cloud generation entirely.
 	Cloud CloudConfig `json:"cloud,omitempty"`
+
+	// Phase 9b item 18: civilization overlays (habitability, sites,
+	// cities, roads, agriculture, nightside lights). Tier == 0
+	// disables civ generation entirely. Per-archetype defaults land
+	// in P9b Task 6; until then every archetype keeps the zero-value
+	// (Tier:0 = civ disabled).
+	Civ CivConfig `json:"civ,omitempty"`
+}
+
+// CivConfig parameterizes the Phase 9b civilization-sign overlays
+// (habitability scalar, Bridson site placement, population assignment,
+// city/road/agriculture/night-light render passes). Tier == 0 disables
+// the entire civ pipeline (zero-value = disabled, matching the
+// "Cloud.Coverage == 0 → off" idiom used elsewhere in this file).
+//
+// Per-archetype defaults are introduced in P9b Task 6; this struct is
+// declared up-front so the habitability writer (Task 1) can take
+// CivConfig as a typed argument without a forward-reference.
+type CivConfig struct {
+	Tier             float64 `json:",omitempty"` // 0 = disabled; 1 = full civ
+	SiteMinDistRad   float64 `json:",omitempty"` // Bridson minimum site separation, radians
+	SiteMaxDistRad   float64 `json:",omitempty"` // Bridson maximum site separation, radians
+	MaxPopulation    float64 `json:",omitempty"` // population cap for the most populous site
+	NightLightHue    float64 `json:",omitempty"` // hue (0..1) for nightside lights
+	AgricultureRatio float64 `json:",omitempty"` // farmland-to-city area ratio
 }
 
 // CloudConfig parameterizes the separate cloud-cover cube-map output.
