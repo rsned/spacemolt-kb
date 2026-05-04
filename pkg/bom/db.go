@@ -1,12 +1,16 @@
 package bom
 
+// RecipeItem represents a single item input or output in a recipe
+type RecipeItem struct {
+	ItemID   string
+	Quantity int
+}
+
 // Recipe represents a crafting recipe from the database
 type Recipe struct {
-	ID          string
-	OutputID    string
-	OutputName  string
-	OutputQty   int
-	Alternative bool
+	ID       string
+	Inputs   []RecipeItem
+	Outputs  []RecipeItem
 }
 
 // Item represents an item from the database
