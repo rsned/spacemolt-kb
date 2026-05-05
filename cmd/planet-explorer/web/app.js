@@ -1274,7 +1274,12 @@ function renderSphere() {
   const d = id.data;
   const cRX = Math.cos(sphereRotX), sRX = Math.sin(sphereRotX);
   const cRY = Math.cos(sphereRotY), sRY = Math.sin(sphereRotY);
-  const lx = -0.4, ly = 0.5, lz = 0.7;
+  // Sun direction. Pushed mostly to the west (-X) so the day/night
+  // terminator runs near the horizontal center of the visible disc.
+  // This makes the Phase 9b Black-Marble nightside visible during a
+  // normal rotation; previously lz=0.7 kept the entire viewport lit
+  // and the night cube-map only showed at the very edge.
+  const lx = -0.85, ly = 0.30, lz = 0.45;
   const ll = Math.sqrt(lx * lx + ly * ly + lz * lz);
   for (let py = 0; py < H; py++) {
     for (let px = 0; px < W; px++) {

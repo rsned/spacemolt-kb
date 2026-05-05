@@ -238,12 +238,15 @@ func paintCivSites(sites []feature.Site, S int) *cubemap.CubeMap {
 		if rPx < 1 {
 			rPx = 1
 		}
-		// Palette: low-pop dim red -> high-pop bright yellow-white.
+		// Palette: low-pop dim orange -> high-pop bright yellow-white.
 		// Population is in [0, 1] by construction (Zipfian, capped at
 		// MaxPopulation <= 1) so the additions stay within uint8 range.
-		r := uint8(180 + 60*s.Population)
-		g := uint8(60 + 180*s.Population)
-		b := uint8(20 + 80*s.Population)
+		// Starting at (140, 90, 30) gives small-town dots a warm-orange
+		// tone that reads as "settlement" rather than "warning marker"
+		// while still letting tier-1 sites tend toward white-yellow.
+		r := uint8(140 + 100*s.Population)
+		g := uint8(90 + 150*s.Population)
+		b := uint8(30 + 100*s.Population)
 		fill := color.RGBA{R: r, G: g, B: b, A: 255}
 		for dy := -rPx; dy <= rPx; dy++ {
 			for dx := -rPx; dx <= rPx; dx++ {
