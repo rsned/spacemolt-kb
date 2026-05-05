@@ -77,18 +77,30 @@ func GenerateRainShadow(heightmap *cubemap.CubeMapF, cfg types.RainShadowConfig)
 	return out
 }
 
-// prevailingWindTangent returns the unit tangent vector of the
-// prevailing wind at sphere direction (dx, dy, dz).
+// prevailingWindTangent returns the prevailing-wind tangent at sphere
+// direction (dx, dy, dz).
 //
 // Three-cell model with Earth-like Coriolis:
-//   - tropics (|lat| < 30°):    easterlies (return +east tangent)
-//   - midlatitudes (30°–60°):   westerlies (return -east = +west tangent)
-//   - polar (|lat| > 60°):      polar easterlies (return +east tangent)
+//   - tropics (|lat| < 30°):    easterlies (+east tangent)
+//   - midlatitudes (30°–60°):   westerlies (-east tangent)
+//   - polar (|lat| > 60°):      polar easterlies (+east tangent)
+//
+// The east/west sign is smoothed across each cell boundary with a 5°
+// transition window so the rain-shadow walk doesn't see a hard direction
+// flip — without smoothing, the discrete sign change at exactly ±30° and
+// ±60° produced visible 30°-wide horizontal bands in the rain-shadow
+// raster (and via m*rainshadow in the civ-habitability raster).
+//
+// Inside the transition window the returned vector has magnitude < 1
+// (going through zero at the exact boundary), which makes the upwind
+// walk shorter at the band edges; the rain-shadow multiplier converges
+// smoothly to 1.0 there instead of jumping by full amplitude.
 //
 // "East" in the tangent plane is computed as cross(north, dir) with
 // north = (0, 1, 0); for our coordinate frame this evaluates to the
-// closed-form (-z, 0, x). The vector is normalized; at the poles
-// (where the formula degenerates) we fall back to (1, 0, 0).
+// closed-form (-z, 0, x). The vector is normalized to unit length
+// before the smooth-sign scaling; at the poles (where the formula
+// degenerates) we fall back to (1, 0, 0).
 func prevailingWindTangent(dx, dy, dz float64) [3]float64 {
 	// Clamp dy to valid asin domain to guard against floating drift.
 	sinLat := dy
@@ -98,9 +110,7 @@ func prevailingWindTangent(dx, dy, dz float64) [3]float64 {
 		sinLat = -1
 	}
 	absLat := math.Abs(math.Asin(sinLat))
-	const tropicLimit = math.Pi / 6.0           // 30°
-	const polarLimit = math.Pi * 60.0 / 180.0   // 60°
-	eastward := absLat < tropicLimit || absLat > polarLimit
+	sign := smoothEastSign(absLat)
 
 	// East tangent = cross((0,1,0), (dx,dy,dz)) = (-dz, 0, dx).
 	ex, ey, ez := -dz, 0.0, dx
@@ -108,14 +118,53 @@ func prevailingWindTangent(dx, dy, dz float64) [3]float64 {
 	if n < 1e-9 {
 		// At the poles the tangent direction is degenerate; the rain
 		// shadow concept doesn't really apply. Pick a stable fallback
-		// so the returned vector is always unit-length and finite.
+		// so the returned vector is always finite.
 		return [3]float64{1, 0, 0}
 	}
 	ex, ey, ez = ex/n, ey/n, ez/n
-	if !eastward {
-		ex, ey, ez = -ex, -ey, -ez
+	return [3]float64{sign * ex, sign * ey, sign * ez}
+}
+
+// smoothEastSign returns the east/west indicator for the three-cell
+// wind model at the given absolute latitude (radians, in [0, π/2]),
+// with a smooth transition across the tropic and polar boundaries.
+//
+// Outside the transition windows the result is exactly +1 (eastward)
+// or -1 (westward), so cells that are far from the boundary are
+// unchanged from the original three-cell formulation.
+func smoothEastSign(absLat float64) float64 {
+	const tropicLimit = math.Pi / 6.0       // 30°
+	const polarLimit = math.Pi * 60.0 / 180 // 60°
+	const transRad = math.Pi / 36.0         // 5° half-window
+
+	// Tropic boundary: +1 → -1 from (tropic-trans) to (tropic+trans).
+	if absLat < tropicLimit-transRad {
+		return +1
 	}
-	return [3]float64{ex, ey, ez}
+	if absLat < tropicLimit+transRad {
+		t := (absLat - (tropicLimit - transRad)) / (2 * transRad)
+		return 1 - 2*smoothstep01(t)
+	}
+	// Polar boundary: -1 → +1 from (polar-trans) to (polar+trans).
+	if absLat < polarLimit-transRad {
+		return -1
+	}
+	if absLat < polarLimit+transRad {
+		t := (absLat - (polarLimit - transRad)) / (2 * transRad)
+		return -1 + 2*smoothstep01(t)
+	}
+	return +1
+}
+
+// smoothstep01 implements the standard smoothstep between 0 and 1.
+func smoothstep01(x float64) float64 {
+	if x <= 0 {
+		return 0
+	}
+	if x >= 1 {
+		return 1
+	}
+	return x * x * (3 - 2*x)
 }
 
 // walkUpwindForOrography walks the great-circle from (dx,dy,dz) in
