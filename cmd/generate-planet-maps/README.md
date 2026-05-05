@@ -399,3 +399,13 @@ The `TestPlateFieldSeamMatch` test runs as a regression gate (5% SDF threshold a
 Profile knobs: `Cloud.Coverage` (0 disables), `BandLatRad`, `Freq`, `Octaves`, `WarpAmp`, `StormCount`, `StormRadiusRad`, `SunDir`, `ShadowGain`.
 
 The main color cube-map output is unchanged; clouds are an additional artifact alongside it. `render.RenderCloudCubeMap` returns nil when clouds are disabled — the cmd writes a cloud PNG only when this is non-nil. Cloud goldens live at `testdata/golden/<name>.clouds.cube.png` (face=64, 4 archetypes). The pipeline-debug view adds three stages — `Cloud: alpha`, `Cloud: density`, `Cloud: shaded` — after the rain-shadow stage.
+
+## Phase 9b — Civilization signs (master-plan item 18)
+
+**Civ pipeline** (`pkg/planetgen/feature/{civ,habitability,poisson_sphere,roads}.go`). Habitability scoring → Bridson Poisson-disc on the sphere → Zipfian population assignment → Delaunay+MST+A* road generation → daytime patch overlays + Black Marble nightside.
+
+The day cube-map (the existing `<name>.cube.png`) is modified by blending in city patches (warm beige), agriculture grids (green-yellow), and roads (darker beige). A new `<name>.night.cube.png` companion contains the Black Marble nightside — Gaussian splats of warm golden-orange light per site, intensity scaled by `population^1.5`. Both are produced for archetypes with `Civ.Tier > 0`. Default civ-enabled archetypes: terran (`Tier=0.5`), super_terran (`Tier=0.3`).
+
+Profile knobs: `Civ.Tier` (0 disables — single-knob gate for civ), `SiteMinDistRad`, `SiteMaxDistRad`, `MaxPopulation`, `NightLightHue`, `AgricultureRatio`.
+
+`render.RenderNightCubeMap` returns nil when civ is disabled — the cmd writes a night PNG only when non-nil. The colorize pipeline gains a `Civ` stage between `Ejecta` and `LUT`; debug view registers five new stages — `Civ: habitability`, `Civ: sites`, `Civ: roads`, `Civ: day overlay`, `Civ: night lights` — at the end of the pipeline. Sun-direction night blending in the planet-explorer rotating-sphere preview composites the night cube-map onto the unlit hemisphere via `nightWeight = max(0, -dot(normal, sunDir))`.
