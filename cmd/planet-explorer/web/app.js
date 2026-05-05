@@ -1358,11 +1358,19 @@ if (sphereCanvas) {
 // === Phase 6: pipeline debug view ===
 const debugBypass = new Set();
 
-function refreshDebugView() {
+async function refreshDebugView() {
   if (!window.planetExplorerGenerateDebug) {
     console.warn('debug API not available; rebuild wasm');
     return;
   }
+  // Mirror regenerate(): show progress text and yield to the browser
+  // so the repaint happens before the wasm call blocks the main thread.
+  // Without the yield, the synchronous wasm work runs immediately and
+  // the user sees a frozen page (sometimes "Page not responding").
+  status.textContent = 'Rendering debug view…';
+  await new Promise(r => setTimeout(r, 0));
+
+  const t0 = performance.now();
   const profileJSON = profileTextarea.value;
   const seed = seedInput.value;
   const size = parseInt(faceSizeSel.value, 10) || 256;
@@ -1370,9 +1378,19 @@ function refreshDebugView() {
   const result = window.planetExplorerGenerateDebug(profileJSON, seed, size, bypassJSON);
   let parsed;
   try { parsed = JSON.parse(result); }
-  catch (e) { console.error('debug parse', e); return; }
-  if (parsed.error) { console.error(parsed.error); return; }
+  catch (e) {
+    console.error('debug parse', e);
+    status.textContent = 'Debug error: ' + e.message;
+    return;
+  }
+  if (parsed.error) {
+    console.error(parsed.error);
+    status.textContent = 'Debug error: ' + parsed.error;
+    return;
+  }
   renderDebugGrid(parsed.stages);
+  const elapsed = (performance.now() - t0).toFixed(0);
+  status.textContent = `Debug view rendered in ${elapsed} ms`;
 }
 
 function renderDebugGrid(stages) {
