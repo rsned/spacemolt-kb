@@ -320,6 +320,18 @@ func AStarPath(start, end cubemap.PixelAddr, heightmap *cubemap.CubeMapF, slopeW
 	if S <= 0 {
 		return nil
 	}
+	// Endpoint guard: if either endpoint is itself underwater, refuse
+	// the route. Habitability already zeroes ocean sites so callers
+	// shouldn't hit this in practice — defense in depth at the API
+	// boundary.
+	if oceanLevel > 0 {
+		if heightmap.Get(start.Face, start.PX, start.PY) < oceanLevel {
+			return nil
+		}
+		if heightmap.Get(end.Face, end.PX, end.PY) < oceanLevel {
+			return nil
+		}
+	}
 	if start == end {
 		return []cubemap.PixelAddr{start}
 	}

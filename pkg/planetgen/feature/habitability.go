@@ -39,6 +39,11 @@ const (
 	habHeightLowB  = 0.55
 	habHeightHighA = 0.55
 	habHeightHighB = 0.85
+
+	// habOceanRampWidth is the smoothstep upper-anchor offset above
+	// oceanLevel for the lowland bonus. A shallow continent at
+	// h = oceanLevel + habOceanRampWidth earns the saturated bonus.
+	habOceanRampWidth = 0.05
 )
 
 // GenerateHabitability composes the Phase 9b habitability scalar field
@@ -93,7 +98,7 @@ func GenerateHabitability(
 	lowB := habHeightLowB
 	if oceanLevel > 0 {
 		lowA = oceanLevel
-		lowB = oceanLevel + 0.05
+		lowB = oceanLevel + habOceanRampWidth
 	}
 
 	for face := range cubemap.Face(cubemap.NumFaces) {
@@ -159,7 +164,8 @@ func GenerateHabitability(
 			}
 			// Hard ocean guard: pixels below sea level are not habitable
 			// regardless of climate. Skip when oceanLevel <= 0 (rare
-			// archetype with no ocean).
+			// archetype with no ocean). Strict <: pixels at exactly
+			// h == oceanLevel are treated as shoreline, not ocean.
 			if oceanLevel > 0 && h < oceanLevel {
 				score = 0
 			}
