@@ -55,6 +55,14 @@ const (
 // is set the riverDistRecip input is 1.0 (giving the smoothstep
 // upper-saturation value); else 0. This is the simpler interpretation
 // permitted by the plan (§1) and avoids a second JFA pass.
+//
+// oceanLevel is the archetype-specific sea-level threshold (typically
+// profile.OceanLevel). The lowland-bonus smoothstep is anchored to
+// oceanLevel, and a hard guard zeroes the score for any pixel below
+// oceanLevel so ocean pixels can't slip past PoissonOnSphere's 0.05
+// floor via temperature/moisture contributions. When oceanLevel <= 0
+// (archetypes without an ocean) both anchors revert to the legacy
+// behavior — bonus smoothstep at (0.30, 0.55) and no hard guard.
 func GenerateHabitability(
 	heightmap *cubemap.CubeMapF,
 	tField, mField *cubemap.CubeMapF,
@@ -63,6 +71,7 @@ func GenerateHabitability(
 	rainShadow *biome.RainShadowField,
 	cfg types.CivConfig,
 	S int,
+	oceanLevel float64,
 ) *HabitabilityField {
 	if cfg.Tier <= 0 {
 		return nil
@@ -74,6 +83,17 @@ func GenerateHabitability(
 	hf := &HabitabilityField{Size: S}
 	for f := range hf.Score {
 		hf.Score[f] = make([]float64, S*S)
+	}
+
+	// Lowland-bonus smoothstep anchors. When oceanLevel > 0, the bonus
+	// only starts ramping above sea level so ocean pixels score 0 in the
+	// height term. The +0.05 upper anchor lets a shallow continent at
+	// h=oceanLevel+0.05 still earn most of the bonus.
+	lowA := habHeightLowA
+	lowB := habHeightLowB
+	if oceanLevel > 0 {
+		lowA = oceanLevel
+		lowB = oceanLevel + 0.05
 	}
 
 	for face := range cubemap.Face(cubemap.NumFaces) {
@@ -100,8 +120,10 @@ func GenerateHabitability(
 			t := tSlice[i]
 			m := mSlice[i]
 
-			// Height: bonus for lowland/mid, penalty for peaks.
-			score := habWeightHeightLow * smoothstep(habHeightLowA, habHeightLowB, h)
+			// Height: bonus for lowland/mid (anchored to oceanLevel
+			// when present), penalty for peaks (mountain penalty is
+			// independent of OceanLevel).
+			score := habWeightHeightLow * smoothstep(lowA, lowB, h)
 			score -= habWeightHeightHigh * smoothstep(habHeightHighA, habHeightHighB, h)
 
 			// Temperature: gaussian centered on temperate.
@@ -134,6 +156,12 @@ func GenerateHabitability(
 				score = 0
 			} else if score > 1 {
 				score = 1
+			}
+			// Hard ocean guard: pixels below sea level are not habitable
+			// regardless of climate. Skip when oceanLevel <= 0 (rare
+			// archetype with no ocean).
+			if oceanLevel > 0 && h < oceanLevel {
+				score = 0
 			}
 			out[i] = score
 		}

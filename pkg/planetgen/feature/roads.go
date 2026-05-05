@@ -307,7 +307,12 @@ func arcDistance(a, b [3]float64) float64 {
 // Cube-face seams are crossed via cubemap.FacePixelNeighbors8. Returns
 // nil when heightmap is nil or no path exists. The returned slice
 // includes both endpoints.
-func AStarPath(start, end cubemap.PixelAddr, heightmap *cubemap.CubeMapF, slopeWeight float64) []cubemap.PixelAddr {
+//
+// oceanLevel, when > 0, refuses to step onto neighbours with
+// heightmap.Get(...) < oceanLevel — keeping roads on dry land. When
+// <= 0 the guard is skipped entirely (legacy behaviour, used by
+// archetypes without an ocean).
+func AStarPath(start, end cubemap.PixelAddr, heightmap *cubemap.CubeMapF, slopeWeight float64, oceanLevel float64) []cubemap.PixelAddr {
 	if heightmap == nil {
 		return nil
 	}
@@ -366,6 +371,12 @@ func AStarPath(start, end cubemap.PixelAddr, heightmap *cubemap.CubeMapF, slopeW
 				continue
 			}
 			nH := heightmap.Get(n.Face, n.PX, n.PY)
+			// Ocean guard: refuse to step into water. Disabled when
+			// oceanLevel <= 0 so archetypes without an ocean keep
+			// the legacy free-flow behaviour.
+			if oceanLevel > 0 && nH < oceanLevel {
+				continue
+			}
 			step := 1.0 + slopeWeight*math.Abs(nH-curH)
 			tentativeG := cur.g + step
 			if existing, ok := gScore[n]; ok && tentativeG >= existing {
@@ -418,7 +429,11 @@ func rasterizePath(rf *RoadField, path []cubemap.PixelAddr) {
 //
 // The slope weight inside A* is the package constant roadSlopeWeight
 // (5.0); a future task may make it a CivConfig knob.
-func GenerateRoads(sites []Site, heightmap *cubemap.CubeMapF, cfg types.CivConfig) *RoadField {
+//
+// oceanLevel is forwarded to AStarPath so paths refuse to enter water
+// on ocean-bearing archetypes. Pass 0 (or negative) to disable the
+// guard for ocean-less worlds.
+func GenerateRoads(sites []Site, heightmap *cubemap.CubeMapF, cfg types.CivConfig, oceanLevel float64) *RoadField {
 	if len(sites) < 2 || heightmap == nil || cfg.Tier <= 0 {
 		return nil
 	}
@@ -444,7 +459,7 @@ func GenerateRoads(sites []Site, heightmap *cubemap.CubeMapF, cfg types.CivConfi
 		path := AStarPath(
 			cubemap.PixelAddr{Face: startFace, PX: sx, PY: sy},
 			cubemap.PixelAddr{Face: endFace, PX: ex, PY: ey},
-			heightmap, roadSlopeWeight,
+			heightmap, roadSlopeWeight, oceanLevel,
 		)
 		if len(path) == 0 {
 			continue

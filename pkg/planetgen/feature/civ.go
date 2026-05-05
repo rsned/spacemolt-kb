@@ -342,7 +342,7 @@ func GenerateCiv(
 		return nil
 	}
 
-	hf := GenerateHabitability(heightmap, tField, mField, plates, flow, rainShadow, profile.Civ, S)
+	hf := GenerateHabitability(heightmap, tField, mField, plates, flow, rainShadow, profile.Civ, S, profile.OceanLevel)
 	if hf == nil {
 		return nil
 	}
@@ -352,7 +352,7 @@ func GenerateCiv(
 	}
 	AssignPopulations(sites, profile.Civ)
 
-	roads := GenerateRoads(sites, heightmap, profile.Civ)
+	roads := GenerateRoads(sites, heightmap, profile.Civ, profile.OceanLevel)
 
 	cf := &CivField{
 		Size:         S,

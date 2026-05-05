@@ -31,21 +31,23 @@ func TestHabitabilityDisabledByZeroTier(t *testing.T) {
 	h := fillF(S, 0.4)
 	tF := fillF(S, 0.55)
 	mF := fillF(S, 0.6)
-	got := GenerateHabitability(h, tF, mF, nil, nil, nil, types.CivConfig{}, S)
+	got := GenerateHabitability(h, tF, mF, nil, nil, nil, types.CivConfig{}, S, 0.5)
 	if got != nil {
 		t.Errorf("GenerateHabitability with Tier=0 returned non-nil; want nil")
 	}
 }
 
-// TestHabitabilityZeroOnOcean: ocean pixels (height = 0.1) score <0.1.
+// TestHabitabilityZeroOnOcean: ocean pixels (height = 0.30, well below
+// oceanLevel=0.5) score <0.1. With the ocean-level guard, ocean pixels
+// must drop to 0 regardless of climate.
 func TestHabitabilityZeroOnOcean(t *testing.T) {
 	S := 16
-	h := fillF(S, 0.1)
+	h := fillF(S, 0.30)
 	// Climate fields kept "uninteresting" so the height term dominates.
 	// Use far-from-mu values so gaussian terms are tiny.
 	tF := fillF(S, 0.0)
 	mF := fillF(S, 0.0)
-	hf := GenerateHabitability(h, tF, mF, nil, nil, nil, enabledCivCfg(), S)
+	hf := GenerateHabitability(h, tF, mF, nil, nil, nil, enabledCivCfg(), S, 0.5)
 	if hf == nil {
 		t.Fatalf("GenerateHabitability returned nil for enabled cfg")
 	}
@@ -62,23 +64,24 @@ func TestHabitabilityZeroOnOcean(t *testing.T) {
 	}
 }
 
-// TestHabitabilityHighOnTemperateLowlands: with height=0.40 (smoothstep
-// of (0.30,0.55) at peak), temp=0.55 (μ peak) and humid=0.6 (μ peak),
-// score should clearly exceed an ocean baseline.
+// TestHabitabilityHighOnTemperateLowlands: with height=0.40 (well above
+// oceanLevel=0.30), temp=0.55 (μ peak) and humid=0.6 (μ peak), score
+// should clearly exceed an ocean baseline.
 func TestHabitabilityHighOnTemperateLowlands(t *testing.T) {
 	S := 16
 	h := fillF(S, 0.40)
 	tF := fillF(S, 0.55)
 	mF := fillF(S, 0.60)
-	hf := GenerateHabitability(h, tF, mF, nil, nil, nil, enabledCivCfg(), S)
+	hf := GenerateHabitability(h, tF, mF, nil, nil, nil, enabledCivCfg(), S, 0.30)
 	if hf == nil {
 		t.Fatalf("GenerateHabitability returned nil for enabled cfg")
 	}
 	// Sample a single pixel — the field is uniform so any pixel works.
 	// 0.4 floor is a comfortable lower bound: with h=0.40 the lowland
-	// smoothstep contributes ≈ habWeightLow * smoothstep(0.30, 0.55, 0.40),
-	// plus full temp-gaussian + full moist-gaussian peaks; well above the
-	// ocean-baseline run in TestHabitabilityZeroOnOcean (≈ 0.002).
+	// smoothstep contributes ≈ habWeightLow * smoothstep(0.30, 0.35, 0.40)
+	// (saturated at 1), plus full temp-gaussian + full moist-gaussian
+	// peaks; well above the ocean-baseline run in
+	// TestHabitabilityZeroOnOcean.
 	score := hf.Score[cubemap.FacePosZ][0]
 	if score <= 0.4 {
 		t.Errorf("temperate lowland habitability=%.4f; want > 0.4", score)
@@ -96,8 +99,8 @@ func TestHabitabilityDeterministic(t *testing.T) {
 	tF := fillF(S, 0.55)
 	mF := fillF(S, 0.60)
 	cfg := enabledCivCfg()
-	hf1 := GenerateHabitability(h, tF, mF, nil, nil, nil, cfg, S)
-	hf2 := GenerateHabitability(h, tF, mF, nil, nil, nil, cfg, S)
+	hf1 := GenerateHabitability(h, tF, mF, nil, nil, nil, cfg, S, 0.30)
+	hf2 := GenerateHabitability(h, tF, mF, nil, nil, nil, cfg, S, 0.30)
 	if hf1 == nil || hf2 == nil {
 		t.Fatalf("nil HabitabilityField for enabled cfg")
 	}
@@ -123,10 +126,54 @@ func TestHabitabilitySeamContinuity(t *testing.T) {
 	h := fillF(S, 0.40)
 	tF := fillF(S, 0.55)
 	mF := fillF(S, 0.60)
-	hf := GenerateHabitability(h, tF, mF, nil, nil, nil, enabledCivCfg(), S)
+	hf := GenerateHabitability(h, tF, mF, nil, nil, nil, enabledCivCfg(), S, 0.30)
 	if hf == nil {
 		t.Fatalf("nil HabitabilityField for enabled cfg")
 	}
 	cm := &cubemap.CubeMapF{Size: hf.Size, Faces: hf.Score}
 	seamtest.AssertSeamContinuity(t, "habitability", cm, 0.05)
+}
+
+// TestHabitabilityRespectsOceanLevel verifies the ocean-level guard:
+// pixels below oceanLevel must score 0 (or near 0) regardless of
+// climate, while pixels above earn the lowland bonus + climate.
+func TestHabitabilityRespectsOceanLevel(t *testing.T) {
+	S := 16
+	// Build per-face fields: face 0 (FacePosX) ocean (h=0.20), face 1
+	// (FacePosY) land (h=0.50). All other faces ocean too — only the
+	// two of-interest faces matter for this assertion.
+	h := cubemap.NewF(S)
+	tF := cubemap.NewF(S)
+	mF := cubemap.NewF(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		var hv float64
+		if face == cubemap.FacePosY {
+			hv = 0.50
+		} else {
+			hv = 0.20
+		}
+		for i := range h.Faces[face] {
+			h.Faces[face][i] = hv
+			tF.Faces[face][i] = habTempMu  // peak temp gaussian
+			mF.Faces[face][i] = habMoistMu // peak moist gaussian
+		}
+	}
+
+	hf := GenerateHabitability(h, tF, mF, nil, nil, nil, enabledCivCfg(), S, 0.30)
+	if hf == nil {
+		t.Fatalf("nil HabitabilityField for enabled cfg")
+	}
+
+	// Ocean face must be 0 everywhere (hard guard).
+	for _, v := range hf.Score[cubemap.FacePosX] {
+		if v != 0 {
+			t.Fatalf("ocean pixel scored %.4f; want exactly 0 (h=0.20 < oceanLevel=0.30)", v)
+		}
+	}
+	// Land face must score above 0.3 (lowland bonus + temp + moist).
+	for _, v := range hf.Score[cubemap.FacePosY] {
+		if v <= 0.3 {
+			t.Fatalf("land pixel scored %.4f; want > 0.3", v)
+		}
+	}
 }

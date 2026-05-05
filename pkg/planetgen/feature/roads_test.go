@@ -65,7 +65,7 @@ func TestRoadsConnectAllSites(t *testing.T) {
 	)
 	hm := flatHeightmap(size, 0.4)
 
-	rf := GenerateRoads(sites, hm, types.CivConfig{Tier: 1})
+	rf := GenerateRoads(sites, hm, types.CivConfig{Tier: 1}, 0)
 	if rf == nil {
 		t.Fatalf("GenerateRoads returned nil")
 	}
@@ -142,7 +142,7 @@ func TestRoadsAvoidPeaks(t *testing.T) {
 	startAddr := pixelAddrOf(sites[0], size)
 	endAddr := pixelAddrOf(sites[1], size)
 
-	path := AStarPath(startAddr, endAddr, hm, 5.0)
+	path := AStarPath(startAddr, endAddr, hm, 5.0, 0)
 	if len(path) == 0 {
 		t.Fatalf("AStarPath returned empty path")
 	}
@@ -210,8 +210,8 @@ func TestRoadsDeterministic(t *testing.T) {
 		[3]float64{0.1, 0.2, 1},
 	)
 
-	a := GenerateRoads(sites, hm, types.CivConfig{Tier: 1})
-	b := GenerateRoads(sites, hm, types.CivConfig{Tier: 1})
+	a := GenerateRoads(sites, hm, types.CivConfig{Tier: 1}, 0)
+	b := GenerateRoads(sites, hm, types.CivConfig{Tier: 1}, 0)
 
 	if a == nil || b == nil {
 		t.Fatalf("GenerateRoads returned nil; a=%v b=%v", a, b)
@@ -224,4 +224,60 @@ func TestRoadsDeterministic(t *testing.T) {
 			t.Fatalf("face %d intensity differs between runs", face)
 		}
 	}
+}
+
+// TestRoadsAvoidOcean places two sites on land separated by a vertical
+// strip of ocean down the middle of +Z. The A* path with oceanLevel=0.3
+// must either route around the ocean strip (longer, all on land) or
+// fail to find a path; what's NOT acceptable is the path containing
+// pixels below oceanLevel.
+func TestRoadsAvoidOcean(t *testing.T) {
+	const size = 64
+	const oceanLevel = 0.30
+	// Land elevation everywhere by default.
+	hm := flatHeightmap(size, 0.50)
+
+	// Carve a vertical ocean strip down the middle column of +Z (and
+	// nowhere else). The strip is 4 pixels wide and runs the full
+	// height of the face; sites are placed on +Z to either side.
+	const oceanH = 0.10
+	for py := range size {
+		for dx := -2; dx < 2; dx++ {
+			px := size/2 + dx
+			if px < 0 || px >= size {
+				continue
+			}
+			hm.Set(cubemap.FacePosZ, px, py, oceanH)
+		}
+	}
+
+	// Two sites on +Z, well clear of the ocean strip.
+	sites := []Site{
+		{Habitability: 0.8, Population: 0.5},
+		{Habitability: 0.8, Population: 0.5},
+	}
+	{
+		dx, dy, dz := cubemap.FacePixelToDir(cubemap.FacePosZ, 8, size/2, size)
+		n := math.Sqrt(dx*dx + dy*dy + dz*dz)
+		sites[0].Dir = [3]float64{dx / n, dy / n, dz / n}
+	}
+	{
+		dx, dy, dz := cubemap.FacePixelToDir(cubemap.FacePosZ, size-8, size/2, size)
+		n := math.Sqrt(dx*dx + dy*dy + dz*dz)
+		sites[1].Dir = [3]float64{dx / n, dy / n, dz / n}
+	}
+
+	startAddr := pixelAddrOf(sites[0], size)
+	endAddr := pixelAddrOf(sites[1], size)
+
+	path := AStarPath(startAddr, endAddr, hm, 5.0, oceanLevel)
+	// Path may be nil if A* can't route around (acceptable); but if a
+	// path exists, NO pixel may be below oceanLevel.
+	for _, p := range path {
+		h := hm.Get(p.Face, p.PX, p.PY)
+		if h < oceanLevel {
+			t.Fatalf("path pixel %+v has height=%.4f < oceanLevel=%.2f", p, h, oceanLevel)
+		}
+	}
+	t.Logf("path-len=%d (nil=path refused, ok)", len(path))
 }
