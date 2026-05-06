@@ -91,6 +91,9 @@ Render resolution (per cube face). Higher = slower but more detail:
 #### Regenerate Button
 Re-renders the planet at current settings. Also triggered by Enter key when editing sliders.
 
+#### Jitter: ON/OFF Button
+Phase 7 Tier B toggle that flips `JitterEnabled` in the profile JSON and re-renders. When on, the Detail control field samples a Voronoi cell-coordinate jitter (via `JitterCellCount`, `JitterRotMax`, `JitterOffsetMax`) so the same noise looks subtly different per region — breaks up the "stamped fBm" appearance without changing macro shape. The button label reflects current state.
+
 #### Export JSON Button
 Copies the current profile JSON to clipboard. Paste into `pkg/planetgen/profile.go` to commit tuned defaults.
 
@@ -144,15 +147,17 @@ The combination method is **pure additive summation**, not multiplication or com
 [{"Input":0,"Output":0},{"Input":0.4,"Output":0.05},{"Input":1,"Output":0.6}]
 ```
 
-#### Erosion
-**Purpose:** Smooths highlands, creates valleys
-**Effect on height:** Usually negative — subtracts from height where erosion is high
-**Use when:** You want worn-down mountains and smooth basins
+#### Detail (formerly "Erosion")
+**Purpose:** High-frequency detail-noise layer that adds bumpy variation on top of the macro shape
+**Effect on height:** Spline output adds to height (pure additive — *not* the negative-output "carve" curve the legacy name suggested)
+**Use when:** You want surface texture that's independent of continent shape
 
-**Parameters:** Same as Continentalness, but typical spline is negative:
+**Parameters:** Same as Continentalness. Typical spline is a gentle positive ramp:
 ```json
-[{"Input":0,"Output":0},{"Input":0.5,"Output":-0.3},{"Input":1,"Output":-0.1}]
+[{"Input":0,"Output":0},{"Input":1,"Output":0.15}]
 ```
+
+**Backward compatibility:** Profile JSON that uses the old `"Erosion"` key still loads — `ControlConfig.UnmarshalJSON` (`pkg/planetgen/types/types.go:360`) maps it to `Detail` when `Detail` is absent. Hydraulic erosion (Phase 5 droplets) lives in its own *Erosion Panel* further down.
 
 #### PeaksValleys
 **Purpose:** High-frequency mountain roughness on top of macro shape
@@ -212,12 +217,14 @@ The combination method is **pure additive summation**, not multiplication or com
 - `Lacunarity` (~2.0) — Standard fBm
 - `Gain` (~0.5) — Per-octave weight (higher = sharper)
 - `Offset` (0.8–1.2) — Ridge sharpness
-- `MaskLow` (0.3–0.5) — Continentalness ≤ this = no ridges (deep ocean)
-- `MaskHigh` (0.6–0.8) — Continentalness ≥ this = full ridges (interior)
+- `MaskLow` (0.3–0.5) — Mask input ≤ this = no ridges
+- `MaskHigh` (0.6–0.8) — Mask input ≥ this = full ridges
+- `PlateConvergentScaleKm` — *(JSON-only — not exposed in the UI panel.)* Switches the mask source. `0` = legacy Continentalness mask. `>0` = plate-convergent SDF mask (see below).
 
 **How masking works:**
-- `MaskLow = 0.4, MaskHigh = 0.7` means ridges only appear where Continentalness spline output is between 0.4 and 0.7
-- This keeps mountains on continents, not in oceans
+- **Legacy mode** (`PlateConvergentScaleKm = 0`): mask = `smoothstep(MaskLow, MaskHigh, Continentalness)`. Mountains follow continent interiors regardless of geology.
+- **Plate-convergent mode** (`PlateConvergentScaleKm > 0`): mask = `smoothstep(MaskLow, MaskHigh, 1 - clamp(plates.Convergent[px] / PlateConvergentScaleKm, 0, 1))`. Mountain belts trace plate convergent boundaries — the geologically correct placement (Andes, Himalayas, Cascades). Falls back to the legacy path automatically if the planet has `PlateCount = 0`.
+- `MaskLow = 0.4, MaskHigh = 0.7` is a reasonable starting point in either mode.
 
 **Visual effect:**
 - Creates sharp, jagged peaks like the Andes or Himalayas
@@ -247,6 +254,30 @@ The combination method is **pure additive summation**, not multiplication or com
 - `WarpAmp = 0.1` — organic, non-polygonal region boundaries
 
 **Tip:** Start with `Count = 12–20` for subtle variety. Higher counts (>30) get busy.
+
+---
+
+### Plate Tectonics *(JSON-only — no UI panel yet)*
+
+**Purpose:** Voronoi tectonic plates with classified boundaries (convergent/divergent/transform). Drives both the ridged-mountain mask (when `Ridged.PlateConvergentScaleKm > 0`) and the macro continent layout via the rewired item-10 Voronoi continents seeded from plate centroids.
+**Renderer:** Rocky only.
+**Phase:** Phase 7 Tier B.
+
+Plates are toggled via top-level fields on `PlanetProfile` rather than a config struct. Edit them in the Profile JSON textarea:
+
+| Field | Range | Effect |
+|-------|-------|--------|
+| `PlateCount` | 0 disables; 8–20 typical | Number of Voronoi plate centroids over the sphere |
+| `OceanicPlateFraction` | 0–1 | Fraction of plates flagged oceanic (lower base height + thinner crust) |
+| `PlateConvergentT` | 0–1 | Threshold above which a plate-pair velocity dot product counts as "convergent" (drives mountain belt placement) |
+| `RadiusKm` | 0 = 6371 (Earth) | Planet radius in km, used by the JFA pass to scale angular distances into kilometers for `PlateConvergentScaleKm` lookups |
+
+**How it works:**
+1. `PlateCount` Voronoi cells with random rotation axes (plate motion vectors)
+2. JFA computes a per-pixel signed distance to the nearest plate boundary, and classifies each boundary segment as convergent / divergent / transform from the relative motion of the two adjacent plates
+3. The convergent-distance field is then available as a mask source for ridged mountains and as a continent seeder
+
+**Tip:** Plates are silent unless something downstream reads them. Without `Ridged.PlateConvergentScaleKm > 0` *or* a Voronoi-continent setup tied to plate centroids, raising `PlateCount` will not visibly change the render.
 
 ---
 
@@ -313,6 +344,24 @@ The combination method is **pure additive summation**, not multiplication or com
 - Combined with Temperature field for realistic snow distribution
 
 **Tip:** Use `PolarCapNoise = 0.1–0.2` for natural-looking irregular edges.
+
+---
+
+### Height Smoothing Panel
+
+**Purpose:** Per-face disc blur applied to the heightmap *after* control-field summation but *before* normalization
+**Effect:** Smooths fBm popcorn so the erosion pass can carve coherent channels instead of biting into noisy single-pixel highs
+**Renderer:** Only shown when profile's `Renderer = "rocky"`
+
+**Parameters:**
+- `Radius` (0–8 px) — Blur radius. 0 disables; 2–3 typical for terran/super_terran; up to 5 for very smooth worlds.
+
+**Why it matters:**
+- Without smoothing, hydraulic erosion droplets get trapped on individual fBm peaks
+- With `Radius=2–3`, droplets walk smooth slopes and form proper drainage networks
+- Larger values produce broader, gentler terrain at the cost of surface texture
+
+**Tip:** Tune in tandem with `Erosion.Droplets`. If rivers look like scattered specks rather than channels, raise `Radius` before adding more droplets.
 
 ---
 
@@ -384,6 +433,66 @@ The combination method is **pure additive summation**, not multiplication or com
 
 ---
 
+### Rivers (Flow) *(JSON-only — no UI panel yet)*
+
+**Purpose:** D8 flow accumulation + Planchon-Darboux pit fill, then carve channels where flow exceeds a threshold
+**Effect:** Mature river networks that actually drain to the ocean — distinct from particle-erosion droplets
+**Renderer:** Rocky only.
+**Phase:** Phase 8 item 15.
+
+Profile field: `Flow` (JSON key `"flow"`). `RiverThreshold == 0` disables the entire pass.
+
+| Field | Range | Effect |
+|-------|-------|--------|
+| `RiverThreshold` | 0–1 | Accumulation cutoff. Pixels with normalized flow accumulation ≥ this are carved. 0 disables. |
+| `RiverDepth` | typical 0.005–0.03 | Height units carved into the river bed. |
+
+**How it works:**
+1. **Pit fill** — Planchon-Darboux ensures every cell drains downhill (no closed basins)
+2. **D8 flow direction** — each cell points to its lowest neighbor
+3. **Flow accumulation** — count upstream cells per pixel
+4. **Carve** — subtract `RiverDepth` from cells whose accumulation exceeds `RiverThreshold`
+
+**Difference vs hydraulic Erosion:**
+- Erosion (droplets) is stochastic and produces alluvial fans, terraces, valley widening — texture-rich but no guaranteed connectivity
+- Flow is deterministic and produces topologically correct river networks — every river reaches an ocean — but doesn't add fan/terrace texture
+- Use both: Flow first for connectivity, then Erosion for texture
+
+**Tip:** `RiverThreshold` is normalized to the per-face accumulation max, so the same value works across face sizes. Start at `0.001` for dense networks, raise toward `0.01` for sparse trunk rivers only.
+
+---
+
+### Rain Shadow (Wind) *(JSON-only — no UI panel yet)*
+
+**Purpose:** Wind-tangent moisture advection — upwind sides of mountain ranges get more rain, lee sides get less
+**Effect:** Modulates the Whittaker M (humidity) input so deserts naturally appear behind mountain belts (rain shadow), and rainforests appear on windward slopes
+**Renderer:** Rocky only.
+**Phase:** Phase 8 item 16.
+
+Profile field: `RainShadow` (JSON key `"rainShadow"`). `WalkSteps == 0` disables the entire pass.
+
+| Field | Typical | Effect |
+|-------|---------|--------|
+| `WalkSteps` | 0 disables; 8–24 typical | Number of upwind walk steps per pixel |
+| `StepArcRad` | ≈ 0.087 (5°) | Arc length per step in radians |
+| `MountainCutoff` | 0.55–0.75 | Height threshold above which a step counts as orographic uplift |
+| `WindRainBoost` | 0.3–1.5 | Upwind multiplier minus 1 (e.g., 0.5 = +50% M on windward) |
+| `LeeFactor` | ≈ 0.15 | Lee-side residual fraction (0.15 = 85% drying) |
+
+**How it works:**
+1. For each pixel, walk `WalkSteps` upwind along the per-cell wind tangent
+2. If the path crosses a peak above `MountainCutoff`, mark this pixel as in the rain shadow
+3. Multiply Whittaker M by `LeeFactor` (rain-shadow side) or `1 + WindRainBoost` (windward side)
+
+**Visual effect:**
+- Patagonia behind the Andes (cold desert)
+- Atacama on the lee of the Altiplano
+- Rainforests packed against windward mountain faces
+
+**Tip:** Wind cell boundaries were smoothed in commit `4a596b9e` to remove obvious step-discontinuities at the cell joins. If you see banding, raise `WalkSteps` rather than lowering `StepArcRad`.
+
+---
+
 ### Coastal Panel
 
 **Purpose:** Localized roughening of pixels near coastlines via distance-to-coast modulation
@@ -416,6 +525,40 @@ The combination method is **pure additive summation**, not multiplication or com
 - The `(1 - e⁴)` bell concentrates detail at sea level naturally
 
 **Tip:** Combine with `Domain Warp` for even more organic coastal shapes. Use `Amp = 0.08–0.12` for realistic-looking coasts.
+
+---
+
+### Continents Panel
+
+**Purpose:** Voronoi continents seeded by Fibonacci-spiral points on the unit sphere, each with a per-seed random base height
+**Effect:** Establishes a continental "floor" — the heightmap is raised to that floor inside each cell so distinct continents emerge with their own characteristic elevation
+**Renderer:** Only shown when profile's `Renderer = "rocky"`
+
+This is *not* the same as Provinces:
+- **Continents** assign a **base height** per cell (macro continental landmasses)
+- **Provinces** modulate **noise amp/freq** per cell (regional roughness variety)
+- They can coexist; Continents shape *where* land is, Provinces shape *what it looks like*
+
+**Parameters:**
+- `Seeds` (0–50) — Number of continent seeds. 0 disables. 10–50 typical.
+- `WarpAmp` (0–0.3) — Sphere-warp displacement amplitude on seed positions. 0 = clean Voronoi cells.
+- `WarpFreq` (0–10) — fBm frequency for the sphere-warp noise.
+- `HeightLo` (0–1) — Per-continent base height lower bound. Default 0.3.
+- `HeightHi` (0–1) — Per-continent base height upper bound. Default 0.7.
+
+**How it works:**
+1. Generate `Seeds` Fibonacci-spiral points on the unit sphere
+2. Optionally warp each seed by low-frequency fBm (if `WarpAmp > 0`)
+3. For each pixel, find nearest seed → that continent's random base height in `[HeightLo, HeightHi]`
+4. Raise the heightmap to that floor inside the cell
+
+**Visual effect:**
+- `Seeds = 0` — disabled; heightmap unchanged
+- `Seeds = 12, HeightLo = 0.4, HeightHi = 0.6` — Earth-like with distinct continents
+- `Seeds = 30, HeightLo = 0.3, HeightHi = 0.8` — Pangaea-style supercontinent next to deep oceans
+- `WarpAmp = 0.1` — organic, non-polygonal continent boundaries
+
+**Tip:** Use sparingly with low `OceanLevel`. If `HeightLo` is below `OceanLevel`, that continent will be largely submerged.
 
 ---
 
@@ -452,6 +595,103 @@ The combination method is **pure additive summation**, not multiplication or com
 - Eddies, ribbons, and shears appear naturally
 
 **Tip:** Start with `Iterations = 4–8` and `Amp = 0.2` for gentle enhancement. Increase to `Iterations = 12–16` for dramatic swirling. `JetAmp > 0.3` gives strong banding like real Jupiter.
+
+---
+
+### Storm Bands Panel
+
+**Purpose:** Hand-authored oval storm overlays on gas giants (Great Red Spot, polar storms, Saturn hexagons)
+**Effect:** Tints a latitude band by mixing in a chosen color over the Jupiter-ramp base palette
+**Renderer:** Only shown when profile's `Renderer = "gas_giant"`
+
+**Parameters per band:**
+- `Lat` (-π/2 … π/2) — Center latitude in radians (≈ -1.57 south pole, 0 equator, +1.57 north pole)
+- `HalfWidth` — Angular half-width in radians (e.g., 0.1 ≈ 5.7° tall band)
+- `Color` — RGB tint
+- `Strength` (0–1) — Mix amount over the underlying band palette
+
+**UI controls:**
+- **Add band** — Append a new band with default values (Lat=0, HalfWidth=0.1, red color, Strength=0.5)
+- **Delete** (per row) — Remove that band
+
+**Visual effect:**
+- Empty list (or absent) — pure Jupiter-ramp banding from the base palette
+- One band at `Lat = -0.4, HalfWidth = 0.05, red` — Great Red Spot analog
+- Two bands near the poles — polar storm caps
+
+**Tip:** Combine with `Curl Advection` so the bands themselves get advected into eddies and ribbons rather than sitting as flat discs.
+
+---
+
+### Clouds *(JSON-only — no UI panel yet)*
+
+**Purpose:** Separate cloud-cover cube-map output (independent of the surface render), with banded coverage, domain warp, Rankine-vortex storms, and fake self-shadow from a sun direction
+**Effect:** A second cube-map you can composite over the surface for atmospheric realism
+**Renderer:** Rocky and rocky-like only — gas giants are excluded because their main render already produces cloud bands. Vacuum / ice-only worlds set `Coverage = 0`.
+**Phase:** Phase 9a item 17.
+
+Profile field: `Cloud` (JSON key `"cloud"`). `Coverage == 0` disables the entire pass.
+
+| Field | Typical | Effect |
+|-------|---------|--------|
+| `coverage` | 0–1 | Mean cloud fraction at the equator. 0 disables. 0.4–0.6 Earth-like. |
+| `bandLatRad` | ≈ π/12 | Half-width of latitude bands (Hadley cell analogue) in radians |
+| `freq` | ≈ 4 | Base fBm frequency for cloud noise |
+| `octaves` | ≈ 4 | fBm octave count |
+| `warpAmp` | ≈ 0.4 | Domain-warp amplitude on cloud noise — produces curling fronts |
+| `stormCount` | 3–8 | Number of Rankine-vortex storm centers (cyclones) |
+| `stormRadiusRad` | ≈ π/16 | Storm angular radius in radians |
+| `sunDir` | `[1, 0.3, 0]` | Unit vector of sun direction for fake self-shadow |
+| `shadowGain` | ≈ 0.5 | Multiplier on density-gradient self-shadow term |
+
+**How it works:**
+1. Generate a domain-warped fBm cloud-density field over the cube map
+2. Modulate by latitude bands of half-width `bandLatRad`
+3. Add `stormCount` Rankine-vortex storms (rigid-body inner core, 1/r outer)
+4. Apply fake self-shadow: brighter on the sun-facing slope of each cloud mass
+
+**Wasm entry point:** `RenderCloudCubeMap` — separate JS API call from the main surface render. The dev server bakes both into the cube-map cross.
+
+**Tip:** Couple `sunDir` with the same vector you intend to use for the sphere preview light so cloud shadows match terrain shading. Start with `coverage = 0.4`, `stormCount = 4` for an Earth-like atmosphere.
+
+---
+
+### Civilization *(JSON-only — no UI panel yet)*
+
+**Purpose:** Multi-pass civilization-sign overlay — habitability scalar, Bridson-disc site placement, Zipfian population assignment, road generation (Delaunay + MST + A\*), agriculture patches, and nightside lights
+**Effect:** A populated, "lived-in" planet with cities along coasts and rivers, road networks linking them, farmland around population centers, and city lights visible on the night side
+**Renderer:** Rocky only — gas giants and ice worlds set `Tier = 0`.
+**Phase:** Phase 9b item 18.
+
+Profile field: `Civ` (JSON key `"civ"`). `Tier == 0` disables the entire civ pipeline.
+
+| Field | Typical | Effect |
+|-------|---------|--------|
+| `tier` | 0–1 | Master strength. 0 disables. 0.3 = sparse, 0.7 = pre-industrial Earth, 1.0 = densely populated |
+| `siteMinDistRad` | radians | Bridson-disc minimum site separation on the unit sphere |
+| `siteMaxDistRad` | radians | Bridson-disc maximum site separation |
+| `maxPopulation` | e.g. 1e7 | Population cap for the largest site (Zipfian distribution downward) |
+| `nightLightHue` | 0–1 | Hue of night-side city lights (0 = warm sodium, 0.6 = cool LED) |
+| `agricultureRatio` | 0–1 | Farmland-area-to-city-area ratio. 0.7 ≈ pre-industrial, 0.3 ≈ post-industrial |
+
+**Pipeline (commit `2511b013` and predecessors):**
+1. **Habitability scalar** — combines biome, slope, sea-level proximity, river distance into a per-pixel score (Task 1)
+2. **Site placement** — Bridson Poisson-disc on the sphere, weighted by habitability; ocean-aware so cities don't spawn at sea (Tasks 2 + 6/4)
+3. **Population assignment** — Zipfian distribution; largest city = `maxPopulation`, rank-N city = `maxPopulation/N` (Task 3a)
+4. **Road generation** — Delaunay triangulation → MST backbone → A\* shortest paths between hub cities; prefers low-slope, river-following routes (Task 3b)
+5. **Render passes:**
+   - **City patches** — orange palette dots scaled by population
+   - **Agriculture** — farmland patches around cities, sized by `agricultureRatio`
+   - **Nightside** — city lights tinted by `nightLightHue`, blended via the sun-direction terminator (commit `50e91182`)
+
+**Debug:** The Pipeline Debug View (see Render Outputs) exposes habitability, sites, roads, agriculture, and night layers as separate stage thumbnails.
+
+**Visual effect:**
+- `Tier = 0` — pristine, untouched planet
+- `Tier = 0.5, agricultureRatio = 0.7` — Earth circa 1700; cities cluster along rivers and coasts, farmland visible
+- `Tier = 1.0, nightLightHue = 0.55` — modern Earth with sprawling networks visible at night
+
+**Tip:** Set `Civ.Tier > 0` and the wasm `RenderNightCubeMap` entry point will auto-bake a night-side cube map you can composite alongside the day side. Without civ enabled, no night cube is produced.
 
 ---
 
@@ -606,6 +846,20 @@ document.getElementById('cube-canvas').hidden = false;
 **Projection:**
 - `u = (lon / 2π) + 0.5`
 - `v = 0.5 - (lat / π)`
+
+### Pipeline Debug View
+
+**What you see:** Collapsible panel below the viewport showing half-size equirect thumbnails for every intermediate stage of the render pipeline (heightmap, control fields, biome inputs, color stages, civ overlays, etc.)
+**Use case:** See where a problem enters the pipeline — e.g., is the muddy color coming from the Whittaker lookup or the post-process LUT?
+
+**Controls:**
+- **Update debug view** — Re-bake all stage thumbnails from the current render (this is a separate, deliberate pass — main render does not produce them)
+- **Clear all bypasses** — Re-enable every stage that was bypassed
+- Each stage has its own bypass toggle that dry-runs the stage without zeroing its inputs (useful for A/B comparisons without losing tuning)
+
+**Supported renderers:** Both `rocky` (flat path) and `gas_giant` / others (cube path).
+
+**Tip:** Click a stage's bypass toggle, click "Update debug view", and compare side-by-side with the previous render. Combined with the `heightmap` view mode in the header, this is the fastest way to attribute a visual change to a single pipeline stage.
 
 ---
 
@@ -814,9 +1068,9 @@ output = fbm(warped_p)
 - Use heightmap view to see pure shading
 
 **Light direction:**
-- Fixed at `(-0.4, 0.5, 0.7)` in sphere preview
-- Approximates upper-left sun
-- Same for all renders (no user control currently)
+- Fixed at `(-0.85, 0.30, 0.45)` in the sphere preview (`cmd/planet-explorer/web/app.js`)
+- Phase 9b shifted this from the older `(-0.4, 0.5, 0.7)` value so the terminator centers on the visible disc at default rotation, making the day/night blend (and night-side city lights, when civ is enabled) read clearly
+- Same for all renders; for civ night-side baking, the wasm side derives a matching sun direction so terminator alignment is consistent
 
 ### Crater System Deep Dive
 
@@ -1138,6 +1392,16 @@ The comprehensive procedural generation guide that inspired these enhancements:
 **Type definitions:** `pkg/planetgen/types/types.go`
 **Rocky renderer:** `pkg/planetgen/render/rocky.go`
 **Gas giant renderer:** `pkg/planetgen/render/gas_giant.go`
+**Cloud generation:** `pkg/planetgen/feature/clouds.go` (`GenerateClouds`)
+**Cloud cube-map entry:** `pkg/planetgen/render/rocky.go:123` (`RenderCloudCubeMap`)
+**Night cube-map entry:** `pkg/planetgen/render/rocky.go:83` (`RenderNightCubeMap`)
+**Civ pipeline:** `pkg/planetgen/feature/civ.go`, `habitability.go`, `roads.go`, `poisson_sphere.go`
+**Plates / SDF:** `pkg/planetgen/field/plates.go`, `jfa.go`
+**Flow / rivers (D8 + Planchon-Darboux):** `pkg/planetgen/field/flow.go`
+**Rain shadow:** `pkg/planetgen/biome/rainshadow.go` (`GenerateRainShadow`)
+**Continents:** `pkg/planetgen/field/continents.go`
+**Height smoothing:** `pkg/planetgen/field/smooth.go`
+**Debug stages:** `pkg/planetgen/render/debug.go` (`RenderRockyDebug`)
 
 ---
 
@@ -1223,8 +1487,84 @@ The comprehensive procedural generation guide that inspired these enhancements:
 | MaxRadius | 0–0.2 | 0.01–0.1 | Largest size |
 | Depth | 0–0.5 | 0.02–0.3 | Crater depth |
 
+### Continents
+| Param | Range | Default | Effect |
+|-------|-------|---------|--------|
+| Seeds | 0–50 | 0 | Continent count (0 disables) |
+| WarpAmp | 0–0.3 | 0 | Sphere-warp on seed positions |
+| WarpFreq | 0–10 | 0 | Sphere-warp fBm frequency |
+| HeightLo | 0–1 | 0.3 | Per-continent base height min |
+| HeightHi | 0–1 | 0.7 | Per-continent base height max |
+
+### Height Smoothing
+| Param | Range | Default | Effect |
+|-------|-------|---------|--------|
+| HeightSmoothRadius | 0–8 | 0 | Disc-blur radius pre-normalize |
+
+### Storm Bands (gas giant)
+| Param | Range | Effect |
+|-------|-------|--------|
+| Lat | -π/2 … π/2 | Center latitude (radians) |
+| HalfWidth | radians | Band angular half-width |
+| Color | RGB | Band tint |
+| Strength | 0–1 | Mix amount over base palette |
+
+### Plate Tectonics *(top-level fields)*
+| Field | Default | Effect |
+|-------|---------|--------|
+| PlateCount | 0 | Number of Voronoi plates (0 disables) |
+| OceanicPlateFraction | 0 | Fraction of plates flagged oceanic |
+| PlateConvergentT | 0 | Velocity-dot threshold for convergent boundary |
+| RadiusKm | 0 = 6371 | Planet radius for SDF scaling |
+
+### Jitter (top-level fields)
+| Field | Default | Effect |
+|-------|---------|--------|
+| JitterEnabled | false | Toggle Voronoi cell jitter on Detail field |
+| JitterCellCount | 0 | Number of jitter cells |
+| JitterRotMax | 0 | Max rotation per cell (radians) |
+| JitterOffsetMax | 0 | Max coordinate offset per cell |
+
+### Flow (Rivers)
+| Param | Range | Effect |
+|-------|-------|--------|
+| RiverThreshold | 0–1 | Accum cutoff (0 disables) |
+| RiverDepth | typical 0.005–0.03 | Carved depth |
+
+### Rain Shadow
+| Param | Typical | Effect |
+|-------|---------|--------|
+| WalkSteps | 0 disables; 8–24 | Upwind walk count |
+| StepArcRad | ≈ 0.087 (5°) | Arc per step (radians) |
+| MountainCutoff | 0.55–0.75 | Height above which uplift counts |
+| WindRainBoost | 0.3–1.5 | Upwind multiplier minus 1 |
+| LeeFactor | ≈ 0.15 | Lee residual fraction |
+
+### Cloud
+| Param | Typical | Effect |
+|-------|---------|--------|
+| coverage | 0–1 (0 disables) | Mean equatorial cloud fraction |
+| bandLatRad | π/12 | Band half-width (radians) |
+| freq | 4 | Base fBm frequency |
+| octaves | 4 | fBm octaves |
+| warpAmp | 0.4 | Domain-warp amplitude |
+| stormCount | 3–8 | Rankine-vortex storm count |
+| stormRadiusRad | π/16 | Storm angular radius |
+| sunDir | (1, 0.3, 0) | Sun direction unit vector |
+| shadowGain | 0.5 | Self-shadow density multiplier |
+
+### Civ
+| Param | Typical | Effect |
+|-------|---------|--------|
+| tier | 0–1 (0 disables) | Master strength |
+| siteMinDistRad | radians | Bridson minimum site separation |
+| siteMaxDistRad | radians | Bridson maximum site separation |
+| maxPopulation | e.g. 1e7 | Cap for largest site (Zipfian) |
+| nightLightHue | 0–1 | Night-light hue |
+| agricultureRatio | 0–1 | Farmland-to-city area ratio |
+
 ---
 
-**Version:** 1.1  
-**Last updated:** 2026-05-01  
+**Version:** 1.2  
+**Last updated:** 2026-05-06  
 **For Planet Explorer:** Phase 0 Cube Map implementation
