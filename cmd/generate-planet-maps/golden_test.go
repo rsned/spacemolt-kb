@@ -138,6 +138,64 @@ func TestGoldenClouds(t *testing.T) {
 	}
 }
 
+// TestGoldenNight bakes the Black Marble nightside cube-map for each
+// archetype with Civ.Tier > 0 and compares the resulting 4×3 cube-cross
+// PNG against testdata/golden/<type>.night.cube.png.
+//
+// Archetypes whose Civ.Tier == 0 (gas giants, scorched, lava, etc.)
+// yield a nil CubeMap from RenderNightCubeMap and are skipped — same
+// "disabled → nil" idiom TestGoldenClouds uses.
+//
+// Face size 64 keeps each golden tractable.
+func TestGoldenNight(t *testing.T) {
+	dir := filepath.Join("testdata", "golden")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	const nightFaceSize = 64
+	for _, p := range goldenPlanets {
+		t.Run(p.Type, func(t *testing.T) {
+			profile := planetgen.GetProfile(p.Type)
+			if profile == nil {
+				t.Fatalf("unknown planet type %s", p.Type)
+			}
+			master := planetgen.HashSeedPublic(p.Seed)
+			cm := render.RenderNightCubeMap(profile, master, nightFaceSize)
+			if cm == nil {
+				t.Skipf("civ disabled for %s", p.Type)
+			}
+			var buf bytes.Buffer
+			if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+				t.Fatalf("WriteCrossPNGTo: %v", err)
+			}
+			got, err := decodePNGToRGBA(buf.Bytes())
+			if err != nil {
+				t.Fatalf("decode generated PNG: %v", err)
+			}
+			path := filepath.Join(dir, p.Type+".night.cube.png")
+			if *updateGoldens {
+				if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil {
+					t.Fatal(err)
+				}
+				t.Logf("updated %s", path)
+				return
+			}
+			want, err := readPNGRGBA(path)
+			if err != nil {
+				t.Fatalf("missing/unreadable golden %s: %v (run `go test -run TestGoldenNight -update`)", path, err)
+			}
+			if want.Bounds() != got.Bounds() {
+				t.Fatalf("size %v != golden %v", got.Bounds(), want.Bounds())
+			}
+			meanDE := meanDE2000(got.Pix, want.Pix)
+			if meanDE > maxMeanDE2000 {
+				t.Errorf("mean ΔE2000 = %.3f > %.2f (run with -update after review)",
+					meanDE, maxMeanDE2000)
+			}
+		})
+	}
+}
+
 func decodePNGToRGBA(data []byte) (*image.RGBA, error) {
 	return decodePNGReaderToRGBA(bytes.NewReader(data))
 }
