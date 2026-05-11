@@ -248,6 +248,12 @@ planetPicker.addEventListener('change', async () => {
     saveProfileBtn.disabled = false;
   } catch (e) {
     status.textContent = 'Load failed: ' + e.message;
+    // Reset state so the picker shows nothing selected and Save is
+    // disabled — otherwise currentSlug still points to the previously
+    // loaded planet while the picker visually shows the failed one.
+    planetPicker.value = '';
+    currentSlug = '';
+    saveProfileBtn.disabled = true;
   }
 });
 
@@ -270,17 +276,22 @@ async function saveProfile(targetSlug) {
     profile: profile,
   };
   const body = JSON.stringify(env);
-  const res = await fetch('/profiles/' + encodeURIComponent(targetSlug), {
-    method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
-    body: body,
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    status.textContent = 'Save failed: ' + text;
+  try {
+    const res = await fetch('/profiles/' + encodeURIComponent(targetSlug), {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      status.textContent = 'Save failed: ' + text;
+      return false;
+    }
+    return true;
+  } catch (e) {
+    status.textContent = 'Save failed: ' + e.message;
     return false;
   }
-  return true;
 }
 
 saveProfileBtn.addEventListener('click', async () => {
