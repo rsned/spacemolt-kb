@@ -1,4 +1,4 @@
-package profilejson
+package profilejson_test
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	. "github.com/rsned/spacemolt-kb/pkg/planetgen/profilejson"
 )
 
 func TestEncodeDecodeRoundTrip(t *testing.T) {

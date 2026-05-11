@@ -1,4 +1,4 @@
-package profilejson
+package profilejson_test
 
 import (
 	"os"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	. "github.com/rsned/spacemolt-kb/pkg/planetgen/profilejson"
 )
 
 func TestLoadForPlanetAbsent(t *testing.T) {
