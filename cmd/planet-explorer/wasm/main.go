@@ -29,6 +29,9 @@ import (
 )
 
 func main() {
+	// Wasm has no filesystem; force planetgen to skip the disk lookup
+	// and use the in-code GetProfile defaults exclusively.
+	planetgen.SetProfileRoot("")
 	js.Global().Set("planetExplorerGenerate", js.FuncOf(generate))
 	js.Global().Set("planetExplorerGenerateNight", js.FuncOf(generateNight))
 	js.Global().Set("planetExplorerGenerateHeightmap", js.FuncOf(generateHeightmap))
