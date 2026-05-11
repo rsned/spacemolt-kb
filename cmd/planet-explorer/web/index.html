@@ -31,6 +31,11 @@
           <option value="unknown">Unknown</option>
         </select>
       </label>
+      <label>Planet
+        <select id="planet-picker">
+          <option value="" selected>(none — use type defaults)</option>
+        </select>
+      </label>
       <label>Seed <input id="seed-input" type="text" value="Earth"></label>
       <label>Face <select id="face-size">
         <option value="64">64 (fastest)</option>
@@ -48,6 +53,8 @@
       <button id="render-btn">Regenerate</button>
       <button id="toggle-jitter-btn" title="Flip JitterEnabled in the profile JSON and re-render. Click again to flip back.">Jitter: ?</button>
       <button id="export-json-btn">Export JSON</button>
+      <button id="save-profile-btn" disabled title="Save the current slider state to the selected planet's JSON file.">Save</button>
+      <button id="save-profile-as-btn" title="Prompt for a new slug and PUT the current slider state.">Save as new…</button>
     </section>
     <section class="help-panel">
       <details>
