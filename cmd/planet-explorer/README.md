@@ -63,3 +63,18 @@ Re-render runs on click, not per-frame. At face size 256 the full
 Phase 1 pipeline finishes in under 1 s on a modern laptop. Face
 size 1024 is the production size used by `cmd/generate-planet-maps`
 batch mode and takes ~10–20 s in the browser.
+
+## Planet picker and per-planet save (Phase 5)
+
+The header bar exposes a **Planet** dropdown alongside the existing **Type** dropdown. It lists every JSON file under `data/planet-profiles/` (configurable via `-profiles-dir`).
+
+- Selecting a planet loads its envelope from the server, swaps the slider state to the envelope's `profile`, and enables **Save**.
+- **Save** PUTs the current slider state back to the selected slug as `handTuned: true`. The file is overwritten on disk; check `git diff` to review.
+- **Save as new…** prompts for a slug (`[a-z0-9_]+`); if the slug already exists, you'll be asked to confirm overwrite.
+- Changing the **Type** dropdown clears the Planet selection — you're back to the in-code defaults until you reselect a planet.
+
+`data/planet-profiles/` is normal git-tracked content. Commit hand-tunes alongside any code changes that motivated them.
+
+The `-readonly` flag turns the server into a viewer: PUTs return 405. Useful for demos or shared dev servers.
+
+To bake or refresh the canonical (non-hand-tuned) envelopes, use `cmd/tools/seed-planet-profiles`.
