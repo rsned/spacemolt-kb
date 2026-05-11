@@ -15,6 +15,10 @@ const profileTextarea = $('#profile-json');
 const cubeCanvas = $('#cube-canvas');
 const equirectCanvas = $('#equirect-canvas');
 const viewModeSel = $('#view-mode');
+const planetPicker = $('#planet-picker');
+const saveProfileBtn = $('#save-profile-btn');
+const saveAsNewBtn = $('#save-profile-as-btn');
+let currentSlug = ''; // empty = picker on "(none)"; otherwise selected slug
 
 let wasmReady = false;
 
@@ -35,8 +39,31 @@ async function init() {
   wasmReady = true;
   status.textContent = 'Ready';
 
-  // Load default profile for the initial type.
+  await refreshPlanetPicker();
   loadDefaultProfile();
+}
+
+// refreshPlanetPicker fetches /profiles, replaces the dropdown
+// options, and preserves the current selection if still present.
+async function refreshPlanetPicker() {
+  try {
+    const res = await fetch('/profiles');
+    if (!res.ok) throw new Error('list status ' + res.status);
+    const slugs = await res.json();
+    const previous = planetPicker.value;
+    planetPicker.innerHTML = '<option value="">(none — use type defaults)</option>';
+    for (const slug of slugs) {
+      const opt = document.createElement('option');
+      opt.value = slug;
+      opt.textContent = slug;
+      planetPicker.appendChild(opt);
+    }
+    if (slugs.includes(previous)) {
+      planetPicker.value = previous;
+    }
+  } catch (e) {
+    console.warn('refreshPlanetPicker:', e);
+  }
 }
 
 function loadDefaultProfile() {
@@ -188,7 +215,106 @@ async function paintToCanvas(canvas, pngBytes) {
   });
 }
 
-typePicker.addEventListener('change', loadDefaultProfile);
+typePicker.addEventListener('change', () => {
+  // Switching the type clears the Planet selection — the type's
+  // defaults are now in effect.
+  planetPicker.value = '';
+  currentSlug = '';
+  saveProfileBtn.disabled = true;
+  loadDefaultProfile();
+});
+
+planetPicker.addEventListener('change', async () => {
+  const slug = planetPicker.value;
+  if (!slug) {
+    currentSlug = '';
+    saveProfileBtn.disabled = true;
+    loadDefaultProfile();
+    return;
+  }
+  try {
+    const res = await fetch('/profiles/' + encodeURIComponent(slug));
+    if (!res.ok) throw new Error('GET status ' + res.status);
+    const env = await res.json();
+    if (!env || !env.profile) throw new Error('malformed envelope');
+    // Sync the type-picker to the envelope's type so the rest of the
+    // UI (palette previews, etc.) reflects the right archetype.
+    typePicker.value = env.type;
+    profileTextarea.value = prettifyJSON(JSON.stringify(env.profile));
+    try { snapshotOriginal(JSON.parse(profileTextarea.value)); } catch {}
+    renderPanels();
+    refreshJitterButtonLabel();
+    currentSlug = slug;
+    saveProfileBtn.disabled = false;
+  } catch (e) {
+    status.textContent = 'Load failed: ' + e.message;
+  }
+});
+
+// saveProfile PUTs the current slider state back to the server,
+// wrapping it in an envelope and marking handTuned: true (the
+// slider edit is by definition a hand-tune).
+async function saveProfile(targetSlug) {
+  syncKnotsFromDOM();
+  let profile;
+  try { profile = JSON.parse(profileTextarea.value); }
+  catch (e) {
+    status.textContent = 'Save failed: invalid profile JSON';
+    return false;
+  }
+  const env = {
+    schemaVersion: '1',
+    type: typePicker.value,
+    seed: targetSlug,
+    handTuned: true,
+    profile: profile,
+  };
+  const body = JSON.stringify(env);
+  const res = await fetch('/profiles/' + encodeURIComponent(targetSlug), {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: body,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    status.textContent = 'Save failed: ' + text;
+    return false;
+  }
+  return true;
+}
+
+saveProfileBtn.addEventListener('click', async () => {
+  if (!currentSlug) return;
+  const ok = await saveProfile(currentSlug);
+  if (ok) {
+    status.textContent = 'Saved ' + currentSlug;
+    setTimeout(() => { if (status.textContent.startsWith('Saved ')) status.textContent = 'Ready'; }, 1500);
+  }
+});
+
+saveAsNewBtn.addEventListener('click', async () => {
+  const input = window.prompt('New slug ([a-z0-9_]+):', '');
+  if (input == null) return;
+  const slug = input.trim();
+  if (!/^[a-z0-9_]+$/.test(slug)) {
+    status.textContent = 'Save failed: slug must match [a-z0-9_]+';
+    return;
+  }
+  // If the slug exists in the current picker, confirm overwrite.
+  const existing = Array.from(planetPicker.options).map((o) => o.value);
+  if (existing.includes(slug)) {
+    if (!window.confirm('Overwrite existing profile "' + slug + '"?')) return;
+  }
+  const ok = await saveProfile(slug);
+  if (ok) {
+    await refreshPlanetPicker();
+    planetPicker.value = slug;
+    currentSlug = slug;
+    saveProfileBtn.disabled = false;
+    status.textContent = 'Saved ' + slug;
+    setTimeout(() => { if (status.textContent.startsWith('Saved ')) status.textContent = 'Ready'; }, 1500);
+  }
+});
 renderBtn.addEventListener('click', regenerate);
 if (toggleJitterBtn) toggleJitterBtn.addEventListener('click', toggleJitter);
 if (viewModeSel) viewModeSel.addEventListener('change', regenerate);
