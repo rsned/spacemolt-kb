@@ -108,6 +108,15 @@ func (cm *CubeMap) sampleFaceUV(face Face, u, v float64) color.RGBA {
 // docs for seam behavior.
 func (cmf *CubeMapF) Sample(x, y, z float64) float64 {
 	face, u, v := DirToFaceUV(x, y, z)
+	return cmf.SampleFaceUV(face, u, v)
+}
+
+// SampleFaceUV bilinearly samples the given face at UV. UV components
+// outside [0, 1] are clamped to the face's edge pixels. Use this when
+// you need to force-sample a specific face (e.g. for cross-seam
+// matched-pair tests where the natural face classification would
+// snap back to the source face).
+func (cmf *CubeMapF) SampleFaceUV(face Face, u, v float64) float64 {
 	S := cmf.Size
 	fx := u*float64(S) - 0.5
 	fy := v*float64(S) - 0.5
@@ -126,6 +135,38 @@ func (cmf *CubeMapF) Sample(x, y, z float64) float64 {
 	a := v00*(1-tx) + v10*tx
 	b := v01*(1-tx) + v11*tx
 	return a*(1-ty) + b*ty
+}
+
+// ForceFaceUV computes the UV of direction (x, y, z) in the given
+// face's frame, without checking which face the direction naturally
+// belongs to. Returns UV in [0, 1] if the direction lies in the
+// face's hemisphere; outside that range otherwise. Inverse of
+// FaceUVToDir for a fixed face.
+func ForceFaceUV(face Face, x, y, z float64) (u, v float64) {
+	var sc, tc, ma float64
+	switch face {
+	case FacePosX:
+		ma = x
+		sc, tc = -z, -y
+	case FaceNegX:
+		ma = -x
+		sc, tc = z, -y
+	case FacePosY:
+		ma = y
+		sc, tc = x, z
+	case FaceNegY:
+		ma = -y
+		sc, tc = x, -z
+	case FacePosZ:
+		ma = z
+		sc, tc = x, -y
+	case FaceNegZ:
+		ma = -z
+		sc, tc = -x, -y
+	}
+	u = 0.5 * (sc/ma + 1)
+	v = 0.5 * (tc/ma + 1)
+	return u, v
 }
 
 func clampi(v, lo, hi int) int {
