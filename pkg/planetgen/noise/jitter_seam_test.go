@@ -13,7 +13,7 @@ import (
 // control field, when sampled through the jittered direction, remains
 // continuous across cube-face seams.
 func TestJitteredDetailFieldSeamContinuity(t *testing.T) {
-	t.Skip("Architectural: Voronoi cell-jitter introduces direction discontinuities at cell boundaries by design (Phase 7 §3.3 spec explicitly rejects cell-boundary smoothing). At S=64 with 120 cells, ~5.6% of seam pixel pairs straddle a cell boundary; at those pixels, the rotated fbm sample can swing by full amplitude → 8-47% Detail-field deltas. Direction-based TransformDir (P8 Task 3) eliminates the per-face raster bug but cannot fix the cell-boundary discontinuity. Re-enable when seamtest infrastructure adopts cell-boundary-aware sampling (e.g. fraction-of-straddling-pairs metric or sub-cell averaging) — see docs/plans/phase-8-seam-bugs.md.")
+	t.Skip("Two compounding issues at production frequency configs: (a) Voronoi cell-jitter introduces direction discontinuities at cell boundaries by design (Phase 7 §3.3 spec rejects cell-boundary smoothing); ~5.6% of seam pairs at S=64 with 120 cells straddle a boundary. (b) Production Detail Freq×Lac^(Octaves-1) reaches max-octave frequencies several × Nyquist at S=64, so even non-cell-boundary pairs show large deltas from honest sub-pixel aliasing. The direction-only sampling property of the jitter pipeline IS verified by the synthetic low-freq test in jitter_dir_symmetry_test.go. Re-enable when production aliasing is addressed AND a cell-boundary-aware metric exists — see docs/plans/phase-8-seam-bugs.md.")
 	seeds := map[string]int64{
 		"terran":       1,
 		"super_terran": 2,
