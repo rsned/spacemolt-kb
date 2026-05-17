@@ -16,6 +16,8 @@ const cubeCanvas = $('#cube-canvas');
 const equirectCanvas = $('#equirect-canvas');
 const viewModeSel = $('#view-mode');
 const planetPicker = $('#planet-picker');
+const planetNameInput = $('#planet-name');
+const planetNotesTextarea = $('#planet-notes');
 const saveProfileBtn = $('#save-profile-btn');
 const saveAsNewBtn = $('#save-profile-as-btn');
 let currentSlug = ''; // empty = picker on "(none)"; otherwise selected slug
@@ -45,18 +47,22 @@ async function init() {
 
 // refreshPlanetPicker fetches /profiles, replaces the dropdown
 // options, and preserves the current selection if still present.
+// Each option's display text is the envelope's Name when set, with
+// the slug as the fallback label.
 async function refreshPlanetPicker() {
   try {
     const res = await fetch('/profiles');
     if (!res.ok) throw new Error('list status ' + res.status);
-    const slugs = await res.json();
+    const items = await res.json(); // [{slug, name?}, ...]
     const previous = planetPicker.value;
     planetPicker.innerHTML = '<option value="">(none — use type defaults)</option>';
-    for (const slug of slugs) {
+    const slugs = [];
+    for (const item of items) {
       const opt = document.createElement('option');
-      opt.value = slug;
-      opt.textContent = slug;
+      opt.value = item.slug;
+      opt.textContent = item.name && item.name.length > 0 ? item.name : item.slug;
       planetPicker.appendChild(opt);
+      slugs.push(item.slug);
     }
     if (slugs.includes(previous)) {
       planetPicker.value = previous;
@@ -215,12 +221,31 @@ async function paintToCanvas(canvas, pngBytes) {
   });
 }
 
+// defaultProtectedSlugs mirrors the server-side list in main.go.
+// Saving to one of these slugs requires a user-confirmation prompt and
+// a ?force=1 query param, so accidentally clicking Save on the canonical
+// fixtures can't quietly turn them into hand-tunes.
+const defaultProtectedSlugs = new Set([
+  'terran_default',
+  'super_terran_default',
+  'scorched_default',
+]);
+
+// clearPlanetMetadata wipes the Name/Notes inputs back to the
+// "(none — use type defaults)" state. Called whenever a planet load is
+// abandoned or the user switches Type away from a loaded planet.
+function clearPlanetMetadata() {
+  planetNameInput.value = '';
+  planetNotesTextarea.value = '';
+}
+
 typePicker.addEventListener('change', () => {
   // Switching the type clears the Planet selection — the type's
   // defaults are now in effect.
   planetPicker.value = '';
   currentSlug = '';
   saveProfileBtn.disabled = true;
+  clearPlanetMetadata();
   loadDefaultProfile();
 });
 
@@ -229,6 +254,7 @@ planetPicker.addEventListener('change', async () => {
   if (!slug) {
     currentSlug = '';
     saveProfileBtn.disabled = true;
+    clearPlanetMetadata();
     loadDefaultProfile();
     return;
   }
@@ -244,6 +270,11 @@ planetPicker.addEventListener('change', async () => {
     try { snapshotOriginal(JSON.parse(profileTextarea.value)); } catch {}
     renderPanels();
     refreshJitterButtonLabel();
+    // Name defaults to the seed when the envelope didn't explicitly
+    // store one (matches the "Name defaults to seed string" rule from
+    // the spec). Notes is just the raw stored value, or empty.
+    planetNameInput.value = env.name && env.name.length > 0 ? env.name : (env.seed || '');
+    planetNotesTextarea.value = env.notes || '';
     currentSlug = slug;
     saveProfileBtn.disabled = false;
   } catch (e) {
@@ -254,12 +285,15 @@ planetPicker.addEventListener('change', async () => {
     planetPicker.value = '';
     currentSlug = '';
     saveProfileBtn.disabled = true;
+    clearPlanetMetadata();
   }
 });
 
 // saveProfile PUTs the current slider state back to the server,
 // wrapping it in an envelope and marking handTuned: true (the
-// slider edit is by definition a hand-tune).
+// slider edit is by definition a hand-tune). The Name and Notes
+// inputs always make it into the envelope as-is — empty Name still
+// round-trips because Encode's `omitempty` strips it server-side.
 async function saveProfile(targetSlug) {
   syncKnotsFromDOM();
   let profile;
@@ -272,12 +306,29 @@ async function saveProfile(targetSlug) {
     schemaVersion: '1',
     type: typePicker.value,
     seed: targetSlug,
+    name: planetNameInput.value,
+    notes: planetNotesTextarea.value,
     handTuned: true,
     profile: profile,
   };
+  // Default-fixture overwrite guard: ask the user before turning a
+  // canonical default into a hand-tune. On confirm, attach ?force=1 so
+  // the server-side guard lets the PUT through.
+  let url = '/profiles/' + encodeURIComponent(targetSlug);
+  if (defaultProtectedSlugs.has(targetSlug)) {
+    const ok = window.confirm(
+      'Overwrite default profile "' + targetSlug + '"?\n\n' +
+      'It will be marked hand-tuned, and the CI drift guard will skip ' +
+      'it from now on. Consider Save as new… instead.');
+    if (!ok) {
+      status.textContent = 'Save cancelled';
+      return false;
+    }
+    url += '?force=1';
+  }
   const body = JSON.stringify(env);
   try {
-    const res = await fetch('/profiles/' + encodeURIComponent(targetSlug), {
+    const res = await fetch(url, {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
       body: body,
@@ -315,6 +366,12 @@ saveAsNewBtn.addEventListener('click', async () => {
   const existing = Array.from(planetPicker.options).map((o) => o.value);
   if (existing.includes(slug)) {
     if (!window.confirm('Overwrite existing profile "' + slug + '"?')) return;
+  }
+  // Default Name to the new slug if the user hasn't already typed
+  // something else; the spec rule is "Name defaults to the seed string"
+  // and Save-as-new makes the slug the new seed.
+  if (!planetNameInput.value || planetNameInput.value === currentSlug) {
+    planetNameInput.value = slug;
   }
   const ok = await saveProfile(slug);
   if (ok) {

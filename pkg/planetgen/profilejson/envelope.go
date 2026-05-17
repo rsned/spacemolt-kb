@@ -17,10 +17,18 @@ const CurrentSchemaVersion = "1"
 // duplicate Type field (envelope.Type vs envelope.Profile.Type) is
 // deliberate: the envelope Type is the dispatch key checked by the
 // generator before the inner Profile is trusted.
+//
+// Name and Notes are author-facing metadata for hand-tuned planets:
+// Name is the display label (the slider UI defaults it to Seed when
+// empty), Notes is a free-form rationale. Both are `omitempty` so
+// non-hand-tuned default fixtures emitted by the seeder stay clean and
+// the drift guard's byte-equality check still passes.
 type Envelope struct {
 	SchemaVersion string               `json:"schemaVersion"`
 	Type          string               `json:"type"`
 	Seed          string               `json:"seed"`
+	Name          string               `json:"name,omitempty"`
+	Notes         string               `json:"notes,omitempty"`
 	HandTuned     bool                 `json:"handTuned"`
 	Profile       *types.PlanetProfile `json:"profile"`
 }

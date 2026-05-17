@@ -40,8 +40,12 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir(abs)))
+	// Wrap the static file server with no-cache headers so dev iterations
+	// pick up edited app.js / index.html / style.css immediately without
+	// the user having to hard-refresh after a Go server restart.
+	mux.Handle("/", noCache(http.FileServer(http.Dir(abs))))
 	mux.HandleFunc("/wasm", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Type", "application/wasm")
 		http.ServeFile(w, r, *wasmPath)
 	})
@@ -64,14 +68,49 @@ func main() {
 	}
 }
 
-// handleList serves GET /profiles — a JSON array of available slugs
-// (filename stems). Always returns a JSON array, never null.
+// noCache wraps an http.Handler so every response carries headers that
+// tell the browser not to cache it. Appropriate for a dev tool where
+// the developer edits app.js / index.html and immediately reloads —
+// removes the "why isn't my change showing up?" trap.
+func noCache(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+		h.ServeHTTP(w, r)
+	})
+}
+
+// defaultProtectedSlugs are the canonical default fixtures shipped in
+// data/planet-profiles/. The dev server refuses to overwrite them
+// unless the PUT carries ?force=1, matching the JS-side confirmation
+// prompt. Keep in sync with the same list in web/app.js. When a new
+// default-fixture archetype is seeded, add its slug here.
+var defaultProtectedSlugs = map[string]bool{
+	"terran_default":       true,
+	"super_terran_default": true,
+	"scorched_default":     true,
+}
+
+// profileListItem is one row of the GET /profiles response. Slug is
+// the filename stem (and the URL component for GET/PUT); Name is the
+// envelope's display name when set, empty otherwise. The picker falls
+// back to slug when name is empty.
+type profileListItem struct {
+	Slug string `json:"slug"`
+	Name string `json:"name,omitempty"`
+}
+
+// handleList serves GET /profiles — a JSON array of {slug, name}
+// objects, one per envelope file. Always returns a JSON array, never
+// null. Files that fail to decode are skipped silently (the GET /<slug>
+// endpoint will surface the underlying error if the user selects them).
 func handleList(w http.ResponseWriter, r *http.Request, dir string) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	slugs := []string{}
+	items := []profileListItem{}
 	entries, err := os.ReadDir(dir)
 	if err != nil && !os.IsNotExist(err) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -81,11 +120,18 @@ func handleList(w http.ResponseWriter, r *http.Request, dir string) {
 		if e.IsDir() || filepath.Ext(e.Name()) != ".json" {
 			continue
 		}
-		slugs = append(slugs, strings.TrimSuffix(e.Name(), ".json"))
+		slug := strings.TrimSuffix(e.Name(), ".json")
+		item := profileListItem{Slug: slug}
+		if data, err := os.ReadFile(filepath.Join(dir, e.Name())); err == nil {
+			if env, err := profilejson.Decode(data); err == nil {
+				item.Name = env.Name
+			}
+		}
+		items = append(items, item)
 	}
-	sort.Strings(slugs)
+	sort.Slice(items, func(i, j int) bool { return items[i].Slug < items[j].Slug })
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(slugs)
+	_ = json.NewEncoder(w).Encode(items)
 }
 
 // handleOne serves GET / PUT /profiles/<slug>. PUT validates that the
@@ -117,6 +163,16 @@ func handleOne(w http.ResponseWriter, r *http.Request, dir string, readonly bool
 	case http.MethodPut:
 		if readonly {
 			http.Error(w, "server is read-only", http.StatusMethodNotAllowed)
+			return
+		}
+		// Guard the canonical default fixtures: overwriting them turns a
+		// drift-tracked default into a hand-tune the drift guard will
+		// skip, which the maintainer should opt into explicitly. The
+		// client must pass ?force=1 (after a user-confirmation prompt).
+		if defaultProtectedSlugs[slug] && r.URL.Query().Get("force") != "1" {
+			http.Error(w,
+				"default profile is protected; pass ?force=1 to overwrite (will mark as hand-tuned)",
+				http.StatusConflict)
 			return
 		}
 		body, err := io.ReadAll(r.Body)

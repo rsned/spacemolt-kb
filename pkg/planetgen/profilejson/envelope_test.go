@@ -63,6 +63,58 @@ func TestEncodeStable(t *testing.T) {
 	}
 }
 
+// TestEncodeOmitsEmptyNameNotes verifies that an envelope with empty
+// Name and Notes serializes WITHOUT those keys, so seeder-produced
+// default fixtures stay byte-stable against the drift guard.
+func TestEncodeOmitsEmptyNameNotes(t *testing.T) {
+	prof := planetgen.GetProfile("terran")
+	env := &Envelope{
+		SchemaVersion: CurrentSchemaVersion,
+		Type:          "terran",
+		Seed:          "terran_default",
+		Profile:       prof,
+	}
+	data, err := Encode(env)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), `"name"`) {
+		t.Errorf("Encode emitted empty name key:\n%s", data[:200])
+	}
+	if strings.Contains(string(data), `"notes"`) {
+		t.Errorf("Encode emitted empty notes key:\n%s", data[:200])
+	}
+}
+
+// TestEncodeDecodeRoundTripWithNameNotes verifies Name and Notes
+// survive a round-trip when set.
+func TestEncodeDecodeRoundTripWithNameNotes(t *testing.T) {
+	prof := planetgen.GetProfile("terran")
+	env := &Envelope{
+		SchemaVersion: CurrentSchemaVersion,
+		Type:          "terran",
+		Seed:          "82_eridani_ii",
+		Name:          "Cradle of Life",
+		Notes:         "Bumped Civ.Tier and dropped polar cap size; see issue #421.",
+		HandTuned:     true,
+		Profile:       prof,
+	}
+	data, err := Encode(env)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := Decode(data)
+	if err != nil {
+		t.Fatalf("Decode: %v", err)
+	}
+	if got.Name != env.Name {
+		t.Errorf("Name = %q, want %q", got.Name, env.Name)
+	}
+	if got.Notes != env.Notes {
+		t.Errorf("Notes = %q, want %q", got.Notes, env.Notes)
+	}
+}
+
 func TestDecodeRejectsTypeMismatch(t *testing.T) {
 	prof := planetgen.GetProfile("scorched") // Profile.Type = scorched
 	env := &Envelope{

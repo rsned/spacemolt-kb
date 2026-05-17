@@ -35,10 +35,16 @@ func newTestServer(t *testing.T, readonly bool) (*httptest.Server, string) {
 
 func writeFixture(t *testing.T, dir, slug, planetType, seed string) {
 	t.Helper()
+	writeFixtureWithName(t, dir, slug, planetType, seed, "")
+}
+
+func writeFixtureWithName(t *testing.T, dir, slug, planetType, seed, name string) {
+	t.Helper()
 	env := &profilejson.Envelope{
 		SchemaVersion: profilejson.CurrentSchemaVersion,
 		Type:          planetType,
 		Seed:          seed,
+		Name:          name,
 		Profile:       planetgen.GetProfile(planetType),
 	}
 	data, err := profilejson.Encode(env)
@@ -53,7 +59,7 @@ func writeFixture(t *testing.T, dir, slug, planetType, seed string) {
 func TestProfilesList(t *testing.T) {
 	ts, dir := newTestServer(t, false)
 	writeFixture(t, dir, "terran_default", "terran", "terran_default")
-	writeFixture(t, dir, "scorched_default", "scorched", "scorched_default")
+	writeFixtureWithName(t, dir, "scorched_default", "scorched", "scorched_default", "Mercury Analog")
 
 	res, err := http.Get(ts.URL + "/profiles")
 	if err != nil {
@@ -63,13 +69,21 @@ func TestProfilesList(t *testing.T) {
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("status = %d", res.StatusCode)
 	}
-	var got []string
+	var got []profileListItem
 	if err := json.NewDecoder(res.Body).Decode(&got); err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"scorched_default", "terran_default"}
-	if !equalStrings(got, want) {
-		t.Errorf("list = %v, want %v", got, want)
+	want := []profileListItem{
+		{Slug: "scorched_default", Name: "Mercury Analog"},
+		{Slug: "terran_default"},
+	}
+	if len(got) != len(want) {
+		t.Fatalf("list length = %d, want %d (got=%v)", len(got), len(want), got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("list[%d] = %+v, want %+v", i, got[i], want[i])
+		}
 	}
 }
 
@@ -124,7 +138,7 @@ func TestProfilesPutRoundTrip(t *testing.T) {
 	env := &profilejson.Envelope{
 		SchemaVersion: profilejson.CurrentSchemaVersion,
 		Type:          "terran",
-		Seed:          "terran_default",
+		Seed:          "my_planet",
 		HandTuned:     true,
 		Profile:       planetgen.GetProfile("terran"),
 	}
@@ -132,7 +146,7 @@ func TestProfilesPutRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req, _ := http.NewRequest(http.MethodPut, ts.URL+"/profiles/terran_default", bytes.NewReader(body))
+	req, _ := http.NewRequest(http.MethodPut, ts.URL+"/profiles/my_planet", bytes.NewReader(body))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)
@@ -142,7 +156,7 @@ func TestProfilesPutRoundTrip(t *testing.T) {
 		errBody, _ := io.ReadAll(res.Body)
 		t.Fatalf("PUT status = %d, body = %s", res.StatusCode, errBody)
 	}
-	written, err := os.ReadFile(filepath.Join(dir, "terran_default.json"))
+	written, err := os.ReadFile(filepath.Join(dir, "my_planet.json"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +177,7 @@ func TestProfilesPutSlugMismatch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req, _ := http.NewRequest(http.MethodPut, ts.URL+"/profiles/terran_default", bytes.NewReader(body))
+	req, _ := http.NewRequest(http.MethodPut, ts.URL+"/profiles/my_planet", bytes.NewReader(body))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)
@@ -171,6 +185,56 @@ func TestProfilesPutSlugMismatch(t *testing.T) {
 	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusConflict {
 		t.Errorf("expected 409, got %d", res.StatusCode)
+	}
+}
+
+// TestProfilesPutBlocksDefaultOverwrite verifies that PUT-ing to any
+// slug in defaultProtectedSlugs without ?force=1 returns 409.
+func TestProfilesPutBlocksDefaultOverwrite(t *testing.T) {
+	ts, _ := newTestServer(t, false)
+	env := &profilejson.Envelope{
+		SchemaVersion: profilejson.CurrentSchemaVersion,
+		Type:          "terran",
+		Seed:          "terran_default",
+		HandTuned:     true,
+		Profile:       planetgen.GetProfile("terran"),
+	}
+	body, _ := profilejson.Encode(env)
+	req, _ := http.NewRequest(http.MethodPut, ts.URL+"/profiles/terran_default", bytes.NewReader(body))
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = res.Body.Close() }()
+	if res.StatusCode != http.StatusConflict {
+		t.Errorf("expected 409 (default protection), got %d", res.StatusCode)
+	}
+}
+
+// TestProfilesPutDefaultWithForce verifies the ?force=1 escape hatch
+// allows the same overwrite to succeed.
+func TestProfilesPutDefaultWithForce(t *testing.T) {
+	ts, dir := newTestServer(t, false)
+	env := &profilejson.Envelope{
+		SchemaVersion: profilejson.CurrentSchemaVersion,
+		Type:          "terran",
+		Seed:          "terran_default",
+		HandTuned:     true,
+		Profile:       planetgen.GetProfile("terran"),
+	}
+	body, _ := profilejson.Encode(env)
+	req, _ := http.NewRequest(http.MethodPut, ts.URL+"/profiles/terran_default?force=1", bytes.NewReader(body))
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = res.Body.Close() }()
+	if res.StatusCode != http.StatusNoContent {
+		errBody, _ := io.ReadAll(res.Body)
+		t.Fatalf("PUT with ?force=1: status = %d, body = %s", res.StatusCode, errBody)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "terran_default.json")); err != nil {
+		t.Errorf("expected file written, got %v", err)
 	}
 }
 
@@ -205,16 +269,4 @@ func TestProfilesPutReadonly(t *testing.T) {
 	if res.StatusCode != http.StatusMethodNotAllowed {
 		t.Errorf("expected 405, got %d", res.StatusCode)
 	}
-}
-
-func equalStrings(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
 }
