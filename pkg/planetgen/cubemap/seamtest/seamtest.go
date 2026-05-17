@@ -67,27 +67,38 @@ func edgePixel(e Edge, i, S int) (int, int) {
 	return 0, 0
 }
 
-// adjacentEdgePixel returns the (face, px, py) just outside the edge,
-// computed by stepping one pixel beyond the edge on the current face
-// and re-projecting via FaceUVToDir + DirToFacePixel.
+// adjacentEdgePixel returns the (face, px, py) of the matched-pair
+// pixel on the neighbor face — the pixel on the other side of the
+// shared cube edge that points at the same 3D direction as edge
+// pixel i on edge e of face f.
+//
+// We project the edge pixel's along-edge UV to the edge itself
+// (u=0 or u=1 or v=0 or v=1), then step an infinitesimal eps past
+// the edge so FaceUVToDir's face-classification flips to the neighbor
+// face, then snap to the nearest pixel on that face.
+// Stepping one full pixel beyond the edge (the legacy semantics)
+// landed a row inside the neighbor face — fine for low-gradient SDFs
+// but spurious for high-frequency fields.
 func adjacentEdgePixel(f cubemap.Face, e Edge, i, S int) (cubemap.Face, int, int) {
-	px, py := edgePixel(e, i, S)
-	var dpx, dpy float64
+	// eps must survive direction-vector normalization without being
+	// rounded back to the source face at corner pixels (where two
+	// face axes have nearly equal magnitude). 1e-6 is well above
+	// float64 normalize-roundoff (~1e-15) and well below one pixel
+	// at any practical face size (1/S ≥ 1e-3 for S ≤ 1024).
+	const eps = 1e-6
+	along := (float64(i) + 0.5) / float64(S)
+	var u, v float64
 	switch e {
 	case EdgeTop:
-		dpy = -1
+		u, v = along, -eps
 	case EdgeBottom:
-		dpy = +1
+		u, v = along, 1+eps
 	case EdgeLeft:
-		dpx = -1
+		u, v = -eps, along
 	case EdgeRight:
-		dpx = +1
+		u, v = 1+eps, along
 	}
-	dx, dy, dz := cubemap.FaceUVToDir(
-		f,
-		(float64(px)+0.5+dpx)/float64(S),
-		(float64(py)+0.5+dpy)/float64(S),
-	)
+	dx, dy, dz := cubemap.FaceUVToDir(f, u, v)
 	mag := math.Sqrt(dx*dx + dy*dy + dz*dz)
 	return cubemap.DirToFacePixel(dx/mag, dy/mag, dz/mag, S)
 }
@@ -112,6 +123,80 @@ func AssertSeamMatch[T comparable](t TB, name string, faces [cubemap.NumFaces][]
 	if mismatches > 0 {
 		t.Errorf("%s: %d seam pixels mismatched; first at face=%v edge=%v idx=%d here=%v there=%v",
 			name, mismatches, firstFace, firstEdge, firstIdx, firstHere, firstThere)
+	}
+}
+
+// NeighborFace returns the face on the other side of edge e of face f.
+// Useful when writing custom seam-walk tests that need to look up the
+// neighbor face directly without computing a full matched pixel.
+func NeighborFace(f cubemap.Face, e Edge) cubemap.Face {
+	// 0 is a safe representative i: the neighbor identity depends only
+	// on (f, e), not on the position along the edge.
+	nf, _, _ := adjacentEdgePixel(f, e, 0, 1)
+	return nf
+}
+
+// AssertSeamContinuityBilinear is the matched-pair-by-direction
+// equivalent of AssertSeamContinuity. For each cube-edge pixel it
+// bilinearly samples f at a direction stepped infinitesimally across
+// the shared edge — recovering the field's value at the source
+// direction on the neighbor face, rather than snapping to the
+// nearest neighbor pixel.
+//
+// This is appropriate for production fields generated as smooth
+// functions of direction (TransformDir-based fbm). The nearest-pixel
+// AssertSeamContinuity is too strict for high-frequency content
+// because sub-pixel direction quantization can swing a high-octave
+// value by full amplitude.
+func AssertSeamContinuityBilinear(t TB, name string, f *cubemap.CubeMapF, tolPct float64) {
+	t.Helper()
+	var fmin, fmax = math.Inf(1), math.Inf(-1)
+	for face := range f.Faces {
+		for _, v := range f.Faces[face] {
+			if v < fmin {
+				fmin = v
+			}
+			if v > fmax {
+				fmax = v
+			}
+		}
+	}
+	rng := fmax - fmin
+	if rng == 0 {
+		return
+	}
+	S := f.Size
+	edges := [4]Edge{EdgeTop, EdgeBottom, EdgeLeft, EdgeRight}
+	var maxDelta float64
+	var worstFace cubemap.Face
+	var worstEdge Edge
+	var worstIdx int
+	for face := cubemap.Face(0); face < cubemap.NumFaces; face++ {
+		for _, e := range edges {
+			for i := 0; i < S; i++ {
+				px, py := edgePixel(e, i, S)
+				here := f.Faces[face][py*S+px]
+				// Sample the neighbor face's bilinear value at the
+				// source pixel's exact direction. Using ForceFaceUV
+				// (rather than f.Sample, which would classify back to
+				// the source face) avoids the first-order half-pixel
+				// error of edge-direction sampling.
+				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+				nFace, _, _ := adjacentEdgePixel(face, e, i, S)
+				nu, nv := cubemap.ForceFaceUV(nFace, dx, dy, dz)
+				there := f.SampleFaceUV(nFace, nu, nv)
+				if d := math.Abs(here - there); d > maxDelta {
+					maxDelta = d
+					worstFace, worstEdge, worstIdx = face, e, i
+				}
+			}
+		}
+	}
+	pct := maxDelta / rng
+	if pct > tolPct {
+		msg := fmt.Sprintf("%s: bilinear seam delta %.4f (%.2f%% of range %.4f) exceeds %.2f%% — worst at face=%v edge=%v idx=%d",
+			name, maxDelta, 100*pct, rng, 100*tolPct, worstFace, worstEdge, worstIdx)
+		t.Errorf("%s", msg)
 	}
 }
 
