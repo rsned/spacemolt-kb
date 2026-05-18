@@ -421,6 +421,9 @@ if (importFileInput) {
 function renderPanels() {
   const panels = $('#param-panels');
   panels.innerHTML = '';
+  // The DOM nodes we registered last render are gone; drop their
+  // refs so we don't sync against detached elements.
+  enabledCheckboxes.clear();
   let profile;
   try { profile = JSON.parse(profileTextarea.value); }
   catch { return; }
@@ -578,7 +581,8 @@ function renderStormBandsPanel(profile, panels) {
 
 function renderLUTPanel(profile, panels) {
   const panel = makePanel('Color LUT',
-    'Final color-grade pass. Each archetype ships with a 16³ LUT that applies a subtle hue/sat/value shift for "look unification". Bypass to compare against the un-graded output.');
+    'Final color-grade pass. Each archetype ships with a 16³ LUT that applies a subtle hue/sat/value shift for "look unification". Bypass to compare against the un-graded output.',
+    'LUT');
   const status = document.createElement('div');
   status.className = 'lut-status';
   const btn = document.createElement('button');
@@ -673,13 +677,38 @@ function bindCollapseState(details, key) {
   });
 }
 
-function makePanel(title, helpText) {
+// makeEnabledCheckbox creates an "enabled" checkbox bound to a debug
+// bypass stage. Checked = stage active; unchecked = bypassed. Stops
+// click propagation so toggling the checkbox doesn't also toggle the
+// surrounding <details> open state. Registers with the per-stage
+// sync map so the matching debug-grid checkbox stays in step.
+function makeEnabledCheckbox(stage) {
+  const label = document.createElement('label');
+  label.className = 'panel-enabled';
+  label.title = `When unchecked, bypass the ${stage} pipeline stage (same as the debug-panel bypass).`;
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = !debugBypass.has(stage);
+  cb.addEventListener('click', (e) => e.stopPropagation());
+  cb.addEventListener('change', () => {
+    setStageBypass(stage, !cb.checked);
+    regenerate();
+  });
+  registerEnabledCheckbox(stage, cb);
+  label.appendChild(cb);
+  return label;
+}
+
+function makePanel(title, helpText, bypassStage) {
   const panel = document.createElement('details');
   panel.className = 'panel';
   bindCollapseState(panel, `panel:${title}`);
   const summary = document.createElement('summary');
   summary.title = helpText;
-  summary.innerHTML = `<h3>${title}</h3>`;
+  if (bypassStage) summary.appendChild(makeEnabledCheckbox(bypassStage));
+  const h3 = document.createElement('h3');
+  h3.textContent = title;
+  summary.appendChild(h3);
   panel.appendChild(summary);
   return panel;
 }
@@ -690,7 +719,10 @@ function makeSubPanel(title, helpText, opts = {}) {
   bindCollapseState(sub, `sub:${title}`);
   const summary = document.createElement('summary');
   summary.title = helpText;
-  summary.innerHTML = `<strong>${title}</strong>`;
+  if (opts.bypassStage) summary.appendChild(makeEnabledCheckbox(opts.bypassStage));
+  const strong = document.createElement('strong');
+  strong.textContent = title;
+  summary.appendChild(strong);
   if (opts.onRandomize) {
     summary.appendChild(makeAuxBtn('Randomize',
       `Roll new random in-range values for ${title}`, opts.onRandomize));
@@ -832,7 +864,8 @@ function makeCheckboxRow(label, helpText, value, onCommit) {
 function renderCratersPanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   const panel = makePanel('Craters',
-    'Stamped circular depressions on the heightmap. Applied after fBm/control fields, before coloring. Set Count=0 to disable.');
+    'Stamped circular depressions on the heightmap. Applied after fBm/control fields, before coloring. Set Count=0 to disable.',
+    'Craters');
 
   const reset = () => {
     const orig = originalProfile || {};
@@ -919,7 +952,8 @@ function renderCratersPanel(profile, panels) {
 function renderErosionPanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   const panel = makePanel('Erosion',
-    'Particle hydraulic erosion: droplets walk the heightmap, carving channels and depositing sediment. Droplets=0 disables. The renderer auto-scales droplet count by face area, with a 5000 floor so face=64 previews still show channels; full canonical count runs at face=1024.');
+    'Particle hydraulic erosion: droplets walk the heightmap, carving channels and depositing sediment. Droplets=0 disables. The renderer auto-scales droplet count by face area, with a 5000 floor so face=64 previews still show channels; full canonical count runs at face=1024.',
+    'Erosion');
   if (!profile.Erosion) profile.Erosion = {};
   const e = profile.Erosion;
   const reset = () => {
@@ -1023,7 +1057,8 @@ function renderCryospherePanel(profile, panels) {
 function renderHeightSmoothPanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   const panel = makePanel('Height Smoothing',
-    'Per-face disc blur applied to the heightmap before Normalize. 0 disables. 2-3 smooths fbm popcorn so erosion can form coherent channels; larger values produce broader, gentler terrain at the cost of surface texture.');
+    'Per-face disc blur applied to the heightmap before Normalize. 0 disables. 2-3 smooths fbm popcorn so erosion can form coherent channels; larger values produce broader, gentler terrain at the cost of surface texture.',
+    'HeightSmooth');
   panel.appendChild(makeNumberRow('Radius',
     'Blur radius in pixels. 0 disables; 2-3 typical for terran/super_terran; up to 5 for very smooth worlds.',
     profile.HeightSmoothRadius || 0, 0, 8, '1',
@@ -1034,7 +1069,8 @@ function renderHeightSmoothPanel(profile, panels) {
 function renderCoastalPanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   const panel = makePanel('Coastal',
-    'Localized roughening of pixels near coast lines (requires OceanLevel > 0). Combines three high-frequency fBm bands modulated by distance-to-coast. Amp=0 disables.');
+    'Localized roughening of pixels near coast lines (requires OceanLevel > 0). Combines three high-frequency fBm bands modulated by distance-to-coast. Amp=0 disables.',
+    'Coastal');
   if (!profile.Coastal) profile.Coastal = { Amp: 0, Threshold: 0, Freq: 0 };
 
   const reset = () => {
@@ -1183,7 +1219,8 @@ function renderProvincePanel(profile, panels) {
 function renderShadingPanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   const panel = makePanel('Shading',
-    'Slope-based Lambertian shading. Computes a surface normal from the heightmap gradient and modulates color by light·normal. Strength 0 = no shading; the planet looks flat.');
+    'Slope-based Lambertian shading. Computes a surface normal from the heightmap gradient and modulates color by light·normal. Strength 0 = no shading; the planet looks flat.',
+    'Shading');
   panel.appendChild(makeNumberRow('ShadingStrength',
     'How strongly diffuse lighting modulates color. 0 = off; 0.5 is a reasonable starting point.',
     profile.ShadingStrength || 0, 0, 1, '0.05',
@@ -1201,7 +1238,8 @@ function renderRidgedPanel(profile, panels) {
     profile.Ridged = {Amp:0, Freq:0, Octaves:0, Lacunarity:0, Gain:0, Offset:0, MaskLow:0, MaskHigh:0};
   }
   const panel = makePanel('Ridged mountains',
-    'Ridged-multifractal mountain belts. Masked by Continentalness output so ridges only form on land. Amp=0 disables.');
+    'Ridged-multifractal mountain belts. Masked by Continentalness output so ridges only form on land. Amp=0 disables.',
+    'Ridged');
 
   const reset = () => {
     if (originalProfile && originalProfile.Ridged) {
@@ -1339,7 +1377,7 @@ function renderControlFieldsPanel(profile, panels) {
       renderPanels();
     };
     const sub = makeSubPanel(fieldName, FIELD_HELP[fieldName],
-      {onReset: reset, onClear: clear, onRandomize: randomize});
+      {onReset: reset, onClear: clear, onRandomize: randomize, bypassStage: fieldName});
     for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
       sub.appendChild(makeParamRow(param,
         () => cf[param],
@@ -1550,7 +1588,35 @@ if (sphereCanvas) {
 }
 
 // === Phase 6: pipeline debug view ===
+//
+// debugBypass is the single source of truth for which pipeline stages
+// are bypassed at render time. Two UIs expose it concurrently:
+//   1. Main-control "enabled" checkbox per panel (checked = stage
+//      active, unchecked = bypassed).
+//   2. Debug-grid "bypass" checkbox per stage (checked = bypassed).
+// Both register here so toggling one updates the other in place
+// without a full re-render of the opposite UI.
 const debugBypass = new Set();
+const enabledCheckboxes = new Map(); // stage → Set<HTMLInputElement>
+const bypassCheckboxes  = new Map(); // stage → Set<HTMLInputElement>
+
+function registerEnabledCheckbox(stage, cb) {
+  if (!enabledCheckboxes.has(stage)) enabledCheckboxes.set(stage, new Set());
+  enabledCheckboxes.get(stage).add(cb);
+}
+function registerBypassCheckbox(stage, cb) {
+  if (!bypassCheckboxes.has(stage)) bypassCheckboxes.set(stage, new Set());
+  bypassCheckboxes.get(stage).add(cb);
+}
+function syncStageCheckboxes(stage) {
+  const isBypassed = debugBypass.has(stage);
+  for (const cb of enabledCheckboxes.get(stage) || []) cb.checked = !isBypassed;
+  for (const cb of bypassCheckboxes.get(stage)  || []) cb.checked =  isBypassed;
+}
+function setStageBypass(stage, bypassed) {
+  if (bypassed) debugBypass.add(stage); else debugBypass.delete(stage);
+  syncStageCheckboxes(stage);
+}
 
 async function refreshDebugView() {
   if (!window.planetExplorerGenerateDebug) {
@@ -1590,6 +1656,9 @@ async function refreshDebugView() {
 function renderDebugGrid(stages) {
   const grid = $('#debug-grid');
   grid.innerHTML = '';
+  // Drop refs to the debug-grid checkboxes from the previous render
+  // before we register fresh ones below.
+  bypassCheckboxes.clear();
   const makeHeader = (titles) => {
     const h = document.createElement('div');
     h.className = 'debug-row debug-header';
@@ -1627,12 +1696,13 @@ function renderDebugGrid(stages) {
     cb.type = 'checkbox';
     cb.checked = debugBypass.has(s.name);
     cb.addEventListener('change', () => {
-      if (cb.checked) debugBypass.add(s.name); else debugBypass.delete(s.name);
+      setStageBypass(s.name, cb.checked);
       // Toggling a bypass affects both the debug grid AND the main
       // sphere preview, so re-render both. regenerate() refreshes the
       // debug grid as well when the panel is open, so just call it.
       regenerate();
     });
+    registerBypassCheckbox(s.name, cb);
     toggle.appendChild(cb);
     toggle.appendChild(document.createTextNode(' bypass'));
     label.appendChild(toggle);
