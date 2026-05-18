@@ -194,12 +194,20 @@ func generateWithBypass(_ js.Value, args []js.Value) any {
 	if prof.Renderer == "rocky" && bypass != nil {
 		frame := render.RenderRockyDebug(&prof, s, faceSize, bypass)
 		// The final composited cube map is the ColorAfter of the last
-		// color-kind stage. Walk in reverse to find it.
+		// color-kind stage. Walk in reverse to find it. Skip the
+		// "Civ: night lights" stage — it's a mostly-black night-side
+		// image consumed separately by generateNight(); picking it
+		// here would paint the cube/sphere preview all-black.
 		for i := len(frame.Stages) - 1; i >= 0; i-- {
-			if frame.Stages[i].Kind == "color" && frame.Stages[i].ColorAfter != nil {
-				cm = frame.Stages[i].ColorAfter
-				break
+			st := frame.Stages[i]
+			if st.Kind != "color" || st.ColorAfter == nil {
+				continue
 			}
+			if st.Name == "Civ: night lights" {
+				continue
+			}
+			cm = st.ColorAfter
+			break
 		}
 		if cm == nil {
 			return jsError("generateWithBypass: no color stage produced output")
