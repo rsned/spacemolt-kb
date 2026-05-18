@@ -748,6 +748,16 @@ function makeAuxBtn(label, tooltip, handler) {
   btn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
+    // Randomize/Reset/Clear mutate the panel's values; the user wants
+    // to see the result. Re-expand the enclosing details so the new
+    // sliders are visible after renderPanels() rebuilds the tree.
+    // Updating collapsedPanels is what survives the rebuild —
+    // setting .open here is just for the brief moment before re-render.
+    const details = btn.closest('details');
+    if (details && details.dataset.panelKey) {
+      collapsedPanels.delete(details.dataset.panelKey);
+      details.open = true;
+    }
     handler();
   });
   return btn;
