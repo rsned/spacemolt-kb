@@ -7,9 +7,17 @@ import (
 
 // Warper applies a single Quilez domain-warp pass to 3D points.
 type Warper struct {
-	cfg          types.WarpConfig
+	cfg              types.WarpConfig
 	xGen, yGen, zGen *Generator
+	// bypassed makes Warp() a no-op without consuming any noise draws —
+	// same observable behavior as cfg.Amp == 0. Used by the planet-
+	// explorer debug pipeline to compare warped vs. unwarped output.
+	bypassed bool
 }
+
+// SetBypassed toggles the bypass flag. When bypassed, Warp() returns
+// its input unchanged and consumes no noise draws.
+func (w *Warper) SetBypassed(b bool) { w.bypassed = b }
 
 // NewWarper builds a Warper seeded by master via the warp.{x,y,z}
 // named domains. Same master always produces the same warp.
@@ -26,7 +34,7 @@ func NewWarper(master int64, cfg types.WarpConfig) *Warper {
 // returned point is generally NOT unit-length; callers that require
 // unit-sphere directions must re-normalize.
 func (w *Warper) Warp(x, y, z float64) (float64, float64, float64) {
-	if w.cfg.Amp == 0 {
+	if w.bypassed || w.cfg.Amp == 0 {
 		return x, y, z
 	}
 	dx := w.xGen.FractalNoise3D(x, y, z, w.cfg.Octaves, w.cfg.Lacunarity, w.cfg.Persistence, w.cfg.Freq)

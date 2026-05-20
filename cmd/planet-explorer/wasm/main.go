@@ -192,25 +192,15 @@ func generateWithBypass(_ js.Value, args []js.Value) any {
 
 	var cm *cubemap.CubeMap
 	if prof.Renderer == "rocky" && bypass != nil {
+		// frame.Final is the fully-composited day-side cube map after
+		// the colorize pass — exactly what RenderRocky returns. Reading
+		// it directly (instead of reverse-walking Stages) avoids picking
+		// up debug-only overlay stages appended after the main pipeline
+		// (Cloud: shaded, Civ: <part>, etc.).
 		frame := render.RenderRockyDebug(&prof, s, faceSize, bypass)
-		// The final composited cube map is the ColorAfter of the last
-		// color-kind stage. Walk in reverse to find it. Skip the
-		// "Civ: night lights" stage — it's a mostly-black night-side
-		// image consumed separately by generateNight(); picking it
-		// here would paint the cube/sphere preview all-black.
-		for i := len(frame.Stages) - 1; i >= 0; i-- {
-			st := frame.Stages[i]
-			if st.Kind != "color" || st.ColorAfter == nil {
-				continue
-			}
-			if st.Name == "Civ: night lights" {
-				continue
-			}
-			cm = st.ColorAfter
-			break
-		}
+		cm = frame.Final
 		if cm == nil {
-			return jsError("generateWithBypass: no color stage produced output")
+			return jsError("generateWithBypass: colorize returned nil")
 		}
 	} else {
 		switch prof.Renderer {
@@ -322,6 +312,9 @@ func generateDebug(_ js.Value, args []js.Value) any {
 				// SDFs are in km (non-negative, range 0..π·R); auto-scale via the
 				// signed encoder so faint near-boundary values stay visible.
 				row["field_after"] = encodeCMF(st.ScalarAfter, true)
+			}
+			if st.Combined != nil {
+				row["combined"] = encodeCM(st.Combined)
 			}
 		default:
 			row["raw"] = encodeCMF(st.RawFbm, true)

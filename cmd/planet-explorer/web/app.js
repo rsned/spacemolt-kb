@@ -677,24 +677,30 @@ function bindCollapseState(details, key) {
   });
 }
 
-// makeEnabledCheckbox creates an "enabled" checkbox bound to a debug
-// bypass stage. Checked = stage active; unchecked = bypassed. Stops
-// click propagation so toggling the checkbox doesn't also toggle the
-// surrounding <details> open state. Registers with the per-stage
-// sync map so the matching debug-grid checkbox stays in step.
+// makeEnabledCheckbox creates an "enabled" checkbox bound to one or
+// more debug bypass stages. Checked = all stages active (default);
+// unchecked = all stages bypassed. For a single-stage panel pass a
+// string; for composite panels (e.g. Cryosphere = Snow + PolarCaps)
+// pass an array. Stops click propagation so toggling the checkbox
+// doesn't also toggle the surrounding <details> open state. Registers
+// with the per-stage sync map so the matching debug-grid checkboxes
+// stay in step.
 function makeEnabledCheckbox(stage) {
+  const stages = Array.isArray(stage) ? stage : [stage];
   const label = document.createElement('label');
   label.className = 'panel-enabled';
-  label.title = `When unchecked, bypass the ${stage} pipeline stage (same as the debug-panel bypass).`;
+  label.title = stages.length === 1
+    ? `When unchecked, bypass the ${stages[0]} pipeline stage (same as the debug-panel bypass).`
+    : `When unchecked, bypass these pipeline stages: ${stages.join(', ')} (same as the debug-panel bypasses).`;
   const cb = document.createElement('input');
   cb.type = 'checkbox';
-  cb.checked = !debugBypass.has(stage);
+  cb.checked = !stages.some(s => debugBypass.has(s));
   cb.addEventListener('click', (e) => e.stopPropagation());
   cb.addEventListener('change', () => {
-    setStageBypass(stage, !cb.checked);
+    for (const s of stages) setStageBypass(s, !cb.checked);
     regenerate();
   });
-  registerEnabledCheckbox(stage, cb);
+  for (const s of stages) registerEnabledCheckbox(s, cb);
   label.appendChild(cb);
   return label;
 }
@@ -1044,7 +1050,8 @@ function round3(v) { return Math.round(v * 1000) / 1000; }
 function renderCryospherePanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   const panel = makePanel('Cryosphere',
-    'Polar ice caps (latitude-based) and snow line (elevation-based). Both paint white-tinted overlays as a final color step.');
+    'Polar ice caps (latitude-based) and snow line (elevation-based). Both paint white-tinted overlays as a final color step.',
+    ['Snow', 'PolarCaps']);
   panel.appendChild(makeCheckboxRow('HasPolarCaps',
     'Master toggle for polar-cap rendering.',
     profile.HasPolarCaps,
@@ -1121,7 +1128,8 @@ function renderCoastalPanel(profile, panels) {
 function renderContinentsPanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   const panel = makePanel('Continents',
-    'Voronoi continents from Fibonacci-spiral seed points. Each seed gets a random base height in [HeightLo, HeightHi]; the heightmap is raised to that floor, so continents form a baseline. Seeds=0 disables.');
+    'Voronoi continents from Fibonacci-spiral seed points. Each seed gets a random base height in [HeightLo, HeightHi]; the heightmap is raised to that floor, so continents form a baseline. Seeds=0 disables.',
+    'Continents');
   if (!profile.Continents) profile.Continents = { Seeds: 0, WarpAmp: 0, WarpFreq: 0, HeightLo: 0.3, HeightHi: 0.7 };
 
   const reset = () => {
@@ -1305,7 +1313,8 @@ function renderOceanPanel(profile, panels) {
   if (profile.Renderer !== 'rocky') return;
   if (!profile.OceanColor) profile.OceanColor = {R: 0, G: 0, B: 0, A: 0};
   const panel = makePanel('Ocean',
-    'Below the OceanLevel cutoff, height is painted with OceanColor (depth-shaded). Set OceanLevel = 0 to disable oceans entirely.');
+    'Below the OceanLevel cutoff, height is painted with OceanColor (depth-shaded). Set OceanLevel = 0 to disable oceans entirely.',
+    'Ocean');
   panel.appendChild(makeNumberRow('OceanLevel',
     'Normalized [0,1] sea-level cutoff. Pixels with height < OceanLevel are painted ocean.',
     profile.OceanLevel || 0, 0, 1, '0.01',
@@ -1320,7 +1329,8 @@ function renderOceanPanel(profile, panels) {
 function renderWarpPanel(profile, panels) {
   if (!profile.Warp) profile.Warp = {Amp: 0, Freq: 0, Octaves: 0, Lacunarity: 0, Persistence: 0};
   const panel = makePanel('Domain warp',
-    'Quilez domain warp. Displaces sphere directions before sampling noise so features bend/curl instead of being axis-aligned. Amp=0 disables warp entirely.');
+    'Quilez domain warp. Displaces sphere directions before sampling noise so features bend/curl instead of being axis-aligned. Amp=0 disables warp entirely.',
+    'Warp');
   const reset = () => {
     if (originalProfile?.Warp) {
       profile.Warp = JSON.parse(JSON.stringify(originalProfile.Warp));
@@ -1685,7 +1695,7 @@ function renderDebugGrid(stages) {
   };
   const headerFor = (kind) => {
     if (kind === 'color') return ['color after', '—', '—', '—'];
-    if (kind === 'field') return ['field', '—', '—', '—'];
+    if (kind === 'field') return ['field', 'planet so far', '—', '—'];
     return ['raw', 'input bands', 'output bands', 'sum after'];
   };
   let lastKind = null;
@@ -1720,7 +1730,7 @@ function renderDebugGrid(stages) {
 
     let keys;
     if (s.kind === 'color') keys = ['color_after', null, null, null];
-    else if (s.kind === 'field') keys = ['field_after', null, null, null];
+    else if (s.kind === 'field') keys = ['field_after', 'combined', null, null];
     else keys = ['raw', 'input_bands', 'output_bands', 'sum_after'];
     const splineStages = new Set(['Continentalness', 'Detail', 'PeaksValleys', 'Temperature', 'Humidity']);
     for (const key of keys) {

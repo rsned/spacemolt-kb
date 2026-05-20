@@ -1,6 +1,8 @@
 package render
 
 import (
+	"strings"
+
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/biome"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
@@ -25,6 +27,14 @@ type DebugFrame struct {
 	Flow       *field.FlowField
 	RainShadow *biome.RainShadowField
 	Civ        *feature.CivField
+	// Final is the fully-composited day-side cube map returned by the
+	// colorize pass — exactly what RenderRocky would return for the
+	// same (profile, seed, bypass). Consumers that want "the final
+	// picture" (e.g. the planet-explorer cube/sphere preview) should
+	// read this directly rather than walking Stages, since later
+	// debug-only entries (Cloud: shaded, Civ: <part>) are partial
+	// overlays, not composited images.
+	Final *cubemap.CubeMap
 }
 
 // DebugStage is one row in the pipeline visualization.
@@ -49,6 +59,14 @@ type DebugStage struct {
 	BooleanAfter *cubemap.CubeMap
 	// ScalarAfter is a single-channel float field (e.g. plate SDF in km).
 	ScalarAfter *cubemap.CubeMapF
+	// Combined is the "planet so far" context image for a field-kind
+	// stage — set by the debug-frame post-pass to either the heightmap
+	// grayscale (for pre-color stages: Plates, Jitter, Flow, RainShadow)
+	// or the final composited day image (for post-pipeline stages:
+	// Cloud, Civ debug). Lets the debug grid show every layer next to
+	// the planet context, matching the asymmetry the height/color rows
+	// already provide via SumAfter / ColorAfter.
+	Combined *cubemap.CubeMap
 }
 
 // RenderRockyDebug runs the rocky pipeline (heightmap + colorize) with
@@ -61,8 +79,13 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 		Plates: plates,
 		Jitter: jitter,
 	}
-	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter, plates)
-	_ = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter, plates, frame.Flow)
+	// Plates and Jitter are foundation data — they're generated upfront
+	// and consumed by every downstream stage (Ridged anchors mountain
+	// belts to convergent plate boundaries; Continents seeds from
+	// continental plate centroids; Civ scores habitability against
+	// plates; the noise pipeline routes through jitter cells). Surface
+	// them FIRST in the debug grid so the operator reads the pipeline
+	// top-to-bottom in the order the renderer actually runs.
 	if plates != nil {
 		frame.Stages = append(frame.Stages,
 			DebugStage{Name: "Plates: id", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(plates.PlateID, S)},
@@ -77,6 +100,13 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 			DebugStage{Name: "Jitter: cells", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(jitter.PerPixel, S)},
 		)
 	}
+	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter, plates)
+	frame.Final = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter, plates, frame.Flow)
+	// Cache a grayscale heightmap snapshot so pre-color field stages
+	// (Plates, Jitter, Flow, RainShadow) get a meaningful "planet
+	// shape" context image. Post-pipeline field stages (Cloud, Civ
+	// debug) instead get the final composited day image.
+	heightmapImg := cubemap.GrayscaleFromF(hm)
 	if frame.Flow != nil {
 		frame.Stages = append(frame.Stages,
 			DebugStage{Name: "Flow: rivers", Kind: "field", BooleanAfter: paintBooleanCubeMap(frame.Flow.Rivers, S)},
@@ -105,6 +135,25 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 			{Name: "Civ: night lights", Kind: "color", ColorAfter: civ.Night},
 		}
 		frame.Stages = append(frame.Stages, stages...)
+	}
+	// Post-pass: attach a "planet so far" Combined image to every
+	// field-kind stage. Pre-color stages (plates, jitter, flow,
+	// rainshadow) get the heightmap grayscale so the operator sees
+	// the shape their layer is informing; post-pipeline stages
+	// (cloud, civ) get the final composited image so the operator
+	// sees the layer in context. Pointers are shared rather than
+	// cloned — consumers treat these as read-only.
+	for i := range frame.Stages {
+		st := &frame.Stages[i]
+		if st.Kind != "field" {
+			continue
+		}
+		switch {
+		case strings.HasPrefix(st.Name, "Cloud:"), strings.HasPrefix(st.Name, "Civ:"):
+			st.Combined = frame.Final
+		default:
+			st.Combined = heightmapImg
+		}
 	}
 	return frame
 }

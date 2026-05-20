@@ -173,6 +173,9 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField, plates *field.PlateField) (*cubemap.CubeMapF, []feature.Crater) {
 	ng := noise.New(seed)
 	warper := noise.NewWarper(seed, profile.Warp)
+	if bypass["Warp"] {
+		warper.SetBypassed(true)
+	}
 
 	heightmap := cubemap.NewF(S)
 	cfFields := orderedControlFields(profile.ControlConfig)
@@ -684,6 +687,9 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 	oceanNoise := noise.New(seed + 77)
 	biomeNoise := noise.New(seed + 99)
 	warper := noise.NewWarper(seed, profile.Warp)
+	if bypass["Warp"] {
+		warper.SetBypassed(true)
+	}
 
 	// Step 3+4+5: colorise (biome, ocean, snow, polar caps).
 	hasBiomes := len(profile.EquatorialPalette) > 0 || len(profile.PolarPalette) > 0
