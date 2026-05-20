@@ -88,7 +88,7 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 	// top-to-bottom in the order the renderer actually runs.
 	if plates != nil {
 		frame.Stages = append(frame.Stages,
-			DebugStage{Name: "Plates: id", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(plates.PlateID, S)},
+			DebugStage{Name: "Plates: id", Kind: "field", CategoricalAfter: paintPlateIDWithArrows(plates, S)},
 			DebugStage{Name: "Plates: oceanic", Kind: "field", BooleanAfter: paintOceanicMask(plates, S)},
 			DebugStage{Name: "Plates: convergent", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Convergent, S)},
 			DebugStage{Name: "Plates: divergent", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Divergent, S)},

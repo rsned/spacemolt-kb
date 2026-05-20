@@ -1486,6 +1486,8 @@ function refreshSphereTexture() {
   } catch (e) {
     sphereTextureData = null;
   }
+  sphereDirty = true;
+  scheduleSphereFrame();
 }
 
 function refreshSphereNightTexture() {
@@ -1495,6 +1497,8 @@ function refreshSphereNightTexture() {
   } catch (e) {
     sphereNightTextureData = null;
   }
+  sphereDirty = true;
+  scheduleSphereFrame();
 }
 
 function sampleSphereTex(u, v) {
@@ -1576,11 +1580,28 @@ function renderSphere() {
   ctx.putImageData(id, 0, 0);
 }
 
-function animateSphere() {
+// Dirty-driven sphere render loop. We schedule a RAF only when there
+// is real work to do (auto-rotating, mid-drag, or a one-shot redraw
+// after a texture refresh). An always-on RAF that calls renderSphere()
+// every frame burns ~100% of a CPU core even when nothing is changing.
+let sphereRafScheduled = false;
+let sphereDirty = false;
+function scheduleSphereFrame() {
   if (!sphereCanvas) return;
-  if (sphereAutoRotate && !sphereDragging) sphereRotY += 0.003;
-  renderSphere();
-  requestAnimationFrame(animateSphere);
+  if (sphereRafScheduled) return;
+  sphereRafScheduled = true;
+  requestAnimationFrame(() => {
+    sphereRafScheduled = false;
+    let render = false;
+    if (sphereAutoRotate && !sphereDragging) {
+      sphereRotY += 0.003;
+      render = true;
+    }
+    if (sphereDragging || sphereDirty) render = true;
+    if (render) renderSphere();
+    sphereDirty = false;
+    if (sphereAutoRotate || sphereDragging) scheduleSphereFrame();
+  });
 }
 
 if (sphereCanvas) {
@@ -1588,6 +1609,7 @@ if (sphereCanvas) {
     sphereDragging = true; sphereAutoRotate = false;
     sphereLastMX = e.clientX; sphereLastMY = e.clientY;
     if (sphereResumeTimer) clearTimeout(sphereResumeTimer);
+    scheduleSphereFrame();
   });
   window.addEventListener('mousemove', e => {
     if (!sphereDragging) return;
@@ -1595,16 +1617,22 @@ if (sphereCanvas) {
     sphereRotX += (e.clientY - sphereLastMY) * 0.01;
     sphereRotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, sphereRotX));
     sphereLastMX = e.clientX; sphereLastMY = e.clientY;
+    scheduleSphereFrame();
   });
   window.addEventListener('mouseup', () => {
     if (sphereDragging) {
       sphereDragging = false;
+      sphereDirty = true; // render the final drag position once
+      scheduleSphereFrame();
       sphereResumeTimer = setTimeout(() => {
-        if (!sphereDragging) sphereAutoRotate = true;
+        if (!sphereDragging) {
+          sphereAutoRotate = true;
+          scheduleSphereFrame();
+        }
       }, 3000);
     }
   });
-  animateSphere();
+  scheduleSphereFrame();
 }
 
 // === Phase 6: pipeline debug view ===

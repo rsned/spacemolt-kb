@@ -139,6 +139,145 @@ func paintCategoricalCubeMap16(ids [cubemap.NumFaces][]int16, S int) *cubemap.Cu
 	return out
 }
 
+// paintPlateIDWithArrows renders the PlateID categorical cube map with
+// a white arrow drawn at each plate seed pointing in the direction of
+// that plate's instantaneous surface velocity (ω × seed). Arrow arc
+// length scales with AngSpeed so the fastest plate spans ~30° of arc.
+// Arrows are stroked with a black outline so they remain visible
+// against any plate color. Arrows that would cross a face boundary are
+// skipped — keeping the renderer trivial (single-face Bresenham) and
+// accepting that ~1 in 6 plates may have its arrow suppressed when its
+// seed sits near an edge.
+func paintPlateIDWithArrows(pf *field.PlateField, S int) *cubemap.CubeMap {
+	if pf == nil {
+		return cubemap.New(S)
+	}
+	out := paintCategoricalCubeMap16(pf.PlateID, S)
+	var maxSpeed float64
+	for _, p := range pf.Plates {
+		if p.AngSpeed > maxSpeed {
+			maxSpeed = p.AngSpeed
+		}
+	}
+	if maxSpeed == 0 {
+		return out
+	}
+	white := color.RGBA{R: 255, G: 255, B: 255, A: 255}
+	black := color.RGBA{R: 0, G: 0, B: 0, A: 255}
+	// Stroke radii scale with face size so the arrow stays readable
+	// from S=64 (small thumbnails) up through S=512. Outline must be
+	// strictly wider than core so the black halo shows.
+	coreR := S / 96
+	if coreR < 1 {
+		coreR = 1
+	}
+	outlineR := coreR + 1
+	const maxArc = 0.5
+	for _, p := range pf.Plates {
+		wx, wy, wz := p.AngSpeed*p.RotAxis[0], p.AngSpeed*p.RotAxis[1], p.AngSpeed*p.RotAxis[2]
+		vx := wy*p.Seed[2] - wz*p.Seed[1]
+		vy := wz*p.Seed[0] - wx*p.Seed[2]
+		vz := wx*p.Seed[1] - wy*p.Seed[0]
+		vmag := math.Sqrt(vx*vx + vy*vy + vz*vz)
+		if vmag < 1e-9 {
+			continue
+		}
+		vhx, vhy, vhz := vx/vmag, vy/vmag, vz/vmag
+		arc := maxArc * p.AngSpeed / maxSpeed
+		ca, sa := math.Cos(arc), math.Sin(arc)
+		tx := ca*p.Seed[0] + sa*vhx
+		ty := ca*p.Seed[1] + sa*vhy
+		tz := ca*p.Seed[2] + sa*vhz
+		f0, x0, y0 := cubemap.DirToFacePixel(p.Seed[0], p.Seed[1], p.Seed[2], S)
+		f1, x1, y1 := cubemap.DirToFacePixel(tx, ty, tz, S)
+		if f0 != f1 {
+			continue
+		}
+		drawCubeLine(out, f0, x0, y0, x1, y1, black, outlineR)
+		drawArrowhead(out, f0, x0, y0, x1, y1, black, outlineR)
+		drawCubeLine(out, f0, x0, y0, x1, y1, white, coreR)
+		drawArrowhead(out, f0, x0, y0, x1, y1, white, coreR)
+	}
+	return out
+}
+
+// drawCubeLine plots a Bresenham line from (x0,y0) to (x1,y1) on face
+// of cm, clipped to the face bounds. Each plotted pixel is stamped with
+// a square brush of radius r (r=0 → single pixel).
+func drawCubeLine(cm *cubemap.CubeMap, face cubemap.Face, x0, y0, x1, y1 int, c color.RGBA, r int) {
+	dx := absInt(x1 - x0)
+	dy := -absInt(y1 - y0)
+	sx, sy := -1, -1
+	if x0 < x1 {
+		sx = 1
+	}
+	if y0 < y1 {
+		sy = 1
+	}
+	err := dx + dy
+	S := cm.Size
+	for {
+		stampSquare(cm, face, x0, y0, r, c, S)
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * err
+		if e2 >= dy {
+			err += dy
+			x0 += sx
+		}
+		if e2 <= dx {
+			err += dx
+			y0 += sy
+		}
+	}
+}
+
+func stampSquare(cm *cubemap.CubeMap, face cubemap.Face, cx, cy, r int, c color.RGBA, S int) {
+	for dy := -r; dy <= r; dy++ {
+		for dx := -r; dx <= r; dx++ {
+			x, y := cx+dx, cy+dy
+			if x >= 0 && x < S && y >= 0 && y < S {
+				cm.Set(face, x, y, c)
+			}
+		}
+	}
+}
+
+// drawArrowhead draws two short barbs at ±30° from the line heading,
+// pointing back from (x1,y1) toward (x0,y0). Barb length is 35% of
+// shaft length (minimum 4 px).
+func drawArrowhead(cm *cubemap.CubeMap, face cubemap.Face, x0, y0, x1, y1 int, c color.RGBA, r int) {
+	dx := float64(x1 - x0)
+	dy := float64(y1 - y0)
+	mag := math.Sqrt(dx*dx + dy*dy)
+	if mag < 1 {
+		return
+	}
+	dx /= mag
+	dy /= mag
+	bl := math.Max(4, mag*0.35)
+	const ang = math.Pi / 6
+	ca, sa := math.Cos(ang), math.Sin(ang)
+	bx := -dx
+	by := -dy
+	bx1, by1 := bx*ca-by*sa, bx*sa+by*ca
+	bx2, by2 := bx*ca+by*sa, -bx*sa+by*ca
+	x2 := x1 + int(math.Round(bx1*bl))
+	y2 := y1 + int(math.Round(by1*bl))
+	x3 := x1 + int(math.Round(bx2*bl))
+	y3 := y1 + int(math.Round(by2*bl))
+	drawCubeLine(cm, face, x1, y1, x2, y2, c, r)
+	drawCubeLine(cm, face, x1, y1, x3, y3, c, r)
+}
+
+func absInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
 func paintOceanicMask(pf *field.PlateField, S int) *cubemap.CubeMap {
 	blue := color.RGBA{R: 80, G: 120, B: 200, A: 255}
 	brown := color.RGBA{R: 130, G: 100, B: 70, A: 255}
