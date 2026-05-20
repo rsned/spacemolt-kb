@@ -492,10 +492,10 @@ function renderCurlPanel(profile, panels) {
     renderPanels();
   };
 
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range curl values', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Zero out curl config', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll new in-range curl values', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out curl config', clear));
 
   panel.appendChild(makeNumberRow('Amp', 'Displacement strength per iteration (0 disables; useful 0.1–0.5).',
     profile.Curl.Amp, 0, 1, '0.01',
@@ -705,17 +705,25 @@ function makeEnabledCheckbox(stage) {
   return label;
 }
 
+// Interactive controls (enable checkbox, Randomize/Reset/Clear) are
+// kept OUT of <summary> per the a11y rule that interactive elements
+// inside <summary> aren't consistently reachable by keyboard / screen
+// readers. They live in a sibling .panel-controls div that CSS pins
+// to the right of the summary row.
 function makePanel(title, helpText, bypassStage) {
   const panel = document.createElement('details');
   panel.className = 'panel';
   bindCollapseState(panel, `panel:${title}`);
   const summary = document.createElement('summary');
   summary.title = helpText;
-  if (bypassStage) summary.appendChild(makeEnabledCheckbox(bypassStage));
   const h3 = document.createElement('h3');
   h3.textContent = title;
   summary.appendChild(h3);
   panel.appendChild(summary);
+  const controls = document.createElement('div');
+  controls.className = 'panel-controls';
+  if (bypassStage) controls.appendChild(makeEnabledCheckbox(bypassStage));
+  panel.appendChild(controls);
   return panel;
 }
 
@@ -725,24 +733,31 @@ function makeSubPanel(title, helpText, opts = {}) {
   bindCollapseState(sub, `sub:${title}`);
   const summary = document.createElement('summary');
   summary.title = helpText;
-  if (opts.bypassStage) summary.appendChild(makeEnabledCheckbox(opts.bypassStage));
   const strong = document.createElement('strong');
   strong.textContent = title;
   summary.appendChild(strong);
+  sub.appendChild(summary);
+  const controls = document.createElement('div');
+  controls.className = 'panel-controls';
+  if (opts.bypassStage) controls.appendChild(makeEnabledCheckbox(opts.bypassStage));
   if (opts.onRandomize) {
-    summary.appendChild(makeAuxBtn('Randomize',
+    controls.appendChild(makeAuxBtn('Randomize',
       `Roll new random in-range values for ${title}`, opts.onRandomize));
   }
   if (opts.onReset) {
-    summary.appendChild(makeAuxBtn('Reset',
+    controls.appendChild(makeAuxBtn('Reset',
       `Restore ${title} to the loaded JSON values`, opts.onReset));
   }
   if (opts.onClear) {
-    summary.appendChild(makeAuxBtn('Clear',
+    controls.appendChild(makeAuxBtn('Clear',
       `Zero out all values for ${title}`, opts.onClear));
   }
-  sub.appendChild(summary);
+  sub.appendChild(controls);
   return sub;
+}
+
+function panelControls(panel) {
+  return panel.querySelector(':scope > .panel-controls');
 }
 
 function makeAuxBtn(label, tooltip, handler) {
@@ -923,10 +938,10 @@ function renderCratersPanel(profile, panels) {
     renderPanels();
   };
 
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll new random in-range crater params', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore craters to the loaded JSON values', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Zero out all crater params', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll new random in-range crater params', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore craters to the loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out all crater params', clear));
 
   panel.appendChild(makeNumberRow('CraterCount',
     'How many craters to stamp. 0 = none; 200 ≈ Mercury-dense.',
@@ -996,10 +1011,10 @@ function renderErosionPanel(profile, panels) {
     renderPanels();
   };
 
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range erosion params', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Zero out erosion config', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll new in-range erosion params', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out erosion config', clear));
 
   panel.appendChild(makeNumberRow('Droplets',
     'Canonical droplet count at face=1024. Auto-scaled by face area; floor 5000 so previews still carve channels. 0 disables.',
@@ -1107,10 +1122,10 @@ function renderCoastalPanel(profile, panels) {
     renderPanels();
   };
 
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range coastal values', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Zero out coastal config', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll new in-range coastal values', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out coastal config', clear));
 
   panel.appendChild(makeNumberRow('Amp', 'Master strength (0 disables; useful 0.05–0.2).',
     profile.Coastal.Amp, 0, 0.5, '0.01',
@@ -1163,10 +1178,10 @@ function renderContinentsPanel(profile, panels) {
     renderPanels();
   };
 
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll new in-range continent values', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Zero out continents config', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll new in-range continent values', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out continents config', clear));
 
   panel.appendChild(makeNumberRow('Seeds', 'Number of continent seeds (0 disables; 10–50 typical).',
     profile.Continents.Seeds, 0, 50, '1',
@@ -1214,10 +1229,10 @@ function renderProvincePanel(profile, panels) {
     commitProfile(profile); renderPanels();
   };
 
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll random province params', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore Provinces to loaded JSON', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Disable provinces', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll random province params', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore Provinces to loaded JSON', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable provinces', clear));
 
   panel.appendChild(makeNumberRow('Count',
     'Number of Voronoi cells (8-40 typical; 0 = disabled).',
@@ -1285,10 +1300,10 @@ function renderRidgedPanel(profile, panels) {
     commitProfile(profile); renderPanels();
   };
 
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll random in-range ridged params', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore Ridged to loaded JSON values', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Zero out all ridged params', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll random in-range ridged params', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore Ridged to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out all ridged params', clear));
 
   const help = {
     Amp:        'Overall mountain contribution to the heightmap. 0 = disabled. Useful 0.05–0.3.',
@@ -1350,10 +1365,10 @@ function renderWarpPanel(profile, panels) {
     commitProfile(profile);
     renderPanels();
   };
-  const summary = panel.querySelector('summary');
-  summary.appendChild(makeAuxBtn('Randomize', 'Roll new random in-range warp params', randomize));
-  summary.appendChild(makeAuxBtn('Reset', 'Restore Warp to the loaded JSON values', reset));
-  summary.appendChild(makeAuxBtn('Clear', 'Zero out all warp params', clear));
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll new random in-range warp params', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore Warp to the loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out all warp params', clear));
   for (const param of ['Amp', 'Freq', 'Octaves', 'Lacunarity', 'Persistence']) {
     panel.appendChild(makeParamRow(param,
       () => profile.Warp[param] || 0,
@@ -1580,27 +1595,45 @@ function renderSphere() {
   ctx.putImageData(id, 0, 0);
 }
 
-// Dirty-driven sphere render loop. We schedule a RAF only when there
-// is real work to do (auto-rotating, mid-drag, or a one-shot redraw
-// after a texture refresh). An always-on RAF that calls renderSphere()
-// every frame burns ~100% of a CPU core even when nothing is changing.
+// Dirty-driven sphere render loop. RAF only runs when there is real
+// work to do (auto-rotating, mid-drag, or a one-shot redraw after a
+// texture refresh). renderSphere is a JS software rasterizer (per-
+// pixel trig + texture sample); running it every vsync at 60 fps
+// pegs a CPU core, so auto-rotate is throttled to ~15 fps with the
+// rotation step scaled by elapsed time to keep visible speed constant.
+// Drag and one-shot redraws still render at the next vsync for
+// responsiveness.
 let sphereRafScheduled = false;
 let sphereDirty = false;
+let sphereLastRenderTs = 0;
+const SPHERE_AUTO_MIN_FRAME_MS = 66;
+const SPHERE_AUTO_RATE_RAD_PER_S = 0.18;
 function scheduleSphereFrame() {
   if (!sphereCanvas) return;
   if (sphereRafScheduled) return;
   sphereRafScheduled = true;
-  requestAnimationFrame(() => {
+  requestAnimationFrame((ts) => {
     sphereRafScheduled = false;
     let render = false;
-    if (sphereAutoRotate && !sphereDragging) {
-      sphereRotY += 0.003;
+    if (sphereDirty || sphereDragging) {
       render = true;
+    } else if (sphereAutoRotate && sphereTextureData) {
+      // No point spinning a placeholder grey disc — wait until the
+      // first generate populates a texture.
+      const dt = ts - sphereLastRenderTs;
+      if (dt >= SPHERE_AUTO_MIN_FRAME_MS) {
+        sphereRotY += SPHERE_AUTO_RATE_RAD_PER_S * dt / 1000;
+        render = true;
+      }
     }
-    if (sphereDragging || sphereDirty) render = true;
-    if (render) renderSphere();
-    sphereDirty = false;
-    if (sphereAutoRotate || sphereDragging) scheduleSphereFrame();
+    if (render) {
+      renderSphere();
+      sphereLastRenderTs = ts;
+      sphereDirty = false;
+    }
+    if ((sphereAutoRotate && sphereTextureData) || sphereDragging) {
+      scheduleSphereFrame();
+    }
   });
 }
 
@@ -1625,7 +1658,7 @@ if (sphereCanvas) {
       sphereDirty = true; // render the final drag position once
       scheduleSphereFrame();
       sphereResumeTimer = setTimeout(() => {
-        if (!sphereDragging) {
+        if (!sphereDragging && !spherePaused) {
           sphereAutoRotate = true;
           scheduleSphereFrame();
         }
@@ -1633,6 +1666,29 @@ if (sphereCanvas) {
     }
   });
   scheduleSphereFrame();
+}
+
+// Pause/Resume button. When the user explicitly pauses, we also cancel
+// the post-drag 3 s auto-resume timer so a recent drag doesn't kick
+// rotation back on after they paused. Resume clears the paused flag
+// and kicks one frame.
+let spherePaused = false;
+const spherePauseBtn = document.getElementById('sphere-pause');
+if (spherePauseBtn) {
+  spherePauseBtn.addEventListener('click', () => {
+    spherePaused = !spherePaused;
+    spherePauseBtn.textContent = spherePaused ? 'Resume' : 'Pause';
+    if (spherePaused) {
+      sphereAutoRotate = false;
+      if (sphereResumeTimer) {
+        clearTimeout(sphereResumeTimer);
+        sphereResumeTimer = null;
+      }
+    } else {
+      sphereAutoRotate = true;
+      scheduleSphereFrame();
+    }
+  });
 }
 
 // === Phase 6: pipeline debug view ===
