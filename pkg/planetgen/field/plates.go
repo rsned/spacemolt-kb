@@ -198,11 +198,15 @@ const (
 // signed-velocity threshold (profile.PlateConvergentT, default 0.75).
 func classifyBoundary(vRel, n [3]float64, T float64) boundaryKind {
 	proj := vRel[0]*n[0] + vRel[1]*n[1] + vRel[2]*n[2]
+	// vRel = vA - vB; n points from A's pixel toward B's pixel. If
+	// vRel·n > 0, plate A is moving into B's territory → colliding
+	// (convergent). If vRel·n < 0, A is moving away from B → spreading
+	// (divergent).
 	switch {
 	case proj > +T:
-		return boundaryDivergent
-	case proj < -T:
 		return boundaryConvergent
+	case proj < -T:
+		return boundaryDivergent
 	default:
 		return boundaryTransform
 	}
@@ -377,6 +381,39 @@ func seedPlates(profile *types.PlanetProfile, master int64) []Plate {
 		}
 		plates[i].AngSpeed = rngMotion.Float64()
 		plates[i].IsOceanic = rngOceanic.Float64() < profile.OceanicPlateFraction
+	}
+
+	// Sum-to-zero angular momentum: subtract the mean ω from each plate
+	// so the lithosphere has no net spin relative to the mantle. Without
+	// this, neighboring plates sampled independently can share similar
+	// motion, producing "conga-line" boundaries (everywhere transform).
+	// Earth-like dynamics require opposing pairs of plates, which
+	// emerges naturally once the global mean is removed. Plates with
+	// motion very close to the mean end up with tiny residual speed —
+	// rare in practice for n ≥ 6.
+	var mx, my, mz float64
+	for i := range plates {
+		mx += plates[i].RotAxis[0] * plates[i].AngSpeed
+		my += plates[i].RotAxis[1] * plates[i].AngSpeed
+		mz += plates[i].RotAxis[2] * plates[i].AngSpeed
+	}
+	mx /= float64(n)
+	my /= float64(n)
+	mz /= float64(n)
+	for i := range plates {
+		wx := plates[i].RotAxis[0]*plates[i].AngSpeed - mx
+		wy := plates[i].RotAxis[1]*plates[i].AngSpeed - my
+		wz := plates[i].RotAxis[2]*plates[i].AngSpeed - mz
+		mag := math.Sqrt(wx*wx + wy*wy + wz*wz)
+		if mag < 1e-12 {
+			// Degenerate: plate's original ω matched the mean exactly.
+			// Leave RotAxis as-is and set AngSpeed to zero (transform-
+			// only behavior on all its boundaries).
+			plates[i].AngSpeed = 0
+			continue
+		}
+		plates[i].RotAxis = [3]float64{wx / mag, wy / mag, wz / mag}
+		plates[i].AngSpeed = mag
 	}
 	return plates
 }

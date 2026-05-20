@@ -147,10 +147,10 @@ func TestClassifyBoundaryHandBuilt(t *testing.T) {
 		t    float64
 		want boundaryKind
 	}{
-		{[3]float64{0, 0, -2}, [3]float64{0, 0, 1}, 0.75, boundaryConvergent},
-		{[3]float64{0, 0, +2}, [3]float64{0, 0, 1}, 0.75, boundaryDivergent},
+		{[3]float64{0, 0, -2}, [3]float64{0, 0, 1}, 0.75, boundaryDivergent},
+		{[3]float64{0, 0, +2}, [3]float64{0, 0, 1}, 0.75, boundaryConvergent},
 		{[3]float64{0, 0, +0.1}, [3]float64{0, 0, 1}, 0.75, boundaryTransform},
-		{[3]float64{0, 0, +0.8}, [3]float64{0, 0, 1}, 0.75, boundaryDivergent},
+		{[3]float64{0, 0, +0.8}, [3]float64{0, 0, 1}, 0.75, boundaryConvergent},
 		{[3]float64{0, 0, -0.74}, [3]float64{0, 0, 1}, 0.75, boundaryTransform},
 	}
 	for i, c := range cases {
