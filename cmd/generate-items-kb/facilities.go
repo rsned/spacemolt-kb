@@ -351,119 +351,92 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         <h2>{{.Facility.Name}} {{if .Facility.Buildable}}<span class="badge badge-buildable">Buildable</span>{{else}}<span class="badge badge-locked">Not Buildable</span>{{end}}</h2>
 
         {{if .Facility.Description}}
-        <p>{{.Facility.Description}}</p>
+        <blockquote class="item-desc">{{.Facility.Description}}</blockquote>
         {{end}}
 
-        <section class="detail-section">
-            <h3>Stats</h3>
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th>Property</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Level</td>
-                        <td>{{.Facility.Level}}</td>
-                    </tr>
-                    <tr>
-                        <td>Build Cost</td>
-                        <td>{{fmtValue .Facility.BuildCost}}</td>
-                    </tr>
-                    <tr>
-                        <td>Labor</td>
-                        <td>{{.Facility.LaborCost}}</td>
-                    </tr>
-                    <tr>
-                        <td>Rent/Cycle</td>
-                        <td>{{fmtValue .Facility.RentPerCycle}}</td>
-                    </tr>
-                </tbody>
+        <div class="card mt-2" style="padding:0">
+            <div class="section-label">Stats</div>
+            <table>
+                <tr><td class="kv-label">Level</td><td>{{.Facility.Level}}</td></tr>
+                <tr><td class="kv-label">Build Cost</td><td>{{fmtValue .Facility.BuildCost}}</td></tr>
+                <tr><td class="kv-label">Labor</td><td>{{.Facility.LaborCost}}</td></tr>
+                <tr><td class="kv-label">Rent/Cycle</td><td>{{fmtValue .Facility.RentPerCycle}}</td></tr>
             </table>
-        </section>
+        </div>
 
         {{if .Facility.UpgradeChain}}
-        <section class="detail-section">
-            <h3>Upgrade Path</h3>
-            <div class="upgrade-diagram">
+        <div class="card" style="padding:0">
+            <div class="section-label">Upgrade Path</div>
+            <div class="upgrade-diagram" style="margin:0;padding:0.75rem">
             {{- upgradeSVG .Facility.UpgradeChain}}
             </div>
-        </section>
+        </div>
         {{end}}
 
         {{if .Facility.Recipe}}
-        <section class="detail-section">
-            <h3>Recipe</h3>
-            <p><strong>Output:</strong> <a href="../../recipes/{{dirName .Facility.Recipe.Category}}/{{.Facility.Recipe.ID}}.html">{{.Facility.Recipe.Name}}</a> (×{{printf "%.2f" .Facility.RecipeMultiplier}})</p>
-            <p><strong>Crafting Time:</strong> {{.Facility.Recipe.CraftingTime}}s</p>
+        <div class="card" style="padding:0">
+            <div class="section-label">Recipe</div>
+            <table>
+                <tr><td class="kv-label">Output</td><td><a href="../../recipes/{{dirName .Facility.Recipe.Category}}/{{.Facility.Recipe.ID}}.html">{{.Facility.Recipe.Name}}</a> <span class="text-muted">&times;{{printf "%.2f" .Facility.RecipeMultiplier}}</span></td></tr>
+                <tr><td class="kv-label">Crafting Time</td><td>{{.Facility.Recipe.CraftingTime}}s</td></tr>
+            </table>
             {{if .Facility.Recipe.Inputs}}
-            <p><strong>Inputs:</strong></p>
-            <ul>
-            {{- range .Facility.Recipe.Inputs}}
-                <li>{{.Quantity}}x <a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></li>
-            {{- end}}
-            </ul>
+            <div class="section-label">Recipe Inputs</div>
+            <table>
+                <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
+                <tbody>
+                {{- range .Facility.Recipe.Inputs}}
+                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
+                {{- end}}
+                </tbody>
+            </table>
             {{end}}
             {{if .Facility.Recipe.Outputs}}
-            <p><strong>Outputs:</strong></p>
-            <ul>
-            {{- range .Facility.Recipe.Outputs}}
-                <li>{{.Quantity}}x <a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></li>
-            {{- end}}
-            </ul>
+            <div class="section-label">Recipe Outputs</div>
+            <table>
+                <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
+                <tbody>
+                {{- range .Facility.Recipe.Outputs}}
+                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
+                {{- end}}
+                </tbody>
+            </table>
             {{end}}
-        </section>
+        </div>
         {{end}}
 
         {{if .Facility.BuildMaterials}}
-        <section class="detail-section">
-            <h3>Build Materials</h3>
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th>Material</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
+        <div class="card" style="padding:0">
+            <div class="section-label">Build Materials</div>
+            <table>
+                <thead><tr><th>Material</th><th>Quantity</th></tr></thead>
                 <tbody>
                 {{- range .Facility.BuildMaterials}}
-                    <tr>
-                        <td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td>
-                        <td>{{.Quantity}}</td>
-                    </tr>
+                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
                 {{- end}}
                 </tbody>
             </table>
-        </section>
+        </div>
         {{end}}
 
         {{if .Facility.MaintenancePerCycle}}
-        <section class="detail-section mt-3">
-            <h3>Maintenance per Cycle</h3>
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th>Material</th>
-                        <th>Quantity</th>
-                    </tr>
-                </thead>
+        <div class="card" style="padding:0">
+            <div class="section-label">Maintenance per Cycle</div>
+            <table>
+                <thead><tr><th>Material</th><th>Quantity</th></tr></thead>
                 <tbody>
                 {{- range .Facility.MaintenancePerCycle}}
-                    <tr>
-                        <td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td>
-                        <td>{{.Quantity}}</td>
-                    </tr>
+                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
                 {{- end}}
                 </tbody>
             </table>
-        </section>
+        </div>
         {{end}}
 
         {{if .Facility.Hint}}
-        <div class="hint-box">
-            <strong>Hint:</strong> {{.Facility.Hint}}
+        <div class="card" style="padding:0">
+            <div class="section-label">Hint</div>
+            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">{{.Facility.Hint}}</p>
         </div>
         {{end}}
 

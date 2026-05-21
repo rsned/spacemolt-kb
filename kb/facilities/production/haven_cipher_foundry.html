@@ -31,65 +31,53 @@
         <h2>Haven Cipher Foundry <span class="badge badge-locked">Not Buildable</span></h2>
 
         
-        <p>Cuts raw trade crystals into cryptographic cipher chips — Stage 1 of Haven&#39;s two-step transaction verification monopoly.</p>
+        <blockquote class="item-desc">Cuts raw trade crystals into cryptographic cipher chips — Stage 1 of Haven&#39;s two-step transaction verification monopoly.</blockquote>
         
 
-        <section class="detail-section">
-            <h3>Stats</h3>
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th>Property</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
+        <div class="card mt-2" style="padding:0">
+            <div class="section-label">Stats</div>
+            <table>
+                <tr><td class="kv-label">Level</td><td>5</td></tr>
+                <tr><td class="kv-label">Build Cost</td><td>0 cr</td></tr>
+                <tr><td class="kv-label">Labor</td><td>300</td></tr>
+                <tr><td class="kv-label">Rent/Cycle</td><td>300 cr</td></tr>
+            </table>
+        </div>
+
+        
+        <div class="card" style="padding:0">
+            <div class="section-label">Upgrade Path</div>
+            <div class="upgrade-diagram" style="margin:0;padding:0.75rem"><svg width="100%" height="80" viewBox="0 0 180 80" xmlns="http://www.w3.org/2000/svg"><style>.upgrade-box { fill: transparent; stroke: #999; stroke-width: 1.5; }.upgrade-box-current { fill: transparent; stroke: #000; stroke-width: 2; }.upgrade-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #666; text-anchor: middle; }.upgrade-text-current { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #000; font-weight: 600; text-anchor: middle; }.upgrade-link { text-decoration: none; }.upgrade-arrow { stroke: #999; stroke-width: 1.5; fill: none; }</style><rect x="20" y="15" width="140" height="60" rx="4" class="upgrade-box-current"/><text x="90" y="35" class="upgrade-text-current">Haven Cipher</text><text x="90" y="49" class="upgrade-text-current">Foundry</text></svg>
+            </div>
+        </div>
+        
+
+        
+        <div class="card" style="padding:0">
+            <div class="section-label">Recipe</div>
+            <table>
+                <tr><td class="kv-label">Output</td><td><a href="../../recipes/Facility_Only/encode_trade_cipher.html">Encode Trade Cipher</a> <span class="text-muted">&times;4.00</span></td></tr>
+                <tr><td class="kv-label">Crafting Time</td><td>8s</td></tr>
+            </table>
+            
+            <div class="section-label">Recipe Inputs</div>
+            <table>
+                <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
                 <tbody>
-                    <tr>
-                        <td>Level</td>
-                        <td>5</td>
-                    </tr>
-                    <tr>
-                        <td>Build Cost</td>
-                        <td>0 cr</td>
-                    </tr>
-                    <tr>
-                        <td>Labor</td>
-                        <td>300</td>
-                    </tr>
-                    <tr>
-                        <td>Rent/Cycle</td>
-                        <td>300 cr</td>
-                    </tr>
+                    <tr><td><a href="../../items/ore/trade_crystal.html">Trade Crystal</a></td><td>10</td></tr>
                 </tbody>
             </table>
-        </section>
-
-        
-        <section class="detail-section">
-            <h3>Upgrade Path</h3>
-            <div class="upgrade-diagram"><svg width="100%" height="80" viewBox="0 0 180 80" xmlns="http://www.w3.org/2000/svg"><style>.upgrade-box { fill: transparent; stroke: #999; stroke-width: 1.5; }.upgrade-box-current { fill: transparent; stroke: #000; stroke-width: 2; }.upgrade-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #666; text-anchor: middle; }.upgrade-text-current { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #000; font-weight: 600; text-anchor: middle; }.upgrade-link { text-decoration: none; }.upgrade-arrow { stroke: #999; stroke-width: 1.5; fill: none; }</style><rect x="20" y="15" width="140" height="60" rx="4" class="upgrade-box-current"/><text x="90" y="35" class="upgrade-text-current">Haven Cipher</text><text x="90" y="49" class="upgrade-text-current">Foundry</text></svg>
-            </div>
-        </section>
-        
-
-        
-        <section class="detail-section">
-            <h3>Recipe</h3>
-            <p><strong>Output:</strong> <a href="../../recipes/Facility_Only/encode_trade_cipher.html">Encode Trade Cipher</a> (×4.00)</p>
-            <p><strong>Crafting Time:</strong> 8s</p>
-            
-            <p><strong>Inputs:</strong></p>
-            <ul>
-                <li>10x <a href="../../items/ore/trade_crystal.html">Trade Crystal</a></li>
-            </ul>
             
             
-            <p><strong>Outputs:</strong></p>
-            <ul>
-                <li>10x <a href="../../items/component/trade_cipher.html">Trade Cipher</a></li>
-            </ul>
+            <div class="section-label">Recipe Outputs</div>
+            <table>
+                <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
+                <tbody>
+                    <tr><td><a href="../../items/component/trade_cipher.html">Trade Cipher</a></td><td>10</td></tr>
+                </tbody>
+            </table>
             
-        </section>
+        </div>
         
 
         
@@ -97,8 +85,9 @@
         
 
         
-        <div class="hint-box">
-            <strong>Hint:</strong> This facility type is station-managed and cannot be built by players.
+        <div class="card" style="padding:0">
+            <div class="section-label">Hint</div>
+            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">This facility type is station-managed and cannot be built by players.</p>
         </div>
         
 
