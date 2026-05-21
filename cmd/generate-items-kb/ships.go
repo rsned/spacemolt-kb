@@ -203,17 +203,13 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 					continue
 				}
 
-				var categoryLink string
-				if item.Category == "ore" {
-					categoryLink = "ore"
-				} else if item.Category == "material" {
-					categoryLink = "material"
-				} else {
-					categoryLink = item.Category
+				if item.Category == "" {
+					sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, item.Name, mat.Quantity))
+					continue
 				}
 
 				sb.WriteString(fmt.Sprintf(`<tr><td><a href="../../items/%s/%s.html">%s</a></td><td>%d</td></tr>`,
-					categoryLink, mat.ItemID, item.Name, mat.Quantity))
+					item.Category, mat.ItemID, item.Name, mat.Quantity))
 			}
 
 			sb.WriteString(`</tbody></table></div>`)

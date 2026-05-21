@@ -2012,17 +2012,13 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 					continue
 				}
 
-				var categoryLink string
-				if item.Category == "ore" {
-					categoryLink = "ore"
-				} else if item.Category == "material" {
-					categoryLink = "material"
-				} else {
-					categoryLink = item.Category
+				if item.Category == "" {
+					sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, item.Name, mat.Quantity))
+					continue
 				}
 
 				sb.WriteString(fmt.Sprintf(`<tr><td><a href="../%s/%s.html">%s</a></td><td>%d</td></tr>`,
-					categoryLink, mat.ItemID, item.Name, mat.Quantity))
+					item.Category, mat.ItemID, item.Name, mat.Quantity))
 			}
 
 			sb.WriteString(`</tbody></table></div>`)
@@ -2398,8 +2394,8 @@ var recipeCatTemplate = `<!DOCTYPE html>
 {{- range .Recipes}}
         <tr>
           <td><a href="{{.ID}}.html">{{.Name}}</a>{{if .Hidden}} <span class="badge badge-hidden" title="Hidden">H</span>{{end}}</td>
-          <td>{{- range .Outputs}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html" class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</a>{{end}}</td>
-          <td class="recipe-inputs">{{- range $i, $inp := .Inputs}}{{if $i}}, {{end}}<a href="../../items/{{$inp.ItemCategory}}/{{$inp.ItemID}}.html">{{$inp.ItemName}}</a>&nbsp;&times;{{$inp.Quantity}}{{end}}</td>
+          <td>{{- range .Outputs}}{{if .ItemCategory}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html" class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</a>{{else}}<span class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</span>{{end}}{{end}}</td>
+          <td class="recipe-inputs">{{- range $i, $inp := .Inputs}}{{if $i}}, {{end}}{{if $inp.ItemCategory}}<a href="../../items/{{$inp.ItemCategory}}/{{$inp.ItemID}}.html">{{$inp.ItemName}}</a>{{else}}{{$inp.ItemName}}{{end}}&nbsp;&times;{{$inp.Quantity}}{{end}}</td>
           <td class="time" data-sort="{{.CraftingTime}}">{{.CraftingTime}} ticks</td>
         </tr>
 {{- end}}
@@ -2438,7 +2434,7 @@ var recipeDetailTemplate = `<!DOCTYPE html>
 {{- range .Outputs}}
             <tr>
               <td class="thumb">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}">{{end}}</td>
-              <td><a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html">{{.ItemName}}</a></td>
+              <td>{{if .ItemCategory}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html">{{.ItemName}}</a>{{else}}{{.ItemName}}{{end}}</td>
               <td>{{.Quantity}}</td>
             </tr>
 {{- end}}
@@ -2452,7 +2448,7 @@ var recipeDetailTemplate = `<!DOCTYPE html>
 {{- range .Inputs}}
             <tr>
               <td class="thumb">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}">{{end}}</td>
-              <td><a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html">{{.ItemName}}</a></td>
+              <td>{{if .ItemCategory}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html">{{.ItemName}}</a>{{else}}{{.ItemName}}{{end}}</td>
               <td>{{.Quantity}}</td>
             </tr>
 {{- end}}

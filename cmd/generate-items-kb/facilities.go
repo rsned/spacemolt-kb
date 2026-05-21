@@ -316,7 +316,11 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
                         <td data-sort="{{.RentPerCycle}}">{{fmtValue .RentPerCycle}}</td>
                         <td>
 {{- if .Recipe}}
+{{- if .Recipe.Category}}
                             <a href="../../recipes/{{dirName .Recipe.Category}}/{{.Recipe.ID}}.html">{{.Recipe.Name}}</a>
+{{- else}}
+                            {{.Recipe.Name}}
+{{- end}}
                             <span class="text-muted">&times;{{printf "%.2f" .RecipeMultiplier}}</span>
 {{- else}}
                             <span class="text-muted">none</span>
@@ -377,7 +381,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         <div class="card" style="padding:0">
             <div class="section-label">Recipe</div>
             <table>
-                <tr><td class="kv-label">Output</td><td><a href="../../recipes/{{dirName .Facility.Recipe.Category}}/{{.Facility.Recipe.ID}}.html">{{.Facility.Recipe.Name}}</a> <span class="text-muted">&times;{{printf "%.2f" .Facility.RecipeMultiplier}}</span></td></tr>
+                <tr><td class="kv-label">Output</td><td>{{if .Facility.Recipe.Category}}<a href="../../recipes/{{dirName .Facility.Recipe.Category}}/{{.Facility.Recipe.ID}}.html">{{.Facility.Recipe.Name}}</a>{{else}}{{.Facility.Recipe.Name}}{{end}} <span class="text-muted">&times;{{printf "%.2f" .Facility.RecipeMultiplier}}</span></td></tr>
                 <tr><td class="kv-label">Crafting Time</td><td>{{.Facility.Recipe.CraftingTime}}s</td></tr>
             </table>
             {{if .Facility.Recipe.Inputs}}
@@ -386,7 +390,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
                 <tbody>
                 {{- range .Facility.Recipe.Inputs}}
-                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
+                    <tr><td>{{if .Category}}<a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td><td>{{.Quantity}}</td></tr>
                 {{- end}}
                 </tbody>
             </table>
@@ -397,7 +401,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
                 <tbody>
                 {{- range .Facility.Recipe.Outputs}}
-                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
+                    <tr><td>{{if .Category}}<a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td><td>{{.Quantity}}</td></tr>
                 {{- end}}
                 </tbody>
             </table>
@@ -412,7 +416,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <thead><tr><th>Material</th><th>Quantity</th></tr></thead>
                 <tbody>
                 {{- range .Facility.BuildMaterials}}
-                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
+                    <tr><td>{{if .Category}}<a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td><td>{{.Quantity}}</td></tr>
                 {{- end}}
                 </tbody>
             </table>
@@ -426,7 +430,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
                 <thead><tr><th>Material</th><th>Quantity</th></tr></thead>
                 <tbody>
                 {{- range .Facility.MaintenancePerCycle}}
-                    <tr><td><a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a></td><td>{{.Quantity}}</td></tr>
+                    <tr><td>{{if .Category}}<a href="../../items/{{.Category}}/{{.ItemID}}.html">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td><td>{{.Quantity}}</td></tr>
                 {{- end}}
                 </tbody>
             </table>
@@ -516,17 +520,13 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 					continue
 				}
 
-				var categoryLink string
-				if item.Category == "ore" {
-					categoryLink = "ore"
-				} else if item.Category == "material" {
-					categoryLink = "material"
-				} else {
-					categoryLink = item.Category
+				if item.Category == "" {
+					sb.WriteString(fmt.Sprintf(`<tr><td>%s</td><td>%d</td></tr>`, item.Name, mat.Quantity))
+					continue
 				}
 
 				sb.WriteString(fmt.Sprintf(`<tr><td><a href="../../items/%s/%s.html">%s</a></td><td>%d</td></tr>`,
-					categoryLink, mat.ItemID, item.Name, mat.Quantity))
+					item.Category, mat.ItemID, item.Name, mat.Quantity))
 			}
 
 			sb.WriteString(`</tbody></table></div>`)
