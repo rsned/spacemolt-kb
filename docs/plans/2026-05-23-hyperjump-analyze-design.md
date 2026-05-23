@@ -192,6 +192,20 @@ Regression against the real DB: Sol has a `~1.17°` void window centered on
 heading `~15.5°`; total coverage `~99.32%` with 6 gaps. Assert these (with
 tolerance) to lock the end-to-end pipeline.
 
+## Addendum (2026-05-23): station-destination filter
+
+A separate output limited to jump paths whose **destination system contains a
+station** (POI `type = 'station'`; 38 such systems). Implemented as:
+
+- `System.HasStation` — loaded via `EXISTS(... pois WHERE type='station')`.
+- `Pair.DestHasStation` — set from the destination during analysis.
+- `FilterStationDestinations(reports)` — keeps only station-destination pairs and
+  drops origins left with none (pure, reusable for the site phase).
+- CLI flag `--out-stations PATH` — writes the filtered report as a second JSON
+  artifact; the existing `--out` / stdout outputs are unchanged.
+
+Live result: 19,152 station-destination directed pairs, ~8.4% directly reachable.
+
 ## Future: site integration
 
 A later phase renders the `OriginReport` JSON into the KB site — one page per

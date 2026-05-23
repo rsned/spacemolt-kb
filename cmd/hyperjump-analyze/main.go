@@ -24,6 +24,7 @@ func main() {
 	dbPath := flag.String("db", "../spacemolt/data/spacemolt-knowledge.db", "path to the SQLite knowledge base")
 	margin := flag.Float64("margin", 100, "landing margin in galactic units")
 	out := flag.String("out", "", "write the full per-system JSON report to this path")
+	outStations := flag.String("out-stations", "", "write a JSON report of only station-destination jump paths to this path")
 	system := flag.String("system", "", "restrict printed/JSON detail to a single origin system id")
 	flag.Parse()
 
@@ -57,11 +58,24 @@ func main() {
 		}
 		fmt.Printf("\nWrote %d origin report(s) to %s\n", len(reports), *out)
 	}
+
+	if *outStations != "" {
+		stationReports := hyperjump.FilterStationDestinations(reports)
+		if err := writeJSON(*outStations, stationReports); err != nil {
+			log.Fatalf("write stations json: %v", err)
+		}
+		fmt.Printf("Wrote %d origin report(s) (station destinations only) to %s\n", len(stationReports), *outStations)
+	}
 }
 
-// loadSystems reads all systems (id, name, position) from the KB, ordered by id.
+// loadSystems reads all systems (id, name, position, station presence) from the
+// KB, ordered by id.
 func loadSystems(db *sql.DB) ([]hyperjump.System, error) {
-	rows, err := db.Query(`SELECT id, name, position_x, position_y FROM systems ORDER BY id`)
+	rows, err := db.Query(`
+		SELECT s.id, s.name, s.position_x, s.position_y,
+		       EXISTS(SELECT 1 FROM pois p WHERE p.system_id = s.id AND p.type = 'station')
+		FROM systems s
+		ORDER BY s.id`)
 	if err != nil {
 		return nil, err
 	}
@@ -69,10 +83,14 @@ func loadSystems(db *sql.DB) ([]hyperjump.System, error) {
 
 	var systems []hyperjump.System
 	for rows.Next() {
-		var s hyperjump.System
-		if err := rows.Scan(&s.ID, &s.Name, &s.Pos.X, &s.Pos.Y); err != nil {
+		var (
+			s          hyperjump.System
+			hasStation int
+		)
+		if err := rows.Scan(&s.ID, &s.Name, &s.Pos.X, &s.Pos.Y, &hasStation); err != nil {
 			return nil, err
 		}
+		s.HasStation = hasStation != 0
 		systems = append(systems, s)
 	}
 	return systems, rows.Err()

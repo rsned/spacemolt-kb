@@ -7,9 +7,10 @@ import (
 
 // System is a galactic system with an identity and position.
 type System struct {
-	ID   string
-	Name string
-	Pos  Vec
+	ID         string
+	Name       string
+	Pos        Vec
+	HasStation bool // true if the system contains at least one station POI
 }
 
 // dist returns the Euclidean distance between two points.

@@ -63,3 +63,47 @@ func TestAnalyze(t *testing.T) {
 		t.Errorf("A->C bearing = %v, want 0", ac.Bearing)
 	}
 }
+
+func TestAnalyze_destHasStation(t *testing.T) {
+	g := []System{
+		{ID: "A", Name: "A", Pos: Vec{0, 0}},
+		{ID: "B", Name: "B", Pos: Vec{200, 0}, HasStation: true},
+		{ID: "C", Name: "C", Pos: Vec{100, 0}}, // no station
+	}
+	reports := Analyze(g, 100)
+	ra := findReport(reports, "A")
+	if !findPair(ra, "B").DestHasStation {
+		t.Errorf("A->B DestHasStation = false, want true")
+	}
+	if findPair(ra, "C").DestHasStation {
+		t.Errorf("A->C DestHasStation = true, want false")
+	}
+}
+
+func TestFilterStationDestinations(t *testing.T) {
+	g := []System{
+		{ID: "A", Name: "A", Pos: Vec{0, 0}},
+		{ID: "B", Name: "B", Pos: Vec{200, 0}, HasStation: true}, // only station
+		{ID: "C", Name: "C", Pos: Vec{100, 0}},
+	}
+	filtered := FilterStationDestinations(Analyze(g, 100))
+
+	// Only origins with at least one station destination are kept: A and C
+	// (each has one pair, to B). B itself has no station destinations.
+	if len(filtered) != 2 {
+		t.Fatalf("got %d filtered reports, want 2", len(filtered))
+	}
+	for _, r := range filtered {
+		if r.System == "B" {
+			t.Errorf("B should be dropped (no station destinations)")
+		}
+		if len(r.Pairs) != 1 {
+			t.Errorf("origin %s has %d pairs, want 1", r.System, len(r.Pairs))
+		}
+		for _, p := range r.Pairs {
+			if !p.DestHasStation {
+				t.Errorf("origin %s pair to %s is not a station destination", r.System, p.To)
+			}
+		}
+	}
+}
