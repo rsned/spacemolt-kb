@@ -18,11 +18,11 @@ func TestJumpPageRenders(t *testing.T) {
 		{ID: "beta", Name: "Beta", PositionX: 150, PositionY: 0},
 	}
 
-	reports, names := buildJumpReports(systems)
+	reports, names, hsys := buildJumpReports(systems)
 	if _, ok := reports["sol"]; !ok {
 		t.Fatalf("no report for sol")
 	}
-	data := buildJumpPageData(systems[0], reports, names)
+	data := buildJumpPageData(systems[0], reports, names, hsys)
 
 	// beta is a reachable direct (non-station) connection from sol.
 	if len(data.Direct) == 0 {
@@ -63,8 +63,8 @@ func TestJumpPageSortableColumns(t *testing.T) {
 			POIs: []SystemPOI{{ID: "p2", Name: "Port", Type: "station"}}},
 		{ID: "beta", Name: "Beta", PositionX: 150, PositionY: 0},
 	}
-	reports, names := buildJumpReports(systems)
-	data := buildJumpPageData(systems[0], reports, names)
+	reports, names, hsys := buildJumpReports(systems)
+	data := buildJumpPageData(systems[0], reports, names, hsys)
 
 	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
 	var buf bytes.Buffer
@@ -73,9 +73,9 @@ func TestJumpPageSortableColumns(t *testing.T) {
 	}
 	out := buf.String()
 
-	// Both tables (Direct + Stations) are sortable.
-	if n := strings.Count(out, `table class="sortable"`); n != 2 {
-		t.Errorf("got %d sortable tables, want 2", n)
+	// All three tables (Direct + Stations + Heading Sweep) are sortable.
+	if n := strings.Count(out, `table class="sortable"`); n != 3 {
+		t.Errorf("got %d sortable tables, want 3", n)
 	}
 	// System, Heading, and Distance headers are sortable.
 	for _, want := range []string{
@@ -94,5 +94,48 @@ func TestJumpPageSortableColumns(t *testing.T) {
 	// The sort behavior script is included.
 	if !strings.Contains(out, "table.sortable") {
 		t.Errorf("missing sort script")
+	}
+}
+
+func TestJumpPageHeadingSweep(t *testing.T) {
+	systems := []*System{
+		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0,
+			POIs: []SystemPOI{{ID: "p1", Name: "Dock", Type: "station"}}},
+		{ID: "alpha", Name: "Alpha", PositionX: 300, PositionY: 0,
+			POIs: []SystemPOI{{ID: "p2", Name: "Port", Type: "station"}}},
+		{ID: "beta", Name: "Beta", PositionX: 150, PositionY: 0},
+	}
+	reports, names, hsys := buildJumpReports(systems)
+	data := buildJumpPageData(systems[0], reports, names, hsys)
+
+	if len(data.Sweep) == 0 {
+		t.Fatalf("expected heading sweep ranges")
+	}
+	// Sweep covers all 360 whole-degree headings exactly once.
+	total := 0
+	for _, r := range data.Sweep {
+		total += r.Width
+	}
+	if total != 360 {
+		t.Errorf("sweep covers %d degrees, want 360", total)
+	}
+	// Beta (closest on the +X line) is a landing target; names are resolved.
+	foundBeta := false
+	for _, r := range data.Sweep {
+		if r.LandsAt == "Beta" {
+			foundBeta = true
+		}
+	}
+	if !foundBeta {
+		t.Errorf("expected Beta as a landing target in the sweep")
+	}
+
+	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatalf("template execute: %v", err)
+	}
+	if !strings.Contains(buf.String(), "Heading Sweep") {
+		t.Errorf("jump page missing Heading Sweep section")
 	}
 }

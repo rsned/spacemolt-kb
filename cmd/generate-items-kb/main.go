@@ -1334,7 +1334,7 @@ func writeSystemPages(outDir string, systems []*System) error {
 	detailTmpl := htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(systemDetailTemplate))
 	jumpTmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
 
-	jumpReports, jumpNames := buildJumpReports(systems)
+	jumpReports, jumpNames, jumpSystems := buildJumpReports(systems)
 
 	// Clean generated HTML files, preserving CSS.
 	entries, err := os.ReadDir(outDir)
@@ -1433,7 +1433,7 @@ func writeSystemPages(outDir string, systems []*System) error {
 			return err
 		}
 
-		if err := writeJumpPage(jumpTmpl, sysDir, sys, jumpReports, jumpNames); err != nil {
+		if err := writeJumpPage(jumpTmpl, sysDir, sys, jumpReports, jumpNames, jumpSystems); err != nil {
 			return err
 		}
 	}
@@ -1441,12 +1441,12 @@ func writeSystemPages(outDir string, systems []*System) error {
 }
 
 // writeJumpPage renders a system's Pathfinder Jump Routes page (jumps.html).
-func writeJumpPage(tmpl *htmltpl.Template, sysDir string, sys *System, reports map[string]hyperjump.OriginReport, names map[string]string) error {
+func writeJumpPage(tmpl *htmltpl.Template, sysDir string, sys *System, reports map[string]hyperjump.OriginReport, names map[string]string, hsys []hyperjump.System) error {
 	f, err := os.Create(filepath.Join(sysDir, "jumps.html"))
 	if err != nil {
 		return err
 	}
-	if err := tmpl.Execute(f, buildJumpPageData(sys, reports, names)); err != nil {
+	if err := tmpl.Execute(f, buildJumpPageData(sys, reports, names, hsys)); err != nil {
 		_ = f.Close()
 		return err
 	}
@@ -1481,8 +1481,8 @@ func writeOneSystemPage(outDir string, target *System, allSystems []*System) err
 		return err
 	}
 
-	jumpReports, jumpNames := buildJumpReports(allSystems)
-	return writeJumpPage(jumpTmpl, sysDir, target, jumpReports, jumpNames)
+	jumpReports, jumpNames, jumpSystems := buildJumpReports(allSystems)
+	return writeJumpPage(jumpTmpl, sysDir, target, jumpReports, jumpNames, jumpSystems)
 }
 
 func toMapSystem(s *System) *systemmap.System {

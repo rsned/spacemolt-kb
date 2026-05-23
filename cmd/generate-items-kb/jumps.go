@@ -21,21 +21,35 @@ type JumpRow struct {
 	Reachable bool
 }
 
+// SweepRow is one collapsed heading-range row in the all-directions table.
+type SweepRow struct {
+	StartDeg  int
+	EndDeg    int
+	Width     int // whole-degree headings in the range (EndDeg-StartDeg+1)
+	LandsAt   string
+	LandsAtID string
+	Void      bool
+	Station   bool
+	Distance  float64
+	Ticks     int
+}
+
 // JumpPageData is the data model for a system's Pathfinder Jump Routes page.
 type JumpPageData struct {
 	System   *System
 	Arrows   htmltpl.HTML
 	Wheel    htmltpl.HTML
-	Direct   []JumpRow // reachable destinations, nearest first
-	Stations []JumpRow // all station destinations, marked, nearest first
-	Coverage float64   // percent of headings blocked
+	Direct   []JumpRow  // reachable destinations, nearest first
+	Stations []JumpRow  // all station destinations, marked, nearest first
+	Sweep    []SweepRow // every whole-degree heading, collapsed into ranges
+	Coverage float64    // percent of headings blocked
 	GapCount int
 }
 
 // buildJumpReports runs the hyper-jump analysis over all systems and returns the
 // per-origin reports indexed by system id plus an id->name lookup. A system has
 // a station if it contains any POI of type "station".
-func buildJumpReports(systems []*System) (map[string]hyperjump.OriginReport, map[string]string) {
+func buildJumpReports(systems []*System) (map[string]hyperjump.OriginReport, map[string]string, []hyperjump.System) {
 	hsys := make([]hyperjump.System, 0, len(systems))
 	names := make(map[string]string, len(systems))
 	for _, s := range systems {
@@ -59,11 +73,11 @@ func buildJumpReports(systems []*System) (map[string]hyperjump.OriginReport, map
 	for _, r := range hyperjump.Analyze(hsys, jumpMargin) {
 		reports[r.System] = r
 	}
-	return reports, names
+	return reports, names, hsys
 }
 
 // buildJumpPageData assembles the render-ready data for one system's jump page.
-func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, names map[string]string) JumpPageData {
+func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, names map[string]string, hsys []hyperjump.System) JumpPageData {
 	report := reports[sys.ID]
 
 	data := JumpPageData{
@@ -72,6 +86,31 @@ func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, n
 		Wheel:    htmltpl.HTML(jumpmap.RenderCoverageWheel(report)),        //nolint:gosec // trusted internal SVG
 		Coverage: report.CoveragePct * 100,
 		GapCount: len(report.Gaps),
+	}
+
+	var origin hyperjump.System
+	for _, h := range hsys {
+		if h.ID == sys.ID {
+			origin = h
+			break
+		}
+	}
+	for _, r := range hyperjump.HeadingSweep(origin, hsys, jumpMargin) {
+		row := SweepRow{
+			StartDeg:  r.StartDeg,
+			EndDeg:    r.EndDeg,
+			Width:     r.EndDeg - r.StartDeg + 1,
+			LandsAtID: r.LandsAt,
+			LandsAt:   names[r.LandsAt],
+			Void:      r.LandsAt == "",
+			Station:   r.LandsAtStation,
+			Distance:  r.Distance,
+			Ticks:     r.Ticks,
+		}
+		if row.LandsAt == "" && !row.Void {
+			row.LandsAt = r.LandsAt
+		}
+		data.Sweep = append(data.Sweep, row)
 	}
 
 	for _, p := range report.Pairs {
@@ -161,6 +200,25 @@ var jumpDetailTemplate = `<!DOCTYPE html>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
               <td>{{if .Reachable}}<span class="badge badge-frost">direct</span>{{else}}<span class="badge badge-yellow">interrupted</span>{{end}}</td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Heading Sweep — All Directions ({{len .Sweep}} ranges)</div>
+          <p class="text-muted" style="padding:0 12px">Where a jump lands for every whole-degree heading, collapsed into contiguous ranges. "(void)" ranges intersect no system.</p>
+          <table class="sortable">
+            <thead><tr><th class="sortable">Headings</th><th class="sortable" style="text-align:right">Span</th><th class="sortable">Lands At</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel</th></tr></thead>
+            <tbody>
+{{- range .Sweep}}
+            <tr>
+              <td data-sort="{{.StartDeg}}">{{.StartDeg}}°–{{.EndDeg}}°</td>
+              <td style="text-align:right">{{.Width}}°</td>
+              <td>{{if .Void}}<span class="text-muted">(void)</span>{{else}}<a href="../{{.LandsAtID}}/">{{.LandsAt}}</a>{{if .Station}} <span class="badge badge-frost">station</span>{{end}}{{end}}</td>
+              <td style="text-align:right" data-sort="{{printf "%.1f" .Distance}}">{{if .Void}}<span class="text-muted">—</span>{{else}}{{printf "%.0f" .Distance}}{{end}}</td>
+              <td style="text-align:right">{{if .Void}}<span class="text-muted">—</span>{{else}}{{.Ticks}} ticks{{end}}</td>
             </tr>
 {{- end}}
             </tbody>
