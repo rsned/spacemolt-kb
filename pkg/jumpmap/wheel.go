@@ -47,8 +47,9 @@ func RenderCoverageWheel(r hyperjump.OriginReport) string {
 		fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#55607a" stroke-width="1"/>`, x1, y1, x2, y2)
 	}
 
-	// Center summary text.
-	blocked := r.CoveragePct * 100
+	// Center summary text. Cap the blocked figure so a system with a (possibly
+	// sub-0.1%) gap never reads "100.0% blocked"; derive open from it so they agree.
+	blocked := DisplayBlockedPct(r.CoveragePct*100, len(r.Gaps))
 	open := 100 - blocked
 	fmt.Fprintf(&b, `<text class="wheel-center" x="%g" y="%g" text-anchor="middle" dominant-baseline="middle" fill="#cdd3e0" font-size="18">%.1f%% blocked</text>`,
 		wheelCenter, wheelCenter-8, blocked)

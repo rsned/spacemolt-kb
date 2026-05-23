@@ -31,6 +31,25 @@ func TestRenderCoverageWheel_withGap(t *testing.T) {
 	}
 }
 
+func TestRenderCoverageWheel_nearlySealed(t *testing.T) {
+	// Alpha Centauri-like: 99.987% blocked with one tiny gap must not read 100.0%.
+	r := hyperjump.OriginReport{
+		System:      "alpha_centauri",
+		CoveragePct: 0.9998689,
+		Gaps:        []hyperjump.Gap{{StartDeg: 219.68, EndDeg: 219.73, WidthDeg: 0.047, CenterDeg: 219.7}},
+	}
+	svg := RenderCoverageWheel(r)
+	if strings.Contains(svg, "100.0% blocked") {
+		t.Errorf("nearly-sealed system must not display 100.0%% blocked while a gap exists")
+	}
+	if !strings.Contains(svg, "99.9% blocked") {
+		t.Errorf("expected capped 99.9%% blocked, got:\n%s", svg)
+	}
+	if strings.Contains(svg, "0.0% open") {
+		t.Errorf("open figure must not read 0.0%% open while a gap exists")
+	}
+}
+
 func TestRenderCoverageWheel_noGap(t *testing.T) {
 	r := hyperjump.OriginReport{System: "grumium", CoveragePct: 1.0, Gaps: nil}
 	svg := RenderCoverageWheel(r)

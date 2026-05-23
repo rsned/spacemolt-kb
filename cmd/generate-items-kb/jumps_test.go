@@ -140,6 +140,28 @@ func TestJumpPageHeadingSweep(t *testing.T) {
 	}
 }
 
+func TestFigcaptionUsesCappedCoverage(t *testing.T) {
+	// A system that is 99.987% blocked with one gap must not read 100.0%.
+	data := JumpPageData{
+		System:          &System{Name: "Alpha Centauri"},
+		Coverage:        99.98689,
+		CoverageDisplay: 99.9,
+		GapCount:        1,
+	}
+	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatalf("template execute: %v", err)
+	}
+	out := buf.String()
+	if strings.Contains(out, "100.0% of headings blocked") {
+		t.Errorf("figcaption must not read 100.0%% blocked while a gap exists")
+	}
+	if !strings.Contains(out, "99.9% of headings blocked") {
+		t.Errorf("figcaption should show capped 99.9%% blocked")
+	}
+}
+
 func TestTicksDuration(t *testing.T) {
 	cases := map[int]string{0: "0:00", 1: "0:10", 6: "1:00", 15: "2:30", 349: "58:10"}
 	for ticks, want := range cases {

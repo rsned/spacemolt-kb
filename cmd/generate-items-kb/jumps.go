@@ -55,9 +55,10 @@ type JumpPageData struct {
 	Wheel    htmltpl.HTML
 	Direct   []JumpRow  // reachable destinations, nearest first
 	Stations []JumpRow  // all station destinations, marked, nearest first
-	Sweep    []SweepRow // every whole-degree heading, collapsed into ranges
-	Coverage float64    // percent of headings blocked
-	GapCount int
+	Sweep           []SweepRow // every whole-degree heading, collapsed into ranges
+	Coverage        float64    // percent of headings blocked (raw)
+	CoverageDisplay float64    // percent blocked for display (capped at 99.9 when gaps exist)
+	GapCount        int
 }
 
 // buildJumpReports runs the hyper-jump analysis over all systems and returns the
@@ -98,8 +99,9 @@ func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, n
 		System:   sys,
 		Arrows:   htmltpl.HTML(jumpmap.RenderStationArrows(report, names)), //nolint:gosec // trusted internal SVG
 		Wheel:    htmltpl.HTML(jumpmap.RenderCoverageWheel(report)),        //nolint:gosec // trusted internal SVG
-		Coverage: report.CoveragePct * 100,
-		GapCount: len(report.Gaps),
+		Coverage:        report.CoveragePct * 100,
+		CoverageDisplay: jumpmap.DisplayBlockedPct(report.CoveragePct*100, len(report.Gaps)),
+		GapCount:        len(report.Gaps),
 	}
 
 	var origin hyperjump.System
@@ -185,7 +187,7 @@ var jumpDetailTemplate = `<!DOCTYPE html>
             </figure>
             <figure class="jumpmap-figure">
                 {{.Wheel}}
-                <figcaption>{{printf "%.1f" .Coverage}}% of headings blocked · {{.GapCount}} void escape gaps</figcaption>
+                <figcaption>{{printf "%.1f" .CoverageDisplay}}% of headings blocked · {{.GapCount}} void escape gaps</figcaption>
             </figure>
         </div>
 
