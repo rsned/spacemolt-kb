@@ -18,6 +18,7 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/rsned/spacemolt-kb/pkg/bom"
+	"github.com/rsned/spacemolt-kb/pkg/hyperjump"
 	"github.com/rsned/spacemolt-kb/pkg/kbdb"
 	"github.com/rsned/spacemolt-kb/pkg/systemmap"
 	_ "modernc.org/sqlite"
@@ -413,6 +414,7 @@ func loadBoMFromDB(db *sql.DB, items map[string]*Item, ships []*Ship, facilities
 
 func main() {
 	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
+	systemsAll := flag.Bool("systems-only", false, "regenerate only the systems section (all system pages + jump routes)")
 	flag.Parse()
 
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
@@ -430,6 +432,12 @@ func main() {
 	// --- Single-system mode ---
 	if *systemOnly != "" {
 		generateOneSystem(*systemOnly)
+		return
+	}
+
+	// --- Systems-section-only mode (no items/recipes/missions) ---
+	if *systemsAll {
+		generateAllSystems()
 		return
 	}
 
@@ -1324,6 +1332,9 @@ func writeSystemPages(outDir string, systems []*System) error {
 	funcs := systemTemplateFuncs(sysLookup)
 	indexTmpl := htmltpl.Must(htmltpl.New("idx").Funcs(funcs).Parse(systemIndexTemplate))
 	detailTmpl := htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(systemDetailTemplate))
+	jumpTmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
+
+	jumpReports, jumpNames := buildJumpReports(systems)
 
 	// Clean generated HTML files, preserving CSS.
 	entries, err := os.ReadDir(outDir)
@@ -1421,8 +1432,25 @@ func writeSystemPages(outDir string, systems []*System) error {
 		if err := f.Close(); err != nil {
 			return err
 		}
+
+		if err := writeJumpPage(jumpTmpl, sysDir, sys, jumpReports, jumpNames); err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+// writeJumpPage renders a system's Pathfinder Jump Routes page (jumps.html).
+func writeJumpPage(tmpl *htmltpl.Template, sysDir string, sys *System, reports map[string]hyperjump.OriginReport, names map[string]string) error {
+	f, err := os.Create(filepath.Join(sysDir, "jumps.html"))
+	if err != nil {
+		return err
+	}
+	if err := tmpl.Execute(f, buildJumpPageData(sys, reports, names)); err != nil {
+		_ = f.Close()
+		return err
+	}
+	return f.Close()
 }
 
 // writeOneSystemPage regenerates a single system's detail page.
@@ -1434,6 +1462,7 @@ func writeOneSystemPage(outDir string, target *System, allSystems []*System) err
 
 	funcs := systemTemplateFuncs(sysLookup)
 	detailTmpl := htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(systemDetailTemplate))
+	jumpTmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
 
 	sysDir := filepath.Join(outDir, target.ID)
 	if err := os.MkdirAll(sysDir, 0o755); err != nil {
@@ -1448,7 +1477,12 @@ func writeOneSystemPage(outDir string, target *System, allSystems []*System) err
 		_ = f.Close()
 		return err
 	}
-	return f.Close()
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	jumpReports, jumpNames := buildJumpReports(allSystems)
+	return writeJumpPage(jumpTmpl, sysDir, target, jumpReports, jumpNames)
 }
 
 func toMapSystem(s *System) *systemmap.System {
@@ -2641,6 +2675,8 @@ var systemDetailTemplate = `<!DOCTYPE html>
           </table>
         </div>
 {{- end}}
+
+        <div class="card mt-2"><a href="jumps.html" class="jumpmap-link">Pathfinder Jump Routes →</a></div>
 
 {{- if .POIs}}
         <div class="card mt-2" style="padding:0">
