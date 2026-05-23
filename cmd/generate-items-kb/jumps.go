@@ -135,14 +135,14 @@ var jumpDetailTemplate = `<!DOCTYPE html>
 
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Direct Connections ({{len .Direct}})</div>
-          <table>
-            <thead><tr><th>System</th><th style="text-align:right">Heading</th><th style="text-align:right">Distance</th><th style="text-align:right">Margin</th></tr></thead>
+          <table class="sortable">
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Margin</th></tr></thead>
             <tbody>
 {{- range .Direct}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
-              <td style="text-align:right">{{printf "%.1f" .Bearing}}°</td>
-              <td style="text-align:right">{{printf "%.0f" .Distance}}</td>
+              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
+              <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
               <td style="text-align:right">{{printf "%.2f" .Margin}}°</td>
             </tr>
 {{- end}}
@@ -152,14 +152,14 @@ var jumpDetailTemplate = `<!DOCTYPE html>
 
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Station Destinations ({{len .Stations}})</div>
-          <table>
-            <thead><tr><th>System</th><th style="text-align:right">Heading</th><th style="text-align:right">Distance</th><th>Status</th></tr></thead>
+          <table class="sortable">
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th>Status</th></tr></thead>
             <tbody>
 {{- range .Stations}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
-              <td style="text-align:right">{{printf "%.1f" .Bearing}}°</td>
-              <td style="text-align:right">{{printf "%.0f" .Distance}}</td>
+              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
+              <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
               <td>{{if .Reachable}}<span class="badge badge-frost">direct</span>{{else}}<span class="badge badge-yellow">interrupted</span>{{end}}</td>
             </tr>
 {{- end}}
@@ -172,5 +172,6 @@ var jumpDetailTemplate = `<!DOCTYPE html>
           <p class="text-muted">The full listing of interrupted (non-station) jump paths will be added in a later phase.</p>
         </div>
     </main>
+` + sortScript + `
 </body>
 </html>`
