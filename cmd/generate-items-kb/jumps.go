@@ -2,6 +2,7 @@ package main
 
 import (
 	htmltpl "html/template"
+	"math"
 	"sort"
 
 	"github.com/rsned/spacemolt-kb/pkg/hyperjump"
@@ -17,6 +18,7 @@ type JumpRow struct {
 	Name      string
 	Bearing   float64
 	Distance  float64
+	Ticks     int // travel time, ceil(Distance/10)
 	Margin    float64
 	Reachable bool
 }
@@ -119,6 +121,7 @@ func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, n
 			Name:      names[p.To],
 			Bearing:   p.Bearing,
 			Distance:  p.Distance,
+			Ticks:     int(math.Ceil(p.Distance / 10)),
 			Margin:    p.AngularMargin,
 			Reachable: p.Reachable,
 		}
@@ -175,13 +178,14 @@ var jumpDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Direct Connections ({{len .Direct}})</div>
           <table class="sortable">
-            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Margin</th></tr></thead>
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel</th><th style="text-align:right">Margin</th></tr></thead>
             <tbody>
 {{- range .Direct}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
+              <td style="text-align:right">{{.Ticks}} ticks</td>
               <td style="text-align:right">{{printf "%.2f" .Margin}}°</td>
             </tr>
 {{- end}}
@@ -192,13 +196,14 @@ var jumpDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Station Destinations ({{len .Stations}})</div>
           <table class="sortable">
-            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th>Status</th></tr></thead>
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel</th><th>Status</th></tr></thead>
             <tbody>
 {{- range .Stations}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
+              <td style="text-align:right">{{.Ticks}} ticks</td>
               <td>{{if .Reachable}}<span class="badge badge-frost">direct</span>{{else}}<span class="badge badge-yellow">interrupted</span>{{end}}</td>
             </tr>
 {{- end}}

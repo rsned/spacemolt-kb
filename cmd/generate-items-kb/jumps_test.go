@@ -139,3 +139,34 @@ func TestJumpPageHeadingSweep(t *testing.T) {
 		t.Errorf("jump page missing Heading Sweep section")
 	}
 }
+
+func TestJumpPageTravelColumn(t *testing.T) {
+	systems := []*System{
+		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0},
+		{ID: "beta", Name: "Beta", PositionX: 150, PositionY: 0,
+			POIs: []SystemPOI{{ID: "p", Name: "Dock", Type: "station"}}},
+	}
+	reports, names, hsys := buildJumpReports(systems)
+	data := buildJumpPageData(systems[0], reports, names, hsys)
+
+	// beta at 150 GU -> ceil(150/10) = 15 ticks.
+	if len(data.Direct) == 0 || data.Direct[0].Ticks != 15 {
+		t.Fatalf("Direct[0].Ticks = %v, want 15 (%+v)", data.Direct, data.Direct)
+	}
+	if len(data.Stations) == 0 || data.Stations[0].Ticks != 15 {
+		t.Errorf("Stations[0].Ticks = %v, want 15", data.Stations)
+	}
+
+	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatalf("template execute: %v", err)
+	}
+	// A Travel header on both jump-page tables (3 total incl. Heading Sweep).
+	if n := strings.Count(buf.String(), ">Travel<"); n != 3 {
+		t.Errorf("got %d Travel headers, want 3", n)
+	}
+	if !strings.Contains(buf.String(), "15 ticks") {
+		t.Errorf("missing travel ticks value in rows")
+	}
+}
