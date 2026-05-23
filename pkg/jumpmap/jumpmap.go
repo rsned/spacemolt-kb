@@ -2,17 +2,18 @@
 // hyper-jump) analysis for a single origin system: a starburst of headings to
 // station destinations and a 360-degree coverage/void wheel.
 //
-// Both use the engine convention: 0 degrees points along +X (right) and angle
-// increases counter-clockwise. SVG's y axis is flipped so +Y points up.
+// Both use the server convention: 0 degrees points along +X (right) and +Y is
+// rendered DOWN the page (matching the galaxy/empire maps and the game client),
+// so on screen the angle appears to increase clockwise.
 package jumpmap
 
 import "math"
 
-// polar converts a center, radius, and heading (degrees, engine convention) into
-// SVG coordinates, flipping y so +Y points up.
+// polar converts a center, radius, and heading (degrees) into SVG coordinates.
+// +Y renders down the page, so the SVG y term adds r*sin(angle).
 func polar(cx, cy, r, deg float64) (x, y float64) {
 	rad := deg * math.Pi / 180
-	return cx + r*math.Cos(rad), cy - r*math.Sin(rad)
+	return cx + r*math.Cos(rad), cy + r*math.Sin(rad)
 }
 
 // assignLabelRings places each heading (given in ascending order) on the lowest

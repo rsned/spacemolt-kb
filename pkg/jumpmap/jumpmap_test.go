@@ -9,16 +9,17 @@ import (
 func close(a, b float64) bool { return math.Abs(a-b) <= 1e-6 }
 
 func TestPolar(t *testing.T) {
-	// Engine convention: 0deg = +X (right), CCW; SVG y flipped so +Y is up.
+	// Server convention: 0deg = +X (right); +Y renders DOWN the page (as the
+	// galaxy/empire maps do), so heading 90deg (+Y) points downward on screen.
 	cx, cy, r := 100.0, 100.0, 10.0
 	tests := []struct {
 		deg        float64
 		wantX, wantY float64
 	}{
 		{0, 110, 100},   // right
-		{90, 100, 90},   // up (smaller y)
+		{90, 100, 110},  // +Y -> down (larger y)
 		{180, 90, 100},  // left
-		{270, 100, 110}, // down (larger y)
+		{270, 100, 90},  // -Y -> up (smaller y)
 	}
 	for _, tt := range tests {
 		x, y := polar(cx, cy, r, tt.deg)
