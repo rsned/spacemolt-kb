@@ -140,6 +140,15 @@ func TestJumpPageHeadingSweep(t *testing.T) {
 	}
 }
 
+func TestTicksDuration(t *testing.T) {
+	cases := map[int]string{0: "0:00", 1: "0:10", 6: "1:00", 15: "2:30", 349: "58:10"}
+	for ticks, want := range cases {
+		if got := ticksDuration(ticks); got != want {
+			t.Errorf("ticksDuration(%d) = %q, want %q", ticks, got, want)
+		}
+	}
+}
+
 func TestSweepSingleDegreeRangeFormatting(t *testing.T) {
 	data := JumpPageData{
 		System: &System{Name: "Test"},
@@ -187,11 +196,12 @@ func TestJumpPageTravelColumn(t *testing.T) {
 	if err := tmpl.Execute(&buf, data); err != nil {
 		t.Fatalf("template execute: %v", err)
 	}
-	// A Travel header on both jump-page tables (3 total incl. Heading Sweep).
-	if n := strings.Count(buf.String(), ">Travel<"); n != 3 {
-		t.Errorf("got %d Travel headers, want 3", n)
+	// A 'Travel (ticks)' header on all three jump-page tables.
+	if n := strings.Count(buf.String(), ">Travel (ticks)<"); n != 3 {
+		t.Errorf("got %d 'Travel (ticks)' headers, want 3", n)
 	}
-	if !strings.Contains(buf.String(), "15 ticks") {
-		t.Errorf("missing travel ticks value in rows")
+	// Value shows ticks plus mm:ss: 15 ticks -> 150s -> 2:30.
+	if !strings.Contains(buf.String(), "15 (2:30)") {
+		t.Errorf("missing 'ticks (mm:ss)' value in rows")
 	}
 }

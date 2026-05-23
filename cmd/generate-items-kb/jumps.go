@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	htmltpl "html/template"
 	"math"
 	"sort"
@@ -12,13 +13,23 @@ import (
 // jumpMargin is the Pathfinder Drive landing tolerance in galactic units.
 const jumpMargin = 100.0
 
+// secondsPerTick is the game tick duration; pathfinder travel time is ticks*10s.
+const secondsPerTick = 10
+
+// ticksDuration formats a tick count as real clock time, mm:ss.
+func ticksDuration(ticks int) string {
+	secs := ticks * secondsPerTick
+	return fmt.Sprintf("%d:%02d", secs/60, secs%60)
+}
+
 // JumpRow is one destination row on a Pathfinder Jump Routes page.
 type JumpRow struct {
 	ID        string
 	Name      string
 	Bearing   float64
 	Distance  float64
-	Ticks     int // travel time, ceil(Distance/10)
+	Ticks     int    // travel time, ceil(Distance/10)
+	Duration  string // travel time as mm:ss
 	Margin    float64
 	Reachable bool
 }
@@ -34,6 +45,7 @@ type SweepRow struct {
 	Station   bool
 	Distance  float64
 	Ticks     int
+	Duration  string // travel time as mm:ss
 }
 
 // JumpPageData is the data model for a system's Pathfinder Jump Routes page.
@@ -108,6 +120,7 @@ func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, n
 			Station:   r.LandsAtStation,
 			Distance:  r.Distance,
 			Ticks:     r.Ticks,
+			Duration:  ticksDuration(r.Ticks),
 		}
 		if row.LandsAt == "" && !row.Void {
 			row.LandsAt = r.LandsAt
@@ -122,6 +135,7 @@ func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, n
 			Bearing:   p.Bearing,
 			Distance:  p.Distance,
 			Ticks:     int(math.Ceil(p.Distance / 10)),
+			Duration:  ticksDuration(int(math.Ceil(p.Distance / 10))),
 			Margin:    p.AngularMargin,
 			Reachable: p.Reachable,
 		}
@@ -178,14 +192,14 @@ var jumpDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Direct Connections ({{len .Direct}})</div>
           <table class="sortable">
-            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel</th><th style="text-align:right">Margin</th></tr></thead>
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th><th style="text-align:right">Margin</th></tr></thead>
             <tbody>
 {{- range .Direct}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
-              <td style="text-align:right">{{.Ticks}} ticks</td>
+              <td style="text-align:right">{{.Ticks}} ({{.Duration}})</td>
               <td style="text-align:right">{{printf "%.2f" .Margin}}°</td>
             </tr>
 {{- end}}
@@ -196,14 +210,14 @@ var jumpDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Station Destinations ({{len .Stations}})</div>
           <table class="sortable">
-            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel</th><th>Status</th></tr></thead>
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th><th>Status</th></tr></thead>
             <tbody>
 {{- range .Stations}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
-              <td style="text-align:right">{{.Ticks}} ticks</td>
+              <td style="text-align:right">{{.Ticks}} ({{.Duration}})</td>
               <td>{{if .Reachable}}<span class="badge badge-frost">direct</span>{{else}}<span class="badge badge-yellow">interrupted</span>{{end}}</td>
             </tr>
 {{- end}}
@@ -215,7 +229,7 @@ var jumpDetailTemplate = `<!DOCTYPE html>
           <div class="section-label">Heading Sweep — All Directions ({{len .Sweep}} ranges)</div>
           <p class="text-muted" style="padding:0 12px">Where a jump lands for every whole-degree heading, collapsed into contiguous ranges. "(void)" ranges intersect no system.</p>
           <table class="sortable">
-            <thead><tr><th class="sortable">Headings</th><th class="sortable" style="text-align:right">Span</th><th class="sortable">Lands At</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel</th></tr></thead>
+            <thead><tr><th class="sortable">Headings</th><th class="sortable" style="text-align:right">Span</th><th class="sortable">Lands At</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th></tr></thead>
             <tbody>
 {{- range .Sweep}}
             <tr>
@@ -223,7 +237,7 @@ var jumpDetailTemplate = `<!DOCTYPE html>
               <td style="text-align:right">{{.Width}}°</td>
               <td>{{if .Void}}<span class="text-muted">(void)</span>{{else}}<a href="../{{.LandsAtID}}/">{{.LandsAt}}</a>{{if .Station}} <span class="badge badge-frost">station</span>{{end}}{{end}}</td>
               <td style="text-align:right" data-sort="{{printf "%.1f" .Distance}}">{{if .Void}}<span class="text-muted">—</span>{{else}}{{printf "%.0f" .Distance}}{{end}}</td>
-              <td style="text-align:right">{{if .Void}}<span class="text-muted">—</span>{{else}}{{.Ticks}} ticks{{end}}</td>
+              <td style="text-align:right">{{if .Void}}<span class="text-muted">—</span>{{else}}{{.Ticks}} ({{.Duration}}){{end}}</td>
             </tr>
 {{- end}}
             </tbody>
