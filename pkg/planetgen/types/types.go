@@ -61,6 +61,12 @@ type PlanetProfile struct {
 	// Tier-A Phase 3: ridged-multifractal mountain belts. Amp=0 disables.
 	Ridged RidgedConfig
 
+	// Phase 11 (boundary magnitude): divergent-driven ocean basin
+	// depression. Subtracts up to Depth at divergent boundary pixels
+	// (scaled by per-pixel spreading magnitude), falling off across
+	// PlateDivergentScaleKm. Depth=0 disables.
+	Basin BasinConfig
+
 	// Tier-A Phase 3: Voronoi province modulation. Count=0 disables.
 	Provinces ProvinceConfig
 
@@ -239,6 +245,16 @@ type RidgedConfig struct {
 	// when the planet has no plates (PlateCount == 0) regardless of
 	// this value.
 	PlateConvergentScaleKm float64 `json:"plateConvergentScaleKm,omitempty"`
+}
+
+// BasinConfig parameterizes divergent-driven ocean basin depression.
+// At every pixel, subtract Depth · falloff(distance) · spreadingMagnitude
+// from the heightmap, where falloff is 1 at the boundary and 0 at
+// PlateDivergentScaleKm. Spreading magnitude is the JFA-propagated
+// per-pixel magnitude from plates.DivergentMag. Depth=0 disables.
+type BasinConfig struct {
+	Depth                 float64 `json:",omitempty"` // max units subtracted at the boundary (typical 0.05–0.2)
+	PlateDivergentScaleKm float64 `json:"plateDivergentScaleKm,omitempty"`
 }
 
 // CoastalConfig parameterizes localized roughening near coastlines via

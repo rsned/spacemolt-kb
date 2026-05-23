@@ -440,6 +440,7 @@ function renderPanels() {
   renderControlFieldsPanel(profile, panels);
   renderWarpPanel(profile, panels);
   renderRidgedPanel(profile, panels);
+  renderBasinPanel(profile, panels);
   renderProvincePanel(profile, panels);
   renderShadingPanel(profile, panels);
   renderOceanPanel(profile, panels);
@@ -1321,6 +1322,51 @@ function renderRidgedPanel(profile, panels) {
       profile.Ridged[param] || 0, 0, isInt ? 8 : 5, isInt ? '1' : '0.01',
       v => { profile.Ridged[param] = v; commitProfile(profile); }));
   }
+  panels.appendChild(panel);
+}
+
+function renderBasinPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  if (!profile.Basin) {
+    profile.Basin = { Depth: 0, PlateDivergentScaleKm: 0 };
+  }
+  const panel = makePanel('Basin (divergent depression)',
+    'Subtracts elevation along divergent plate boundaries scaled by spreading magnitude. Models mid-ocean-ridge basin formation. Depth=0 disables.',
+    'Basin');
+
+  const reset = () => {
+    if (originalProfile && originalProfile.Basin) {
+      profile.Basin = JSON.parse(JSON.stringify(originalProfile.Basin));
+    } else {
+      profile.Basin = { Depth: 0, PlateDivergentScaleKm: 0 };
+    }
+    commitProfile(profile); renderPanels();
+  };
+  const clear = () => {
+    profile.Basin = { Depth: 0, PlateDivergentScaleKm: 0 };
+    commitProfile(profile); renderPanels();
+  };
+  const randomize = () => {
+    profile.Basin = {
+      Depth:                 round2(0.05 + Math.random() * 0.2),
+      PlateDivergentScaleKm: Math.round(400 + Math.random() * 1600),
+    };
+    commitProfile(profile); renderPanels();
+  };
+
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll random in-range basin params', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore Basin to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Zero out all basin params', clear));
+
+  panel.appendChild(makeNumberRow('Depth',
+    'Max units subtracted at the boundary (multiplied by spreading magnitude). Typical 0.05–0.2.',
+    profile.Basin.Depth || 0, 0, 1, '0.01',
+    v => { profile.Basin.Depth = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('PlateDivergentScaleKm',
+    'Distance in km over which the depression fades to zero. Typical 400–2000.',
+    profile.Basin.PlateDivergentScaleKm || 0, 0, 20000, '50',
+    v => { profile.Basin.PlateDivergentScaleKm = v; commitProfile(profile); }));
   panels.appendChild(panel);
 }
 

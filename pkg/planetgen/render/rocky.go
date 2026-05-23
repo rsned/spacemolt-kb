@@ -277,7 +277,15 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 										profile.Ridged.Lacunarity,
 										profile.Ridged.Gain,
 										profile.Ridged.Offset)
-									heightmap.Set(face, px, py, heightmap.Get(face, px, py)+profile.Ridged.Amp*mask*r)
+									// Modulate amplitude by collision magnitude when the
+									// mask is plate-driven: violent convergences produce
+									// the full Himalaya-scale Amp, gentle convergences a
+									// 0.4·Amp floor so weak boundaries still register.
+									ampScale := 1.0
+									if usePlateMask {
+										ampScale = 0.4 + 0.6*plates.ConvergentMag[face][py*S+px]
+									}
+									heightmap.Set(face, px, py, heightmap.Get(face, px, py)+profile.Ridged.Amp*mask*r*ampScale)
 								}
 							}
 						}
@@ -370,7 +378,11 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 									profile.Ridged.Lacunarity,
 									profile.Ridged.Gain,
 									profile.Ridged.Offset)
-								h += profile.Ridged.Amp * mask * r
+								ampScale := 1.0
+								if usePlateMask {
+									ampScale = 0.4 + 0.6*plates.ConvergentMag[face][py*S+px]
+								}
+								h += profile.Ridged.Amp * mask * r * ampScale
 							}
 						}
 						heightmap.Set(face, px, py, h)
@@ -413,6 +425,49 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 					heightmap.Set(face, px, py, h)
 				}
 			}
+		}
+	}
+
+	// Phase 11: Basin — depress elevation along divergent plate
+	// boundaries, scaled by the per-pixel spreading magnitude
+	// propagated through JFA. Models mid-ocean-ridge spreading
+	// creating ocean basins. Disabled when Basin.Depth == 0 or there
+	// are no plates.
+	if plates != nil && profile.Basin.Depth > 0 && profile.Basin.PlateDivergentScaleKm > 0 {
+		bypassed := bypass["Basin"]
+		var hmBefore *cubemap.CubeMapF
+		if frame != nil {
+			hmBefore = heightmap.Clone()
+		}
+		if !bypassed {
+			for face := range cubemap.Face(cubemap.NumFaces) {
+				for py := range S {
+					for px := range S {
+						distKm := plates.Divergent[face][py*S+px]
+						falloff := 1.0 - clamp01(distKm/profile.Basin.PlateDivergentScaleKm)
+						if falloff <= 0 {
+							continue
+						}
+						mag := plates.DivergentMag[face][py*S+px]
+						heightmap.Set(face, px, py, heightmap.Get(face, px, py)-profile.Basin.Depth*falloff*mag)
+					}
+				}
+			}
+		}
+		if frame != nil {
+			delta := cubemap.NewF(S)
+			for face := range cubemap.Face(cubemap.NumFaces) {
+				for i := range heightmap.Faces[face] {
+					delta.Faces[face][i] = heightmap.Faces[face][i] - hmBefore.Faces[face][i]
+				}
+			}
+			frame.Stages = append(frame.Stages, DebugStage{
+				Name:     "Basin",
+				Kind:     "height",
+				RawFbm:   delta,
+				SumAfter: heightmap.Clone(),
+				Skipped:  bypassed,
+			})
 		}
 	}
 

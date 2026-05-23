@@ -170,7 +170,7 @@ func TestExtractBoundariesAtLeastOnePerType(t *testing.T) {
 		PlateCount: 12, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
 	}
 	pf := GeneratePlates(profile, 5, 32)
-	conv, div, trans := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, trans, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
 	counts := map[string]int{"conv": 0, "div": 0, "trans": 0}
 	for f := range conv {
 		for i := range conv[f] {
@@ -192,6 +192,65 @@ func TestExtractBoundariesAtLeastOnePerType(t *testing.T) {
 	}
 }
 
+func TestExtractBoundariesMutuallyExclusive(t *testing.T) {
+	// Smoothed-normal classification must put each pixel in at most
+	// one of {convergent, divergent, transform}. The pre-smoothing
+	// per-pixel version routinely failed this — the jagged flood-fill
+	// front produced noisy n vectors that swung the projection across
+	// ±T on adjacent pixels of the same physical boundary.
+	profile := &types.PlanetProfile{
+		PlateCount: 12, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
+	}
+	pf := GeneratePlates(profile, 5, 64)
+	conv, div, trans, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
+	for f := range conv {
+		for i := range conv[f] {
+			n := 0
+			if conv[f][i] {
+				n++
+			}
+			if div[f][i] {
+				n++
+			}
+			if trans[f][i] {
+				n++
+			}
+			if n > 1 {
+				t.Fatalf("face %d idx %d classified as %d kinds (conv=%v div=%v trans=%v); masks must be mutually exclusive",
+					f, i, n, conv[f][i], div[f][i], trans[f][i])
+			}
+		}
+	}
+}
+
+func TestExtractBoundariesMagnitudeRange(t *testing.T) {
+	// Per-pixel magnitudes must be in [0,1] and non-zero only on the
+	// matching boundary mask. The (|proj|-T)/(1-T) clamp guarantees
+	// range; the pixel-wise assignment guarantees mask alignment.
+	profile := &types.PlanetProfile{
+		PlateCount: 12, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
+	}
+	pf := GeneratePlates(profile, 5, 64)
+	conv, div, _, convMag, divMag := extractBoundaries(pf, profile.PlateConvergentT)
+	for f := range conv {
+		for i := range conv[f] {
+			cm, dm := convMag[f][i], divMag[f][i]
+			if cm < 0 || cm > 1 {
+				t.Fatalf("convMag face %d idx %d = %g out of [0,1]", f, i, cm)
+			}
+			if dm < 0 || dm > 1 {
+				t.Fatalf("divMag face %d idx %d = %g out of [0,1]", f, i, dm)
+			}
+			if cm > 0 && !conv[f][i] {
+				t.Fatalf("convMag face %d idx %d = %g but conv mask is false", f, i, cm)
+			}
+			if dm > 0 && !div[f][i] {
+				t.Fatalf("divMag face %d idx %d = %g but div mask is false", f, i, dm)
+			}
+		}
+	}
+}
+
 func TestSDFsZeroAtSeeds(t *testing.T) {
 	profile := &types.PlanetProfile{
 		PlateCount: 6, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
@@ -200,7 +259,7 @@ func TestSDFsZeroAtSeeds(t *testing.T) {
 	if pf.Convergent[0] == nil || pf.Divergent[0] == nil || pf.Transform[0] == nil {
 		t.Fatal("SDF arrays not allocated")
 	}
-	conv, div, trans := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, trans, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
 	cases := []struct {
 		name string
 		mask [cubemap.NumFaces][]bool

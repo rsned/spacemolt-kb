@@ -91,7 +91,9 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 			DebugStage{Name: "Plates: id", Kind: "field", CategoricalAfter: paintPlateIDWithArrows(plates, S)},
 			DebugStage{Name: "Plates: oceanic", Kind: "field", BooleanAfter: paintOceanicMask(plates, S)},
 			DebugStage{Name: "Plates: convergent", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Convergent, S)},
+			DebugStage{Name: "Plates: convergent magnitude", Kind: "field", ScalarAfter: scalarFromCubeFaces(plates.ConvergentMag, S)},
 			DebugStage{Name: "Plates: divergent", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Divergent, S)},
+			DebugStage{Name: "Plates: divergent magnitude", Kind: "field", ScalarAfter: scalarFromCubeFaces(plates.DivergentMag, S)},
 			DebugStage{Name: "Plates: transform", Kind: "field", ScalarAfter: scalarFromKmPerFace(plates.Transform, S)},
 		)
 	}

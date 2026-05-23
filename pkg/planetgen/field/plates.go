@@ -47,6 +47,16 @@ type PlateField struct {
 	Convergent [cubemap.NumFaces][]float64
 	Divergent  [cubemap.NumFaces][]float64
 	Transform  [cubemap.NumFaces][]float64
+	// ConvergentMag / DivergentMag hold the per-pixel magnitude of the
+	// nearest convergent/divergent boundary, propagated outward by the
+	// JFA pass. Magnitude is (|vRel·n| − T) / (1 − T) clamped to [0,1]
+	// at the source pixel: 0 = pixel sits exactly at the convergence
+	// threshold, 1 = maximum collision/spread. Downstream stages
+	// (Ridged amplitude, Basin depth) multiply by this so violent
+	// boundaries produce taller mountain belts and deeper trenches
+	// while gentle boundaries just produce subtle topography.
+	ConvergentMag [cubemap.NumFaces][]float64
+	DivergentMag  [cubemap.NumFaces][]float64
 }
 
 // GeneratePlates produces a PlateField for a planet at face size S.
@@ -212,68 +222,18 @@ func classifyBoundary(vRel, n [3]float64, T float64) boundaryKind {
 	}
 }
 
-// boundaryAt returns the boundary kind at face/(px,py) by examining
-// the four 4-neighbors. If no neighbor has a different plate id, the
-// pixel is interior and returns boundaryNone. If multiple neighbors
-// with differing ids exist, the kind from the highest-priority
-// neighbor is returned (priority: Convergent > Divergent > Transform).
-// T is profile.PlateConvergentT.
-func boundaryAt(pf *PlateField, face cubemap.Face, px, py int, T float64) boundaryKind {
-	S := pf.Size
-	here := pf.PlateID[face][py*S+px]
-	nbrs := cubemap.FacePixelNeighbors4(face, px, py, S)
-	best := boundaryNone
-	rank := func(k boundaryKind) int {
-		switch k {
-		case boundaryConvergent:
-			return 3
-		case boundaryDivergent:
-			return 2
-		case boundaryTransform:
-			return 1
-		}
-		return 0
-	}
-	// Position p on the unit sphere at the boundary pixel — same
-	// for every neighbor, hoist out of the loop.
-	dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
-	p := [3]float64{dx, dy, dz}
-	for _, nb := range nbrs {
-		there := pf.PlateID[nb.Face][nb.PY*S+nb.PX]
-		if there == here {
-			continue
-		}
-		a := pf.Plates[here]
-		b := pf.Plates[there]
-		// ω = AngSpeed · RotAxis. v = ω × p.
-		va := cross(scale(a.RotAxis, a.AngSpeed), p)
-		vb := cross(scale(b.RotAxis, b.AngSpeed), p)
-		vRel := [3]float64{va[0] - vb[0], va[1] - vb[1], va[2] - vb[2]}
-		// Normal: from here-pixel toward there-pixel in tangent plane.
-		ndx, ndy, ndz := cubemap.FacePixelToDir(nb.Face, nb.PX, nb.PY, S)
-		n := [3]float64{ndx - dx, ndy - dy, ndz - dz}
-		// Project n into tangent plane at p (subtract component along p).
-		proj := n[0]*p[0] + n[1]*p[1] + n[2]*p[2]
-		n[0] -= proj * p[0]
-		n[1] -= proj * p[1]
-		n[2] -= proj * p[2]
-		nmag := math.Sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2])
-		// Degenerate case: tangent-plane normal collapsed to zero (would
-		// happen only for nearly-antipodal neighbor pairs, which can't
-		// occur for adjacent pixels on a cube face). Skip — don't
-		// classify with a garbage normal.
-		if nmag <= 1e-9 {
-			continue
-		}
-		n[0] /= nmag
-		n[1] /= nmag
-		n[2] /= nmag
-		kind := classifyBoundary(vRel, n, T)
-		if rank(kind) > rank(best) {
-			best = kind
-		}
-	}
-	return best
+// rawBoundary holds the unsmoothed per-pixel boundary data computed by
+// computeRawBoundaries. foreign is the dominant foreign plate id at
+// this pixel (the plate id seen most often among the 4-neighbors that
+// differ from here, ties broken by lowest id), or -1 for interior
+// pixels. (nx,ny,nz) is the tangent-projected unit normal pointing
+// from here toward the foreign-side neighbor pixels averaged into a
+// single direction. This per-pixel n is noisy along the jagged
+// flood-fill front; extractBoundaries averages across a 5×5 stencil
+// to recover a physically-meaningful boundary direction.
+type rawBoundary struct {
+	foreign    int16
+	nx, ny, nz float64
 }
 
 func cross(a, b [3]float64) [3]float64 {
@@ -288,36 +248,227 @@ func scale(a [3]float64, s float64) [3]float64 {
 	return [3]float64{a[0] * s, a[1] * s, a[2] * s}
 }
 
-// extractBoundaries computes the boundary kind for every pixel and
-// stores convergent/divergent/transform pixel masks in per-face
-// boolean slices. The returned slices are owned by the caller; this
-// function does not mutate pf.
+// boundarySmoothStencilRadius sets the half-width of the smoothing
+// window. A 2-pixel radius gives a 5×5 stencil; on a 256-face cube
+// that's roughly 5° of arc, large enough to suppress pixel-grid
+// noise in n but small enough to preserve true along-boundary
+// transitions between convergent/divergent regimes.
+const boundarySmoothStencilRadius = 2
+
+// computeRawBoundaries returns per-pixel boundary data: the dominant
+// foreign plate id at every boundary pixel plus the per-pixel
+// tangent-projected unit normal pointing from this plate toward that
+// foreign plate. Interior pixels (no 4-neighbor on a different plate)
+// have foreign = -1. The returned normals are noisy along the jagged
+// flood-fill front and are smoothed by extractBoundaries before being
+// used for classification.
+func computeRawBoundaries(pf *PlateField) [cubemap.NumFaces][]rawBoundary {
+	S := pf.Size
+	var rb [cubemap.NumFaces][]rawBoundary
+	for f := range rb {
+		rb[f] = make([]rawBoundary, S*S)
+		for i := range rb[f] {
+			rb[f][i].foreign = -1
+		}
+	}
+	for face := range cubemap.NumFaces {
+		for py := range S {
+			for px := range S {
+				here := pf.PlateID[face][py*S+px]
+				nbrs := cubemap.FacePixelNeighbors4(cubemap.Face(face), px, py, S)
+				// Count foreign-plate neighbors and pick the dominant
+				// one — most-common wins, lowest id breaks ties for
+				// determinism across runs.
+				var counts map[int16]int
+				for _, nb := range nbrs {
+					there := pf.PlateID[nb.Face][nb.PY*S+nb.PX]
+					if there == here {
+						continue
+					}
+					if counts == nil {
+						counts = make(map[int16]int, 4)
+					}
+					counts[there]++
+				}
+				if counts == nil {
+					continue
+				}
+				bestID := int16(math.MaxInt16)
+				bestCount := 0
+				for id, c := range counts {
+					if c > bestCount || (c == bestCount && id < bestID) {
+						bestCount = c
+						bestID = id
+					}
+				}
+				// Sum tangent-projected normals from every neighbor
+				// that belongs to the dominant foreign plate.
+				dx, dy, dz := cubemap.FacePixelToDir(cubemap.Face(face), px, py, S)
+				p := [3]float64{dx, dy, dz}
+				var nx, ny, nz float64
+				for _, nb := range nbrs {
+					there := pf.PlateID[nb.Face][nb.PY*S+nb.PX]
+					if there != bestID {
+						continue
+					}
+					ndx, ndy, ndz := cubemap.FacePixelToDir(nb.Face, nb.PX, nb.PY, S)
+					rnx := ndx - dx
+					rny := ndy - dy
+					rnz := ndz - dz
+					proj := rnx*p[0] + rny*p[1] + rnz*p[2]
+					nx += rnx - proj*p[0]
+					ny += rny - proj*p[1]
+					nz += rnz - proj*p[2]
+				}
+				mag := math.Sqrt(nx*nx + ny*ny + nz*nz)
+				if mag < 1e-9 {
+					continue
+				}
+				rb[face][py*S+px] = rawBoundary{
+					foreign: bestID,
+					nx:      nx / mag,
+					ny:      ny / mag,
+					nz:      nz / mag,
+				}
+			}
+		}
+	}
+	return rb
+}
+
+// magnitudeFromProj normalizes |proj| to a magnitude in [0,1] by
+// subtracting the threshold and rescaling. proj is the signed scalar
+// vRel·n; absProj is |proj|. At absProj == T the result is 0 (the
+// pixel sits exactly on the convergent/divergent threshold); at
+// absProj == 1 it saturates to 1. Used by extractBoundaries to fill
+// the per-pixel ConvergentMag / DivergentMag fields before JFA.
+func magnitudeFromProj(absProj, T float64) float64 {
+	denom := 1 - T
+	if denom <= 0 {
+		if absProj > 0 {
+			return 1
+		}
+		return 0
+	}
+	m := (absProj - T) / denom
+	if m < 0 {
+		return 0
+	}
+	if m > 1 {
+		return 1
+	}
+	return m
+}
+
+// extractBoundaries classifies every pixel of pf using a smoothed
+// boundary normal and returns binary masks plus per-pixel magnitudes
+// at convergent/divergent pixels. The smoothing — a 5×5 average of
+// raw per-pixel n vectors that share the same plate-pair — kills the
+// pixel-grid flicker that previously caused the same physical
+// boundary spot to register as both convergent AND divergent on
+// adjacent pixels. The returned conv/div/trans masks are mutually
+// exclusive at every pixel (asserted by TestExtractBoundariesMutuallyExclusive).
+//
+// convMag[face][i] and divMag[face][i] hold (|projection| − T) / (1 − T)
+// clamped to [0,1] for boundary pixels, 0 elsewhere. Phase B's JFA
+// propagates these magnitudes alongside coordinates so every interior
+// pixel knows the strength of its nearest collision/spread.
 //
 // Precondition: pf.PlateID must be fully assigned — no pixel may
 // hold the -1 sentinel. (GeneratePlates guarantees this after
 // floodFillPlates returns.) Calling on a partially-assigned field
 // will panic via out-of-bounds index into pf.Plates.
-//
-// Called by GeneratePlates between flood-fill and SDF (Task 6).
-func extractBoundaries(pf *PlateField, T float64) (conv, div, trans [cubemap.NumFaces][]bool) {
+func extractBoundaries(pf *PlateField, T float64) (
+	conv, div, trans [cubemap.NumFaces][]bool,
+	convMag, divMag [cubemap.NumFaces][]float64,
+) {
 	S := pf.Size
 	for f := range conv {
 		conv[f] = make([]bool, S*S)
 		div[f] = make([]bool, S*S)
 		trans[f] = make([]bool, S*S)
+		convMag[f] = make([]float64, S*S)
+		divMag[f] = make([]float64, S*S)
 	}
-	for f := range cubemap.NumFaces {
+	rb := computeRawBoundaries(pf)
+	r := boundarySmoothStencilRadius
+	for face := range cubemap.NumFaces {
 		for py := range S {
 			for px := range S {
-				k := boundaryAt(pf, cubemap.Face(f), px, py, T)
+				rbHere := rb[face][py*S+px]
+				if rbHere.foreign < 0 {
+					continue
+				}
+				here := pf.PlateID[face][py*S+px]
+				foreign := rbHere.foreign
+				// Smooth n across the on-face 5×5 stencil. Match same
+				// (this,foreign) pair; sum the opposite-side pixels
+				// with negated n since they describe the same physical
+				// boundary from the other side.
+				var nx, ny, nz float64
+				for dy := -r; dy <= r; dy++ {
+					qy := py + dy
+					if qy < 0 || qy >= S {
+						continue
+					}
+					for dx := -r; dx <= r; dx++ {
+						qx := px + dx
+						if qx < 0 || qx >= S {
+							continue
+						}
+						rbN := rb[face][qy*S+qx]
+						if rbN.foreign < 0 {
+							continue
+						}
+						qHere := pf.PlateID[face][qy*S+qx]
+						switch {
+						case qHere == here && rbN.foreign == foreign:
+							nx += rbN.nx
+							ny += rbN.ny
+							nz += rbN.nz
+						case qHere == foreign && rbN.foreign == here:
+							nx -= rbN.nx
+							ny -= rbN.ny
+							nz -= rbN.nz
+						}
+					}
+				}
+				// Re-tangent-project at p and renormalize.
+				dx, dy, dz := cubemap.FacePixelToDir(cubemap.Face(face), px, py, S)
+				p := [3]float64{dx, dy, dz}
+				projN := nx*p[0] + ny*p[1] + nz*p[2]
+				nx -= projN * p[0]
+				ny -= projN * p[1]
+				nz -= projN * p[2]
+				nmag := math.Sqrt(nx*nx + ny*ny + nz*nz)
+				if nmag < 1e-9 {
+					// Smoothing collapsed n to zero; fall back to the
+					// per-pixel direction (rare — only at extremely
+					// short boundaries with self-cancelling normals).
+					nx, ny, nz = rbHere.nx, rbHere.ny, rbHere.nz
+				} else {
+					nx /= nmag
+					ny /= nmag
+					nz /= nmag
+				}
+				a := pf.Plates[here]
+				b := pf.Plates[foreign]
+				va := cross(scale(a.RotAxis, a.AngSpeed), p)
+				vb := cross(scale(b.RotAxis, b.AngSpeed), p)
+				vRelX := va[0] - vb[0]
+				vRelY := va[1] - vb[1]
+				vRelZ := va[2] - vb[2]
+				proj := vRelX*nx + vRelY*ny + vRelZ*nz
 				idx := py*S + px
-				switch k {
-				case boundaryConvergent:
-					conv[f][idx] = true
-				case boundaryDivergent:
-					div[f][idx] = true
-				case boundaryTransform:
-					trans[f][idx] = true
+				switch {
+				case proj > +T:
+					conv[face][idx] = true
+					convMag[face][idx] = magnitudeFromProj(proj, T)
+				case proj < -T:
+					div[face][idx] = true
+					divMag[face][idx] = magnitudeFromProj(-proj, T)
+				default:
+					trans[face][idx] = true
 				}
 			}
 		}
@@ -425,14 +576,13 @@ func seedPlates(profile *types.PlanetProfile, master int64) []Plate {
 // JFA output is angular distance / π in [0, 1]; multiplying by π · R
 // gives geodesic km in [0, π·R].
 func computeSDFs(pf *PlateField, profile *types.PlanetProfile) {
-	conv, div, trans := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, trans, convMag, divMag := extractBoundaries(pf, profile.PlateConvergentT)
 	radius := profile.RadiusKm
 	if radius == 0 {
 		radius = 6371
 	}
 	factor := math.Pi * radius
-	runOne := func(mask [cubemap.NumFaces][]bool) [cubemap.NumFaces][]float64 {
-		f := JumpFloodFromMask(mask, pf.Size)
+	scaleKm := func(f *cubemap.CubeMapF) [cubemap.NumFaces][]float64 {
 		var out [cubemap.NumFaces][]float64
 		for i := range f.Faces {
 			out[i] = make([]float64, len(f.Faces[i]))
@@ -442,7 +592,19 @@ func computeSDFs(pf *PlateField, profile *types.PlanetProfile) {
 		}
 		return out
 	}
-	pf.Convergent = runOne(conv)
-	pf.Divergent = runOne(div)
-	pf.Transform = runOne(trans)
+	copyOut := func(f *cubemap.CubeMapF) [cubemap.NumFaces][]float64 {
+		var out [cubemap.NumFaces][]float64
+		for i := range f.Faces {
+			out[i] = make([]float64, len(f.Faces[i]))
+			copy(out[i], f.Faces[i])
+		}
+		return out
+	}
+	convDist, convMagOut := JumpFloodFromMaskWithValue(conv, convMag, pf.Size)
+	divDist, divMagOut := JumpFloodFromMaskWithValue(div, divMag, pf.Size)
+	pf.Convergent = scaleKm(convDist)
+	pf.Divergent = scaleKm(divDist)
+	pf.Transform = scaleKm(JumpFloodFromMask(trans, pf.Size))
+	pf.ConvergentMag = copyOut(convMagOut)
+	pf.DivergentMag = copyOut(divMagOut)
 }

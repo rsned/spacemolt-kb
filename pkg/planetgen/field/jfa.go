@@ -6,11 +6,17 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 )
 
-// jfaSeed represents a candidate ocean pixel for JFA propagation.
+// jfaSeed represents a candidate seed pixel for JFA propagation.
+// value is an arbitrary per-seed scalar (e.g. boundary magnitude) that
+// rides along with the seed as it propagates so every interior pixel
+// ends up knowing both its distance to and the value at its nearest
+// seed. JumpFloodFromMask leaves value = 0; JumpFloodFromMaskWithValue
+// initializes it from a parallel float field.
 type jfaSeed struct {
-	face       int8
-	px, py     int16
+	face             int8
+	px, py           int16
 	dirX, dirY, dirZ float32
+	value            float32
 }
 
 const noJFASeed = int8(-1)
@@ -175,4 +181,57 @@ func JumpFloodFromMask(mask [cubemap.NumFaces][]bool, S int) *cubemap.CubeMapF {
 	}
 	propagateJFA(seeds, dists, S)
 	return dists
+}
+
+// JumpFloodFromMaskWithValue is JumpFloodFromMask plus per-seed value
+// propagation. value[face][i] is read at every mask pixel and stored
+// on its jfaSeed; after propagation, every output pixel's seed holds
+// the value of its nearest source. Returns the distance field (same
+// semantics as JumpFloodFromMask) and a parallel float field where
+// each pixel = value of the nearest seed (0 for any pixel whose face
+// remained unreachable, same sentinel convention as the distance
+// field's 1.0).
+func JumpFloodFromMaskWithValue(
+	mask [cubemap.NumFaces][]bool,
+	value [cubemap.NumFaces][]float64,
+	S int,
+) (dist, propagatedValue *cubemap.CubeMapF) {
+	seeds := make([][]jfaSeed, cubemap.NumFaces)
+	dist = cubemap.NewF(S)
+	for face := cubemap.Face(0); face < cubemap.NumFaces; face++ {
+		seeds[face] = make([]jfaSeed, S*S)
+		for i := range seeds[face] {
+			seeds[face][i].face = noJFASeed
+		}
+		for py := range S {
+			for px := range S {
+				idx := py*S + px
+				if mask[face][idx] {
+					dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+					seeds[face][idx] = jfaSeed{
+						face:  int8(face),
+						px:    int16(px),
+						py:    int16(py),
+						dirX:  float32(dx),
+						dirY:  float32(dy),
+						dirZ:  float32(dz),
+						value: float32(value[face][idx]),
+					}
+					dist.Set(face, px, py, 0)
+				} else {
+					dist.Set(face, px, py, 1.0)
+				}
+			}
+		}
+	}
+	propagateJFA(seeds, dist, S)
+	propagatedValue = cubemap.NewF(S)
+	for face := range seeds {
+		for i := range seeds[face] {
+			if seeds[face][i].face != noJFASeed {
+				propagatedValue.Faces[face][i] = float64(seeds[face][i].value)
+			}
+		}
+	}
+	return dist, propagatedValue
 }
