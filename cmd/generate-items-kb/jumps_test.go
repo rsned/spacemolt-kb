@@ -140,6 +140,31 @@ func TestJumpPageHeadingSweep(t *testing.T) {
 	}
 }
 
+func TestSweepSingleDegreeRangeFormatting(t *testing.T) {
+	data := JumpPageData{
+		System: &System{Name: "Test"},
+		Sweep: []SweepRow{
+			{StartDeg: 0, EndDeg: 0, Width: 1, LandsAt: "Ross 248", LandsAtID: "ross_248", Distance: 3482, Ticks: 349},
+			{StartDeg: 6, EndDeg: 9, Width: 4, LandsAt: "Wolf", LandsAtID: "wolf", Distance: 800, Ticks: 80},
+		},
+	}
+	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatalf("template execute: %v", err)
+	}
+	out := buf.String()
+	if strings.Contains(out, "0°–0°") {
+		t.Errorf("single-degree range should render as '0°', not '0°–0°'")
+	}
+	if !strings.Contains(out, ">0°<") {
+		t.Errorf("expected single-degree range rendered as '0°'")
+	}
+	if !strings.Contains(out, "6°–9°") {
+		t.Errorf("expected multi-degree range rendered as '6°–9°'")
+	}
+}
+
 func TestJumpPageTravelColumn(t *testing.T) {
 	systems := []*System{
 		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0},

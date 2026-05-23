@@ -219,7 +219,7 @@ var jumpDetailTemplate = `<!DOCTYPE html>
             <tbody>
 {{- range .Sweep}}
             <tr>
-              <td data-sort="{{.StartDeg}}">{{.StartDeg}}°–{{.EndDeg}}°</td>
+              <td data-sort="{{.StartDeg}}">{{if eq .StartDeg .EndDeg}}{{.StartDeg}}°{{else}}{{.StartDeg}}°–{{.EndDeg}}°{{end}}</td>
               <td style="text-align:right">{{.Width}}°</td>
               <td>{{if .Void}}<span class="text-muted">(void)</span>{{else}}<a href="../{{.LandsAtID}}/">{{.LandsAt}}</a>{{if .Station}} <span class="badge badge-frost">station</span>{{end}}{{end}}</td>
               <td style="text-align:right" data-sort="{{printf "%.1f" .Distance}}">{{if .Void}}<span class="text-muted">—</span>{{else}}{{printf "%.0f" .Distance}}{{end}}</td>
