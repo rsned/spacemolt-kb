@@ -73,7 +73,7 @@ func RenderStationArrows(r hyperjump.OriginReport, names map[string]string) stri
 		}
 		x1, y1 := polar(arrowCenter, arrowCenter, arrowInnerR, a.bearing)
 		x2, y2 := polar(arrowCenter, arrowCenter, arrowOuterR, a.bearing)
-		fmt.Fprintf(&b, `<line class="jump-arrow %s" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%s" marker-end="url(#%s)"><title>%s — %.1f° — %.0f GU</title></line>`,
+		fmt.Fprintf(&b, `<line class="jump-arrow %s" x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%s" marker-end="url(#%s)"><title>%s — %.2f° — %.0f GU</title></line>`,
 			cls, x1, y1, x2, y2, color, arrowStrokeWidth(a.direct), marker, html.EscapeString(a.name), a.bearing, a.distance)
 
 		lr := labelBaseR + float64(rings[i])*labelRingGap
@@ -86,7 +86,7 @@ func RenderStationArrows(r hyperjump.OriginReport, names map[string]string) stri
 		if rings[i] > 0 {
 			fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#33384a" stroke-width="0.5"/>`, x2, y2, lx, ly)
 		}
-		fmt.Fprintf(&b, `<text class="jump-label %s" x="%.1f" y="%.1f" text-anchor="%s" dominant-baseline="middle" fill="%s">%s %.1f°</text>`,
+		fmt.Fprintf(&b, `<text class="jump-label %s" x="%.1f" y="%.1f" text-anchor="%s" dominant-baseline="middle" fill="%s">%s %.2f°</text>`,
 			cls, lx, ly, anchor, color, html.EscapeString(a.name), a.bearing)
 	}
 

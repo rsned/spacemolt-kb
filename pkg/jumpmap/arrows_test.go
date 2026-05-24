@@ -46,3 +46,16 @@ func TestRenderStationArrows(t *testing.T) {
 		t.Errorf("non-station Gamma should not appear")
 	}
 }
+
+func TestStationArrowsHeadingPrecision(t *testing.T) {
+	r := hyperjump.OriginReport{
+		System: "sol",
+		Pairs: []hyperjump.Pair{
+			{To: "alpha", Bearing: 110.456, Distance: 300, Reachable: true, DestHasStation: true},
+		},
+	}
+	svg := RenderStationArrows(r, map[string]string{"alpha": "Alpha"})
+	if !strings.Contains(svg, "110.46°") {
+		t.Errorf("expected arrow heading label with two decimals '110.46°', got:\n%s", svg)
+	}
+}

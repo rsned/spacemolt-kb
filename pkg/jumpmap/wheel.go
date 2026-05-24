@@ -72,7 +72,7 @@ func wheelEdgeLabel(b *strings.Builder, deg float64) {
 	if x < wheelCenter {
 		anchor = "end"
 	}
-	fmt.Fprintf(b, `<text class="wheel-label" x="%.1f" y="%.1f" text-anchor="%s" dominant-baseline="middle" fill="#9aa3b8" font-size="10">%.1f°</text>`,
+	fmt.Fprintf(b, `<text class="wheel-label" x="%.1f" y="%.1f" text-anchor="%s" dominant-baseline="middle" fill="#9aa3b8" font-size="10">%.2f°</text>`,
 		x, y, anchor, deg)
 }
 

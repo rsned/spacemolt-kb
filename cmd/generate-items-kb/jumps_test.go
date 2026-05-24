@@ -162,6 +162,32 @@ func TestFigcaptionUsesCappedCoverage(t *testing.T) {
 	}
 }
 
+func TestJumpPageHeadingMarginPrecision(t *testing.T) {
+	// Headings render with two decimals; tolerances (margins) with three, so
+	// very small clearance windows stay legible.
+	data := JumpPageData{
+		System: &System{Name: "Test"},
+		Direct: []JumpRow{
+			{ID: "alpha", Name: "Alpha", Bearing: 110.456, Distance: 300, Ticks: 30, Duration: "5:00", Margin: 0.0472, Reachable: true},
+		},
+		Stations: []JumpRow{
+			{ID: "alpha", Name: "Alpha", Bearing: 110.456, Distance: 300, Ticks: 30, Duration: "5:00", Reachable: true},
+		},
+	}
+	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatalf("template execute: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "110.46°") {
+		t.Errorf("expected heading with two decimals '110.46°'")
+	}
+	if !strings.Contains(out, "0.047°") {
+		t.Errorf("expected tolerance/margin with three decimals '0.047°'")
+	}
+}
+
 func TestTicksDuration(t *testing.T) {
 	cases := map[int]string{0: "0:00", 1: "0:10", 6: "1:00", 15: "2:30", 349: "58:10"}
 	for ticks, want := range cases {

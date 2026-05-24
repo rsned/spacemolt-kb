@@ -50,6 +50,20 @@ func TestRenderCoverageWheel_nearlySealed(t *testing.T) {
 	}
 }
 
+func TestCoverageWheelEdgeLabelPrecision(t *testing.T) {
+	// A sub-0.1-degree gap: at one decimal both edges collapse to 219.7; two
+	// decimals keep the boundary headings distinct.
+	r := hyperjump.OriginReport{
+		System:      "alpha_centauri",
+		CoveragePct: 0.9998689,
+		Gaps:        []hyperjump.Gap{{StartDeg: 219.68, EndDeg: 219.73, WidthDeg: 0.047, CenterDeg: 219.7}},
+	}
+	svg := RenderCoverageWheel(r)
+	if !strings.Contains(svg, "219.68") || !strings.Contains(svg, "219.73") {
+		t.Errorf("expected two-decimal gap edge labels '219.68'/'219.73', got:\n%s", svg)
+	}
+}
+
 func TestRenderCoverageWheel_noGap(t *testing.T) {
 	r := hyperjump.OriginReport{System: "grumium", CoveragePct: 1.0, Gaps: nil}
 	svg := RenderCoverageWheel(r)

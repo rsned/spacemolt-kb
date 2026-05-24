@@ -199,10 +199,10 @@ var jumpDetailTemplate = `<!DOCTYPE html>
 {{- range .Direct}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
-              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
+              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.2f" .Bearing}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
               <td style="text-align:right">{{.Ticks}} ({{.Duration}})</td>
-              <td style="text-align:right">{{printf "%.2f" .Margin}}°</td>
+              <td style="text-align:right">{{printf "%.3f" .Margin}}°</td>
             </tr>
 {{- end}}
             </tbody>
@@ -217,7 +217,7 @@ var jumpDetailTemplate = `<!DOCTYPE html>
 {{- range .Stations}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
-              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.1f" .Bearing}}°</td>
+              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.2f" .Bearing}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
               <td style="text-align:right">{{.Ticks}} ({{.Duration}})</td>
               <td>{{if .Reachable}}<span class="badge badge-frost">direct</span>{{else}}<span class="badge badge-yellow">interrupted</span>{{end}}</td>
