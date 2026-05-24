@@ -188,6 +188,24 @@ func TestJumpPageHeadingMarginPrecision(t *testing.T) {
 	}
 }
 
+func TestJumpPageHasThemeToggleScript(t *testing.T) {
+	// The header carries a #theme-toggle button; the page must also include the
+	// script that wires it up, or the light/dark toggle does nothing.
+	data := JumpPageData{System: &System{Name: "Test"}}
+	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatalf("template execute: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, `id="theme-toggle"`) {
+		t.Fatalf("jump page missing the theme-toggle button")
+	}
+	if !strings.Contains(out, "getElementById('theme-toggle')") {
+		t.Errorf("jump page missing the theme-toggle wiring script")
+	}
+}
+
 func TestTicksDuration(t *testing.T) {
 	cases := map[int]string{0: "0:00", 1: "0:10", 6: "1:00", 15: "2:30", 349: "58:10"}
 	for ticks, want := range cases {

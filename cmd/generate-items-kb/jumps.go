@@ -252,5 +252,6 @@ var jumpDetailTemplate = `<!DOCTYPE html>
         </div>
     </main>
 ` + sortScript + `
+` + themeScript + `
 </body>
 </html>`
