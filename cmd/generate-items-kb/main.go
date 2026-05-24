@@ -1419,6 +1419,16 @@ func writeSystemPages(outDir string, systems []*System) error {
 		return err
 	}
 
+	// Star catalog for the hyperspace-warp animation (position + spectral class).
+	// JSON is the canonical artifact; the .js variant lets pages load it with a
+	// <script> tag so the demo works off the filesystem (file:// blocks fetch).
+	if err := writeStarsJSON(filepath.Join(outDir, "stars.json"), systems); err != nil {
+		return err
+	}
+	if err := writeStarsJS(filepath.Join(outDir, "stars.js"), systems); err != nil {
+		return err
+	}
+
 	// Individual system pages (in subdirectories).
 	for _, sys := range systems {
 		sysDir := filepath.Join(outDir, sys.ID)
