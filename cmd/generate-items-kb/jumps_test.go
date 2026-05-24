@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	htmltpl "html/template"
 	"strings"
 	"testing"
@@ -162,16 +163,31 @@ func TestFigcaptionUsesCappedCoverage(t *testing.T) {
 	}
 }
 
-func TestJumpPageHeadingMarginPrecision(t *testing.T) {
-	// Headings render with two decimals; tolerances (margins) with three, so
-	// very small clearance windows stay legible.
+func TestToleranceDecimals(t *testing.T) {
+	// Decimal places = position of the tolerance's first significant digit.
+	cases := map[float64]int{
+		0.00030: 4, // 0.0003
+		0.0012:  3,
+		0.012:   2,
+		0.12:    1,
+		1.5:     0,
+		21.012:  0,
+	}
+	for tol, want := range cases {
+		if got := toleranceDecimals(tol); got != want {
+			t.Errorf("toleranceDecimals(%g) = %d, want %d", tol, got, want)
+		}
+	}
+}
+
+func TestJumpPageAdaptiveHeadingText(t *testing.T) {
+	// A tight tolerance quotes the heading to matching precision; a loose one
+	// quotes whole degrees. Margins never drop below three decimals.
 	data := JumpPageData{
 		System: &System{Name: "Test"},
 		Direct: []JumpRow{
-			{ID: "alpha", Name: "Alpha", Bearing: 110.456, Distance: 300, Ticks: 30, Duration: "5:00", Margin: 0.0472, Reachable: true},
-		},
-		Stations: []JumpRow{
-			{ID: "alpha", Name: "Alpha", Bearing: 110.456, Distance: 300, Ticks: 30, Duration: "5:00", Reachable: true},
+			{ID: "a", Name: "Tight", Bearing: 191.05112, Distance: 2994, Ticks: 300, Duration: "50:00", Margin: 0.0003, BearingText: "191.0511", MarginText: "0.0003", Reachable: true},
+			{ID: "b", Name: "Loose", Bearing: 47.6, Distance: 100, Ticks: 10, Duration: "1:40", Margin: 21.0, BearingText: "48", MarginText: "21.000", Reachable: true},
 		},
 	}
 	tmpl := htmltpl.Must(htmltpl.New("jump").Parse(jumpDetailTemplate))
@@ -180,11 +196,35 @@ func TestJumpPageHeadingMarginPrecision(t *testing.T) {
 		t.Fatalf("template execute: %v", err)
 	}
 	out := buf.String()
-	if !strings.Contains(out, "110.46°") {
-		t.Errorf("expected heading with two decimals '110.46°'")
+	for _, want := range []string{">191.0511°<", ">0.0003°<", ">48°<", ">21.000°<"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing adaptive cell %q", want)
+		}
 	}
-	if !strings.Contains(out, "0.047°") {
-		t.Errorf("expected tolerance/margin with three decimals '0.047°'")
+}
+
+func TestBuildJumpPageDataAdaptiveText(t *testing.T) {
+	// BearingText/MarginText are populated for direct rows, heading precision
+	// derived from the row's tolerance.
+	systems := []*System{
+		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0},
+		{ID: "beta", Name: "Beta", PositionX: 150, PositionY: 0,
+			POIs: []SystemPOI{{ID: "p", Name: "Dock", Type: "station"}}},
+	}
+	reports, names, hsys := buildJumpReports(systems)
+	data := buildJumpPageData(systems[0], reports, names, hsys)
+	if len(data.Direct) == 0 {
+		t.Fatal("expected a direct row")
+	}
+	for _, row := range data.Direct {
+		dp := toleranceDecimals(row.Margin)
+		want := fmt.Sprintf("%.*f", dp, row.Bearing)
+		if row.BearingText != want {
+			t.Errorf("BearingText = %q, want %q (margin %g -> %d dp)", row.BearingText, want, row.Margin, dp)
+		}
+		if row.MarginText == "" {
+			t.Errorf("MarginText not populated for direct row")
+		}
 	}
 }
 

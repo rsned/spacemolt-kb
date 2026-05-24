@@ -24,14 +24,27 @@ func ticksDuration(ticks int) string {
 
 // JumpRow is one destination row on a Pathfinder Jump Routes page.
 type JumpRow struct {
-	ID        string
-	Name      string
-	Bearing   float64
-	Distance  float64
-	Ticks     int    // travel time, ceil(Distance/10)
-	Duration  string // travel time as mm:ss
-	Margin    float64
-	Reachable bool
+	ID          string
+	Name        string
+	Bearing     float64
+	Distance    float64
+	Ticks       int    // travel time, ceil(Distance/10)
+	Duration    string // travel time as mm:ss
+	Margin      float64
+	BearingText string // heading formatted to match the tolerance's precision
+	MarginText  string // tolerance formatted (>= 3 decimals, more for tiny values)
+	Reachable   bool
+}
+
+// toleranceDecimals returns how many decimal places a heading should carry to
+// match its aiming tolerance: the position of the tolerance's first significant
+// digit (e.g. 0.0003 -> 4, 0.05 -> 2, 1.5 -> 0). Clamped to [0, 6].
+func toleranceDecimals(tol float64) int {
+	if tol <= 0 {
+		return 6
+	}
+	d := int(math.Ceil(-math.Log10(tol)))
+	return min(max(d, 0), 6)
 }
 
 // SweepRow is one collapsed heading-range row in the all-directions table.
@@ -145,6 +158,10 @@ func buildJumpPageData(sys *System, reports map[string]hyperjump.OriginReport, n
 			row.Name = p.To
 		}
 		if p.Reachable {
+			dp := toleranceDecimals(p.AngularMargin)
+			mdp := max(dp, 3) // keep the established minimum tolerance precision
+			row.BearingText = fmt.Sprintf("%.*f", dp, p.Bearing)
+			row.MarginText = fmt.Sprintf("%.*f", mdp, p.AngularMargin)
 			data.Direct = append(data.Direct, row)
 		}
 		if p.DestHasStation {
@@ -199,10 +216,10 @@ var jumpDetailTemplate = `<!DOCTYPE html>
 {{- range .Direct}}
             <tr>
               <td><a href="../{{.ID}}/">{{.Name}}</a></td>
-              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{printf "%.2f" .Bearing}}°</td>
+              <td style="text-align:right" data-sort="{{printf "%.4f" .Bearing}}">{{.BearingText}}°</td>
               <td style="text-align:right" data-sort="{{printf "%.4f" .Distance}}">{{printf "%.0f" .Distance}}</td>
               <td style="text-align:right">{{.Ticks}} ({{.Duration}})</td>
-              <td style="text-align:right">{{printf "%.3f" .Margin}}°</td>
+              <td style="text-align:right">{{.MarginText}}°</td>
             </tr>
 {{- end}}
             </tbody>
