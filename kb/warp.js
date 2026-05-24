@@ -111,7 +111,8 @@
     var near = opts.near || 8;
     var far = opts.far || 6000;
     var spread = opts.heightSpread || 1200;
-    var speed = opts.speed || 450;        // GU per second of animation
+    var baseSpeed = opts.speed || 450;    // GU per second at 1x
+    var speed = baseSpeed;                 // current speed (base * multiplier)
     var ambient = makeAmbient(opts.ambient || 320, near, far, spread * 2.2);
 
     var scene = buildScene(opts.origin, opts.dest, opts.stars, opts);
@@ -268,10 +269,11 @@
     function play() { if (!running) { running = true; last = 0; raf = global.requestAnimationFrame(frame); } }
     function pause() { running = false; if (raf) global.cancelAnimationFrame(raf); }
     function replay() { pause(); t = 0; arrived = 0; prev = {}; play(); }
+    function setSpeedMul(m) { speed = baseSpeed * m; } // live speed adjust
 
     resize();
     global.addEventListener('resize', resize);
-    return { play: play, pause: pause, replay: replay, scene: scene };
+    return { play: play, pause: pause, replay: replay, setSpeedMul: setSpeedMul, scene: scene };
   }
 
   var api = {

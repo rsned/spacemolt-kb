@@ -35,6 +35,21 @@
             padding: 7px 14px; cursor: pointer; font-size: 0.85em; white-space: nowrap;
         }
         .warp-btn:hover { filter: brightness(1.1); }
+        .warp-controls {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 14px; border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.14);
+        }
+        .warp-controls button {
+            background: #2a2f45; color: #e2e7f4; border: 1px solid var(--border);
+            border-radius: 6px; padding: 5px 12px; cursor: pointer;
+            font-size: 0.85em; font-family: monospace;
+        }
+        .warp-controls button:hover { filter: brightness(1.3); }
+        .warp-controls .warp-speed {
+            font-family: monospace; min-width: 4em; text-align: center; color: var(--text-muted);
+        }
+        .warp-controls .warp-spacer { flex: 1; }
         .warp-tag {
             display: inline-block; padding: 1px 8px; border-radius: 10px;
             font-size: 0.75em; margin-left: 6px;
@@ -82,7 +97,6 @@
                     <h3>The Squeeze — Inquill → Alrakis <span class="warp-tag tag-tight">0.0003° tolerance</span></h3>
                     <p>2,994&nbsp;GU, ~50 minutes. Watch <strong>Tianyi</strong> skim past at mid-flight — its bubble clears the corridor by just <strong>0.01&nbsp;GU</strong>. That hairline gap is the entire aiming tolerance.</p>
                 </div>
-                <button class="warp-btn" data-replay>Replay</button>
             </div>
         </div>
 
@@ -93,7 +107,6 @@
                     <h3>The Clean Long-Haul — Alrakis → Ross 154 <span class="warp-tag tag-clear">clear</span></h3>
                     <p>3,310&nbsp;GU of open space. Sparse near-passes — the tightest is <strong>Xihe</strong> at a comfortable 9&nbsp;GU — and the red dwarf <strong>Ross&nbsp;154</strong> swells dead ahead as you arrive. The "normal" warp feel.</p>
                 </div>
-                <button class="warp-btn" data-replay>Replay</button>
             </div>
         </div>
 
@@ -104,7 +117,6 @@
                     <h3>The Longest Run — Dustfall → Dawnbreak <span class="warp-tag tag-clear">clear</span></h3>
                     <p>The longest uninterrupted jump in the galaxy: <strong>11,875&nbsp;GU</strong>, 1,188 ticks (~3¼ hours real time). A marathon flight that still threads every bubble — the tightest squeeze is <strong>Propus</strong> at 2.7&nbsp;GU, 8,656&nbsp;GU in. Flown here at a sped-up pace.</p>
                 </div>
-                <button class="warp-btn" data-replay>Replay</button>
             </div>
         </div>
 
@@ -115,7 +127,6 @@
                     <h3>The Dead End — Grumium → Haven <span class="warp-tag tag-blocked">blocked</span></h3>
                     <p>The heading toward Haven is blocked. Only 891&nbsp;GU in, you fly straight into the blue giant <strong>Mimosa</strong> and drop out — the flight ends on its flare, never reaching Haven. Grumium is the one fully-enclosed system with no clear escape.</p>
                 </div>
-                <button class="warp-btn" data-replay>Replay</button>
             </div>
         </div>
 
@@ -147,6 +158,12 @@
         }
         var byId = {};
         stars.forEach(function (s) { byId[s.id] = s; });
+        function mkbtn(label) {
+            var b = document.createElement('button');
+            b.type = 'button'; b.textContent = label;
+            return b;
+        }
+
         document.querySelectorAll('.warp-canvas').forEach(function (canvas) {
             var origin = byId[canvas.dataset.from], dest = byId[canvas.dataset.to];
             if (!origin || !dest) return;
@@ -155,13 +172,50 @@
                 speed: canvas.dataset.speed ? +canvas.dataset.speed : undefined,
                 onArrive: function () {} // hold on the final frame
             });
-            // Play when scrolled into view; replay on button.
+
+            // Control bar below the canvas.
+            var bar = document.createElement('div');
+            bar.className = 'warp-controls';
+            var playBtn = mkbtn('⏸ Pause'),
+                minus = mkbtn('−'),
+                plus = mkbtn('+'),
+                replay = mkbtn('↻ Replay'),
+                speedLbl = document.createElement('span'),
+                spacer = document.createElement('span');
+            speedLbl.className = 'warp-speed'; speedLbl.textContent = '1×';
+            spacer.className = 'warp-spacer';
+            bar.appendChild(playBtn); bar.appendChild(minus);
+            bar.appendChild(speedLbl); bar.appendChild(plus);
+            bar.appendChild(spacer); bar.appendChild(replay);
+            canvas.parentNode.insertBefore(bar, canvas.nextSibling);
+
+            var userPaused = false;
+            function setPaused(p) {
+                userPaused = p;
+                if (p) { ctrl.pause(); playBtn.textContent = '▶ Resume'; }
+                else { ctrl.play(); playBtn.textContent = '⏸ Pause'; }
+            }
+            playBtn.addEventListener('click', function () { setPaused(!userPaused); });
+
+            // Speed: powers of two, up to 4 steps each way (1/16x .. 16x).
+            var level = 0;
+            function applySpeed() {
+                var m = Math.pow(2, level);
+                ctrl.setSpeedMul(m);
+                speedLbl.textContent = m >= 1 ? m + '×' : '1/' + Math.round(1 / m) + '×';
+            }
+            minus.addEventListener('click', function () { if (level > -4) { level--; applySpeed(); } });
+            plus.addEventListener('click', function () { if (level < 4) { level++; applySpeed(); } });
+            replay.addEventListener('click', function () { userPaused = false; playBtn.textContent = '⏸ Pause'; ctrl.replay(); });
+
+            // Autoplay on scroll, but never override a manual pause.
             var io = new IntersectionObserver(function (entries) {
-                entries.forEach(function (e) { if (e.isIntersecting) ctrl.play(); else ctrl.pause(); });
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { if (!userPaused) ctrl.play(); }
+                    else ctrl.pause();
+                });
             }, { threshold: 0.4 });
             io.observe(canvas);
-            var btn = canvas.parentNode.querySelector('[data-replay]');
-            if (btn) btn.addEventListener('click', function () { ctrl.replay(); });
         });
     })();
     </script>
