@@ -51,16 +51,35 @@ func TestRenderCoverageWheel_nearlySealed(t *testing.T) {
 }
 
 func TestCoverageWheelEdgeLabelPrecision(t *testing.T) {
-	// A sub-0.1-degree gap: at one decimal both edges collapse to 219.7; two
-	// decimals keep the boundary headings distinct.
+	// A wide gap with fractional edges shows both boundaries at two decimals.
+	r := hyperjump.OriginReport{
+		System:      "x",
+		CoveragePct: 0.5,
+		Gaps:        []hyperjump.Gap{{StartDeg: 30.25, EndDeg: 48.75, WidthDeg: 18.5, CenterDeg: 39.5}},
+	}
+	svg := RenderCoverageWheel(r)
+	if !strings.Contains(svg, "30.25") || !strings.Contains(svg, "48.75") {
+		t.Errorf("expected two-decimal gap edge labels '30.25'/'48.75', got:\n%s", svg)
+	}
+}
+
+func TestCoverageWheelTinyGapSingleMidpointLabel(t *testing.T) {
+	// A sub-degree gap: two edge labels would overlap on screen, so collapse to a
+	// single midpoint label the pilot can aim at.
 	r := hyperjump.OriginReport{
 		System:      "alpha_centauri",
 		CoveragePct: 0.9998689,
-		Gaps:        []hyperjump.Gap{{StartDeg: 219.68, EndDeg: 219.73, WidthDeg: 0.047, CenterDeg: 219.7}},
+		Gaps:        []hyperjump.Gap{{StartDeg: 219.68, EndDeg: 219.73, WidthDeg: 0.047, CenterDeg: 219.705}},
 	}
 	svg := RenderCoverageWheel(r)
-	if !strings.Contains(svg, "219.68") || !strings.Contains(svg, "219.73") {
-		t.Errorf("expected two-decimal gap edge labels '219.68'/'219.73', got:\n%s", svg)
+	if n := strings.Count(svg, `class="wheel-label"`); n != 1 {
+		t.Errorf("tiny gap should produce one midpoint label, got %d", n)
+	}
+	if strings.Contains(svg, "219.68") || strings.Contains(svg, "219.73") {
+		t.Errorf("tiny gap should not render overlapping edge labels, got:\n%s", svg)
+	}
+	if !strings.Contains(svg, "219.7") {
+		t.Errorf("expected midpoint heading label near 219.7, got:\n%s", svg)
 	}
 }
 

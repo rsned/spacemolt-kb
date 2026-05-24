@@ -15,6 +15,7 @@ const (
 	wheelLabelR  = 192.0 // radius for boundary heading labels
 	maxGapLabels = 12    // label every gap edge only when gaps are few
 	minLabelGap  = 1.0   // otherwise label only gaps at least this wide (deg)
+	minSplitGap  = 5.0   // below this width, edge labels overlap: show midpoint instead
 )
 
 // RenderCoverageWheel draws the 360-degree heading wheel for an origin. The disk
@@ -35,8 +36,13 @@ func RenderCoverageWheel(r hyperjump.OriginReport) string {
 		fmt.Fprintf(&b, `<polygon class="wheel-gap" points="%s" fill="#ffcf4d"/>`,
 			wedgePoints(wheelCenter, wheelCenter, wheelR, g.StartDeg, g.EndDeg))
 		if labelEvery || g.WidthDeg >= minLabelGap {
-			wheelEdgeLabel(&b, g.StartDeg)
-			wheelEdgeLabel(&b, g.EndDeg)
+			if g.WidthDeg < minSplitGap {
+				// Edges would render on top of each other; show one midpoint label.
+				wheelEdgeLabel(&b, g.CenterDeg)
+			} else {
+				wheelEdgeLabel(&b, g.StartDeg)
+				wheelEdgeLabel(&b, g.EndDeg)
+			}
 		}
 	}
 
