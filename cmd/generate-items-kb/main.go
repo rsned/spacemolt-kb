@@ -1414,6 +1414,11 @@ func writeSystemPages(outDir string, systems []*System) error {
 		return err
 	}
 
+	// Directly-reachable routes data artifact (full precision).
+	if err := writeRoutesJSON(filepath.Join(outDir, "routes.json"), jumpReports); err != nil {
+		return err
+	}
+
 	// Individual system pages (in subdirectories).
 	for _, sys := range systems {
 		sysDir := filepath.Join(outDir, sys.ID)

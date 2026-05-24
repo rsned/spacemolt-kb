@@ -2,10 +2,15 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	htmltpl "html/template"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/hyperjump"
 )
 
 func TestJumpPageRenders(t *testing.T) {
@@ -243,6 +248,76 @@ func TestJumpPageHasThemeToggleScript(t *testing.T) {
 	}
 	if !strings.Contains(out, "getElementById('theme-toggle')") {
 		t.Errorf("jump page missing the theme-toggle wiring script")
+	}
+}
+
+func TestReachableRoutesFilterAndOrder(t *testing.T) {
+	// sol(0) - beta(150) - alpha(300) collinear: sol<->alpha is blocked by beta.
+	systems := []*System{
+		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0},
+		{ID: "alpha", Name: "Alpha", PositionX: 300, PositionY: 0},
+		{ID: "beta", Name: "Beta", PositionX: 150, PositionY: 0},
+	}
+	reports, _, _ := buildJumpReports(systems)
+	routes := reachableRoutes(reports)
+
+	for _, p := range routes {
+		if !p.Reachable {
+			t.Errorf("non-reachable route leaked into output: %s->%s", p.From, p.To)
+		}
+		if p.From == "sol" && p.To == "alpha" {
+			t.Errorf("sol->alpha is blocked by beta and must be excluded")
+		}
+	}
+	// Reachable set: sol->beta, beta->sol, beta->alpha, alpha->beta.
+	if len(routes) != 4 {
+		t.Fatalf("got %d reachable routes, want 4: %+v", len(routes), routes)
+	}
+	// Deterministic order: sorted by From then To.
+	for i := 1; i < len(routes); i++ {
+		a, b := routes[i-1], routes[i]
+		if a.From > b.From || (a.From == b.From && a.To > b.To) {
+			t.Errorf("routes not sorted at %d: %s->%s before %s->%s", i, a.From, a.To, b.From, b.To)
+		}
+	}
+}
+
+func TestWriteRoutesJSONRoundTrip(t *testing.T) {
+	systems := []*System{
+		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0},
+		{ID: "beta", Name: "Beta", PositionX: 150.123456789, PositionY: 42.987654321},
+		{ID: "gamma", Name: "Gamma", PositionX: 75, PositionY: 900}, // off-axis: finite clearance
+	}
+	reports, _, _ := buildJumpReports(systems)
+
+	path := filepath.Join(t.TempDir(), "routes.json")
+	if err := writeRoutesJSON(path, reports); err != nil {
+		t.Fatalf("writeRoutesJSON: %v", err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	var got []hyperjump.Pair
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("output is not valid JSON: %v", err)
+	}
+	if len(got) == 0 {
+		t.Fatal("expected at least one reachable route")
+	}
+	// Full precision preserved: recompute the bearing and compare exactly.
+	var solBeta *hyperjump.Pair
+	for i := range got {
+		if got[i].From == "sol" && got[i].To == "beta" {
+			solBeta = &got[i]
+		}
+	}
+	if solBeta == nil {
+		t.Fatal("sol->beta route missing from output")
+	}
+	want := hyperjump.Bearing(hyperjump.Vec{X: 0, Y: 0}, hyperjump.Vec{X: 150.123456789, Y: 42.987654321})
+	if solBeta.Bearing != want {
+		t.Errorf("bearing precision lost: got %v want %v", solBeta.Bearing, want)
 	}
 }
 

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	htmltpl "html/template"
 	"math"
+	"os"
 	"sort"
 
 	"github.com/rsned/spacemolt-kb/pkg/hyperjump"
@@ -72,6 +74,36 @@ type JumpPageData struct {
 	Coverage        float64    // percent of headings blocked (raw)
 	CoverageDisplay float64    // percent blocked for display (capped at 99.9 when gaps exist)
 	GapCount        int
+}
+
+// reachableRoutes collects every directly-reachable jump pair across all origin
+// reports, sorted by origin then destination for deterministic output.
+func reachableRoutes(reports map[string]hyperjump.OriginReport) []hyperjump.Pair {
+	var routes []hyperjump.Pair
+	for _, r := range reports {
+		for _, p := range r.Pairs {
+			if p.Reachable {
+				routes = append(routes, p)
+			}
+		}
+	}
+	sort.Slice(routes, func(i, j int) bool {
+		if routes[i].From != routes[j].From {
+			return routes[i].From < routes[j].From
+		}
+		return routes[i].To < routes[j].To
+	})
+	return routes
+}
+
+// writeRoutesJSON writes all directly-reachable routes to path as a compact JSON
+// array of full-precision hyperjump.Pair records.
+func writeRoutesJSON(path string, reports map[string]hyperjump.OriginReport) error {
+	data, err := json.Marshal(reachableRoutes(reports))
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0o644)
 }
 
 // buildJumpReports runs the hyper-jump analysis over all systems and returns the
