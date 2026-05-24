@@ -16,19 +16,33 @@ type StarRecord struct {
 	Class string  `json:"class"` // Morgan-Keenan class; "" when unknown
 }
 
-// starRecords builds the star list for all systems, sorted by id. The class is
-// taken from the system's sun POI (type "sun"), or "" if there is none.
+// sunClass picks a system's representative spectral class from its sun POIs.
+// Multi-star systems (e.g. Alzirr) can list several suns; prefer a black hole
+// (the headline object) and otherwise the first sun with a real class, so a
+// blank-class entry never shadows a classified companion.
+func sunClass(pois []SystemPOI) string {
+	best := ""
+	for _, p := range pois {
+		if p.Type != "sun" {
+			continue
+		}
+		if p.Class == "BH" {
+			return "BH"
+		}
+		if best == "" && p.Class != "" {
+			best = p.Class
+		}
+	}
+	return best
+}
+
+// starRecords builds the star list for all systems, sorted by id.
 func starRecords(systems []*System) []StarRecord {
 	recs := make([]StarRecord, 0, len(systems))
 	for _, s := range systems {
-		class := ""
-		for _, p := range s.POIs {
-			if p.Type == "sun" {
-				class = p.Class
-				break
-			}
-		}
-		recs = append(recs, StarRecord{ID: s.ID, Name: s.Name, X: s.PositionX, Y: s.PositionY, Class: class})
+		recs = append(recs, StarRecord{
+			ID: s.ID, Name: s.Name, X: s.PositionX, Y: s.PositionY, Class: sunClass(s.POIs),
+		})
 	}
 	sort.Slice(recs, func(i, j int) bool { return recs[i].ID < recs[j].ID })
 	return recs

@@ -57,6 +57,18 @@
         .tag-clear { background: rgba(63,191,127,0.15); color: #3fbf7f; }
         .tag-tight { background: rgba(255,207,77,0.15); color: #ffcf4d; }
         .tag-blocked { background: rgba(255,122,77,0.18); color: #ff7a4d; }
+        .warp-toc {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+            margin: 16px 0; padding: 10px 14px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+        }
+        .warp-toc-label { color: var(--text-muted); font-size: 0.8em; text-transform: uppercase; }
+        .warp-toc a {
+            font-size: 0.85em; padding: 3px 10px; border-radius: 12px;
+            background: rgba(108,92,231,0.14); color: #6c5ce7; text-decoration: none;
+        }
+        .warp-toc a:hover { background: rgba(108,92,231,0.28); }
+        .warp-clip { scroll-margin-top: 12px; }
     </style>
 </head>
 <body>
@@ -85,12 +97,22 @@
         <p class="text-muted mt-1">A first-person view of flying a Pathfinder Drive route. The camera holds a heading at 10&nbsp;GU/tick; real stars stream past, colored by spectral class, over an ambient warp field. Closest passes streak hardest — and a blocked route ends where you drop out.</p>
 
         <blockquote class="item-desc">
-            Three demonstration flights below. Everything is derived from real system positions and star classes; only the vertical spread of the starfield is synthesized (the galaxy map is two-dimensional).
+            Six demonstration flights below. Everything is derived from real system positions and star classes; only the vertical spread of the starfield is synthesized (the galaxy map is two-dimensional).
         </blockquote>
+
+        <nav class="warp-toc" aria-label="Flights">
+            <span class="warp-toc-label">Flights:</span>
+            <a href="#squeeze">The Squeeze</a>
+            <a href="#long-haul">Clean Long-Haul</a>
+            <a href="#longest">Longest Run</a>
+            <a href="#into-the-maw">Into the Maw</a>
+            <a href="#grazing-the-maw">Grazing the Maw</a>
+            <a href="#dead-end">The Dead End</a>
+        </nav>
 
         <div id="warp-error" class="card" style="padding:16px;display:none;color:#ff7a4d"></div>
 
-        <div class="warp-clip">
+        <div class="warp-clip" id="squeeze">
             <canvas class="warp-canvas" data-from="inquill" data-to="alrakis"></canvas>
             <div class="warp-meta">
                 <div>
@@ -100,7 +122,7 @@
             </div>
         </div>
 
-        <div class="warp-clip">
+        <div class="warp-clip" id="long-haul">
             <canvas class="warp-canvas" data-from="alrakis" data-to="ross_154"></canvas>
             <div class="warp-meta">
                 <div>
@@ -110,7 +132,7 @@
             </div>
         </div>
 
-        <div class="warp-clip">
+        <div class="warp-clip" id="longest">
             <canvas class="warp-canvas" data-from="dustfall" data-to="dawnbreak" data-speed="1300"></canvas>
             <div class="warp-meta">
                 <div>
@@ -120,7 +142,27 @@
             </div>
         </div>
 
-        <div class="warp-clip">
+        <div class="warp-clip" id="into-the-maw">
+            <canvas class="warp-canvas" data-from="trappist_1" data-to="alzirr"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>Into the Maw — TRAPPIST-1 → Alzirr <span class="warp-tag tag-clear">clear</span></h3>
+                    <p>A clear run to the galaxy's only black hole, <strong>The Maw</strong> (1,789&nbsp;GU, 179 ticks). It renders as a dark, lensed void rather than a bright star, and grows dead ahead as you arrive. Tightest pass on the way: <strong>Stillwater</strong> at 49.9&nbsp;GU.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="grazing-the-maw">
+            <canvas class="warp-canvas" data-from="valor" data-to="windmere"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>Grazing the Maw — Valor → Windmere <span class="warp-tag tag-clear">clear</span></h3>
+                    <p>1,205&nbsp;GU straight past the black hole without dropping out. <strong>The Maw</strong> (Alzirr) sweeps by at <strong>139&nbsp;GU</strong> — just 39&nbsp;GU outside its 100&nbsp;GU bubble — about two-thirds of the way to Windmere. Watch the dark sphere slide past to one side.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="dead-end">
             <canvas class="warp-canvas" data-from="grumium" data-to="haven"></canvas>
             <div class="warp-meta">
                 <div>
@@ -130,7 +172,10 @@
             </div>
         </div>
 
-        <p class="text-muted mt-3"><a href="./">← Back to Did You Know?</a></p>
+        <p class="text-muted mt-3">
+            <a href="warp_simulator.html">Fly your own route in the simulator →</a> &nbsp;·&nbsp;
+            <a href="./">Back to Did You Know?</a>
+        </p>
     </main>
 
     <!-- stars.js assigns window.SPACEMOLT_STARS; a <script> tag works off the

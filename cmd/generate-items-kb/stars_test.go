@@ -44,6 +44,24 @@ func TestStarRecords(t *testing.T) {
 	}
 }
 
+func TestSunClassPrefersBlackHoleAndNonEmpty(t *testing.T) {
+	// A black hole is the headline object even when listed after another sun.
+	got := sunClass([]SystemPOI{
+		{Type: "sun", Class: "K2III"}, {Type: "sun", Class: ""}, {Type: "sun", Class: "BH"},
+	})
+	if got != "BH" {
+		t.Errorf("multi-sun with a black hole = %q, want BH", got)
+	}
+	// A blank-class sun must not shadow a classified one.
+	if got := sunClass([]SystemPOI{{Type: "sun", Class: ""}, {Type: "sun", Class: "K2V"}}); got != "K2V" {
+		t.Errorf("prefer non-empty class = %q, want K2V", got)
+	}
+	// No sun POI -> empty.
+	if got := sunClass([]SystemPOI{{Type: "planet", Class: "x"}}); got != "" {
+		t.Errorf("no sun = %q, want empty", got)
+	}
+}
+
 func TestWriteStarsJSONRoundTrip(t *testing.T) {
 	systems := []*System{
 		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0,

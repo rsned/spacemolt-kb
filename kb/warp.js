@@ -77,7 +77,7 @@
         // so it arrives dead-center in the viewport.
         z: isDest ? 0 : seededHeight(s.id) * (opt.heightSpread || 1200),
         color: classToColor(s.class), size: classToSize(s.class),
-        isDest: isDest
+        isDest: isDest, bh: s.class === 'BH'
       });
     }
     var endProj = isFinite(blockedAt) ? blockedAt : routeLen;
@@ -133,10 +133,11 @@
       return { x: W() / 2 + focal * perp / forward, y: H() / 2 - focal * z / forward };
     }
 
-    function drawStar(p, prevP, forward, color, size, glow) {
+    function drawStar(p, prevP, forward, color, size, glow, bh) {
       var sz = Math.max(0.8, size * focal / forward * 0.85);
       // brighter falloff: gentle curve holds luminosity far longer than linear.
       var alpha = Math.max(0, Math.min(1, 1.7 * Math.pow(1 - forward / far, 0.4)));
+      if (bh) { drawBlackHole(p, sz, alpha); return; }
       ctx.fillStyle = color;
       ctx.strokeStyle = color;
       if (prevP) { // streak from last frame
@@ -154,6 +155,28 @@
       ctx.globalAlpha = Math.min(1, alpha);
       ctx.fillStyle = '#ffffff';
       ctx.beginPath(); ctx.arc(p.x, p.y, sz * 0.45, 0, 6.2832); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // drawBlackHole renders the lone BH-class star: an actual dark event horizon
+    // (source-over so it occludes the field) ringed by a bright accretion glow.
+    function drawBlackHole(p, sz, alpha) {
+      var r = sz * 1.6;
+      // event horizon — a real dark disk that blocks what's behind it
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = Math.min(1, alpha * 1.2);
+      ctx.fillStyle = '#000000';
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.2832); ctx.fill();
+      // accretion ring + glow (additive)
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = Math.max(1, r * 0.45);
+      ctx.strokeStyle = '#ffcf8a';
+      ctx.beginPath(); ctx.arc(p.x, p.y, r * 1.5, 0, 6.2832); ctx.stroke();
+      ctx.globalAlpha = alpha * 0.55;
+      ctx.lineWidth = Math.max(1, r * 0.3);
+      ctx.strokeStyle = '#9fc1ff';
+      ctx.beginPath(); ctx.arc(p.x, p.y, r * 2.1, 0, 6.2832); ctx.stroke();
       ctx.globalAlpha = 1;
     }
 
@@ -215,7 +238,7 @@
         var forward = s.proj - t;
         if (forward <= near || forward > far) { prev[s.id] = null; continue; }
         var p = project(s.perp, s.z, forward);
-        drawStar(p, prev[s.id], forward, s.color, s.size, s.isDest || s.id === scene.endStar);
+        drawStar(p, prev[s.id], forward, s.color, s.size, s.isDest || s.id === scene.endStar, s.bh);
         prev[s.id] = p;
       }
 
@@ -270,10 +293,14 @@
     function pause() { running = false; if (raf) global.cancelAnimationFrame(raf); }
     function replay() { pause(); t = 0; arrived = 0; prev = {}; play(); }
     function setSpeedMul(m) { speed = baseSpeed * m; } // live speed adjust
+    function destroy() { pause(); global.removeEventListener('resize', resize); }
 
     resize();
     global.addEventListener('resize', resize);
-    return { play: play, pause: pause, replay: replay, setSpeedMul: setSpeedMul, scene: scene };
+    return {
+      play: play, pause: pause, replay: replay,
+      setSpeedMul: setSpeedMul, destroy: destroy, scene: scene
+    };
   }
 
   var api = {
