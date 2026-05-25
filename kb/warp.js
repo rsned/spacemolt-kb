@@ -90,7 +90,7 @@
         x: s.x, y: s.y,                       // world coords (for the top-down map)
         // The target sits on the route line (perp == 0); drop its z jitter too
         // so it arrives dead-center in the viewport.
-        z: isDest ? 0 : seededHeight(s.id) * (opt.heightSpread || 1200),
+        z: isDest ? 0 : seededHeight(s.id) * (opt.heightSpread || 600),
         color: classToColor(s.class), size: classToSize(s.class),
         isDest: isDest, bh: s.class === 'BH',
         suns: (s.suns && s.suns.length > 1) ? s.suns : null  // multi-star cluster
@@ -126,7 +126,7 @@
     var focal = opts.focal || 520;
     var near = opts.near || 8;
     var far = opts.far || 6000;
-    var spread = opts.heightSpread || 1200;
+    var spread = opts.heightSpread || 600;  // synthesized vertical jitter (half the original for a flatter plane)
     var baseSpeed = opts.speed || 450;    // GU per second at 1x
     var speed = baseSpeed;                 // current speed (base * multiplier)
     var ambient = makeAmbient(opts.ambient || 320, near, far, spread * 2.2);
