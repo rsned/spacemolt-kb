@@ -22,6 +22,20 @@
     return (hashStr(id) / 0xffffffff) * 2 - 1;
   }
 
+  var CLUSTER_R = 55; // GU; multi-star cluster ring radius (inside the 100 GU bubble)
+
+  // rosetteOffset: deterministic view-space [dperp, dz] for component i of n in
+  // a multi-star cluster. When centered (a black hole headlines), component 0
+  // sits at the center and the rest fan evenly on the ring; otherwise all fan on
+  // the ring (so a binary reads as a symmetric pair). Seeded by id for variety.
+  function rosetteOffset(id, i, n, centered) {
+    if (centered && i === 0) return [0, 0];
+    var ring = centered ? n - 1 : n;
+    var k = centered ? i - 1 : i;
+    var ang = (hashStr(id) % 360) * Math.PI / 180 + (k / ring) * 6.2832;
+    return [CLUSTER_R * Math.cos(ang), CLUSTER_R * Math.sin(ang)];
+  }
+
   var SPECTRAL = {
     O: '#9bb0ff', B: '#aabfff', A: '#cad8ff', F: '#f6f3ff',
     G: '#fff4e8', K: '#ffd6a5', M: '#ffb86b'
@@ -78,7 +92,8 @@
         // so it arrives dead-center in the viewport.
         z: isDest ? 0 : seededHeight(s.id) * (opt.heightSpread || 1200),
         color: classToColor(s.class), size: classToSize(s.class),
-        isDest: isDest, bh: s.class === 'BH'
+        isDest: isDest, bh: s.class === 'BH',
+        suns: (s.suns && s.suns.length > 1) ? s.suns : null  // multi-star cluster
       });
     }
     var endProj = isFinite(blockedAt) ? blockedAt : routeLen;
@@ -257,7 +272,9 @@
       var scale = inner / Math.max(rangeX, rangeY);      // equal scale, galaxy-map style
       var offX = r.x + pad + (inner - rangeX * scale) / 2;
       var offY = r.y + pad + (inner - rangeY * scale) / 2;
-      function px(x, y) { return { x: offX + (x - minX) * scale, y: offY + (y - minY) * scale }; }
+      // +X right, +Y up: matches the in-game galaxy map and keeps left/right
+      // consistent with the first-person view and radar (perp-based).
+      function px(x, y) { return { x: offX + (x - minX) * scale, y: offY + (maxY - y) * scale }; }
       function inBox(x, y) { return x >= minX && x <= maxX && y >= minY && y <= maxY; }
       var br = Math.max(1.2, MARGIN * scale);            // 100 GU bubble radius in px
       // systems in view: 100 GU bubble + dot; near-passes glow orange
@@ -297,10 +314,10 @@
         ctx.fillStyle = '#9fd2ff';
         ctx.beginPath(); ctx.arc(pD.x, pD.y, 3, 0, 6.2832); ctx.fill();
       }
-      // ship marker, pointing along travel
+      // ship marker, pointing along travel (screen Y is flipped, so negate uy)
       var prog = Math.min(t, scene.endProj);
       var pS = px(o.x + scene.ux * prog, o.y + scene.uy * prog);
-      shipMarker(pS.x, pS.y, scene.ux, scene.uy, 5);
+      shipMarker(pS.x, pS.y, scene.ux, -scene.uy, 5);
     }
 
     // radarBody: true-scale overhead view tracking the ship — the corridor just
@@ -368,15 +385,29 @@
         drawBubble(project(sb.perp, sb.z, fb), fb);
       }
 
-      // Pass 2: the stars themselves, additive and bright.
+      // Pass 2: the stars themselves, additive and bright. Multi-star systems
+      // expand into a small cluster, each component drawn by its own class.
       ctx.globalCompositeOperation = 'lighter';
       for (var j = 0; j < scene.stars.length; j++) {
         var s = scene.stars[j];
         var forward = s.proj - t;
         if (forward <= near || forward > far) { prev[s.id] = null; continue; }
-        var p = project(s.perp, s.z, forward);
-        drawStar(p, prev[s.id], forward, s.color, s.size, s.isDest || s.id === scene.endStar, s.bh);
-        prev[s.id] = p;
+        var headlit = s.isDest || s.id === scene.endStar;
+        if (s.suns) {
+          var centered = s.suns[0].class === 'BH';
+          for (var c = 0; c < s.suns.length; c++) {
+            var comp = s.suns[c];
+            var off = rosetteOffset(s.id, c, s.suns.length, centered);
+            var pc = project(s.perp + off[0], s.z + off[1], forward);
+            drawStar(pc, null, forward, classToColor(comp.class), classToSize(comp.class),
+              headlit, comp.class === 'BH');
+          }
+          prev[s.id] = null;
+        } else {
+          var p = project(s.perp, s.z, forward);
+          drawStar(p, prev[s.id], forward, s.color, s.size, headlit, s.bh);
+          prev[s.id] = p;
+        }
       }
 
       // Pass 3: labels for stars close ahead and near the flight line. A dark
@@ -389,15 +420,33 @@
         var fl = sl.proj - t;
         if (fl <= near || fl > far) continue;
         if (fl < 1100 && Math.abs(sl.perp) < 800) {
-          var pl = project(sl.perp, sl.z, fl);
-          if (pl.x < 0 || pl.x > W()) continue;
-          ctx.globalAlpha = Math.max(0, Math.min(1, 1 - fl / 1100));
+          var la = Math.max(0, Math.min(1, 1 - fl / 1100));
           ctx.lineWidth = 3.5;
-          ctx.strokeStyle = 'rgba(4,5,12,0.9)';
-          ctx.strokeText(sl.name, pl.x + 10, pl.y - 8);
-          ctx.fillStyle = '#e2e7f4';
-          ctx.fillText(sl.name, pl.x + 10, pl.y - 8);
-          ctx.globalAlpha = 1;
+          if (sl.suns) {
+            // label each component at its cluster position
+            var centeredL = sl.suns[0].class === 'BH';
+            for (var c2 = 0; c2 < sl.suns.length; c2++) {
+              var offL = rosetteOffset(sl.id, c2, sl.suns.length, centeredL);
+              var plc = project(sl.perp + offL[0], sl.z + offL[1], fl);
+              if (plc.x < 0 || plc.x > W()) continue;
+              ctx.globalAlpha = la;
+              ctx.strokeStyle = 'rgba(4,5,12,0.9)';
+              ctx.strokeText(sl.suns[c2].name, plc.x + 10, plc.y - 8);
+              ctx.fillStyle = '#e2e7f4';
+              ctx.fillText(sl.suns[c2].name, plc.x + 10, plc.y - 8);
+            }
+            ctx.globalAlpha = 1;
+          } else {
+            var pl = project(sl.perp, sl.z, fl);
+            if (pl.x >= 0 && pl.x <= W()) {
+              ctx.globalAlpha = la;
+              ctx.strokeStyle = 'rgba(4,5,12,0.9)';
+              ctx.strokeText(sl.name, pl.x + 10, pl.y - 8);
+              ctx.fillStyle = '#e2e7f4';
+              ctx.fillText(sl.name, pl.x + 10, pl.y - 8);
+              ctx.globalAlpha = 1;
+            }
+          }
         }
       }
 

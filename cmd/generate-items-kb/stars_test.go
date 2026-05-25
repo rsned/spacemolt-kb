@@ -62,6 +62,94 @@ func TestSunClassPrefersBlackHoleAndNonEmpty(t *testing.T) {
 	}
 }
 
+func TestSunComponentsOrdersBlackHoleFirst(t *testing.T) {
+	// Alzirr's trinary: a giant, a blank-class companion, and the black hole.
+	got := sunComponents([]SystemPOI{
+		{Type: "sun", Name: "Alzirr A", Class: "K2III"},
+		{Type: "planet", Name: "Not a star", Class: "terran"},
+		{Type: "sun", Name: "Alzirr Star", Class: ""},
+		{Type: "sun", Name: "The Maw", Class: "BH"},
+	})
+	if len(got) != 3 {
+		t.Fatalf("got %d components, want 3", len(got))
+	}
+	// Black hole is the headline, placed first; the rest keep catalog order.
+	want := []SunComp{
+		{Name: "The Maw", Class: "BH"},
+		{Name: "Alzirr A", Class: "K2III"},
+		{Name: "Alzirr Star", Class: ""},
+	}
+	for i, w := range want {
+		if got[i] != w {
+			t.Errorf("component %d = %+v, want %+v", i, got[i], w)
+		}
+	}
+}
+
+func TestSunComponentsNilForSingleOrNone(t *testing.T) {
+	if got := sunComponents([]SystemPOI{{Type: "sun", Name: "Sol", Class: "G2V"}}); got != nil {
+		t.Errorf("single sun = %+v, want nil", got)
+	}
+	if got := sunComponents([]SystemPOI{{Type: "planet", Name: "p", Class: "terran"}}); got != nil {
+		t.Errorf("no sun = %+v, want nil", got)
+	}
+}
+
+func TestStarRecordsMultiStarSuns(t *testing.T) {
+	systems := []*System{
+		{ID: "alzirr", Name: "Alzirr", PositionX: 1, PositionY: 2, POIs: []SystemPOI{
+			{Type: "sun", Name: "Alzirr A", Class: "K2III"},
+			{Type: "sun", Name: "The Maw", Class: "BH"},
+		}},
+		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0, POIs: []SystemPOI{
+			{Type: "sun", Name: "Sol", Class: "G2V"},
+		}},
+	}
+	byID := map[string]StarRecord{}
+	for _, r := range starRecords(systems) {
+		byID[r.ID] = r
+	}
+	// Multi-star: Suns populated, headline (BH) first; representative class is BH.
+	alz := byID["alzirr"]
+	if alz.Class != "BH" {
+		t.Errorf("alzirr representative class = %q, want BH", alz.Class)
+	}
+	if len(alz.Suns) != 2 || alz.Suns[0].Class != "BH" || alz.Suns[1].Class != "K2III" {
+		t.Errorf("alzirr suns = %+v, want [BH, K2III]", alz.Suns)
+	}
+	// Single-star: no Suns array.
+	if byID["sol"].Suns != nil {
+		t.Errorf("sol suns = %+v, want nil", byID["sol"].Suns)
+	}
+}
+
+func TestStarsJSONOmitsSunsForSingleStar(t *testing.T) {
+	single := starsJSONMust(t, []*System{
+		{ID: "sol", Name: "Sol", POIs: []SystemPOI{{Type: "sun", Name: "Sol", Class: "G2V"}}},
+	})
+	if strings.Contains(single, "suns") {
+		t.Errorf("single-star JSON should omit suns: %s", single)
+	}
+	multi := starsJSONMust(t, []*System{
+		{ID: "alzirr", Name: "Alzirr", POIs: []SystemPOI{
+			{Type: "sun", Name: "Alzirr A", Class: "K2III"},
+			{Type: "sun", Name: "The Maw", Class: "BH"},
+		}},
+	})
+	if !strings.Contains(multi, `"suns"`) {
+		t.Errorf("multi-star JSON should include suns: %s", multi)
+	}
+}
+
+func starsJSONMust(t *testing.T, systems []*System) string {
+	t.Helper()
+	data, err := starsJSON(systems)
+	if err != nil {
+		t.Fatalf("starsJSON: %v", err)
+	}
+	return string(data)
+}
+
 func TestWriteStarsJSONRoundTrip(t *testing.T) {
 	systems := []*System{
 		{ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0,
