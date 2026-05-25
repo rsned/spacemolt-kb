@@ -50,15 +50,17 @@
   }
 
   // classToSize: luminosity-class size multiplier (V dwarf .. Ia supergiant).
+  // Giant/supergiant tiers (I/II/III) are exaggerated (doubled) to dramatize
+  // the size gap against dwarfs.
   function classToSize(cls) {
     if (!cls) return 1;
     if (cls === 'BH') return 2.4;
     if (cls.charAt(0) === 'D') return 0.6;
     var m = cls.match(/(Ia|Ib|III|II|IV|V|I)$/);
     var lum = m ? m[1] : 'V';
-    if (lum === 'Ia' || lum === 'Ib' || lum === 'I') return 4;
-    if (lum === 'II') return 3;
-    if (lum === 'III') return 2;
+    if (lum === 'Ia' || lum === 'Ib' || lum === 'I') return 8;
+    if (lum === 'II') return 6;
+    if (lum === 'III') return 4;
     if (lum === 'IV') return 1.4;
     return 1;
   }
