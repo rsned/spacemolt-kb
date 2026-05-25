@@ -117,6 +117,10 @@
                 <div class="number">1 / 505</div>
                 <div class="label">Fully enclosed systems</div>
             </div>
+            <div class="stat-box">
+                <div class="number">4 jumps</div>
+                <div class="label">Reach any of 505 systems</div>
+            </div>
         </div>
 
         <h3 class="mt-3">🚀 Longest Clear Jumps</h3>
@@ -214,6 +218,52 @@
             <p class="text-muted" style="margin:8px 0 0 0;font-size:0.85em">Runners-up: Alpha Centauri (one 0.05° gap, 99.99% blocked) and Ridgecrest (99.96%).</p>
         </div>
 
+        <h3 class="mt-3">🕸️ Reaching the Whole Galaxy (Adding Stops)</h3>
+        <p class="section-intro">A single jump only reaches nearby systems, but chaining clear jumps connects everything. Treating each uninterrupted jump as one leg, the entire galaxy is a <strong>single connected network</strong> — from any system you can reach all 504 others. Here is how fast coverage grows as you allow stops, averaged over all 505 origins.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th>Route length</th><th>Stops</th><th class="num">Avg systems reached</th><th class="num">% of galaxy</th><th class="num">Worst origin</th><th class="num">Origins reaching all 504</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1 jump</td><td>direct</td><td class="num">37.8</td><td class="num">7.5%</td><td class="num">15</td><td class="num">0</td></tr>
+                <tr><td>2 jumps</td><td>1 stop</td><td class="num">309.0</td><td class="num">61.3%</td><td class="num">148</td><td class="num">0</td></tr>
+                <tr><td>3 jumps</td><td>2 stops</td><td class="num">498.2</td><td class="num">98.9%</td><td class="num">432</td><td class="num">217</td></tr>
+                <tr><td>unlimited</td><td>&mdash;</td><td class="num">504.0</td><td class="num">100%</td><td class="num">504</td><td class="num">505</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">One stop already opens up ~61% of the galaxy; <strong>two stops reaches 98.9%</strong> on average, and 217 of 505 systems can reach <em>every</em> other in two stops or fewer.</p>
+
+        <h3 class="mt-3">📡 Jump Diameter: 4</h3>
+        <p class="section-intro">The longest shortest-path anywhere in the galaxy is just four jumps — <strong>any system is reachable from any other in at most 3 stops</strong>. Distribution of the shortest route across all 254,520 ordered pairs:</p>
+        <table class="data-table">
+            <thead>
+                <tr><th>Shortest route</th><th>Stops</th><th class="num">Pairs</th><th class="num">Share</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1 jump</td><td>direct</td><td class="num">19,104</td><td class="num">7.5%</td></tr>
+                <tr><td>2 jumps</td><td>1 stop</td><td class="num">136,924</td><td class="num">53.8%</td></tr>
+                <tr><td>3 jumps</td><td>2 stops</td><td class="num">95,572</td><td class="num">37.5%</td></tr>
+                <tr><td>4 jumps</td><td>3 stops</td><td class="num">2,920</td><td class="num">1.1%</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">Over 99% of system pairs are within two stops; only 1.1% need the full four-jump route.</p>
+
+        <h3 class="mt-3">🔗 Best-Connected Hubs &amp; Rim Dead-Ends</h3>
+        <p class="section-intro">Direct clear jumps leaving each system. The busiest hubs branch in ~65 directions; the rim systems that stretch the diameter to 4 have barely a fifth of that.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th class="rank">#</th><th>Best-connected</th><th class="num">Jumps out</th><th>Most isolated</th><th class="num">Jumps out</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td>Zaniah</td><td class="num">65</td><td>Muscida</td><td class="num">15</td></tr>
+                <tr><td class="rank">2</td><td>GSC-0039</td><td class="num">63</td><td>Greymist</td><td class="num">15</td></tr>
+                <tr><td class="rank">3</td><td>Larchfield</td><td class="num">63</td><td>Embervale</td><td class="num">15</td></tr>
+                <tr><td class="rank">4</td><td>Alfirk</td><td class="num">62</td><td>Betelgeuse</td><td class="num">15</td></tr>
+                <tr><td class="rank">5</td><td>Capella</td><td class="num">60</td><td>Yed Posterior</td><td class="num">16</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">At the rim, jumps out equal jumps in — Muscida, Greymist, Embervale and Betelgeuse each have 15 both ways: symmetric bottlenecks, as hard to reach as they are to leave.</p>
+
         <div class="card" style="padding: 16px;">
             <h3>Analysis Notes</h3>
             <ul style="margin: 0; padding-left: 20px;">
@@ -222,6 +272,8 @@
                 <li><strong>Open sky lives at the edge:</strong> Every wide void gap belongs to an outskirt system and points away from the crowded core.</li>
                 <li><strong>The core is a cage:</strong> Grumium, well inside the disc, is the only system with no escape heading at all.</li>
                 <li><strong>Travel time:</strong> One jump tick covers 10 GU in 10 seconds, so the longest jump takes over three real-time hours.</li>
+                <li><strong>The galaxy is fully connected:</strong> Using only clean jumps as legs, every system can reach all 504 others — and any pair is linked in at most 4 jumps (3 stops).</li>
+                <li><strong>Two stops is almost everything:</strong> One stop reaches ~61% of systems on average; two stops reaches 98.9%.</li>
             </ul>
         </div>
 
