@@ -73,6 +73,7 @@
       }
       scene.push({
         id: s.id, name: s.name, proj: proj, perp: perp,
+        x: s.x, y: s.y,                       // world coords (for the top-down map)
         // The target sits on the route line (perp == 0); drop its z jitter too
         // so it arrives dead-center in the viewport.
         z: isDest ? 0 : seededHeight(s.id) * (opt.heightSpread || 1200),
@@ -193,6 +194,142 @@
       ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.2832); ctx.stroke();
     }
 
+    // ---------- top-down picture-in-picture minimaps ----------
+
+    function roundRect(x, y, w, h, rad) {
+      ctx.beginPath();
+      ctx.moveTo(x + rad, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rad);
+      ctx.arcTo(x + w, y + h, x, y + h, rad);
+      ctx.arcTo(x, y + h, x, y, rad);
+      ctx.arcTo(x, y, x + w, y, rad);
+      ctx.closePath();
+    }
+
+    // panelRect: a square inset 1/3 the canvas height in a bottom corner.
+    function panelRect(corner) {
+      var s = Math.round(H() / 3), pad = 12;
+      var x = corner === 'right' ? W() - s - pad : pad;
+      return { x: x, y: H() - s - pad, s: s };
+    }
+
+    // drawPanel: dark rounded backdrop, runs body() clipped inside, then frames
+    // it and writes the caption on top.
+    function drawPanel(r, title, body) {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = 'rgba(6,9,18,0.80)';
+      roundRect(r.x, r.y, r.s, r.s, 6); ctx.fill();
+      ctx.save();
+      ctx.beginPath(); ctx.rect(r.x, r.y, r.s, r.s); ctx.clip();
+      body(r);
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(150,162,196,0.55)'; ctx.lineWidth = 1;
+      roundRect(r.x, r.y, r.s, r.s, 6); ctx.stroke();
+      ctx.fillStyle = 'rgba(190,200,224,0.85)'; ctx.font = '10px monospace';
+      ctx.fillText(title, r.x + 8, r.y + 14);
+    }
+
+    // shipMarker: small filled triangle pointing along the unit direction (dx, dy).
+    function shipMarker(cx, cy, dx, dy, a) {
+      var nx = -dy, ny = dx; // perpendicular to travel
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(cx + dx * a, cy + dy * a);
+      ctx.lineTo(cx - dx * a * 0.7 + nx * a * 0.7, cy - dy * a * 0.7 + ny * a * 0.7);
+      ctx.lineTo(cx - dx * a * 0.7 - nx * a * 0.7, cy - dy * a * 0.7 - ny * a * 0.7);
+      ctx.closePath(); ctx.fill();
+    }
+
+    // fullRouteBody: a galaxy-map-oriented overview of the whole route (equal
+    // scale, +X right and +Y down to match the galaxy map). The route is drawn
+    // at its true bearing through the local star field; a 100 GU bubble rings
+    // every system, and a ship marker tracks along the route as you fly.
+    function fullRouteBody(r) {
+      var pad = 16, o = opts.origin, d = opts.dest;
+      var minX = Math.min(o.x, d.x), maxX = Math.max(o.x, d.x);
+      var minY = Math.min(o.y, d.y), maxY = Math.max(o.y, d.y);
+      var mX = Math.max((maxX - minX) * 0.15, 280);     // GU margin (room for bubbles)
+      var mY = Math.max((maxY - minY) * 0.15, 280);
+      minX -= mX; maxX += mX; minY -= mY; maxY += mY;
+      var rangeX = maxX - minX, rangeY = maxY - minY;
+      var inner = r.s - 2 * pad;
+      var scale = inner / Math.max(rangeX, rangeY);      // equal scale, galaxy-map style
+      var offX = r.x + pad + (inner - rangeX * scale) / 2;
+      var offY = r.y + pad + (inner - rangeY * scale) / 2;
+      function px(x, y) { return { x: offX + (x - minX) * scale, y: offY + (y - minY) * scale }; }
+      function inBox(x, y) { return x >= minX && x <= maxX && y >= minY && y <= maxY; }
+      var br = Math.max(1.2, MARGIN * scale);            // 100 GU bubble radius in px
+      // systems in view: 100 GU bubble + dot; near-passes glow orange
+      for (var i = 0; i < scene.stars.length; i++) {
+        var s = scene.stars[i];
+        if (!inBox(s.x, s.y)) continue;
+        var p = px(s.x, s.y);
+        var near = Math.abs(s.perp) <= MARGIN && s.proj > 0 && s.proj < scene.routeLen;
+        ctx.strokeStyle = near ? 'rgba(255,150,110,0.5)' : 'rgba(208,213,226,0.28)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, br, 0, 6.2832); ctx.stroke();
+        ctx.fillStyle = near ? '#ff9b6e' : s.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, s.bh ? 3 : 1.8, 0, 6.2832); ctx.fill();
+      }
+      // route: flown portion solid, blocked remainder dashed
+      var pO = px(o.x, o.y), pD = px(d.x, d.y);
+      var pE = px(o.x + scene.ux * scene.endProj, o.y + scene.uy * scene.endProj);
+      // origin's own bubble
+      ctx.strokeStyle = 'rgba(208,213,226,0.28)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(pO.x, pO.y, br, 0, 6.2832); ctx.stroke();
+      if (scene.blocked) {
+        ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(120,150,210,0.4)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pE.x, pE.y); ctx.lineTo(pD.x, pD.y); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      ctx.strokeStyle = 'rgba(159,210,255,0.75)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(pO.x, pO.y); ctx.lineTo(pE.x, pE.y); ctx.stroke();
+      // origin (green dot) and endpoint (blue dest, or red X where a route drops out)
+      ctx.fillStyle = '#7fe0a0';
+      ctx.beginPath(); ctx.arc(pO.x, pO.y, 3, 0, 6.2832); ctx.fill();
+      if (scene.blocked) {
+        ctx.strokeStyle = '#ff7a4d'; ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(pE.x - 3, pE.y - 3); ctx.lineTo(pE.x + 3, pE.y + 3);
+        ctx.moveTo(pE.x + 3, pE.y - 3); ctx.lineTo(pE.x - 3, pE.y + 3); ctx.stroke();
+      } else {
+        ctx.fillStyle = '#9fd2ff';
+        ctx.beginPath(); ctx.arc(pD.x, pD.y, 3, 0, 6.2832); ctx.fill();
+      }
+      // ship marker, pointing along travel
+      var prog = Math.min(t, scene.endProj);
+      var pS = px(o.x + scene.ux * prog, o.y + scene.uy * prog);
+      shipMarker(pS.x, pS.y, scene.ux, scene.uy, 5);
+    }
+
+    // radarBody: true-scale overhead view tracking the ship — the corridor just
+    // ahead with 100 GU bubbles as real circles. Bubbles the lane threads
+    // (|perp| <= 100 GU) glow orange. Ship sits near the bottom; the world
+    // scrolls down past it, matching the first-person view above.
+    function radarBody(r) {
+      var pad = 14, spanGU = 2200, behindGU = 450;
+      var cx = r.x + r.s / 2;
+      var scale = (r.s - 2 * pad) / spanGU;             // px / GU, equal both axes
+      var shipY = r.y + r.s - pad - behindGU * scale;
+      function px(proj, perp) { return { x: cx + perp * scale, y: shipY - (proj - t) * scale }; }
+      ctx.strokeStyle = 'rgba(120,150,210,0.4)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, r.y); ctx.lineTo(cx, r.y + r.s); ctx.stroke();
+      for (var i = 0; i < scene.stars.length; i++) {
+        var s = scene.stars[i];
+        var rel = s.proj - t;
+        if (rel < -behindGU - 120 || rel > (spanGU - behindGU) + 120) continue;
+        if (Math.abs(s.perp) * scale > r.s / 2) continue;
+        var p = px(s.proj, s.perp);
+        ctx.strokeStyle = Math.abs(s.perp) <= MARGIN ? 'rgba(255,150,110,0.55)' : 'rgba(208,213,226,0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 100 * scale, 0, 6.2832); ctx.stroke();
+        ctx.fillStyle = s.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, s.bh ? 3 : 2.2, 0, 6.2832); ctx.fill();
+      }
+      shipMarker(cx, shipY, 0, -1, 6);
+    }
+
     function frame(now) {
       if (!running) return;
       var dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
@@ -279,12 +416,18 @@
         }
       }
 
-      // HUD
+      // HUD (top-left, clear of the bottom-corner minimaps)
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = '#cdd3e0'; ctx.font = '12px monospace';
       var pct = Math.min(100, (t / scene.endProj) * 100);
       ctx.fillText(Math.round(t) + ' / ' + Math.round(scene.endProj) + ' GU  (' +
-        Math.round(pct) + '%)', 10, H() - 12);
+        Math.round(pct) + '%)', 10, 20);
+
+      // top-down picture-in-picture: full route (left) + tracking radar (right)
+      if (opts.minimaps !== false) {
+        drawPanel(panelRect('left'), 'FULL ROUTE', fullRouteBody);
+        drawPanel(panelRect('right'), 'RADAR', radarBody);
+      }
 
       raf = global.requestAnimationFrame(frame);
     }
