@@ -38,7 +38,7 @@
 
   var SPECTRAL = {
     O: '#9bb0ff', B: '#aabfff', A: '#cad8ff', F: '#f6f3ff',
-    G: '#fff4e8', K: '#ffd6a5', M: '#ffb86b'
+    G: '#fff4e8', K: '#ffc07a', M: '#ff8a4d'
   };
 
   // classToColor: Morgan-Keenan class -> CSS color (blackbody-ish).
@@ -47,6 +47,20 @@
     if (cls === 'BH') return '#15102a';   // black hole
     if (cls.charAt(0) === 'D') return '#dfe9ff'; // white dwarf
     return SPECTRAL[cls.charAt(0)] || '#c8ccd8';
+  }
+
+  // centerColor: the star's hot-center dot. Hot stars (O/B/A and white dwarfs)
+  // get a true white-hot core; cooler stars keep a warm tint so red/orange
+  // giants don't wash out to yellow-white.
+  function centerColor(cls) {
+    if (!cls) return '#fff6ec';
+    if (cls === 'BH') return '#000000';
+    var c = cls.charAt(0);
+    if (c === 'O' || c === 'B' || c === 'A' || c === 'D') return '#ffffff';
+    if (c === 'F' || c === 'G') return '#fff2db';
+    if (c === 'K') return '#ffcf95';
+    if (c === 'M') return '#ffac74';
+    return '#fff6ec';
   }
 
   // classToSize: luminosity-class size multiplier (V dwarf .. Ia supergiant).
@@ -94,6 +108,7 @@
         // so it arrives dead-center in the viewport.
         z: isDest ? 0 : seededHeight(s.id) * (opt.heightSpread || 600),
         color: classToColor(s.class), size: classToSize(s.class),
+        center: centerColor(s.class),
         isDest: isDest, bh: s.class === 'BH',
         suns: (s.suns && s.suns.length > 1) ? s.suns : null  // multi-star cluster
       });
@@ -151,7 +166,7 @@
       return { x: W() / 2 + focal * perp / forward, y: H() / 2 - focal * z / forward };
     }
 
-    function drawStar(p, prevP, forward, color, size, glow, bh) {
+    function drawStar(p, prevP, forward, color, size, glow, bh, center) {
       var sz = Math.max(0.8, size * focal / forward * 0.85);
       // brighter falloff: gentle curve holds luminosity far longer than linear.
       var alpha = Math.max(0, Math.min(1, 1.7 * Math.pow(1 - forward / far, 0.4)));
@@ -163,15 +178,23 @@
         ctx.lineWidth = Math.max(0.8, sz * 1.1);
         ctx.beginPath(); ctx.moveTo(prevP.x, prevP.y); ctx.lineTo(p.x, p.y); ctx.stroke();
       }
-      // wide soft glow on every star (additive 'lighter' is in effect)
-      ctx.globalAlpha = alpha * (glow ? 0.55 : 0.4);
-      ctx.beginPath(); ctx.arc(p.x, p.y, sz * (glow ? 6 : 3.6), 0, 6.2832); ctx.fill();
+      // wide soft glow on every star: a radial gradient fading to nothing, so
+      // the halo has no hard outer edge (which read as a second circle on big
+      // giants). Additive 'lighter' is in effect.
+      var glowR = sz * (glow ? 6 : 3.6);
+      var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.globalAlpha = alpha * (glow ? 0.9 : 0.7);
+      ctx.beginPath(); ctx.arc(p.x, p.y, glowR, 0, 6.2832); ctx.fill();
       // colored core
+      ctx.fillStyle = color;
       ctx.globalAlpha = Math.min(1, alpha);
       ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, 6.2832); ctx.fill();
-      // white-hot center
+      // hot center (white for hot stars, warm-tinted for cool ones)
       ctx.globalAlpha = Math.min(1, alpha);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = center || '#ffffff';
       ctx.beginPath(); ctx.arc(p.x, p.y, sz * 0.45, 0, 6.2832); ctx.fill();
       ctx.globalAlpha = 1;
     }
@@ -402,12 +425,12 @@
             var off = rosetteOffset(s.id, c, s.suns.length, centered);
             var pc = project(s.perp + off[0], s.z + off[1], forward);
             drawStar(pc, null, forward, classToColor(comp.class), classToSize(comp.class),
-              headlit, comp.class === 'BH');
+              headlit, comp.class === 'BH', centerColor(comp.class));
           }
           prev[s.id] = null;
         } else {
           var p = project(s.perp, s.z, forward);
-          drawStar(p, prev[s.id], forward, s.color, s.size, headlit, s.bh);
+          drawStar(p, prev[s.id], forward, s.color, s.size, headlit, s.bh, s.center);
           prev[s.id] = p;
         }
       }
