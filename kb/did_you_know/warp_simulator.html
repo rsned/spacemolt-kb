@@ -76,7 +76,7 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Did You Know?</a> / Warp Flight Simulator</div>
         <h2>Warp Flight Simulator</h2>
-        <p class="text-muted mt-1">Pick any origin and destination and fly the Pathfinder route in first person. Stars are colored by spectral class; the translucent spheres are each system's 100&nbsp;GU capture bubble. If the route is blocked you'll drop out at the first bubble you hit.</p>
+        <p class="text-muted mt-1">Pick any origin and destination and fly the Pathfinder route in first person. Stars are colored by spectral class; the translucent spheres are each system's 100&nbsp;GU capture bubble. If the route is blocked you'll drop out at the first bubble you hit. The address bar updates with your route — copy it to share a link.</p>
 
         <div id="warp-error" class="card" style="padding:16px;display:none;color:#ff7a4d"></div>
 
@@ -141,7 +141,12 @@
             });
         }
         fill(originSel); fill(destSel);
-        originSel.value = 'inquill'; destSel.value = 'alrakis';
+        // Initial route comes from the URL (?from=<id>&to=<id>) when both ids are
+        // valid, so a shared/bookmarked link reproduces the same flight.
+        var params = new URLSearchParams(location.search);
+        var pFrom = params.get('from'), pTo = params.get('to');
+        originSel.value = (pFrom && byId[pFrom]) ? pFrom : 'inquill';
+        destSel.value = (pTo && byId[pTo]) ? pTo : 'alrakis';
 
         var canvas = document.getElementById('sim-canvas');
         var info = document.getElementById('sim-info');
@@ -205,6 +210,11 @@
             var o = byId[originSel.value], d = byId[destSel.value];
             if (!o || !d) return;
             if (o.id === d.id) { info.textContent = 'Pick two different systems.'; return; }
+            // Reflect the current route in the URL so the address bar is shareable.
+            // Wrapped because some file:// contexts reject replaceState.
+            try {
+                history.replaceState(null, '', '?from=' + encodeURIComponent(o.id) + '&to=' + encodeURIComponent(d.id));
+            } catch (e) { /* sharing link just won't update */ }
             if (ctrl) ctrl.destroy();
             var sc = Warp.buildScene(o, d, stars, { heightSpread: 1200 });
             showInfo(sc, o, d);
