@@ -25,14 +25,11 @@
   var CLUSTER_R = 55; // GU; multi-star cluster ring radius (inside the 100 GU bubble)
 
   // rosetteOffset: deterministic view-space [dperp, dz] for component i of n in
-  // a multi-star cluster. When centered (a black hole headlines), component 0
-  // sits at the center and the rest fan evenly on the ring; otherwise all fan on
-  // the ring (so a binary reads as a symmetric pair). Seeded by id for variety.
-  function rosetteOffset(id, i, n, centered) {
-    if (centered && i === 0) return [0, 0];
-    var ring = centered ? n - 1 : n;
-    var k = centered ? i - 1 : i;
-    var ang = (hashStr(id) % 360) * Math.PI / 180 + (k / ring) * 6.2832;
+  // a multi-star cluster. All components fan evenly on the ring around the
+  // center point — a symmetric pair for binaries, an equilateral triangle for
+  // trinaries. Seeded by id so the ring orientation varies per system.
+  function rosetteOffset(id, i, n) {
+    var ang = (hashStr(id) % 360) * Math.PI / 180 + (i / n) * 6.2832;
     return [CLUSTER_R * Math.cos(ang), CLUSTER_R * Math.sin(ang)];
   }
 
@@ -419,10 +416,9 @@
         if (forward <= near || forward > far) { prev[s.id] = null; continue; }
         var headlit = s.isDest || s.id === scene.endStar;
         if (s.suns) {
-          var centered = s.suns[0].class === 'BH';
           for (var c = 0; c < s.suns.length; c++) {
             var comp = s.suns[c];
-            var off = rosetteOffset(s.id, c, s.suns.length, centered);
+            var off = rosetteOffset(s.id, c, s.suns.length);
             var pc = project(s.perp + off[0], s.z + off[1], forward);
             drawStar(pc, null, forward, classToColor(comp.class), classToSize(comp.class),
               headlit, comp.class === 'BH', centerColor(comp.class));
@@ -449,9 +445,8 @@
           ctx.lineWidth = 3.5;
           if (sl.suns) {
             // label each component at its cluster position
-            var centeredL = sl.suns[0].class === 'BH';
             for (var c2 = 0; c2 < sl.suns.length; c2++) {
-              var offL = rosetteOffset(sl.id, c2, sl.suns.length, centeredL);
+              var offL = rosetteOffset(sl.id, c2, sl.suns.length);
               var plc = project(sl.perp + offL[0], sl.z + offL[1], fl);
               if (plc.x < 0 || plc.x > W()) continue;
               ctx.globalAlpha = la;
