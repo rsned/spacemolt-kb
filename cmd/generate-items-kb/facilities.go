@@ -676,6 +676,41 @@ func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string
 	}
 }
 
+// populateBuiltByFacility adds a BuiltBy entry on each item for every facility
+// whose embedded recipe produces it as an output.
+func populateBuiltByFacility(items map[string]*Item, facilities map[string]*Facility) {
+	for _, fac := range facilities {
+		if fac.Recipe == nil {
+			continue
+		}
+		for _, out := range fac.Recipe.Outputs {
+			it, ok := items[out.ItemID]
+			if !ok {
+				continue
+			}
+			it.BuiltBy = append(it.BuiltBy, BuiltByFacility{
+				FacilityID:       fac.ID,
+				FacilityName:     fac.Name,
+				FacilityCategory: fac.Category,
+				RecipeID:         fac.Recipe.ID,
+				RecipeName:       fac.Recipe.Name,
+				RecipeCategory:   fac.Recipe.Category,
+				Quantity:         out.Quantity,
+				CraftingTime:     fac.Recipe.CraftingTime,
+				RecipeMultiplier: fac.RecipeMultiplier,
+			})
+		}
+	}
+	for _, it := range items {
+		if len(it.BuiltBy) == 0 {
+			continue
+		}
+		slices.SortFunc(it.BuiltBy, func(a, b BuiltByFacility) int {
+			return cmp.Compare(a.FacilityName, b.FacilityName)
+		})
+	}
+}
+
 // populateMaterialCategories resolves item categories on all MaterialRefs for correct HTML linking.
 func populateMaterialCategories(facilities map[string]*Facility, items map[string]*Item) {
 	for _, fac := range facilities {

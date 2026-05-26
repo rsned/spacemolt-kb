@@ -45,7 +45,21 @@ type Item struct {
 	ProducedBy  []ProducedBy
 	UsedIn      []UsedIn
 	UsedInShips []ShipBuildRef
+	BuiltBy     []BuiltByFacility
 	BoM *bom.BoMResult
+}
+
+// BuiltByFacility describes a facility whose recipe produces this item.
+type BuiltByFacility struct {
+	FacilityID       string
+	FacilityName     string
+	FacilityCategory string
+	RecipeID         string
+	RecipeName       string
+	RecipeCategory   string
+	Quantity         int
+	CraftingTime     int
+	RecipeMultiplier float64
 }
 
 // ShipBuildRef links an item to a ship that requires it as a build material.
@@ -606,6 +620,10 @@ func main() {
 	}
 	if err := loadBoMFromDB(db, items, shipCatalog, facilitySlice); err != nil {
 		log.Fatalf("load BOM from database: %v", err)
+	}
+
+	if facErr == nil {
+		populateBuiltByFacility(items, facilities)
 	}
 
 	if err := writeHTMLPages(outDir, categories, items); err != nil {
@@ -2324,7 +2342,7 @@ var htmlItemTemplate = `<!DOCTYPE html>
           </table>
         </div>
 
-{{- if or .ProducedBy .UsedIn .UsedInShips}}
+{{- if or .ProducedBy .BuiltBy .UsedIn .UsedInShips}}
         <div class="card" style="padding:0">
 {{- if .ProducedBy}}
           <div class="section-label">Produced By</div>
@@ -2336,6 +2354,22 @@ var htmlItemTemplate = `<!DOCTYPE html>
               <td><a href="../../recipes/{{dirName .RecipeCategory}}/{{.RecipeID}}.html">{{.RecipeName}}</a></td>
               <td>{{.Quantity}}</td>
               <td>{{.CraftingTime}} ticks</td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+{{- end}}
+{{- if .BuiltBy}}
+          <div class="section-label">Built by Facility</div>
+          <table>
+            <thead><tr><th>Facility</th><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
+            <tbody>
+{{- range .BuiltBy}}
+            <tr>
+              <td><a href="../../facilities/{{.FacilityCategory}}/{{.FacilityID}}.html">{{.FacilityName}}</a></td>
+              <td>{{if .RecipeCategory}}<a href="../../recipes/{{dirName .RecipeCategory}}/{{.RecipeID}}.html">{{.RecipeName}}</a>{{else}}{{.RecipeName}}{{end}}</td>
+              <td>{{.Quantity}}</td>
+              <td>{{.CraftingTime}}s</td>
             </tr>
 {{- end}}
             </tbody>
