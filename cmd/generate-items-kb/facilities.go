@@ -692,6 +692,7 @@ func populateBuiltByFacility(items map[string]*Item, facilities map[string]*Faci
 				FacilityID:       fac.ID,
 				FacilityName:     fac.Name,
 				FacilityCategory: fac.Category,
+				FacilityLevel:    fac.Level,
 				RecipeID:         fac.Recipe.ID,
 				RecipeName:       fac.Recipe.Name,
 				RecipeCategory:   fac.Recipe.Category,
@@ -706,6 +707,9 @@ func populateBuiltByFacility(items map[string]*Item, facilities map[string]*Faci
 			continue
 		}
 		slices.SortFunc(it.BuiltBy, func(a, b BuiltByFacility) int {
+			if c := cmp.Compare(a.FacilityLevel, b.FacilityLevel); c != 0 {
+				return c
+			}
 			return cmp.Compare(a.FacilityName, b.FacilityName)
 		})
 	}

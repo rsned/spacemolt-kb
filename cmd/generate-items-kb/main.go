@@ -54,6 +54,7 @@ type BuiltByFacility struct {
 	FacilityID       string
 	FacilityName     string
 	FacilityCategory string
+	FacilityLevel    int
 	RecipeID         string
 	RecipeName       string
 	RecipeCategory   string
@@ -2362,11 +2363,12 @@ var htmlItemTemplate = `<!DOCTYPE html>
 {{- if .BuiltBy}}
           <div class="section-label">Built by Facility</div>
           <table>
-            <thead><tr><th>Facility</th><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
+            <thead><tr><th>Facility</th><th>Level</th><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
             <tbody>
 {{- range .BuiltBy}}
             <tr>
               <td><a href="../../facilities/{{.FacilityCategory}}/{{.FacilityID}}.html">{{.FacilityName}}</a></td>
+              <td>{{.FacilityLevel}}</td>
               <td>{{if .RecipeCategory}}<a href="../../recipes/{{dirName .RecipeCategory}}/{{.RecipeID}}.html">{{.RecipeName}}</a>{{else}}{{.RecipeName}}{{end}}</td>
               <td>{{.Quantity}}</td>
               <td>{{.CraftingTime}}s</td>
