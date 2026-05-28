@@ -33,7 +33,7 @@ func writeSelfSufficiency(w *strings.Builder, products []*Product, empMap map[st
 		}
 	}
 
-	fmt.Fprintln(w, "## 2. Empire Self-Sufficiency Distribution")
+	fmt.Fprintln(w, "## 3. Empire Self-Sufficiency Distribution")
 	fmt.Fprintln(w)
 	writeDistribution(w, products, soloProd)
 	writePerEmpire(w, products, soloEmp, soloProd)

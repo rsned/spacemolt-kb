@@ -89,6 +89,9 @@ func main() {
 	if s := writePopularity(&body, items, recipes, products); s != "" {
 		summary = append(summary, s)
 	}
+	if s := writeBaseDemand(&body, items, products); s != "" {
+		summary = append(summary, s)
+	}
 	soloByEmpire, soloProducts := writeSelfSufficiency(&body, products, empMap)
 	if s := summarizeSelfSufficiency(products, soloByEmpire); s != "" {
 		summary = append(summary, s)

@@ -67,7 +67,7 @@ func writeSSI(w *strings.Builder, products []*Product, soloEmp soloByEmpireMap, 
 	}
 	slices.SortFunc(rows, func(a, b row) int { return cmp.Compare(b.SSI, a.SSI) })
 
-	fmt.Fprintln(w, "## 4. Composite Self-Sufficiency Index")
+	fmt.Fprintln(w, "## 5. Composite Self-Sufficiency Index")
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "SSI is a 0–100 score: half breadth (how much of the catalog the empire can solo-build) and half comfort (how rich the bottleneck inputs are, averaged across those products).")
 	fmt.Fprintln(w)

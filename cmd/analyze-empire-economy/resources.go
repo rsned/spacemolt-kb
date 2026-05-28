@@ -14,7 +14,7 @@ type easeByEmpireProductMap map[string]map[string]float64
 // writeResourceSheets emits Section 3 and returns the per-empire/per-product
 // ease scores so the SSI section can reuse them.
 func writeResourceSheets(w *strings.Builder, items map[string]*Item, products []*Product, empMap map[string]*EmpireResources, galaxy map[string]float64) easeByEmpireProductMap {
-	fmt.Fprintln(w, "## 3. Per-Empire Resource Sheets")
+	fmt.Fprintln(w, "## 4. Per-Empire Resource Sheets")
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "For each empire, a resource sheet shows galaxy market share per base material (sum of POI richness in that empire ÷ sum across all named-empire POIs), and the top-10 products with the *worst* ease score (the empire's hardest end-products to source comfortably).")
 	fmt.Fprintln(w)

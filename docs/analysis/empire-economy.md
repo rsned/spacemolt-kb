@@ -1,13 +1,14 @@
 # Empire Economy Analysis
 
-_Generated 2026-05-26 08:46 UTC_
+_Generated 2026-05-28 08:30 UTC_
 
 ## Executive Summary
 
 - **Circuit Board** is the most directly demanded intermediate (159 recipes consume it); **Flex Polymer** threads through the most BoM trees (547 products need it).
-- Of 713 analyzed products, 37 (5.2%) can be solo-built by every empire and 590 (82.7%) cannot be solo-built by any single empire — those force interregional trade.
+- Base-material demand spans **149x**: **Iron Ore** feeds 595 products at the top vs. **Darksteel Ore** at just 4 at the bottom.
+- Of 713 analyzed products, 38 (5.3%) can be solo-built by every empire and 590 (82.7%) cannot be solo-built by any single empire — those force interregional trade.
 - **Voidborn** is the most resource-poor empire, missing 26 of 47 galaxy base materials; **Nebula** is missing the fewest (17).
-- Composite SSI leader: **Solarian** (25.2). Trailing: **Outerrim** (20.5).
+- Composite SSI leader: **Solarian** (25.1). Trailing: **Outerrim** (20.4).
 
 ---
 
@@ -94,16 +95,105 @@ _185 intermediate components identified (items that are both crafted and consume
 - Reinforced Bulkhead — transitive #41 / direct #171
 - Helium-3 — transitive #49 / direct #141
 
-## 2. Empire Self-Sufficiency Distribution
+## 2. Base Material Demand
+
+_For each base material (ore / exotic material), how many of the 713 analyzed products transitively need it._
+
+### Demand Ranking (All Base Materials)
+
+| Rank | Material | Total | Items | Ships |
+|-----:|----------|------:|------:|------:|
+| 1 | Iron Ore | 595 | 342 | 253 |
+| 2 | Titanium Ore | 557 | 308 | 249 |
+| 3 | Fluorine Gas | 543 | 297 | 246 |
+| 4 | Silicon Ore | 523 | 284 | 239 |
+| 5 | Palladium Ore | 446 | 212 | 234 |
+| 6 | Copper Ore | 415 | 165 | 250 |
+| 7 | Energy Crystal | 384 | 182 | 202 |
+| 8 | Uranium Ore | 356 | 162 | 194 |
+| 9 | Nitrogen Ice | 355 | 161 | 194 |
+| 10 | Silver Ore | 345 | 133 | 212 |
+| 11 | Iridium Ore | 336 | 124 | 212 |
+| 12 | Lead Ore | 314 | 119 | 195 |
+| 13 | Nickel Ore | 303 | 98 | 205 |
+| 14 | Krypton Gas | 222 | 54 | 168 |
+| 15 | Neon Gas | 220 | 52 | 168 |
+| 16 | Tungsten Ore | 215 | 87 | 128 |
+| 17 | Carbon Ore | 194 | 93 | 101 |
+| 18 | Platinum Ore | 184 | 43 | 141 |
+| 19 | Cobalt Ore | 179 | 45 | 134 |
+| 20 | Vanadium Ore | 167 | 74 | 93 |
+| 21 | Hydrogen Gas | 141 | 17 | 124 |
+| 22 | Water Ice | 127 | 52 | 75 |
+| 23 | Aluminum Ore | 125 | 19 | 106 |
+| 24 | Ion Gas | 119 | 15 | 104 |
+| 25 | Lithium Ore | 118 | 36 | 82 |
+| 26 | Thorium Ore | 111 | 67 | 44 |
+| 27 | Polonium Ore | 81 | 37 | 44 |
+| 28 | Deuterium Ice | 77 | 33 | 44 |
+| 29 | Gold Ore | 75 | 29 | 46 |
+| 30 | Helium Ice | 74 | 30 | 44 |
+| 31 | Fury Crystal | 64 | 9 | 55 |
+| 32 | Argon Gas | 49 | 7 | 42 |
+| 33 | Sol Alloy Ore | 48 | 9 | 39 |
+| 34 | Null Matter | 46 | 13 | 33 |
+| 35 | Trade Crystal | 39 | 4 | 35 |
+| 36 | Phase Crystal | 38 | 4 | 34 |
+| 37 | Xenon Gas | 38 | 31 | 7 |
+| 38 | Exotic Matter | 37 | 28 | 9 |
+| 39 | Quantum Fragments | 33 | 23 | 10 |
+| 40 | Void Essence | 33 | 8 | 25 |
+| 41 | Dark Matter Residue | 31 | 5 | 26 |
+| 42 | Void Crystal | 30 | 12 | 18 |
+| 43 | Prismatic Nebulite | 26 | 3 | 23 |
+| 44 | Exotic Crystal | 21 | 21 | 0 |
+| 45 | Plasma Gas | 21 | 21 | 0 |
+| 46 | Antimatter Containment Cell | 13 | 7 | 6 |
+| 47 | Legacy Ore | 10 | 3 | 7 |
+| 48 | Chlorine Gas | 6 | 6 | 0 |
+| 49 | Nebula Gas | 5 | 5 | 0 |
+| 50 | Radium Ore | 5 | 4 | 1 |
+| 51 | Adamantite Ore | 4 | 4 | 0 |
+| 52 | Darksteel Ore | 4 | 4 | 0 |
+
+### Narrowest Demand (≤8 consumers — every consumer listed)
+
+Base materials whose entire demand is concentrated in a handful of products. Useful for spotting near-vestigial resources and identifying which specific products gate each one.
+
+| Material | Consumers | Products |
+|----------|----------:|----------|
+| Adamantite Ore | 4 | Adamantite Bar, Darksteel Armor, Mass Driver, Nanite Hull Coating |
+| Darksteel Ore | 4 | Darksteel Armor, Darksteel Plating, Mass Driver, Reactive Armor Hardener |
+| Nebula Gas | 5 | Berserker Compound, Combat Stim, Nebula Essence, Trace Exotic Element, Void Dust |
+| Radium Ore | 5 | Dosimetry, Nuclear Reactor I, Nuclear Reactor II, Radiation-Hardened Circuit, Radium Phosphor |
+| Chlorine Gas | 6 | Chlorine Compound, Corrosive Plasma Cell Pack, Gutter Flux, Nerve Burn, Red Mist, Void Dust |
+
+### Faction-Flagship Materials (Ship-Heavy Demand)
+
+Base materials whose ship-consumers outnumber their item-consumers by at least 3:1 — they gate faction-flagship ship lines rather than general crafting. These look underused on a flat count but carry monopoly leverage.
+
+| Material | Items | Ships | Ratio |
+|----------|------:|------:|------:|
+| Ion Gas | 15 | 104 | 6.9x |
+| Fury Crystal | 9 | 55 | 6.1x |
+| Argon Gas | 7 | 42 | 6.0x |
+| Sol Alloy Ore | 9 | 39 | 4.3x |
+| Trade Crystal | 4 | 35 | 8.8x |
+| Phase Crystal | 4 | 34 | 8.5x |
+| Dark Matter Residue | 5 | 26 | 5.2x |
+| Void Essence | 8 | 25 | 3.1x |
+| Prismatic Nebulite | 3 | 23 | 7.7x |
+
+## 3. Empire Self-Sufficiency Distribution
 
 ### Headline Distribution
 
 | Empires Able to Solo-Build | # Items | # Ships | Examples |
 |----------------------------|--------:|--------:|----------|
-| 5 (all empires) | 37 | 0 | Armor Piercing Rounds Box, Bioactive Compound, Bioluminescent Algae, Bioluminescent Culture |
+| 5 (all empires) | 38 | 0 | Armor Piercing Rounds Box, Bioactive Compound, Bioluminescent Algae, Bioluminescent Culture |
 | 4 | 6 | 0 | Hot Cell, Ionized Neon, Lead Ingot, Lead Sheet |
 | 3 | 26 | 0 | Aluminum Sheet, Armor Plate, Armor Plate I, Armor Plate III |
-| 2 | 6 | 1 | Cargo Superstructure, Deuterium, Gold Wiring, Hazmat Container |
+| 2 | 5 | 1 | Cargo Superstructure, Deuterium, Gold Wiring, Hazmat Container |
 | 1 (single empire only) | 43 | 4 | Biofiber Mesh, Cargo Expander I, Chaff Bundle, Chlorine Compound |
 | 0 (no empire alone) | 342 | 248 | Absence, Absolute Entropy, Absolute Zero, Accretion |
 
@@ -111,10 +201,10 @@ _185 intermediate components identified (items that are both crafted and consume
 
 | Empire | Items Solo | Ships Solo | Exclusive Items | Exclusive Ships |
 |--------|-----------:|-----------:|----------------:|----------------:|
-| Crimson | 70 | 0 | 4 | 0 |
-| Nebula | 84 | 4 | 27 | 4 |
-| Outerrim | 65 | 1 | 2 | 0 |
-| Solarian | 70 | 1 | 2 | 0 |
+| Crimson | 71 | 0 | 4 | 0 |
+| Nebula | 83 | 4 | 26 | 4 |
+| Outerrim | 66 | 1 | 2 | 0 |
+| Solarian | 72 | 1 | 3 | 0 |
 | Voidborn | 53 | 0 | 8 | 0 |
 
 ### Cross-Empire Dependency Matrix
@@ -123,13 +213,13 @@ Cell `[row=A][col=B]` is the number of products `A` cannot solo-build but `A` + 
 
 | From \ With | Crimson | Nebula | Outerrim | Solarian | Voidborn |
 |---|---:|---:|---:|---:|---:|
-| **Crimson** | — | 52 | 8 | 14 | 18 |
+| **Crimson** | — | 50 | 8 | 15 | 17 |
 | **Nebula** | 34 | — | 33 | 33 | 12 |
-| **Outerrim** | 12 | 55 | — | 15 | 45 |
-| **Solarian** | 13 | 50 | 10 | — | 52 |
-| **Voidborn** | 35 | 47 | 58 | 70 | — |
+| **Outerrim** | 12 | 53 | — | 16 | 44 |
+| **Solarian** | 13 | 47 | 10 | — | 49 |
+| **Voidborn** | 35 | 46 | 58 | 69 | — |
 
-## 3. Per-Empire Resource Sheets
+## 4. Per-Empire Resource Sheets
 
 For each empire, a resource sheet shows galaxy market share per base material (sum of POI richness in that empire ÷ sum across all named-empire POIs), and the top-10 products with the *worst* ease score (the empire's hardest end-products to source comfortably).
 
@@ -509,22 +599,22 @@ For each empire, a resource sheet shows galaxy market share per base material (s
 
 | Resource | Empire | Share |
 |----------|--------|------:|
-| Krypton Gas | Nebula | 100.0% |
-| Fury Crystal | Crimson | 100.0% |
-| Darksteel Ore | Crimson | 100.0% |
-| Dark Matter Residue | Outerrim | 100.0% |
-| Void Essence | Voidborn | 100.0% |
 | Null Matter | Voidborn | 100.0% |
 | Sol Alloy Ore | Solarian | 100.0% |
 | Prismatic Nebulite | Nebula | 100.0% |
-| Cobalt Ore | Crimson | 100.0% |
 | Trade Crystal | Nebula | 100.0% |
-| Ion Gas | Solarian | 100.0% |
-| Quantum Fragments | Outerrim | 100.0% |
-| Phase Crystal | Outerrim | 100.0% |
 | Energy Crystal | Voidborn | 100.0% |
+| Fury Crystal | Crimson | 100.0% |
+| Quantum Fragments | Outerrim | 100.0% |
 | Antimatter Containment Cell | Solarian | 100.0% |
+| Phase Crystal | Outerrim | 100.0% |
+| Krypton Gas | Nebula | 100.0% |
+| Void Essence | Voidborn | 100.0% |
+| Cobalt Ore | Crimson | 100.0% |
 | Legacy Ore | Solarian | 100.0% |
+| Ion Gas | Solarian | 100.0% |
+| Dark Matter Residue | Outerrim | 100.0% |
+| Darksteel Ore | Crimson | 100.0% |
 
 **Contested Resources** (present in ≥3 empires, no empire holds ≥40%):
 
@@ -549,17 +639,17 @@ For each empire, a resource sheet shows galaxy market share per base material (s
 | Chlorine Gas | 3 | 39.2% |
 | Neon Gas | 4 | 39.2% |
 
-## 4. Composite Self-Sufficiency Index
+## 5. Composite Self-Sufficiency Index
 
 SSI is a 0–100 score: half breadth (how much of the catalog the empire can solo-build) and half comfort (how rich the bottleneck inputs are, averaged across those products).
 
 | Rank | Empire | SSI | Breadth | Mean Ease | Items Solo | Ships Solo | Exclusive |
 |-----:|--------|----:|--------:|----------:|-----------:|-----------:|----------:|
-| 1 | Solarian | 25.2 | 10.0% | 40.5% | 70 | 1 | 2 |
-| 2 | Nebula | 24.6 | 12.3% | 36.9% | 84 | 4 | 31 |
-| 3 | Crimson | 24.2 | 9.8% | 38.6% | 70 | 0 | 4 |
-| 4 | Voidborn | 23.3 | 7.4% | 39.2% | 53 | 0 | 8 |
-| 5 | Outerrim | 20.5 | 9.3% | 31.7% | 65 | 1 | 2 |
+| 1 | Solarian | 25.1 | 10.2% | 40.0% | 72 | 1 | 3 |
+| 2 | Nebula | 25.0 | 12.2% | 37.7% | 83 | 4 | 30 |
+| 3 | Crimson | 24.2 | 10.0% | 38.4% | 71 | 0 | 4 |
+| 4 | Voidborn | 23.0 | 7.4% | 38.5% | 53 | 0 | 8 |
+| 5 | Outerrim | 20.4 | 9.4% | 31.4% | 66 | 1 | 2 |
 
 
 ---
