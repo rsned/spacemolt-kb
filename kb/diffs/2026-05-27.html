@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — May 27, 2026 vs May 23, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-05-23.html">&larr; 2026-05-23</a></span>
+    <a href="index.html">All Reports</a>
+    <span>&nbsp;</span>
+</div>
+<h2>Game Data Changes &mdash; May 27, 2026 vs May 23, 2026</h2>
+<div class="diff-summary">0 additions, 2 deletions, 21 modifications across 4 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;1</span> <span class="diff-mod">~0</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;1</span> <span class="diff-mod">~1</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~18</span></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;1</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; Build Force Field Generator II <span class="text-muted">(build_force_field_generator_ii)</span></li></ul>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;1</span>
+        <span class="diff-mod">~1</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; Force Field Generator II <span class="text-muted">(force_field_generator_ii)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id">pathfinder_drive</div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;An experimental long-range drive that abandons the jump-lane network entirely. With one installed you can plot a numeric compass bearing on the jump command instead of a system name, and the drive will push your ship across open space along that heading using raw galactic coordinates. It is agonizingly slow — far slower than a lane jump — and unforgiving: miss your mark and you will drift into the void with only self-destruct for company.&#34;</span> &rarr; <span class="diff-add">&#34;An experimental long-range drive that abandons the jump-lane network entirely. With one installed you can plot a numeric compass bearing on the jump command instead of a system name, and the drive will push your ship across open space along that heading using raw galactic coordinates. It is agonizingly slow — far slower than a lane jump — and unforgiving: miss your mark and you keep drifting. Plot a new bearing mid-drift (each replot costs another 5x jump&#39;s fuel) to correct course; a 180-degree reversal heads back the way you came. If you run dry of fuel out there, self-destruct is your last way home.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~18</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id">casting_vote</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: copper_wiring, quantity: 30</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 15</td><td class="diff-add">item_id: hull_plating, quantity: 10</td></tr><tr><td class="diff-unchanged">item_id: life_support_unit, quantity: 8</td><td class="diff-unchanged">item_id: life_support_unit, quantity: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: reinforced_bulkhead, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 45</td><td class="diff-unchanged">item_id: salvage_components, quantity: 45</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 50</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 50</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 15</td><td class="diff-add">item_id: sensor_array, quantity: 28</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_emitter, quantity: 15</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 35</td><td class="diff-add">item_id: steel_plate, quantity: 40</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 70</td></tr><tr><td class="diff-unchanged">item_id: weapon_housing, quantity: 20</td><td class="diff-unchanged">item_id: weapon_housing, quantity: 20</td></tr></tbody></table></div>
+<div class="diff-item-id">close_enough</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: copper_wiring, quantity: 40</td><td class="diff-add">item_id: copper_wiring, quantity: 35</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 5</td><td class="diff-add">item_id: hull_plating, quantity: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: processing_core, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 25</td><td class="diff-unchanged">item_id: salvage_components, quantity: 25</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 8</td><td class="diff-add">item_id: sensor_array, quantity: 15</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_emitter, quantity: 4</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 40</td><td class="diff-add">item_id: steel_plate, quantity: 30</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 40</td></tr><tr><td class="diff-unchanged">item_id: weapon_housing, quantity: 8</td><td class="diff-unchanged">item_id: weapon_housing, quantity: 8</td></tr></tbody></table></div>
+<div class="diff-item-id">eviction_notice</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: armor_plate, quantity: 9</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 20</td><td class="diff-add">item_id: hull_plating, quantity: 11</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: power_distribution_grid, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 40</td><td class="diff-unchanged">item_id: salvage_components, quantity: 40</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 60</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 60</td></tr><tr><td class="diff-unchanged">item_id: sensor_array, quantity: 10</td><td class="diff-unchanged">item_id: sensor_array, quantity: 10</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_emitter, quantity: 11</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 40</td><td class="diff-unchanged">item_id: steel_plate, quantity: 40</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 30</td><td class="diff-add">item_id: weapon_housing, quantity: 15</td></tr></tbody></table></div>
+<div class="diff-item-id">foreclosure</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: armor_plate, quantity: 10</td><td class="diff-add">item_id: armor_plate, quantity: 15</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 20</td><td class="diff-add">item_id: hull_plating, quantity: 18</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: power_distribution_grid, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: reinforced_bulkhead, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 35</td><td class="diff-unchanged">item_id: salvage_components, quantity: 35</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 60</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 60</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_emitter, quantity: 15</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 40</td><td class="diff-unchanged">item_id: steel_plate, quantity: 40</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 55</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 35</td><td class="diff-add">item_id: weapon_housing, quantity: 13</td></tr></tbody></table></div>
+<div class="diff-item-id">four_on_the_floor</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: armor_plate, quantity: 10</td><td class="diff-add">item_id: armor_plate, quantity: 12</td></tr><tr><td class="diff-unchanged">item_id: hull_plating, quantity: 8</td><td class="diff-unchanged">item_id: hull_plating, quantity: 8</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 15</td><td class="diff-unchanged">item_id: salvage_components, quantity: 15</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 30</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 30</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 20</td><td class="diff-unchanged">item_id: steel_plate, quantity: 20</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 30</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: tungsten_rod, quantity: 50</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 20</td><td class="diff-add">item_id: weapon_housing, quantity: 30</td></tr></tbody></table></div>
+<div class="diff-item-id">hostile_takeover</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: armor_plate, quantity: 10</td><td class="diff-add">item_id: armor_plate, quantity: 12</td></tr><tr><td class="diff-unchanged">item_id: hull_plating, quantity: 9</td><td class="diff-unchanged">item_id: hull_plating, quantity: 9</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 15</td><td class="diff-unchanged">item_id: salvage_components, quantity: 15</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 28</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 28</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 22</td><td class="diff-unchanged">item_id: steel_plate, quantity: 22</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 30</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: tungsten_rod, quantity: 50</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 20</td><td class="diff-add">item_id: weapon_housing, quantity: 30</td></tr></tbody></table></div>
+<div class="diff-item-id">last_call</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: copper_wiring, quantity: 25</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flex_polymer, quantity: 55</td></tr><tr><td class="diff-del">item_id: fuel_tank, quantity: 19</td><td class="diff-add">item_id: fuel_tank, quantity: 45</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 6</td><td class="diff-add">item_id: hull_plating, quantity: 10</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 15</td><td class="diff-unchanged">item_id: salvage_components, quantity: 15</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 30</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 30</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 25</td><td class="diff-add">item_id: steel_plate, quantity: 50</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: thruster_nozzle, quantity: 10</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 25</td></tr></tbody></table></div>
+<div class="diff-item-id">lawn_dart</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: flex_polymer, quantity: 8</td><td class="diff-add">item_id: flex_polymer, quantity: 11</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: fuel_tank, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: hull_plating, quantity: 2</td><td class="diff-unchanged">item_id: hull_plating, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 15</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 15</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 12</td><td class="diff-unchanged">item_id: steel_plate, quantity: 12</td></tr><tr><td class="diff-unchanged">item_id: thruster_nozzle, quantity: 6</td><td class="diff-unchanged">item_id: thruster_nozzle, quantity: 6</td></tr></tbody></table></div>
+<div class="diff-item-id">lemming</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: copper_wiring, quantity: 10</td><td class="diff-add">item_id: copper_wiring, quantity: 17</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 8</td><td class="diff-unchanged">item_id: salvage_components, quantity: 8</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 2</td><td class="diff-add">item_id: sensor_array, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 10</td><td class="diff-unchanged">item_id: steel_plate, quantity: 10</td></tr><tr><td class="diff-unchanged">item_id: thruster_nozzle, quantity: 5</td><td class="diff-unchanged">item_id: thruster_nozzle, quantity: 5</td></tr><tr><td class="diff-unchanged">item_id: weapon_housing, quantity: 2</td><td class="diff-unchanged">item_id: weapon_housing, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id">liquidation</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: cargo_container, quantity: 50</td><td class="diff-add">item_id: cargo_container, quantity: 40</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: copper_wiring, quantity: 25</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flex_polymer, quantity: 50</td></tr><tr><td class="diff-del">item_id: fuel_tank, quantity: 45</td><td class="diff-add">item_id: fuel_tank, quantity: 15</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 20</td><td class="diff-add">item_id: hull_plating, quantity: 10</td></tr><tr><td class="diff-del">item_id: life_support_unit, quantity: 20</td><td class="diff-add">item_id: life_support_unit, quantity: 5</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 40</td><td class="diff-unchanged">item_id: salvage_components, quantity: 40</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 8</td><td class="diff-add">item_id: sensor_array, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_emitter, quantity: 6</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 35</td><td class="diff-add">item_id: steel_plate, quantity: 60</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 80</td></tr></tbody></table></div>
+<div class="diff-item-id">losers_weepers</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: copper_wiring, quantity: 5</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flex_polymer, quantity: 12</td></tr><tr><td class="diff-del">item_id: fuel_tank, quantity: 3</td><td class="diff-add">item_id: fuel_tank, quantity: 4</td></tr><tr><td class="diff-unchanged">item_id: hull_plating, quantity: 2</td><td class="diff-unchanged">item_id: hull_plating, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 8</td><td class="diff-unchanged">item_id: salvage_components, quantity: 8</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 12</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 12</td></tr><tr><td class="diff-del">item_id: thruster_nozzle, quantity: 5</td><td class="diff-add">item_id: thruster_nozzle, quantity: 6</td></tr></tbody></table></div>
+<div class="diff-item-id">margin_call</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: armor_plate, quantity: 8</td><td class="diff-add">item_id: armor_plate, quantity: 10</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 15</td><td class="diff-add">item_id: hull_plating, quantity: 14</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: power_distribution_grid, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: reinforced_bulkhead, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 40</td><td class="diff-unchanged">item_id: salvage_components, quantity: 40</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 55</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 55</td></tr><tr><td class="diff-unchanged">item_id: sensor_array, quantity: 8</td><td class="diff-unchanged">item_id: sensor_array, quantity: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_emitter, quantity: 11</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 40</td><td class="diff-unchanged">item_id: steel_plate, quantity: 40</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 55</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: tungsten_rod, quantity: 30</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 22</td><td class="diff-add">item_id: weapon_housing, quantity: 15</td></tr></tbody></table></div>
+<div class="diff-item-id">mineral_rights</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: armor_plate, quantity: 8</td><td class="diff-add">item_id: armor_plate, quantity: 12</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: copper_wiring, quantity: 30</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: fuel_tank, quantity: 4</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 10</td><td class="diff-add">item_id: hull_plating, quantity: 12</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: ore_hopper, quantity: 4</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 20</td><td class="diff-unchanged">item_id: salvage_components, quantity: 20</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 40</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 40</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 30</td><td class="diff-add">item_id: steel_plate, quantity: 60</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: thruster_nozzle, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 30</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: tungsten_rod, quantity: 40</td></tr><tr><td class="diff-unchanged">item_id: weapon_housing, quantity: 15</td><td class="diff-unchanged">item_id: weapon_housing, quantity: 15</td></tr></tbody></table></div>
+<div class="diff-item-id">overdue</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: cargo_container, quantity: 3</td><td class="diff-add">item_id: cargo_container, quantity: 6</td></tr><tr><td class="diff-del">item_id: copper_wiring, quantity: 10</td><td class="diff-add">item_id: copper_wiring, quantity: 13</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flex_polymer, quantity: 13</td></tr><tr><td class="diff-del">item_id: fuel_tank, quantity: 3</td><td class="diff-add">item_id: fuel_tank, quantity: 4</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 8</td><td class="diff-unchanged">item_id: salvage_components, quantity: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: sensor_array, quantity: 1</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 10</td><td class="diff-add">item_id: steel_plate, quantity: 12</td></tr><tr><td class="diff-unchanged">item_id: thruster_nozzle, quantity: 4</td><td class="diff-unchanged">item_id: thruster_nozzle, quantity: 4</td></tr><tr><td class="diff-unchanged">item_id: weapon_housing, quantity: 1</td><td class="diff-unchanged">item_id: weapon_housing, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id">overmind</div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">adaptive_shield_ii</td><td class="diff-unchanged">adaptive_shield_ii</td></tr><tr><td class="diff-unchanged">adaptive_shield_iii</td><td class="diff-unchanged">adaptive_shield_iii</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">focused_beam_iii</td><td class="diff-unchanged">focused_beam_iii</td></tr><tr><td class="diff-del">force_field_generator_ii</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">phase_disruptor</td><td class="diff-unchanged">phase_disruptor</td></tr><tr><td class="diff-unchanged">pulse_laser_iii</td><td class="diff-unchanged">pulse_laser_iii</td></tr><tr><td class="diff-unchanged">pulse_laser_iii</td><td class="diff-unchanged">pulse_laser_iii</td></tr><tr><td class="diff-unchanged">shield_booster_iii</td><td class="diff-unchanged">shield_booster_iii</td></tr><tr><td class="diff-unchanged">shield_booster_iv</td><td class="diff-unchanged">shield_booster_iv</td></tr><tr><td class="diff-unchanged">voidborn_phase_armor</td><td class="diff-unchanged">voidborn_phase_armor</td></tr></tbody></table></div>
+<div class="diff-item-id">red_herring</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: fuel_tank, quantity: 2</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 2</td><td class="diff-add">item_id: hull_plating, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 10</td><td class="diff-unchanged">item_id: salvage_components, quantity: 10</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 15</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 15</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 2</td><td class="diff-add">item_id: sensor_array, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: steel_plate, quantity: 15</td></tr><tr><td class="diff-del">item_id: thruster_nozzle, quantity: 3</td><td class="diff-add">item_id: thruster_nozzle, quantity: 4</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-add">item_id: weapon_housing, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id">repo</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: cargo_container, quantity: 12</td><td class="diff-add">item_id: cargo_container, quantity: 20</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: copper_wiring, quantity: 25</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flex_polymer, quantity: 60</td></tr><tr><td class="diff-del">item_id: fuel_tank, quantity: 14</td><td class="diff-add">item_id: fuel_tank, quantity: 16</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 5</td><td class="diff-add">item_id: hull_plating, quantity: 8</td></tr><tr><td class="diff-del">item_id: life_support_unit, quantity: 4</td><td class="diff-add">item_id: life_support_unit, quantity: 6</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: processing_core, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 20</td><td class="diff-unchanged">item_id: salvage_components, quantity: 20</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 8</td><td class="diff-add">item_id: sensor_array, quantity: 12</td></tr><tr><td class="diff-unchanged">item_id: steel_plate, quantity: 25</td><td class="diff-unchanged">item_id: steel_plate, quantity: 25</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 40</td></tr></tbody></table></div>
+<div class="diff-item-id">running_tab</div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: copper_wiring, quantity: 100</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flex_polymer, quantity: 150</td></tr><tr><td class="diff-del">item_id: fuel_tank, quantity: 12</td><td class="diff-add">item_id: fuel_tank, quantity: 18</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 15</td><td class="diff-add">item_id: hull_plating, quantity: 13</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: power_distribution_grid, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: salvage_components, quantity: 30</td><td class="diff-unchanged">item_id: salvage_components, quantity: 30</td></tr><tr><td class="diff-unchanged">item_id: salvage_metal, quantity: 55</td><td class="diff-unchanged">item_id: salvage_metal, quantity: 55</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_emitter, quantity: 3</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 30</td><td class="diff-add">item_id: steel_plate, quantity: 200</td></tr><tr><td class="diff-del">item_id: thruster_nozzle, quantity: 25</td><td class="diff-add">item_id: thruster_nozzle, quantity: 55</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: titanium_alloy, quantity: 70</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 20</td><td class="diff-add">item_id: weapon_housing, quantity: 25</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id">deep_range</div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id">unknown_edge</div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>
