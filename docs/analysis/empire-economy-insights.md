@@ -89,3 +89,60 @@ The "high direct, low transitive" items are all weapon/ship-system intermediates
 - **Trade-route weighting**. Currently assumes any empire-internal POI is equally accessible. Distance/fuel cost would surface "you technically have it but the only POI is 14 jumps deep."
 - **Time-series tracking**. Re-run weekly and chart how SSI shifts as exploration progresses. Voidborn's score should rise sharply once players discover more of its space.
 - **Cross-reference with player activity**. Do players actually settle in empires that match their playstyle, or do the SSI numbers not match perceived comfort?
+
+---
+
+## 11. The other end of the skeleton: nearly-useless base materials
+
+Counterpoint to the "Flex Polymer / Chlorine Compound carry the economy" finding. From the persisted `bill_of_materials` table (canonical recipe selection across all 2,322 items + ships + facilities), demand for raw bases spans **three orders of magnitude**:
+
+| Base Material | Products Needing It | Notes |
+|---|---:|---|
+| Iron Ore | 2,197 | Everything |
+| Titanium Ore | 2,136 | Everything |
+| Silicon Ore | 2,105 | Everything |
+| Fluorine Gas | 2,103 | Everything |
+| Copper Ore | 1,089 | Half the catalog |
+| ... | ... | ... |
+| Silver Ore | **3** | Cloaking Device I, Electrum Ingot, Silver Wiring |
+| Adamantite Ore | **4** | Adamantite Bar, Darksteel Armor, Mass Driver, Nanite Hull Coating |
+| Darksteel Ore | **5** | Five Crimson-themed combat items |
+| Nebula Gas | **5** | Combat stims + exotic dusts only |
+| Chlorine Gas | **6** | Six chemical-warfare items |
+
+The top base material is **730× more demanded** than the bottom one. Three categories of "low-demand" emerge:
+
+### Genuinely under-used
+
+- **Silver Ore** (3 consumers): Cloaking Device I, Electrum Ingot, and Silver Wiring. Apparently Silver Wiring is reachable via alternative recipes that don't go through silver ore — silver_ore itself is a near-vestigial material.
+- **Adamantite Ore** (4): Narrow martial-gear pipeline. Only matters if you're crafting Mass Drivers or Darksteel Armor.
+- **Nebula Gas** (5): Feeds *only* combat stims, berserker compounds, and trace exotics — all themselves low-volume. A genuine niche.
+- **Chlorine Gas** (6): Feeds six items including the wide-impact Chlorine Compound. Limited consumer count but Chlorine Compound's downstream reach means this is *narrow-but-load-bearing* — a single chokepoint.
+
+### Faction-flagship niche (looks underused but isn't)
+
+These have low item-count but feed many faction-flagship **ships**:
+
+| Base | Items | Ships | Empire flavor |
+|---|---:|---:|---|
+| Legacy Ore | 3 | 8 | Solarian capital ships |
+| Antimatter Containment Cell | 7 | 7 | Voidborn weapons + ships |
+| Prismatic Nebulite | 3 | 25 | Nebula faction line |
+| Dark Matter Residue | 6 | 27 | Outerrim quantum tech |
+| Void Essence | 8 | 26 | Voidborn |
+| Phase Crystal | 4 | 35 | Outerrim |
+| Trade Crystal | 5 | 37 | Nebula |
+| Sol Alloy Ore | 10 | 41 | Solarian |
+
+These aren't useless — they're **monopoly leverage materials**. Their entire purpose is faction identity: own this resource, gate the faction's flagship ships. Compare with the Galaxy Monopolies table — these match exactly. The monopolies *are* the faction-flagship pillars.
+
+### Single-purpose pillar
+
+- **Plasma Gas** (24 consumers): all 24 are plasma-themed (cannons, cells, torpedoes, mines, repeaters). A complete vertical specialty pillar — if you're not running a plasma loadout, it's invisible to you; if you are, it's central.
+
+### What this means
+
+- **Silver Ore is the closest thing to a vestigial resource** — three consumers, none of which are themselves heavily downstream. If a player spent their whole career never touching silver ore, they'd barely notice.
+- **Nebula Gas is the deepest dead-end** — its consumers (stims, exotic dust) don't feed further chains. Mining it is almost purely for the combat-consumable economy.
+- The "useless"-looking faction materials are actually **the most strategically loaded** — they have the smallest consumer set but each consumer is a high-value capital ship. This is monopoly-by-design.
+- **Caveat**: the BoM table reflects the *canonical* recipe selected by `pkg/bom`'s SelectRecipe. Items with alternative recipes (notably Silver Wiring) may flow through these "underused" bases when the canonical path is unavailable. So "demand=3" should read as "the default crafting path almost never touches this" rather than "literally unusable."
