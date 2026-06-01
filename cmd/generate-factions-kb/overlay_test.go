@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestSplitFrontmatter(t *testing.T) {
 	withFM := "---\nimage: logo.png\n---\n## Body\n\nHello\n"
@@ -31,5 +34,28 @@ func TestSplitFrontmatter(t *testing.T) {
 	front, _ = splitFrontmatter([]byte("---\r\nimage: a.png\r\n---\r\nbody"))
 	if string(front) != "image: a.png" {
 		t.Errorf("CRLF front = %q", front)
+	}
+}
+
+func TestRenderMarkdown(t *testing.T) {
+	html, err := renderMarkdown("This is **bold** and a [link](http://example.com).")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(html)
+	if !strings.Contains(s, "<strong>bold</strong>") {
+		t.Errorf("bold not rendered: %q", s)
+	}
+	if !strings.Contains(s, `rel="nofollow noopener"`) {
+		t.Errorf("link not hardened with nofollow: %q", s)
+	}
+
+	// Raw HTML / scripts must be neutralized (goldmark safe mode).
+	bad, err := renderMarkdown("ok <script>alert(1)</script> done")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(bad), "<script>") {
+		t.Errorf("script tag leaked through: %q", bad)
 	}
 }

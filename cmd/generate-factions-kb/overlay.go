@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	htmltpl "html/template"
 	"strings"
+
+	"github.com/yuin/goldmark"
 )
 
 // Overlay is contributor-authored content merged onto a faction or player page.
@@ -17,6 +20,22 @@ type Overlay struct {
 type OverlayStat struct {
 	Label string `yaml:"label"`
 	Value string `yaml:"value"`
+}
+
+// goldmark with its default (safe) options: raw HTML is replaced with an
+// "omitted" comment rather than passed through, so contributor markdown cannot
+// inject scripts.
+var markdown = goldmark.New()
+
+// renderMarkdown converts a markdown body to safe HTML and hardens links with
+// rel="nofollow noopener".
+func renderMarkdown(src string) (htmltpl.HTML, error) {
+	var buf bytes.Buffer
+	if err := markdown.Convert([]byte(src), &buf); err != nil {
+		return "", err
+	}
+	out := strings.ReplaceAll(buf.String(), "<a href=", `<a rel="nofollow noopener" href=`)
+	return htmltpl.HTML(out), nil
 }
 
 // splitFrontmatter separates a leading "---\n...\n---\n" YAML block from the
