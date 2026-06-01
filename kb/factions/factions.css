@@ -80,7 +80,14 @@
 .faction-banner .fb-label + p { margin-top: .25rem; }
 
 /* Contributor overlay content. */
-.overlay-logo { float: right; max-width: 120px; max-height: 120px; margin: 0 0 .5rem 1rem; border-radius: 8px; }
+/* Overlay logo sits centered in the banner, below the name/id, above founded/charter. */
+.overlay-figure { margin: .75rem 0; }
+.overlay-logo { display: block; max-width: 260px; max-height: 260px; margin: 0 auto; border-radius: 10px; }
+.overlay-caption { font-size: .82rem; opacity: .7; margin-top: .4rem; }
+.faction-banner.has-overlay-image { text-align: center; }
+.faction-banner.has-overlay-image .fb-label,
+.faction-banner.has-overlay-image .fb-desc,
+.faction-banner.has-overlay-image .fb-charter { text-align: left; }
 .overlay-stats { margin-top: .35rem; }
 .overlay-credit { font-size: 12px; font-style: italic; margin: 0 0 .4rem; }
 .overlay-body { max-width: 70ch; line-height: 1.65; }

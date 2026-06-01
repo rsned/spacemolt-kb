@@ -206,10 +206,10 @@ var factionDetailTmpl = `<!DOCTYPE html>
 <body>
 ` + siteHeader2 + `
     <main class="container page-content detail-page">
-        <div class="faction-banner"{{if or .PrimaryColor .SecondaryColor}} style="{{if .PrimaryColor}}--faction-accent:{{.PrimaryColor}};{{end}}{{if .SecondaryColor}}--faction-accent2:{{.SecondaryColor}};{{end}}"{{end}}>
-            {{if and .Overlay .Overlay.ImageFile}}<img class="overlay-logo" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">{{end}}
+        <div class="faction-banner{{if and .Overlay .Overlay.ImageFile}} has-overlay-image{{end}}"{{if or .PrimaryColor .SecondaryColor}} style="{{if .PrimaryColor}}--faction-accent:{{.PrimaryColor}};{{end}}{{if .SecondaryColor}}--faction-accent2:{{.SecondaryColor}};{{end}}"{{end}}>
             <h2>{{.Name}} <span class="fb-tag">[{{.Tag}}]</span></h2>
             <div class="fb-id text-muted">{{.ID}}</div>
+            {{if and .Overlay .Overlay.ImageFile}}<figure class="overlay-figure"><img class="overlay-logo" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">{{if .Overlay.ImageAlt}}<figcaption class="overlay-caption">{{.Overlay.ImageAlt}}</figcaption>{{end}}</figure>{{end}}
             {{if .FoundedUTC}}<div class="text-muted fb-founded">Founded {{shortDate .FoundedUTC}}</div>{{end}}
             {{if .Description}}<h4 class="fb-label">Description</h4>{{richText "fb-desc" .Description}}{{end}}
             {{if .Charter}}<h4 class="fb-label">Charter</h4>{{richText "fb-charter text-muted" .Charter}}{{end}}
@@ -221,7 +221,6 @@ var factionDetailTmpl = `<!DOCTYPE html>
             <dt>Bases</dt><dd>{{.OwnedBases}}</dd>
         </dl>
         <p class="api-note">Official API member_count: {{.OfficialMemberCount}} (hidden from outsiders); roster below is reconstructed from sightings.</p>
-
 {{if and .Overlay .Overlay.Stats}}
         <h3>Profile</h3>
         <dl class="faction-stats overlay-stats">
@@ -334,8 +333,25 @@ var playerDetailTmpl = `<!DOCTYPE html>
 <body>
 ` + siteHeader2 + `
     <main class="container page-content detail-page">
+{{if and .Overlay .Overlay.ImageFile}}
+        <aside class="infobox"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
+            <div class="infobox-title">{{.Username}}</div>
+            {{if .FactionTag}}<div class="infobox-subtitle">{{if .FactionSlug}}<a href="../../factions/{{.FactionSlug}}/">{{.FactionTag}}</a>{{else}}{{.FactionTag}}{{end}}</div>{{end}}
+            <img class="infobox-image" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">
+            {{if .Overlay.ImageAlt}}<figcaption class="infobox-caption">{{.Overlay.ImageAlt}}</figcaption>{{end}}
+            <dl class="infobox-data">
+{{- range .Overlay.Stats}}
+                <dt>{{.Label}}</dt><dd>{{.Value}}</dd>
+{{- end}}
+                {{if .ClanTag}}<dt>Clan</dt><dd>{{.ClanTag}}</dd>{{end}}
+                <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
+                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+            </dl>
+            <div class="infobox-id">{{.ID}}</div>
+        </aside>
+        {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
+{{else}}
         <div class="player-banner"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
-            {{if and .Overlay .Overlay.ImageFile}}<img class="overlay-portrait" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">{{end}}
             <h2>{{.Username}}{{if .FactionSlug}} <a class="pb-faction" href="../../factions/{{.FactionSlug}}/">[{{.FactionTag}}]</a>{{else if .FactionTag}}<span class="pb-faction">[{{.FactionTag}}]</span>{{end}}</h2>
             <div class="pb-id">{{.ID}}</div>
             {{if .ClanTag}}<div class="pb-clan">clan {{.ClanTag}}</div>{{end}}
@@ -350,15 +366,16 @@ var playerDetailTmpl = `<!DOCTYPE html>
 {{- end}}
         </dl>
 {{end}}
+        <div class="stat-strip">
+            <div class="ss-item"><strong>{{shortDate .FirstSeenUTC}}</strong> first seen</div>
+            <div class="ss-item"><strong>{{rel .LastSeenUTC}}</strong> last seen</div>
+        </div>
+{{end}}
 {{if and .Overlay .Overlay.BodyHTML}}
         <h3>About</h3>
         <p class="overlay-credit text-muted">Community-contributed profile.</p>
         <div class="overlay-body">{{.Overlay.BodyHTML}}</div>
 {{end}}
-        <div class="stat-strip">
-            <div class="ss-item"><strong>{{shortDate .FirstSeenUTC}}</strong> first seen</div>
-            <div class="ss-item"><strong>{{rel .LastSeenUTC}}</strong> last seen</div>
-        </div>
     </main>
 ` + themeScript + `
 </body>
