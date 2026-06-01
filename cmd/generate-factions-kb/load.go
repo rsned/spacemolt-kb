@@ -11,7 +11,7 @@ import (
 // loadFactions loads every faction with its reconstructed roster (from
 // seen_players, overlaid with official faction_members), bases, relations, and
 // facilities. shipsByPlayer maps player_id -> distinct ship class names.
-func loadFactions(db *sql.DB, shipsByPlayer map[string][]string, knownSystemSlugs map[string]string) ([]*Faction, error) {
+func loadFactions(db *sql.DB, shipsByPlayer map[string][]string) ([]*Faction, error) {
 	rows, err := db.Query(`
 		SELECT faction_id, name, tag, leader_username, treasury, member_count,
 		       owned_bases, description, charter, emblem,
@@ -63,7 +63,7 @@ func loadFactions(db *sql.DB, shipsByPlayer map[string][]string, knownSystemSlug
 		factions = append(factions, f)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("iterate factions: %w", err)
 	}
 
 	byID := map[string]*Faction{}
@@ -129,7 +129,7 @@ func loadRosters(db *sql.DB, byID map[string]*Faction, shipsByPlayer map[string]
 	}
 	_ = orows.Close()
 	if err := orows.Err(); err != nil {
-		return err
+		return fmt.Errorf("iterate faction_members: %w", err)
 	}
 
 	rows, err := db.Query(`
@@ -163,7 +163,10 @@ func loadRosters(db *sql.DB, byID map[string]*Faction, shipsByPlayer map[string]
 		}
 		f.Members = append(f.Members, m)
 	}
-	return rows.Err()
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterate seen_players: %w", err)
+	}
+	return nil
 }
 
 func loadBases(db *sql.DB, byID map[string]*Faction) error {
@@ -186,7 +189,10 @@ func loadBases(db *sql.DB, byID map[string]*Faction) error {
 			})
 		}
 	}
-	return rows.Err()
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterate faction_bases: %w", err)
+	}
+	return nil
 }
 
 func loadRelations(db *sql.DB, byID map[string]*Faction) error {
@@ -213,7 +219,10 @@ func loadRelations(db *sql.DB, byID map[string]*Faction) error {
 			})
 		}
 	}
-	return rows.Err()
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterate faction_relations: %w", err)
+	}
+	return nil
 }
 
 func loadFacilities(db *sql.DB, byID map[string]*Faction) error {
@@ -238,7 +247,10 @@ func loadFacilities(db *sql.DB, byID map[string]*Faction) error {
 			})
 		}
 	}
-	return rows.Err()
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterate faction_facilities: %w", err)
+	}
+	return nil
 }
 
 // parseServices renders services_json best-effort. Accepts a JSON array of

@@ -31,7 +31,7 @@ func loadShips(db *sql.DB) (classes map[string][]string, detail map[string][]Shi
 		})
 	}
 	if err := rows.Err(); err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("iterate seen_player_ships: %w", err)
 	}
 	for pid := range classes {
 		sort.Strings(classes[pid])
@@ -65,7 +65,7 @@ func loadSightings(db *sql.DB, knownSystemSlugs map[string]string) (map[string][
 		})
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("iterate seen_player_sightings: %w", err)
 	}
 	out := map[string][]Sighting{}
 	for pid, list := range raw {
