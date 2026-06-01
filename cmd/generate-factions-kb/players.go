@@ -98,7 +98,7 @@ func loadPlayers(db *sql.DB, shipDetail map[string][]ShipSeen, sightings map[str
 		p := &Player{
 			ID:             pid,
 			Username:       uname.String,
-			Slug:           playerSlug(uname.String, pid),
+			Slug:           pid,
 			FactionID:      fid.String,
 			FactionTag:     ftag.String,
 			FactionSlug:    factionSlugByID[fid.String],

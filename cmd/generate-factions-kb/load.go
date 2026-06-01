@@ -23,7 +23,6 @@ func loadFactions(db *sql.DB, shipsByPlayer map[string][]string) ([]*Faction, er
 	defer func() { _ = rows.Close() }()
 
 	var factions []*Faction
-	seenSlug := map[string]bool{}
 	for rows.Next() {
 		f := &Faction{}
 		var name, tag, leader, desc, charter, emblem, pc, sc, founded sql.NullString
@@ -45,20 +44,8 @@ func loadFactions(db *sql.DB, shipsByPlayer map[string][]string) ([]*Faction, er
 		f.SecondaryColor = sc.String
 		f.FoundedUTC = founded.String
 
-		// Stable, unique slug from tag (fall back to name, then id8).
-		base := slugify(f.Tag)
-		if base == "" {
-			base = slugify(f.Name)
-		}
-		if base == "" {
-			base = f.ID
-		}
-		slug := base
-		for n := 2; seenSlug[slug]; n++ {
-			slug = fmt.Sprintf("%s-%d", base, n)
-		}
-		seenSlug[slug] = true
-		f.Slug = slug
+		// URL path is the stable faction_id (usernames/tags can be unicode).
+		f.Slug = f.ID
 
 		factions = append(factions, f)
 	}
@@ -149,7 +136,7 @@ func loadRosters(db *sql.DB, byID map[string]*Faction, shipsByPlayer map[string]
 		m := &Member{
 			PlayerID:    pid,
 			Username:    uname.String,
-			Slug:        playerSlug(uname.String, pid),
+			Slug:        pid,
 			LastSeenUTC: lastSeen.String,
 			Ships:       shipsByPlayer[pid],
 		}
