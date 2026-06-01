@@ -6,14 +6,38 @@ regeneration your content appears on your page.
 
 ## How to add yours
 
-1. Find your **ID**: open your faction or player page in the KB. The monospace
-   hash under the name (e.g. `e3653eac2392899ee0ee1f93a945306d`) is your ID.
+1. Find your **ID** (a 32-character hash):
+   - **If your page already exists in the KB** — open your faction or player
+     page and copy the monospace hash shown under the name (e.g.
+     `e3653eac2392899ee0ee1f93a945306d`).
+   - **If you don't have a page yet** — see *"New here?"* below for how to get
+     your ID.
 2. Create a directory named by that ID:
    - Faction: `overlays/factions/<faction_id>/`
    - Player: `overlays/players/<player_id>/`
 3. Add a `profile.md` (see format below). Optionally drop an image (`logo.png` /
    `portrait.jpg`) in the same directory.
 4. Open a PR.
+
+## New here? (no page yet)
+
+Pages are generated only for factions and players the KB has actually observed
+in the galaxy, so a brand-new character won't have a page (or a visible ID) right
+away. Two ways forward:
+
+- **Easiest — wait one cycle.** Once you've been active enough to be sighted,
+  your faction/player page is created automatically on the next KB regeneration.
+  Come back, copy your ID from the page, and follow the steps above.
+- **Pre-stage it (advanced).** If you already know your stable in-game ID — the
+  same hash the game uses to identify your player or faction — you can create the
+  `overlays/.../<id>/` directory and open your PR now. The overlay stays dormant
+  (the build logs it as "matches no current entity" and skips it) and then renders
+  on your page automatically the first time you appear in the data. Double-check
+  the ID: a typo'd ID simply never matches and never shows up.
+
+Same applies to a **newly founded faction** — once it's registered and sighted it
+gets a page; grab the `faction_id` from there, or pre-stage it under
+`overlays/factions/<faction_id>/`.
 
 ## profile.md format
 
