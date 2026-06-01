@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 )
 
 // loadShips returns, per player_id, the distinct ship classes sighted (sorted),
@@ -117,11 +118,13 @@ func loadPlayers(db *sql.DB, shipDetail map[string][]ShipSeen, sightings map[str
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("iterate seen_players: %w", err)
 	}
+	// Alphabetical by username (case-insensitive), ID as a stable tiebreaker.
 	sort.SliceStable(players, func(i, j int) bool {
-		if players[i].LastSeenUTC != players[j].LastSeenUTC {
-			return players[i].LastSeenUTC > players[j].LastSeenUTC
+		li, lj := strings.ToLower(players[i].Username), strings.ToLower(players[j].Username)
+		if li != lj {
+			return li < lj
 		}
-		return players[i].Username < players[j].Username
+		return players[i].ID < players[j].ID
 	})
 	return players, nil
 }

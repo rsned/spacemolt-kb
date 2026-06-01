@@ -302,14 +302,12 @@ var playerIndexTmpl = `<!DOCTYPE html>
         <h2>Players</h2>
         <p class="text-muted mt-1">{{len .}} players tracked from sightings.</p>
         <table class="sortable">
-            <thead><tr><th class="sortable">Username</th><th class="sortable">Faction</th><th>Ships seen</th><th class="sortable">Last seen</th></tr></thead>
+            <thead><tr><th class="sortable">Username</th><th class="sortable">Faction</th></tr></thead>
             <tbody>
 {{- range .}}
                 <tr>
                     <td><a href="{{.Slug}}/">{{.Username}}</a></td>
                     <td>{{if .FactionSlug}}<a href="../factions/{{.FactionSlug}}/">[{{.FactionTag}}]</a>{{else if .FactionTag}}[{{.FactionTag}}]{{else}}<span class="muted">&mdash;</span>{{end}}</td>
-                    <td>{{if .Ships}}{{range $i, $s := .Ships}}{{if $i}}, {{end}}{{$s.Class}}{{end}}{{else}}&mdash;{{end}}</td>
-                    <td data-sort="{{.LastSeenUTC}}" title="{{.LastSeenUTC}}">{{rel .LastSeenUTC}}</td>
                 </tr>
 {{- end}}
             </tbody>
