@@ -36,8 +36,8 @@ func slugify(s string) string {
 }
 
 // playerSlug builds a stable, unique slug from a username and player id:
-// "<slugified-username>-<first 8 of id>". Falls back to just the id8 when the
-// username slugifies to empty.
+// "<slugified-username>-<first 8 bytes of id (game IDs are hex, so bytes == runes)>".
+// Falls back to just the id8 when the username slugifies to empty.
 func playerSlug(username, playerID string) string {
 	id8 := playerID
 	if len(id8) > 8 {
@@ -46,6 +46,9 @@ func playerSlug(username, playerID string) string {
 	base := slugify(username)
 	if base == "" {
 		return id8
+	}
+	if id8 == "" {
+		return base
 	}
 	return base + "-" + id8
 }

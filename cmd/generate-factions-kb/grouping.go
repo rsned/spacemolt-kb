@@ -26,6 +26,9 @@ func groupSightings(in []Sighting) []Sighting {
 		if s.LastSeenUTC > g.LastSeenUTC {
 			g.LastSeenUTC = s.LastSeenUTC
 		}
+		if s.SystemSlug != "" && g.SystemSlug == "" {
+			g.SystemSlug = s.SystemSlug
+		}
 	}
 	out := make([]Sighting, 0, len(order))
 	for _, k := range order {
