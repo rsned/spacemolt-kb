@@ -181,7 +181,7 @@ var factionIndexTmpl = `<!DOCTYPE html>
         <p class="text-muted mt-1">{{len .}} player factions. Member rosters are reconstructed from sightings &mdash; the game API reports member counts as 0 to outsiders.</p>
         <div class="faction-cards">
 {{- range .}}
-            <a href="{{.Slug}}/" class="faction-card"{{if .PrimaryColor}} style="--faction-accent:{{.PrimaryColor}}"{{end}}>
+            <a href="{{.Slug}}/" class="faction-card"{{if or .PrimaryColor .SecondaryColor}} style="{{if .PrimaryColor}}--faction-accent:{{.PrimaryColor}};{{end}}{{if .SecondaryColor}}--faction-accent2:{{.SecondaryColor}};{{end}}"{{end}}>
                 <div class="fc-name">{{.Name}} <span class="fc-tag">[{{.Tag}}]</span></div>
                 <div class="fc-stats">{{.MemberCount}} members &middot; {{.OwnedBases}} bases</div>
             </a>
@@ -206,11 +206,12 @@ var factionDetailTmpl = `<!DOCTYPE html>
 <body>
 ` + siteHeader2 + `
     <main class="container page-content detail-page">
-        <div class="faction-banner"{{if .PrimaryColor}} style="--faction-accent:{{.PrimaryColor}}"{{end}}>
+        <div class="faction-banner"{{if or .PrimaryColor .SecondaryColor}} style="{{if .PrimaryColor}}--faction-accent:{{.PrimaryColor}};{{end}}{{if .SecondaryColor}}--faction-accent2:{{.SecondaryColor}};{{end}}"{{end}}>
             <h2>{{.Name}} <span class="fb-tag">[{{.Tag}}]</span></h2>
+            <div class="fb-id text-muted">{{.ID}}</div>
             {{if .FoundedUTC}}<div class="text-muted fb-founded">Founded {{shortDate .FoundedUTC}}</div>{{end}}
-            {{if .Charter}}{{richText "fb-charter text-muted" .Charter}}{{end}}
-            {{if .Description}}{{richText "fb-desc" .Description}}{{end}}
+            {{if .Description}}<h4 class="fb-label">Description</h4>{{richText "fb-desc" .Description}}{{end}}
+            {{if .Charter}}<h4 class="fb-label">Charter</h4>{{richText "fb-charter text-muted" .Charter}}{{end}}
         </div>
 
         <div class="stat-strip">

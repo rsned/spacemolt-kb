@@ -13,6 +13,7 @@
     border-radius: 8px;
     border: 1px solid hsl(var(--border));
     border-left: 4px solid var(--faction-accent, hsl(var(--smui-frost-2)));
+    border-right: 4px solid var(--faction-accent2, var(--faction-accent, hsl(var(--smui-frost-2))));
     text-decoration: none;
     color: inherit;
     background: hsl(var(--smui-surface-2) / 0.4);
@@ -25,6 +26,7 @@
 
 .faction-banner {
     border-left: 5px solid var(--faction-accent, hsl(var(--smui-frost-2)));
+    border-right: 5px solid var(--faction-accent2, var(--faction-accent, hsl(var(--smui-frost-2))));
     padding: .75rem 1rem;
     border-radius: 6px;
     background: hsl(var(--smui-surface-2) / 0.4);
@@ -47,3 +49,6 @@
 .detail-page .api-note { font-size: .95rem; }
 .detail-page .fb-charter,
 .detail-page .fb-desc { font-size: 16px; line-height: 1.65; }
+.fb-id { font-family: monospace; font-size: 12px; opacity: .55; word-break: break-all; }
+.fb-label { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; opacity: .55; }
+.faction-banner .fb-label + p { margin-top: .25rem; }
