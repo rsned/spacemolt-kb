@@ -23,6 +23,8 @@ type Faction struct {
 	Bases      []Base
 	Relations  []Relation
 	Facilities []Facility
+
+	Overlay *Overlay // contributor-authored content, nil when none
 }
 
 // MemberCount is the reconstructed roster size (distinct sighted players).
@@ -81,6 +83,8 @@ type Player struct {
 
 	Ships     []ShipSeen
 	Sightings []Sighting
+
+	Overlay *Overlay // contributor-authored content, nil when none
 }
 
 // ShipSeen is a ship class a player was observed flying.

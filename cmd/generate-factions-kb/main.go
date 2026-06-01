@@ -57,6 +57,9 @@ func main() {
 		log.Fatalf("load players: %v", err)
 	}
 
+	attachFactionOverlays(factions, overlaysRoot)
+	attachPlayerOverlays(players, overlaysRoot)
+
 	funcs := templateFuncs(genTime)
 	fIdx := htmltpl.Must(htmltpl.New("fidx").Funcs(funcs).Parse(factionIndexTmpl))
 	fDet := htmltpl.Must(htmltpl.New("fdet").Funcs(funcs).Parse(factionDetailTmpl))
@@ -72,6 +75,9 @@ func main() {
 		dir := filepath.Join(factionsOut, f.Slug)
 		mustMkdir(dir)
 		mustWrite(filepath.Join(dir, "index.html"), fDet, f)
+		if f.Overlay != nil {
+			copyOverlayImage(filepath.Join(overlaysRoot, "factions", f.ID), f.Overlay.ImageFile, dir)
+		}
 	}
 
 	mustWrite(filepath.Join(playersOut, "index.html"), pIdx, players)
@@ -79,6 +85,9 @@ func main() {
 		dir := filepath.Join(playersOut, p.Slug)
 		mustMkdir(dir)
 		mustWrite(filepath.Join(dir, "index.html"), pDet, p)
+		if p.Overlay != nil {
+			copyOverlayImage(filepath.Join(overlaysRoot, "players", p.ID), p.Overlay.ImageFile, dir)
+		}
 	}
 
 	log.Printf("generated %d factions and %d players", len(factions), len(players))

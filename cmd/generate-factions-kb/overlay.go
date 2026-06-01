@@ -89,6 +89,74 @@ func splitFrontmatter(content []byte) (front []byte, body string) {
 	return []byte(rest[:idx]), rest[idx+len("\n---\n"):]
 }
 
+// overlaysRoot is the repo-root source directory holding contributor overlays.
+const overlaysRoot = "overlays"
+
+// copyOverlayImage copies name from srcDir to destDir. Empty name is a no-op.
+// Failures are warnings (the page still renders without the image).
+func copyOverlayImage(srcDir, name, destDir string) {
+	if name == "" {
+		return
+	}
+	data, err := os.ReadFile(filepath.Join(srcDir, name))
+	if err != nil {
+		log.Printf("warning: read overlay image %s: %v", name, err)
+		return
+	}
+	if err := os.WriteFile(filepath.Join(destDir, name), data, 0o644); err != nil {
+		log.Printf("warning: write overlay image %s: %v", name, err)
+	}
+}
+
+// attachFactionOverlays loads overlays/factions/<id>/ for each faction and warns
+// about overlay dirs that match no current faction.
+func attachFactionOverlays(factions []*Faction, root string) {
+	matched := map[string]bool{}
+	for _, f := range factions {
+		ov, err := loadOverlay(filepath.Join(root, "factions", f.ID))
+		if err != nil {
+			log.Printf("warning: faction overlay %s: %v", f.ID, err)
+			continue
+		}
+		if ov != nil {
+			f.Overlay = ov
+			matched[f.ID] = true
+		}
+	}
+	warnOrphanOverlays(filepath.Join(root, "factions"), matched)
+}
+
+// attachPlayerOverlays loads overlays/players/<id>/ for each player and warns
+// about overlay dirs that match no current player.
+func attachPlayerOverlays(players []*Player, root string) {
+	matched := map[string]bool{}
+	for _, p := range players {
+		ov, err := loadOverlay(filepath.Join(root, "players", p.ID))
+		if err != nil {
+			log.Printf("warning: player overlay %s: %v", p.ID, err)
+			continue
+		}
+		if ov != nil {
+			p.Overlay = ov
+			matched[p.ID] = true
+		}
+	}
+	warnOrphanOverlays(filepath.Join(root, "players"), matched)
+}
+
+// warnOrphanOverlays logs any subdirectory of dir whose name was not matched.
+func warnOrphanOverlays(dir string, matched map[string]bool) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return // no overlays of this kind yet
+	}
+	for _, e := range entries {
+		if e.IsDir() && !matched[e.Name()] {
+			log.Printf("warning: overlay %s matches no current entity", filepath.Join(dir, e.Name()))
+		}
+	}
+}
+
 // profileFront is the YAML frontmatter shape of a profile.md.
 type profileFront struct {
 	Image    string        `yaml:"image"`

@@ -102,6 +102,46 @@ func TestValidateImage(t *testing.T) {
 	}
 }
 
+func TestCopyOverlayImage(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+	if err := os.WriteFile(filepath.Join(src, "logo.png"), []byte("imgbytes"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	copyOverlayImage(src, "logo.png", dst)
+	got, err := os.ReadFile(filepath.Join(dst, "logo.png"))
+	if err != nil || string(got) != "imgbytes" {
+		t.Errorf("copy: got %q err %v", got, err)
+	}
+	// Empty name is a no-op (no panic, nothing written).
+	copyOverlayImage(src, "", dst)
+}
+
+func TestAttachFactionOverlays(t *testing.T) {
+	root := t.TempDir()
+	// Overlay for faction "abc"; an orphan dir "ghost" with no matching faction.
+	mk := func(id, profile string) {
+		d := filepath.Join(root, "factions", id)
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(d, "profile.md"), []byte(profile), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mk("abc", "body for abc")
+	mk("ghost", "orphan body")
+
+	factions := []*Faction{{ID: "abc"}, {ID: "xyz"}}
+	attachFactionOverlays(factions, root)
+	if factions[0].Overlay == nil {
+		t.Error("faction abc should have an overlay")
+	}
+	if factions[1].Overlay != nil {
+		t.Error("faction xyz should have no overlay")
+	}
+}
+
 func writeOverlay(t *testing.T, dir, profile string) {
 	t.Helper()
 	if err := os.WriteFile(filepath.Join(dir, "profile.md"), []byte(profile), 0o644); err != nil {
