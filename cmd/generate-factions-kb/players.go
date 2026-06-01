@@ -115,7 +115,7 @@ func loadPlayers(db *sql.DB, shipDetail map[string][]ShipSeen, sightings map[str
 		players = append(players, p)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("iterate seen_players: %w", err)
 	}
 	sort.SliceStable(players, func(i, j int) bool {
 		if players[i].LastSeenUTC != players[j].LastSeenUTC {

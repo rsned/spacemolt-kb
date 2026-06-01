@@ -2,6 +2,7 @@ package main
 
 import (
 	htmltpl "html/template"
+	"strings"
 	"time"
 )
 
@@ -17,16 +18,7 @@ func templateFuncs(genTime time.Time) htmltpl.FuncMap {
 			}
 			return t.Format("2006-01-02")
 		},
-		"join": func(parts []string, sep string) string {
-			out := ""
-			for i, p := range parts {
-				if i > 0 {
-					out += sep
-				}
-				out += p
-			}
-			return out
-		},
+		"join": strings.Join,
 		"dash": func(s string) string {
 			if s == "" {
 				return "—"
@@ -148,7 +140,6 @@ var factionDetailTmpl = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Name}} [{{.Tag}}] - Factions - Spacemolt KB</title>
     <link rel="stylesheet" href="../../smui.css">
-    <link rel="stylesheet" href="../../players/players.css">
     <link rel="stylesheet" href="../../factions/factions.css">
 </head>
 <body>
