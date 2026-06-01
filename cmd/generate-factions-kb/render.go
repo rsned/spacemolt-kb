@@ -25,7 +25,68 @@ func templateFuncs(genTime time.Time) htmltpl.FuncMap {
 			}
 			return s
 		},
+		"richText": richText,
+		"inline":   func(s string) htmltpl.HTML { return htmltpl.HTML(inlineMarkup(s)) },
 	}
+}
+
+// richText renders free-text (charter/description) as HTML paragraphs: a blank
+// line ("\n\n") starts a new <p>, a single "\n" becomes a <br>, and **bold**
+// spans become <strong>. All text is HTML-escaped; only the wrapper tags we
+// emit are trusted. class is applied to each <p> (empty for an unclassed one).
+func richText(class, s string) htmltpl.HTML {
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+	open := "<p>"
+	if class != "" {
+		open = `<p class="` + htmltpl.HTMLEscapeString(class) + `">`
+	}
+	var b strings.Builder
+	for para := range strings.SplitSeq(s, "\n\n") {
+		para = strings.Trim(para, "\n")
+		if strings.TrimSpace(para) == "" {
+			continue
+		}
+		b.WriteString(open)
+		for i, line := range strings.Split(para, "\n") {
+			if i > 0 {
+				b.WriteString("<br>")
+			}
+			b.WriteString(inlineMarkup(line))
+		}
+		b.WriteString("</p>")
+	}
+	return htmltpl.HTML(b.String())
+}
+
+// inlineMarkup HTML-escapes a single line of free text and converts paired
+// **bold** markers into <strong> spans.
+func inlineMarkup(line string) string {
+	return boldify(htmltpl.HTMLEscapeString(line))
+}
+
+// boldify converts paired ** markers in already-escaped text into <strong>
+// spans. An unmatched trailing ** is left as literal text.
+func boldify(s string) string {
+	parts := strings.Split(s, "**")
+	if len(parts) < 3 {
+		return s // no complete pair of markers
+	}
+	last := len(parts) - 1
+	var b strings.Builder
+	for i, p := range parts {
+		switch {
+		case i%2 == 1 && i != last:
+			b.WriteString("<strong>")
+			b.WriteString(p)
+			b.WriteString("</strong>")
+		case i%2 == 1 && i == last:
+			b.WriteString("**") // unmatched opener — restore literal markers
+			b.WriteString(p)
+		default:
+			b.WriteString(p)
+		}
+	}
+	return b.String()
 }
 
 // nav link list shared by both header depths.
@@ -121,8 +182,8 @@ var factionIndexTmpl = `<!DOCTYPE html>
         <div class="faction-cards">
 {{- range .}}
             <a href="{{.Slug}}/" class="faction-card"{{if .PrimaryColor}} style="--faction-accent:{{.PrimaryColor}}"{{end}}>
-                <div class="fc-name">{{.Name}}<span class="fc-tag">[{{.Tag}}]</span></div>
-                <div class="fc-stats">{{.MemberCount}} members &middot; {{.OwnedBases}} bases &middot; {{.Treasury}} cr</div>
+                <div class="fc-name">{{.Name}} <span class="fc-tag">[{{.Tag}}]</span></div>
+                <div class="fc-stats">{{.MemberCount}} members &middot; {{.OwnedBases}} bases</div>
             </a>
 {{- end}}
         </div>
@@ -144,16 +205,15 @@ var factionDetailTmpl = `<!DOCTYPE html>
 </head>
 <body>
 ` + siteHeader2 + `
-    <main class="container page-content">
+    <main class="container page-content detail-page">
         <div class="faction-banner"{{if .PrimaryColor}} style="--faction-accent:{{.PrimaryColor}}"{{end}}>
             <h2>{{.Name}} <span class="fb-tag">[{{.Tag}}]</span></h2>
-            {{if .FoundedUTC}}<div class="text-muted">Founded {{shortDate .FoundedUTC}}</div>{{end}}
-            {{if .Description}}<p>{{.Description}}</p>{{end}}
-            {{if .Charter}}<p class="text-muted">{{.Charter}}</p>{{end}}
+            {{if .FoundedUTC}}<div class="text-muted fb-founded">Founded {{shortDate .FoundedUTC}}</div>{{end}}
+            {{if .Charter}}{{richText "fb-charter text-muted" .Charter}}{{end}}
+            {{if .Description}}{{richText "fb-desc" .Description}}{{end}}
         </div>
 
         <div class="stat-strip">
-            <div class="ss-item"><strong>{{.Treasury}}</strong> treasury (cr)</div>
             <div class="ss-item"><strong>{{.OwnedBases}}</strong> bases</div>
             <div class="ss-item"><strong>{{dash .LeaderName}}</strong> leader</div>
             <div class="ss-item"><strong>{{.MemberCount}}</strong> members (sighted)</div>
@@ -266,11 +326,11 @@ var playerDetailTmpl = `<!DOCTYPE html>
 </head>
 <body>
 ` + siteHeader2 + `
-    <main class="container page-content">
+    <main class="container page-content detail-page">
         <div class="player-banner"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
             <h2>{{.Username}}{{if .FactionSlug}} <a class="pb-faction" href="../../factions/{{.FactionSlug}}/">[{{.FactionTag}}]</a>{{else if .FactionTag}}<span class="pb-faction">[{{.FactionTag}}]</span>{{end}}</h2>
             {{if .ClanTag}}<div class="pb-clan">clan {{.ClanTag}}</div>{{end}}
-            {{if .StatusMessage}}<div class="pb-status">{{.StatusMessage}}</div>{{end}}
+            {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
         </div>
 
         <div class="stat-strip">

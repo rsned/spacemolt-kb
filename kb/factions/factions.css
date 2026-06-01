@@ -1,10 +1,12 @@
 /* Faction KB pages. Builds on smui.css. */
 .faction-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-top: 1.25rem;
 }
+@media (max-width: 900px) { .faction-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .faction-cards { grid-template-columns: 1fr; } }
 .faction-card {
     display: block;
     padding: 1rem 1.1rem;
@@ -17,8 +19,8 @@
     transition: transform .08s ease, box-shadow .08s ease;
 }
 .faction-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.12); }
-.faction-card .fc-name { font-weight: 600; font-size: 1.05rem; }
-.faction-card .fc-tag { opacity: .65; font-family: monospace; margin-left: .35rem; }
+.faction-card .fc-name { font-weight: 600; font-size: 1.05rem; overflow-wrap: break-word; }
+.faction-card .fc-tag { opacity: .65; font-family: monospace; white-space: nowrap; }
 .faction-card .fc-stats { margin-top: .5rem; font-size: .85rem; opacity: .8; }
 
 .faction-banner {
@@ -28,9 +30,20 @@
     background: hsl(var(--smui-surface-2) / 0.4);
     margin-bottom: 1rem;
 }
+.faction-banner > * { margin: 0; }
+.faction-banner > * + * { margin-top: .65rem; }
 .faction-banner .fb-tag { font-family: monospace; opacity: .7; }
 .stat-strip { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: .75rem 0; font-size: .9rem; }
 .stat-strip .ss-item strong { display: block; font-size: 1.1rem; }
 .api-note { font-size: .8rem; opacity: .7; font-style: italic; margin-top: .25rem; }
 .online-dot { color: hsl(140 70% 45%); }
 .kills { font-family: monospace; }
+
+/* Detail pages: bump the readable text up from the 13px UI base. */
+.detail-page { font-size: 15px; }
+.detail-page h2 { font-size: 26px; }
+.detail-page h3 { font-size: 28px; }
+.detail-page .stat-strip { font-size: 1rem; }
+.detail-page .api-note { font-size: .95rem; }
+.detail-page .fb-charter,
+.detail-page .fb-desc { font-size: 16px; line-height: 1.65; }
