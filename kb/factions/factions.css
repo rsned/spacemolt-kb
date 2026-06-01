@@ -37,9 +37,34 @@
 .faction-banner .fb-tag { font-family: monospace; opacity: .7; }
 .stat-strip { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: .75rem 0; font-size: .9rem; }
 .stat-strip .ss-item strong { display: block; font-size: 1.1rem; }
+.faction-stats {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    width: max-content;
+    margin: .85rem 0;
+}
+.faction-stats dt { padding: .25rem 1.5rem .25rem 0; opacity: .65; font-weight: 600; }
+.faction-stats dd {
+    margin: 0;
+    padding: .25rem 0 .25rem 1.5rem;
+    text-align: right;
+    font-weight: 600;
+    border-left: 1px solid hsl(var(--border));
+}
 .api-note { font-size: .8rem; opacity: .7; font-style: italic; margin-top: .25rem; }
 .online-dot { color: hsl(140 70% 45%); }
 .kills { font-family: monospace; }
+
+.member-list {
+    list-style: none;
+    padding: 0;
+    margin: .5rem 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .25rem 1.5rem;
+}
+.member-list li { margin: 0; }
+.detail-page .member-list a { font-size: 17px; }
 
 /* Detail pages: bump the readable text up from the 13px UI base. */
 .detail-page { font-size: 15px; }

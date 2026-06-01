@@ -84,14 +84,10 @@ func loadFactions(db *sql.DB, shipsByPlayer map[string][]string) ([]*Faction, er
 		return nil, err
 	}
 
-	// Roster ordering: online first, then most-recently-seen.
+	// Roster ordering: alphabetical by username (case-insensitive).
 	for _, f := range factions {
 		sort.SliceStable(f.Members, func(i, j int) bool {
-			a, b := f.Members[i], f.Members[j]
-			if a.IsOnline != b.IsOnline {
-				return a.IsOnline
-			}
-			return a.LastSeenUTC > b.LastSeenUTC
+			return strings.ToLower(f.Members[i].Username) < strings.ToLower(f.Members[j].Username)
 		})
 	}
 	// Faction ordering: largest reconstructed roster first.

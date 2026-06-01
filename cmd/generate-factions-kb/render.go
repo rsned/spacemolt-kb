@@ -214,28 +214,20 @@ var factionDetailTmpl = `<!DOCTYPE html>
             {{if .Charter}}<h4 class="fb-label">Charter</h4>{{richText "fb-charter text-muted" .Charter}}{{end}}
         </div>
 
-        <div class="stat-strip">
-            <div class="ss-item"><strong>{{.OwnedBases}}</strong> bases</div>
-            <div class="ss-item"><strong>{{dash .LeaderName}}</strong> leader</div>
-            <div class="ss-item"><strong>{{.MemberCount}}</strong> members (sighted)</div>
-        </div>
+        <dl class="faction-stats">
+            <dt>Leader</dt><dd>{{dash .LeaderName}}</dd>
+            <dt>Members</dt><dd>{{.MemberCount}}</dd>
+            <dt>Bases</dt><dd>{{.OwnedBases}}</dd>
+        </dl>
         <p class="api-note">Official API member_count: {{.OfficialMemberCount}} (hidden from outsiders); roster below is reconstructed from sightings.</p>
 
         <h3>Members ({{.MemberCount}})</h3>
 {{if .Members}}
-        <table class="sortable">
-            <thead><tr><th class="sortable">Username</th><th class="sortable">Role</th><th>Ships seen</th><th class="sortable">Last seen</th></tr></thead>
-            <tbody>
+        <ul class="member-list">
 {{- range .Members}}
-                <tr>
-                    <td><a href="../../players/{{.Slug}}/">{{if .IsOnline}}<span class="online-dot">&#9679;</span> {{end}}{{.Username}}</a></td>
-                    <td>{{dash .Role}}</td>
-                    <td>{{if .Ships}}{{join .Ships ", "}}{{else}}&mdash;{{end}}</td>
-                    <td data-sort="{{.LastSeenUTC}}" title="{{.LastSeenUTC}}">{{rel .LastSeenUTC}}</td>
-                </tr>
+            <li><a href="../../players/{{.Slug}}/">{{if .IsOnline}}<span class="online-dot">&#9679;</span> {{end}}{{.Username}}</a></li>
 {{- end}}
-            </tbody>
-        </table>
+        </ul>
 {{else}}
         <p class="text-muted">No members sighted yet.</p>
 {{end}}
