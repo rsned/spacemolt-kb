@@ -27,7 +27,7 @@ func TestSplitFrontmatter(t *testing.T) {
 	}
 
 	// Unterminated frontmatter: treat whole thing as body, no front.
-	front, body = splitFrontmatter([]byte("---\nimage: x\nno closing fence\n"))
+	front, _ = splitFrontmatter([]byte("---\nimage: x\nno closing fence\n"))
 	if front != nil {
 		t.Errorf("expected nil front for unterminated, got %q", front)
 	}
@@ -90,5 +90,61 @@ func TestValidateImage(t *testing.T) {
 	// Missing file.
 	if _, err := validateImage(dir, "nope.png"); err == nil {
 		t.Error("expected error for missing file")
+	}
+}
+
+func writeOverlay(t *testing.T, dir, profile string) {
+	t.Helper()
+	if err := os.WriteFile(filepath.Join(dir, "profile.md"), []byte(profile), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadOverlay(t *testing.T) {
+	// Missing profile.md -> (nil, nil).
+	if ov, err := loadOverlay(t.TempDir()); err != nil || ov != nil {
+		t.Errorf("missing: ov=%v err=%v", ov, err)
+	}
+
+	// Full overlay: frontmatter (image + ordered stats) + body.
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "logo.png"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	writeOverlay(t, dir, "---\nimage: logo.png\nimage_alt: Crest\nstats:\n  - label: Homeworld\n    value: Krynn\n  - label: Founded\n    value: 2387\n---\n## Bio\n\nWe **optimize**.\n")
+	ov, err := loadOverlay(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ov.ImageFile != "logo.png" || ov.ImageAlt != "Crest" {
+		t.Errorf("image fields: %+v", ov)
+	}
+	if len(ov.Stats) != 2 || ov.Stats[0].Label != "Homeworld" || ov.Stats[1].Value != "2387" {
+		t.Errorf("stats: %+v", ov.Stats)
+	}
+	if !strings.Contains(string(ov.BodyHTML), "<strong>optimize</strong>") {
+		t.Errorf("body: %q", ov.BodyHTML)
+	}
+
+	// Bad image extension: overlay still returned, image skipped (warn-not-fail).
+	dir2 := t.TempDir()
+	writeOverlay(t, dir2, "---\nimage: logo.svg\n---\nbody")
+	ov2, err := loadOverlay(dir2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ov2.ImageFile != "" {
+		t.Errorf("expected image skipped, got %q", ov2.ImageFile)
+	}
+
+	// Body-only (no frontmatter).
+	dir3 := t.TempDir()
+	writeOverlay(t, dir3, "Just a bio.\n")
+	ov3, err := loadOverlay(dir3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ov3.BodyHTML == "" || len(ov3.Stats) != 0 || ov3.ImageFile != "" {
+		t.Errorf("body-only: %+v", ov3)
 	}
 }

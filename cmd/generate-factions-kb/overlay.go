@@ -2,13 +2,16 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	htmltpl "html/template"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/yuin/goldmark"
+	"gopkg.in/yaml.v3"
 )
 
 // Overlay is contributor-authored content merged onto a faction or player page.
@@ -83,4 +86,46 @@ func splitFrontmatter(content []byte) (front []byte, body string) {
 		return nil, s
 	}
 	return []byte(rest[:idx]), rest[idx+len("\n---\n"):]
+}
+
+// profileFront is the YAML frontmatter shape of a profile.md.
+type profileFront struct {
+	Image    string        `yaml:"image"`
+	ImageAlt string        `yaml:"image_alt"`
+	Stats    []OverlayStat `yaml:"stats"`
+}
+
+// loadOverlay reads <dir>/profile.md and returns the parsed Overlay. Returns
+// (nil, nil) when no profile.md exists. A bad/missing image is a warning (the
+// image is dropped, the rest still renders); malformed YAML or markdown is an
+// error.
+func loadOverlay(dir string) (*Overlay, error) {
+	content, err := os.ReadFile(filepath.Join(dir, "profile.md"))
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	front, body := splitFrontmatter(content)
+	var fm profileFront
+	if len(front) > 0 {
+		if err := yaml.Unmarshal(front, &fm); err != nil {
+			return nil, fmt.Errorf("frontmatter: %w", err)
+		}
+	}
+	ov := &Overlay{ImageAlt: fm.ImageAlt, Stats: fm.Stats}
+	if img, err := validateImage(dir, fm.Image); err != nil {
+		log.Printf("warning: overlay %s: %v (image skipped)", dir, err)
+	} else {
+		ov.ImageFile = img
+	}
+	if strings.TrimSpace(body) != "" {
+		html, err := renderMarkdown(body)
+		if err != nil {
+			return nil, fmt.Errorf("markdown: %w", err)
+		}
+		ov.BodyHTML = html
+	}
+	return ov, nil
 }
