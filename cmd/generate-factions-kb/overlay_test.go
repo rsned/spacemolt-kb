@@ -32,6 +32,15 @@ func TestSplitFrontmatter(t *testing.T) {
 		t.Errorf("expected nil front for unterminated, got %q", front)
 	}
 
+	// Closing fence at EOF with no trailing newline (no body).
+	front, body = splitFrontmatter([]byte("---\nimage: x\n---"))
+	if string(front) != "image: x" {
+		t.Errorf("EOF fence: front = %q", front)
+	}
+	if body != "" {
+		t.Errorf("EOF fence: body = %q", body)
+	}
+
 	// CRLF normalized.
 	front, _ = splitFrontmatter([]byte("---\r\nimage: a.png\r\n---\r\nbody"))
 	if string(front) != "image: a.png" {

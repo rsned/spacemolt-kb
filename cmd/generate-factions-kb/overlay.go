@@ -41,6 +41,7 @@ func renderMarkdown(src string) (htmltpl.HTML, error) {
 		return "", err
 	}
 	out := strings.ReplaceAll(buf.String(), "<a href=", `<a rel="nofollow noopener" href=`)
+	// goldmark (safe mode) has already stripped raw HTML; the cast is valid.
 	return htmltpl.HTML(out), nil
 }
 
