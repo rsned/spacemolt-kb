@@ -26,47 +26,15 @@
     <main class="container page-content detail-page">
         <div class="player-banner" style="--player-accent:#FFFFFF">
             <h2>Fade Ace63</h2>
+            <div class="pb-id">25ad79975ce0ddd008ed9b53c4160425</div>
             
             
         </div>
 
         <div class="stat-strip">
             <div class="ss-item"><strong>2026-06-01</strong> first seen</div>
-            <div class="ss-item"><strong>13m ago</strong> last seen</div>
+            <div class="ss-item"><strong>16m ago</strong> last seen</div>
         </div>
-
-
-        <h3>Ships seen</h3>
-        <table>
-            <thead><tr><th>Class</th><th>First seen</th><th>Last seen</th></tr></thead>
-            <tbody>
-                <tr><td>threshold</td><td>2026-06-01</td><td title="2026-06-01T08:55:25Z">13m ago</td></tr>
-            </tbody>
-        </table>
-
-
-
-        <h3>Activity (where seen)</h3>
-        <table class="sortable">
-            <thead><tr><th class="sortable">System</th><th>POI</th><th>Ship</th><th>Combat</th><th class="sortable">Last seen</th></tr></thead>
-            <tbody>
-                <tr>
-                    <td>Acrab</td>
-                    <td>null_residue_acrab</td>
-                    <td>threshold</td>
-                    <td>&mdash;</td>
-                    <td data-sort="2026-06-01T08:55:25Z" title="2026-06-01T08:55:25Z">13m ago</td>
-                </tr>
-                <tr>
-                    <td>Acrab</td>
-                    <td>&mdash;</td>
-                    <td>threshold</td>
-                    <td>&mdash;</td>
-                    <td data-sort="2026-06-01T08:54:57Z" title="2026-06-01T08:54:57Z">13m ago</td>
-                </tr>
-            </tbody>
-        </table>
-
     </main>
     <script>
     (function() {
@@ -78,32 +46,6 @@
             localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
         });
     })();
-    </script>    <script>
-    document.querySelectorAll("table.sortable").forEach(function(table) {
-      var headers = table.querySelectorAll("th.sortable");
-      var sortCol = -1, sortAsc = true;
-      headers.forEach(function(th) {
-        var idx = th.cellIndex;
-        th.addEventListener("click", function() {
-          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
-          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
-          var arrow = document.createElement("span");
-          arrow.className = "sort-arrow";
-          arrow.textContent = sortAsc ? "▲" : "▼";
-          th.appendChild(arrow);
-          var tbody = table.querySelector("tbody");
-          var rows = Array.from(tbody.querySelectorAll("tr"));
-          rows.sort(function(a, b) {
-            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
-            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
-            var an = parseFloat(at), bn = parseFloat(bt);
-            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
-            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
-          });
-          rows.forEach(function(r) { tbody.appendChild(r); });
-        });
-      });
-    });
     </script>
 </body>
 </html>

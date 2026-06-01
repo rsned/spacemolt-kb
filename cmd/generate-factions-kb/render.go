@@ -322,6 +322,7 @@ var playerDetailTmpl = `<!DOCTYPE html>
     <main class="container page-content detail-page">
         <div class="player-banner"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
             <h2>{{.Username}}{{if .FactionSlug}} <a class="pb-faction" href="../../factions/{{.FactionSlug}}/">[{{.FactionTag}}]</a>{{else if .FactionTag}}<span class="pb-faction">[{{.FactionTag}}]</span>{{end}}</h2>
+            <div class="pb-id">{{.ID}}</div>
             {{if .ClanTag}}<div class="pb-clan">clan {{.ClanTag}}</div>{{end}}
             {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
         </div>
@@ -330,38 +331,8 @@ var playerDetailTmpl = `<!DOCTYPE html>
             <div class="ss-item"><strong>{{shortDate .FirstSeenUTC}}</strong> first seen</div>
             <div class="ss-item"><strong>{{rel .LastSeenUTC}}</strong> last seen</div>
         </div>
-
-{{if .Ships}}
-        <h3>Ships seen</h3>
-        <table>
-            <thead><tr><th>Class</th><th>First seen</th><th>Last seen</th></tr></thead>
-            <tbody>
-{{- range .Ships}}
-                <tr><td>{{.Class}}</td><td>{{shortDate .FirstSeenUTC}}</td><td title="{{.LastSeenUTC}}">{{rel .LastSeenUTC}}</td></tr>
-{{- end}}
-            </tbody>
-        </table>
-{{end}}
-
-{{if .Sightings}}
-        <h3>Activity (where seen)</h3>
-        <table class="sortable">
-            <thead><tr><th class="sortable">System</th><th>POI</th><th>Ship</th><th>Combat</th><th class="sortable">Last seen</th></tr></thead>
-            <tbody>
-{{- range .Sightings}}
-                <tr>
-                    <td>{{if .SystemSlug}}<a href="../../systems/{{.SystemSlug}}/">{{.SystemID}}</a>{{else}}{{.SystemID}}{{end}}</td>
-                    <td>{{if .POIID}}{{.POIID}}{{else}}&mdash;{{end}}</td>
-                    <td>{{dash .ShipClass}}</td>
-                    <td>{{if .InCombat}}<span class="combat-flag">&#9876;</span>{{else}}&mdash;{{end}}</td>
-                    <td data-sort="{{.LastSeenUTC}}" title="{{.LastSeenUTC}}">{{rel .LastSeenUTC}}</td>
-                </tr>
-{{- end}}
-            </tbody>
-        </table>
-{{end}}
     </main>
-` + themeScript + sortScript + `
+` + themeScript + `
 </body>
 </html>
 `
