@@ -2,7 +2,10 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	htmltpl "html/template"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/yuin/goldmark"
@@ -36,6 +39,30 @@ func renderMarkdown(src string) (htmltpl.HTML, error) {
 	}
 	out := strings.ReplaceAll(buf.String(), "<a href=", `<a rel="nofollow noopener" href=`)
 	return htmltpl.HTML(out), nil
+}
+
+var allowedImageExt = map[string]bool{
+	".png": true, ".jpg": true, ".jpeg": true, ".webp": true, ".gif": true,
+}
+
+// validateImage checks that name is a bare filename (no separators, no ".."),
+// has an allowed raster extension, and exists in dir. Returns the validated
+// name, or an error describing why it was rejected. Empty name -> ("", nil).
+func validateImage(dir, name string) (string, error) {
+	if name == "" {
+		return "", nil
+	}
+	if strings.ContainsAny(name, `/\`) || strings.Contains(name, "..") {
+		return "", fmt.Errorf("image %q must be a bare filename with no path", name)
+	}
+	ext := strings.ToLower(filepath.Ext(name))
+	if !allowedImageExt[ext] {
+		return "", fmt.Errorf("image %q has unsupported extension %q", name, ext)
+	}
+	if _, err := os.Stat(filepath.Join(dir, name)); err != nil {
+		return "", fmt.Errorf("image %q not found in overlay dir: %w", name, err)
+	}
+	return name, nil
 }
 
 // splitFrontmatter separates a leading "---\n...\n---\n" YAML block from the

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -57,5 +59,36 @@ func TestRenderMarkdown(t *testing.T) {
 	}
 	if strings.Contains(string(bad), "<script>") {
 		t.Errorf("script tag leaked through: %q", bad)
+	}
+}
+
+func TestValidateImage(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "logo.png"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Empty name is fine (no image), returns "".
+	if got, err := validateImage(dir, ""); err != nil || got != "" {
+		t.Errorf("empty: got %q err %v", got, err)
+	}
+	// Valid file.
+	if got, err := validateImage(dir, "logo.png"); err != nil || got != "logo.png" {
+		t.Errorf("valid: got %q err %v", got, err)
+	}
+	// Bad extension.
+	if _, err := validateImage(dir, "logo.svg"); err == nil {
+		t.Error("expected error for .svg")
+	}
+	// Path traversal.
+	if _, err := validateImage(dir, "../secret.png"); err == nil {
+		t.Error("expected error for traversal")
+	}
+	if _, err := validateImage(dir, "sub/logo.png"); err == nil {
+		t.Error("expected error for separator")
+	}
+	// Missing file.
+	if _, err := validateImage(dir, "nope.png"); err == nil {
+		t.Error("expected error for missing file")
 	}
 }
