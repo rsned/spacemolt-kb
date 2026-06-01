@@ -29,7 +29,7 @@ func renderStub(biography string, stats []stubStat) string {
 	if len(stats) > 0 {
 		b.WriteString("stats:\n")
 		for _, s := range stats {
-			fmt.Fprintf(&b, "  - label: %s\n    value: %s\n", s.Label, s.Value)
+			fmt.Fprintf(&b, "  - label: %q\n    value: %q\n", s.Label, s.Value)
 		}
 	}
 	b.WriteString("---\n\n")
