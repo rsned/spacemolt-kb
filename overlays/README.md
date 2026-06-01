@@ -59,5 +59,7 @@ This renders as the "About" section on your page.
 ```
 
 All parts are optional. Images must be `.png`, `.jpg`, `.jpeg`, `.webp`, or
-`.gif` (no SVG), named as a plain filename in the same directory. Raw HTML in the
-body is ignored for safety.
+`.gif` (no SVG), named as a plain filename in the same directory. Keep them
+**320×320 px max** for the time being (the page displays them small, and large
+uploads may be rejected or downscaled later) — `.webp` is preferred to keep the
+repo lean. Raw HTML in the body is ignored for safety.
