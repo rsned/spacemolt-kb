@@ -5,12 +5,17 @@ import (
 	"errors"
 	"fmt"
 	htmltpl "html/template"
+	"image"
+	_ "image/gif"  // register GIF decoder for image.DecodeConfig
+	_ "image/jpeg" // register JPEG decoder for image.DecodeConfig
+	_ "image/png"  // register PNG decoder for image.DecodeConfig
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/yuin/goldmark"
+	_ "golang.org/x/image/webp" // register WebP decoder for image.DecodeConfig
 	"gopkg.in/yaml.v3"
 )
 
@@ -49,9 +54,13 @@ var allowedImageExt = map[string]bool{
 	".png": true, ".jpg": true, ".jpeg": true, ".webp": true, ".gif": true,
 }
 
+// maxImageDim is the largest allowed width or height (px) for an overlay image.
+const maxImageDim = 320
+
 // validateImage checks that name is a bare filename (no separators, no ".."),
-// has an allowed raster extension, and exists in dir. Returns the validated
-// name, or an error describing why it was rejected. Empty name -> ("", nil).
+// has an allowed raster extension, decodes as an image, and fits within
+// maxImageDim on both sides. Returns the validated name, or an error describing
+// why it was rejected. Empty name -> ("", nil).
 func validateImage(dir, name string) (string, error) {
 	if name == "" {
 		return "", nil
@@ -63,8 +72,17 @@ func validateImage(dir, name string) (string, error) {
 	if !allowedImageExt[ext] {
 		return "", fmt.Errorf("image %q has unsupported extension %q", name, ext)
 	}
-	if _, err := os.Stat(filepath.Join(dir, name)); err != nil {
+	f, err := os.Open(filepath.Join(dir, name))
+	if err != nil {
 		return "", fmt.Errorf("image %q not found in overlay dir: %w", name, err)
+	}
+	defer func() { _ = f.Close() }()
+	cfg, _, err := image.DecodeConfig(f)
+	if err != nil {
+		return "", fmt.Errorf("image %q could not be decoded: %w", name, err)
+	}
+	if cfg.Width > maxImageDim || cfg.Height > maxImageDim {
+		return "", fmt.Errorf("image %q is %dx%d px; max is %dx%d", name, cfg.Width, cfg.Height, maxImageDim, maxImageDim)
 	}
 	return name, nil
 }

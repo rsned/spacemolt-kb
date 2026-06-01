@@ -1,11 +1,29 @@
 package main
 
 import (
+	"bytes"
+	"image"
+	"image/color"
+	"image/png"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+// writePNG writes a w×h solid PNG to path for image-validation tests.
+func writePNG(t *testing.T, path string, w, h int) {
+	t.Helper()
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	img.Set(0, 0, color.RGBA{R: 1, G: 2, B: 3, A: 255})
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
 
 func TestSplitFrontmatter(t *testing.T) {
 	withFM := "---\nimage: logo.png\n---\n## Body\n\nHello\n"
@@ -73,7 +91,9 @@ func TestRenderMarkdown(t *testing.T) {
 
 func TestValidateImage(t *testing.T) {
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "logo.png"), []byte("x"), 0o644); err != nil {
+	writePNG(t, filepath.Join(dir, "logo.png"), 64, 64)
+	writePNG(t, filepath.Join(dir, "huge.png"), maxImageDim+1, 10)
+	if err := os.WriteFile(filepath.Join(dir, "bad.png"), []byte("not an image"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -81,9 +101,17 @@ func TestValidateImage(t *testing.T) {
 	if got, err := validateImage(dir, ""); err != nil || got != "" {
 		t.Errorf("empty: got %q err %v", got, err)
 	}
-	// Valid file.
+	// Valid file within bounds.
 	if got, err := validateImage(dir, "logo.png"); err != nil || got != "logo.png" {
 		t.Errorf("valid: got %q err %v", got, err)
+	}
+	// Oversized image is rejected.
+	if _, err := validateImage(dir, "huge.png"); err == nil {
+		t.Errorf("expected error for %dx%d image", maxImageDim+1, 10)
+	}
+	// Non-decodable file is rejected.
+	if _, err := validateImage(dir, "bad.png"); err == nil {
+		t.Error("expected error for undecodable image")
 	}
 	// Bad extension.
 	if _, err := validateImage(dir, "logo.svg"); err == nil {
@@ -182,9 +210,7 @@ func TestLoadOverlay(t *testing.T) {
 
 	// Full overlay: frontmatter (image + ordered stats) + body.
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "logo.png"), []byte("x"), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	writePNG(t, filepath.Join(dir, "logo.png"), 64, 64)
 	writeOverlay(t, dir, "---\nimage: logo.png\nimage_alt: Crest\nstats:\n  - label: Homeworld\n    value: Krynn\n  - label: Founded\n    value: 2387\n---\n## Bio\n\nWe **optimize**.\n")
 	ov, err := loadOverlay(dir)
 	if err != nil {
@@ -209,6 +235,18 @@ func TestLoadOverlay(t *testing.T) {
 	}
 	if ov2.ImageFile != "" {
 		t.Errorf("expected image skipped, got %q", ov2.ImageFile)
+	}
+
+	// Oversized image: overlay still returned, image skipped (warn-not-fail).
+	dirBig := t.TempDir()
+	writePNG(t, filepath.Join(dirBig, "logo.png"), maxImageDim+50, maxImageDim+50)
+	writeOverlay(t, dirBig, "---\nimage: logo.png\n---\nbody")
+	ovBig, err := loadOverlay(dirBig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ovBig.ImageFile != "" {
+		t.Errorf("expected oversized image skipped, got %q", ovBig.ImageFile)
 	}
 
 	// Body-only (no frontmatter).
