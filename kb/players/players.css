@@ -23,3 +23,28 @@
 .detail-page h3 { font-size: 28px; }
 .detail-page .stat-strip { font-size: 1rem; }
 .detail-page .pb-status { font-size: 1rem; }
+
+/* faction-stats used in overlay Profile table on player pages. */
+.faction-stats {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    width: max-content;
+    margin: .85rem 0;
+}
+.faction-stats dt { padding: .25rem 1.5rem .25rem 0; opacity: .65; font-weight: 600; }
+.faction-stats dd {
+    margin: 0;
+    padding: .25rem 0 .25rem 1.5rem;
+    text-align: right;
+    font-weight: 600;
+    border-left: 1px solid hsl(var(--border));
+}
+
+/* Contributor overlay content. */
+.overlay-portrait { float: right; max-width: 120px; max-height: 120px; margin: 0 0 .5rem 1rem; border-radius: 8px; }
+.overlay-stats { margin-top: .35rem; }
+.overlay-credit { font-size: 12px; font-style: italic; margin: 0 0 .4rem; }
+.overlay-body { max-width: 70ch; line-height: 1.65; }
+.overlay-body h1, .overlay-body h2, .overlay-body h3, .overlay-body h4 { font-size: 1.15rem; margin: 1rem 0 .35rem; }
+.overlay-body p { margin: .5rem 0; }
+.overlay-body ul, .overlay-body ol { margin: .5rem 0 .5rem 1.25rem; }
