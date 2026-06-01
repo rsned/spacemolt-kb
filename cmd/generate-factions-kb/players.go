@@ -83,7 +83,7 @@ func loadPlayers(db *sql.DB, shipDetail map[string][]ShipSeen, sightings map[str
 		       primary_color, secondary_color, status_message,
 		       first_seen_utc, last_seen_utc
 		FROM seen_players
-		WHERE username NOT LIKE '[%'`)
+		WHERE username NOT LIKE '[%' AND player_id NOT LIKE 'npc%'`)
 	if err != nil {
 		return nil, fmt.Errorf("query seen_players: %w", err)
 	}

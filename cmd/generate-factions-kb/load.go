@@ -135,7 +135,7 @@ func loadRosters(db *sql.DB, byID map[string]*Faction, shipsByPlayer map[string]
 	rows, err := db.Query(`
 		SELECT faction_id, player_id, username, last_seen_utc
 		FROM seen_players
-		WHERE faction_id IS NOT NULL AND faction_id != '' AND username NOT LIKE '[%'`)
+		WHERE faction_id IS NOT NULL AND faction_id != '' AND username NOT LIKE '[%' AND player_id NOT LIKE 'npc%'`)
 	if err != nil {
 		return fmt.Errorf("query seen_players rosters: %w", err)
 	}

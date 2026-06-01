@@ -41,6 +41,7 @@
         <p class="api-note">Official API member_count: 0 (hidden from outsiders); roster below is reconstructed from sightings.</p>
 
         <h3>Members (22)</h3>
+
         <table class="sortable">
             <thead><tr><th class="sortable">Username</th><th class="sortable">Role</th><th>Ships seen</th><th class="sortable">Last seen</th></tr></thead>
             <tbody>
@@ -48,19 +49,19 @@
                     <td><a href="../../players/peon12-95dd72ba/">Peon12</a></td>
                     <td>—</td>
                     <td>glacius</td>
-                    <td data-sort="2026-05-31T17:35:24Z" title="2026-05-31T17:35:24Z">8h ago</td>
+                    <td data-sort="2026-05-31T17:35:24Z" title="2026-05-31T17:35:24Z">9h ago</td>
                 </tr>
                 <tr>
                     <td><a href="../../players/peon7-81ee290a/">Peon7</a></td>
                     <td>—</td>
                     <td>archimedes</td>
-                    <td data-sort="2026-05-31T17:35:24Z" title="2026-05-31T17:35:24Z">8h ago</td>
+                    <td data-sort="2026-05-31T17:35:24Z" title="2026-05-31T17:35:24Z">9h ago</td>
                 </tr>
                 <tr>
                     <td><a href="../../players/wrecker-3c9ca32a/">Wrecker</a></td>
                     <td>—</td>
                     <td>theoria</td>
-                    <td data-sort="2026-05-31T17:35:24Z" title="2026-05-31T17:35:24Z">8h ago</td>
+                    <td data-sort="2026-05-31T17:35:24Z" title="2026-05-31T17:35:24Z">9h ago</td>
                 </tr>
                 <tr>
                     <td><a href="../../players/peon3-478f6cd1/">Peon3</a></td>
@@ -184,6 +185,7 @@
 
 
 
+
     </main>
     <script>
     (function() {
@@ -195,6 +197,32 @@
             localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
         });
     })();
+    </script>    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "▲" : "▼";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
     </script>
 </body>
 </html>

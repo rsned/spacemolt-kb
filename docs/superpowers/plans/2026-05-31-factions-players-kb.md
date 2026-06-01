@@ -498,7 +498,7 @@ import (
 // loadFactions loads every faction with its reconstructed roster (from
 // seen_players, overlaid with official faction_members), bases, relations, and
 // facilities. shipsByPlayer maps player_id -> distinct ship class names.
-func loadFactions(db *sql.DB, shipsByPlayer map[string][]string, knownSystemSlugs map[string]string) ([]*Faction, error) {
+func loadFactions(db *sql.DB, shipsByPlayer map[string][]string) ([]*Faction, error) {
 	rows, err := db.Query(`
 		SELECT faction_id, name, tag, leader_username, treasury, member_count,
 		       owned_bases, description, charter, emblem,
@@ -1379,7 +1379,7 @@ func main() {
 	}
 	sysSlugs := knownSystemSlugs(systemsDir)
 
-	factions, err := loadFactions(db, shipClasses, sysSlugs)
+	factions, err := loadFactions(db, shipClasses)
 	if err != nil {
 		log.Fatalf("load factions: %v", err)
 	}

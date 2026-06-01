@@ -83,6 +83,34 @@ var themeScript = `    <script>
     })();
     </script>`
 
+var sortScript = `    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "▲" : "▼";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+    </script>`
+
 // --- Faction index ---
 var factionIndexTmpl = `<!DOCTYPE html>
 <html lang="en">
@@ -142,6 +170,7 @@ var factionDetailTmpl = `<!DOCTYPE html>
         <p class="api-note">Official API member_count: {{.OfficialMemberCount}} (hidden from outsiders); roster below is reconstructed from sightings.</p>
 
         <h3>Members ({{.MemberCount}})</h3>
+{{if .Members}}
         <table class="sortable">
             <thead><tr><th class="sortable">Username</th><th class="sortable">Role</th><th>Ships seen</th><th class="sortable">Last seen</th></tr></thead>
             <tbody>
@@ -155,6 +184,9 @@ var factionDetailTmpl = `<!DOCTYPE html>
 {{- end}}
             </tbody>
         </table>
+{{else}}
+        <p class="text-muted">No members sighted yet.</p>
+{{end}}
 
 {{if .Bases}}
         <h3>Bases ({{len .Bases}})</h3>
@@ -192,7 +224,7 @@ var factionDetailTmpl = `<!DOCTYPE html>
         </table>
 {{end}}
     </main>
-` + themeScript + `
+` + themeScript + sortScript + `
 </body>
 </html>
 `
@@ -226,7 +258,7 @@ var playerIndexTmpl = `<!DOCTYPE html>
             </tbody>
         </table>
     </main>
-` + themeScript + `
+` + themeScript + sortScript + `
 </body>
 </html>
 `
@@ -285,7 +317,7 @@ var playerDetailTmpl = `<!DOCTYPE html>
         </table>
 {{end}}
     </main>
-` + themeScript + `
+` + themeScript + sortScript + `
 </body>
 </html>
 `

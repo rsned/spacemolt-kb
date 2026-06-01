@@ -41,6 +41,7 @@
         <p class="api-note">Official API member_count: 0 (hidden from outsiders); roster below is reconstructed from sightings.</p>
 
         <h3>Members (33)</h3>
+
         <table class="sortable">
             <thead><tr><th class="sortable">Username</th><th class="sortable">Role</th><th>Ships seen</th><th class="sortable">Last seen</th></tr></thead>
             <tbody>
@@ -48,13 +49,13 @@
                     <td><a href="../../players/storgio6-9587a4fb/">storgio6</a></td>
                     <td>—</td>
                     <td>cobble</td>
-                    <td data-sort="2026-06-01T02:10:17Z" title="2026-06-01T02:10:17Z">20m ago</td>
+                    <td data-sort="2026-06-01T02:10:17Z" title="2026-06-01T02:10:17Z">27m ago</td>
                 </tr>
                 <tr>
                     <td><a href="../../players/naomi2-328ad041/">naomi2</a></td>
                     <td>—</td>
                     <td>dividend</td>
-                    <td data-sort="2026-06-01T02:06:27Z" title="2026-06-01T02:06:27Z">23m ago</td>
+                    <td data-sort="2026-06-01T02:06:27Z" title="2026-06-01T02:06:27Z">31m ago</td>
                 </tr>
                 <tr>
                     <td><a href="../../players/capivo-f85e1a04/">CapIvo</a></td>
@@ -90,13 +91,13 @@
                     <td><a href="../../players/storgio14-aed99aea/">storgio14</a></td>
                     <td>—</td>
                     <td>prospect</td>
-                    <td data-sort="2026-05-31T19:37:37Z" title="2026-05-31T19:37:37Z">6h ago</td>
+                    <td data-sort="2026-05-31T19:37:37Z" title="2026-05-31T19:37:37Z">7h ago</td>
                 </tr>
                 <tr>
                     <td><a href="../../players/storgio12-fd8ea69d/">storgio12</a></td>
                     <td>—</td>
                     <td>margin</td>
-                    <td data-sort="2026-05-31T15:36:48Z" title="2026-05-31T15:36:48Z">10h ago</td>
+                    <td data-sort="2026-05-31T15:36:48Z" title="2026-05-31T15:36:48Z">11h ago</td>
                 </tr>
                 <tr>
                     <td><a href="../../players/storgio17-a15db98a/">storgio17</a></td>
@@ -250,6 +251,7 @@
 
 
 
+
     </main>
     <script>
     (function() {
@@ -261,6 +263,32 @@
             localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
         });
     })();
+    </script>    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "▲" : "▼";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
     </script>
 </body>
 </html>
