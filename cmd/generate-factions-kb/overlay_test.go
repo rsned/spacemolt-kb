@@ -142,6 +142,31 @@ func TestAttachFactionOverlays(t *testing.T) {
 	}
 }
 
+func TestAttachPlayerOverlays(t *testing.T) {
+	root := t.TempDir()
+	// Overlay for player "abc"; an orphan dir "ghost" with no matching player.
+	mk := func(id, profile string) {
+		d := filepath.Join(root, "players", id)
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(d, "profile.md"), []byte(profile), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mk("abc", "body for abc")
+	mk("ghost", "orphan body")
+
+	players := []*Player{{ID: "abc"}, {ID: "xyz"}}
+	attachPlayerOverlays(players, root)
+	if players[0].Overlay == nil {
+		t.Error("player abc should have an overlay")
+	}
+	if players[1].Overlay != nil {
+		t.Error("player xyz should have no overlay")
+	}
+}
+
 func writeOverlay(t *testing.T, dir, profile string) {
 	t.Helper()
 	if err := os.WriteFile(filepath.Join(dir, "profile.md"), []byte(profile), 0o644); err != nil {

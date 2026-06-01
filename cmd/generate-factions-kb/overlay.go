@@ -111,37 +111,33 @@ func copyOverlayImage(srcDir, name, destDir string) {
 // attachFactionOverlays loads overlays/factions/<id>/ for each faction and warns
 // about overlay dirs that match no current faction.
 func attachFactionOverlays(factions []*Faction, root string) {
-	matched := map[string]bool{}
+	entityIDs := make(map[string]bool, len(factions))
 	for _, f := range factions {
+		entityIDs[f.ID] = true
 		ov, err := loadOverlay(filepath.Join(root, "factions", f.ID))
 		if err != nil {
 			log.Printf("warning: faction overlay %s: %v", f.ID, err)
 			continue
 		}
-		if ov != nil {
-			f.Overlay = ov
-			matched[f.ID] = true
-		}
+		f.Overlay = ov
 	}
-	warnOrphanOverlays(filepath.Join(root, "factions"), matched)
+	warnOrphanOverlays(filepath.Join(root, "factions"), entityIDs)
 }
 
 // attachPlayerOverlays loads overlays/players/<id>/ for each player and warns
 // about overlay dirs that match no current player.
 func attachPlayerOverlays(players []*Player, root string) {
-	matched := map[string]bool{}
+	entityIDs := make(map[string]bool, len(players))
 	for _, p := range players {
+		entityIDs[p.ID] = true
 		ov, err := loadOverlay(filepath.Join(root, "players", p.ID))
 		if err != nil {
 			log.Printf("warning: player overlay %s: %v", p.ID, err)
 			continue
 		}
-		if ov != nil {
-			p.Overlay = ov
-			matched[p.ID] = true
-		}
+		p.Overlay = ov
 	}
-	warnOrphanOverlays(filepath.Join(root, "players"), matched)
+	warnOrphanOverlays(filepath.Join(root, "players"), entityIDs)
 }
 
 // warnOrphanOverlays logs any subdirectory of dir whose name was not matched.
