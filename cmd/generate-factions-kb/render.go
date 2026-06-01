@@ -207,6 +207,7 @@ var factionDetailTmpl = `<!DOCTYPE html>
 ` + siteHeader2 + `
     <main class="container page-content detail-page">
         <div class="faction-banner"{{if or .PrimaryColor .SecondaryColor}} style="{{if .PrimaryColor}}--faction-accent:{{.PrimaryColor}};{{end}}{{if .SecondaryColor}}--faction-accent2:{{.SecondaryColor}};{{end}}"{{end}}>
+            {{if and .Overlay .Overlay.ImageFile}}<img class="overlay-logo" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">{{end}}
             <h2>{{.Name}} <span class="fb-tag">[{{.Tag}}]</span></h2>
             <div class="fb-id text-muted">{{.ID}}</div>
             {{if .FoundedUTC}}<div class="text-muted fb-founded">Founded {{shortDate .FoundedUTC}}</div>{{end}}
@@ -221,6 +222,19 @@ var factionDetailTmpl = `<!DOCTYPE html>
         </dl>
         <p class="api-note">Official API member_count: {{.OfficialMemberCount}} (hidden from outsiders); roster below is reconstructed from sightings.</p>
 
+{{if and .Overlay .Overlay.Stats}}
+        <h3>Profile</h3>
+        <dl class="faction-stats overlay-stats">
+{{- range .Overlay.Stats}}
+            <dt>{{.Label}}</dt><dd>{{.Value}}</dd>
+{{- end}}
+        </dl>
+{{end}}
+{{if and .Overlay .Overlay.BodyHTML}}
+        <h3>About</h3>
+        <p class="overlay-credit text-muted">Community-contributed profile.</p>
+        <div class="overlay-body">{{.Overlay.BodyHTML}}</div>
+{{end}}
         <h3>Members ({{.MemberCount}})</h3>
 {{if .Members}}
         <ul class="member-list">
@@ -321,12 +335,26 @@ var playerDetailTmpl = `<!DOCTYPE html>
 ` + siteHeader2 + `
     <main class="container page-content detail-page">
         <div class="player-banner"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
+            {{if and .Overlay .Overlay.ImageFile}}<img class="overlay-portrait" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">{{end}}
             <h2>{{.Username}}{{if .FactionSlug}} <a class="pb-faction" href="../../factions/{{.FactionSlug}}/">[{{.FactionTag}}]</a>{{else if .FactionTag}}<span class="pb-faction">[{{.FactionTag}}]</span>{{end}}</h2>
             <div class="pb-id">{{.ID}}</div>
             {{if .ClanTag}}<div class="pb-clan">clan {{.ClanTag}}</div>{{end}}
             {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
         </div>
 
+{{if and .Overlay .Overlay.Stats}}
+        <h3>Profile</h3>
+        <dl class="faction-stats overlay-stats">
+{{- range .Overlay.Stats}}
+            <dt>{{.Label}}</dt><dd>{{.Value}}</dd>
+{{- end}}
+        </dl>
+{{end}}
+{{if and .Overlay .Overlay.BodyHTML}}
+        <h3>About</h3>
+        <p class="overlay-credit text-muted">Community-contributed profile.</p>
+        <div class="overlay-body">{{.Overlay.BodyHTML}}</div>
+{{end}}
         <div class="stat-strip">
             <div class="ss-item"><strong>{{shortDate .FirstSeenUTC}}</strong> first seen</div>
             <div class="ss-item"><strong>{{rel .LastSeenUTC}}</strong> last seen</div>

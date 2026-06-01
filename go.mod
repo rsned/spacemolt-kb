@@ -7,7 +7,9 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/mattn/go-sqlite3 v1.14.44
 	github.com/ojrac/opensimplex-go v1.0.2
+	github.com/yuin/goldmark v1.8.2
 	golang.org/x/text v0.27.0
+	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.46.1
 )
 
