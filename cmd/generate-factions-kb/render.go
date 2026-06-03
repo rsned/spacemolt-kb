@@ -216,7 +216,7 @@ var factionDetailTmpl = `<!DOCTYPE html>
         </div>
 
         <dl class="faction-stats">
-            <dt>Leader</dt><dd>{{dash .LeaderName}}</dd>
+            <dt>Leader</dt><dd>{{if .LeaderSlug}}<a href="../../players/{{.LeaderSlug}}/">{{.LeaderName}}</a>{{else}}{{dash .LeaderName}}{{end}}</dd>
             <dt>Members</dt><dd>{{.MemberCount}}</dd>
             <dt>Bases</dt><dd>{{.OwnedBases}}</dd>
         </dl>

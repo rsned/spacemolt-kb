@@ -158,6 +158,19 @@ func loadRosters(db *sql.DB, byID map[string]*Faction, shipsByPlayer map[string]
 	if err := rows.Err(); err != nil {
 		return fmt.Errorf("iterate seen_players: %w", err)
 	}
+	// Link each faction's leader to their player page when the leader appears in
+	// the roster (which guarantees a generated page exists to link to).
+	for _, f := range byID {
+		if f.LeaderName == "" {
+			continue
+		}
+		for _, m := range f.Members {
+			if m.Username == f.LeaderName {
+				f.LeaderSlug = m.Slug
+				break
+			}
+		}
+	}
 	return nil
 }
 

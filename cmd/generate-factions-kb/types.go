@@ -9,6 +9,7 @@ type Faction struct {
 	Tag                 string
 	Slug                string
 	LeaderName          string
+	LeaderSlug          string // player_id of the leader when they have a page, else ""
 	Treasury            int64
 	OwnedBases          int
 	Description         string
