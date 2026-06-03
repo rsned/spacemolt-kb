@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
 	"strings"
 )
@@ -23,6 +24,7 @@ func loadFactions(db *sql.DB, shipsByPlayer map[string][]string) ([]*Faction, er
 	defer func() { _ = rows.Close() }()
 
 	var factions []*Faction
+	seenSlug := map[string]string{} // slug -> faction_id, to detect collisions
 	for rows.Next() {
 		f := &Faction{}
 		var name, tag, leader, desc, charter, emblem, pc, sc, founded sql.NullString
@@ -44,8 +46,15 @@ func loadFactions(db *sql.DB, shipsByPlayer map[string][]string) ([]*Faction, er
 		f.SecondaryColor = sc.String
 		f.FoundedUTC = founded.String
 
-		// URL path is the stable faction_id (usernames/tags can be unicode).
-		f.Slug = f.ID
+		// URL path is the lowercase, underscore-normalized tag; fall back to the
+		// faction_id when the tag is empty or collides after normalization.
+		slug := factionSlug(f.Tag, f.ID)
+		if other, dup := seenSlug[slug]; dup {
+			log.Printf("warning: faction tag slug %q (%s) collides with %s; using id path", slug, f.ID, other)
+			slug = f.ID
+		}
+		seenSlug[slug] = f.ID
+		f.Slug = slug
 
 		factions = append(factions, f)
 	}
