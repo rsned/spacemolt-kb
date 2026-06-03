@@ -1,4 +1,21 @@
 /* Faction KB pages. Builds on smui.css. */
+/* Sort toolbar above the faction card grid. */
+.sort-bar { display: flex; align-items: center; gap: .5rem; margin: 1rem 0 .25rem; }
+.sort-bar .sort-label { font-size: .85rem; opacity: .7; }
+.sort-btn {
+    font: inherit;
+    font-size: .85rem;
+    padding: .3rem .7rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 6px;
+    background: hsl(var(--smui-surface-2) / 0.4);
+    color: inherit;
+    cursor: pointer;
+}
+.sort-btn:hover { background: hsl(var(--smui-surface-2) / 0.8); }
+.sort-btn[aria-pressed="true"] { border-color: hsl(var(--smui-frost-2)); font-weight: 600; }
+.sort-btn .sort-arrow { opacity: .8; }
+
 .faction-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

@@ -164,6 +164,52 @@ var sortScript = `    <script>
     });
     </script>`
 
+// factionSortScript reorders the faction cards in place by name or member count.
+// Clicking the active button toggles its direction. Default render is members
+// descending, matching the Members button's initial pressed/arrow state.
+var factionSortScript = `    <script>
+    (function() {
+        var grid = document.querySelector('.faction-cards');
+        if (!grid) return;
+        var buttons = document.querySelectorAll('.sort-bar .sort-btn');
+        function apply(key, dir) {
+            var cards = Array.prototype.slice.call(grid.querySelectorAll('.faction-card'));
+            cards.sort(function(a, b) {
+                var cmp;
+                if (key === 'members') {
+                    cmp = (parseInt(a.dataset.members, 10) || 0) - (parseInt(b.dataset.members, 10) || 0);
+                } else {
+                    cmp = (a.dataset.name || '').toLowerCase().localeCompare((b.dataset.name || '').toLowerCase());
+                }
+                if (cmp === 0) {
+                    cmp = (a.dataset.name || '').toLowerCase().localeCompare((b.dataset.name || '').toLowerCase());
+                }
+                return dir === 'asc' ? cmp : -cmp;
+            });
+            cards.forEach(function(c) { grid.appendChild(c); });
+        }
+        buttons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var dir = btn.dataset.dir;
+                if (btn.getAttribute('aria-pressed') === 'true') {
+                    dir = dir === 'asc' ? 'desc' : 'asc';
+                }
+                btn.dataset.dir = dir;
+                buttons.forEach(function(b) {
+                    b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+                    var a = b.querySelector('.sort-arrow');
+                    if (a) a.remove();
+                });
+                var arrow = document.createElement('span');
+                arrow.className = 'sort-arrow';
+                arrow.innerHTML = dir === 'asc' ? ' &#9650;' : ' &#9660;';
+                btn.appendChild(arrow);
+                apply(btn.dataset.sort, dir);
+            });
+        });
+    })();
+    </script>`
+
 // --- Faction index ---
 var factionIndexTmpl = `<!DOCTYPE html>
 <html lang="en">
@@ -179,16 +225,21 @@ var factionIndexTmpl = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Factions</h2>
         <p class="text-muted mt-1">{{len .}} player factions. Member rosters are reconstructed from sightings &mdash; the game API reports member counts as 0 to outsiders.</p>
+        <div class="sort-bar">
+            <span class="sort-label">Sort:</span>
+            <button type="button" class="sort-btn" data-sort="members" data-dir="desc" aria-pressed="true">Members <span class="sort-arrow">&#9660;</span></button>
+            <button type="button" class="sort-btn" data-sort="name" data-dir="asc" aria-pressed="false">Name</button>
+        </div>
         <div class="faction-cards">
 {{- range .}}
-            <a href="{{.Slug}}/" class="faction-card"{{if or .PrimaryColor .SecondaryColor}} style="{{if .PrimaryColor}}--faction-accent:{{.PrimaryColor}};{{end}}{{if .SecondaryColor}}--faction-accent2:{{.SecondaryColor}};{{end}}"{{end}}>
+            <a href="{{.Slug}}/" class="faction-card" data-name="{{.Name}}" data-members="{{.MemberCount}}"{{if or .PrimaryColor .SecondaryColor}} style="{{if .PrimaryColor}}--faction-accent:{{.PrimaryColor}};{{end}}{{if .SecondaryColor}}--faction-accent2:{{.SecondaryColor}};{{end}}"{{end}}>
                 <div class="fc-name">{{.Name}} <span class="fc-tag">[{{.Tag}}]</span></div>
                 <div class="fc-stats">{{.MemberCount}} members &middot; {{.OwnedBases}} bases</div>
             </a>
 {{- end}}
         </div>
     </main>
-` + themeScript + `
+` + themeScript + factionSortScript + `
 </body>
 </html>
 `
