@@ -112,6 +112,13 @@ func TestParseStarClass(t *testing.T) {
 		{"V only invalid (no spectral)", "V", "", -1, "", true},
 		{"empty string", "", "", -1, "", true},
 		{"invalid spectral", "X9 V", "", -1, "", true},
+		{"WR generic", "WR", "WR", -1, "", false},
+		{"WN nitrogen sequence", "WN5", "WN", 5, "", false},
+		{"WC carbon sequence", "WC8", "WC", 8, "", false},
+		{"WO oxygen sequence", "WO2", "WO", 2, "", false},
+		{"WNh hydrogen-rich", "WN6h", "WN", 6, "", false},
+		{"WR high subtype", "WN11", "WN", 11, "", false},
+		{"WR lowercase", "wr", "WR", -1, "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

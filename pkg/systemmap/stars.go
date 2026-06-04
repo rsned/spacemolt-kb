@@ -36,6 +36,13 @@ var spectralTypes = map[string]SpectralType{
 	"DQ": {Letter: "DQ", Color: "#f0e8d8", Name: "White Dwarf (carbon)", TempRange: "8,000–18,000 K"},
 	"DZ": {Letter: "DZ", Color: "#e8f0f8", Name: "White Dwarf (metal)", TempRange: "5,000–15,000 K"},
 	"DX": {Letter: "DX", Color: "#e8e8e8", Name: "White Dwarf (unclassifiable)", TempRange: "unknown"},
+	// Wolf–Rayet stars: evolved, hydrogen-depleted massive stars (and some young
+	// extremely massive WNh stars), hotter than all main-sequence classes, with
+	// the WN/WC/WO sequences distinguished by nitrogen/carbon/oxygen emission.
+	"WR": {Letter: "WR", Color: "#aab0ff", Name: "Wolf–Rayet", TempRange: "20,000–210,000 K"},
+	"WN": {Letter: "WN", Color: "#a8b4ff", Name: "Wolf–Rayet (nitrogen)", TempRange: "20,000–210,000 K"},
+	"WC": {Letter: "WC", Color: "#bcb0ff", Name: "Wolf–Rayet (carbon)", TempRange: "20,000–210,000 K"},
+	"WO": {Letter: "WO", Color: "#c6a8ff", Name: "Wolf–Rayet (oxygen)", TempRange: "20,000–210,000 K"},
 	// Exotic objects
 	"BH": {Letter: "BH", Color: "#1a0033", Name: "Black Hole", TempRange: "Singularity"},
 }
@@ -207,7 +214,8 @@ func GetLuminosityMultiplier(luminosity string) float64 {
 //   - Without luminosity (defaults to V): "M9"
 //   - Without subtype (defaults to 5): "G V"
 //   - White dwarf types: "DA", "DB", "DC", "DO", "DQ", "DZ", "DX", "DAP", "DAV", etc.
-// Returns spectral type (OBAFGKMLTY or white dwarf type), subtype (0-9, -1 if unknown), luminosity class, and error.
+//   - Wolf–Rayet types: "WR", "WN", "WC", "WO", with optional subtype and 'h' (e.g. "WN6h")
+// Returns spectral type (OBAFGKMLTY, white dwarf, or Wolf–Rayet type), subtype (-1 if unknown), luminosity class, and error.
 func ParseStarClass(class string) (string, int, string, error) {
 	class = strings.TrimSpace(class)
 	if class == "" {
@@ -232,6 +240,22 @@ func ParseStarClass(class string) (string, int, string, error) {
 			wdType = wdType + secondary // e.g., "DA" + "P" = "DAP"
 		}
 		return wdType, -1, "VII", nil // White dwarfs are always luminosity class VII
+	}
+
+	// Wolf–Rayet stars: "WR" (generic) and the WN/WC/WO sequences, with an
+	// optional subtype number (2–11) and an optional 'h' suffix for the
+	// hydrogen-rich WNh stars (e.g. "WN6h"). They sit off the main MK sequence
+	// and carry no Yerkes luminosity class, so luminosity is returned empty.
+	reWR := regexp.MustCompile(`(?i)^(W[NCRO])([0-9]{1,2})?h?$`)
+	if m := reWR.FindStringSubmatch(class); m != nil {
+		spectral := strings.ToUpper(m[1])
+		subtype := -1
+		if m[2] != "" {
+			if v, err := strconv.Atoi(m[2]); err == nil {
+				subtype = v
+			}
+		}
+		return spectral, subtype, "", nil
 	}
 
 	// Try splitting on space first
