@@ -2,6 +2,8 @@
 
 Static site generator and SVG rendering engine for the [Spacemolt](https://spacemolt.com) space game. Produces a browsable HTML knowledge base covering systems, items, recipes, skills, and ships, along with procedurally rendered star system maps.
 
+The live site is published at [https://rsned.github.io/spacemolt-kb/](https://rsned.github.io/spacemolt-kb/).
+
 ## Tools
 
 ### `cmd/generate-items-kb`
