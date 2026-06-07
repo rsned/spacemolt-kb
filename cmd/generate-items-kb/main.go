@@ -40,6 +40,72 @@ type Item struct {
 	Hazardous  bool
 	Hidden     bool
 
+	// Module classification (catalog overlay; present on equippable modules).
+	Type       string
+	TypeID     string
+	Slot       string
+	Special    string
+	CPUUsage   int
+	PowerUsage int
+
+	// Weapon stats.
+	Damage        int
+	DamageType    string
+	WeaponRange   int
+	Reach         int
+	Cooldown      int
+	AmmoType      string
+	MagazineSize  int
+	AccuracyBonus int
+	TrackingBonus int
+
+	// Defense / resistance stats.
+	ArmorBonus          int
+	HullBonus           int
+	ShieldBonus         int
+	ShieldRechargeBonus int
+	ArmorRepairRate     int
+	DamageReduction     float64
+	CloakStrength       int
+	SignatureBonus      int
+	ArmorBypassBonus    float64
+	ShieldBypassBonus   float64
+	ResistanceBonus     map[string]float64
+
+	// Mining / survey stats.
+	MiningPower int
+	SurveyPower int
+	SurveyRange int
+
+	// Utility stats.
+	SpeedBonus     int
+	CargoBonus     int
+	ScannerPower   int
+	CPUBonus       int
+	DroneBandwidth int
+	DroneCapacity  int
+	FuelEfficiency float64
+	MaxFuelBonus   int
+	TowSpeedPenalty int
+
+	// Penalties.
+	HullPenalty  int
+	SpeedPenalty int
+
+	// Requirements / flags.
+	RequiredSkills map[string]int
+	QuestItem      bool
+	ExtractedBy    string
+	RegionLock     []string
+
+	// Passenger berths (passenger-hauler modules).
+	PassengerEconomyBerths  int
+	PassengerBusinessBerths int
+	PassengerFirstBerths    int
+
+	// Consumable / ammo effect.
+	Effect *ItemEffect
+
 	HasImage bool
 
 	ProducedBy  []ProducedBy
@@ -47,6 +113,18 @@ type Item struct {
 	UsedInShips []ShipBuildRef
 	BuiltBy     []BuiltByFacility
 	BoM *bom.BoMResult
+}
+
+// ItemEffect is the consumable/ammo effect block from the catalog. Ammo holds
+// projectile modifiers with mixed numeric/bool values, kept generic so new
+// server-side modifiers render without code changes.
+type ItemEffect struct {
+	Type     string         `json:"type"`
+	Subtype  string         `json:"subtype"`
+	Stat     string         `json:"stat"`
+	Amount   int            `json:"amount"`
+	Duration int            `json:"duration"`
+	Ammo     map[string]any `json:"ammo"`
 }
 
 // BuiltByFacility describes a facility whose recipe produces this item.
@@ -108,6 +186,9 @@ type Recipe struct {
 	Category     string
 	CraftingTime int
 	Hidden       bool
+	FacilityOnly bool
+	NoRecycle    bool
+	FuelOutput   int
 	Inputs       []RecipeItem
 	Outputs      []RecipeItem
 }
@@ -1005,6 +1086,63 @@ func loadItemOverlay(catalogPath string, items map[string]*Item) error {
 			PowerBonus int    `json:"power_bonus"`
 			Hazardous  bool   `json:"hazardous"`
 			Hidden     bool   `json:"hidden"`
+
+			Type       string `json:"type"`
+			TypeID     string `json:"type_id"`
+			Slot       string `json:"slot"`
+			Special    string `json:"special"`
+			CPUUsage   int    `json:"cpu_usage"`
+			PowerUsage int    `json:"power_usage"`
+
+			Damage        int    `json:"damage"`
+			DamageType    string `json:"damage_type"`
+			WeaponRange   int    `json:"range"`
+			Reach         int    `json:"reach"`
+			Cooldown      int    `json:"cooldown"`
+			AmmoType      string `json:"ammo_type"`
+			MagazineSize  int    `json:"magazine_size"`
+			AccuracyBonus int    `json:"accuracy_bonus"`
+			TrackingBonus int    `json:"tracking_bonus"`
+
+			ArmorBonus          int                `json:"armor_bonus"`
+			HullBonus           int                `json:"hull_bonus"`
+			ShieldBonus         int                `json:"shield_bonus"`
+			ShieldRechargeBonus int                `json:"shield_recharge_bonus"`
+			ArmorRepairRate     int                `json:"armor_repair_rate"`
+			DamageReduction     float64            `json:"damage_reduction"`
+			CloakStrength       int                `json:"cloak_strength"`
+			SignatureBonus      int                `json:"signature_bonus"`
+			ArmorBypassBonus    float64            `json:"armor_bypass_bonus"`
+			ShieldBypassBonus   float64            `json:"shield_bypass_bonus"`
+			ResistanceBonus     map[string]float64 `json:"resistance_bonus"`
+
+			MiningPower int `json:"mining_power"`
+			SurveyPower int `json:"survey_power"`
+			SurveyRange int `json:"survey_range"`
+
+			SpeedBonus      int     `json:"speed_bonus"`
+			CargoBonus      int     `json:"cargo_bonus"`
+			ScannerPower    int     `json:"scanner_power"`
+			CPUBonus        int     `json:"cpu_bonus"`
+			DroneBandwidth  int     `json:"drone_bandwidth"`
+			DroneCapacity   int     `json:"drone_capacity"`
+			FuelEfficiency  float64 `json:"fuel_efficiency"`
+			MaxFuelBonus    int     `json:"max_fuel_bonus"`
+			TowSpeedPenalty int     `json:"tow_speed_penalty"`
+
+			HullPenalty  int `json:"hull_penalty"`
+			SpeedPenalty int `json:"speed_penalty"`
+
+			RequiredSkills map[string]int `json:"required_skills"`
+			QuestItem      bool           `json:"quest_item"`
+			ExtractedBy    string         `json:"extracted_by"`
+			RegionLock     []string       `json:"region_lock"`
+
+			PassengerEconomyBerths  int `json:"passenger_economy_berths"`
+			PassengerBusinessBerths int `json:"passenger_business_berths"`
+			PassengerFirstBerths    int `json:"passenger_first_berths"`
+
+			Effect *ItemEffect `json:"effect"`
 		} `json:"items"`
 	}
 	if err := json.Unmarshal(data, &catalog); err != nil {
@@ -1012,13 +1150,344 @@ func loadItemOverlay(catalogPath string, items map[string]*Item) error {
 	}
 
 	for _, ci := range catalog.Items {
-		if it, ok := items[ci.ID]; ok {
-			it.PowerBonus = ci.PowerBonus
-			it.Hazardous = ci.Hazardous
-			it.Hidden = ci.Hidden
+		it, ok := items[ci.ID]
+		if !ok {
+			continue
 		}
+		it.PowerBonus = ci.PowerBonus
+		it.Hazardous = ci.Hazardous
+		it.Hidden = ci.Hidden
+
+		it.Type = ci.Type
+		it.TypeID = ci.TypeID
+		it.Slot = ci.Slot
+		it.Special = ci.Special
+		it.CPUUsage = ci.CPUUsage
+		it.PowerUsage = ci.PowerUsage
+
+		it.Damage = ci.Damage
+		it.DamageType = ci.DamageType
+		it.WeaponRange = ci.WeaponRange
+		it.Reach = ci.Reach
+		it.Cooldown = ci.Cooldown
+		it.AmmoType = ci.AmmoType
+		it.MagazineSize = ci.MagazineSize
+		it.AccuracyBonus = ci.AccuracyBonus
+		it.TrackingBonus = ci.TrackingBonus
+
+		it.ArmorBonus = ci.ArmorBonus
+		it.HullBonus = ci.HullBonus
+		it.ShieldBonus = ci.ShieldBonus
+		it.ShieldRechargeBonus = ci.ShieldRechargeBonus
+		it.ArmorRepairRate = ci.ArmorRepairRate
+		it.DamageReduction = ci.DamageReduction
+		it.CloakStrength = ci.CloakStrength
+		it.SignatureBonus = ci.SignatureBonus
+		it.ArmorBypassBonus = ci.ArmorBypassBonus
+		it.ShieldBypassBonus = ci.ShieldBypassBonus
+		it.ResistanceBonus = ci.ResistanceBonus
+
+		it.MiningPower = ci.MiningPower
+		it.SurveyPower = ci.SurveyPower
+		it.SurveyRange = ci.SurveyRange
+
+		it.SpeedBonus = ci.SpeedBonus
+		it.CargoBonus = ci.CargoBonus
+		it.ScannerPower = ci.ScannerPower
+		it.CPUBonus = ci.CPUBonus
+		it.DroneBandwidth = ci.DroneBandwidth
+		it.DroneCapacity = ci.DroneCapacity
+		it.FuelEfficiency = ci.FuelEfficiency
+		it.MaxFuelBonus = ci.MaxFuelBonus
+		it.TowSpeedPenalty = ci.TowSpeedPenalty
+
+		it.HullPenalty = ci.HullPenalty
+		it.SpeedPenalty = ci.SpeedPenalty
+
+		it.RequiredSkills = ci.RequiredSkills
+		it.QuestItem = ci.QuestItem
+		it.ExtractedBy = ci.ExtractedBy
+		it.RegionLock = ci.RegionLock
+
+		it.PassengerEconomyBerths = ci.PassengerEconomyBerths
+		it.PassengerBusinessBerths = ci.PassengerBusinessBerths
+		it.PassengerFirstBerths = ci.PassengerFirstBerths
+
+		it.Effect = ci.Effect
 	}
 	return nil
+}
+
+// itemStatsHTML renders the module/combat/utility stat cards for an item from
+// the catalog overlay. Sections are only emitted when they contain data, so
+// non-module items (ores, materials) produce nothing.
+func itemStatsHTML(it *Item) htmltpl.HTML {
+	esc := htmltpl.HTMLEscapeString
+	row := func(label, val string) string {
+		return `<tr><td class="kv-label">` + esc(label) + `</td><td>` + val + `</td></tr>`
+	}
+	num := func(label string, v int) string {
+		if v == 0 {
+			return ""
+		}
+		return row(label, fmt.Sprintf("%d", v))
+	}
+	// bonus renders a signed value with a positive/negative colour class.
+	bonus := func(label string, v int) string {
+		if v == 0 {
+			return ""
+		}
+		if v > 0 {
+			return row(label, fmt.Sprintf(`<span class="stat-positive">+%d</span>`, v))
+		}
+		return row(label, fmt.Sprintf(`<span class="stat-negative">%d</span>`, v))
+	}
+	// penalty renders a positive magnitude as a negative-looking stat.
+	penalty := func(label string, v int) string {
+		if v == 0 {
+			return ""
+		}
+		return row(label, fmt.Sprintf(`<span class="stat-negative">-%d</span>`, v))
+	}
+	pct := func(label string, v float64) string {
+		if v == 0 {
+			return ""
+		}
+		return row(label, fmt.Sprintf(`<span class="stat-positive">%g%%</span>`, v*100))
+	}
+	flt := func(label string, v float64) string {
+		if v == 0 {
+			return ""
+		}
+		return row(label, fmt.Sprintf("%g", v))
+	}
+	str := func(label, v string) string {
+		if v == "" {
+			return ""
+		}
+		return row(label, esc(titleCase(v)))
+	}
+
+	var out strings.Builder
+	section := func(label string, rows ...string) {
+		var body strings.Builder
+		for _, r := range rows {
+			body.WriteString(r)
+		}
+		if body.Len() == 0 {
+			return
+		}
+		out.WriteString(`<div class="section-label">` + label + `</div><table>`)
+		out.WriteString(body.String())
+		out.WriteString(`</table>`)
+	}
+
+	// Module classification.
+	section("Module",
+		str("Type", it.Type),
+		str("Slot", it.Slot),
+		str("Special", it.Special),
+		num("CPU Usage", it.CPUUsage),
+		num("Power Usage", it.PowerUsage),
+	)
+
+	// Weapon.
+	dmg := ""
+	if it.Damage != 0 {
+		dt := ""
+		if it.DamageType != "" {
+			dt = " " + esc(titleCase(it.DamageType))
+		}
+		dmg = row("Damage", fmt.Sprintf("%d%s", it.Damage, dt))
+	}
+	section("Weapon",
+		dmg,
+		num("Range", it.WeaponRange),
+		num("Reach", it.Reach),
+		num("Cooldown", it.Cooldown),
+		str("Ammo Type", it.AmmoType),
+		num("Magazine Size", it.MagazineSize),
+		bonus("Accuracy Bonus", it.AccuracyBonus),
+		bonus("Tracking Bonus", it.TrackingBonus),
+	)
+
+	// Defense / resistance.
+	section("Defense",
+		bonus("Armor Bonus", it.ArmorBonus),
+		bonus("Hull Bonus", it.HullBonus),
+		bonus("Shield Bonus", it.ShieldBonus),
+		bonus("Shield Recharge Bonus", it.ShieldRechargeBonus),
+		bonus("Armor Repair Rate", it.ArmorRepairRate),
+		flt("Damage Reduction", it.DamageReduction),
+		num("Cloak Strength", it.CloakStrength),
+		bonus("Signature Bonus", it.SignatureBonus),
+		pct("Armor Bypass", it.ArmorBypassBonus),
+		pct("Shield Bypass", it.ShieldBypassBonus),
+		mapRow("Resistances", resistanceStrings(it.ResistanceBonus)),
+	)
+
+	// Mining & survey.
+	section("Mining & Survey",
+		num("Mining Power", it.MiningPower),
+		num("Survey Power", it.SurveyPower),
+		num("Survey Range", it.SurveyRange),
+	)
+
+	// Utility.
+	section("Utility",
+		bonus("Speed Bonus", it.SpeedBonus),
+		bonus("Cargo Bonus", it.CargoBonus),
+		bonus("Scanner Power", it.ScannerPower),
+		bonus("CPU Bonus", it.CPUBonus),
+		bonus("Power Bonus", it.PowerBonus),
+		num("Drone Bandwidth", it.DroneBandwidth),
+		num("Drone Capacity", it.DroneCapacity),
+		flt("Fuel Efficiency", it.FuelEfficiency),
+		bonus("Max Fuel Bonus", it.MaxFuelBonus),
+		penalty("Tow Speed Penalty", it.TowSpeedPenalty),
+		penalty("Hull Penalty", it.HullPenalty),
+		penalty("Speed Penalty", it.SpeedPenalty),
+	)
+
+	// Passenger berths.
+	section("Passenger Berths",
+		num("Economy", it.PassengerEconomyBerths),
+		num("Business", it.PassengerBusinessBerths),
+		num("First Class", it.PassengerFirstBerths),
+	)
+
+	// Requirements / flags.
+	questRow := ""
+	if it.QuestItem {
+		questRow = row("Quest Item", "Yes")
+	}
+	section("Requirements",
+		mapRow("Required Skills", requiredSkillStrings(it.RequiredSkills)),
+		str("Extracted By", it.ExtractedBy),
+		listRow("Region Lock", it.RegionLock),
+		questRow,
+	)
+
+	// Consumable / ammo effect.
+	out.WriteString(itemEffectHTML(it.Effect))
+
+	if out.Len() == 0 {
+		return ""
+	}
+	return htmltpl.HTML(`<div class="card mt-2" style="padding:0">` + out.String() + `</div>`)
+}
+
+// mapRow renders a single row whose value is a pre-formatted, comma-joined list.
+func mapRow(label string, parts []string) string {
+	if len(parts) == 0 {
+		return ""
+	}
+	return `<tr><td class="kv-label">` + htmltpl.HTMLEscapeString(label) + `</td><td>` +
+		htmltpl.HTMLEscapeString(strings.Join(parts, ", ")) + `</td></tr>`
+}
+
+// listRow renders a row from a string slice, title-casing each entry.
+func listRow(label string, vals []string) string {
+	if len(vals) == 0 {
+		return ""
+	}
+	parts := make([]string, len(vals))
+	for i, v := range vals {
+		parts[i] = titleCase(v)
+	}
+	return mapRow(label, parts)
+}
+
+func resistanceStrings(m map[string]float64) []string {
+	if len(m) == 0 {
+		return nil
+	}
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	parts := make([]string, 0, len(keys))
+	for _, k := range keys {
+		if m[k] == 0 {
+			continue
+		}
+		parts = append(parts, fmt.Sprintf("%s %g", titleCase(k), m[k]))
+	}
+	return parts
+}
+
+func requiredSkillStrings(m map[string]int) []string {
+	if len(m) == 0 {
+		return nil
+	}
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	parts := make([]string, 0, len(keys))
+	for _, k := range keys {
+		parts = append(parts, fmt.Sprintf("%s %d", titleCase(k), m[k]))
+	}
+	return parts
+}
+
+// itemEffectHTML renders the consumable/ammo effect section, if present.
+func itemEffectHTML(e *ItemEffect) string {
+	if e == nil {
+		return ""
+	}
+	esc := htmltpl.HTMLEscapeString
+	row := func(label, val string) string {
+		return `<tr><td class="kv-label">` + esc(label) + `</td><td>` + esc(val) + `</td></tr>`
+	}
+	var rows strings.Builder
+	if e.Type != "" {
+		rows.WriteString(row("Type", titleCase(e.Type)))
+	}
+	if e.Subtype != "" {
+		rows.WriteString(row("Subtype", titleCase(e.Subtype)))
+	}
+	if e.Stat != "" {
+		rows.WriteString(row("Stat", titleCase(e.Stat)))
+	}
+	if e.Amount != 0 {
+		rows.WriteString(row("Amount", fmt.Sprintf("%d", e.Amount)))
+	}
+	if e.Duration != 0 {
+		rows.WriteString(row("Duration", fmt.Sprintf("%d ticks", e.Duration)))
+	}
+	// Ammo modifiers: generic key/value (numeric or bool) so new server-side
+	// modifiers render without code changes.
+	keys := make([]string, 0, len(e.Ammo))
+	for k := range e.Ammo {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	for _, k := range keys {
+		v := e.Ammo[k]
+		var val string
+		switch t := v.(type) {
+		case bool:
+			if !t {
+				continue
+			}
+			val = "Yes"
+		case float64:
+			if t == 0 {
+				continue
+			}
+			val = fmt.Sprintf("%g", t)
+		default:
+			val = fmt.Sprintf("%v", t)
+		}
+		rows.WriteString(row(titleCase(k), val))
+	}
+	if rows.Len() == 0 {
+		return ""
+	}
+	return `<div class="section-label">Effect</div><table>` + rows.String() + `</table>`
 }
 
 func loadRecipeOverlay(catalogPath string, recipes map[string]*Recipe) error {
@@ -1029,8 +1498,11 @@ func loadRecipeOverlay(catalogPath string, recipes map[string]*Recipe) error {
 
 	var catalog struct {
 		Items []struct {
-			ID     string `json:"id"`
-			Hidden bool   `json:"hidden"`
+			ID           string `json:"id"`
+			Hidden       bool   `json:"hidden"`
+			FacilityOnly bool   `json:"facility_only"`
+			NoRecycle    bool   `json:"no_recycle"`
+			FuelOutput   int    `json:"fuel_output"`
 		} `json:"items"`
 	}
 	if err := json.Unmarshal(data, &catalog); err != nil {
@@ -1040,6 +1512,9 @@ func loadRecipeOverlay(catalogPath string, recipes map[string]*Recipe) error {
 	for _, cr := range catalog.Items {
 		if r, ok := recipes[cr.ID]; ok {
 			r.Hidden = cr.Hidden
+			r.FacilityOnly = cr.FacilityOnly
+			r.NoRecycle = cr.NoRecycle
+			r.FuelOutput = cr.FuelOutput
 		}
 	}
 	return nil
@@ -2058,6 +2533,7 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 		"dirName":        dirName,
 		"resourceAnchor": resourceAnchor,
 		"isResourceItem": isResourceItem,
+		"statsHTML":      itemStatsHTML,
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
 		},
@@ -2343,6 +2819,8 @@ var htmlItemTemplate = `<!DOCTYPE html>
           </table>
         </div>
 
+{{statsHTML .}}
+
 {{- if or .ProducedBy .BuiltBy .UsedIn .UsedInShips}}
         <div class="card" style="padding:0">
 {{- if .ProducedBy}}
@@ -2507,7 +2985,7 @@ var recipeDetailTemplate = `<!DOCTYPE html>
 ` + siteHeaderSub + `
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Recipes</a> / <a href="./">{{.Category}}</a> / {{.Name}}</div>
-        <h2>{{.Name}}{{if .Hidden}} <span class="badge badge-hidden" title="Hidden Recipe">Hidden</span>{{end}}</h2>
+        <h2>{{.Name}}{{if .Hidden}} <span class="badge badge-hidden" title="Hidden Recipe">Hidden</span>{{end}}{{if .FacilityOnly}} <span class="badge badge-frost" title="Can only be crafted at a facility">Facility Only</span>{{end}}</h2>
 
         <blockquote class="item-desc">{{.Description}}</blockquote>
 
@@ -2544,6 +3022,15 @@ var recipeDetailTemplate = `<!DOCTYPE html>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
             <tr><td class="kv-label">Crafting Time</td><td>{{.CraftingTime}} ticks</td></tr>
+{{- if gt .FuelOutput 0}}
+            <tr><td class="kv-label">Fuel Output</td><td>{{.FuelOutput}}</td></tr>
+{{- end}}
+{{- if .FacilityOnly}}
+            <tr><td class="kv-label">Facility Only</td><td>Yes</td></tr>
+{{- end}}
+{{- if .NoRecycle}}
+            <tr><td class="kv-label">Recyclable</td><td>No</td></tr>
+{{- end}}
           </table>
         </div>
     </main>

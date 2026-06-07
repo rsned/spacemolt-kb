@@ -48,7 +48,21 @@ type Ship struct {
 		ItemCategory string `json:"-"`
 	} `json:"build_materials"`
 	PassiveRecipes   []string `json:"passive_recipes"`
+	BasedOn          string   `json:"based_on"`
+	NPCRole          string   `json:"npc_role"`
+	Special          string   `json:"special"`
+	PilotingRequired int      `json:"piloting_required"`
+	RequiredReputation int    `json:"required_reputation"`
+	TowSpeedBonus    int      `json:"tow_speed_bonus"`
+	InherentCapabilities []ShipCapability `json:"inherent_capabilities"`
 	BoM              *bom.BoMResult
+}
+
+// ShipCapability is a built-in ability granted by a ship class.
+type ShipCapability struct {
+	Type  string `json:"type"`
+	Value int    `json:"value"`
+	Flag  string `json:"flag"`
 }
 
 type shipCategory struct {
@@ -181,6 +195,8 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		"hasFlavorTags": func(s *Ship) bool { return len(s.FlavorTags) > 0 },
 		"hasBuildMaterials": func(s *Ship) bool { return len(s.BuildMaterials) > 0 },
 		"hasDefaultModules": func(s *Ship) bool { return len(s.DefaultModules) > 0 },
+		"hasCapabilities": func(s *Ship) bool { return len(s.InherentCapabilities) > 0 },
+		"hasRequirements": func(s *Ship) bool { return s.PilotingRequired > 0 || s.RequiredReputation > 0 },
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
 		},
@@ -400,10 +416,31 @@ var shipDetailTemplate = `<!DOCTYPE html>
             <tr><td class="kv-label">Class</td><td><a href="../index.html#{{slugify .Category}}--{{slugify .Class}}">{{.Class}}</a></td></tr>
             <tr><td class="kv-label">Faction</td><td><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td></tr>
             <tr><td class="kv-label">Tier</td><td>{{.Tier}}</td></tr>
+{{- if .Special}}
+            <tr><td class="kv-label">Special</td><td>{{titleCase .Special}}</td></tr>
+{{- end}}
+{{- if .NPCRole}}
+            <tr><td class="kv-label">NPC Role</td><td>{{titleCase .NPCRole}}</td></tr>
+{{- end}}
+{{- if .BasedOn}}
+            <tr><td class="kv-label">Based On</td><td>{{titleCase .BasedOn}}</td></tr>
+{{- end}}
 {{- if .StarterShip}}
             <tr><td class="kv-label">Type</td><td><span class="badge badge-green">Starter Ship</span></td></tr>
 {{- end}}
           </table>
+
+{{- if hasRequirements .}}
+          <div class="section-label">Requirements</div>
+          <table>
+{{- if gt .PilotingRequired 0}}
+            <tr><td class="kv-label">Piloting Skill</td><td>{{.PilotingRequired}}</td></tr>
+{{- end}}
+{{- if gt .RequiredReputation 0}}
+            <tr><td class="kv-label">Reputation</td><td>{{.RequiredReputation}}</td></tr>
+{{- end}}
+          </table>
+{{- end}}
 
           <div class="section-label">Statistics</div>
           <table>
@@ -414,6 +451,9 @@ var shipDetailTemplate = `<!DOCTYPE html>
             <tr><td class="kv-label">Speed</td><td>{{.BaseSpeed}} AU/t</td></tr>
             <tr><td class="kv-label">Fuel Capacity</td><td>{{.BaseFuel}}</td></tr>
             <tr><td class="kv-label">Cargo Capacity</td><td>{{.CargoCapacity}}</td></tr>
+{{- if gt .TowSpeedBonus 0}}
+            <tr><td class="kv-label">Tow Speed Bonus</td><td>+{{.TowSpeedBonus}}%</td></tr>
+{{- end}}
           </table>
 
           <div class="section-label">Slots</div>
@@ -464,6 +504,23 @@ var shipDetailTemplate = `<!DOCTYPE html>
 {{- range .DefaultModules}}
             <tr>
               <td><a href="../../items/defense/{{.}}.html">{{titleCase .}}</a></td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+        </div>
+{{- end}}
+
+{{- if hasCapabilities .}}
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Inherent Capabilities</div>
+          <table>
+            <thead><tr><th>Capability</th><th>Value</th></tr></thead>
+            <tbody>
+{{- range .InherentCapabilities}}
+            <tr>
+              <td>{{titleCase .Type}}{{if .Flag}} <span class="badge badge-frost">{{titleCase .Flag}}</span>{{end}}</td>
+              <td class="num">{{if gt .Value 0}}{{.Value}}{{else}}&#x2713;{{end}}</td>
             </tr>
 {{- end}}
             </tbody>
