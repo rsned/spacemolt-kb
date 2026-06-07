@@ -28,15 +28,15 @@
     </header>
     <main class="container page-content">
       <h2>Ships</h2>
-      <p class="text-muted mt-1">288 ship classes across 8 categories and 5 factions.</p>
+      <p class="text-muted mt-1">309 ship classes across 8 categories and 5 factions.</p>
 
       <nav class="card mt-3" id="toc">
         <div class="card-header"><span class="label">Categories</span></div>
         <ul class="toc-list">
-            <li><a href="#civilian">Civilian</a> <span class="text-muted">(2 classes)</span></li>
-            <li><a href="#combat">Combat</a> <span class="text-muted">(10 classes)</span></li>
+            <li><a href="#civilian">Civilian</a> <span class="text-muted">(3 classes)</span></li>
+            <li><a href="#combat">Combat</a> <span class="text-muted">(11 classes)</span></li>
             <li><a href="#combat-support">Combat Support</a> <span class="text-muted">(8 classes)</span></li>
-            <li><a href="#commercial">Commercial</a> <span class="text-muted">(6 classes)</span></li>
+            <li><a href="#commercial">Commercial</a> <span class="text-muted">(7 classes)</span></li>
             <li><a href="#covert">Covert</a> <span class="text-muted">(4 classes)</span></li>
             <li><a href="#exploration">Exploration</a> <span class="text-muted">(5 classes)</span></li>
             <li><a href="#industrial">Industrial</a> <span class="text-muted">(7 classes)</span></li>
@@ -45,11 +45,41 @@
       </nav>
 
       <section class="ship-category mt-3" id="civilian">
-        <h2>Civilian <span class="text-muted" style="font-size:var(--text-ui)">(2 classes)</span></h2>
+        <h2>Civilian <span class="text-muted" style="font-size:var(--text-ui)">(3 classes)</span></h2>
         <ul class="class-toc">
-            <li><a href="#civilian--shuttle">Shuttle</a> <span class="text-muted">(4)</span></li>
+            <li><a href="#civilian--flagship">Flagship</a> <span class="text-muted">(1)</span></li>
+            <li><a href="#civilian--shuttle">Shuttle</a> <span class="text-muted">(5)</span></li>
             <li><a href="#civilian--yacht">Yacht</a> <span class="text-muted">(1)</span></li>
         </ul>
+        <section class="ship-class mt-3" id="civilian--flagship">
+          <h3>Flagship</h3>
+          <div class="faction-group mt-2">
+            <h4><span class="badge badge-purple">Nebula</span></h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Tier</th><th>Hull</th><th>Armor</th><th>Shield</th><th>Shd Regen/t</th><th>Speed</th><th>Fuel</th><th>Cargo</th><th>Wpn</th><th>Def</th><th>Util</th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr>
+              <td><a href="Civilian/ascendancy.html">Ascendancy</a></td>
+              <td class="num">5</td>
+              <td class="num">2200</td>
+              <td class="num">75</td>
+              <td class="num">1800</td>
+              <td class="num">25/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">1100</td>
+              <td class="num">420</td>
+              <td class="num">5</td>
+              <td class="num">6</td>
+              <td class="num">8</td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
         <section class="ship-class mt-3" id="civilian--shuttle">
           <h3>Shuttle</h3>
           <div class="faction-group mt-2">
@@ -100,6 +130,20 @@
               <td class="num">0</td>
               <td class="num">0</td>
               <td class="num">2</td>
+            </tr>
+            <tr>
+              <td><a href="Civilian/finish_line.html">Finish Line</a></td>
+              <td class="num">5</td>
+              <td class="num">2000</td>
+              <td class="num">60</td>
+              <td class="num">1000</td>
+              <td class="num">14/t</td>
+              <td class="num">3 AU/t</td>
+              <td class="num">1200</td>
+              <td class="num">240</td>
+              <td class="num">5</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
             </tr>
               </tbody>
             </table>
@@ -189,13 +233,14 @@
       </section>
 
       <section class="ship-category mt-3" id="combat">
-        <h2>Combat <span class="text-muted" style="font-size:var(--text-ui)">(10 classes)</span></h2>
+        <h2>Combat <span class="text-muted" style="font-size:var(--text-ui)">(11 classes)</span></h2>
         <ul class="class-toc">
             <li><a href="#combat--assault">Assault</a> <span class="text-muted">(6)</span></li>
             <li><a href="#combat--assault-carrier">Assault Carrier</a> <span class="text-muted">(1)</span></li>
             <li><a href="#combat--battlecruiser">Battlecruiser</a> <span class="text-muted">(8)</span></li>
             <li><a href="#combat--carrier">Carrier</a> <span class="text-muted">(1)</span></li>
             <li><a href="#combat--cruiser">Cruiser</a> <span class="text-muted">(10)</span></li>
+            <li><a href="#combat--dreadnought">Dreadnought</a> <span class="text-muted">(7)</span></li>
             <li><a href="#combat--fighter">Fighter</a> <span class="text-muted">(10)</span></li>
             <li><a href="#combat--fleet-carrier">Fleet Carrier</a> <span class="text-muted">(1)</span></li>
             <li><a href="#combat--heavy-fighter">Heavy Fighter</a> <span class="text-muted">(9)</span></li>
@@ -768,6 +813,167 @@
               <td class="num">4</td>
               <td class="num">2</td>
               <td class="num">3</td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="ship-class mt-3" id="combat--dreadnought">
+          <h3>Dreadnought</h3>
+          <div class="faction-group mt-2">
+            <h4><span class="badge badge-red">Crimson</span></h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Tier</th><th>Hull</th><th>Armor</th><th>Shield</th><th>Shd Regen/t</th><th>Speed</th><th>Fuel</th><th>Cargo</th><th>Wpn</th><th>Def</th><th>Util</th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr>
+              <td><a href="Combat/annihilator.html">Annihilator</a></td>
+              <td class="num">5</td>
+              <td class="num">3500</td>
+              <td class="num">150</td>
+              <td class="num">1200</td>
+              <td class="num">18/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">600</td>
+              <td class="num">480</td>
+              <td class="num">9</td>
+              <td class="num">4</td>
+              <td class="num">4</td>
+            </tr>
+            <tr>
+              <td><a href="Combat/armageddon.html">Armageddon</a></td>
+              <td class="num">5</td>
+              <td class="num">2800</td>
+              <td class="num">130</td>
+              <td class="num">1050</td>
+              <td class="num">14/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">500</td>
+              <td class="num">480</td>
+              <td class="num">9</td>
+              <td class="num">3</td>
+              <td class="num">3</td>
+            </tr>
+            <tr>
+              <td><a href="Combat/reckoning.html">Reckoning</a></td>
+              <td class="num">5</td>
+              <td class="num">3500</td>
+              <td class="num">140</td>
+              <td class="num">1000</td>
+              <td class="num">15/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">500</td>
+              <td class="num">540</td>
+              <td class="num">8</td>
+              <td class="num">4</td>
+              <td class="num">3</td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="faction-group mt-2">
+            <h4><span class="badge badge-purple">Nebula</span></h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Tier</th><th>Hull</th><th>Armor</th><th>Shield</th><th>Shd Regen/t</th><th>Speed</th><th>Fuel</th><th>Cargo</th><th>Wpn</th><th>Def</th><th>Util</th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr>
+              <td><a href="Combat/hegemon.html">Hegemon</a></td>
+              <td class="num">5</td>
+              <td class="num">2800</td>
+              <td class="num">90</td>
+              <td class="num">1600</td>
+              <td class="num">22/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">900</td>
+              <td class="num">840</td>
+              <td class="num">6</td>
+              <td class="num">5</td>
+              <td class="num">7</td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="faction-group mt-2">
+            <h4><span class="badge badge-orange">Outer Rim</span></h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Tier</th><th>Hull</th><th>Armor</th><th>Shield</th><th>Shd Regen/t</th><th>Speed</th><th>Fuel</th><th>Cargo</th><th>Wpn</th><th>Def</th><th>Util</th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr>
+              <td><a href="Combat/first_step_dreadnought.html">First Step Dreadnought</a></td>
+              <td class="num">5</td>
+              <td class="num">2500</td>
+              <td class="num">90</td>
+              <td class="num">1200</td>
+              <td class="num">18/t</td>
+              <td class="num">2 AU/t</td>
+              <td class="num">1000</td>
+              <td class="num">660</td>
+              <td class="num">7</td>
+              <td class="num">4</td>
+              <td class="num">6</td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="faction-group mt-2">
+            <h4><span class="badge badge-frost">Solarian</span></h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Tier</th><th>Hull</th><th>Armor</th><th>Shield</th><th>Shd Regen/t</th><th>Speed</th><th>Fuel</th><th>Cargo</th><th>Wpn</th><th>Def</th><th>Util</th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr>
+              <td><a href="Combat/opus_magna.html">Opus Magna</a></td>
+              <td class="num">5</td>
+              <td class="num">3000</td>
+              <td class="num">120</td>
+              <td class="num">1800</td>
+              <td class="num">25/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">800</td>
+              <td class="num">600</td>
+              <td class="num">8</td>
+              <td class="num">6</td>
+              <td class="num">6</td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="faction-group mt-2">
+            <h4><span class="badge badge-green">Voidborn</span></h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Tier</th><th>Hull</th><th>Armor</th><th>Shield</th><th>Shd Regen/t</th><th>Speed</th><th>Fuel</th><th>Cargo</th><th>Wpn</th><th>Def</th><th>Util</th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr>
+              <td><a href="Combat/apotheosis.html">Apotheosis</a></td>
+              <td class="num">5</td>
+              <td class="num">2200</td>
+              <td class="num">80</td>
+              <td class="num">2500</td>
+              <td class="num">35/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">700</td>
+              <td class="num">505</td>
+              <td class="num">6</td>
+              <td class="num">7</td>
+              <td class="num">7</td>
             </tr>
               </tbody>
             </table>
@@ -2295,9 +2501,10 @@
       </section>
 
       <section class="ship-category mt-3" id="commercial">
-        <h2>Commercial <span class="text-muted" style="font-size:var(--text-ui)">(6 classes)</span></h2>
+        <h2>Commercial <span class="text-muted" style="font-size:var(--text-ui)">(7 classes)</span></h2>
         <ul class="class-toc">
             <li><a href="#commercial--bulk-hauler">Bulk Hauler</a> <span class="text-muted">(10)</span></li>
+            <li><a href="#commercial--capital-carrier">Capital Carrier</a> <span class="text-muted">(1)</span></li>
             <li><a href="#commercial--carrier">Carrier</a> <span class="text-muted">(2)</span></li>
             <li><a href="#commercial--courier">Courier</a> <span class="text-muted">(7)</span></li>
             <li><a href="#commercial--freighter">Freighter</a> <span class="text-muted">(13)</span></li>
@@ -2502,6 +2709,35 @@
               <td class="num">1</td>
               <td class="num">2</td>
               <td class="num">4</td>
+            </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="ship-class mt-3" id="commercial--capital-carrier">
+          <h3>Capital Carrier</h3>
+          <div class="faction-group mt-2">
+            <h4><span class="badge badge-purple">Nebula</span></h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Tier</th><th>Hull</th><th>Armor</th><th>Shield</th><th>Shd Regen/t</th><th>Speed</th><th>Fuel</th><th>Cargo</th><th>Wpn</th><th>Def</th><th>Util</th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr>
+              <td><a href="Commercial/grand_transit.html">Grand Transit</a></td>
+              <td class="num">5</td>
+              <td class="num">3200</td>
+              <td class="num">40</td>
+              <td class="num">800</td>
+              <td class="num">8/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">800</td>
+              <td class="num">600</td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">6</td>
             </tr>
               </tbody>
             </table>
@@ -3610,7 +3846,7 @@
             <li><a href="#exploration--courier">Courier</a> <span class="text-muted">(1)</span></li>
             <li><a href="#exploration--explorer">Explorer</a> <span class="text-muted">(11)</span></li>
             <li><a href="#exploration--pathfinder">Pathfinder</a> <span class="text-muted">(2)</span></li>
-            <li><a href="#exploration--research">Research</a> <span class="text-muted">(5)</span></li>
+            <li><a href="#exploration--research">Research</a> <span class="text-muted">(6)</span></li>
             <li><a href="#exploration--scout">Scout</a> <span class="text-muted">(8)</span></li>
         </ul>
         <section class="ship-class mt-3" id="exploration--courier">
@@ -4019,6 +4255,20 @@
               <td class="num">3</td>
               <td class="num">4</td>
             </tr>
+            <tr>
+              <td><a href="Exploration/omniscience.html">Omniscience</a></td>
+              <td class="num">5</td>
+              <td class="num">2000</td>
+              <td class="num">65</td>
+              <td class="num">2200</td>
+              <td class="num">28/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">750</td>
+              <td class="num">575</td>
+              <td class="num">2</td>
+              <td class="num">6</td>
+              <td class="num">9</td>
+            </tr>
               </tbody>
             </table>
           </div>
@@ -4204,11 +4454,11 @@
         <h2>Industrial <span class="text-muted" style="font-size:var(--text-ui)">(7 classes)</span></h2>
         <ul class="class-toc">
             <li><a href="#industrial--construction">Construction</a> <span class="text-muted">(1)</span></li>
-            <li><a href="#industrial--gas-harvester">Gas Harvester</a> <span class="text-muted">(15)</span></li>
-            <li><a href="#industrial--ice-harvester">Ice Harvester</a> <span class="text-muted">(15)</span></li>
-            <li><a href="#industrial--miner">Miner</a> <span class="text-muted">(26)</span></li>
+            <li><a href="#industrial--gas-harvester">Gas Harvester</a> <span class="text-muted">(16)</span></li>
+            <li><a href="#industrial--ice-harvester">Ice Harvester</a> <span class="text-muted">(16)</span></li>
+            <li><a href="#industrial--miner">Miner</a> <span class="text-muted">(30)</span></li>
             <li><a href="#industrial--mining">Mining</a> <span class="text-muted">(1)</span></li>
-            <li><a href="#industrial--refinery">Refinery</a> <span class="text-muted">(14)</span></li>
+            <li><a href="#industrial--refinery">Refinery</a> <span class="text-muted">(17)</span></li>
             <li><a href="#industrial--salvager">Salvager</a> <span class="text-muted">(23)</span></li>
         </ul>
         <section class="ship-class mt-3" id="industrial--construction">
@@ -4509,6 +4759,20 @@
               <td class="num">2</td>
               <td class="num">5</td>
             </tr>
+            <tr>
+              <td><a href="Industrial/rift_siphon.html">Rift Siphon</a></td>
+              <td class="num">5</td>
+              <td class="num">1400</td>
+              <td class="num">40</td>
+              <td class="num">2200</td>
+              <td class="num">30/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">600</td>
+              <td class="num">2400</td>
+              <td class="num">0</td>
+              <td class="num">5</td>
+              <td class="num">9</td>
+            </tr>
               </tbody>
             </table>
           </div>
@@ -4619,6 +4883,20 @@
               <td class="num">0</td>
               <td class="num">1</td>
               <td class="num">4</td>
+            </tr>
+            <tr>
+              <td><a href="Industrial/cryo_industrial.html">Cryo Industrial</a></td>
+              <td class="num">5</td>
+              <td class="num">1800</td>
+              <td class="num">55</td>
+              <td class="num">1000</td>
+              <td class="num">14/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">600</td>
+              <td class="num">3000</td>
+              <td class="num">0</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
             </tr>
               </tbody>
             </table>
@@ -4949,6 +5227,20 @@
               <td class="num">2</td>
               <td class="num">6</td>
             </tr>
+            <tr>
+              <td><a href="Industrial/eldorado.html">Eldorado</a></td>
+              <td class="num">5</td>
+              <td class="num">1500</td>
+              <td class="num">50</td>
+              <td class="num">800</td>
+              <td class="num">12/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">600</td>
+              <td class="num">3600</td>
+              <td class="num">0</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+            </tr>
               </tbody>
             </table>
           </div>
@@ -5045,6 +5337,20 @@
               <td class="num">2</td>
               <td class="num">6</td>
             </tr>
+            <tr>
+              <td><a href="Industrial/all_mine.html">All Mine</a></td>
+              <td class="num">5</td>
+              <td class="num">2000</td>
+              <td class="num">80</td>
+              <td class="num">700</td>
+              <td class="num">10/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">600</td>
+              <td class="num">2640</td>
+              <td class="num">2</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+            </tr>
               </tbody>
             </table>
           </div>
@@ -5127,6 +5433,20 @@
               <td class="num">2</td>
               <td class="num">8</td>
             </tr>
+            <tr>
+              <td><a href="Industrial/tellurian.html">Tellurian</a></td>
+              <td class="num">5</td>
+              <td class="num">1800</td>
+              <td class="num">65</td>
+              <td class="num">1000</td>
+              <td class="num">15/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">600</td>
+              <td class="num">2400</td>
+              <td class="num">1</td>
+              <td class="num">3</td>
+              <td class="num">10</td>
+            </tr>
               </tbody>
             </table>
           </div>
@@ -5208,6 +5528,20 @@
               <td class="num">0</td>
               <td class="num">3</td>
               <td class="num">8</td>
+            </tr>
+            <tr>
+              <td><a href="Industrial/manifold.html">Manifold</a></td>
+              <td class="num">5</td>
+              <td class="num">1400</td>
+              <td class="num">45</td>
+              <td class="num">2000</td>
+              <td class="num">28/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">600</td>
+              <td class="num">2400</td>
+              <td class="num">0</td>
+              <td class="num">5</td>
+              <td class="num">9</td>
             </tr>
               </tbody>
             </table>
@@ -5348,6 +5682,20 @@
               </thead>
               <tbody>
             <tr>
+              <td><a href="Industrial/money_pit.html">Money Pit</a> <span class="badge badge-green" title="Passive Recipes: Refine Steel, Process Copper Wiring, Smelt Aluminum Sheet, Smelt Lead Ingot, Refine Titanium, Draw Gold Wire, Draw Silver Wire, Draw Tungsten Rod, onboard_dark_matter_condensing">&#x2692; Passive</span></td>
+              <td class="num">3</td>
+              <td class="num">450</td>
+              <td class="num">22</td>
+              <td class="num">160</td>
+              <td class="num">3/t</td>
+              <td class="num">2 AU/t</td>
+              <td class="num">300</td>
+              <td class="num">300</td>
+              <td class="num">1</td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+            </tr>
+            <tr>
               <td><a href="Industrial/cold_comfort.html">Cold Comfort</a> <span class="badge badge-green" title="Passive Recipes: Process Water Ice, Process Helium Ice, Process Nitrogen Ice, Process Deuterium Ice">&#x2692; Passive</span></td>
               <td class="num">4</td>
               <td class="num">700</td>
@@ -5455,6 +5803,34 @@
                 </tr>
               </thead>
               <tbody>
+            <tr>
+              <td><a href="Industrial/sublimation.html">Sublimation</a> <span class="badge badge-green" title="Passive Recipes: Refine Steel, Process Copper Wiring, Smelt Aluminum Sheet, Smelt Lead Ingot, Refine Titanium, Draw Gold Wire, Draw Silver Wire, Draw Tungsten Rod">&#x2692; Passive</span></td>
+              <td class="num">3</td>
+              <td class="num">370</td>
+              <td class="num">14</td>
+              <td class="num">380</td>
+              <td class="num">7/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">230</td>
+              <td class="num">265</td>
+              <td class="num">0</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+            </tr>
+            <tr>
+              <td><a href="Industrial/substrate.html">Substrate</a> <span class="badge badge-green" title="Passive Recipes: Onboard Alloy Synthesis, onboard_exotic_stabilization, Process Null Matter">&#x2692; Passive</span></td>
+              <td class="num">3</td>
+              <td class="num">380</td>
+              <td class="num">16</td>
+              <td class="num">400</td>
+              <td class="num">8/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">250</td>
+              <td class="num">240</td>
+              <td class="num">0</td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+            </tr>
             <tr>
               <td><a href="Industrial/alloy_synthesizer.html">Alloy Synthesizer</a> <span class="badge badge-green" title="Passive Recipes: Onboard Alloy Synthesis, onboard_exotic_stabilization, Process Null Matter">&#x2692; Passive</span></td>
               <td class="num">4</td>
@@ -5904,7 +6280,7 @@
         <h2>Support <span class="text-muted" style="font-size:var(--text-ui)">(3 classes)</span></h2>
         <ul class="class-toc">
             <li><a href="#support--carrier">Carrier</a> <span class="text-muted">(2)</span></li>
-            <li><a href="#support--logistics">Logistics</a> <span class="text-muted">(4)</span></li>
+            <li><a href="#support--logistics">Logistics</a> <span class="text-muted">(5)</span></li>
             <li><a href="#support--repair">Repair</a> <span class="text-muted">(3)</span></li>
         </ul>
         <section class="ship-class mt-3" id="support--carrier">
@@ -6052,6 +6428,20 @@
               <td class="num">2</td>
               <td class="num">3</td>
               <td class="num">6</td>
+            </tr>
+            <tr>
+              <td><a href="Support/fundament.html">Fundament</a></td>
+              <td class="num">5</td>
+              <td class="num">2500</td>
+              <td class="num">90</td>
+              <td class="num">1200</td>
+              <td class="num">18/t</td>
+              <td class="num">1 AU/t</td>
+              <td class="num">1000</td>
+              <td class="num">960</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num">7</td>
             </tr>
               </tbody>
             </table>
