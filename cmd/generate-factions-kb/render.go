@@ -27,6 +27,9 @@ func templateFuncs(genTime time.Time) htmltpl.FuncMap {
 		},
 		"richText": richText,
 		"inline":   func(s string) htmltpl.HTML { return htmltpl.HTML(inlineMarkup(s)) },
+		"silhouette": func(seed, primary, secondary string) htmltpl.HTML {
+			return silhouetteSVG(seed, primary, secondary)
+		},
 	}
 }
 
@@ -400,13 +403,18 @@ var playerDetailTmpl = `<!DOCTYPE html>
         </aside>
         {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
 {{else}}
-        <div class="player-banner"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
-            <h2>{{.Username}}{{if .FactionSlug}} <a class="pb-faction" href="../../factions/{{.FactionSlug}}/">[{{.FactionTag}}]</a>{{else if .FactionTag}}<span class="pb-faction">[{{.FactionTag}}]</span>{{end}}</h2>
-            <div class="pb-id">{{.ID}}</div>
-            {{if .ClanTag}}<div class="pb-clan">clan {{.ClanTag}}</div>{{end}}
-            {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
-        </div>
-
+        <aside class="infobox"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
+            <div class="infobox-title">{{.Username}}</div>
+            {{if .FactionTag}}<div class="infobox-subtitle">{{if .FactionSlug}}<a href="../../factions/{{.FactionSlug}}/">{{.FactionTag}}</a>{{else}}{{.FactionTag}}{{end}}</div>{{end}}
+            <div class="infobox-silhouette">{{silhouette .ID .PrimaryColor .SecondaryColor}}</div>
+            <dl class="infobox-data">
+                {{if .ClanTag}}<dt>Clan</dt><dd>{{.ClanTag}}</dd>{{end}}
+                <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
+                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+            </dl>
+            <div class="infobox-id">{{.ID}}</div>
+        </aside>
+        {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
 {{if and .Overlay .Overlay.Stats}}
         <h3>Profile</h3>
         <dl class="faction-stats overlay-stats">
@@ -415,10 +423,6 @@ var playerDetailTmpl = `<!DOCTYPE html>
 {{- end}}
         </dl>
 {{end}}
-        <div class="stat-strip">
-            <div class="ss-item"><strong>{{shortDate .FirstSeenUTC}}</strong> first seen</div>
-            <div class="ss-item"><strong>{{rel .LastSeenUTC}}</strong> last seen</div>
-        </div>
 {{end}}
 {{if and .Overlay .Overlay.BodyHTML}}
         <h3>About</h3>
