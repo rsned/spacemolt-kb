@@ -2,7 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -64,4 +68,50 @@ func loadPassengers(db *sql.DB) ([]*Passenger, error) {
 		return out[i].ID < out[j].ID
 	})
 	return out, nil
+}
+
+// generatedPortraitName is the fixed filename of a generated passenger portrait
+// within overlays/generated/passengers/<id>/. PNG keeps the name/extension
+// validation in validateImage simple for any backend that emits PNG.
+const generatedPortraitName = "portrait.png"
+
+// passengerGeneratedDir is the cache directory for a passenger's generated
+// portrait + prompt sidecar, under the overlays root.
+func passengerGeneratedDir(root, id string) string {
+	return filepath.Join(root, "generated", "passengers", id)
+}
+
+// attachPassengerOverlays loads overlays/passengers/<id>/profile.md for each
+// passenger and warns about overlay dirs that match no current passenger.
+//
+//nolint:unused // wired in main in Task 7
+func attachPassengerOverlays(passengers []*Passenger, root string) {
+	entityIDs := make(map[string]bool, len(passengers))
+	for _, p := range passengers {
+		entityIDs[p.ID] = true
+		ov, err := loadOverlay(filepath.Join(root, "passengers", p.ID))
+		if err != nil {
+			log.Printf("warning: passenger overlay %s: %v", p.ID, err)
+			continue
+		}
+		p.Overlay = ov
+	}
+	warnOrphanOverlays(filepath.Join(root, "passengers"), entityIDs)
+}
+
+// attachPassengerPortraits sets PortraitFile for each passenger whose generated
+// portrait exists and validates. A missing file is silent; only real validation
+// failures warn.
+func attachPassengerPortraits(passengers []*Passenger, root string) {
+	for _, p := range passengers {
+		dir := passengerGeneratedDir(root, p.ID)
+		name, err := validateImage(dir, generatedPortraitName)
+		if err != nil {
+			if !errors.Is(err, os.ErrNotExist) {
+				log.Printf("warning: generated portrait %s: %v", p.ID, err)
+			}
+			continue
+		}
+		p.PortraitFile = name
+	}
 }

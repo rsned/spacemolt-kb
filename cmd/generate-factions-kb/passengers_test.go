@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"os"
+	"path/filepath"
 	"testing"
 
 	_ "modernc.org/sqlite"
@@ -56,5 +58,44 @@ func TestLoadPassengers(t *testing.T) {
 	}
 	if got[0].Slug != "a_id" {
 		t.Fatalf("Slug should equal citizen_id, got %q", got[0].Slug)
+	}
+}
+
+func TestAttachPassengerPortraitsMissingFileIsSilent(t *testing.T) {
+	root := t.TempDir()
+	ps := []*Passenger{{ID: "nobody", Slug: "nobody"}}
+	attachPassengerPortraits(ps, root) // no file on disk
+	if ps[0].PortraitFile != "" {
+		t.Fatalf("expected empty PortraitFile, got %q", ps[0].PortraitFile)
+	}
+}
+
+func TestAttachPassengerPortraitsValidImage(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "generated", "passengers", "p1")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	writeTinyPNG(t, filepath.Join(dir, generatedPortraitName))
+	ps := []*Passenger{{ID: "p1", Slug: "p1"}}
+	attachPassengerPortraits(ps, root)
+	if ps[0].PortraitFile != generatedPortraitName {
+		t.Fatalf("PortraitFile = %q, want %q", ps[0].PortraitFile, generatedPortraitName)
+	}
+}
+
+func writeTinyPNG(t *testing.T, path string) {
+	t.Helper()
+	// 1x1 transparent PNG.
+	png := []byte{
+		0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+		0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+		0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+		0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+		0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+		0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+	}
+	if err := os.WriteFile(path, png, 0o644); err != nil {
+		t.Fatal(err)
 	}
 }
