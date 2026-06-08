@@ -76,7 +76,7 @@ func TestAttachPassengerPortraitsValidImage(t *testing.T) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	writeTinyPNG(t, filepath.Join(dir, generatedPortraitName))
+	writePNG(t, filepath.Join(dir, generatedPortraitName), 1, 1)
 	ps := []*Passenger{{ID: "p1", Slug: "p1"}}
 	attachPassengerPortraits(ps, root)
 	if ps[0].PortraitFile != generatedPortraitName {
@@ -84,18 +84,30 @@ func TestAttachPassengerPortraitsValidImage(t *testing.T) {
 	}
 }
 
-func writeTinyPNG(t *testing.T, path string) {
-	t.Helper()
-	// 1x1 transparent PNG.
-	png := []byte{
-		0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
-		0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-		0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
-		0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
-		0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
-		0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+func TestAttachPassengerOverlays(t *testing.T) {
+	root := t.TempDir()
+	// Overlay for passenger "abc"; an orphan dir "ghost" with no matching passenger.
+	mk := func(id, profile string) {
+		d := filepath.Join(root, "passengers", id)
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(d, "profile.md"), []byte(profile), 0o644); err != nil {
+			t.Fatal(err)
+		}
 	}
-	if err := os.WriteFile(path, png, 0o644); err != nil {
-		t.Fatal(err)
+	mk("abc", "body for abc")
+	mk("ghost", "orphan body")
+
+	passengers := []*Passenger{{ID: "abc"}, {ID: "xyz"}}
+	attachPassengerOverlays(passengers, root)
+	if passengers[0].Overlay == nil {
+		t.Fatal("passenger abc should have an overlay")
+	}
+	if passengers[0].Overlay.BodyHTML == "" {
+		t.Errorf("passenger abc overlay body should be populated: %+v", passengers[0].Overlay)
+	}
+	if passengers[1].Overlay != nil {
+		t.Error("passenger xyz should have no overlay")
 	}
 }

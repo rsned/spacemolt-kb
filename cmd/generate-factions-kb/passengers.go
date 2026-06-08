@@ -83,8 +83,6 @@ func passengerGeneratedDir(root, id string) string {
 
 // attachPassengerOverlays loads overlays/passengers/<id>/profile.md for each
 // passenger and warns about overlay dirs that match no current passenger.
-//
-//nolint:unused // wired in main in Task 7
 func attachPassengerOverlays(passengers []*Passenger, root string) {
 	entityIDs := make(map[string]bool, len(passengers))
 	for _, p := range passengers {
