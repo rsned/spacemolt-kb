@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	portraitsFlag := flag.Bool("portraits", false, "generate missing/updated passenger AI portraits via SMKB_PORTRAIT_CMD before rendering")
 	flag.Parse()
 
 	dbPath := "spacemolt-knowledge.db"
@@ -67,6 +68,9 @@ func main() {
 		passengers = nil
 	}
 	attachPassengerOverlays(passengers, overlaysRoot)
+	if *portraitsFlag {
+		generatePassengerPortraits(passengers, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"))
+	}
 	attachPassengerPortraits(passengers, overlaysRoot)
 
 	funcs := templateFuncs(genTime)
