@@ -28,3 +28,47 @@ func TestPlayerDetailRendersSilhouetteWhenNoOverlayImage(t *testing.T) {
 		t.Fatal("expected player ID in page")
 	}
 }
+
+func TestPassengerDetailPortraitPrecedence(t *testing.T) {
+	funcs := templateFuncs(time.Unix(0, 0).UTC())
+	tmpl := htmltpl.Must(htmltpl.New("psdet").Funcs(funcs).Parse(passengerDetailTmpl))
+
+	// No overlay, no generated portrait -> silhouette.
+	silP := &Passenger{ID: "p1", Slug: "p1", Name: "Lin", Bio: "a fixer"}
+	var b1 strings.Builder
+	if err := tmpl.Execute(&b1, silP); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(b1.String(), `<svg class="silhouette"`) {
+		t.Fatal("expected silhouette when no portrait/overlay")
+	}
+	if !strings.Contains(b1.String(), "a fixer") {
+		t.Fatal("expected bio in About")
+	}
+
+	// Generated portrait present -> <img>, no silhouette.
+	genP := &Passenger{ID: "p2", Slug: "p2", Name: "Bea", PortraitFile: "portrait.png"}
+	var b2 strings.Builder
+	if err := tmpl.Execute(&b2, genP); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(b2.String(), `src="portrait.png"`) {
+		t.Fatal("expected generated portrait img")
+	}
+	if strings.Contains(b2.String(), `<svg class="silhouette"`) {
+		t.Fatal("silhouette should be suppressed when a portrait exists")
+	}
+}
+
+func TestPassengerIndexLists(t *testing.T) {
+	funcs := templateFuncs(time.Unix(0, 0).UTC())
+	tmpl := htmltpl.Must(htmltpl.New("psidx").Funcs(funcs).Parse(passengerIndexTmpl))
+	ps := []*Passenger{{ID: "p1", Slug: "p1", Name: "Lin", Citizenship: "nebula", Class: "first"}}
+	var b strings.Builder
+	if err := tmpl.Execute(&b, ps); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(b.String(), `href="p1/"`) || !strings.Contains(b.String(), "Lin") {
+		t.Fatal("expected passenger link + name in index")
+	}
+}
