@@ -13,12 +13,14 @@ import (
 )
 
 func main() {
+	portraitsFlag := flag.Bool("portraits", false, "generate missing/updated passenger AI portraits via SMKB_PORTRAIT_CMD before rendering")
 	flag.Parse()
 
 	dbPath := "spacemolt-knowledge.db"
 	factionsOut := "kb/factions"
 	playersOut := "kb/players"
 	systemsDir := "kb/systems"
+	passengersOut := "kb/passengers"
 
 	if args := flag.Args(); len(args) > 0 {
 		dbPath = args[0]
@@ -60,15 +62,29 @@ func main() {
 	attachFactionOverlays(factions, overlaysRoot)
 	attachPlayerOverlays(players, overlaysRoot)
 
+	passengers, err := loadPassengers(db)
+	if err != nil {
+		log.Printf("warning: load passengers: %v (passenger pages skipped)", err)
+		passengers = nil
+	}
+	attachPassengerOverlays(passengers, overlaysRoot)
+	if *portraitsFlag {
+		generatePassengerPortraits(passengers, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"))
+	}
+	attachPassengerPortraits(passengers, overlaysRoot)
+
 	funcs := templateFuncs(genTime)
 	fIdx := htmltpl.Must(htmltpl.New("fidx").Funcs(funcs).Parse(factionIndexTmpl))
 	fDet := htmltpl.Must(htmltpl.New("fdet").Funcs(funcs).Parse(factionDetailTmpl))
 	pIdx := htmltpl.Must(htmltpl.New("pidx").Funcs(funcs).Parse(playerIndexTmpl))
 	pDet := htmltpl.Must(htmltpl.New("pdet").Funcs(funcs).Parse(playerDetailTmpl))
+	psIdx := htmltpl.Must(htmltpl.New("psidx").Funcs(funcs).Parse(passengerIndexTmpl))
+	psDet := htmltpl.Must(htmltpl.New("psdet").Funcs(funcs).Parse(passengerDetailTmpl))
 
 	// Clean + recreate output dirs, preserving the .css files.
 	mustResetDir(factionsOut, "factions.css")
 	mustResetDir(playersOut, "players.css")
+	mustResetDir(passengersOut, "passengers.css")
 
 	mustWrite(filepath.Join(factionsOut, "index.html"), fIdx, factions)
 	for _, f := range factions {
@@ -90,7 +106,20 @@ func main() {
 		}
 	}
 
-	log.Printf("generated %d factions and %d players", len(factions), len(players))
+	mustWrite(filepath.Join(passengersOut, "index.html"), psIdx, passengers)
+	for _, p := range passengers {
+		dir := filepath.Join(passengersOut, p.Slug)
+		mustMkdir(dir)
+		mustWrite(filepath.Join(dir, "index.html"), psDet, p)
+		if p.Overlay != nil {
+			copyOverlayImage(filepath.Join(overlaysRoot, "passengers", p.ID), p.Overlay.ImageFile, dir)
+		}
+		if p.PortraitFile != "" {
+			copyOverlayImage(passengerGeneratedDir(overlaysRoot, p.ID), p.PortraitFile, dir)
+		}
+	}
+
+	log.Printf("generated %d factions, %d players, %d passengers", len(factions), len(players), len(passengers))
 }
 
 // mustResetDir removes generated HTML under dir (recursively for subdirs) but

@@ -27,6 +27,9 @@ func templateFuncs(genTime time.Time) htmltpl.FuncMap {
 		},
 		"richText": richText,
 		"inline":   func(s string) htmltpl.HTML { return htmltpl.HTML(inlineMarkup(s)) },
+		"silhouette": func(seed, primary, secondary string) htmltpl.HTML {
+			return silhouetteSVG(seed, primary, secondary)
+		},
 	}
 }
 
@@ -96,7 +99,8 @@ const navLinks1 = `
             <a href="../items/index.html">Items</a>
             <a href="../ships/index.html">Ships</a>
             <a href="../factions/index.html">Factions</a>
-            <a href="../players/index.html">Players</a>`
+            <a href="../players/index.html">Players</a>
+            <a href="../passengers/index.html">Passengers</a>`
 
 const navLinks2 = `
             <a href="../../">Home</a>
@@ -104,7 +108,8 @@ const navLinks2 = `
             <a href="../../items/index.html">Items</a>
             <a href="../../ships/index.html">Ships</a>
             <a href="../../factions/index.html">Factions</a>
-            <a href="../../players/index.html">Players</a>`
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>`
 
 const themeBtn = `
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
@@ -369,6 +374,90 @@ var playerIndexTmpl = `<!DOCTYPE html>
 </html>
 `
 
+// --- Passenger index ---
+var passengerIndexTmpl = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passengers - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../passengers/passengers.css">
+</head>
+<body>
+` + siteHeader1 + `
+    <main class="container page-content">
+        <h2>Passengers</h2>
+        <p class="text-muted mt-1">{{len .}} ship passengers sighted in transit.</p>
+        <table class="sortable">
+            <thead><tr><th class="sortable">Name</th><th class="sortable">Citizenship</th><th class="sortable">Class</th><th class="sortable">Sightings</th></tr></thead>
+            <tbody>
+{{- range .}}
+                <tr>
+                    <td><a href="{{.Slug}}/">{{.Name}}</a></td>
+                    <td>{{dash .Citizenship}}</td>
+                    <td>{{dash .Class}}</td>
+                    <td data-sort="{{.SightingCount}}">{{.SightingCount}}</td>
+                </tr>
+{{- end}}
+            </tbody>
+        </table>
+    </main>
+` + themeScript + sortScript + `
+</body>
+</html>
+`
+
+// --- Passenger detail ---
+// Portrait precedence: contributor overlay image > generated AI portrait >
+// deterministic silhouette.
+var passengerDetailTmpl = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}} - Passengers - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../passengers/passengers.css">
+</head>
+<body>
+` + siteHeader2 + `
+    <main class="container page-content detail-page">
+        <aside class="infobox"{{if .EmpireColor}} style="--player-accent:{{.EmpireColor}}"{{end}}>
+            <div class="infobox-title">{{.Name}}</div>
+            {{if .Citizenship}}<div class="infobox-subtitle">{{.Citizenship}}</div>{{end}}
+{{if and .Overlay .Overlay.ImageFile}}
+            <img class="infobox-image" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">
+            {{if .Overlay.ImageAlt}}<figcaption class="infobox-caption">{{.Overlay.ImageAlt}}</figcaption>{{end}}
+{{else if .PortraitFile}}
+            <img class="infobox-image" src="{{.PortraitFile}}" alt="Generated portrait of {{.Name}}">
+            <figcaption class="infobox-caption">AI-generated placeholder portrait.</figcaption>
+{{else}}
+            <div class="infobox-silhouette">{{silhouette .ID .EmpireColor ""}}</div>
+{{end}}
+            <dl class="infobox-data">
+                {{if .Class}}<dt>Class</dt><dd>{{.Class}}</dd>{{end}}
+                <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
+                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+                <dt>Sightings</dt><dd>{{.SightingCount}}</dd>
+            </dl>
+            <div class="infobox-id">{{.ID}}</div>
+        </aside>
+{{if .Bio}}
+        <h3>About</h3>
+        {{richText "" .Bio}}
+{{end}}
+{{if and .Overlay .Overlay.BodyHTML}}
+        <h3>Profile</h3>
+        <p class="overlay-credit text-muted">Community-contributed profile.</p>
+        <div class="overlay-body">{{.Overlay.BodyHTML}}</div>
+{{end}}
+    </main>
+` + themeScript + `
+</body>
+</html>
+`
+
 // --- Player detail ---
 var playerDetailTmpl = `<!DOCTYPE html>
 <html lang="en">
@@ -400,13 +489,18 @@ var playerDetailTmpl = `<!DOCTYPE html>
         </aside>
         {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
 {{else}}
-        <div class="player-banner"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
-            <h2>{{.Username}}{{if .FactionSlug}} <a class="pb-faction" href="../../factions/{{.FactionSlug}}/">[{{.FactionTag}}]</a>{{else if .FactionTag}}<span class="pb-faction">[{{.FactionTag}}]</span>{{end}}</h2>
-            <div class="pb-id">{{.ID}}</div>
-            {{if .ClanTag}}<div class="pb-clan">clan {{.ClanTag}}</div>{{end}}
-            {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
-        </div>
-
+        <aside class="infobox"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
+            <div class="infobox-title">{{.Username}}</div>
+            {{if .FactionTag}}<div class="infobox-subtitle">{{if .FactionSlug}}<a href="../../factions/{{.FactionSlug}}/">{{.FactionTag}}</a>{{else}}{{.FactionTag}}{{end}}</div>{{end}}
+            <div class="infobox-silhouette">{{silhouette .ID .PrimaryColor .SecondaryColor}}</div>
+            <dl class="infobox-data">
+                {{if .ClanTag}}<dt>Clan</dt><dd>{{.ClanTag}}</dd>{{end}}
+                <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
+                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+            </dl>
+            <div class="infobox-id">{{.ID}}</div>
+        </aside>
+        {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
 {{if and .Overlay .Overlay.Stats}}
         <h3>Profile</h3>
         <dl class="faction-stats overlay-stats">
@@ -415,10 +509,6 @@ var playerDetailTmpl = `<!DOCTYPE html>
 {{- end}}
         </dl>
 {{end}}
-        <div class="stat-strip">
-            <div class="ss-item"><strong>{{shortDate .FirstSeenUTC}}</strong> first seen</div>
-            <div class="ss-item"><strong>{{rel .LastSeenUTC}}</strong> last seen</div>
-        </div>
 {{end}}
 {{if and .Overlay .Overlay.BodyHTML}}
         <h3>About</h3>

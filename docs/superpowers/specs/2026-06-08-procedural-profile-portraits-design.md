@@ -151,9 +151,14 @@ Generated content lives in a **separate tree** from human overlays so curated
 and machine content are never confused:
 
 ```
-overlays/generated/passengers/<citizen_id>/portrait.webp   # the image (committed)
+overlays/generated/passengers/<citizen_id>/portrait.png    # the image (committed)
 overlays/generated/passengers/<citizen_id>/prompt.txt      # prompt + hash sidecar
 ```
+
+(Implementation note: the cached filename is `portrait.png`, not `.webp` — it
+keeps `validateImage`'s extension check trivial and matches what most SD CLIs
+emit by default. The `SMKB_PORTRAIT_CMD` wrapper may emit any format as long as
+it writes that path; `validateImage` still accepts png/jpg/webp/gif ≤320×320.)
 
 Human overlays stay in `overlays/players/<id>/` and always win (precedence
 model). At build, generated portraits copy into `kb/...` exactly like overlay
