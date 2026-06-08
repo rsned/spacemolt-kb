@@ -17,9 +17,14 @@ Two populations, two very different data shapes:
 - **Players (scanned agents):** `username`, stable `id`, faction/player colors.
   No bio. Potentially many of them; the KB regenerates frequently. Cheap,
   zero-cost placeholders are essential.
-- **Passengers:** a *coming-soon* game feature being wired in. Minimal data —
-  `id`, `name`, and a `bio`. The bio is rich enough to drive a text-to-image
-  prompt. Far fewer of them than players.
+- **Passengers:** a newly-wired game feature. The `passengers` table exists and
+  has its first rows. Schema:
+  `citizen_id` (PK), `name`, `citizenship` (empire: e.g. `crimson`/`nebula`),
+  `bio`, `class` (travel class: `first`/`business`), `first_seen_utc`,
+  `last_seen_utc`, `sighting_count`. The bio is rich enough to drive a
+  text-to-image prompt; `citizenship` and `class` add empire-theme and
+  status cues. Far fewer of them than players. **Passengers are not yet
+  rendered anywhere in the KB** — this feature also creates their pages.
 
 ## Solution Overview
 
@@ -37,6 +42,10 @@ two generators tuned to each population:
 A contributor-authored overlay portrait always wins over either generator, so
 the existing overlay system (`overlays/players/<id>/portrait.webp`) remains the
 "provide your own" escape hatch with no code change.
+
+This feature also introduces the **passenger rendering surface** — a passengers
+index and per-passenger detail pages (Component 3) — since passengers have no
+pages today and a portrait needs a page to live on.
 
 ## Precedence Model
 
@@ -91,19 +100,27 @@ from a player.
 
 ## Component 2 — Passenger AI Portrait Pipeline
 
-### a) Data source (coming-soon-aware)
-A thin `Passenger` loader (`id`, `name`, `bio`) follows the same pattern as
-`loadPlayers`, reading from wherever the new game feature lands (table/JSON —
-exact source TBD when wired). Until then it returns empty, so nothing breaks.
-The pipeline ships built but dormant, ready to light up when data arrives.
+### a) Data source
+A `loadPassengers` loader follows the same pattern as `loadPlayers`, reading the
+`passengers` table from the knowledge DB
+(`/home/robert/spacemolt/spacemolt-knowledge.db`). Columns:
+`citizen_id`, `name`, `citizenship`, `bio`, `class`, `first_seen_utc`,
+`last_seen_utc`, `sighting_count`. If the table is missing/empty the loader
+returns empty and nothing breaks.
 
 ### b) Prompt builder
-A pure function `bio → prompt`:
-- Combines the passenger bio with a fixed **style suffix** that keeps the whole
-  gallery visually consistent (e.g. `"…, character portrait, sci-fi crew
-  member, painterly, neutral background, head and shoulders"`).
-- The style suffix lives in a single config constant so the whole gallery's look
-  can be tuned in one place.
+A pure function `(bio, class, citizenship) → prompt`:
+- The **bio** is the core subject description.
+- **`class`** maps to an attire/status cue (`first` → affluent/refined,
+  `business` → professional) so portraits read at the right social register.
+- **`citizenship`** maps to an empire color/theme cue, reusing the existing
+  empire color map (`crimson #DC143C`, `nebula #00CED1`, … — currently in
+  `cmd/generate-items-kb/main.go:351`; lift into a shared spot or duplicate the
+  small map).
+- A fixed **style suffix** keeps the gallery visually consistent (e.g.
+  `"…, character portrait, sci-fi crew member, painterly, neutral background,
+  head and shoulders"`), held in a single config constant so the whole gallery's
+  look tunes in one place.
 - An empty/garbage bio still yields a valid generic prompt — never empty.
 - The exact prompt is persisted alongside the image for cache invalidation.
 
@@ -123,7 +140,7 @@ a model to be installed.
 
 ### d) Caching & regeneration
 Generated portraits are **committed** (they are expensive to produce).
-- Cache key = passenger **ID**.
+- Cache key = passenger **`citizen_id`**.
 - A sidecar next to each image stores the **prompt hash**.
 - On build: image exists AND prompt hash unchanged → **skip** (no model call).
   Bio/prompt changed (hash differs) or no image → **regenerate**.
@@ -134,8 +151,8 @@ Generated content lives in a **separate tree** from human overlays so curated
 and machine content are never confused:
 
 ```
-overlays/generated/passengers/<id>/portrait.webp   # the image (committed)
-overlays/generated/passengers/<id>/prompt.txt      # prompt + hash sidecar
+overlays/generated/passengers/<citizen_id>/portrait.webp   # the image (committed)
+overlays/generated/passengers/<citizen_id>/prompt.txt      # prompt + hash sidecar
 ```
 
 Human overlays stay in `overlays/players/<id>/` and always win (precedence
@@ -149,6 +166,27 @@ Because SD is slow, image generation is **decoupled** from the normal generator:
 - The everyday `chore(kb): refresh` regen merely *consumes* whatever portraits
   already exist on disk.
 - Generation is therefore always an explicit opt-in.
+
+## Component 3 — Passenger Rendering Surface
+
+Passengers have no pages today, so this feature creates them, modeled closely on
+the existing player pages.
+
+- **Passengers index** → `kb/passengers/index.html`: a list of all passengers
+  (name, citizenship, class, sighting count), each linking to a detail page, with
+  a small portrait/silhouette thumbnail where layout allows. Sortable like the
+  players/factions indexes.
+- **Passenger detail** → `kb/passengers/<citizen_id>/index.html`:
+  - infobox with the resolved portrait (overlay → AI portrait → banner fallback);
+  - `name`, `citizenship` (linked to the empire theme), `class`;
+  - **bio** rendered as the "About" body;
+  - `first_seen_utc` / `last_seen_utc` / `sighting_count` meta.
+- Reuses the existing `.infobox` / `smui.css` styling; a new `passengers.css`
+  follows the `players.css` pattern (preserved across regen via
+  `mustResetDir(passengersOut, "passengers.css")`).
+- Passengers with no AI portrait yet and no overlay fall back to the plain banner
+  (same as the player no-image branch), so the section renders even before any
+  image generation has run.
 
 ## Error Handling
 
@@ -181,12 +219,14 @@ Each phase is independently shippable.
 
 1. **Phase 1 — Player silhouettes.** Fully buildable today; immediate visible
    payoff on every player detail page. A complete, useful change on its own.
-2. **Phase 2 — Passenger pipeline scaffolding.** Prompt builder, pluggable CLI
-   contract, caching, `--portraits` step, `overlays/generated/` tree, precedence
-   wiring — all behind the dormant passenger loader. Testable end-to-end with a
-   fake CLI before real passenger data exists.
-3. **Phase 3 — Real passenger data** when the game feature lands (just the
-   loader's data source).
+2. **Phase 2 — Passenger pages (text-first).** `loadPassengers` + the passengers
+   index and detail pages (Component 3), rendering the real 4 rows with the
+   banner fallback. No image generation yet — ships a complete, browsable
+   passenger section immediately.
+3. **Phase 3 — Passenger AI portraits.** Prompt builder, pluggable CLI contract,
+   caching, `--portraits` step, `overlays/generated/` tree, precedence wiring.
+   Testable end-to-end with a fake CLI; lights up the portraits on the Phase 2
+   pages once a real backend is configured.
 4. **Phase 4 (follow-up)** — players-index silhouette thumbnails.
 
 ## Key Files (reference)
@@ -194,9 +234,11 @@ Each phase is independently shippable.
 | File | Role |
 |------|------|
 | `cmd/generate-factions-kb/main.go` | Generator entry; overlay attach + image copy; add `--portraits` step |
-| `cmd/generate-factions-kb/render.go` | Player/passenger detail templates; swap no-overlay banner for silhouette |
+| `cmd/generate-factions-kb/render.go` | Player detail template (swap no-overlay banner for silhouette); new passengers index + detail templates |
 | `cmd/generate-factions-kb/types.go` | `Player`, `Overlay` structs; add `Passenger` |
 | `cmd/generate-factions-kb/players.go` | `loadPlayers`; add `loadPassengers` sibling |
 | `cmd/generate-factions-kb/overlay.go` | Overlay load, image validation, `copyOverlayImage` (reused for generated images) |
-| `kb/smui.css` | `.infobox` / `.infobox-image` styling (silhouette reuses) |
+| `kb/smui.css` | `.infobox` / `.infobox-image` styling (silhouette + passenger pages reuse) |
+| `kb/passengers/passengers.css` | New passenger page styles (mirrors `players.css`); preserved across regen |
+| `cmd/generate-items-kb/main.go:351` | Existing empire color map (`crimson`/`nebula`/…) to reuse for citizenship theming |
 | `overlays/README.md` | Document the new `overlays/generated/` tree + portrait CLI contract |
