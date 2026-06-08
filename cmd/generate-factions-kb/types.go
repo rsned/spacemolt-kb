@@ -104,3 +104,20 @@ type Sighting struct {
 	InCombat    bool
 	LastSeenUTC string
 }
+
+// Passenger is a ship passenger (citizen) sighted in the game world.
+type Passenger struct {
+	ID            string
+	Slug          string // == ID (citizen_id is already URL-safe)
+	Name          string
+	Citizenship   string
+	EmpireColor   string // resolved from citizenship; "" when unknown
+	Bio           string
+	Class         string // travel class: "first" / "business"
+	FirstSeenUTC  string
+	LastSeenUTC   string
+	SightingCount int
+
+	Overlay      *Overlay // contributor-authored content, nil when none
+	PortraitFile string   // generated AI portrait filename, "" when none
+}
