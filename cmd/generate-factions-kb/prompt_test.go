@@ -39,4 +39,8 @@ func TestPromptHashStable(t *testing.T) {
 	if a == promptHash("hellp") {
 		t.Fatal("promptHash collided")
 	}
+	const wantHello = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+	if promptHash("hello") != wantHello {
+		t.Fatalf("promptHash(\"hello\") = %q; want %q", promptHash("hello"), wantHello)
+	}
 }
