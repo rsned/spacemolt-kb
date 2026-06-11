@@ -36,8 +36,11 @@ vendor/
 # Diff report runtime data
 data/snapshots/
 
-# Accidentally-committed generator binary (build artifact)
+# Built binaries — build into bin/, never commit them to the repo root.
+bin/
 /generate-factions-kb
+/analyze-empire-economy
+/seed-overlays
 
 # local backup archives (portraits etc.) — never commit
 *.tar
