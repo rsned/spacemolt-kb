@@ -55,7 +55,8 @@ var allowedImageExt = map[string]bool{
 }
 
 // maxImageDim is the largest allowed width or height (px) for an overlay image.
-const maxImageDim = 320
+// 512 accommodates SDXL-Turbo passenger portraits (generated at 512x512).
+const maxImageDim = 512
 
 // validateImage checks that name is a bare filename (no separators, no ".."),
 // has an allowed raster extension, decodes as an image, and fits within
@@ -96,15 +97,15 @@ func splitFrontmatter(content []byte) (front []byte, body string) {
 		return nil, s
 	}
 	rest := s[len("---\n"):]
-	idx := strings.Index(rest, "\n---\n")
-	if idx < 0 {
+	head, tail, found := strings.Cut(rest, "\n---\n")
+	if !found {
 		// Allow a closing fence at EOF with no trailing newline.
 		if strings.HasSuffix(rest, "\n---") {
 			return []byte(rest[:len(rest)-len("\n---")]), ""
 		}
 		return nil, s
 	}
-	return []byte(rest[:idx]), rest[idx+len("\n---\n"):]
+	return []byte(head), tail
 }
 
 // overlaysRoot is the repo-root source directory holding contributor overlays.

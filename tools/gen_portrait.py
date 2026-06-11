@@ -10,6 +10,11 @@ Implements the SMKB_PORTRAIT_CMD contract used by cmd/generate-factions-kb:
 Backend is HuggingFace `diffusers` running Stable Diffusion on the GPU.
 Defaults to SDXL-Turbo (fast, 1-4 steps, fits a 16 GB card comfortably).
 
+Long prompts: when `compel` is installed and the model is SDXL, prompts longer
+than CLIP's 77-token window are chunked and concatenated rather than truncated,
+so the whole prompt counts. Set PORTRAIT_NO_COMPEL=1 to disable and fall back to
+plain (truncated) prompts.
+
 Wire it up with:
 
   export SMKB_PORTRAIT_CMD='~/sd-venv/bin/python ~/spacemolt/kb/tools/gen_portrait.py'
@@ -99,17 +104,48 @@ class Generator:
             model, torch_dtype=torch.float16, variant="fp16"
         ).to("cuda")
         self.pipe.set_progress_bar_config(disable=True)
+        self.compel = self._make_compel()
+
+    def _make_compel(self):
+        """Build a Compel encoder so prompts beyond CLIP's 77-token window are
+        chunked and concatenated instead of truncated. Returns None (falling back
+        to plain prompts) for non-SDXL models, if compel is unavailable, or when
+        PORTRAIT_NO_COMPEL is set."""
+        if os.environ.get("PORTRAIT_NO_COMPEL") == "1":
+            return None
+        # SDXL has two tokenizers/encoders and needs pooled embeds; bail otherwise.
+        if not getattr(self.pipe, "tokenizer_2", None):
+            return None
+        try:
+            from compel import Compel, ReturnedEmbeddingsType
+        except ImportError:
+            print("gen_portrait: compel not installed, using truncated prompts",
+                  file=sys.stderr)
+            return None
+        return Compel(
+            tokenizer=[self.pipe.tokenizer, self.pipe.tokenizer_2],
+            text_encoder=[self.pipe.text_encoder, self.pipe.text_encoder_2],
+            returned_embeddings_type=ReturnedEmbeddingsType.PENULTIMATE_HIDDEN_STATES_NON_NORMALIZED,
+            requires_pooled=[False, True],
+            truncate_long_prompts=False,
+        )
 
     def render(self, req: dict) -> None:
         generator = self.torch.Generator(device="cuda").manual_seed(int(req["seed"]))
-        image = self.pipe(
-            prompt=req["prompt"],
+        kwargs = dict(
             num_inference_steps=int(req["steps"]),
             guidance_scale=float(req["guidance"]),
             height=int(req["size"]),
             width=int(req["size"]),
             generator=generator,
-        ).images[0]
+        )
+        if self.compel is not None:
+            embeds, pooled = self.compel(req["prompt"])
+            kwargs["prompt_embeds"] = embeds
+            kwargs["pooled_prompt_embeds"] = pooled
+        else:
+            kwargs["prompt"] = req["prompt"]
+        image = self.pipe(**kwargs).images[0]
         os.makedirs(os.path.dirname(req["out"]), exist_ok=True)
         image.save(req["out"])
 

@@ -18,14 +18,20 @@ const promptSidecarName = "prompt.txt"
 // portrait is missing or whose prompt changed. Empty cmdLine is a no-op. The
 // command receives the prompt on stdin and in $PORTRAIT_PROMPT, the target path
 // in $PORTRAIT_OUT, and a deterministic $PORTRAIT_SEED; it must write an image
-// to $PORTRAIT_OUT.
-func generatePassengerPortraits(passengers []*Passenger, root, cmdLine string) {
+// to $PORTRAIT_OUT. A positive limit restricts generation to the first limit
+// passengers (already sorted by name) for quick verification runs.
+func generatePassengerPortraits(passengers []*Passenger, root, cmdLine string, limit int) {
 	if strings.TrimSpace(cmdLine) == "" {
 		log.Printf("portrait generation skipped: no command configured (set SMKB_PORTRAIT_CMD)")
 		return
 	}
+	if limit > 0 && limit < len(passengers) {
+		log.Printf("portrait generation limited to first %d of %d passengers", limit, len(passengers))
+		passengers = passengers[:limit]
+	}
+	archetypes := loadArchetypes(root)
 	for _, p := range passengers {
-		prompt := buildPortraitPrompt(p.Bio, p.Class, p.Citizenship)
+		prompt := buildPortraitPrompt(p.ID, p.Bio, p.Class, p.Citizenship, archetypes[p.ID])
 		hash := promptHash(prompt)
 		dir := passengerGeneratedDir(root, p.ID)
 		if portraitExists(dir) && cachedHashMatches(dir, hash) {

@@ -14,6 +14,7 @@ import (
 
 func main() {
 	portraitsFlag := flag.Bool("portraits", false, "generate missing/updated passenger AI portraits via SMKB_PORTRAIT_CMD before rendering")
+	portraitLimit := flag.Int("portrait-limit", 0, "if >0, only (re)generate portraits for the first N passengers (alphabetical) — for quick verification")
 	flag.Parse()
 
 	dbPath := "spacemolt-knowledge.db"
@@ -69,7 +70,7 @@ func main() {
 	}
 	attachPassengerOverlays(passengers, overlaysRoot)
 	if *portraitsFlag {
-		generatePassengerPortraits(passengers, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"))
+		generatePassengerPortraits(passengers, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"), *portraitLimit)
 	}
 	attachPassengerPortraits(passengers, overlaysRoot)
 
