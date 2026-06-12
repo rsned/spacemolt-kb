@@ -170,7 +170,7 @@ func TestExtractBoundariesAtLeastOnePerType(t *testing.T) {
 		PlateCount: 12, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
 	}
 	pf := GeneratePlates(profile, 5, 32)
-	conv, div, trans, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, trans, _, _, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
 	counts := map[string]int{"conv": 0, "div": 0, "trans": 0}
 	for f := range conv {
 		for i := range conv[f] {
@@ -202,7 +202,7 @@ func TestExtractBoundariesMutuallyExclusive(t *testing.T) {
 		PlateCount: 12, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
 	}
 	pf := GeneratePlates(profile, 5, 64)
-	conv, div, trans, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, trans, _, _, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
 	for f := range conv {
 		for i := range conv[f] {
 			n := 0
@@ -231,7 +231,7 @@ func TestExtractBoundariesMagnitudeRange(t *testing.T) {
 		PlateCount: 12, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75,
 	}
 	pf := GeneratePlates(profile, 5, 64)
-	conv, div, _, convMag, divMag := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, _, convMag, divMag, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
 	for f := range conv {
 		for i := range conv[f] {
 			cm, dm := convMag[f][i], divMag[f][i]
@@ -259,7 +259,7 @@ func TestSDFsZeroAtSeeds(t *testing.T) {
 	if pf.Convergent[0] == nil || pf.Divergent[0] == nil || pf.Transform[0] == nil {
 		t.Fatal("SDF arrays not allocated")
 	}
-	conv, div, trans, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, trans, _, _, _, _ := extractBoundaries(pf, profile.PlateConvergentT)
 	cases := []struct {
 		name string
 		mask [cubemap.NumFaces][]bool
@@ -383,4 +383,35 @@ func TestLegacyPathUnchangedByCrustCode(t *testing.T) {
 			t.Errorf("legacy plate %d weight %v, want 1", i, pl.Weight)
 		}
 	}
+}
+
+// checkBoundaryPixels asserts every list entry has a unit normal, a
+// magnitude in [0,1], and a Mag exactly equal to the dense per-pixel
+// magnitude field at its (Face, Idx).
+func checkBoundaryPixels(t *testing.T, kind string, pixels []BoundaryPixel, denseMag [cubemap.NumFaces][]float64) {
+	t.Helper()
+	for _, bp := range pixels {
+		mag := math.Sqrt(bp.N[0]*bp.N[0] + bp.N[1]*bp.N[1] + bp.N[2]*bp.N[2])
+		if math.Abs(mag-1) > 1e-6 {
+			t.Fatalf("%s pixel normal not unit: %v", kind, bp.N)
+		}
+		if bp.Mag < 0 || bp.Mag > 1 {
+			t.Fatalf("%s pixel mag %v out of [0,1]", kind, bp.Mag)
+		}
+		// The list entry must match the dense mask-derived data: this
+		// pixel's dense magnitude should equal bp.Mag and distance 0.
+		if denseMag[bp.Face][bp.Idx] != bp.Mag {
+			t.Fatalf("%s list mag %v != dense mag %v", kind, bp.Mag, denseMag[bp.Face][bp.Idx])
+		}
+	}
+}
+
+func TestBoundaryPixelListsPopulated(t *testing.T) {
+	const S = 64
+	pf := GeneratePlates(crustProfile(), 42, S)
+	if len(pf.ConvPixels)+len(pf.DivPixels) == 0 {
+		t.Fatal("no boundary pixels collected")
+	}
+	checkBoundaryPixels(t, "conv", pf.ConvPixels, pf.ConvergentMag)
+	checkBoundaryPixels(t, "div", pf.DivPixels, pf.DivergentMag)
 }

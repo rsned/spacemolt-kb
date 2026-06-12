@@ -36,6 +36,16 @@ type Plate struct {
 	Weight float64
 }
 
+// BoundaryPixel is one boundary source pixel retained for crust-aware
+// classification (Phase 12): its location, smoothed tangent normal
+// pointing toward the foreign plate, and clamped velocity magnitude.
+type BoundaryPixel struct {
+	Face cubemap.Face
+	Idx  int // py*S + px
+	N    [3]float64
+	Mag  float64
+}
+
 // PlateField is the per-pixel plate output for a planet at a given
 // face size. PlateID[face][py*S+px] holds the plate id (-1 for unset
 // during construction; never persisted).
@@ -62,6 +72,10 @@ type PlateField struct {
 	// while gentle boundaries just produce subtle topography.
 	ConvergentMag [cubemap.NumFaces][]float64
 	DivergentMag  [cubemap.NumFaces][]float64
+	// ConvPixels / DivPixels are the sparse boundary source pixels of
+	// each kind, with smoothed normals — consumed by ClassifyTectonics.
+	ConvPixels []BoundaryPixel
+	DivPixels  []BoundaryPixel
 }
 
 // GeneratePlates produces a PlateField for a planet at face size S.
@@ -404,6 +418,7 @@ func magnitudeFromProj(absProj, T float64) float64 {
 func extractBoundaries(pf *PlateField, T float64) (
 	conv, div, trans [cubemap.NumFaces][]bool,
 	convMag, divMag [cubemap.NumFaces][]float64,
+	convPix, divPix []BoundaryPixel,
 ) {
 	S := pf.Size
 	for f := range conv {
@@ -487,9 +502,17 @@ func extractBoundaries(pf *PlateField, T float64) (
 				case proj > +T:
 					conv[face][idx] = true
 					convMag[face][idx] = magnitudeFromProj(proj, T)
+					convPix = append(convPix, BoundaryPixel{
+						Face: cubemap.Face(face), Idx: idx,
+						N: [3]float64{nx, ny, nz}, Mag: convMag[face][idx],
+					})
 				case proj < -T:
 					div[face][idx] = true
 					divMag[face][idx] = magnitudeFromProj(-proj, T)
+					divPix = append(divPix, BoundaryPixel{
+						Face: cubemap.Face(face), Idx: idx,
+						N: [3]float64{nx, ny, nz}, Mag: divMag[face][idx],
+					})
 				default:
 					trans[face][idx] = true
 				}
@@ -702,7 +725,7 @@ func seedPlatesTwoTier(profile *types.PlanetProfile, master int64) []Plate {
 // JFA output is angular distance / π in [0, 1]; multiplying by π · R
 // gives geodesic km in [0, π·R].
 func computeSDFs(pf *PlateField, profile *types.PlanetProfile) {
-	conv, div, trans, convMag, divMag := extractBoundaries(pf, profile.PlateConvergentT)
+	conv, div, trans, convMag, divMag, convPix, divPix := extractBoundaries(pf, profile.PlateConvergentT)
 	radius := profile.RadiusKm
 	if radius == 0 {
 		radius = 6371
@@ -733,4 +756,21 @@ func computeSDFs(pf *PlateField, profile *types.PlanetProfile) {
 	pf.Transform = scaleKm(JumpFloodFromMask(trans, pf.Size))
 	pf.ConvergentMag = copyOut(convMagOut)
 	pf.DivergentMag = copyOut(divMagOut)
+	// Populate sparse pixel lists after the dense mag arrays are built so
+	// BoundaryPixel.Mag matches the float32-rounded value stored in the
+	// dense field (JFA internally stores magnitudes as float32, causing a
+	// tiny precision shift). Reading back from the dense array guarantees
+	// the invariant pf.ConvergentMag[bp.Face][bp.Idx] == bp.Mag.
+	// convPix/divPix are extractBoundaries' sole returned references, so
+	// mutating them in place is safe.
+	pf.ConvPixels = convPix
+	for i := range pf.ConvPixels {
+		bp := &pf.ConvPixels[i]
+		bp.Mag = pf.ConvergentMag[bp.Face][bp.Idx]
+	}
+	pf.DivPixels = divPix
+	for i := range pf.DivPixels {
+		bp := &pf.DivPixels[i]
+		bp.Mag = pf.DivergentMag[bp.Face][bp.Idx]
+	}
 }
