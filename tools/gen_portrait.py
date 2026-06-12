@@ -7,15 +7,20 @@ Implements the SMKB_PORTRAIT_CMD contract used by cmd/generate-factions-kb:
   - output: written as a PNG to $PORTRAIT_OUT
   - seed:   taken from $PORTRAIT_SEED for deterministic regeneration
 
-Backend is HuggingFace `diffusers` running Stable Diffusion on the GPU.
-Defaults to SDXL-Turbo (fast, 1-4 steps, fits a 16 GB card comfortably).
+Backend is HuggingFace `diffusers` on the GPU, selectable via PORTRAIT_BACKEND:
 
-Long prompts: by default CLIP truncates prompts at its 77-token window. The
-prompt is built style/framing/archetype cue FIRST and free-text bio LAST, so
-truncation keeps the portrait-defining cue and drops the trailing bio prose —
-which is desirable, since long scenic bios otherwise pull the model into wide
-sci-fi illustration. Set PORTRAIT_COMPEL=1 to instead encode the full prompt
-(chunked past 77 tokens via `compel`) when you want the whole bio to count.
+  flux  (default) — FLUX.1-schnell, NF4 transformer + 8-bit T5, resident on the
+                    GPU (~14 GB VRAM, ~12 s/image at 4 steps). T5 reads the WHOLE
+                    prompt, so the full bio counts with no token truncation. This
+                    is the production backend.
+  sdxl            — SDXL-Turbo, CLIP-only (77-token window). Faster/smaller but
+                    cannot comprehend a long prompt past ~the first sentence
+                    (CLIP's effective window), so appearance/bio detail is lost.
+
+SDXL long-prompt handling (only relevant to PORTRAIT_BACKEND=sdxl): CLIP
+truncates at 77 tokens. The prompt leads with the style/framing/appearance cue so
+truncation keeps the portrait-defining part; PORTRAIT_COMPEL=1 chunks past 77
+tokens via `compel`. FLUX needs none of this — T5 handles long prompts natively.
 
 Wire it up with:
 
@@ -35,10 +40,11 @@ WARM-DAEMON MODE (default)
   Run `... gen_portrait.py --daemon` to start the server in the foreground.
 
 Tunable via environment variables (all optional):
-  PORTRAIT_MODEL    HF model id            (default: stabilityai/sdxl-turbo)
-  PORTRAIT_STEPS    inference steps        (default: 12)
-  PORTRAIT_GUIDANCE classifier-free guide  (default: 3.5)
-  PORTRAIT_SIZE     square pixel size      (default: 512)
+  PORTRAIT_BACKEND  flux | sdxl            (default: flux)
+  PORTRAIT_MODEL    HF model id            (default: per-backend, see below)
+  PORTRAIT_STEPS    inference steps        (default: flux 4, sdxl 12)
+  PORTRAIT_GUIDANCE classifier-free guide  (default: flux 0, sdxl 3.5)
+  PORTRAIT_SIZE     square pixel size      (default: flux 1024, sdxl 512)
   PORTRAIT_NEGATIVE negative prompt        (default: an illustration-excluding
                                             list; only takes effect when
                                             guidance > 1)
@@ -94,18 +100,28 @@ def _read_prompt() -> str:
     return prompt
 
 
+def _backend() -> str:
+    return os.environ.get("PORTRAIT_BACKEND", "flux").strip().lower()
+
+
 def _request_from_env() -> dict:
     out_path = os.environ.get("PORTRAIT_OUT", "").strip()
     if not out_path:
         sys.exit("gen_portrait: $PORTRAIT_OUT is required")
+    # Per-backend defaults: FLUX is guidance-distilled (0), 4 steps, native 1024;
+    # SDXL-Turbo runs light guidance (3.5), more steps (12), 512.
+    if _backend() == "flux":
+        steps_d, guide_d, size_d = "4", "0", "1024"
+    else:
+        steps_d, guide_d, size_d = "12", "3.5", "512"
     return {
         "prompt": _read_prompt(),
         "negative": os.environ.get("PORTRAIT_NEGATIVE", DEFAULT_NEGATIVE).strip(),
         "out": os.path.abspath(out_path),
         "seed": int(os.environ.get("PORTRAIT_SEED", "0") or "0"),
-        "steps": int(os.environ.get("PORTRAIT_STEPS", "12")),
-        "guidance": float(os.environ.get("PORTRAIT_GUIDANCE", "3.5")),
-        "size": int(os.environ.get("PORTRAIT_SIZE", "512")),
+        "steps": int(os.environ.get("PORTRAIT_STEPS", steps_d)),
+        "guidance": float(os.environ.get("PORTRAIT_GUIDANCE", guide_d)),
+        "size": int(os.environ.get("PORTRAIT_SIZE", size_d)),
     }
 
 
@@ -113,13 +129,15 @@ def _sock_path() -> str:
     explicit = os.environ.get("PORTRAIT_SOCK")
     if explicit:
         return explicit
-    # compel is loaded once when the daemon starts (it cannot be toggled per
-    # request), so a compel-on and a compel-off daemon must live on separate
-    # sockets — otherwise a compel-on request gets silently served by a warm
-    # compel-off daemon, which truncates long prompts at CLIP's 77-token limit
-    # and drops everything past the lead style cue (skin tone, attire, bio).
-    compel = "1" if os.environ.get("PORTRAIT_COMPEL") == "1" else "0"
-    return os.path.join(tempfile.gettempdir(), f"smkb_portrait_c{compel}.sock")
+    # Key the socket by backend so a flux and an sdxl daemon never collide. For
+    # sdxl, also key by compel: it is loaded once at daemon start and cannot be
+    # toggled per request, so a compel-on request must not be served by a warm
+    # compel-off daemon (which would truncate long prompts at CLIP's 77 tokens).
+    backend = _backend()
+    suffix = backend
+    if backend == "sdxl":
+        suffix += "_c" + ("1" if os.environ.get("PORTRAIT_COMPEL") == "1" else "0")
+    return os.path.join(tempfile.gettempdir(), f"smkb_portrait_{suffix}.sock")
 
 
 # ---------------------------------------------------------------------------
@@ -141,8 +159,8 @@ def _pad_to_same_length(torch, a, b):
     return (b, a) if la < lb else (a, b)
 
 
-class Generator:
-    """Loads the diffusion pipeline once and renders requests."""
+class SDXLGenerator:
+    """Loads the SDXL-Turbo pipeline once and renders requests (CLIP-only)."""
 
     def __init__(self):
         import torch
@@ -217,6 +235,60 @@ class Generator:
         image.save(req["out"])
 
 
+class FluxGenerator:
+    """FLUX.1-schnell resident on the GPU: NF4 transformer + 8-bit T5 (~14 GB
+    VRAM). T5 reads the full prompt, so the whole bio is comprehended with no
+    CLIP-style truncation. Guidance-distilled (guidance 0) with no negative
+    prompt — the SDXL negative is ignored here."""
+
+    def __init__(self):
+        import torch
+        from diffusers import FluxPipeline
+        from transformers import T5EncoderModel, BitsAndBytesConfig
+
+        if not torch.cuda.is_available():
+            sys.exit("gen_portrait: CUDA GPU not available — check the torch install")
+
+        self.torch = torch
+        model = os.environ.get("PORTRAIT_MODEL", "magespace/FLUX.1-schnell-bnb-nf4")
+        # Quantize T5 to 8-bit so the whole pipeline stays resident in 16 GB VRAM.
+        t5 = T5EncoderModel.from_pretrained(
+            model, subfolder="text_encoder_2",
+            quantization_config=BitsAndBytesConfig(load_in_8bit=True),
+            torch_dtype=torch.bfloat16,
+        )
+        self.pipe = FluxPipeline.from_pretrained(
+            model, text_encoder_2=t5, torch_dtype=torch.bfloat16
+        )
+        # The NF4 transformer and 8-bit T5 are already placed on the GPU by
+        # bitsandbytes; move the remaining (CPU-loaded) components onto it too.
+        # We deliberately do NOT enable cpu-offload: it parks bf16 weights in
+        # system RAM and thrashed swap on a 32 GB box. Resident is faster + safe.
+        self.pipe.text_encoder.to("cuda")
+        self.pipe.vae.to("cuda")
+        self.pipe.set_progress_bar_config(disable=True)
+        self.max_seq = int(os.environ.get("PORTRAIT_T5_TOKENS", "256"))
+
+    def render(self, req: dict) -> None:
+        generator = self.torch.Generator("cpu").manual_seed(int(req["seed"]))
+        image = self.pipe(
+            req["prompt"],
+            guidance_scale=float(req.get("guidance", 0.0)),
+            num_inference_steps=int(req["steps"]),
+            max_sequence_length=self.max_seq,
+            height=int(req["size"]),
+            width=int(req["size"]),
+            generator=generator,
+        ).images[0]
+        os.makedirs(os.path.dirname(req["out"]), exist_ok=True)
+        image.save(req["out"])
+
+
+def make_generator():
+    """Construct the generator for the selected PORTRAIT_BACKEND."""
+    return FluxGenerator() if _backend() == "flux" else SDXLGenerator()
+
+
 # ---------------------------------------------------------------------------
 # Daemon: load once, serve newline-delimited JSON over a Unix socket
 # ---------------------------------------------------------------------------
@@ -237,7 +309,7 @@ def run_daemon() -> None:
 
     # Bind the socket before the (slow, possibly downloading) model load so
     # clients can connect immediately; their request simply blocks until ready.
-    gen = Generator()
+    gen = make_generator()
     print("gen_portrait: model loaded, ready", file=sys.stderr)
 
     try:
@@ -258,7 +330,7 @@ def run_daemon() -> None:
             pass
 
 
-def _serve_one(conn: socket.socket, gen: Generator) -> None:
+def _serve_one(conn: socket.socket, gen) -> None:
     buf = b""
     while not buf.endswith(b"\n"):
         chunk = conn.recv(65536)
@@ -341,7 +413,7 @@ def main() -> None:
 
     req = _request_from_env()
     if os.environ.get("PORTRAIT_NO_DAEMON") == "1":
-        Generator().render(req)
+        make_generator().render(req)
         print(f"gen_portrait: wrote {req['out']} (seed={req['seed']})", file=sys.stderr)
         return
     run_client(req)

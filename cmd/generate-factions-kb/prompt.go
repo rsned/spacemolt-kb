@@ -172,16 +172,20 @@ func pickTrait(pool []string, salt, id string) string {
 // combination, then id-derived physical traits (skin/age/build), then the full
 // bio. Always returns a non-empty prompt.
 func buildPortraitPrompt(id, bio, class, citizenship, archetype string) string {
-	subject := strings.TrimSpace(bio)
-	if subject == "" {
-		subject = "a quiet interstellar traveler"
-	}
-
 	cls := strings.ToLower(strings.TrimSpace(class))
 	cit := strings.ToLower(strings.TrimSpace(citizenship))
 	arch := strings.ToLower(strings.TrimSpace(archetype))
-	return portraitCue(bioGenderNoun(bio)) + ", " + passengerAesthetic(bio, cls, cit, arch) + ", " +
-		physicalTraits(id) + ", " + subject
+	// The FLUX backend encodes the whole prompt through T5, so the full bio
+	// counts (no CLIP 77-token truncation): lead with the style cue, then
+	// physical appearance and the styling aesthetic, then the free-text bio as a
+	// trailing sentence. Order still puts the portrait-defining cue first so the
+	// SDXL fallback (CLIP-only) degrades gracefully.
+	prompt := portraitCue(bioGenderNoun(bio)) + ", " +
+		physicalTraits(id) + ", " + passengerAesthetic(bio, cls, cit, arch)
+	if subject := strings.TrimSpace(bio); subject != "" {
+		prompt += ". " + subject
+	}
+	return prompt
 }
 
 // passengerAesthetic picks the styling phrase: a performer wins (bio cue or
@@ -210,7 +214,11 @@ func passengerAesthetic(bio, cls, cit, arch string) string {
 	if formality == "" {
 		formality = "practical"
 	}
-	return formality + ", " + empire + ", " + garment
+	// Garment precedes the empire sensibility so it stays inside CLIP's 77-token
+	// window: some empire styles (notably crimson) are long, and if they came
+	// first they truncated the garment clause, leaving subjects bare-shouldered.
+	// The empire adjectives are lower-priority and fine to lose to truncation.
+	return formality + ", " + garment + ", " + empire
 }
 
 // hasPerformerCue reports whether bio mentions a flamboyant stage persona.
