@@ -304,3 +304,83 @@ func TestSDFsKmScaling(t *testing.T) {
 			maxConv, math.Pi*profile.RadiusKm+1)
 	}
 }
+
+func crustProfile() *types.PlanetProfile {
+	return &types.PlanetProfile{
+		PlateConvergentT: 0.75,
+		Crust: types.CrustConfig{
+			MajorPlates: 6, MinorPlates: 4, MajorGrowthBias: 4,
+			OceanicFraction: 0.45,
+		},
+	}
+}
+
+func TestTwoTierPlateCountAndWeights(t *testing.T) {
+	pf := GeneratePlates(crustProfile(), 42, 64)
+	if pf == nil {
+		t.Fatal("nil PlateField")
+	}
+	if len(pf.Plates) != 10 {
+		t.Fatalf("got %d plates, want 10 (6 major + 4 minor)", len(pf.Plates))
+	}
+	for i, p := range pf.Plates {
+		want := 4.0
+		if i >= 6 {
+			want = 1.0
+		}
+		if p.Weight != want {
+			t.Errorf("plate %d weight %v, want %v", i, p.Weight, want)
+		}
+	}
+}
+
+func TestTwoTierMajorsClaimMoreArea(t *testing.T) {
+	const S = 64
+	pf := GeneratePlates(crustProfile(), 42, S)
+	areas := make([]int, len(pf.Plates))
+	for f := range pf.PlateID {
+		for _, id := range pf.PlateID[f] {
+			areas[id]++
+		}
+	}
+	var majorSum, minorSum int
+	for i, a := range areas {
+		if i < 6 {
+			majorSum += a
+		} else {
+			minorSum += a
+		}
+	}
+	majorMean := float64(majorSum) / 6
+	minorMean := float64(minorSum) / 4
+	if majorMean < 2*minorMean {
+		t.Errorf("major mean area %v not ≥ 2× minor mean %v", majorMean, minorMean)
+	}
+}
+
+func TestTwoTierEveryPixelAssigned(t *testing.T) {
+	const S = 64
+	pf := GeneratePlates(crustProfile(), 7, S)
+	for f := range pf.PlateID {
+		for i, id := range pf.PlateID[f] {
+			if id < 0 || int(id) >= len(pf.Plates) {
+				t.Fatalf("face %d pixel %d has invalid plate id %d", f, i, id)
+			}
+		}
+	}
+}
+
+func TestLegacyPathUnchangedByCrustCode(t *testing.T) {
+	// A profile with PlateCount but zero Crust must produce the same
+	// plates as before this phase: weights all 1, count == PlateCount.
+	p := &types.PlanetProfile{PlateCount: 8, OceanicPlateFraction: 0.5, PlateConvergentT: 0.75}
+	pf := GeneratePlates(p, 99, 64)
+	if len(pf.Plates) != 8 {
+		t.Fatalf("legacy plate count %d, want 8", len(pf.Plates))
+	}
+	for i, pl := range pf.Plates {
+		if pl.Weight != 1 {
+			t.Errorf("legacy plate %d weight %v, want 1", i, pl.Weight)
+		}
+	}
+}

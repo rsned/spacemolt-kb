@@ -29,6 +29,11 @@ type Plate struct {
 	RotAxis   [3]float64
 	AngSpeed  float64
 	IsOceanic bool
+	// Weight is the flood-fill growth bias (Phase 12 two-tier seeding):
+	// frontier candidates from a plate are pushed Weight times, so a
+	// weight-4 major plate expands ~4× faster than a weight-1 minor.
+	// Legacy single-tier seeding sets Weight = 1 on every plate.
+	Weight float64
 }
 
 // PlateField is the per-pixel plate output for a planet at a given
@@ -60,7 +65,13 @@ type PlateField struct {
 }
 
 // GeneratePlates produces a PlateField for a planet at face size S.
-// Returns nil when profile.PlateCount == 0 (no plates).
+// Returns nil when no plates are seeded (legacy: profile.PlateCount ==
+// 0; crust path: profile.Crust.MajorPlates == 0).
+//
+// When profile.Crust.MajorPlates > 0 the crust path runs: two-tier
+// seeding (major + minor filler plates) with growth-weighted flood
+// fill, ignoring profile.PlateCount. Otherwise the legacy single-tier
+// path runs off profile.PlateCount.
 //
 // Pipeline:
 //  1. seedPlates: N spiral seeds + per-plate motion + oceanic flag.
@@ -72,10 +83,15 @@ type PlateField struct {
 // pkg/planetgen/field/plates.go so adding new sub-steps in later
 // phases never shifts existing field values.
 func GeneratePlates(profile *types.PlanetProfile, master int64, S int) *PlateField {
-	if profile.PlateCount > math.MaxInt16 {
-		panic("planetgen/field: PlateCount exceeds int16 max (32767)")
+	var plates []Plate
+	if profile.Crust.MajorPlates > 0 {
+		plates = seedPlatesTwoTier(profile, master)
+	} else {
+		if profile.PlateCount > math.MaxInt16 {
+			panic("planetgen/field: PlateCount exceeds int16 max (32767)")
+		}
+		plates = seedPlates(profile, master)
 	}
-	plates := seedPlates(profile, master)
 	if len(plates) == 0 {
 		return nil
 	}
@@ -94,8 +110,9 @@ func GeneratePlates(profile *types.PlanetProfile, master int64, S int) *PlateFie
 // floodFillPlates assigns every pixel a plate id via random-walk
 // frontier expansion starting from each plate's spiral seed pixel.
 //
-// Termination is bounded: each loop iteration assigns exactly one
-// previously-unassigned pixel; total iterations = 6·S² − len(plates).
+// Termination is bounded: every pop either assigns a previously-
+// unassigned pixel or skips an already-assigned duplicate; pushes only
+// happen for unassigned pixels at push time, so the frontier drains.
 func floodFillPlates(pf *PlateField, master int64, S int) {
 	rng := rand.New(rand.NewPCG(
 		uint64(seed.Domain(master, "plates.fill.random")),        //nolint:gosec
@@ -117,10 +134,16 @@ func floodFillPlates(pf *PlateField, master int64, S int) {
 	frontier := make([]frontierItem, 0, S*S)
 
 	pushNeighbors := func(face cubemap.Face, px, py int, id int16) {
+		repeat := int(pf.Plates[id].Weight + 0.5)
+		if repeat < 1 {
+			repeat = 1
+		}
 		nbrs := cubemap.FacePixelNeighbors4(face, px, py, S)
 		for _, n := range nbrs {
 			if pf.PlateID[n.Face][n.PY*S+n.PX] == -1 {
-				frontier = append(frontier, frontierItem{Addr: n, ID: id})
+				for range repeat {
+					frontier = append(frontier, frontierItem{Addr: n, ID: id})
+				}
 			}
 		}
 	}
@@ -515,6 +538,7 @@ func seedPlates(profile *types.PlanetProfile, master int64) []Plate {
 		z := math.Sin(theta+jitter) * radius
 
 		plates[i].ID = i
+		plates[i].Weight = 1
 		plates[i].Seed = [3]float64{x, y, z}
 
 		// Random axis on unit sphere via Marsaglia's method (rejection sampling
@@ -542,6 +566,14 @@ func seedPlates(profile *types.PlanetProfile, master int64) []Plate {
 	// emerges naturally once the global mean is removed. Plates with
 	// motion very close to the mean end up with tiny residual speed —
 	// rare in practice for n ≥ 6.
+	balanceMomentum(plates)
+	return plates
+}
+
+// balanceMomentum subtracts the mean angular-velocity vector from every
+// plate so the lithosphere has no net spin (see seedPlates for why).
+func balanceMomentum(plates []Plate) {
+	n := len(plates)
 	var mx, my, mz float64
 	for i := range plates {
 		mx += plates[i].RotAxis[0] * plates[i].AngSpeed
@@ -557,15 +589,103 @@ func seedPlates(profile *types.PlanetProfile, master int64) []Plate {
 		wz := plates[i].RotAxis[2]*plates[i].AngSpeed - mz
 		mag := math.Sqrt(wx*wx + wy*wy + wz*wz)
 		if mag < 1e-12 {
-			// Degenerate: plate's original ω matched the mean exactly.
-			// Leave RotAxis as-is and set AngSpeed to zero (transform-
-			// only behavior on all its boundaries).
 			plates[i].AngSpeed = 0
 			continue
 		}
 		plates[i].RotAxis = [3]float64{wx / mag, wy / mag, wz / mag}
 		plates[i].AngSpeed = mag
 	}
+}
+
+// seedPlatesTwoTier (Phase 12) seeds MajorPlates spiral seeds with
+// growth weight MajorGrowthBias plus MinorPlates gap-filler seeds with
+// weight 1, placed by farthest-point sampling over a 64-candidate
+// Fibonacci pool. Motion and momentum balancing match seedPlates.
+// Oceanic flags use Crust.OceanicFraction ("carries no craton").
+func seedPlatesTwoTier(profile *types.PlanetProfile, master int64) []Plate {
+	nMaj := profile.Crust.MajorPlates
+	nMin := profile.Crust.MinorPlates
+	if nMaj <= 0 {
+		return nil
+	}
+	bias := profile.Crust.MajorGrowthBias
+	if bias <= 0 {
+		bias = 4
+	}
+	total := nMaj + nMin
+	plates := make([]Plate, 0, total)
+
+	rngSeed := rand.New(rand.NewPCG(
+		uint64(seed.Domain(master, "plates.seeds")),        //nolint:gosec
+		uint64(seed.Domain(master, "plates.seeds.stream")), //nolint:gosec
+	))
+	rngMotion := rand.New(rand.NewPCG(
+		uint64(seed.Domain(master, "plates.motion")),        //nolint:gosec
+		uint64(seed.Domain(master, "plates.motion.stream")), //nolint:gosec
+	))
+	rngOceanic := rand.New(rand.NewPCG(
+		uint64(seed.Domain(master, "plates.oceanic")),        //nolint:gosec
+		uint64(seed.Domain(master, "plates.oceanic.stream")), //nolint:gosec
+	))
+
+	goldenAngle := math.Pi * (3.0 - math.Sqrt(5))
+	spiral := func(i, n int) [3]float64 {
+		y := 1.0 - 2.0*(float64(i)+0.5)/float64(n)
+		radius := math.Sqrt(1.0 - y*y)
+		theta := goldenAngle * float64(i)
+		jitter := (rngSeed.Float64() - 0.5) * (math.Pi / 30)
+		return [3]float64{math.Cos(theta+jitter) * radius, y, math.Sin(theta+jitter) * radius}
+	}
+
+	// Majors: spiral over nMaj.
+	for i := range nMaj {
+		plates = append(plates, Plate{ID: i, Seed: spiral(i, nMaj), Weight: bias})
+	}
+
+	// Minors: farthest-point picks from a 64-candidate spiral pool.
+	const poolN = 64
+	pool := make([][3]float64, poolN)
+	for i := range poolN {
+		pool[i] = spiral(i, poolN)
+	}
+	for m := range nMin {
+		bestIdx, bestScore := 0, -2.0
+		for ci, c := range pool {
+			worst := 2.0 // min dot to any existing seed = farthest candidate
+			for _, p := range plates {
+				if d := dot3(p.Seed, c); d < worst {
+					worst = d
+				}
+			}
+			// Lower min-dot = farther from everything = better. Negate.
+			if score := -worst; score > bestScore {
+				bestScore = score
+				bestIdx = ci
+			}
+		}
+		plates = append(plates, Plate{ID: nMaj + m, Seed: pool[bestIdx], Weight: 1})
+		// Remove the chosen candidate so the next minor picks elsewhere.
+		pool[bestIdx] = pool[len(pool)-1]
+		pool = pool[:len(pool)-1]
+	}
+
+	// Motion + oceanic flags, in plate order (matches seedPlates idiom).
+	for i := range plates {
+		for {
+			a := 2*rngMotion.Float64() - 1
+			b := 2*rngMotion.Float64() - 1
+			s := a*a + b*b
+			if s >= 1 {
+				continue
+			}
+			f := 2 * math.Sqrt(1-s)
+			plates[i].RotAxis = [3]float64{a * f, b * f, 1 - 2*s}
+			break
+		}
+		plates[i].AngSpeed = rngMotion.Float64()
+		plates[i].IsOceanic = rngOceanic.Float64() < profile.Crust.OceanicFraction
+	}
+	balanceMomentum(plates)
 	return plates
 }
 
