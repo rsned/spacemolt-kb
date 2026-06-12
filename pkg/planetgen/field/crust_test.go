@@ -56,6 +56,17 @@ func TestResolveCrustParamsPinned(t *testing.T) {
 	}
 }
 
+func TestResolveCrustParamsZeroWeightsFallback(t *testing.T) {
+	cfg := terranCrustCfg()
+	cfg.AssemblyWeights = [3]float64{} // all zero → default weights {25, 65, 10}
+	for master := range int64(50) {
+		a, _, _ := ResolveCrustParams(cfg, master)
+		if a < 0 || a > 1 {
+			t.Fatalf("seed %d: assembly %v out of range", master, a)
+		}
+	}
+}
+
 func TestResolveCrustParamsAssemblyDistribution(t *testing.T) {
 	// Weights 25/65/10 → over many seeds the band shares should be
 	// roughly proportional (loose tolerance: ±10 points).

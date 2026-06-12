@@ -37,6 +37,7 @@ type CrustField struct {
 // pins. All draws happen on the "crust.params" domain, in a fixed
 // order (assembly, landFrac, age), and pinned parameters still consume
 // their draws so pinning one parameter never shifts the others.
+// Any negative value is treated as the −1 sentinel.
 func ResolveCrustParams(cfg types.CrustConfig, master int64) (assembly, landFrac, age float64) {
 	rng := rand.New(rand.NewPCG(
 		uint64(seed.Domain(master, "crust.params")),        //nolint:gosec
@@ -45,17 +46,24 @@ func ResolveCrustParams(cfg types.CrustConfig, master int64) (assembly, landFrac
 
 	// Assembly: weighted band, then uniform within the band.
 	w := cfg.AssemblyWeights
+	for i := range w {
+		if w[i] < 0 {
+			w[i] = 0
+		}
+	}
 	if w[0]+w[1]+w[2] <= 0 {
 		w = [3]float64{25, 65, 10}
 	}
 	u := rng.Float64() * (w[0] + w[1] + w[2])
 	v := rng.Float64()
-	sampledAssembly := 0.67 + v*0.33
+	var sampledAssembly float64
 	switch {
 	case u < w[0]:
 		sampledAssembly = v * 0.33
 	case u < w[0]+w[1]:
 		sampledAssembly = 0.33 + v*0.34
+	default:
+		sampledAssembly = 0.67 + v*0.33
 	}
 	assembly = cfg.Assembly
 	if assembly < 0 {
@@ -97,6 +105,8 @@ func norm3(a [3]float64) [3]float64 { //nolint:unused // consumed by Phase 12 Ta
 }
 
 // slerp3 spherically interpolates between unit vectors a and b.
+// Callers must ensure dot(a,b) > −1+ε; exactly antipodal inputs are
+// geometrically ambiguous and produce an arbitrary direction at t≈0.5.
 func slerp3(a, b [3]float64, t float64) [3]float64 { //nolint:unused // consumed by Phase 12 Tasks 4-8
 	d := dot3(a, b)
 	if d > 1 {
