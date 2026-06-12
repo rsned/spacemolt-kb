@@ -397,6 +397,7 @@ var passengerDetailTmpl = `<!DOCTYPE html>
     <main class="container page-content detail-page">
         <aside class="infobox"{{if .EmpireColor}} style="--player-accent:{{.EmpireColor}}"{{end}}>
             <div class="infobox-title">{{.Name}}</div>
+            <div class="infobox-id">{{.ID}}</div>
             {{if .Citizenship}}<div class="infobox-subtitle">{{.Citizenship}}</div>{{end}}
 {{if and .Overlay .Overlay.ImageFile}}
             <img class="infobox-image" src="{{.Overlay.ImageFile}}" alt="{{.Overlay.ImageAlt}}">
@@ -409,10 +410,8 @@ var passengerDetailTmpl = `<!DOCTYPE html>
             <dl class="infobox-data">
                 {{if .Class}}<dt>Class</dt><dd>{{.Class}}</dd>{{end}}
                 <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
-                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
                 <dt>Sightings</dt><dd>{{.SightingCount}}</dd>
             </dl>
-            <div class="infobox-id">{{.ID}}</div>
         </aside>
 {{if .Bio}}
         <h3>About</h3>
