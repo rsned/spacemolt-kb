@@ -125,3 +125,70 @@ func TestPlanetProfilePhase7JitterDisabledSurvivesRoundTrip(t *testing.T) {
 		t.Errorf("JitterEnabled did not round-trip as false: %v", got.JitterEnabled)
 	}
 }
+
+func TestCrustConfigJSONRoundTrip(t *testing.T) {
+	in := CrustConfig{
+		MajorPlates: 7, MinorPlates: 4, MajorGrowthBias: 4,
+		OceanicFraction: 0.45,
+		Assembly:        -1, AssemblyWeights: [3]float64{25, 65, 10},
+		TargetLandFraction: -1, LandFracLo: 0.22, LandFracHi: 0.38,
+		TectonicAge: -1, AgeLo: 0.25, AgeHi: 0.75,
+		CratonsMax: 8, ShelfWidthRad: 0.05,
+		EdgeNoiseAmp: 0.45, EdgeNoiseFreq: 2.2, EdgeNoiseOctaves: 4,
+		PlatformHeight: 0.62, OceanFloorHeight: 0.25,
+	}
+	data, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var out CrustConfig
+	if err := json.Unmarshal(data, &out); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if out != in {
+		t.Errorf("round trip mismatch:\n in=%+v\nout=%+v", in, out)
+	}
+}
+
+func TestCrustSentinelsSurviveZeroAndNegOne(t *testing.T) {
+	// Assembly / TargetLandFraction / TectonicAge must round-trip both
+	// 0 (pinned supercontinent) and -1 (sample) — they are not omitempty.
+	for _, v := range []float64{0, -1} {
+		in := CrustConfig{MajorPlates: 5, Assembly: v, TargetLandFraction: v, TectonicAge: v}
+		data, err := json.Marshal(in)
+		if err != nil {
+			t.Fatalf("marshal: %v", err)
+		}
+		var out CrustConfig
+		if err := json.Unmarshal(data, &out); err != nil {
+			t.Fatalf("unmarshal: %v", err)
+		}
+		if out.Assembly != v || out.TargetLandFraction != v || out.TectonicAge != v {
+			t.Errorf("sentinel %v did not round-trip: %+v", v, out)
+		}
+	}
+}
+
+func TestTectonicFXConfigJSONRoundTrip(t *testing.T) {
+	in := TectonicFXConfig{
+		BeltAmp: 0.3, BeltWidthKm: 900, BeltFreq: 3.2, BeltOctaves: 5,
+		CordAmp: 0.22, CordWidthKm: 450,
+		TrenchDepth: 0.12, TrenchWidthKm: 220,
+		ArcAmp: 0.25, ArcWidthKm: 260,
+		RidgeAmp: 0.06, RidgeWidthKm: 700,
+		RiftDepth: 0.1, RiftWidthKm: 280, RiftShoulder: 0.35,
+		TransformAmp: 0.03, TransformWidthKm: 150,
+		ActivityFreq: 1.5,
+	}
+	data, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	var out TectonicFXConfig
+	if err := json.Unmarshal(data, &out); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if out != in {
+		t.Errorf("round trip mismatch:\n in=%+v\nout=%+v", in, out)
+	}
+}

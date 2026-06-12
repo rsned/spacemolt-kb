@@ -137,6 +137,14 @@ type PlanetProfile struct {
 	// in P9b Task 6; until then every archetype keeps the zero-value
 	// (Tier:0 = civ disabled).
 	Civ CivConfig `json:"civ,omitempty"`
+
+	// Phase 12: crust-raft tectonic continents. MajorPlates == 0
+	// disables (legacy land/ocean from Continentalness noise).
+	Crust CrustConfig `json:"crust,omitempty"`
+
+	// Phase 12: crust-aware boundary height effects (belts, trenches,
+	// arcs, ridges, rifts, faults). Only applied on the crust path.
+	TectonicFX TectonicFXConfig `json:"tectonicFX,omitempty"`
 }
 
 // CivConfig parameterizes the Phase 9b civilization-sign overlays
@@ -368,6 +376,74 @@ type RainShadowConfig struct {
 	MountainCutoff float64 `json:"mountainCutoff,omitempty"` // height threshold for orographic uplift
 	WindRainBoost  float64 `json:"windRainBoost,omitempty"`  // upwind multiplier minus 1
 	LeeFactor      float64 `json:"leeFactor,omitempty"`      // typical 0.15
+}
+
+// CrustConfig (Phase 12) parameterizes the crust-raft stage: two-tier
+// plate seeding, craton placement, and the continental mask + base
+// height it produces. MajorPlates == 0 disables the entire crust
+// pipeline (zero-value = legacy path: PlateCount, Continents, Basin,
+// and Ridged behave exactly as before).
+//
+// Assembly, TargetLandFraction, and TectonicAge use a -1 sentinel
+// meaning "sample deterministically from the configured range/weights
+// using the master seed"; any in-range value pins the parameter. They
+// are serialized without omitempty so 0 and -1 both round-trip.
+type CrustConfig struct {
+	MajorPlates     int     `json:"majorPlates,omitempty"`
+	MinorPlates     int     `json:"minorPlates,omitempty"`
+	MajorGrowthBias float64 `json:"majorGrowthBias,omitempty"` // flood-fill growth weight for majors; default 4
+	OceanicFraction float64 `json:"oceanicFraction,omitempty"` // fraction of plates carrying no craton
+
+	Assembly        float64    `json:"assembly"`                  // -1 = sample; 0 supercontinent … 1 fragmented
+	AssemblyWeights [3]float64 `json:"assemblyWeights,omitempty"` // sampling weights: super / dispersed / fragmented
+
+	TargetLandFraction float64 `json:"targetLandFraction"` // -1 = sample uniform [LandFracLo, LandFracHi]
+	LandFracLo         float64 `json:"landFracLo,omitempty"`
+	LandFracHi         float64 `json:"landFracHi,omitempty"`
+
+	TectonicAge float64 `json:"tectonicAge"` // -1 = sample uniform [AgeLo, AgeHi]; 0 young/sharp … 1 old/soft
+	AgeLo       float64 `json:"ageLo,omitempty"`
+	AgeHi       float64 `json:"ageHi,omitempty"`
+
+	CratonsMax       int     `json:"cratonsMax,omitempty"`       // total craton cap; default 8
+	ShelfWidthRad    float64 `json:"shelfWidthRad,omitempty"`    // continental-shelf falloff half-width (radians); default 0.05
+	EdgeNoiseAmp     float64 `json:"edgeNoiseAmp,omitempty"`     // craton-edge radius modulation fraction; default 0.45
+	EdgeNoiseFreq    float64 `json:"edgeNoiseFreq,omitempty"`    // default 2.2
+	EdgeNoiseOctaves int     `json:"edgeNoiseOctaves,omitempty"` // default 4
+	PlatformHeight   float64 `json:"platformHeight,omitempty"`   // continental platform base height; default 0.62
+	OceanFloorHeight float64 `json:"oceanFloorHeight,omitempty"` // abyssal base height; default 0.25
+}
+
+// TectonicFXConfig (Phase 12) parameterizes the crust-aware boundary
+// height effects. Each effect disables individually at zero amplitude;
+// the whole pass runs only on the crust path (Crust.MajorPlates > 0).
+// Widths are envelope length scales in km (Gaussian sigma).
+type TectonicFXConfig struct {
+	BeltAmp     float64 `json:"beltAmp,omitempty"` // cont-cont collision belt (Himalayas)
+	BeltWidthKm float64 `json:"beltWidthKm,omitempty"`
+	BeltFreq    float64 `json:"beltFreq,omitempty"` // ridged noise frequency inside the belt
+	BeltOctaves int     `json:"beltOctaves,omitempty"`
+
+	CordAmp     float64 `json:"cordAmp,omitempty"` // ocean-cont coastal cordillera (Andes)
+	CordWidthKm float64 `json:"cordWidthKm,omitempty"`
+
+	TrenchDepth   float64 `json:"trenchDepth,omitempty"` // subduction trench (ocean side)
+	TrenchWidthKm float64 `json:"trenchWidthKm,omitempty"`
+
+	ArcAmp     float64 `json:"arcAmp,omitempty"` // oce-oce volcanic island arc (Japan)
+	ArcWidthKm float64 `json:"arcWidthKm,omitempty"`
+
+	RidgeAmp     float64 `json:"ridgeAmp,omitempty"` // mid-ocean ridge bathymetric rise
+	RidgeWidthKm float64 `json:"ridgeWidthKm,omitempty"`
+
+	RiftDepth    float64 `json:"riftDepth,omitempty"` // continental rift valley floor
+	RiftWidthKm  float64 `json:"riftWidthKm,omitempty"`
+	RiftShoulder float64 `json:"riftShoulder,omitempty"` // shoulder uplift as fraction of RiftDepth
+
+	TransformAmp     float64 `json:"transformAmp,omitempty"` // fault-zone roughness
+	TransformWidthKm float64 `json:"transformWidthKm,omitempty"`
+
+	ActivityFreq float64 `json:"activityFreq,omitempty"` // per-boundary activity noise frequency; default 1.5
 }
 
 // UnmarshalJSON accepts both the current "Detail" key and the legacy
