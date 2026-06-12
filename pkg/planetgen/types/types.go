@@ -395,7 +395,7 @@ type CrustConfig struct {
 	OceanicFraction float64 `json:"oceanicFraction,omitempty"` // fraction of plates carrying no craton
 
 	Assembly        float64    `json:"assembly"`                  // -1 = sample; 0 supercontinent … 1 fragmented
-	AssemblyWeights [3]float64 `json:"assemblyWeights,omitempty"` // sampling weights: super / dispersed / fragmented
+	AssemblyWeights [3]float64 `json:"assemblyWeights,omitempty"` // sampling weights: super / dispersed / fragmented; [0,0,0] → defaults {25, 65, 10}
 
 	TargetLandFraction float64 `json:"targetLandFraction"` // -1 = sample uniform [LandFracLo, LandFracHi]
 	LandFracLo         float64 `json:"landFracLo,omitempty"`

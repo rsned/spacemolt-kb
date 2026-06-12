@@ -43,7 +43,7 @@ pkg/planetgen/field/
 | `cmd/generate-planet-maps/README.md`, `cmd/planet-explorer/USER_GUIDE.md` | docs |
 | `cmd/generate-planet-maps/testdata/golden/*` | regenerated goldens for the six types |
 
-**Deliberately NOT changed:** `pkg/planetgen/profilejson/envelope.go`. The envelope doc-comment states the schema version bumps only when the *envelope wire format* changes; the inner PlanetProfile evolves via struct-tag additions. Adding `Crust`/`TectonicFX` (both `omitempty`, zero-value = legacy path) keeps every committed v1 JSON loading and rendering byte-identically. This deviates from the spec's "schema version bump" line but satisfies its intent (hand-tuned planets unchanged until opted in). The `handTuned: false` fixtures get re-seeded in Task 14.
+**Deliberately NOT changed:** `pkg/planetgen/profilejson/envelope.go`. The envelope doc-comment states the schema version bumps only when the *envelope wire format* changes; the inner PlanetProfile evolves via struct-tag additions. Older v1 JSONs without the `crust`/`tectonicFX` keys still load and render identically (zero-value = legacy path). Serialization, however, did change: the three non-`omitempty` sentinel fields mean a zero-value `CrustConfig` still emits `assembly`/`assemblyWeights`/`targetLandFraction`/`tectonicAge` at zero, so reseeded `handTuned: false` fixtures gain the `crust`/`tectonicFX` keys at zero values (the drift test enforces this). The three default fixtures were reseeded in Task 1 rather than Task 14. This deviates from the spec's "schema version bump" line but satisfies its intent (hand-tuned planets unchanged until opted in).
 
 ## Conventions
 
