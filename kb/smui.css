@@ -201,6 +201,13 @@ tr:hover td {
   background-color: hsl(var(--accent));
 }
 
+/* Bump listing text one step (13px -> 16px) on top-level landing pages only.
+   Detail pages keep the compact key-value tables. Selectors are specific enough
+   (0,3,x) to win over the section-css card/table rules loaded after smui.css. */
+.page-content:not(.detail-page) table { font-size: 16px; }       /* skills, ships, systems, passengers, players */
+.page-content:not(.detail-page) .cat-desc { font-size: 16px; }    /* items, missions, facilities, recipes cards */
+.page-content:not(.detail-page) .fc-stats { font-size: 16px; }    /* factions cards */
+
 /* Badges / Tags */
 .badge {
   display: inline-block;
