@@ -111,5 +111,20 @@ func attachPassengerPortraits(passengers []*Passenger, root string) {
 			continue
 		}
 		p.PortraitFile = name
+		p.PortraitPrompt = readSidecarPrompt(dir)
 	}
+}
+
+// readSidecarPrompt returns the prompt text recorded in dir's prompt sidecar
+// (everything after the first line, which holds the hash), or "" when absent.
+func readSidecarPrompt(dir string) string {
+	data, err := os.ReadFile(filepath.Join(dir, promptSidecarName))
+	if err != nil {
+		return ""
+	}
+	_, prompt, found := strings.Cut(string(data), "\n")
+	if !found {
+		return ""
+	}
+	return strings.TrimSpace(prompt)
 }

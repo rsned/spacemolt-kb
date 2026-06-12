@@ -85,6 +85,35 @@ func TestPassengerDetailPortraitPrecedence(t *testing.T) {
 	}
 }
 
+func TestPassengerDetailPromptFootnote(t *testing.T) {
+	funcs := templateFuncs(time.Unix(0, 0).UTC())
+	tmpl := htmltpl.Must(htmltpl.New("psdet").Funcs(funcs).Parse(passengerDetailTmpl))
+
+	// Generated portrait + prompt -> footnote shows the prompt.
+	genP := &Passenger{ID: "p1", Slug: "p1", Name: "Bea", PortraitFile: "portrait.png", PortraitPrompt: "a single woman, cinematic portrait"}
+	var b strings.Builder
+	if err := tmpl.Execute(&b, genP); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(b.String(), "AI portrait prompt:") || !strings.Contains(b.String(), "a single woman, cinematic portrait") {
+		t.Fatal("expected the portrait prompt footnote")
+	}
+
+	// A contributor overlay image is displayed instead of the generated portrait,
+	// so the generated-prompt footnote must be suppressed.
+	ovP := &Passenger{
+		ID: "p2", Slug: "p2", Name: "Cy", PortraitFile: "portrait.png", PortraitPrompt: "a single man",
+		Overlay: &Overlay{ImageFile: "photo.jpg"},
+	}
+	var b2 strings.Builder
+	if err := tmpl.Execute(&b2, ovP); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(b2.String(), "AI portrait prompt:") {
+		t.Fatal("prompt footnote must be hidden when a contributor overlay image is shown")
+	}
+}
+
 func TestPassengerIndexLists(t *testing.T) {
 	funcs := templateFuncs(time.Unix(0, 0).UTC())
 	tmpl := htmltpl.Must(htmltpl.New("psidx").Funcs(funcs).Parse(passengerIndexTmpl))

@@ -452,6 +452,9 @@ var passengerDetailTmpl = `<!DOCTYPE html>
         <p class="overlay-credit text-muted">Community-contributed profile.</p>
         <div class="overlay-body">{{.Overlay.BodyHTML}}</div>
 {{end}}
+{{if and .PortraitFile .PortraitPrompt (not (and .Overlay .Overlay.ImageFile))}}
+        <p class="portrait-prompt-note text-muted"><small>AI portrait prompt: <code>{{.PortraitPrompt}}</code></small></p>
+{{end}}
     </main>
 ` + themeScript + `
 </body>
