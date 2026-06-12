@@ -31,7 +31,7 @@ func TestResolveCrustParamsDeterministic(t *testing.T) {
 
 func TestResolveCrustParamsRanges(t *testing.T) {
 	cfg := terranCrustCfg()
-	for master := int64(0); master < 200; master++ {
+	for master := range int64(200) {
 		a, l, g := ResolveCrustParams(cfg, master)
 		if a < 0 || a > 1 {
 			t.Fatalf("seed %d: assembly %v out of [0,1]", master, a)
@@ -62,7 +62,7 @@ func TestResolveCrustParamsAssemblyDistribution(t *testing.T) {
 	cfg := terranCrustCfg()
 	var bands [3]int
 	const n = 2000
-	for master := int64(0); master < n; master++ {
+	for master := range int64(n) {
 		a, _, _ := ResolveCrustParams(cfg, master)
 		switch {
 		case a < 0.33:
