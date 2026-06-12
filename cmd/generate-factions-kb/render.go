@@ -403,7 +403,6 @@ var passengerDetailTmpl = `<!DOCTYPE html>
             {{if .Overlay.ImageAlt}}<figcaption class="infobox-caption">{{.Overlay.ImageAlt}}</figcaption>{{end}}
 {{else if .PortraitFile}}
             <img class="infobox-image" src="{{.PortraitFile}}" alt="Generated portrait of {{.Name}}">
-            <figcaption class="infobox-caption">AI-generated placeholder portrait.</figcaption>
 {{else}}
             <div class="infobox-silhouette">{{silhouette .ID .EmpireColor ""}}</div>
 {{end}}
@@ -425,7 +424,7 @@ var passengerDetailTmpl = `<!DOCTYPE html>
         <div class="overlay-body">{{.Overlay.BodyHTML}}</div>
 {{end}}
 {{if and .PortraitFile .PortraitPrompt (not (and .Overlay .Overlay.ImageFile))}}
-        <p class="portrait-prompt-note text-muted"><small>AI portrait prompt: <code>{{.PortraitPrompt}}</code></small></p>
+        <p class="portrait-prompt-note text-muted" style="margin-top:1.75rem"><small>AI portrait prompt: <code>{{.PortraitPrompt}}</code></small></p>
 {{end}}
     </main>
 ` + themeScript + `
