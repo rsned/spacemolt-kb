@@ -208,50 +208,6 @@ var facilityCategoryDescriptions = map[string]string{
 	"personal":       "Compact facilities for personal crafting and storage.",
 }
 
-// siteHeaderFacilities is the header for facilities main index.
-var siteHeaderFacilities = `    <header class="site-header">
-        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
-        <nav>
-            <a href="../">Home</a>
-            <a href="../systems/">Systems</a>
-            <a href="../items/">Items</a>
-            <a href="../recipes/">Recipes</a>
-            <a href="../skills/">Skills</a>
-            <a href="../ships/">Ships</a>
-            <a href="./">Facilities</a>
-            <a href="../missions/">Missions</a>
-            <a href="../factions/">Factions</a>
-            <a href="../players/">Players</a>
-            <a href="../passengers/">Passengers</a>
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </button>
-        </nav>
-    </header>`
-
-// siteHeaderFacilitiesSub is the header for category and detail pages.
-var siteHeaderFacilitiesSub = `    <header class="site-header">
-        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
-        <nav>
-            <a href="../../">Home</a>
-            <a href="../../systems/">Systems</a>
-            <a href="../../items/">Items</a>
-            <a href="../../recipes/">Recipes</a>
-            <a href="../../skills/">Skills</a>
-            <a href="../../ships/">Ships</a>
-            <a href="../../facilities/">Facilities</a>
-            <a href="../../missions/">Missions</a>
-            <a href="../../factions/">Factions</a>
-            <a href="../../players/">Players</a>
-            <a href="../../passengers/">Passengers</a>
-            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </button>
-        </nav>
-    </header>`
-
 // htmlFacilitiesTopTemplate is the template for kb/facilities/index.html
 var htmlFacilitiesTopTemplate = `<!DOCTYPE html>
 <html lang="en">
@@ -263,7 +219,7 @@ var htmlFacilitiesTopTemplate = `<!DOCTYPE html>
     <link rel="stylesheet" href="../facilities/facilities.css">
 </head>
 <body>
-` + siteHeaderFacilities + `
+` + siteHeader + `
     <main class="container page-content">
         <h2>Facilities</h2>
         <p class="text-muted mt-1">{{len .}} categories of station buildings for crafting, storage, and services.</p>
@@ -293,7 +249,7 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
     <link rel="stylesheet" href="../../facilities/facilities.css">
 </head>
 <body>
-` + siteHeaderFacilitiesSub + `
+` + siteHeaderSub + `
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / {{titleCase .Name}}</div>
         <h2>{{titleCase .Name}} <span class="text-muted">{{.Count}} facilities</span></h2>
@@ -354,7 +310,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
     <link rel="stylesheet" href="../../facilities/facilities.css">
 </head>
 <body>
-` + siteHeaderFacilitiesSub + `
+` + siteHeaderSub + `
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">{{titleCase .Facility.Category}}</a> / {{.Facility.Name}}</div>
 
