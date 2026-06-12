@@ -73,6 +73,10 @@ func ClassifyTectonics(pf *PlateField, crust *CrustField, radiusKm float64) *Tec
 		return here, there
 	}
 
+	// contThresh 0.5 is the standard land/ocean cutoff of the continental
+	// mask: a side counts as continental only when it is more land than
+	// not, so belts (both sides continental) require genuine craton on
+	// each flank rather than incidental shelf.
 	const contThresh = 0.5
 	for _, bp := range pf.ConvPixels {
 		a, b := sideMasks(bp)
@@ -88,6 +92,11 @@ func ClassifyTectonics(pf *PlateField, crust *CrustField, radiusKm float64) *Tec
 			arcV[bp.Face][bp.Idx] = bp.Mag
 		}
 	}
+	// riftThresh 0.35 is deliberately below contThresh: continental rifts
+	// form wherever divergence tears even partial craton coverage (the
+	// thinned, not-yet-fully-continental margin of a splitting landmass),
+	// so we route a divergent pixel to "rift" on weaker continental
+	// evidence than a belt requires; everything else is a mid-ocean ridge.
 	const riftThresh = 0.35
 	for _, bp := range pf.DivPixels {
 		a, b := sideMasks(bp)
