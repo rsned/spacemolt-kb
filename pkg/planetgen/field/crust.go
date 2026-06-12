@@ -8,6 +8,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/noise"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
@@ -108,10 +109,11 @@ func norm3(a [3]float64) [3]float64 {
 //
 // Degenerate inputs are handled so the result stays continuous and all
 // callers are safe regardless of geometry:
-//   - When a and b are nearly parallel (sin(omega)→0) or nearly
-//     antipodal (dot(a,b)→−1), slerp falls back to a normalized linear
-//     interpolation, which agrees with true slerp in the small-angle
-//     limit and never divides by a vanishing sin(omega).
+//   - Near-parallel (sin(omega)→0): slerp agrees with nlerp in the
+//     small-angle limit; nlerp avoids division by a vanishing sin(omega).
+//   - Near-antipodal (dot(a,b)→−1): slerp is geometrically ambiguous
+//     (the great-circle arc is not unique); nlerp is a safe arbitrary
+//     choice and still produces a unit vector via norm3.
 //   - At t == 0 the result is exactly a (early return — the general
 //     formula would re-normalize a and could perturb its last ulp), so
 //     callers that pass t = 0 to "stay put" get a bit-identical.
@@ -167,7 +169,7 @@ func PlaceCratons(cfg types.CrustConfig, master int64, pf *PlateField, assembly,
 
 	maxC := cfg.CratonsMax
 	if maxC < 2 {
-		maxC = 8
+		maxC = 8 // default craton cap: 8 ≈ one per major plate on a terran world
 	}
 	k := 2 + int(math.Round(assembly*float64(maxC-2)))
 
@@ -213,7 +215,7 @@ func PlaceCratons(cfg types.CrustConfig, master int64, pf *PlateField, assembly,
 		// Small jitter off the plate seed so repeat cratons on the same
 		// plate don't stack exactly. Always draw 3 Float64s here so the
 		// RNG stream and draw order are independent of geometry.
-		jx := (rng.Float64() - 0.5) * 0.3
+		jx := (rng.Float64() - 0.5) * 0.3 // 0.3: jitter span ≈ 17° at unit radius
 		jy := (rng.Float64() - 0.5) * 0.3
 		jz := (rng.Float64() - 0.5) * 0.3
 		jittered := norm3([3]float64{base[0] + jx, base[1] + jy, base[2] + jz})
@@ -257,7 +259,7 @@ func PlaceCratons(cfg types.CrustConfig, master int64, pf *PlateField, assembly,
 		}
 
 		frac := landFrac * 1.15 * weights[i] / wSum
-		if frac > 0.45 {
+		if frac > 0.45 { // 0.45: hemisphere cap — single craton can't cover more than ~half the sphere
 			frac = 0.45
 		}
 		r := math.Acos(1 - 2*frac)
@@ -266,7 +268,7 @@ func PlaceCratons(cfg types.CrustConfig, master int64, pf *PlateField, assembly,
 	return cratons
 }
 
-func clamp01(x float64) float64 { //nolint:unused // consumed by Phase 12 Tasks 4-8
+func clamp01(x float64) float64 {
 	if x < 0 {
 		return 0
 	}
@@ -276,7 +278,7 @@ func clamp01(x float64) float64 { //nolint:unused // consumed by Phase 12 Tasks 
 	return x
 }
 
-func smoothstep(lo, hi, x float64) float64 { //nolint:unused // consumed by Phase 12 Tasks 4-8
+func smoothstep(lo, hi, x float64) float64 {
 	if hi <= lo {
 		if x < lo {
 			return 0
@@ -285,4 +287,90 @@ func smoothstep(lo, hi, x float64) float64 { //nolint:unused // consumed by Phas
 	}
 	t := clamp01((x - lo) / (hi - lo))
 	return t * t * (3 - 2*t)
+}
+
+// GenerateCrust runs the full crust stage: resolve sampled params,
+// place cratons, and rasterize the ContinentalMask + BaseHeight cube
+// maps. Each craton's edge radius is modulated by a shared fBm sampled
+// at a per-craton offset, so coastlines are fractal but each landmass
+// stays one coherent body. Returns nil when the crust stage is
+// disabled (Crust.MajorPlates == 0) or pf is nil.
+func GenerateCrust(profile *types.PlanetProfile, master int64, S int, pf *PlateField) *CrustField {
+	cfg := profile.Crust
+	if cfg.MajorPlates <= 0 || pf == nil {
+		return nil
+	}
+	assembly, landFrac, age := ResolveCrustParams(cfg, master)
+	cratons := PlaceCratons(cfg, master, pf, assembly, landFrac, S)
+
+	shelf := cfg.ShelfWidthRad
+	if shelf <= 0 {
+		shelf = 0.05
+	}
+	edgeAmp := cfg.EdgeNoiseAmp
+	if edgeAmp <= 0 {
+		edgeAmp = 0.45
+	}
+	edgeFreq := cfg.EdgeNoiseFreq
+	if edgeFreq <= 0 {
+		edgeFreq = 2.2
+	}
+	edgeOct := cfg.EdgeNoiseOctaves
+	if edgeOct <= 0 {
+		edgeOct = 4
+	}
+	platform := cfg.PlatformHeight
+	if platform <= 0 {
+		platform = 0.62
+	}
+	floor := cfg.OceanFloorHeight
+	if floor <= 0 {
+		floor = 0.25
+	}
+
+	gen := noise.New(seed.Domain(master, "crust.edge"))
+	mask := cubemap.NewF(S)
+	base := cubemap.NewF(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+				m := 0.0
+				for ci, c := range cratons {
+					d := math.Acos(clampDot(dx*c.Center[0] + dy*c.Center[1] + dz*c.Center[2]))
+					// Per-craton noise offset: same generator, shifted
+					// input domain, so edges differ between cratons.
+					off := 7.3 * float64(ci+1)
+					e := (gen.FractalNoise3D(dx+off, dy+off*0.7, dz+off*1.3,
+						edgeOct, 2.0, 0.5, edgeFreq) - 0.5) * 2 * edgeAmp
+					rEff := c.Radius * (1 + e)
+					mi := 1 - smoothstep(rEff-shelf, rEff+shelf, d)
+					if mi > m {
+						m = mi
+					}
+				}
+				mask.Set(face, px, py, m)
+				base.Set(face, px, py, floor+(platform-floor)*m)
+			}
+		}
+	}
+	return &CrustField{
+		Size:            S,
+		ContinentalMask: mask,
+		BaseHeight:      base,
+		Cratons:         cratons,
+		Assembly:        assembly,
+		LandFraction:    landFrac,
+		TectonicAge:     age,
+	}
+}
+
+func clampDot(d float64) float64 {
+	if d > 1 {
+		return 1
+	}
+	if d < -1 {
+		return -1
+	}
+	return d
 }

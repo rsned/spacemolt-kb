@@ -168,3 +168,69 @@ func TestPlaceCratonsAssemblyClusters(t *testing.T) {
 		t.Errorf("assembly=0 mean pair dot %v not greater than assembly=1 %v", clustered, scattered)
 	}
 }
+
+func TestGenerateCrustBasics(t *testing.T) {
+	const S = 64
+	p := crustTestProfile()
+	pf := GeneratePlates(p, 42, S)
+	crust := GenerateCrust(p, 42, S, pf)
+	if crust == nil {
+		t.Fatal("nil CrustField")
+	}
+	if crust.ContinentalMask == nil || crust.BaseHeight == nil {
+		t.Fatal("nil mask or base height")
+	}
+	for f := range crust.ContinentalMask.Faces {
+		for i, m := range crust.ContinentalMask.Faces[f] {
+			if m < 0 || m > 1 || math.IsNaN(m) {
+				t.Fatalf("mask face %d idx %d = %v out of [0,1]", f, i, m)
+			}
+			h := crust.BaseHeight.Faces[f][i]
+			if h < 0 || h > 1 || math.IsNaN(h) {
+				t.Fatalf("base height face %d idx %d = %v out of [0,1]", f, i, h)
+			}
+		}
+	}
+	if crust.LandFraction < 0.22 || crust.LandFraction > 0.38 {
+		t.Errorf("resolved land fraction %v outside terran range", crust.LandFraction)
+	}
+}
+
+func TestGenerateCrustLandAreaNearBudget(t *testing.T) {
+	const S = 64
+	p := crustTestProfile()
+	p.Crust.TargetLandFraction = 0.3 // pin for a deterministic assertion
+	p.Crust.Assembly = 0.5
+	pf := GeneratePlates(p, 42, S)
+	crust := GenerateCrust(p, 42, S, pf)
+	var land, total int
+	for f := range crust.ContinentalMask.Faces {
+		for _, m := range crust.ContinentalMask.Faces[f] {
+			if m > 0.5 {
+				land++
+			}
+			total++
+		}
+	}
+	frac := float64(land) / float64(total)
+	// Pre-sea-level mask area is approximate (overlap, edge noise);
+	// the quantile stage enforces exactness. ±0.12 here.
+	if math.Abs(frac-0.3) > 0.12 {
+		t.Errorf("mask land fraction %v, want 0.3 ± 0.12", frac)
+	}
+}
+
+func TestGenerateCrustDeterministic(t *testing.T) {
+	const S = 32
+	p := crustTestProfile()
+	pf := GeneratePlates(p, 42, S)
+	a := GenerateCrust(p, 42, S, pf)
+	b := GenerateCrust(p, 42, S, pf)
+	for f := range a.BaseHeight.Faces {
+		for i := range a.BaseHeight.Faces[f] {
+			if a.BaseHeight.Faces[f][i] != b.BaseHeight.Faces[f][i] {
+				t.Fatalf("nondeterministic at face %d idx %d", f, i)
+			}
+		}
+	}
+}
