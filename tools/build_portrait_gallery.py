@@ -74,7 +74,7 @@ doc = f"""<!doctype html>
 <body>
 <header>
   <h1>Passenger Portraits</h1>
-  <div class="sub">{len(cards)} generated images · SDXL-Turbo · click a card for the passenger page</div>
+  <div class="sub">{len(cards)} generated images · FLUX.1-schnell · click a card for the passenger page</div>
 </header>
 <div class="grid">
 {os.linesep.join(cells)}

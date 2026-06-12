@@ -171,7 +171,7 @@ func pickTrait(pool []string, salt, id string) string {
 // pirate citizenship, or a class-scaled empire-sensibility + archetype-garment
 // combination, then id-derived physical traits (skin/age/build), then the full
 // bio. Always returns a non-empty prompt.
-func buildPortraitPrompt(id, bio, class, citizenship, archetype string) string {
+func buildPortraitPrompt(id, bio, class, citizenship, archetype, visualCue string) string {
 	cls := strings.ToLower(strings.TrimSpace(class))
 	cit := strings.ToLower(strings.TrimSpace(citizenship))
 	arch := strings.ToLower(strings.TrimSpace(archetype))
@@ -180,8 +180,14 @@ func buildPortraitPrompt(id, bio, class, citizenship, archetype string) string {
 	// physical appearance and the styling aesthetic, then the free-text bio as a
 	// trailing sentence. Order still puts the portrait-defining cue first so the
 	// SDXL fallback (CLIP-only) degrades gracefully.
-	prompt := portraitCue(bioGenderNoun(bio)) + ", " +
-		physicalTraits(id) + ", " + passengerAesthetic(bio, cls, cit, arch)
+	prompt := portraitCue(bioGenderNoun(bio)) + ", " + physicalTraits(id)
+	// A hand-curated visual cue (see portrait_overrides.json) is injected right
+	// after appearance — prominent, ahead of the dampening "realistic/plain"
+	// styling — to force distinctive traits the bio only describes in prose.
+	if vc := strings.TrimSpace(visualCue); vc != "" {
+		prompt += ", " + vc
+	}
+	prompt += ", " + passengerAesthetic(bio, cls, cit, arch)
 	if subject := strings.TrimSpace(bio); subject != "" {
 		prompt += ". " + subject
 	}
