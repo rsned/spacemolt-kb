@@ -488,6 +488,28 @@ var playerDetailTmpl = `<!DOCTYPE html>
             <div class="infobox-id">{{.ID}}</div>
         </aside>
         {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
+{{else if .PortraitFile}}
+        <aside class="infobox"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
+            <div class="infobox-title">{{.Username}}</div>
+            {{if .FactionTag}}<div class="infobox-subtitle">{{if .FactionSlug}}<a href="../../factions/{{.FactionSlug}}/">{{.FactionTag}}</a>{{else}}{{.FactionTag}}{{end}}</div>{{end}}
+            <img class="infobox-image" src="{{.PortraitFile}}" alt="Generated portrait of {{.Username}}">
+            <figcaption class="infobox-caption">AI-generated placeholder portrait.</figcaption>
+            <dl class="infobox-data">
+                {{if .ClanTag}}<dt>Clan</dt><dd>{{.ClanTag}}</dd>{{end}}
+                <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
+                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+            </dl>
+            <div class="infobox-id">{{.ID}}</div>
+        </aside>
+        {{if .StatusMessage}}<div class="pb-status">{{inline .StatusMessage}}</div>{{end}}
+{{if and .Overlay .Overlay.Stats}}
+        <h3>Profile</h3>
+        <dl class="faction-stats overlay-stats">
+{{- range .Overlay.Stats}}
+            <dt>{{.Label}}</dt><dd>{{.Value}}</dd>
+{{- end}}
+        </dl>
+{{end}}
 {{else}}
         <aside class="infobox"{{if .PrimaryColor}} style="--player-accent:{{.PrimaryColor}}"{{end}}>
             <div class="infobox-title">{{.Username}}</div>

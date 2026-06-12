@@ -28,17 +28,23 @@ var (
 	femininePronoun  = regexp.MustCompile(`(?i)\b(she|her|hers|herself)\b`)
 )
 
-// bioGenderNoun infers a gender noun from a bio's pronouns: "man" when only
-// masculine pronouns appear, "woman" when only feminine, else "person" (no or
-// mixed pronouns — let the model decide).
+// bioGenderNoun infers a gender noun from a bio's pronouns by frequency: the
+// dominant pronoun set wins when it clearly outnumbers the other (at least 2x),
+// else "person" (no pronouns, or a genuine mix). Counting rather than mere
+// presence matters because a bio about a woman often contains an incidental
+// "he"/"his" about someone else — a presence test would mask her as ambiguous
+// and SDXL's male prior would then render a man (e.g. Victoria 'Valkyrie',
+// she/her ×15 vs he ×3, was rendering male).
 func bioGenderNoun(bio string) string {
-	m := masculinePronoun.MatchString(bio)
-	f := femininePronoun.MatchString(bio)
+	m := len(masculinePronoun.FindAllString(bio, -1))
+	f := len(femininePronoun.FindAllString(bio, -1))
 	switch {
-	case m && !f:
-		return "man"
-	case f && !m:
+	case m == 0 && f == 0:
+		return "person"
+	case f > m && f >= 2*m:
 		return "woman"
+	case m > f && m >= 2*f:
+		return "man"
 	default:
 		return "person"
 	}

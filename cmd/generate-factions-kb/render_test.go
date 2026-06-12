@@ -29,6 +29,31 @@ func TestPlayerDetailRendersSilhouetteWhenNoOverlayImage(t *testing.T) {
 	}
 }
 
+func TestPlayerDetailPortraitPrecedence(t *testing.T) {
+	funcs := templateFuncs(time.Unix(0, 0).UTC())
+	tmpl := htmltpl.Must(htmltpl.New("pdet").Funcs(funcs).Parse(playerDetailTmpl))
+
+	// Generated portrait present (no overlay image) -> <img>, no silhouette.
+	genP := &Player{
+		ID:           "player-xyz",
+		Username:     "Atlas",
+		PortraitFile: "portrait.png",
+		FirstSeenUTC: "2026-01-01T00:00:00Z",
+		LastSeenUTC:  "2026-01-02T00:00:00Z",
+	}
+	var b strings.Builder
+	if err := tmpl.Execute(&b, genP); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	out := b.String()
+	if !strings.Contains(out, `src="portrait.png"`) {
+		t.Fatal("expected generated portrait img on player page")
+	}
+	if strings.Contains(out, `<svg class="silhouette"`) {
+		t.Fatal("silhouette should be suppressed when a player portrait exists")
+	}
+}
+
 func TestPassengerDetailPortraitPrecedence(t *testing.T) {
 	funcs := templateFuncs(time.Unix(0, 0).UTC())
 	tmpl := htmltpl.Must(htmltpl.New("psdet").Funcs(funcs).Parse(passengerDetailTmpl))

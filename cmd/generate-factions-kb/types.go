@@ -85,7 +85,8 @@ type Player struct {
 	Ships     []ShipSeen
 	Sightings []Sighting
 
-	Overlay *Overlay // contributor-authored content, nil when none
+	Overlay      *Overlay // contributor-authored content, nil when none
+	PortraitFile string   // generated AI portrait filename, "" when none
 }
 
 // ShipSeen is a ship class a player was observed flying.

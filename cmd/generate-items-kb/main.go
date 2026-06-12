@@ -1850,6 +1850,13 @@ func writeSystemPages(outDir string, systems []*System) error {
 		if key == "" || key == "neutral" {
 			continue
 		}
+		// A lawless system (no police presence and not a stronghold) is not under
+		// empire control even when the catalog tags it with a nearest-empire name.
+		// Counting it would inflate an empire's footprint with independent space —
+		// e.g. ~30 lawless systems were being swept into Nebula's territory.
+		if s.PoliceLevel == 0 && !s.IsStronghold {
+			continue
+		}
 		empireMap[key] = append(empireMap[key], s)
 	}
 

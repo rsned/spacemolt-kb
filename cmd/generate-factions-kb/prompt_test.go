@@ -150,8 +150,11 @@ func TestBioGenderNoun(t *testing.T) {
 		"He runs a shop and his ledger is tidy": "man",
 		"She pilots her own freighter":          "woman",
 		"They keep to themselves":               "person",
-		"He and she argued constantly":          "person", // mixed -> person
+		"He and she argued constantly":          "person", // even mix -> person
 		"A quiet traveler with no pronouns":     "person",
+		// Dominant pronoun wins despite an incidental opposite one (the Victoria
+		// 'Valkyrie' case: she/her ×3 vs an incidental he ×1).
+		"She earned her command; he was a rival she outlasted": "woman",
 	}
 	for bio, want := range cases {
 		if got := bioGenderNoun(bio); got != want {

@@ -15,6 +15,10 @@ import (
 func main() {
 	portraitsFlag := flag.Bool("portraits", false, "generate missing/updated passenger AI portraits via SMKB_PORTRAIT_CMD before rendering")
 	portraitLimit := flag.Int("portrait-limit", 0, "if >0, only (re)generate portraits for the first N passengers (alphabetical) — for quick verification")
+	agentPortraitsFlag := flag.Bool("agent-portraits", false, "generate AI portraits for the user's own agents (sighted players only) via SMKB_PORTRAIT_CMD")
+	portraitsOnly := flag.Bool("portraits-only", false, "generate portraits then exit without rendering the site (pairs with -portraits/-agent-portraits)")
+	agentsDir := flag.String("agents-dir", "../spacemolt/data/agents", "directory of agent personality.json subdirectories (for -agent-portraits)")
+	dailySummaryPath := flag.String("daily-summary", "../spacemolt/data/daily-summary.db", "daily-summary.db used to resolve agent_id -> server player_id (for -agent-portraits)")
 	flag.Parse()
 
 	dbPath := "spacemolt-knowledge.db"
@@ -62,6 +66,18 @@ func main() {
 
 	attachFactionOverlays(factions, overlaysRoot)
 	attachPlayerOverlays(players, overlaysRoot)
+	if *agentPortraitsFlag {
+		live := make(map[string]bool, len(players))
+		for _, p := range players {
+			live[p.ID] = true
+		}
+		personas, err := loadAgentPersonas(*agentsDir, *dailySummaryPath, live)
+		if err != nil {
+			log.Printf("warning: load agent personas: %v (agent portraits skipped)", err)
+		}
+		generateAgentPortraits(personas, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"), *portraitLimit)
+	}
+	attachPlayerPortraits(players, overlaysRoot)
 
 	passengers, err := loadPassengers(db)
 	if err != nil {
@@ -73,6 +89,11 @@ func main() {
 		generatePassengerPortraits(passengers, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"), *portraitLimit)
 	}
 	attachPassengerPortraits(passengers, overlaysRoot)
+
+	if *portraitsOnly {
+		log.Printf("portraits-only: generation complete, skipping site render")
+		return
+	}
 
 	funcs := templateFuncs(genTime)
 	fIdx := htmltpl.Must(htmltpl.New("fidx").Funcs(funcs).Parse(factionIndexTmpl))
@@ -104,6 +125,9 @@ func main() {
 		mustWrite(filepath.Join(dir, "index.html"), pDet, p)
 		if p.Overlay != nil {
 			copyOverlayImage(filepath.Join(overlaysRoot, "players", p.ID), p.Overlay.ImageFile, dir)
+		}
+		if p.PortraitFile != "" {
+			copyOverlayImage(playerGeneratedDir(overlaysRoot, p.ID), p.PortraitFile, dir)
 		}
 	}
 

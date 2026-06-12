@@ -10,10 +10,12 @@ Implements the SMKB_PORTRAIT_CMD contract used by cmd/generate-factions-kb:
 Backend is HuggingFace `diffusers` running Stable Diffusion on the GPU.
 Defaults to SDXL-Turbo (fast, 1-4 steps, fits a 16 GB card comfortably).
 
-Long prompts: when `compel` is installed and the model is SDXL, prompts longer
-than CLIP's 77-token window are chunked and concatenated rather than truncated,
-so the whole prompt counts. Set PORTRAIT_NO_COMPEL=1 to disable and fall back to
-plain (truncated) prompts.
+Long prompts: by default CLIP truncates prompts at its 77-token window. The
+prompt is built style/framing/archetype cue FIRST and free-text bio LAST, so
+truncation keeps the portrait-defining cue and drops the trailing bio prose —
+which is desirable, since long scenic bios otherwise pull the model into wide
+sci-fi illustration. Set PORTRAIT_COMPEL=1 to instead encode the full prompt
+(chunked past 77 tokens via `compel`) when you want the whole bio to count.
 
 Wire it up with:
 
@@ -34,12 +36,23 @@ WARM-DAEMON MODE (default)
 
 Tunable via environment variables (all optional):
   PORTRAIT_MODEL    HF model id            (default: stabilityai/sdxl-turbo)
-  PORTRAIT_STEPS    inference steps        (default: 4)
-  PORTRAIT_GUIDANCE classifier-free guide  (default: 0.0 — correct for Turbo)
+  PORTRAIT_STEPS    inference steps        (default: 12)
+  PORTRAIT_GUIDANCE classifier-free guide  (default: 3.5)
   PORTRAIT_SIZE     square pixel size      (default: 512)
+  PORTRAIT_NEGATIVE negative prompt        (default: an illustration-excluding
+                                            list; only takes effect when
+                                            guidance > 1)
   PORTRAIT_SOCK     daemon socket path     (default: $TMPDIR/smkb_portrait.sock)
   PORTRAIT_IDLE     daemon idle timeout s  (default: 300)
   PORTRAIT_NO_DAEMON  set to 1 to disable the daemon and generate in-process
+
+PHOTOREAL DEFAULTS: pure SDXL-Turbo (guidance_scale=0, 4 steps) renders fast but
+its style is a per-seed coin flip between painterly/comic and photoreal — a bare
+negative prompt has no effect at guidance 0. The defaults here instead run Turbo
+with light classifier-free guidance (3.5), a few more steps (12), and a default
+negative prompt that excludes illustration styles, which pins a consistent
+cinematic-photoreal look while staying fast (~2 s/image warm). Set
+PORTRAIT_GUIDANCE=0 to restore the classic fast-but-inconsistent Turbo behavior.
 """
 
 import json
@@ -49,6 +62,23 @@ import subprocess
 import sys
 import tempfile
 import time
+
+# Default negative prompt: excludes the illustration/comic styles that Turbo
+# otherwise drifts into. Only effective at guidance > 1 (see PHOTOREAL DEFAULTS).
+DEFAULT_NEGATIVE = (
+    # illustration / non-photographic styles
+    "illustration, painting, drawing, comic book, cartoon, anime, sketch, "
+    "cel shaded, flat colors, 2d, line art, thick outlines, ink lines, "
+    "concept art, sci-fi book cover, poster, splash art, video game screenshot, "
+    # framing: keep it a head-and-shoulders portrait, not a full-body scene
+    "full body, full shot, wide shot, cowboy shot, distant figure, "
+    "landscape, scenery, space scene, "
+    # discourage cheesecake-armor renders of combat characters — but only with
+    # GENDER-NEUTRAL terms. Strongly female-coded negatives (cleavage, bikini,
+    # lingerie, pin-up) masculinize female subjects at guidance > 1, flipping a
+    # woman fighter into a man, so they are deliberately excluded here.
+    "revealing outfit, skimpy clothing, fantasy armor"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -70,10 +100,11 @@ def _request_from_env() -> dict:
         sys.exit("gen_portrait: $PORTRAIT_OUT is required")
     return {
         "prompt": _read_prompt(),
+        "negative": os.environ.get("PORTRAIT_NEGATIVE", DEFAULT_NEGATIVE).strip(),
         "out": os.path.abspath(out_path),
         "seed": int(os.environ.get("PORTRAIT_SEED", "0") or "0"),
-        "steps": int(os.environ.get("PORTRAIT_STEPS", "4")),
-        "guidance": float(os.environ.get("PORTRAIT_GUIDANCE", "0.0")),
+        "steps": int(os.environ.get("PORTRAIT_STEPS", "12")),
+        "guidance": float(os.environ.get("PORTRAIT_GUIDANCE", "3.5")),
         "size": int(os.environ.get("PORTRAIT_SIZE", "512")),
     }
 
@@ -87,6 +118,21 @@ def _sock_path() -> str:
 # ---------------------------------------------------------------------------
 # Model backend
 # ---------------------------------------------------------------------------
+
+def _pad_to_same_length(torch, a, b):
+    """Zero-pad the shorter of two (batch, seq, dim) embedding tensors along the
+    sequence axis so both share a length (required when pairing prompt and
+    negative-prompt embeddings)."""
+    la, lb = a.shape[1], b.shape[1]
+    if la == lb:
+        return a, b
+    if la < lb:
+        a, b = b, a  # make `a` the longer; swap back on return
+    pad = torch.zeros(b.shape[0], a.shape[1] - b.shape[1], b.shape[2],
+                      device=b.device, dtype=b.dtype)
+    b = torch.cat([b, pad], dim=1)
+    return (b, a) if la < lb else (a, b)
+
 
 class Generator:
     """Loads the diffusion pipeline once and renders requests."""
@@ -108,10 +154,13 @@ class Generator:
 
     def _make_compel(self):
         """Build a Compel encoder so prompts beyond CLIP's 77-token window are
-        chunked and concatenated instead of truncated. Returns None (falling back
-        to plain prompts) for non-SDXL models, if compel is unavailable, or when
-        PORTRAIT_NO_COMPEL is set."""
-        if os.environ.get("PORTRAIT_NO_COMPEL") == "1":
+        chunked and concatenated instead of truncated. Compel is OPT-IN
+        (PORTRAIT_COMPEL=1): for portraits the trailing bio text tends to pull the
+        model into wide scenic sci-fi illustration, so by default we let CLIP
+        truncate to the leading style/framing/archetype cue (which now leads the
+        prompt). Returns None when not opted in, for non-SDXL models, or if compel
+        is unavailable."""
+        if os.environ.get("PORTRAIT_COMPEL") != "1":
             return None
         # SDXL has two tokenizers/encoders and needs pooled embeds; bail otherwise.
         if not getattr(self.pipe, "tokenizer_2", None):
@@ -132,6 +181,7 @@ class Generator:
 
     def render(self, req: dict) -> None:
         generator = self.torch.Generator(device="cuda").manual_seed(int(req["seed"]))
+        negative = req.get("negative", "")
         kwargs = dict(
             num_inference_steps=int(req["steps"]),
             guidance_scale=float(req["guidance"]),
@@ -141,10 +191,20 @@ class Generator:
         )
         if self.compel is not None:
             embeds, pooled = self.compel(req["prompt"])
+            if negative:
+                neg_embeds, neg_pooled = self.compel(negative)
+                # Conditioning and its negative must share a sequence length. compel's
+                # own padding helper is broken for the multi-encoder SDXL wrapper, so
+                # zero-pad the shorter of the two along the token axis here.
+                embeds, neg_embeds = _pad_to_same_length(self.torch, embeds, neg_embeds)
+                kwargs["negative_prompt_embeds"] = neg_embeds
+                kwargs["negative_pooled_prompt_embeds"] = neg_pooled
             kwargs["prompt_embeds"] = embeds
             kwargs["pooled_prompt_embeds"] = pooled
         else:
             kwargs["prompt"] = req["prompt"]
+            if negative:
+                kwargs["negative_prompt"] = negative
         image = self.pipe(**kwargs).images[0]
         os.makedirs(os.path.dirname(req["out"]), exist_ok=True)
         image.save(req["out"])
