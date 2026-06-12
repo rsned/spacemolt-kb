@@ -4,6 +4,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
@@ -90,5 +91,80 @@ func TestResolveCrustParamsAssemblyDistribution(t *testing.T) {
 		if math.Abs(got-want[i]) > 0.10 {
 			t.Errorf("band %d share %v, want %v ± 0.10", i, got, want[i])
 		}
+	}
+}
+
+func crustTestProfile() *types.PlanetProfile {
+	return &types.PlanetProfile{
+		PlateConvergentT: 0.75,
+		Crust:            terranCrustCfg(),
+	}
+}
+
+func TestPlaceCratonsOnCarrierPlates(t *testing.T) {
+	const S = 64
+	p := crustTestProfile()
+	pf := GeneratePlates(p, 42, S)
+	cratons := PlaceCratons(p.Crust, 42, pf, 0.5, 0.3, S)
+	if len(cratons) < 2 {
+		t.Fatalf("got %d cratons, want ≥ 2", len(cratons))
+	}
+	for i, c := range cratons {
+		f, px, py := cubemap.DirToFacePixel(c.Center[0], c.Center[1], c.Center[2], S)
+		if got := int(pf.PlateID[f][py*S+px]); got != c.PlateID {
+			t.Errorf("craton %d center sits on plate %d, recorded PlateID %d", i, got, c.PlateID)
+		}
+		if pf.Plates[c.PlateID].IsOceanic {
+			t.Errorf("craton %d placed on oceanic plate %d", i, c.PlateID)
+		}
+		if c.Radius <= 0 || c.Radius > 1.3 {
+			t.Errorf("craton %d radius %v out of (0, 1.3]", i, c.Radius)
+		}
+	}
+}
+
+func TestPlaceCratonsAreaBudget(t *testing.T) {
+	const S = 64
+	p := crustTestProfile()
+	pf := GeneratePlates(p, 42, S)
+	for _, landFrac := range []float64{0.1, 0.3, 0.5} {
+		cratons := PlaceCratons(p.Crust, 42, pf, 0.5, landFrac, S)
+		var capSum float64 // Σ cap areas as fraction of sphere: (1-cos r)/2 each
+		for _, c := range cratons {
+			capSum += (1 - math.Cos(c.Radius)) / 2
+		}
+		// Budget includes a 1.15 overlap fudge; allow generous bounds —
+		// exactness comes from the sea-level quantile, not from here.
+		if capSum < landFrac*0.8 || capSum > landFrac*1.8 {
+			t.Errorf("landFrac %v: cap-area sum %v outside [%v, %v]",
+				landFrac, capSum, landFrac*0.8, landFrac*1.8)
+		}
+	}
+}
+
+func TestPlaceCratonsAssemblyClusters(t *testing.T) {
+	// Supercontinent (assembly 0) cratons must be mutually closer than
+	// fragmented (assembly 1) cratons for the same seed.
+	const S = 64
+	p := crustTestProfile()
+	pf := GeneratePlates(p, 42, S)
+	meanPairDot := func(cs []Craton) float64 {
+		var sum float64
+		var n int
+		for i := range cs {
+			for j := i + 1; j < len(cs); j++ {
+				sum += dot3(cs[i].Center, cs[j].Center)
+				n++
+			}
+		}
+		if n == 0 {
+			return 1
+		}
+		return sum / float64(n)
+	}
+	clustered := meanPairDot(PlaceCratons(p.Crust, 42, pf, 0.0, 0.3, S))
+	scattered := meanPairDot(PlaceCratons(p.Crust, 42, pf, 1.0, 0.3, S))
+	if clustered <= scattered {
+		t.Errorf("assembly=0 mean pair dot %v not greater than assembly=1 %v", clustered, scattered)
 	}
 }
