@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# portrait — generate a Stable Diffusion portrait from a prompt string.
+#
+# A thin convenience wrapper around tools/gen_portrait.py (which is env-driven
+# for the SMKB_PORTRAIT_CMD contract). This lets you drive it by hand:
+#
+#   ./tools/portrait "a single woman, cinematic photoreal portrait, ..."
+#   ./tools/portrait -o /tmp/foo.png -s 42 "weathered asteroid miner, ..."
+#   ./tools/portrait --open --guidance 5 "voidborn ascetic, pale high collar"
+#   echo "prompt on stdin" | ./tools/portrait -o out.png
+#
+# The first run warms a background daemon (~12s model load); later runs reuse it
+# (~1s). Tunables not exposed as flags can still be set via the PORTRAIT_* env
+# vars documented in gen_portrait.py.
+set -euo pipefail
+
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+gen="$here/gen_portrait.py"
+py="${SD_VENV:-$HOME/sd-venv}/bin/python"
+
+out=""
+open_after=0
+declare -a prompt_parts=()
+
+usage() {
+    cat <<'EOF'
+portrait — generate a Stable Diffusion portrait from a prompt string.
+
+  ./tools/portrait "a single woman, cinematic photoreal portrait, ..."
+  ./tools/portrait -o /tmp/foo.png -s 42 "weathered asteroid miner, ..."
+  ./tools/portrait --open --guidance 5 "voidborn ascetic, pale high collar"
+  echo "prompt on stdin" | ./tools/portrait -o out.png
+
+The first run warms a background daemon (~12s model load); later runs reuse it
+(~1s). Tunables not exposed as flags can still be set via the PORTRAIT_* env
+vars documented in gen_portrait.py.
+
+Options:
+  -o, --out FILE        output PNG path (default: ./portrait-<seed>.png)
+  -s, --seed N          deterministic seed (default: random)
+  -g, --guidance F      classifier-free guidance scale (default: 3.5)
+      --steps N         inference steps (default: 12)
+  -n, --negative TEXT   override the default negative prompt
+      --open            open the result with xdg-open when done
+  -h, --help            show this help
+
+Anything not consumed by a flag is treated as the prompt. If no prompt is
+given on the command line, it is read from stdin.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -o|--out)       out="$2"; shift 2 ;;
+        -s|--seed)      export PORTRAIT_SEED="$2"; shift 2 ;;
+        -g|--guidance)  export PORTRAIT_GUIDANCE="$2"; shift 2 ;;
+        --steps)        export PORTRAIT_STEPS="$2"; shift 2 ;;
+        -n|--negative)  export PORTRAIT_NEGATIVE="$2"; shift 2 ;;
+        --open)         open_after=1; shift ;;
+        -h|--help)      usage; exit 0 ;;
+        --)             shift; prompt_parts+=("$@"); break ;;
+        -*)             echo "portrait: unknown option '$1'" >&2; exit 2 ;;
+        *)              prompt_parts+=("$1"); shift ;;
+    esac
+done
+
+[[ -x "$py" ]]  || { echo "portrait: python not found at $py (set \$SD_VENV)" >&2; exit 1; }
+[[ -f "$gen" ]] || { echo "portrait: gen_portrait.py missing at $gen" >&2; exit 1; }
+
+prompt="${prompt_parts[*]:-}"
+if [[ -z "$prompt" && ! -t 0 ]]; then
+    prompt="$(cat)"
+fi
+[[ -n "$prompt" ]] || { echo "portrait: no prompt (pass one as args or pipe on stdin)" >&2; usage >&2; exit 2; }
+
+# Default output path keyed by seed so repeat runs are obvious; random otherwise.
+if [[ -z "$out" ]]; then
+    out="./portrait-${PORTRAIT_SEED:-$(date +%s)}.png"
+fi
+
+PORTRAIT_PROMPT="$prompt" PORTRAIT_OUT="$out" "$py" "$gen"
+
+echo "wrote $out"
+if [[ "$open_after" == 1 ]] && command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$out" >/dev/null 2>&1 &
+fi
