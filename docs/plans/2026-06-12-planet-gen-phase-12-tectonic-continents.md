@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-06-12-tectonic-continents-design.md`
 
-**Worktree:** all paths are relative to `/home/robert/spacemolt/kb-phase-0-cube-map` (branch `phase-0/cube-map`). Run all commands from that directory.
+**Worktree:** all paths are relative to `/home/robert/spacemolt/kb-phase-12-tectonic-continents` (branch `phase-12/tectonic-continents`, branched from `phase-0/cube-map`). Run all commands from that directory.
 
 ---
 
