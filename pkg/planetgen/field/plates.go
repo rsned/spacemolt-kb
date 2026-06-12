@@ -85,6 +85,9 @@ type PlateField struct {
 func GeneratePlates(profile *types.PlanetProfile, master int64, S int) *PlateField {
 	var plates []Plate
 	if profile.Crust.MajorPlates > 0 {
+		if profile.Crust.MajorPlates+profile.Crust.MinorPlates > math.MaxInt16 {
+			panic("planetgen/field: MajorPlates+MinorPlates exceeds int16 max (32767)")
+		}
 		plates = seedPlatesTwoTier(profile, master)
 	} else {
 		if profile.PlateCount > math.MaxInt16 {
@@ -134,10 +137,7 @@ func floodFillPlates(pf *PlateField, master int64, S int) {
 	frontier := make([]frontierItem, 0, S*S)
 
 	pushNeighbors := func(face cubemap.Face, px, py int, id int16) {
-		repeat := int(pf.Plates[id].Weight + 0.5)
-		if repeat < 1 {
-			repeat = 1
-		}
+		repeat := max(int(pf.Plates[id].Weight+0.5), 1)
 		nbrs := cubemap.FacePixelNeighbors4(face, px, py, S)
 		for _, n := range nbrs {
 			if pf.PlateID[n.Face][n.PY*S+n.PX] == -1 {
@@ -603,10 +603,16 @@ func balanceMomentum(plates []Plate) {
 // Fibonacci pool. Motion and momentum balancing match seedPlates.
 // Oceanic flags use Crust.OceanicFraction ("carries no craton").
 func seedPlatesTwoTier(profile *types.PlanetProfile, master int64) []Plate {
+	// poolN is the size of the Fibonacci candidate pool minors are
+	// farthest-point-picked from.
+	const poolN = 64
 	nMaj := profile.Crust.MajorPlates
 	nMin := profile.Crust.MinorPlates
 	if nMaj <= 0 {
 		return nil
+	}
+	if nMin > poolN {
+		nMin = poolN // farthest-point pool size; more minors than candidates is meaningless
 	}
 	bias := profile.Crust.MajorGrowthBias
 	if bias <= 0 {
@@ -643,23 +649,23 @@ func seedPlatesTwoTier(profile *types.PlanetProfile, master int64) []Plate {
 	}
 
 	// Minors: farthest-point picks from a 64-candidate spiral pool.
-	const poolN = 64
 	pool := make([][3]float64, poolN)
 	for i := range poolN {
 		pool[i] = spiral(i, poolN)
 	}
 	for m := range nMin {
-		bestIdx, bestScore := 0, -2.0
+		// True farthest-point pick: minimize the dot to the nearest existing seed.
+		bestIdx := 0
+		bestClosest := 2.0 // dot to the nearest existing seed; smaller = farther away
 		for ci, c := range pool {
-			worst := 2.0 // min dot to any existing seed = farthest candidate
+			closest := -2.0
 			for _, p := range plates {
-				if d := dot3(p.Seed, c); d < worst {
-					worst = d
+				if d := dot3(p.Seed, c); d > closest {
+					closest = d
 				}
 			}
-			// Lower min-dot = farther from everything = better. Negate.
-			if score := -worst; score > bestScore {
-				bestScore = score
+			if closest < bestClosest {
+				bestClosest = closest
 				bestIdx = ci
 			}
 		}
