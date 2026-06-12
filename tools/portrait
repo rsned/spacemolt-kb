@@ -21,6 +21,7 @@ py="${SD_VENV:-$HOME/sd-venv}/bin/python"
 
 out=""
 open_after=0
+passenger=""
 declare -a prompt_parts=()
 
 usage() {
@@ -42,6 +43,12 @@ Options:
   -g, --guidance F      classifier-free guidance scale (default: 3.5)
       --steps N         inference steps (default: 12)
   -n, --negative TEXT   override the default negative prompt
+  -c, --compel          encode the FULL prompt (chunk past CLIP's 77-token cap).
+                        Required to reproduce KB passenger/player portraits,
+                        whose appearance cues sit past the lead style text.
+      --passenger ID    reproduce a KB passenger's portrait by citizen_id:
+                        loads its exact prompt + derived seed and turns on
+                        compel. (Sets the prompt/seed for you.)
       --open            open the result with xdg-open when done
   -h, --help            show this help
 
@@ -57,6 +64,8 @@ while [[ $# -gt 0 ]]; do
         -g|--guidance)  export PORTRAIT_GUIDANCE="$2"; shift 2 ;;
         --steps)        export PORTRAIT_STEPS="$2"; shift 2 ;;
         -n|--negative)  export PORTRAIT_NEGATIVE="$2"; shift 2 ;;
+        -c|--compel)    export PORTRAIT_COMPEL=1; shift ;;
+        --passenger)    passenger="$2"; shift 2 ;;
         --open)         open_after=1; shift ;;
         -h|--help)      usage; exit 0 ;;
         --)             shift; prompt_parts+=("$@"); break ;;
@@ -67,6 +76,25 @@ done
 
 [[ -x "$py" ]]  || { echo "portrait: python not found at $py (set \$SD_VENV)" >&2; exit 1; }
 [[ -f "$gen" ]] || { echo "portrait: gen_portrait.py missing at $gen" >&2; exit 1; }
+
+# --passenger reproduces a committed KB portrait: its sidecar holds the exact
+# prompt, its seed is FNV-1a-64(citizen_id) % 1e9, and it needs compel on.
+if [[ -n "$passenger" ]]; then
+    side="$here/../overlays/generated/passengers/$passenger/prompt.txt"
+    [[ -f "$side" ]] || { echo "portrait: no passenger '$passenger' (looked for $side)" >&2; exit 1; }
+    prompt_parts=("$(tail -n +2 "$side")")          # line 1 is the hash; prompt follows
+    export PORTRAIT_COMPEL=1
+    : "${PORTRAIT_SEED:=$("$py" - "$passenger" <<'PY'
+import sys
+h = 0xcbf29ce484222325
+for b in sys.argv[1].encode():
+    h ^= b; h = (h * 0x100000001b3) & 0xFFFFFFFFFFFFFFFF
+print(h % 1_000_000_000)
+PY
+)}"
+    export PORTRAIT_SEED
+    [[ -n "$out" ]] || out="./portrait-${passenger}.png"
+fi
 
 prompt="${prompt_parts[*]:-}"
 if [[ -z "$prompt" && ! -t 0 ]]; then

@@ -110,9 +110,16 @@ def _request_from_env() -> dict:
 
 
 def _sock_path() -> str:
-    return os.environ.get(
-        "PORTRAIT_SOCK", os.path.join(tempfile.gettempdir(), "smkb_portrait.sock")
-    )
+    explicit = os.environ.get("PORTRAIT_SOCK")
+    if explicit:
+        return explicit
+    # compel is loaded once when the daemon starts (it cannot be toggled per
+    # request), so a compel-on and a compel-off daemon must live on separate
+    # sockets — otherwise a compel-on request gets silently served by a warm
+    # compel-off daemon, which truncates long prompts at CLIP's 77-token limit
+    # and drops everything past the lead style cue (skin tone, attire, bio).
+    compel = "1" if os.environ.get("PORTRAIT_COMPEL") == "1" else "0"
+    return os.path.join(tempfile.gettempdir(), f"smkb_portrait_c{compel}.sock")
 
 
 # ---------------------------------------------------------------------------
