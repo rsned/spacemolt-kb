@@ -1,0 +1,63 @@
+{
+  "groups": [
+    {
+      "id": "anim_fold",
+      "title": "Animations · fold churn",
+      "subtitle": "non-euclidean folds breathing (displacement field)",
+      "items": [
+        {"file": "anim_fold_phase.mp4", "src": ["h3_phase_fold.png"],
+         "effect": "fold-churn", "params": {"amp_px": 12, "freq": 2.0},
+         "duration": 4, "fps": 24, "label": "H3 phase fold churn", "fav": false},
+        {"file": "anim_fold_v2.mp4", "src": ["h3_v_fold2.png"],
+         "effect": "fold-churn", "params": {"amp_px": 14, "freq": 2.5},
+         "duration": 4, "fps": 24, "label": "H3 fold v2 churn", "fav": false},
+        {"file": "anim_fold_v3.mp4", "src": ["h3_v_fold3.png"],
+         "effect": "fold-churn", "params": {"amp_px": 14, "freq": 2.5},
+         "duration": 4, "fps": 24, "label": "H3 fold v3 churn", "fav": false},
+        {"file": "anim_fold_abstract.mp4", "src": ["abstract_fold_a.png"],
+         "effect": "fold-churn", "params": {"amp_px": 10, "freq": 3.0},
+         "duration": 4, "fps": 24, "label": "Abstract fold tunnel", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_chroma",
+      "title": "Animations · chromatic split",
+      "subtitle": "reference frames unify then chromatically split + drift",
+      "items": [
+        {"file": "anim_chroma_double2.mp4", "src": ["h3_v_double2.png"],
+         "effect": "chromatic-split", "params": {"max_px": 18, "angle_deg": 20, "drift_px": 6},
+         "duration": 4, "fps": 24, "label": "H3 double — split", "fav": false},
+        {"file": "anim_chroma_amber.mp4", "src": ["fusion_amber_double.png"],
+         "effect": "chromatic-split", "params": {"max_px": 16, "angle_deg": 15, "drift_px": 5},
+         "duration": 4, "fps": 24, "label": "Fusion amber — split", "fav": false},
+        {"file": "anim_chroma_sapphire.mp4", "src": ["fusion_sapphire_double.png"],
+         "effect": "chromatic-split", "params": {"max_px": 16, "angle_deg": 15, "drift_px": 5},
+         "duration": 4, "fps": 24, "label": "Fusion sapphire — split", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_dissolve",
+      "title": "Animations · noise dissolve",
+      "subtitle": "dissolve into palette-tinted probability noise and back",
+      "items": [
+        {"file": "anim_dissolve_phase.mp4", "src": ["h3_phase_dissolve.png"],
+         "effect": "noise-dissolve", "params": {"max_noise": 0.85, "grain": 4, "seed": 1},
+         "duration": 5, "fps": 24, "label": "H3 phase dissolve", "fav": false},
+        {"file": "anim_dissolve_abstract.mp4", "src": ["abstract_phase_c.png"],
+         "effect": "noise-dissolve", "params": {"max_noise": 0.8, "grain": 5, "seed": 2},
+         "duration": 5, "fps": 24, "label": "Abstract phase dissolve", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_crossfade",
+      "title": "Animations · crossfade drift",
+      "subtitle": "off-axis parallax crossfade between two keyframes",
+      "items": [
+        {"file": "anim_crossfade_fusion.mp4",
+         "src": ["fusion_amber_fold.png", "fusion_sapphire_fold.png"],
+         "effect": "crossfade-drift", "params": {"drift_px": 10, "angle_deg": 8},
+         "duration": 5, "fps": 24, "label": "Fusion amber ↔ sapphire", "fav": false}
+      ]
+    }
+  ]
+}
