@@ -305,6 +305,98 @@ def hyper_warp(imgs, params, t):
     return to_uint8(warped)
 
 
+def _flow_to_mask(bright, toward):
+    """Unit flow vectors pointing toward (or away from) the bright curve.
+
+    Heavily blur the bright mask into a smooth scalar field that rises toward
+    the curve; its gradient points uphill (toward the curve). Returns
+    (flow_x, flow_y) each (H,W).
+    """
+    field = np.asarray(
+        Image.fromarray((bright.astype(np.uint8) * 255)).filter(
+            ImageFilter.GaussianBlur(40)),
+        dtype=np.float32)
+    gy, gx = np.gradient(field)
+    mag = np.sqrt(gx * gx + gy * gy) + 1e-6
+    fx, fy = gx / mag, gy / mag
+    if not toward:
+        fx, fy = -fx, -fy
+    return fx, fy
+
+
+def _draw_streaking_stars(h, w, flow_x, flow_y, n_stars, streak_len, seed, t):
+    """Synthetic stars that stream along the flow, looping via (phase+t) mod 1.
+
+    A per-star sine envelope makes brightness zero at the wrap, so the
+    position discontinuity at the loop is invisible. Returns (H,W,3) float.
+    """
+    rng = np.random.default_rng(seed)
+    base = rng.random(n_stars)
+    px = rng.integers(0, w, n_stars)
+    py = rng.integers(0, h, n_stars)
+    bri = rng.uniform(0.5, 1.0, n_stars)
+    tint = np.array([0.7, 0.85, 1.0], dtype=np.float32)   # cool Voidborn blue
+    out = np.zeros((h, w, 3), dtype=np.float32)
+    max_travel = streak_len * 2.0
+    for i in range(n_stars):
+        phase = (base[i] + t) % 1.0
+        env = np.sin(np.pi * phase)        # 0 at wrap, 1 mid-travel
+        if env <= 0:
+            continue
+        dist = phase * max_travel
+        fx = float(flow_x[py[i], px[i]])
+        fy = float(flow_y[py[i], px[i]])
+        for k in range(streak_len):
+            x = int(px[i] + fx * (dist - k))
+            y = int(py[i] + fy * (dist - k))
+            if 0 <= x < w and 0 <= y < h:
+                out[y, x] += bri[i] * env * (1.0 - k / streak_len) * tint
+    return np.clip(out, 0.0, 1.0)
+
+
+def hyperspace_streak(imgs, params, t):
+    """Stargate 'probability field': fixed bright curve, stars streaking past.
+
+    The painted texture is motion-blurred along a flow toward/away from the
+    curve (t-independent, cached); synthetic stars stream along the same flow
+    and loop; the detected bright curve is composited back unmoved on top.
+    """
+    img = imgs[0]
+    streak_len = int(params.get("streak_len", 24))
+    n_stars = int(params.get("n_stars", 240))
+    toward = bool(params.get("toward", True))
+    curve_threshold = float(params.get("curve_threshold", 0.5))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+
+    key = (id(img), img.shape, streak_len, round(curve_threshold, 4), toward)
+    cached = _STREAK_CACHE.get(key)
+    if cached is None:
+        lum = img @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+        bright = lum > curve_threshold
+        fx, fy = _flow_to_mask(bright, toward)
+        ys, xs = np.meshgrid(
+            np.arange(h, dtype=np.float32),
+            np.arange(w, dtype=np.float32),
+            indexing="ij",
+        )
+        acc = np.zeros_like(img)
+        wsum = 0.0
+        for k in range(streak_len):
+            wgt = 0.85 ** k
+            acc += wgt * remap(img, xs + fx * k, ys + fy * k)
+            wsum += wgt
+        streaked = acc / wsum
+        curve_rgb = img * bright[..., None]
+        cached = (fx, fy, streaked, curve_rgb)
+        _STREAK_CACHE[key] = cached
+    fx, fy, streaked, curve_rgb = cached
+
+    stars = _draw_streaking_stars(h, w, fx, fy, n_stars, streak_len, seed, t)
+    field = np.maximum(streaked, stars)
+    return to_uint8(np.maximum(field, curve_rgb))
+
+
 # Effect registry: name -> (required_input_count, frame_function).
 EFFECTS = {
     "fold-churn": (1, fold_churn),
@@ -312,6 +404,7 @@ EFFECTS = {
     "noise-dissolve": (1, noise_dissolve),
     "crossfade-drift": (2, crossfade_drift),
     "hyper-warp": (1, hyper_warp),
+    "hyperspace-streak": (1, hyperspace_streak),
 }
 
 

@@ -263,3 +263,32 @@ def test_hyper_warp_protect_keeps_subject_closer():
     d_prot = abs(int(protected[cy, cx, 0]) - int(src[cy, cx, 0]))
     d_warp = abs(int(warped[cy, cx, 0]) - int(src[cy, cx, 0]))
     assert d_prot <= d_warp
+
+
+def _point_with_curve(h=80, w=80):
+    """A single bright star plus a bright vertical 'curve' down the middle."""
+    img = np.zeros((h, w, 3), dtype=np.float32)
+    img[:, w // 2 - 1:w // 2 + 1] = 0.9   # the fixed curve
+    img[20, 20] = 1.0                      # a lone star to streak
+    return img
+
+
+def test_hyperspace_streak_shape_and_loop():
+    img = _point_with_curve()
+    frame = animate.hyperspace_streak([img], {"seed": 1}, 0.4)
+    assert frame.shape == img.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.hyperspace_streak, [img], {"seed": 1}) <= 1
+
+
+def test_hyperspace_streak_elongates_a_point():
+    img = _point_with_curve()
+    frame = animate.hyperspace_streak([img], {"seed": 1, "streak_len": 20}, 0.4)
+    bright = (frame.max(axis=2) > 120)
+    assert bright.sum() > (img.max(axis=2) > 0.5).sum()
+
+
+def test_hyperspace_streak_keeps_curve():
+    img = _point_with_curve()
+    frame = animate.hyperspace_streak([img], {"seed": 1}, 0.4)
+    assert frame[:, 40].max() > 180
