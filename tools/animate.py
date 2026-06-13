@@ -80,3 +80,29 @@ def fold_churn(imgs, params, t):
     dx = amp * np.sin(ky * ys + phase)
     dy = amp * np.cos(kx * xs + phase)
     return to_uint8(remap(img, xs + dx, ys + dy))
+
+
+def chromatic_split(imgs, params, t):
+    """RGB channels drift apart off-axis then re-merge (unify -> split -> unify).
+
+    Split distance d(t) = max_px * 0.5*(1-cos(2*pi*t)) goes 0 -> max -> 0, and a
+    shared whole-frame off-axis wobble uses sin(2*pi*t); both vanish at t=0 and
+    t=1, so the loop is seamless.
+    """
+    img = imgs[0]
+    max_px = float(params.get("max_px", 18.0))
+    angle = np.deg2rad(float(params.get("angle_deg", 20.0)))
+    drift_px = float(params.get("drift_px", 6.0))
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    d = max_px * 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
+    drift = drift_px * np.sin(2.0 * np.pi * t)
+    ox, oy = np.cos(angle), np.sin(angle)
+    r = remap(img, xs + d * ox + drift * oy, ys + d * oy - drift * ox)[..., 0]
+    g = remap(img, xs + drift * oy, ys - drift * ox)[..., 1]
+    b = remap(img, xs - d * ox + drift * oy, ys - d * oy - drift * ox)[..., 2]
+    return to_uint8(np.stack([r, g, b], axis=-1))

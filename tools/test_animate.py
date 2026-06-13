@@ -66,3 +66,11 @@ def test_fold_churn_shape_and_loop():
     assert frame.shape == img.shape
     assert frame.dtype == np.uint8
     assert _loops(animate.fold_churn, [img]) <= 1
+
+
+def test_chromatic_split_shape_and_loop():
+    img = _synth()
+    frame = animate.chromatic_split([img], {}, 0.5)
+    assert frame.shape == img.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.chromatic_split, [img]) <= 1
