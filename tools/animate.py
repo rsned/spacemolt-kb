@@ -32,3 +32,27 @@ def ensure_even(arr):
     if ph or pw:
         arr = np.pad(arr, ((0, ph), (0, pw), (0, 0)), mode="edge")
     return arr
+
+
+def remap(img, map_x, map_y):
+    """Bilinear-sample img at floating source coords (map_x, map_y).
+
+    map_x/map_y are (H, W) arrays giving, for each output pixel, the source
+    column/row to read. Coordinates are clamped to the image edges.
+    """
+    h, w = img.shape[:2]
+    x = np.clip(map_x, 0, w - 1)
+    y = np.clip(map_y, 0, h - 1)
+    x0 = np.floor(x).astype(np.int64)
+    y0 = np.floor(y).astype(np.int64)
+    x1 = np.minimum(x0 + 1, w - 1)
+    y1 = np.minimum(y0 + 1, h - 1)
+    wx = (x - x0)[..., None]
+    wy = (y - y0)[..., None]
+    ia = img[y0, x0]
+    ib = img[y0, x1]
+    ic = img[y1, x0]
+    idd = img[y1, x1]
+    top = ia * (1 - wx) + ib * wx
+    bot = ic * (1 - wx) + idd * wx
+    return top * (1 - wy) + bot * wy

@@ -25,3 +25,28 @@ def test_ensure_even_pads_odd_dims():
     h, w = even.shape[:2]
     assert h % 2 == 0 and w % 2 == 0
     assert (h, w) == (64, 48)
+
+
+def test_remap_identity_returns_same_image():
+    img = _synth()
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    out = animate.remap(img, xs, ys)
+    assert np.allclose(out, img, atol=1e-4)
+
+
+def test_remap_integer_shift():
+    img = _synth()
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    # sample from one column to the right -> output shifted left by 1
+    out = animate.remap(img, xs + 1.0, ys)
+    assert np.allclose(out[:, :-1], img[:, 1:], atol=1e-4)
