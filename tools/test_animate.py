@@ -12,6 +12,14 @@ def _synth(h=64, w=48):
     return rng.random((h, w, 3), dtype=np.float32)
 
 
+def _loops(fn, imgs, params=None):
+    """A frame fn loops if its t=0 and t=1 frames match within rounding."""
+    params = params or {}
+    f0 = fn(imgs, params, 0.0).astype(np.int16)
+    f1 = fn(imgs, params, 1.0).astype(np.int16)
+    return int(np.abs(f0 - f1).max())
+
+
 def test_to_uint8_clamps_and_rounds():
     arr = np.array([[[-0.5, 0.0, 1.0]]], dtype=np.float32)
     out = animate.to_uint8(arr)
@@ -50,3 +58,11 @@ def test_remap_integer_shift():
     # sample from one column to the right -> output shifted left by 1
     out = animate.remap(img, xs + 1.0, ys)
     assert np.allclose(out[:, :-1], img[:, 1:], atol=1e-4)
+
+
+def test_fold_churn_shape_and_loop():
+    img = _synth()
+    frame = animate.fold_churn([img], {}, 0.3)
+    assert frame.shape == img.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.fold_churn, [img]) <= 1

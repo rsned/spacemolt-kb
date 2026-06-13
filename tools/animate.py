@@ -56,3 +56,27 @@ def remap(img, map_x, map_y):
     top = ia * (1 - wx) + ib * wx
     bot = ic * (1 - wx) + idd * wx
     return top * (1 - wy) + bot * wy
+
+
+def fold_churn(imgs, params, t):
+    """Animated sinusoidal displacement field — non-euclidean folds churning.
+
+    The field phase advances by 2*pi*cycles over the loop; with integer
+    `cycles` the t=0 and t=1 fields coincide, so the clip loops seamlessly.
+    """
+    img = imgs[0]
+    amp = float(params.get("amp_px", 12.0))
+    freq = float(params.get("freq", 2.0))
+    cycles = float(params.get("cycles", 1.0))
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    phase = 2.0 * np.pi * t * cycles
+    kx = 2.0 * np.pi * freq / w
+    ky = 2.0 * np.pi * freq / h
+    dx = amp * np.sin(ky * ys + phase)
+    dy = amp * np.cos(kx * xs + phase)
+    return to_uint8(remap(img, xs + dx, ys + dy))
