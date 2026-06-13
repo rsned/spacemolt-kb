@@ -255,12 +255,63 @@ def subject_mask(img, params):
     return m
 
 
+def hyper_warp(imgs, params, t):
+    """Displace the keyframe by a real 4D rotation projected back to 2D.
+
+    Each pixel (u,v) in [-1,1] is embedded in 4D with radius-seeded z,w coords,
+    rotated through the xw/yw/zw planes (the rotations with no 3D analog) by
+    theta = 2*pi*t*turns, and perspective-projected back. Displacement is taken
+    RELATIVE to the rest (theta=0) projection, so t=0 and t=1 (integer turns)
+    are the undistorted keyframe -> seamless loop with crisp endpoints.
+    With protect_subject, the feathered subject is composited back unwarped.
+    """
+    img = imgs[0]
+    amp = float(params.get("amp", 0.35))
+    turns = int(params.get("turns", 1))
+    w_dist = float(params.get("w_dist", 2.5))
+    protect = bool(params.get("protect_subject", False))
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    u = 2.0 * xs / (w - 1) - 1.0
+    v = 2.0 * ys / (h - 1) - 1.0
+    r = np.sqrt(u * u + v * v)
+    z = r * np.cos(np.pi * r)   # hidden dims carry radial structure
+    wc = r * np.sin(np.pi * r)
+
+    def project(theta):
+        c, s = np.cos(theta), np.sin(theta)
+        px, py, pz, pw = u.copy(), v.copy(), z.copy(), wc.copy()
+        px, pw = px * c - pw * s, px * s + pw * c   # xw plane
+        py, pw = py * c - pw * s, py * s + pw * c   # yw plane
+        pz, pw = pz * c - pw * s, pz * s + pw * c   # zw plane
+        denom = w_dist - pw
+        denom = np.where(np.abs(denom) < 1e-3, 1e-3, denom)
+        proj = w_dist / denom
+        return px * proj, py * proj
+
+    u_now, v_now = project(2.0 * np.pi * t * turns)
+    u_rest, v_rest = project(0.0)
+    scale = min(h, w) / 2.0
+    dx = amp * (u_now - u_rest) * scale
+    dy = amp * (v_now - v_rest) * scale
+    warped = remap(img, xs + dx, ys + dy)
+    if protect:
+        m = subject_mask(img, params)[..., None]
+        return to_uint8(warped * (1.0 - m) + img * m)
+    return to_uint8(warped)
+
+
 # Effect registry: name -> (required_input_count, frame_function).
 EFFECTS = {
     "fold-churn": (1, fold_churn),
     "chromatic-split": (1, chromatic_split),
     "noise-dissolve": (1, noise_dissolve),
     "crossfade-drift": (2, crossfade_drift),
+    "hyper-warp": (1, hyper_warp),
 }
 
 

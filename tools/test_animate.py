@@ -238,3 +238,28 @@ def test_largest_component_picks_biggest_blob():
     a[10:18, 10:18] = True      # big blob (64 px)
     big = animate._largest_component(a)
     assert big[14, 14] and not big[3, 3]
+
+
+def test_hyper_warp_shape_and_loop():
+    img = _synth()
+    frame = animate.hyper_warp([img], {}, 0.3)
+    assert frame.shape == img.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.hyper_warp, [img]) <= 1
+
+
+def test_hyper_warp_identity_at_t0():
+    img = _synth()
+    f0 = animate.hyper_warp([img], {"amp": 0.4}, 0.0)
+    assert np.abs(f0.astype(np.int16) - animate.to_uint8(img).astype(np.int16)).max() <= 1
+
+
+def test_hyper_warp_protect_keeps_subject_closer():
+    img = _blob()
+    protected = animate.hyper_warp([img], {"protect_subject": True, "amp": 0.6}, 0.5)
+    warped = animate.hyper_warp([img], {"protect_subject": False, "amp": 0.6}, 0.5)
+    src = animate.to_uint8(img)
+    cy, cx = 40, 40
+    d_prot = abs(int(protected[cy, cx, 0]) - int(src[cy, cx, 0]))
+    d_warp = abs(int(warped[cy, cx, 0]) - int(src[cy, cx, 0]))
+    assert d_prot <= d_warp
