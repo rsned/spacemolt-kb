@@ -152,3 +152,46 @@ def test_render_rejects_wrong_input_count(tmp_path):
         assert False, "expected ValueError"
     except ValueError as e:
         assert "2" in str(e)
+
+
+import json  # noqa: E402
+
+
+def test_parse_params_typed():
+    params = animate.parse_params(["amp_px=12", "freq=2.5", "seed=3"])
+    assert params == {"amp_px": 12, "freq": 2.5, "seed": 3}
+
+
+def test_run_batch_renders_all_and_skips_bad(tmp_path, capsys):
+    good = tmp_path / "k.png"
+    Image.fromarray(animate.to_uint8(_synth())).save(good)
+    spec = {
+        "groups": [
+            {
+                "title": "t",
+                "items": [
+                    {
+                        "file": "ok.mp4",
+                        "src": ["k.png"],
+                        "effect": "fold-churn",
+                        "params": {},
+                        "duration": 1.0,
+                        "fps": 8,
+                    },
+                    {
+                        "file": "bad.mp4",
+                        "src": ["missing.png"],
+                        "effect": "fold-churn",
+                        "duration": 1.0,
+                        "fps": 8,
+                    },
+                ],
+            }
+        ]
+    }
+    spec_path = tmp_path / "anims.json"
+    spec_path.write_text(json.dumps(spec))
+    ok, fail = animate.run_batch(str(spec_path))
+    assert ok == 1 and fail == 1
+    assert (tmp_path / "ok.mp4").exists()
+    assert not (tmp_path / "bad.mp4").exists()

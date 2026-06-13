@@ -6,6 +6,11 @@ function of a loop phase t in [0,1) so frame 0 and frame N match: the MP4
 loops seamlessly with <video loop>. See
 docs/superpowers/specs/2026-06-13-voidborn-procedural-animation-design.md.
 """
+import argparse
+import json
+import sys
+from pathlib import Path
+
 import numpy as np
 from PIL import Image
 
@@ -222,3 +227,84 @@ def render(srcs, effect, params, duration, fps, out):
     frames = (fn(imgs, params, i / n) for i in range(n))
     encode_mp4(frames, out, fps, (w, h))
     return out, n
+
+
+def parse_params(pairs):
+    """Parse ['name=value', ...] into a dict, typing values via JSON.
+
+    'amp_px=12' -> {'amp_px': 12}; 'mode=soft' -> {'mode': 'soft'}.
+    """
+    params = {}
+    for pair in pairs:
+        if "=" not in pair:
+            raise ValueError(f"bad --param '{pair}', expected NAME=VALUE")
+        name, _, raw = pair.partition("=")
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError:
+            value = raw
+        params[name.strip()] = value
+    return params
+
+
+def run_batch(spec_path):
+    """Render every clip in an anims.json file. Returns (ok_count, fail_count).
+
+    Source and output paths resolve relative to the spec file's directory. A
+    failing item is logged and skipped; the batch continues.
+    """
+    base = Path(spec_path).parent
+    data = json.loads(Path(spec_path).read_text())
+    ok = fail = 0
+    for group in data["groups"]:
+        for item in group["items"]:
+            out = str(base / item["file"])
+            srcs = [str(base / s) for s in item["src"]]
+            try:
+                render(
+                    srcs,
+                    item["effect"],
+                    item.get("params", {}),
+                    item.get("duration", 4.0),
+                    item.get("fps", 24),
+                    out,
+                )
+                ok += 1
+                print(f"wrote {out}")
+            except Exception as e:  # noqa: BLE001 — batch should not abort
+                fail += 1
+                print(f"SKIP {item.get('file')}: {e}", file=sys.stderr)
+    print(f"batch: {ok} ok, {fail} skipped")
+    return ok, fail
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser(
+        description="Animate Voidborn keyframes into looping MP4 clips."
+    )
+    p.add_argument("srcs", nargs="*", help="1-2 source keyframe image paths")
+    p.add_argument("--effect", choices=sorted(EFFECTS), help="effect to apply")
+    p.add_argument("--duration", type=float, default=4.0, help="seconds")
+    p.add_argument("--fps", type=int, default=24)
+    p.add_argument("-o", "--out", help="output .mp4 path")
+    p.add_argument(
+        "-p", "--param", action="append", default=[],
+        metavar="NAME=VALUE", help="effect parameter (repeatable)",
+    )
+    p.add_argument("--batch", help="render all clips in an anims.json file")
+    args = p.parse_args(argv)
+
+    if args.batch:
+        ok, fail = run_batch(args.batch)
+        return 1 if fail and not ok else 0
+
+    if not args.srcs or not args.effect or not args.out:
+        p.error("single-clip mode needs SRC(s), --effect, and --out")
+    params = parse_params(args.param)
+    out, n = render(args.srcs, args.effect, params, args.duration, args.fps, args.out)
+    print(f"wrote {out} ({n} frames)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
