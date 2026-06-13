@@ -316,3 +316,24 @@ def test_disintegrate_leaves_background_untouched():
     for tt in (0.0, 0.5, 1.0):
         frame = animate.disintegrate([img], {"seed": 2}, tt)
         assert np.array_equal(frame[2, 2], src[2, 2])
+
+
+def test_render_injects_mask_path(tmp_path, monkeypatch):
+    # write a keyframe and a sibling .mask.png; render() should pick up the mask
+    src = tmp_path / "k.png"
+    Image.fromarray(animate.to_uint8(_blob())).save(src)
+    mask = tmp_path / "k.png.mask.png"
+    Image.fromarray(np.full((80, 80), 200, dtype=np.uint8)).save(mask)
+
+    seen = {}
+    real = animate.subject_mask
+
+    def spy(img, params):
+        seen["mask_path"] = params.get("mask_path")
+        return real(img, params)
+
+    monkeypatch.setattr(animate, "subject_mask", spy)
+    out = tmp_path / "o.mp4"
+    animate.render([str(src)], "disintegrate", {}, 1.0, 6, str(out))
+    assert seen["mask_path"] == str(src) + ".mask.png"
+    assert out.exists()

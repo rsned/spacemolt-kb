@@ -490,9 +490,17 @@ def render(srcs, effect, params, duration, fps, out):
         raise ValueError(
             f"effect '{effect}' needs {n_inputs} source image(s), got {len(srcs)}"
         )
+    _MASK_CACHE.clear()
+    _STREAK_CACHE.clear()
     imgs = [ensure_even(load_image(s)) for s in srcs]
     h, w = imgs[0].shape[:2]
     imgs = [_resize_to(img, h, w) for img in imgs]
+    # auto-pick a sibling <src>.mask.png override for mask-using effects
+    params = dict(params)
+    if "mask_path" not in params:
+        cand = srcs[0] + ".mask.png"
+        if os.path.exists(cand):
+            params["mask_path"] = cand
     n = max(1, round(duration * fps))
     frames = (fn(imgs, params, i / n) for i in range(n))
     encode_mp4(frames, out, fps, (w, h))
