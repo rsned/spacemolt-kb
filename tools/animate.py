@@ -140,3 +140,26 @@ def noise_dissolve(imgs, params, t):
     noise_rgb = field[..., None] * palette[None, None, :] * 1.5
     alpha = max_noise * 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
     return to_uint8((1.0 - alpha) * img + alpha * noise_rgb)
+
+
+def crossfade_drift(imgs, params, t):
+    """Off-axis parallax crossfade between two keyframes: A -> B -> A.
+
+    The two images pan in opposite directions by drift_px*sin(2*pi*t) while
+    alpha = 0.5*(1-cos(2*pi*t)) blends A->B->A. Both vanish at t=0 and t=1.
+    """
+    a, b = imgs[0], imgs[1]
+    drift_px = float(params.get("drift_px", 10.0))
+    angle = np.deg2rad(float(params.get("angle_deg", 8.0)))
+    h, w = a.shape[:2]
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    ox, oy = np.cos(angle), np.sin(angle)
+    s = drift_px * np.sin(2.0 * np.pi * t)
+    a_s = remap(a, xs + s * ox, ys + s * oy)
+    b_s = remap(b, xs - s * ox, ys - s * oy)
+    alpha = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
+    return to_uint8((1.0 - alpha) * a_s + alpha * b_s)

@@ -90,3 +90,20 @@ def test_noise_dissolve_midpoint_differs_from_source():
     f_start = animate.noise_dissolve([img], {"seed": 3}, 0.0)
     # at the dissolve peak the frame should differ substantially from the source
     assert np.abs(f_mid.astype(np.int16) - f_start.astype(np.int16)).mean() > 5
+
+
+def test_crossfade_drift_shape_and_loop():
+    a = _synth()
+    b = _synth() * 0.5  # a visibly different second frame
+    frame = animate.crossfade_drift([a, b], {}, 0.5)
+    assert frame.shape == a.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.crossfade_drift, [a, b]) <= 1
+
+
+def test_crossfade_midpoint_is_mostly_b():
+    a = np.zeros((64, 48, 3), dtype=np.float32)
+    b = np.ones((64, 48, 3), dtype=np.float32)
+    mid = animate.crossfade_drift([a, b], {"drift_px": 0.0}, 0.5)
+    # at t=0.5 alpha=1 -> should be image b (white)
+    assert mid.min() >= 254
