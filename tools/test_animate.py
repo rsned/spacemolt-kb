@@ -107,3 +107,48 @@ def test_crossfade_midpoint_is_mostly_b():
     mid = animate.crossfade_drift([a, b], {"drift_px": 0.0}, 0.5)
     # at t=0.5 alpha=1 -> should be image b (white)
     assert mid.min() >= 254
+
+
+import imageio_ffmpeg  # noqa: E402
+from PIL import Image  # noqa: E402
+
+
+def _count_mp4_frames(path):
+    reader = imageio_ffmpeg.read_frames(path)
+    next(reader)  # first item is the meta dict
+    return sum(1 for _ in reader)
+
+
+def test_render_writes_mp4_with_expected_frame_count(tmp_path):
+    src = tmp_path / "src.png"
+    Image.fromarray(animate.to_uint8(_synth(66, 50))).save(src)  # odd dims
+    out = tmp_path / "clip.mp4"
+    written, n = animate.render(
+        [str(src)], "fold-churn", {}, duration=1.0, fps=12, out=str(out)
+    )
+    assert os.path.exists(written)
+    assert os.path.getsize(written) > 0
+    assert n == 12
+    assert _count_mp4_frames(str(out)) == 12
+
+
+def test_render_rejects_unknown_effect(tmp_path):
+    src = tmp_path / "src.png"
+    Image.fromarray(animate.to_uint8(_synth())).save(src)
+    try:
+        animate.render([str(src)], "nope", {}, 1.0, 12, str(tmp_path / "x.mp4"))
+        assert False, "expected ValueError"
+    except ValueError as e:
+        assert "nope" in str(e)
+
+
+def test_render_rejects_wrong_input_count(tmp_path):
+    src = tmp_path / "src.png"
+    Image.fromarray(animate.to_uint8(_synth())).save(src)
+    try:
+        animate.render(
+            [str(src)], "crossfade-drift", {}, 1.0, 12, str(tmp_path / "x.mp4")
+        )
+        assert False, "expected ValueError"
+    except ValueError as e:
+        assert "2" in str(e)

@@ -163,3 +163,62 @@ def crossfade_drift(imgs, params, t):
     b_s = remap(b, xs - s * ox, ys - s * oy)
     alpha = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
     return to_uint8((1.0 - alpha) * a_s + alpha * b_s)
+
+
+# Effect registry: name -> (required_input_count, frame_function).
+EFFECTS = {
+    "fold-churn": (1, fold_churn),
+    "chromatic-split": (1, chromatic_split),
+    "noise-dissolve": (1, noise_dissolve),
+    "crossfade-drift": (2, crossfade_drift),
+}
+
+
+def _resize_to(img, h, w):
+    if img.shape[:2] == (h, w):
+        return img
+    pil = Image.fromarray(to_uint8(img)).resize((w, h), Image.BILINEAR)
+    return np.asarray(pil, dtype=np.float32) / 255.0
+
+
+def encode_mp4(frames, out, fps, size):
+    """Encode an iterable of (H,W,3) uint8 frames to a looping H.264 MP4."""
+    import imageio_ffmpeg
+
+    w, h = size
+    writer = imageio_ffmpeg.write_frames(
+        out,
+        (w, h),
+        pix_fmt_in="rgb24",
+        pix_fmt_out="yuv420p",
+        fps=fps,
+        macro_block_size=1,
+        output_params=["-movflags", "+faststart"],
+    )
+    writer.send(None)  # seed the generator
+    for fr in frames:
+        writer.send(np.ascontiguousarray(fr, dtype=np.uint8).tobytes())
+    writer.close()
+
+
+def render(srcs, effect, params, duration, fps, out):
+    """Render `effect` over `srcs` to a looping MP4 at `out`.
+
+    Returns (out_path, frame_count). Raises ValueError on unknown effect or
+    wrong number of source images.
+    """
+    if effect not in EFFECTS:
+        valid = ", ".join(sorted(EFFECTS))
+        raise ValueError(f"unknown effect '{effect}'; valid: {valid}")
+    n_inputs, fn = EFFECTS[effect]
+    if len(srcs) != n_inputs:
+        raise ValueError(
+            f"effect '{effect}' needs {n_inputs} source image(s), got {len(srcs)}"
+        )
+    imgs = [ensure_even(load_image(s)) for s in srcs]
+    h, w = imgs[0].shape[:2]
+    imgs = [_resize_to(img, h, w) for img in imgs]
+    n = max(1, round(duration * fps))
+    frames = (fn(imgs, params, i / n) for i in range(n))
+    encode_mp4(frames, out, fps, (w, h))
+    return out, n
