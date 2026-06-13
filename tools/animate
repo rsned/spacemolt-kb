@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# animate — procedurally animate a Voidborn keyframe into a looping MP4.
+#
+# A thin convenience wrapper around tools/animate.py, run via ~/sd-venv so you
+# don't have to activate the venv. Pure CPU (numpy/Pillow + imageio-ffmpeg);
+# no model, no GPU. See
+# docs/superpowers/specs/2026-06-13-voidborn-procedural-animation-design.md.
+#
+#   ./tools/animate voidborn-concepts/h3_phase_fold.png \
+#       --effect fold-churn --duration 4 -o voidborn-concepts/anim_fold.mp4
+#   ./tools/animate a.png b.png --effect crossfade-drift -o out.mp4
+#   ./tools/animate --param amp_px=18 --param freq=2.5 ... (repeatable)
+#   ./tools/animate --batch voidborn-concepts/anims.json
+set -euo pipefail
+
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+gen="$here/animate.py"
+py="${SD_VENV:-$HOME/sd-venv}/bin/python"
+
+[[ -x "$py" ]]  || { echo "animate: python not found at $py (set \$SD_VENV)" >&2; exit 1; }
+[[ -f "$gen" ]] || { echo "animate: animate.py missing at $gen" >&2; exit 1; }
+
+exec "$py" "$gen" "$@"
