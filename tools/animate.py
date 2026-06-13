@@ -8,11 +8,12 @@ docs/superpowers/specs/2026-06-13-voidborn-procedural-animation-design.md.
 """
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 
 def load_image(path):
@@ -170,6 +171,88 @@ def crossfade_drift(imgs, params, t):
     b_s = remap(b, xs - s * ox, ys - s * oy)
     alpha = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
     return to_uint8((1.0 - alpha) * a_s + alpha * b_s)
+
+
+# t-independent results memoized per render (cleared at the start of render()).
+_MASK_CACHE = {}
+_STREAK_CACHE = {}
+
+
+def _largest_component(mask_bool):
+    """Return the largest 4-connected True component of a boolean array.
+
+    Pure-numpy label propagation (no scipy): each True pixel starts with a
+    unique id; ids spread the minimum to 4-neighbors until stable; the most
+    frequent surviving id is the largest component.
+    """
+    h, w = mask_bool.shape
+    labels = np.where(mask_bool, np.arange(h * w).reshape(h, w), -1)
+    while True:
+        prev = labels
+        cur = labels.copy()
+        cur[1:, :] = np.where(
+            mask_bool[1:, :] & mask_bool[:-1, :],
+            np.minimum(cur[1:, :], labels[:-1, :]), cur[1:, :])
+        cur[:-1, :] = np.where(
+            mask_bool[:-1, :] & mask_bool[1:, :],
+            np.minimum(cur[:-1, :], labels[1:, :]), cur[:-1, :])
+        cur[:, 1:] = np.where(
+            mask_bool[:, 1:] & mask_bool[:, :-1],
+            np.minimum(cur[:, 1:], labels[:, :-1]), cur[:, 1:])
+        cur[:, :-1] = np.where(
+            mask_bool[:, :-1] & mask_bool[:, 1:],
+            np.minimum(cur[:, :-1], labels[:, 1:]), cur[:, :-1])
+        labels = cur
+        if np.array_equal(labels, prev):
+            break
+    vals = labels[mask_bool]
+    if vals.size == 0:
+        return np.zeros((h, w), dtype=bool)
+    uniq, counts = np.unique(vals, return_counts=True)
+    return labels == uniq[int(np.argmax(counts))]
+
+
+def subject_mask(img, params):
+    """Soft [0,1] mask separating a bright figure from a dark background.
+
+    Override: if params['mask_path'] points to an existing image, use it
+    (grayscale, resized). Auto: luminance threshold -> largest connected
+    component (computed at reduced resolution for speed) -> morphological
+    close -> Gaussian feather. Memoized in _MASK_CACHE (t-independent).
+    """
+    mask_path = params.get("mask_path")
+    thr = float(params.get("mask_threshold", 0.35))
+    feather = float(params.get("mask_feather", 6.0))
+    h, w = img.shape[:2]
+    key = (id(img), img.shape, mask_path, round(thr, 4), round(feather, 4))
+    cached = _MASK_CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    if mask_path and os.path.exists(mask_path):
+        pil = Image.open(mask_path).convert("L").resize((w, h), Image.BILINEAR)
+        m = np.asarray(pil, dtype=np.float32) / 255.0
+        _MASK_CACHE[key] = m
+        return m
+
+    lum = img @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+    binar = lum > thr
+    # largest connected component at reduced res, then upsample + AND
+    scale = max(1, int(max(h, w) / 256))
+    comp_small = _largest_component(binar[::scale, ::scale])
+    comp = np.asarray(
+        Image.fromarray((comp_small.astype(np.uint8) * 255)).resize(
+            (w, h), Image.NEAREST),
+        dtype=np.uint8) > 0
+    keep = (binar & comp).astype(np.uint8) * 255
+    pil = Image.fromarray(keep)
+    r = max(1, int(round(feather / 2.0)))
+    k = 2 * r + 1
+    pil = pil.filter(ImageFilter.MaxFilter(k)).filter(ImageFilter.MinFilter(k))
+    pil = pil.filter(ImageFilter.GaussianBlur(feather))
+    m = np.asarray(pil, dtype=np.float32) / 255.0
+    _MASK_CACHE[key] = m
+    return m
 
 
 # Effect registry: name -> (required_input_count, frame_function).

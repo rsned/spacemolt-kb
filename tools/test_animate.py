@@ -197,3 +197,44 @@ def test_run_batch_renders_all_and_skips_bad(tmp_path, capsys):
     assert not (tmp_path / "bad.mp4").exists()
     # the skipped item names itself on stderr so a batch run is auditable
     assert "missing.png" in capsys.readouterr().err
+
+
+def _blob(h=80, w=80):
+    """A bright disk on black — a stand-in 'subject' for mask tests."""
+    img = np.zeros((h, w, 3), dtype=np.float32)
+    yy, xx = np.mgrid[0:h, 0:w]
+    cy, cx = h / 2.0, w / 2.0
+    disk = (yy - cy) ** 2 + (xx - cx) ** 2 < (min(h, w) * 0.25) ** 2
+    img[disk] = 0.9
+    return img
+
+
+def test_subject_mask_high_inside_low_outside():
+    m = animate.subject_mask(_blob(), {})
+    assert m.dtype == np.float32
+    assert m.shape == (80, 80)
+    assert m[40, 40] > 0.8          # center of the blob
+    assert m[2, 2] < 0.2            # corner (background)
+
+
+def test_subject_mask_empty_on_black():
+    m = animate.subject_mask(np.zeros((40, 40, 3), dtype=np.float32), {})
+    assert float(m.max()) == 0.0    # no bright blob -> all-zero mask
+
+
+def test_subject_mask_uses_override_path(tmp_path):
+    # a half-white grayscale override should win over auto-detection
+    mp = tmp_path / "m.png"
+    arr = np.zeros((40, 40), dtype=np.uint8)
+    arr[:, :20] = 255
+    Image.fromarray(arr).save(mp)
+    m = animate.subject_mask(_blob(40, 40), {"mask_path": str(mp)})
+    assert m[20, 5] > 0.9 and m[20, 35] < 0.1
+
+
+def test_largest_component_picks_biggest_blob():
+    a = np.zeros((20, 20), dtype=bool)
+    a[2:5, 2:5] = True          # small blob (9 px)
+    a[10:18, 10:18] = True      # big blob (64 px)
+    big = animate._largest_component(a)
+    assert big[14, 14] and not big[3, 3]
