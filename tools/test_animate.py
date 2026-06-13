@@ -292,3 +292,27 @@ def test_hyperspace_streak_keeps_curve():
     img = _point_with_curve()
     frame = animate.hyperspace_streak([img], {"seed": 1}, 0.4)
     assert frame[:, 40].max() > 180
+
+
+def test_disintegrate_shape_and_loop():
+    img = _blob()
+    frame = animate.disintegrate([img], {"seed": 2}, 0.3)
+    assert frame.shape == img.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.disintegrate, [img], {"seed": 2}) <= 1
+
+
+def test_disintegrate_midpoint_erodes_body():
+    img = _blob()
+    mid = animate.disintegrate([img], {"seed": 2}, 0.5)
+    src = animate.to_uint8(img)
+    cy, cx = 40, 40
+    assert abs(int(mid[cy, cx, 0]) - int(src[cy, cx, 0])) > 30
+
+
+def test_disintegrate_leaves_background_untouched():
+    img = _blob()
+    src = animate.to_uint8(img)
+    for tt in (0.0, 0.5, 1.0):
+        frame = animate.disintegrate([img], {"seed": 2}, tt)
+        assert np.array_equal(frame[2, 2], src[2, 2])

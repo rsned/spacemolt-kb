@@ -397,6 +397,46 @@ def hyperspace_streak(imgs, params, t):
     return to_uint8(np.maximum(field, curve_rgb))
 
 
+def disintegrate(imgs, params, t):
+    """Erode the masked body into wind-blown dust, then reform (ping-pong loop).
+
+    A per-pixel value-noise threshold vs alpha(t)=0.5*(1-cos(2*pi*t)) drives a
+    progressive dissolve front over the body only; dusted pixels are vacated to
+    void and a wind-displaced, fading copy of the body drifts on top. All
+    displacement scales with per-pixel progress, which is 0 at alpha=0, so t=0
+    and t=1 are the intact keyframe. Background (outside the mask) is untouched.
+    """
+    img = imgs[0]
+    wind_angle = float(params.get("wind_angle", 0.3))
+    wind_px = float(params.get("wind_px", 60.0))
+    turbulence = float(params.get("turbulence", 8.0))
+    grain = int(params.get("grain", 3))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+
+    m = subject_mask(img, params)
+    noise = _value_noise(h, w, grain, seed)
+    alpha = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
+    dust_sel = (m > 0.5) & (noise < alpha)
+    prog = np.clip((alpha - noise) / max(alpha, 1e-3), 0.0, 1.0)
+
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    wx, wy = np.cos(wind_angle), np.sin(wind_angle)
+    turb = (noise - 0.5) * turbulence
+    off_x = (wind_px * wx + turb) * prog
+    off_y = (wind_px * wy + turb) * prog
+
+    out = img.copy()
+    out = out * np.where(dust_sel[..., None], 0.0, 1.0)        # vacate dust to void
+    drift = remap(img * m[..., None], xs - off_x, ys - off_y)  # drifting dust copy
+    out = np.maximum(out, drift * (1.0 - prog)[..., None])     # fades as it travels
+    return to_uint8(out)
+
+
 # Effect registry: name -> (required_input_count, frame_function).
 EFFECTS = {
     "fold-churn": (1, fold_churn),
@@ -405,6 +445,7 @@ EFFECTS = {
     "crossfade-drift": (2, crossfade_drift),
     "hyper-warp": (1, hyper_warp),
     "hyperspace-streak": (1, hyperspace_streak),
+    "disintegrate": (1, disintegrate),
 }
 
 
