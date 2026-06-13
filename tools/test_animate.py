@@ -74,3 +74,19 @@ def test_chromatic_split_shape_and_loop():
     assert frame.shape == img.shape
     assert frame.dtype == np.uint8
     assert _loops(animate.chromatic_split, [img]) <= 1
+
+
+def test_noise_dissolve_shape_and_loop():
+    img = _synth()
+    frame = animate.noise_dissolve([img], {"seed": 3}, 0.5)
+    assert frame.shape == img.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.noise_dissolve, [img], {"seed": 3}) <= 1
+
+
+def test_noise_dissolve_midpoint_differs_from_source():
+    img = _synth()
+    f_mid = animate.noise_dissolve([img], {"seed": 3, "max_noise": 0.85}, 0.5)
+    f_start = animate.noise_dissolve([img], {"seed": 3}, 0.0)
+    # at the dissolve peak the frame should differ substantially from the source
+    assert np.abs(f_mid.astype(np.int16) - f_start.astype(np.int16)).mean() > 5

@@ -106,3 +106,37 @@ def chromatic_split(imgs, params, t):
     g = remap(img, xs + drift * oy, ys - drift * ox)[..., 1]
     b = remap(img, xs - d * ox + drift * oy, ys - d * oy - drift * ox)[..., 2]
     return to_uint8(np.stack([r, g, b], axis=-1))
+
+
+def _value_noise(h, w, grain, seed):
+    """Low-frequency value noise in [0,1], upsampled from a coarse grid.
+
+    Reads as structured 'probability noise', not white static. Deterministic
+    in (h, w, grain, seed) so the field is identical across frames (only the
+    dissolve alpha varies with t), keeping the loop seamless.
+    """
+    rng = np.random.default_rng(seed)
+    lh = max(1, h // max(1, grain))
+    lw = max(1, w // max(1, grain))
+    low = (rng.random((lh, lw), dtype=np.float32) * 255.0).astype(np.uint8)
+    up = Image.fromarray(low).resize((w, h), Image.BILINEAR)
+    return np.asarray(up, dtype=np.float32) / 255.0
+
+
+def noise_dissolve(imgs, params, t):
+    """Dissolve the image into palette-tinted probability noise and back.
+
+    alpha(t) = max_noise * 0.5*(1-cos(2*pi*t)) goes 0 -> max -> 0 (seamless).
+    The noise is tinted by the frame's mean color so it reads as the image
+    coming apart into its own substance rather than TV static.
+    """
+    img = imgs[0]
+    max_noise = float(params.get("max_noise", 0.85))
+    grain = int(params.get("grain", 4))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+    field = _value_noise(h, w, grain, seed)
+    palette = img.reshape(-1, 3).mean(axis=0)
+    noise_rgb = field[..., None] * palette[None, None, :] * 1.5
+    alpha = max_noise * 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
+    return to_uint8((1.0 - alpha) * img + alpha * noise_rgb)
