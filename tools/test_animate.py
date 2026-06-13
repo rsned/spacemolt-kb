@@ -195,3 +195,5 @@ def test_run_batch_renders_all_and_skips_bad(tmp_path, capsys):
     assert ok == 1 and fail == 1
     assert (tmp_path / "ok.mp4").exists()
     assert not (tmp_path / "bad.mp4").exists()
+    # the skipped item names itself on stderr so a batch run is auditable
+    assert "missing.png" in capsys.readouterr().err

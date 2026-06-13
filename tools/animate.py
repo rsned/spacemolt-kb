@@ -142,6 +142,8 @@ def noise_dissolve(imgs, params, t):
     h, w = img.shape[:2]
     field = _value_noise(h, w, grain, seed)
     palette = img.reshape(-1, 3).mean(axis=0)
+    # 1.5 over-drives the mean-color tint so the noise reads as luminous
+    # substance (bright cells clip to white); deliberate, not a bug.
     noise_rgb = field[..., None] * palette[None, None, :] * 1.5
     alpha = max_noise * 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
     return to_uint8((1.0 - alpha) * img + alpha * noise_rgb)
