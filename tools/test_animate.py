@@ -607,3 +607,21 @@ def test_cage_polygon_no_pop_across_crossing():
     cb, ca = _corners(below), _corners(above)
     assert len(cb) == len(ca)
     assert np.allclose(cb, ca, atol=0.05)
+
+
+def test_draw_cycling_cage_returns_additive_layer():
+    layer = animate._draw_cycling_cage(64, 64, 8, 10, 0.5, 0.8,
+                                       np.array([0.6, 1.0, 0.7], np.float32), 3, 8.0)
+    assert layer.shape == (64, 64, 3)
+    assert layer.min() >= 0.0                 # additive (non-negative)
+    assert layer.max() > 0.05                 # something was drawn
+
+
+def test_gas_swirl_cage_changes_output():
+    img = _synth(64, 64)
+    no_cage = animate.gas_swirl([img], {"cage": False}, 0.5)
+    with_cage = animate.gas_swirl([img], {"cage": True, "cage_min": 8, "cage_max": 10}, 0.5)
+    assert not np.array_equal(no_cage, with_cage)
+    # still seamless with the cage on
+    assert _loops(animate.gas_swirl, [img],
+                  {"cage": True, "cage_min": 8, "cage_max": 10}) <= 1

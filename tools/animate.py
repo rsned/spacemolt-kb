@@ -205,6 +205,13 @@ def gas_swirl(imgs, params, t):
 
     mag = amp * 0.5 * (1.0 - np.cos(2.0 * np.pi * t))   # 0 at t=0 and t=1
     out = _advect(img, px, py, fx, fy, mag, iters)
+    if params.get("cage"):
+        cage = _draw_cycling_cage(
+            h, w, int(params.get("cage_min", 8)), int(params.get("cage_max", 10)),
+            t, float(params.get("cage_size", 0.78)),
+            np.asarray(params.get("cage_color", [0.6, 1.0, 0.7]), dtype=np.float32),
+            int(params.get("cage_width", 3)), float(params.get("cage_glow", 8.0)))
+        out = 1.0 - (1.0 - out) * (1.0 - cage)          # screen blend
     return to_uint8(out)
 
 
@@ -242,6 +249,29 @@ def _cage_polygon(n_min, n_max, t, radius, cx, cy):
     m = len(pts)
     edges = [(i, (i + 1) % m) for i in range(m)]
     return pts, edges
+
+
+def _draw_cycling_cage(h, w, n_min, n_max, t, size, color, width, glow):
+    """Additive RGB layer: a regular polygon cage centred in the frame whose
+    side count cycles n_min -> n_max -> n_min (seamless). Anti-aliased via a
+    2x supersample + LANCZOS downsample, with a Gaussian glow, tinted by color.
+    """
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    radius = float(size) * min(h, w) / 2.0
+    pts, edges = _cage_polygon(int(n_min), int(n_max), t, radius, cx, cy)
+    ss = 2
+    canvas = Image.new("L", (w * ss, h * ss), 0)
+    draw = ImageDraw.Draw(canvas)
+    lw = max(1, int(width) * ss)
+    for (i, j) in edges:
+        draw.line([(pts[i][0] * ss, pts[i][1] * ss),
+                   (pts[j][0] * ss, pts[j][1] * ss)], fill=255, width=lw)
+    sharp = np.asarray(canvas.resize((w, h), Image.LANCZOS), dtype=np.float32) / 255.0
+    glowed = np.asarray(
+        Image.fromarray((sharp * 255).astype(np.uint8)).filter(
+            ImageFilter.GaussianBlur(float(glow))), dtype=np.float32) / 255.0
+    intensity = np.clip(sharp + 0.6 * glowed, 0.0, 1.0)
+    return intensity[..., None] * np.asarray(color, dtype=np.float32)[None, None, :]
 
 
 def noise_dissolve(imgs, params, t):
