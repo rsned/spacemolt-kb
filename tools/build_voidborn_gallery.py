@@ -35,7 +35,19 @@ CSS = """
   details { margin-top:8px; }
   details summary { cursor:pointer; color:#6f9bd1; font-size:.84em; outline:none; }
   details p { color:#9aa7b8; font-size:.82em; line-height:1.45; margin:6px 0 0; white-space:pre-wrap; }
+  .topnav { position:sticky; top:0; z-index:10; margin:16px -32px 0; padding:10px 32px;
+            background:rgba(10,12,16,.92); backdrop-filter:blur(6px);
+            border-bottom:1px solid #1d2530; display:flex; flex-wrap:wrap; gap:6px; }
+  .topnav a { color:#9fb3cc; font-size:.8em; text-decoration:none; padding:3px 9px;
+              border:1px solid #1d2530; border-radius:999px; white-space:nowrap; }
+  .topnav a:hover { color:#e8eef6; border-color:#3a6ea5; }
+  h2 { scroll-margin-top:54px; }
 """
+
+
+def short_label(title: str) -> str:
+    """Strip a leading 'Voidborn · ' / 'Animations · ' prefix for compact nav chips."""
+    return title.split(" · ", 1)[-1] if " · " in title else title
 
 
 def figure_html(item: dict) -> str:
@@ -87,15 +99,20 @@ def main() -> None:
         f"{n_clips} animations · blue-outlined ★ = favorites · click an image "
         'for full size, "prompt"/"params" for the exact recipe.</div>',
     ]
+    nav = [
+        f'<a href="#{html.escape(g["id"])}">{html.escape(short_label(g["title"]))}</a>'
+        for g in data["groups"] + anim_data["groups"]
+    ]
+    parts.append('<nav class="topnav">' + "".join(nav) + "</nav>")
     for g in data["groups"]:
         sub = f' <small>— {html.escape(g["subtitle"])}</small>' if g.get("subtitle") else ""
-        parts.append(f'<h2>{html.escape(g["title"])}{sub}</h2>')
+        parts.append(f'<h2 id="{html.escape(g["id"])}">{html.escape(g["title"])}{sub}</h2>')
         parts.append('<div class="grid">')
         parts.extend(figure_html(it) for it in g["items"])
         parts.append("</div>")
     for g in anim_data["groups"]:
         sub = f' <small>— {html.escape(g["subtitle"])}</small>' if g.get("subtitle") else ""
-        parts.append(f'<h2>{html.escape(g["title"])}{sub}</h2>')
+        parts.append(f'<h2 id="{html.escape(g["id"])}">{html.escape(g["title"])}{sub}</h2>')
         parts.append('<div class="grid">')
         parts.extend(video_figure_html(it) for it in g["items"])
         parts.append("</div>")
