@@ -274,6 +274,57 @@ def _draw_cycling_cage(h, w, n_min, n_max, t, size, color, width, glow):
     return intensity[..., None] * np.asarray(color, dtype=np.float32)[None, None, :]
 
 
+def shell_growth(imgs, params, t):
+    """Rotating mandala core + a rotating growth-wave shell with a bright
+    fractal leading edge. The core (radius core_r) rotates by 2*pi*turns*t
+    (seamless for integer turns); the pink shell layer is present where the
+    angular wave frac(theta - t) is within `coverage`, so the arc rotates once
+    per loop. Value noise wobbles the front for a fractal edge.
+    """
+    img = imgs[0]
+    turns = int(params.get("turns", 1))
+    coverage = float(params.get("coverage", 0.55))
+    tint = np.asarray(params.get("tint", [0.95, 0.45, 0.7]), dtype=np.float32)
+    edge_glow = float(params.get("edge_glow", 1.4))
+    core_r = float(params.get("core_r", 0.32))
+    softness = float(params.get("softness", 0.06))
+    grain = int(params.get("grain", 3))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+    dx = (xs - cx) / (w / 2.0)
+    dy = (ys - cy) / (h / 2.0)
+    r = np.sqrt(dx**2 + dy**2)
+    theta = (np.arctan2(dy, dx) / (2.0 * np.pi)) % 1.0      # [0,1)
+
+    # rotating mandala core
+    ang = 2.0 * np.pi * turns * t
+    ca, sa = np.cos(-ang), np.sin(-ang)
+    rx = cx + (xs - cx) * ca - (ys - cy) * sa
+    ry = cy + (xs - cx) * sa + (ys - cy) * ca
+    rotated = remap(img, rx, ry)
+    core_m = np.clip((core_r - r) / max(softness, 1e-6) + 0.5, 0.0, 1.0)[..., None]
+    base = rotated * core_m + img * (1.0 - core_m)
+
+    # rotating growth-wave shell (fractal front via noise wobble)
+    nz = _value_noise(h, w, grain, seed) - 0.5
+    phase = (theta - t + 0.12 * nz) % 1.0
+    rise = np.clip(phase / max(softness, 1e-6), 0.0, 1.0)
+    fall = np.clip((coverage - phase) / max(softness, 1e-6), 0.0, 1.0)
+    fill = rise * fall                                       # 1 across the arc, 0 outside
+    shell_band = (np.clip((r - core_r) / max(softness, 1e-6), 0.0, 1.0)
+                  * np.clip((1.15 - r) / 0.1, 0.0, 1.0))
+    a = (fill * shell_band)[..., None]
+    out = base * (1.0 - a) + tint[None, None, :] * a
+
+    # bright leading edge: glow near the front (phase ~ 0), within the band
+    edge = np.exp(-(phase / max(0.5 * softness, 1e-6)) ** 2) * shell_band
+    out = out + (edge[..., None] * edge_glow) * tint[None, None, :]
+    return to_uint8(np.clip(out, 0.0, 1.0))
+
+
 def noise_dissolve(imgs, params, t):
     """Dissolve the image into palette-tinted probability noise and back.
 
@@ -777,6 +828,7 @@ EFFECTS = {
     "disintegrate": (1, disintegrate),
     "polytope-overlay": (1, polytope_overlay),
     "gas-swirl": (1, gas_swirl),
+    "shell-growth": (1, shell_growth),
 }
 
 

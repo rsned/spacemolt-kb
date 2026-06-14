@@ -625,3 +625,39 @@ def test_gas_swirl_cage_changes_output():
     # still seamless with the cage on
     assert _loops(animate.gas_swirl, [img],
                   {"cage": True, "cage_min": 8, "cage_max": 10}) <= 1
+
+
+def _angular_synth(h=72, w=72):
+    """A test image with clear angular + radial structure (for rotation/shell)."""
+    ys, xs = np.meshgrid(np.linspace(-1, 1, h, dtype=np.float32),
+                         np.linspace(-1, 1, w, dtype=np.float32), indexing="ij")
+    ang = np.arctan2(ys, xs)
+    base = 0.5 + 0.5 * np.sin(3 * ang)
+    return np.stack([base, base * 0.6, np.sqrt(xs**2 + ys**2)], axis=-1).astype(np.float32)
+
+
+def test_shell_growth_shape_dtype_and_loops():
+    img = _angular_synth()
+    out = animate.shell_growth([img], {"turns": 1}, 0.3)
+    assert out.shape == img.shape and out.dtype == np.uint8
+    assert _loops(animate.shell_growth, [img], {"turns": 1}) <= 1
+
+
+def test_shell_growth_core_rotates():
+    img = _angular_synth()
+    f0 = animate.shell_growth([img], {"turns": 1, "coverage": 0.0}, 0.0).astype(np.int16)
+    fq = animate.shell_growth([img], {"turns": 1, "coverage": 0.0}, 0.25).astype(np.int16)
+    h, w = img.shape[:2]
+    cy, cx = h // 2, w // 2
+    core = (slice(cy - 6, cy + 6), slice(cx - 6, cx + 6))
+    assert np.abs(f0[core] - fq[core]).mean() > 1.0     # core changed under rotation
+
+
+def test_shell_growth_coverage_varies_and_returns():
+    img = _angular_synth()
+    def pinkness(t):
+        f = animate.shell_growth([img], {"coverage": 0.5, "turns": 1}, t).astype(np.float32)
+        return float((f[..., 0] - f[..., 1]).mean())     # tint is pink (R>G)
+    p0, pm, p1 = pinkness(0.0), pinkness(0.5), pinkness(1.0)
+    assert abs(pm - p0) > 0.5                             # the wave moved
+    assert abs(p1 - p0) < 1.0                             # seamless return
