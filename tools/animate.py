@@ -176,6 +176,7 @@ def crossfade_drift(imgs, params, t):
 # t-independent results memoized per render (cleared at the start of render()).
 _MASK_CACHE = {}
 _STREAK_CACHE = {}
+_BG_CACHE = {}
 
 
 def _largest_component(mask_bool):
@@ -212,6 +213,31 @@ def _largest_component(mask_bool):
     return labels == uniq[int(np.argmax(counts))]
 
 
+def _fill_holes(mask_bool):
+    """Fill enclosed interior holes of a boolean mask.
+
+    Flood the background inward from the image border on ~mask; any background
+    pixel NOT reachable from the border is an enclosed hole -> set foreground.
+    """
+    free = ~mask_bool
+    reached = np.zeros_like(mask_bool)
+    reached[0, :] |= free[0, :]
+    reached[-1, :] |= free[-1, :]
+    reached[:, 0] |= free[:, 0]
+    reached[:, -1] |= free[:, -1]
+    while True:
+        prev = reached
+        cur = reached.copy()
+        cur[1:, :] |= reached[:-1, :] & free[1:, :]
+        cur[:-1, :] |= reached[1:, :] & free[:-1, :]
+        cur[:, 1:] |= reached[:, :-1] & free[:, 1:]
+        cur[:, :-1] |= reached[:, 1:] & free[:, :-1]
+        reached = cur
+        if np.array_equal(reached, prev):
+            break
+    return mask_bool | (free & ~reached)
+
+
 def subject_mask(img, params):
     """Soft [0,1] mask separating a bright figure from a dark background.
 
@@ -239,12 +265,12 @@ def subject_mask(img, params):
     binar = lum > thr
     # largest connected component at reduced res, then upsample + AND
     scale = max(1, int(max(h, w) / 256))
-    comp_small = _largest_component(binar[::scale, ::scale])
+    comp_small = _fill_holes(_largest_component(binar[::scale, ::scale]))
     comp = np.asarray(
         Image.fromarray((comp_small.astype(np.uint8) * 255)).resize(
             (w, h), Image.NEAREST),
         dtype=np.uint8) > 0
-    keep = (binar & comp).astype(np.uint8) * 255
+    keep = comp.astype(np.uint8) * 255   # solid filled silhouette (holes filled)
     pil = Image.fromarray(keep)
     r = max(1, int(round(feather / 2.0)))
     k = 2 * r + 1
@@ -253,6 +279,46 @@ def subject_mask(img, params):
     m = np.asarray(pil, dtype=np.float32) / 255.0
     _MASK_CACHE[key] = m
     return m
+
+
+def _blur_rgb(arr, radius):
+    """Gaussian-blur an (H,W,3) float image in [0,1]."""
+    return np.asarray(
+        Image.fromarray(to_uint8(arr)).filter(ImageFilter.GaussianBlur(radius)),
+        dtype=np.float32) / 255.0
+
+
+def _inpaint_background(img, mask):
+    """Reconstruct the scene behind the masked figure by diffusion inpaint.
+
+    Works at reduced resolution (the void is low-frequency): zero the masked
+    region, then repeatedly blur and re-insert the known background so it
+    diffuses into the hole; upscale and keep the original where unmasked.
+    Memoized in _BG_CACHE (t-independent).
+    """
+    h, w = img.shape[:2]
+    key = (id(img), img.shape, round(float(mask.sum()), 1))
+    cached = _BG_CACHE.get(key)
+    if cached is not None:
+        return cached
+    scale = max(1, int(max(h, w) / 256))
+    sw, sh = max(1, w // scale), max(1, h // scale)
+    small = np.asarray(
+        Image.fromarray(to_uint8(img)).resize((sw, sh), Image.BILINEAR),
+        dtype=np.float32) / 255.0
+    msmall = np.asarray(
+        Image.fromarray((mask * 255).astype(np.uint8)).resize((sw, sh), Image.BILINEAR),
+        dtype=np.float32) / 255.0
+    known = (msmall < 0.5)[..., None]
+    cur = small * known
+    for _ in range(60):
+        cur = np.where(known, small, _blur_rgb(cur, 4.0))
+    big = np.asarray(
+        Image.fromarray(to_uint8(cur)).resize((w, h), Image.BILINEAR),
+        dtype=np.float32) / 255.0
+    out = np.where((mask < 0.5)[..., None], img, big)
+    _BG_CACHE[key] = out
+    return out
 
 
 def hyper_warp(imgs, params, t):
@@ -324,33 +390,35 @@ def _flow_to_mask(bright, toward):
     return fx, fy
 
 
-def _draw_streaking_stars(h, w, flow_x, flow_y, n_stars, streak_len, seed, t):
-    """Synthetic stars that stream along the flow, looping via (phase+t) mod 1.
-
-    A per-star sine envelope makes brightness zero at the wrap, so the
-    position discontinuity at the loop is invisible. Returns (H,W,3) float.
+def _draw_streaking_stars(h, w, flow_x, flow_y, n_stars, streak_len, seed, t,
+                          speed=2.0, intensity=1.6):
+    """Synthetic stars streaming along the flow toward the curve, looping via
+    (phase+t) mod 1. A sine envelope hides the wrap; brightness flares as the
+    star approaches the curve. Returns (H,W,3) float. Long thin radial streaks.
     """
     rng = np.random.default_rng(seed)
     base = rng.random(n_stars)
     px = rng.integers(0, w, n_stars)
     py = rng.integers(0, h, n_stars)
     bri = rng.uniform(0.5, 1.0, n_stars)
-    tint = np.array([0.7, 0.85, 1.0], dtype=np.float32)   # cool Voidborn blue
+    tint = np.array([0.85, 0.92, 1.0], dtype=np.float32)   # near-white cool
     out = np.zeros((h, w, 3), dtype=np.float32)
-    max_travel = streak_len * 2.0
+    max_travel = streak_len * speed
     for i in range(n_stars):
         phase = (base[i] + t) % 1.0
         env = np.sin(np.pi * phase)        # 0 at wrap, 1 mid-travel
         if env <= 0:
             continue
+        flare = 0.4 + 0.6 * phase          # brighter as it nears the curve
         dist = phase * max_travel
         fx = float(flow_x[py[i], px[i]])
         fy = float(flow_y[py[i], px[i]])
+        amp = bri[i] * intensity * env * flare
         for k in range(streak_len):
             x = int(px[i] + fx * (dist - k))
             y = int(py[i] + fy * (dist - k))
             if 0 <= x < w and 0 <= y < h:
-                out[y, x] += bri[i] * env * (1.0 - k / streak_len) * tint
+                out[y, x] += amp * (1.0 - k / streak_len) * tint
     return np.clip(out, 0.0, 1.0)
 
 
@@ -362,11 +430,13 @@ def hyperspace_streak(imgs, params, t):
     and loop; the detected bright curve is composited back unmoved on top.
     """
     img = imgs[0]
-    streak_len = int(params.get("streak_len", 24))
-    n_stars = int(params.get("n_stars", 240))
+    streak_len = int(params.get("streak_len", 40))
+    n_stars = int(params.get("n_stars", 700))
     toward = bool(params.get("toward", True))
     curve_threshold = float(params.get("curve_threshold", 0.5))
     seed = int(params.get("seed", 0))
+    speed = float(params.get("speed", 2.0))
+    intensity = float(params.get("intensity", 1.6))
     h, w = img.shape[:2]
 
     key = (id(img), img.shape, streak_len, round(curve_threshold, 4), toward)
@@ -392,33 +462,36 @@ def hyperspace_streak(imgs, params, t):
         _STREAK_CACHE[key] = cached
     fx, fy, streaked, curve_rgb = cached
 
-    stars = _draw_streaking_stars(h, w, fx, fy, n_stars, streak_len, seed, t)
-    field = np.maximum(streaked, stars)
+    stars = _draw_streaking_stars(
+        h, w, fx, fy, n_stars, streak_len, seed, t, speed, intensity)
+    field = 1.0 - (1.0 - streaked) * (1.0 - stars)   # screen-blend the stars
     return to_uint8(np.maximum(field, curve_rgb))
 
 
-def disintegrate(imgs, params, t):
-    """Erode the masked body into wind-blown dust, then reform (ping-pong loop).
+def _disintegrate_fields(img, params, t):
+    """Core of the disintegrate effect.
 
-    A per-pixel value-noise threshold vs alpha(t)=0.5*(1-cos(2*pi*t)) drives a
-    progressive dissolve front over the body only; dusted pixels are vacated to
-    void and a wind-displaced, fading copy of the body drifts on top. All
-    displacement scales with per-pixel progress, which is 0 at alpha=0, so t=0
-    and t=1 are the intact keyframe. Background (outside the mask) is untouched.
+    Returns (rgb_uint8, rgba_uint8): the dust composited over the inpainted
+    void (for mp4), and dust-color + presence-alpha (for an alpha clip).
+    A per-pixel presence fades 1->0 as the dissolve front (alpha_t vs noise)
+    passes it; presence and dust are advected along the wind. Noise is scaled
+    to [0,1-band] so at the peak (alpha_t=1) every body pixel reaches 0 ->
+    fully cleared. Ping-pong alpha_t makes t=0 and t=1 the intact keyframe.
     """
-    img = imgs[0]
     wind_angle = float(params.get("wind_angle", 0.3))
-    wind_px = float(params.get("wind_px", 60.0))
+    wind_px = float(params.get("wind_px", 70.0))
     turbulence = float(params.get("turbulence", 8.0))
     grain = int(params.get("grain", 3))
     seed = int(params.get("seed", 0))
+    band = float(params.get("fade_band", 0.25))
     h, w = img.shape[:2]
 
     m = subject_mask(img, params)
-    noise = _value_noise(h, w, grain, seed)
-    alpha = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
-    dust_sel = (m > 0.5) & (noise < alpha)
-    prog = np.clip((alpha - noise) / max(alpha, 1e-3), 0.0, 1.0)
+    bg = _inpaint_background(img, m)
+    noise = _value_noise(h, w, grain, seed) * (1.0 - band)   # in [0, 1-band]
+    alpha_t = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
+    presence = np.clip((noise + band - alpha_t) / band, 0.0, 1.0) * m
+    diss = np.clip((alpha_t - noise) / band, 0.0, 1.0)
 
     ys, xs = np.meshgrid(
         np.arange(h, dtype=np.float32),
@@ -427,14 +500,23 @@ def disintegrate(imgs, params, t):
     )
     wx, wy = np.cos(wind_angle), np.sin(wind_angle)
     turb = (noise - 0.5) * turbulence
-    off_x = (wind_px * wx + turb) * prog
-    off_y = (wind_px * wy + turb) * prog
+    off_x = (wind_px * wx + turb) * diss
+    off_y = (wind_px * wy + turb) * diss
 
-    out = img.copy()
-    out = out * np.where(dust_sel[..., None], 0.0, 1.0)        # vacate dust to void
-    drift = remap(img * m[..., None], xs - off_x, ys - off_y)  # drifting dust copy
-    out = np.maximum(out, drift * (1.0 - prog)[..., None])     # fades as it travels
-    return to_uint8(out)
+    a = remap(presence[..., None], xs - off_x, ys - off_y)[..., 0]
+    dust = remap(img * m[..., None], xs - off_x, ys - off_y)
+    a3 = a[..., None]
+    rgb = to_uint8(bg * (1.0 - a3) + dust * a3)
+    rgba = np.concatenate([to_uint8(dust), to_uint8(a)[..., None]], axis=-1)
+    return rgb, rgba
+
+
+def disintegrate(imgs, params, t):
+    """Erode the masked figure into wind-blown dust over the reconstructed
+    void, fully clearing at the peak and reforming (ping-pong, seamless loop).
+    """
+    rgb, _ = _disintegrate_fields(imgs[0], params, t)
+    return rgb
 
 
 def _polytope(shape):
@@ -578,7 +660,35 @@ def encode_mp4(frames, out, fps, size):
     writer.close()
 
 
-def render(srcs, effect, params, duration, fps, out):
+def encode_webm_alpha(frames, out, fps, size):
+    """Encode (H,W,4) uint8 RGBA frames to a VP9 WebM with alpha (yuva420p)."""
+    import imageio_ffmpeg
+
+    w, h = size
+    writer = imageio_ffmpeg.write_frames(
+        out,
+        (w, h),
+        pix_fmt_in="rgba",
+        pix_fmt_out="yuva420p",
+        codec="libvpx-vp9",
+        fps=fps,
+        macro_block_size=1,
+    )
+    writer.send(None)
+    for fr in frames:
+        writer.send(np.ascontiguousarray(fr, dtype=np.uint8).tobytes())
+    writer.close()
+
+
+def _write_png_sequence(frames, out_dir):
+    """Fallback: write RGBA frames as numbered PNGs in out_dir/."""
+    os.makedirs(out_dir, exist_ok=True)
+    for i, fr in enumerate(frames):
+        Image.fromarray(np.ascontiguousarray(fr, dtype=np.uint8), "RGBA").save(
+            os.path.join(out_dir, f"{i:04d}.png"))
+
+
+def render(srcs, effect, params, duration, fps, out, alpha=False):
     """Render `effect` over `srcs` to a looping MP4 at `out`.
 
     Returns (out_path, frame_count). Raises ValueError on unknown effect or
@@ -594,6 +704,7 @@ def render(srcs, effect, params, duration, fps, out):
         )
     _MASK_CACHE.clear()
     _STREAK_CACHE.clear()
+    _BG_CACHE.clear()
     imgs = [ensure_even(load_image(s)) for s in srcs]
     h, w = imgs[0].shape[:2]
     imgs = [_resize_to(img, h, w) for img in imgs]
@@ -606,6 +717,15 @@ def render(srcs, effect, params, duration, fps, out):
     n = max(1, round(duration * fps))
     frames = (fn(imgs, params, i / n) for i in range(n))
     encode_mp4(frames, out, fps, (w, h))
+    if alpha and effect == "disintegrate":
+        webm = os.path.splitext(out)[0] + ".webm"
+        rgba = (_disintegrate_fields(imgs[0], params, i / n)[1] for i in range(n))
+        try:
+            encode_webm_alpha(rgba, webm, fps, (w, h))
+        except Exception as e:  # noqa: BLE001 — fall back to a PNG sequence
+            seq = (_disintegrate_fields(imgs[0], params, i / n)[1] for i in range(n))
+            _write_png_sequence(seq, os.path.splitext(out)[0] + "_frames")
+            print(f"vp9-alpha failed ({e}); wrote PNG sequence", file=sys.stderr)
     return out, n
 
 
@@ -648,6 +768,7 @@ def run_batch(spec_path):
                     item.get("duration", 4.0),
                     item.get("fps", 24),
                     out,
+                    alpha=item.get("alpha", False),
                 )
                 ok += 1
                 print(f"wrote {out}")

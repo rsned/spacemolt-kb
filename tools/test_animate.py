@@ -385,3 +385,114 @@ def test_polytope_overlay_screen_never_darkens():
     frame = animate.polytope_overlay([base], {"shape": "5-cell"}, 0.4)
     # screen blend never reduces a pixel below the base value
     assert int(frame.min()) >= int(src.min()) - 1
+
+
+def test_fill_holes_fills_interior_and_leaves_open_unchanged():
+    a = np.zeros((20, 20), dtype=bool)
+    a[4:16, 4:16] = True
+    a[8:12, 8:12] = False           # punched interior hole
+    filled = animate._fill_holes(a)
+    assert filled[10, 10]           # hole is filled
+    assert filled[4:16, 4:16].all()
+    # a mask with no enclosed hole is unchanged
+    b = np.zeros((10, 10), dtype=bool)
+    b[2:5, 2:5] = True
+    assert np.array_equal(animate._fill_holes(b), b)
+    # all-zero stays all-zero
+    z = np.zeros((6, 6), dtype=bool)
+    assert not animate._fill_holes(z).any()
+
+
+def _blob_notched(h=80, w=80):
+    img = _blob(h, w)
+    # carve a dark interior notch (like an eye socket) inside the bright disk
+    img[36:44, 36:44] = 0.0
+    return img
+
+
+def test_subject_mask_fills_interior_notch():
+    m = animate.subject_mask(_blob_notched(), {})
+    assert m[40, 40] > 0.8          # the dark interior notch is now masked
+
+
+def test_inpaint_background_fills_masked_region_from_surroundings():
+    # vertical gradient background with a bright square "figure" in the middle
+    h, w = 80, 80
+    grad = np.linspace(0.1, 0.6, h, dtype=np.float32)[:, None, None]
+    img = np.repeat(np.repeat(grad, w, axis=1), 3, axis=2).copy()
+    img[30:50, 30:50] = 1.0                       # figure to remove
+    mask = np.zeros((h, w), dtype=np.float32)
+    mask[30:50, 30:50] = 1.0
+    bg = animate._inpaint_background(img, mask)
+    # the inpainted center should look like the surrounding gradient, not white
+    assert bg[40, 40, 0] < 0.8
+    # unmasked pixels are preserved
+    assert np.allclose(bg[5, 5], img[5, 5], atol=0.05)
+
+
+def test_disintegrate_fully_clears_at_peak():
+    img = _blob()
+    bg = animate._inpaint_background(img, animate.subject_mask(img, {}))
+    mid = animate.disintegrate([img], {"seed": 2}, 0.5).astype(np.int16)
+    cy, cx = 40, 40
+    assert abs(int(mid[cy, cx, 0]) - int(animate.to_uint8(bg)[cy, cx, 0])) < 25
+
+
+def test_disintegrate_endpoints_and_loop():
+    img = _blob()
+    src = animate.to_uint8(img)
+    f0 = animate.disintegrate([img], {"seed": 2}, 0.0).astype(np.int16)
+    assert abs(int(f0[40, 40, 0]) - int(src[40, 40, 0])) <= 6
+    assert _loops(animate.disintegrate, [img], {"seed": 2}) <= 6
+
+
+def test_disintegrate_fields_rgba_alpha():
+    img = _blob()
+    _, rgba0 = animate._disintegrate_fields(img, {"seed": 2}, 0.0)
+    _, rgbamid = animate._disintegrate_fields(img, {"seed": 2}, 0.5)
+    assert rgba0.shape == (img.shape[0], img.shape[1], 4)
+    assert rgba0.dtype == np.uint8
+    m = animate.subject_mask(img, {})
+    body = m > 0.5
+    assert rgba0[..., 3][body].mean() > 180      # opaque body at t=0
+    assert rgbamid[..., 3][body].mean() < 40      # transparent at peak
+
+
+def test_encode_webm_alpha_writes_readable_file(tmp_path):
+    frames = [
+        np.dstack([
+            np.full((64, 64), 200, np.uint8),
+            np.full((64, 64), 100, np.uint8),
+            np.full((64, 64), 50, np.uint8),
+            np.full((64, 64), i * 80, np.uint8),   # varying alpha
+        ]) for i in range(3)
+    ]
+    out = tmp_path / "a.webm"
+    animate.encode_webm_alpha(iter(frames), str(out), 8, (64, 64))
+    assert out.exists() and out.stat().st_size > 0
+
+
+def test_render_alpha_emits_webm(tmp_path):
+    src = tmp_path / "k.png"
+    Image.fromarray(animate.to_uint8(_blob())).save(src)
+    out = tmp_path / "o.mp4"
+    animate.render([str(src)], "disintegrate", {"seed": 2}, 1.0, 6, str(out), alpha=True)
+    assert out.exists()
+    assert (tmp_path / "o.webm").exists()
+
+
+def test_hyperspace_brighter_with_intensity():
+    img = _point_with_curve()
+    bright = animate.hyperspace_streak(
+        [img], {"seed": 1, "n_stars": 700, "intensity": 2.0, "speed": 2.0}, 0.4)
+    dim = animate.hyperspace_streak(
+        [img], {"seed": 1, "n_stars": 20, "intensity": 0.2, "speed": 2.0}, 0.4)
+    assert int(bright.sum()) > int(dim.sum())
+
+
+def test_hyperspace_still_loops_and_keeps_curve():
+    img = _point_with_curve()
+    p = {"seed": 1, "n_stars": 200, "intensity": 1.6, "speed": 2.0}
+    assert _loops(animate.hyperspace_streak, [img], p) <= 1
+    frame = animate.hyperspace_streak([img], p, 0.4)
+    assert frame[:, 40].max() > 180          # fixed curve preserved
