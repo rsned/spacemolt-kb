@@ -362,3 +362,26 @@ def test_polytope_unknown_shape_raises():
         assert False, "expected ValueError"
     except ValueError as ex:
         assert "dodecaplex" in str(ex)
+
+
+def test_polytope_overlay_shape_and_loop():
+    img = _synth()
+    frame = animate.polytope_overlay([img], {"shape": "tesseract"}, 0.3)
+    assert frame.shape == img.shape
+    assert frame.dtype == np.uint8
+    assert _loops(animate.polytope_overlay, [img], {"shape": "tesseract"}) <= 1
+
+
+def test_polytope_overlay_brightens_dark_base():
+    base = np.zeros((120, 120, 3), dtype=np.float32)   # dark base
+    frame = animate.polytope_overlay([base], {"shape": "tesseract", "size": 0.8}, 0.25)
+    # the wireframe adds light over a dark base
+    assert int(frame.sum()) > 0
+
+
+def test_polytope_overlay_screen_never_darkens():
+    base = np.full((120, 120, 3), 0.5, dtype=np.float32)
+    src = animate.to_uint8(base)
+    frame = animate.polytope_overlay([base], {"shape": "5-cell"}, 0.4)
+    # screen blend never reduces a pixel below the base value
+    assert int(frame.min()) >= int(src.min()) - 1

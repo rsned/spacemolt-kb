@@ -479,6 +479,65 @@ def _polytope(shape):
     )
 
 
+def polytope_overlay(imgs, params, t):
+    """Screen-blend a rotating 4D polytope wireframe over the keyframe.
+
+    Vertices are rotated in 4D (xw/yw/zw planes) by theta=2*pi*t*turns, then
+    projected 4D->3D->2D by perspective. Edges are drawn anti-aliased (2x
+    supersample) with a Gaussian glow, tinted by `color`, and screen-blended
+    so the painting is preserved and only lit. Integer turns -> exact loop.
+    """
+    img = imgs[0]
+    shape = params.get("shape", "tesseract")
+    turns = int(params.get("turns", 1))
+    size = float(params.get("size", 0.7))
+    width = int(params.get("width", 2))
+    glow = float(params.get("glow", 6.0))
+    color = np.array(params.get("color", [0.6, 0.8, 1.0]), dtype=np.float32)
+    d4 = float(params.get("d4", 2.5))
+    d3 = float(params.get("d3", 3.0))
+    h, w = img.shape[:2]
+
+    verts, edges = _polytope(shape)
+    verts = verts / np.max(np.abs(verts))          # |coord| <= 1 -> safe projection
+    theta = 2.0 * np.pi * t * turns
+    c, s = np.cos(theta), np.sin(theta)
+    x, y, z, wv = verts[:, 0], verts[:, 1], verts[:, 2], verts[:, 3]
+    x, wv = x * c - wv * s, x * s + wv * c          # xw plane
+    y, wv = y * c - wv * s, y * s + wv * c          # yw plane
+    z, wv = z * c - wv * s, z * s + wv * c          # zw plane
+    f4 = d4 / (d4 - wv)
+    x, y, z = x * f4, y * f4, z * f4
+    f3 = d3 / (d3 - z)
+    x, y = x * f3, y * f3
+    rad = size * min(h, w) / 2.0
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    px = cx + x * rad
+    py = cy + y * rad
+
+    # draw edges anti-aliased: 2x supersample -> LANCZOS downsample
+    ss = 2
+    canvas = Image.new("L", (w * ss, h * ss), 0)
+    draw = ImageDraw.Draw(canvas)
+    lw = max(1, width * ss)
+    for (i, j) in edges:
+        draw.line(
+            [(px[i] * ss, py[i] * ss), (px[j] * ss, py[j] * ss)],
+            fill=255, width=lw,
+        )
+    sharp = np.asarray(
+        canvas.resize((w, h), Image.LANCZOS), dtype=np.float32) / 255.0
+    glowed = np.asarray(
+        Image.fromarray((sharp * 255).astype(np.uint8)).filter(
+            ImageFilter.GaussianBlur(glow)),
+        dtype=np.float32) / 255.0
+    intensity = np.clip(sharp + 0.6 * glowed, 0.0, 1.0)
+
+    overlay = intensity[..., None] * color[None, None, :]
+    out = 1.0 - (1.0 - img) * (1.0 - overlay)
+    return to_uint8(out)
+
+
 # Effect registry: name -> (required_input_count, frame_function).
 EFFECTS = {
     "fold-churn": (1, fold_churn),
@@ -488,6 +547,7 @@ EFFECTS = {
     "hyper-warp": (1, hyper_warp),
     "hyperspace-streak": (1, hyperspace_streak),
     "disintegrate": (1, disintegrate),
+    "polytope-overlay": (1, polytope_overlay),
 }
 
 
