@@ -557,3 +557,28 @@ def test_gas_swirl_identity_at_t0():
 def test_gas_swirl_registered():
     assert "gas-swirl" in animate.EFFECTS
     assert animate.EFFECTS["gas-swirl"][0] == 1
+
+
+def _corner_count(pts):
+    """Count vertices where the path turns appreciably (a test helper)."""
+    m = len(pts)
+    corners = 0
+    for i in range(m):
+        a = pts[i] - pts[(i - 1) % m]
+        b = pts[(i + 1) % m] - pts[i]
+        na, nb = np.linalg.norm(a), np.linalg.norm(b)
+        if na < 1e-6 or nb < 1e-6:
+            continue
+        cosang = np.dot(a, b) / (na * nb)
+        if cosang < 0.999:                # not collinear -> a real corner
+            corners += 1
+    return corners
+
+
+def test_cage_polygon_cycles_side_count():
+    pts0, _ = animate._cage_polygon(6, 10, 0.0, 1.0, 0.0, 0.0)
+    ptsm, _ = animate._cage_polygon(6, 10, 0.5, 1.0, 0.0, 0.0)
+    pts1, _ = animate._cage_polygon(6, 10, 1.0, 1.0, 0.0, 0.0)
+    assert _corner_count(pts0) == 6
+    assert _corner_count(ptsm) == 10
+    assert _corner_count(pts1) == 6          # seamless: back to n_min

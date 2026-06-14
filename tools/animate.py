@@ -208,6 +208,53 @@ def gas_swirl(imgs, params, t):
     return to_uint8(out)
 
 
+def _poly_vertices(n, radius, cx, cy):
+    """Regular n-gon vertices (n,2), first vertex at the top (-pi/2)."""
+    a = -np.pi / 2.0 + 2.0 * np.pi * np.arange(n) / n
+    return np.stack([cx + radius * np.cos(a), cy + radius * np.sin(a)], axis=1)
+
+
+def _resample_closed(verts, m):
+    """Resample a closed polygon to m points evenly by arc length."""
+    pts = np.vstack([verts, verts[:1]])
+    seg = np.linalg.norm(np.diff(pts, axis=0), axis=1)
+    cum = np.concatenate([[0.0], np.cumsum(seg)])
+    total = cum[-1] + 1e-12
+    targets = total * np.arange(m) / m
+    out = np.empty((m, 2), dtype=np.float64)
+    for i, d in enumerate(targets):
+        k = int(np.clip(np.searchsorted(cum, d) - 1, 0, len(seg) - 1))
+        f = (d - cum[k]) / max(seg[k], 1e-9)
+        out[i] = pts[k] * (1.0 - f) + pts[k + 1] * f
+    return out
+
+
+def _cage_polygon(n_min, n_max, t, radius, cx, cy):
+    """Vertices+edges of a regular polygon whose side count cycles
+    n_min -> n_max -> n_min over t in [0,1] (triangle wave, seamless).
+
+    Smooth side emergence: a fractional count n is rendered by inserting one
+    extra point between vertex 0 and vertex 1 of the n_base-gon. At frac=0 the
+    extra point is the midpoint of that edge (collinear -> reads as n_base
+    sides); at frac=1 it has morphed to the matching vertex of the
+    (n_base+1)-gon (a real corner -> n_base+1 sides).
+    Returns (pts (m,2) float, edges [(i,j),...] closed loop).
+    """
+    tri = 1.0 - abs(2.0 * t - 1.0)                  # 0 -> 1 -> 0 over t
+    n_float = n_min + (n_max - n_min) * tri
+    n_base = int(np.floor(n_float))
+    n_base = max(n_min, min(n_base, n_max))
+    frac = float(np.clip(n_float - n_base, 0.0, 1.0))
+    base_verts = _poly_vertices(n_base, radius, cx, cy)
+    next_verts = _poly_vertices(n_base + 1, radius, cx, cy)
+    mid_edge = (base_verts[0] + base_verts[1]) / 2.0   # collinear at frac=0
+    extra = mid_edge * (1.0 - frac) + next_verts[1] * frac
+    pts = np.vstack([base_verts[:1], extra[None, :], base_verts[1:]])
+    m = len(pts)
+    edges = [(i, (i + 1) % m) for i in range(m)]
+    return pts, edges
+
+
 def noise_dissolve(imgs, params, t):
     """Dissolve the image into palette-tinted probability noise and back.
 
