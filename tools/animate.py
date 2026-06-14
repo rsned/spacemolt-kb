@@ -390,33 +390,35 @@ def _flow_to_mask(bright, toward):
     return fx, fy
 
 
-def _draw_streaking_stars(h, w, flow_x, flow_y, n_stars, streak_len, seed, t):
-    """Synthetic stars that stream along the flow, looping via (phase+t) mod 1.
-
-    A per-star sine envelope makes brightness zero at the wrap, so the
-    position discontinuity at the loop is invisible. Returns (H,W,3) float.
+def _draw_streaking_stars(h, w, flow_x, flow_y, n_stars, streak_len, seed, t,
+                          speed=2.0, intensity=1.6):
+    """Synthetic stars streaming along the flow toward the curve, looping via
+    (phase+t) mod 1. A sine envelope hides the wrap; brightness flares as the
+    star approaches the curve. Returns (H,W,3) float. Long thin radial streaks.
     """
     rng = np.random.default_rng(seed)
     base = rng.random(n_stars)
     px = rng.integers(0, w, n_stars)
     py = rng.integers(0, h, n_stars)
     bri = rng.uniform(0.5, 1.0, n_stars)
-    tint = np.array([0.7, 0.85, 1.0], dtype=np.float32)   # cool Voidborn blue
+    tint = np.array([0.85, 0.92, 1.0], dtype=np.float32)   # near-white cool
     out = np.zeros((h, w, 3), dtype=np.float32)
-    max_travel = streak_len * 2.0
+    max_travel = streak_len * speed
     for i in range(n_stars):
         phase = (base[i] + t) % 1.0
         env = np.sin(np.pi * phase)        # 0 at wrap, 1 mid-travel
         if env <= 0:
             continue
+        flare = 0.4 + 0.6 * phase          # brighter as it nears the curve
         dist = phase * max_travel
         fx = float(flow_x[py[i], px[i]])
         fy = float(flow_y[py[i], px[i]])
+        amp = bri[i] * intensity * env * flare
         for k in range(streak_len):
             x = int(px[i] + fx * (dist - k))
             y = int(py[i] + fy * (dist - k))
             if 0 <= x < w and 0 <= y < h:
-                out[y, x] += bri[i] * env * (1.0 - k / streak_len) * tint
+                out[y, x] += amp * (1.0 - k / streak_len) * tint
     return np.clip(out, 0.0, 1.0)
 
 
@@ -428,11 +430,13 @@ def hyperspace_streak(imgs, params, t):
     and loop; the detected bright curve is composited back unmoved on top.
     """
     img = imgs[0]
-    streak_len = int(params.get("streak_len", 24))
-    n_stars = int(params.get("n_stars", 240))
+    streak_len = int(params.get("streak_len", 40))
+    n_stars = int(params.get("n_stars", 700))
     toward = bool(params.get("toward", True))
     curve_threshold = float(params.get("curve_threshold", 0.5))
     seed = int(params.get("seed", 0))
+    speed = float(params.get("speed", 2.0))
+    intensity = float(params.get("intensity", 1.6))
     h, w = img.shape[:2]
 
     key = (id(img), img.shape, streak_len, round(curve_threshold, 4), toward)
@@ -458,8 +462,9 @@ def hyperspace_streak(imgs, params, t):
         _STREAK_CACHE[key] = cached
     fx, fy, streaked, curve_rgb = cached
 
-    stars = _draw_streaking_stars(h, w, fx, fy, n_stars, streak_len, seed, t)
-    field = np.maximum(streaked, stars)
+    stars = _draw_streaking_stars(
+        h, w, fx, fy, n_stars, streak_len, seed, t, speed, intensity)
+    field = 1.0 - (1.0 - streaked) * (1.0 - stars)   # screen-blend the stars
     return to_uint8(np.maximum(field, curve_rgb))
 
 

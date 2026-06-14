@@ -479,3 +479,20 @@ def test_render_alpha_emits_webm(tmp_path):
     animate.render([str(src)], "disintegrate", {"seed": 2}, 1.0, 6, str(out), alpha=True)
     assert out.exists()
     assert (tmp_path / "o.webm").exists()
+
+
+def test_hyperspace_brighter_with_intensity():
+    img = _point_with_curve()
+    bright = animate.hyperspace_streak(
+        [img], {"seed": 1, "n_stars": 700, "intensity": 2.0, "speed": 2.0}, 0.4)
+    dim = animate.hyperspace_streak(
+        [img], {"seed": 1, "n_stars": 20, "intensity": 0.2, "speed": 2.0}, 0.4)
+    assert int(bright.sum()) > int(dim.sum())
+
+
+def test_hyperspace_still_loops_and_keeps_curve():
+    img = _point_with_curve()
+    p = {"seed": 1, "n_stars": 200, "intensity": 1.6, "speed": 2.0}
+    assert _loops(animate.hyperspace_streak, [img], p) <= 1
+    frame = animate.hyperspace_streak([img], p, 0.4)
+    assert frame[:, 40].max() > 180          # fixed curve preserved
