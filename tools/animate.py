@@ -8,11 +8,12 @@ docs/superpowers/specs/2026-06-13-voidborn-procedural-animation-design.md.
 """
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFilter
 
 
 def load_image(path):
@@ -172,12 +173,381 @@ def crossfade_drift(imgs, params, t):
     return to_uint8((1.0 - alpha) * a_s + alpha * b_s)
 
 
+# t-independent results memoized per render (cleared at the start of render()).
+_MASK_CACHE = {}
+_STREAK_CACHE = {}
+
+
+def _largest_component(mask_bool):
+    """Return the largest 4-connected True component of a boolean array.
+
+    Pure-numpy label propagation (no scipy): each True pixel starts with a
+    unique id; ids spread the minimum to 4-neighbors until stable; the most
+    frequent surviving id is the largest component.
+    """
+    h, w = mask_bool.shape
+    labels = np.where(mask_bool, np.arange(h * w).reshape(h, w), -1)
+    while True:
+        prev = labels
+        cur = labels.copy()
+        cur[1:, :] = np.where(
+            mask_bool[1:, :] & mask_bool[:-1, :],
+            np.minimum(cur[1:, :], labels[:-1, :]), cur[1:, :])
+        cur[:-1, :] = np.where(
+            mask_bool[:-1, :] & mask_bool[1:, :],
+            np.minimum(cur[:-1, :], labels[1:, :]), cur[:-1, :])
+        cur[:, 1:] = np.where(
+            mask_bool[:, 1:] & mask_bool[:, :-1],
+            np.minimum(cur[:, 1:], labels[:, :-1]), cur[:, 1:])
+        cur[:, :-1] = np.where(
+            mask_bool[:, :-1] & mask_bool[:, 1:],
+            np.minimum(cur[:, :-1], labels[:, 1:]), cur[:, :-1])
+        labels = cur
+        if np.array_equal(labels, prev):
+            break
+    vals = labels[mask_bool]
+    if vals.size == 0:
+        return np.zeros((h, w), dtype=bool)
+    uniq, counts = np.unique(vals, return_counts=True)
+    return labels == uniq[int(np.argmax(counts))]
+
+
+def subject_mask(img, params):
+    """Soft [0,1] mask separating a bright figure from a dark background.
+
+    Override: if params['mask_path'] points to an existing image, use it
+    (grayscale, resized). Auto: luminance threshold -> largest connected
+    component (computed at reduced resolution for speed) -> morphological
+    close -> Gaussian feather. Memoized in _MASK_CACHE (t-independent).
+    """
+    mask_path = params.get("mask_path")
+    thr = float(params.get("mask_threshold", 0.35))
+    feather = float(params.get("mask_feather", 6.0))
+    h, w = img.shape[:2]
+    key = (id(img), img.shape, mask_path, round(thr, 4), round(feather, 4))
+    cached = _MASK_CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    if mask_path and os.path.exists(mask_path):
+        pil = Image.open(mask_path).convert("L").resize((w, h), Image.BILINEAR)
+        m = np.asarray(pil, dtype=np.float32) / 255.0
+        _MASK_CACHE[key] = m
+        return m
+
+    lum = img @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+    binar = lum > thr
+    # largest connected component at reduced res, then upsample + AND
+    scale = max(1, int(max(h, w) / 256))
+    comp_small = _largest_component(binar[::scale, ::scale])
+    comp = np.asarray(
+        Image.fromarray((comp_small.astype(np.uint8) * 255)).resize(
+            (w, h), Image.NEAREST),
+        dtype=np.uint8) > 0
+    keep = (binar & comp).astype(np.uint8) * 255
+    pil = Image.fromarray(keep)
+    r = max(1, int(round(feather / 2.0)))
+    k = 2 * r + 1
+    pil = pil.filter(ImageFilter.MaxFilter(k)).filter(ImageFilter.MinFilter(k))
+    pil = pil.filter(ImageFilter.GaussianBlur(feather))
+    m = np.asarray(pil, dtype=np.float32) / 255.0
+    _MASK_CACHE[key] = m
+    return m
+
+
+def hyper_warp(imgs, params, t):
+    """Displace the keyframe by a real 4D rotation projected back to 2D.
+
+    Each pixel (u,v) in [-1,1] is embedded in 4D with radius-seeded z,w coords,
+    rotated through the xw/yw/zw planes (the rotations with no 3D analog) by
+    theta = 2*pi*t*turns, and perspective-projected back. Displacement is taken
+    RELATIVE to the rest (theta=0) projection, so t=0 and t=1 (integer turns)
+    are the undistorted keyframe -> seamless loop with crisp endpoints.
+    With protect_subject, the feathered subject is composited back unwarped.
+    """
+    img = imgs[0]
+    amp = float(params.get("amp", 0.35))
+    turns = int(params.get("turns", 1))
+    w_dist = float(params.get("w_dist", 2.5))
+    protect = bool(params.get("protect_subject", False))
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    u = 2.0 * xs / (w - 1) - 1.0
+    v = 2.0 * ys / (h - 1) - 1.0
+    r = np.sqrt(u * u + v * v)
+    z = r * np.cos(np.pi * r)   # hidden dims carry radial structure
+    wc = r * np.sin(np.pi * r)
+
+    def project(theta):
+        c, s = np.cos(theta), np.sin(theta)
+        px, py, pz, pw = u.copy(), v.copy(), z.copy(), wc.copy()
+        px, pw = px * c - pw * s, px * s + pw * c   # xw plane
+        py, pw = py * c - pw * s, py * s + pw * c   # yw plane
+        pz, pw = pz * c - pw * s, pz * s + pw * c   # zw plane
+        denom = w_dist - pw
+        denom = np.where(np.abs(denom) < 1e-3, 1e-3, denom)
+        proj = w_dist / denom
+        return px * proj, py * proj
+
+    u_now, v_now = project(2.0 * np.pi * t * turns)
+    u_rest, v_rest = project(0.0)
+    scale = min(h, w) / 2.0
+    dx = amp * (u_now - u_rest) * scale
+    dy = amp * (v_now - v_rest) * scale
+    warped = remap(img, xs + dx, ys + dy)
+    if protect:
+        m = subject_mask(img, params)[..., None]
+        return to_uint8(warped * (1.0 - m) + img * m)
+    return to_uint8(warped)
+
+
+def _flow_to_mask(bright, toward):
+    """Unit flow vectors pointing toward (or away from) the bright curve.
+
+    Heavily blur the bright mask into a smooth scalar field that rises toward
+    the curve; its gradient points uphill (toward the curve). Returns
+    (flow_x, flow_y) each (H,W).
+    """
+    field = np.asarray(
+        Image.fromarray((bright.astype(np.uint8) * 255)).filter(
+            ImageFilter.GaussianBlur(40)),
+        dtype=np.float32)
+    gy, gx = np.gradient(field)
+    mag = np.sqrt(gx * gx + gy * gy) + 1e-6
+    fx, fy = gx / mag, gy / mag
+    if not toward:
+        fx, fy = -fx, -fy
+    return fx, fy
+
+
+def _draw_streaking_stars(h, w, flow_x, flow_y, n_stars, streak_len, seed, t):
+    """Synthetic stars that stream along the flow, looping via (phase+t) mod 1.
+
+    A per-star sine envelope makes brightness zero at the wrap, so the
+    position discontinuity at the loop is invisible. Returns (H,W,3) float.
+    """
+    rng = np.random.default_rng(seed)
+    base = rng.random(n_stars)
+    px = rng.integers(0, w, n_stars)
+    py = rng.integers(0, h, n_stars)
+    bri = rng.uniform(0.5, 1.0, n_stars)
+    tint = np.array([0.7, 0.85, 1.0], dtype=np.float32)   # cool Voidborn blue
+    out = np.zeros((h, w, 3), dtype=np.float32)
+    max_travel = streak_len * 2.0
+    for i in range(n_stars):
+        phase = (base[i] + t) % 1.0
+        env = np.sin(np.pi * phase)        # 0 at wrap, 1 mid-travel
+        if env <= 0:
+            continue
+        dist = phase * max_travel
+        fx = float(flow_x[py[i], px[i]])
+        fy = float(flow_y[py[i], px[i]])
+        for k in range(streak_len):
+            x = int(px[i] + fx * (dist - k))
+            y = int(py[i] + fy * (dist - k))
+            if 0 <= x < w and 0 <= y < h:
+                out[y, x] += bri[i] * env * (1.0 - k / streak_len) * tint
+    return np.clip(out, 0.0, 1.0)
+
+
+def hyperspace_streak(imgs, params, t):
+    """Stargate 'probability field': fixed bright curve, stars streaking past.
+
+    The painted texture is motion-blurred along a flow toward/away from the
+    curve (t-independent, cached); synthetic stars stream along the same flow
+    and loop; the detected bright curve is composited back unmoved on top.
+    """
+    img = imgs[0]
+    streak_len = int(params.get("streak_len", 24))
+    n_stars = int(params.get("n_stars", 240))
+    toward = bool(params.get("toward", True))
+    curve_threshold = float(params.get("curve_threshold", 0.5))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+
+    key = (id(img), img.shape, streak_len, round(curve_threshold, 4), toward)
+    cached = _STREAK_CACHE.get(key)
+    if cached is None:
+        lum = img @ np.array([0.299, 0.587, 0.114], dtype=np.float32)
+        bright = lum > curve_threshold
+        fx, fy = _flow_to_mask(bright, toward)
+        ys, xs = np.meshgrid(
+            np.arange(h, dtype=np.float32),
+            np.arange(w, dtype=np.float32),
+            indexing="ij",
+        )
+        acc = np.zeros_like(img)
+        wsum = 0.0
+        for k in range(streak_len):
+            wgt = 0.85 ** k
+            acc += wgt * remap(img, xs + fx * k, ys + fy * k)
+            wsum += wgt
+        streaked = acc / wsum
+        curve_rgb = img * bright[..., None]
+        cached = (fx, fy, streaked, curve_rgb)
+        _STREAK_CACHE[key] = cached
+    fx, fy, streaked, curve_rgb = cached
+
+    stars = _draw_streaking_stars(h, w, fx, fy, n_stars, streak_len, seed, t)
+    field = np.maximum(streaked, stars)
+    return to_uint8(np.maximum(field, curve_rgb))
+
+
+def disintegrate(imgs, params, t):
+    """Erode the masked body into wind-blown dust, then reform (ping-pong loop).
+
+    A per-pixel value-noise threshold vs alpha(t)=0.5*(1-cos(2*pi*t)) drives a
+    progressive dissolve front over the body only; dusted pixels are vacated to
+    void and a wind-displaced, fading copy of the body drifts on top. All
+    displacement scales with per-pixel progress, which is 0 at alpha=0, so t=0
+    and t=1 are the intact keyframe. Background (outside the mask) is untouched.
+    """
+    img = imgs[0]
+    wind_angle = float(params.get("wind_angle", 0.3))
+    wind_px = float(params.get("wind_px", 60.0))
+    turbulence = float(params.get("turbulence", 8.0))
+    grain = int(params.get("grain", 3))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+
+    m = subject_mask(img, params)
+    noise = _value_noise(h, w, grain, seed)
+    alpha = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
+    dust_sel = (m > 0.5) & (noise < alpha)
+    prog = np.clip((alpha - noise) / max(alpha, 1e-3), 0.0, 1.0)
+
+    ys, xs = np.meshgrid(
+        np.arange(h, dtype=np.float32),
+        np.arange(w, dtype=np.float32),
+        indexing="ij",
+    )
+    wx, wy = np.cos(wind_angle), np.sin(wind_angle)
+    turb = (noise - 0.5) * turbulence
+    off_x = (wind_px * wx + turb) * prog
+    off_y = (wind_px * wy + turb) * prog
+
+    out = img.copy()
+    out = out * np.where(dust_sel[..., None], 0.0, 1.0)        # vacate dust to void
+    drift = remap(img * m[..., None], xs - off_x, ys - off_y)  # drifting dust copy
+    out = np.maximum(out, drift * (1.0 - prog)[..., None])     # fades as it travels
+    return to_uint8(out)
+
+
+def _polytope(shape):
+    """Return (verts (N,4) float32, edges [(i,j), ...]) for a 4D polytope."""
+    if shape == "tesseract":
+        verts = np.array(
+            [[(1.0 if (b >> k) & 1 else -1.0) for k in range(4)] for b in range(16)],
+            dtype=np.float32,
+        )
+        edges = [
+            (a, b)
+            for a in range(16)
+            for b in range(a + 1, 16)
+            if bin(a ^ b).count("1") == 1   # differ in exactly one coordinate
+        ]
+        return verts, edges
+    if shape == "16-cell":
+        verts = []
+        for axis in range(4):
+            for sign in (1.0, -1.0):
+                p = [0.0, 0.0, 0.0, 0.0]
+                p[axis] = sign
+                verts.append(p)
+        verts = np.array(verts, dtype=np.float32)   # axis*2 + (0 for +, 1 for -)
+        edges = [
+            (a, b)
+            for a in range(8)
+            for b in range(a + 1, 8)
+            if a // 2 != b // 2          # skip the antipodal pair on the same axis
+        ]
+        return verts, edges
+    if shape == "5-cell":
+        # regular 4-simplex: center the R^5 basis, project onto the 4D
+        # sum-zero hyperplane via SVD (first 4 right-singular vectors).
+        centered = np.eye(5, dtype=np.float64) - 1.0 / 5.0
+        _, _, vt = np.linalg.svd(centered)
+        verts = (centered @ vt[:4].T).astype(np.float32)   # (5,4)
+        edges = [(a, b) for a in range(5) for b in range(a + 1, 5)]
+        return verts, edges
+    raise ValueError(
+        f"unknown shape '{shape}'; valid: 16-cell, 5-cell, tesseract"
+    )
+
+
+def polytope_overlay(imgs, params, t):
+    """Screen-blend a rotating 4D polytope wireframe over the keyframe.
+
+    Vertices are rotated in 4D (xw/yw/zw planes) by theta=2*pi*t*turns, then
+    projected 4D->3D->2D by perspective. Edges are drawn anti-aliased (2x
+    supersample) with a Gaussian glow, tinted by `color`, and screen-blended
+    so the painting is preserved and only lit. Integer turns -> exact loop.
+    """
+    img = imgs[0]
+    shape = params.get("shape", "tesseract")
+    turns = int(params.get("turns", 1))
+    size = float(params.get("size", 0.7))
+    width = int(params.get("width", 2))
+    glow = float(params.get("glow", 6.0))
+    color = np.array(params.get("color", [0.6, 0.8, 1.0]), dtype=np.float32)
+    d4 = float(params.get("d4", 2.5))
+    d3 = float(params.get("d3", 3.0))
+    h, w = img.shape[:2]
+
+    verts, edges = _polytope(shape)
+    verts = verts / np.max(np.abs(verts))          # |coord| <= 1 -> safe projection
+    theta = 2.0 * np.pi * t * turns
+    c, s = np.cos(theta), np.sin(theta)
+    x, y, z, wv = verts[:, 0], verts[:, 1], verts[:, 2], verts[:, 3]
+    x, wv = x * c - wv * s, x * s + wv * c          # xw plane
+    y, wv = y * c - wv * s, y * s + wv * c          # yw plane
+    z, wv = z * c - wv * s, z * s + wv * c          # zw plane
+    f4 = d4 / (d4 - wv)
+    x, y, z = x * f4, y * f4, z * f4
+    f3 = d3 / (d3 - z)
+    x, y = x * f3, y * f3
+    rad = size * min(h, w) / 2.0
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    px = cx + x * rad
+    py = cy + y * rad
+
+    # draw edges anti-aliased: 2x supersample -> LANCZOS downsample
+    ss = 2
+    canvas = Image.new("L", (w * ss, h * ss), 0)
+    draw = ImageDraw.Draw(canvas)
+    lw = max(1, width * ss)
+    for (i, j) in edges:
+        draw.line(
+            [(px[i] * ss, py[i] * ss), (px[j] * ss, py[j] * ss)],
+            fill=255, width=lw,
+        )
+    sharp = np.asarray(
+        canvas.resize((w, h), Image.LANCZOS), dtype=np.float32) / 255.0
+    glowed = np.asarray(
+        Image.fromarray((sharp * 255).astype(np.uint8)).filter(
+            ImageFilter.GaussianBlur(glow)),
+        dtype=np.float32) / 255.0
+    intensity = np.clip(sharp + 0.6 * glowed, 0.0, 1.0)
+
+    overlay = intensity[..., None] * color[None, None, :]
+    out = 1.0 - (1.0 - img) * (1.0 - overlay)
+    return to_uint8(out)
+
+
 # Effect registry: name -> (required_input_count, frame_function).
 EFFECTS = {
     "fold-churn": (1, fold_churn),
     "chromatic-split": (1, chromatic_split),
     "noise-dissolve": (1, noise_dissolve),
     "crossfade-drift": (2, crossfade_drift),
+    "hyper-warp": (1, hyper_warp),
+    "hyperspace-streak": (1, hyperspace_streak),
+    "disintegrate": (1, disintegrate),
+    "polytope-overlay": (1, polytope_overlay),
 }
 
 
@@ -222,9 +592,17 @@ def render(srcs, effect, params, duration, fps, out):
         raise ValueError(
             f"effect '{effect}' needs {n_inputs} source image(s), got {len(srcs)}"
         )
+    _MASK_CACHE.clear()
+    _STREAK_CACHE.clear()
     imgs = [ensure_even(load_image(s)) for s in srcs]
     h, w = imgs[0].shape[:2]
     imgs = [_resize_to(img, h, w) for img in imgs]
+    # auto-pick a sibling <src>.mask.png override for mask-using effects
+    params = dict(params)
+    if "mask_path" not in params:
+        cand = srcs[0] + ".mask.png"
+        if os.path.exists(cand):
+            params["mask_path"] = cand
     n = max(1, round(duration * fps))
     frames = (fn(imgs, params, i / n) for i in range(n))
     encode_mp4(frames, out, fps, (w, h))
