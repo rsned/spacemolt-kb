@@ -385,3 +385,31 @@ def test_polytope_overlay_screen_never_darkens():
     frame = animate.polytope_overlay([base], {"shape": "5-cell"}, 0.4)
     # screen blend never reduces a pixel below the base value
     assert int(frame.min()) >= int(src.min()) - 1
+
+
+def test_fill_holes_fills_interior_and_leaves_open_unchanged():
+    a = np.zeros((20, 20), dtype=bool)
+    a[4:16, 4:16] = True
+    a[8:12, 8:12] = False           # punched interior hole
+    filled = animate._fill_holes(a)
+    assert filled[10, 10]           # hole is filled
+    assert filled[4:16, 4:16].all()
+    # a mask with no enclosed hole is unchanged
+    b = np.zeros((10, 10), dtype=bool)
+    b[2:5, 2:5] = True
+    assert np.array_equal(animate._fill_holes(b), b)
+    # all-zero stays all-zero
+    z = np.zeros((6, 6), dtype=bool)
+    assert not animate._fill_holes(z).any()
+
+
+def _blob_notched(h=80, w=80):
+    img = _blob(h, w)
+    # carve a dark interior notch (like an eye socket) inside the bright disk
+    img[36:44, 36:44] = 0.0
+    return img
+
+
+def test_subject_mask_fills_interior_notch():
+    m = animate.subject_mask(_blob_notched(), {})
+    assert m[40, 40] > 0.8          # the dark interior notch is now masked

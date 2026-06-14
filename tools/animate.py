@@ -212,6 +212,31 @@ def _largest_component(mask_bool):
     return labels == uniq[int(np.argmax(counts))]
 
 
+def _fill_holes(mask_bool):
+    """Fill enclosed interior holes of a boolean mask.
+
+    Flood the background inward from the image border on ~mask; any background
+    pixel NOT reachable from the border is an enclosed hole -> set foreground.
+    """
+    free = ~mask_bool
+    reached = np.zeros_like(mask_bool)
+    reached[0, :] |= free[0, :]
+    reached[-1, :] |= free[-1, :]
+    reached[:, 0] |= free[:, 0]
+    reached[:, -1] |= free[:, -1]
+    while True:
+        prev = reached
+        cur = reached.copy()
+        cur[1:, :] |= reached[:-1, :] & free[1:, :]
+        cur[:-1, :] |= reached[1:, :] & free[:-1, :]
+        cur[:, 1:] |= reached[:, :-1] & free[:, 1:]
+        cur[:, :-1] |= reached[:, 1:] & free[:, :-1]
+        reached = cur
+        if np.array_equal(reached, prev):
+            break
+    return mask_bool | (free & ~reached)
+
+
 def subject_mask(img, params):
     """Soft [0,1] mask separating a bright figure from a dark background.
 
@@ -239,12 +264,12 @@ def subject_mask(img, params):
     binar = lum > thr
     # largest connected component at reduced res, then upsample + AND
     scale = max(1, int(max(h, w) / 256))
-    comp_small = _largest_component(binar[::scale, ::scale])
+    comp_small = _fill_holes(_largest_component(binar[::scale, ::scale]))
     comp = np.asarray(
         Image.fromarray((comp_small.astype(np.uint8) * 255)).resize(
             (w, h), Image.NEAREST),
         dtype=np.uint8) > 0
-    keep = (binar & comp).astype(np.uint8) * 255
+    keep = comp.astype(np.uint8) * 255   # solid filled silhouette (holes filled)
     pil = Image.fromarray(keep)
     r = max(1, int(round(feather / 2.0)))
     k = 2 * r + 1
