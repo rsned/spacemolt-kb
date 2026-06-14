@@ -171,6 +171,43 @@ def _advect(img, px, py, fx, fy, mag, iters):
     return remap(img, px, py)
 
 
+def gas_swirl(imgs, params, t):
+    """Curl-noise + vortex advection of a gas image — a top-down hurricane
+    approximation. A rigid rotation by integer `turns` gives the seamless spin;
+    a static curl flow (plus a tangential `vortex` bias) deforms the gas with a
+    magnitude that breathes 0 -> amp -> 0 via 0.5*(1-cos(2*pi*t)), so frame 0
+    equals frame N. NOT a fluid sim (see the v4 spec).
+    """
+    img = imgs[0]
+    amp = float(params.get("amp", 16.0))
+    vortex = float(params.get("vortex", 0.5))     # dimensionless tangential bias
+    turns = int(params.get("turns", 1))
+    freq = float(params.get("freq", 3.0))
+    iters = int(params.get("iters", 3))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+
+    # rigid rotation: sample source at angle theta -> seamless for integer turns
+    ang = 2.0 * np.pi * turns * t
+    ca, sa = np.cos(-ang), np.sin(-ang)
+    px = cx + (xs - cx) * ca - (ys - cy) * sa
+    py = cy + (xs - cx) * sa + (ys - cy) * ca
+
+    # static curl flow + tangential vortex bias
+    fx, fy = _curl_flow(h, w, freq, seed)
+    dxc, dyc = xs - cx, ys - cy
+    r = np.sqrt(dxc**2 + dyc**2) + 1e-6
+    fx = fx + vortex * (-dyc / r)
+    fy = fy + vortex * (dxc / r)
+
+    mag = amp * 0.5 * (1.0 - np.cos(2.0 * np.pi * t))   # 0 at t=0 and t=1
+    out = _advect(img, px, py, fx, fy, mag, iters)
+    return to_uint8(out)
+
+
 def noise_dissolve(imgs, params, t):
     """Dissolve the image into palette-tinted probability noise and back.
 
@@ -673,6 +710,7 @@ EFFECTS = {
     "hyperspace-streak": (1, hyperspace_streak),
     "disintegrate": (1, disintegrate),
     "polytope-overlay": (1, polytope_overlay),
+    "gas-swirl": (1, gas_swirl),
 }
 
 

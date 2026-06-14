@@ -532,3 +532,22 @@ def test_advect_nonzero_magnitude_moves_pixels():
     fx, fy = animate._curl_flow(h, w, 4.0, 0)
     out = animate._advect(img, xs.copy(), ys.copy(), fx, fy, mag=6.0, iters=3)
     assert not np.allclose(out, img, atol=1e-3)
+
+
+def test_gas_swirl_shape_dtype_and_loops():
+    img = _synth(64, 64)
+    out = animate.gas_swirl([img], {"turns": 1}, 0.25)
+    assert out.shape == (64, 64, 3) and out.dtype == np.uint8
+    assert _loops(animate.gas_swirl, [img], {"turns": 1}) <= 1
+
+
+def test_gas_swirl_moves_pixels_midloop():
+    img = _synth(64, 64)
+    f0 = animate.gas_swirl([img], {"turns": 1, "amp": 16}, 0.0).astype(np.int16)
+    fm = animate.gas_swirl([img], {"turns": 1, "amp": 16}, 0.25).astype(np.int16)
+    assert np.abs(f0 - fm).mean() > 1.0
+
+
+def test_gas_swirl_registered():
+    assert "gas-swirl" in animate.EFFECTS
+    assert animate.EFFECTS["gas-swirl"][0] == 1
