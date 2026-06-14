@@ -655,7 +655,35 @@ def encode_mp4(frames, out, fps, size):
     writer.close()
 
 
-def render(srcs, effect, params, duration, fps, out):
+def encode_webm_alpha(frames, out, fps, size):
+    """Encode (H,W,4) uint8 RGBA frames to a VP9 WebM with alpha (yuva420p)."""
+    import imageio_ffmpeg
+
+    w, h = size
+    writer = imageio_ffmpeg.write_frames(
+        out,
+        (w, h),
+        pix_fmt_in="rgba",
+        pix_fmt_out="yuva420p",
+        codec="libvpx-vp9",
+        fps=fps,
+        macro_block_size=1,
+    )
+    writer.send(None)
+    for fr in frames:
+        writer.send(np.ascontiguousarray(fr, dtype=np.uint8).tobytes())
+    writer.close()
+
+
+def _write_png_sequence(frames, out_dir):
+    """Fallback: write RGBA frames as numbered PNGs in out_dir/."""
+    os.makedirs(out_dir, exist_ok=True)
+    for i, fr in enumerate(frames):
+        Image.fromarray(np.ascontiguousarray(fr, dtype=np.uint8), "RGBA").save(
+            os.path.join(out_dir, f"{i:04d}.png"))
+
+
+def render(srcs, effect, params, duration, fps, out, alpha=False):
     """Render `effect` over `srcs` to a looping MP4 at `out`.
 
     Returns (out_path, frame_count). Raises ValueError on unknown effect or
@@ -671,6 +699,7 @@ def render(srcs, effect, params, duration, fps, out):
         )
     _MASK_CACHE.clear()
     _STREAK_CACHE.clear()
+    _BG_CACHE.clear()
     imgs = [ensure_even(load_image(s)) for s in srcs]
     h, w = imgs[0].shape[:2]
     imgs = [_resize_to(img, h, w) for img in imgs]
@@ -683,6 +712,15 @@ def render(srcs, effect, params, duration, fps, out):
     n = max(1, round(duration * fps))
     frames = (fn(imgs, params, i / n) for i in range(n))
     encode_mp4(frames, out, fps, (w, h))
+    if alpha and effect == "disintegrate":
+        webm = os.path.splitext(out)[0] + ".webm"
+        rgba = (_disintegrate_fields(imgs[0], params, i / n)[1] for i in range(n))
+        try:
+            encode_webm_alpha(rgba, webm, fps, (w, h))
+        except Exception as e:  # noqa: BLE001 — fall back to a PNG sequence
+            seq = (_disintegrate_fields(imgs[0], params, i / n)[1] for i in range(n))
+            _write_png_sequence(seq, os.path.splitext(out)[0] + "_frames")
+            print(f"vp9-alpha failed ({e}); wrote PNG sequence", file=sys.stderr)
     return out, n
 
 
@@ -725,6 +763,7 @@ def run_batch(spec_path):
                     item.get("duration", 4.0),
                     item.get("fps", 24),
                     out,
+                    alpha=item.get("alpha", False),
                 )
                 ok += 1
                 print(f"wrote {out}")

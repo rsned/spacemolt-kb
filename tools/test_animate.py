@@ -456,3 +456,26 @@ def test_disintegrate_fields_rgba_alpha():
     body = m > 0.5
     assert rgba0[..., 3][body].mean() > 180      # opaque body at t=0
     assert rgbamid[..., 3][body].mean() < 40      # transparent at peak
+
+
+def test_encode_webm_alpha_writes_readable_file(tmp_path):
+    frames = [
+        np.dstack([
+            np.full((64, 64), 200, np.uint8),
+            np.full((64, 64), 100, np.uint8),
+            np.full((64, 64), 50, np.uint8),
+            np.full((64, 64), i * 80, np.uint8),   # varying alpha
+        ]) for i in range(3)
+    ]
+    out = tmp_path / "a.webm"
+    animate.encode_webm_alpha(iter(frames), str(out), 8, (64, 64))
+    assert out.exists() and out.stat().st_size > 0
+
+
+def test_render_alpha_emits_webm(tmp_path):
+    src = tmp_path / "k.png"
+    Image.fromarray(animate.to_uint8(_blob())).save(src)
+    out = tmp_path / "o.mp4"
+    animate.render([str(src)], "disintegrate", {"seed": 2}, 1.0, 6, str(out), alpha=True)
+    assert out.exists()
+    assert (tmp_path / "o.webm").exists()
