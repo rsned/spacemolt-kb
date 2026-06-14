@@ -276,10 +276,10 @@ def _draw_cycling_cage(h, w, n_min, n_max, t, size, color, width, glow):
 
 def shell_growth(imgs, params, t):
     """Rotating mandala core + a rotating growth-wave shell with a bright
-    fractal leading edge. The core (radius core_r) rotates by 2*pi*turns*t
+    noise-wobbled leading edge. The core (radius core_r) rotates by 2*pi*turns*t
     (seamless for integer turns); the pink shell layer is present where the
     angular wave frac(theta - t) is within `coverage`, so the arc rotates once
-    per loop. Value noise wobbles the front for a fractal edge.
+    per loop. Value noise wobbles the front for a noise-wobbled edge.
     """
     img = imgs[0]
     turns = int(params.get("turns", 1))
@@ -314,6 +314,7 @@ def shell_growth(imgs, params, t):
     rise = np.clip(phase / max(softness, 1e-6), 0.0, 1.0)
     fall = np.clip((coverage - phase) / max(softness, 1e-6), 0.0, 1.0)
     fill = rise * fall                                       # 1 across the arc, 0 outside
+    # outer shell fades out by r~1.15 (tuned for square renders); corners stay background
     shell_band = (np.clip((r - core_r) / max(softness, 1e-6), 0.0, 1.0)
                   * np.clip((1.15 - r) / 0.1, 0.0, 1.0))
     a = (fill * shell_band)[..., None]
@@ -321,8 +322,9 @@ def shell_growth(imgs, params, t):
 
     # bright leading edge: glow near the front (phase ~ 0), within the band
     edge = np.exp(-(phase / max(0.5 * softness, 1e-6)) ** 2) * shell_band
+    # additive: the leading edge is intentionally allowed to over-expose before to_uint8 clamps
     out = out + (edge[..., None] * edge_glow) * tint[None, None, :]
-    return to_uint8(np.clip(out, 0.0, 1.0))
+    return to_uint8(out)
 
 
 def noise_dissolve(imgs, params, t):
