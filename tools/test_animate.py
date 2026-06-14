@@ -413,3 +413,18 @@ def _blob_notched(h=80, w=80):
 def test_subject_mask_fills_interior_notch():
     m = animate.subject_mask(_blob_notched(), {})
     assert m[40, 40] > 0.8          # the dark interior notch is now masked
+
+
+def test_inpaint_background_fills_masked_region_from_surroundings():
+    # vertical gradient background with a bright square "figure" in the middle
+    h, w = 80, 80
+    grad = np.linspace(0.1, 0.6, h, dtype=np.float32)[:, None, None]
+    img = np.repeat(np.repeat(grad, w, axis=1), 3, axis=2).copy()
+    img[30:50, 30:50] = 1.0                       # figure to remove
+    mask = np.zeros((h, w), dtype=np.float32)
+    mask[30:50, 30:50] = 1.0
+    bg = animate._inpaint_background(img, mask)
+    # the inpainted center should look like the surrounding gradient, not white
+    assert bg[40, 40, 0] < 0.8
+    # unmasked pixels are preserved
+    assert np.allclose(bg[5, 5], img[5, 5], atol=0.05)

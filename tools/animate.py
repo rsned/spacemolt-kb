@@ -176,6 +176,7 @@ def crossfade_drift(imgs, params, t):
 # t-independent results memoized per render (cleared at the start of render()).
 _MASK_CACHE = {}
 _STREAK_CACHE = {}
+_BG_CACHE = {}
 
 
 def _largest_component(mask_bool):
@@ -278,6 +279,46 @@ def subject_mask(img, params):
     m = np.asarray(pil, dtype=np.float32) / 255.0
     _MASK_CACHE[key] = m
     return m
+
+
+def _blur_rgb(arr, radius):
+    """Gaussian-blur an (H,W,3) float image in [0,1]."""
+    return np.asarray(
+        Image.fromarray(to_uint8(arr)).filter(ImageFilter.GaussianBlur(radius)),
+        dtype=np.float32) / 255.0
+
+
+def _inpaint_background(img, mask):
+    """Reconstruct the scene behind the masked figure by diffusion inpaint.
+
+    Works at reduced resolution (the void is low-frequency): zero the masked
+    region, then repeatedly blur and re-insert the known background so it
+    diffuses into the hole; upscale and keep the original where unmasked.
+    Memoized in _BG_CACHE (t-independent).
+    """
+    h, w = img.shape[:2]
+    key = (id(img), img.shape, round(float(mask.sum()), 1))
+    cached = _BG_CACHE.get(key)
+    if cached is not None:
+        return cached
+    scale = max(1, int(max(h, w) / 256))
+    sw, sh = max(1, w // scale), max(1, h // scale)
+    small = np.asarray(
+        Image.fromarray(to_uint8(img)).resize((sw, sh), Image.BILINEAR),
+        dtype=np.float32) / 255.0
+    msmall = np.asarray(
+        Image.fromarray((mask * 255).astype(np.uint8)).resize((sw, sh), Image.BILINEAR),
+        dtype=np.float32) / 255.0
+    known = (msmall < 0.5)[..., None]
+    cur = small * known
+    for _ in range(60):
+        cur = np.where(known, small, _blur_rgb(cur, 4.0))
+    big = np.asarray(
+        Image.fromarray(to_uint8(cur)).resize((w, h), Image.BILINEAR),
+        dtype=np.float32) / 255.0
+    out = np.where((mask < 0.5)[..., None], img, big)
+    _BG_CACHE[key] = out
+    return out
 
 
 def hyper_warp(imgs, params, t):
