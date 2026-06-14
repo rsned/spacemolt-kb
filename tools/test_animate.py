@@ -428,3 +428,31 @@ def test_inpaint_background_fills_masked_region_from_surroundings():
     assert bg[40, 40, 0] < 0.8
     # unmasked pixels are preserved
     assert np.allclose(bg[5, 5], img[5, 5], atol=0.05)
+
+
+def test_disintegrate_fully_clears_at_peak():
+    img = _blob()
+    bg = animate._inpaint_background(img, animate.subject_mask(img, {}))
+    mid = animate.disintegrate([img], {"seed": 2}, 0.5).astype(np.int16)
+    cy, cx = 40, 40
+    assert abs(int(mid[cy, cx, 0]) - int(animate.to_uint8(bg)[cy, cx, 0])) < 25
+
+
+def test_disintegrate_endpoints_and_loop():
+    img = _blob()
+    src = animate.to_uint8(img)
+    f0 = animate.disintegrate([img], {"seed": 2}, 0.0).astype(np.int16)
+    assert abs(int(f0[40, 40, 0]) - int(src[40, 40, 0])) <= 6
+    assert _loops(animate.disintegrate, [img], {"seed": 2}) <= 6
+
+
+def test_disintegrate_fields_rgba_alpha():
+    img = _blob()
+    _, rgba0 = animate._disintegrate_fields(img, {"seed": 2}, 0.0)
+    _, rgbamid = animate._disintegrate_fields(img, {"seed": 2}, 0.5)
+    assert rgba0.shape == (img.shape[0], img.shape[1], 4)
+    assert rgba0.dtype == np.uint8
+    m = animate.subject_mask(img, {})
+    body = m > 0.5
+    assert rgba0[..., 3][body].mean() > 180      # opaque body at t=0
+    assert rgbamid[..., 3][body].mean() < 40      # transparent at peak

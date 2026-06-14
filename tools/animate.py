@@ -463,28 +463,30 @@ def hyperspace_streak(imgs, params, t):
     return to_uint8(np.maximum(field, curve_rgb))
 
 
-def disintegrate(imgs, params, t):
-    """Erode the masked body into wind-blown dust, then reform (ping-pong loop).
+def _disintegrate_fields(img, params, t):
+    """Core of the disintegrate effect.
 
-    A per-pixel value-noise threshold vs alpha(t)=0.5*(1-cos(2*pi*t)) drives a
-    progressive dissolve front over the body only; dusted pixels are vacated to
-    void and a wind-displaced, fading copy of the body drifts on top. All
-    displacement scales with per-pixel progress, which is 0 at alpha=0, so t=0
-    and t=1 are the intact keyframe. Background (outside the mask) is untouched.
+    Returns (rgb_uint8, rgba_uint8): the dust composited over the inpainted
+    void (for mp4), and dust-color + presence-alpha (for an alpha clip).
+    A per-pixel presence fades 1->0 as the dissolve front (alpha_t vs noise)
+    passes it; presence and dust are advected along the wind. Noise is scaled
+    to [0,1-band] so at the peak (alpha_t=1) every body pixel reaches 0 ->
+    fully cleared. Ping-pong alpha_t makes t=0 and t=1 the intact keyframe.
     """
-    img = imgs[0]
     wind_angle = float(params.get("wind_angle", 0.3))
-    wind_px = float(params.get("wind_px", 60.0))
+    wind_px = float(params.get("wind_px", 70.0))
     turbulence = float(params.get("turbulence", 8.0))
     grain = int(params.get("grain", 3))
     seed = int(params.get("seed", 0))
+    band = float(params.get("fade_band", 0.25))
     h, w = img.shape[:2]
 
     m = subject_mask(img, params)
-    noise = _value_noise(h, w, grain, seed)
-    alpha = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
-    dust_sel = (m > 0.5) & (noise < alpha)
-    prog = np.clip((alpha - noise) / max(alpha, 1e-3), 0.0, 1.0)
+    bg = _inpaint_background(img, m)
+    noise = _value_noise(h, w, grain, seed) * (1.0 - band)   # in [0, 1-band]
+    alpha_t = 0.5 * (1.0 - np.cos(2.0 * np.pi * t))
+    presence = np.clip((noise + band - alpha_t) / band, 0.0, 1.0) * m
+    diss = np.clip((alpha_t - noise) / band, 0.0, 1.0)
 
     ys, xs = np.meshgrid(
         np.arange(h, dtype=np.float32),
@@ -493,14 +495,23 @@ def disintegrate(imgs, params, t):
     )
     wx, wy = np.cos(wind_angle), np.sin(wind_angle)
     turb = (noise - 0.5) * turbulence
-    off_x = (wind_px * wx + turb) * prog
-    off_y = (wind_px * wy + turb) * prog
+    off_x = (wind_px * wx + turb) * diss
+    off_y = (wind_px * wy + turb) * diss
 
-    out = img.copy()
-    out = out * np.where(dust_sel[..., None], 0.0, 1.0)        # vacate dust to void
-    drift = remap(img * m[..., None], xs - off_x, ys - off_y)  # drifting dust copy
-    out = np.maximum(out, drift * (1.0 - prog)[..., None])     # fades as it travels
-    return to_uint8(out)
+    a = remap(presence[..., None], xs - off_x, ys - off_y)[..., 0]
+    dust = remap(img * m[..., None], xs - off_x, ys - off_y)
+    a3 = a[..., None]
+    rgb = to_uint8(bg * (1.0 - a3) + dust * a3)
+    rgba = np.concatenate([to_uint8(dust), to_uint8(a)[..., None]], axis=-1)
+    return rgb, rgba
+
+
+def disintegrate(imgs, params, t):
+    """Erode the masked figure into wind-blown dust over the reconstructed
+    void, fully clearing at the peak and reforming (ping-pong, seamless loop).
+    """
+    rgb, _ = _disintegrate_fields(imgs[0], params, t)
+    return rgb
 
 
 def _polytope(shape):
