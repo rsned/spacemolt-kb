@@ -152,6 +152,25 @@ def _curl_flow(h, w, freq, seed):
     return fx, fy
 
 
+def _advect(img, px, py, fx, fy, mag, iters):
+    """Semi-Lagrangian backward-trace: step each pixel back along (fx,fy)*mag
+    over `iters` sub-steps, then bilinear-sample img at the traced position.
+
+    px, py are (H,W) float start coordinates (already include any rigid
+    rotation). 2D port of the planetgen BackwardTrace technique. mag is the
+    total displacement in pixels; with mag=0 this is the identity.
+    """
+    px = px.copy()
+    py = py.copy()
+    step = float(mag) / max(1, int(iters))
+    for _ in range(int(iters)):
+        u = remap(fx[..., None], px, py)[..., 0]
+        v = remap(fy[..., None], px, py)[..., 0]
+        px = px - step * u
+        py = py - step * v
+    return remap(img, px, py)
+
+
 def noise_dissolve(imgs, params, t):
     """Dissolve the image into palette-tinted probability noise and back.
 

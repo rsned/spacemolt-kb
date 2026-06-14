@@ -512,3 +512,23 @@ def test_curl_flow_varies_with_seed_and_is_cached():
     b = animate._curl_flow(48, 48, 4.0, 2)
     assert not np.allclose(a[0], b[0])           # different seed -> different field
     assert animate._curl_flow(48, 48, 4.0, 1)[0] is a[0]   # cached identity
+
+
+def test_advect_zero_magnitude_is_identity():
+    img = _synth(40, 40)
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+    fx, fy = animate._curl_flow(h, w, 4.0, 0)
+    out = animate._advect(img, xs.copy(), ys.copy(), fx, fy, mag=0.0, iters=3)
+    assert np.allclose(out, img, atol=1e-4)
+
+
+def test_advect_nonzero_magnitude_moves_pixels():
+    img = _synth(40, 40)
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+    fx, fy = animate._curl_flow(h, w, 4.0, 0)
+    out = animate._advect(img, xs.copy(), ys.copy(), fx, fy, mag=6.0, iters=3)
+    assert not np.allclose(out, img, atol=1e-3)
