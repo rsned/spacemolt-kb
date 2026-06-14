@@ -129,6 +129,29 @@ def _value_noise(h, w, grain, seed):
     return np.asarray(up, dtype=np.float32) / 255.0
 
 
+def _curl_flow(h, w, freq, seed):
+    """Static 2D divergence-free flow field from the curl of a value-noise potential.
+
+    The 2D curl of a scalar potential Phi is (dPhi/dy, -dPhi/dx), which is
+    divergence-free by construction (mixed partials cancel). Cached per
+    (h, w, freq, seed); cleared in render(). Returns (fx, fy), each (H, W)
+    float32 normalised so the mean vector magnitude is ~1.
+    """
+    key = (h, w, round(float(freq), 4), int(seed))
+    if key in _FLOW_CACHE:
+        return _FLOW_CACHE[key]
+    grain = max(1, int(min(h, w) / max(1e-6, float(freq))))
+    phi = _value_noise(h, w, grain, seed)        # smooth scalar potential in [0,1]
+    gy = np.gradient(phi, axis=0)                 # dPhi/dy (rows)
+    gx = np.gradient(phi, axis=1)                 # dPhi/dx (cols)
+    fx = gy.astype(np.float32)                    # 2D curl: ( dPhi/dy, -dPhi/dx )
+    fy = (-gx).astype(np.float32)
+    scale = float(np.sqrt(fx**2 + fy**2).mean()) + 1e-9
+    fx, fy = fx / scale, fy / scale
+    _FLOW_CACHE[key] = (fx, fy)
+    return fx, fy
+
+
 def noise_dissolve(imgs, params, t):
     """Dissolve the image into palette-tinted probability noise and back.
 
@@ -177,6 +200,7 @@ def crossfade_drift(imgs, params, t):
 _MASK_CACHE = {}
 _STREAK_CACHE = {}
 _BG_CACHE = {}
+_FLOW_CACHE = {}
 
 
 def _largest_component(mask_bool):
@@ -705,6 +729,7 @@ def render(srcs, effect, params, duration, fps, out, alpha=False):
     _MASK_CACHE.clear()
     _STREAK_CACHE.clear()
     _BG_CACHE.clear()
+    _FLOW_CACHE.clear()
     imgs = [ensure_even(load_image(s)) for s in srcs]
     h, w = imgs[0].shape[:2]
     imgs = [_resize_to(img, h, w) for img in imgs]

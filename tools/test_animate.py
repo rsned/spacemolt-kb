@@ -496,3 +496,19 @@ def test_hyperspace_still_loops_and_keeps_curve():
     assert _loops(animate.hyperspace_streak, [img], p) <= 1
     frame = animate.hyperspace_streak([img], p, 0.4)
     assert frame[:, 40].max() > 180          # fixed curve preserved
+
+
+def test_curl_flow_is_divergence_free():
+    fx, fy = animate._curl_flow(64, 64, freq=4.0, seed=1)
+    assert fx.shape == (64, 64) and fy.shape == (64, 64)
+    # divergence d(fx)/dx + d(fy)/dy ~ 0 for a curl-of-scalar field
+    div = np.gradient(fx, axis=1) + np.gradient(fy, axis=0)
+    field_mag = np.sqrt(fx**2 + fy**2).mean()
+    assert np.abs(div).mean() < 0.2 * field_mag
+
+
+def test_curl_flow_varies_with_seed_and_is_cached():
+    a = animate._curl_flow(48, 48, 4.0, 1)
+    b = animate._curl_flow(48, 48, 4.0, 2)
+    assert not np.allclose(a[0], b[0])           # different seed -> different field
+    assert animate._curl_flow(48, 48, 4.0, 1)[0] is a[0]   # cached identity
