@@ -337,3 +337,28 @@ def test_render_injects_mask_path(tmp_path, monkeypatch):
     animate.render([str(src)], "disintegrate", {}, 1.0, 6, str(out))
     assert seen["mask_path"] == str(src) + ".mask.png"
     assert out.exists()
+
+
+def test_polytope_counts():
+    v, e = animate._polytope("tesseract")
+    assert v.shape == (16, 4) and len(e) == 32
+    v, e = animate._polytope("16-cell")
+    assert v.shape == (8, 4) and len(e) == 24
+    v, e = animate._polytope("5-cell")
+    assert v.shape == (5, 4) and len(e) == 10
+
+
+def test_polytope_edges_in_range():
+    for shape in ("tesseract", "16-cell", "5-cell"):
+        v, e = animate._polytope(shape)
+        n = v.shape[0]
+        for (i, j) in e:
+            assert 0 <= i < n and 0 <= j < n and i != j
+
+
+def test_polytope_unknown_shape_raises():
+    try:
+        animate._polytope("dodecaplex")
+        assert False, "expected ValueError"
+    except ValueError as ex:
+        assert "dodecaplex" in str(ex)

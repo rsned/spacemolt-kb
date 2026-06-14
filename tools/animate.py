@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 
 def load_image(path):
@@ -435,6 +435,48 @@ def disintegrate(imgs, params, t):
     drift = remap(img * m[..., None], xs - off_x, ys - off_y)  # drifting dust copy
     out = np.maximum(out, drift * (1.0 - prog)[..., None])     # fades as it travels
     return to_uint8(out)
+
+
+def _polytope(shape):
+    """Return (verts (N,4) float32, edges [(i,j), ...]) for a 4D polytope."""
+    if shape == "tesseract":
+        verts = np.array(
+            [[(1.0 if (b >> k) & 1 else -1.0) for k in range(4)] for b in range(16)],
+            dtype=np.float32,
+        )
+        edges = [
+            (a, b)
+            for a in range(16)
+            for b in range(a + 1, 16)
+            if bin(a ^ b).count("1") == 1   # differ in exactly one coordinate
+        ]
+        return verts, edges
+    if shape == "16-cell":
+        verts = []
+        for axis in range(4):
+            for sign in (1.0, -1.0):
+                p = [0.0, 0.0, 0.0, 0.0]
+                p[axis] = sign
+                verts.append(p)
+        verts = np.array(verts, dtype=np.float32)   # axis*2 + (0 for +, 1 for -)
+        edges = [
+            (a, b)
+            for a in range(8)
+            for b in range(a + 1, 8)
+            if a // 2 != b // 2          # skip the antipodal pair on the same axis
+        ]
+        return verts, edges
+    if shape == "5-cell":
+        # regular 4-simplex: center the R^5 basis, project onto the 4D
+        # sum-zero hyperplane via SVD (first 4 right-singular vectors).
+        centered = np.eye(5, dtype=np.float64) - 1.0 / 5.0
+        _, _, vt = np.linalg.svd(centered)
+        verts = (centered @ vt[:4].T).astype(np.float32)   # (5,4)
+        edges = [(a, b) for a in range(5) for b in range(a + 1, 5)]
+        return verts, edges
+    raise ValueError(
+        f"unknown shape '{shape}'; valid: 16-cell, 5-cell, tesseract"
+    )
 
 
 # Effect registry: name -> (required_input_count, frame_function).
