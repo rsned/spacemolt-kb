@@ -582,3 +582,28 @@ def test_cage_polygon_cycles_side_count():
     assert _corner_count(pts0) == 6
     assert _corner_count(ptsm) == 10
     assert _corner_count(pts1) == 6          # seamless: back to n_min
+
+
+def _corners(pts):
+    m = len(pts)
+    out = []
+    for i in range(m):
+        a = pts[i] - pts[(i - 1) % m]
+        b = pts[(i + 1) % m] - pts[i]
+        na, nb = np.linalg.norm(a), np.linalg.norm(b)
+        if na < 1e-6 or nb < 1e-6:
+            continue
+        if np.dot(a, b) / (na * nb) < 0.999:
+            out.append(pts[i])
+    return np.array(sorted(tuple(np.round(p, 3)) for p in out))
+
+
+def test_cage_polygon_no_pop_across_crossing():
+    # n_float(t) = 6 + 4*(1-|2t-1|); crosses 9 at t=0.375. Just below/above the
+    # crossing the corner set must barely move (continuous, no pop).
+    tc = 0.375
+    below, _ = animate._cage_polygon(6, 10, tc - 1e-3, 1.0, 0.0, 0.0)
+    above, _ = animate._cage_polygon(6, 10, tc + 1e-3, 1.0, 0.0, 0.0)
+    cb, ca = _corners(below), _corners(above)
+    assert len(cb) == len(ca)
+    assert np.allclose(cb, ca, atol=0.05)
