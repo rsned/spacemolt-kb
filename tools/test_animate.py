@@ -545,7 +545,13 @@ def test_gas_swirl_moves_pixels_midloop():
     img = _synth(64, 64)
     f0 = animate.gas_swirl([img], {"turns": 1, "amp": 16}, 0.0).astype(np.int16)
     fm = animate.gas_swirl([img], {"turns": 1, "amp": 16}, 0.25).astype(np.int16)
-    assert np.abs(f0 - fm).mean() > 1.0
+    assert np.abs(f0 - fm).mean() > 10.0
+
+
+def test_gas_swirl_identity_at_t0():
+    img = _synth(64, 64)
+    out = animate.gas_swirl([img], {"turns": 1}, 0.0)
+    assert np.array_equal(out, animate.to_uint8(img))
 
 
 def test_gas_swirl_registered():
