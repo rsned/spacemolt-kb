@@ -715,6 +715,13 @@ func main() {
 
 	fmt.Printf("Generated %d item pages + %d category pages in %s/\n", len(items), len(categories), outDir)
 
+	// Module tier comparison page (linked from the items index).
+	if famCount, err := writeTierComparisonPage(outDir, items); err != nil {
+		log.Fatalf("write tier comparison page: %v", err)
+	} else {
+		fmt.Printf("Generated tier comparison page with %d module families in %s/tiers/\n", famCount, outDir)
+	}
+
 	// Group recipes by category.
 	catRecipes := make(map[string][]*Recipe)
 	for _, r := range recipes {
@@ -2698,6 +2705,7 @@ var htmlTopTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Items</h2>
         <p class="text-muted mt-1">{{len .}} categories of ore, components, modules, and trade goods.</p>
+        <p class="mt-2"><a href="tiers/">&#x2696; Module Tier Comparison Charts &rarr;</a></p>
         <div class="item-categories">
 {{- range .}}
             <a href="{{.Name}}/" class="item-cat-card">
