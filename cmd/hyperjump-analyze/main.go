@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	dbPath := flag.String("db", "../spacemolt/data/spacemolt-knowledge.db", "path to the SQLite knowledge base")
+	dbPath := flag.String("db", "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db", "path to the SQLite knowledge base")
 	margin := flag.Float64("margin", 100, "landing margin in galactic units")
 	out := flag.String("out", "", "write the full per-system JSON report to this path")
 	outStations := flag.String("out-stations", "", "write a JSON report of only station-destination jump paths to this path")

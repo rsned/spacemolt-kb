@@ -13,11 +13,11 @@ func TestBuildPortraitPrompt(t *testing.T) {
 	if !strings.Contains(p, portraitCueSuffix) {
 		t.Fatal("global style cue missing")
 	}
-	if !strings.Contains(p, "regimented muted color palette") {
+	if !strings.Contains(p, "dark steel and armor-plated") {
 		t.Fatal("crimson empire sensibility missing")
 	}
-	if !strings.Contains(p, "sturdy utilitarian work clothes") {
-		t.Fatal("laborer archetype garment missing")
+	if !strings.Contains(p, "industrial laborer") {
+		t.Fatal("laborer archetype role cue missing")
 	}
 	if !strings.Contains(p, "refined high-end") {
 		t.Fatal("first-class formality missing")
@@ -34,15 +34,15 @@ func TestArchetypeDiversifiesGarment(t *testing.T) {
 	// no longer collapses into one uniform.
 	officer := buildPortraitPrompt("c-1", "a stern commander", "business", "crimson", "officer", "")
 	laborer := buildPortraitPrompt("c-2", "a tired hauler", "business", "crimson", "laborer", "")
-	if !strings.Contains(officer, "formal military uniform") {
-		t.Fatal("officer garment missing")
+	if !strings.Contains(officer, "command uniform") {
+		t.Fatal("officer role cue missing")
 	}
-	if strings.Contains(laborer, "formal military uniform") {
-		t.Fatal("laborer should not wear a military uniform")
+	if strings.Contains(laborer, "command uniform") {
+		t.Fatal("laborer should not wear a command uniform")
 	}
 	// Both still share the crimson sensibility.
 	for _, p := range []string{officer, laborer} {
-		if !strings.Contains(p, "regimented muted color palette") {
+		if !strings.Contains(p, "dark steel and armor-plated") {
 			t.Fatal("crimson sensibility should apply regardless of archetype")
 		}
 	}

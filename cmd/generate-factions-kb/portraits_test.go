@@ -66,6 +66,36 @@ func TestGeneratePortraitsLimit(t *testing.T) {
 	}
 }
 
+func TestSelectPassengers(t *testing.T) {
+	ps := []*Passenger{
+		{ID: "helan_tarrard", Name: "Helan Tarrard"},
+		{ID: "lissette_rillen", Name: "Lissette Rillen"},
+		{ID: "ziggy_stardrift", Name: "Ziggy Stardrift"},
+		{ID: "the_physician", Name: "The Physician"},
+	}
+
+	// Empty spec is a passthrough.
+	if got, _ := selectPassengers(ps, ""); len(got) != len(ps) {
+		t.Fatalf("empty spec should return all %d; got %d", len(ps), len(got))
+	}
+
+	// Exact citizen_id (case-insensitive) and a name substring, both matched, in
+	// input order, deduped per passenger.
+	got, unmatched := selectPassengers(ps, "ZIGGY_STARDRIFT, rillen , the_physician, ghost")
+	if len(got) != 3 {
+		t.Fatalf("expected 3 matches; got %d (%v)", len(got), got)
+	}
+	wantIDs := []string{"lissette_rillen", "ziggy_stardrift", "the_physician"}
+	for i, p := range got {
+		if p.ID != wantIDs[i] {
+			t.Fatalf("match %d: got %s want %s", i, p.ID, wantIDs[i])
+		}
+	}
+	if len(unmatched) != 1 || unmatched[0] != "ghost" {
+		t.Fatalf("expected unmatched [ghost]; got %v", unmatched)
+	}
+}
+
 func TestGeneratePortraitsNoCommandIsNoop(t *testing.T) {
 	root := t.TempDir()
 	ps := []*Passenger{{ID: "p1", Slug: "p1", Bio: "x"}}

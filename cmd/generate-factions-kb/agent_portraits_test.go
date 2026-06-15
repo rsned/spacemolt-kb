@@ -11,7 +11,7 @@ func TestBuildAgentPortraitPromptEmpireAndRole(t *testing.T) {
 	for _, want := range []string{
 		portraitCueSuffix,
 		"solo character portrait of a single woman",
-		"regimented muted color palette",
+		"dark steel and armor-plated",
 		"practical technical jumpsuit",
 		"she keeps the reactors running",
 	} {
@@ -28,8 +28,8 @@ func TestBuildAgentPortraitPromptFighterGarment(t *testing.T) {
 	if !strings.Contains(p, "practical tactical combat gear") {
 		t.Fatalf("fighter should use tactical combat gear: %q", p)
 	}
-	if strings.Contains(p, "formal military uniform") {
-		t.Fatalf("fighter should NOT use the formal military uniform garment: %q", p)
+	if strings.Contains(p, "command uniform") {
+		t.Fatalf("fighter should NOT use the officer command-uniform garment: %q", p)
 	}
 	if !strings.Contains(p, "single woman") {
 		t.Fatalf("she-dominant bio should render a woman: %q", p)
@@ -73,7 +73,7 @@ func TestBuildAgentPortraitPromptPerformerOverridesEmpire(t *testing.T) {
 	if !strings.Contains(p, performerAesthetic) {
 		t.Fatalf("a performer bio should override the empire styling: %q", p)
 	}
-	if strings.Contains(p, "regimented muted color palette") {
+	if strings.Contains(p, "dark steel and armor-plated") {
 		t.Fatalf("performer should not also carry the crimson empire cue: %q", p)
 	}
 }

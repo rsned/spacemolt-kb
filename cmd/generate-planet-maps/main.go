@@ -28,7 +28,7 @@ func main() {
 		singleType = flag.String("type", "", "generate only this planet type (for testing)")
 		singleSeed = flag.String("seed", "", "planet name to use as seed (for testing)")
 		outFile    = flag.String("out", "", "output file path (single image mode)")
-		dbPath     = flag.String("db", "../spacemolt/data/spacemolt-knowledge.db", "path to knowledge database")
+		dbPath     = flag.String("db", "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db", "path to knowledge database")
 		outDir     = flag.String("outdir", "kb/images/planets", "output directory for planet images")
 		width      = flag.Int("width", planetgen.DefaultWidth, "image width in pixels")
 		height     = flag.Int("height", planetgen.DefaultHeight, "image height in pixels")

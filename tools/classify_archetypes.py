@@ -83,7 +83,7 @@ def classify(bio, model):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("db", nargs="?", default="../spacemolt-knowledge.db")
+    ap.add_argument("db", nargs="?", default="/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db")
     ap.add_argument("--sample", type=int, default=0, help="classify only N random bios; print, don't cache")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     args = ap.parse_args()

@@ -23,7 +23,7 @@ type personality struct {
 
 func main() {
 	agentsDir := flag.String("agents", "../spacemolt/data/agents", "directory of agent personality dirs")
-	dbPath := flag.String("db", "../spacemolt-knowledge.db", "knowledge database path")
+	dbPath := flag.String("db", "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db", "knowledge database path")
 	outRoot := flag.String("overlays", "overlays", "overlays output root")
 	dryRun := flag.Bool("dry-run", false, "report what would be written without writing")
 	flag.Parse()

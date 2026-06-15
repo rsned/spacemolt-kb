@@ -48,6 +48,43 @@ func generatePassengerPortraits(passengers []*Passenger, root, cmdLine string, l
 	}
 }
 
+// selectPassengers filters passengers to those matching any token in spec, a
+// comma-separated list where each token matches a passenger by case-insensitive
+// citizen_id equality or a case-insensitive substring of the name. An empty spec
+// returns passengers unchanged. Tokens that match no passenger are returned in
+// unmatched so the caller can warn about typos. Order follows the input slice
+// (each passenger appears at most once).
+func selectPassengers(passengers []*Passenger, spec string) (selected []*Passenger, unmatched []string) {
+	spec = strings.TrimSpace(spec)
+	if spec == "" {
+		return passengers, nil
+	}
+	var tokens []string
+	for t := range strings.SplitSeq(spec, ",") {
+		if t = strings.ToLower(strings.TrimSpace(t)); t != "" {
+			tokens = append(tokens, t)
+		}
+	}
+	matched := make(map[string]bool, len(tokens))
+	for _, p := range passengers {
+		id := strings.ToLower(p.ID)
+		name := strings.ToLower(p.Name)
+		for _, t := range tokens {
+			if id == t || (name != "" && strings.Contains(name, t)) {
+				selected = append(selected, p)
+				matched[t] = true
+				break
+			}
+		}
+	}
+	for _, t := range tokens {
+		if !matched[t] {
+			unmatched = append(unmatched, t)
+		}
+	}
+	return selected, unmatched
+}
+
 // runPortraitCmd runs cmdLine via `sh -c`, exposing the prompt/out/seed and
 // verifying the command produced outPath.
 func runPortraitCmd(cmdLine, prompt, id, outPath string) error {

@@ -7,7 +7,7 @@ self-contained HTML file with a responsive grid (4 columns on a wide screen).
 
 Run from the kb repo root:
     python3 tools/build_portrait_gallery.py [knowledge.db] [out.html]
-Defaults: ../spacemolt-knowledge.db  ->  portrait-gallery.html
+Defaults: /home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db  ->  portrait-gallery.html
 """
 
 import html
@@ -15,7 +15,7 @@ import os
 import sqlite3
 import sys
 
-DB = sys.argv[1] if len(sys.argv) > 1 else "../spacemolt-knowledge.db"
+DB = sys.argv[1] if len(sys.argv) > 1 else "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db"
 OUT = sys.argv[2] if len(sys.argv) > 2 else "portrait-gallery.html"
 CACHE = "overlays/generated/passengers"
 

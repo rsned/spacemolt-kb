@@ -45,6 +45,9 @@ Tunable via environment variables (all optional):
   PORTRAIT_STEPS    inference steps        (default: flux 4, sdxl 12)
   PORTRAIT_GUIDANCE classifier-free guide  (default: flux 0, sdxl 3.5)
   PORTRAIT_SIZE     square pixel size      (default: flux 1024, sdxl 512)
+  PORTRAIT_OUT_SIZE final saved pixel size  (default: same as SIZE; if smaller,
+                    the native render is Lanczos-downscaled to it for sharper
+                    faces, e.g. SIZE=1024 OUT_SIZE=512)
   PORTRAIT_NEGATIVE negative prompt        (default: an illustration-excluding
                                             list; only takes effect when
                                             guidance > 1)
@@ -122,7 +125,23 @@ def _request_from_env() -> dict:
         "steps": int(os.environ.get("PORTRAIT_STEPS", steps_d)),
         "guidance": float(os.environ.get("PORTRAIT_GUIDANCE", guide_d)),
         "size": int(os.environ.get("PORTRAIT_SIZE", size_d)),
+        "out_size": int(os.environ.get("PORTRAIT_OUT_SIZE", "0") or "0"),
     }
+
+
+def _save_image(image, req: dict) -> None:
+    """Save image to req['out'], first downscaling to req['out_size'] (when set and
+    smaller than the rendered size) with a high-quality Lanczos filter. Rendering at
+    the model's native resolution (FLUX 1024) and downsampling yields sharper faces
+    than generating directly at the smaller target, at the same final file size. An
+    unset or non-smaller out_size saves at the rendered size unchanged."""
+    out_size = int(req.get("out_size") or 0)
+    if out_size and out_size < int(req["size"]):
+        from PIL import Image
+        resample = getattr(Image, "Resampling", Image).LANCZOS
+        image = image.resize((out_size, out_size), resample)
+    os.makedirs(os.path.dirname(req["out"]), exist_ok=True)
+    image.save(req["out"])
 
 
 def _sock_path() -> str:
@@ -231,8 +250,7 @@ class SDXLGenerator:
             if negative:
                 kwargs["negative_prompt"] = negative
         image = self.pipe(**kwargs).images[0]
-        os.makedirs(os.path.dirname(req["out"]), exist_ok=True)
-        image.save(req["out"])
+        _save_image(image, req)
 
 
 class FluxGenerator:
@@ -280,8 +298,7 @@ class FluxGenerator:
             width=int(req["size"]),
             generator=generator,
         ).images[0]
-        os.makedirs(os.path.dirname(req["out"]), exist_ok=True)
-        image.save(req["out"])
+        _save_image(image, req)
 
 
 def make_generator():

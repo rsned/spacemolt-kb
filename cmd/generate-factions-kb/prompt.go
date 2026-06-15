@@ -63,37 +63,41 @@ func bioGenderNoun(bio string) string {
 // spacer sensibility. Crimson is a militaristic *society*, not only its military:
 // a regimented muted palette and crisp straight cuts, never frills or ruffles.
 var empireStyle = map[string]string{
-	"solarian": "naturalistic contemporary Earth-centered fashion, finely detailed refined tailoring",
-	"nebula":   "sleek corporate palette, clean minimal lines",
-	"crimson":  "regimented muted color palette, crisp straight cuts with clean sharp edges, plain and unadorned with no frills ruffles flourishes or hoops, disciplined bearing",
-	"outerrim": "scavenger chic, salvaged and patched makeshift materials, rugged and worn",
-	"voidborn": "ethereal pale high-collared materials, ascetic refined alien elegance",
+	"solarian": "clean modern civic Earth-democracy aesthetic, naturalistic contemporary tailoring, palette of blues whites and warm neutrals",
+	"nebula":   "sleek corporate mercantile styling, minimal polished lines with gold and neon accents, opulent and faintly corrupt",
+	"crimson":  "forge-and-war styling, dark steel and armor-plated materials, crisp straight unadorned cuts, muted palette with red and orange forge-glow accents, no frills ruffles or flourishes, disciplined bearing",
+	"outerrim": "jury-rigged scavenger chic, weathered rust-colored mismatched salvaged gear and improvised equipment",
+	"voidborn": "ethereal pale high-collared grown materials, ascetic refined alien elegance, faint crystalline subdermal glow",
 }
 
 // archetypeGarment maps a role archetype (classified from the bio by
-// tools/classify_archetypes.py via local Ollama) to a garment/role phrase.
-// Layered over an empire sensibility this diversifies a faction by occupation so
-// not every crimson citizen reads as a senior officer in dress uniform. Unknown
-// or empty archetypes fall back to the "spacer" garment.
+// tools/classify_archetypes.py via local Ollama) to a rich role cue: a role noun
+// plus signature attire and props (insignia, tools, instruments). The prop-laden
+// specificity — not a bare garment phrase — is what stops a faction's passengers
+// from blurring together, mirroring the empire archetype-matrix cues. Layered
+// over an empire sensibility it diversifies a faction by occupation. Unknown or
+// empty archetypes fall back to the "spacer" cue.
 var archetypeGarment = map[string]string{
-	"laborer":    "in sturdy utilitarian work clothes",
-	"officer":    "in a formal military uniform",
-	"merchant":   "in a sharp business outfit",
-	"official":   "in tidy administrative attire with subtle insignia",
-	"technician": "in a practical technical jumpsuit with a tool harness",
-	"pilot":      "in a flight jacket and pilot's rig",
-	"medic":      "in clean clinical medical attire",
-	"outlaw":     "in worn nondescript layered clothing",
-	"spiritual":  "in ceremonial robes",
-	"aristocrat": "in opulently tailored finery",
-	"spacer":     "in practical spacer attire",
+	"laborer":    "an industrial laborer in a heavy work harness with grimed utility plating and mag-clamp tools",
+	"officer":    "a uniformed officer in a command uniform with rank insignia and a holstered sidearm",
+	"merchant":   "a trader and broker in fine merchant attire holding a glowing credit-slate",
+	"official":   "a government administrator in a formal high-collared uniform with regulatory insignia and a data-slate",
+	"technician": "an engineer in a practical technical jumpsuit with a tool bandolier and diagnostic instruments",
+	"pilot":      "a ship pilot in a flight suit with a flight harness and a nav-visor",
+	"medic":      "a physician in clinical medical attire with diagnostic instruments and a medical insignia",
+	"outlaw":     "a smuggler in scavenged armored layers with a hard scarred look and concealed gear",
+	"spiritual":  "a contemplative ascetic in flowing ceremonial vestments",
+	"aristocrat": "an elegant aristocrat in opulent jeweled finery",
+	"spacer":     "a deck-hand spacer in a worn practical vac-suit and rigging",
 }
 
-// classFormality scales the styling by travel class.
+// classFormality scales the styling by travel class. Phrased as a trailing finish
+// so it reads after the role cue ("...a medical insignia, with a sharp
+// professional finish, <empire>").
 var classFormality = map[string]string{
-	"first":    "refined high-end",
-	"business": "sharp professional",
-	"economy":  "practical well-worn",
+	"first":    "with a refined high-end finish",
+	"business": "with a sharp professional finish",
+	"economy":  "with a practical well-worn finish",
 }
 
 // pirateAesthetic styles the "pirates" citizenship as modern, gritty raiders
@@ -218,13 +222,14 @@ func passengerAesthetic(bio, cls, cit, arch string) string {
 	}
 	formality := classFormality[cls]
 	if formality == "" {
-		formality = "practical"
+		formality = "with a practical finish"
 	}
-	// Garment precedes the empire sensibility so it stays inside CLIP's 77-token
-	// window: some empire styles (notably crimson) are long, and if they came
-	// first they truncated the garment clause, leaving subjects bare-shouldered.
-	// The empire adjectives are lower-priority and fine to lose to truncation.
-	return formality + ", " + garment + ", " + empire
+	// The role cue leads, then the class finish, then the empire sensibility. Role
+	// first keeps the occupation-defining clause prominent (it is what diversifies
+	// passengers) and inside CLIP's 77-token window for the SDXL fallback — some
+	// empire styles (notably crimson) are long, and the empire adjectives are
+	// lower-priority and fine to lose to truncation.
+	return garment + ", " + formality + ", " + empire
 }
 
 // hasPerformerCue reports whether bio mentions a flamboyant stage persona.

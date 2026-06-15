@@ -19,7 +19,7 @@ import (
 
 const (
 	defaultCraftingDB  = "../../spacemolt-crafting-server/database/crafting.db"
-	defaultKnowledgeDB = "../spacemolt-knowledge.db"
+	defaultKnowledgeDB = "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db"
 	defaultCatalogBase = "../spacemolt/data/game-api"
 	defaultOutPath     = "docs/analysis/empire-economy.md"
 )

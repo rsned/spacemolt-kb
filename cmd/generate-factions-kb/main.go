@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -15,13 +16,14 @@ import (
 func main() {
 	portraitsFlag := flag.Bool("portraits", false, "generate missing/updated passenger AI portraits via SMKB_PORTRAIT_CMD before rendering")
 	portraitLimit := flag.Int("portrait-limit", 0, "if >0, only (re)generate portraits for the first N passengers (alphabetical) — for quick verification")
+	passengersSel := flag.String("passengers", "", "comma-separated citizen_ids or name substrings; if set, only (re)generate portraits for matching passengers (for targeted previews)")
 	agentPortraitsFlag := flag.Bool("agent-portraits", false, "generate AI portraits for the user's own agents (sighted players only) via SMKB_PORTRAIT_CMD")
 	portraitsOnly := flag.Bool("portraits-only", false, "generate portraits then exit without rendering the site (pairs with -portraits/-agent-portraits)")
 	agentsDir := flag.String("agents-dir", "../spacemolt/data/agents", "directory of agent personality.json subdirectories (for -agent-portraits)")
 	dailySummaryPath := flag.String("daily-summary", "../spacemolt/data/daily-summary.db", "daily-summary.db used to resolve agent_id -> server player_id (for -agent-portraits)")
 	flag.Parse()
 
-	dbPath := "spacemolt-knowledge.db"
+	dbPath := "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db"
 	factionsOut := "kb/factions"
 	playersOut := "kb/players"
 	systemsDir := "kb/systems"
@@ -86,7 +88,16 @@ func main() {
 	}
 	attachPassengerOverlays(passengers, overlaysRoot)
 	if *portraitsFlag {
-		generatePassengerPortraits(passengers, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"), *portraitLimit)
+		sel := passengers
+		if strings.TrimSpace(*passengersSel) != "" {
+			var unmatched []string
+			sel, unmatched = selectPassengers(passengers, *passengersSel)
+			if len(unmatched) > 0 {
+				log.Printf("warning: -passengers tokens matched no passenger: %v", unmatched)
+			}
+			log.Printf("-passengers: limited to %d of %d passengers", len(sel), len(passengers))
+		}
+		generatePassengerPortraits(sel, overlaysRoot, os.Getenv("SMKB_PORTRAIT_CMD"), *portraitLimit)
 	}
 	attachPassengerPortraits(passengers, overlaysRoot)
 

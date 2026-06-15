@@ -12,7 +12,7 @@ Run from the kb repo root:
 
 import os, re, sqlite3, sys
 
-DB = sys.argv[1] if len(sys.argv) > 1 else "../spacemolt-knowledge.db"
+DB = sys.argv[1] if len(sys.argv) > 1 else "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db"
 CACHE = "overlays/generated/passengers"
 
 MASC = re.compile(r"\b(he|him|his|himself)\b", re.I)

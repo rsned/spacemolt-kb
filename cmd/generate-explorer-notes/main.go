@@ -69,7 +69,7 @@ Rules:
 
 func main() {
 	var (
-		dbPath   = flag.String("db", "../spacemolt-knowledge.db", "path to knowledge database")
+		dbPath   = flag.String("db", "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db", "path to knowledge database")
 		outFile  = flag.String("out", "data/explorer-notes.json", "output JSON file")
 		poiType  = flag.String("type", "", "only generate for this POI type")
 		poiID    = flag.String("poi", "", "only generate for this specific POI ID")
