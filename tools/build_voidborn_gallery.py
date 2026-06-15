@@ -99,6 +99,18 @@ def main() -> None:
         f"{n_clips} animations · blue-outlined ★ = favorites · click an image "
         'for full size, "prompt"/"params" for the exact recipe.</div>',
     ]
+    # matrix exploration pages (rendered separately; link out if present)
+    matrix_pages = [
+        ("archetypes.html", "Voidborn archetype×form"),
+        ("solarian.html", "Solarian archetype×gender"),
+        ("crimson.html", "Crimson archetype×gender"),
+        ("nebula.html", "Nebula archetype×gender"),
+        ("outerrim.html", "Outer Rim archetype×gender"),
+    ]
+    links = [f'<a href="{html.escape(f)}">{html.escape(lbl)}</a>'
+             for f, lbl in matrix_pages if (CONCEPTS / f).exists()]
+    if links:
+        parts.append('<div class="sub">Matrix pages → ' + " · ".join(links) + "</div>")
     nav = [
         f'<a href="#{html.escape(g["id"])}">{html.escape(short_label(g["title"]))}</a>'
         for g in data["groups"] + anim_data["groups"]
