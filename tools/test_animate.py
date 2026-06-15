@@ -496,3 +496,168 @@ def test_hyperspace_still_loops_and_keeps_curve():
     assert _loops(animate.hyperspace_streak, [img], p) <= 1
     frame = animate.hyperspace_streak([img], p, 0.4)
     assert frame[:, 40].max() > 180          # fixed curve preserved
+
+
+def test_curl_flow_is_divergence_free():
+    fx, fy = animate._curl_flow(64, 64, freq=4.0, seed=1)
+    assert fx.shape == (64, 64) and fy.shape == (64, 64)
+    # divergence d(fx)/dx + d(fy)/dy ~ 0 for a curl-of-scalar field
+    div = np.gradient(fx, axis=1) + np.gradient(fy, axis=0)
+    field_mag = np.sqrt(fx**2 + fy**2).mean()
+    assert np.abs(div).mean() < 0.2 * field_mag
+
+
+def test_curl_flow_varies_with_seed_and_is_cached():
+    a = animate._curl_flow(48, 48, 4.0, 1)
+    b = animate._curl_flow(48, 48, 4.0, 2)
+    assert not np.allclose(a[0], b[0])           # different seed -> different field
+    assert animate._curl_flow(48, 48, 4.0, 1)[0] is a[0]   # cached identity
+
+
+def test_advect_zero_magnitude_is_identity():
+    img = _synth(40, 40)
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+    fx, fy = animate._curl_flow(h, w, 4.0, 0)
+    out = animate._advect(img, xs.copy(), ys.copy(), fx, fy, mag=0.0, iters=3)
+    assert np.allclose(out, img, atol=1e-4)
+
+
+def test_advect_nonzero_magnitude_moves_pixels():
+    img = _synth(40, 40)
+    h, w = img.shape[:2]
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+    fx, fy = animate._curl_flow(h, w, 4.0, 0)
+    out = animate._advect(img, xs.copy(), ys.copy(), fx, fy, mag=6.0, iters=3)
+    assert not np.allclose(out, img, atol=1e-3)
+
+
+def test_gas_swirl_shape_dtype_and_loops():
+    img = _synth(64, 64)
+    out = animate.gas_swirl([img], {"turns": 1}, 0.25)
+    assert out.shape == (64, 64, 3) and out.dtype == np.uint8
+    assert _loops(animate.gas_swirl, [img], {"turns": 1}) <= 1
+
+
+def test_gas_swirl_moves_pixels_midloop():
+    img = _synth(64, 64)
+    f0 = animate.gas_swirl([img], {"turns": 1, "amp": 16}, 0.0).astype(np.int16)
+    fm = animate.gas_swirl([img], {"turns": 1, "amp": 16}, 0.25).astype(np.int16)
+    assert np.abs(f0 - fm).mean() > 10.0
+
+
+def test_gas_swirl_identity_at_t0():
+    img = _synth(64, 64)
+    out = animate.gas_swirl([img], {"turns": 1}, 0.0)
+    assert np.array_equal(out, animate.to_uint8(img))
+
+
+def test_gas_swirl_registered():
+    assert "gas-swirl" in animate.EFFECTS
+    assert animate.EFFECTS["gas-swirl"][0] == 1
+
+
+def _corner_count(pts):
+    """Count vertices where the path turns appreciably (a test helper)."""
+    m = len(pts)
+    corners = 0
+    for i in range(m):
+        a = pts[i] - pts[(i - 1) % m]
+        b = pts[(i + 1) % m] - pts[i]
+        na, nb = np.linalg.norm(a), np.linalg.norm(b)
+        if na < 1e-6 or nb < 1e-6:
+            continue
+        cosang = np.dot(a, b) / (na * nb)
+        if cosang < 0.999:                # not collinear -> a real corner
+            corners += 1
+    return corners
+
+
+def test_cage_polygon_cycles_side_count():
+    pts0, _ = animate._cage_polygon(6, 10, 0.0, 1.0, 0.0, 0.0)
+    ptsm, _ = animate._cage_polygon(6, 10, 0.5, 1.0, 0.0, 0.0)
+    pts1, _ = animate._cage_polygon(6, 10, 1.0, 1.0, 0.0, 0.0)
+    assert _corner_count(pts0) == 6
+    assert _corner_count(ptsm) == 10
+    assert _corner_count(pts1) == 6          # seamless: back to n_min
+
+
+def _corners(pts):
+    m = len(pts)
+    out = []
+    for i in range(m):
+        a = pts[i] - pts[(i - 1) % m]
+        b = pts[(i + 1) % m] - pts[i]
+        na, nb = np.linalg.norm(a), np.linalg.norm(b)
+        if na < 1e-6 or nb < 1e-6:
+            continue
+        if np.dot(a, b) / (na * nb) < 0.999:
+            out.append(pts[i])
+    return np.array(sorted(tuple(np.round(p, 3)) for p in out))
+
+
+def test_cage_polygon_no_pop_across_crossing():
+    # n_float(t) = 6 + 4*(1-|2t-1|); crosses 9 at t=0.375. Just below/above the
+    # crossing the corner set must barely move (continuous, no pop).
+    tc = 0.375
+    below, _ = animate._cage_polygon(6, 10, tc - 1e-3, 1.0, 0.0, 0.0)
+    above, _ = animate._cage_polygon(6, 10, tc + 1e-3, 1.0, 0.0, 0.0)
+    cb, ca = _corners(below), _corners(above)
+    assert len(cb) == len(ca)
+    assert np.allclose(cb, ca, atol=0.05)
+
+
+def test_draw_cycling_cage_returns_additive_layer():
+    layer = animate._draw_cycling_cage(64, 64, 8, 10, 0.5, 0.8,
+                                       np.array([0.6, 1.0, 0.7], np.float32), 3, 8.0)
+    assert layer.shape == (64, 64, 3)
+    assert layer.min() >= 0.0                 # additive (non-negative)
+    assert layer.max() > 0.05                 # something was drawn
+
+
+def test_gas_swirl_cage_changes_output():
+    img = _synth(64, 64)
+    no_cage = animate.gas_swirl([img], {"cage": False}, 0.5)
+    with_cage = animate.gas_swirl([img], {"cage": True, "cage_min": 8, "cage_max": 10}, 0.5)
+    assert not np.array_equal(no_cage, with_cage)
+    # still seamless with the cage on
+    assert _loops(animate.gas_swirl, [img],
+                  {"cage": True, "cage_min": 8, "cage_max": 10}) <= 1
+
+
+def _angular_synth(h=72, w=72):
+    """A test image with clear angular + radial structure (for rotation/shell)."""
+    ys, xs = np.meshgrid(np.linspace(-1, 1, h, dtype=np.float32),
+                         np.linspace(-1, 1, w, dtype=np.float32), indexing="ij")
+    ang = np.arctan2(ys, xs)
+    base = 0.5 + 0.5 * np.sin(3 * ang)
+    return np.stack([base, base * 0.6, np.sqrt(xs**2 + ys**2)], axis=-1).astype(np.float32)
+
+
+def test_shell_growth_shape_dtype_and_loops():
+    img = _angular_synth()
+    out = animate.shell_growth([img], {"turns": 1}, 0.3)
+    assert out.shape == img.shape and out.dtype == np.uint8
+    assert _loops(animate.shell_growth, [img], {"turns": 1}) <= 1
+
+
+def test_shell_growth_core_rotates():
+    img = _angular_synth()
+    f0 = animate.shell_growth([img], {"turns": 1, "coverage": 0.0}, 0.0).astype(np.int16)
+    fq = animate.shell_growth([img], {"turns": 1, "coverage": 0.0}, 0.25).astype(np.int16)
+    h, w = img.shape[:2]
+    cy, cx = h // 2, w // 2
+    core = (slice(cy - 6, cy + 6), slice(cx - 6, cx + 6))
+    assert np.abs(f0[core] - fq[core]).mean() > 1.0     # core changed under rotation
+
+
+def test_shell_growth_coverage_varies_and_returns():
+    img = _angular_synth()
+    def pinkness(t):
+        f = animate.shell_growth([img], {"coverage": 0.5, "turns": 1}, t).astype(np.float32)
+        return float((f[..., 0] - f[..., 1]).mean())     # tint is pink (R>G)
+    p0, pm, p1 = pinkness(0.0), pinkness(0.5), pinkness(1.0)
+    assert abs(pm - p0) > 0.5                             # the wave moved
+    assert abs(p1 - p0) < 1.0                             # seamless return

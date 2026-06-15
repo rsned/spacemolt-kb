@@ -129,6 +129,204 @@ def _value_noise(h, w, grain, seed):
     return np.asarray(up, dtype=np.float32) / 255.0
 
 
+def _curl_flow(h, w, freq, seed):
+    """Static 2D divergence-free flow field from the curl of a value-noise potential.
+
+    The 2D curl of a scalar potential Phi is (dPhi/dy, -dPhi/dx), which is
+    divergence-free by construction (mixed partials cancel). Cached per
+    (h, w, freq, seed); cleared in render(). Returns (fx, fy), each (H, W)
+    float32 normalised so the mean vector magnitude is ~1.
+    """
+    key = (h, w, round(float(freq), 4), int(seed))
+    if key in _FLOW_CACHE:
+        return _FLOW_CACHE[key]
+    grain = max(1, int(min(h, w) / max(1e-6, float(freq))))
+    phi = _value_noise(h, w, grain, seed)        # smooth scalar potential in [0,1]
+    gy = np.gradient(phi, axis=0)                 # dPhi/dy (rows)
+    gx = np.gradient(phi, axis=1)                 # dPhi/dx (cols)
+    fx = gy.astype(np.float32)                    # 2D curl: ( dPhi/dy, -dPhi/dx )
+    fy = (-gx).astype(np.float32)
+    scale = float(np.sqrt(fx**2 + fy**2).mean()) + 1e-9
+    fx, fy = fx / scale, fy / scale
+    _FLOW_CACHE[key] = (fx, fy)
+    return fx, fy
+
+
+def _advect(img, px, py, fx, fy, mag, iters):
+    """Semi-Lagrangian backward-trace: step each pixel back along (fx,fy)*mag
+    over `iters` sub-steps, then bilinear-sample img at the traced position.
+
+    px, py are (H,W) float start coordinates (already include any rigid
+    rotation). 2D port of the planetgen BackwardTrace technique. mag is the
+    total displacement in pixels; with mag=0 this is the identity.
+    """
+    px = px.copy()
+    py = py.copy()
+    step = float(mag) / max(1, int(iters))
+    for _ in range(int(iters)):
+        u = remap(fx[..., None], px, py)[..., 0]
+        v = remap(fy[..., None], px, py)[..., 0]
+        px = px - step * u
+        py = py - step * v
+    return remap(img, px, py)
+
+
+def gas_swirl(imgs, params, t):
+    """Curl-noise + vortex advection of a gas image — a top-down hurricane
+    approximation. A rigid rotation by integer `turns` gives the seamless spin;
+    a static curl flow (plus a tangential `vortex` bias) deforms the gas with a
+    magnitude that breathes 0 -> amp -> 0 via 0.5*(1-cos(2*pi*t)), so frame 0
+    equals frame N. NOT a fluid sim (see the v4 spec).
+    """
+    img = imgs[0]
+    amp = float(params.get("amp", 16.0))
+    vortex = float(params.get("vortex", 0.5))     # dimensionless tangential bias
+    turns = int(params.get("turns", 1))
+    freq = float(params.get("freq", 3.0))
+    iters = int(params.get("iters", 3))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+
+    # rigid rotation: sample source at angle theta -> seamless for integer turns
+    ang = 2.0 * np.pi * turns * t
+    ca, sa = np.cos(-ang), np.sin(-ang)
+    px = cx + (xs - cx) * ca - (ys - cy) * sa
+    py = cy + (xs - cx) * sa + (ys - cy) * ca
+
+    # static curl flow + tangential vortex bias
+    fx, fy = _curl_flow(h, w, freq, seed)
+    dxc, dyc = xs - cx, ys - cy
+    r = np.sqrt(dxc**2 + dyc**2) + 1e-6
+    fx = fx + vortex * (-dyc / r)
+    fy = fy + vortex * (dxc / r)
+
+    mag = amp * 0.5 * (1.0 - np.cos(2.0 * np.pi * t))   # 0 at t=0 and t=1
+    out = _advect(img, px, py, fx, fy, mag, iters)
+    if params.get("cage"):
+        cage = _draw_cycling_cage(
+            h, w, int(params.get("cage_min", 8)), int(params.get("cage_max", 10)),
+            t, float(params.get("cage_size", 0.78)),
+            np.asarray(params.get("cage_color", [0.6, 1.0, 0.7]), dtype=np.float32),
+            int(params.get("cage_width", 3)), float(params.get("cage_glow", 8.0)))
+        out = 1.0 - (1.0 - out) * (1.0 - cage)          # screen blend
+    return to_uint8(out)
+
+
+def _poly_vertices(n, radius, cx, cy):
+    """Regular n-gon vertices (n,2), first vertex at the top (-pi/2)."""
+    a = -np.pi / 2.0 + 2.0 * np.pi * np.arange(n) / n
+    return np.stack([cx + radius * np.cos(a), cy + radius * np.sin(a)], axis=1)
+
+
+def _cage_polygon(n_min, n_max, t, radius, cx, cy):
+    """Vertices+edges of a regular polygon whose side count cycles
+    n_min -> n_max -> n_min over t in [0,1] (triangle wave, seamless).
+
+    Smooth side emergence: the n_base-gon is represented with (n_base+1) points
+    (one collinear edge midpoint) and morphed toward the regular (n_base+1)-gon
+    by the fractional part. At frac=0 the midpoint is collinear (reads as
+    n_base sides); at frac=1 the shape is the regular (n_base+1)-gon. Because
+    frac=1 of n_base draws identically to frac=0 of (n_base+1), the morph is
+    continuous across integer crossings (no pop).
+    Returns (pts (m,2) float, edges [(i,j),...] closed loop).
+    """
+    tri = 1.0 - abs(2.0 * t - 1.0)                  # 0 -> 1 -> 0 over t
+    n_float = n_min + (n_max - n_min) * tri
+    n_base = int(np.floor(n_float))
+    n_base = max(n_min, min(n_base, n_max))
+    frac = float(np.clip(n_float - n_base, 0.0, 1.0))
+    base_verts = _poly_vertices(n_base, radius, cx, cy)
+    mid_edge = (base_verts[0] + base_verts[1]) / 2.0
+    # n_base-gon represented with (n_base+1) points (one collinear midpoint)
+    start = np.vstack([base_verts[:1], mid_edge[None, :], base_verts[1:]])
+    # regular (n_base+1)-gon, same point count; morph target so the boundary
+    # shape is continuous (no pop) when n_base increments.
+    end = _poly_vertices(n_base + 1, radius, cx, cy)
+    pts = start * (1.0 - frac) + end * frac
+    m = len(pts)
+    edges = [(i, (i + 1) % m) for i in range(m)]
+    return pts, edges
+
+
+def _draw_cycling_cage(h, w, n_min, n_max, t, size, color, width, glow):
+    """Additive RGB layer: a regular polygon cage centred in the frame whose
+    side count cycles n_min -> n_max -> n_min (seamless). Anti-aliased via a
+    2x supersample + LANCZOS downsample, with a Gaussian glow, tinted by color.
+    """
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    radius = float(size) * min(h, w) / 2.0
+    pts, edges = _cage_polygon(int(n_min), int(n_max), t, radius, cx, cy)
+    ss = 2
+    canvas = Image.new("L", (w * ss, h * ss), 0)
+    draw = ImageDraw.Draw(canvas)
+    lw = max(1, int(width) * ss)
+    for (i, j) in edges:
+        draw.line([(pts[i][0] * ss, pts[i][1] * ss),
+                   (pts[j][0] * ss, pts[j][1] * ss)], fill=255, width=lw)
+    sharp = np.asarray(canvas.resize((w, h), Image.LANCZOS), dtype=np.float32) / 255.0
+    glowed = np.asarray(
+        Image.fromarray((sharp * 255).astype(np.uint8)).filter(
+            ImageFilter.GaussianBlur(float(glow))), dtype=np.float32) / 255.0
+    intensity = np.clip(sharp + 0.6 * glowed, 0.0, 1.0)
+    return intensity[..., None] * np.asarray(color, dtype=np.float32)[None, None, :]
+
+
+def shell_growth(imgs, params, t):
+    """Rotating mandala core + a rotating growth-wave shell with a bright
+    noise-wobbled leading edge. The core (radius core_r) rotates by 2*pi*turns*t
+    (seamless for integer turns); the pink shell layer is present where the
+    angular wave frac(theta - t) is within `coverage`, so the arc rotates once
+    per loop. Value noise wobbles the front for a noise-wobbled edge.
+    """
+    img = imgs[0]
+    turns = int(params.get("turns", 1))
+    coverage = float(params.get("coverage", 0.55))
+    tint = np.asarray(params.get("tint", [0.95, 0.45, 0.7]), dtype=np.float32)
+    edge_glow = float(params.get("edge_glow", 1.4))
+    core_r = float(params.get("core_r", 0.32))
+    softness = float(params.get("softness", 0.06))
+    grain = int(params.get("grain", 3))
+    seed = int(params.get("seed", 0))
+    h, w = img.shape[:2]
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+    ys, xs = np.meshgrid(np.arange(h, dtype=np.float32),
+                         np.arange(w, dtype=np.float32), indexing="ij")
+    dx = (xs - cx) / (w / 2.0)
+    dy = (ys - cy) / (h / 2.0)
+    r = np.sqrt(dx**2 + dy**2)
+    theta = (np.arctan2(dy, dx) / (2.0 * np.pi)) % 1.0      # [0,1)
+
+    # rotating mandala core
+    ang = 2.0 * np.pi * turns * t
+    ca, sa = np.cos(-ang), np.sin(-ang)
+    rx = cx + (xs - cx) * ca - (ys - cy) * sa
+    ry = cy + (xs - cx) * sa + (ys - cy) * ca
+    rotated = remap(img, rx, ry)
+    core_m = np.clip((core_r - r) / max(softness, 1e-6) + 0.5, 0.0, 1.0)[..., None]
+    base = rotated * core_m + img * (1.0 - core_m)
+
+    # rotating growth-wave shell (fractal front via noise wobble)
+    nz = _value_noise(h, w, grain, seed) - 0.5
+    phase = (theta - t + 0.12 * nz) % 1.0
+    rise = np.clip(phase / max(softness, 1e-6), 0.0, 1.0)
+    fall = np.clip((coverage - phase) / max(softness, 1e-6), 0.0, 1.0)
+    fill = rise * fall                                       # 1 across the arc, 0 outside
+    # outer shell fades out by r~1.15 (tuned for square renders); corners stay background
+    shell_band = (np.clip((r - core_r) / max(softness, 1e-6), 0.0, 1.0)
+                  * np.clip((1.15 - r) / 0.1, 0.0, 1.0))
+    a = (fill * shell_band)[..., None]
+    out = base * (1.0 - a) + tint[None, None, :] * a
+
+    # bright leading edge: glow near the front (phase ~ 0), within the band
+    edge = np.exp(-(phase / max(0.5 * softness, 1e-6)) ** 2) * shell_band
+    # additive: the leading edge is intentionally allowed to over-expose before to_uint8 clamps
+    out = out + (edge[..., None] * edge_glow) * tint[None, None, :]
+    return to_uint8(out)
+
+
 def noise_dissolve(imgs, params, t):
     """Dissolve the image into palette-tinted probability noise and back.
 
@@ -177,6 +375,7 @@ def crossfade_drift(imgs, params, t):
 _MASK_CACHE = {}
 _STREAK_CACHE = {}
 _BG_CACHE = {}
+_FLOW_CACHE = {}
 
 
 def _largest_component(mask_bool):
@@ -630,6 +829,8 @@ EFFECTS = {
     "hyperspace-streak": (1, hyperspace_streak),
     "disintegrate": (1, disintegrate),
     "polytope-overlay": (1, polytope_overlay),
+    "gas-swirl": (1, gas_swirl),
+    "shell-growth": (1, shell_growth),
 }
 
 
@@ -705,6 +906,7 @@ def render(srcs, effect, params, duration, fps, out, alpha=False):
     _MASK_CACHE.clear()
     _STREAK_CACHE.clear()
     _BG_CACHE.clear()
+    _FLOW_CACHE.clear()
     imgs = [ensure_even(load_image(s)) for s in srcs]
     h, w = imgs[0].shape[:2]
     imgs = [_resize_to(img, h, w) for img in imgs]
