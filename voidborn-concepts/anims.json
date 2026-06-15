@@ -1,0 +1,98 @@
+{
+  "groups": [
+    {
+      "id": "anim_fold",
+      "title": "Animations · 4D fold warp",
+      "subtitle": "geometry tumbling through a 4D rotation (xw/yw/zw planes); figures held solid",
+      "items": [
+        {"file": "anim_fold_phase.mp4", "src": ["h3_phase_fold.png"],
+         "effect": "hyper-warp", "params": {"protect_subject": true, "amp": 0.4, "turns": 1},
+         "duration": 5, "fps": 24, "label": "H3 phase fold — 4D (body solid)", "fav": false},
+        {"file": "anim_fold_v2.mp4", "src": ["h3_v_fold2.png"],
+         "effect": "hyper-warp", "params": {"protect_subject": true, "amp": 0.4, "turns": 1},
+         "duration": 5, "fps": 24, "label": "H3 fold v2 — 4D (body solid)", "fav": false},
+        {"file": "anim_fold_v3.mp4", "src": ["h3_v_fold3.png"],
+         "effect": "hyper-warp", "params": {"protect_subject": true, "amp": 0.4, "turns": 1},
+         "duration": 5, "fps": 24, "label": "H3 fold v3 — 4D (body solid)", "fav": false},
+        {"file": "anim_fold_abstract.mp4", "src": ["abstract_fold_a.png"],
+         "effect": "hyper-warp", "params": {"amp": 0.5, "turns": 1},
+         "duration": 5, "fps": 24, "label": "Abstract fold tunnel — 4D", "fav": false},
+        {"file": "anim_fold_abstract_b.mp4", "src": ["abstract_fold_b.png"],
+         "effect": "hyper-warp", "params": {"amp": 0.5, "turns": 1},
+         "duration": 5, "fps": 24, "label": "Abstract fold b — 4D", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_chroma",
+      "title": "Animations · chromatic split",
+      "subtitle": "reference frames unify then chromatically split + drift",
+      "items": [
+        {"file": "anim_chroma_double2.mp4", "src": ["h3_v_double2.png"],
+         "effect": "chromatic-split", "params": {"max_px": 18, "angle_deg": 20, "drift_px": 6},
+         "duration": 4, "fps": 24, "label": "H3 double — split", "fav": false},
+        {"file": "anim_chroma_amber.mp4", "src": ["fusion_amber_double.png"],
+         "effect": "chromatic-split", "params": {"max_px": 16, "angle_deg": 15, "drift_px": 5},
+         "duration": 4, "fps": 24, "label": "Fusion amber — split", "fav": false},
+        {"file": "anim_chroma_sapphire.mp4", "src": ["fusion_sapphire_double.png"],
+         "effect": "chromatic-split", "params": {"max_px": 16, "angle_deg": 15, "drift_px": 5},
+         "duration": 4, "fps": 24, "label": "Fusion sapphire — split", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_dissolve",
+      "title": "Animations · disintegrate & probability field",
+      "subtitle": "body blown to dust (disintegrate); Stargate star-streak field",
+      "items": [
+        {"file": "anim_dissolve_phase.mp4", "src": ["h3_phase_dissolve.png"],
+         "effect": "disintegrate", "params": {"wind_angle": 0.3, "wind_px": 70, "turbulence": 8, "grain": 3, "seed": 1, "fade_band": 0.25},
+         "duration": 7, "fps": 24, "alpha": true, "label": "H3 phase — disintegrate", "fav": false},
+        {"file": "anim_dissolve_abstract.mp4", "src": ["abstract_phase_c.png"],
+         "effect": "hyperspace-streak", "params": {"streak_len": 40, "n_stars": 700, "speed": 2.0, "intensity": 1.6, "toward": true, "seed": 2},
+         "duration": 6, "fps": 24, "label": "Abstract phase — probability field", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_crossfade",
+      "title": "Animations · crossfade drift",
+      "subtitle": "off-axis parallax crossfade between two keyframes",
+      "items": [
+        {"file": "anim_crossfade_fusion.mp4",
+         "src": ["fusion_amber_fold.png", "fusion_sapphire_fold.png"],
+         "effect": "crossfade-drift", "params": {"drift_px": 10, "angle_deg": 8},
+         "duration": 5, "fps": 24, "label": "Fusion amber ↔ sapphire", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_poly",
+      "title": "Animations · 4D polytopes",
+      "subtitle": "true rotating 4D wireframes (real 4D→3D→2D projection) over the fold concepts",
+      "items": [
+        {"file": "anim_poly_tesseract.mp4", "src": ["abstract_fold_a.png"],
+         "effect": "polytope-overlay", "params": {"shape": "tesseract", "size": 0.75, "turns": 1, "glow": 10, "width": 3, "color": [0.85, 0.92, 1.0]},
+         "duration": 6, "fps": 24, "label": "Tesseract over fold tunnel", "fav": false},
+        {"file": "anim_poly_16cell.mp4", "src": ["abstract_fold_b.png"],
+         "effect": "polytope-overlay", "params": {"shape": "16-cell", "size": 0.75, "turns": 1},
+         "duration": 6, "fps": 24, "label": "16-cell over fold b", "fav": false},
+        {"file": "anim_poly_5cell.mp4", "src": ["abstract_fold_a.png"],
+         "effect": "polytope-overlay", "params": {"shape": "5-cell", "size": 0.8, "turns": 1, "glow": 10, "width": 3, "color": [0.85, 0.92, 1.0]},
+         "duration": 6, "fps": 24, "label": "5-cell over fold tunnel", "fav": false}
+      ]
+    },
+    {
+      "id": "anim_forms",
+      "title": "Animations · Beyond the Human Form",
+      "subtitle": "non-humanoid form concepts animated: growth-wave shell + gaseous vortex",
+      "items": [
+        {"file": "anim_form_projection.mp4", "src": ["form_projection_c.png"],
+         "effect": "shell-growth",
+         "params": {"turns": 1, "coverage": 0.55, "edge_glow": 1.4},
+         "duration": 6, "fps": 24, "label": "Dimensional projection — shell growth", "fav": false},
+        {"file": "anim_form_gas.mp4", "src": ["form_gas_c.png"],
+         "effect": "gas-swirl",
+         "params": {"amp": 16, "vortex": 0.7, "turns": 1, "freq": 3.0, "iters": 3,
+                    "cage": true, "cage_min": 8, "cage_max": 10},
+         "duration": 6, "fps": 24, "label": "Null-matter wisp — vortex + cage", "fav": false}
+      ]
+    }
+  ]
+}
