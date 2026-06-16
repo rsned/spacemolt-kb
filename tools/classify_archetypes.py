@@ -16,17 +16,24 @@ Run from the kb repo root (Ollama must be up on localhost:11434):
 
 import argparse
 import hashlib
+import http.client
 import json
 import os
 import sqlite3
 import sys
+import time
+import urllib.error
 import urllib.request
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = "gemma4:latest"
 CACHE = "overlays/generated/archetypes.json"
 
-# Fixed taxonomy. Keep in sync with archetypeAesthetic in cmd/generate-factions-kb/prompt.go.
+# Set SMKB_NUM_GPU=0 to force CPU inference (used when the GPU runner is broken).
+# Unset -> let Ollama decide (normal GPU path).
+_NUM_GPU = os.environ.get("SMKB_NUM_GPU")
+
+# Fixed taxonomy. Keep in sync with archetypeGarment in cmd/generate-factions-kb/prompt.go.
 ARCHETYPES = [
     "laborer",
     "officer",
@@ -39,6 +46,16 @@ ARCHETYPES = [
     "spiritual",
     "aristocrat",
     "performer",
+    "logistician",
+    "engineer",
+    "scientist",
+    "retailer",
+    "cook",
+    "educator",
+    "sanitation",
+    "jurist",
+    "journalist",
+    "diplomat",
     "spacer",
 ]
 
@@ -46,17 +63,27 @@ PROMPT = """You classify a science-fiction passenger into exactly ONE role arche
 Respond with ONLY the single lowercase archetype keyword and nothing else.
 
 Archetypes:
-- laborer: manual or industrial worker (miner, refinery hand, hydroponic farmer, dock worker, machinist)
+- laborer: heavy manual or industrial worker (miner, refinery hand, hydroponic farmer, foundry or assembly worker)
 - officer: military or security commander; soldier, marine, armored officer, guard, enforcer
-- merchant: trader, broker, financier, dealer, market or sales representative, negotiator
-- official: bureaucrat, inspector, regulator, customs/logistics/administrative agent, clerk, notary, diplomat
-- technician: engineer, mechanic, scientist, tinkerer, restorer, specialist craftsperson
+- merchant: trader, broker, financier, dealer, wholesale or market negotiator
+- official: bureaucrat, inspector, regulator, customs or compliance agent, administrative or records clerk, notary
+- technician: mechanic, repair or maintenance worker, machinist, tinkerer, restorer, hands-on systems operator
 - pilot: ship pilot, navigator, captain, freighter or shuttle operator
 - medic: doctor, physician, nurse, field medic, surgeon
 - outlaw: raider, pirate, smuggler, fugitive, black-market or ransom operator
 - spiritual: mystic, monk, priest, ascetic, void-cultist, prophet
 - aristocrat: owner, magnate, noble, executive, wealthy patron or heir
 - performer: entertainer, stage musician, celebrity, showman, idol
+- logistician: freight, cargo, and shipping coordination; cargo handler, freight or logistics coordinator, supply-chain planner, dispatcher, courier organizer
+- engineer: professional engineer, architect, structural or ship surveyor, design consultant, fabricator, metalsmith
+- scientist: researcher, scientist, scholar, academic, archivist, analyst (astrophysicist, xenobiologist, geologist, historian)
+- retailer: shopkeeper, retail or commissary clerk, vendor, stock and inventory worker, salesfloor staff
+- cook: galley cook, chef, food-service or hospitality worker, caterer, bartender, mess steward
+- educator: teacher, tutor, instructor, professor, lecturer, education coordinator
+- sanitation: sanitation, recycling, or waste-systems worker, janitorial or hygiene crew
+- jurist: lawyer, legal counsel, contract arbitrator, insurance assessor or adjuster, claims agent
+- journalist: correspondent, reporter, journalist, writer, author, press or news worker
+- diplomat: diplomat, envoy, liaison, mediator, ambassador, attache, outreach or community-relations worker
 - spacer: a generic traveler that fits none of the above
 
 Biography:
@@ -66,17 +93,30 @@ Archetype:"""
 
 
 def classify(bio, model):
+    options = {"temperature": 0, "num_predict": 8, "num_ctx": 2048}
+    if _NUM_GPU is not None:
+        options["num_gpu"] = int(_NUM_GPU)
     body = json.dumps(
         {
             "model": model,
             "prompt": PROMPT.format(bio=(bio or "").strip()),
             "stream": False,
-            "options": {"temperature": 0, "num_predict": 8},
+            "keep_alive": "10m",
+            "options": options,
         }
     ).encode()
     req = urllib.request.Request(OLLAMA_URL, data=body, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        out = json.loads(resp.read())["response"]
+    out = ""
+    for attempt in range(5):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                out = json.loads(resp.read())["response"]
+            break
+        except (urllib.error.URLError, http.client.HTTPException, ConnectionError, OSError, TimeoutError) as e:
+            if attempt == 4:
+                raise
+            print(f"  ollama transient error ({e}); retry {attempt + 1}/4 in 5s", file=sys.stderr)
+            time.sleep(5)
     word = out.strip().lower().split()[0].strip(".,:;\"'`*-") if out.strip() else ""
     return word if word in ARCHETYPES else "spacer"
 
@@ -109,6 +149,14 @@ def main():
         with open(CACHE) as f:
             cache = json.load(f)
 
+    os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+
+    def flush():
+        tmp = CACHE + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(cache, f, indent=2, sort_keys=True)
+        os.replace(tmp, CACHE)
+
     counts = {}
     requeried = 0
     for i, (cid, bio) in enumerate(rows, 1):
@@ -120,11 +168,10 @@ def main():
             requeried += 1
         counts[cache[cid]["archetype"]] = counts.get(cache[cid]["archetype"], 0) + 1
         if i % 25 == 0:
+            flush()  # checkpoint so an Ollama crash never loses queried work
             print(f"  {i}/{len(rows)} ({requeried} queried)", file=sys.stderr)
 
-    os.makedirs(os.path.dirname(CACHE), exist_ok=True)
-    with open(CACHE, "w") as f:
-        json.dump(cache, f, indent=2, sort_keys=True)
+    flush()
     print(f"classified {len(rows)} passengers ({requeried} newly queried) -> {CACHE}")
     print("distribution:", dict(sorted(counts.items(), key=lambda kv: -kv[1])))
 

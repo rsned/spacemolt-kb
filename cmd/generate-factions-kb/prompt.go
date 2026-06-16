@@ -78,17 +78,27 @@ var empireStyle = map[string]string{
 // over an empire sensibility it diversifies a faction by occupation. Unknown or
 // empty archetypes fall back to the "spacer" cue.
 var archetypeGarment = map[string]string{
-	"laborer":    "an industrial laborer in a heavy work harness with grimed utility plating and mag-clamp tools",
-	"officer":    "a uniformed officer in a command uniform with rank insignia and a holstered sidearm",
-	"merchant":   "a trader and broker in fine merchant attire holding a glowing credit-slate",
-	"official":   "a government administrator in a formal high-collared uniform with regulatory insignia and a data-slate",
-	"technician": "an engineer in a practical technical jumpsuit with a tool bandolier and diagnostic instruments",
-	"pilot":      "a ship pilot in a flight suit with a flight harness and a nav-visor",
-	"medic":      "a physician in clinical medical attire with diagnostic instruments and a medical insignia",
-	"outlaw":     "a smuggler in scavenged armored layers with a hard scarred look and concealed gear",
-	"spiritual":  "a contemplative ascetic in flowing ceremonial vestments",
-	"aristocrat": "an elegant aristocrat in opulent jeweled finery",
-	"spacer":     "a deck-hand spacer in a worn practical vac-suit and rigging",
+	"laborer":     "an industrial laborer in a heavy work harness with grimed utility plating and mag-clamp tools",
+	"officer":     "a uniformed officer in a command uniform with rank insignia and a holstered sidearm",
+	"merchant":    "a trader and broker in fine merchant attire holding a glowing credit-slate",
+	"official":    "a government administrator in a formal high-collared uniform with regulatory insignia and a data-slate",
+	"technician":  "a mechanic in a practical technical jumpsuit with a tool bandolier and diagnostic instruments",
+	"pilot":       "a ship pilot in a flight suit with a flight harness and a nav-visor",
+	"medic":       "a physician in clinical medical attire with diagnostic instruments and a medical insignia",
+	"outlaw":      "a smuggler in scavenged armored layers with a hard scarred look and concealed gear",
+	"spiritual":   "a contemplative ascetic in flowing ceremonial vestments",
+	"aristocrat":  "an elegant aristocrat in opulent jeweled finery",
+	"logistician": "a freight logistician in a practical shipping-crew jacket with a cargo manifest slate and mag-clamp cargo hooks",
+	"engineer":    "a structural engineer in a professional field-suit with a survey scanner, a draughting slate, and a hard hat",
+	"scientist":   "a research scientist in a field lab coat with sample vials, a data tablet, and analytic instruments",
+	"retailer":    "a shopkeeper in a tidy retail apron and vendor's smock with an inventory scanner and stacked goods crates",
+	"cook":        "a galley cook in a stained chef's apron and whites with cooking utensils and ration tins",
+	"educator":    "an instructor in tidy academic attire with a lesson slate, reference texts, and a pointer",
+	"sanitation":  "a sanitation worker in a sealed hazmat-grade coverall with a recycler wand and waste-system gauges",
+	"jurist":      "a legal arbiter in a formal dark suit with a contract ledger, a seal stamp, and a document case",
+	"journalist":  "a field correspondent in a rugged press jacket with a recorder drone, a notebook, and a press badge",
+	"diplomat":    "a diplomatic envoy in refined formal robes with a credential sash and a sealed accord case",
+	"spacer":      "a deck-hand spacer in a worn practical vac-suit and rigging",
 }
 
 // classFormality scales the styling by travel class. Phrased as a trailing finish
