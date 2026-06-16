@@ -233,6 +233,13 @@ def main():
         if not args.dry_run:
             build_html(stem)
         print(f"  {stem:9}: +{n} new cells -> {manifest_path(stem).name}")
+
+    # Rebuild the combined all-empires + Voidborn contact sheet from the manifests.
+    if not args.dry_run:
+        subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "build_archetype_combined.py")],
+            check=True,
+        )
     print(f"total new cells this run: {rendered[0]}{' (dry-run, not rendered)' if args.dry_run else ''}")
 
 

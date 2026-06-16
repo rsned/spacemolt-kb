@@ -101,6 +101,7 @@ def main() -> None:
     ]
     # matrix exploration pages (rendered separately; link out if present)
     matrix_pages = [
+        ("combined.html", "All empires + Voidborn"),
         ("archetypes.html", "Voidborn archetype×form"),
         ("solarian.html", "Solarian archetype×gender"),
         ("crimson.html", "Crimson archetype×gender"),
