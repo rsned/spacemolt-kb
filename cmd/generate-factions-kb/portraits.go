@@ -30,9 +30,13 @@ func generatePassengerPortraits(passengers []*Passenger, root, cmdLine string, l
 		passengers = passengers[:limit]
 	}
 	archetypes := loadArchetypes(root)
+	empireGuess := loadEmpireGuess(root)
 	for _, p := range passengers {
 		ov := loadPortraitOverride(filepath.Join(root, "passengers", p.ID))
-		prompt := buildPortraitPrompt(p.ID, p.Bio, p.Class, p.Citizenship, archetypes[p.ID], ov)
+		// Passengers imported without a citizenship fall back to a name-inferred
+		// empire for styling only (DB / visible faction stay unknown).
+		cit := effectiveCitizenship(p.Citizenship, p.ID, empireGuess)
+		prompt := buildPortraitPrompt(p.ID, p.Bio, p.Class, cit, archetypes[p.ID], ov)
 		hash := promptHash(prompt)
 		dir := passengerGeneratedDir(root, p.ID)
 		if portraitExists(dir) && cachedHashMatches(dir, hash) {
