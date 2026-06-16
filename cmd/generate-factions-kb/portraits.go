@@ -30,9 +30,9 @@ func generatePassengerPortraits(passengers []*Passenger, root, cmdLine string, l
 		passengers = passengers[:limit]
 	}
 	archetypes := loadArchetypes(root)
-	overrides := loadPortraitOverrides(root)
 	for _, p := range passengers {
-		prompt := buildPortraitPrompt(p.ID, p.Bio, p.Class, p.Citizenship, archetypes[p.ID], overrides[p.ID])
+		ov := loadPortraitOverride(filepath.Join(root, "passengers", p.ID))
+		prompt := buildPortraitPrompt(p.ID, p.Bio, p.Class, p.Citizenship, archetypes[p.ID], ov)
 		hash := promptHash(prompt)
 		dir := passengerGeneratedDir(root, p.ID)
 		if portraitExists(dir) && cachedHashMatches(dir, hash) {

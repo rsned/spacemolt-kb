@@ -31,7 +31,7 @@ func TestGeneratePortraitsSkipsWhenCached(t *testing.T) {
 	}
 	// No archetypes.json in this tempdir, so the generator classifies p1 as the
 	// empty (spacer) archetype — the cached prompt must match that to stay warm.
-	prompt := buildPortraitPrompt("p1", "a fixer", "first", "nebula", "", "")
+	prompt := buildPortraitPrompt("p1", "a fixer", "first", "nebula", "", PortraitOverride{})
 	if err := os.WriteFile(filepath.Join(dir, promptSidecarName), []byte(promptHash(prompt)+"\n"+prompt+"\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}

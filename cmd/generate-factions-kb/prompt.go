@@ -170,29 +170,30 @@ func pickTrait(pool []string, salt, id string) string {
 }
 
 // buildPortraitPrompt composes an image prompt from a passenger's stable id,
-// bio, travel class, citizenship, and bio-derived role archetype. The global cue
-// leads, then an aesthetic chosen from (in priority order) a performer, the
-// pirate citizenship, or a class-scaled empire-sensibility + archetype-garment
-// combination, then id-derived physical traits (skin/age/build), then the full
-// bio. Always returns a non-empty prompt.
-func buildPortraitPrompt(id, bio, class, citizenship, archetype, visualCue string) string {
+// bio, travel class, citizenship, the classifier-derived role archetype, and the
+// hand-authored PortraitOverride (see overrides.go). The global cue leads, then a
+// class-scaled empire-sensibility + archetype-garment aesthetic, then physical
+// traits, then the full bio. Each override field wins over its default: gender
+// over bio inference, appearance/species over id-hashed traits, archetype over
+// the classifier, plus a visual cue and a bio append. Always non-empty.
+func buildPortraitPrompt(id, bio, class, citizenship, archetype string, ov PortraitOverride) string {
 	cls := strings.ToLower(strings.TrimSpace(class))
 	cit := strings.ToLower(strings.TrimSpace(citizenship))
-	arch := strings.ToLower(strings.TrimSpace(archetype))
+	arch := strings.ToLower(strings.TrimSpace(ov.archetypeOr(archetype)))
 	// The FLUX backend encodes the whole prompt through T5, so the full bio
 	// counts (no CLIP 77-token truncation): lead with the style cue, then
 	// physical appearance and the styling aesthetic, then the free-text bio as a
 	// trailing sentence. Order still puts the portrait-defining cue first so the
 	// SDXL fallback (CLIP-only) degrades gracefully.
-	prompt := portraitCue(bioGenderNoun(bio)) + ", " + physicalTraits(id)
-	// A hand-curated visual cue (see portrait_overrides.json) is injected right
-	// after appearance — prominent, ahead of the dampening "realistic/plain"
-	// styling — to force distinctive traits the bio only describes in prose.
-	if vc := strings.TrimSpace(visualCue); vc != "" {
+	prompt := portraitCue(ov.gender(bio)) + ", " + ov.physical(id)
+	// A hand-authored visual cue (override.json) is injected right after
+	// appearance — prominent, ahead of the dampening "realistic/plain" styling —
+	// to force distinctive traits the bio only describes in prose.
+	if vc := strings.TrimSpace(ov.VisualCue); vc != "" {
 		prompt += ", " + vc
 	}
 	prompt += ", " + passengerAesthetic(bio, cls, cit, arch)
-	if subject := strings.TrimSpace(bio); subject != "" {
+	if subject := ov.bioWithAppend(bio); subject != "" {
 		prompt += ". " + subject
 	}
 	return prompt

@@ -113,6 +113,43 @@ against the freshly computed prompt). If both the file and the hash match, the
 existing image is kept. Commit new or updated portraits along with a KB
 regeneration PR.
 
+### `override.json` — per-entity portrait overrides
+
+A hand-authored file that corrects any dimension of a **generated** portrait
+(it does nothing for contributor `image:` overlays, which always win). Unlike the
+machine caches, it lives in the *contributor* overlay directory, so a DB
+re-scrape or a re-run of the archetype classifier can never silently revert your
+fix — every field here wins over the DB-derived or machine-classified value.
+
+```
+overlays/passengers/<citizen_id>/override.json     # for a passenger
+overlays/players/<player_id>/override.json          # for a player / agent
+```
+
+All fields are optional; omit any you don't want to change. An absent file means
+"no overrides".
+
+| Field | Overrides | Notes |
+|---|---|---|
+| `archetype` | the classifier's role | one of: `laborer, officer, merchant, official, technician, pilot, medic, outlaw, spiritual, aristocrat, performer, spacer` |
+| `gender` | the bio-pronoun guess | `man`, `woman`, `person`, or `android` |
+| `appearance` | the auto skin/age/build | free text, e.g. `"deep teal grown chitin, glowing amber seams"` |
+| `species` | (adds an alien-form look) | e.g. `"voidborn"`; ignored if `appearance` is set |
+| `bio_append` | (nothing) | one extra sentence added to the bio for the prompt |
+| `visual_cue` | (nothing) | a concrete visual instruction for traits the bio only implies |
+
+```json
+{
+  "archetype": "medic",
+  "gender": "woman",
+  "visual_cue": "wearing a worn black leather eyepatch over one eye",
+  "bio_append": "keeps a brass locket from a lost ship"
+}
+```
+
+Editing `override.json` changes that entity's prompt, so the next portrait run
+regenerates **only** that one portrait (everyone else stays cached).
+
 ### `SMKB_PORTRAIT_CMD` — portrait generation command
 
 Set this environment variable to the shell command that actually produces the

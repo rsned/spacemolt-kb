@@ -6,7 +6,7 @@ import (
 )
 
 func TestBuildPortraitPrompt(t *testing.T) {
-	p := buildPortraitPrompt("ore-1", "a grizzled ore hauler", "first", "crimson", "laborer", "")
+	p := buildPortraitPrompt("ore-1", "a grizzled ore hauler", "first", "crimson", "laborer", PortraitOverride{})
 	if !strings.Contains(p, "a grizzled ore hauler") {
 		t.Fatal("bio missing from prompt")
 	}
@@ -32,8 +32,8 @@ func TestBuildPortraitPrompt(t *testing.T) {
 func TestArchetypeDiversifiesGarment(t *testing.T) {
 	// Same empire and class, different archetype -> different garment, so a faction
 	// no longer collapses into one uniform.
-	officer := buildPortraitPrompt("c-1", "a stern commander", "business", "crimson", "officer", "")
-	laborer := buildPortraitPrompt("c-2", "a tired hauler", "business", "crimson", "laborer", "")
+	officer := buildPortraitPrompt("c-1", "a stern commander", "business", "crimson", "officer", PortraitOverride{})
+	laborer := buildPortraitPrompt("c-2", "a tired hauler", "business", "crimson", "laborer", PortraitOverride{})
 	if !strings.Contains(officer, "command uniform") {
 		t.Fatal("officer role cue missing")
 	}
@@ -49,14 +49,14 @@ func TestArchetypeDiversifiesGarment(t *testing.T) {
 }
 
 func TestUnknownArchetypeFallsBackToSpacer(t *testing.T) {
-	p := buildPortraitPrompt("z-1", "a clerk", "business", "nebula", "", "")
+	p := buildPortraitPrompt("z-1", "a clerk", "business", "nebula", "", PortraitOverride{})
 	if !strings.Contains(p, archetypeGarment["spacer"]) {
 		t.Fatal("empty archetype should fall back to the spacer garment")
 	}
 }
 
 func TestBuildPortraitPromptEmptyBioIsValid(t *testing.T) {
-	p := buildPortraitPrompt("empty-1", "", "", "", "", "")
+	p := buildPortraitPrompt("empty-1", "", "", "", "", PortraitOverride{})
 	if strings.TrimSpace(p) == "" {
 		t.Fatal("empty bio produced empty prompt")
 	}
@@ -69,7 +69,7 @@ func TestBuildPortraitPromptKeepsFullBio(t *testing.T) {
 	// Bios are no longer truncated (compel handles long prompts), so every word
 	// of even a long bio must survive into the prompt.
 	longBio := strings.Repeat("word ", 100)
-	p := buildPortraitPrompt("long-1", longBio, "business", "nebula", "merchant", "")
+	p := buildPortraitPrompt("long-1", longBio, "business", "nebula", "merchant", PortraitOverride{})
 	if strings.Count(p, "word") < 100 {
 		t.Fatalf("bio was truncated: only %d of 100 words present", strings.Count(p, "word"))
 	}
@@ -80,7 +80,7 @@ func TestBuildPortraitPromptKeepsFullBio(t *testing.T) {
 
 func TestPerformerOverridesEmpire(t *testing.T) {
 	// A glam-rock batch should ignore the nebula corporate theme.
-	p := buildPortraitPrompt("perf-1", "a glam-rock legend in an impossible costume", "first", "nebula", "merchant", "")
+	p := buildPortraitPrompt("perf-1", "a glam-rock legend in an impossible costume", "first", "nebula", "merchant", PortraitOverride{})
 	if !strings.Contains(p, performerAesthetic) {
 		t.Fatal("performer override not applied")
 	}
@@ -91,7 +91,7 @@ func TestPerformerOverridesEmpire(t *testing.T) {
 
 func TestPerformerArchetypeOverridesEmpire(t *testing.T) {
 	// Even without a bio keyword, a performer archetype should override the empire.
-	p := buildPortraitPrompt("perf-2", "a quiet figure who lights up a room", "first", "nebula", "performer", "")
+	p := buildPortraitPrompt("perf-2", "a quiet figure who lights up a room", "first", "nebula", "performer", PortraitOverride{})
 	if !strings.Contains(p, performerAesthetic) {
 		t.Fatal("performer archetype override not applied")
 	}
@@ -101,18 +101,18 @@ func TestPerformerArchetypeOverridesEmpire(t *testing.T) {
 }
 
 func TestPirateCitizenshipAesthetic(t *testing.T) {
-	p := buildPortraitPrompt("pir-1", "a raider in salvaged armor", "business", "pirates", "outlaw", "")
+	p := buildPortraitPrompt("pir-1", "a raider in salvaged armor", "business", "pirates", "outlaw", PortraitOverride{})
 	if !strings.Contains(p, "space pirate") {
 		t.Fatal("pirate aesthetic missing")
 	}
-	first := buildPortraitPrompt("pir-2", "a privateer with letters of marque", "first", "pirates", "outlaw", "")
+	first := buildPortraitPrompt("pir-2", "a privateer with letters of marque", "first", "pirates", "outlaw", PortraitOverride{})
 	if !strings.Contains(first, "flamboyant privateer") {
 		t.Fatal("first-class pirate flair missing")
 	}
 }
 
 func TestUnknownEmpireFallback(t *testing.T) {
-	p := buildPortraitPrompt("wan-1", "a wanderer", "economy", "atlantean", "spacer", "")
+	p := buildPortraitPrompt("wan-1", "a wanderer", "economy", "atlantean", "spacer", PortraitOverride{})
 	if !strings.Contains(p, "practical spacer style") {
 		t.Fatal("unknown empire should fall back to a generic spacer style")
 	}
@@ -139,7 +139,7 @@ func TestPhysicalTraitsDeterministicAndVaried(t *testing.T) {
 }
 
 func TestBuildPortraitPromptIncludesTraits(t *testing.T) {
-	p := buildPortraitPrompt("zed", "a clerk", "business", "nebula", "official", "")
+	p := buildPortraitPrompt("zed", "a clerk", "business", "nebula", "official", PortraitOverride{})
 	if !strings.Contains(p, physicalTraits("zed")) {
 		t.Fatal("prompt missing id-derived physical traits")
 	}
@@ -164,11 +164,11 @@ func TestBioGenderNoun(t *testing.T) {
 }
 
 func TestPromptUsesBioGender(t *testing.T) {
-	woman := buildPortraitPrompt("a", "She is a captain who lost her ship", "first", "crimson", "pilot", "")
+	woman := buildPortraitPrompt("a", "She is a captain who lost her ship", "first", "crimson", "pilot", PortraitOverride{})
 	if !strings.Contains(woman, "single woman,") {
 		t.Fatalf("feminine bio should yield 'single woman' cue: %q", woman)
 	}
-	man := buildPortraitPrompt("b", "He is a captain", "first", "crimson", "pilot", "")
+	man := buildPortraitPrompt("b", "He is a captain", "first", "crimson", "pilot", PortraitOverride{})
 	if !strings.Contains(man, "single man,") {
 		t.Fatalf("masculine bio should yield 'single man' cue: %q", man)
 	}

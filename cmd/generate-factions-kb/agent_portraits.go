@@ -76,24 +76,27 @@ func isSyntheticRole(role string) bool {
 // archetypeGarment, physicalTraits). Synthetics get an android cue and skip the
 // human physical traits; pirates get the pirate aesthetic; everyone else gets an
 // empire sensibility layered with a role-derived garment.
-func buildAgentPortraitPrompt(playerID, bio, empire, role string) string {
-	subject := strings.TrimSpace(bio)
+func buildAgentPortraitPrompt(playerID, bio, empire, role string, ov PortraitOverride) string {
+	subject := ov.bioWithAppend(bio)
 	if subject == "" {
 		subject = "a seasoned spacer"
 	}
-	if isSyntheticRole(role) {
+	// A synthetic (Assist drone) stays an android unless an override re-bodies it
+	// with an explicit appearance or species.
+	if isSyntheticRole(role) && strings.TrimSpace(ov.Appearance) == "" && strings.TrimSpace(ov.Species) == "" {
 		return portraitCue("android") + ", " + syntheticAesthetic + ", " + subject
 	}
 	emp := strings.ToLower(strings.TrimSpace(empire))
 	r := strings.ToLower(strings.TrimSpace(role))
-	return portraitCue(bioGenderNoun(bio)) + ", " + agentAesthetic(bio, emp, r) + ", " +
-		physicalTraits(playerID) + ", " + subject
+	return portraitCue(ov.gender(bio)) + ", " + agentAesthetic(bio, emp, r, ov) + ", " +
+		ov.physical(playerID) + ", " + subject
 }
 
 // agentAesthetic picks the styling phrase for a non-synthetic agent: a performer
 // bio wins, then pirate/swashbuckler roles, then an empire sensibility layered
-// with the role's garment (generic fallbacks for unknown empire/role).
-func agentAesthetic(bio, emp, role string) string {
+// with a garment. An archetype override selects the garment directly; otherwise
+// it derives from the role (generic fallbacks for unknown empire/role).
+func agentAesthetic(bio, emp, role string, ov PortraitOverride) string {
 	if hasPerformerCue(bio) {
 		return performerAesthetic
 	}
@@ -104,11 +107,17 @@ func agentAesthetic(bio, emp, role string) string {
 	if !ok {
 		empire = "practical spacer style"
 	}
-	garment, ok := agentRoleGarment[role]
-	if !ok {
-		garment, ok = archetypeGarment[agentRoleArchetype[role]]
+	var garment string
+	if a := strings.ToLower(strings.TrimSpace(ov.Archetype)); a != "" {
+		garment = archetypeGarment[a]
+	}
+	if garment == "" {
+		garment, ok = agentRoleGarment[role]
 		if !ok {
-			garment = archetypeGarment["spacer"]
+			garment, ok = archetypeGarment[agentRoleArchetype[role]]
+			if !ok {
+				garment = archetypeGarment["spacer"]
+			}
 		}
 	}
 	return empire + ", " + garment
@@ -221,7 +230,8 @@ func generateAgentPortraits(personas []agentPersona, root, cmdLine string, limit
 		personas = personas[:limit]
 	}
 	for _, a := range personas {
-		prompt := buildAgentPortraitPrompt(a.PlayerID, a.Bio, a.Empire, a.Role)
+		ov := loadPortraitOverride(filepath.Join(root, "players", a.PlayerID))
+		prompt := buildAgentPortraitPrompt(a.PlayerID, a.Bio, a.Empire, a.Role, ov)
 		hash := promptHash(prompt)
 		dir := playerGeneratedDir(root, a.PlayerID)
 		if portraitExists(dir) && cachedHashMatches(dir, hash) {
