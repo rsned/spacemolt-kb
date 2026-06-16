@@ -64,7 +64,9 @@ def build(manifest_path: pathlib.Path, out_path: pathlib.Path) -> None:
     """
     data = json.loads(manifest_path.read_text())
     cols = data.get("columns") or data["forms"]   # [{slug,label}, ...]
-    archetypes = data["archetypes"]               # [{key,label}, ...]
+    # Rows are listed in taxonomy order in the manifest but displayed
+    # alphabetically by label so the (now 22-row) galleries are scannable.
+    archetypes = sorted(data["archetypes"], key=lambda a: a["label"].lower())
     cells = data["cells"]                          # {"<arch>__<colslug>": {...}}
     heading = data.get("heading", "Voidborn — archetype × body-form exploration")
     col_label = data.get("col_label", "Voidborn body-form")
