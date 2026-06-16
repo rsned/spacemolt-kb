@@ -87,6 +87,7 @@ type TierStats struct {
 	Category   string // item category (weapon, mining, ...)
 	BaseValue  int    // cost in credits
 	DamageType string // weapon damage type, appended to the damage cell when set
+	SkillReq   string // pre-formatted required skills (e.g. "Stealth 3"), empty if none
 	Stats      map[string]int
 }
 
@@ -109,6 +110,17 @@ type TierFamily struct {
 	DisplayName string // e.g. "Pulse Laser"
 	Category    string // category of the first tier
 	Tiers       []TierStats
+}
+
+// HasSkillReq reports whether any tier in the family has a required-skills
+// entry, so the renderer knows whether to include a "Skill Req" column.
+func (f TierFamily) HasSkillReq() bool {
+	for _, t := range f.Tiers {
+		if t.SkillReq != "" {
+			return true
+		}
+	}
+	return false
 }
 
 // Columns returns the relevant stat columns for this family in canonical order.

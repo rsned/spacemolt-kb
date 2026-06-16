@@ -70,6 +70,24 @@ func TestColumnsRelevanceAndOrder(t *testing.T) {
 	}
 }
 
+func TestHasSkillReq(t *testing.T) {
+	withSkill := []TierStats{
+		{ItemID: "cloaking_device_i", Category: "utility", Stats: map[string]int{"cpu": 5}},
+		{ItemID: "cloaking_device_ii", Category: "utility", SkillReq: "Stealth 3", Stats: map[string]int{"cpu": 8}},
+	}
+	if fam := BuildFamilies(withSkill)[0]; !fam.HasSkillReq() {
+		t.Error("HasSkillReq() = false, want true when a tier has a requirement")
+	}
+
+	noSkill := []TierStats{
+		{ItemID: "armor_plate_i", Category: "defense", Stats: map[string]int{"armor": 10}},
+		{ItemID: "armor_plate_ii", Category: "defense", Stats: map[string]int{"armor": 20}},
+	}
+	if fam := BuildFamilies(noSkill)[0]; fam.HasSkillReq() {
+		t.Error("HasSkillReq() = true, want false when no tier has a requirement")
+	}
+}
+
 func TestDisplayDamageType(t *testing.T) {
 	ts := TierStats{DamageType: "energy", Stats: map[string]int{"damage": 28, "cpu": 5}}
 	if got := ts.Display("damage"); got != "28 energy" {

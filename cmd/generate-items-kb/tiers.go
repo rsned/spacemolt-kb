@@ -21,6 +21,7 @@ func itemToTierStats(it *Item) tierchart.TierStats {
 		Category:   it.Category,
 		BaseValue:  it.BaseValue,
 		DamageType: it.DamageType,
+		SkillReq:   strings.Join(requiredSkillStrings(it.RequiredSkills), ", "),
 		Stats: map[string]int{
 			"mining_power":    it.MiningPower,
 			"survey_power":    it.SurveyPower,
@@ -86,9 +87,19 @@ func writeTierComparisonPage(outDir string, items map[string]*Item) (int, error)
 	return len(families), nil
 }
 
+// skillReqDisplay renders a required-skills cell, using an em-dash for tiers
+// in a family where some other tier has a requirement but this one does not.
+func skillReqDisplay(s string) string {
+	if s == "" {
+		return "—"
+	}
+	return s
+}
+
 // renderFamilyTable builds the card + comparison table for one tier family.
 func renderFamilyTable(fam tierchart.TierFamily) string {
 	cols := fam.Columns()
+	showSkill := fam.HasSkillReq()
 
 	var sb strings.Builder
 	sb.WriteString(`        <div class="card mt-3" style="padding:0">` + "\n")
@@ -99,6 +110,9 @@ func renderFamilyTable(fam tierchart.TierFamily) string {
 	sb.WriteString(`          <thead><tr><th class="sortable">Model</th>`)
 	for _, col := range cols {
 		fmt.Fprintf(&sb, `<th class="sortable" style="text-align:right">%s</th>`, html.EscapeString(tierchart.ColumnLabel(col)))
+	}
+	if showSkill {
+		sb.WriteString(`<th class="sortable">Skill Req</th>`)
 	}
 	sb.WriteString(`<th class="sortable" style="text-align:right">Value</th></tr></thead>` + "\n")
 
@@ -111,6 +125,9 @@ func renderFamilyTable(fam tierchart.TierFamily) string {
 		for _, col := range cols {
 			fmt.Fprintf(&sb, `<td style="text-align:right" data-sort="%d">%s</td>`,
 				tier.Value(col), html.EscapeString(tier.Display(col)))
+		}
+		if showSkill {
+			fmt.Fprintf(&sb, `<td>%s</td>`, html.EscapeString(skillReqDisplay(tier.SkillReq)))
 		}
 		fmt.Fprintf(&sb, `<td class="value" style="text-align:right" data-sort="%d">%s</td>`,
 			tier.BaseValue, fmtValue(tier.BaseValue))
