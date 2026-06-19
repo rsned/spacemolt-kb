@@ -76,7 +76,7 @@ type RecipeSummary struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
 	Category     string        `json:"category"` // Required for linking to recipe pages
-	CraftingTime int           `json:"crafting_time"`
+	CraftingTime float64       `json:"crafting_time"`
 	Inputs       []MaterialRef `json:"inputs"`
 	Outputs      []MaterialRef `json:"outputs"`
 }
@@ -632,7 +632,7 @@ func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string
 
 		// Compare crafting time
 		if fac.Recipe.CraftingTime != recipe.CraftingTime {
-			log.Printf("warning: facility %s recipe %s crafting time mismatch: facility has %d, recipe has %d",
+			log.Printf("warning: facility %s recipe %s crafting time mismatch: facility has %g, recipe has %g",
 				fac.ID, fac.Recipe.ID, fac.Recipe.CraftingTime, recipe.CraftingTime)
 		}
 	}

@@ -138,7 +138,7 @@ type BuiltByFacility struct {
 	RecipeName       string
 	RecipeCategory   string
 	Quantity         int
-	CraftingTime     int
+	CraftingTime     float64
 	RecipeMultiplier float64
 }
 
@@ -157,7 +157,7 @@ type ProducedBy struct {
 	RecipeName     string
 	RecipeCategory string
 	Quantity       int
-	CraftingTime   int
+	CraftingTime   float64
 }
 
 // UsedIn describes a recipe that consumes this item and what it produces.
@@ -185,7 +185,7 @@ type Recipe struct {
 	Name         string
 	Description  string
 	Category     string
-	CraftingTime int
+	CraftingTime float64
 	Hidden       bool
 	FacilityOnly bool
 	NoRecycle    bool
@@ -945,7 +945,8 @@ func loadProducedBy(db *sql.DB, items map[string]*Item) error {
 
 	for rows.Next() {
 		var itemID, recipeID, recipeName, recipeCat string
-		var qty, craftTime int
+		var qty int
+		var craftTime float64
 		if err := rows.Scan(&itemID, &recipeID, &recipeName, &recipeCat, &qty, &craftTime); err != nil {
 			return err
 		}
@@ -2817,7 +2818,7 @@ var htmlItemTemplate = `<!DOCTYPE html>
             <tr>
               <td><a href="../../recipes/{{dirName .RecipeCategory}}/{{.RecipeID}}.html">{{.RecipeName}}</a></td>
               <td>{{.Quantity}}</td>
-              <td>{{.CraftingTime}} ticks</td>
+              <td>{{.CraftingTime}}s</td>
             </tr>
 {{- end}}
             </tbody>
@@ -2944,7 +2945,7 @@ var recipeCatTemplate = `<!DOCTYPE html>
           <td><a href="{{.ID}}.html">{{.Name}}</a>{{if .Hidden}} <span class="badge badge-hidden" title="Hidden">H</span>{{end}}</td>
           <td>{{- range .Outputs}}{{if .ItemCategory}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html" class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</a>{{else}}<span class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</span>{{end}}{{end}}</td>
           <td class="recipe-inputs">{{- range $i, $inp := .Inputs}}{{if $i}}, {{end}}{{if $inp.ItemCategory}}<a href="../../items/{{$inp.ItemCategory}}/{{$inp.ItemID}}.html">{{$inp.ItemName}}</a>{{else}}{{$inp.ItemName}}{{end}}&nbsp;&times;{{$inp.Quantity}}{{end}}</td>
-          <td class="time" data-sort="{{.CraftingTime}}">{{.CraftingTime}} ticks</td>
+          <td class="time" data-sort="{{.CraftingTime}}">{{.CraftingTime}}s</td>
         </tr>
 {{- end}}
         </tbody>
@@ -3006,7 +3007,7 @@ var recipeDetailTemplate = `<!DOCTYPE html>
           <div class="section-label">Details</div>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
-            <tr><td class="kv-label">Crafting Time</td><td>{{.CraftingTime}} ticks</td></tr>
+            <tr><td class="kv-label">Crafting Time</td><td>{{.CraftingTime}}s</td></tr>
 {{- if gt .FuelOutput 0}}
             <tr><td class="kv-label">Fuel Output</td><td>{{.FuelOutput}}</td></tr>
 {{- end}}
