@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — June 19, 2026 vs June 14, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-06-14.html">&larr; 2026-06-14</a></span>
+    <a href="index.html">All Reports</a>
+    <span>&nbsp;</span>
+</div>
+<h2>Game Data Changes &mdash; June 19, 2026 vs June 14, 2026</h2>
+<div class="diff-summary">80 additions, 0 deletions, 530 modifications across 3 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+47</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~528</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+33</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#ships">Ships</a></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+47</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~528</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Assemble Air Recycler <span class="text-muted">(assemble_air_recycler)</span></li><li class="diff-add">+ Assemble Atmospheric Unit <span class="text-muted">(assemble_atmospheric_unit)</span></li><li class="diff-add">+ Assemble Control Node <span class="text-muted">(assemble_control_node)</span></li><li class="diff-add">+ Assemble Coolant Loop <span class="text-muted">(assemble_coolant_loop)</span></li><li class="diff-add">+ Assemble Cryogenic Travel Pod <span class="text-muted">(assemble_cryogenic_travel_pod)</span></li><li class="diff-add">+ Assemble Crystal Sensor Array <span class="text-muted">(assemble_crystal_sensor_array)</span></li><li class="diff-add">+ Assemble Dark Energy Cell <span class="text-muted">(assemble_dark_energy_cell)</span></li><li class="diff-add">+ Assemble Defense Turret <span class="text-muted">(assemble_defense_turret)</span></li><li class="diff-add">+ Assemble Escape Pod <span class="text-muted">(assemble_escape_pod)</span></li><li class="diff-add">+ Assemble Inertial Gyroscope <span class="text-muted">(assemble_inertial_gyroscope)</span></li><li class="diff-add">+ Assemble Medical Bay Module <span class="text-muted">(assemble_medical_bay_module)</span></li><li class="diff-add">+ Assemble NiMH Battery <span class="text-muted">(assemble_nimh_battery)</span></li><li class="diff-add">+ Assemble NiMH Power Cell <span class="text-muted">(assemble_nimh_power_cell)</span></li><li class="diff-add">+ Assemble Quantum Control Core <span class="text-muted">(assemble_quantum_control_core)</span></li><li class="diff-add">+ Assemble Reinforced Frame <span class="text-muted">(assemble_reinforced_frame)</span></li><li class="diff-add">+ Assemble Solar Panel Array <span class="text-muted">(assemble_solar_panel_array)</span></li><li class="diff-add">+ Assemble Structural Frame <span class="text-muted">(assemble_structural_frame)</span></li><li class="diff-add">+ Assemble Threat Analyzer <span class="text-muted">(assemble_threat_analyzer)</span></li><li class="diff-add">+ Build Nanocarbon Hull Lattice <span class="text-muted">(build_nanocarbon_hull_lattice)</span></li><li class="diff-add">+ Carbon-Arc Circuit Etching <span class="text-muted">(carbon_arc_circuit_etching)</span></li><li class="diff-add">+ Cast Titanium Foam <span class="text-muted">(cast_titanium_foam)</span></li><li class="diff-add">+ Catalytic Polymer Synthesis <span class="text-muted">(catalytic_polymer_synthesis)</span></li><li class="diff-add">+ Catalyze Fuel Cells <span class="text-muted">(catalyze_fuel_cells)</span></li><li class="diff-add">+ Charge Plasma Cell <span class="text-muted">(charge_plasma_cell)</span></li><li class="diff-add">+ Draw Copper Piping <span class="text-muted">(draw_copper_piping)</span></li><li class="diff-add">+ Fabricate Chemical Liner <span class="text-muted">(fabricate_chemical_liner)</span></li><li class="diff-add">+ Facet Trade Crystal <span class="text-muted">(facet_trade_crystal)</span></li><li class="diff-add">+ Forge Nickel Steel <span class="text-muted">(forge_nickel_steel)</span></li><li class="diff-add">+ Forge Vanadium Steel <span class="text-muted">(forge_vanadium_steel)</span></li><li class="diff-add">+ Grind Laser Focusing Lens <span class="text-muted">(grind_laser_focusing_lens)</span></li><li class="diff-add">+ Heat Sink Casting <span class="text-muted">(heat_sink_casting)</span></li><li class="diff-add">+ Machine Barrel Assembly <span class="text-muted">(machine_barrel_assembly)</span></li><li class="diff-add">+ Mint Gold Bar <span class="text-muted">(mint_gold_bar)</span></li><li class="diff-add">+ Mint Platinum Bar <span class="text-muted">(mint_platinum_bar)</span></li><li class="diff-add">+ Mint Silver Bar <span class="text-muted">(mint_silver_bar)</span></li><li class="diff-add">+ Palladium Membrane Compression <span class="text-muted">(palladium_membrane_compression)</span></li><li class="diff-add">+ Refine Platinum Catalyst <span class="text-muted">(refine_platinum_catalyst)</span></li><li class="diff-add">+ Roll Lead Shielding <span class="text-muted">(roll_lead_shielding)</span></li><li class="diff-add">+ Roll Memory Metal Sheet <span class="text-muted">(roll_memory_metal_sheet)</span></li><li class="diff-add">+ Sinter Tungsten Steel <span class="text-muted">(sinter_tungsten_steel)</span></li><li class="diff-add">+ Smelt Nickel Billet <span class="text-muted">(smelt_nickel_billet)</span></li><li class="diff-add">+ Spin Metallic Aerogel <span class="text-muted">(spin_metallic_aerogel)</span></li><li class="diff-add">+ Synthesize Argon Power Cell <span class="text-muted">(synthesize_argon_power_cell)</span></li><li class="diff-add">+ Synthesize Coolant Fluid <span class="text-muted">(synthesize_coolant_fluid)</span></li><li class="diff-add">+ Synthesize Neon Power Cell <span class="text-muted">(synthesize_neon_power_cell)</span></li><li class="diff-add">+ Weave Carbon Fiber <span class="text-muted">(weave_carbon_fiber)</span></li><li class="diff-add">+ Weld Secure Vault <span class="text-muted">(weld_secure_vault)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id">alloy_electrum_ingot</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">2.76</span></div>
+<div class="diff-item-id">assemble_advanced_repair_kit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">8.85</span></div>
+<div class="diff-item-id">assemble_antimatter_torpedoes</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">489</span></div>
+<div class="diff-item-id">assemble_antimatter_warhead</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">481.5</span></div>
+<div class="diff-item-id">assemble_armor_buster_missiles</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">14.4</span></div>
+<div class="diff-item-id">assemble_breacher_torpedoes</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">16.05</span></div>
+<div class="diff-item-id">assemble_cluster_missiles</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">85.5</span></div>
+<div class="diff-item-id">assemble_communications_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">assemble_cryogenic_storage</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">assemble_electrochemical_power_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">assemble_emp_mines</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">assemble_emp_missiles</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">85.5</span></div>
+<div class="diff-item-id">assemble_emp_torpedoes</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">99</span></div>
+<div class="diff-item-id">assemble_engine_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">12.9</span></div>
+<div class="diff-item-id">assemble_fragmentation_mines</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">10.2</span></div>
+<div class="diff-item-id">assemble_incendiary_missiles</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">12.6</span></div>
+<div class="diff-item-id">assemble_laser_focus_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">39</span></div>
+<div class="diff-item-id">assemble_nuclear_mines</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">28.8</span></div>
+<div class="diff-item-id">assemble_plasma_mines</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">22.27</span></div>
+<div class="diff-item-id">assemble_plasma_torpedoes</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">29.7</span></div>
+<div class="diff-item-id">assemble_power_battery</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">1.65</span></div>
+<div class="diff-item-id">assemble_power_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id">assemble_quantum_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">67.5</span></div>
+<div class="diff-item-id">assemble_quantum_stabilizer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">19.5</span></div>
+<div class="diff-item-id">assemble_repair_kit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">4.05</span></div>
+<div class="diff-item-id">assemble_siege_torpedoes</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">33</span></div>
+<div class="diff-item-id">assemble_standard_mines</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">10.12</span></div>
+<div class="diff-item-id">assemble_standard_missiles</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">17.25</span></div>
+<div class="diff-item-id">assemble_standard_torpedoes</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">12.38</span></div>
+<div class="diff-item-id">assemble_swarm_missiles</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">14.7</span></div>
+<div class="diff-item-id">assemble_void_mines</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">186</span></div>
+<div class="diff-item-id">assemble_warhead_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">10.5</span></div>
+<div class="diff-item-id">attune_phase_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">basic_copper_processing</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.32</span></div>
+<div class="diff-item-id">basic_iron_smelting</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.27</span></div>
+<div class="diff-item-id">basic_silicon_refinement</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.4</span></div>
+<div class="diff-item-id">bottle_nebula_stellar_vintage</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">2.25</span></div>
+<div class="diff-item-id">breed_plutonium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">12.75</span></div>
+<div class="diff-item-id">brew_crimson_bloodwine</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.2</span></div>
+<div class="diff-item-id">brew_frontier_spore_spirits</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.2</span></div>
+<div class="diff-item-id">build_adaptive_shield_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">315</span></div>
+<div class="diff-item-id">build_adaptive_shield_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">660</span></div>
+<div class="diff-item-id">build_adaptive_shield_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">795</span></div>
+<div class="diff-item-id">build_advanced_drone_bay</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">63</span></div>
+<div class="diff-item-id">build_advanced_tow_rig</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">build_afterburner_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">16.5</span></div>
+<div class="diff-item-id">build_afterburner_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">34.5</span></div>
+<div class="diff-item-id">build_afterburner_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">37.5</span></div>
+<div class="diff-item-id">build_ammo_fabricator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">build_anchor_beacon</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">42</span></div>
+<div class="diff-item-id">build_anomaly_detector</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">141</span></div>
+<div class="diff-item-id">build_anomaly_detector_module</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">300</span></div>
+<div class="diff-item-id">build_argon_condenser</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">build_armor_plate_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7.35</span></div>
+<div class="diff-item-id">build_armor_plate_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">18</span></div>
+<div class="diff-item-id">build_armor_plate_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">25.5</span></div>
+<div class="diff-item-id">build_armor_repairer_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">55.5</span></div>
+<div class="diff-item-id">build_armor_repairer_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">112.5</span></div>
+<div class="diff-item-id">build_armor_repairer_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">38</span> &rarr; <span class="diff-add">105</span></div>
+<div class="diff-item-id">build_atmospheric_processor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">32</span> &rarr; <span class="diff-add">105</span></div>
+<div class="diff-item-id">build_autocannon_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">10.65</span></div>
+<div class="diff-item-id">build_autocannon_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">build_autopilot_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">123</span></div>
+<div class="diff-item-id">build_basic_autopilot</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">30</span></div>
+<div class="diff-item-id">build_basic_tow_rig</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">5.7</span></div>
+<div class="diff-item-id">build_blood_reaver</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">130.5</span></div>
+<div class="diff-item-id">build_business_passenger_cabin</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">330</span></div>
+<div class="diff-item-id">build_capital_armor_plate</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">180</span></div>
+<div class="diff-item-id">build_capital_ship_frame</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">112.5</span></div>
+<div class="diff-item-id">build_cargo_bay_expansion</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">build_cargo_container</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">2.4</span></div>
+<div class="diff-item-id">build_cargo_expander_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">2.4</span></div>
+<div class="diff-item-id">build_cargo_expander_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">build_cargo_expander_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">26</span> &rarr; <span class="diff-add">30</span></div>
+<div class="diff-item-id">build_cargo_superstructure</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">13.8</span></div>
+<div class="diff-item-id">build_chaff_pod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">1.35</span></div>
+<div class="diff-item-id">build_cloak_charge</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">255</span></div>
+<div class="diff-item-id">build_cloaking_device_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">72</span></div>
+<div class="diff-item-id">build_cloaking_device_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">555</span></div>
+<div class="diff-item-id">build_combat_drone</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">28.5</span></div>
+<div class="diff-item-id">build_combat_scanner_probe</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">16.2</span></div>
+<div class="diff-item-id">build_cpu_co_processor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id">build_crimson_berserker_plating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">240</span></div>
+<div class="diff-item-id">build_crimson_ordnance_bay</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">43.5</span></div>
+<div class="diff-item-id">build_damage_control_system</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">84</span></div>
+<div class="diff-item-id">build_dark_matter_projector</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">780</span></div>
+<div class="diff-item-id">build_dark_matter_thruster</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">67.5</span></div>
+<div class="diff-item-id">build_darksteel_armor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">120</span></div>
+<div class="diff-item-id">build_deep_space_probe</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">33</span></div>
+<div class="diff-item-id">build_defense_platform</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">48</span></div>
+<div class="diff-item-id">build_docking_ring</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">52.5</span></div>
+<div class="diff-item-id">build_drone_ai_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">52.5</span></div>
+<div class="diff-item-id">build_drone_bay</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">30</span></div>
+<div class="diff-item-id">build_drone_bay_module</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">45</span></div>
+<div class="diff-item-id">build_drone_chassis</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">8.85</span></div>
+<div class="diff-item-id">build_drone_command_module</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">82.5</span></div>
+<div class="diff-item-id">build_drone_comms_module</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7.5</span></div>
+<div class="diff-item-id">build_drone_mining_laser</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">build_drone_repair_arm</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">build_drone_sensor_suite</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">10.5</span></div>
+<div class="diff-item-id">build_drone_weapon_mount</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id">build_ecm_burst_device</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">12.75</span></div>
+<div class="diff-item-id">build_ecm_jammer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">2.55</span></div>
+<div class="diff-item-id">build_economy_passenger_cabin</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id">build_electromagnetic_refinery</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id">build_em_disruptor_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">58.5</span></div>
+<div class="diff-item-id">build_em_hull_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">24</span></div>
+<div class="diff-item-id">build_em_shield_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">64.5</span></div>
+<div class="diff-item-id">build_em_smartbomb</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">96</span></div>
+<div class="diff-item-id">build_emergency_warp_device</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">270</span></div>
+<div class="diff-item-id">build_emergency_warp_stabilizer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">285</span></div>
+<div class="diff-item-id">build_emp_cannon_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">45</span></div>
+<div class="diff-item-id">build_emp_missile_launcher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">84</span></div>
+<div class="diff-item-id">build_emp_pulse_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">57</span></div>
+<div class="diff-item-id">build_emp_pulse_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">102</span></div>
+<div class="diff-item-id">build_emp_pulse_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">615</span></div>
+<div class="diff-item-id">build_environmental_control_unit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">4.2</span></div>
+<div class="diff-item-id">build_expanded_fuel_tank</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">14.25</span></div>
+<div class="diff-item-id">build_explosive_hull_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">9.6</span></div>
+<div class="diff-item-id">build_explosive_shield_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">55.5</span></div>
+<div class="diff-item-id">build_explosive_smartbomb</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">63</span></div>
+<div class="diff-item-id">build_first_class_passenger_suite</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">1125</span></div>
+<div class="diff-item-id">build_flak_cannon_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">63</span></div>
+<div class="diff-item-id">build_flak_cannon_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">79.5</span></div>
+<div class="diff-item-id">build_flak_cannon_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">390</span></div>
+<div class="diff-item-id">build_flare_pod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">11.1</span></div>
+<div class="diff-item-id">build_flotation_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">24</span></div>
+<div class="diff-item-id">build_focused_beam_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">130.5</span></div>
+<div class="diff-item-id">build_focused_beam_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">255</span></div>
+<div class="diff-item-id">build_focused_beam_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">405</span></div>
+<div class="diff-item-id">build_frontier_survival_kit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">69</span></div>
+<div class="diff-item-id">build_fuel_optimizer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">build_fuel_tank</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">3.9</span></div>
+<div class="diff-item-id">build_fury_cannon</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">555</span></div>
+<div class="diff-item-id">build_gas_harvester_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">18</span></div>
+<div class="diff-item-id">build_gas_harvester_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">37.5</span></div>
+<div class="diff-item-id">build_gas_harvester_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">build_gas_harvester_iv</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">360</span></div>
+<div class="diff-item-id">build_gravity_generator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">120</span> &rarr; <span class="diff-add">60</span></div>
+<div class="diff-item-id">build_habitation_module</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">28.5</span></div>
+<div class="diff-item-id">build_hangar_bay_module</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">150</span></div>
+<div class="diff-item-id">build_heavy_mass_driver</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">72</span> &rarr; <span class="diff-add">375</span></div>
+<div class="diff-item-id">build_heavy_pulse_laser</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">405</span></div>
+<div class="diff-item-id">build_heavy_torpedo_launcher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">60</span></div>
+<div class="diff-item-id">build_hull_integrity_field</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">82.5</span></div>
+<div class="diff-item-id">build_hull_reinforcement_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">13.2</span></div>
+<div class="diff-item-id">build_hull_reinforcement_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">16.5</span></div>
+<div class="diff-item-id">build_hull_reinforcement_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">31.5</span></div>
+<div class="diff-item-id">build_hydrogen_combustor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">build_hyper_mining_laser_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">495</span></div>
+<div class="diff-item-id">build_ice_harvester_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">build_ice_harvester_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">135</span></div>
+<div class="diff-item-id">build_ice_harvester_iv</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">420</span></div>
+<div class="diff-item-id">build_ion_beam_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">165</span></div>
+<div class="diff-item-id">build_ion_blaster_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">58.5</span></div>
+<div class="diff-item-id">build_ion_blaster_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">108</span></div>
+<div class="diff-item-id">build_ion_blaster_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">165</span></div>
+<div class="diff-item-id">build_ion_cannon_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">39</span></div>
+<div class="diff-item-id">build_ion_cannon_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">81</span></div>
+<div class="diff-item-id">build_ion_emitter</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">build_ion_emitter_gas_method</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">build_ion_thruster</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">21.3</span></div>
+<div class="diff-item-id">build_isotope_separator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">97.5</span></div>
+<div class="diff-item-id">build_judgment_beam</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">600</span></div>
+<div class="diff-item-id">build_jump_calculator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">124.5</span></div>
+<div class="diff-item-id">build_jump_drive_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">990</span></div>
+<div class="diff-item-id">build_jury_rigged_cannon</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">37.5</span></div>
+<div class="diff-item-id">build_kinetic_hull_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">11.1</span></div>
+<div class="diff-item-id">build_kinetic_shield_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">57</span></div>
+<div class="diff-item-id">build_kinetic_smartbomb</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">57</span></div>
+<div class="diff-item-id">build_lead_lined_cargo_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">12.75</span></div>
+<div class="diff-item-id">build_lead_lined_cargo_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">39</span></div>
+<div class="diff-item-id">build_life_support_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">18</span></div>
+<div class="diff-item-id">build_life_support_unit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">13.2</span></div>
+<div class="diff-item-id">build_light_drone_bay</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">build_magnetic_ore_separator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">build_mass_driver</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">180</span></div>
+<div class="diff-item-id">build_micro_thruster</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id">build_mine_launcher_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">build_mine_launcher_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">60</span></div>
+<div class="diff-item-id">build_mining_drone</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">55.5</span></div>
+<div class="diff-item-id">build_mining_laser_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">24</span></div>
+<div class="diff-item-id">build_mining_laser_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">37.5</span></div>
+<div class="diff-item-id">build_mining_laser_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">118.5</span></div>
+<div class="diff-item-id">build_mining_laser_iv</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">375</span></div>
+<div class="diff-item-id">build_mining_laser_v</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">825</span></div>
+<div class="diff-item-id">build_mining_survey_probe</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">10.8</span></div>
+<div class="diff-item-id">build_missile_launcher_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">build_missile_launcher_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">97.5</span></div>
+<div class="diff-item-id">build_nanite_hull_coating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">300</span></div>
+<div class="diff-item-id">build_navigation_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">135</span></div>
+<div class="diff-item-id">build_navigation_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">93</span></div>
+<div class="diff-item-id">build_nebula_cargo_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">build_nebula_prism_computer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">180</span></div>
+<div class="diff-item-id">build_neon_signaling_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">5.25</span></div>
+<div class="diff-item-id">build_neon_vent</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">build_neural_disruptor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">150</span></div>
+<div class="diff-item-id">build_nitrogen_vent</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">13</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">build_nuclear_reactor_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">195</span></div>
+<div class="diff-item-id">build_nuclear_reactor_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">735</span></div>
+<div class="diff-item-id">build_null_cannon</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">690</span></div>
+<div class="diff-item-id">build_outer_rim_scrap_armor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">49.5</span></div>
+<div class="diff-item-id">build_overcharge_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">105</span></div>
+<div class="diff-item-id">build_pathfinder_drive</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">120</span> &rarr; <span class="diff-add">1800</span></div>
+<div class="diff-item-id">build_phase_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">build_phase_cloaking_device</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">405</span></div>
+<div class="diff-item-id">build_phase_disruptor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">315</span></div>
+<div class="diff-item-id">build_phase_drive</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">945</span></div>
+<div class="diff-item-id">build_piercing_railgun_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">build_piercing_railgun_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">225</span></div>
+<div class="diff-item-id">build_pirate_radio_scanner</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">7.05</span></div>
+<div class="diff-item-id">build_plasma_afterburner</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">24</span> &rarr; <span class="diff-add">63</span></div>
+<div class="diff-item-id">build_plasma_cannon_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">33</span></div>
+<div class="diff-item-id">build_plasma_cannon_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">57</span></div>
+<div class="diff-item-id">build_plasma_cannon_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">121.5</span></div>
+<div class="diff-item-id">build_plasma_cannon_iv</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">142.5</span></div>
+<div class="diff-item-id">build_plasma_injector</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">19.5</span></div>
+<div class="diff-item-id">build_plasma_repeater_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">36</span></div>
+<div class="diff-item-id">build_plasma_repeater_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">73.5</span></div>
+<div class="diff-item-id">build_plasma_torpedo_launcher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">112.5</span></div>
+<div class="diff-item-id">build_power_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">build_power_distribution_grid</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">28.5</span></div>
+<div class="diff-item-id">build_precision_optics</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">34.2</span></div>
+<div class="diff-item-id">build_processing_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">build_proximity_mine_launcher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">52.5</span></div>
+<div class="diff-item-id">build_pulse_laser_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">37.5</span></div>
+<div class="diff-item-id">build_pulse_laser_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">103.5</span></div>
+<div class="diff-item-id">build_pulse_laser_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">195</span></div>
+<div class="diff-item-id">build_quantum_entanglement_shield</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">150</span> &rarr; <span class="diff-add">1245</span></div>
+<div class="diff-item-id">build_quantum_entangler</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">450</span></div>
+<div class="diff-item-id">build_quantum_shield_iv</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">315</span></div>
+<div class="diff-item-id">build_rad_harvester_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">14.85</span></div>
+<div class="diff-item-id">build_rad_harvester_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">34.5</span></div>
+<div class="diff-item-id">build_rad_harvester_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">61.5</span></div>
+<div class="diff-item-id">build_rad_harvester_iv</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">38</span> &rarr; <span class="diff-add">102</span></div>
+<div class="diff-item-id">build_railgun_capacitor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">51</span></div>
+<div class="diff-item-id">build_railgun_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">build_railgun_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">142.5</span></div>
+<div class="diff-item-id">build_reactive_armor_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">129</span></div>
+<div class="diff-item-id">build_refueling_pump</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">16.5</span></div>
+<div class="diff-item-id">build_regenerative_armor_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">64.5</span></div>
+<div class="diff-item-id">build_regenerative_armor_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">150</span></div>
+<div class="diff-item-id">build_repair_arm</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">build_repair_drone</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">115.5</span></div>
+<div class="diff-item-id">build_salvage_drone</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">63</span></div>
+<div class="diff-item-id">build_scan_probe</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7.5</span></div>
+<div class="diff-item-id">build_scout_drone</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">33</span></div>
+<div class="diff-item-id">build_scrapgun</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">16.5</span></div>
+<div class="diff-item-id">build_sensor_booster</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">4.18</span></div>
+<div class="diff-item-id">build_sensor_cluster</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">58.5</span></div>
+<div class="diff-item-id">build_sensor_jammer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">20.7</span></div>
+<div class="diff-item-id">build_sensor_package</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">30</span></div>
+<div class="diff-item-id">build_shield_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">109.5</span></div>
+<div class="diff-item-id">build_shield_booster_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">25.5</span></div>
+<div class="diff-item-id">build_shield_booster_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">108</span></div>
+<div class="diff-item-id">build_shield_booster_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">195</span></div>
+<div class="diff-item-id">build_shield_booster_iv</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">270</span></div>
+<div class="diff-item-id">build_shield_emitter</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">46.5</span></div>
+<div class="diff-item-id">build_shield_generator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">120</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id">build_shield_overcharge_unit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">30</span></div>
+<div class="diff-item-id">build_shield_recharger_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">19.5</span></div>
+<div class="diff-item-id">build_shield_recharger_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">112.5</span></div>
+<div class="diff-item-id">build_ship_scanner_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">42</span></div>
+<div class="diff-item-id">build_ship_scanner_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">build_ship_scanner_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">60</span></div>
+<div class="diff-item-id">build_siege_railgun</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">450</span></div>
+<div class="diff-item-id">build_silver_power_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">build_singularity_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">120</span> &rarr; <span class="diff-add">750</span></div>
+<div class="diff-item-id">build_solar_collector_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">60</span></div>
+<div class="diff-item-id">build_solar_lance</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">405</span></div>
+<div class="diff-item-id">build_solarian_aegis</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">345</span></div>
+<div class="diff-item-id">build_solarian_logic_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">51</span></div>
+<div class="diff-item-id">build_station_reactor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">555</span></div>
+<div class="diff-item-id">build_station_reactor_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">120</span></div>
+<div class="diff-item-id">build_strip_miner_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">120</span></div>
+<div class="diff-item-id">build_strip_miner_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">270</span></div>
+<div class="diff-item-id">build_survey_scanner_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">66</span></div>
+<div class="diff-item-id">build_survey_scanner_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">210</span></div>
+<div class="diff-item-id">build_swarm_controller</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">180</span></div>
+<div class="diff-item-id">build_system_disabler</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">132</span></div>
+<div class="diff-item-id">build_target_painter_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">45</span></div>
+<div class="diff-item-id">build_target_painter_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">105</span></div>
+<div class="diff-item-id">build_targeting_computer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">57</span></div>
+<div class="diff-item-id">build_temporal_stabilizer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">600</span></div>
+<div class="diff-item-id">build_thermal_hull_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">8.7</span></div>
+<div class="diff-item-id">build_thermal_shield_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">54</span></div>
+<div class="diff-item-id">build_thermal_smartbomb</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">72</span></div>
+<div class="diff-item-id">build_thermal_sublimator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">24</span></div>
+<div class="diff-item-id">build_thruster_assembly</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">49.5</span></div>
+<div class="diff-item-id">build_tracking_computer_i</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">82.5</span></div>
+<div class="diff-item-id">build_tracking_computer_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">22</span> &rarr; <span class="diff-add">150</span></div>
+<div class="diff-item-id">build_tracking_computer_iii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">97.5</span></div>
+<div class="diff-item-id">build_tracking_mine_launcher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">120</span></div>
+<div class="diff-item-id">build_tracking_system</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">55.5</span></div>
+<div class="diff-item-id">build_universal_nav_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">33</span></div>
+<div class="diff-item-id">build_void_cannon</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">375</span></div>
+<div class="diff-item-id">build_void_capacitor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">139.5</span></div>
+<div class="diff-item-id">build_void_hull_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">73.5</span></div>
+<div class="diff-item-id">build_void_lance_ii</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">600</span></div>
+<div class="diff-item-id">build_void_laser</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">120</span> &rarr; <span class="diff-add">2145</span></div>
+<div class="diff-item-id">build_void_mine_launcher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">840</span></div>
+<div class="diff-item-id">build_void_shield_hardener</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">28</span> &rarr; <span class="diff-add">123</span></div>
+<div class="diff-item-id">build_void_torpedo_launcher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">70</span> &rarr; <span class="diff-add">1620</span></div>
+<div class="diff-item-id">build_voidborn_null_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">93</span></div>
+<div class="diff-item-id">build_voidborn_phase_armor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">390</span></div>
+<div class="diff-item-id">build_voidborn_phase_drive</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id">build_water_recycler</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id">build_weapon_battery</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">70.5</span></div>
+<div class="diff-item-id">build_weapon_core</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6.3</span></div>
+<div class="diff-item-id">build_weapon_overload_capacitor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">27.3</span></div>
+<div class="diff-item-id">build_wiring_harness</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">11.25</span></div>
+<div class="diff-item-id">chlorine_circuit_etching</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id">compress_hydrogen_gas</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">1.12</span></div>
+<div class="diff-item-id">compress_synthetic_diamond</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">1.95</span></div>
+<div class="diff-item-id">concentrate_ion_gas</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">12.9</span></div>
+<div class="diff-item-id">concentrate_thorium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">11.1</span></div>
+<div class="diff-item-id">concentrate_uranium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">13.8</span></div>
+<div class="diff-item-id">condense_dark_matter</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">condense_plasma_residue</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">condense_void_essence</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">24</span></div>
+<div class="diff-item-id">construct_electrum_shield_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">4.2</span></div>
+<div class="diff-item-id">construct_sensor_array</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">11.4</span></div>
+<div class="diff-item-id">construct_shield_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">4.2</span></div>
+<div class="diff-item-id">convert_to_uf6</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">28.5</span></div>
+<div class="diff-item-id">cook_gutter_flux</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">14.4</span></div>
+<div class="diff-item-id">crack_hot_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">craft_deep_core_survey_scanner</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">225</span></div>
+<div class="diff-item-id">craft_fuel_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">0.65</span></div>
+<div class="diff-item-id">craft_military_fuel_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">5.85</span></div>
+<div class="diff-item-id">craft_premium_fuel_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">1.8</span></div>
+<div class="diff-item-id">create_ceramite_plating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">4.5</span></div>
+<div class="diff-item-id">create_shield_charge</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">19.2</span></div>
+<div class="diff-item-id">create_silver_superconductor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">8.4</span></div>
+<div class="diff-item-id">create_superconductor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">8.4</span></div>
+<div class="diff-item-id">crystallize_exotic_matter</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">79.5</span></div>
+<div class="diff-item-id">crystallize_void_essence</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">72</span></div>
+<div class="diff-item-id">cultivate_bioluminescent_algae</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">2.02</span></div>
+<div class="diff-item-id">culture_bioluminescent_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">3.6</span></div>
+<div class="diff-item-id">culture_fermentation_vat</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.35</span></div>
+<div class="diff-item-id">culture_repair_nanites</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">48</span></div>
+<div class="diff-item-id">distill_frontier_rotgut</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.2</span></div>
+<div class="diff-item-id">distill_krypton</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">4.8</span></div>
+<div class="diff-item-id">distill_moonshine</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">distill_nebula_gases</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">10.2</span></div>
+<div class="diff-item-id">drain_fuel_reserves</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.29</span></div>
+<div class="diff-item-id">draw_diamond_optical_fiber</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">11.1</span></div>
+<div class="diff-item-id">draw_gold_wire</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">2.85</span></div>
+<div class="diff-item-id">draw_silver_wire</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.8</span></div>
+<div class="diff-item-id">draw_tungsten_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">1.95</span></div>
+<div class="diff-item-id">electrolyze_water</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">0.78</span></div>
+<div class="diff-item-id">encode_trade_cipher</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">enrich_uranium_high</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">180</span></div>
+<div class="diff-item-id">enrich_uranium_low</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">58.5</span></div>
+<div class="diff-item-id">exfoliate_graphene</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">0.51</span></div>
+<div class="diff-item-id">extract_bioactive_compounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">4.5</span></div>
+<div class="diff-item-id">extract_fuel_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0.6</span></div>
+<div class="diff-item-id">extract_military_fuel_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id">extract_neural_compounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">19.5</span></div>
+<div class="diff-item-id">extract_premium_fuel_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">1.5</span></div>
+<div class="diff-item-id">extract_xenon</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">3.78</span></div>
+<div class="diff-item-id">extrude_nanoplastic</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">1.89</span></div>
+<div class="diff-item-id">fabricate_circuit_boards</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id">fabricate_enriched_uranium_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">117</span></div>
+<div class="diff-item-id">fabricate_fusion_fuel_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">37.5</span></div>
+<div class="diff-item-id">fabricate_hazmat_container</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">6.45</span></div>
+<div class="diff-item-id">fabricate_jump_coil</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">240</span></div>
+<div class="diff-item-id">fabricate_missile_guidance_unit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">18</span></div>
+<div class="diff-item-id">fabricate_missile_warhead</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">4.5</span></div>
+<div class="diff-item-id">fabricate_nuclear_power_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">101.25</span></div>
+<div class="diff-item-id">fabricate_ore_hopper</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">5.25</span></div>
+<div class="diff-item-id">fabricate_overclock_chip</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">10.35</span></div>
+<div class="diff-item-id">fabricate_quantum_processor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">180</span> &rarr; <span class="diff-add">120</span></div>
+<div class="diff-item-id">fabricate_rad_hardened_circuits</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">22.95</span></div>
+<div class="diff-item-id">fabricate_reactor_fuel_assembly</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">139.5</span></div>
+<div class="diff-item-id">fabricate_silver_circuit_boards</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id">fabricate_thorium_fuel_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">fabricate_weapon_housing</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">3.15</span></div>
+<div class="diff-item-id">ferment_organic_compounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">2.34</span></div>
+<div class="diff-item-id">field_hull_patch</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">1.95</span></div>
+<div class="diff-item-id">fire_thermal_ceramic</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">0.81</span></div>
+<div class="diff-item-id">fluorine_nano_etch_circuits</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id">focus_energy_crystal</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">24</span></div>
+<div class="diff-item-id">forge_adamantite</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">forge_armor_plate</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">forge_crimson_siege_plating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">33</span></div>
+<div class="diff-item-id">forge_darksteel_plating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">10.65</span></div>
+<div class="diff-item-id">forge_durasteel</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">2.46</span></div>
+<div class="diff-item-id">forge_fury_tempered_plating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">16.5</span></div>
+<div class="diff-item-id">forge_ghost_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">forge_hull_plating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6.15</span></div>
+<div class="diff-item-id">forge_reinforced_bulkhead</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">27</span></div>
+<div class="diff-item-id">forge_scrap_armor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">forge_solarian_composite</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">14.25</span></div>
+<div class="diff-item-id">forge_titanium_alloy</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">1.5</span></div>
+<div class="diff-item-id">forge_trade_cipher_pirate</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">forge_weapon_housings</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">9.45</span></div>
+<div class="diff-item-id">fuse_diamond_glass</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">0.9</span></div>
+<div class="diff-item-id">fuse_galactic_standard_alloy</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">31.5</span></div>
+<div class="diff-item-id">fuse_reinforced_glass</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.9</span></div>
+<div class="diff-item-id">generate_antimatter</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">405</span></div>
+<div class="diff-item-id">grind_precision_optic</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id">grow_crystalline_lattice</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">grow_diamond_lattice</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">75</span></div>
+<div class="diff-item-id">grow_nebula_sensor_crystal</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">22.8</span></div>
+<div class="diff-item-id">grow_neural_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id">grow_quantum_dot_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">infuse_starshine</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">ionize_neon_gas</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.53</span></div>
+<div class="diff-item-id">lightweight_titanium_alloy</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">1.5</span></div>
+<div class="diff-item-id">liquefy_oxygen</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.54</span></div>
+<div class="diff-item-id">load_red_mist</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id">manufacture_antimatter_core_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">480</span></div>
+<div class="diff-item-id">manufacture_ap_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">1.08</span></div>
+<div class="diff-item-id">manufacture_cascade_em_charges</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">20.1</span></div>
+<div class="diff-item-id">manufacture_corrosive_plasma_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">11.25</span></div>
+<div class="diff-item-id">manufacture_cryo_slugs</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">2.7</span></div>
+<div class="diff-item-id">manufacture_dispersal_plasma_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">10.2</span></div>
+<div class="diff-item-id">manufacture_du_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">139.5</span></div>
+<div class="diff-item-id">manufacture_em_charges</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">16.88</span></div>
+<div class="diff-item-id">manufacture_emp_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">manufacture_emp_slugs</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">81</span></div>
+<div class="diff-item-id">manufacture_entropic_void_cores</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">310.5</span></div>
+<div class="diff-item-id">manufacture_ferrous_slugs</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">1.12</span></div>
+<div class="diff-item-id">manufacture_focused_em_charges</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">26.4</span></div>
+<div class="diff-item-id">manufacture_focused_plasma_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">33.9</span></div>
+<div class="diff-item-id">manufacture_frag_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">2.1</span></div>
+<div class="diff-item-id">manufacture_fuel_h2o2</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id">manufacture_fuel_plasma</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id">manufacture_incendiary_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">15.9</span></div>
+<div class="diff-item-id">manufacture_ion_charges</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">58.5</span></div>
+<div class="diff-item-id">manufacture_neural_em_charges</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">54</span></div>
+<div class="diff-item-id">manufacture_neutronium_slugs</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">44.55</span></div>
+<div class="diff-item-id">manufacture_null_void_cores</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">540</span></div>
+<div class="diff-item-id">manufacture_overcharged_plasma_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">43.42</span></div>
+<div class="diff-item-id">manufacture_phased_void_cores</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">297</span></div>
+<div class="diff-item-id">manufacture_plasma_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">18.38</span></div>
+<div class="diff-item-id">manufacture_shaped_charge_slugs</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6.9</span></div>
+<div class="diff-item-id">manufacture_standard_rounds</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.45</span></div>
+<div class="diff-item-id">manufacture_tungsten_slugs</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">2.4</span></div>
+<div class="diff-item-id">manufacture_void_cores</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">204</span></div>
+<div class="diff-item-id">mold_pressure_seal</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.65</span></div>
+<div class="diff-item-id">package_crimson_iron_rations</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.75</span></div>
+<div class="diff-item-id">plasma_flux_titanium_alloy</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">1.5</span></div>
+<div class="diff-item-id">polish_nebula_prism_lens</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">66</span></div>
+<div class="diff-item-id">prepare_gourmet_rations</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.2</span></div>
+<div class="diff-item-id">process_copper_wiring</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">0.63</span></div>
+<div class="diff-item-id">process_deuterium_ice</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">11.1</span></div>
+<div class="diff-item-id">process_helium_ice</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">5.4</span></div>
+<div class="diff-item-id">process_nitrogen_ice</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.32</span></div>
+<div class="diff-item-id">process_null_matter</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">13.65</span></div>
+<div class="diff-item-id">process_radium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">13.65</span></div>
+<div class="diff-item-id">process_thorium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">process_tritium_ice</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">15.3</span></div>
+<div class="diff-item-id">process_water_ice</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.08</span></div>
+<div class="diff-item-id">produce_solarian_biotic</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.35</span></div>
+<div class="diff-item-id">purify_argon</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">1.08</span></div>
+<div class="diff-item-id">rebuild_power_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">reclaim_circuit_boards</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id">reclaim_steel_from_scrap</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">0.27</span></div>
+<div class="diff-item-id">recover_heat_sinks</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">4.95</span></div>
+<div class="diff-item-id">refine_solarian_legacy_ore</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">21</span></div>
+<div class="diff-item-id">refine_steel</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">0.54</span></div>
+<div class="diff-item-id">refine_titanium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">2.1</span></div>
+<div class="diff-item-id">refine_void_dust</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6.75</span></div>
+<div class="diff-item-id">refine_weapons_grade_plutonium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id">reforge_hull_plating</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6.15</span></div>
+<div class="diff-item-id">reprogrammed_repair_nanites</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">roll_lead_sheet</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">0.84</span></div>
+<div class="diff-item-id">run_pharmaceutical_lab</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">2.7</span></div>
+<div class="diff-item-id">salvagers_repair_kit</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">8.1</span></div>
+<div class="diff-item-id">scavenge_fuel_cells</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">2.58</span></div>
+<div class="diff-item-id">seal_dark_matter_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">sinter_silicate_composite</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">1.35</span></div>
+<div class="diff-item-id">smelt_aluminum_sheet</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">0.6</span></div>
+<div class="diff-item-id">smelt_lead_ingot</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">0.45</span></div>
+<div class="diff-item-id">spin_optical_fiber</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">11.1</span></div>
+<div class="diff-item-id">stabilize_chlorine_gas</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">3.55</span></div>
+<div class="diff-item-id">stabilize_exotic_matter</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">102</span></div>
+<div class="diff-item-id">stabilize_plasma_gas</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">strip_wiring_from_components</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">3.75</span></div>
+<div class="diff-item-id">synthesize_afterburner_fuel</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">7.5</span></div>
+<div class="diff-item-id">synthesize_berserker_compound</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">23.1</span></div>
+<div class="diff-item-id">synthesize_bio_polymer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">0.81</span></div>
+<div class="diff-item-id">synthesize_cloaking_dust</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">3.38</span></div>
+<div class="diff-item-id">synthesize_endurance_booster</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">8.4</span></div>
+<div class="diff-item-id">synthesize_energy_crystal</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">5.25</span></div>
+<div class="diff-item-id">synthesize_fluorine_etchant</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">6.6</span></div>
+<div class="diff-item-id">synthesize_focus_enhancer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6.3</span></div>
+<div class="diff-item-id">synthesize_liquid_tritium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">18</span> &rarr; <span class="diff-add">15.3</span></div>
+<div class="diff-item-id">synthesize_metamaterial</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">240</span></div>
+<div class="diff-item-id">synthesize_nerve_burn</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7.5</span></div>
+<div class="diff-item-id">synthesize_neural_extract_biological</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">19.5</span></div>
+<div class="diff-item-id">synthesize_neural_gel</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">22.5</span></div>
+<div class="diff-item-id">synthesize_neutronium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">37.5</span></div>
+<div class="diff-item-id">synthesize_pan_galactic_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">39</span></div>
+<div class="diff-item-id">synthesize_polymer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">1.21</span></div>
+<div class="diff-item-id">synthesize_reflex_enhancer</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">24.3</span></div>
+<div class="diff-item-id">synthesize_regeneration_serum</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">28.2</span></div>
+<div class="diff-item-id">synthesize_repair_nanites</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id">synthesize_stim_pack</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">3.51</span></div>
+<div class="diff-item-id">synthesize_void_nanites</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id">synthesize_voidborn_neural_soma</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4.5</span></div>
+<div class="diff-item-id">synthesize_xenon_power_cell</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">13.5</span></div>
+<div class="diff-item-id">temper_crimson_fury_alloy</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">16.5</span></div>
+<div class="diff-item-id">unwrap_enriched_uranium_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">234</span></div>
+<div class="diff-item-id">unwrap_highly_enriched_uranium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">180</span></div>
+<div class="diff-item-id">unwrap_liquid_tritium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">22.95</span></div>
+<div class="diff-item-id">unwrap_low_enriched_uranium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">117</span></div>
+<div class="diff-item-id">unwrap_processed_thorium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">33.75</span></div>
+<div class="diff-item-id">unwrap_reactor_fuel_assembly</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">139.5</span></div>
+<div class="diff-item-id">unwrap_reactor_grade_plutonium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">12.75</span></div>
+<div class="diff-item-id">unwrap_thorium_fuel_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">45</span></div>
+<div class="diff-item-id">unwrap_uranium_hexafluoride</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">85.5</span></div>
+<div class="diff-item-id">unwrap_weapons_grade_plutonium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id">upgrade_deep_core_extractor</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">825</span></div>
+<div class="diff-item-id">weave_biofiber</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">8.1</span></div>
+<div class="diff-item-id">weave_void_shield_matrix</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">54</span></div>
+<div class="diff-item-id">wire_trade_authenticator</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id">wrap_enriched_uranium_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">240</span></div>
+<div class="diff-item-id">wrap_highly_enriched_uranium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">195</span></div>
+<div class="diff-item-id">wrap_liquid_tritium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">30</span></div>
+<div class="diff-item-id">wrap_low_enriched_uranium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">124.5</span></div>
+<div class="diff-item-id">wrap_processed_thorium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">40.5</span></div>
+<div class="diff-item-id">wrap_reactor_fuel_assembly</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">148.5</span></div>
+<div class="diff-item-id">wrap_reactor_grade_plutonium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">14.25</span></div>
+<div class="diff-item-id">wrap_thorium_fuel_rod</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">52.5</span></div>
+<div class="diff-item-id">wrap_uranium_hexafluoride</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">91.5</span></div>
+<div class="diff-item-id">wrap_weapons_grade_plutonium</div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">10.5</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+33</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Air Recycler <span class="text-muted">(air_recycler)</span></li><li class="diff-add">+ Atmospheric Unit <span class="text-muted">(atmospheric_unit)</span></li><li class="diff-add">+ Barrel Assembly <span class="text-muted">(barrel_assembly)</span></li><li class="diff-add">+ Carbon Fiber Weave <span class="text-muted">(carbon_fiber_weave)</span></li><li class="diff-add">+ Chemical Liner <span class="text-muted">(chemical_liner)</span></li><li class="diff-add">+ Control Node <span class="text-muted">(control_node)</span></li><li class="diff-add">+ Coolant Fluid <span class="text-muted">(coolant_fluid)</span></li><li class="diff-add">+ Coolant Loop <span class="text-muted">(coolant_loop)</span></li><li class="diff-add">+ Copper Piping <span class="text-muted">(copper_piping)</span></li><li class="diff-add">+ Cryogenic Travel Pod <span class="text-muted">(cryogenic_travel_pod)</span></li><li class="diff-add">+ Dark Energy Cell <span class="text-muted">(dark_energy_cell)</span></li><li class="diff-add">+ Defense Turret <span class="text-muted">(defense_turret)</span></li><li class="diff-add">+ Escape Pod <span class="text-muted">(escape_pod)</span></li><li class="diff-add">+ Gold Bar <span class="text-muted">(gold_bar)</span></li><li class="diff-add">+ Inertial Gyroscope <span class="text-muted">(inertial_gyroscope)</span></li><li class="diff-add">+ Laser Focusing Lens <span class="text-muted">(laser_focusing_lens)</span></li><li class="diff-add">+ Lead Shielding <span class="text-muted">(lead_shielding)</span></li><li class="diff-add">+ Medical Bay Module <span class="text-muted">(medical_bay_module)</span></li><li class="diff-add">+ Memory Metal Sheet <span class="text-muted">(memory_metal_sheet)</span></li><li class="diff-add">+ Metallic Aerogel <span class="text-muted">(metallic_aerogel)</span></li><li class="diff-add">+ Nanocarbon Hull Lattice <span class="text-muted">(nanocarbon_hull_lattice)</span></li><li class="diff-add">+ Nickel Billet <span class="text-muted">(nickel_billet)</span></li><li class="diff-add">+ Plasma Cell <span class="text-muted">(plasma_cell)</span></li><li class="diff-add">+ Platinum Bar <span class="text-muted">(platinum_bar)</span></li><li class="diff-add">+ Platinum Catalyst <span class="text-muted">(platinum_catalyst)</span></li><li class="diff-add">+ Quantum Control Core <span class="text-muted">(quantum_control_core)</span></li><li class="diff-add">+ Reinforced Frame <span class="text-muted">(reinforced_frame)</span></li><li class="diff-add">+ Secure Vault <span class="text-muted">(secure_vault)</span></li><li class="diff-add">+ Silver Bar <span class="text-muted">(silver_bar)</span></li><li class="diff-add">+ Solar Panel Array <span class="text-muted">(solar_panel_array)</span></li><li class="diff-add">+ Structural Frame <span class="text-muted">(structural_frame)</span></li><li class="diff-add">+ Threat Analyzer <span class="text-muted">(threat_analyzer)</span></li><li class="diff-add">+ Titanium Foam <span class="text-muted">(titanium_foam)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id">altais</div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id">void_gate</div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>
