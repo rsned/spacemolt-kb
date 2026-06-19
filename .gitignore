@@ -59,3 +59,24 @@ __pycache__/
 
 # superpowers skill framework working state (not KB content)
 .superpowers/
+
+# Overlay-sourced images under kb/ are copies of the single committed source in
+# overlays/ (generated portraits + contributor overlay images). Don't commit the
+# duplicates: the generator writes them locally for preview, and the deploy
+# injects them from overlays/ via scripts/inject-overlay-images.sh before
+# publishing. Item/ship/system/planet images live elsewhere and stay tracked.
+kb/passengers/**/*.png
+kb/passengers/**/*.jpg
+kb/passengers/**/*.jpeg
+kb/passengers/**/*.webp
+kb/passengers/**/*.gif
+kb/players/**/*.png
+kb/players/**/*.jpg
+kb/players/**/*.jpeg
+kb/players/**/*.webp
+kb/players/**/*.gif
+kb/factions/**/*.png
+kb/factions/**/*.jpg
+kb/factions/**/*.jpeg
+kb/factions/**/*.webp
+kb/factions/**/*.gif
