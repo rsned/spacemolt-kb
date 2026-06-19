@@ -164,6 +164,11 @@ func main() {
 		diffs = append(diffs, *result)
 	}
 
+	// Resolve KB page links for every entry (best-effort; entries whose page
+	// no longer exists, e.g. deletions, are left unlinked). The generated KB
+	// sections live alongside the diffs output directory.
+	resolveLinks(diffs, filepath.Dir(*outputDir))
+
 	// 4. Build the day report.
 	if err := os.MkdirAll(*outputDir, 0o755); err != nil {
 		log.Fatalf("create output dir: %v", err)
@@ -253,6 +258,59 @@ func main() {
 	} else {
 		log.Printf("Symlinks updated: latest -> %s", today)
 	}
+}
+
+// resolveLinks fills in the URL field of every addition, deletion, and change
+// by locating the corresponding generated KB page under kbRoot.
+func resolveLinks(diffs []gamediff.CatalogDiff, kbRoot string) {
+	for i := range diffs {
+		for j := range diffs[i].Additions {
+			diffs[i].Additions[j].URL = kbPageURL(kbRoot, diffs[i].Name, diffs[i].Additions[j].ID)
+		}
+		for j := range diffs[i].Deletions {
+			diffs[i].Deletions[j].URL = kbPageURL(kbRoot, diffs[i].Name, diffs[i].Deletions[j].ID)
+		}
+		for j := range diffs[i].Changes {
+			diffs[i].Changes[j].URL = kbPageURL(kbRoot, diffs[i].Name, diffs[i].Changes[j].ID)
+		}
+	}
+}
+
+// kbPageURL returns a link (relative to the diffs directory) to the KB page for
+// the given catalog item, or "" if no such page exists on disk. IDs are unique
+// within a section, so a glob across category subdirectories is unambiguous.
+func kbPageURL(kbRoot, catalogName, id string) string {
+	var candidates []string
+	switch catalogName {
+	case "Recipes":
+		candidates, _ = filepath.Glob(filepath.Join(kbRoot, "recipes", "*", id+".html"))
+	case "Items":
+		candidates, _ = filepath.Glob(filepath.Join(kbRoot, "items", "*", id+".html"))
+	case "Ships":
+		candidates, _ = filepath.Glob(filepath.Join(kbRoot, "ships", "*", id+".html"))
+	case "Skills":
+		if p := filepath.Join(kbRoot, "skills", id+".html"); fileExists(p) {
+			candidates = []string{p}
+		}
+	case "Map":
+		if p := filepath.Join(kbRoot, "systems", id, "index.html"); fileExists(p) {
+			candidates = []string{p}
+		}
+	}
+	if len(candidates) == 0 {
+		return ""
+	}
+	rel, err := filepath.Rel(kbRoot, candidates[0])
+	if err != nil {
+		return ""
+	}
+	// The diffs directory is a child of kbRoot, so links step up one level.
+	return "../" + filepath.ToSlash(rel)
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 // scanReportDates returns all YYYY-MM-DD dates that have report HTML files.
