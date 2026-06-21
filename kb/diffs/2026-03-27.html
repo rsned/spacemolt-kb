@@ -21,6 +21,8 @@
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -60,6 +62,7 @@
 <li><a href="#items">Items</a> <span class="diff-add">+20</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
 <li><a href="#ships">Ships</a></li>
 <li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a></li>
 <li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~5</span></li>
 </ul>
 
@@ -77,7 +80,7 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Build Argon Condenser <span class="text-muted">(build_argon_condenser)</span></li><li class="diff-add">+ Build Armor Repairer III <span class="text-muted">(build_armor_repairer_iii)</span></li><li class="diff-add">+ Build Atmospheric Processor <span class="text-muted">(build_atmospheric_processor)</span></li><li class="diff-add">+ Build CPU Co-Processor <span class="text-muted">(build_cpu_co_processor)</span></li><li class="diff-add">+ Build Cargo Expander II <span class="text-muted">(build_cargo_expander_ii)</span></li><li class="diff-add">+ Build Cargo Expander III <span class="text-muted">(build_cargo_expander_iii)</span></li><li class="diff-add">+ Build Electromagnetic Refinery <span class="text-muted">(build_electromagnetic_refinery)</span></li><li class="diff-add">+ Build Flotation Cell <span class="text-muted">(build_flotation_cell)</span></li><li class="diff-add">+ Build Fuel Optimizer <span class="text-muted">(build_fuel_optimizer)</span></li><li class="diff-add">+ Build Heavy Mass Driver <span class="text-muted">(build_heavy_mass_driver)</span></li><li class="diff-add">+ Build Hydrogen Combustor <span class="text-muted">(build_hydrogen_combustor)</span></li><li class="diff-add">+ Build Isotope Separator <span class="text-muted">(build_isotope_separator)</span></li><li class="diff-add">+ Build Magnetic Ore Separator <span class="text-muted">(build_magnetic_ore_separator)</span></li><li class="diff-add">+ Build Neon Vent <span class="text-muted">(build_neon_vent)</span></li><li class="diff-add">+ Build Nitrogen Vent <span class="text-muted">(build_nitrogen_vent)</span></li><li class="diff-add">+ Build Power Reactor Upgrade <span class="text-muted">(build_power_reactor_upgrade)</span></li><li class="diff-add">+ Build Regenerative Armor II <span class="text-muted">(build_regenerative_armor_ii)</span></li><li class="diff-add">+ Build Salvage Module <span class="text-muted">(build_salvage_module)</span></li><li class="diff-add">+ Build Ship Scanner II <span class="text-muted">(build_ship_scanner_ii)</span></li><li class="diff-add">+ Build Ship Scanner III <span class="text-muted">(build_ship_scanner_iii)</span></li><li class="diff-add">+ Build Strip Miner I <span class="text-muted">(build_strip_miner_i)</span></li><li class="diff-add">+ Build Strip Miner II <span class="text-muted">(build_strip_miner_ii)</span></li><li class="diff-add">+ Build Thermal Sublimator <span class="text-muted">(build_thermal_sublimator)</span></li><li class="diff-add">+ Build Tracking Computer III <span class="text-muted">(build_tracking_computer_iii)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../recipes/Modules/build_argon_condenser.html">Build Argon Condenser</a> <span class="text-muted">(build_argon_condenser)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_armor_repairer_iii.html">Build Armor Repairer III</a> <span class="text-muted">(build_armor_repairer_iii)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_atmospheric_processor.html">Build Atmospheric Processor</a> <span class="text-muted">(build_atmospheric_processor)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_cpu_co_processor.html">Build CPU Co-Processor</a> <span class="text-muted">(build_cpu_co_processor)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_cargo_expander_ii.html">Build Cargo Expander II</a> <span class="text-muted">(build_cargo_expander_ii)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_cargo_expander_iii.html">Build Cargo Expander III</a> <span class="text-muted">(build_cargo_expander_iii)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_electromagnetic_refinery.html">Build Electromagnetic Refinery</a> <span class="text-muted">(build_electromagnetic_refinery)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_flotation_cell.html">Build Flotation Cell</a> <span class="text-muted">(build_flotation_cell)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_fuel_optimizer.html">Build Fuel Optimizer</a> <span class="text-muted">(build_fuel_optimizer)</span></li><li class="diff-add">+ <a href="../recipes/Weapons/build_heavy_mass_driver.html">Build Heavy Mass Driver</a> <span class="text-muted">(build_heavy_mass_driver)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_hydrogen_combustor.html">Build Hydrogen Combustor</a> <span class="text-muted">(build_hydrogen_combustor)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_isotope_separator.html">Build Isotope Separator</a> <span class="text-muted">(build_isotope_separator)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_magnetic_ore_separator.html">Build Magnetic Ore Separator</a> <span class="text-muted">(build_magnetic_ore_separator)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_neon_vent.html">Build Neon Vent</a> <span class="text-muted">(build_neon_vent)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_nitrogen_vent.html">Build Nitrogen Vent</a> <span class="text-muted">(build_nitrogen_vent)</span></li><li class="diff-add">+ Build Power Reactor Upgrade <span class="text-muted">(build_power_reactor_upgrade)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_regenerative_armor_ii.html">Build Regenerative Armor II</a> <span class="text-muted">(build_regenerative_armor_ii)</span></li><li class="diff-add">+ Build Salvage Module <span class="text-muted">(build_salvage_module)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_ship_scanner_ii.html">Build Ship Scanner II</a> <span class="text-muted">(build_ship_scanner_ii)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_ship_scanner_iii.html">Build Ship Scanner III</a> <span class="text-muted">(build_ship_scanner_iii)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_strip_miner_i.html">Build Strip Miner I</a> <span class="text-muted">(build_strip_miner_i)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_strip_miner_ii.html">Build Strip Miner II</a> <span class="text-muted">(build_strip_miner_ii)</span></li><li class="diff-add">+ <a href="../recipes/Modules/build_thermal_sublimator.html">Build Thermal Sublimator</a> <span class="text-muted">(build_thermal_sublimator)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_tracking_computer_iii.html">Build Tracking Computer III</a> <span class="text-muted">(build_tracking_computer_iii)</span></li></ul>
 
 
 
@@ -98,7 +101,7 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Argon Condenser <span class="text-muted">(argon_condenser)</span></li><li class="diff-add">+ Armor Repairer III <span class="text-muted">(armor_repairer_iii)</span></li><li class="diff-add">+ Atmospheric Processor <span class="text-muted">(atmospheric_processor)</span></li><li class="diff-add">+ Cargo Expander II <span class="text-muted">(cargo_expander_ii)</span></li><li class="diff-add">+ Cargo Expander III <span class="text-muted">(cargo_expander_iii)</span></li><li class="diff-add">+ Electromagnetic Refinery <span class="text-muted">(electromagnetic_refinery)</span></li><li class="diff-add">+ Flotation Cell <span class="text-muted">(flotation_cell)</span></li><li class="diff-add">+ Heavy Mass Driver <span class="text-muted">(heavy_mass_driver)</span></li><li class="diff-add">+ Hydrogen Combustor <span class="text-muted">(hydrogen_combustor)</span></li><li class="diff-add">+ Isotope Separator <span class="text-muted">(isotope_separator)</span></li><li class="diff-add">+ Magnetic Ore Separator <span class="text-muted">(magnetic_ore_separator)</span></li><li class="diff-add">+ Neon Vent <span class="text-muted">(neon_vent)</span></li><li class="diff-add">+ Nitrogen Vent <span class="text-muted">(nitrogen_vent)</span></li><li class="diff-add">+ Regenerative Armor II <span class="text-muted">(regenerative_armor_ii)</span></li><li class="diff-add">+ Ship Scanner II <span class="text-muted">(ship_scanner_ii)</span></li><li class="diff-add">+ Ship Scanner III <span class="text-muted">(ship_scanner_iii)</span></li><li class="diff-add">+ Strip Miner I <span class="text-muted">(strip_miner_i)</span></li><li class="diff-add">+ Strip Miner II <span class="text-muted">(strip_miner_ii)</span></li><li class="diff-add">+ Thermal Sublimator <span class="text-muted">(thermal_sublimator)</span></li><li class="diff-add">+ Tracking Computer III <span class="text-muted">(tracking_computer_iii)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../items/utility/argon_condenser.html">Argon Condenser</a> <span class="text-muted">(argon_condenser)</span></li><li class="diff-add">+ <a href="../items/defense/armor_repairer_iii.html">Armor Repairer III</a> <span class="text-muted">(armor_repairer_iii)</span></li><li class="diff-add">+ <a href="../items/utility/atmospheric_processor.html">Atmospheric Processor</a> <span class="text-muted">(atmospheric_processor)</span></li><li class="diff-add">+ <a href="../items/utility/cargo_expander_ii.html">Cargo Expander II</a> <span class="text-muted">(cargo_expander_ii)</span></li><li class="diff-add">+ <a href="../items/utility/cargo_expander_iii.html">Cargo Expander III</a> <span class="text-muted">(cargo_expander_iii)</span></li><li class="diff-add">+ <a href="../items/utility/electromagnetic_refinery.html">Electromagnetic Refinery</a> <span class="text-muted">(electromagnetic_refinery)</span></li><li class="diff-add">+ <a href="../items/utility/flotation_cell.html">Flotation Cell</a> <span class="text-muted">(flotation_cell)</span></li><li class="diff-add">+ <a href="../items/weapon/heavy_mass_driver.html">Heavy Mass Driver</a> <span class="text-muted">(heavy_mass_driver)</span></li><li class="diff-add">+ <a href="../items/utility/hydrogen_combustor.html">Hydrogen Combustor</a> <span class="text-muted">(hydrogen_combustor)</span></li><li class="diff-add">+ <a href="../items/utility/isotope_separator.html">Isotope Separator</a> <span class="text-muted">(isotope_separator)</span></li><li class="diff-add">+ <a href="../items/utility/magnetic_ore_separator.html">Magnetic Ore Separator</a> <span class="text-muted">(magnetic_ore_separator)</span></li><li class="diff-add">+ <a href="../items/utility/neon_vent.html">Neon Vent</a> <span class="text-muted">(neon_vent)</span></li><li class="diff-add">+ <a href="../items/utility/nitrogen_vent.html">Nitrogen Vent</a> <span class="text-muted">(nitrogen_vent)</span></li><li class="diff-add">+ <a href="../items/defense/regenerative_armor_ii.html">Regenerative Armor II</a> <span class="text-muted">(regenerative_armor_ii)</span></li><li class="diff-add">+ <a href="../items/utility/ship_scanner_ii.html">Ship Scanner II</a> <span class="text-muted">(ship_scanner_ii)</span></li><li class="diff-add">+ <a href="../items/utility/ship_scanner_iii.html">Ship Scanner III</a> <span class="text-muted">(ship_scanner_iii)</span></li><li class="diff-add">+ <a href="../items/mining/strip_miner_i.html">Strip Miner I</a> <span class="text-muted">(strip_miner_i)</span></li><li class="diff-add">+ <a href="../items/mining/strip_miner_ii.html">Strip Miner II</a> <span class="text-muted">(strip_miner_ii)</span></li><li class="diff-add">+ <a href="../items/utility/thermal_sublimator.html">Thermal Sublimator</a> <span class="text-muted">(thermal_sublimator)</span></li><li class="diff-add">+ <a href="../items/utility/tracking_computer_iii.html">Tracking Computer III</a> <span class="text-muted">(tracking_computer_iii)</span></li></ul>
 
 
 
@@ -135,6 +138,21 @@
 </div>
 </div>
 
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
 <div class="catalog-section" id="map">
 <div class="catalog-header">
     <h3>Map</h3>
@@ -151,15 +169,15 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">albireo</div>
+<div class="diff-item-id"><a href="../systems/albireo/index.html">albireo</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">8</span></div>
-<div class="diff-item-id">distant_light</div>
+<div class="diff-item-id"><a href="../systems/distant_light/index.html">distant_light</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
-<div class="diff-item-id">frontier</div>
+<div class="diff-item-id"><a href="../systems/frontier/index.html">frontier</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">6</span></div>
-<div class="diff-item-id">haven</div>
+<div class="diff-item-id"><a href="../systems/haven/index.html">haven</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7</span></div>
-<div class="diff-item-id">zibal</div>
+<div class="diff-item-id"><a href="../systems/zibal/index.html">zibal</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
 
 

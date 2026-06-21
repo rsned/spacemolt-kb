@@ -21,6 +21,8 @@
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -53,13 +55,14 @@
     <span><a href="2026-03-20.html">2026-03-20 &rarr;</a></span>
 </div>
 <h2>Game Data Changes &mdash; March 19, 2026 vs March 15, 2026</h2>
-<div class="diff-summary">8 additions, 0 deletions, 9 modifications across 4 catalogs.
+<div class="diff-summary">25 additions, 0 deletions, 9 modifications across 5 catalogs.
 </div>
 <ul class="diff-toc">
 <li><a href="#recipes">Recipes</a> <span class="diff-add">+2</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
 <li><a href="#items">Items</a> <span class="diff-add">+2</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~1</span></li>
 <li><a href="#ships">Ships</a> <span class="diff-add">+4</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
 <li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+17</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
 <li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~8</span></li>
 </ul>
 
@@ -77,7 +80,7 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Build Emergency Warp Stabilizer <span class="text-muted">(build_emergency_warp_stabilizer)</span></li><li class="diff-add">+ Build Repair Arm <span class="text-muted">(build_repair_arm)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../recipes/Defense/build_emergency_warp_stabilizer.html">Build Emergency Warp Stabilizer</a> <span class="text-muted">(build_emergency_warp_stabilizer)</span></li><li class="diff-add">+ <a href="../recipes/Utility/build_repair_arm.html">Build Repair Arm</a> <span class="text-muted">(build_repair_arm)</span></li></ul>
 
 
 
@@ -98,10 +101,10 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Emergency Warp Stabilizer <span class="text-muted">(emergency_warp_stabilizer)</span></li><li class="diff-add">+ Repair Arm <span class="text-muted">(repair_arm)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../items/defense/emergency_warp_stabilizer.html">Emergency Warp Stabilizer</a> <span class="text-muted">(emergency_warp_stabilizer)</span></li><li class="diff-add">+ <a href="../items/utility/repair_arm.html">Repair Arm</a> <span class="text-muted">(repair_arm)</span></li></ul>
 
 <h4>Modified</h4>
-<div class="diff-item-id">emergency_warp_device</div>
+<div class="diff-item-id"><a href="../items/consumable/emergency_warp_device.html">emergency_warp_device</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Single-use short-range warp for escaping combat.&#34;</span> &rarr; <span class="diff-add">&#34;Jury-rigged jump coil packed into a disposable casing. Rips a one-way hole to a random nearby system — no targeting, no guarantees. You&#39;ll arrive alive and somewhere else, which is usually enough. Usable in combat.&#34;</span></div>
 
 
@@ -122,7 +125,7 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Last Warning <span class="text-muted">(last_warning)</span></li><li class="diff-add">+ Mandate <span class="text-muted">(mandate)</span></li><li class="diff-add">+ Overhead <span class="text-muted">(overhead)</span></li><li class="diff-add">+ Vigil <span class="text-muted">(vigil)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../ships/Combat%20Support/last_warning.html">Last Warning</a> <span class="text-muted">(last_warning)</span></li><li class="diff-add">+ <a href="../ships/Combat%20Support/mandate.html">Mandate</a> <span class="text-muted">(mandate)</span></li><li class="diff-add">+ <a href="../ships/Combat%20Support/overhead.html">Overhead</a> <span class="text-muted">(overhead)</span></li><li class="diff-add">+ <a href="../ships/Combat%20Support/vigil.html">Vigil</a> <span class="text-muted">(vigil)</span></li></ul>
 
 
 
@@ -144,6 +147,27 @@
 </div>
 </div>
 
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+17</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../facilities/infrastructure/collective_compliance_annex.html">Collective Compliance Annex</a> <span class="text-muted">(collective_compliance_annex)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/collective_observation_node.html">Collective Observation Node</a> <span class="text-muted">(collective_observation_node)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/collective_panopticon.html">Collective Panopticon</a> <span class="text-muted">(collective_panopticon)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/confederacy_enforcement_command.html">Confederacy Enforcement Command</a> <span class="text-muted">(confederacy_enforcement_command)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/confederacy_patrol_office.html">Confederacy Patrol Office</a> <span class="text-muted">(confederacy_patrol_office)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/confederacy_precinct_station.html">Confederacy Precinct Station</a> <span class="text-muted">(confederacy_precinct_station)</span></li><li class="diff-add">+ <a href="../facilities/faction/faction_workshop.html">Faction Workshop</a> <span class="text-muted">(faction_workshop)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/federation_enforcement_bureau.html">Federation Enforcement Bureau</a> <span class="text-muted">(federation_enforcement_bureau)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/federation_seizure_processing_center.html">Federation Seizure Processing Center</a> <span class="text-muted">(federation_seizure_processing_center)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/federation_trade_authority.html">Federation Trade Authority</a> <span class="text-muted">(federation_trade_authority)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/federation_trade_patrol_desk.html">Federation Trade Patrol Desk</a> <span class="text-muted">(federation_trade_patrol_desk)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/pact_garrison_block.html">Pact Garrison Block</a> <span class="text-muted">(pact_garrison_block)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/pact_security_post.html">Pact Security Post</a> <span class="text-muted">(pact_security_post)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/pact_war_precinct.html">Pact War Precinct</a> <span class="text-muted">(pact_war_precinct)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/rim_marshals_office.html">Rim Marshal&#39;s Office</a> <span class="text-muted">(rim_marshals_office)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/rim_ranger_shack.html">Rim Ranger Shack</a> <span class="text-muted">(rim_ranger_shack)</span></li><li class="diff-add">+ <a href="../facilities/infrastructure/rim_ranger_station.html">Rim Ranger Station</a> <span class="text-muted">(rim_ranger_station)</span></li></ul>
+
+
+
+</div>
+</div>
+
 <div class="catalog-section" id="map">
 <div class="catalog-header">
     <h3>Map</h3>
@@ -160,21 +184,21 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">alcor</div>
+<div class="diff-item-id"><a href="../systems/alcor/index.html">alcor</a></div>
 <div class="diff-field"><span class="diff-field-name">connections:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">embervale</td><td class="diff-unchanged">embervale</td></tr><tr><td class="diff-unchanged">menkalinan</td><td class="diff-unchanged">menkalinan</td></tr><tr><td class="diff-unchanged">mirzam</td><td class="diff-unchanged">mirzam</td></tr><tr><td class="diff-unchanged">sadalbari</td><td class="diff-unchanged">sadalbari</td></tr><tr><td class="diff-unchanged">yarrowfield</td><td class="diff-unchanged">yarrowfield</td></tr><tr><td class="diff-del">yarrowfield</td><td class="diff-empty"></td></tr></tbody></table></div>
-<div class="diff-item-id">almach</div>
+<div class="diff-item-id"><a href="../systems/almach/index.html">almach</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
-<div class="diff-item-id">deep_range</div>
+<div class="diff-item-id"><a href="../systems/deep_range/index.html">deep_range</a></div>
 <div class="diff-field"><span class="diff-field-name">connections:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">frontier</td><td class="diff-unchanged">frontier</td></tr><tr><td class="diff-unchanged">horizon</td><td class="diff-unchanged">horizon</td></tr><tr><td class="diff-del">horizon</td><td class="diff-empty"></td></tr></tbody></table></div>
-<div class="diff-item-id">gsc_0023</div>
+<div class="diff-item-id"><a href="../systems/gsc_0023/index.html">gsc_0023</a></div>
 <div class="diff-field"><span class="diff-field-name">connections:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">castor</td><td class="diff-unchanged">castor</td></tr><tr><td class="diff-unchanged">cocibolca</td><td class="diff-unchanged">cocibolca</td></tr><tr><td class="diff-del">cocibolca</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">haedus</td><td class="diff-unchanged">haedus</td></tr><tr><td class="diff-unchanged">sulafat</td><td class="diff-unchanged">sulafat</td></tr></tbody></table></div>
-<div class="diff-item-id">hadar</div>
+<div class="diff-item-id"><a href="../systems/hadar/index.html">hadar</a></div>
 <div class="diff-field"><span class="diff-field-name">connections:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">muphrid</td><td class="diff-unchanged">muphrid</td></tr><tr><td class="diff-del">muphrid</td><td class="diff-empty"></td></tr></tbody></table></div>
-<div class="diff-item-id">ruchbah</div>
+<div class="diff-item-id"><a href="../systems/ruchbah/index.html">ruchbah</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
-<div class="diff-item-id">tiaki</div>
+<div class="diff-item-id"><a href="../systems/tiaki/index.html">tiaki</a></div>
 <div class="diff-field"><span class="diff-field-name">connections:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">crosshaven</td><td class="diff-unchanged">crosshaven</td></tr><tr><td class="diff-unchanged">diphda</td><td class="diff-unchanged">diphda</td></tr><tr><td class="diff-del">diphda</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">gsc_0034</td><td class="diff-unchanged">gsc_0034</td></tr></tbody></table></div>
-<div class="diff-item-id">toi_700</div>
+<div class="diff-item-id"><a href="../systems/toi_700/index.html">toi_700</a></div>
 <div class="diff-field"><span class="diff-field-name">connections:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">copperfield</td><td class="diff-unchanged">copperfield</td></tr><tr><td class="diff-unchanged">duskmere</td><td class="diff-unchanged">duskmere</td></tr><tr><td class="diff-del">duskmere</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">rustpoint</td><td class="diff-unchanged">rustpoint</td></tr></tbody></table></div>
 
 

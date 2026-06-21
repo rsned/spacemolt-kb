@@ -21,6 +21,8 @@
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -60,6 +62,7 @@
 <li><a href="#items">Items</a></li>
 <li><a href="#ships">Ships</a></li>
 <li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a></li>
 <li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
 </ul>
 
@@ -123,6 +126,21 @@
 </div>
 </div>
 
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
 <div class="catalog-section" id="map">
 <div class="catalog-header">
     <h3>Map</h3>
@@ -139,9 +157,9 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">altais</div>
+<div class="diff-item-id"><a href="../systems/altais/index.html">altais</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
-<div class="diff-item-id">the_telescope</div>
+<div class="diff-item-id"><a href="../systems/the_telescope/index.html">the_telescope</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">4</span></div>
 
 
