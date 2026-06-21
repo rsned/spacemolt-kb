@@ -20,17 +20,25 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/gamediff"
 )
 
-// catalogs defines the 5 tracked catalog files in display order.
+// Catalog kinds control how a tracked file is ingested and diffed.
+const (
+	kindCatalog    = "catalog"    // top-level {"items":[...]} keyed by "id"
+	kindMap        = "map"        // get_map.json: {"systems":[...]} keyed by "system_id"
+	kindFacilities = "facilities" // assembled via gamediff.LoadFacilities, diffed as a catalog
+)
+
+// catalogs defines the tracked catalog files in display order.
 var catalogs = []struct {
-	name  string // display name
-	file  string // filename
-	isMap bool   // true for get_map.json (uses system_id key)
+	name string // display name
+	file string // canonical snapshot filename
+	kind string // one of kindCatalog, kindMap, kindFacilities
 }{
-	{"Recipes", "catalog_recipes.json", false},
-	{"Items", "catalog_items.json", false},
-	{"Ships", "catalog_ships.json", false},
-	{"Skills", "catalog_skills.json", false},
-	{"Map", "get_map.json", true},
+	{"Recipes", "catalog_recipes.json", kindCatalog},
+	{"Items", "catalog_items.json", kindCatalog},
+	{"Ships", "catalog_ships.json", kindCatalog},
+	{"Skills", "catalog_skills.json", kindCatalog},
+	{"Facilities", gamediff.FacilityCatalogFile, kindFacilities},
+	{"Map", "get_map.json", kindMap},
 }
 
 func main() {
@@ -65,9 +73,17 @@ func main() {
 		log.Fatalf("create snapshot dir: %v", err)
 	}
 	for _, cat := range catalogs {
-		src := filepath.Join(*inputDir, cat.file)
 		dst := filepath.Join(todayDir, cat.file)
-		data, err := os.ReadFile(src)
+		var data []byte
+		var err error
+		if cat.kind == kindFacilities {
+			// Facilities are assembled into a single normalized catalog file
+			// (merging per-category dumps, or passing through a unified
+			// catalog_facilities.json when the scrape provides one).
+			data, err = gamediff.LoadFacilities(*inputDir)
+		} else {
+			data, err = os.ReadFile(filepath.Join(*inputDir, cat.file))
+		}
 		if err != nil {
 			log.Printf("warning: %s not found in input, skipping", cat.file)
 			continue
@@ -132,24 +148,36 @@ func main() {
 	// 3. Diff each catalog.
 	var diffs []gamediff.CatalogDiff
 	for _, cat := range catalogs {
-		oldPath := filepath.Join(prevDir, cat.file)
-		newPath := filepath.Join(todayDir, cat.file)
-
-		oldData, err := os.ReadFile(oldPath)
-		if err != nil {
-			log.Printf("warning: cannot read previous %s, skipping", cat.file)
-			diffs = append(diffs, gamediff.CatalogDiff{Name: cat.name, File: cat.file})
-			continue
-		}
-		newData, err := os.ReadFile(newPath)
-		if err != nil {
-			log.Printf("warning: cannot read new %s, skipping", cat.file)
-			diffs = append(diffs, gamediff.CatalogDiff{Name: cat.name, File: cat.file})
-			continue
+		var oldData, newData []byte
+		var err error
+		if cat.kind == kindFacilities {
+			// LoadFacilities tolerates either the unified catalog or the
+			// per-category dumps in each snapshot directory.
+			if oldData, err = gamediff.LoadFacilities(prevDir); err != nil {
+				log.Printf("warning: cannot read previous %s, skipping", cat.file)
+				diffs = append(diffs, gamediff.CatalogDiff{Name: cat.name, File: cat.file})
+				continue
+			}
+			if newData, err = gamediff.LoadFacilities(todayDir); err != nil {
+				log.Printf("warning: cannot read new %s, skipping", cat.file)
+				diffs = append(diffs, gamediff.CatalogDiff{Name: cat.name, File: cat.file})
+				continue
+			}
+		} else {
+			if oldData, err = os.ReadFile(filepath.Join(prevDir, cat.file)); err != nil {
+				log.Printf("warning: cannot read previous %s, skipping", cat.file)
+				diffs = append(diffs, gamediff.CatalogDiff{Name: cat.name, File: cat.file})
+				continue
+			}
+			if newData, err = os.ReadFile(filepath.Join(todayDir, cat.file)); err != nil {
+				log.Printf("warning: cannot read new %s, skipping", cat.file)
+				diffs = append(diffs, gamediff.CatalogDiff{Name: cat.name, File: cat.file})
+				continue
+			}
 		}
 
 		var result *gamediff.CatalogDiff
-		if cat.isMap {
+		if cat.kind == kindMap {
 			result, err = gamediff.DiffMap(oldData, newData)
 		} else {
 			result, err = gamediff.DiffCatalog(oldData, newData)
@@ -288,6 +316,8 @@ func kbPageURL(kbRoot, catalogName, id string) string {
 		candidates, _ = filepath.Glob(filepath.Join(kbRoot, "items", "*", id+".html"))
 	case "Ships":
 		candidates, _ = filepath.Glob(filepath.Join(kbRoot, "ships", "*", id+".html"))
+	case "Facilities":
+		candidates, _ = filepath.Glob(filepath.Join(kbRoot, "facilities", "*", id+".html"))
 	case "Skills":
 		if p := filepath.Join(kbRoot, "skills", id+".html"); fileExists(p) {
 			candidates = []string{p}
