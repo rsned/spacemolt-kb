@@ -12,13 +12,17 @@
         <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../../">Home</a>
-            <a href="../../systems/">Systems</a>
-            <a href="../../items/">Items</a>
-            <a href="../../recipes/">Recipes</a>
-            <a href="../../skills/">Skills</a>
-            <a href="../../ships/">Ships</a>
-            <a href="../../facilities/">Facilities</a>
-            <a href="../../missions/">Missions</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -28,21 +32,33 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">Production</a> / Ancillary Shield Booster Fabrication Nexus</div>
 
-        <h2>Ancillary Shield Booster Fabrication Nexus <span class="badge badge-locked">Not Buildable</span></h2>
+        <h2>Ancillary Shield Booster Fabrication Nexus</h2>
 
         
-        <blockquote class="item-desc">Advanced ancillary shield booster fabrication complex with automated field optimization and self-calibrating assembly systems. Fuel cell and crystal integration maintains maximum production efficiency.</blockquote>
+        <blockquote class="item-desc">A state-of-the-art system with extensive coolant infrastructure and quantum-core orchestration of superconductor preparation, power-cell charging, and shield-emitter tuning. Fully automated redundancy achieves forty-seven-second production cycles.</blockquote>
+        
+
         
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Stats</div>
             <table>
                 <tr><td class="kv-label">Level</td><td>4</td></tr>
-                <tr><td class="kv-label">Build Cost</td><td>16,740,000 cr</td></tr>
+                
+                <tr><td class="kv-label">Build Cost</td><td>21,798,000 cr</td></tr>
+                <tr><td class="kv-label">Build Time</td><td>280s</td></tr>
                 <tr><td class="kv-label">Labor</td><td>35</td></tr>
-                <tr><td class="kv-label">Rent/Cycle</td><td>35 cr</td></tr>
+                <tr><td class="kv-label">Power Draw</td><td>6</td></tr>
+                
+                <tr><td class="kv-label">Life Support Draw</td><td>1</td></tr>
+                
+                
+                
+                
             </table>
         </div>
+
+        
 
         
         <div class="card" style="padding:0">
@@ -53,35 +69,6 @@
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Recipe</div>
-            <table>
-                <tr><td class="kv-label">Output</td><td>Build Ancillary Shield Booster <span class="text-muted">&times;3.00</span></td></tr>
-                <tr><td class="kv-label">Crafting Time</td><td>20s</td></tr>
-            </table>
-            
-            <div class="section-label">Recipe Inputs</div>
-            <table>
-                <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
-                <tbody>
-                    <tr><td><a href="../../items/component/shield_emitter.html">Shield Emitter</a></td><td>2</td></tr>
-                    <tr><td><a href="../../items/component/power_cell.html">Power Cell</a></td><td>1</td></tr>
-                    <tr><td><a href="../../items/refined/superconductor.html">Superconductor</a></td><td>2</td></tr>
-                    <tr><td><a href="../../items/refined/circuit_board.html">Circuit Board</a></td><td>3</td></tr>
-                </tbody>
-            </table>
-            
-            
-            <div class="section-label">Recipe Outputs</div>
-            <table>
-                <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
-                <tbody>
-                    <tr><td>ancillary_shield_booster</td><td>1</td></tr>
-                </tbody>
-            </table>
-            
-        </div>
-        
 
         
         <div class="card" style="padding:0">
@@ -89,41 +76,27 @@
             <table>
                 <thead><tr><th>Material</th><th>Quantity</th></tr></thead>
                 <tbody>
-                    <tr><td><a href="../../items/refined/steel_plate.html">Steel Plate</a></td><td>30000</td></tr>
-                    <tr><td><a href="../../items/refined/circuit_board.html">Circuit Board</a></td><td>10000</td></tr>
-                    <tr><td><a href="../../items/component/shield_emitter.html">Shield Emitter</a></td><td>4000</td></tr>
-                    <tr><td><a href="../../items/refined/superconductor.html">Superconductor</a></td><td>2000</td></tr>
-                    <tr><td><a href="../../items/refined/metamaterial_panel.html">Metamaterial Panel</a></td><td>1000</td></tr>
+                    <tr><td><a href="../../items/refined/steel_plate.html">Steel Plate</a></td><td>5150</td></tr>
+                    <tr><td><a href="../../items/refined/copper_piping.html">Copper Piping</a></td><td>3000</td></tr>
+                    <tr><td><a href="../../items/component/reinforced_frame.html">Reinforced Frame</a></td><td>2900</td></tr>
+                    <tr><td><a href="../../items/component/quantum_control_core.html">Quantum Control Core</a></td><td>1000</td></tr>
+                    <tr><td><a href="../../items/component/shield_emitter.html">Shield Emitter</a></td><td>7350</td></tr>
+                    <tr><td><a href="../../items/component/shield_matrix.html">Shield Matrix</a></td><td>5450</td></tr>
+                    <tr><td><a href="../../items/component/coolant_loop.html">Coolant Loop</a></td><td>2350</td></tr>
                 </tbody>
             </table>
         </div>
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Maintenance per Cycle</div>
-            <table>
-                <thead><tr><th>Material</th><th>Quantity</th></tr></thead>
-                <tbody>
-                    <tr><td><a href="../../items/consumable/fuel_cell.html">Fuel Cell</a></td><td>30</td></tr>
-                    <tr><td><a href="../../items/refined/focused_crystal.html">Focused Crystal</a></td><td>20</td></tr>
-                </tbody>
-            </table>
-        </div>
+
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Hint</div>
-            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">This is an upgrade. Build &#39;ancillary_shield_booster_assembly_plant&#39; first, then use action &#39;upgrade&#39; to upgrade it.</p>
-        </div>
-        
-
-        
-        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/energy_crystal.html">Energy Crystal</a></td><td>40000</td></tr><tr><td><a href="../../items/material/exotic_crystal.html">Exotic Crystal</a></td><td>1000</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>21000</td></tr><tr><td><a href="../../items/ore/iridium_ore.html">Iridium Ore</a></td><td>10000</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>111000</td></tr><tr><td><a href="../../items/ore/palladium_ore.html">Palladium Ore</a></td><td>30000</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>31000</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>80000</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>21000</td></tr><tr><td><a href="../../items/ore/water_ice.html">Water Ice</a></td><td>4000</td></tr></tbody></table></div></div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>29000</td></tr><tr><td><a href="../../items/ore/argon_gas.html">Argon Gas</a></td><td>10900</td></tr><tr><td><a href="../../items/ore/carbon_ore.html">Carbon Ore</a></td><td>117600</td></tr><tr><td><a href="../../items/ore/copper_ore.html">Copper Ore</a></td><td>72950</td></tr><tr><td><a href="../../items/ore/energy_crystal.html">Energy Crystal</a></td><td>29400</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>21700</td></tr><tr><td><a href="../../items/ore/gold_ore.html">Gold Ore</a></td><td>29800</td></tr><tr><td><a href="../../items/ore/helium_ice.html">Helium Ice</a></td><td>4700</td></tr><tr><td><a href="../../items/ore/iridium_ore.html">Iridium Ore</a></td><td>14700</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>159550</td></tr><tr><td><a href="../../items/ore/nickel_ore.html">Nickel Ore</a></td><td>109500</td></tr><tr><td><a href="../../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>9400</td></tr><tr><td><a href="../../items/ore/palladium_ore.html">Palladium Ore</a></td><td>36750</td></tr><tr><td><a href="../../items/ore/platinum_ore.html">Platinum Ore</a></td><td>2000</td></tr><tr><td><a href="../../items/ore/quantum_fragments.html">Quantum Fragments</a></td><td>2000</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>69700</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>121600</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>17400</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>90600</td></tr><tr><td><a href="../../items/ore/water_ice.html">Water Ice</a></td><td>4700</td></tr></tbody></table></div></div>
         <details class="bom-json-details">
           <summary>View JSON Data</summary>
-          <pre class="bom-json">[{&#34;item_id&#34;:&#34;energy_crystal&#34;,&#34;quantity&#34;:40000},{&#34;item_id&#34;:&#34;exotic_crystal&#34;,&#34;quantity&#34;:1000},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:21000},{&#34;item_id&#34;:&#34;iridium_ore&#34;,&#34;quantity&#34;:10000},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:111000},{&#34;item_id&#34;:&#34;palladium_ore&#34;,&#34;quantity&#34;:30000},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:31000},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:80000},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:21000},{&#34;item_id&#34;:&#34;water_ice&#34;,&#34;quantity&#34;:4000}]</pre>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:29000},{&#34;item_id&#34;:&#34;argon_gas&#34;,&#34;quantity&#34;:10900},{&#34;item_id&#34;:&#34;carbon_ore&#34;,&#34;quantity&#34;:117600},{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:72950},{&#34;item_id&#34;:&#34;energy_crystal&#34;,&#34;quantity&#34;:29400},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:21700},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:29800},{&#34;item_id&#34;:&#34;helium_ice&#34;,&#34;quantity&#34;:4700},{&#34;item_id&#34;:&#34;iridium_ore&#34;,&#34;quantity&#34;:14700},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:159550},{&#34;item_id&#34;:&#34;nickel_ore&#34;,&#34;quantity&#34;:109500},{&#34;item_id&#34;:&#34;nitrogen_ice&#34;,&#34;quantity&#34;:9400},{&#34;item_id&#34;:&#34;palladium_ore&#34;,&#34;quantity&#34;:36750},{&#34;item_id&#34;:&#34;platinum_ore&#34;,&#34;quantity&#34;:2000},{&#34;item_id&#34;:&#34;quantum_fragments&#34;,&#34;quantity&#34;:2000},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:69700},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:121600},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:17400},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:90600},{&#34;item_id&#34;:&#34;water_ice&#34;,&#34;quantity&#34;:4700}]</pre>
         </details>
         
     </main>

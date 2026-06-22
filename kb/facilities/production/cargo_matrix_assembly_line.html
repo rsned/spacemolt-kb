@@ -32,21 +32,33 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">Production</a> / Cargo Matrix Assembly Line</div>
 
-        <h2>Cargo Matrix Assembly Line <span class="badge badge-buildable">Buildable</span></h2>
+        <h2>Cargo Matrix Assembly Line</h2>
 
         
         <blockquote class="item-desc">Purpose-built facility integrating cargo containers and prismatic lenses with flex polymer into optimized storage systems. Hull plating and reinforced bulkheads form the structural foundation for light-guided sorting arrays.</blockquote>
+        
+
         
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Stats</div>
             <table>
                 <tr><td class="kv-label">Level</td><td>1</td></tr>
+                
                 <tr><td class="kv-label">Build Cost</td><td>551,000 cr</td></tr>
+                <tr><td class="kv-label">Build Time</td><td>170s</td></tr>
                 <tr><td class="kv-label">Labor</td><td>40</td></tr>
-                <tr><td class="kv-label">Rent/Cycle</td><td>28 cr</td></tr>
+                <tr><td class="kv-label">Power Draw</td><td>1</td></tr>
+                
+                <tr><td class="kv-label">Life Support Draw</td><td>1</td></tr>
+                
+                
+                
+                
             </table>
         </div>
+
+        
 
         
         <div class="card" style="padding:0">
@@ -60,7 +72,7 @@
         <div class="card" style="padding:0">
             <div class="section-label">Recipe</div>
             <table>
-                <tr><td class="kv-label">Output</td><td><a href="../../recipes/Shipbuilding/build_nebula_cargo_matrix.html">Build Nebula Cargo Matrix</a> <span class="text-muted">&times;0.00</span></td></tr>
+                <tr><td class="kv-label">Output</td><td><a href="../../recipes/Shipbuilding/build_nebula_cargo_matrix.html">Build Nebula Cargo Matrix</a></td></tr>
                 <tr><td class="kv-label">Crafting Time</td><td>75s</td></tr>
             </table>
             
@@ -69,8 +81,8 @@
                 <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
                 <tbody>
                     <tr><td><a href="../../items/component/cargo_container.html">Cargo Container</a></td><td>2</td></tr>
-                    <tr><td><a href="../../items/refined/prismatic_lens.html">Prismatic Lens</a></td><td>1</td></tr>
                     <tr><td><a href="../../items/refined/flex_polymer.html">Flex Polymer</a></td><td>10</td></tr>
+                    <tr><td><a href="../../items/refined/prismatic_lens.html">Prismatic Lens</a></td><td>1</td></tr>
                 </tbody>
             </table>
             
@@ -105,17 +117,12 @@
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Hint</div>
-            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">Use action &#39;build&#39; with facility_type=&#39;cargo_matrix_assembly_line&#39; to build this at your current station.</p>
-        </div>
-        
 
         
-        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>27500</td></tr><tr><td><a href="../../items/ore/copper_ore.html">Copper Ore</a></td><td>3850</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>250</td></tr><tr><td><a href="../../items/ore/gold_ore.html">Gold Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>18900</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>250</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>5000</td></tr><tr><td><a href="../../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>2000</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>10050</td></tr></tbody></table></div></div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/copper_ore.html">Copper Ore</a></td><td>3850</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>250</td></tr><tr><td><a href="../../items/ore/gold_ore.html">Gold Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>18650</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>250</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>9250</td></tr><tr><td><a href="../../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>2000</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>9800</td></tr></tbody></table></div></div>
         <details class="bom-json-details">
           <summary>View JSON Data</summary>
-          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:27500},{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:3850},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:18900},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:5000},{&#34;item_id&#34;:&#34;tungsten_ore&#34;,&#34;quantity&#34;:2000},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:10050}]</pre>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:3850},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:18650},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:9250},{&#34;item_id&#34;:&#34;tungsten_ore&#34;,&#34;quantity&#34;:2000},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:9800}]</pre>
         </details>
         
     </main>

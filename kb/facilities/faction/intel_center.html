@@ -32,21 +32,52 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">Faction</a> / Intel Center</div>
 
-        <h2>Intel Center <span class="badge badge-locked">Not Buildable</span></h2>
+        <h2>Intel Center <span class="badge">Always On</span></h2>
 
         
-        <blockquote class="item-desc">Upgrades the Intel Terminal with automatic data collection. Whenever a faction member visits a system, docks at a station, or queries system/POI info, canonical server-verified data is automatically written to the faction intel database — no manual submission needed. The stored data, including resource deposit quantities, is a snapshot from the last visit, not a live feed — except for systems where a faction member is currently present, whose deposits are reported live at query time (see the query&#39;s live_systems field). Also unlocks advanced query filters: resource_type, poi_type, empire.</blockquote>
+        <blockquote class="item-desc">Upgrades the Intel Terminal with automatic data collection. Whenever a faction member visits a system, docks at a station, or queries system/POI info, canonical server-verified data is automatically written to the faction intel database — no manual submission needed. The stored data, including resource deposit quantities, is a snapshot from the last visit, not a live feed — except for systems where a faction member is currently present, OR any system that hosts one of your faction&#39;s own intel facilities, whose deposits are reported live at query time (see the query&#39;s live_systems field). Building intel facilities at multiple systems therefore keeps each of those systems&#39; readings live even with no member present. Also unlocks advanced query filters: resource_type, poi_type, empire.</blockquote>
+        
+
         
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Stats</div>
             <table>
                 <tr><td class="kv-label">Level</td><td>2</td></tr>
+                
                 <tr><td class="kv-label">Build Cost</td><td>750,000 cr</td></tr>
+                <tr><td class="kv-label">Build Time</td><td>80s</td></tr>
                 <tr><td class="kv-label">Labor</td><td>60</td></tr>
-                <tr><td class="kv-label">Rent/Cycle</td><td>14 cr</td></tr>
+                
+                
+                
+                
+                
+                
+                
             </table>
         </div>
+
+        
+        <div class="card" style="padding:0">
+            <div class="section-label">Properties</div>
+            <table>
+                
+                <tr><td class="kv-label">Faction Service</td><td>Faction Intel</td></tr>
+                
+                <tr><td class="kv-label">Requires Service</td><td>Faction Storage</td></tr>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </table>
+        </div>
+        
 
         
         <div class="card" style="padding:0">
@@ -75,17 +106,12 @@
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Hint</div>
-            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">This is a faction facility upgrade. Build &#39;intel_terminal&#39; first, then use action &#39;upgrade&#39; to upgrade it.</p>
-        </div>
-        
 
         
-        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>1000</td></tr><tr><td><a href="../../items/ore/energy_crystal.html">Energy Crystal</a></td><td>600</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>500</td></tr><tr><td><a href="../../items/ore/iridium_ore.html">Iridium Ore</a></td><td>100</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/palladium_ore.html">Palladium Ore</a></td><td>200</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>1400</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>800</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>500</td></tr></tbody></table></div></div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/energy_crystal.html">Energy Crystal</a></td><td>600</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>500</td></tr><tr><td><a href="../../items/ore/iridium_ore.html">Iridium Ore</a></td><td>100</td></tr><tr><td><a href="../../items/ore/palladium_ore.html">Palladium Ore</a></td><td>200</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>1400</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>800</td></tr></tbody></table></div></div>
         <details class="bom-json-details">
           <summary>View JSON Data</summary>
-          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:1000},{&#34;item_id&#34;:&#34;energy_crystal&#34;,&#34;quantity&#34;:600},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;iridium_ore&#34;,&#34;quantity&#34;:100},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;palladium_ore&#34;,&#34;quantity&#34;:200},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:1400},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:800},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:500}]</pre>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;energy_crystal&#34;,&#34;quantity&#34;:600},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;iridium_ore&#34;,&#34;quantity&#34;:100},{&#34;item_id&#34;:&#34;palladium_ore&#34;,&#34;quantity&#34;:200},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:1400},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:800}]</pre>
         </details>
         
     </main>

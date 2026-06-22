@@ -32,21 +32,33 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">Production</a> / Cryogenic Condensing Line</div>
 
-        <h2>Cryogenic Condensing Line <span class="badge badge-buildable">Buildable</span></h2>
+        <h2>Cryogenic Condensing Line</h2>
 
         
         <blockquote class="item-desc">A specialized cooling plant that chills incoming gas streams to −186°C, liquefying argon for separation. Relies on superconductor coils and precision sensor control to maintain the deep-freeze needed for selective condensation.</blockquote>
+        
+
         
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Stats</div>
             <table>
                 <tr><td class="kv-label">Level</td><td>1</td></tr>
+                
                 <tr><td class="kv-label">Build Cost</td><td>149,000 cr</td></tr>
+                <tr><td class="kv-label">Build Time</td><td>170s</td></tr>
                 <tr><td class="kv-label">Labor</td><td>14</td></tr>
-                <tr><td class="kv-label">Rent/Cycle</td><td>28 cr</td></tr>
+                <tr><td class="kv-label">Power Draw</td><td>1</td></tr>
+                
+                <tr><td class="kv-label">Life Support Draw</td><td>1</td></tr>
+                
+                
+                
+                
             </table>
         </div>
+
+        
 
         
         <div class="card" style="padding:0">
@@ -60,7 +72,7 @@
         <div class="card" style="padding:0">
             <div class="section-label">Recipe</div>
             <table>
-                <tr><td class="kv-label">Output</td><td><a href="../../recipes/Modules/build_argon_condenser.html">Build Argon Condenser</a> <span class="text-muted">&times;0.00</span></td></tr>
+                <tr><td class="kv-label">Output</td><td><a href="../../recipes/Modules/build_argon_condenser.html">Build Argon Condenser</a></td></tr>
                 <tr><td class="kv-label">Crafting Time</td><td>21s</td></tr>
             </table>
             
@@ -68,10 +80,10 @@
             <table>
                 <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
                 <tbody>
-                    <tr><td><a href="../../items/refined/superconductor.html">Superconductor</a></td><td>2</td></tr>
+                    <tr><td><a href="../../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr>
                     <tr><td><a href="../../items/refined/flex_polymer.html">Flex Polymer</a></td><td>3</td></tr>
                     <tr><td><a href="../../items/component/power_cell.html">Power Cell</a></td><td>2</td></tr>
-                    <tr><td><a href="../../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr>
+                    <tr><td><a href="../../items/refined/superconductor.html">Superconductor</a></td><td>2</td></tr>
                 </tbody>
             </table>
             
@@ -80,7 +92,7 @@
             <table>
                 <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
                 <tbody>
-                    <tr><td><a href="../../items/utility/argon_condenser.html">argon_condenser</a></td><td>1</td></tr>
+                    <tr><td><a href="../../items/utility/argon_condenser.html">Argon Condenser</a></td><td>1</td></tr>
                 </tbody>
             </table>
             
@@ -104,17 +116,12 @@
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Hint</div>
-            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">Use action &#39;build&#39; with facility_type=&#39;cryogenic_condensing_line&#39; to build this at your current station.</p>
-        </div>
-        
 
         
-        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/copper_ore.html">Copper Ore</a></td><td>4450</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>250</td></tr><tr><td><a href="../../items/ore/gold_ore.html">Gold Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>7400</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>250</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>250</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>4400</td></tr></tbody></table></div></div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/copper_ore.html">Copper Ore</a></td><td>4450</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>250</td></tr><tr><td><a href="../../items/ore/gold_ore.html">Gold Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>7150</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>250</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>500</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>4150</td></tr></tbody></table></div></div>
         <details class="bom-json-details">
           <summary>View JSON Data</summary>
-          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:4450},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:7400},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:4400}]</pre>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:4450},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:7150},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:250},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:500},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:4150}]</pre>
         </details>
         
     </main>

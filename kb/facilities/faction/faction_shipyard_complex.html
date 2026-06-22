@@ -32,21 +32,52 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">Faction</a> / Faction Shipyard Complex</div>
 
-        <h2>Faction Shipyard Complex <span class="badge badge-buildable">Buildable</span></h2>
+        <h2>Faction Shipyard Complex <span class="badge">Always On</span></h2>
 
         
         <blockquote class="item-desc">A capital-grade construction complex flying your faction&#39;s colors — the kind of facility that builds fleets. Adds one member-priority build slot for hulls up to tier 5. Requires a level 5 shipyard at this station.</blockquote>
+        
+
         
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Stats</div>
             <table>
                 <tr><td class="kv-label">Level</td><td>5</td></tr>
+                
                 <tr><td class="kv-label">Build Cost</td><td>100,000,000 cr</td></tr>
+                <tr><td class="kv-label">Build Time</td><td>900s</td></tr>
                 <tr><td class="kv-label">Labor</td><td>400</td></tr>
-                <tr><td class="kv-label">Rent/Cycle</td><td>280 cr</td></tr>
+                <tr><td class="kv-label">Power Draw</td><td>16</td></tr>
+                
+                <tr><td class="kv-label">Life Support Draw</td><td>4</td></tr>
+                
+                
+                
+                
             </table>
         </div>
+
+        
+        <div class="card" style="padding:0">
+            <div class="section-label">Properties</div>
+            <table>
+                
+                <tr><td class="kv-label">Faction Service</td><td>Faction Shipyard Slot</td></tr>
+                
+                <tr><td class="kv-label">Requires Service</td><td>Faction Storage</td></tr>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            </table>
+        </div>
+        
 
         
         <div class="card" style="padding:0">
@@ -78,17 +109,12 @@
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Hint</div>
-            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">Build via the &#39;facility&#39; command with action=&#39;faction_build&#39; and facility_type=&#39;faction_shipyard_complex&#39; to build this for your faction. Requires ManageFacilities permission. Prerequisite: your faction must already have a Faction Lockbox facility (service &#39;faction_storage&#39;) at this station.</p>
-        </div>
-        
 
         
-        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>76000</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>8000</td></tr><tr><td><a href="../../items/ore/iridium_ore.html">Iridium Ore</a></td><td>800</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>92000</td></tr><tr><td><a href="../../items/ore/nickel_ore.html">Nickel Ore</a></td><td>12500</td></tr><tr><td><a href="../../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1600</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>8000</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>6400</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>118000</td></tr><tr><td><a href="../../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>24000</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>50000</td></tr></tbody></table></div></div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>8000</td></tr><tr><td><a href="../../items/ore/iridium_ore.html">Iridium Ore</a></td><td>800</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>84000</td></tr><tr><td><a href="../../items/ore/nickel_ore.html">Nickel Ore</a></td><td>12500</td></tr><tr><td><a href="../../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1600</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>8000</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>6400</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>120000</td></tr><tr><td><a href="../../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>24000</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>42000</td></tr></tbody></table></div></div>
         <details class="bom-json-details">
           <summary>View JSON Data</summary>
-          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:76000},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:8000},{&#34;item_id&#34;:&#34;iridium_ore&#34;,&#34;quantity&#34;:800},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:92000},{&#34;item_id&#34;:&#34;nickel_ore&#34;,&#34;quantity&#34;:12500},{&#34;item_id&#34;:&#34;palladium_ore&#34;,&#34;quantity&#34;:1600},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:8000},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:6400},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:118000},{&#34;item_id&#34;:&#34;tungsten_ore&#34;,&#34;quantity&#34;:24000},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:50000}]</pre>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:8000},{&#34;item_id&#34;:&#34;iridium_ore&#34;,&#34;quantity&#34;:800},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:84000},{&#34;item_id&#34;:&#34;nickel_ore&#34;,&#34;quantity&#34;:12500},{&#34;item_id&#34;:&#34;palladium_ore&#34;,&#34;quantity&#34;:1600},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:8000},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:6400},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:120000},{&#34;item_id&#34;:&#34;tungsten_ore&#34;,&#34;quantity&#34;:24000},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:42000}]</pre>
         </details>
         
     </main>

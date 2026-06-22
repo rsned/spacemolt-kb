@@ -631,12 +631,17 @@ func main() {
 		log.Printf("warning: load ship catalog: %v (ship pages will be skipped)", shipErr)
 	}
 
-	facilityJSONDir := filepath.Join(catalogDir, "facility_details")
-	facilities, facErr := loadFacilitiesFromJSON(facilityJSONDir)
+	facilities, facErr := loadFacilities(catalogDir)
 	if facErr != nil {
 		log.Printf("warning: load facilities: %v (facility pages will be skipped)", facErr)
 	} else {
-		validateFacilityRecipes(facilities, recipes)
+		// Fall back to the snapshot's catalog_recipes.json for facility recipe
+		// detail the (separately-maintained) crafting recipe DB does not yet have.
+		catalogRecipes, crErr := loadCatalogRecipeSummaries(recipeCatalogPath)
+		if crErr != nil {
+			log.Printf("warning: load catalog recipe fallback: %v", crErr)
+		}
+		resolveFacilityRecipes(facilities, recipes, catalogRecipes)
 	}
 
 	// --- BOM Calculation ---
@@ -788,7 +793,7 @@ func main() {
 	// BoM data attached via loadBoMFromDB.
 	if facErr == nil {
 		facilityOutDir := "kb/facilities"
-		if err := writeFacilityPages(facilityOutDir, facilities, recipes, items); err != nil {
+		if err := writeFacilityPages(facilityOutDir, facilities, items); err != nil {
 			log.Fatalf("write facility pages: %v", err)
 		}
 		fmt.Printf("Generated %d facility pages in kb/facilities/\n", len(facilities))

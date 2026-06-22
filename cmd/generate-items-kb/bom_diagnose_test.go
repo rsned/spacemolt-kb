@@ -46,7 +46,7 @@ func TestDiagnoseBoMCycles(t *testing.T) {
 
 	shipCatalogPath := filepath.Join(catalogDir, "catalog_ships.json")
 	ships, _ := loadShipCatalog(shipCatalogPath)
-	facilities, _ := loadFacilitiesFromJSON(filepath.Join(catalogDir, "facility_details"))
+	facilities, _ := loadFacilities(catalogDir)
 
 	bomItems := make(map[string]*bom.Item, len(items))
 	for id, it := range items {

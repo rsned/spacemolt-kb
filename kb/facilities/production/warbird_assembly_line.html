@@ -32,21 +32,33 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">Production</a> / Warbird Assembly Line</div>
 
-        <h2>Warbird Assembly Line <span class="badge badge-locked">Not Buildable</span></h2>
+        <h2>Warbird Assembly Line</h2>
 
         
         <blockquote class="item-desc">An expanded facility with dedicated assembly stations for chassis integration, weapon core mounting, and AI core initialization. Structural frames and additional drone chassis inventory enable higher production throughput and more reliable assembly.</blockquote>
+        
+
         
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Stats</div>
             <table>
                 <tr><td class="kv-label">Level</td><td>2</td></tr>
+                
                 <tr><td class="kv-label">Build Cost</td><td>621,000 cr</td></tr>
+                <tr><td class="kv-label">Build Time</td><td>350s</td></tr>
                 <tr><td class="kv-label">Labor</td><td>32</td></tr>
-                <tr><td class="kv-label">Rent/Cycle</td><td>42 cr</td></tr>
+                <tr><td class="kv-label">Power Draw</td><td>2</td></tr>
+                
+                <tr><td class="kv-label">Life Support Draw</td><td>1</td></tr>
+                
+                
+                
+                
             </table>
         </div>
+
+        
 
         
         <div class="card" style="padding:0">
@@ -60,7 +72,7 @@
         <div class="card" style="padding:0">
             <div class="section-label">Recipe</div>
             <table>
-                <tr><td class="kv-label">Output</td><td><a href="../../recipes/Drones/build_combat_drone.html">Build Combat Drone</a> <span class="text-muted">&times;0.00</span></td></tr>
+                <tr><td class="kv-label">Output</td><td><a href="../../recipes/Drones/build_combat_drone.html">Build Combat Drone</a></td></tr>
                 <tr><td class="kv-label">Crafting Time</td><td>28.5s</td></tr>
             </table>
             
@@ -68,10 +80,10 @@
             <table>
                 <thead><tr><th>Item</th><th>Quantity</th></tr></thead>
                 <tbody>
-                    <tr><td><a href="../../items/component/drone_chassis.html">Drone Chassis</a></td><td>1</td></tr>
-                    <tr><td><a href="../../items/component/weapon_core.html">Weapon Core</a></td><td>1</td></tr>
                     <tr><td><a href="../../items/refined/circuit_board.html">Circuit Board</a></td><td>3</td></tr>
+                    <tr><td><a href="../../items/component/drone_chassis.html">Drone Chassis</a></td><td>1</td></tr>
                     <tr><td><a href="../../items/refined/titanium_ingot.html">Titanium Ingot</a></td><td>2</td></tr>
+                    <tr><td><a href="../../items/component/weapon_core.html">Weapon Core</a></td><td>1</td></tr>
                 </tbody>
             </table>
             
@@ -107,17 +119,12 @@
         
 
         
-        <div class="card" style="padding:0">
-            <div class="section-label">Hint</div>
-            <p style="margin:0;padding:0.75rem;color:hsl(var(--muted-foreground))">This is an upgrade. Build &#39;scrappers_drone_bay&#39; first, then use action &#39;upgrade&#39; to upgrade it.</p>
-        </div>
-        
 
         
-        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>21800</td></tr><tr><td><a href="../../items/ore/carbon_ore.html">Carbon Ore</a></td><td>700</td></tr><tr><td><a href="../../items/ore/copper_ore.html">Copper Ore</a></td><td>4650</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>1500</td></tr><tr><td><a href="../../items/ore/gold_ore.html">Gold Ore</a></td><td>300</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>10950</td></tr><tr><td><a href="../../items/ore/nickel_ore.html">Nickel Ore</a></td><td>2550</td></tr><tr><td><a href="../../items/ore/platinum_ore.html">Platinum Ore</a></td><td>2050</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>5300</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>300</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>2900</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>6900</td></tr><tr><td><a href="../../items/ore/water_ice.html">Water Ice</a></td><td>600</td></tr><tr><td><a href="../../items/ore/xenon_gas.html">Xenon Gas</a></td><td>700</td></tr></tbody></table></div></div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>2000</td></tr><tr><td><a href="../../items/ore/carbon_ore.html">Carbon Ore</a></td><td>700</td></tr><tr><td><a href="../../items/ore/copper_ore.html">Copper Ore</a></td><td>4650</td></tr><tr><td><a href="../../items/ore/energy_crystal.html">Energy Crystal</a></td><td>450</td></tr><tr><td><a href="../../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>1950</td></tr><tr><td><a href="../../items/ore/gold_ore.html">Gold Ore</a></td><td>300</td></tr><tr><td><a href="../../items/ore/iron_ore.html">Iron Ore</a></td><td>9450</td></tr><tr><td><a href="../../items/ore/nickel_ore.html">Nickel Ore</a></td><td>2550</td></tr><tr><td><a href="../../items/ore/platinum_ore.html">Platinum Ore</a></td><td>2050</td></tr><tr><td><a href="../../items/ore/silicon_ore.html">Silicon Ore</a></td><td>6200</td></tr><tr><td><a href="../../items/ore/silver_ore.html">Silver Ore</a></td><td>300</td></tr><tr><td><a href="../../items/ore/titanium_ore.html">Titanium Ore</a></td><td>4200</td></tr><tr><td><a href="../../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>5400</td></tr><tr><td><a href="../../items/ore/xenon_gas.html">Xenon Gas</a></td><td>700</td></tr></tbody></table></div></div>
         <details class="bom-json-details">
           <summary>View JSON Data</summary>
-          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:21800},{&#34;item_id&#34;:&#34;carbon_ore&#34;,&#34;quantity&#34;:700},{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:4650},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:1500},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:300},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:10950},{&#34;item_id&#34;:&#34;nickel_ore&#34;,&#34;quantity&#34;:2550},{&#34;item_id&#34;:&#34;platinum_ore&#34;,&#34;quantity&#34;:2050},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:5300},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:300},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:2900},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:6900},{&#34;item_id&#34;:&#34;water_ice&#34;,&#34;quantity&#34;:600},{&#34;item_id&#34;:&#34;xenon_gas&#34;,&#34;quantity&#34;:700}]</pre>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:2000},{&#34;item_id&#34;:&#34;carbon_ore&#34;,&#34;quantity&#34;:700},{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:4650},{&#34;item_id&#34;:&#34;energy_crystal&#34;,&#34;quantity&#34;:450},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:1950},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:300},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:9450},{&#34;item_id&#34;:&#34;nickel_ore&#34;,&#34;quantity&#34;:2550},{&#34;item_id&#34;:&#34;platinum_ore&#34;,&#34;quantity&#34;:2050},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:6200},{&#34;item_id&#34;:&#34;silver_ore&#34;,&#34;quantity&#34;:300},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:4200},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:5400},{&#34;item_id&#34;:&#34;xenon_gas&#34;,&#34;quantity&#34;:700}]</pre>
         </details>
         
     </main>

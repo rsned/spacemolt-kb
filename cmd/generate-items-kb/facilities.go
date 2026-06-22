@@ -24,26 +24,56 @@ type Facility struct {
 	Category    string // production, service, faction, infrastructure, personal
 
 	// Build requirements
-	Level      int
-	Buildable  bool
-	BuildCost  int
-	BuildTime  int
-	LaborCost  int
-	RentPerCycle int
+	Level            int
+	BuildCost        int
+	BuildTime        int
+	LaborCost        int
+	RentPerCycle     int
 	RecipeMultiplier float64
 
 	// Upgrade chain
 	UpgradesFrom     *string // facility ID
 	UpgradesFromName *string
-	UpgradesTo       *string // facility ID
+	UpgradesTo       *string // facility ID (derived from the inverse of UpgradesFrom)
 	UpgradesToName   *string
 	UpgradeChain     *UpgradeChain // Computed full upgrade path
 
 	// Embedded data
 	BuildMaterials      []MaterialRef
 	MaintenancePerCycle []MaterialRef
+	RecipeID            string // resolved into Recipe from the recipe catalog
 	Recipe              *RecipeSummary
 	BoM                 *bom.BoMResult
+
+	// Operational stats (from the unified facility catalog, server v0.418.0+)
+	AlwaysOn          bool
+	PowerDraw         int
+	PowerSupply       int
+	LifeSupportDraw   int
+	LifeSupportSupply int
+	FuelCapacity      int
+	FuelOutput        bool
+	BatteryCapacity   int
+
+	// Role / classification
+	Empire              string
+	Unique              bool
+	ServiceType         string
+	FactionServiceType  string
+	PersonalServiceType string
+	RequiresServiceType string
+	FactionCap          int
+	PersonalBonusType   string
+	PersonalBonusValue  int
+	ScanPower           int
+	ScanFalloff         int
+	FleetUpkeep         bool
+	AllowsContraband    bool
+	PirateBaseOnly      bool
+	StationOrFactionOnly bool
+	ExpansionOf         string
+	ExpansionScale      float64
+	Lore                string
 
 	// Optional descriptive fields
 	SatisfiedDescription *string
@@ -154,6 +184,143 @@ func loadFacilitiesFromJSON(dir string) (map[string]*Facility, error) {
 	return facilities, nil
 }
 
+// facilityCatalogJSON is the unified facility catalog (catalog_facilities.json,
+// server v0.418.0+): a single {"items":[...]} array of full facility records
+// replacing the legacy per-facility facility_details/*.json dumps.
+type facilityCatalogJSON struct {
+	Items []facilityCatalogItem `json:"items"`
+}
+
+// facilityCatalogItem is one entry of the unified facility catalog. Unlike the
+// legacy detail files it carries no embedded recipe (only recipe_id) and no
+// upgrades_to (only upgrades_from); both are reconstructed downstream.
+type facilityCatalogItem struct {
+	ID                string        `json:"id"`
+	Name              string        `json:"name"`
+	Description       string        `json:"description"`
+	Category          string        `json:"category"`
+	Level             int           `json:"level"`
+	BuildCost         int           `json:"build_cost"`
+	BuildTime         int           `json:"build_time"`
+	LaborCost         int           `json:"labor_cost"`
+	BuildMaterials    []MaterialRef  `json:"build_materials"`
+	MaintenanceInputs []MaterialRef  `json:"maintenance_inputs"`
+	RecipeID          string         `json:"recipe_id"`
+	UpgradesFrom      string         `json:"upgrades_from"`
+
+	AlwaysOn          bool `json:"always_on"`
+	PowerDraw         int  `json:"power_draw"`
+	PowerSupply       int  `json:"power_supply"`
+	LifeSupportDraw   int  `json:"life_support_draw"`
+	LifeSupportSupply int  `json:"life_support_supply"`
+	FuelCapacity      int  `json:"fuel_capacity"`
+	FuelOutput        bool `json:"fuel_output"`
+	BatteryCapacity   int  `json:"battery_capacity"`
+
+	Empire               string  `json:"empire"`
+	Unique               bool    `json:"unique"`
+	ServiceType          string  `json:"service_type"`
+	FactionServiceType   string  `json:"faction_service_type"`
+	PersonalServiceType  string  `json:"personal_service_type"`
+	RequiresServiceType  string  `json:"requires_service_type"`
+	FactionCap           int     `json:"faction_cap"`
+	PersonalBonusType    string  `json:"personal_bonus_type"`
+	PersonalBonusValue   int     `json:"personal_bonus_value"`
+	ScanPower            int     `json:"scan_power"`
+	ScanFalloff          int     `json:"scan_falloff"`
+	FleetUpkeep          bool    `json:"fleet_upkeep"`
+	AllowsContraband     bool    `json:"allows_contraband"`
+	PirateBaseOnly       bool    `json:"pirate_base_only"`
+	StationOrFactionOnly bool    `json:"station_or_faction_only"`
+	ExpansionOf          string  `json:"expansion_of"`
+	ExpansionScale       float64 `json:"expansion_scale"`
+	Lore                 string  `json:"lore"`
+
+	SatisfiedDescription string `json:"satisfied_description"`
+	DegradedDescription  string `json:"degraded_description"`
+}
+
+// loadFacilities loads the facility catalog for a snapshot directory, preferring
+// the unified catalog_facilities.json (server v0.418.0+) and falling back to the
+// legacy facility_details/ directory for older snapshots.
+func loadFacilities(catalogDir string) (map[string]*Facility, error) {
+	catalogPath := filepath.Join(catalogDir, "catalog_facilities.json")
+	if data, err := os.ReadFile(catalogPath); err == nil {
+		return parseFacilityCatalog(data)
+	}
+	return loadFacilitiesFromJSON(filepath.Join(catalogDir, "facility_details"))
+}
+
+// parseFacilityCatalog parses the unified facility catalog blob.
+func parseFacilityCatalog(data []byte) (map[string]*Facility, error) {
+	var cat facilityCatalogJSON
+	if err := json.Unmarshal(data, &cat); err != nil {
+		return nil, fmt.Errorf("unmarshal facility catalog: %w", err)
+	}
+
+	facilities := make(map[string]*Facility, len(cat.Items))
+	for i := range cat.Items {
+		fac := convertCatalogItemToFacility(&cat.Items[i])
+		facilities[fac.ID] = fac
+	}
+	return facilities, nil
+}
+
+// convertCatalogItemToFacility converts a unified-catalog item to a Facility.
+func convertCatalogItemToFacility(raw *facilityCatalogItem) *Facility {
+	fac := &Facility{
+		ID:                  raw.ID,
+		Name:                raw.Name,
+		Description:         raw.Description,
+		Category:            raw.Category,
+		Level:               raw.Level,
+		BuildCost:           raw.BuildCost,
+		BuildTime:           raw.BuildTime,
+		LaborCost:           raw.LaborCost,
+		BuildMaterials:      raw.BuildMaterials,
+		MaintenancePerCycle: raw.MaintenanceInputs,
+		RecipeID:            raw.RecipeID,
+		AlwaysOn:            raw.AlwaysOn,
+		PowerDraw:           raw.PowerDraw,
+		PowerSupply:         raw.PowerSupply,
+		LifeSupportDraw:     raw.LifeSupportDraw,
+		LifeSupportSupply:   raw.LifeSupportSupply,
+		FuelCapacity:        raw.FuelCapacity,
+		FuelOutput:          raw.FuelOutput,
+		BatteryCapacity:     raw.BatteryCapacity,
+		Empire:              raw.Empire,
+		Unique:              raw.Unique,
+		ServiceType:         raw.ServiceType,
+		FactionServiceType:  raw.FactionServiceType,
+		PersonalServiceType: raw.PersonalServiceType,
+		RequiresServiceType: raw.RequiresServiceType,
+		FactionCap:          raw.FactionCap,
+		PersonalBonusType:   raw.PersonalBonusType,
+		PersonalBonusValue:  raw.PersonalBonusValue,
+		ScanPower:           raw.ScanPower,
+		ScanFalloff:         raw.ScanFalloff,
+		FleetUpkeep:         raw.FleetUpkeep,
+		AllowsContraband:    raw.AllowsContraband,
+		PirateBaseOnly:      raw.PirateBaseOnly,
+		StationOrFactionOnly: raw.StationOrFactionOnly,
+		ExpansionOf:         raw.ExpansionOf,
+		ExpansionScale:      raw.ExpansionScale,
+		Lore:                raw.Lore,
+	}
+
+	if raw.UpgradesFrom != "" {
+		fac.UpgradesFrom = &raw.UpgradesFrom
+	}
+	if raw.SatisfiedDescription != "" {
+		fac.SatisfiedDescription = &raw.SatisfiedDescription
+	}
+	if raw.DegradedDescription != "" {
+		fac.DegradedDescription = &raw.DegradedDescription
+	}
+
+	return fac
+}
+
 // convertJSONToFacility converts raw JSON to Facility struct.
 func convertJSONToFacility(raw *facilityJSON) *Facility {
 	fac := &Facility{
@@ -162,7 +329,6 @@ func convertJSONToFacility(raw *facilityJSON) *Facility {
 		Description:      raw.Description,
 		Category:         raw.Category,
 		Level:            raw.Level,
-		Buildable:        raw.Buildable,
 		BuildCost:        raw.BuildCost,
 		BuildTime:        raw.BuildTime,
 		LaborCost:        raw.LaborCost,
@@ -170,6 +336,7 @@ func convertJSONToFacility(raw *facilityJSON) *Facility {
 		RecipeMultiplier: raw.RecipeMultiplier,
 		BuildMaterials:   raw.BuildMaterials,
 		MaintenancePerCycle: raw.MaintenancePerCycle,
+		RecipeID:         raw.RecipeID,
 		Recipe:           raw.Recipe,
 	}
 
@@ -259,11 +426,9 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
                 <thead>
                     <tr>
                         <th class="sortable">Name</th>
-                        <th class="sortable">Buildable</th>
                         <th class="sortable">Level</th>
                         <th class="sortable">Build Cost</th>
                         <th class="sortable">Labor</th>
-                        <th class="sortable">Rent</th>
                         <th class="sortable">Recipe Output</th>
                     </tr>
                 </thead>
@@ -271,11 +436,9 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
 {{- range .Facilities}}
                     <tr>
                         <td><a href="{{.ID}}.html">{{.Name}}</a></td>
-                        <td data-sort="{{if .Buildable}}1{{else}}0{{end}}">{{if .Buildable}}<span class="badge badge-buildable">Yes</span>{{else}}<span class="badge badge-locked">No</span>{{end}}</td>
                         <td data-sort="{{.Level}}">{{.Level}}</td>
                         <td data-sort="{{.BuildCost}}">{{fmtValue .BuildCost}}</td>
                         <td data-sort="{{.LaborCost}}">{{.LaborCost}}</td>
-                        <td data-sort="{{.RentPerCycle}}">{{fmtValue .RentPerCycle}}</td>
                         <td>
 {{- if .Recipe}}
 {{- if .Recipe.Category}}
@@ -283,7 +446,6 @@ var htmlFacilitiesCategoryTemplate = `<!DOCTYPE html>
 {{- else}}
                             {{.Recipe.Name}}
 {{- end}}
-                            <span class="text-muted">&times;{{printf "%.2f" .RecipeMultiplier}}</span>
 {{- else}}
                             <span class="text-muted">none</span>
 {{- end}}
@@ -314,21 +476,54 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">{{titleCase .Facility.Category}}</a> / {{.Facility.Name}}</div>
 
-        <h2>{{.Facility.Name}} {{if .Facility.Buildable}}<span class="badge badge-buildable">Buildable</span>{{else}}<span class="badge badge-locked">Not Buildable</span>{{end}}</h2>
+        <h2>{{.Facility.Name}}{{if .Facility.Unique}} <span class="badge badge-rare">Unique</span>{{end}}{{if .Facility.AlwaysOn}} <span class="badge">Always On</span>{{end}}</h2>
 
         {{if .Facility.Description}}
         <blockquote class="item-desc">{{.Facility.Description}}</blockquote>
+        {{end}}
+
+        {{if .Facility.Lore}}
+        <blockquote class="item-desc" style="font-style:italic">{{.Facility.Lore}}</blockquote>
         {{end}}
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Stats</div>
             <table>
                 <tr><td class="kv-label">Level</td><td>{{.Facility.Level}}</td></tr>
+                {{if .Facility.Empire}}<tr><td class="kv-label">Empire</td><td>{{titleCase .Facility.Empire}}</td></tr>{{end}}
                 <tr><td class="kv-label">Build Cost</td><td>{{fmtValue .Facility.BuildCost}}</td></tr>
+                {{if gt .Facility.BuildTime 0}}<tr><td class="kv-label">Build Time</td><td>{{.Facility.BuildTime}}s</td></tr>{{end}}
                 <tr><td class="kv-label">Labor</td><td>{{.Facility.LaborCost}}</td></tr>
-                <tr><td class="kv-label">Rent/Cycle</td><td>{{fmtValue .Facility.RentPerCycle}}</td></tr>
+                {{if gt .Facility.PowerDraw 0}}<tr><td class="kv-label">Power Draw</td><td>{{.Facility.PowerDraw}}</td></tr>{{end}}
+                {{if gt .Facility.PowerSupply 0}}<tr><td class="kv-label">Power Supply</td><td>{{.Facility.PowerSupply}}</td></tr>{{end}}
+                {{if gt .Facility.LifeSupportDraw 0}}<tr><td class="kv-label">Life Support Draw</td><td>{{.Facility.LifeSupportDraw}}</td></tr>{{end}}
+                {{if gt .Facility.LifeSupportSupply 0}}<tr><td class="kv-label">Life Support Supply</td><td>{{.Facility.LifeSupportSupply}}</td></tr>{{end}}
+                {{if gt .Facility.FuelCapacity 0}}<tr><td class="kv-label">Fuel Capacity</td><td>{{.Facility.FuelCapacity}}</td></tr>{{end}}
+                {{if .Facility.FuelOutput}}<tr><td class="kv-label">Fuel Output</td><td>Yes</td></tr>{{end}}
+                {{if gt .Facility.BatteryCapacity 0}}<tr><td class="kv-label">Battery Capacity</td><td>{{.Facility.BatteryCapacity}}</td></tr>{{end}}
             </table>
         </div>
+
+        {{if facilityHasProperties .Facility}}
+        <div class="card" style="padding:0">
+            <div class="section-label">Properties</div>
+            <table>
+                {{if .Facility.ServiceType}}<tr><td class="kv-label">Service</td><td>{{titleCase .Facility.ServiceType}}</td></tr>{{end}}
+                {{if .Facility.FactionServiceType}}<tr><td class="kv-label">Faction Service</td><td>{{titleCase .Facility.FactionServiceType}}</td></tr>{{end}}
+                {{if .Facility.PersonalServiceType}}<tr><td class="kv-label">Personal Service</td><td>{{titleCase .Facility.PersonalServiceType}}</td></tr>{{end}}
+                {{if .Facility.RequiresServiceType}}<tr><td class="kv-label">Requires Service</td><td>{{titleCase .Facility.RequiresServiceType}}</td></tr>{{end}}
+                {{if .Facility.PersonalBonusType}}<tr><td class="kv-label">Personal Bonus</td><td>{{titleCase .Facility.PersonalBonusType}}{{if gt .Facility.PersonalBonusValue 0}} (+{{.Facility.PersonalBonusValue}}){{end}}</td></tr>{{end}}
+                {{if gt .Facility.FactionCap 0}}<tr><td class="kv-label">Faction Cap</td><td>{{.Facility.FactionCap}}</td></tr>{{end}}
+                {{if gt .Facility.ScanPower 0}}<tr><td class="kv-label">Scan Power</td><td>{{.Facility.ScanPower}}</td></tr>{{end}}
+                {{if gt .Facility.ScanFalloff 0}}<tr><td class="kv-label">Scan Falloff</td><td>{{.Facility.ScanFalloff}}</td></tr>{{end}}
+                {{if .Facility.FleetUpkeep}}<tr><td class="kv-label">Fleet Upkeep</td><td>Yes</td></tr>{{end}}
+                {{if .Facility.AllowsContraband}}<tr><td class="kv-label">Allows Contraband</td><td>Yes</td></tr>{{end}}
+                {{if .Facility.PirateBaseOnly}}<tr><td class="kv-label">Pirate Base Only</td><td>Yes</td></tr>{{end}}
+                {{if .Facility.StationOrFactionOnly}}<tr><td class="kv-label">Station/Faction Only</td><td>Yes</td></tr>{{end}}
+                {{if .Facility.ExpansionOf}}<tr><td class="kv-label">Expansion Of</td><td>{{titleCase .Facility.ExpansionOf}}{{if gt .Facility.ExpansionScale 0.0}} (&times;{{printf "%.2f" .Facility.ExpansionScale}}){{end}}</td></tr>{{end}}
+            </table>
+        </div>
+        {{end}}
 
         {{if .Facility.UpgradeChain}}
         <div class="card" style="padding:0">
@@ -343,7 +538,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
         <div class="card" style="padding:0">
             <div class="section-label">Recipe</div>
             <table>
-                <tr><td class="kv-label">Output</td><td>{{if .Facility.Recipe.Category}}<a href="../../recipes/{{dirName .Facility.Recipe.Category}}/{{.Facility.Recipe.ID}}.html">{{.Facility.Recipe.Name}}</a>{{else}}{{.Facility.Recipe.Name}}{{end}} <span class="text-muted">&times;{{printf "%.2f" .Facility.RecipeMultiplier}}</span></td></tr>
+                <tr><td class="kv-label">Output</td><td>{{if .Facility.Recipe.Category}}<a href="../../recipes/{{dirName .Facility.Recipe.Category}}/{{.Facility.Recipe.ID}}.html">{{.Facility.Recipe.Name}}</a>{{else}}{{.Facility.Recipe.Name}}{{end}}{{if gt .Facility.RecipeMultiplier 0.0}} <span class="text-muted">&times;{{printf "%.2f" .Facility.RecipeMultiplier}}</span>{{end}}</td></tr>
                 <tr><td class="kv-label">Crafting Time</td><td>{{.Facility.Recipe.CraftingTime}}s</td></tr>
             </table>
             {{if .Facility.Recipe.Inputs}}
@@ -420,7 +615,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
 `
 
 // writeFacilityPages generates all facility HTML pages.
-func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes map[string]*Recipe, items map[string]*Item) error {
+func writeFacilityPages(outDir string, facilities map[string]*Facility, items map[string]*Item) error {
 	// Build upgrade chains for all facilities
 	buildUpgradeChains(facilities)
 
@@ -456,10 +651,11 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 
 	// Create template functions
 	funcs := htmltpl.FuncMap{
-		"fmtValue":   fmtValue,
-		"titleCase":  titleCase,
-		"dirName":    dirName,
-		"upgradeSVG": generateUpgradeSVG,
+		"fmtValue":               fmtValue,
+		"titleCase":              titleCase,
+		"dirName":                dirName,
+		"upgradeSVG":             generateUpgradeSVG,
+		"facilityHasProperties":  facilityHasProperties,
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
 		},
@@ -544,98 +740,116 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, recipes 
 	return nil
 }
 
-// validateFacilityRecipes checks that embedded recipe summaries match the full recipe data.
-func validateFacilityRecipes(facilities map[string]*Facility, recipes map[string]*Recipe) {
+// resolveFacilityRecipes attaches a RecipeSummary to each facility, keyed by
+// RecipeID. The unified facility catalog no longer embeds recipe input/output
+// detail (only recipe_id), so recipes are resolved from, in order: the crafting
+// recipe DB (authoritative, has a recipe page to link to), then the snapshot's
+// catalog_recipes.json (fallback used when the separately-maintained crafting DB
+// lags the scrape — rendered as plain text since no recipe page exists). Recipe
+// IDs absent from both are genuine server-side gaps and warned about. Legacy
+// snapshots that still embed a recipe keep it; the category is backfilled.
+func resolveFacilityRecipes(facilities map[string]*Facility, recipes map[string]*Recipe, catalogRecipes map[string]*RecipeSummary) {
 	for _, fac := range facilities {
-		if fac.Recipe == nil {
+		if fac.RecipeID == "" {
 			continue
 		}
-
-		recipe, exists := recipes[fac.Recipe.ID]
-		if !exists {
-			log.Printf("warning: facility %s references unknown recipe %s", fac.ID, fac.Recipe.ID)
-			continue
-		}
-
-		// Populate category from full recipe
-		fac.Recipe.Category = recipe.Category
-
-		// Compare inputs
-		if len(fac.Recipe.Inputs) != len(recipe.Inputs) {
-			log.Printf("warning: facility %s recipe %s input count mismatch: facility has %d, recipe has %d",
-				fac.ID, fac.Recipe.ID, len(fac.Recipe.Inputs), len(recipe.Inputs))
-		}
-
-		// Build maps for comparison
-		facInputs := make(map[string]int)
-		for _, input := range fac.Recipe.Inputs {
-			facInputs[input.ItemID] = input.Quantity
-		}
-
-		recipeInputs := make(map[string]int)
-		for _, input := range recipe.Inputs {
-			recipeInputs[input.ItemID] = input.Quantity
-		}
-
-		// Check for missing or different quantities in facility
-		for itemID, qty := range recipeInputs {
-			facQty, ok := facInputs[itemID]
-			if !ok {
-				log.Printf("warning: facility %s recipe %s missing input item %s", fac.ID, fac.Recipe.ID, itemID)
-			} else if facQty != qty {
-				log.Printf("warning: facility %s recipe %s input %s quantity mismatch: facility has %d, recipe has %d",
-					fac.ID, fac.Recipe.ID, itemID, facQty, qty)
+		craft, inCraft := recipes[fac.RecipeID]
+		switch {
+		case fac.Recipe != nil:
+			// Legacy embedded recipe: backfill category for linking if known.
+			if inCraft && fac.Recipe.Category == "" {
+				fac.Recipe.Category = craft.Category
 			}
-		}
-
-		// Check for extra items in facility
-		for itemID := range facInputs {
-			if _, ok := recipeInputs[itemID]; !ok {
-				log.Printf("warning: facility %s recipe %s has extra input item %s", fac.ID, fac.Recipe.ID, itemID)
+		case inCraft:
+			fac.Recipe = recipeToSummary(craft)
+		default:
+			if sum, ok := catalogRecipes[fac.RecipeID]; ok {
+				fac.Recipe = cloneRecipeSummary(sum)
+			} else {
+				log.Printf("warning: facility %s references unknown recipe %s", fac.ID, fac.RecipeID)
 			}
-		}
-
-		// Compare outputs
-		if len(fac.Recipe.Outputs) != len(recipe.Outputs) {
-			log.Printf("warning: facility %s recipe %s output count mismatch: facility has %d, recipe has %d",
-				fac.ID, fac.Recipe.ID, len(fac.Recipe.Outputs), len(recipe.Outputs))
-		}
-
-		// Build maps for comparison
-		facOutputs := make(map[string]int)
-		for _, output := range fac.Recipe.Outputs {
-			facOutputs[output.ItemID] = output.Quantity
-		}
-
-		recipeOutputs := make(map[string]int)
-		for _, output := range recipe.Outputs {
-			recipeOutputs[output.ItemID] = output.Quantity
-		}
-
-		// Check for missing or different quantities in facility
-		for itemID, qty := range recipeOutputs {
-			facQty, ok := facOutputs[itemID]
-			if !ok {
-				log.Printf("warning: facility %s recipe %s missing output item %s", fac.ID, fac.Recipe.ID, itemID)
-			} else if facQty != qty {
-				log.Printf("warning: facility %s recipe %s output %s quantity mismatch: facility has %d, recipe has %d",
-					fac.ID, fac.Recipe.ID, itemID, facQty, qty)
-			}
-		}
-
-		// Check for extra items in facility
-		for itemID := range facOutputs {
-			if _, ok := recipeOutputs[itemID]; !ok {
-				log.Printf("warning: facility %s recipe %s has extra output item %s", fac.ID, fac.Recipe.ID, itemID)
-			}
-		}
-
-		// Compare crafting time
-		if fac.Recipe.CraftingTime != recipe.CraftingTime {
-			log.Printf("warning: facility %s recipe %s crafting time mismatch: facility has %g, recipe has %g",
-				fac.ID, fac.Recipe.ID, fac.Recipe.CraftingTime, recipe.CraftingTime)
 		}
 	}
+}
+
+// cloneRecipeSummary returns a deep copy of a RecipeSummary so facilities that
+// share a fallback recipe do not alias each other's MaterialRef slices (which
+// are mutated in place by populateMaterialCategories).
+func cloneRecipeSummary(s *RecipeSummary) *RecipeSummary {
+	out := *s
+	out.Inputs = append([]MaterialRef(nil), s.Inputs...)
+	out.Outputs = append([]MaterialRef(nil), s.Outputs...)
+	return &out
+}
+
+// catalogRecipeJSON mirrors catalog_recipes.json, used only as a fallback source
+// of facility recipe detail. Input/output entries carry item_id + quantity but
+// no item name; names are backfilled from the items catalog downstream.
+type catalogRecipeJSON struct {
+	Items []struct {
+		ID           string        `json:"id"`
+		Name         string        `json:"name"`
+		Category     string        `json:"category"`
+		CraftingTime float64       `json:"crafting_time"`
+		Inputs       []MaterialRef `json:"inputs"`
+		Outputs      []MaterialRef `json:"outputs"`
+	} `json:"items"`
+}
+
+// loadCatalogRecipeSummaries loads recipe summaries from the snapshot's
+// catalog_recipes.json for use as a facility-recipe fallback. Category is left
+// blank so callers render the recipe name as plain text rather than linking to a
+// recipe page that the crafting DB (the recipe-page source) did not generate.
+func loadCatalogRecipeSummaries(path string) (map[string]*RecipeSummary, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var cat catalogRecipeJSON
+	if err := json.Unmarshal(data, &cat); err != nil {
+		return nil, fmt.Errorf("unmarshal catalog recipes: %w", err)
+	}
+	out := make(map[string]*RecipeSummary, len(cat.Items))
+	for i := range cat.Items {
+		r := &cat.Items[i]
+		out[r.ID] = &RecipeSummary{
+			ID:           r.ID,
+			Name:         r.Name,
+			CraftingTime: r.CraftingTime,
+			Inputs:       r.Inputs,
+			Outputs:      r.Outputs,
+		}
+	}
+	return out, nil
+}
+
+// recipeToSummary builds the facility-embedded RecipeSummary view from a full
+// recipe catalog entry.
+func recipeToSummary(r *Recipe) *RecipeSummary {
+	sum := &RecipeSummary{
+		ID:           r.ID,
+		Name:         r.Name,
+		Category:     r.Category,
+		CraftingTime: r.CraftingTime,
+		Inputs:       make([]MaterialRef, len(r.Inputs)),
+		Outputs:      make([]MaterialRef, len(r.Outputs)),
+	}
+	for i, in := range r.Inputs {
+		sum.Inputs[i] = MaterialRef{ItemID: in.ItemID, Name: in.ItemName, Quantity: in.Quantity}
+	}
+	for i, out := range r.Outputs {
+		sum.Outputs[i] = MaterialRef{ItemID: out.ItemID, Name: out.ItemName, Quantity: out.Quantity}
+	}
+	return sum
+}
+
+// facilityHasProperties reports whether a facility has any classification or
+// role fields worth rendering in the Properties card.
+func facilityHasProperties(f *Facility) bool {
+	return f.ServiceType != "" || f.FactionServiceType != "" || f.PersonalServiceType != "" ||
+		f.RequiresServiceType != "" || f.PersonalBonusType != "" || f.FactionCap > 0 ||
+		f.ScanPower > 0 || f.ScanFalloff > 0 || f.FleetUpkeep || f.AllowsContraband ||
+		f.PirateBaseOnly || f.StationOrFactionOnly || f.ExpansionOf != ""
 }
 
 // populateBuiltByFacility adds a BuiltBy entry on each item for every facility
@@ -677,36 +891,52 @@ func populateBuiltByFacility(items map[string]*Item, facilities map[string]*Faci
 	}
 }
 
-// populateMaterialCategories resolves item categories on all MaterialRefs for correct HTML linking.
+// populateMaterialCategories resolves item categories and names on all
+// MaterialRefs for correct HTML linking and display. The unified facility
+// catalog omits item names on build materials, maintenance inputs, and recipe
+// inputs/outputs, so names are backfilled from the items catalog here.
 func populateMaterialCategories(facilities map[string]*Facility, items map[string]*Item) {
 	for _, fac := range facilities {
-		for i := range fac.BuildMaterials {
-			if item, ok := items[fac.BuildMaterials[i].ItemID]; ok {
-				fac.BuildMaterials[i].Category = item.Category
-			}
-		}
-		for i := range fac.MaintenancePerCycle {
-			if item, ok := items[fac.MaintenancePerCycle[i].ItemID]; ok {
-				fac.MaintenancePerCycle[i].Category = item.Category
-			}
-		}
+		populateMaterialRefs(fac.BuildMaterials, items)
+		populateMaterialRefs(fac.MaintenancePerCycle, items)
 		if fac.Recipe != nil {
-			for i := range fac.Recipe.Inputs {
-				if item, ok := items[fac.Recipe.Inputs[i].ItemID]; ok {
-					fac.Recipe.Inputs[i].Category = item.Category
-				}
+			populateMaterialRefs(fac.Recipe.Inputs, items)
+			populateMaterialRefs(fac.Recipe.Outputs, items)
+		}
+	}
+}
+
+// populateMaterialRefs backfills the Category (for linking) and Name (for
+// display) of each MaterialRef from the items catalog, falling back to the item
+// ID when the item is unknown so cells are never blank.
+func populateMaterialRefs(refs []MaterialRef, items map[string]*Item) {
+	for i := range refs {
+		if item, ok := items[refs[i].ItemID]; ok {
+			refs[i].Category = item.Category
+			if refs[i].Name == "" {
+				refs[i].Name = item.Name
 			}
-			for i := range fac.Recipe.Outputs {
-				if item, ok := items[fac.Recipe.Outputs[i].ItemID]; ok {
-					fac.Recipe.Outputs[i].Category = item.Category
-				}
-			}
+		}
+		if refs[i].Name == "" {
+			refs[i].Name = refs[i].ItemID
 		}
 	}
 }
 
 // buildUpgradeChains populates the UpgradeChain field for all facilities.
 func buildUpgradeChains(facilities map[string]*Facility) {
+	// The unified catalog provides only upgrades_from; reconstruct the forward
+	// links (upgrades_to) by inverting it so chains render in both directions.
+	for _, fac := range facilities {
+		if fac.UpgradesFrom == nil || *fac.UpgradesFrom == "" {
+			continue
+		}
+		if prev, ok := facilities[*fac.UpgradesFrom]; ok {
+			id := fac.ID
+			prev.UpgradesTo = &id
+		}
+	}
+
 	for _, fac := range facilities {
 		chain := &UpgradeChain{Links: []UpgradeChainLink{}}
 
