@@ -2942,7 +2942,7 @@ var recipeCatTemplate = `<!DOCTYPE html>
         <div class="card mt-3" style="padding:0">
         <table class="sortable">
         <thead>
-        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable" style="text-align:right">Time</th></tr>
+        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable">Craft At</th><th class="sortable" style="text-align:right">Time</th></tr>
         </thead>
         <tbody>
 {{- range .Recipes}}
@@ -2950,6 +2950,7 @@ var recipeCatTemplate = `<!DOCTYPE html>
           <td><a href="{{.ID}}.html">{{.Name}}</a>{{if .Hidden}} <span class="badge badge-hidden" title="Hidden">H</span>{{end}}</td>
           <td>{{- range .Outputs}}{{if .ItemCategory}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html" class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</a>{{else}}<span class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</span>{{end}}{{end}}</td>
           <td class="recipe-inputs">{{- range $i, $inp := .Inputs}}{{if $i}}, {{end}}{{if $inp.ItemCategory}}<a href="../../items/{{$inp.ItemCategory}}/{{$inp.ItemID}}.html">{{$inp.ItemName}}</a>{{else}}{{$inp.ItemName}}{{end}}&nbsp;&times;{{$inp.Quantity}}{{end}}</td>
+          <td data-sort="{{if .FacilityOnly}}1{{else}}0{{end}}">{{if .FacilityOnly}}<span class="badge badge-frost" title="Requires a production facility">Facility Only</span>{{else}}<span class="badge badge-green" title="Can be crafted by hand, no facility required">Hand Craftable</span>{{end}}</td>
           <td class="time" data-sort="{{.CraftingTime}}">{{.CraftingTime}}s</td>
         </tr>
 {{- end}}
@@ -3013,11 +3014,9 @@ var recipeDetailTemplate = `<!DOCTYPE html>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
             <tr><td class="kv-label">Crafting Time</td><td>{{.CraftingTime}}s</td></tr>
+            <tr><td class="kv-label">Craft At</td><td>{{if .FacilityOnly}}<span class="badge badge-frost" title="Requires a production facility">Facility Only</span>{{else}}<span class="badge badge-green" title="Can be crafted by hand, no facility required">Hand Craftable</span>{{end}}</td></tr>
 {{- if gt .FuelOutput 0}}
             <tr><td class="kv-label">Fuel Output</td><td>{{.FuelOutput}}</td></tr>
-{{- end}}
-{{- if .FacilityOnly}}
-            <tr><td class="kv-label">Facility Only</td><td>Yes</td></tr>
 {{- end}}
 {{- if .NoRecycle}}
             <tr><td class="kv-label">Recyclable</td><td>No</td></tr>
