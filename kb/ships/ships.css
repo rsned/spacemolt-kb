@@ -84,14 +84,26 @@ td.num, th:not(:first-child) {
 }
 
 /* All-ships sortable comparison table */
+/* Let the wide 21-column comparison table use the full viewport width so
+   every column is visible without horizontal scrolling. */
+.container.ships-all-page {
+  max-width: 100%;
+}
+
 .all-ships-table {
   overflow-x: auto;
   margin-top: 1rem;
 }
 
+/* Dense cells so all columns fit on screen. Override the default 16px
+   page-content table size. */
+.page-content .all-ships-table table {
+  font-size: 13px;
+}
+
 .all-ships-table td,
 .all-ships-table th {
-  padding: 0.3rem 0.6rem;
+  padding: 0.25rem 0.5rem;
   white-space: nowrap;
 }
 

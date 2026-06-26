@@ -416,7 +416,7 @@ var shipAllTemplate = `<!DOCTYPE html>
 </head>
 <body>
 ` + siteHeader + `
-    <main class="container page-content">
+    <main class="container page-content ships-all-page">
       <div class="breadcrumb"><a href="index.html">Ships</a> / All Ships</div>
       <h2>All Ships</h2>
       <p class="text-muted mt-1">All {{.TotalShips}} ship classes in one table. Click any column header to sort &mdash; click again to reverse.</p>
