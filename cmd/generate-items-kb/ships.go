@@ -253,6 +253,21 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		return err
 	}
 
+	// Write the flat, fully-sortable all-ships table page.
+	allShips := slices.Clone(ships)
+	slices.SortFunc(allShips, func(a, b *Ship) int { return cmp.Compare(a.Name, b.Name) })
+	type allPageData struct {
+		Ships      []*Ship
+		TotalShips int
+	}
+	allTmpl := htmltpl.Must(htmltpl.New("ships-all").Funcs(funcs).Parse(shipAllTemplate))
+	if err := writeTemplate(filepath.Join(outDir, "all.html"), allTmpl, allPageData{
+		Ships:      allShips,
+		TotalShips: totalShips,
+	}); err != nil {
+		return err
+	}
+
 	// Write individual ship detail pages.
 	detailTmpl := htmltpl.Must(htmltpl.New("ship-detail").Funcs(funcs).Parse(shipDetailTemplate))
 	for _, ship := range ships {
@@ -329,6 +344,7 @@ var shipPageTemplate = `<!DOCTYPE html>
     <main class="container page-content">
       <h2>Ships</h2>
       <p class="text-muted mt-1">{{.TotalShips}} ship classes across {{.TotalCats}} categories and {{.TotalFactions}} factions.</p>
+      <p class="mt-2"><a href="all.html">&#x25A4; All Ships &mdash; sortable comparison table &rarr;</a></p>
 
       <nav class="card mt-3" id="toc">
         <div class="card-header"><span class="label">Categories</span></div>
@@ -385,6 +401,84 @@ var shipPageTemplate = `<!DOCTYPE html>
 {{end}}
     </main>
 ` + themeScript + `
+</body>
+</html>
+`
+
+var shipAllTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Ships - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="ships.css">
+</head>
+<body>
+` + siteHeader + `
+    <main class="container page-content">
+      <div class="breadcrumb"><a href="index.html">Ships</a> / All Ships</div>
+      <h2>All Ships</h2>
+      <p class="text-muted mt-1">All {{.TotalShips}} ship classes in one table. Click any column header to sort &mdash; click again to reverse.</p>
+
+      <div class="all-ships-table">
+        <table class="sortable">
+          <thead>
+            <tr>
+              <th class="sortable">Name</th>
+              <th class="sortable">Category</th>
+              <th class="sortable">Class</th>
+              <th class="sortable">Faction</th>
+              <th class="sortable">Tier</th>
+              <th class="sortable">Hull</th>
+              <th class="sortable">Armor</th>
+              <th class="sortable">Shield</th>
+              <th class="sortable">Shd Regen/t</th>
+              <th class="sortable">Speed</th>
+              <th class="sortable">Fuel</th>
+              <th class="sortable">Cargo</th>
+              <th class="sortable">Wpn</th>
+              <th class="sortable">Def</th>
+              <th class="sortable">Util</th>
+              <th class="sortable">Power</th>
+              <th class="sortable">CPU</th>
+              <th class="sortable">Price</th>
+              <th class="sortable">Build</th>
+              <th class="sortable">Yard</th>
+              <th class="sortable">Pilot</th>
+            </tr>
+          </thead>
+          <tbody>
+{{- range .Ships}}
+            <tr>
+              <td><a href="{{.Category}}/{{.ID}}.html">{{.Name}}</a>{{if hasPassive .}} <span class="badge badge-green" title="Passive Recipes: {{range $i, $r := .PassiveRecipes}}{{if $i}}, {{end}}{{recipeName $r}}{{end}}">&#x2692;</span>{{end}}</td>
+              <td>{{.Category}}</td>
+              <td>{{.Class}}</td>
+              <td data-sort="{{factionDisplayName .Faction}}"><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td>
+              <td class="num">{{.Tier}}</td>
+              <td class="num">{{.BaseHull}}</td>
+              <td class="num">{{.BaseArmor}}</td>
+              <td class="num">{{.BaseShield}}</td>
+              <td class="num">{{.BaseShieldRecharge}}</td>
+              <td class="num">{{.BaseSpeed}}</td>
+              <td class="num">{{.BaseFuel}}</td>
+              <td class="num">{{.CargoCapacity}}</td>
+              <td class="num">{{.WeaponSlots}}</td>
+              <td class="num">{{.DefenseSlots}}</td>
+              <td class="num">{{.UtilitySlots}}</td>
+              <td class="num">{{.PowerCapacity}}</td>
+              <td class="num">{{.CPUCapacity}}</td>
+              <td class="num">{{.Price}}</td>
+              <td class="num">{{.BuildTime}}</td>
+              <td class="num">{{.ShipyardTier}}</td>
+              <td class="num">{{.PilotingRequired}}</td>
+            </tr>
+{{- end}}
+          </tbody>
+        </table>
+      </div>
+    </main>
+` + sortScript + themeScript + `
 </body>
 </html>
 `

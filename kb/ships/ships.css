@@ -83,6 +83,32 @@ td.num, th:not(:first-child) {
   overflow-x: auto;
 }
 
+/* All-ships sortable comparison table */
+.all-ships-table {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.all-ships-table td,
+.all-ships-table th {
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+}
+
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  color: hsl(var(--primary));
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  font-size: 10px;
+}
+
 /* Ship detail page styles */
 .ship-lore {
   padding: 1rem 1.5rem;
