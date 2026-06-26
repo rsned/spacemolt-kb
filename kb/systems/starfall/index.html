@@ -200,10 +200,10 @@
                     <div class="base-stats">
                         <span class="badge badge-green">Public</span>
                         <span class="badge badge-frost">Defense 30</span>
-                        <span class="badge badge-red">Critical</span>
+                        <span class="badge badge-yellow">Struggling</span>
                     </div>
                 </div>
-                <p class="base-desc" style="font-style:italic; opacity:0.85">Critical infrastructure failure. Emergency lighting only. Station barely functional.</p>
+                <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
                 <p class="base-desc">Built around a captured asteroid in the belt&#39;s densest region. Starfall attracts prospectors chasing uranium and lithium — materials the core empires need and can&#39;t easily source. The station runs a brisk trade in salvage, raw ore, and information about what&#39;s deeper in the frontier. No questions asked, no manifests required.</p>
                 <details class="base-story"><summary>Station Log</summary><p>You dock at Starfall Salvage Station. Built around a captured asteroid in the belt&#39;s densest region. Starfall attracts prospectors chasing uranium and lithium — materials the core empires need and can&#39;t easily source. The station runs a brisk trade in salvage, raw ore, and information about what&#39;s deeper in the frontier. No questions asked, no manifests required.
 
@@ -216,7 +216,7 @@ The station has the following facilities:
 ...and 21 more facilities.
 </p></details>
                 <div class="base-meta">
-                    <span class="label">Satisfaction: 9% (1/11 infrastructure)</span>
+                    <span class="label">Satisfaction: 64% (9/14 infrastructure)</span>
                 </div>
                 <div class="base-sections">
                     <div>
@@ -227,7 +227,6 @@ The station has the following facilities:
                             <span class="service-tag available">Missions</span>
                             <span class="service-tag available">Refuel</span>
                             <span class="service-tag available">Repair</span>
-                            <span class="service-tag available">Salvage yard</span>
                             <span class="service-tag available">Shipyard</span>
                             <span class="service-tag available">Storage</span>
                         </div>
@@ -238,12 +237,52 @@ The station has the following facilities:
                             <thead><tr><th>Facility</th><th>Category</th><th>Level</th></tr></thead>
                             <tbody>
                                 <tr>
-                                  <td>Fusion power core</td>
+                                  <td>Faction desk</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Faction lockbox</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Hiring board</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Intel terminal</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Notice board</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Battery bank</td>
                                   <td><span class="badge ">infrastructure</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Life support system</td>
+                                  <td>Fuel bunker</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Habitat core</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Life support expansion <span class="badge badge-muted">x2</span></td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Power grid</td>
                                   <td><span class="badge ">infrastructure</span></td>
                                   <td>0</td>
                                 </tr>
@@ -253,12 +292,7 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Crew bunk</td>
-                                  <td><span class="badge ">personal</span></td>
-                                  <td>0</td>
-                                </tr>
-                                <tr>
-                                  <td>Acid bath vat</td>
+                                  <td>Centrifuge cascade</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -273,17 +307,22 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Crystal refinery</td>
+                                  <td>Enriched uranium rod extraction unit</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Fluorine acid bath</td>
+                                  <td>Fluorination chamber</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Fuel cell plant</td>
+                                  <td>Frost furnace</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Fuel cell workshop</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -293,12 +332,72 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>H2 fuel combustor</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Heavy ice melter</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Iron refinery</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Lead blast furnace</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Lead rolling mill</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Lead shielding assembly line</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Nuclear cell foundry</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Plasma cell charging station</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Polonium doping cell</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Radium extraction cell</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Repair kit factory</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Shielded cell plant</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Uranium leach pad</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Uranium rod fabricator</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -328,11 +427,6 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Salvage bay</td>
-                                  <td><span class="badge badge-frost">service</span></td>
-                                  <td>0</td>
-                                </tr>
-                                <tr>
                                   <td>Shipyard</td>
                                   <td><span class="badge badge-frost">service</span></td>
                                   <td>0</td>
@@ -349,7 +443,7 @@ The station has the following facilities:
             </div>
         </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1040858</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1187794</p>
     </main>
     <script>
     (function() {
