@@ -596,8 +596,13 @@ var shipDetailTemplate = `<!DOCTYPE html>
             <thead><tr><th>Module</th></tr></thead>
             <tbody>
 {{- range .DefaultModules}}
+{{- $mod := index $.Items .}}
             <tr>
-              <td><a href="../../items/defense/{{.}}.html">{{titleCase .}}</a></td>
+{{- if $mod}}
+              <td><a href="../../items/{{$mod.Category}}/{{.}}.html">{{$mod.Name}}</a></td>
+{{- else}}
+              <td>{{titleCase .}}</td>
+{{- end}}
             </tr>
 {{- end}}
             </tbody>
