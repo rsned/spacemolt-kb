@@ -58,7 +58,7 @@ func TestBiomeJitterAffectsOutput(t *testing.T) {
 	const seed int64 = 77
 
 	prof := biomeJitterProfile()
-	hm, craters := generateRockyHeightmapWithJitter(&prof, seed, S, nil, nil)
+	hm, craters, _ := generateRockyHeightmapWithJitter(&prof, seed, S, nil, nil)
 
 	// Render without jitter.
 	noJitter := colorizeRockyDebug(&prof, seed, S, hm, craters, nil, nil, nil, nil, nil)

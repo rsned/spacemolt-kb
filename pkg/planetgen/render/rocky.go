@@ -23,7 +23,16 @@ var (
 func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
 	jitter := noise.GenerateJitter(profile, seed, S)
 	plates := field.GeneratePlates(profile, seed, S)
-	heightmap, craters := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
+	heightmap, craters, oceanLevel := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
+	// Phase 12: on the crust path the ocean level is derived from the
+	// height histogram rather than fixed by the profile. Copy-on-differ
+	// keeps the caller's shared default profile immutable; everything
+	// below (flow gen and colorizeRocky) reads the patched copy.
+	if oceanLevel != profile.OceanLevel {
+		prof := *profile
+		prof.OceanLevel = oceanLevel
+		profile = &prof
+	}
 	// Recompute the flow field for the civ overlay's habitability
 	// (the heightmap pipeline runs flow internally to carve rivers
 	// but does not return the FlowField in the non-debug path).
@@ -41,7 +50,7 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
 	jitter := noise.GenerateJitter(profile, seed, S)
 	plates := field.GeneratePlates(profile, seed, S)
-	heightmap, _ := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
+	heightmap, _, _ := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
 	out := cubemap.New(S)
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range S {
@@ -86,7 +95,15 @@ func RenderNightCubeMap(profile *types.PlanetProfile, masterSeed int64, S int) *
 	}
 	jitter := noise.GenerateJitter(profile, masterSeed, S)
 	plates := field.GeneratePlates(profile, masterSeed, S)
-	heightmap, _ := generateRockyHeightmapWithJitter(profile, masterSeed, S, jitter, plates)
+	heightmap, _, oceanLevel := generateRockyHeightmapWithJitter(profile, masterSeed, S, jitter, plates)
+	// Phase 12: patch the derived ocean level in BEFORE the climate /
+	// rainshadow / civ calls so civ habitability sees the same sea
+	// level the dayside render used.
+	if oceanLevel != profile.OceanLevel {
+		prof := *profile
+		prof.OceanLevel = oceanLevel
+		profile = &prof
+	}
 
 	useBiomeTable := len(profile.BiomeTable.Cells) > 0
 	var tField, mField *cubemap.CubeMapF
@@ -159,8 +176,10 @@ func RenderCloudCubeMap(profile *types.PlanetProfile, masterSeed int64, S int) *
 // nil for jitter to skip the Detail-field cell transform. plates may be
 // nil; when non-nil and Ridged.PlateConvergentScaleKm > 0, the ridged
 // mountain mask is sourced from plates.Convergent instead of
-// Continentalness.
-func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, S int, jitter *noise.JitterField, plates *field.PlateField) (*cubemap.CubeMapF, []feature.Crater) {
+// Continentalness. The returned float64 is the effective ocean level:
+// profile.OceanLevel on the legacy path, or the Phase 12 quantile-
+// derived level on the crust path (Crust.MajorPlates > 0).
+func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, S int, jitter *noise.JitterField, plates *field.PlateField) (*cubemap.CubeMapF, []feature.Crater, float64) {
 	return generateRockyHeightmapDebug(profile, seed, S, nil, nil, jitter, plates)
 }
 
@@ -170,7 +189,7 @@ func generateRockyHeightmapWithJitter(profile *types.PlanetProfile, seed int64, 
 // contribution is skipped while rng draws are still consumed so downstream
 // noise streams remain deterministic.
 func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int,
-	frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField, plates *field.PlateField) (*cubemap.CubeMapF, []feature.Crater) {
+	frame *DebugFrame, bypass DebugBypass, jitter *noise.JitterField, plates *field.PlateField) (*cubemap.CubeMapF, []feature.Crater, float64) {
 	ng := noise.New(seed)
 	warper := noise.NewWarper(seed, profile.Warp)
 	if bypass["Warp"] {
@@ -178,12 +197,40 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	}
 
 	heightmap := cubemap.NewF(S)
+
+	// Phase 12: crust-raft stage. On the crust path the heightmap is
+	// initialized from the crust BaseHeight (cratons riding plates)
+	// and Continentalness / legacy Ridged / Basin / Continents are
+	// skipped — land vs ocean comes from the crust, boundary relief
+	// from TectonicFX below. The "Crust" debug stage cannot be
+	// meaningfully bypassed (every later stage builds on the base
+	// height); the honest off-switch is zeroing Crust.MajorPlates,
+	// which the explorer panel wires up. The Skipped flag here is
+	// cosmetic only.
+	crustOn := plates != nil && profile.Crust.MajorPlates > 0
+	var crust *field.CrustField
+	if crustOn {
+		crust = field.GenerateCrust(profile, seed, S, plates)
+		for face := range cubemap.Face(cubemap.NumFaces) {
+			copy(heightmap.Faces[face], crust.BaseHeight.Faces[face])
+		}
+		if frame != nil {
+			frame.Stages = append(frame.Stages, DebugStage{
+				Name:     "Crust",
+				Kind:     "height",
+				RawFbm:   crust.ContinentalMask.Clone(),
+				SumAfter: heightmap.Clone(),
+				Skipped:  bypass["Crust"],
+			})
+		}
+	}
+
 	cfFields := orderedControlFields(profile.ControlConfig)
 	useControl := !isZeroControlConfig(cfFields) && hasAnySpline(cfFields)
 	if useControl {
 		fields := field.GenerateControlFields(seed, profile.ControlConfig, S, jitter)
 		var ridgedGen *noise.Generator
-		if profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
+		if !crustOn && profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
 			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))
 		}
 		var provRamp, provRFreq *cubemap.CubeMapF
@@ -208,7 +255,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 				name := fieldNames[i]
 				raw := fields[i]
 				bypassed := bypass[name]
-				if !bypassed && i < heightContributingFields {
+				if !bypassed && i < heightContributingFields && (!crustOn || i != 0) {
 					for face := range cubemap.Face(cubemap.NumFaces) {
 						for py := range S {
 							for px := range S {
@@ -348,11 +395,17 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 							rampMod = provRamp.Get(face, px, py)
 							freqMod = provRFreq.Get(face, px, py)
 						}
-						var h float64
+						// Start from the existing value: zero on the legacy
+						// path (bit-identical to the old `var h float64`),
+						// the crust BaseHeight on the crust path.
+						h := heightmap.Get(face, px, py)
 						// Only Continentalness, Detail, PeaksValleys (i < 3)
 						// contribute to elevation. Temperature and Humidity are
 						// climate fields consumed by the biome lookup later.
 						for i := range 3 {
+							if crustOn && i == 0 {
+								continue // crust path: Continentalness no longer drives height
+							}
 							v := fields[i].Get(face, px, py) * freqMod
 							contribution := planetcolor.EvalSpline(cfFields[i].Spline, v) * rampMod
 							h += contribution
@@ -392,7 +445,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		}
 	} else {
 		var ridgedGen *noise.Generator
-		if profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
+		if !crustOn && profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
 			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))
 		}
 		for face := range cubemap.Face(cubemap.NumFaces) {
@@ -400,7 +453,9 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 				for px := range S {
 					dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
 					dx, dy, dz = warper.Warp(dx, dy, dz)
-					h := ng.FractalNoise3D(dx, dy, dz,
+					// Accumulate onto the existing value (zero on the
+					// legacy path, crust BaseHeight on the crust path).
+					h := heightmap.Get(face, px, py) + ng.FractalNoise3D(dx, dy, dz,
 						profile.NoiseOctaves,
 						profile.NoiseLacunarity,
 						profile.NoisePersistence,
@@ -428,12 +483,42 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		}
 	}
 
+	// Phase 12: crust-aware boundary effects (belt/cordillera/trench/
+	// arc/ridge/rift/fault), replacing legacy Ridged+Basin on the
+	// crust path.
+	if crustOn {
+		bypassed := bypass["TectonicFX"]
+		var hmBefore *cubemap.CubeMapF
+		if frame != nil {
+			hmBefore = heightmap.Clone()
+		}
+		if !bypassed {
+			fx := field.ClassifyTectonics(plates, crust, profile.RadiusKm)
+			field.ApplyTectonicFX(heightmap, fx, crust, plates, profile.TectonicFX, seed, S)
+		}
+		if frame != nil {
+			delta := cubemap.NewF(S)
+			for face := range cubemap.Face(cubemap.NumFaces) {
+				for i := range heightmap.Faces[face] {
+					delta.Faces[face][i] = heightmap.Faces[face][i] - hmBefore.Faces[face][i]
+				}
+			}
+			frame.Stages = append(frame.Stages, DebugStage{
+				Name:     "TectonicFX",
+				Kind:     "height",
+				RawFbm:   delta,
+				SumAfter: heightmap.Clone(),
+				Skipped:  bypassed,
+			})
+		}
+	}
+
 	// Phase 11: Basin — depress elevation along divergent plate
 	// boundaries, scaled by the per-pixel spreading magnitude
 	// propagated through JFA. Models mid-ocean-ridge spreading
 	// creating ocean basins. Disabled when Basin.Depth == 0 or there
-	// are no plates.
-	if plates != nil && profile.Basin.Depth > 0 && profile.Basin.PlateDivergentScaleKm > 0 {
+	// are no plates. The crust path replaces it with TectonicFX above.
+	if plates != nil && !crustOn && profile.Basin.Depth > 0 && profile.Basin.PlateDivergentScaleKm > 0 {
 		bypassed := bypass["Basin"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
@@ -472,7 +557,8 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	}
 
 	// Phase 4 Task 5: Apply Voronoi continents baseline if enabled.
-	if profile.Continents.Seeds > 0 {
+	// The crust path supersedes it — landmasses come from cratons.
+	if profile.Continents.Seeds > 0 && !crustOn {
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
 			hmBefore = heightmap.Clone()
@@ -552,6 +638,11 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		}
 	}
 
+	// Effective ocean level: the profile's fixed value on the legacy
+	// path, or (Phase 12) a histogram quantile of the normalized
+	// heightmap hitting the crust's resolved target land fraction.
+	oceanLevel := profile.OceanLevel
+
 	hMin, hMax := 1.0, 0.0
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for _, h := range heightmap.Faces[face] {
@@ -578,17 +669,20 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 			SumAfter: heightmap.Clone(),
 		})
 	}
+	if crustOn {
+		oceanLevel = field.QuantileSeaLevel(heightmap, 1-crust.LandFraction)
+	}
 
 	// Phase 4 Task 3: Apply coastal noise enhancement if enabled.
 	{
-		active := profile.Coastal.Amp > 0 && profile.OceanLevel > 0
+		active := profile.Coastal.Amp > 0 && oceanLevel > 0
 		bypassed := bypass["Coastal"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
 			hmBefore = heightmap.Clone()
 		}
 		if active && !bypassed {
-			distField := field.DistanceToCoast(heightmap, profile.OceanLevel, S)
+			distField := field.DistanceToCoast(heightmap, oceanLevel, S)
 			coastGen := noise.NewCoastalGen(pgseed.Domain(seed, "coastal"))
 			for face := range cubemap.Face(cubemap.NumFaces) {
 				for py := range S {
@@ -638,7 +732,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 			}
 			cfg := profile.Erosion
 			cfg.Droplets = n
-			field.Erode(seed, heightmap, cfg, profile.OceanLevel, S)
+			field.Erode(seed, heightmap, cfg, oceanLevel, S)
 		}
 		if frame != nil {
 			delta := cubemap.NewF(S)
@@ -693,6 +787,15 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 		}
 	}
 
+	// Phase 12: recompute the quantile once more after Flow — erosion
+	// and river carving shift the height histogram slightly, and the
+	// land-fraction invariant measures the final heightmap. The earlier
+	// computation still matters: Coastal and Erode consumed it
+	// mid-pipeline.
+	if crustOn {
+		oceanLevel = field.QuantileSeaLevel(heightmap, 1-crust.LandFraction)
+	}
+
 	var craters []feature.Crater
 	if profile.CraterCount > 0 {
 		var hmBefore *cubemap.CubeMapF
@@ -720,7 +823,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 			})
 		}
 	}
-	return heightmap, craters
+	return heightmap, craters, oceanLevel
 }
 
 // colorizeRocky paints the heightmap into a color cube map using the

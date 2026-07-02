@@ -102,7 +102,15 @@ func RenderRockyDebug(profile *types.PlanetProfile, seed int64, S int, bypass De
 			DebugStage{Name: "Jitter: cells", Kind: "field", CategoricalAfter: paintCategoricalCubeMap16(jitter.PerPixel, S)},
 		)
 	}
-	hm, craters := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter, plates)
+	hm, craters, oceanLevel := generateRockyHeightmapDebug(profile, seed, S, frame, bypass, jitter, plates)
+	// Phase 12: the colorize stages below must consume the derived
+	// ocean level (crust path) rather than the profile's fixed value.
+	// Copy-on-differ keeps the caller's profile immutable.
+	if oceanLevel != profile.OceanLevel {
+		prof := *profile
+		prof.OceanLevel = oceanLevel
+		profile = &prof
+	}
 	frame.Final = colorizeRockyDebug(profile, seed, S, hm, craters, frame, bypass, jitter, plates, frame.Flow)
 	// Cache a grayscale heightmap snapshot so pre-color field stages
 	// (Plates, Jitter, Flow, RainShadow) get a meaningful "planet
