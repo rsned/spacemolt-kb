@@ -587,3 +587,103 @@ func TestPhase9bCivInvariants(t *testing.T) {
 		t.Errorf("zero night-lit pixels above luminance 0.05 — splat code never paints")
 	}
 }
+
+// phase12LandStats renders a crust-path terran heightmap with a pinned
+// 0.30 land-fraction target and returns the measured land fraction,
+// the largest connected landmass's share of all land pixels, and the
+// count of tiny islands (< 0.2% of a face), using cross-face-aware
+// connected components.
+func phase12LandStats(t *testing.T, master int64, S int) (landFrac float64, largestShare float64, smallIslands int) {
+	t.Helper()
+	prof := *planetgen.Profiles["terran"]
+	prof.Crust.TargetLandFraction = 0.30 // pin: invariant needs a known target
+	prof.Crust.Assembly = 0.5
+
+	hm, lvl := render.RenderRockyHeightmapWithOceanLevel(&prof, master, S)
+	land := make([][]bool, cubemap.NumFaces)
+	total, landN := 0, 0
+	for f := range hm.Faces {
+		land[f] = make([]bool, S*S)
+		for i, h := range hm.Faces[f] {
+			if h >= lvl {
+				land[f][i] = true
+				landN++
+			}
+			total++
+		}
+	}
+	landFrac = float64(landN) / float64(total)
+
+	// Connected components over the land mask with cross-face neighbors.
+	visited := make([][]bool, cubemap.NumFaces)
+	for f := range visited {
+		visited[f] = make([]bool, S*S)
+	}
+	var sizes []int
+	for f := range land {
+		for i := range land[f] {
+			if !land[f][i] || visited[f][i] {
+				continue
+			}
+			size := 0
+			stack := []cubemap.PixelAddr{{Face: cubemap.Face(f), PX: i % S, PY: i / S}}
+			visited[f][i] = true
+			for len(stack) > 0 {
+				cur := stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
+				size++
+				for _, nb := range cubemap.FacePixelNeighbors4(cur.Face, cur.PX, cur.PY, S) {
+					idx := nb.PY*S + nb.PX
+					if land[nb.Face][idx] && !visited[nb.Face][idx] {
+						visited[nb.Face][idx] = true
+						stack = append(stack, nb)
+					}
+				}
+			}
+			sizes = append(sizes, size)
+		}
+	}
+	largest := 0
+	for _, s := range sizes {
+		if s > largest {
+			largest = s
+		}
+		if s < (S*S)/512 { // tiny blob ≈ < 0.2% of a face
+			smallIslands++
+		}
+	}
+	if landN > 0 {
+		largestShare = float64(largest) / float64(landN)
+	}
+	return landFrac, largestShare, smallIslands
+}
+
+func TestPhase12LandFractionWithinTolerance(t *testing.T) {
+	const S = 128
+	for _, master := range []int64{1, 42, 31337, 777, 2026} {
+		frac, _, _ := phase12LandStats(t, master, S)
+		if math.Abs(frac-0.30) > 0.03 {
+			t.Errorf("seed %d: land fraction %v, want 0.30 ± 0.03", master, frac)
+		}
+	}
+}
+
+func TestPhase12LargestLandmassDominates(t *testing.T) {
+	const S = 128
+	for _, master := range []int64{1, 42, 31337, 777, 2026} {
+		_, share, _ := phase12LandStats(t, master, S)
+		if share < 0.40 {
+			t.Errorf("seed %d: largest landmass holds %v of land, want ≥ 0.40 (assembly 0.5)", master, share)
+		}
+	}
+}
+
+func TestPhase12SmallIslandCeiling(t *testing.T) {
+	const S = 128
+	for _, master := range []int64{1, 42, 31337, 777, 2026} {
+		_, _, islands := phase12LandStats(t, master, S)
+		if islands > 40 {
+			t.Errorf("seed %d: %d small islands, want ≤ 40", master, islands)
+		}
+	}
+}

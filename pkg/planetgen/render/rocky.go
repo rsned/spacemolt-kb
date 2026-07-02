@@ -70,6 +70,17 @@ func RenderRockyHeightmap(profile *types.PlanetProfile, seed int64, S int) *cube
 	return out
 }
 
+// RenderRockyHeightmapWithOceanLevel exposes the normalized heightmap
+// plus the effective ocean level — profile.OceanLevel on the legacy
+// path, the Phase 12 quantile-derived level on the crust path — for
+// statistical invariants and tools. Mirrors RenderRockyHeightmap.
+func RenderRockyHeightmapWithOceanLevel(profile *types.PlanetProfile, seed int64, S int) (*cubemap.CubeMapF, float64) {
+	jitter := noise.GenerateJitter(profile, seed, S)
+	plates := field.GeneratePlates(profile, seed, S)
+	hm, _, lvl := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
+	return hm, lvl
+}
+
 // RenderNightCubeMap returns the Phase 9b Black-Marble nightside as a
 // standalone cube-map. Returns nil for archetypes with profile.Civ.Tier
 // == 0 (all current production archetypes — per-archetype civ defaults
