@@ -281,6 +281,68 @@ Plates are toggled via top-level fields on `PlanetProfile` rather than a config 
 
 ---
 
+### Tectonics (Crust Rafts) Panel
+
+**Purpose:** Phase 12 crust-raft continents — plates carry cratons of continental crust that *decide* land vs ocean, replacing noise-threshold continents.
+**Renderer:** Rocky only.
+**Phase:** Phase 12.
+
+When `majorPlates > 0` the whole pipeline switches to the crust path: two-tier plate seeding (major + minor filler plates with growth-weighted flood fill), craton placement on the non-oceanic plates, a `ContinentalMask` + `BaseHeight` that initialize the heightmap, the Tectonic FX boundary pass (below), and a sea level *derived* from the target land fraction by histogram quantile. Legacy Ridged, Basin, and Continents passes are skipped; the Continentalness control field no longer drives height (Detail and PeaksValleys still add relief on top).
+
+**Note the JSON keys:** unlike the older capitalized profile fields, the crust config lives under lowerCamel keys — `crust.majorPlates`, `crust.assembly`, etc.
+
+**Sample sentinels:** `assembly`, `targetLandFraction`, and `tectonicAge` accept **-1**, meaning "sample deterministically per planet from the configured range/weights". Any other value pins the parameter (0 is a valid pin — e.g. `assembly: 0` forces a supercontinent).
+
+| Field | Range | Effect |
+|-------|-------|--------|
+| `majorPlates` | 0 disables; 6–8 typical | Number of major plates (two-tier seeding) |
+| `minorPlates` | 0–8 | Gap-filler plates between the majors |
+| `majorGrowthBias` | 1–8 | Flood-fill growth weight of majors vs minors (area ratio) |
+| `oceanicFraction` | 0–1 | Fraction of plates carrying no craton (pure ocean floor) |
+| `assembly` | -1 samples; 0–1 pins | 0 = supercontinent … 1 = fragmented small continents |
+| `assemblyWeights` | 3 weights | Sampling weights for super / dispersed / fragmented bands |
+| `targetLandFraction` | -1 samples; 0–1 pins | Exact land fraction the derived sea level enforces |
+| `landFracLo` / `landFracHi` | 0–1 | Sample range when `targetLandFraction = -1` |
+| `tectonicAge` | -1 samples; 0–1 pins | The "millions of years" slider: 0 young/sharp (Himalayas), 1 old/soft (Appalachians) |
+| `ageLo` / `ageHi` | 0–1 | Sample range when `tectonicAge = -1` |
+| `cratonsMax` | 2–14 | Craton cap; actual count grows with assembly |
+| `shelfWidthRad` | 0.01–0.2 | Continental-shelf falloff half-width (radians) |
+| `edgeNoiseAmp` / `edgeNoiseFreq` / `edgeNoiseOctaves` | — | Craton coastline fractality |
+| `platformHeight` / `oceanFloorHeight` | 0–1 | Continental platform and abyssal base heights |
+
+**Worked examples:**
+- `assembly: 0` — one merged landmass with an interior mountain seam where its cratons abut.
+- `assembly: 1` — scattered smaller continents, more coastline, more island arcs.
+- Drag `tectonicAge` 0 → 1 — the same boundaries re-render softer and wider (amplitude × 0.45–1.0, width × 1.0–1.8).
+
+**Off switch:** the Clear button (or `majorPlates: 0`) restores the full legacy pipeline — the pre-Phase-12 look.
+
+**Debug stages:** `Crust` (continental mask + base height) and `TectonicFX` (boundary height delta) appear in the pipeline debug grid.
+
+---
+
+### Tectonic FX Panel
+
+**Purpose:** Crust-aware boundary height effects along classified plate boundaries. Runs only on the crust path (`crust.majorPlates > 0`).
+**Renderer:** Rocky only.
+**Phase:** Phase 12.
+
+Boundary class comes from pairing the crust type on each side (continental vs oceanic) with the boundary kind (convergent / divergent / transform):
+
+| Effect | Boundary | Knobs |
+|--------|----------|-------|
+| Collision belt (Himalayas) | cont-cont convergent | `beltAmp`, `beltWidthKm`, `beltFreq`, `beltOctaves` |
+| Coastal cordillera (Andes) | ocean-cont convergent, land side | `cordAmp`, `cordWidthKm` |
+| Subduction trench | ocean-cont convergent, ocean side | `trenchDepth`, `trenchWidthKm` |
+| Island arc (Japan) | oce-oce convergent | `arcAmp`, `arcWidthKm` |
+| Mid-ocean ridge | oceanic divergent | `ridgeAmp`, `ridgeWidthKm` |
+| Rift valley | continental divergent | `riftDepth`, `riftWidthKm`, `riftShoulder` |
+| Transform fault roughness | transform | `transformAmp`, `transformWidthKm` |
+
+Widths are Gaussian sigmas in km. Each effect disables individually at zero amplitude. `activityFreq` varies energy along boundaries with low-frequency noise so not every collision looks equally violent. `tectonicAge` (from the Tectonics panel) globally scales all effects: young = tall and narrow, old = low and wide.
+
+---
+
 ### Shading Panel
 
 **Purpose:** Slope-based Lambertian diffuse lighting

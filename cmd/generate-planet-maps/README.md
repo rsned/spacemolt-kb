@@ -409,3 +409,22 @@ The day cube-map (the existing `<name>.cube.png`) is modified by blending in cit
 Profile knobs: `Civ.Tier` (0 disables — single-knob gate for civ), `SiteMinDistRad`, `SiteMaxDistRad`, `MaxPopulation`, `NightLightHue`, `AgricultureRatio`.
 
 `render.RenderNightCubeMap` returns nil when civ is disabled — the cmd writes a night PNG only when non-nil. The colorize pipeline gains a `Civ` stage between `Ejecta` and `LUT`; debug view registers five new stages — `Civ: habitability`, `Civ: sites`, `Civ: roads`, `Civ: day overlay`, `Civ: night lights` — at the end of the pipeline. Sun-direction night blending in the planet-explorer rotating-sphere preview composites the night cube-map onto the unlit hemisphere via `nightWeight = max(0, -dot(normal, sunDir))`.
+
+## Phase 12 — Tectonic continents (crust rafts)
+
+**Crust pipeline** (`pkg/planetgen/field/{crust,tectonicfx,sealevel}.go` + the crust path in `render/rocky.go`). Plates now *cause* continents: when `Crust.MajorPlates > 0`, plate seeding switches to two tiers (major plates with flood-fill growth bias + minor gap fillers), cratons of continental crust are placed on the non-oceanic plates, and the resulting `ContinentalMask` + `BaseHeight` initialize the heightmap. Land vs ocean comes from the crust, not from a Continentalness noise threshold.
+
+On the crust path the pipeline swaps stages:
+- The Continentalness spline contribution, legacy Ridged, Basin, and Continents passes are **skipped** (Detail and PeaksValleys still add relief on top of the crust base).
+- A **TectonicFX** pass adds six crust-aware boundary effects — collision belts (cont-cont), coastal cordillera + offshore trench (ocean-cont), island arcs (oce-oce), mid-ocean ridges, continental rifts, transform-fault roughness — each with a Gaussian km-width envelope, scaled globally by `TectonicAge` (0 young/sharp … 1 old/soft).
+- After Normalize the sea level is **derived** by histogram quantile so the ocean covers exactly `1 − TargetLandFraction` of pixels (recomputed once more after erosion + rivers); the derived level is threaded to Coastal, Erosion, and every color/civ consumer downstream.
+
+**Sample sentinels:** `Crust.Assembly` (0 supercontinent … 1 fragmented), `Crust.TargetLandFraction`, and `Crust.TectonicAge` accept `-1` = "sample deterministically per planet from the configured range/weights using the master seed"; any in-range value pins the parameter (0 is a valid pin).
+
+**Off switch:** `Crust.MajorPlates == 0` disables the whole phase — the zero-value config renders byte-identically to the pre-Phase-12 pipeline.
+
+**Crust-enabled defaults:** terran, super_terran, oceanic (near-global ocean, arcs + microcontinents), tundra, glacial, arid (mostly land, shallow seas, deeper rifts). All other archetypes keep crust disabled.
+
+**Invariants** (`invariants_test.go`): pinned terran at `TargetLandFraction=0.30` must hit land fraction 0.30 ± 0.03 across seeds, the largest connected landmass must hold ≥ 40% of land pixels at mid assembly, and tiny islands (< 0.2% of a face) are capped at 40 — the mechanical encoding of "sizeable continents, no island spray".
+
+New seed domains: `crust.params`, `crust.cratons`, `crust.edge`, `tectonicfx.activity`, `tectonicfx.belt` (+ `.stream` variants). Debug view gains `Crust` and `TectonicFX` height stages.

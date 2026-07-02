@@ -109,6 +109,10 @@ var Profiles = map[string]*types.PlanetProfile{
 		HasPolarCaps:       true,
 		PolarCapSize:       0.18,
 		PolarCapNoise:      0.15,
+		// Phase 12: OceanLevel stays 0 (legacy path renders no seas);
+		// the crust path derives its own sea level and paints the
+		// shallow desert seas with this color.
+		OceanColor: rgba(52, 92, 120),
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.36, Freq: 5.42, Octaves: 5, Lacunarity: 2.11, Persistence: 0.6, Spline: defaultSpline},
 			Detail:          types.ControlField{Amp: 1.44, Freq: 1.81, Octaves: 6, Lacunarity: 2.16, Persistence: 0.49, Spline: defaultSpline},
@@ -351,6 +355,10 @@ var Profiles = map[string]*types.PlanetProfile{
 		SecondaryDensity:   0.05,
 		HasPolarCaps:       true,
 		PolarCapSize:       0.25,
+		// Phase 12: OceanLevel stays 0 (legacy path renders no seas);
+		// the crust path derives its own sea level and paints the
+		// cold slate seas with this color.
+		OceanColor: rgba(36, 66, 105),
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.50, Freq: 2.20, Octaves: 6, Lacunarity: 2.02, Persistence: 0.44, Spline: continentalShelfSpline},
 			Detail:          types.ControlField{Amp: 1.12, Freq: 4.07, Octaves: 4, Lacunarity: 1.78, Persistence: 0.66, Spline: defaultSpline},
@@ -439,6 +447,10 @@ var Profiles = map[string]*types.PlanetProfile{
 		SecondaryDensity:   0.08,
 		HasPolarCaps:       true,
 		PolarCapSize:       0.35,
+		// Phase 12: OceanLevel stays 0 (legacy path renders no seas);
+		// the crust path derives its own sea level and paints the
+		// deep glacial seas with this color.
+		OceanColor: rgba(45, 85, 140),
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.84, Freq: 4.56, Octaves: 2, Lacunarity: 2.45, Persistence: 0.75, Spline: continentalShelfSpline},
 			Detail:          types.ControlField{Amp: 1.94, Freq: 1.14, Octaves: 3, Lacunarity: 2.39, Persistence: 0.68, Spline: defaultSpline},
