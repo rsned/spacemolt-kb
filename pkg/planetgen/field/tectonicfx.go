@@ -174,7 +174,18 @@ func ApplyTectonicFX(hm *cubemap.CubeMapF, fx *TectonicFXField, crust *CrustFiel
 			for px := range S {
 				i := py*S + px
 				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
-				activity := 0.5 + 0.5*actGen.FractalNoise3D(dx, dy, dz, 2, 2.0, 0.5, actFreq)
+				// Lazy activity: the fBm is a pure function of the
+				// pixel direction, and only the belt and cordillera
+				// branches consume it — those fire on a small fraction
+				// of pixels, so computing it up front for every pixel
+				// wastes the bulk of the pass.
+				activity := -1.0
+				getActivity := func() float64 {
+					if activity < 0 {
+						activity = 0.5 + 0.5*actGen.FractalNoise3D(dx, dy, dz, 2, 2.0, 0.5, actFreq)
+					}
+					return activity
+				}
 				contHere := crust.ContinentalMask.Faces[face][i]
 				var dh float64
 
@@ -186,7 +197,7 @@ func ApplyTectonicFX(hm *cubemap.CubeMapF, fx *TectonicFXField, crust *CrustFiel
 							dx*cfg.BeltFreq, dy*cfg.BeltFreq, dz*cfg.BeltFreq,
 							beltOct, 2.0, 0.5, 1.0)
 						mag := 0.4 + 0.6*fx.BeltMag.Faces[face][i]
-						dh += cfg.BeltAmp * hs * e * mag * activity * r
+						dh += cfg.BeltAmp * hs * e * mag * getActivity() * r
 					}
 				}
 
@@ -200,7 +211,7 @@ func ApplyTectonicFX(hm *cubemap.CubeMapF, fx *TectonicFXField, crust *CrustFiel
 							r := beltGen.RidgedFractal3D(
 								dx*cfg.BeltFreq*1.4, dy*cfg.BeltFreq*1.4, dz*cfg.BeltFreq*1.4,
 								beltOct, 2.0, 0.5, 1.0)
-							dh += cfg.CordAmp * hs * e * (0.4 + 0.6*mag) * activity * r
+							dh += cfg.CordAmp * hs * e * (0.4 + 0.6*mag) * getActivity() * r
 						}
 					} else {
 						if e := env(d, cfg.TrenchWidthKm); e > 0 {

@@ -338,6 +338,22 @@ func GenerateCrust(profile *types.PlanetProfile, master int64, S int, pf *PlateF
 				m := 0.0
 				for ci, c := range cratons {
 					d := math.Acos(clampDot(dx*c.Center[0] + dy*c.Center[1] + dz*c.Center[2]))
+					// Exact early-outs: FractalNoise3D ∈ [0,1] (opensimplex
+					// Eval3 ∈ [-1,1]), so e ∈ [-edgeAmp, edgeAmp] and rEff
+					// is bounded by c.Radius·(1±edgeAmp). Outside those
+					// bounds the shelf smoothstep saturates and the result
+					// is known without evaluating the edge fBm — which
+					// skips the noise for the vast majority of pixels
+					// (everything not near a craton edge). The 1.01 guard
+					// absorbs any implementation wobble at the noise's
+					// nominal bound.
+					if d >= c.Radius*(1+edgeAmp*1.01)+shelf {
+						continue // mi would be exactly 0
+					}
+					if d <= c.Radius*(1-edgeAmp*1.01)-shelf {
+						m = 1 // mi is exactly 1; no craton can beat it
+						break
+					}
 					// Per-craton noise offset: same generator, shifted
 					// input domain, so edges differ between cratons.
 					off := 7.3 * float64(ci+1)
