@@ -7,6 +7,7 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 // TestRidgedMaskUsesPlateConvergent verifies that with
@@ -22,6 +23,11 @@ func TestRidgedMaskUsesPlateConvergent(t *testing.T) {
 	const seedVal int64 = 42
 
 	pPlate := *planetgen.Profiles["terran"]
+	// Phase 12: terran now defaults to the crust path, which disables
+	// legacy Ridged entirely. This test verifies the legacy plate-mask
+	// behavior, so force the legacy path.
+	pPlate.Crust = types.CrustConfig{}
+	pPlate.TectonicFX = types.TectonicFXConfig{}
 	if pPlate.Ridged.PlateConvergentScaleKm <= 0 {
 		t.Fatalf("terran profile must have PlateConvergentScaleKm > 0; got %v", pPlate.Ridged.PlateConvergentScaleKm)
 	}

@@ -104,3 +104,38 @@ func cubeFaceBytes(cm *cubemap.CubeMap, face int) []byte {
 	}
 	return out
 }
+
+// TestCrustEnabledTypes verifies the Phase 12 per-type defaults: the
+// six water-capable rocky archetypes ship with the crust stage on and
+// -1 sample sentinels; all other archetypes keep crust disabled.
+func TestCrustEnabledTypes(t *testing.T) {
+	enabled := []string{"terran", "super_terran", "oceanic", "tundra", "glacial", "arid"}
+	for _, typ := range enabled {
+		p, ok := planetgen.Profiles[typ]
+		if !ok {
+			t.Fatalf("missing profile %q", typ)
+		}
+		if p.Crust.MajorPlates == 0 {
+			t.Errorf("%s: crust not enabled", typ)
+		}
+		if p.Crust.Assembly != -1 || p.Crust.TargetLandFraction != -1 || p.Crust.TectonicAge != -1 {
+			t.Errorf("%s: sampled params must default to -1 sentinels", typ)
+		}
+		if p.Crust.LandFracHi <= p.Crust.LandFracLo {
+			t.Errorf("%s: land fraction range empty", typ)
+		}
+		if p.TectonicFX.BeltAmp <= 0 {
+			t.Errorf("%s: TectonicFX not configured", typ)
+		}
+	}
+	disabled := []string{"scorched", "hothouse", "lava_world", "ice_world", "jovian", "ice_giant", "unknown"}
+	for _, typ := range disabled {
+		p, ok := planetgen.Profiles[typ]
+		if !ok {
+			continue // not all type names guaranteed; skip absent
+		}
+		if p.Crust.MajorPlates != 0 {
+			t.Errorf("%s: crust must stay disabled this phase", typ)
+		}
+	}
+}

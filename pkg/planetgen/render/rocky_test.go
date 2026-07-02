@@ -5,6 +5,7 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 // TestRockyRenderJitterShiftsOutput verifies that enabling jitter produces
@@ -85,6 +86,11 @@ func TestRockyRenderPlatesAffectOutputWhenScaleNonzero(t *testing.T) {
 	const seed int64 = 13
 
 	base := *planetgen.Profiles["terran"]
+	// Phase 12: terran now defaults to the crust path, which disables
+	// legacy Ridged entirely. This test verifies the legacy plate-mask
+	// behavior, so force the legacy path.
+	base.Crust = types.CrustConfig{}
+	base.TectonicFX = types.TectonicFXConfig{}
 
 	noPlates := base
 	noPlates.PlateCount = 0

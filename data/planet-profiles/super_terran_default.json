@@ -719,15 +719,49 @@
       "agricultureRatio": 0.4
     },
     "crust": {
-      "assembly": 0,
+      "majorPlates": 8,
+      "minorPlates": 4,
+      "majorGrowthBias": 4,
+      "oceanicFraction": 0.45,
+      "assembly": -1,
       "assemblyWeights": [
-        0,
-        0,
-        0
+        35,
+        55,
+        10
       ],
-      "targetLandFraction": 0,
-      "tectonicAge": 0
+      "targetLandFraction": -1,
+      "landFracLo": 0.3,
+      "landFracHi": 0.5,
+      "tectonicAge": -1,
+      "ageLo": 0.25,
+      "ageHi": 0.75,
+      "cratonsMax": 8,
+      "shelfWidthRad": 0.05,
+      "edgeNoiseAmp": 0.45,
+      "edgeNoiseFreq": 2.2,
+      "edgeNoiseOctaves": 4,
+      "platformHeight": 0.62,
+      "oceanFloorHeight": 0.25
     },
-    "tectonicFX": {}
+    "tectonicFX": {
+      "beltAmp": 0.36,
+      "beltWidthKm": 900,
+      "beltFreq": 3.2,
+      "beltOctaves": 5,
+      "cordAmp": 0.22,
+      "cordWidthKm": 450,
+      "trenchDepth": 0.12,
+      "trenchWidthKm": 220,
+      "arcAmp": 0.25,
+      "arcWidthKm": 260,
+      "ridgeAmp": 0.06,
+      "ridgeWidthKm": 700,
+      "riftDepth": 0.1,
+      "riftWidthKm": 280,
+      "riftShoulder": 0.35,
+      "transformAmp": 0.03,
+      "transformWidthKm": 150,
+      "activityFreq": 1.5
+    }
   }
 }

@@ -12,19 +12,6 @@ import (
 // It's kept here for backward compatibility with callers that reference it as planetgen.PlanetProfile.
 type PlanetProfile = types.PlanetProfile
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // mustParseLUT parses a .cube file and panics on error.
 
 // Parsed LUT instances
@@ -67,10 +54,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.8, rgba(180, 175, 165)},
 			{1.0, rgba(220, 215, 210)},
 		},
-		NoiseOctaves:     8,
-		NoiseLacunarity:  2.0,
-		NoisePersistence: 0.5,
-		NoiseScale:       2.5,
+		NoiseOctaves:       8,
+		NoiseLacunarity:    2.0,
+		NoisePersistence:   0.5,
+		NoiseScale:         2.5,
 		CraterCount:        350,
 		CraterMinRadius:    0.014,
 		CraterMaxRadius:    0.048,
@@ -81,7 +68,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		SecondaryDensity:   0.16,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.42, Spline: continentalShelfSpline},
-			Detail:         types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.5, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 0.5, Freq: 0.1, Octaves: 1, Lacunarity: 1, Persistence: 0.5, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.72, Freq: 0.66, Octaves: 6, Lacunarity: 2.9, Persistence: 0.68, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.83, Freq: 2.43, Octaves: 6, Lacunarity: 1.95, Persistence: 0.39, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 0.57, Freq: 5.56, Octaves: 4, Lacunarity: 1.89, Persistence: 0.5, Spline: defaultSpline},
@@ -107,10 +94,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.8, rgba(210, 175, 130)},
 			{1.0, rgba(230, 210, 180)},
 		},
-		NoiseOctaves:     7,
-		NoiseLacunarity:  2.0,
-		NoisePersistence: 0.5,
-		NoiseScale:       2.5,
+		NoiseOctaves:       7,
+		NoiseLacunarity:    2.0,
+		NoisePersistence:   0.5,
+		NoiseScale:         2.5,
 		CraterCount:        179,
 		CraterMinRadius:    0.017,
 		CraterMaxRadius:    0.032,
@@ -124,7 +111,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		PolarCapNoise:      0.15,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.36, Freq: 5.42, Octaves: 5, Lacunarity: 2.11, Persistence: 0.6, Spline: defaultSpline},
-			Detail:         types.ControlField{Amp: 1.44, Freq: 1.81, Octaves: 6, Lacunarity: 2.16, Persistence: 0.49, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 1.44, Freq: 1.81, Octaves: 6, Lacunarity: 2.16, Persistence: 0.49, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.56, Freq: 2.84, Octaves: 3, Lacunarity: 2.99, Persistence: 0.33, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.83, Freq: 0.63, Octaves: 5, Lacunarity: 1.53, Persistence: 0.38, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.04, Freq: 3.48, Octaves: 4, Lacunarity: 1.84, Persistence: 0.41, Spline: defaultSpline},
@@ -141,7 +128,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			Gravity:         4,
 		},
 		HeightSmoothRadius: 2,
-		LUT: "arid",
+		LUT:                "arid",
 		// Phase 7 Tier B
 		PlateCount:           6,
 		OceanicPlateFraction: 0.3,
@@ -156,6 +143,28 @@ var Profiles = map[string]*types.PlanetProfile{
 		RainShadow: types.RainShadowConfig{
 			WalkSteps: 12, StepArcRad: 0.087, MountainCutoff: 0.55,
 			WindRainBoost: 0.2, LeeFactor: 0.05,
+		},
+		// Phase 12: crust-raft tectonic continents — mostly-land world
+		// with shallow seas and dry rift valleys.
+		Crust: types.CrustConfig{
+			MajorPlates: 7, MinorPlates: 4, MajorGrowthBias: 4,
+			OceanicFraction: 0.45,
+			Assembly:        -1, AssemblyWeights: [3]float64{40, 55, 5},
+			TargetLandFraction: -1, LandFracLo: 0.55, LandFracHi: 0.80,
+			TectonicAge: -1, AgeLo: 0.25, AgeHi: 0.75,
+			CratonsMax: 8, ShelfWidthRad: 0.05,
+			EdgeNoiseAmp: 0.45, EdgeNoiseFreq: 2.2, EdgeNoiseOctaves: 4,
+			PlatformHeight: 0.62, OceanFloorHeight: 0.30,
+		},
+		TectonicFX: types.TectonicFXConfig{
+			BeltAmp: 0.30, BeltWidthKm: 900, BeltFreq: 3.2, BeltOctaves: 5,
+			CordAmp: 0.22, CordWidthKm: 450,
+			TrenchDepth: 0.12, TrenchWidthKm: 220,
+			ArcAmp: 0.25, ArcWidthKm: 260,
+			RidgeAmp: 0.06, RidgeWidthKm: 700,
+			RiftDepth: 0.14, RiftWidthKm: 280, RiftShoulder: 0.35,
+			TransformAmp: 0.03, TransformWidthKm: 150,
+			ActivityFreq: 1.5,
 		},
 	},
 	"terran": {
@@ -175,10 +184,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.9, rgba(190, 188, 182)},  // Bare rock
 			{1.0, rgba(220, 220, 218)},  // Mountain peak
 		},
-		NoiseOctaves:     8,
-		NoiseLacunarity:  2.1,
-		NoisePersistence: 0.62,
-		NoiseScale:       3.0,
+		NoiseOctaves:       8,
+		NoiseLacunarity:    2.1,
+		NoisePersistence:   0.62,
+		NoiseScale:         3.0,
 		CraterCount:        3,
 		CraterMinRadius:    0.011,
 		CraterMaxRadius:    0.068,
@@ -204,18 +213,18 @@ var Profiles = map[string]*types.PlanetProfile{
 			{1.0, rgba(200, 200, 195)},  // Bare rock
 		},
 		PolarPalette: []planetcolor.ColorStop{
-			{0.0, rgba(65, 95, 58)},     // Cold scrub
-			{0.2, rgba(85, 105, 75)},    // Boreal green
-			{0.4, rgba(105, 115, 88)},   // Taiga
-			{0.6, rgba(135, 135, 115)},  // Tundra brown
-			{0.7, rgba(158, 152, 142)},  // Rocky tundra
-			{0.8, rgba(178, 174, 168)},  // Frost rock
-			{0.9, rgba(200, 198, 195)},  // Icy peaks
-			{1.0, rgba(225, 225, 222)},  // Snow
+			{0.0, rgba(65, 95, 58)},    // Cold scrub
+			{0.2, rgba(85, 105, 75)},   // Boreal green
+			{0.4, rgba(105, 115, 88)},  // Taiga
+			{0.6, rgba(135, 135, 115)}, // Tundra brown
+			{0.7, rgba(158, 152, 142)}, // Rocky tundra
+			{0.8, rgba(178, 174, 168)}, // Frost rock
+			{0.9, rgba(200, 198, 195)}, // Icy peaks
+			{1.0, rgba(225, 225, 222)}, // Snow
 		},
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.97, Freq: 2.02, Octaves: 5, Lacunarity: 2.12, Persistence: 0.51, Spline: continentalShelfSpline},
-			Detail:         types.ControlField{Amp: 0.55, Freq: 2.95, Octaves: 3, Lacunarity: 2.48, Persistence: 0.67, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 0.55, Freq: 2.95, Octaves: 3, Lacunarity: 2.48, Persistence: 0.67, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.96, Freq: 2.09, Octaves: 5, Lacunarity: 2.5, Persistence: 0.72, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.71, Freq: 1.27, Octaves: 4, Lacunarity: 1.89, Persistence: 0.44, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.38, Freq: 5.81, Octaves: 4, Lacunarity: 2.83, Persistence: 0.73, Spline: defaultSpline},
@@ -245,7 +254,7 @@ var Profiles = map[string]*types.PlanetProfile{
 					{Low: types.ColorRGB{195, 180, 145}, High: types.ColorRGB{220, 215, 190}}, // dry savanna
 					{Low: types.ColorRGB{145, 155, 80}, High: types.ColorRGB{195, 195, 165}},
 					{Low: types.ColorRGB{75, 130, 50}, High: types.ColorRGB{160, 175, 130}}, // grassland
-					{Low: types.ColorRGB{30, 90, 25}, High: types.ColorRGB{110, 140, 90}}, // forest
+					{Low: types.ColorRGB{30, 90, 25}, High: types.ColorRGB{110, 140, 90}},   // forest
 				},
 				{ // T=3 hot
 					{Low: types.ColorRGB{225, 195, 130}, High: types.ColorRGB{240, 225, 180}}, // dry desert
@@ -268,7 +277,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			BrushFalloff:    7,
 		},
 		HeightSmoothRadius: 4,
-		LUT: "terran",
+		LUT:                "terran",
 		// Phase 7 Tier B
 		PlateCount:           12,
 		OceanicPlateFraction: 0.7,
@@ -295,6 +304,27 @@ var Profiles = map[string]*types.PlanetProfile{
 			Tier: 0.5, SiteMinDistRad: 0.0314, SiteMaxDistRad: 0.1047,
 			MaxPopulation: 1.0, NightLightHue: 0.12, AgricultureRatio: 0.4,
 		},
+		// Phase 12: crust-raft tectonic continents.
+		Crust: types.CrustConfig{
+			MajorPlates: 7, MinorPlates: 4, MajorGrowthBias: 4,
+			OceanicFraction: 0.45,
+			Assembly:        -1, AssemblyWeights: [3]float64{25, 65, 10},
+			TargetLandFraction: -1, LandFracLo: 0.22, LandFracHi: 0.38,
+			TectonicAge: -1, AgeLo: 0.25, AgeHi: 0.75,
+			CratonsMax: 8, ShelfWidthRad: 0.05,
+			EdgeNoiseAmp: 0.45, EdgeNoiseFreq: 2.2, EdgeNoiseOctaves: 4,
+			PlatformHeight: 0.62, OceanFloorHeight: 0.25,
+		},
+		TectonicFX: types.TectonicFXConfig{
+			BeltAmp: 0.30, BeltWidthKm: 900, BeltFreq: 3.2, BeltOctaves: 5,
+			CordAmp: 0.22, CordWidthKm: 450,
+			TrenchDepth: 0.12, TrenchWidthKm: 220,
+			ArcAmp: 0.25, ArcWidthKm: 260,
+			RidgeAmp: 0.06, RidgeWidthKm: 700,
+			RiftDepth: 0.10, RiftWidthKm: 280, RiftShoulder: 0.35,
+			TransformAmp: 0.03, TransformWidthKm: 150,
+			ActivityFreq: 1.5,
+		},
 	},
 	"tundra": {
 		Type:     "tundra",
@@ -307,10 +337,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.85, rgba(200, 200, 190)},
 			{1.0, rgba(230, 230, 225)},
 		},
-		NoiseOctaves:     7,
-		NoiseLacunarity:  2.0,
-		NoisePersistence: 0.5,
-		NoiseScale:       2.5,
+		NoiseOctaves:       7,
+		NoiseLacunarity:    2.0,
+		NoisePersistence:   0.5,
+		NoiseScale:         2.5,
 		CraterCount:        92,
 		CraterMinRadius:    0.008,
 		CraterMaxRadius:    0.094,
@@ -323,7 +353,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		PolarCapSize:       0.25,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.50, Freq: 2.20, Octaves: 6, Lacunarity: 2.02, Persistence: 0.44, Spline: continentalShelfSpline},
-			Detail:         types.ControlField{Amp: 1.12, Freq: 4.07, Octaves: 4, Lacunarity: 1.78, Persistence: 0.66, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 1.12, Freq: 4.07, Octaves: 4, Lacunarity: 1.78, Persistence: 0.66, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 1.82, Freq: 3.99, Octaves: 2, Lacunarity: 1.52, Persistence: 0.48, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.37, Freq: 4.62, Octaves: 2, Lacunarity: 2.88, Persistence: 0.71, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.55, Freq: 3.50, Octaves: 2, Lacunarity: 1.67, Persistence: 0.70, Spline: defaultSpline},
@@ -346,7 +376,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			BrushFalloff:    7,
 		},
 		HeightSmoothRadius: 4,
-		LUT: "tundra",
+		LUT:                "tundra",
 		// Phase 7 Tier B
 		PlateCount:           8,
 		OceanicPlateFraction: 0.5,
@@ -362,6 +392,27 @@ var Profiles = map[string]*types.PlanetProfile{
 			WalkSteps: 8, StepArcRad: 0.087, MountainCutoff: 0.7,
 			WindRainBoost: 0.3, LeeFactor: 0.2,
 		},
+		// Phase 12: crust-raft tectonic continents.
+		Crust: types.CrustConfig{
+			MajorPlates: 7, MinorPlates: 4, MajorGrowthBias: 4,
+			OceanicFraction: 0.45,
+			Assembly:        -1, AssemblyWeights: [3]float64{25, 65, 10},
+			TargetLandFraction: -1, LandFracLo: 0.25, LandFracHi: 0.45,
+			TectonicAge: -1, AgeLo: 0.25, AgeHi: 0.75,
+			CratonsMax: 8, ShelfWidthRad: 0.05,
+			EdgeNoiseAmp: 0.45, EdgeNoiseFreq: 2.2, EdgeNoiseOctaves: 4,
+			PlatformHeight: 0.62, OceanFloorHeight: 0.25,
+		},
+		TectonicFX: types.TectonicFXConfig{
+			BeltAmp: 0.30, BeltWidthKm: 900, BeltFreq: 3.2, BeltOctaves: 5,
+			CordAmp: 0.22, CordWidthKm: 450,
+			TrenchDepth: 0.12, TrenchWidthKm: 220,
+			ArcAmp: 0.25, ArcWidthKm: 260,
+			RidgeAmp: 0.06, RidgeWidthKm: 700,
+			RiftDepth: 0.10, RiftWidthKm: 280, RiftShoulder: 0.35,
+			TransformAmp: 0.03, TransformWidthKm: 150,
+			ActivityFreq: 1.5,
+		},
 	},
 	"glacial": {
 		Type:     "glacial",
@@ -374,10 +425,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.85, rgba(230, 235, 240)},
 			{1.0, rgba(245, 248, 250)},
 		},
-		NoiseOctaves:     7,
-		NoiseLacunarity:  2.0,
-		NoisePersistence: 0.5,
-		NoiseScale:       3.0,
+		NoiseOctaves:       7,
+		NoiseLacunarity:    2.0,
+		NoisePersistence:   0.5,
+		NoiseScale:         3.0,
 		CraterCount:        173,
 		CraterMinRadius:    0.014,
 		CraterMaxRadius:    0.061,
@@ -390,7 +441,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		PolarCapSize:       0.35,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 0.84, Freq: 4.56, Octaves: 2, Lacunarity: 2.45, Persistence: 0.75, Spline: continentalShelfSpline},
-			Detail:         types.ControlField{Amp: 1.94, Freq: 1.14, Octaves: 3, Lacunarity: 2.39, Persistence: 0.68, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 1.94, Freq: 1.14, Octaves: 3, Lacunarity: 2.39, Persistence: 0.68, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.76, Freq: 1.05, Octaves: 6, Lacunarity: 3.00, Persistence: 0.59, Spline: defaultSpline},
 		},
 		Ridged: types.RidgedConfig{
@@ -410,7 +461,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			Gravity:         4,
 		},
 		HeightSmoothRadius: 2,
-		LUT: "glacial",
+		LUT:                "glacial",
 		// Phase 7 Tier B
 		PlateCount:           6,
 		OceanicPlateFraction: 0.4,
@@ -426,6 +477,28 @@ var Profiles = map[string]*types.PlanetProfile{
 			WalkSteps: 6, StepArcRad: 0.087, MountainCutoff: 0.7,
 			WindRainBoost: 0.25, LeeFactor: 0.25,
 		},
+		// Phase 12: crust-raft tectonic continents (same shape family
+		// as tundra).
+		Crust: types.CrustConfig{
+			MajorPlates: 7, MinorPlates: 4, MajorGrowthBias: 4,
+			OceanicFraction: 0.45,
+			Assembly:        -1, AssemblyWeights: [3]float64{25, 65, 10},
+			TargetLandFraction: -1, LandFracLo: 0.25, LandFracHi: 0.45,
+			TectonicAge: -1, AgeLo: 0.25, AgeHi: 0.75,
+			CratonsMax: 8, ShelfWidthRad: 0.05,
+			EdgeNoiseAmp: 0.45, EdgeNoiseFreq: 2.2, EdgeNoiseOctaves: 4,
+			PlatformHeight: 0.62, OceanFloorHeight: 0.25,
+		},
+		TectonicFX: types.TectonicFXConfig{
+			BeltAmp: 0.30, BeltWidthKm: 900, BeltFreq: 3.2, BeltOctaves: 5,
+			CordAmp: 0.22, CordWidthKm: 450,
+			TrenchDepth: 0.12, TrenchWidthKm: 220,
+			ArcAmp: 0.25, ArcWidthKm: 260,
+			RidgeAmp: 0.06, RidgeWidthKm: 700,
+			RiftDepth: 0.10, RiftWidthKm: 280, RiftShoulder: 0.35,
+			TransformAmp: 0.03, TransformWidthKm: 150,
+			ActivityFreq: 1.5,
+		},
 	},
 	"ice_world": {
 		Type:     "ice_world",
@@ -438,10 +511,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.8, rgba(210, 230, 240)},
 			{1.0, rgba(240, 245, 250)},
 		},
-		NoiseOctaves:     8,
-		NoiseLacunarity:  2.2,
-		NoisePersistence: 0.45,
-		NoiseScale:       3.5,
+		NoiseOctaves:       8,
+		NoiseLacunarity:    2.2,
+		NoisePersistence:   0.45,
+		NoiseScale:         3.5,
 		CraterCount:        82,
 		CraterMinRadius:    0.009,
 		CraterMaxRadius:    0.037,
@@ -457,7 +530,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		SnowLine:           0.50,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.73, Freq: 1.53, Octaves: 2, Lacunarity: 1.56, Persistence: 0.64, Spline: continentalShelfSpline},
-			Detail:         types.ControlField{Amp: 1.67, Freq: 4.43, Octaves: 4, Lacunarity: 2.28, Persistence: 0.63, Spline: continentalShelfSpline},
+			Detail:          types.ControlField{Amp: 1.67, Freq: 4.43, Octaves: 4, Lacunarity: 2.28, Persistence: 0.63, Spline: continentalShelfSpline},
 		},
 		Warp: types.WarpConfig{
 			Amp: 0.26, Freq: 1.10, Octaves: 2, Lacunarity: 2.69, Persistence: 0.28,
@@ -481,7 +554,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			Gravity:         4,
 		},
 		HeightSmoothRadius: 2,
-		LUT: "ice_world",
+		LUT:                "ice_world",
 		// Phase 7 Tier B
 		JitterEnabled:   true,
 		JitterCellCount: 120,
@@ -505,10 +578,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.9, rgba(190, 188, 182)},
 			{1.0, rgba(220, 220, 218)},
 		},
-		NoiseOctaves:     8,
-		NoiseLacunarity:  2.1,
-		NoisePersistence: 0.62,
-		NoiseScale:       3.0,
+		NoiseOctaves:       8,
+		NoiseLacunarity:    2.1,
+		NoisePersistence:   0.62,
+		NoiseScale:         3.0,
 		CraterCount:        157,
 		CraterMinRadius:    0.007,
 		CraterMaxRadius:    0.015,
@@ -545,7 +618,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.20, Freq: 2.64, Octaves: 4, Lacunarity: 2.75, Persistence: 0.30, Spline: continentalShelfSpline},
-			Detail:         types.ControlField{Amp: 1.30, Freq: 0.69, Octaves: 3, Lacunarity: 1.65, Persistence: 0.68, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 1.30, Freq: 0.69, Octaves: 3, Lacunarity: 1.65, Persistence: 0.68, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 0.51, Freq: 2.75, Octaves: 5, Lacunarity: 2.90, Persistence: 0.74, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.52, Freq: 4.73, Octaves: 4, Lacunarity: 1.66, Persistence: 0.36, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.31, Freq: 2.34, Octaves: 2, Lacunarity: 1.55, Persistence: 0.62, Spline: defaultSpline},
@@ -599,7 +672,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			BrushFalloff:    7,
 		},
 		HeightSmoothRadius: 4,
-		LUT: "super_terran",
+		LUT:                "super_terran",
 		// Phase 7 Tier B
 		PlateCount:           12,
 		OceanicPlateFraction: 0.7,
@@ -626,6 +699,28 @@ var Profiles = map[string]*types.PlanetProfile{
 			Tier: 0.3, SiteMinDistRad: 0.0314, SiteMaxDistRad: 0.1047,
 			MaxPopulation: 0.8, NightLightHue: 0.12, AgricultureRatio: 0.4,
 		},
+		// Phase 12: crust-raft tectonic continents — bigger world,
+		// more plates, more land, bigger relief.
+		Crust: types.CrustConfig{
+			MajorPlates: 8, MinorPlates: 4, MajorGrowthBias: 4,
+			OceanicFraction: 0.45,
+			Assembly:        -1, AssemblyWeights: [3]float64{35, 55, 10},
+			TargetLandFraction: -1, LandFracLo: 0.30, LandFracHi: 0.50,
+			TectonicAge: -1, AgeLo: 0.25, AgeHi: 0.75,
+			CratonsMax: 8, ShelfWidthRad: 0.05,
+			EdgeNoiseAmp: 0.45, EdgeNoiseFreq: 2.2, EdgeNoiseOctaves: 4,
+			PlatformHeight: 0.62, OceanFloorHeight: 0.25,
+		},
+		TectonicFX: types.TectonicFXConfig{
+			BeltAmp: 0.36, BeltWidthKm: 900, BeltFreq: 3.2, BeltOctaves: 5,
+			CordAmp: 0.22, CordWidthKm: 450,
+			TrenchDepth: 0.12, TrenchWidthKm: 220,
+			ArcAmp: 0.25, ArcWidthKm: 260,
+			RidgeAmp: 0.06, RidgeWidthKm: 700,
+			RiftDepth: 0.10, RiftWidthKm: 280, RiftShoulder: 0.35,
+			TransformAmp: 0.03, TransformWidthKm: 150,
+			ActivityFreq: 1.5,
+		},
 	},
 	"hothouse": {
 		Type:     "hothouse",
@@ -638,10 +733,10 @@ var Profiles = map[string]*types.PlanetProfile{
 			{0.8, rgba(190, 195, 140)},
 			{1.0, rgba(220, 220, 190)},
 		},
-		NoiseOctaves:     7,
-		NoiseLacunarity:  2.0,
-		NoisePersistence: 0.5,
-		NoiseScale:       2.0,
+		NoiseOctaves:       7,
+		NoiseLacunarity:    2.0,
+		NoisePersistence:   0.5,
+		NoiseScale:         2.0,
 		CraterCount:        138,
 		CraterMinRadius:    0.020,
 		CraterMaxRadius:    0.044,
@@ -652,7 +747,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		SecondaryDensity:   0.09,
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.24, Freq: 2.86, Octaves: 5, Lacunarity: 2.31, Persistence: 0.66, Spline: defaultSpline},
-			Detail:         types.ControlField{Amp: 0.74, Freq: 1.87, Octaves: 6, Lacunarity: 2.24, Persistence: 0.69, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 0.74, Freq: 1.87, Octaves: 6, Lacunarity: 2.24, Persistence: 0.69, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 1.45, Freq: 4.94, Octaves: 6, Lacunarity: 2.51, Persistence: 0.70, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 0.64, Freq: 3.47, Octaves: 4, Lacunarity: 1.97, Persistence: 0.38, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 0.81, Freq: 0.99, Octaves: 4, Lacunarity: 2.33, Persistence: 0.78, Spline: defaultSpline},
@@ -679,17 +774,17 @@ var Profiles = map[string]*types.PlanetProfile{
 		Type:     "lava_world",
 		Renderer: "rocky",
 		Palette: []planetcolor.ColorStop{
-			{0.0, rgba(20, 15, 10)},     // Deep basalt
-			{0.2, rgba(35, 25, 18)},     // Dark rock
-			{0.4, rgba(50, 35, 22)},     // Brown rock
-			{0.6, rgba(65, 45, 28)},     // Warm rock
-			{0.8, rgba(55, 38, 25)},     // Dark crust
-			{1.0, rgba(40, 28, 18)},     // Dark peaks
+			{0.0, rgba(20, 15, 10)}, // Deep basalt
+			{0.2, rgba(35, 25, 18)}, // Dark rock
+			{0.4, rgba(50, 35, 22)}, // Brown rock
+			{0.6, rgba(65, 45, 28)}, // Warm rock
+			{0.8, rgba(55, 38, 25)}, // Dark crust
+			{1.0, rgba(40, 28, 18)}, // Dark peaks
 		},
-		NoiseOctaves:     8,
-		NoiseLacunarity:  2.2,
-		NoisePersistence: 0.55,
-		NoiseScale:       3.0,
+		NoiseOctaves:       8,
+		NoiseLacunarity:    2.2,
+		NoisePersistence:   0.55,
+		NoiseScale:         3.0,
 		CraterCount:        128,
 		CraterMinRadius:    0.011,
 		CraterMaxRadius:    0.090,
@@ -787,7 +882,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		},
 		ControlConfig: types.ControlConfig{
 			Continentalness: types.ControlField{Amp: 1.83, Freq: 5.85, Octaves: 4, Lacunarity: 2.59, Persistence: 0.68, Spline: continentalShelfSpline},
-			Detail:         types.ControlField{Amp: 1.29, Freq: 4.59, Octaves: 4, Lacunarity: 1.80, Persistence: 0.73, Spline: defaultSpline},
+			Detail:          types.ControlField{Amp: 1.29, Freq: 4.59, Octaves: 4, Lacunarity: 1.80, Persistence: 0.73, Spline: defaultSpline},
 			PeaksValleys:    types.ControlField{Amp: 1.00, Freq: 4.22, Octaves: 3, Lacunarity: 2.97, Persistence: 0.67, Spline: defaultSpline},
 			Temperature:     types.ControlField{Amp: 1.88, Freq: 2.37, Octaves: 5, Lacunarity: 1.54, Persistence: 0.32, Spline: defaultSpline},
 			Humidity:        types.ControlField{Amp: 1.57, Freq: 0.84, Octaves: 4, Lacunarity: 2.23, Persistence: 0.35, Spline: defaultSpline},
@@ -835,7 +930,7 @@ var Profiles = map[string]*types.PlanetProfile{
 			BrushFalloff:    7,
 		},
 		HeightSmoothRadius: 4,
-		LUT: "oceanic",
+		LUT:                "oceanic",
 		// Phase 7 Tier B
 		PlateCount:           12,
 		OceanicPlateFraction: 0.9,
@@ -849,6 +944,28 @@ var Profiles = map[string]*types.PlanetProfile{
 			Coverage: 0.65, BandLatRad: 0.30, Freq: 4, Octaves: 4, WarpAmp: 0.4,
 			StormCount: 8, StormRadiusRad: 0.22,
 			SunDir: [3]float64{1, 0.3, 0}, ShadowGain: 0.5,
+		},
+		// Phase 12: crust-raft tectonic continents — near-global ocean
+		// with scattered microcontinents and island arcs.
+		Crust: types.CrustConfig{
+			MajorPlates: 8, MinorPlates: 5, MajorGrowthBias: 4,
+			OceanicFraction: 0.8,
+			Assembly:        -1, AssemblyWeights: [3]float64{5, 25, 70},
+			TargetLandFraction: -1, LandFracLo: 0.03, LandFracHi: 0.12,
+			TectonicAge: -1, AgeLo: 0.25, AgeHi: 0.75,
+			CratonsMax: 10, ShelfWidthRad: 0.05,
+			EdgeNoiseAmp: 0.45, EdgeNoiseFreq: 2.2, EdgeNoiseOctaves: 4,
+			PlatformHeight: 0.62, OceanFloorHeight: 0.25,
+		},
+		TectonicFX: types.TectonicFXConfig{
+			BeltAmp: 0.30, BeltWidthKm: 900, BeltFreq: 3.2, BeltOctaves: 5,
+			CordAmp: 0.22, CordWidthKm: 450,
+			TrenchDepth: 0.12, TrenchWidthKm: 220,
+			ArcAmp: 0.34, ArcWidthKm: 260,
+			RidgeAmp: 0.06, RidgeWidthKm: 700,
+			RiftDepth: 0.10, RiftWidthKm: 280, RiftShoulder: 0.35,
+			TransformAmp: 0.03, TransformWidthKm: 150,
+			ActivityFreq: 1.5,
 		},
 	},
 
@@ -893,12 +1010,12 @@ var Profiles = map[string]*types.PlanetProfile{
 		Type:     "ice_giant",
 		Renderer: "gas_giant",
 		Palette: []planetcolor.ColorStop{
-			{0.0, rgba(100, 150, 185)},  // Darker blue belt
-			{0.2, rgba(115, 160, 190)},  // Medium blue
-			{0.4, rgba(125, 170, 200)},  // Blue
-			{0.6, rgba(140, 180, 205)},  // Slightly lighter
-			{0.8, rgba(150, 190, 210)},  // Light teal
-			{1.0, rgba(165, 200, 218)},  // Lightest zone
+			{0.0, rgba(100, 150, 185)}, // Darker blue belt
+			{0.2, rgba(115, 160, 190)}, // Medium blue
+			{0.4, rgba(125, 170, 200)}, // Blue
+			{0.6, rgba(140, 180, 205)}, // Slightly lighter
+			{0.8, rgba(150, 190, 210)}, // Light teal
+			{1.0, rgba(165, 200, 218)}, // Lightest zone
 		},
 		NoiseOctaves:     5,
 		NoiseLacunarity:  2.0,
@@ -937,7 +1054,7 @@ var Profiles = map[string]*types.PlanetProfile{
 		CraterMinRadius:  0.004,
 		CraterMaxRadius:  0.04,
 		CraterDepth:      0.12,
-			LUT:              "unknown",
+		LUT:              "unknown",
 		// Phase 7 Tier B: no plates or jitter for unknown
 		JitterEnabled: false,
 	},
