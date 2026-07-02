@@ -441,6 +441,8 @@ function renderPanels() {
   renderWarpPanel(profile, panels);
   renderRidgedPanel(profile, panels);
   renderBasinPanel(profile, panels);
+  renderTectonicsPanel(profile, panels);
+  renderTectonicFXPanel(profile, panels);
   renderProvincePanel(profile, panels);
   renderShadingPanel(profile, panels);
   renderOceanPanel(profile, panels);
@@ -1367,6 +1369,119 @@ function renderBasinPanel(profile, panels) {
     'Distance in km over which the depression fades to zero. Typical 400–2000.',
     profile.Basin.PlateDivergentScaleKm || 0, 0, 20000, '50',
     v => { profile.Basin.PlateDivergentScaleKm = v; commitProfile(profile); }));
+  panels.appendChild(panel);
+}
+
+// Phase 12: crust-raft tectonics. NOTE the crust/tectonicFX JSON keys
+// are lowerCamel (explicit Go struct tags), unlike the legacy
+// capitalized profile fields.
+function renderTectonicsPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  if (!profile.crust) {
+    profile.crust = { majorPlates: 0, assembly: -1, targetLandFraction: -1, tectonicAge: -1 };
+  }
+  const c = profile.crust;
+  const panel = makePanel('Tectonics (crust rafts)',
+    'Phase 12: plates carry cratons of continental crust that decide land vs ocean. ' +
+    'majorPlates=0 disables (legacy noise continents). assembly/targetLandFraction/tectonicAge: ' +
+    '-1 samples per planet from the configured range; any other value pins it. ' +
+    'tectonicAge is the "millions of years" slider: 0 young/sharp, 1 old/soft.',
+    'Crust');
+
+  const reset = () => {
+    profile.crust = originalProfile && originalProfile.crust
+      ? JSON.parse(JSON.stringify(originalProfile.crust))
+      : { majorPlates: 0, assembly: -1, targetLandFraction: -1, tectonicAge: -1 };
+    commitProfile(profile); renderPanels();
+  };
+  const clear = () => {
+    profile.crust = { majorPlates: 0, assembly: -1, targetLandFraction: -1, tectonicAge: -1 };
+    commitProfile(profile); renderPanels();
+  };
+  const randomize = () => {
+    profile.crust = Object.assign({}, c, {
+      majorPlates:     5 + Math.floor(Math.random() * 5),
+      minorPlates:     2 + Math.floor(Math.random() * 5),
+      majorGrowthBias: 4,
+      oceanicFraction: round2(0.3 + Math.random() * 0.5),
+      assembly:        round2(Math.random()),
+      targetLandFraction: round2(0.1 + Math.random() * 0.5),
+      tectonicAge:     round2(Math.random()),
+    });
+    commitProfile(profile); renderPanels();
+  };
+
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Randomize', 'Roll random in-range tectonics', randomize));
+  controls.appendChild(makeAuxBtn('Reset', 'Restore loaded values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable crust stage', clear));
+
+  const num = (label, help, key, min, max, step) =>
+    panel.appendChild(makeNumberRow(label, help, c[key] ?? 0, min, max, step, v => {
+      c[key] = v; commitProfile(profile);
+    }));
+
+  num('Major plates', '0 disables the crust stage entirely', 'majorPlates', 0, 12, 1);
+  num('Minor plates', 'gap-filler plates between the majors', 'minorPlates', 0, 8, 1);
+  num('Growth bias', 'flood-fill weight of majors vs minors', 'majorGrowthBias', 1, 8, '0.5');
+  num('Oceanic fraction', 'fraction of plates carrying no craton', 'oceanicFraction', 0, 1, '0.05');
+  num('Assembly', '-1 samples; 0 supercontinent … 1 fragmented', 'assembly', -1, 1, '0.05');
+  num('Target land fraction', '-1 samples from [lo, hi]', 'targetLandFraction', -1, 1, '0.01');
+  num('Land frac lo', 'sample range lower bound', 'landFracLo', 0, 1, '0.01');
+  num('Land frac hi', 'sample range upper bound', 'landFracHi', 0, 1, '0.01');
+  num('Tectonic age', '-1 samples; 0 young/sharp … 1 old/soft', 'tectonicAge', -1, 1, '0.05');
+  num('Cratons max', 'total craton cap (count grows with assembly)', 'cratonsMax', 2, 14, 1);
+  num('Shelf width (rad)', 'continental-shelf falloff half-width', 'shelfWidthRad', 0.01, 0.2, '0.005');
+  num('Edge noise amp', 'craton coastline fractality', 'edgeNoiseAmp', 0, 1, '0.05');
+  num('Edge noise freq', 'craton coastline noise frequency', 'edgeNoiseFreq', 0.5, 8, '0.1');
+  num('Platform height', 'continental base height', 'platformHeight', 0.3, 0.9, '0.01');
+  num('Ocean floor height', 'abyssal base height', 'oceanFloorHeight', 0.05, 0.5, '0.01');
+
+  panels.appendChild(panel);
+}
+
+function renderTectonicFXPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  if (!profile.tectonicFX) profile.tectonicFX = {};
+  const c = profile.tectonicFX;
+  const panel = makePanel('Tectonic FX (boundary effects)',
+    'Crust-aware boundary height effects: collision belts (cont-cont), ' +
+    'cordillera+trench (ocean-cont), island arcs (oce-oce), mid-ocean ridges, ' +
+    'continental rifts, transform faults. Active only when Tectonics is enabled.',
+    'TectonicFX');
+
+  const reset = () => {
+    profile.tectonicFX = originalProfile && originalProfile.tectonicFX
+      ? JSON.parse(JSON.stringify(originalProfile.tectonicFX)) : {};
+    commitProfile(profile); renderPanels();
+  };
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Reset', 'Restore loaded values', reset));
+
+  const num = (label, help, key, min, max, step) =>
+    panel.appendChild(makeNumberRow(label, help, c[key] ?? 0, min, max, step, v => {
+      c[key] = v; commitProfile(profile);
+    }));
+
+  num('Belt amp', 'cont-cont collision belt height', 'beltAmp', 0, 1, '0.02');
+  num('Belt width (km)', 'Gaussian sigma of the belt envelope', 'beltWidthKm', 100, 3000, '50');
+  num('Belt freq', 'ridged noise frequency in belts', 'beltFreq', 0.5, 8, '0.1');
+  num('Belt octaves', 'ridged noise octaves in belts', 'beltOctaves', 1, 8, 1);
+  num('Cordillera amp', 'coastal mountains on subduction coasts', 'cordAmp', 0, 1, '0.02');
+  num('Cordillera width (km)', 'Gaussian sigma of the cordillera envelope', 'cordWidthKm', 100, 1500, '25');
+  num('Trench depth', 'offshore subduction trench', 'trenchDepth', 0, 0.5, '0.01');
+  num('Trench width (km)', 'Gaussian sigma of the trench envelope', 'trenchWidthKm', 50, 800, '10');
+  num('Arc amp', 'oce-oce island arc height', 'arcAmp', 0, 1, '0.02');
+  num('Arc width (km)', 'Gaussian sigma of the arc envelope', 'arcWidthKm', 50, 1000, '10');
+  num('Ridge amp', 'mid-ocean ridge rise', 'ridgeAmp', 0, 0.3, '0.01');
+  num('Ridge width (km)', 'Gaussian sigma of the ridge envelope', 'ridgeWidthKm', 100, 2000, '50');
+  num('Rift depth', 'continental rift valley', 'riftDepth', 0, 0.4, '0.01');
+  num('Rift width (km)', 'Gaussian sigma of the rift envelope', 'riftWidthKm', 50, 1000, '10');
+  num('Rift shoulder', 'shoulder uplift fraction', 'riftShoulder', 0, 1, '0.05');
+  num('Transform amp', 'fault-zone roughness', 'transformAmp', 0, 0.2, '0.005');
+  num('Transform width (km)', 'Gaussian sigma of the fault envelope', 'transformWidthKm', 50, 600, '10');
+  num('Activity freq', 'per-boundary energy variation', 'activityFreq', 0.2, 5, '0.1');
+
   panels.appendChild(panel);
 }
 
