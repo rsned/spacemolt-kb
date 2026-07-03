@@ -19,6 +19,27 @@ import (
 
 var updateGoldens = flag.Bool("update", false, "update golden images instead of comparing")
 
+// testFace is the cube-map face size used by the golden and invariant
+// renders. The default (128) keeps the package testable in minutes;
+// production galaxy rebuilds render at planetgen.DefaultFaceSize
+// (1024), and a full-res verification remains available as a one-off:
+//
+//	go test ./cmd/generate-planet-maps/ -face 1024 -timeout 300m
+//
+// Goldens are baked at the default test size — pass the SAME -face
+// value to -update and the comparison run, or every image mismatches.
+var testFace = flag.Int("face", 128, "cube-map face size for golden/invariant renders")
+
+// genTestEquirect mirrors planetgen.GenerateEquirect but renders at
+// the -face test size instead of the production DefaultFaceSize.
+func genTestEquirect(planetType, planetName string, w, h int) (*image.RGBA, error) {
+	cm, err := planetgen.Generate(planetType, planetName, *testFace)
+	if err != nil {
+		return nil, err
+	}
+	return cubemap.BakeEquirect(cm, w, h), nil
+}
+
 var goldenPlanets = []struct{ Type, Seed string }{
 	{"scorched", "GoldenScorched"},
 	{"arid", "GoldenArid"},
@@ -48,7 +69,7 @@ func TestGolden(t *testing.T) {
 	}
 	for _, p := range goldenPlanets {
 		t.Run(p.Type, func(t *testing.T) {
-			got, err := planetgen.GenerateEquirect(p.Type, p.Seed, goldenW, goldenH)
+			got, err := genTestEquirect(p.Type, p.Seed, goldenW, goldenH)
 			if err != nil {
 				t.Fatal(err)
 			}
