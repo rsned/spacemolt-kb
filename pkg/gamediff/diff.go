@@ -12,6 +12,7 @@ import (
 type Entry struct {
 	Name string
 	ID   string
+	URL  string // relative link to its KB page, or "" if none exists
 }
 
 // Change is a field-level modification on a single item.
@@ -20,6 +21,7 @@ type Change struct {
 	Field  string
 	OldVal string // JSON-encoded
 	NewVal string // JSON-encoded
+	URL    string // relative link to its KB page, or "" if none exists
 }
 
 // CatalogDiff holds the result of comparing two snapshots of a single catalog.

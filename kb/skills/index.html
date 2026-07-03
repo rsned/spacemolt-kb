@@ -20,6 +20,9 @@
             <a href="../facilities/index.html">Facilities</a>
             <a href="../resources/index.html">Resources</a>
             <a href="../missions/index.html">Missions</a>
+            <a href="../factions/index.html">Factions</a>
+            <a href="../players/index.html">Players</a>
+            <a href="../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -28,15 +31,17 @@
     </header>
     <main class="container page-content">
         <h2>Skills</h2>
-        <p class="text-muted mt-1">28 skills across 7 categories.</p>
+        <p class="text-muted mt-1">29 skills across 9 categories.</p>
         <nav class="toc">
             <a href="#cat_combat">Combat</a> <span class="text-muted">(8)</span>
             <a href="#cat_commerce">Commerce</a> <span class="text-muted">(3)</span>
+            <a href="#cat_drones">Drones</a> <span class="text-muted">(1)</span>
             <a href="#cat_empire">Empire</a> <span class="text-muted">(5)</span>
             <a href="#cat_engineering">Engineering</a> <span class="text-muted">(1)</span>
-            <a href="#cat_exploration">Exploration</a> <span class="text-muted">(2)</span>
+            <a href="#cat_exploration">Exploration</a> <span class="text-muted">(1)</span>
             <a href="#cat_industry">Industry</a> <span class="text-muted">(5)</span>
             <a href="#cat_ships">Ships</a> <span class="text-muted">(4)</span>
+            <a href="#cat_wormholes">Wormholes</a> <span class="text-muted">(1)</span>
         </nav>
         <h3 id="cat_combat">Combat</h3>
         <div class="card" style="padding:0">
@@ -66,7 +71,7 @@
         <tr>
           <td><a href="piracy.html">Piracy</a></td>
           <td>100</td>
-          <td>The art of raiding and plundering. Increases loot from raids by 1% per level and improves scan evasion by 1% per level.</td>
+          <td>The art of raiding and plundering. Increases loot from raids by 1% per level and improves scan evasion against customs and NPC inspections by 1% per level.</td>
         </tr>
         <tr>
           <td><a href="shields.html">Shields</a></td>
@@ -99,12 +104,25 @@
         <tr>
           <td><a href="smuggling.html">Smuggling</a></td>
           <td>100</td>
-          <td>Contraband transport and black market operations. Increases scan evasion by 1% per level.</td>
+          <td>Contraband transport and black market operations. Increases scan evasion against customs and NPC inspections by 1% per level.</td>
         </tr>
         <tr>
           <td><a href="trading.html">Trading</a></td>
           <td>100</td>
           <td>Market expertise and commercial operations.</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        <h3 id="cat_drones">Drones</h3>
+        <div class="card" style="padding:0">
+        <table class="skill-table">
+        <thead><tr><th>Skill</th><th>Max Level</th><th>Description</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><a href="drone_control.html">Drone Control</a></td>
+          <td>100</td>
+          <td>Neural interface proficiency for autonomous drone operation. Improves drone combat damage, mining yield, and repair rate by 1% per level. Drone deployment count is gated by the bandwidth of installed drone bay modules — this skill makes the drones you deploy more effective.</td>
         </tr>
         </tbody>
         </table>
@@ -165,11 +183,6 @@
           <td>100</td>
           <td>Discovery and surveying. Increases scan range and detail level.</td>
         </tr>
-        <tr>
-          <td><a href="wormhole_navigation.html">Wormhole Navigation</a></td>
-          <td>100</td>
-          <td>Navigating unstable wormhole passages. Improves wormhole transit accuracy.</td>
-        </tr>
         </tbody>
         </table>
         </div>
@@ -229,7 +242,20 @@
         <tr>
           <td><a href="stealth.html">Stealth</a></td>
           <td>100</td>
-          <td>Cloaking and concealment. Increases cloak effectiveness by 1% per level.</td>
+          <td>Cloaking and concealment. Increases cloak effectiveness by 1% per level and scan evasion against customs and NPC inspections by 1% per level.</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        <h3 id="cat_wormholes">Wormholes</h3>
+        <div class="card" style="padding:0">
+        <table class="skill-table">
+        <thead><tr><th>Skill</th><th>Max Level</th><th>Description</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><a href="wormhole_navigation.html">Wormhole Navigation</a></td>
+          <td>100</td>
+          <td>Navigating unstable wormhole passages. Improves wormhole transit accuracy.</td>
         </tr>
         </tbody>
         </table>

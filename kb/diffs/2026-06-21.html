@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — June 21, 2026 vs June 19, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-06-19.html">&larr; 2026-06-19</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-06-22.html">2026-06-22 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; June 21, 2026 vs June 19, 2026</h2>
+<div class="diff-summary">204 additions, 0 deletions, 115 modifications across 5 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+16</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+10</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~63</span></li>
+<li><a href="#ships">Ships</a></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~4</span></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+178</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~46</span></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+16</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Assemble Gold Processing Core <span class="text-muted">(assemble_gold_processing_core)</span></li><li class="diff-add">+ Assemble Outpost Kit <span class="text-muted">(assemble_outpost_kit)</span></li><li class="diff-add">+ Assemble Station Core <span class="text-muted">(assemble_station_core)</span></li><li class="diff-add">+ Bond Iridium Silicate Composite <span class="text-muted">(bond_iridium_silicate_composite)</span></li><li class="diff-add">+ Build Remote Armor Repairer I <span class="text-muted">(build_remote_armor_repairer_i)</span></li><li class="diff-add">+ Build Remote Armor Repairer II <span class="text-muted">(build_remote_armor_repairer_ii)</span></li><li class="diff-add">+ Build Remote Armor Repairer III <span class="text-muted">(build_remote_armor_repairer_iii)</span></li><li class="diff-add">+ Build Stasis Webifier I <span class="text-muted">(build_stasis_webifier_i)</span></li><li class="diff-add">+ Build Stasis Webifier II <span class="text-muted">(build_stasis_webifier_ii)</span></li><li class="diff-add">+ Build Warp Core Stabilizer <span class="text-muted">(build_warp_core_stabilizer)</span></li><li class="diff-add">+ Build Warp Disruptor <span class="text-muted">(build_warp_disruptor)</span></li><li class="diff-add">+ Build Warp Scrambler <span class="text-muted">(build_warp_scrambler)</span></li><li class="diff-add">+ Cast Alumina Ceramite <span class="text-muted">(cast_alumina_ceramite)</span></li><li class="diff-add">+ Fabricate Gold Circuit Boards <span class="text-muted">(fabricate_gold_circuit_boards)</span></li><li class="diff-add">+ Fire Lithium Ceramic <span class="text-muted">(fire_lithium_ceramic)</span></li><li class="diff-add">+ Fuse Leaded Glass <span class="text-muted">(fuse_leaded_glass)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+10</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~63</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Outpost Kit <span class="text-muted">(outpost_kit)</span></li><li class="diff-add">+ Remote Armor Repairer I <span class="text-muted">(remote_armor_repairer_i)</span></li><li class="diff-add">+ Remote Armor Repairer II <span class="text-muted">(remote_armor_repairer_ii)</span></li><li class="diff-add">+ Remote Armor Repairer III <span class="text-muted">(remote_armor_repairer_iii)</span></li><li class="diff-add">+ Stasis Webifier I <span class="text-muted">(stasis_webifier_i)</span></li><li class="diff-add">+ Stasis Webifier II <span class="text-muted">(stasis_webifier_ii)</span></li><li class="diff-add">+ Station Core <span class="text-muted">(station_core)</span></li><li class="diff-add">+ Warp Core Stabilizer <span class="text-muted">(warp_core_stabilizer)</span></li><li class="diff-add">+ Warp Disruptor <span class="text-muted">(warp_disruptor)</span></li><li class="diff-add">+ Warp Scrambler <span class="text-muted">(warp_scrambler)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/weapon/blood_reaver.html">blood_reaver</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/dark_matter_projector.html">dark_matter_projector</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/em_disruptor_i.html">em_disruptor_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/em_smartbomb.html">em_smartbomb</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/emp_cannon_i.html">emp_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/emp_missile_launcher.html">emp_missile_launcher</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../items/weapon/emp_pulse_i.html">emp_pulse_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/emp_pulse_ii.html">emp_pulse_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/emp_pulse_iii.html">emp_pulse_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/explosive_smartbomb.html">explosive_smartbomb</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_i.html">flak_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_ii.html">flak_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_iii.html">flak_cannon_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div><div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">25</span></div>
+<div class="diff-item-id"><a href="../items/weapon/focused_beam_i.html">focused_beam_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../items/weapon/focused_beam_ii.html">focused_beam_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../items/weapon/focused_beam_iii.html">focused_beam_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../items/weapon/fury_cannon.html">fury_cannon</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/heavy_mass_driver.html">heavy_mass_driver</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/heavy_pulse_laser.html">heavy_pulse_laser</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/heavy_torpedo.html">heavy_torpedo</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_beam_array.html">ion_beam_array</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_blaster_i.html">ion_blaster_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_blaster_ii.html">ion_blaster_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_blaster_iii.html">ion_blaster_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_cannon_i.html">ion_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_cannon_ii.html">ion_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/judgment_beam.html">judgment_beam</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../items/weapon/jury_rigged_cannon.html">jury_rigged_cannon</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/kinetic_smartbomb.html">kinetic_smartbomb</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/mass_driver.html">mass_driver</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/mine_launcher_i.html">mine_launcher_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/mine_launcher_ii.html">mine_launcher_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/missile_launcher_i.html">missile_launcher_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../items/weapon/missile_launcher_ii.html">missile_launcher_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../items/weapon/neural_disruptor.html">neural_disruptor</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/null_cannon.html">null_cannon</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/phase_disruptor.html">phase_disruptor</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/piercing_railgun_i.html">piercing_railgun_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/piercing_railgun_ii.html">piercing_railgun_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_cannon_i.html">plasma_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_cannon_ii.html">plasma_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_cannon_iii.html">plasma_cannon_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_cannon_iv.html">plasma_cannon_iv</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_repeater_i.html">plasma_repeater_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_repeater_ii.html">plasma_repeater_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_torpedo_launcher.html">plasma_torpedo_launcher</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../items/weapon/proximity_mine_launcher.html">proximity_mine_launcher</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/pulse_laser_i.html">pulse_laser_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/pulse_laser_ii.html">pulse_laser_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/pulse_laser_iii.html">pulse_laser_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/railgun_i.html">railgun_i</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/railgun_ii.html">railgun_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/scrapgun.html">scrapgun</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../items/weapon/siege_railgun.html">siege_railgun</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/solar_lance.html">solar_lance</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../items/weapon/system_disabler.html">system_disabler</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/thermal_smartbomb.html">thermal_smartbomb</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/tracking_mine_launcher.html">tracking_mine_launcher</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/void_cannon.html">void_cannon</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/void_lance_ii.html">void_lance_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../items/weapon/void_laser.html">void_laser</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../items/weapon/void_mine_launcher.html">void_mine_launcher</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../items/weapon/void_torpedo_launcher.html">void_torpedo_launcher</a></div>
+<div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">6</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~4</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../skills/gunnery.html">gunnery</a></div>
+<div class="diff-field"><span class="diff-field-name">bonus_per_level:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">capitalWeaponDamage: 1</td><td class="diff-unchanged">capitalWeaponDamage: 1</td></tr><tr><td class="diff-unchanged">energyWeaponDamage: 1</td><td class="diff-unchanged">energyWeaponDamage: 1</td></tr><tr><td class="diff-del">gravitonDamage: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">ionDamage: 1</td><td class="diff-unchanged">ionDamage: 1</td></tr><tr><td class="diff-unchanged">kineticWeaponDamage: 1</td><td class="diff-unchanged">kineticWeaponDamage: 1</td></tr><tr><td class="diff-unchanged">missileDamage: 1</td><td class="diff-unchanged">missileDamage: 1</td></tr><tr><td class="diff-unchanged">plasmaDamage: 1</td><td class="diff-unchanged">plasmaDamage: 1</td></tr><tr><td class="diff-unchanged">voidDamage: 1</td><td class="diff-unchanged">voidDamage: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../skills/piracy.html">piracy</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The art of raiding and plundering. Increases loot from raids by 1% per level and improves scan evasion by 1% per level.&#34;</span> &rarr; <span class="diff-add">&#34;The art of raiding and plundering. Increases loot from raids by 1% per level and improves scan evasion against customs and NPC inspections by 1% per level.&#34;</span></div>
+<div class="diff-item-id"><a href="../skills/smuggling.html">smuggling</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Contraband transport and black market operations. Increases scan evasion by 1% per level.&#34;</span> &rarr; <span class="diff-add">&#34;Contraband transport and black market operations. Increases scan evasion against customs and NPC inspections by 1% per level.&#34;</span></div>
+<div class="diff-item-id"><a href="../skills/stealth.html">stealth</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Cloaking and concealment. Increases cloak effectiveness by 1% per level.&#34;</span> &rarr; <span class="diff-add">&#34;Cloaking and concealment. Increases cloak effectiveness by 1% per level and scan evasion against customs and NPC inspections by 1% per level.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+178</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~46</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../facilities/production/advanced_force_field_works.html">Advanced Force Field Works</a> <span class="text-muted">(advanced_force_field_works)</span></li><li class="diff-add">+ <a href="../facilities/production/advanced_graviton_assembly_line.html">Advanced Graviton Assembly Line</a> <span class="text-muted">(advanced_graviton_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/advanced_launcher_workshop.html">Advanced Launcher Workshop</a> <span class="text-muted">(advanced_launcher_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/advanced_reactor_upgrade_fabrication.html">Advanced Reactor Upgrade Fabrication</a> <span class="text-muted">(advanced_reactor_upgrade_fabrication)</span></li><li class="diff-add">+ <a href="../facilities/production/advanced_salvage_processing_works.html">Advanced Salvage Processing Works</a> <span class="text-muted">(advanced_salvage_processing_works)</span></li><li class="diff-add">+ <a href="../facilities/production/alumina_ceramite_kiln.html">Alumina Ceramite Kiln</a> <span class="text-muted">(alumina_ceramite_kiln)</span></li><li class="diff-add">+ <a href="../facilities/production/alumina_composite_plant.html">Alumina Composite Plant</a> <span class="text-muted">(alumina_composite_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/alumina_kiln_shed.html">Alumina Kiln Shed</a> <span class="text-muted">(alumina_kiln_shed)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_armor_repairer_assembly_plant.html">Ancillary Armor Repairer Assembly Plant</a> <span class="text-muted">(ancillary_armor_repairer_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_armor_repairer_fabrication_nexus.html">Ancillary Armor Repairer Fabrication Nexus</a> <span class="text-muted">(ancillary_armor_repairer_fabrication_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_armor_repairer_production_lab.html">Ancillary Armor Repairer Production Lab</a> <span class="text-muted">(ancillary_armor_repairer_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_armor_repairer_workshop.html">Ancillary Armor Repairer Workshop</a> <span class="text-muted">(ancillary_armor_repairer_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_shield_booster_assembly_plant.html">Ancillary Shield Booster Assembly Plant</a> <span class="text-muted">(ancillary_shield_booster_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_shield_booster_fabrication_nexus.html">Ancillary Shield Booster Fabrication Nexus</a> <span class="text-muted">(ancillary_shield_booster_fabrication_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_shield_booster_production_lab.html">Ancillary Shield Booster Production Lab</a> <span class="text-muted">(ancillary_shield_booster_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/ancillary_shield_booster_workshop.html">Ancillary Shield Booster Workshop</a> <span class="text-muted">(ancillary_shield_booster_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/armor_command_link_assembly_facility.html">Armor Command Link Assembly Facility</a> <span class="text-muted">(armor_command_link_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/armor_command_link_production_lab.html">Armor Command Link Production Lab</a> <span class="text-muted">(armor_command_link_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/armor_command_link_technology_nexus.html">Armor Command Link Technology Nexus</a> <span class="text-muted">(armor_command_link_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/armor_command_link_workshop.html">Armor Command Link Workshop</a> <span class="text-muted">(armor_command_link_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/auric_compute_foundry.html">Auric Compute Foundry</a> <span class="text-muted">(auric_compute_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/auric_electronics_complex.html">Auric Electronics Complex</a> <span class="text-muted">(auric_electronics_complex)</span></li><li class="diff-add">+ <a href="../facilities/production/auto_targeting_system_assembly_facility.html">Auto Targeting System Assembly Facility</a> <span class="text-muted">(auto_targeting_system_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/auto_targeting_system_production_lab.html">Auto Targeting System Production Lab</a> <span class="text-muted">(auto_targeting_system_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/auto_targeting_system_technology_nexus.html">Auto Targeting System Technology Nexus</a> <span class="text-muted">(auto_targeting_system_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/auto_targeting_system_workshop.html">Auto Targeting System Workshop</a> <span class="text-muted">(auto_targeting_system_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/automated_defense_plant.html">Automated Defense Plant</a> <span class="text-muted">(automated_defense_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/automated_probe_factory.html">Automated Probe Factory</a> <span class="text-muted">(automated_probe_factory)</span></li><li class="diff-add">+ <a href="../facilities/production/automated_reactor_enhancement_plant.html">Automated Reactor Enhancement Plant</a> <span class="text-muted">(automated_reactor_enhancement_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/autonomous_sentinel_arsenal.html">Autonomous Sentinel Arsenal</a> <span class="text-muted">(autonomous_sentinel_arsenal)</span></li><li class="diff-add">+ <a href="../facilities/production/berserker_fabrication_lab.html">Berserker Fabrication Lab</a> <span class="text-muted">(berserker_fabrication_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/bio_regeneration_laboratory.html">Bio-Regeneration Laboratory</a> <span class="text-muted">(bio_regeneration_laboratory)</span></li><li class="diff-add">+ <a href="../facilities/production/biofiber_culture_chamber.html">Biofiber Culture Chamber</a> <span class="text-muted">(biofiber_culture_chamber)</span></li><li class="diff-add">+ <a href="../facilities/production/cargo_drone_workshop.html">Cargo Drone Workshop</a> <span class="text-muted">(cargo_drone_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/cipher_fabrication_hub.html">Cipher Fabrication Hub</a> <span class="text-muted">(cipher_fabrication_hub)</span></li><li class="diff-add">+ <a href="../facilities/production/component_extraction_plant.html">Component Extraction Plant</a> <span class="text-muted">(component_extraction_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/corundum_composite_foundry.html">Corundum Composite Foundry</a> <span class="text-muted">(corundum_composite_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/crimson_forge_plant.html">Crimson Forge Plant</a> <span class="text-muted">(crimson_forge_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/crystal_glass_refinery.html">Crystal Glass Refinery</a> <span class="text-muted">(crystal_glass_refinery)</span></li><li class="diff-add">+ <a href="../facilities/production/decoy_drone_fabrication_plant.html">Decoy Drone Fabrication Plant</a> <span class="text-muted">(decoy_drone_fabrication_plant)</span></li><li class="diff-add">+ <a href="../facilities/faction/deep_space_scanner.html">Deep Space Scanner</a> <span class="text-muted">(deep_space_scanner)</span></li><li class="diff-add">+ <a href="../facilities/production/defense_systems_factory.html">Defense Systems Factory</a> <span class="text-muted">(defense_systems_factory)</span></li><li class="diff-add">+ <a href="../facilities/production/defense_turret_shop.html">Defense Turret Shop</a> <span class="text-muted">(defense_turret_shop)</span></li><li class="diff-add">+ <a href="../facilities/production/dimensional_mastery_nexus.html">Dimensional Mastery Nexus</a> <span class="text-muted">(dimensional_mastery_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/drone_assembly_line.html">Drone Assembly Line</a> <span class="text-muted">(drone_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/drone_chassis_assembly_line.html">Drone Chassis Assembly Line</a> <span class="text-muted">(drone_chassis_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/electronic_warfare_lab.html">Electronic Warfare Lab</a> <span class="text-muted">(electronic_warfare_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/emergency_hull_repair_assembly_plant.html">Emergency Hull Repair Assembly Plant</a> <span class="text-muted">(emergency_hull_repair_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/emergency_hull_repair_fabrication_nexus.html">Emergency Hull Repair Fabrication Nexus</a> <span class="text-muted">(emergency_hull_repair_fabrication_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/emergency_hull_repair_production_lab.html">Emergency Hull Repair Production Lab</a> <span class="text-muted">(emergency_hull_repair_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/emergency_hull_repair_workshop.html">Emergency Hull Repair Workshop</a> <span class="text-muted">(emergency_hull_repair_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/entropy_beam_fabrication_line.html">Entropy Beam Fabrication Line</a> <span class="text-muted">(entropy_beam_fabrication_line)</span></li><li class="diff-add">+ <a href="../facilities/production/entropy_beam_forge.html">Entropy Beam Forge</a> <span class="text-muted">(entropy_beam_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/entropy_beam_foundry.html">Entropy Beam Foundry</a> <span class="text-muted">(entropy_beam_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/entropy_beam_workshop.html">Entropy Beam Workshop</a> <span class="text-muted">(entropy_beam_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/flux_glass_synthesis.html">Flux Glass Synthesis</a> <span class="text-muted">(flux_glass_synthesis)</span></li><li class="diff-add">+ <a href="../facilities/production/force_field_assembly_line.html">Force Field Assembly Line</a> <span class="text-muted">(force_field_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/force_field_manufacturing_plant.html">Force Field Manufacturing Plant</a> <span class="text-muted">(force_field_manufacturing_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/force_field_production_complex.html">Force Field Production Complex</a> <span class="text-muted">(force_field_production_complex)</span></li><li class="diff-add">+ <a href="../facilities/production/gilded_cognition_works.html">Gilded Cognition Works</a> <span class="text-muted">(gilded_cognition_works)</span></li><li class="diff-add">+ <a href="../facilities/production/gold_circuit_press.html">Gold Circuit Press</a> <span class="text-muted">(gold_circuit_press)</span></li><li class="diff-add">+ <a href="../facilities/production/gold_core_assembly.html">Gold Core Assembly</a> <span class="text-muted">(gold_core_assembly)</span></li><li class="diff-add">+ <a href="../facilities/production/gold_film_lab.html">Gold Film Lab</a> <span class="text-muted">(gold_film_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/gold_interconnect_plant.html">Gold Interconnect Plant</a> <span class="text-muted">(gold_interconnect_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/goldworks_fabricator.html">Goldworks Fabricator</a> <span class="text-muted">(goldworks_fabricator)</span></li><li class="diff-add">+ <a href="../facilities/production/graviton_beam_assembly_plant.html">Graviton Beam Assembly Plant</a> <span class="text-muted">(graviton_beam_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/graviton_beam_i_forge.html">Graviton Beam I Forge</a> <span class="text-muted">(graviton_beam_i_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/graviton_beam_i_foundry.html">Graviton Beam I Foundry</a> <span class="text-muted">(graviton_beam_i_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/graviton_beam_i_workshop.html">Graviton Beam I Workshop</a> <span class="text-muted">(graviton_beam_i_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/graviton_beam_ii_forge.html">Graviton Beam II Forge</a> <span class="text-muted">(graviton_beam_ii_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/graviton_beam_ii_foundry.html">Graviton Beam II Foundry</a> <span class="text-muted">(graviton_beam_ii_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/graviton_beam_ii_workshop.html">Graviton Beam II Workshop</a> <span class="text-muted">(graviton_beam_ii_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/heavy_armaments_factory.html">Heavy Armaments Factory</a> <span class="text-muted">(heavy_armaments_factory)</span></li><li class="diff-add">+ <a href="../facilities/production/heliostatic_manufacturing_plant.html">Heliostatic Manufacturing Plant</a> <span class="text-muted">(heliostatic_manufacturing_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/industrial_reactor_upgrade_works.html">Industrial Reactor Upgrade Works</a> <span class="text-muted">(industrial_reactor_upgrade_works)</span></li><li class="diff-add">+ <a href="../facilities/production/infernal_ascendancy_foundry.html">Infernal Ascendancy Foundry</a> <span class="text-muted">(infernal_ascendancy_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/iridium_composite_furnace.html">Iridium Composite Furnace</a> <span class="text-muted">(iridium_composite_furnace)</span></li><li class="diff-add">+ <a href="../facilities/production/iridium_silicate_reactor.html">Iridium Silicate Reactor</a> <span class="text-muted">(iridium_silicate_reactor)</span></li><li class="diff-add">+ <a href="../facilities/production/iridium_sinter_array.html">Iridium Sinter Array</a> <span class="text-muted">(iridium_sinter_array)</span></li><li class="diff-add">+ <a href="../facilities/production/iridium_sinter_kiln.html">Iridium Sinter Kiln</a> <span class="text-muted">(iridium_sinter_kiln)</span></li><li class="diff-add">+ <a href="../facilities/production/jamming_array_foundry.html">Jamming Array Foundry</a> <span class="text-muted">(jamming_array_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/leaded_glass_furnace.html">Leaded Glass Furnace</a> <span class="text-muted">(leaded_glass_furnace)</span></li><li class="diff-add">+ <a href="../facilities/production/leaded_glass_works.html">Leaded Glass Works</a> <span class="text-muted">(leaded_glass_works)</span></li><li class="diff-add">+ <a href="../facilities/production/lithia_kiln_array.html">Lithia Kiln Array</a> <span class="text-muted">(lithia_kiln_array)</span></li><li class="diff-add">+ <a href="../facilities/production/lithium_ceramic_foundry.html">Lithium Ceramic Foundry</a> <span class="text-muted">(lithium_ceramic_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/lithium_ceramic_kiln.html">Lithium Ceramic Kiln</a> <span class="text-muted">(lithium_ceramic_kiln)</span></li><li class="diff-add">+ <a href="../facilities/production/logistics_distribution_plant.html">Logistics Distribution Plant</a> <span class="text-muted">(logistics_distribution_plant)</span></li><li class="diff-add">+ <a href="../facilities/faction/long_range_subspace_sensor.html">Long-Range Subspace Sensor</a> <span class="text-muted">(long_range_subspace_sensor)</span></li><li class="diff-add">+ <a href="../facilities/production/multi_probe_manufacturing_hub.html">Multi-Probe Manufacturing Hub</a> <span class="text-muted">(multi_probe_manufacturing_hub)</span></li><li class="diff-add">+ <a href="../facilities/production/multi_probe_retrofit_bay.html">Multi-Probe Retrofit Bay</a> <span class="text-muted">(multi_probe_retrofit_bay)</span></li><li class="diff-add">+ <a href="../facilities/production/navigation_command_link_assembly_facility.html">Navigation Command Link Assembly Facility</a> <span class="text-muted">(navigation_command_link_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/navigation_command_link_production_lab.html">Navigation Command Link Production Lab</a> <span class="text-muted">(navigation_command_link_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/navigation_command_link_technology_nexus.html">Navigation Command Link Technology Nexus</a> <span class="text-muted">(navigation_command_link_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/navigation_command_link_workshop.html">Navigation Command Link Workshop</a> <span class="text-muted">(navigation_command_link_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/nebula_biofacture_plant.html">Nebula Biofacture Plant</a> <span class="text-muted">(nebula_biofacture_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/outer_rim_recycling_complex.html">Outer Rim Recycling Complex</a> <span class="text-muted">(outer_rim_recycling_complex)</span></li><li class="diff-add">+ <a href="../facilities/production/outpost_frame_assembler.html">Outpost Frame Assembler</a> <span class="text-muted">(outpost_frame_assembler)</span></li><li class="diff-add">+ <a href="../facilities/production/phase_cloak_laboratory.html">Phase Cloak Laboratory</a> <span class="text-muted">(phase_cloak_laboratory)</span></li><li class="diff-add">+ <a href="../facilities/production/phase_shift_workbench.html">Phase Shift Workbench</a> <span class="text-muted">(phase_shift_workbench)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_core_assembly.html">Plasma Core Assembly</a> <span class="text-muted">(plasma_core_assembly)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_i_assembly_plant.html">Point Defense I Assembly Plant</a> <span class="text-muted">(point_defense_i_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_i_fabrication_nexus.html">Point Defense I Fabrication Nexus</a> <span class="text-muted">(point_defense_i_fabrication_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_i_production_lab.html">Point Defense I Production Lab</a> <span class="text-muted">(point_defense_i_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_i_workshop.html">Point Defense I Workshop</a> <span class="text-muted">(point_defense_i_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_ii_assembly_plant.html">Point Defense II Assembly Plant</a> <span class="text-muted">(point_defense_ii_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_ii_fabrication_nexus.html">Point Defense II Fabrication Nexus</a> <span class="text-muted">(point_defense_ii_fabrication_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_ii_production_lab.html">Point Defense II Production Lab</a> <span class="text-muted">(point_defense_ii_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/point_defense_ii_workshop.html">Point Defense II Workshop</a> <span class="text-muted">(point_defense_ii_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/precision_salvage_systems_facility.html">Precision Salvage Systems Facility</a> <span class="text-muted">(precision_salvage_systems_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/probe_launch_station.html">Probe Launch Station</a> <span class="text-muted">(probe_launch_station)</span></li><li class="diff-add">+ <a href="../facilities/production/probe_launcher_assembly_line.html">Probe Launcher Assembly Line</a> <span class="text-muted">(probe_launcher_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/quantum_mimicry_fabricator.html">Quantum Mimicry Fabricator</a> <span class="text-muted">(quantum_mimicry_fabricator)</span></li><li class="diff-add">+ <a href="../facilities/production/quantum_tracking_foundry.html">Quantum Tracking Foundry</a> <span class="text-muted">(quantum_tracking_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/reactor_upgrade_assembly_line.html">Reactor Upgrade Assembly Line</a> <span class="text-muted">(reactor_upgrade_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_advanced_capital_repair_system_factory.html">Remote Advanced Capital Repair System Factory</a> <span class="text-muted">(remote_advanced_capital_repair_system_factory)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_i_assembly_plant.html">Remote Armor Repairer I Assembly Plant</a> <span class="text-muted">(remote_armor_repairer_i_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_i_fabrication_nexus.html">Remote Armor Repairer I Fabrication Nexus</a> <span class="text-muted">(remote_armor_repairer_i_fabrication_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_i_production_lab.html">Remote Armor Repairer I Production Lab</a> <span class="text-muted">(remote_armor_repairer_i_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_i_workshop.html">Remote Armor Repairer I Workshop</a> <span class="text-muted">(remote_armor_repairer_i_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_ii_assembly_plant.html">Remote Armor Repairer II Assembly Plant</a> <span class="text-muted">(remote_armor_repairer_ii_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_ii_fabrication_nexus.html">Remote Armor Repairer II Fabrication Nexus</a> <span class="text-muted">(remote_armor_repairer_ii_fabrication_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_ii_production_lab.html">Remote Armor Repairer II Production Lab</a> <span class="text-muted">(remote_armor_repairer_ii_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_armor_repairer_ii_workshop.html">Remote Armor Repairer II Workshop</a> <span class="text-muted">(remote_armor_repairer_ii_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_capital_ship_repair_manufacturing_line.html">Remote Capital Ship Repair Manufacturing Line</a> <span class="text-muted">(remote_capital_ship_repair_manufacturing_line)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_capital_grade_repair_integrator.html">Remote Capital-Grade Repair Integrator</a> <span class="text-muted">(remote_capital_grade_repair_integrator)</span></li><li class="diff-add">+ <a href="../facilities/production/remote_heavy_repair_system_fabrication_plant.html">Remote Heavy Repair System Fabrication Plant</a> <span class="text-muted">(remote_heavy_repair_system_fabrication_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/salvage_assembly_depot.html">Salvage Assembly Depot</a> <span class="text-muted">(salvage_assembly_depot)</span></li><li class="diff-add">+ <a href="../facilities/production/salvage_module_assembly.html">Salvage Module Assembly</a> <span class="text-muted">(salvage_module_assembly)</span></li><li class="diff-add">+ <a href="../facilities/production/salvage_processing_station.html">Salvage Processing Station</a> <span class="text-muted">(salvage_processing_station)</span></li><li class="diff-add">+ <a href="../facilities/production/sensor_dampener_assembly_facility.html">Sensor Dampener Assembly Facility</a> <span class="text-muted">(sensor_dampener_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/sensor_dampener_production_lab.html">Sensor Dampener Production Lab</a> <span class="text-muted">(sensor_dampener_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/sensor_dampener_technology_nexus.html">Sensor Dampener Technology Nexus</a> <span class="text-muted">(sensor_dampener_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/sensor_dampener_workshop.html">Sensor Dampener Workshop</a> <span class="text-muted">(sensor_dampener_workshop)</span></li><li class="diff-add">+ <a href="../facilities/faction/sensor_dome.html">Sensor Dome</a> <span class="text-muted">(sensor_dome)</span></li><li class="diff-add">+ <a href="../facilities/production/shield_command_link_assembly_facility.html">Shield Command Link Assembly Facility</a> <span class="text-muted">(shield_command_link_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/shield_command_link_production_lab.html">Shield Command Link Production Lab</a> <span class="text-muted">(shield_command_link_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/shield_command_link_technology_nexus.html">Shield Command Link Technology Nexus</a> <span class="text-muted">(shield_command_link_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/shield_command_link_workshop.html">Shield Command Link Workshop</a> <span class="text-muted">(shield_command_link_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/signal_jammer_shed.html">Signal Jammer Shed</a> <span class="text-muted">(signal_jammer_shed)</span></li><li class="diff-add">+ <a href="../facilities/production/signature_replication_works.html">Signature Replication Works</a> <span class="text-muted">(signature_replication_works)</span></li><li class="diff-add">+ <a href="../facilities/production/solar_array_assembly_line.html">Solar Array Assembly Line</a> <span class="text-muted">(solar_array_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/solar_panel_workshop.html">Solar Panel Workshop</a> <span class="text-muted">(solar_panel_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_i_assembly_facility.html">Stasis Webifier I Assembly Facility</a> <span class="text-muted">(stasis_webifier_i_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_i_production_lab.html">Stasis Webifier I Production Lab</a> <span class="text-muted">(stasis_webifier_i_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_i_technology_nexus.html">Stasis Webifier I Technology Nexus</a> <span class="text-muted">(stasis_webifier_i_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_i_workshop.html">Stasis Webifier I Workshop</a> <span class="text-muted">(stasis_webifier_i_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_ii_assembly_facility.html">Stasis Webifier II Assembly Facility</a> <span class="text-muted">(stasis_webifier_ii_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_ii_production_lab.html">Stasis Webifier II Production Lab</a> <span class="text-muted">(stasis_webifier_ii_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_ii_technology_nexus.html">Stasis Webifier II Technology Nexus</a> <span class="text-muted">(stasis_webifier_ii_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/stasis_webifier_ii_workshop.html">Stasis Webifier II Workshop</a> <span class="text-muted">(stasis_webifier_ii_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/station_core_foundry.html">Station Core Foundry</a> <span class="text-muted">(station_core_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/stellar_cargo_nexus.html">Stellar Cargo Nexus</a> <span class="text-muted">(stellar_cargo_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/stellar_efficiency_complex.html">Stellar Efficiency Complex</a> <span class="text-muted">(stellar_efficiency_complex)</span></li><li class="diff-add">+ <a href="../facilities/production/stellar_genesis_foundry.html">Stellar Genesis Foundry</a> <span class="text-muted">(stellar_genesis_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/stellar_probe_foundry.html">Stellar Probe Foundry</a> <span class="text-muted">(stellar_probe_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/stellar_reclamation_nexus.html">Stellar Reclamation Nexus</a> <span class="text-muted">(stellar_reclamation_nexus)</span></li><li class="diff-add">+ <a href="../facilities/faction/storage_extension.html">Storage Extension</a> <span class="text-muted">(storage_extension)</span></li><li class="diff-add">+ <a href="../facilities/production/supply_transport_dock.html">Supply Transport Dock</a> <span class="text-muted">(supply_transport_dock)</span></li><li class="diff-add">+ <a href="../facilities/production/void_fabrication_forge.html">Void Fabrication Forge</a> <span class="text-muted">(void_fabrication_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/void_lance_assembly_line.html">Void Lance Assembly Line</a> <span class="text-muted">(void_lance_assembly_line)</span></li><li class="diff-add">+ <a href="../facilities/production/void_lance_i_forge.html">Void Lance I Forge</a> <span class="text-muted">(void_lance_i_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/void_lance_i_foundry.html">Void Lance I Foundry</a> <span class="text-muted">(void_lance_i_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/void_lance_i_workshop.html">Void Lance I Workshop</a> <span class="text-muted">(void_lance_i_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/warbird_manufacturing_colossus.html">Warbird Manufacturing Colossus</a> <span class="text-muted">(warbird_manufacturing_colossus)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_core_stabilizer_assembly_facility.html">Warp Core Stabilizer Assembly Facility</a> <span class="text-muted">(warp_core_stabilizer_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_core_stabilizer_production_lab.html">Warp Core Stabilizer Production Lab</a> <span class="text-muted">(warp_core_stabilizer_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_core_stabilizer_technology_nexus.html">Warp Core Stabilizer Technology Nexus</a> <span class="text-muted">(warp_core_stabilizer_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_core_stabilizer_workshop.html">Warp Core Stabilizer Workshop</a> <span class="text-muted">(warp_core_stabilizer_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_disruptor_assembly_facility.html">Warp Disruptor Assembly Facility</a> <span class="text-muted">(warp_disruptor_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_disruptor_production_lab.html">Warp Disruptor Production Lab</a> <span class="text-muted">(warp_disruptor_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_disruptor_technology_nexus.html">Warp Disruptor Technology Nexus</a> <span class="text-muted">(warp_disruptor_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_disruptor_workshop.html">Warp Disruptor Workshop</a> <span class="text-muted">(warp_disruptor_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_scrambler_assembly_facility.html">Warp Scrambler Assembly Facility</a> <span class="text-muted">(warp_scrambler_assembly_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_scrambler_production_lab.html">Warp Scrambler Production Lab</a> <span class="text-muted">(warp_scrambler_production_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_scrambler_technology_nexus.html">Warp Scrambler Technology Nexus</a> <span class="text-muted">(warp_scrambler_technology_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/warp_scrambler_workshop.html">Warp Scrambler Workshop</a> <span class="text-muted">(warp_scrambler_workshop)</span></li><li class="diff-add">+ <a href="../facilities/production/weapons_assembly_hangar.html">Weapons Assembly Hangar</a> <span class="text-muted">(weapons_assembly_hangar)</span></li><li class="diff-add">+ <a href="../facilities/production/zerothermal_ceramic_plant.html">Zerothermal Ceramic Plant</a> <span class="text-muted">(zerothermal_ceramic_plant)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../facilities/service/assembly_works.html">assembly_works</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">100000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/battery_bank.html">battery_bank</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">25000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/biosphere_module.html">biosphere_module</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">400000</span> &rarr; <span class="diff-add">16000000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/capacitor_array.html">capacitor_array</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">180000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/capital_fuel_bunker.html">capital_fuel_bunker</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">8000000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/cargo_hold.html">cargo_hold</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">30000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/commerce_hub.html">commerce_hub</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">75000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/commission_hall.html">commission_hall</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">40000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/contract_office.html">contract_office</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">20000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/crafting_workshop.html">crafting_workshop</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">20000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/drydock.html">drydock</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">250000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/engineering_complex.html">engineering_complex</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">200000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/environmental_processor.html">environmental_processor</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">100000</span> &rarr; <span class="diff-add">1800000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fabrication_lab.html">fabrication_lab</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">50000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fleet_yards.html">fleet_yards</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">1000000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fuel_depot.html">fuel_depot</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">10000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fuel_distribution_center.html">fuel_distribution_center</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">50000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fuel_grid.html">fuel_grid</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">100000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/fusion_array.html">fusion_array</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">500000</span> &rarr; <span class="diff-add">21000000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/fusion_power_core.html">fusion_power_core</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">50000</span> &rarr; <span class="diff-add">800000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/habitat_core.html">habitat_core</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">200000</span> &rarr; <span class="diff-add">5400000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/large_fuel_bunker.html">large_fuel_bunker</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">2000000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/life_support_system.html">life_support_system</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">40000</span> &rarr; <span class="diff-add">600000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/logistics_hub.html">logistics_hub</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">120000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/maintenance_deck.html">maintenance_deck</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">50000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/market_terminal.html">market_terminal</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">15000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/mission_board.html">mission_board</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">8000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/naval_yard.html">naval_yard</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">500000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/operations_center.html">operations_center</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">80000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/power_buffer.html">power_buffer</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">75000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/power_grid.html">power_grid</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">250000</span> &rarr; <span class="diff-add">7000000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/precision_foundry.html">precision_foundry</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">200000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/reactor_complex.html">reactor_complex</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">125000</span> &rarr; <span class="diff-add">2400000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/refueling_station.html">refueling_station</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">25000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/repair_bay.html">repair_bay</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">20000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/restoration_works.html">restoration_works</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">100000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/salvage_bay.html">salvage_bay</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">20000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/salvage_complex.html">salvage_complex</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">150000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/salvage_dock.html">salvage_dock</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">45000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/salvage_works.html">salvage_works</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">80000</span> &rarr; <span class="diff-add">4500000</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/scavenged_battery_rig.html">scavenged_battery_rig</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">18000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/shipyard.html">shipyard</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">100000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/storage_bay.html">storage_bay</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">12000</span> &rarr; <span class="diff-add">500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/trade_exchange.html">trade_exchange</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">40000</span> &rarr; <span class="diff-add">1500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/trade_nexus.html">trade_nexus</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">150000</span> &rarr; <span class="diff-add">13500000</span></div>
+<div class="diff-item-id"><a href="../facilities/service/warehouse.html">warehouse</a></div>
+<div class="diff-field"><span class="diff-field-name">build_cost:</span> <span class="diff-del">60000</span> &rarr; <span class="diff-add">4500000</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/horizon/index.html">horizon</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/void_gate/index.html">void_gate</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">5</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>

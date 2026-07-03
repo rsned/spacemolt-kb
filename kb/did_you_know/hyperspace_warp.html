@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperspace Warp - Did You Know? - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../items/items.css">
+    <style>
+        .warp-clip {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 22px 0;
+            overflow: hidden;
+        }
+        .warp-canvas {
+            display: block;
+            width: 100%;
+            height: 540px;
+            background: #05060d;
+        }
+        .warp-meta {
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .warp-meta h3 { margin: 0 0 4px 0; color: #6c5ce7; }
+        .warp-meta p { margin: 0; color: var(--text-muted); font-size: 0.9em; max-width: 60ch; }
+        .warp-btn {
+            background: #6c5ce7; color: #fff; border: 0; border-radius: 6px;
+            padding: 7px 14px; cursor: pointer; font-size: 0.85em; white-space: nowrap;
+        }
+        .warp-btn:hover { filter: brightness(1.1); }
+        .warp-controls {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 14px; border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.14);
+        }
+        .warp-controls button {
+            background: #2a2f45; color: #e2e7f4; border: 1px solid var(--border);
+            border-radius: 6px; padding: 5px 12px; cursor: pointer;
+            font-size: 0.85em; font-family: monospace;
+        }
+        .warp-controls button:hover { filter: brightness(1.3); }
+        .warp-controls .warp-speed {
+            font-family: monospace; min-width: 4em; text-align: center; color: var(--text-muted);
+        }
+        .warp-controls .warp-spacer { flex: 1; }
+        .warp-tag {
+            display: inline-block; padding: 1px 8px; border-radius: 10px;
+            font-size: 0.75em; margin-left: 6px;
+        }
+        .tag-clear { background: rgba(63,191,127,0.15); color: #3fbf7f; }
+        .tag-tight { background: rgba(255,207,77,0.15); color: #ffcf4d; }
+        .tag-blocked { background: rgba(255,122,77,0.18); color: #ff7a4d; }
+        .warp-toc {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+            margin: 16px 0; padding: 10px 14px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+        }
+        .warp-toc-label { color: var(--text-muted); font-size: 0.8em; text-transform: uppercase; }
+        .warp-toc a {
+            font-size: 0.85em; padding: 3px 10px; border-radius: 12px;
+            background: rgba(108,92,231,0.14); color: #6c5ce7; text-decoration: none;
+        }
+        .warp-toc a:hover { background: rgba(108,92,231,0.28); }
+        .warp-clip { scroll-margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="../">Did You Know?</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Did You Know?</a> / Hyperspace Warp</div>
+        <h2>Hyperspace Warp</h2>
+        <p class="text-muted mt-1">A first-person view of flying a Pathfinder Drive route. The camera holds a heading at 10&nbsp;GU/tick; real stars stream past, colored by spectral class, over an ambient warp field. Closest passes streak hardest — and a blocked route ends where you drop out.</p>
+
+        <blockquote class="item-desc">
+            Six demonstration flights below. Everything is derived from real system positions and star classes; only the vertical spread of the starfield is synthesized (the galaxy map is two-dimensional).
+        </blockquote>
+
+        <nav class="warp-toc" aria-label="Flights">
+            <span class="warp-toc-label">Flights:</span>
+            <a href="#squeeze">The Squeeze</a>
+            <a href="#long-haul">Clean Long-Haul</a>
+            <a href="#longest">Longest Run</a>
+            <a href="#into-the-maw">Into the Maw</a>
+            <a href="#grazing-the-maw">Grazing the Maw</a>
+            <a href="#grazing-binary">Grazing a Binary</a>
+            <a href="#giant-dwarf">Giant &amp; Dwarf</a>
+            <a href="#dead-end">The Dead End</a>
+        </nav>
+
+        <div id="warp-error" class="card" style="padding:16px;display:none;color:#ff7a4d"></div>
+
+        <div class="warp-clip" id="squeeze">
+            <canvas class="warp-canvas" data-from="inquill" data-to="alrakis"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>The Squeeze — Inquill → Alrakis <span class="warp-tag tag-tight">0.0003° tolerance</span></h3>
+                    <p>2,994&nbsp;GU, ~50 minutes. Watch <strong>Tianyi</strong> skim past at mid-flight — its bubble clears the corridor by just <strong>0.01&nbsp;GU</strong>. That hairline gap is the entire aiming tolerance.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="long-haul">
+            <canvas class="warp-canvas" data-from="alrakis" data-to="ross_154"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>The Clean Long-Haul — Alrakis → Ross 154 <span class="warp-tag tag-clear">clear</span></h3>
+                    <p>3,310&nbsp;GU of open space. Sparse near-passes — the tightest is <strong>Xihe</strong> at a comfortable 9&nbsp;GU — and the red dwarf <strong>Ross&nbsp;154</strong> swells dead ahead as you arrive. The "normal" warp feel.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="longest">
+            <canvas class="warp-canvas" data-from="dustfall" data-to="dawnbreak" data-speed="1300"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>The Longest Run — Dustfall → Dawnbreak <span class="warp-tag tag-clear">clear</span></h3>
+                    <p>The longest uninterrupted jump in the galaxy: <strong>11,875&nbsp;GU</strong>, 1,188 ticks (~3¼ hours real time). A marathon flight that still threads every bubble — the tightest squeeze is <strong>Propus</strong> at 2.7&nbsp;GU, 8,656&nbsp;GU in. Flown here at a sped-up pace.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="into-the-maw">
+            <canvas class="warp-canvas" data-from="trappist_1" data-to="alzirr"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>Into the Maw — TRAPPIST-1 → Alzirr <span class="warp-tag tag-clear">clear</span></h3>
+                    <p>A clear run to the galaxy's only black hole, <strong>The Maw</strong> (1,789&nbsp;GU, 179 ticks). It renders as a dark, lensed void rather than a bright star, and grows dead ahead as you arrive. Tightest pass on the way: <strong>Stillwater</strong> at 49.9&nbsp;GU.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="grazing-the-maw">
+            <canvas class="warp-canvas" data-from="valor" data-to="windmere"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>Grazing the Maw — Valor → Windmere <span class="warp-tag tag-clear">clear</span></h3>
+                    <p>1,205&nbsp;GU straight past the black hole without dropping out. <strong>The Maw</strong> (Alzirr) sweeps by at <strong>139&nbsp;GU</strong> — just 39&nbsp;GU outside its 100&nbsp;GU bubble — about two-thirds of the way to Windmere. Watch the dark sphere slide past to one side.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="grazing-binary">
+            <canvas class="warp-canvas" data-from="redmarsh" data-to="blood_forge"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>Grazing a Binary — Redmarsh → Blood Forge <span class="warp-tag tag-tight">1.8 GU graze</span></h3>
+                    <p>4,370&nbsp;GU, 438 ticks. About two-thirds of the way in, the binary <strong>GSC-0036</strong> — an M6V red dwarf paired with <strong>The Furnace</strong> — grazes the corridor at <strong>101.8&nbsp;GU</strong>, just <strong>1.8&nbsp;GU</strong> outside its 100&nbsp;GU bubble. It's the tightest pass on the route; watch the close double star slide by to one side. Then near the end (93%), the trinary black-hole system <strong>The Maw</strong> (Alzirr) drifts past farther out on the same side — a binary and the galaxy's only trinary on one run.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="giant-dwarf">
+            <canvas class="warp-canvas" data-from="gsc_0050" data-to="ironpeak" data-speed="1000"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>Giant &amp; Dwarf — GSC-0050 → Ironpeak <span class="warp-tag tag-clear">clear</span></h3>
+                    <p>7,608&nbsp;GU, 761 ticks — a stellar size showcase. About a third of the way in, the white dwarf <strong>Relay Station</strong> blinks past small and hot at 175&nbsp;GU; near the end, the galaxy's only red supergiant <strong>First Step</strong> (M2Ia) looms past at 169&nbsp;GU — rendered more than <strong>10× the dwarf's size</strong> with a vast glow. Both graze at nearly the same distance, so it's an honest look at opposite extremes of the stellar scale. Flown here at a sped-up pace.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warp-clip" id="dead-end">
+            <canvas class="warp-canvas" data-from="grumium" data-to="haven"></canvas>
+            <div class="warp-meta">
+                <div>
+                    <h3>The Dead End — Grumium → Haven <span class="warp-tag tag-blocked">blocked</span></h3>
+                    <p>The heading toward Haven is blocked. Only 891&nbsp;GU in, you fly straight into the blue giant <strong>Mimosa</strong> and drop out — the flight ends on its flare, never reaching Haven. Grumium is the one fully-enclosed system with no clear escape.</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-muted mt-3">
+            <a href="warp_simulator.html">Fly your own route in the simulator →</a> &nbsp;·&nbsp;
+            <a href="./">Back to Did You Know?</a>
+        </p>
+    </main>
+
+    <!-- stars.js assigns window.SPACEMOLT_STARS; a <script> tag works off the
+         filesystem, unlike fetch() of local JSON which file:// blocks. -->
+    <script src="../systems/stars.js"></script>
+    <script src="../warp.js"></script>
+    <script>
+    (function () {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function () {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+
+    (function () {
+        var stars = window.SPACEMOLT_STARS;
+        if (!stars) {
+            var box = document.getElementById('warp-error');
+            box.style.display = 'block';
+            box.textContent = 'Could not load star data (stars.js missing).';
+            return;
+        }
+        var byId = {};
+        stars.forEach(function (s) { byId[s.id] = s; });
+        function mkbtn(label) {
+            var b = document.createElement('button');
+            b.type = 'button'; b.textContent = label;
+            return b;
+        }
+
+        document.querySelectorAll('.warp-canvas').forEach(function (canvas) {
+            var origin = byId[canvas.dataset.from], dest = byId[canvas.dataset.to];
+            if (!origin || !dest) return;
+            var ctrl = Warp.playWarp(canvas, {
+                origin: origin, dest: dest, stars: stars,
+                speed: canvas.dataset.speed ? +canvas.dataset.speed : undefined,
+                onArrive: function () {} // hold on the final frame
+            });
+
+            // Control bar below the canvas.
+            var bar = document.createElement('div');
+            bar.className = 'warp-controls';
+            var playBtn = mkbtn('⏸ Pause'),
+                minus = mkbtn('−'),
+                plus = mkbtn('+'),
+                replay = mkbtn('↻ Replay'),
+                speedLbl = document.createElement('span'),
+                spacer = document.createElement('span');
+            speedLbl.className = 'warp-speed'; speedLbl.textContent = '1×';
+            spacer.className = 'warp-spacer';
+            bar.appendChild(playBtn); bar.appendChild(minus);
+            bar.appendChild(speedLbl); bar.appendChild(plus);
+            bar.appendChild(spacer); bar.appendChild(replay);
+            canvas.parentNode.insertBefore(bar, canvas.nextSibling);
+
+            var userPaused = false;
+            function setPaused(p) {
+                userPaused = p;
+                if (p) { ctrl.pause(); playBtn.textContent = '▶ Resume'; }
+                else { ctrl.play(); playBtn.textContent = '⏸ Pause'; }
+            }
+            playBtn.addEventListener('click', function () { setPaused(!userPaused); });
+
+            // Speed: powers of two, up to 4 steps each way (1/16x .. 16x).
+            var level = 0;
+            function applySpeed() {
+                var m = Math.pow(2, level);
+                ctrl.setSpeedMul(m);
+                speedLbl.textContent = m >= 1 ? m + '×' : '1/' + Math.round(1 / m) + '×';
+            }
+            minus.addEventListener('click', function () { if (level > -4) { level--; applySpeed(); } });
+            plus.addEventListener('click', function () { if (level < 4) { level++; applySpeed(); } });
+            replay.addEventListener('click', function () { userPaused = false; playBtn.textContent = '⏸ Pause'; ctrl.replay(); });
+
+            // Autoplay on scroll, but never override a manual pause.
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { if (!userPaused) ctrl.play(); }
+                    else ctrl.pause();
+                });
+            }, { threshold: 0.4 });
+            io.observe(canvas);
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -21,6 +21,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -80,6 +83,8 @@
             </tbody>
           </table>
         </div>
+
+        <div class="card mt-2"><a href="jumps.html" class="jumpmap-link">Pathfinder Jump Routes →</a></div>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest (5)</div>
           <table>
@@ -156,22 +161,22 @@
                         <tr>
                           <td>Argon Gas</td>
                           <td><span class="richness-bar" style="--r: 31%">31</span></td>
-                          <td>1,536</td>
+                          <td>964</td>
                         </tr>
                         <tr>
                           <td>Chlorine Gas</td>
                           <td><span class="richness-bar" style="--r: 10%">10</span></td>
-                          <td>10,000</td>
+                          <td>2,305</td>
                         </tr>
                         <tr>
                           <td>Hydrogen Gas</td>
                           <td><span class="richness-bar" style="--r: 51%">51</span></td>
-                          <td>4</td>
+                          <td>5</td>
                         </tr>
                         <tr>
                           <td>Neon Gas</td>
                           <td><span class="richness-bar" style="--r: 15%">15</span></td>
-                          <td>7,250</td>
+                          <td>2,078</td>
                         </tr>
                     </tbody>
                 </table>
@@ -192,10 +197,10 @@
                         <span class="badge badge-green">Public</span>
                         <span class="badge badge-frost">Defense 80</span>
                         <span class="badge badge-yellow">Drones</span>
-                        <span class="badge badge-red">Critical</span>
+                        <span class="badge badge-yellow">Struggling</span>
                     </div>
                 </div>
-                <p class="base-desc" style="font-style:italic; opacity:0.85">Critical infrastructure failure. Emergency lighting only. Station barely functional.</p>
+                <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
                 <p class="base-desc">The Confederacy&#39;s research hub. The station hosts the Epsilon Initiative&#39;s coordination center, the Galactic Cartography Institute, and seventeen separate departments that all believe their grant funding is insufficient. The cantina doubles as an academic conference venue, and arguments about stellar formation models get louder than combat alerts.</p>
                 <details class="base-story"><summary>Station Log</summary><p>You dock at Sirius Observatory Station. The Confederacy&#39;s research hub. The station hosts the Epsilon Initiative&#39;s coordination center, the Galactic Cartography Institute, and seventeen separate departments that all believe their grant funding is insufficient. The cantina doubles as an academic conference venue, and arguments about stellar formation models get louder than combat alerts.
 
@@ -208,7 +213,7 @@ The station has the following facilities:
 ...and 22 more facilities.
 </p></details>
                 <div class="base-meta">
-                    <span class="label">Satisfaction: 16% (2/12 infrastructure)</span>
+                    <span class="label">Satisfaction: 53% (8/15 infrastructure)</span>
                 </div>
                 <div class="base-sections">
                     <div>
@@ -244,7 +249,22 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Large fuel bunker</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Life support expansion</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Medical clinic</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Power buffer</td>
                                   <td><span class="badge ">infrastructure</span></td>
                                   <td>0</td>
                                 </tr>
@@ -254,12 +274,7 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Assemble quantum stabilizer workshop</td>
-                                  <td><span class="badge badge-orange">production</span></td>
-                                  <td>0</td>
-                                </tr>
-                                <tr>
-                                  <td>Build universal nav core workshop</td>
+                                  <td>Argon cell lab</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -269,42 +284,42 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Condense dark matter workshop</td>
+                                  <td>Copper wire mill</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Enriched uranium rod containment vat</td>
+                                  <td>Fuel cell workshop</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Enriched uranium rod extraction unit</td>
+                                  <td>Gyroscope assembly line</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Focused plasma lab</td>
+                                  <td>H2 fuel plant</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Fuel cell plant</td>
+                                  <td>Heavy ice melter</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Fuse galactic standard alloy workshop</td>
+                                  <td>Hydrogen compression cylinder</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Nuclear cell foundry</td>
+                                  <td>Iron refinery</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Pharmaceutical lab</td>
+                                  <td>Optical grinding station</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -319,7 +334,12 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Uranium rod plant</td>
+                                  <td>Solarian composite forge</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Synthesize pan galactic matrix workshop</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -365,7 +385,7 @@ The station has the following facilities:
             </div>
         </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 636353</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1201525</p>
     </main>
     <script>
     (function() {

@@ -461,6 +461,8 @@ const dayTemplate = `<!DOCTYPE html>
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -519,11 +521,11 @@ const dayTemplate = `<!DOCTYPE html>
 {{if not .HasChanges}}<p class="no-changes">No changes</p>
 {{else}}
 {{if .Additions}}<h4>Additions</h4>
-<ul class="diff-list">{{range .Additions}}<li class="diff-add">+ {{.Name}} <span class="text-muted">({{.ID}})</span></li>{{end}}</ul>{{end}}
+<ul class="diff-list">{{range .Additions}}<li class="diff-add">+ {{if .URL}}<a href="{{.URL}}">{{.Name}}</a>{{else}}{{.Name}}{{end}} <span class="text-muted">({{.ID}})</span></li>{{end}}</ul>{{end}}
 {{if .Deletions}}<h4>Deletions</h4>
-<ul class="diff-list">{{range .Deletions}}<li class="diff-del">&minus; {{.Name}} <span class="text-muted">({{.ID}})</span></li>{{end}}</ul>{{end}}
+<ul class="diff-list">{{range .Deletions}}<li class="diff-del">&minus; {{if .URL}}<a href="{{.URL}}">{{.Name}}</a>{{else}}{{.Name}}{{end}} <span class="text-muted">({{.ID}})</span></li>{{end}}</ul>{{end}}
 {{if .Changes}}<h4>Modified</h4>
-{{range $id, $changes := groupChanges .Changes}}<div class="diff-item-id">{{$id}}</div>
+{{range $id, $changes := groupChanges .Changes}}<div class="diff-item-id">{{with (index $changes 0).URL}}<a href="{{.}}">{{$id}}</a>{{else}}{{$id}}{{end}}</div>
 {{range $changes}}{{renderFieldDiff .Field .OldVal .NewVal}}{{end}}
 {{end}}{{end}}
 {{end}}

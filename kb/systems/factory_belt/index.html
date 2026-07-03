@@ -21,6 +21,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -80,6 +83,8 @@
             </tbody>
           </table>
         </div>
+
+        <div class="card mt-2"><a href="jumps.html" class="jumpmap-link">Pathfinder Jump Routes →</a></div>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest (4)</div>
           <table>
@@ -145,12 +150,12 @@
                         <tr>
                           <td>Argon Gas</td>
                           <td><span class="richness-bar" style="--r: 33%">33</span></td>
-                          <td>50,000</td>
+                          <td>46,592</td>
                         </tr>
                         <tr>
                           <td>Hydrogen Gas</td>
                           <td><span class="richness-bar" style="--r: 45%">45</span></td>
-                          <td>50,000</td>
+                          <td>110</td>
                         </tr>
                         <tr>
                           <td>Neon Gas</td>
@@ -176,10 +181,10 @@
                         <span class="badge badge-green">Public</span>
                         <span class="badge badge-frost">Defense 55</span>
                         <span class="badge badge-yellow">Drones</span>
-                        <span class="badge badge-red">Critical</span>
+                        <span class="badge badge-yellow">Struggling</span>
                     </div>
                 </div>
-                <p class="base-desc" style="font-style:italic; opacity:0.85">Critical infrastructure failure. Emergency lighting only. Station barely functional.</p>
+                <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
                 <p class="base-desc">Where the Federation turns raw materials into trade goods. The Manufacturing Hub runs automated production lines around the clock, converting ore and gas into components the galaxy needs. Observant traders notice that shipments sometimes arrive from Treasure Cache without appearing on any Federation manifest — a clerical oversight, surely.</p>
                 <details class="base-story"><summary>Station Log</summary><p>You dock at Factory Belt Manufacturing Hub. Where the Federation turns raw materials into trade goods. The Manufacturing Hub runs automated production lines around the clock, converting ore and gas into components the galaxy needs. Observant traders notice that shipments sometimes arrive from Treasure Cache without appearing on any Federation manifest — a clerical oversight, surely.
 
@@ -192,7 +197,7 @@ The station has the following facilities:
 ...and 17 more facilities.
 </p></details>
                 <div class="base-meta">
-                    <span class="label">Satisfaction: 8% (1/12 infrastructure)</span>
+                    <span class="label">Satisfaction: 37% (6/16 infrastructure)</span>
                 </div>
                 <div class="base-sections">
                     <div>
@@ -228,7 +233,22 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Large fuel bunker</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Life support expansion <span class="badge badge-muted">x2</span></td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Medical clinic</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Power buffer</td>
                                   <td><span class="badge ">infrastructure</span></td>
                                   <td>0</td>
                                 </tr>
@@ -238,7 +258,17 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Build universal nav core workshop</td>
+                                  <td>Bulkhead framing station</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Carbon arc furnace</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Cargo container fabricator</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -248,27 +278,37 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Enriched uranium rod containment vat</td>
+                                  <td>Copper wire mill</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Enriched uranium rod extraction unit</td>
+                                  <td>Fuel cell workshop</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Fuel cell plant</td>
+                                  <td>H2 fuel plant</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Low enriched uranium extraction unit</td>
+                                  <td>Heat sink foundry</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Nuclear cell foundry</td>
+                                  <td>Heavy ice melter</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Hydrogen compression cylinder</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Iron refinery</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -278,12 +318,27 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Pressure seal mold shop</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Repair kit factory</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Uranium rod fabricator</td>
+                                  <td>Solarian composite forge</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Steel frame assembly line</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Synthesize pan galactic matrix workshop</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -329,7 +384,7 @@ The station has the following facilities:
             </div>
         </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 601615</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1201517</p>
     </main>
     <script>
     (function() {

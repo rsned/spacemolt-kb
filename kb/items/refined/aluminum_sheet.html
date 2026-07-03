@@ -20,6 +20,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -45,6 +48,8 @@
             <tr><td class="kv-label">Base Value</td><td>20 cr</td></tr>
           </table>
         </div>
+
+
         <div class="card" style="padding:0">
           <div class="section-label">Produced By</div>
           <table>
@@ -53,7 +58,41 @@
             <tr>
               <td><a href="../../recipes/Refining/smelt_aluminum_sheet.html">Smelt Aluminum Sheet</a></td>
               <td>2</td>
-              <td>3 ticks</td>
+              <td>0.6s</td>
+            </tr>
+            </tbody>
+          </table>
+          <div class="section-label">Built by Facility</div>
+          <table>
+            <thead><tr><th>Facility</th><th>Level</th><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../../facilities/production/aluminum_smelter.html">Aluminum Smelter</a></td>
+              <td>1</td>
+              <td><a href="../../recipes/Refining/smelt_aluminum_sheet.html">Smelt Aluminum Sheet</a></td>
+              <td>2</td>
+              <td>0.6s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/aluminum_rolling_mill.html">Aluminum Rolling Mill</a></td>
+              <td>2</td>
+              <td><a href="../../recipes/Refining/smelt_aluminum_sheet.html">Smelt Aluminum Sheet</a></td>
+              <td>2</td>
+              <td>0.6s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/aluminum_sheet_plant.html">Aluminum Sheet Plant</a></td>
+              <td>3</td>
+              <td><a href="../../recipes/Refining/smelt_aluminum_sheet.html">Smelt Aluminum Sheet</a></td>
+              <td>2</td>
+              <td>0.6s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/aluminum_industrial_complex.html">Aluminum Industrial Complex</a></td>
+              <td>4</td>
+              <td><a href="../../recipes/Refining/smelt_aluminum_sheet.html">Smelt Aluminum Sheet</a></td>
+              <td>2</td>
+              <td>0.6s</td>
             </tr>
             </tbody>
           </table>
@@ -61,6 +100,16 @@
           <table>
             <thead><tr><th>Recipe</th><th>Qty</th><th>Produces</th></tr></thead>
             <tbody>
+            <tr>
+              <td><a href="../../recipes/Components/assemble_solar_panel_array.html">Assemble Solar Panel Array</a></td>
+              <td>6</td>
+              <td><a href="../component/solar_panel_array.html">Solar Panel Array</a></td>
+            </tr>
+            <tr>
+              <td><a href="../../recipes/Facility_Construction/assemble_structural_frame.html">Assemble Structural Frame</a></td>
+              <td>3</td>
+              <td><a href="../component/structural_frame.html">Structural Frame</a></td>
+            </tr>
             <tr>
               <td><a href="../../recipes/Components/build_cargo_container.html">Build Cargo Container</a></td>
               <td>3</td>
@@ -71,6 +120,21 @@
               <td>4</td>
               <td><a href="../utility/expanded_fuel_tank.html">Expanded Fuel Tank</a></td>
             </tr>
+            <tr>
+              <td><a href="../../recipes/Components/heat_sink_casting.html">Heat Sink Casting</a></td>
+              <td>6</td>
+              <td><a href="../component/heat_sink.html">Heat Sink</a></td>
+            </tr>
+            <tr>
+              <td><a href="../../recipes/Refining/lightweight_titanium_alloy.html">Lightweight Titanium Alloy</a></td>
+              <td>4</td>
+              <td><a href="../refined/titanium_alloy.html">Titanium Alloy</a></td>
+            </tr>
+            <tr>
+              <td><a href="../../recipes/Refining/spin_metallic_aerogel.html">Spin Metallic Aerogel</a></td>
+              <td>4</td>
+              <td><a href="../refined/metallic_aerogel.html">Metallic Aerogel</a></td>
+            </tr>
             </tbody>
           </table>
           <div class="section-label">Used to Build Ships</div>
@@ -78,218 +142,284 @@
             <thead><tr><th>Ship</th><th>Category</th><th>Qty</th></tr></thead>
             <tbody>
             <tr>
-              <td>Bad Idea</td>
-              <td>Combat Support</td>
-              <td>280</td>
+              <td><a href="../../ships/Industrial/all_mine.html">All Mine</a></td>
+              <td>Industrial</td>
+              <td>2000</td>
             </tr>
             <tr>
-              <td>Bad Influence</td>
+              <td><a href="../../ships/Combat%20Support/bad_influence.html">Bad Influence</a></td>
               <td>Combat Support</td>
               <td>120</td>
             </tr>
             <tr>
-              <td>Baling Wire</td>
+              <td><a href="../../ships/Commercial/baling_wire.html">Baling Wire</a></td>
               <td>Commercial</td>
               <td>80</td>
             </tr>
             <tr>
-              <td>Bedrock</td>
+              <td><a href="../../ships/Industrial/bedrock.html">Bedrock</a></td>
               <td>Industrial</td>
               <td>100</td>
             </tr>
             <tr>
-              <td>Brain Freeze</td>
+              <td><a href="../../ships/Industrial/brain_freeze.html">Brain Freeze</a></td>
               <td>Industrial</td>
               <td>100</td>
             </tr>
             <tr>
-              <td>Chop Shop</td>
+              <td><a href="../../ships/Industrial/chop_shop.html">Chop Shop</a></td>
               <td>Industrial</td>
               <td>60</td>
             </tr>
             <tr>
-              <td>Claim Jumper</td>
+              <td><a href="../../ships/Industrial/claim_jumper.html">Claim Jumper</a></td>
               <td>Industrial</td>
               <td>28</td>
             </tr>
             <tr>
-              <td>Cobble</td>
+              <td><a href="../../ships/Industrial/cobble.html">Cobble</a></td>
               <td>Industrial</td>
               <td>10</td>
             </tr>
             <tr>
-              <td>Dust Devil</td>
+              <td><a href="../../ships/Commercial/congregation.html">Congregation</a></td>
+              <td>Commercial</td>
+              <td>50</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/controlled_chaos.html">Controlled Chaos</a></td>
+              <td>Combat Support</td>
+              <td>1600</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Covert/dust_devil.html">Dust Devil</a></td>
               <td>Covert</td>
               <td>95</td>
             </tr>
             <tr>
-              <td>Finders Keepers</td>
+              <td><a href="../../ships/Combat%20Support/excessive_force.html">Excessive Force</a></td>
+              <td>Combat Support</td>
+              <td>450</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/finders_keepers.html">Finders Keepers</a></td>
               <td>Industrial</td>
               <td>15</td>
             </tr>
             <tr>
-              <td>Five Finger Discount</td>
+              <td><a href="../../ships/Civilian/finish_line.html">Finish Line</a></td>
+              <td>Civilian</td>
+              <td>1400</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/first_step_dreadnought.html">First Step Dreadnought</a></td>
+              <td>Combat</td>
+              <td>1800</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/five_finger_discount.html">Five Finger Discount</a></td>
               <td>Combat</td>
               <td>30</td>
             </tr>
             <tr>
-              <td>Frankenhauler</td>
+              <td><a href="../../ships/Commercial/frankenhauler.html">Frankenhauler</a></td>
               <td>Commercial</td>
               <td>450</td>
             </tr>
             <tr>
-              <td>Free Radical</td>
+              <td><a href="../../ships/Combat/free_radical.html">Free Radical</a></td>
               <td>Combat</td>
               <td>500</td>
             </tr>
             <tr>
-              <td>Frostbitten</td>
+              <td><a href="../../ships/Industrial/frostbitten.html">Frostbitten</a></td>
               <td>Industrial</td>
               <td>28</td>
             </tr>
             <tr>
-              <td>Gas Trawler</td>
+              <td><a href="../../ships/Industrial/gas_trawler.html">Gas Trawler</a></td>
               <td>Industrial</td>
               <td>250</td>
             </tr>
             <tr>
-              <td>Get Off My Lawn</td>
+              <td><a href="../../ships/Combat/get_off_my_lawn.html">Get Off My Lawn</a></td>
               <td>Combat</td>
               <td>30</td>
             </tr>
             <tr>
-              <td>Glows in the Dark</td>
+              <td><a href="../../ships/Commercial/glows_in_the_dark.html">Glows in the Dark</a></td>
               <td>Commercial</td>
               <td>120</td>
             </tr>
             <tr>
-              <td>Good Enough</td>
+              <td><a href="../../ships/Exploration/going_dark.html">Going Dark</a></td>
+              <td>Exploration</td>
+              <td>460</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Support/good_enough.html">Good Enough</a></td>
               <td>Support</td>
               <td>500</td>
             </tr>
             <tr>
-              <td>Hell&#39;s Bells</td>
+              <td><a href="../../ships/Combat/hells_bells.html">Hell&#39;s Bells</a></td>
               <td>Combat</td>
               <td>320</td>
             </tr>
             <tr>
-              <td>Hold My Beer</td>
+              <td><a href="../../ships/Industrial/hold_my_beer.html">Hold My Beer</a></td>
               <td>Industrial</td>
               <td>200</td>
             </tr>
             <tr>
-              <td>Huff&#39;n&#39;Puff</td>
+              <td><a href="../../ships/Industrial/huffnpuff.html">Huff&#39;n&#39;Puff</a></td>
               <td>Industrial</td>
               <td>28</td>
             </tr>
             <tr>
-              <td>Ice Trawler</td>
+              <td><a href="../../ships/Industrial/ice_trawler.html">Ice Trawler</a></td>
               <td>Industrial</td>
               <td>180</td>
             </tr>
             <tr>
-              <td>Insurance Fraud</td>
+              <td><a href="../../ships/Combat/insurance_fraud.html">Insurance Fraud</a></td>
               <td>Combat</td>
               <td>320</td>
             </tr>
             <tr>
-              <td>Junk Convoy</td>
+              <td><a href="../../ships/Commercial/junk_convoy.html">Junk Convoy</a></td>
               <td>Commercial</td>
-              <td>160</td>
+              <td>180</td>
             </tr>
             <tr>
-              <td>Junkyard Dog</td>
+              <td><a href="../../ships/Combat/junkyard_dog.html">Junkyard Dog</a></td>
               <td>Combat</td>
               <td>100</td>
             </tr>
             <tr>
-              <td>Last Warning</td>
+              <td><a href="../../ships/Commercial/last_drop.html">Last Drop</a></td>
+              <td>Commercial</td>
+              <td>280</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/last_warning.html">Last Warning</a></td>
               <td>Combat Support</td>
               <td>22</td>
             </tr>
             <tr>
-              <td>Long Haul</td>
+              <td><a href="../../ships/Commercial/ledger.html">Ledger</a></td>
+              <td>Commercial</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Commercial/long_haul.html">Long Haul</a></td>
               <td>Commercial</td>
               <td>75</td>
             </tr>
             <tr>
-              <td>Loose Change</td>
+              <td><a href="../../ships/Civilian/loose_change.html">Loose Change</a></td>
               <td>Civilian</td>
               <td>25</td>
             </tr>
             <tr>
-              <td>Manifest Destiny</td>
+              <td><a href="../../ships/Exploration/manifest_destiny.html">Manifest Destiny</a></td>
               <td>Exploration</td>
               <td>450</td>
             </tr>
             <tr>
-              <td>No Refunds</td>
+              <td><a href="../../ships/Combat/no_refunds.html">No Refunds</a></td>
               <td>Combat</td>
               <td>25</td>
             </tr>
             <tr>
-              <td>Nomad</td>
+              <td><a href="../../ships/Commercial/nomad.html">Nomad</a></td>
               <td>Commercial</td>
               <td>200</td>
             </tr>
             <tr>
-              <td>Peer Review</td>
+              <td><a href="../../ships/Exploration/peer_review.html">Peer Review</a></td>
               <td>Exploration</td>
-              <td>160</td>
+              <td>90</td>
             </tr>
             <tr>
-              <td>Pithead</td>
+              <td><a href="../../ships/Industrial/pithead.html">Pithead</a></td>
               <td>Industrial</td>
               <td>500</td>
             </tr>
             <tr>
-              <td>Plausible Deniability</td>
+              <td><a href="../../ships/Combat%20Support/plausible_deniability.html">Plausible Deniability</a></td>
               <td>Combat Support</td>
               <td>500</td>
             </tr>
             <tr>
-              <td>Prayer</td>
+              <td><a href="../../ships/Commercial/prayer.html">Prayer</a></td>
               <td>Commercial</td>
               <td>15</td>
             </tr>
             <tr>
-              <td>Repo Man</td>
+              <td><a href="../../ships/Industrial/repo_man.html">Repo Man</a></td>
               <td>Industrial</td>
               <td>110</td>
             </tr>
             <tr>
-              <td>Rock Eater</td>
+              <td><a href="../../ships/Industrial/rock_eater.html">Rock Eater</a></td>
               <td>Industrial</td>
               <td>180</td>
             </tr>
             <tr>
-              <td>Spit and Prayer</td>
+              <td><a href="../../ships/Commercial/runner.html">Runner</a></td>
+              <td>Commercial</td>
+              <td>14</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/spit_and_prayer.html">Spit and Prayer</a></td>
               <td>Industrial</td>
               <td>80</td>
             </tr>
             <tr>
-              <td>Technically Legal</td>
+              <td><a href="../../ships/Combat%20Support/swarm_boss.html">Swarm Boss</a></td>
+              <td>Combat Support</td>
+              <td>90</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Commercial/technically_legal.html">Technically Legal</a></td>
               <td>Commercial</td>
               <td>35</td>
             </tr>
             <tr>
-              <td>Terms and Conditions</td>
+              <td><a href="../../ships/Covert/terms_and_conditions.html">Terms and Conditions</a></td>
               <td>Covert</td>
               <td>100</td>
             </tr>
             <tr>
-              <td>Warranty Void</td>
+              <td><a href="../../ships/Commercial/war_wagon.html">War Wagon</a></td>
+              <td>Commercial</td>
+              <td>300</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Exploration/warranty_void.html">Warranty Void</a></td>
               <td>Exploration</td>
               <td>30</td>
             </tr>
             <tr>
-              <td>Yard Sale</td>
+              <td><a href="../../ships/Commercial/worship.html">Worship</a></td>
+              <td>Commercial</td>
+              <td>32</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/yard_sale.html">Yard Sale</a></td>
               <td>Industrial</td>
-              <td>500</td>
+              <td>140</td>
             </tr>
             </tbody>
           </table>
         </div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../ore/aluminum_ore.html">Aluminum Ore</a></td><td>3</td></tr></tbody></table></div></div>
+        <details class="bom-json-details">
+          <summary>View JSON Data</summary>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;aluminum_ore&#34;,&#34;quantity&#34;:3}]</pre>
+        </details>
+
     </main>
     <script>
     (function() {

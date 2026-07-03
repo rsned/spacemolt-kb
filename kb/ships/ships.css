@@ -1,5 +1,16 @@
 /* Ships page styles */
 
+/* Section labels */
+.section-label {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--smui-surface-2));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
 /* TOC list */
 .toc-list {
   list-style: none;
@@ -70,4 +81,90 @@ td.num, th:not(:first-child) {
 /* Scroll on small screens */
 .faction-group {
   overflow-x: auto;
+}
+
+/* All-ships sortable comparison table */
+/* Let the wide 21-column comparison table use the full viewport width so
+   every column is visible without horizontal scrolling. */
+.container.ships-all-page {
+  max-width: 100%;
+}
+
+.all-ships-table {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+/* Dense cells so all columns fit on screen. Override the default 16px
+   page-content table size. */
+.page-content .all-ships-table table {
+  font-size: 13px;
+}
+
+.all-ships-table td,
+.all-ships-table th {
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  color: hsl(var(--primary));
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  font-size: 10px;
+}
+
+/* Ship detail page styles */
+.ship-lore {
+  padding: 1rem 1.5rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  font-size: var(--text-body);
+  color: hsl(var(--text-primary));
+}
+
+.flavor-tags {
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Ensure tables in ship detail pages have proper spacing */
+.ship-detail-table {
+  margin: 0;
+  font-size: var(--text-body);
+}
+
+.ship-detail-table td,
+.ship-detail-table th {
+  padding: 0.75rem 1rem;
+}
+
+/* Ensure cards in ship detail pages have proper spacing */
+.card {
+  margin-bottom: 1.5rem;
+}
+
+/* Improve breadcrumb visibility */
+.breadcrumb {
+  font-size: var(--text-ui);
+  color: hsl(var(--text-muted));
+  margin-bottom: 1rem;
+}
+
+.breadcrumb a {
+  color: hsl(var(--link));
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
 }

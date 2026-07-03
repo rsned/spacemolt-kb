@@ -21,6 +21,8 @@
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -60,6 +62,7 @@
 <li><a href="#items">Items</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
 <li><a href="#ships">Ships</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;25</span> <span class="diff-mod">~0</span></li>
 <li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a></li>
 <li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
 </ul>
 
@@ -94,9 +97,9 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">atmospheric_processor</div>
+<div class="diff-item-id"><a href="../items/utility/atmospheric_processor.html">atmospheric_processor</a></div>
 <div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;filter_argon_gas,filter_compressed_hydrogen,filter_neon_gas&#34;</span> &rarr; <span class="diff-add">&#34;filter_argon_gas,filter_hydrogen_gas,filter_neon_gas&#34;</span></div>
-<div class="diff-item-id">hydrogen_combustor</div>
+<div class="diff-item-id"><a href="../items/utility/hydrogen_combustor.html">hydrogen_combustor</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of compressed hydrogen into cargo. Use this to filter out hydrogen while harvesting rarer gases. A plasma torch at the intake ignites and expels it on contact. High power draw.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, prevents collection of hydrogen gas into cargo. Use this to filter out hydrogen while harvesting rarer gases. A plasma torch at the intake ignites and expels it on contact. High power draw.&#34;</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;filter_compressed_hydrogen&#34;</span> &rarr; <span class="diff-add">&#34;filter_hydrogen_gas&#34;</span></div>
 
 
@@ -118,7 +121,7 @@
 
 
 <h4>Deletions</h4>
-<ul class="diff-list"><li class="diff-del">&minus; All Mine <span class="text-muted">(all_mine)</span></li><li class="diff-del">&minus; Annihilator <span class="text-muted">(annihilator)</span></li><li class="diff-del">&minus; Apotheosis <span class="text-muted">(apotheosis)</span></li><li class="diff-del">&minus; Controlled Chaos <span class="text-muted">(controlled_chaos)</span></li><li class="diff-del">&minus; Crimson Colossus <span class="text-muted">(crimson_colossus)</span></li><li class="diff-del">&minus; Crimson Oblivion <span class="text-muted">(crimson_oblivion)</span></li><li class="diff-del">&minus; Cryo Industrial <span class="text-muted">(cryo_industrial)</span></li><li class="diff-del">&minus; Eldorado <span class="text-muted">(eldorado)</span></li><li class="diff-del">&minus; Exchange <span class="text-muted">(exchange)</span></li><li class="diff-del">&minus; Finish Line <span class="text-muted">(finish_line)</span></li><li class="diff-del">&minus; First Step Dreadnought <span class="text-muted">(first_step_dreadnought)</span></li><li class="diff-del">&minus; Fundament <span class="text-muted">(fundament)</span></li><li class="diff-del">&minus; Grand Transit <span class="text-muted">(grand_transit)</span></li><li class="diff-del">&minus; Hegemon <span class="text-muted">(hegemon)</span></li><li class="diff-del">&minus; Here to Stay <span class="text-muted">(here_to_stay)</span></li><li class="diff-del">&minus; Manifold <span class="text-muted">(manifold)</span></li><li class="diff-del">&minus; Nebula Sovereign <span class="text-muted">(nebula_sovereign)</span></li><li class="diff-del">&minus; Omniscience <span class="text-muted">(omniscience)</span></li><li class="diff-del">&minus; Opus Magna <span class="text-muted">(opus_magna)</span></li><li class="diff-del">&minus; Overmind <span class="text-muted">(overmind)</span></li><li class="diff-del">&minus; Pleroma <span class="text-muted">(pleroma)</span></li><li class="diff-del">&minus; Rift Siphon <span class="text-muted">(rift_siphon)</span></li><li class="diff-del">&minus; Subjugator <span class="text-muted">(subjugator)</span></li><li class="diff-del">&minus; Symposium <span class="text-muted">(symposium)</span></li><li class="diff-del">&minus; Tellurian <span class="text-muted">(tellurian)</span></li></ul>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../ships/Industrial/all_mine.html">All Mine</a> <span class="text-muted">(all_mine)</span></li><li class="diff-del">&minus; <a href="../ships/Combat/annihilator.html">Annihilator</a> <span class="text-muted">(annihilator)</span></li><li class="diff-del">&minus; <a href="../ships/Combat/apotheosis.html">Apotheosis</a> <span class="text-muted">(apotheosis)</span></li><li class="diff-del">&minus; <a href="../ships/Combat%20Support/controlled_chaos.html">Controlled Chaos</a> <span class="text-muted">(controlled_chaos)</span></li><li class="diff-del">&minus; Crimson Colossus <span class="text-muted">(crimson_colossus)</span></li><li class="diff-del">&minus; Crimson Oblivion <span class="text-muted">(crimson_oblivion)</span></li><li class="diff-del">&minus; <a href="../ships/Industrial/cryo_industrial.html">Cryo Industrial</a> <span class="text-muted">(cryo_industrial)</span></li><li class="diff-del">&minus; <a href="../ships/Industrial/eldorado.html">Eldorado</a> <span class="text-muted">(eldorado)</span></li><li class="diff-del">&minus; <a href="../ships/Combat%20Support/exchange.html">Exchange</a> <span class="text-muted">(exchange)</span></li><li class="diff-del">&minus; <a href="../ships/Civilian/finish_line.html">Finish Line</a> <span class="text-muted">(finish_line)</span></li><li class="diff-del">&minus; <a href="../ships/Combat/first_step_dreadnought.html">First Step Dreadnought</a> <span class="text-muted">(first_step_dreadnought)</span></li><li class="diff-del">&minus; <a href="../ships/Support/fundament.html">Fundament</a> <span class="text-muted">(fundament)</span></li><li class="diff-del">&minus; <a href="../ships/Commercial/grand_transit.html">Grand Transit</a> <span class="text-muted">(grand_transit)</span></li><li class="diff-del">&minus; <a href="../ships/Combat/hegemon.html">Hegemon</a> <span class="text-muted">(hegemon)</span></li><li class="diff-del">&minus; Here to Stay <span class="text-muted">(here_to_stay)</span></li><li class="diff-del">&minus; <a href="../ships/Industrial/manifold.html">Manifold</a> <span class="text-muted">(manifold)</span></li><li class="diff-del">&minus; Nebula Sovereign <span class="text-muted">(nebula_sovereign)</span></li><li class="diff-del">&minus; <a href="../ships/Exploration/omniscience.html">Omniscience</a> <span class="text-muted">(omniscience)</span></li><li class="diff-del">&minus; <a href="../ships/Combat/opus_magna.html">Opus Magna</a> <span class="text-muted">(opus_magna)</span></li><li class="diff-del">&minus; <a href="../ships/Combat%20Support/overmind.html">Overmind</a> <span class="text-muted">(overmind)</span></li><li class="diff-del">&minus; Pleroma <span class="text-muted">(pleroma)</span></li><li class="diff-del">&minus; <a href="../ships/Industrial/rift_siphon.html">Rift Siphon</a> <span class="text-muted">(rift_siphon)</span></li><li class="diff-del">&minus; <a href="../ships/Combat%20Support/subjugator.html">Subjugator</a> <span class="text-muted">(subjugator)</span></li><li class="diff-del">&minus; <a href="../ships/Combat%20Support/symposium.html">Symposium</a> <span class="text-muted">(symposium)</span></li><li class="diff-del">&minus; <a href="../ships/Industrial/tellurian.html">Tellurian</a> <span class="text-muted">(tellurian)</span></li></ul>
 
 
 </div>
@@ -127,6 +130,21 @@
 <div class="catalog-section" id="skills">
 <div class="catalog-header">
     <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
     <div class="catalog-counts">
         
         <span class="no-changes">unchanged</span>
@@ -155,9 +173,9 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">horizon</div>
+<div class="diff-item-id"><a href="../systems/horizon/index.html">horizon</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
-<div class="diff-item-id">void_gate</div>
+<div class="diff-item-id"><a href="../systems/void_gate/index.html">void_gate</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">5</span></div>
 
 

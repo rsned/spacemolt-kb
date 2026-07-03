@@ -21,6 +21,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -38,11 +41,11 @@
             <div class="sys-meta">
                 <div class="sys-meta-item">
                     <span class="label">Security</span>
-                    <span class="stat security-low"><span class="text-muted">Unknown</span></span>
+                    <span class="stat security-low">0 <span class="security-label">Lawless</span></span>
                 </div>
                 <div class="sys-meta-item">
                     <span class="label">Empire</span>
-                    <span class="stat"><span class="text-muted">Unknown</span></span>
+                    <span class="stat">Neutral</span>
                 </div>
                 <div class="sys-meta-item">
                     <span class="label">Position</span>
@@ -55,7 +58,11 @@
             </div>
         </div>
 
-        <div class="sys-map"><svg preserveAspectRatio="xMidYMid meet" viewBox="106.2 6.2 587.5 587.5" xmlns="http://www.w3.org/2000/svg"><circle cx="400" cy="300" r="235" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.6" stroke-dasharray="8,6"/><line x1="176.6" y1="354.5" x2="380.6" y2="304.7" stroke="#81a1c1" stroke-width="0.5" opacity="0.45" stroke-dasharray="6,4"/><a href="../glenhaven/" class="gate-link"><g class="poi-marker"><title>Jump Gate: Glenhaven</title><circle cx="176.6" cy="354.5" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5"/><line x1="176.6" y1="346.5" x2="176.6" y2="362.5" stroke="#81a1c1" stroke-width="1"/><line x1="168.6" y1="354.5" x2="184.6" y2="354.5" stroke="#81a1c1" stroke-width="1"/><text x="176.6" y="375.5" text-anchor="middle" class="gate-label" fill="#81a1c1">Glenhaven</text></g></a><defs><radialGradient id="sun-glow"><stop offset="0%" stop-color="#EBCB8B" stop-opacity="1"/><stop offset="40%" stop-color="#D08770" stop-opacity="0.45"/><stop offset="100%" stop-color="#D08770" stop-opacity="0"/></radialGradient><radialGradient id="fog"><stop offset="0%" stop-color="#8b95ab" stop-opacity="0"/><stop offset="30%" stop-color="#8b95ab" stop-opacity="0"/><stop offset="60%" stop-color="#8b95ab" stop-opacity="0.15"/><stop offset="100%" stop-color="#8b95ab" stop-opacity="0.25"/></radialGradient></defs><g class="poi-marker"><title>Alhena</title><circle cx="400" cy="300" r="24" fill="url(#sun-glow)"/><circle cx="400" cy="300" r="10" fill="#EBCB8B"/><text x="400" y="328" text-anchor="middle" class="map-label">Alhena</text></g><circle cx="400" cy="300" r="200" fill="url(#fog)"/></svg></div>
+        <div class="sys-map"><svg preserveAspectRatio="xMidYMid meet" viewBox="43.8 -56.2 712.5 712.5" xmlns="http://www.w3.org/2000/svg"><line x1="44" y1="300" x2="756" y2="300" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="400" y1="-56" x2="400" y2="656" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="0.0" y1="296.0" x2="0.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="700.0" x2="404.0" y2="700.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="100.0" y1="296.0" x2="100.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="600.0" x2="404.0" y2="600.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="200.0" y1="296.0" x2="200.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="500.0" x2="404.0" y2="500.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="300.0" y1="296.0" x2="300.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="400.0" x2="404.0" y2="400.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="500.0" y1="296.0" x2="500.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="200.0" x2="404.0" y2="200.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="600.0" y1="296.0" x2="600.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="100.0" x2="404.0" y2="100.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="700.0" y1="296.0" x2="700.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="0.0" x2="404.0" y2="0.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="800.0" y1="296.0" x2="800.0" y2="304.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="396.0" y1="-100.0" x2="404.0" y2="-100.0" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="63.8" y1="-31.2" x2="163.8" y2="-31.2" stroke="#8b95ab" stroke-width="1" opacity="0.9"/><line x1="63.8" y1="-34.2" x2="63.8" y2="-28.2" stroke="#8b95ab" stroke-width="1" opacity="0.9"/><line x1="163.8" y1="-34.2" x2="163.8" y2="-28.2" stroke="#8b95ab" stroke-width="1" opacity="0.9"/><text x="113.8" y="-37.2" text-anchor="middle" fill="#8b95ab" font-size="10" font-family="sans-serif">1 AU</text><circle cx="400" cy="300" r="104" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/><circle cx="400" cy="300" r="200" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/><circle cx="400" cy="300" r="250" fill="none" stroke="#8b95ab" stroke-width="0.7" opacity="0.9" stroke-dasharray="4,4"/><circle cx="400" cy="300" r="285" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.6" stroke-dasharray="8,6"/><line x1="128.0" y1="366.4" x2="380.6" y2="304.7" stroke="#81a1c1" stroke-width="0.5" opacity="0.45" stroke-dasharray="6,4"/><a href="../glenhaven/" class="gate-link"><g class="poi-marker"><title>Jump Gate: Glenhaven</title><circle cx="128.0" cy="366.4" r="8" fill="none" stroke="#81a1c1" stroke-width="1.5"/><line x1="128.0" y1="358.4" x2="128.0" y2="374.4" stroke="#81a1c1" stroke-width="1"/><line x1="120.0" y1="366.4" x2="136.0" y2="366.4" stroke="#81a1c1" stroke-width="1"/><text x="128.0" y="387.4" text-anchor="middle" class="gate-label" fill="#81a1c1">Glenhaven</text></g></a><defs><radialGradient id="sun-glow"><stop offset="0%" stop-color="#EBCB8B" stop-opacity="1"/><stop offset="40%" stop-color="#D08770" stop-opacity="0.45"/><stop offset="100%" stop-color="#D08770" stop-opacity="0"/></radialGradient><radialGradient id="wormhole-glow"><stop offset="0%" stop-color="#1a0a00" stop-opacity="1"/><stop offset="35%" stop-color="#BF360C" stop-opacity="0.9"/><stop offset="60%" stop-color="#D84315" stop-opacity="0.5"/><stop offset="100%" stop-color="#D08770" stop-opacity="0"/></radialGradient><radialGradient id="collapsed-wormhole-glow"><stop offset="0%" stop-color="#1a1a00" stop-opacity="1"/><stop offset="35%" stop-color="#F9A825" stop-opacity="0.7"/><stop offset="60%" stop-color="#FDD835" stop-opacity="0.35"/><stop offset="100%" stop-color="#FDD835" stop-opacity="0"/></radialGradient><radialGradient id="star-glow-alhena_star">
+<stop offset="0%" stop-color="#ffaf68" stop-opacity="1"/>
+<stop offset="40%" stop-color="#ffaf68" stop-opacity="0.45"/>
+<stop offset="100%" stop-color="#ffaf68" stop-opacity="0"/>
+</radialGradient><symbol id="ship-shuttle" viewBox="-5 -5 10 10"><polygon points="5,0 -4,-3.5 -2,0 -4,3.5" fill="#8b95ab" opacity="0.6"/></symbol><symbol id="ship-freighter" viewBox="-8 -8 16 16"><polygon points="7,0 3,-3 -5,-3 -7,-6 -7,6 -5,3 3,3" fill="#8b95ab" opacity="0.6"/></symbol><symbol id="ship-hauler" viewBox="-7 -7 14 14"><polygon points="7,0 4,-2 -5,-2 -5,-4 -7,-4 -7,4 -5,4 -5,2 4,2" fill="#8b95ab" opacity="0.6"/></symbol><symbol id="ship-corvette" viewBox="-6 -6 12 12"><polygon points="6,0 1,-2 -3,-2 -5,-5 -4,-2 -5,0 -4,2 -5,5 -3,2 1,2" fill="#8b95ab" opacity="0.6"/></symbol><symbol id="ship-scow" viewBox="-7 -7 14 14"><polygon points="5,-1 5,2 -4,4 -6,3 -6,-2 -4,-3 5,-1" fill="#8b95ab" opacity="0.6"/></symbol><symbol id="ship-raider" viewBox="-6 -6 12 12"><polygon points="6,0 0,-2 -2,-1 -4,-5 -3,-1 -5,0 -3,1 -4,5 -2,1 0,2" fill="#8b95ab" opacity="0.6"/></symbol></defs><g class="poi-marker"><title>Alhena I</title><circle cx="500.0" cy="270.0" r="20.0" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/><defs><clipPath id="planet-clip-alhena_i"><circle cx="500.0" cy="270.0" r="3.00"/></clipPath></defs><circle cx="500.0" cy="270.0" r="3.00" fill="#d46a4e"/><ellipse cx="501.1" cy="270.3" rx="0.8" ry="0.7" fill="#e47a5e" opacity="0.40" transform="rotate(12,501.1,270.3)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="498.8" cy="271.0" rx="0.6" ry="0.4" fill="#d46a4e" opacity="0.55" transform="rotate(57,498.8,271.0)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="500.8" cy="270.1" rx="0.5" ry="0.3" fill="#d46a4e" opacity="0.56" transform="rotate(270,500.8,270.1)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="500.2" cy="270.3" rx="0.6" ry="0.5" fill="#e47a5e" opacity="0.73" transform="rotate(347,500.2,270.3)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="500.7" cy="269.2" rx="1.0" ry="0.5" fill="#d46a4e" opacity="0.79" transform="rotate(87,500.7,269.2)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="498.3" cy="269.0" rx="0.7" ry="0.8" fill="#d46a4e" opacity="0.77" transform="rotate(307,498.3,269.0)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="500.1" cy="270.3" rx="0.5" ry="0.3" fill="#b44a2e" opacity="0.57" transform="rotate(217,500.1,270.3)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="501.0" cy="269.0" rx="0.7" ry="0.7" fill="#e47a5e" opacity="0.56" transform="rotate(187,501.0,269.0)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="501.2" cy="270.0" rx="1.1" ry="0.8" fill="#d46a4e" opacity="0.62" transform="rotate(298,501.2,270.0)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="500.1" cy="269.9" rx="0.4" ry="0.2" fill="#b44a2e" opacity="0.43" transform="rotate(99,500.1,269.9)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="499.2" cy="269.7" rx="0.4" ry="0.4" fill="#e47a5e" opacity="0.55" transform="rotate(73,499.2,269.7)" clip-path="url(#planet-clip-alhena_i)"/><ellipse cx="501.0" cy="268.0" rx="0.7" ry="0.7" fill="#d46a4e" opacity="0.52" transform="rotate(216,501.0,268.0)" clip-path="url(#planet-clip-alhena_i)"/></g><text x="500.0" y="262.0" text-anchor="middle" class="map-label">Alhena I</text><g class="poi-marker"><title>Alhena II</title><circle cx="600.0" cy="300.0" r="20.0" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/><defs><clipPath id="planet-clip-alhena_ii"><circle cx="600.0" cy="300.0" r="4.50"/></clipPath></defs><circle cx="600.0" cy="300.0" r="4.50" fill="#d4b596"/><ellipse cx="597.5" cy="300.0" rx="1.6" ry="0.9" fill="#b49566" opacity="0.74" transform="rotate(304,597.5,300.0)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="601.6" cy="298.9" rx="0.5" ry="0.3" fill="#d4b586" opacity="0.64" transform="rotate(209,601.6,298.9)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="598.1" cy="301.9" rx="1.8" ry="1.3" fill="#c4a576" opacity="0.54" transform="rotate(226,598.1,301.9)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="600.2" cy="300.0" rx="1.9" ry="1.1" fill="#c4a576" opacity="0.76" transform="rotate(74,600.2,300.0)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="597.5" cy="302.5" rx="1.1" ry="1.2" fill="#a48556" opacity="0.44" transform="rotate(267,597.5,302.5)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="600.7" cy="300.3" rx="0.8" ry="0.6" fill="#c4a576" opacity="0.48" transform="rotate(122,600.7,300.3)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="600.7" cy="300.0" rx="1.5" ry="1.1" fill="#c4a576" opacity="0.66" transform="rotate(57,600.7,300.0)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="598.9" cy="300.1" rx="1.0" ry="1.2" fill="#a48556" opacity="0.68" transform="rotate(334,598.9,300.1)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="597.7" cy="299.4" rx="1.5" ry="1.5" fill="#c4a576" opacity="0.79" transform="rotate(155,597.7,299.4)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="601.2" cy="300.3" rx="1.7" ry="1.0" fill="#b49566" opacity="0.61" transform="rotate(92,601.2,300.3)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="600.2" cy="300.5" rx="1.1" ry="1.3" fill="#a48556" opacity="0.53" transform="rotate(337,600.2,300.5)" clip-path="url(#planet-clip-alhena_ii)"/><ellipse cx="600.1" cy="299.5" rx="0.4" ry="0.5" fill="#a48556" opacity="0.46" transform="rotate(25,600.1,299.5)" clip-path="url(#planet-clip-alhena_ii)"/></g><text x="600.0" y="292.0" text-anchor="middle" class="map-label">Alhena II</text><g class="poi-marker"><title>Alhena Star</title><circle cx="400.0" cy="300.0" r="14.0" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/><circle cx="400.0" cy="300.0" r="24.0" fill="url(#star-glow-alhena_star)"/><circle cx="400.0" cy="300.0" r="10.0" fill="#ffaf68"/></g><text x="400.0" y="318.0" text-anchor="middle" class="map-label">Alhena Star</text><g class="poi-marker"><title>Voss Redoubt — Commandant Voss's fortified base of operations. The walls are patched with hull plating from a dozen different ship classes.</title><circle cx="250.0" cy="100.0" r="20" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/><polygon points="255,103 250,106 245,103 245,97 250,94 255,97" fill="none" stroke="#81a1c1" stroke-width="1.5"/></g><path id="route-0-fwd" d="M250.0,100.0 Q149.0,214.9 128.0,366.4" fill="none" stroke="none"/><path id="route-0-rev" d="M128.0,366.4 Q149.0,214.9 250.0,100.0" fill="none" stroke="none"/><g id="ship-shuttle-0-out"><use href="#ship-shuttle" width="10" height="10" x="-5" y="-5"><animateMotion dur="20s" begin="0.0s" repeatCount="indefinite" rotate="auto" fill="freeze"><mpath href="#route-0-fwd"/></animateMotion></use><animate attributeName="opacity" dur="60s" begin="0.0s" repeatCount="indefinite" keyTimes="0;0.017;0.3;0.333;1" values="0;1;1;0;0"/></g><g id="ship-shuttle-0-ret"><use href="#ship-shuttle" width="10" height="10" x="-5" y="-5"><animateMotion dur="20s" begin="30.0s" repeatCount="indefinite" rotate="auto" fill="freeze"><mpath href="#route-0-rev"/></animateMotion></use><animate attributeName="opacity" dur="60s" begin="30.0s" repeatCount="indefinite" keyTimes="0;0.017;0.3;0.333;1" values="0;1;1;0;0"/></g><text x="250.0" y="92.0" text-anchor="middle" class="map-label">Voss Redoubt</text><rect x="673.2" y="586.2" width="73.0" height="60.0" rx="4" fill="#000" fill-opacity="0.6" stroke="#8b95ab" stroke-width="0.5" stroke-opacity="0.5"/><circle cx="689.2" cy="600.2" r="5" fill="#EBCB8B"/><text x="703.2" y="604.2" font-size="9" font-family="sans-serif" fill="#d8dee9">Star</text><circle cx="689.2" cy="616.2" r="4" fill="#A3BE8C"/><text x="703.2" y="620.2" font-size="9" font-family="sans-serif" fill="#d8dee9">Planet</text><polygon points="694,635 689,637 685,635 685,630 689,627 694,630" fill="none" stroke="#81a1c1" stroke-width="1.5"/><text x="703.2" y="636.2" font-size="9" font-family="sans-serif" fill="#d8dee9">Station</text></svg></div>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Jump Connections (1)</div>
           <table>
@@ -63,13 +70,238 @@
             <tbody>
             <tr>
               <td><a href="../glenhaven/">Glenhaven</a></td>
-              <td style="text-align:right"><span class="text-muted">—</span></td>
+              <td style="text-align:right">574</td>
             </tr>
             </tbody>
           </table>
         </div>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: —</p>
+        <div class="card mt-2"><a href="jumps.html" class="jumpmap-link">Pathfinder Jump Routes →</a></div>
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Points of Interest (4)</div>
+          <table>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance From Sun (AU)</th><th style="text-align:right;white-space:nowrap">Position</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr>
+              <td style="text-align:center;font-size:16px">☀</td>
+              <td>Alhena Star</td>
+              <td>Sun</td>
+              <td>M2V</td>
+              <td style="text-align:right">0.0</td>
+              <td style="text-align:right;white-space:nowrap">(0.0, 0.0)</td>
+              <td><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+              <td><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">●</td>
+              <td><a href="planet_alhena_i.html">Alhena I</a></td>
+              <td>Planet</td>
+              <td>scorched</td>
+              <td style="text-align:right">1.0</td>
+              <td style="text-align:right;white-space:nowrap">(1.0, 0.3)</td>
+              <td><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+              <td><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">●</td>
+              <td><a href="planet_alhena_ii.html">Alhena II</a></td>
+              <td>Planet</td>
+              <td>arid</td>
+              <td style="text-align:right">2.0</td>
+              <td style="text-align:right;white-space:nowrap">(2.0, 0.0)</td>
+              <td><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+              <td><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-size:16px">⬡</td>
+              <td>Voss Redoubt</td>
+              <td>Station</td>
+              <td><span class="text-muted">—</span></td>
+              <td style="text-align:right">2.5</td>
+              <td style="text-align:right;white-space:nowrap">(-1.5, 2.0)</td>
+              <td><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+              <td>Commandant Voss&#39;s fortified base of operations. The walls are patched with hull plating from a dozen different ship classes.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Bases &amp; Stations</h3>
+                <span class="badge badge-frost">1</span>
+            </div>
+            <div class="base-card">
+                <div class="base-header">
+                    <div>
+                        <h4>Voss Redoubt Station</h4>
+                        <span class="label">Pirates</span>
+                    </div>
+                    <div class="base-stats">
+                        <span class="badge badge-red">Private</span>
+                        <span class="badge badge-frost">Defense 3</span>
+                        <span class="badge badge-yellow">Struggling</span>
+                    </div>
+                </div>
+                <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
+                <p class="base-desc">Commandant Voss&#39;s stronghold. Entry is earned, not given.</p>
+                <div class="base-meta">
+                    <span class="label">Satisfaction: 33% (5/15 infrastructure)</span>
+                </div>
+                <div class="base-sections">
+                    <div>
+                        <span class="label">Services</span>
+                        <div class="service-list">
+                            <span class="service-tag available">Market</span>
+                            <span class="service-tag available">Missions</span>
+                            <span class="service-tag available">Refuel</span>
+                            <span class="service-tag available">Repair</span>
+                            <span class="service-tag available">Salvage yard</span>
+                            <span class="service-tag available">Shipyard</span>
+                            <span class="service-tag available">Storage</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Facilities</span>
+                        <table class="facility-table">
+                            <thead><tr><th>Facility</th><th>Category</th><th>Level</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                  <td>Fuel bunker</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Pirate bar</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Pirate life support rig</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Salvaged life support module <span class="badge badge-muted">x2</span></td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scavenged battery rig</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Stolen generator module</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Stolen reactor core</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Alloy foundry</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Armament bench</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Copper wire mill</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Fuel reclamation still</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Gas compression cylinder</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>H2 fuel combustor</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Iron refinery</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Plate press</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scrap armor forge</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>The red room</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Weapons salvage bench</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Commerce hub</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Contract office</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Fuel depot</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Maintenance deck</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Naval yard</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Salvage dock</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Storage bay</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1022364</p>
     </main>
     <script>
     (function() {

@@ -20,6 +20,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -45,6 +48,8 @@
             <tr><td class="kv-label">Base Value</td><td>450 cr</td></tr>
           </table>
         </div>
+
+
         <div class="card" style="padding:0">
           <div class="section-label">Produced By</div>
           <table>
@@ -53,12 +58,53 @@
             <tr>
               <td><a href="../../recipes/Components/forge_armor_plate.html">Forge Armor Plate</a></td>
               <td>1</td>
-              <td>8 ticks</td>
+              <td>6.75s</td>
             </tr>
             <tr>
               <td><a href="../../recipes/Components/forge_scrap_armor.html">Forge Scrap Armor</a></td>
               <td>2</td>
-              <td>6 ticks</td>
+              <td>13.5s</td>
+            </tr>
+            </tbody>
+          </table>
+          <div class="section-label">Built by Facility</div>
+          <table>
+            <thead><tr><th>Facility</th><th>Level</th><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../../facilities/production/plate_hammer_shop.html">Plate Hammer Shop</a></td>
+              <td>1</td>
+              <td><a href="../../recipes/Components/forge_armor_plate.html">Forge Armor Plate</a></td>
+              <td>1</td>
+              <td>6.75s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/scrap_armor_forge.html">Scrap Armor Forge</a></td>
+              <td>1</td>
+              <td><a href="../../recipes/Components/forge_scrap_armor.html">Forge Scrap Armor</a></td>
+              <td>2</td>
+              <td>13.5s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/laminate_furnace.html">Laminate Furnace</a></td>
+              <td>2</td>
+              <td><a href="../../recipes/Components/forge_armor_plate.html">Forge Armor Plate</a></td>
+              <td>1</td>
+              <td>6.75s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/heavy_armor_fabrication_mill.html">Heavy Armor Fabrication Mill</a></td>
+              <td>3</td>
+              <td><a href="../../recipes/Components/forge_armor_plate.html">Forge Armor Plate</a></td>
+              <td>1</td>
+              <td>6.75s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/composite_armor_complex.html">Composite Armor Complex</a></td>
+              <td>4</td>
+              <td><a href="../../recipes/Components/forge_armor_plate.html">Forge Armor Plate</a></td>
+              <td>1</td>
+              <td>6.75s</td>
             </tr>
             </tbody>
           </table>
@@ -88,238 +134,324 @@
             <thead><tr><th>Ship</th><th>Category</th><th>Qty</th></tr></thead>
             <tbody>
             <tr>
-              <td>Anvil</td>
+              <td><a href="../../ships/Industrial/all_mine.html">All Mine</a></td>
+              <td>Industrial</td>
+              <td>200</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/annihilator.html">Annihilator</a></td>
+              <td>Combat</td>
+              <td>300</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Support/anvil.html">Anvil</a></td>
               <td>Support</td>
               <td>22</td>
             </tr>
             <tr>
-              <td>Arsenal</td>
+              <td><a href="../../ships/Combat/armageddon.html">Armageddon</a></td>
+              <td>Combat</td>
+              <td>250</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Support/arsenal.html">Arsenal</a></td>
               <td>Support</td>
               <td>65</td>
             </tr>
             <tr>
-              <td>Bastille</td>
+              <td><a href="../../ships/Combat/bad_idea.html">Bad Idea</a></td>
+              <td>Combat</td>
+              <td>66</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/bastille.html">Bastille</a></td>
               <td>Combat Support</td>
               <td>22</td>
             </tr>
             <tr>
-              <td>Billhook</td>
+              <td><a href="../../ships/Industrial/billhook.html">Billhook</a></td>
               <td>Industrial</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Bonesaw</td>
+              <td><a href="../../ships/Industrial/bonesaw.html">Bonesaw</a></td>
               <td>Industrial</td>
               <td>35</td>
             </tr>
             <tr>
-              <td>Broadaxe</td>
+              <td><a href="../../ships/Combat/broadaxe.html">Broadaxe</a></td>
               <td>Combat</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Buckler</td>
+              <td><a href="../../ships/Combat/buckler.html">Buckler</a></td>
               <td>Combat</td>
               <td>2</td>
             </tr>
             <tr>
-              <td>Cleaver</td>
+              <td><a href="../../ships/Combat/cleaver.html">Cleaver</a></td>
               <td>Combat</td>
               <td>2</td>
             </tr>
             <tr>
-              <td>Crimson Devastator</td>
+              <td><a href="../../ships/Combat%20Support/controlled_chaos.html">Controlled Chaos</a></td>
+              <td>Combat Support</td>
+              <td>140</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/crimson_devastator.html">Crimson Devastator</a></td>
               <td>Combat</td>
               <td>60</td>
             </tr>
             <tr>
-              <td>Crowbar</td>
+              <td><a href="../../ships/Industrial/crowbar.html">Crowbar</a></td>
               <td>Industrial</td>
               <td>2</td>
             </tr>
             <tr>
-              <td>Cudgel</td>
+              <td><a href="../../ships/Industrial/cryoclast.html">Cryoclast</a></td>
+              <td>Industrial</td>
+              <td>48</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/cudgel.html">Cudgel</a></td>
               <td>Combat Support</td>
               <td>8</td>
             </tr>
             <tr>
-              <td>Falchion</td>
+              <td><a href="../../ships/Combat/eviction_notice.html">Eviction Notice</a></td>
+              <td>Combat</td>
+              <td>9</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/falchion.html">Falchion</a></td>
               <td>Combat Support</td>
               <td>10</td>
             </tr>
             <tr>
-              <td>Flail</td>
+              <td><a href="../../ships/Civilian/finish_line.html">Finish Line</a></td>
+              <td>Civilian</td>
+              <td>80</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/first_step_dreadnought.html">First Step Dreadnought</a></td>
+              <td>Combat</td>
+              <td>180</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/flail.html">Flail</a></td>
               <td>Combat</td>
               <td>2</td>
             </tr>
             <tr>
-              <td>Foreclosure</td>
+              <td><a href="../../ships/Combat/foreclosure.html">Foreclosure</a></td>
               <td>Combat</td>
-              <td>10</td>
+              <td>15</td>
             </tr>
             <tr>
-              <td>Four on the Floor</td>
-              <td>Combat</td>
-              <td>10</td>
-            </tr>
-            <tr>
-              <td>Frostbite</td>
+              <td><a href="../../ships/Industrial/frostbite.html">Frostbite</a></td>
               <td>Industrial</td>
               <td>2</td>
             </tr>
             <tr>
-              <td>Gas Raider</td>
+              <td><a href="../../ships/Industrial/gas_raider.html">Gas Raider</a></td>
               <td>Industrial</td>
               <td>25</td>
             </tr>
             <tr>
-              <td>Gauntlet</td>
+              <td><a href="../../ships/Combat/gauntlet.html">Gauntlet</a></td>
               <td>Combat</td>
               <td>10</td>
             </tr>
             <tr>
-              <td>Guillotine</td>
+              <td><a href="../../ships/Industrial/guillotine.html">Guillotine</a></td>
               <td>Industrial</td>
               <td>110</td>
             </tr>
             <tr>
-              <td>Halberd</td>
+              <td><a href="../../ships/Combat/halberd.html">Halberd</a></td>
               <td>Combat</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Hostile Takeover</td>
+              <td><a href="../../ships/Combat/hostile_takeover.html">Hostile Takeover</a></td>
               <td>Combat</td>
-              <td>10</td>
+              <td>12</td>
             </tr>
             <tr>
-              <td>Juggernaut</td>
+              <td><a href="../../ships/Combat/iron_fleet.html">Iron Fleet</a></td>
+              <td>Combat</td>
+              <td>80</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/iron_tide.html">Iron Tide</a></td>
               <td>Combat</td>
               <td>30</td>
             </tr>
             <tr>
-              <td>Mace</td>
-              <td>Combat</td>
-              <td>30</td>
-            </tr>
-            <tr>
-              <td>Margin Call</td>
-              <td>Combat</td>
-              <td>8</td>
-            </tr>
-            <tr>
-              <td>Maul</td>
-              <td>Industrial</td>
-              <td>2</td>
-            </tr>
-            <tr>
-              <td>Mineral Rights</td>
-              <td>Industrial</td>
-              <td>8</td>
-            </tr>
-            <tr>
-              <td>Morningstar</td>
+              <td><a href="../../ships/Commercial/ledger.html">Ledger</a></td>
               <td>Commercial</td>
               <td>6</td>
             </tr>
             <tr>
-              <td>Ordinance</td>
+              <td><a href="../../ships/Combat/mace.html">Mace</a></td>
               <td>Combat</td>
-              <td>5</td>
+              <td>30</td>
             </tr>
             <tr>
-              <td>Overlord</td>
-              <td>Combat Support</td>
+              <td><a href="../../ships/Industrial/marauder.html">Marauder</a></td>
+              <td>Industrial</td>
               <td>45</td>
             </tr>
             <tr>
-              <td>Partisan</td>
-              <td>Exploration</td>
+              <td><a href="../../ships/Combat/margin_call.html">Margin Call</a></td>
+              <td>Combat</td>
               <td>10</td>
             </tr>
             <tr>
-              <td>Permafrost</td>
-              <td>Industrial</td>
-              <td>12</td>
-            </tr>
-            <tr>
-              <td>Polearm</td>
-              <td>Exploration</td>
-              <td>35</td>
-            </tr>
-            <tr>
-              <td>Portcullis</td>
-              <td>Combat Support</td>
-              <td>55</td>
-            </tr>
-            <tr>
-              <td>Ransack</td>
-              <td>Commercial</td>
-              <td>8</td>
-            </tr>
-            <tr>
-              <td>Ravager</td>
-              <td>Industrial</td>
-              <td>80</td>
-            </tr>
-            <tr>
-              <td>Reaver</td>
+              <td><a href="../../ships/Industrial/maul.html">Maul</a></td>
               <td>Industrial</td>
               <td>2</td>
             </tr>
             <tr>
-              <td>Siege Breaker</td>
-              <td>Industrial</td>
-              <td>30</td>
-            </tr>
-            <tr>
-              <td>Siege Drill</td>
+              <td><a href="../../ships/Industrial/mineral_rights.html">Mineral Rights</a></td>
               <td>Industrial</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Stockade</td>
-              <td>Support</td>
-              <td>24</td>
+              <td><a href="../../ships/Commercial/morningstar.html">Morningstar</a></td>
+              <td>Commercial</td>
+              <td>6</td>
             </tr>
             <tr>
-              <td>Thermal Lance</td>
+              <td><a href="../../ships/Industrial/munitions_foundry.html">Munitions Foundry</a></td>
+              <td>Industrial</td>
+              <td>50</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Civilian/muster.html">Muster</a></td>
+              <td>Civilian</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/ordinance.html">Ordinance</a></td>
+              <td>Combat</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/overlord.html">Overlord</a></td>
+              <td>Combat Support</td>
+              <td>45</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Civilian/pennon.html">Pennon</a></td>
+              <td>Civilian</td>
+              <td>12</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/permafrost.html">Permafrost</a></td>
+              <td>Industrial</td>
+              <td>12</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Exploration/polearm.html">Polearm</a></td>
+              <td>Exploration</td>
+              <td>35</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/portcullis.html">Portcullis</a></td>
+              <td>Combat Support</td>
+              <td>55</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Commercial/ransack.html">Ransack</a></td>
+              <td>Commercial</td>
+              <td>8</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/ravager.html">Ravager</a></td>
+              <td>Industrial</td>
+              <td>80</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/reaver.html">Reaver</a></td>
+              <td>Industrial</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/reckoning.html">Reckoning</a></td>
+              <td>Combat</td>
+              <td>350</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/siege_breaker.html">Siege Breaker</a></td>
               <td>Industrial</td>
               <td>30</td>
             </tr>
             <tr>
-              <td>Trebuchet</td>
-              <td>Commercial</td>
-              <td>35</td>
+              <td><a href="../../ships/Industrial/siege_drill.html">Siege Drill</a></td>
+              <td>Industrial</td>
+              <td>12</td>
             </tr>
             <tr>
-              <td>Vanguard</td>
+              <td><a href="../../ships/Combat/stockade.html">Stockade</a></td>
+              <td>Combat</td>
+              <td>90</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/subjugator.html">Subjugator</a></td>
+              <td>Combat Support</td>
+              <td>220</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Commercial/the_vault.html">The Vault</a></td>
+              <td>Commercial</td>
+              <td>1000</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/thermal_lance.html">Thermal Lance</a></td>
+              <td>Industrial</td>
+              <td>30</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/trebuchet.html">Trebuchet</a></td>
+              <td>Combat</td>
+              <td>70</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/vanguard.html">Vanguard</a></td>
               <td>Combat Support</td>
               <td>20</td>
             </tr>
             <tr>
-              <td>War Wagon</td>
+              <td><a href="../../ships/Commercial/warbarge.html">Warbarge</a></td>
               <td>Commercial</td>
-              <td>100</td>
+              <td>40</td>
             </tr>
             <tr>
-              <td>Warhammer</td>
+              <td><a href="../../ships/Industrial/warhammer.html">Warhammer</a></td>
               <td>Industrial</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Warhead</td>
+              <td><a href="../../ships/Commercial/warhead.html">Warhead</a></td>
               <td>Commercial</td>
               <td>35</td>
             </tr>
             <tr>
-              <td>Warmaul</td>
+              <td><a href="../../ships/Combat/warmaul.html">Warmaul</a></td>
               <td>Combat</td>
               <td>18</td>
             </tr>
             </tbody>
           </table>
         </div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../ore/titanium_ore.html">Titanium Ore</a></td><td>10</td></tr><tr><td><a href="../ore/tungsten_ore.html">Tungsten Ore</a></td><td>9</td></tr></tbody></table></div></div>
+        <details class="bom-json-details">
+          <summary>View JSON Data</summary>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:2},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:10},{&#34;item_id&#34;:&#34;tungsten_ore&#34;,&#34;quantity&#34;:9}]</pre>
+        </details>
+
     </main>
     <script>
     (function() {

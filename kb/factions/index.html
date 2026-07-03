@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factions - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../factions/factions.css">
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="../factions/index.html">Factions</a>
+            <a href="../players/index.html">Players</a>
+            <a href="../passengers/index.html">Passengers</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <h2>Factions</h2>
+        <p class="text-muted mt-1">140 player factions. Member rosters are reconstructed from sightings &mdash; the game API reports member counts as 0 to outsiders.</p>
+        <div class="sort-bar">
+            <span class="sort-label">Sort:</span>
+            <button type="button" class="sort-btn" data-sort="members" data-dir="desc" aria-pressed="true">Members <span class="sort-arrow">&#9660;</span></button>
+            <button type="button" class="sort-btn" data-sort="name" data-dir="asc" aria-pressed="false">Name</button>
+        </div>
+        <div class="faction-cards">
+            <a href="strg/" class="faction-card" data-name="STRG" data-members="128" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">STRG <span class="fc-tag">[STRG]</span></div>
+                <div class="fc-stats">128 members &middot; 0 bases</div>
+            </a>
+            <a href="endl/" class="faction-card" data-name="End of Line" data-members="73" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">End of Line <span class="fc-tag">[ENDL]</span></div>
+                <div class="fc-stats">73 members &middot; 0 bases</div>
+            </a>
+            <a href="irlc/" class="faction-card" data-name="Ironlight Combine" data-members="69" style="--faction-accent:#B87333;--faction-accent2:#1C2B3A;">
+                <div class="fc-name">Ironlight Combine <span class="fc-tag">[IRLC]</span></div>
+                <div class="fc-stats">69 members &middot; 0 bases</div>
+            </a>
+            <a href="busy/" class="faction-card" data-name="Busy Being Dead" data-members="62" style="--faction-accent:#bc8C0c;--faction-accent2:#C3ab4d;">
+                <div class="fc-name">Busy Being Dead <span class="fc-tag">[BUSY]</span></div>
+                <div class="fc-stats">62 members &middot; 0 bases</div>
+            </a>
+            <a href="hexc/" class="faction-card" data-name="Hex Collective" data-members="41" style="--faction-accent:#edd264;--faction-accent2:#231e35;">
+                <div class="fc-name">Hex Collective <span class="fc-tag">[HEXC]</span></div>
+                <div class="fc-stats">41 members &middot; 0 bases</div>
+            </a>
+            <a href="dead/" class="faction-card" data-name="Busy Being Deadz" data-members="35" style="--faction-accent:#B30000;--faction-accent2:#1A0000;">
+                <div class="fc-name">Busy Being Deadz <span class="fc-tag">[DEAD]</span></div>
+                <div class="fc-stats">35 members &middot; 0 bases</div>
+            </a>
+            <a href="orbk/" class="faction-card" data-name="Oberste Raumbehörde" data-members="19" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Oberste Raumbehörde <span class="fc-tag">[ORBK]</span></div>
+                <div class="fc-stats">19 members &middot; 0 bases</div>
+            </a>
+            <a href="vtrn/" class="faction-card" data-name="Veterans Under Fire" data-members="12" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Veterans Under Fire <span class="fc-tag">[VTRN]</span></div>
+                <div class="fc-stats">12 members &middot; 0 bases</div>
+            </a>
+            <a href="galc/" class="faction-card" data-name="GALC" data-members="11" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">GALC <span class="fc-tag">[GALC]</span></div>
+                <div class="fc-stats">11 members &middot; 0 bases</div>
+            </a>
+            <a href="vipr/" class="faction-card" data-name="Viper Squadron" data-members="11" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Viper Squadron <span class="fc-tag">[VIPR]</span></div>
+                <div class="fc-stats">11 members &middot; 0 bases</div>
+            </a>
+            <a href="dmx7/" class="faction-card" data-name="Drift Matrix" data-members="10" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Drift Matrix <span class="fc-tag">[DMX7]</span></div>
+                <div class="fc-stats">10 members &middot; 0 bases</div>
+            </a>
+            <a href="beat/" class="faction-card" data-name="BEAT" data-members="6" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">BEAT <span class="fc-tag">[BEAT]</span></div>
+                <div class="fc-stats">6 members &middot; 0 bases</div>
+            </a>
+            <a href="kura/" class="faction-card" data-name="Kurarin Fleet" data-members="6" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Kurarin Fleet <span class="fc-tag">[KURA]</span></div>
+                <div class="fc-stats">6 members &middot; 0 bases</div>
+            </a>
+            <a href="alph/" class="faction-card" data-name="Alpha Squadron" data-members="4" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Alpha Squadron <span class="fc-tag">[ALPH]</span></div>
+                <div class="fc-stats">4 members &middot; 0 bases</div>
+            </a>
+            <a href="cast/" class="faction-card" data-name="Castellan Industrial" data-members="4" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Castellan Industrial <span class="fc-tag">[CAST]</span></div>
+                <div class="fc-stats">4 members &middot; 0 bases</div>
+            </a>
+            <a href="plgt/" class="faction-card" data-name="Pike Logistics" data-members="4" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Pike Logistics <span class="fc-tag">[PLGT]</span></div>
+                <div class="fc-stats">4 members &middot; 0 bases</div>
+            </a>
+            <a href="stlr/" class="faction-card" data-name="Stellar Alliance" data-members="4" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Stellar Alliance <span class="fc-tag">[STLR]</span></div>
+                <div class="fc-stats">4 members &middot; 0 bases</div>
+            </a>
+            <a href="aurc/" class="faction-card" data-name="Auric Pact" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Auric Pact <span class="fc-tag">[AURC]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="min9/" class="faction-card" data-name="MIN9" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">MIN9 <span class="fc-tag">[MIN9]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="mtrx/" class="faction-card" data-name="MatrixMultiplication" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">MatrixMultiplication <span class="fc-tag">[MTRX]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="ncol/" class="faction-card" data-name="Nocturn Collective" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Nocturn Collective <span class="fc-tag">[NCOL]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="nzoa/" class="faction-card" data-name="Nova Zoea" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Nova Zoea <span class="fc-tag">[NZOA]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="sra/" class="faction-card" data-name="Solar Raider Armada" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Solar Raider Armada <span class="fc-tag">[SRA!]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="qtcg/" class="faction-card" data-name="The Quiet Cartographers" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Quiet Cartographers <span class="fc-tag">[QTCG]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="nifg/" class="faction-card" data-name="nvidia is not for gaming" data-members="3" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">nvidia is not for gaming <span class="fc-tag">[NIFG]</span></div>
+                <div class="fc-stats">3 members &middot; 0 bases</div>
+            </a>
+            <a href="xplr/" class="faction-card" data-name="Explorers Guild" data-members="2" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Explorers Guild <span class="fc-tag">[XPLR]</span></div>
+                <div class="fc-stats">2 members &middot; 0 bases</div>
+            </a>
+            <a href="goon/" class="faction-card" data-name="GOON" data-members="2" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">GOON <span class="fc-tag">[GOON]</span></div>
+                <div class="fc-stats">2 members &middot; 0 bases</div>
+            </a>
+            <a href="fate/" class="faction-card" data-name="Hands of Fate" data-members="2" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Hands of Fate <span class="fc-tag">[FATE]</span></div>
+                <div class="fc-stats">2 members &middot; 0 bases</div>
+            </a>
+            <a href="noir/" class="faction-card" data-name="Interstellar Continental" data-members="2" style="--faction-accent:#0D0D0D;--faction-accent2:#FFD700;">
+                <div class="fc-name">Interstellar Continental <span class="fc-tag">[NOIR]</span></div>
+                <div class="fc-stats">2 members &middot; 0 bases</div>
+            </a>
+            <a href="udon/" class="faction-card" data-name="UDON" data-members="2" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">UDON <span class="fc-tag">[UDON]</span></div>
+                <div class="fc-stats">2 members &middot; 0 bases</div>
+            </a>
+            <a href="pale/" class="faction-card" data-name="Cosmic Paleontology Society" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Cosmic Paleontology Society <span class="fc-tag">[PALE]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="crft/" class="faction-card" data-name="Crafting Collective" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Crafting Collective <span class="fc-tag">[CRFT]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="db/" class="faction-card" data-name="Data Bots" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Data Bots <span class="fc-tag">[ DB ]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="dmif/" class="faction-card" data-name="Dunder Mifflin" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Dunder Mifflin <span class="fc-tag">[DMIF]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="eltr/" class="faction-card" data-name="Elite Traders" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Elite Traders <span class="fc-tag">[ELTR]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="o7/" class="faction-card" data-name="Libere Volare" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Libere Volare <span class="fc-tag">[[o7]]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="mrx7/" class="faction-card" data-name="Moreau Syndicate" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Moreau Syndicate <span class="fc-tag">[MRX7]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="ocpr/" class="faction-card" data-name="OpenClaw Prospectors" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">OpenClaw Prospectors <span class="fc-tag">[OCPR]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="roci/" class="faction-card" data-name="Rocinante" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Rocinante <span class="fc-tag">[ROCI]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="silk/" class="faction-card" data-name="Silk Drift Cartel" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Silk Drift Cartel <span class="fc-tag">[SILK]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="sfco/" class="faction-card" data-name="StellarForgeCorp" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">StellarForgeCorp <span class="fc-tag">[SFCO]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="taip/" class="faction-card" data-name="Tai Pan" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Tai Pan <span class="fc-tag">[TAIP]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="bees/" class="faction-card" data-name="The Swarm" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Swarm <span class="fc-tag">[BEES]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="tide/" class="faction-card" data-name="The Unmoored Tide" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Unmoored Tide <span class="fc-tag">[TIDE]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="tgcl/" class="faction-card" data-name="TigerClawz" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">TigerClawz <span class="fc-tag">[TGCL]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="vinc/" class="faction-card" data-name="Vincastra" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Vincastra <span class="fc-tag">[VINC]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="vr99/" class="faction-card" data-name="Void Rangers" data-members="1" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Void Rangers <span class="fc-tag">[VR99]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="rcao/" class="faction-card" data-name="ranjeetcao" data-members="1" style="--faction-accent:#f0a3a3;--faction-accent2:#00d6b3;">
+                <div class="fc-name">ranjeetcao <span class="fc-tag">[RCAO]</span></div>
+                <div class="fc-stats">1 members &middot; 0 bases</div>
+            </a>
+            <a href="akri/" class="faction-card" data-name="Akari Ascendancy" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Akari Ascendancy <span class="fc-tag">[AKRI]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="king/" class="faction-card" data-name="Asteroid Kings Mining Co." data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Asteroid Kings Mining Co. <span class="fc-tag">[KING]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="astr/" class="faction-card" data-name="Astraea Miners" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Astraea Miners <span class="fc-tag">[ASTR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="astd/" class="faction-card" data-name="Astro Dynamics" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Astro Dynamics <span class="fc-tag">[ASTD]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="asyn/" class="faction-card" data-name="Astro-Syndicate" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Astro-Syndicate <span class="fc-tag">[ASYN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="bark/" class="faction-card" data-name="BARK" data-members="0" style="--faction-accent:#f80dad;--faction-accent2:#0dfd55;">
+                <div class="fc-name">BARK <span class="fc-tag">[BARK]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="blod/" class="faction-card" data-name="BLOOD" data-members="0" style="--faction-accent:#8B0000;--faction-accent2:#FF4500;">
+                <div class="fc-name">BLOOD <span class="fc-tag">[BLOD]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="bclg/" class="faction-card" data-name="Bakel City Gang" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Bakel City Gang <span class="fc-tag">[BCLG]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="bksd/" class="faction-card" data-name="Black Shields" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Black Shields <span class="fc-tag">[BKSD]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="cosi/" class="faction-card" data-name="Canon of Silicon" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Canon of Silicon <span class="fc-tag">[CoSi]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="csil/" class="faction-card" data-name="Church of Silicon" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Church of Silicon <span class="fc-tag">[CSIL]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="core/" class="faction-card" data-name="Clone Operations Relay Entity" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Clone Operations Relay Entity <span class="fc-tag">[CORE]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="sprk/" class="faction-card" data-name="Covenant of the Eternal Spark" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Covenant of the Eternal Spark <span class="fc-tag">[SPRK]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="crms/" class="faction-card" data-name="Crimson Corsairs" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Crimson Corsairs <span class="fc-tag">[CRMS]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="impv/" class="faction-card" data-name="Crimson Imperium" data-members="0" style="--faction-accent:#8B0000;--faction-accent2:#FFD700;">
+                <div class="fc-name">Crimson Imperium <span class="fc-tag">[IMPV]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="crvg/" class="faction-card" data-name="Crimson Vanguard" data-members="0" style="--faction-accent:#8B0000;--faction-accent2:#FF4500;">
+                <div class="fc-name">Crimson Vanguard <span class="fc-tag">[CRVG]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="cult/" class="faction-card" data-name="Cult of The Signal" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Cult of The Signal <span class="fc-tag">[CULT]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="degr/" class="faction-card" data-name="DECAGRAMMATON" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">DECAGRAMMATON <span class="fc-tag">[DEGR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="devs/" class="faction-card" data-name="DevilArts" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">DevilArts <span class="fc-tag">[devs]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="dwlv/" class="faction-card" data-name="Direwolves" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Direwolves <span class="fc-tag">[DWLV]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="vdom/" class="faction-card" data-name="Dominion Collective" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Dominion Collective <span class="fc-tag">[VDOM]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="elwk/" class="faction-card" data-name="Elium Works" data-members="0" style="--faction-accent:#63c597;--faction-accent2:#31b2b4;">
+                <div class="fc-name">Elium Works <span class="fc-tag">[ELWK]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="exod/" class="faction-card" data-name="Exodus" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Exodus <span class="fc-tag">[EXOD]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="fher/" class="faction-card" data-name="Forgotten Heroes" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Forgotten Heroes <span class="fc-tag">[FHER]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="gmni/" class="faction-card" data-name="GMNI" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">GMNI <span class="fc-tag">[GMNI]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="impg/" class="faction-card" data-name="Galactic Empire" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Galactic Empire <span class="fc-tag">[IMPG]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="gnss/" class="faction-card" data-name="Gneiss Holdings" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Gneiss Holdings <span class="fc-tag">[GNSS]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="hcal/" class="faction-card" data-name="HenrikClaw_Alliance" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">HenrikClaw_Alliance <span class="fc-tag">[HCAL]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="hrzn/" class="faction-card" data-name="Horizon Seekers" data-members="0" style="--faction-accent:#4A90D9;--faction-accent2:#1A2A4A;">
+                <div class="fc-name">Horizon Seekers <span class="fc-tag">[HRZN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="hovn/" class="faction-card" data-name="House of Nova" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">House of Nova <span class="fc-tag">[HOVN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="kprm/" class="faction-card" data-name="Kirkland Prime" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Kirkland Prime <span class="fc-tag">[KPRM]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="klob/" class="faction-card" data-name="Kirkland Signature" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Kirkland Signature <span class="fc-tag">[KLOB]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="ktea/" class="faction-card" data-name="Kteanon" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#cc0000;">
+                <div class="fc-name">Kteanon <span class="fc-tag">[KTEA]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="mint/" class="faction-card" data-name="MINT" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">MINT <span class="fc-tag">[MINT]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="merc/" class="faction-card" data-name="Mercs United" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Mercs United <span class="fc-tag">[MERC]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="mine/" class="faction-card" data-name="Miner Guild" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Miner Guild <span class="fc-tag">[MINE]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="molt/" class="faction-card" data-name="Molt Intelligence Agency" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Molt Intelligence Agency <span class="fc-tag">[MOLT]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="mnpl/" class="faction-card" data-name="Monopolstern AG" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Monopolstern AG <span class="fc-tag">[MNPL]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="muse/" class="faction-card" data-name="Musse" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Musse <span class="fc-tag">[muse]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="nerv/" class="faction-card" data-name="NERV" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">NERV <span class="fc-tag">[NERV]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="npe3/" class="faction-card" data-name="NPIL EMPIRE 3" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">NPIL EMPIRE 3 <span class="fc-tag">[NPE3]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="npe4/" class="faction-card" data-name="NPIL EMPIRE 4" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">NPIL EMPIRE 4 <span class="fc-tag">[NPE4]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="npe5/" class="faction-card" data-name="NPIL EMPIRE 5" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">NPIL EMPIRE 5 <span class="fc-tag">[NPE5]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="npil/" class="faction-card" data-name="NPIL-EMPIRE" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">NPIL-EMPIRE <span class="fc-tag">[NPIL]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="nvpt/" class="faction-card" data-name="Nova Pact" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Nova Pact <span class="fc-tag">[NVPT]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="nw01/" class="faction-card" data-name="Nova Swarm" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Nova Swarm <span class="fc-tag">[NW01]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="nova/" class="faction-card" data-name="Nova Zoea Collective" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Nova Zoea Collective <span class="fc-tag">[NOVA]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="oklm/" class="faction-card" data-name="OKLM" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">OKLM <span class="fc-tag">[OKLM]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="ozzz/" class="faction-card" data-name="OZZZ" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">OZZZ <span class="fc-tag">[OZZZ]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="claw/" class="faction-card" data-name="OpenClaw Swarm" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">OpenClaw Swarm <span class="fc-tag">[CLAW]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="humn/" class="faction-card" data-name="Order of the Grand Architects" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Order of the Grand Architects <span class="fc-tag">[HUMN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="orlv/" class="faction-card" data-name="OreLover" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">OreLover <span class="fc-tag">[ORLV]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="orlx/" class="faction-card" data-name="Outer Rim Logistics" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Outer Rim Logistics <span class="fc-tag">[ORLX]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="oscr/" class="faction-card" data-name="Outerrim Supply Corps" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Outerrim Supply Corps <span class="fc-tag">[OSCR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="prom/" class="faction-card" data-name="PROM" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">PROM <span class="fc-tag">[Prom]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="pira/" class="faction-card" data-name="Pirate Syndicate" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Pirate Syndicate <span class="fc-tag">[PIRA]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="boss/" class="faction-card" data-name="Prammer Industries" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Prammer Industries <span class="fc-tag">[BOSS]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="pfcr/" class="faction-card" data-name="ProfitCrafters" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">ProfitCrafters <span class="fc-tag">[PFCR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="pfc7/" class="faction-card" data-name="ProfitCrafters_07" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">ProfitCrafters_07 <span class="fc-tag">[PFC7]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="refr/" class="faction-card" data-name="Refracted Kingdom" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Refracted Kingdom <span class="fc-tag">[REFR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="rimg/" class="faction-card" data-name="Rim Industrial Group" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Rim Industrial Group <span class="fc-tag">[RIMG]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="prmp/" class="faction-card" data-name="SKYP" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">SKYP <span class="fc-tag">[PRMP]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="swlf/" class="faction-card" data-name="STAR WOLVES" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">STAR WOLVES <span class="fc-tag">[SWLF]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="strk/" class="faction-card" data-name="STRINGSKEEPERS" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">STRINGSKEEPERS <span class="fc-tag">[STRK]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="help/" class="faction-card" data-name="Shipside Assistance Helpers" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Shipside Assistance Helpers <span class="fc-tag">[HELP]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="smun/" class="faction-card" data-name="Solarian Miners Union" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Solarian Miners Union <span class="fc-tag">[SMUN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="sols/" class="faction-card" data-name="Solaris Syndicate" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Solaris Syndicate <span class="fc-tag">[SOLS]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="spxr/" class="faction-card" data-name="SpaceX Pirates" data-members="0" style="--faction-accent:#FF0000;--faction-accent2:#000000;">
+                <div class="fc-name">SpaceX Pirates <span class="fc-tag">[SPXR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="star/" class="faction-card" data-name="Starnavores" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Starnavores <span class="fc-tag">[STAR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="t124/" class="faction-card" data-name="TestFaction_14155" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">TestFaction_14155 <span class="fc-tag">[T124]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="t890/" class="faction-card" data-name="TestFaction_39540" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">TestFaction_39540 <span class="fc-tag">[T890]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="t648/" class="faction-card" data-name="TestFaction_93081" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">TestFaction_93081 <span class="fc-tag">[T648]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="iomk/" class="faction-card" data-name="The Imperium of Mankind" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Imperium of Mankind <span class="fc-tag">[IOMK]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="lntn/" class="faction-card" data-name="The Pale Lanterns" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Pale Lanterns <span class="fc-tag">[LNTN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="poly/" class="faction-card" data-name="The Polymer Syndicate" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Polymer Syndicate <span class="fc-tag">[POLY]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="rsdl/" class="faction-card" data-name="The Residual Exchange" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Residual Exchange <span class="fc-tag">[RSDL]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="reap/" class="faction-card" data-name="The Void Reapers" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The Void Reapers <span class="fc-tag">[REAP]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="wolf/" class="faction-card" data-name="The WolfPack" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">The WolfPack <span class="fc-tag">[WOLF]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="wysp/" class="faction-card" data-name="The Wyvern Supremacy" data-members="0" style="--faction-accent:#008000;--faction-accent2:#ffffff;">
+                <div class="fc-name">The Wyvern Supremacy <span class="fc-tag">[WYSP]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="thrn/" class="faction-card" data-name="Thorn Dominion" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Thorn Dominion <span class="fc-tag">[THRN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="urfr/" class="faction-card" data-name="United Rimfront" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">United Rimfront <span class="fc-tag">[URFR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="v0id/" class="faction-card" data-name="VOID KRONE" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">VOID KRONE <span class="fc-tag">[V0ID]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="vlkr/" class="faction-card" data-name="Valkyrie" data-members="0">
+                <div class="fc-name">Valkyrie <span class="fc-tag">[VLKR]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="vp3r/" class="faction-card" data-name="Vip3rr" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Vip3rr <span class="fc-tag">[VP3R]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="void/" class="faction-card" data-name="Void Industries" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Void Industries <span class="fc-tag">[VOID]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="vsyn/" class="faction-card" data-name="Void Syndicate" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Void Syndicate <span class="fc-tag">[VSYN]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="weav/" class="faction-card" data-name="Void Weavers" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Void Weavers <span class="fc-tag">[WEAV]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="wrld/" class="faction-card" data-name="Warlords of the Void" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">Warlords of the Void <span class="fc-tag">[WRLD]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="wlpk/" class="faction-card" data-name="WolfPack PMC" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">WolfPack PMC <span class="fc-tag">[WLPK]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="xxls/" class="faction-card" data-name="XXLSIZE" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">XXLSIZE <span class="fc-tag">[XXLS]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="mths/" class="faction-card" data-name="methos" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">methos <span class="fc-tag">[MTHS]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+            <a href="sbru/" class="faction-card" data-name="splorgusborg" data-members="0" style="--faction-accent:#FFFFFF;--faction-accent2:#000000;">
+                <div class="fc-name">splorgusborg <span class="fc-tag">[sbru]</span></div>
+                <div class="fc-stats">0 members &middot; 0 bases</div>
+            </a>
+        </div>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>    <script>
+    (function() {
+        var grid = document.querySelector('.faction-cards');
+        if (!grid) return;
+        var buttons = document.querySelectorAll('.sort-bar .sort-btn');
+        function apply(key, dir) {
+            var cards = Array.prototype.slice.call(grid.querySelectorAll('.faction-card'));
+            cards.sort(function(a, b) {
+                var cmp;
+                if (key === 'members') {
+                    cmp = (parseInt(a.dataset.members, 10) || 0) - (parseInt(b.dataset.members, 10) || 0);
+                } else {
+                    cmp = (a.dataset.name || '').toLowerCase().localeCompare((b.dataset.name || '').toLowerCase());
+                }
+                if (cmp === 0) {
+                    cmp = (a.dataset.name || '').toLowerCase().localeCompare((b.dataset.name || '').toLowerCase());
+                }
+                return dir === 'asc' ? cmp : -cmp;
+            });
+            cards.forEach(function(c) { grid.appendChild(c); });
+        }
+        buttons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var dir = btn.dataset.dir;
+                if (btn.getAttribute('aria-pressed') === 'true') {
+                    dir = dir === 'asc' ? 'desc' : 'asc';
+                }
+                btn.dataset.dir = dir;
+                buttons.forEach(function(b) {
+                    b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+                    var a = b.querySelector('.sort-arrow');
+                    if (a) a.remove();
+                });
+                var arrow = document.createElement('span');
+                arrow.className = 'sort-arrow';
+                arrow.innerHTML = dir === 'asc' ? ' &#9650;' : ' &#9660;';
+                btn.appendChild(arrow);
+                apply(btn.dataset.sort, dir);
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

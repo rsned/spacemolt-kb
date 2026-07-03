@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warp Flight Simulator - Did You Know? - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../items/items.css">
+    <style>
+        .sim-panel {
+            display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px; margin: 20px 0 0 0;
+        }
+        .sim-field { display: flex; flex-direction: column; gap: 4px; }
+        .sim-field label { font-size: 0.75em; text-transform: uppercase; color: var(--text-muted); }
+        .sim-field select {
+            background: var(--bg-card); color: var(--text); border: 1px solid var(--border);
+            border-radius: 6px; padding: 7px 10px; font-size: 0.9em; min-width: 200px;
+        }
+        /* The native dropdown popup doesn't inherit the select's colors, so set
+           them on the options too — otherwise dark mode is light text on white. */
+        .sim-field select option { background: var(--bg-card); color: var(--text); }
+        .sim-btn {
+            background: #6c5ce7; color: #fff; border: 0; border-radius: 6px;
+            padding: 9px 18px; cursor: pointer; font-size: 0.9em;
+        }
+        .sim-btn:hover { filter: brightness(1.1); }
+        .sim-swap {
+            background: #2a2f45; color: #e2e7f4; border: 1px solid var(--border);
+            border-radius: 6px; padding: 9px 12px; cursor: pointer; font-size: 1em;
+        }
+        .sim-swap:hover { filter: brightness(1.3); }
+        .sim-info {
+            margin: 12px 0; padding: 10px 14px; border-radius: 8px;
+            background: rgba(0,0,0,0.14); border: 1px solid var(--border);
+            font-size: 0.9em; color: var(--text-muted);
+        }
+        .sim-info .ok { color: #3fbf7f; }
+        .sim-info .bad { color: #ff7a4d; }
+        .sim-clip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .warp-canvas { display: block; width: 100%; height: 540px; background: #05060d; }
+        .warp-controls {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 14px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.14);
+        }
+        .warp-controls button {
+            background: #2a2f45; color: #e2e7f4; border: 1px solid var(--border);
+            border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 0.85em; font-family: monospace;
+        }
+        .warp-controls button:hover { filter: brightness(1.3); }
+        .warp-controls .warp-speed { font-family: monospace; min-width: 4em; text-align: center; color: var(--text-muted); }
+        .warp-controls .warp-spacer { flex: 1; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="../">Did You Know?</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Did You Know?</a> / Warp Flight Simulator</div>
+        <h2>Warp Flight Simulator</h2>
+        <p class="text-muted mt-1">Pick any origin and destination and fly the Pathfinder route in first person. Stars are colored by spectral class; the translucent spheres are each system's 100&nbsp;GU capture bubble. If the route is blocked you'll drop out at the first bubble you hit. The address bar updates with your route — copy it to share a link.</p>
+
+        <div id="warp-error" class="card" style="padding:16px;display:none;color:#ff7a4d"></div>
+
+        <div class="sim-panel">
+            <div class="sim-field">
+                <label for="sim-origin">Origin</label>
+                <select id="sim-origin"></select>
+            </div>
+            <button class="sim-swap" id="sim-swap" title="Swap origin and destination">⇄</button>
+            <div class="sim-field">
+                <label for="sim-dest">Destination</label>
+                <select id="sim-dest"></select>
+            </div>
+            <button class="sim-btn" id="sim-fly">Fly ▶</button>
+        </div>
+
+        <div class="sim-info" id="sim-info">Pick two systems and press Fly.</div>
+
+        <div class="sim-clip">
+            <canvas class="warp-canvas" id="sim-canvas"></canvas>
+        </div>
+
+        <p class="text-muted mt-3">
+            <a href="hyperspace_warp.html">← Showcase flights</a> &nbsp;·&nbsp;
+            <a href="./">Did You Know?</a>
+        </p>
+    </main>
+
+    <script src="../systems/stars.js"></script>
+    <script src="../warp.js"></script>
+    <script>
+    (function () {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function () {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+
+    (function () {
+        var stars = window.SPACEMOLT_STARS;
+        if (!stars) {
+            var box = document.getElementById('warp-error');
+            box.style.display = 'block';
+            box.textContent = 'Could not load star data (stars.js missing).';
+            return;
+        }
+        var byId = {};
+        stars.forEach(function (s) { byId[s.id] = s; });
+        var sorted = stars.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+        var originSel = document.getElementById('sim-origin');
+        var destSel = document.getElementById('sim-dest');
+        function fill(sel) {
+            sorted.forEach(function (s) {
+                var o = document.createElement('option');
+                o.value = s.id;
+                o.textContent = s.name + (s.class ? ' (' + s.class + ')' : '');
+                sel.appendChild(o);
+            });
+        }
+        fill(originSel); fill(destSel);
+        // Initial route comes from the URL (?from=<id>&to=<id>) when both ids are
+        // valid, so a shared/bookmarked link reproduces the same flight.
+        var params = new URLSearchParams(location.search);
+        var pFrom = params.get('from'), pTo = params.get('to');
+        originSel.value = (pFrom && byId[pFrom]) ? pFrom : 'inquill';
+        destSel.value = (pTo && byId[pTo]) ? pTo : 'alrakis';
+
+        var canvas = document.getElementById('sim-canvas');
+        var info = document.getElementById('sim-info');
+
+        // Control bar (built once; handlers target the current controller).
+        function mkbtn(t) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; return b; }
+        var bar = document.createElement('div'); bar.className = 'warp-controls';
+        var playBtn = mkbtn('⏸ Pause'), minus = mkbtn('−'), plus = mkbtn('+'),
+            replay = mkbtn('↻ Replay'), speedLbl = document.createElement('span'), spacer = document.createElement('span');
+        speedLbl.className = 'warp-speed'; speedLbl.textContent = '1×'; spacer.className = 'warp-spacer';
+        [playBtn, minus, speedLbl, plus, spacer, replay].forEach(function (e) { bar.appendChild(e); });
+        canvas.parentNode.insertBefore(bar, canvas.nextSibling);
+
+        var ctrl = null, level = 0;
+        function applySpeed() {
+            var m = Math.pow(2, level);
+            if (ctrl) ctrl.setSpeedMul(m);
+            speedLbl.textContent = m >= 1 ? m + '×' : '1/' + Math.round(1 / m) + '×';
+        }
+        playBtn.addEventListener('click', function () {
+            if (!ctrl) return;
+            if (playBtn.textContent[0] === '⏸') { ctrl.pause(); playBtn.textContent = '▶ Resume'; }
+            else { ctrl.play(); playBtn.textContent = '⏸ Pause'; }
+        });
+        minus.addEventListener('click', function () { if (level > -4) { level--; applySpeed(); } });
+        plus.addEventListener('click', function () { if (level < 4) { level++; applySpeed(); } });
+        replay.addEventListener('click', function () { if (ctrl) { ctrl.replay(); playBtn.textContent = '⏸ Pause'; } });
+
+        function ticks(gu) { return Math.ceil(gu / 10); }
+        function dur(tk) {
+            var s = tk * 10, h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
+            return (h ? h + 'h ' : '') + (h || m ? m + 'm ' : '') + ss + 's';
+        }
+        function showInfo(sc, o, d) {
+            var tk = ticks(sc.endProj);
+            // tightest near-pass before arrival
+            var tight = null;
+            sc.stars.forEach(function (st) {
+                if (st.proj > 0 && st.proj < sc.endProj) {
+                    var gap = Math.abs(st.perp) - 100;
+                    if (!tight || gap < tight.gap) tight = { gap: gap, name: st.name };
+                }
+            });
+            var html = '<strong>' + o.name + ' → ' + d.name + '</strong> · ' +
+                Math.round(sc.routeLen) + ' GU · ' + tk + ' ticks (' + dur(tk) + ') · ';
+            if (sc.blocked) {
+                html += '<span class="bad">blocked</span> — drops out at <strong>' +
+                    (byId[sc.endStar] ? byId[sc.endStar].name : sc.endStar) + '</strong> at ' +
+                    Math.round(sc.endProj) + ' GU';
+            } else {
+                html += '<span class="ok">clear</span> — arrives at <strong>' + d.name + '</strong>';
+            }
+            if (tight) {
+                html += '. Tightest pass: <strong>' + tight.name + '</strong> ' +
+                    (tight.gap <= 0 ? '(struck)' : '(' + tight.gap.toFixed(2) + ' GU clearance)');
+            }
+            info.innerHTML = html;
+        }
+
+        function fly() {
+            var o = byId[originSel.value], d = byId[destSel.value];
+            if (!o || !d) return;
+            if (o.id === d.id) { info.textContent = 'Pick two different systems.'; return; }
+            // Reflect the current route in the URL so the address bar is shareable.
+            // Wrapped because some file:// contexts reject replaceState.
+            try {
+                history.replaceState(null, '', '?from=' + encodeURIComponent(o.id) + '&to=' + encodeURIComponent(d.id));
+            } catch (e) { /* sharing link just won't update */ }
+            if (ctrl) ctrl.destroy();
+            var sc = Warp.buildScene(o, d, stars, { heightSpread: 1200 });
+            showInfo(sc, o, d);
+            ctrl = Warp.playWarp(canvas, { origin: o, dest: d, stars: stars });
+            applySpeed();
+            ctrl.play();
+            playBtn.textContent = '⏸ Pause';
+        }
+        document.getElementById('sim-fly').addEventListener('click', fly);
+        document.getElementById('sim-swap').addEventListener('click', function () {
+            var a = originSel.value; originSel.value = destSel.value; destSel.value = a; fly();
+        });
+        fly(); // initial flight
+    })();
+    </script>
+</body>
+</html>

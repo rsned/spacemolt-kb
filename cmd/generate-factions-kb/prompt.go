@@ -1,0 +1,262 @@
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"hash/fnv"
+	"regexp"
+	"strings"
+)
+
+// portraitCueSuffix is the framing/medium half of the leading cue, shared by
+// every passenger. Tune the gallery's shared look here. It pins a single
+// rendering style (cinematic photoreal) so the gallery doesn't drift between
+// comic-book and realistic looks the way a bare "painterly" cue did. The full
+// cue is built by portraitCue, which injects a bio-derived gender noun first —
+// SDXL has a strong male prior, so without an explicit "woman"/"man" cue
+// feminine-pronoun bios render as men.
+const portraitCueSuffix = "head and shoulders, cinematic photorealistic portrait, sharp detailed features, dramatic studio lighting, plain neutral background, highly detailed, realistic skin texture"
+
+// portraitCue leads every prompt: "solo character portrait of a single <gender>,
+// <framing/medium>". gender is "man", "woman", or "person".
+func portraitCue(gender string) string {
+	return "solo character portrait of a single " + gender + ", " + portraitCueSuffix
+}
+
+var (
+	masculinePronoun = regexp.MustCompile(`(?i)\b(he|him|his|himself)\b`)
+	femininePronoun  = regexp.MustCompile(`(?i)\b(she|her|hers|herself)\b`)
+)
+
+// bioGenderNoun infers a gender noun from a bio's pronouns by frequency: the
+// dominant pronoun set wins when it clearly outnumbers the other (at least 2x),
+// else "person" (no pronouns, or a genuine mix). Counting rather than mere
+// presence matters because a bio about a woman often contains an incidental
+// "he"/"his" about someone else — a presence test would mask her as ambiguous
+// and SDXL's male prior would then render a man (e.g. Victoria 'Valkyrie',
+// she/her ×15 vs he ×3, was rendering male).
+func bioGenderNoun(bio string) string {
+	m := len(masculinePronoun.FindAllString(bio, -1))
+	f := len(femininePronoun.FindAllString(bio, -1))
+	switch {
+	case m == 0 && f == 0:
+		return "person"
+	case f > m && f >= 2*m:
+		return "woman"
+	case m > f && m >= 2*f:
+		return "man"
+	default:
+		return "person"
+	}
+}
+
+// Bios are no longer length-capped: the gen_portrait.py backend encodes prompts
+// with compel, which chunks past CLIP's 77-token window instead of truncating,
+// so the full bio contributes. (Set PORTRAIT_NO_COMPEL=1 there to fall back to
+// truncated encoding.)
+
+// empireStyle maps a citizenship to a palette/cut/material *sensibility* — not a
+// full outfit. The archetype supplies the actual garment; the empire only tints
+// it. This keeps a crimson refinery laborer and a crimson officer both regimented
+// in palette without both collapsing into the same dress-uniform general (the old
+// "<empire> theme" cue did exactly that). Unknown empires fall back to a generic
+// spacer sensibility. Crimson is a militaristic *society*, not only its military:
+// a regimented muted palette and crisp straight cuts, never frills or ruffles.
+var empireStyle = map[string]string{
+	"solarian": "clean modern civic Earth-democracy aesthetic, naturalistic contemporary tailoring, palette of blues whites and warm neutrals",
+	"nebula":   "sleek corporate mercantile styling, minimal polished lines with gold and neon accents, opulent and faintly corrupt",
+	"crimson":  "forge-and-war styling, dark steel and armor-plated materials, crisp straight unadorned cuts, muted palette with red and orange forge-glow accents, no frills ruffles or flourishes, disciplined bearing",
+	"outerrim": "jury-rigged scavenger chic, weathered rust-colored mismatched salvaged gear and improvised equipment",
+	"voidborn": "ethereal pale high-collared grown materials, ascetic refined alien elegance, faint crystalline subdermal glow",
+}
+
+// archetypeGarment maps a role archetype (classified from the bio by
+// tools/classify_archetypes.py via local Ollama) to a rich role cue: a role noun
+// plus signature attire and props (insignia, tools, instruments). The prop-laden
+// specificity — not a bare garment phrase — is what stops a faction's passengers
+// from blurring together, mirroring the empire archetype-matrix cues. Layered
+// over an empire sensibility it diversifies a faction by occupation. Unknown or
+// empty archetypes fall back to the "spacer" cue.
+var archetypeGarment = map[string]string{
+	"laborer":     "an industrial laborer in a heavy work harness with grimed utility plating and mag-clamp tools",
+	"officer":     "a uniformed officer in a command uniform with rank insignia and a holstered sidearm",
+	"merchant":    "a trader and broker in fine merchant attire holding a glowing credit-slate",
+	"official":    "a government administrator in a formal high-collared uniform with regulatory insignia and a data-slate",
+	"technician":  "a mechanic in a practical technical jumpsuit with a tool bandolier and diagnostic instruments",
+	"pilot":       "a ship pilot in a flight suit with a flight harness and a nav-visor",
+	"medic":       "a physician in clinical medical attire with diagnostic instruments and a medical insignia",
+	"outlaw":      "a smuggler in scavenged armored layers with a hard scarred look and concealed gear",
+	"spiritual":   "a contemplative ascetic in flowing ceremonial vestments",
+	"aristocrat":  "an elegant aristocrat in opulent jeweled finery",
+	"logistician": "a freight logistician in a practical shipping-crew jacket with a cargo manifest slate and mag-clamp cargo hooks",
+	"engineer":    "a structural engineer in a professional field-suit with a survey scanner, a draughting slate, and a hard hat",
+	"scientist":   "a research scientist in a field lab coat with sample vials, a data tablet, and analytic instruments",
+	"retailer":    "a shopkeeper in a tidy retail apron and vendor's smock with an inventory scanner and stacked goods crates",
+	"cook":        "a galley cook in a stained chef's apron and whites with cooking utensils and ration tins",
+	"educator":    "an instructor in tidy academic attire with a lesson slate, reference texts, and a pointer",
+	"sanitation":  "a sanitation worker in a sealed hazmat-grade coverall with a recycler wand and waste-system gauges",
+	"jurist":      "a legal arbiter in a formal dark suit with a contract ledger, a seal stamp, and a document case",
+	"journalist":  "a field correspondent in a rugged press jacket with a recorder drone, a notebook, and a press badge",
+	"diplomat":    "a diplomatic envoy in refined formal robes with a credential sash and a sealed accord case",
+	"spacer":      "a deck-hand spacer in a worn practical vac-suit and rigging",
+}
+
+// classFormality scales the styling by travel class. Phrased as a trailing finish
+// so it reads after the role cue ("...a medical insignia, with a sharp
+// professional finish, <empire>").
+var classFormality = map[string]string{
+	"first":    "with a refined high-end finish",
+	"business": "with a sharp professional finish",
+	"economy":  "with a practical well-worn finish",
+}
+
+// pirateAesthetic styles the "pirates" citizenship as modern, gritty raiders
+// rather than historical wooden-ship buccaneers.
+const pirateAesthetic = "modern gritty space pirate, lean and wiry, coiled and watchful like a cornered cat about to pounce, shifty-eyed, worn scavenged gear"
+
+// performerAesthetic overrides the empire theme for vivid stage characters so a
+// glam-rock legend is not flattened into corporate attire.
+const performerAesthetic = "flamboyant theatrical stage performer in an extravagant glamorous costume, bold expressive showmanship"
+
+// performerCues are bio keywords that trigger the performer override.
+var performerCues = []string{
+	"glam", "rock star", "rockstar", "rock legend", "pop star", "popstar",
+	"diva", "performer", "showman", "cabaret", "celebrity", "costume",
+	"stage idol", "pop idol",
+}
+
+// skinTones, ageBrackets, and builds give each passenger a deterministic,
+// gender-neutral physical description so the gallery doesn't collapse into one
+// default face per empire. Gender is left to the bio.
+var skinTones = []string{
+	"deep ebony skin, Central African features",
+	"warm brown skin, West African features",
+	"East Asian features, light tan skin",
+	"South Asian features, medium brown skin",
+	"olive Mediterranean skin",
+	"pale fair Nordic skin",
+	"sun-tanned Latino features",
+	"Middle Eastern features, light brown skin",
+	"Southeast Asian features, golden-brown skin",
+	"freckled light skin",
+	"Pacific Islander features, brown skin",
+	"mixed-race features, medium brown skin",
+}
+
+var ageBrackets = []string{
+	"youthful in their twenties",
+	"in their thirties",
+	"early middle-aged",
+	"middle-aged with some gray",
+	"older and graying",
+	"elderly and weathered",
+}
+
+var builds = []string{
+	"lean build",
+	"stocky build",
+	"broad-shouldered and heavyset",
+	"slender build",
+	"average build",
+	"tall and wiry",
+	"short and round-faced",
+	"athletic build",
+}
+
+// physicalTraits returns a deterministic "skin, age, build" descriptor for id.
+// Each axis uses an independent salt so the three don't correlate (a skin tone
+// isn't always paired with the same age/build).
+func physicalTraits(id string) string {
+	return pickTrait(skinTones, "skin", id) + ", " +
+		pickTrait(ageBrackets, "age", id) + ", " +
+		pickTrait(builds, "build", id)
+}
+
+// pickTrait deterministically selects an element of pool for a given salt+id.
+func pickTrait(pool []string, salt, id string) string {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(salt + ":" + id))
+	return pool[h.Sum32()%uint32(len(pool))]
+}
+
+// buildPortraitPrompt composes an image prompt from a passenger's stable id,
+// bio, travel class, citizenship, the classifier-derived role archetype, and the
+// hand-authored PortraitOverride (see overrides.go). The global cue leads, then a
+// class-scaled empire-sensibility + archetype-garment aesthetic, then physical
+// traits, then the full bio. Each override field wins over its default: gender
+// over bio inference, appearance/species over id-hashed traits, archetype over
+// the classifier, plus a visual cue and a bio append. Always non-empty.
+func buildPortraitPrompt(id, bio, class, citizenship, archetype string, ov PortraitOverride) string {
+	cls := strings.ToLower(strings.TrimSpace(class))
+	cit := strings.ToLower(strings.TrimSpace(citizenship))
+	arch := strings.ToLower(strings.TrimSpace(ov.archetypeOr(archetype)))
+	// The FLUX backend encodes the whole prompt through T5, so the full bio
+	// counts (no CLIP 77-token truncation): lead with the style cue, then
+	// physical appearance and the styling aesthetic, then the free-text bio as a
+	// trailing sentence. Order still puts the portrait-defining cue first so the
+	// SDXL fallback (CLIP-only) degrades gracefully.
+	prompt := portraitCue(ov.gender(bio)) + ", " + ov.physical(id)
+	// A hand-authored visual cue (override.json) is injected right after
+	// appearance — prominent, ahead of the dampening "realistic/plain" styling —
+	// to force distinctive traits the bio only describes in prose.
+	if vc := strings.TrimSpace(ov.VisualCue); vc != "" {
+		prompt += ", " + vc
+	}
+	prompt += ", " + passengerAesthetic(bio, cls, cit, arch)
+	if subject := ov.bioWithAppend(bio); subject != "" {
+		prompt += ". " + subject
+	}
+	return prompt
+}
+
+// passengerAesthetic picks the styling phrase: a performer wins (bio cue or
+// archetype), then the pirate citizenship, then a class-scaled empire sensibility
+// layered with an archetype garment (with generic fallbacks for unknown empire or
+// archetype). cls, cit, and arch must already be lowercased/trimmed.
+func passengerAesthetic(bio, cls, cit, arch string) string {
+	if arch == "performer" || hasPerformerCue(bio) {
+		return performerAesthetic
+	}
+	if cit == "pirates" {
+		if cls == "first" {
+			return pirateAesthetic + " with a flamboyant privateer streak"
+		}
+		return pirateAesthetic
+	}
+	empire, ok := empireStyle[cit]
+	if !ok {
+		empire = "practical spacer style"
+	}
+	garment, ok := archetypeGarment[arch]
+	if !ok {
+		garment = archetypeGarment["spacer"]
+	}
+	formality := classFormality[cls]
+	if formality == "" {
+		formality = "with a practical finish"
+	}
+	// The role cue leads, then the class finish, then the empire sensibility. Role
+	// first keeps the occupation-defining clause prominent (it is what diversifies
+	// passengers) and inside CLIP's 77-token window for the SDXL fallback — some
+	// empire styles (notably crimson) are long, and the empire adjectives are
+	// lower-priority and fine to lose to truncation.
+	return garment + ", " + formality + ", " + empire
+}
+
+// hasPerformerCue reports whether bio mentions a flamboyant stage persona.
+func hasPerformerCue(bio string) bool {
+	b := strings.ToLower(bio)
+	for _, k := range performerCues {
+		if strings.Contains(b, k) {
+			return true
+		}
+	}
+	return false
+}
+
+// promptHash returns a hex SHA-256 of the prompt, used as the cache key for
+// regeneration decisions.
+func promptHash(prompt string) string {
+	sum := sha256.Sum256([]byte(prompt))
+	return hex.EncodeToString(sum[:])
+}

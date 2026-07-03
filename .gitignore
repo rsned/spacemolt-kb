@@ -24,6 +24,7 @@
 *.swp
 *.swo
 *~
+*.lock
 
 # OS
 .DS_Store
@@ -41,3 +42,49 @@ data/snapshots/
 /planet-explorer
 cmd/planet-explorer/web/planet-explorer.wasm
 !cmd/planet-explorer/web/planet-explorer.wasm
+
+# Built binaries — build into bin/, never commit them to the repo root.
+bin/
+/generate-factions-kb
+/analyze-empire-economy
+/seed-overlays
+
+# local backup archives (portraits etc.) — never commit
+*.tar
+
+# temporary local portrait review contact-sheets — never commit
+portrait-gallery.html
+agent-portrait-gallery.html
+
+# Voidborn species concept exploration — local review artifact (PNGs + generated
+# gallery + prompt data). The build script in tools/ IS tracked.
+voidborn-concepts/
+
+# Python bytecode caches (tools/ scripts)
+__pycache__/
+*.pyc
+
+# superpowers skill framework working state (not KB content)
+.superpowers/
+
+# Overlay-sourced images under kb/ are copies of the single committed source in
+# overlays/ (generated portraits + contributor overlay images). Don't commit the
+# duplicates: the generator writes them locally for preview, and the deploy
+# injects them from overlays/ via scripts/inject-overlay-images.sh before
+# publishing. Item/ship/system/planet images live elsewhere and stay tracked.
+kb/passengers/**/*.png
+kb/passengers/**/*.jpg
+kb/passengers/**/*.jpeg
+kb/passengers/**/*.webp
+kb/passengers/**/*.gif
+kb/players/**/*.png
+kb/players/**/*.jpg
+kb/players/**/*.jpeg
+kb/players/**/*.webp
+kb/players/**/*.gif
+kb/factions/**/*.png
+kb/factions/**/*.jpg
+kb/factions/**/*.jpeg
+kb/factions/**/*.webp
+kb/factions/**/*.gif
+>>>>>>> origin/main

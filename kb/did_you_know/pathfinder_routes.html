@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathfinder Drive Routes - Did You Know? - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../items/items.css">
+    <style>
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-box .number {
+            font-size: 2.1em;
+            font-weight: 700;
+            color: var(--link);
+            line-height: 1.1;
+        }
+        .stat-box .label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+        .highlight-system {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid #6c5ce7;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .highlight-system h3 { margin: 0 0 8px 0; color: #6c5ce7; }
+        .data-table {
+            width: 100%;
+            font-size: 0.9em;
+            margin: 12px 0 24px 0;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table th {
+            background: var(--bg-hover, rgba(128,128,128,0.08));
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .data-table td.num, .data-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .data-table tr:nth-child(even) td { background: var(--bg-hover, rgba(128,128,128,0.05)); }
+        .data-table .rank { color: var(--text-muted); width: 1.5em; }
+        .pill {
+            display: inline-block;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            background: rgba(108,92,231,0.15);
+            color: #6c5ce7;
+        }
+        .section-intro { color: var(--text-muted); margin: 0 0 4px 0; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="../">Did You Know?</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Did You Know?</a> / Pathfinder Drive Routes</div>
+        <h2>Pathfinder Drive Routes</h2>
+        <p class="text-muted mt-1">The Pathfinder Drive lets a pilot hyper-jump straight along a heading instead of hopping the gate network — until the ray passes within <strong>100&nbsp;GU</strong> of a system's center, where it drops out. These are the extremes of direct travel across all 505 systems.</p>
+
+        <blockquote class="item-desc">
+            Every system is modelled as a 100&nbsp;GU disc. Aiming a jump at a bearing carves a corridor across the galaxy; the nearest disc the corridor touches is where you land. From that one idea fall the longest clean runs, the hairline-thin aiming tolerances, and the open voids at the galaxy's edge.
+        </blockquote>
+
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="number">11,875 GU</div>
+                <div class="label">Longest clear jump</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">0.0003°</div>
+                <div class="label">Tightest aim tolerance</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">55.2%</div>
+                <div class="label">Most open sky (Luyten&nbsp;789)</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">1 / 505</div>
+                <div class="label">Fully enclosed systems</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">4 jumps</div>
+                <div class="label">Reach any of 505 systems</div>
+            </div>
+        </div>
+
+        <h3 class="mt-3">🚀 Longest Clear Jumps</h3>
+        <p class="section-intro">The farthest two systems you can connect with a single uninterrupted jump — no other system's disc crosses the line between them.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th class="rank">#</th><th>Route</th><th class="num">Distance</th><th class="num">Travel</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td>Dawnbreak ↔ Dustfall</td><td class="num">11,875 GU</td><td class="num">1,188 ticks · 3h 18m</td></tr>
+                <tr><td class="rank">2</td><td>Achird ↔ Taiyi</td><td class="num">11,254 GU</td><td class="num">1,126 ticks · 3h 08m</td></tr>
+                <tr><td class="rank">3</td><td>Gacrux ↔ GSC-0021</td><td class="num">10,996 GU</td><td class="num">1,100 ticks · 3h 03m</td></tr>
+                <tr><td class="rank">4</td><td>GJ 3470 ↔ GSC-0036</td><td class="num">10,523 GU</td><td class="num">1,053 ticks · 2h 56m</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">The most-separated pair overall is Sheratan ↔ GSC-0049 at <strong>13,931&nbsp;GU</strong>, but that line is blocked, so it can't be flown directly. The Dawnbreak ↔ Dustfall corridor is the longest that threads every disc cleanly.</p>
+
+        <h3 class="mt-3">🎯 Tightest Aim Tolerances</h3>
+        <p class="section-intro">Direct jumps where the slightest heading error sends you to a different system. Tolerance is the binding angular margin — aim off by more and you're captured elsewhere. (Tolerance is directional: A→B need not equal B→A.)</p>
+        <table class="data-table">
+            <thead>
+                <tr><th class="rank">#</th><th>Jump</th><th class="num">Tolerance</th><th class="num">Distance</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td>Inquill → Alrakis</td><td class="num">0.00030°</td><td class="num">2,994 GU</td></tr>
+                <tr><td class="rank">2</td><td>Garnet → Oxbow</td><td class="num">0.00041°</td><td class="num">4,474 GU</td></tr>
+                <tr><td class="rank">3</td><td>Alrakis → Inquill</td><td class="num">0.00057°</td><td class="num">2,994 GU</td></tr>
+                <tr><td class="rank">4</td><td>Oxbow → Garnet</td><td class="num">0.00063°</td><td class="num">4,474 GU</td></tr>
+                <tr><td class="rank">5</td><td>Electra → Tau Bootis</td><td class="num">0.00085°</td><td class="num">3,456 GU</td></tr>
+                <tr><td class="rank">6</td><td>Almach → Castula</td><td class="num">0.00094°</td><td class="num">4,249 GU</td></tr>
+                <tr><td class="rank">7</td><td>Coalridge → Ashford</td><td class="num">0.00106°</td><td class="num">6,380 GU</td></tr>
+                <tr><td class="rank">8</td><td>Aldhibah → Ross 128</td><td class="num">0.00118°</td><td class="num">6,636 GU</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">The tightest, Inquill → Alrakis, allows about <strong>1.1 arc-seconds</strong> of heading slack.</p>
+
+        <h3 class="mt-3">📐 How Much Precision a Tolerance Needs</h3>
+        <p class="section-intro">Across all <strong>19,104</strong> reachable direct jumps, how many decimal places it takes to show the tolerance's first significant digit. Nothing in the galaxy needs more than four.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th>Decimal places needed</th><th>Tolerance range</th><th class="num">Jumps</th><th class="num">Cumulative</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>0 (whole degrees)</td><td>≥ 1.0°</td><td class="num">13,318</td><td class="num">69.71%</td></tr>
+                <tr><td>1</td><td>0.1° – 1.0°</td><td class="num">4,871</td><td class="num">95.21%</td></tr>
+                <tr><td>2</td><td>0.01° – 0.1°</td><td class="num">828</td><td class="num">99.54%</td></tr>
+                <tr><td>3</td><td>0.001° – 0.01°</td><td class="num">81</td><td class="num">99.97%</td></tr>
+                <tr><td>4</td><td>0.0001° – 0.001°</td><td class="num">6</td><td class="num">100.00%</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">The jump pages show tolerances to 3 decimals, which renders 99.97% of them exactly; only the 6 sub-milli-degree threadings round to 0.000°.</p>
+
+        <h3 class="mt-3">🌌 Largest Single Void Gap</h3>
+        <p class="section-intro">The widest unbroken arc of headings that hits nothing at all — a clean corridor straight out into empty space. These all open outward, away from the crowded galactic core.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th class="rank">#</th><th>System</th><th class="num">Widest gap</th><th class="num">Opens toward</th><th class="num">From center</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td>Betelgeuse</td><td class="num">192.6°</td><td class="num">204°</td><td class="num">7,142 GU</td></tr>
+                <tr><td class="rank">2</td><td>Yed Posterior</td><td class="num">190.7°</td><td class="num">103°</td><td class="num">6,358 GU</td></tr>
+                <tr><td class="rank">3</td><td>Fulu</td><td class="num">189.2°</td><td class="num">170°</td><td class="num">6,958 GU</td></tr>
+                <tr><td class="rank">4</td><td>Gliese 581</td><td class="num">183.4°</td><td class="num">115°</td><td class="num">6,326 GU</td></tr>
+                <tr><td class="rank">5</td><td>Summervale</td><td class="num">183.3°</td><td class="num">217°</td><td class="num">7,333 GU</td></tr>
+                <tr><td class="rank">6</td><td>GSC-0026</td><td class="num">182.1°</td><td class="num">232°</td><td class="num">7,438 GU</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">Betelgeuse's lone 192.6° gap is a single uninterrupted half-plus of sky — aim it at ~204° for an open run with nothing in the way.</p>
+
+        <h3 class="mt-3">🕳️ Most Open Sky (Total Void)</h3>
+        <p class="section-intro">Summing every void gap, these far-flung systems have the most directions leading nowhere — over half their sky is empty.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th class="rank">#</th><th>System</th><th class="num">Total void</th><th class="num">% of sky</th><th class="num">Gaps</th><th class="num">From center</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td>Luyten 789</td><td class="num">198.9°</td><td class="num">55.2%</td><td class="num">4</td><td class="num">7,382 GU</td></tr>
+                <tr><td class="rank">2</td><td>Alhena</td><td class="num">198.7°</td><td class="num">55.2%</td><td class="num">3</td><td class="num">7,537 GU</td></tr>
+                <tr><td class="rank">3</td><td>Sheratan</td><td class="num">195.2°</td><td class="num">54.2%</td><td class="num">3</td><td class="num">7,310 GU</td></tr>
+                <tr><td class="rank">4</td><td>Betelgeuse</td><td class="num">192.6°</td><td class="num">53.5%</td><td class="num">1</td><td class="num">7,142 GU</td></tr>
+                <tr><td class="rank">5</td><td>TRAPPIST-1</td><td class="num">192.2°</td><td class="num">53.4%</td><td class="num">6</td><td class="num">6,519 GU</td></tr>
+                <tr><td class="rank">6</td><td>GSC-0007</td><td class="num">191.1°</td><td class="num">53.1%</td><td class="num">2</td><td class="num">6,937 GU</td></tr>
+            </tbody>
+        </table>
+
+        <h3 class="mt-3">🔒 The Opposite Extreme: Fully Enclosed</h3>
+        <p class="section-intro">Only one system has no void at all — every heading eventually lands somewhere.</p>
+        <div class="highlight-system">
+            <h3>🔒 Grumium <span class="pill">no escape</span></h3>
+            <table>
+                <tr><td class="kv-label">Coverage</td><td><strong>100%</strong> of headings blocked — 0 void gaps</td></tr>
+                <tr><td class="kv-label">Distance from center</td><td>1,265 GU (deep inside the galactic disc)</td></tr>
+                <tr><td class="kv-label">Why</td><td>Systems surround it on every side, so no corridor escapes to empty space</td></tr>
+            </table>
+            <p class="text-muted" style="margin:8px 0 0 0;font-size:0.85em">Runners-up: Alpha Centauri (one 0.05° gap, 99.99% blocked) and Ridgecrest (99.96%).</p>
+        </div>
+
+        <h3 class="mt-3">🕸️ Reaching the Whole Galaxy (Adding Stops)</h3>
+        <p class="section-intro">A single jump only reaches nearby systems, but chaining clear jumps connects everything. Treating each uninterrupted jump as one leg, the entire galaxy is a <strong>single connected network</strong> — from any system you can reach all 504 others. Here is how fast coverage grows as you allow stops, averaged over all 505 origins.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th>Route length</th><th>Stops</th><th class="num">Avg systems reached</th><th class="num">% of galaxy</th><th class="num">Worst origin</th><th class="num">Origins reaching all 504</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1 jump</td><td>direct</td><td class="num">37.8</td><td class="num">7.5%</td><td class="num">15</td><td class="num">0</td></tr>
+                <tr><td>2 jumps</td><td>1 stop</td><td class="num">309.0</td><td class="num">61.3%</td><td class="num">148</td><td class="num">0</td></tr>
+                <tr><td>3 jumps</td><td>2 stops</td><td class="num">498.2</td><td class="num">98.9%</td><td class="num">432</td><td class="num">217</td></tr>
+                <tr><td>unlimited</td><td>&mdash;</td><td class="num">504.0</td><td class="num">100%</td><td class="num">504</td><td class="num">505</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">One stop already opens up ~61% of the galaxy; <strong>two stops reaches 98.9%</strong> on average, and 217 of 505 systems can reach <em>every</em> other in two stops or fewer.</p>
+
+        <h3 class="mt-3">📡 Jump Diameter: 4</h3>
+        <p class="section-intro">The longest shortest-path anywhere in the galaxy is just four jumps — <strong>any system is reachable from any other in at most 3 stops</strong>. Distribution of the shortest route across all 254,520 ordered pairs:</p>
+        <table class="data-table">
+            <thead>
+                <tr><th>Shortest route</th><th>Stops</th><th class="num">Pairs</th><th class="num">Share</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1 jump</td><td>direct</td><td class="num">19,104</td><td class="num">7.5%</td></tr>
+                <tr><td>2 jumps</td><td>1 stop</td><td class="num">136,924</td><td class="num">53.8%</td></tr>
+                <tr><td>3 jumps</td><td>2 stops</td><td class="num">95,572</td><td class="num">37.5%</td></tr>
+                <tr><td>4 jumps</td><td>3 stops</td><td class="num">2,920</td><td class="num">1.1%</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">Over 99% of system pairs are within two stops; only 1.1% need the full four-jump route.</p>
+
+        <h3 class="mt-3">🔗 Best-Connected Hubs &amp; Rim Dead-Ends</h3>
+        <p class="section-intro">Direct clear jumps leaving each system. The busiest hubs branch in ~65 directions; the rim systems that stretch the diameter to 4 have barely a fifth of that.</p>
+        <table class="data-table">
+            <thead>
+                <tr><th class="rank">#</th><th>Best-connected</th><th class="num">Jumps out</th><th>Most isolated</th><th class="num">Jumps out</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td>Zaniah</td><td class="num">65</td><td>Muscida</td><td class="num">15</td></tr>
+                <tr><td class="rank">2</td><td>GSC-0039</td><td class="num">63</td><td>Greymist</td><td class="num">15</td></tr>
+                <tr><td class="rank">3</td><td>Larchfield</td><td class="num">63</td><td>Embervale</td><td class="num">15</td></tr>
+                <tr><td class="rank">4</td><td>Alfirk</td><td class="num">62</td><td>Betelgeuse</td><td class="num">15</td></tr>
+                <tr><td class="rank">5</td><td>Capella</td><td class="num">60</td><td>Yed Posterior</td><td class="num">16</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size:0.85em;margin-top:-12px">At the rim, jumps out equal jumps in — Muscida, Greymist, Embervale and Betelgeuse each have 15 both ways: symmetric bottlenecks, as hard to reach as they are to leave.</p>
+
+        <div class="card" style="padding: 16px;">
+            <h3>Analysis Notes</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li><strong>Longest ≠ farthest:</strong> The most-distant pair (13,931 GU) is blocked; the longest <em>clean</em> jump is 11,875 GU.</li>
+                <li><strong>Tolerances are directional:</strong> A→B and B→A can differ because the interrupting systems along each ray differ.</li>
+                <li><strong>Open sky lives at the edge:</strong> Every wide void gap belongs to an outskirt system and points away from the crowded core.</li>
+                <li><strong>The core is a cage:</strong> Grumium, well inside the disc, is the only system with no escape heading at all.</li>
+                <li><strong>Travel time:</strong> One jump tick covers 10 GU in 10 seconds, so the longest jump takes over three real-time hours.</li>
+                <li><strong>The galaxy is fully connected:</strong> Using only clean jumps as legs, every system can reach all 504 others — and any pair is linked in at most 4 jumps (3 stops).</li>
+                <li><strong>Two stops is almost everything:</strong> One stop reaches ~61% of systems on average; two stops reaches 98.9%.</li>
+            </ul>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-top: 16px;">
+            <h3>Data Source</h3>
+            <p class="text-muted">Computed by the Pathfinder analysis engine (<code>pkg/hyperjump</code>) over the <code>systems</code> table, using the server's 100 GU drop-out radius. Per-system route breakdowns live on each system's <em>Pathfinder Jump Routes</em> page.</p>
+            <p class="text-muted mt-2">Last updated: <script>document.write(new Date().toLocaleDateString());</script></p>
+        </div>
+
+        <p class="text-muted mt-3"><a href="./">← Back to Did You Know?</a></p>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

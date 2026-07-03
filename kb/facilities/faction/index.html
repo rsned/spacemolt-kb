@@ -12,13 +12,17 @@
         <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
         <nav>
             <a href="../../">Home</a>
-            <a href="../../systems/">Systems</a>
-            <a href="../../items/">Items</a>
-            <a href="../../recipes/">Recipes</a>
-            <a href="../../skills/">Skills</a>
-            <a href="../../ships/">Ships</a>
-            <a href="../../facilities/">Facilities</a>
-            <a href="../../missions/">Missions</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -27,293 +31,403 @@
     </header>
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / Faction</div>
-        <h2>Faction <span class="text-muted">25 facilities</span></h2>
+        <h2>Faction <span class="text-muted">43 facilities</span></h2>
         <p class="text-muted mt-1">Faction-specific buildings for diplomacy and warfare.</p>
         <div class="table-container">
             <table class="sortable">
                 <thead>
                     <tr>
                         <th class="sortable">Name</th>
-                        <th class="sortable">Buildable</th>
                         <th class="sortable">Level</th>
                         <th class="sortable">Build Cost</th>
                         <th class="sortable">Labor</th>
-                        <th class="sortable">Rent</th>
                         <th class="sortable">Recipe Output</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td><a href="bounty_office.html">Bounty Office</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="2000000">2,000,000 cr</td>
                         <td data-sort="60">60</td>
-                        <td data-sort="60">60 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="commerce_terminal.html">Commerce Terminal</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="1500000">1,500,000 cr</td>
                         <td data-sort="80">80</td>
-                        <td data-sort="80">80 cr</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="company_exchange.html">Company Exchange</a></td>
+                        <td data-sort="3">3</td>
+                        <td data-sort="5000000">5,000,000 cr</td>
+                        <td data-sort="120">120</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="company_outlet.html">Company Outlet</a></td>
+                        <td data-sort="2">2</td>
+                        <td data-sort="1200000">1,200,000 cr</td>
+                        <td data-sort="70">70</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="company_store.html">Company Store</a></td>
+                        <td data-sort="1">1</td>
+                        <td data-sort="400000">400,000 cr</td>
+                        <td data-sort="40">40</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="deep_space_scanner.html">Deep Space Scanner</a></td>
+                        <td data-sort="2">2</td>
+                        <td data-sort="3500000">3,500,000 cr</td>
+                        <td data-sort="250">250</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_capital_fuel_bunker.html">Faction Capital Fuel Bunker</a></td>
+                        <td data-sort="3">3</td>
+                        <td data-sort="10000000">10,000,000 cr</td>
+                        <td data-sort="100">100</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_clubhouse.html">Faction Clubhouse</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="2500000">2,500,000 cr</td>
                         <td data-sort="80">80</td>
-                        <td data-sort="80">80 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_depot.html">Faction Depot</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="4000000">4,000,000 cr</td>
                         <td data-sort="200">200</td>
-                        <td data-sort="200">200 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_desk.html">Faction Desk</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="100000">100,000 cr</td>
                         <td data-sort="25">25</td>
-                        <td data-sort="25">25 cr</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_fleet_yard.html">Faction Fleet Yard</a></td>
+                        <td data-sort="3">3</td>
+                        <td data-sort="12000000">12,000,000 cr</td>
+                        <td data-sort="250">250</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_fuel_bunker.html">Faction Fuel Bunker</a></td>
+                        <td data-sort="1">1</td>
+                        <td data-sort="800000">800,000 cr</td>
+                        <td data-sort="20">20</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_large_fuel_bunker.html">Faction Large Fuel Bunker</a></td>
+                        <td data-sort="2">2</td>
+                        <td data-sort="3000000">3,000,000 cr</td>
+                        <td data-sort="50">50</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_lockbox.html">Faction Lockbox</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="200000">200,000 cr</td>
                         <td data-sort="50">50</td>
-                        <td data-sort="50">50 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_lounge.html">Faction Lounge</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="400000">400,000 cr</td>
                         <td data-sort="40">40</td>
-                        <td data-sort="40">40 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_mission_board.html">Faction Mission Board</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="300000">300,000 cr</td>
                         <td data-sort="30">30</td>
-                        <td data-sort="30">30 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_office.html">Faction Office</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="500000">500,000 cr</td>
                         <td data-sort="50">50</td>
-                        <td data-sort="50">50 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_quarters.html">Faction Quarters</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="100000">100,000 cr</td>
                         <td data-sort="20">20</td>
-                        <td data-sort="20">20 cr</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_ship_garage.html">Faction Ship Garage</a></td>
+                        <td data-sort="1">1</td>
+                        <td data-sort="600000">600,000 cr</td>
+                        <td data-sort="60">60</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_ship_hangar.html">Faction Ship Hangar</a></td>
+                        <td data-sort="2">2</td>
+                        <td data-sort="3000000">3,000,000 cr</td>
+                        <td data-sort="120">120</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_shipyard_bay.html">Faction Shipyard Bay</a></td>
+                        <td data-sort="2">2</td>
+                        <td data-sort="5000000">5,000,000 cr</td>
+                        <td data-sort="100">100</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_shipyard_berth.html">Faction Shipyard Berth</a></td>
+                        <td data-sort="1">1</td>
+                        <td data-sort="1500000">1,500,000 cr</td>
+                        <td data-sort="60">60</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_shipyard_complex.html">Faction Shipyard Complex</a></td>
+                        <td data-sort="5">5</td>
+                        <td data-sort="100000000">100,000,000 cr</td>
+                        <td data-sort="400">400</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_shipyard_dock.html">Faction Shipyard Dock</a></td>
+                        <td data-sort="3">3</td>
+                        <td data-sort="15000000">15,000,000 cr</td>
+                        <td data-sort="175">175</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_shipyard_drydock.html">Faction Shipyard Drydock</a></td>
+                        <td data-sort="4">4</td>
+                        <td data-sort="40000000">40,000,000 cr</td>
+                        <td data-sort="250">250</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_stronghold.html">Faction Stronghold</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="4">4</td>
                         <td data-sort="15000000">15,000,000 cr</td>
                         <td data-sort="400">400</td>
-                        <td data-sort="400">400 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_trading_post.html">Faction Trading Post</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="3000000">3,000,000 cr</td>
                         <td data-sort="100">100</td>
-                        <td data-sort="100">100 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_warehouse.html">Faction Warehouse</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="750000">750,000 cr</td>
                         <td data-sort="100">100</td>
-                        <td data-sort="100">100 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="faction_workshop.html">Faction Workshop</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="300000">300,000 cr</td>
                         <td data-sort="40">40</td>
-                        <td data-sort="40">40 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="grand_recruitment_bureau.html">Grand Recruitment Bureau</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="5">5</td>
                         <td data-sort="20000000">20,000,000 cr</td>
                         <td data-sort="200">200</td>
-                        <td data-sort="200">200 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="guild_hall_recruiting.html">Guild Hall Recruiting</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="4">4</td>
                         <td data-sort="8000000">8,000,000 cr</td>
                         <td data-sort="100">100</td>
-                        <td data-sort="100">100 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="hiring_board.html">Hiring Board</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="75000">75,000 cr</td>
                         <td data-sort="15">15</td>
-                        <td data-sort="15">15 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="intel_center.html">Intel Center</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="750000">750,000 cr</td>
                         <td data-sort="60">60</td>
-                        <td data-sort="60">60 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="intel_terminal.html">Intel Terminal</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="150000">150,000 cr</td>
                         <td data-sort="30">30</td>
-                        <td data-sort="30">30 cr</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="long_range_subspace_sensor.html">Long-Range Subspace Sensor</a></td>
+                        <td data-sort="3">3</td>
+                        <td data-sort="12000000">12,000,000 cr</td>
+                        <td data-sort="500">500</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="market_runner.html">Market Runner</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="150000">150,000 cr</td>
                         <td data-sort="30">30</td>
-                        <td data-sort="30">30 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="notice_board.html">Notice Board</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="50000">50,000 cr</td>
                         <td data-sort="10">10</td>
-                        <td data-sort="10">10 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="recruitment_center.html">Recruitment Center</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="3">3</td>
                         <td data-sort="2000000">2,000,000 cr</td>
                         <td data-sort="60">60</td>
-                        <td data-sort="60">60 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="recruitment_desk.html">Recruitment Desk</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="300000">300,000 cr</td>
                         <td data-sort="30">30</td>
-                        <td data-sort="30">30 cr</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="sensor_dome.html">Sensor Dome</a></td>
+                        <td data-sort="1">1</td>
+                        <td data-sort="600000">600,000 cr</td>
+                        <td data-sort="80">80</td>
+                        <td>
+                            <span class="text-muted">none</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="storage_extension.html">Storage Extension</a></td>
+                        <td data-sort="1">1</td>
+                        <td data-sort="500000">500,000 cr</td>
+                        <td data-sort="80">80</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="trade_ledger.html">Trade Ledger</a></td>
-                        <td data-sort="1"><span class="badge badge-buildable">Yes</span></td>
                         <td data-sort="1">1</td>
                         <td data-sort="200000">200,000 cr</td>
                         <td data-sort="30">30</td>
-                        <td data-sort="30">30 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>
                     </tr>
                     <tr>
                         <td><a href="trading_booth.html">Trading Booth</a></td>
-                        <td data-sort="0"><span class="badge badge-locked">No</span></td>
                         <td data-sort="2">2</td>
                         <td data-sort="600000">600,000 cr</td>
                         <td data-sort="60">60</td>
-                        <td data-sort="60">60 cr</td>
                         <td>
                             <span class="text-muted">none</span>
                         </td>

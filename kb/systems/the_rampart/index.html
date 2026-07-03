@@ -21,6 +21,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -84,6 +87,8 @@
             </tbody>
           </table>
         </div>
+
+        <div class="card mt-2"><a href="jumps.html" class="jumpmap-link">Pathfinder Jump Routes →</a></div>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">Points of Interest (6)</div>
           <table>
@@ -172,10 +177,10 @@
                     <div class="base-stats">
                         <span class="badge badge-green">Public</span>
                         <span class="badge badge-frost">Defense 30</span>
-                        <span class="badge badge-red">Critical</span>
+                        <span class="badge badge-yellow">Struggling</span>
                     </div>
                 </div>
-                <p class="base-desc" style="font-style:italic; opacity:0.85">Critical infrastructure failure. Emergency lighting only. Station barely functional.</p>
+                <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
                 <p class="base-desc">The outermost wall of Crimson space. Every ship entering the Pact&#39;s territory passes through the Rampart&#39;s weapons envelope first, then the Crucible&#39;s. Together they form a two-layer chokepoint that has never been breached. The station&#39;s weapons point outward — always outward — with enough firepower to hold off a fleet. Nobody asks what fleet.</p>
                 <details class="base-story"><summary>Station Log</summary><p>You dock at The Rampart Checkpoint. The outermost wall of Crimson space. Every ship entering the Pact&#39;s territory passes through the Rampart&#39;s weapons envelope first, then the Crucible&#39;s. Together they form a two-layer chokepoint that has never been breached. The station&#39;s weapons point outward — always outward — with enough firepower to hold off a fleet. Nobody asks what fleet.
 
@@ -188,6 +193,7 @@ The station has the following facilities:
 ...and 12 more facilities.
 </p></details>
                 <div class="base-meta">
+                    <span class="label">Satisfaction: 38% (5/13 infrastructure)</span>
                 </div>
                 <div class="base-sections">
                     <div>
@@ -213,7 +219,22 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Large fuel bunker</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Life support expansion</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Pact security post</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Power buffer</td>
                                   <td><span class="badge ">infrastructure</span></td>
                                   <td>0</td>
                                 </tr>
@@ -223,12 +244,7 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Assemble quantum stabilizer workshop</td>
-                                  <td><span class="badge badge-orange">production</span></td>
-                                  <td>0</td>
-                                </tr>
-                                <tr>
-                                  <td>Build universal nav core workshop</td>
+                                  <td>Automated power cell plant</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -238,12 +254,37 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Fuel cell plant</td>
+                                  <td>Copper wire mill</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Null matter processing vat</td>
+                                  <td>Fuel cell workshop</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Galactic alloy fusion forge</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>H2 fuel plant</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Heavy ice melter</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Hydrogen compression cylinder</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Iron refinery</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -299,7 +340,7 @@ The station has the following facilities:
             </div>
         </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 611821</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1201529</p>
     </main>
     <script>
     (function() {

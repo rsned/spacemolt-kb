@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — June 5, 2026 vs June 3, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-06-03.html">&larr; 2026-06-03</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-06-07.html">2026-06-07 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; June 5, 2026 vs June 3, 2026</h2>
+<div class="diff-summary">38 additions, 0 deletions, 47 modifications across 5 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+4</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+1</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~45</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+21</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+12</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+4</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../recipes/Components/build_warp_core.html">Build Warp Core</a> <span class="text-muted">(build_warp_core)</span></li><li class="diff-add">+ <a href="../recipes/Gas_Processing/condense_plasma_residue.html">Condense Plasma Residue</a> <span class="text-muted">(condense_plasma_residue)</span></li><li class="diff-add">+ <a href="../recipes/Refining/lightweight_titanium_alloy.html">Lightweight Titanium Alloy</a> <span class="text-muted">(lightweight_titanium_alloy)</span></li><li class="diff-add">+ <a href="../recipes/Refining/plasma_flux_titanium_alloy.html">Plasma-Flux Titanium Alloy</a> <span class="text-muted">(plasma_flux_titanium_alloy)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+1</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~45</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../items/component/warp_core.html">Warp Core</a> <span class="text-muted">(warp_core)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/ammo/antimatter_core_rounds_box.html">antimatter_core_rounds_box</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">14000</span> &rarr; <span class="diff-add">16000</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.25,&#34;damage_mod&#34;:0.5,&#34;splash_pct&#34;:0.1}</td></tr><tr><td class="diff-unchanged">subtype: autocannon</td><td class="diff-unchanged">subtype: autocannon</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/antimatter_torpedoes.html">antimatter_torpedoes</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">500</span> &rarr; <span class="diff-add">16300</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.3,&#34;damage_mod&#34;:1,&#34;shield_bypass&#34;:0.3}</td></tr><tr><td class="diff-unchanged">subtype: torpedo</td><td class="diff-unchanged">subtype: torpedo</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/antimatter_warhead.html">antimatter_warhead</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:0.75}</td></tr><tr><td class="diff-unchanged">subtype: missile</td><td class="diff-unchanged">subtype: missile</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">300</span> &rarr; <span class="diff-add">10700</span></div>
+<div class="diff-item-id"><a href="../items/ammo/armor_buster_missiles.html">armor_buster_missiles</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">320</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.35}</td></tr><tr><td class="diff-unchanged">subtype: missile</td><td class="diff-unchanged">subtype: missile</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/armor_piercing_rounds_box.html">armor_piercing_rounds_box</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.25,&#34;damage_mod&#34;:-0.1}</td></tr><tr><td class="diff-unchanged">subtype: autocannon</td><td class="diff-unchanged">subtype: autocannon</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">15</span> &rarr; <span class="diff-add">18</span></div>
+<div class="diff-item-id"><a href="../items/ammo/breacher_torpedoes.html">breacher_torpedoes</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">150</span> &rarr; <span class="diff-add">535</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.5}</td></tr><tr><td class="diff-unchanged">subtype: torpedo</td><td class="diff-unchanged">subtype: torpedo</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/cascade_em_charge_pack.html">cascade_em_charge_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">290</span> &rarr; <span class="diff-add">335</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;splash_pct&#34;:0.15}</td></tr><tr><td class="diff-unchanged">subtype: em_charge</td><td class="diff-unchanged">subtype: em_charge</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/cluster_missiles.html">cluster_missiles</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:0.3,&#34;splash_pct&#34;:0.1}</td></tr><tr><td class="diff-unchanged">subtype: missile</td><td class="diff-unchanged">subtype: missile</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">90</span> &rarr; <span class="diff-add">1900</span></div>
+<div class="diff-item-id"><a href="../items/ammo/corrosive_plasma_cell_pack.html">corrosive_plasma_cell_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">36</span> &rarr; <span class="diff-add">250</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_melt_pct&#34;:0.2,&#34;armor_melt_ticks&#34;:5,&#34;damage_mod&#34;:-0.1}</td></tr><tr><td class="diff-unchanged">subtype: plasma</td><td class="diff-unchanged">subtype: plasma</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/cryo_slug_case.html">cryo_slug_case</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.15,&#34;disrupt_speed&#34;:0.2,&#34;disrupt_ticks&#34;:3}</td></tr><tr><td class="diff-unchanged">subtype: railgun</td><td class="diff-unchanged">subtype: railgun</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">39</span> &rarr; <span class="diff-add">45</span></div>
+<div class="diff-item-id"><a href="../items/ammo/depleted_uranium_rounds_box.html">depleted_uranium_rounds_box</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">2700</span> &rarr; <span class="diff-add">3100</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.15,&#34;hull_damage_mod&#34;:0.3}</td></tr><tr><td class="diff-unchanged">subtype: autocannon</td><td class="diff-unchanged">subtype: autocannon</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/dispersal_plasma_cell_pack.html">dispersal_plasma_cell_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">150</span> &rarr; <span class="diff-add">170</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.15,&#34;hit_chance_mod&#34;:15}</td></tr><tr><td class="diff-unchanged">subtype: plasma</td><td class="diff-unchanged">subtype: plasma</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/em_charge_pack.html">em_charge_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">190</span> &rarr; <span class="diff-add">225</span></div>
+<div class="diff-item-id"><a href="../items/ammo/emp_mines.html">emp_mines</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.3,&#34;disrupt_damage&#34;:0.2,&#34;disrupt_speed&#34;:0.3,&#34;disrupt_ticks&#34;:3}</td></tr><tr><td class="diff-unchanged">subtype: mine</td><td class="diff-unchanged">subtype: mine</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">200</span> &rarr; <span class="diff-add">225</span></div>
+<div class="diff-item-id"><a href="../items/ammo/emp_missiles.html">emp_missiles</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">1600</span> &rarr; <span class="diff-add">1900</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.5,&#34;disrupt_damage&#34;:0.2,&#34;disrupt_speed&#34;:0.3,&#34;disrupt_ticks&#34;:3}</td></tr><tr><td class="diff-unchanged">subtype: missile</td><td class="diff-unchanged">subtype: missile</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/emp_slug_case.html">emp_slug_case</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">1500</span> &rarr; <span class="diff-add">1800</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.3,&#34;disrupt_damage&#34;:0.2,&#34;disrupt_speed&#34;:0.3,&#34;disrupt_ticks&#34;:3}</td></tr><tr><td class="diff-unchanged">subtype: railgun</td><td class="diff-unchanged">subtype: railgun</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/emp_tipped_rounds_box.html">emp_tipped_rounds_box</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">260</span> &rarr; <span class="diff-add">300</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.4,&#34;disrupt_damage&#34;:0.2,&#34;disrupt_speed&#34;:0.3,&#34;disrupt_ticks&#34;:2}</td></tr><tr><td class="diff-unchanged">subtype: autocannon</td><td class="diff-unchanged">subtype: autocannon</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/emp_torpedoes.html">emp_torpedoes</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.4,&#34;disrupt_damage&#34;:0.3,&#34;disrupt_speed&#34;:0.4,&#34;disrupt_ticks&#34;:5}</td></tr><tr><td class="diff-unchanged">subtype: torpedo</td><td class="diff-unchanged">subtype: torpedo</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">250</span> &rarr; <span class="diff-add">3300</span></div>
+<div class="diff-item-id"><a href="../items/ammo/entropic_void_core_pack.html">entropic_void_core_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;dot_pct&#34;:0.5,&#34;dot_ticks&#34;:5}</td></tr><tr><td class="diff-unchanged">subtype: void_core</td><td class="diff-unchanged">subtype: void_core</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">6000</span> &rarr; <span class="diff-add">6900</span></div>
+<div class="diff-item-id"><a href="../items/ammo/ferrous_slug_case.html">ferrous_slug_case</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">13</span> &rarr; <span class="diff-add">15</span></div>
+<div class="diff-item-id"><a href="../items/ammo/focused_em_charge_pack.html">focused_em_charge_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">380</span> &rarr; <span class="diff-add">440</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;disrupt_bonus_ticks&#34;:1}</td></tr><tr><td class="diff-unchanged">subtype: em_charge</td><td class="diff-unchanged">subtype: em_charge</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/focused_plasma_cell_pack.html">focused_plasma_cell_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.2}</td></tr><tr><td class="diff-unchanged">subtype: plasma</td><td class="diff-unchanged">subtype: plasma</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">490</span> &rarr; <span class="diff-add">565</span></div>
+<div class="diff-item-id"><a href="../items/ammo/fragmentation_mines.html">fragmentation_mines</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">170</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;anti_drone_mod&#34;:0.5,&#34;damage_mod&#34;:-0.15,&#34;splash_pct&#34;:0.15}</td></tr><tr><td class="diff-unchanged">subtype: mine</td><td class="diff-unchanged">subtype: mine</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/fragmentation_rounds_box.html">fragmentation_rounds_box</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">35</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;anti_drone_mod&#34;:0.5,&#34;anti_large_mod&#34;:-0.25,&#34;anti_small_mod&#34;:0.5}</td></tr><tr><td class="diff-unchanged">subtype: autocannon</td><td class="diff-unchanged">subtype: autocannon</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/incendiary_missiles.html">incendiary_missiles</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.2,&#34;dot_pct&#34;:0.4,&#34;dot_ticks&#34;:3}</td></tr><tr><td class="diff-unchanged">subtype: missile</td><td class="diff-unchanged">subtype: missile</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">190</span> &rarr; <span class="diff-add">210</span></div>
+<div class="diff-item-id"><a href="../items/ammo/incendiary_rounds_box.html">incendiary_rounds_box</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">230</span> &rarr; <span class="diff-add">265</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.2,&#34;dot_pct&#34;:0.3,&#34;dot_ticks&#34;:3}</td></tr><tr><td class="diff-unchanged">subtype: autocannon</td><td class="diff-unchanged">subtype: autocannon</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/ion_charge_pack.html">ion_charge_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">1100</span> &rarr; <span class="diff-add">1300</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;shield_damage_mod&#34;:0.5}</td></tr><tr><td class="diff-unchanged">subtype: em_charge</td><td class="diff-unchanged">subtype: em_charge</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/neural_disruption_charge_pack.html">neural_disruption_charge_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">1000</span> &rarr; <span class="diff-add">1200</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;disrupt_bonus_speed&#34;:0.15}</td></tr><tr><td class="diff-unchanged">subtype: em_charge</td><td class="diff-unchanged">subtype: em_charge</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/neutronium_slug_case.html">neutronium_slug_case</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">267</span> &rarr; <span class="diff-add">990</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.3,&#34;hull_damage_mod&#34;:0.5}</td></tr><tr><td class="diff-unchanged">subtype: railgun</td><td class="diff-unchanged">subtype: railgun</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/nuclear_mines.html">nuclear_mines</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:0.4,&#34;splash_pct&#34;:0.25}</td></tr><tr><td class="diff-unchanged">subtype: mine</td><td class="diff-unchanged">subtype: mine</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">200</span> &rarr; <span class="diff-add">960</span></div>
+<div class="diff-item-id"><a href="../items/ammo/null_void_core_pack.html">null_void_core_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">10000</span> &rarr; <span class="diff-add">12000</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.4}</td></tr><tr><td class="diff-unchanged">subtype: void_core</td><td class="diff-unchanged">subtype: void_core</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/overcharged_plasma_cell_pack.html">overcharged_plasma_cell_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">840</span> &rarr; <span class="diff-add">965</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:0.35,&#34;wear_per_shot&#34;:0.5}</td></tr><tr><td class="diff-unchanged">subtype: plasma</td><td class="diff-unchanged">subtype: plasma</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/phased_void_core_pack.html">phased_void_core_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">5700</span> &rarr; <span class="diff-add">6600</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.25}</td></tr><tr><td class="diff-unchanged">subtype: void_core</td><td class="diff-unchanged">subtype: void_core</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/plasma_cell_pack.html">plasma_cell_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">210</span> &rarr; <span class="diff-add">245</span></div>
+<div class="diff-item-id"><a href="../items/ammo/plasma_mines.html">plasma_mines</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_melt_pct&#34;:0.1,&#34;armor_melt_ticks&#34;:3}</td></tr><tr><td class="diff-unchanged">subtype: mine</td><td class="diff-unchanged">subtype: mine</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">100</span> &rarr; <span class="diff-add">495</span></div>
+<div class="diff-item-id"><a href="../items/ammo/plasma_torpedoes.html">plasma_torpedoes</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">200</span> &rarr; <span class="diff-add">990</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_melt_pct&#34;:0.15,&#34;armor_melt_ticks&#34;:3,&#34;damage_mod&#34;:0.25}</td></tr><tr><td class="diff-unchanged">subtype: torpedo</td><td class="diff-unchanged">subtype: torpedo</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/shaped_charge_slug_case.html">shaped_charge_slug_case</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">135</span> &rarr; <span class="diff-add">115</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:-0.15,&#34;damage_mod&#34;:0.2,&#34;splash_pct&#34;:0.05}</td></tr><tr><td class="diff-unchanged">subtype: railgun</td><td class="diff-unchanged">subtype: railgun</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/siege_torpedoes.html">siege_torpedoes</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">300</span> &rarr; <span class="diff-add">1100</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;hull_damage_mod&#34;:0.6}</td></tr><tr><td class="diff-unchanged">subtype: torpedo</td><td class="diff-unchanged">subtype: torpedo</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/standard_guided_missiles.html">standard_guided_missiles</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">200</span> &rarr; <span class="diff-add">230</span></div>
+<div class="diff-item-id"><a href="../items/ammo/standard_mines.html">standard_mines</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">40</span> &rarr; <span class="diff-add">135</span></div>
+<div class="diff-item-id"><a href="../items/ammo/standard_torpedoes.html">standard_torpedoes</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">100</span> &rarr; <span class="diff-add">275</span></div>
+<div class="diff-item-id"><a href="../items/ammo/swarm_missiles.html">swarm_missiles</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">245</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:-0.2,&#34;hit_chance_mod&#34;:15}</td></tr><tr><td class="diff-unchanged">subtype: missile</td><td class="diff-unchanged">subtype: missile</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/ammo/tungsten_slug_case.html">tungsten_slug_case</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;armor_bypass&#34;:0.4}</td></tr><tr><td class="diff-unchanged">subtype: railgun</td><td class="diff-unchanged">subtype: railgun</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">40</span></div>
+<div class="diff-item-id"><a href="../items/ammo/void_core_pack.html">void_core_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">2900</span> &rarr; <span class="diff-add">3400</span></div>
+<div class="diff-item-id"><a href="../items/ammo/void_mines.html">void_mines</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">350</span> &rarr; <span class="diff-add">6200</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;shield_bypass&#34;:0.5,&#34;splash_pct&#34;:0.15}</td></tr><tr><td class="diff-unchanged">subtype: mine</td><td class="diff-unchanged">subtype: mine</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+21</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../ships/Industrial/all_mine.html">All Mine</a> <span class="text-muted">(all_mine)</span></li><li class="diff-add">+ <a href="../ships/Combat/annihilator.html">Annihilator</a> <span class="text-muted">(annihilator)</span></li><li class="diff-add">+ <a href="../ships/Combat/apotheosis.html">Apotheosis</a> <span class="text-muted">(apotheosis)</span></li><li class="diff-add">+ <a href="../ships/Combat/armageddon.html">Armageddon</a> <span class="text-muted">(armageddon)</span></li><li class="diff-add">+ <a href="../ships/Civilian/ascendancy.html">Ascendancy</a> <span class="text-muted">(ascendancy)</span></li><li class="diff-add">+ <a href="../ships/Industrial/cryo_industrial.html">Cryo Industrial</a> <span class="text-muted">(cryo_industrial)</span></li><li class="diff-add">+ <a href="../ships/Industrial/eldorado.html">Eldorado</a> <span class="text-muted">(eldorado)</span></li><li class="diff-add">+ <a href="../ships/Civilian/finish_line.html">Finish Line</a> <span class="text-muted">(finish_line)</span></li><li class="diff-add">+ <a href="../ships/Combat/first_step_dreadnought.html">First Step Dreadnought</a> <span class="text-muted">(first_step_dreadnought)</span></li><li class="diff-add">+ <a href="../ships/Support/fundament.html">Fundament</a> <span class="text-muted">(fundament)</span></li><li class="diff-add">+ <a href="../ships/Commercial/grand_transit.html">Grand Transit</a> <span class="text-muted">(grand_transit)</span></li><li class="diff-add">+ <a href="../ships/Combat/hegemon.html">Hegemon</a> <span class="text-muted">(hegemon)</span></li><li class="diff-add">+ <a href="../ships/Industrial/manifold.html">Manifold</a> <span class="text-muted">(manifold)</span></li><li class="diff-add">+ <a href="../ships/Industrial/money_pit.html">Money Pit</a> <span class="text-muted">(money_pit)</span></li><li class="diff-add">+ <a href="../ships/Exploration/omniscience.html">Omniscience</a> <span class="text-muted">(omniscience)</span></li><li class="diff-add">+ <a href="../ships/Combat/opus_magna.html">Opus Magna</a> <span class="text-muted">(opus_magna)</span></li><li class="diff-add">+ <a href="../ships/Combat/reckoning.html">Reckoning</a> <span class="text-muted">(reckoning)</span></li><li class="diff-add">+ <a href="../ships/Industrial/rift_siphon.html">Rift Siphon</a> <span class="text-muted">(rift_siphon)</span></li><li class="diff-add">+ <a href="../ships/Industrial/sublimation.html">Sublimation</a> <span class="text-muted">(sublimation)</span></li><li class="diff-add">+ <a href="../ships/Industrial/substrate.html">Substrate</a> <span class="text-muted">(substrate)</span></li><li class="diff-add">+ <a href="../ships/Industrial/tellurian.html">Tellurian</a> <span class="text-muted">(tellurian)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+12</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../facilities/production/lightweight_alloy_complex.html">Lightweight Alloy Complex</a> <span class="text-muted">(lightweight_alloy_complex)</span></li><li class="diff-add">+ <a href="../facilities/production/lightweight_alloy_mill.html">Lightweight Alloy Mill</a> <span class="text-muted">(lightweight_alloy_mill)</span></li><li class="diff-add">+ <a href="../facilities/production/lightweight_alloy_plant.html">Lightweight Alloy Plant</a> <span class="text-muted">(lightweight_alloy_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/lightweight_alloy_works.html">Lightweight Alloy Works</a> <span class="text-muted">(lightweight_alloy_works)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_residue_condenser.html">Plasma Residue Condenser</a> <span class="text-muted">(plasma_residue_condenser)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_residue_reclaimer.html">Plasma Residue Reclaimer</a> <span class="text-muted">(plasma_residue_reclaimer)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_residue_refinery.html">Plasma Residue Refinery</a> <span class="text-muted">(plasma_residue_refinery)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_residue_synthesis_array.html">Plasma Residue Synthesis Array</a> <span class="text-muted">(plasma_residue_synthesis_array)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_flux_alloy_forge.html">Plasma-Flux Alloy Forge</a> <span class="text-muted">(plasma_flux_alloy_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_flux_alloy_works.html">Plasma-Flux Alloy Works</a> <span class="text-muted">(plasma_flux_alloy_works)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_flux_foundry.html">Plasma-Flux Foundry</a> <span class="text-muted">(plasma_flux_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/plasma_flux_smelting_complex.html">Plasma-Flux Smelting Complex</a> <span class="text-muted">(plasma_flux_smelting_complex)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/distant_light/index.html">distant_light</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/frontier/index.html">frontier</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">6</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>

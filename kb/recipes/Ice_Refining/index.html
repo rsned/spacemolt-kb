@@ -20,6 +20,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -33,32 +36,43 @@
         <div class="card mt-3" style="padding:0">
         <table class="sortable">
         <thead>
-        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable" style="text-align:right">Time</th></tr>
+        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable">Craft At</th><th class="sortable" style="text-align:right">Time</th></tr>
         </thead>
         <tbody>
+        <tr>
+          <td><a href="electrolyze_water.html">Electrolyze Water</a></td>
+          <td><a href="../../items/ore/hydrogen_gas.html" class="recipe-item">Hydrogen Gas &times;4</a><a href="../../items/refined/oxygen_gas.html" class="recipe-item">Oxygen Gas &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/purified_water.html">Purified Water</a>&nbsp;&times;2</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand, no facility required">Hand Craftable</span></td>
+          <td class="time" data-sort="0.78">0.78s</td>
+        </tr>
         <tr>
           <td><a href="process_deuterium_ice.html">Process Deuterium Ice</a></td>
           <td><a href="../../items/refined/deuterium.html" class="recipe-item">Deuterium &times;2</a></td>
           <td class="recipe-inputs"><a href="../../items/ore/deuterium_ice.html">Deuterium Ice</a>&nbsp;&times;6</td>
-          <td class="time" data-sort="8">8 ticks</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="11.1">11.1s</td>
         </tr>
         <tr>
           <td><a href="process_helium_ice.html">Process Helium Ice</a></td>
           <td><a href="../../items/refined/helium_3.html" class="recipe-item">Helium-3 &times;2</a></td>
           <td class="recipe-inputs"><a href="../../items/ore/helium_ice.html">Helium Ice</a>&nbsp;&times;4</td>
-          <td class="time" data-sort="5">5 ticks</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="5.4">5.4s</td>
         </tr>
         <tr>
           <td><a href="process_nitrogen_ice.html">Process Nitrogen Ice</a></td>
           <td><a href="../../items/refined/liquid_nitrogen.html" class="recipe-item">Liquid Nitrogen &times;4</a></td>
           <td class="recipe-inputs"><a href="../../items/ore/nitrogen_ice.html">Nitrogen Ice</a>&nbsp;&times;5</td>
-          <td class="time" data-sort="3">3 ticks</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand, no facility required">Hand Craftable</span></td>
+          <td class="time" data-sort="1.32">1.32s</td>
         </tr>
         <tr>
           <td><a href="process_water_ice.html">Process Water Ice</a></td>
-          <td><a href="../../items/refined/liquid_hydrogen.html" class="recipe-item">Liquid Hydrogen</a><a href="../../items/refined/purified_water.html" class="recipe-item">Purified Water &times;3</a></td>
+          <td><a href="../../items/refined/purified_water.html" class="recipe-item">Purified Water &times;3</a></td>
           <td class="recipe-inputs"><a href="../../items/ore/water_ice.html">Water Ice</a>&nbsp;&times;5</td>
-          <td class="time" data-sort="3">3 ticks</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand, no facility required">Hand Craftable</span></td>
+          <td class="time" data-sort="1.08">1.08s</td>
         </tr>
         </tbody>
         </table>

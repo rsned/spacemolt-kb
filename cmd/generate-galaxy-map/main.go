@@ -42,7 +42,7 @@ type POI struct {
 }
 
 func main() {
-	knowledgeDBPath := "../spacemolt/data/spacemolt-knowledge.db"
+	knowledgeDBPath := "/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db"
 
 	db, err := sql.Open("sqlite", knowledgeDBPath)
 	if err != nil {
@@ -308,7 +308,7 @@ func renderGalaxyMap(explored, unexplored []*System, systemMap map[string]*Syste
 	// Territory blob - only for explored systems and their connections.
 	const blobColor = "#E8E8E8" // Light white/grey
 	blobR := 28.0
-	b.WriteString(fmt.Sprintf(`<g filter="url(#goo-galaxy)">`))
+	b.WriteString(`<g filter="url(#goo-galaxy)">`)
 
 	// Thick connection lines between explored systems.
 	drawnBlob := make(map[string]bool)

@@ -48,7 +48,7 @@
   --smui-border-hover: 220 17% 50%;
 
   --font-sans: 'JetBrains Mono', monospace;
-  --text-label: 11px;
+  --text-label: 12px;
   --text-ui: 13px;
   --text-heading: 22px;
   --text-stat: 26px;
@@ -115,7 +115,7 @@ html {
 
 body {
   font-family: var(--font-sans);
-  font-size: var(--text-ui);
+  font-size: 16px;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   line-height: 1.6;
@@ -200,6 +200,13 @@ td {
 tr:hover td {
   background-color: hsl(var(--accent));
 }
+
+/* Bump listing text one step (13px -> 16px) on top-level landing pages only.
+   Detail pages keep the compact key-value tables. Selectors are specific enough
+   (0,3,x) to win over the section-css card/table rules loaded after smui.css. */
+.page-content:not(.detail-page) table { font-size: 16px; }       /* skills, ships, systems, passengers, players */
+.page-content:not(.detail-page) .cat-desc { font-size: 16px; }    /* items, missions, facilities, recipes cards */
+.page-content:not(.detail-page) .fc-stats { font-size: 16px; }    /* factions cards */
 
 /* Badges / Tags */
 .badge {
@@ -387,4 +394,71 @@ tr:hover td {
 .badge-locked {
     color: hsl(var(--smui-red));
     border-color: hsl(var(--smui-red));
+}
+
+/* Wikipedia-style infobox for contributor overlays (used on player pages). */
+.infobox {
+    float: none;
+    max-width: 340px;
+    margin: 1rem auto 1.5rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    overflow: hidden;
+    background: hsl(var(--smui-surface-2) / 0.45);
+    text-align: center;
+    font-size: .92rem;
+}
+.infobox-title {
+    /* Subtle, always-readable fill (entity accent colors are arbitrary — e.g.
+       pure white — so we use a theme surface and show the accent as a stripe). */
+    background: hsl(var(--smui-surface-2));
+    border-bottom: 3px solid var(--player-accent, var(--faction-accent, hsl(var(--smui-frost-2))));
+    font-weight: 700;
+    font-size: 1.3rem;
+    padding: .55rem .75rem;
+}
+.infobox-subtitle {
+    padding: .4rem .75rem;
+    font-style: italic;
+    opacity: .85;
+    border-bottom: 1px solid hsl(var(--border));
+}
+.infobox-subtitle a { color: inherit; }
+.infobox-image {
+    display: block;
+    max-width: calc(100% - 1.5rem);
+    max-height: 300px;
+    margin: .85rem auto .4rem;
+    border-radius: 6px;
+}
+.infobox-caption {
+    padding: 0 .9rem .7rem;
+    font-size: .82rem;
+    opacity: .75;
+}
+.infobox-data {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    margin: 0;
+    text-align: left;
+    border-top: 1px solid hsl(var(--border));
+}
+.infobox-data dt {
+    padding: .4rem .75rem;
+    font-weight: 600;
+    opacity: .72;
+    border-bottom: 1px solid hsl(var(--border) / .55);
+}
+.infobox-data dd {
+    margin: 0;
+    padding: .4rem .75rem;
+    border-bottom: 1px solid hsl(var(--border) / .55);
+    border-left: 1px solid hsl(var(--border) / .55);
+}
+.infobox-id {
+    padding: .45rem .75rem;
+    font-family: monospace;
+    font-size: 11px;
+    opacity: .55;
+    word-break: break-all;
 }

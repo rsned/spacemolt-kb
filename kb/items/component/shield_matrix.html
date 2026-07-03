@@ -20,6 +20,9 @@
             <a href="../../facilities/index.html">Facilities</a>
             <a href="../../resources/index.html">Resources</a>
             <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -45,6 +48,8 @@
             <tr><td class="kv-label">Base Value</td><td>280 cr</td></tr>
           </table>
         </div>
+
+
         <div class="card" style="padding:0">
           <div class="section-label">Produced By</div>
           <table>
@@ -53,12 +58,74 @@
             <tr>
               <td><a href="../../recipes/Components/construct_electrum_shield_matrix.html">Construct Electrum Shield Matrix</a></td>
               <td>1</td>
-              <td>8 ticks</td>
+              <td>4.2s</td>
             </tr>
             <tr>
               <td><a href="../../recipes/Components/construct_shield_matrix.html">Construct Shield Matrix</a></td>
               <td>1</td>
-              <td>8 ticks</td>
+              <td>4.2s</td>
+            </tr>
+            </tbody>
+          </table>
+          <div class="section-label">Built by Facility</div>
+          <table>
+            <thead><tr><th>Facility</th><th>Level</th><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../../facilities/production/shield_matrix_weaving_line.html">Shield Matrix Weaving Line</a></td>
+              <td>1</td>
+              <td><a href="../../recipes/Components/construct_shield_matrix.html">Construct Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/shield_weave_station.html">Shield Weave Station</a></td>
+              <td>1</td>
+              <td><a href="../../recipes/Components/construct_electrum_shield_matrix.html">Construct Electrum Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/electrum_shield_lab.html">Electrum Shield Lab</a></td>
+              <td>2</td>
+              <td><a href="../../recipes/Components/construct_electrum_shield_matrix.html">Construct Electrum Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/matrix_assembly_lab.html">Matrix Assembly Lab</a></td>
+              <td>2</td>
+              <td><a href="../../recipes/Components/construct_shield_matrix.html">Construct Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/shield_fabrication_plant.html">Shield Fabrication Plant</a></td>
+              <td>3</td>
+              <td><a href="../../recipes/Components/construct_shield_matrix.html">Construct Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/shield_matrix_production_facility.html">Shield Matrix Production Facility</a></td>
+              <td>3</td>
+              <td><a href="../../recipes/Components/construct_electrum_shield_matrix.html">Construct Electrum Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/dimensional_shield_foundry.html">Dimensional Shield Foundry</a></td>
+              <td>4</td>
+              <td><a href="../../recipes/Components/construct_shield_matrix.html">Construct Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/quantum_shield_integration_complex.html">Quantum Shield Integration Complex</a></td>
+              <td>4</td>
+              <td><a href="../../recipes/Components/construct_electrum_shield_matrix.html">Construct Electrum Shield Matrix</a></td>
+              <td>1</td>
+              <td>4.2s</td>
             </tr>
             </tbody>
           </table>
@@ -88,188 +155,264 @@
             <thead><tr><th>Ship</th><th>Category</th><th>Qty</th></tr></thead>
             <tbody>
             <tr>
-              <td>Absolute Entropy</td>
+              <td><a href="../../ships/Industrial/absolute_entropy.html">Absolute Entropy</a></td>
               <td>Industrial</td>
               <td>25</td>
             </tr>
             <tr>
-              <td>Accretion</td>
+              <td><a href="../../ships/Industrial/accretion.html">Accretion</a></td>
               <td>Industrial</td>
               <td>4</td>
             </tr>
             <tr>
-              <td>Annihilation</td>
+              <td><a href="../../ships/Industrial/alloy_synthesizer.html">Alloy Synthesizer</a></td>
+              <td>Industrial</td>
+              <td>25</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/annihilation.html">Annihilation</a></td>
               <td>Combat</td>
               <td>32</td>
             </tr>
             <tr>
-              <td>Apophenia</td>
+              <td><a href="../../ships/Commercial/apophenia.html">Apophenia</a></td>
               <td>Commercial</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Aporia</td>
+              <td><a href="../../ships/Combat%20Support/aporia.html">Aporia</a></td>
               <td>Combat Support</td>
               <td>32</td>
             </tr>
             <tr>
-              <td>Attenuation</td>
+              <td><a href="../../ships/Combat/apotheosis.html">Apotheosis</a></td>
+              <td>Combat</td>
+              <td>300</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Commercial/attenuation.html">Attenuation</a></td>
               <td>Commercial</td>
               <td>20</td>
             </tr>
             <tr>
-              <td>Catharsis</td>
+              <td><a href="../../ships/Covert/catharsis.html">Catharsis</a></td>
               <td>Covert</td>
               <td>14</td>
             </tr>
             <tr>
-              <td>Confluence</td>
+              <td><a href="../../ships/Civilian/cloister.html">Cloister</a></td>
+              <td>Civilian</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Exploration/confluence.html">Confluence</a></td>
               <td>Exploration</td>
               <td>14</td>
             </tr>
             <tr>
-              <td>Consensus</td>
+              <td><a href="../../ships/Combat%20Support/consensus.html">Consensus</a></td>
               <td>Combat Support</td>
               <td>80</td>
             </tr>
             <tr>
-              <td>Deep Resonance</td>
+              <td><a href="../../ships/Industrial/deep_resonance.html">Deep Resonance</a></td>
               <td>Industrial</td>
-              <td>30</td>
+              <td>18</td>
             </tr>
             <tr>
-              <td>Dimensional Fold</td>
+              <td><a href="../../ships/Commercial/dimensional_fold.html">Dimensional Fold</a></td>
               <td>Commercial</td>
               <td>85</td>
             </tr>
             <tr>
-              <td>Dissolution</td>
+              <td><a href="../../ships/Industrial/dissolution.html">Dissolution</a></td>
               <td>Industrial</td>
               <td>30</td>
             </tr>
             <tr>
-              <td>Dualism</td>
+              <td><a href="../../ships/Combat/dualism.html">Dualism</a></td>
               <td>Combat</td>
               <td>16</td>
             </tr>
             <tr>
-              <td>Eigenstate</td>
+              <td><a href="../../ships/Exploration/eigenstate.html">Eigenstate</a></td>
               <td>Exploration</td>
               <td>4</td>
             </tr>
             <tr>
-              <td>Entropy</td>
+              <td><a href="../../ships/Industrial/entropy.html">Entropy</a></td>
               <td>Industrial</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Fold Hauler</td>
+              <td><a href="../../ships/Commercial/fold_hauler.html">Fold Hauler</a></td>
               <td>Commercial</td>
               <td>25</td>
             </tr>
             <tr>
-              <td>Fugue</td>
+              <td><a href="../../ships/Commercial/fugue.html">Fugue</a></td>
               <td>Commercial</td>
               <td>5</td>
             </tr>
             <tr>
-              <td>Harmonic</td>
+              <td><a href="../../ships/Combat%20Support/gestalt.html">Gestalt</a></td>
+              <td>Combat Support</td>
+              <td>30</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/harmonic.html">Harmonic</a></td>
               <td>Industrial</td>
               <td>80</td>
             </tr>
             <tr>
-              <td>Hoarfrost</td>
+              <td><a href="../../ships/Industrial/hoarfrost.html">Hoarfrost</a></td>
               <td>Industrial</td>
               <td>12</td>
             </tr>
             <tr>
-              <td>Hysteresis</td>
+              <td><a href="../../ships/Exploration/hysteresis.html">Hysteresis</a></td>
               <td>Exploration</td>
               <td>16</td>
             </tr>
             <tr>
-              <td>Liminal</td>
+              <td><a href="../../ships/Industrial/influx.html">Influx</a></td>
+              <td>Industrial</td>
+              <td>28</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/liminal.html">Liminal</a></td>
               <td>Industrial</td>
               <td>5</td>
             </tr>
             <tr>
-              <td>Membrane</td>
+              <td><a href="../../ships/Industrial/manifold.html">Manifold</a></td>
+              <td>Industrial</td>
+              <td>180</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/membrane.html">Membrane</a></td>
               <td>Combat</td>
               <td>70</td>
             </tr>
             <tr>
-              <td>Noumenon</td>
+              <td><a href="../../ships/Exploration/noumenon.html">Noumenon</a></td>
               <td>Exploration</td>
               <td>25</td>
             </tr>
             <tr>
-              <td>Palimpsest</td>
+              <td><a href="../../ships/Exploration/omniscience.html">Omniscience</a></td>
+              <td>Exploration</td>
+              <td>250</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat%20Support/overmind.html">Overmind</a></td>
+              <td>Combat Support</td>
+              <td>280</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Covert/palimpsest.html">Palimpsest</a></td>
               <td>Covert</td>
               <td>80</td>
             </tr>
             <tr>
-              <td>Paradox</td>
+              <td><a href="../../ships/Combat/paradox.html">Paradox</a></td>
               <td>Combat</td>
               <td>5</td>
             </tr>
             <tr>
-              <td>Phase Collector</td>
+              <td><a href="../../ships/Industrial/phase_collector.html">Phase Collector</a></td>
               <td>Industrial</td>
               <td>15</td>
             </tr>
             <tr>
-              <td>Qualia</td>
+              <td><a href="../../ships/Commercial/plenum.html">Plenum</a></td>
+              <td>Commercial</td>
+              <td>18</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Exploration/qualia.html">Qualia</a></td>
               <td>Exploration</td>
               <td>5</td>
             </tr>
             <tr>
-              <td>Recursion</td>
+              <td><a href="../../ships/Combat/recursion.html">Recursion</a></td>
               <td>Combat</td>
               <td>14</td>
             </tr>
             <tr>
-              <td>Residuum</td>
+              <td><a href="../../ships/Industrial/residuum.html">Residuum</a></td>
               <td>Industrial</td>
               <td>4</td>
             </tr>
             <tr>
-              <td>Resonance Miner</td>
+              <td><a href="../../ships/Industrial/resonance_miner.html">Resonance Miner</a></td>
               <td>Industrial</td>
               <td>15</td>
             </tr>
             <tr>
-              <td>Rime</td>
+              <td><a href="../../ships/Industrial/rift_siphon.html">Rift Siphon</a></td>
+              <td>Industrial</td>
+              <td>195</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/rime.html">Rime</a></td>
               <td>Industrial</td>
               <td>5</td>
             </tr>
             <tr>
-              <td>Silent Tide</td>
+              <td><a href="../../ships/Support/silent_tide.html">Silent Tide</a></td>
               <td>Support</td>
               <td>28</td>
             </tr>
             <tr>
-              <td>Solipsism</td>
+              <td><a href="../../ships/Covert/solipsism.html">Solipsism</a></td>
               <td>Covert</td>
+              <td>8</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/sublimation.html">Sublimation</a></td>
+              <td>Industrial</td>
+              <td>12</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/substrate.html">Substrate</a></td>
+              <td>Industrial</td>
               <td>14</td>
             </tr>
             <tr>
-              <td>Thermodynamic End</td>
+              <td><a href="../../ships/Combat%20Support/superposition.html">Superposition</a></td>
+              <td>Combat Support</td>
+              <td>75</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Industrial/thermodynamic_end.html">Thermodynamic End</a></td>
               <td>Industrial</td>
               <td>70</td>
             </tr>
             <tr>
-              <td>Voidborn Event Horizon</td>
+              <td><a href="../../ships/Industrial/verglas.html">Verglas</a></td>
+              <td>Industrial</td>
+              <td>28</td>
+            </tr>
+            <tr>
+              <td><a href="../../ships/Combat/voidborn_event_horizon.html">Voidborn Event Horizon</a></td>
               <td>Combat</td>
               <td>80</td>
             </tr>
             <tr>
-              <td>Voidborn Singularity</td>
+              <td><a href="../../ships/Combat/voidborn_singularity.html">Voidborn Singularity</a></td>
               <td>Combat</td>
               <td>36</td>
             </tr>
             </tbody>
           </table>
         </div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../ore/argon_gas.html">Argon Gas</a></td><td>2</td></tr><tr><td><a href="../ore/carbon_ore.html">Carbon Ore</a></td><td>12</td></tr><tr><td><a href="../ore/gold_ore.html">Gold Ore</a></td><td>4</td></tr><tr><td><a href="../ore/nickel_ore.html">Nickel Ore</a></td><td>2</td></tr><tr><td><a href="../ore/silicon_ore.html">Silicon Ore</a></td><td>4</td></tr></tbody></table></div></div>
+        <details class="bom-json-details">
+          <summary>View JSON Data</summary>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;argon_gas&#34;,&#34;quantity&#34;:2},{&#34;item_id&#34;:&#34;carbon_ore&#34;,&#34;quantity&#34;:12},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:4},{&#34;item_id&#34;:&#34;nickel_ore&#34;,&#34;quantity&#34;:2},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:4}]</pre>
+        </details>
+
     </main>
     <script>
     (function() {

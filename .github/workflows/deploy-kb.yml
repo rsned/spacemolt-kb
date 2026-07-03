@@ -3,7 +3,12 @@ name: Deploy Knowledge Base
 on:
   push:
     branches: [main]
-    paths: [kb/**]
+    # overlays/** so portrait-only changes (images live in overlays/, the kb/
+    # copies are gitignored) still trigger a redeploy.
+    paths:
+      - kb/**
+      - overlays/**
+      - scripts/inject-overlay-images.sh
 
 jobs:
   deploy:
@@ -16,6 +21,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Inject overlay images into kb/
+        run: ./scripts/inject-overlay-images.sh
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
