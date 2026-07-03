@@ -5,6 +5,8 @@ go 1.25.0
 require (
 	github.com/anthropics/anthropic-sdk-go v1.27.1
 	github.com/dustin/go-humanize v1.0.1
+	github.com/fogleman/delaunay v0.0.0-20180910191513-63f09b4c883d
+	github.com/lucasb-eyer/go-colorful v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.44
 	github.com/ojrac/opensimplex-go v1.0.2
 	github.com/yuin/goldmark v1.8.2

@@ -1,0 +1,463 @@
+package render
+
+import (
+	"image/color"
+	"math"
+
+	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/feature"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/field"
+)
+
+// bandPalette is the fixed five-color palette for spline-band
+// classification. Index 0 is the lowest band; out-of-range pixels
+// render black.
+var bandPalette = [...]color.RGBA{
+	{R: 70, G: 200, B: 220, A: 255},  // cyan
+	{R: 60, G: 110, B: 230, A: 255},  // blue
+	{R: 80, G: 200, B: 80, A: 255},   // green
+	{R: 240, G: 220, B: 60, A: 255},  // yellow
+	{R: 230, G: 80, B: 60, A: 255},   // red
+}
+
+// ClassifySplineInputBands returns a cube map whose pixels are colored
+// by which input-axis knot interval the corresponding scalar value
+// lands in. For a spline with N knots, intervals are
+// [Knot[0].Input, Knot[1].Input), …, [Knot[N-2].Input, Knot[N-1].Input].
+func ClassifySplineInputBands(values *cubemap.CubeMapF, spline planetcolor.Spline, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	knots := spline.Knots
+	if len(knots) < 2 {
+		return out
+	}
+	intervals := len(knots) - 1
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				v := values.Get(face, px, py)
+				idx := -1
+				for i := 0; i < intervals; i++ {
+					if v >= knots[i].Input && v <= knots[i+1].Input {
+						idx = i
+						break
+					}
+				}
+				if idx < 0 {
+					out.Set(face, px, py, color.RGBA{A: 255})
+					continue
+				}
+				out.Set(face, px, py, bandPalette[idx%len(bandPalette)])
+			}
+		}
+	}
+	return out
+}
+
+// ClassifySplineOutputBands classifies on the spline's output axis.
+func ClassifySplineOutputBands(values *cubemap.CubeMapF, spline planetcolor.Spline, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	knots := spline.Knots
+	if len(knots) < 2 {
+		return out
+	}
+	intervals := len(knots) - 1
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				outVal := planetcolor.EvalSpline(spline, values.Get(face, px, py))
+				idx := -1
+				for i := 0; i < intervals; i++ {
+					lo, hi := knots[i].Output, knots[i+1].Output
+					if hi < lo {
+						lo, hi = hi, lo
+					}
+					if outVal >= lo && outVal <= hi {
+						idx = i
+						break
+					}
+				}
+				if idx < 0 {
+					out.Set(face, px, py, color.RGBA{A: 255})
+					continue
+				}
+				out.Set(face, px, py, bandPalette[idx%len(bandPalette)])
+			}
+		}
+	}
+	return out
+}
+
+// SignedToRGBA renders a signed scalar field with grayscale for
+// non-negative values and a red-intensity ramp for negative values.
+// hi is the absolute scaling factor (values divided by hi before
+// mapping; clamped to [-1, 1]).
+func SignedToRGBA(cm *cubemap.CubeMapF, S int, hi float64) *cubemap.CubeMap {
+	if hi <= 0 {
+		hi = 1
+	}
+	out := cubemap.New(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				v := cm.Get(face, px, py) / hi
+				var c color.RGBA
+				if v >= 0 {
+					if v > 1 {
+						v = 1
+					}
+					g := uint8(v * 255)
+					c = color.RGBA{R: g, G: g, B: g, A: 255}
+				} else {
+					if v < -1 {
+						v = -1
+					}
+					r := uint8(-v * 255)
+					c = color.RGBA{R: r, G: 0, B: 0, A: 255}
+				}
+				out.Set(face, px, py, c)
+			}
+		}
+	}
+	return out
+}
+
+// paintCategoricalCubeMap16 maps each unique int16 id to a distinct
+// hue via golden-ratio stepping. Negative ids (e.g. PlateID=-1
+// sentinel) map to black.
+func paintCategoricalCubeMap16(ids [cubemap.NumFaces][]int16, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	for f := range ids {
+		for i, id := range ids[f] {
+			if id < 0 {
+				out.Faces[f][i] = color.RGBA{A: 255}
+				continue
+			}
+			out.Faces[f][i] = goldenHue(int(id))
+		}
+	}
+	return out
+}
+
+// paintPlateIDWithArrows renders the PlateID categorical cube map with
+// a white arrow drawn at each plate seed pointing in the direction of
+// that plate's instantaneous surface velocity (ω × seed). Arrow arc
+// length scales with AngSpeed so the fastest plate spans ~30° of arc.
+// Arrows are stroked with a black outline so they remain visible
+// against any plate color. Arrows that would cross a face boundary are
+// skipped — keeping the renderer trivial (single-face Bresenham) and
+// accepting that ~1 in 6 plates may have its arrow suppressed when its
+// seed sits near an edge.
+func paintPlateIDWithArrows(pf *field.PlateField, S int) *cubemap.CubeMap {
+	if pf == nil {
+		return cubemap.New(S)
+	}
+	out := paintCategoricalCubeMap16(pf.PlateID, S)
+	var maxSpeed float64
+	for _, p := range pf.Plates {
+		if p.AngSpeed > maxSpeed {
+			maxSpeed = p.AngSpeed
+		}
+	}
+	if maxSpeed == 0 {
+		return out
+	}
+	white := color.RGBA{R: 255, G: 255, B: 255, A: 255}
+	black := color.RGBA{R: 0, G: 0, B: 0, A: 255}
+	// Stroke radii scale with face size so the arrow stays readable
+	// from S=64 (small thumbnails) up through S=512. Outline must be
+	// strictly wider than core so the black halo shows.
+	coreR := S / 96
+	if coreR < 1 {
+		coreR = 1
+	}
+	outlineR := coreR + 1
+	const maxArc = 0.5
+	for _, p := range pf.Plates {
+		wx, wy, wz := p.AngSpeed*p.RotAxis[0], p.AngSpeed*p.RotAxis[1], p.AngSpeed*p.RotAxis[2]
+		vx := wy*p.Seed[2] - wz*p.Seed[1]
+		vy := wz*p.Seed[0] - wx*p.Seed[2]
+		vz := wx*p.Seed[1] - wy*p.Seed[0]
+		vmag := math.Sqrt(vx*vx + vy*vy + vz*vz)
+		if vmag < 1e-9 {
+			continue
+		}
+		vhx, vhy, vhz := vx/vmag, vy/vmag, vz/vmag
+		arc := maxArc * p.AngSpeed / maxSpeed
+		ca, sa := math.Cos(arc), math.Sin(arc)
+		tx := ca*p.Seed[0] + sa*vhx
+		ty := ca*p.Seed[1] + sa*vhy
+		tz := ca*p.Seed[2] + sa*vhz
+		f0, x0, y0 := cubemap.DirToFacePixel(p.Seed[0], p.Seed[1], p.Seed[2], S)
+		f1, x1, y1 := cubemap.DirToFacePixel(tx, ty, tz, S)
+		if f0 != f1 {
+			continue
+		}
+		drawCubeLine(out, f0, x0, y0, x1, y1, black, outlineR)
+		drawArrowhead(out, f0, x0, y0, x1, y1, black, outlineR)
+		drawCubeLine(out, f0, x0, y0, x1, y1, white, coreR)
+		drawArrowhead(out, f0, x0, y0, x1, y1, white, coreR)
+	}
+	return out
+}
+
+// drawCubeLine plots a Bresenham line from (x0,y0) to (x1,y1) on face
+// of cm, clipped to the face bounds. Each plotted pixel is stamped with
+// a square brush of radius r (r=0 → single pixel).
+func drawCubeLine(cm *cubemap.CubeMap, face cubemap.Face, x0, y0, x1, y1 int, c color.RGBA, r int) {
+	dx := absInt(x1 - x0)
+	dy := -absInt(y1 - y0)
+	sx, sy := -1, -1
+	if x0 < x1 {
+		sx = 1
+	}
+	if y0 < y1 {
+		sy = 1
+	}
+	err := dx + dy
+	S := cm.Size
+	for {
+		stampSquare(cm, face, x0, y0, r, c, S)
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * err
+		if e2 >= dy {
+			err += dy
+			x0 += sx
+		}
+		if e2 <= dx {
+			err += dx
+			y0 += sy
+		}
+	}
+}
+
+func stampSquare(cm *cubemap.CubeMap, face cubemap.Face, cx, cy, r int, c color.RGBA, S int) {
+	for dy := -r; dy <= r; dy++ {
+		for dx := -r; dx <= r; dx++ {
+			x, y := cx+dx, cy+dy
+			if x >= 0 && x < S && y >= 0 && y < S {
+				cm.Set(face, x, y, c)
+			}
+		}
+	}
+}
+
+// drawArrowhead draws two short barbs at ±30° from the line heading,
+// pointing back from (x1,y1) toward (x0,y0). Barb length is 35% of
+// shaft length (minimum 4 px).
+func drawArrowhead(cm *cubemap.CubeMap, face cubemap.Face, x0, y0, x1, y1 int, c color.RGBA, r int) {
+	dx := float64(x1 - x0)
+	dy := float64(y1 - y0)
+	mag := math.Sqrt(dx*dx + dy*dy)
+	if mag < 1 {
+		return
+	}
+	dx /= mag
+	dy /= mag
+	bl := math.Max(4, mag*0.35)
+	const ang = math.Pi / 6
+	ca, sa := math.Cos(ang), math.Sin(ang)
+	bx := -dx
+	by := -dy
+	bx1, by1 := bx*ca-by*sa, bx*sa+by*ca
+	bx2, by2 := bx*ca+by*sa, -bx*sa+by*ca
+	x2 := x1 + int(math.Round(bx1*bl))
+	y2 := y1 + int(math.Round(by1*bl))
+	x3 := x1 + int(math.Round(bx2*bl))
+	y3 := y1 + int(math.Round(by2*bl))
+	drawCubeLine(cm, face, x1, y1, x2, y2, c, r)
+	drawCubeLine(cm, face, x1, y1, x3, y3, c, r)
+}
+
+func absInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func paintOceanicMask(pf *field.PlateField, S int) *cubemap.CubeMap {
+	blue := color.RGBA{R: 80, G: 120, B: 200, A: 255}
+	brown := color.RGBA{R: 130, G: 100, B: 70, A: 255}
+	out := cubemap.New(S)
+	for f := range pf.PlateID {
+		for i, id := range pf.PlateID[f] {
+			if id < 0 || int(id) >= len(pf.Plates) {
+				out.Faces[f][i] = color.RGBA{A: 255}
+				continue
+			}
+			if pf.Plates[id].IsOceanic {
+				out.Faces[f][i] = blue
+			} else {
+				out.Faces[f][i] = brown
+			}
+		}
+	}
+	return out
+}
+
+func scalarFromKmPerFace(km [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF {
+	out := cubemap.NewF(S)
+	for f := range km {
+		copy(out.Faces[f], km[f])
+	}
+	return out
+}
+
+// paintBooleanCubeMap renders a per-face boolean mask as a two-tone
+// cube map: river-blue for true pixels, dark-land for false. Used by
+// the debug viewer to display the flow river mask.
+func paintBooleanCubeMap(mask [cubemap.NumFaces][]bool, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	on := color.RGBA{R: 64, G: 192, B: 255, A: 255}
+	off := color.RGBA{R: 16, G: 16, B: 24, A: 255}
+	for f := range mask {
+		for i, b := range mask[f] {
+			if b {
+				out.Faces[f][i] = on
+			} else {
+				out.Faces[f][i] = off
+			}
+		}
+	}
+	return out
+}
+
+// scalarFromAccum renders a flow-accumulation field as a log-scaled
+// scalar cube map. Accumulation values span orders of magnitude (a few
+// dozen at headwaters, tens of thousands at trunk rivers); log10(1+a)
+// compresses that range into a roughly [0, 4] band that the debug
+// viewer's grayscale ramp can display.
+func scalarFromAccum(accum [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF {
+	out := cubemap.NewF(S)
+	for f := range accum {
+		for i, a := range accum[f] {
+			out.Faces[f][i] = math.Log10(1 + a)
+		}
+	}
+	return out
+}
+
+// scalarFromCubeFaces wraps an arbitrary [6][]float64 in a CubeMapF
+// for visualization. Used by stages whose underlying field is already
+// in [0, 1] (no per-face scaling needed).
+func scalarFromCubeFaces(faces [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF {
+	out := cubemap.NewF(S)
+	for f := range faces {
+		out.Faces[f] = make([]float64, S*S)
+		copy(out.Faces[f], faces[f])
+	}
+	return out
+}
+
+// paintCivSites renders civ sites as filled circles colored by
+// population: warm orange to white gradient. The background is
+// solid black so the pattern of inhabited regions stands out. Used
+// by the "Civ: sites" debug stage.
+func paintCivSites(sites []feature.Site, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	// Black background.
+	black := color.RGBA{R: 0, G: 0, B: 0, A: 255}
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				out.Set(face, px, py, black)
+			}
+		}
+	}
+	for _, s := range sites {
+		// Site center direction -> face/pixel.
+		face, cx, cy := cubemap.DirToFacePixel(s.Dir[0], s.Dir[1], s.Dir[2], S)
+		// Radius: 4 px at S=64, scales linearly with face size and
+		// with sqrt(pop) so a tier-1 metropolis dominates a tier-0.3
+		// town visually but not by orders of magnitude.
+		rPx := int(math.Round(4.0 * float64(S) / 64.0 * math.Sqrt(s.Population)))
+		if rPx < 1 {
+			rPx = 1
+		}
+		// Palette: low-pop dim orange -> high-pop bright yellow-white.
+		// Population is in [0, 1] by construction (Zipfian, capped at
+		// MaxPopulation <= 1) so the additions stay within uint8 range.
+		// Starting at (140, 90, 30) gives small-town dots a warm-orange
+		// tone that reads as "settlement" rather than "warning marker"
+		// while still letting tier-1 sites tend toward white-yellow.
+		r := uint8(140 + 100*s.Population)
+		g := uint8(90 + 150*s.Population)
+		b := uint8(30 + 100*s.Population)
+		fill := color.RGBA{R: r, G: g, B: b, A: 255}
+		for dy := -rPx; dy <= rPx; dy++ {
+			for dx := -rPx; dx <= rPx; dx++ {
+				if dx*dx+dy*dy > rPx*rPx {
+					continue
+				}
+				f, npx, npy := cubemap.OffsetPixel(face, cx, cy, dx, dy, S)
+				out.Set(f, npx, npy, fill)
+			}
+		}
+	}
+	return out
+}
+
+// paintCloudShaded renders the post-shadow cloud Density as a
+// grayscale RGBA cube-map (no alpha — debug stages render at full
+// opacity).
+func paintCloudShaded(cf *feature.CloudField, S int) *cubemap.CubeMap {
+	out := cubemap.New(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for i, d := range cf.Density[face] {
+			v := uint8(0)
+			if d > 0 {
+				if d >= 1 {
+					v = 255
+				} else {
+					v = uint8(255 * d)
+				}
+			}
+			out.Faces[face][i] = color.RGBA{R: v, G: v, B: v, A: 255}
+		}
+	}
+	return out
+}
+
+// scalarFromMultiplier copies a per-pixel multiplier field (e.g. the
+// rain-shadow humidity multiplier) into a CubeMapF. The values are
+// already in a sensible [0, ~2] range so no transform is applied.
+func scalarFromMultiplier(mult [cubemap.NumFaces][]float64, S int) *cubemap.CubeMapF {
+	out := cubemap.NewF(S)
+	for f := range mult {
+		copy(out.Faces[f], mult[f])
+	}
+	return out
+}
+
+func goldenHue(id int) color.RGBA {
+	const phi = 0.61803398875
+	h := math.Mod(float64(id)*phi, 1.0)
+	return hsvToRGB(h, 0.65, 0.85)
+}
+
+func hsvToRGB(h, s, v float64) color.RGBA {
+	i := int(h * 6)
+	f := h*6 - float64(i)
+	p := v * (1 - s)
+	q := v * (1 - f*s)
+	t := v * (1 - (1-f)*s)
+	var r, g, b float64
+	switch i % 6 {
+	case 0:
+		r, g, b = v, t, p
+	case 1:
+		r, g, b = q, v, p
+	case 2:
+		r, g, b = p, v, t
+	case 3:
+		r, g, b = p, q, v
+	case 4:
+		r, g, b = t, p, v
+	case 5:
+		r, g, b = v, p, q
+	}
+	return color.RGBA{R: uint8(r * 255), G: uint8(g * 255), B: uint8(b * 255), A: 255}
+}

@@ -303,6 +303,12 @@ Detailed plan written at start of Phase 2.
 
 **25. Reaction-diffusion ripples (`pkg/planetgen/feature/ripples.go` + `cmd/tools/gen-ripples`).** Gray-Scott offline once, low-res, wind-direction forcing → tileable ripple texture committed as asset. Sampled with item-22 wind-tangent rotation per dune cell. ~180 LOC.
 
+**26. Civilization age + decay axis (extend `pkg/planetgen/feature/civ.go` + `roads.go`).** Adds an orthogonal age dimension to the existing Phase 9b `Tier` intensity knob: `CivAge` (0 = stone-age / pre-industrial, 0.5 = industrial, 1 = modern/spacefaring) and `CivDecay` (0 = active, 1 = ruins). Mostly cosmetic — reads knobs in existing render passes, no generator re-run, no golden re-bake required:
+- Below an industrial threshold, force night-light intensity to 0 and skip A* terrain-cost routing (use raw MST edges as dirt tracks).
+- High decay desaturates day-side city patches, partially erases road pixels, reverts agriculture grids to wild.
+- Spacefaring is identical to modern on the surface; orbital signatures (ring debris, satellite glints) belong in a separate render pass and are out of scope here.
+Adds slider-tool civ controls (per-knob sliders for the existing `CivConfig` fields plus the new two). ~150 LOC + UI.
+
 ## 9. Phase 5 — per-planet profile JSON
 
 Every planet gets a self-contained JSON profile committed to the repo. Generator reads it if present; otherwise falls back to per-type defaults. Slider tool can open, edit, and save back via the dev server.

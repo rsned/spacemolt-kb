@@ -36,6 +36,13 @@ vendor/
 # Diff report runtime data
 data/snapshots/
 
+# Build artifacts from `go build` of cmd/* binaries
+/generate-planet-maps
+/planet-land-ratio-test
+/planet-explorer
+cmd/planet-explorer/web/planet-explorer.wasm
+!cmd/planet-explorer/web/planet-explorer.wasm
+
 # Built binaries — build into bin/, never commit them to the repo root.
 bin/
 /generate-factions-kb
@@ -80,3 +87,4 @@ kb/factions/**/*.jpg
 kb/factions/**/*.jpeg
 kb/factions/**/*.webp
 kb/factions/**/*.gif
+>>>>>>> origin/main

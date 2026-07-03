@@ -4,7 +4,7 @@
 
 **Goal:** Port the existing `cmd/generate-planet-maps` equirect generator to a cube-map intermediate (4×3 horizontal cross, 1024-pixel face), bake to equirect on output, decompose `pkg/planetgen` into subpackages, and land golden-image + lint + Wasm-build CI gates — all with **no visible change** to planet imagery.
 
-**Architecture:** The current pipeline samples noise on a unit sphere then writes results into a 2000×1000 equirect grid. After this refactor it will: (1) iterate the 6 faces of a cube-map of side `S=1024`, (2) compute each pixel's 3D unit direction via `cubemap.FacePixelToDir`, (3) sample noise with the same call signature as today, (4) write into a `*cubemap.CubeMap`, (5) bake a 2000×1000 equirect thumbnail as a final post-pass. Both files are persisted per planet. No algorithm change; the only computational difference is sampling 6×1024² = ~6.3M points instead of 2000×1000 = 2M. Code reorganized into one root package + 8 subpackages.
+**Architecture:** The current pipeline samples noise on a unit sphere then writes results into a 2000×1000 equirect grid. After this refactor it will: (1) iterate the 6 faces of a cube-map of side `S=1024`, (2) compute each pixel's 3D unit direction via `cubemap.FacePixelToDir`, (3) sample noise with the same call signature as today, (4) write into a `*cubemap.CubeMap`, (5) bake a 2000×1000 equirect thumbnail as a final post-pass. Both files are persisted per planet. No algorithm change; the only computational difference is sampling 6×1024² = ~6.3M points instead of 2000×1000 = 2M. Code reorganized into one root package + 9 subpackages.
 
 **Tech Stack:** Go 1.24, `github.com/ojrac/opensimplex-go` (existing), `github.com/lucasb-eyer/go-colorful` (new — added solely for the golden-diff CLI's ΔE2000 metric in Phase 0; reused in Phase 1 for OkLab blending), `golangci-lint` (new — config added in this phase), GitHub Actions (CI matrix gets a Wasm build step).
 
@@ -28,6 +28,9 @@ pkg/planetgen/
 │   └── bake_test.go
 ├── noise/doc.go            (subpackage skeleton)
 ├── color/doc.go            (subpackage skeleton)
+├── types/
+│   ├── doc.go              (PlanetProfile shared type — breaks circular planetgen ↔ render import)
+│   └── types.go            (PlanetProfile struct)
 ├── field/doc.go            (subpackage skeleton — empty in Phase 0)
 ├── biome/doc.go            (subpackage skeleton — empty in Phase 0)
 ├── feature/doc.go          (subpackage skeleton)
@@ -46,6 +49,8 @@ cmd/
 .golangci.yml               (new — depguard + standard linters)
 .github/workflows/build-test.yml  (new — go test + wasm build gate)
 ```
+
+**Note:** `pkg/planetgen/types` was added during Task 14 to break a circular import that arose when the root planetgen package began importing render (which itself needs the PlanetProfile type). It is a leaf package containing only the PlanetProfile struct definition; both planetgen (root) and render import it.
 
 **Files moved (relocated, body adapted):**
 

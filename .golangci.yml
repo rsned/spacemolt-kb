@@ -1,0 +1,49 @@
+version: "2"
+
+run:
+  timeout: 5m
+  go: "1.24"
+
+linters:
+  default: standard
+  enable:
+    - depguard
+
+  settings:
+    depguard:
+      rules:
+        main:
+          list-mode: lax
+          allow:
+            - $gostd
+            - github.com/rsned/spacemolt-kb
+            - github.com/ojrac/opensimplex-go
+            - github.com/lucasb-eyer/go-colorful
+            - github.com/dustin/go-humanize
+            - github.com/anthropics/anthropic-sdk-go
+            - github.com/google/uuid
+            - github.com/mattn/go-isatty
+            - github.com/ncruces/go-strftime
+            - github.com/remyoudompheng/bigfft
+            - github.com/tidwall
+            - modernc.org/sqlite
+            - modernc.org/libc
+            - modernc.org/mathutil
+            - modernc.org/memory
+            - golang.org/x
+          deny:
+            - pkg: "C"
+              desc: "cgo is forbidden; pkg/planetgen and cmd/planet-explorer must compile to Wasm"
+
+  # Pre-existing findings deferred from Phase 0 scope; address in their own
+  # cleanup task. New code in pkg/planetgen, cmd/generate-planet-maps, and
+  # cmd/tools must remain clean.
+  exclusions:
+    rules:
+      - path: pkg/planetgen/profile.go
+        text: "composites:"
+        linters: [govet]
+      - path: cmd/generate-galaxy-map/main.go
+        linters: [staticcheck]
+      - path: pkg/systemmap/planets.go
+        linters: [staticcheck]

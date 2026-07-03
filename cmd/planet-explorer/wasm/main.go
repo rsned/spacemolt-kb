@@ -1,0 +1,348 @@
+// Wasm entrypoint for cmd/planet-explorer. Builds with GOOS=js
+// GOARCH=wasm into cmd/planet-explorer/web/planet-explorer.wasm.
+//
+// Exposes functions on the JS global scope:
+//
+//	planetExplorerGenerate(profileJSON string, seedStr string, faceSize int)                   Uint8Array
+//	planetExplorerGenerateNight(profileJSON, seedStr, faceSize)                                Uint8Array (empty when civ disabled)
+//	planetExplorerBakeEquirect(cubePNG Uint8Array, w int, h int)                               Uint8Array
+//	planetExplorerDefaultProfile(planetType string)                                             string  // JSON
+//	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)                    string  // JSON
+//
+//go:build js && wasm
+
+package main
+
+import (
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"image/png"
+	"syscall/js"
+
+	"github.com/rsned/spacemolt-kb/pkg/planetgen"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
+)
+
+func main() {
+	// Wasm has no filesystem; force planetgen to skip the disk lookup
+	// and use the in-code GetProfile defaults exclusively.
+	planetgen.SetProfileRoot("")
+	js.Global().Set("planetExplorerGenerate", js.FuncOf(generate))
+	js.Global().Set("planetExplorerGenerateNight", js.FuncOf(generateNight))
+	js.Global().Set("planetExplorerGenerateHeightmap", js.FuncOf(generateHeightmap))
+	js.Global().Set("planetExplorerBakeEquirect", js.FuncOf(bakeEquirect))
+	js.Global().Set("planetExplorerDefaultProfile", js.FuncOf(defaultProfile))
+	js.Global().Set("planetExplorerGenerateDebug", js.FuncOf(generateDebug))
+	js.Global().Set("planetExplorerGenerateWithBypass", js.FuncOf(generateWithBypass))
+	<-make(chan struct{}) // keep the WASM process alive
+}
+
+// generateHeightmap(profileJSON, seedStr, faceSize) → Uint8Array of
+// grayscale cube-map cross PNG bytes. Rocky-only debug view; gas-giant
+// profiles return an error.
+func generateHeightmap(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("generateHeightmap: expected 3 args, got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateHeightmap: bad profile JSON: %v", err)
+	}
+	if prof.Renderer != "rocky" {
+		return jsError("generateHeightmap: only rocky profiles support heightmap view")
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+	cm := render.RenderRockyHeightmap(&prof, s, faceSize)
+
+	var buf bytes.Buffer
+	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+		return jsError("generateHeightmap: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
+}
+
+// generate(profileJSON, seedStr, faceSize) → Uint8Array of cube-map cross PNG bytes.
+func generate(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("generate: expected 3 args, got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generate: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	var cm *cubemap.CubeMap
+	switch prof.Renderer {
+	case "rocky":
+		cm = render.RenderRocky(&prof, s, faceSize)
+	case "gas_giant":
+		cm = render.RenderGasGiant(&prof, s, faceSize)
+	default:
+		return jsError("generate: unknown renderer %q", prof.Renderer)
+	}
+
+	var buf bytes.Buffer
+	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+		return jsError("generate: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
+}
+
+// generateNight(profileJSON, seedStr, faceSize) → Uint8Array of cube-map
+// cross PNG bytes for the Phase 9b Black-Marble nightside, or an empty
+// Uint8Array when civ is disabled (Civ.Tier == 0) or the renderer
+// doesn't support civ. The JS side treats empty as "no night layer".
+func generateNight(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("generateNight: expected 3 args, got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateNight: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	if prof.Renderer != "rocky" {
+		return jsBytes(nil)
+	}
+	cm := render.RenderNightCubeMap(&prof, s, faceSize)
+	if cm == nil {
+		return jsBytes(nil)
+	}
+	var buf bytes.Buffer
+	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+		return jsError("generateNight: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
+}
+
+// bakeEquirect(cubePNGBytes, width, height) → Uint8Array of equirect PNG bytes.
+func bakeEquirect(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("bakeEquirect: expected 3 args, got %d", len(args))
+	}
+	cubeBytes := goBytes(args[0])
+	w := args[1].Int()
+	h := args[2].Int()
+
+	cm, err := cubemap.ReadCrossPNGFrom(bytes.NewReader(cubeBytes))
+	if err != nil {
+		return jsError("bakeEquirect: read: %v", err)
+	}
+	img := cubemap.BakeEquirect(cm, w, h)
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil {
+		return jsError("bakeEquirect: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
+}
+
+// defaultProfile(planetType) → JSON string of the in-code default for that type.
+func defaultProfile(_ js.Value, args []js.Value) any {
+	if len(args) != 1 {
+		return jsError("defaultProfile: expected 1 arg, got %d", len(args))
+	}
+	prof := planetgen.GetProfile(args[0].String())
+	if prof == nil {
+		return jsError("defaultProfile: unknown type %q", args[0].String())
+	}
+	b, err := json.Marshal(prof)
+	if err != nil {
+		return jsError("defaultProfile: marshal: %v", err)
+	}
+	return string(b)
+}
+
+// generateWithBypass(profileJSON, seedStr, faceSize, bypassJSON) →
+// Uint8Array of cube-map cross PNG bytes for the rocky pipeline with
+// the given debug bypass set applied. Mirrors generate() but routes
+// through RenderRockyDebug so per-stage bypasses (e.g. LUT) take effect
+// on the main sphere render. Falls back to plain generate() semantics
+// when bypassJSON is empty or the profile is gas_giant.
+func generateWithBypass(_ js.Value, args []js.Value) any {
+	if len(args) != 4 {
+		return jsError("generateWithBypass: expected 4 args (profileJSON, seed, faceSize, bypassJSON), got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateWithBypass: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	var bypass render.DebugBypass
+	if args[3].Type() == js.TypeString && args[3].String() != "" {
+		var arr []string
+		if err := json.Unmarshal([]byte(args[3].String()), &arr); err == nil && len(arr) > 0 {
+			bypass = make(render.DebugBypass, len(arr))
+			for _, name := range arr {
+				bypass[name] = true
+			}
+		}
+	}
+
+	var cm *cubemap.CubeMap
+	if prof.Renderer == "rocky" && bypass != nil {
+		// frame.Final is the fully-composited day-side cube map after
+		// the colorize pass — exactly what RenderRocky returns. Reading
+		// it directly (instead of reverse-walking Stages) avoids picking
+		// up debug-only overlay stages appended after the main pipeline
+		// (Cloud: shaded, Civ: <part>, etc.).
+		frame := render.RenderRockyDebug(&prof, s, faceSize, bypass)
+		cm = frame.Final
+		if cm == nil {
+			return jsError("generateWithBypass: colorize returned nil")
+		}
+	} else {
+		switch prof.Renderer {
+		case "rocky":
+			cm = render.RenderRocky(&prof, s, faceSize)
+		case "gas_giant":
+			cm = render.RenderGasGiant(&prof, s, faceSize)
+		default:
+			return jsError("generateWithBypass: unknown renderer %q", prof.Renderer)
+		}
+	}
+
+	var buf bytes.Buffer
+	if err := cubemap.WriteCrossPNGTo(cm, &buf); err != nil {
+		return jsError("generateWithBypass: encode: %v", err)
+	}
+	return jsBytes(buf.Bytes())
+}
+
+// generateDebug(profileJSON, seedStr, faceSize, bypassJSON) → JSON string
+// with per-stage base64-encoded equirect PNG thumbnails. bypassJSON is an
+// optional JSON array of stage names to dry-run (pass "" to skip).
+func generateDebug(_ js.Value, args []js.Value) any {
+	if len(args) < 4 {
+		return jsError("generateDebug: expected 4 args (profileJSON, seed, faceSize, bypassJSON), got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("generateDebug: bad profile JSON: %v", err)
+	}
+	s := seed.Hash(args[1].String())
+	faceSize := args[2].Int()
+
+	var bypass render.DebugBypass
+	if args[3].Type() == js.TypeString && args[3].String() != "" {
+		var arr []string
+		if err := json.Unmarshal([]byte(args[3].String()), &arr); err == nil && len(arr) > 0 {
+			bypass = make(render.DebugBypass, len(arr))
+			for _, name := range arr {
+				bypass[name] = true
+			}
+		}
+	}
+
+	frame := render.RenderRockyDebug(&prof, s, faceSize, bypass)
+	eqW, eqH := faceSize*2, faceSize
+
+	// encodeCM encodes a *cubemap.CubeMap as a base64 PNG string.
+	encodeCM := func(cm *cubemap.CubeMap) string {
+		if cm == nil {
+			return ""
+		}
+		img := cubemap.BakeEquirect(cm, eqW, eqH)
+		var buf bytes.Buffer
+		_ = png.Encode(&buf, img)
+		return base64.StdEncoding.EncodeToString(buf.Bytes())
+	}
+
+	// encodeCMF encodes a *cubemap.CubeMapF as a base64 PNG string.
+	// When signed is true the field is treated as signed (rendered with
+	// SignedToRGBA); otherwise it is treated as [0,1] grayscale.
+	encodeCMF := func(cmF *cubemap.CubeMapF, signed bool) string {
+		if cmF == nil {
+			return ""
+		}
+		var cm *cubemap.CubeMap
+		if signed {
+			// Auto-scale signed thumbnails to per-stage max-abs so small-
+			// amplitude deltas (e.g. Coastal at Amp=0.05) stay visible
+			// instead of mapping to near-black under a fixed hi=1.0.
+			maxAbs := 0.0
+			for face := range cmF.Faces {
+				for _, v := range cmF.Faces[face] {
+					if v < 0 {
+						v = -v
+					}
+					if v > maxAbs {
+						maxAbs = v
+					}
+				}
+			}
+			if maxAbs < 1e-9 {
+				maxAbs = 1.0
+			}
+			cm = render.SignedToRGBA(cmF, cmF.Size, maxAbs)
+		} else {
+			cm = cubemap.GrayscaleFromF(cmF)
+		}
+		return encodeCM(cm)
+	}
+
+	stages := make([]map[string]any, 0, len(frame.Stages))
+	for _, st := range frame.Stages {
+		row := map[string]any{
+			"name":    st.Name,
+			"kind":    st.Kind,
+			"skipped": st.Skipped,
+		}
+		switch st.Kind {
+		case "color":
+			row["color_after"] = encodeCM(st.ColorAfter)
+		case "field":
+			switch {
+			case st.CategoricalAfter != nil:
+				row["field_after"] = encodeCM(st.CategoricalAfter)
+			case st.BooleanAfter != nil:
+				row["field_after"] = encodeCM(st.BooleanAfter)
+			case st.ScalarAfter != nil:
+				// SDFs are in km (non-negative, range 0..π·R); auto-scale via the
+				// signed encoder so faint near-boundary values stay visible.
+				row["field_after"] = encodeCMF(st.ScalarAfter, true)
+			}
+			if st.Combined != nil {
+				row["combined"] = encodeCM(st.Combined)
+			}
+		default:
+			row["raw"] = encodeCMF(st.RawFbm, true)
+			row["input_bands"] = encodeCM(st.InputBands)
+			row["output_bands"] = encodeCM(st.OutputBands)
+			row["sum_after"] = encodeCMF(st.SumAfter, false)
+		}
+		stages = append(stages, row)
+	}
+	out, _ := json.Marshal(map[string]any{"stages": stages})
+	return js.ValueOf(string(out))
+}
+
+func goBytes(uint8Array js.Value) []byte {
+	n := uint8Array.Length()
+	out := make([]byte, n)
+	js.CopyBytesToGo(out, uint8Array)
+	return out
+}
+
+func jsBytes(b []byte) js.Value {
+	out := js.Global().Get("Uint8Array").New(len(b))
+	js.CopyBytesToJS(out, b)
+	return out
+}
+
+func jsError(format string, args ...any) js.Value {
+	m := map[string]any{"error": fmt.Sprintf(format, args...)}
+	b, _ := json.Marshal(m)
+	return js.ValueOf(string(b))
+}
