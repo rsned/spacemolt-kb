@@ -142,16 +142,36 @@ func main() {
 		}
 	}
 
+	// A landing-page thumbnail is derived from each passenger's hero image
+	// (contributor overlay image first, else the generated AI portrait). Set the
+	// filename before rendering the index so the table can reference it.
+	for _, p := range passengers {
+		if (p.Overlay != nil && p.Overlay.ImageFile != "") || p.PortraitFile != "" {
+			p.ThumbFile = thumbName
+		}
+	}
+
 	mustWrite(filepath.Join(passengersOut, "index.html"), psIdx, passengers)
 	for _, p := range passengers {
 		dir := filepath.Join(passengersOut, p.Slug)
 		mustMkdir(dir)
 		mustWrite(filepath.Join(dir, "index.html"), psDet, p)
-		if p.Overlay != nil {
+		hero := ""
+		if p.Overlay != nil && p.Overlay.ImageFile != "" {
 			copyOverlayImage(filepath.Join(overlaysRoot, "passengers", p.ID), p.Overlay.ImageFile, dir)
+			hero = p.Overlay.ImageFile
 		}
 		if p.PortraitFile != "" {
 			copyOverlayImage(passengerGeneratedDir(overlaysRoot, p.ID), p.PortraitFile, dir)
+			if hero == "" {
+				hero = p.PortraitFile
+			}
+		}
+		// Downscale the hero image to a lightweight landing-page thumbnail.
+		if hero != "" {
+			if err := writeThumbnail(filepath.Join(dir, hero), filepath.Join(dir, thumbName), thumbSize); err != nil {
+				log.Printf("warning: passenger thumbnail %s: %v", p.Slug, err)
+			}
 		}
 	}
 

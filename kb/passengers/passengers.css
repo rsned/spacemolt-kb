@@ -14,6 +14,19 @@
 }
 .infobox-silhouette .silhouette { width: 100%; height: auto; display: block; }
 
+/* Landing-page name cell: thumbnail + name on one baseline. */
+.pname { display: flex; align-items: center; gap: 10px; }
+.pthumb {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    border-radius: 5px;
+    object-fit: cover;
+    background: var(--bg-hover, rgba(128, 128, 128, 0.12));
+}
+/* Placeholder keeps names aligned when a passenger has no hero image. */
+.pthumb-none { display: inline-block; border: 1px dashed var(--border, rgba(128, 128, 128, 0.35)); }
+
 /* Contributor overlay body (mirrors players.css). */
 .overlay-credit { font-size: 12px; font-style: italic; margin: 0 0 .4rem; }
 .overlay-body { max-width: 70ch; line-height: 1.65; }

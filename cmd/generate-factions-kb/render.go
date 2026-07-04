@@ -366,7 +366,7 @@ var passengerIndexTmpl = `<!DOCTYPE html>
             <tbody>
 {{- range .}}
                 <tr>
-                    <td><a href="{{.Slug}}/">{{.Name}}</a></td>
+                    <td class="pname">{{if .ThumbFile}}<img class="pthumb" src="{{.Slug}}/{{.ThumbFile}}" width="32" height="32" loading="lazy" decoding="async" alt="">{{else}}<span class="pthumb pthumb-none" aria-hidden="true"></span>{{end}}<a href="{{.Slug}}/">{{.Name}}</a></td>
                     <td>{{dash .Citizenship}}</td>
                     <td>{{dash .Class}}</td>
                     <td data-sort="{{.SightingCount}}">{{.SightingCount}}</td>

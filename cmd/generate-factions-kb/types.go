@@ -122,4 +122,5 @@ type Passenger struct {
 	Overlay        *Overlay // contributor-authored content, nil when none
 	PortraitFile   string   // generated AI portrait filename, "" when none
 	PortraitPrompt string   // prompt used to generate PortraitFile, "" when none
+	ThumbFile      string   // landing-page thumbnail filename, "" when no hero image
 }
