@@ -20,10 +20,9 @@ type Context struct {
 	SeaLevelView float64
 }
 
-// seaLevelView resolves the effective waterline sea level.
-// Used by waterlines layer task (12).
-//
-//nolint:unused
+// seaLevelView resolves the effective waterline sea level: the
+// SeaLevelView slider override when set, else the sphere's post-flow
+// quantile. Used by applyWaterlines (layer 11).
 func (c *Context) seaLevelView() float64 {
 	if c.SeaLevelView > 0 {
 		return c.SeaLevelView
@@ -92,6 +91,7 @@ func Layers() []Layer {
 	ls[8].Enabled = flowEnabled
 	ls[9].Apply = applyClimate
 	ls[10].Apply = applyBiomeColor
+	ls[11].Apply = applyWaterlines
 	for i := range ls {
 		ls[i].Index = i
 		if ls[i].Enabled == nil {
