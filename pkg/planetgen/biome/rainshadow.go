@@ -68,13 +68,26 @@ func GenerateRainShadow(heightmap *cubemap.CubeMapF, cfg types.RainShadowConfig)
 		for py := range S {
 			for px := range S {
 				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
-				wind := prevailingWindTangent(dx, dy, dz)
-				m := walkUpwindForOrography(heightmap, dx, dy, dz, wind, cfg)
-				out.Multiplier[face][py*S+px] = m
+				out.Multiplier[face][py*S+px] = RainShadowMultiplierAt(heightmap.Sample, dx, dy, dz, cfg)
 			}
 		}
 	}
 	return out
+}
+
+// RainShadowMultiplierAt computes the per-pixel orographic moisture
+// multiplier at sphere direction (dx, dy, dz) by classifying the
+// prevailing wind and walking upwind against an arbitrary height
+// sampler. sample is typically a *cubemap.CubeMapF's Sample method,
+// but any function returning a normalized height in [0,1] for a unit
+// direction works (e.g. a flat-patch height field).
+//
+// Extracted verbatim from GenerateRainShadow's per-pixel body so the
+// flat-patch renderer can reuse the exact formula; the walk's sole
+// height read (previously heightmap.Sample) is routed through sample.
+func RainShadowMultiplierAt(sample func(x, y, z float64) float64, dx, dy, dz float64, cfg types.RainShadowConfig) float64 {
+	wind := prevailingWindTangent(dx, dy, dz)
+	return walkUpwindForOrography(sample, dx, dy, dz, wind, cfg)
 }
 
 // prevailingWindTangent returns the prevailing-wind tangent at sphere
@@ -184,7 +197,7 @@ func smoothstep01(x float64) float64 {
 //   - walk encounters a peak before any non-peak step: 1 + WindRainBoost
 //   - walk passes a peak then continues past it:       LeeFactor
 //   - otherwise:                                       1.0
-func walkUpwindForOrography(heightmap *cubemap.CubeMapF, dx, dy, dz float64, wind [3]float64, cfg types.RainShadowConfig) float64 {
+func walkUpwindForOrography(sample func(x, y, z float64) float64, dx, dy, dz float64, wind [3]float64, cfg types.RainShadowConfig) float64 {
 	cosA := math.Cos(cfg.StepArcRad)
 	sinA := math.Sin(cfg.StepArcRad)
 
@@ -219,7 +232,7 @@ func walkUpwindForOrography(heightmap *cubemap.CubeMapF, dx, dy, dz float64, win
 		}
 		nx, ny, nz = nx/nn, ny/nn, nz/nn
 
-		h := heightmap.Sample(nx, ny, nz)
+		h := sample(nx, ny, nz)
 		isPeak := h >= cfg.MountainCutoff
 		switch {
 		case isPeak && !peakSeen:

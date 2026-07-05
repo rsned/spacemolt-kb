@@ -90,17 +90,6 @@ func GenerateHabitability(
 		hf.Score[f] = make([]float64, S*S)
 	}
 
-	// Lowland-bonus smoothstep anchors. When oceanLevel > 0, the bonus
-	// only starts ramping above sea level so ocean pixels score 0 in the
-	// height term. The +0.05 upper anchor lets a shallow continent at
-	// h=oceanLevel+0.05 still earn most of the bonus.
-	lowA := habHeightLowA
-	lowB := habHeightLowB
-	if oceanLevel > 0 {
-		lowA = oceanLevel
-		lowB = oceanLevel + habOceanRampWidth
-	}
-
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		hSlice := heightmap.Faces[face]
 		tSlice := tField.Faces[face]
@@ -125,54 +114,84 @@ func GenerateHabitability(
 			t := tSlice[i]
 			m := mSlice[i]
 
-			// Height: bonus for lowland/mid (anchored to oceanLevel
-			// when present), penalty for peaks (mountain penalty is
-			// independent of OceanLevel).
-			score := habWeightHeightLow * smoothstep(lowA, lowB, h)
-			score -= habWeightHeightHigh * smoothstep(habHeightHighA, habHeightHighB, h)
-
-			// Temperature: gaussian centered on temperate.
-			score += habWeightTemp * gaussian(t, habTempMu, habTempSigma)
-
-			// Moisture × rain shadow.
 			rs := 1.0
 			if rsSlice != nil {
 				rs = rsSlice[i]
 			}
-			score += habWeightMoist * gaussian(m*rs, habMoistMu, habMoistSigma)
-
-			// River boost: binary "is river?" — the plan formula uses
-			// smoothstep(0, 0.05, riverDistRecip) but with no per-pixel
-			// river-distance SDF available we collapse to a saturated
-			// 1.0 when the pixel is on a river, 0 otherwise.
-			if rivers != nil && rivers[i] {
-				score += habWeightRiver
+			onRiver := rivers != nil && rivers[i]
+			convKm := math.Inf(1)
+			if convergent != nil {
+				convKm = convergent[i]
 			}
 
-			// Convergent-boundary volcanism penalty: binary cutoff at
-			// habConvergeKm. plates.Convergent is a per-pixel
-			// distance-to-nearest-convergent-boundary in km.
-			if convergent != nil && convergent[i] < habConvergeKm {
-				score -= habWeightConvergent
-			}
-
-			// Clamp to [0, 1].
-			if score < 0 {
-				score = 0
-			} else if score > 1 {
-				score = 1
-			}
-			// Hard ocean guard: pixels below sea level are not habitable
-			// regardless of climate. Skip when oceanLevel <= 0 (rare
-			// archetype with no ocean). Strict <: pixels at exactly
-			// h == oceanLevel are treated as shoreline, not ocean.
-			if oceanLevel > 0 && h < oceanLevel {
-				score = 0
-			}
-			out[i] = score
+			out[i] = HabitabilityScoreAt(h, t, m, rs, onRiver, convKm, oceanLevel)
 		}
 	}
 	return hf
+}
+
+// HabitabilityScoreAt computes the per-pixel habitability score in
+// [0,1] from height, temperature, moisture, rain-shadow multiplier,
+// river adjacency, distance-to-convergent-boundary, and the
+// archetype's ocean level. Callers without plate data should pass
+// convergentKm = math.Inf(1); callers without a rain-shadow field
+// should pass rainMult = 1.
+//
+// Extracted verbatim from GenerateHabitability's per-pixel loop body
+// so the flat-patch renderer can reuse the exact formula.
+func HabitabilityScoreAt(h, t, m, rainMult float64, onRiver bool, convergentKm, oceanLevel float64) float64 {
+	// Lowland-bonus smoothstep anchors. When oceanLevel > 0, the bonus
+	// only starts ramping above sea level so ocean pixels score 0 in the
+	// height term. The +0.05 upper anchor lets a shallow continent at
+	// h=oceanLevel+0.05 still earn most of the bonus.
+	lowA := habHeightLowA
+	lowB := habHeightLowB
+	if oceanLevel > 0 {
+		lowA = oceanLevel
+		lowB = oceanLevel + habOceanRampWidth
+	}
+
+	// Height: bonus for lowland/mid (anchored to oceanLevel
+	// when present), penalty for peaks (mountain penalty is
+	// independent of OceanLevel).
+	score := habWeightHeightLow * smoothstep(lowA, lowB, h)
+	score -= habWeightHeightHigh * smoothstep(habHeightHighA, habHeightHighB, h)
+
+	// Temperature: gaussian centered on temperate.
+	score += habWeightTemp * gaussian(t, habTempMu, habTempSigma)
+
+	// Moisture × rain shadow.
+	score += habWeightMoist * gaussian(m*rainMult, habMoistMu, habMoistSigma)
+
+	// River boost: binary "is river?" — the plan formula uses
+	// smoothstep(0, 0.05, riverDistRecip) but with no per-pixel
+	// river-distance SDF available we collapse to a saturated
+	// 1.0 when the pixel is on a river, 0 otherwise.
+	if onRiver {
+		score += habWeightRiver
+	}
+
+	// Convergent-boundary volcanism penalty: binary cutoff at
+	// habConvergeKm. convergentKm is the per-pixel
+	// distance-to-nearest-convergent-boundary in km.
+	if convergentKm < habConvergeKm {
+		score -= habWeightConvergent
+	}
+
+	// Clamp to [0, 1].
+	if score < 0 {
+		score = 0
+	} else if score > 1 {
+		score = 1
+	}
+	// Hard ocean guard: pixels below sea level are not habitable
+	// regardless of climate. Skip when oceanLevel <= 0 (rare
+	// archetype with no ocean). Strict <: pixels at exactly
+	// h == oceanLevel are treated as shoreline, not ocean.
+	if oceanLevel > 0 && h < oceanLevel {
+		score = 0
+	}
+	return score
 }
 
 // smoothstep is the canonical Hermite blend on (a, b). Below a

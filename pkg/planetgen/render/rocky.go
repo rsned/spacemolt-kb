@@ -960,12 +960,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 						h := heightmap.Get(face, px, py)
 						if h > profile.SnowLine {
 							c := out.Get(face, px, py)
-							t := (h - profile.SnowLine) / (1.0 - profile.SnowLine)
-							snowBlend := t * t * (3 - 2*t)
-							snowBlend = math.Min(1.0, snowBlend*1.5)
-							latBoost := 1.0 + absLat*0.5
-							snowBlend = math.Min(1.0, snowBlend*latBoost)
-							out.Set(face, px, py, planetcolor.BlendOkLab(c, whiteSnow, snowBlend*0.85))
+							out.Set(face, px, py, SnowPixel(c, h, absLat, profile.SnowLine))
 						}
 					}
 				}
@@ -991,34 +986,10 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 					dx, dy, dz := warper.Warp(rawX, rawY, rawZ)
 					h := heightmap.Get(face, px, py)
 					if h < profile.OceanLevel {
-						depth := (profile.OceanLevel - h) / profile.OceanLevel
 						// Always consume the noise draw for rng stability.
 						surfaceVar := oceanNoise.FractalNoise3D(dx, dy, dz, 4, 2.0, 0.5, 6.0)
 						if !bypassed {
-							var c color.RGBA
-							if profile.Type == "lava_world" {
-								brightness := 0.7 + depth*0.3
-								if depth < 0.2 {
-									brightness *= 0.6 + depth*2.0
-								}
-								brightness += (surfaceVar - 0.5) * 0.25
-								brightness = math.Max(0.4, math.Min(1.2, brightness))
-								lavaColor := planetcolor.Lerp(
-									profile.OceanColor,
-									color.RGBA{R: 255, G: 160, B: 20, A: 255},
-									surfaceVar*0.4,
-								)
-								c = planetcolor.Brighten(lavaColor, brightness)
-							} else {
-								shallowFactor := 1.0
-								if depth < 0.15 {
-									shallowFactor = 1.3 - depth*2.0
-								}
-								brightness := (1.0 - depth*0.5) * shallowFactor
-								brightness += (surfaceVar - 0.5) * 0.15
-								brightness = math.Max(0.5, math.Min(1.3, brightness))
-								c = planetcolor.Brighten(profile.OceanColor, brightness)
-							}
+							c := OceanPixel(profile.OceanColor, profile.Type, h, profile.OceanLevel, surfaceVar)
 							out.Set(face, px, py, c)
 						}
 					}
@@ -1050,17 +1021,8 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 						// Always consume noise draw for rng stability.
 						capEdgeNoise := capNoise.FractalNoise3D(dx, dy, dz, 4, 2.0, 0.5, 8.0)
 						if !bypassed {
-							noiseAmt := profile.PolarCapNoise
-							if noiseAmt == 0 {
-								noiseAmt = 0.08
-							}
-							adjustedThreshold := capThreshold + (capEdgeNoise-0.5)*noiseAmt
-							if absLat > adjustedThreshold {
-								c := out.Get(face, px, py)
-								blend := math.Min(1.0, (absLat-adjustedThreshold)*15)
-								capColor := planetcolor.Brighten(whiteIce, 0.9+capEdgeNoise*0.2)
-								out.Set(face, px, py, planetcolor.BlendOkLab(c, capColor, blend))
-							}
+							c := out.Get(face, px, py)
+							out.Set(face, px, py, PolarCapPixel(c, absLat, profile.PolarCapSize, profile.PolarCapNoise, capEdgeNoise))
 						}
 					}
 				}
@@ -1238,55 +1200,7 @@ func isZeroControlConfig(fields [5]types.ControlField) bool {
 // strength in [0,1]: 0 = unchanged; 1 = full diffuse modulation.
 // exaggeration scales the gradient so subtle features still shade.
 func applySlopeShading(hm *cubemap.CubeMapF, c color.RGBA, rx, ry, rz, strength, exaggeration float64) color.RGBA {
-	const eps = 0.005
-	// Tangent basis orthogonal to (rx,ry,rz). Use world-up (0,1,0) unless
-	// the radial is too close to it, in which case fall back to world-x.
-	upx, upy, upz := 0.0, 1.0, 0.0
-	if math.Abs(ry) > 0.95 {
-		upx, upy, upz = 1.0, 0.0, 0.0
-	}
-	// t1 = normalize(cross(up, r))
-	t1x := upy*rz - upz*ry
-	t1y := upz*rx - upx*rz
-	t1z := upx*ry - upy*rx
-	t1n := math.Sqrt(t1x*t1x + t1y*t1y + t1z*t1z)
-	if t1n == 0 {
-		return c
-	}
-	t1x, t1y, t1z = t1x/t1n, t1y/t1n, t1z/t1n
-	// t2 = cross(r, t1)
-	t2x := ry*t1z - rz*t1y
-	t2y := rz*t1x - rx*t1z
-	t2z := rx*t1y - ry*t1x
-
-	hu1 := hm.Sample(rx+eps*t1x, ry+eps*t1y, rz+eps*t1z)
-	hu0 := hm.Sample(rx-eps*t1x, ry-eps*t1y, rz-eps*t1z)
-	hv1 := hm.Sample(rx+eps*t2x, ry+eps*t2y, rz+eps*t2z)
-	hv0 := hm.Sample(rx-eps*t2x, ry-eps*t2y, rz-eps*t2z)
-	dHdu := (hu1 - hu0) / (2 * eps) * exaggeration
-	dHdv := (hv1 - hv0) / (2 * eps) * exaggeration
-
-	// Approximate world-space normal: in the (t1, t2, r) frame the
-	// surface tangents are (1, 0, dHdu) and (0, 1, dHdv); their cross
-	// product is (-dHdu, -dHdv, 1).  Express in world coords.
-	nx := -dHdu*t1x - dHdv*t2x + rx
-	ny := -dHdu*t1y - dHdv*t2y + ry
-	nz := -dHdu*t1z - dHdv*t2z + rz
-	nn := math.Sqrt(nx*nx + ny*ny + nz*nz)
-	if nn == 0 {
-		return c
-	}
-	nx, ny, nz = nx/nn, ny/nn, nz/nn
-
-	// Fixed sun direction: upper-right-front, normalized.
-	const lx, ly, lz = 0.6172, 0.6172, 0.4881 // (1, 1, 0.7)/|(1,1,0.7)|
-	diff := nx*lx + ny*ly + nz*lz
-	if diff < 0 {
-		diff = 0
-	}
-	// Blend ambient and diffuse so flat areas read at neutral brightness.
-	bright := (1.0 - strength) + strength*(0.4+0.8*diff)
-	return planetcolor.Brighten(c, bright)
+	return SlopeShadeSampled(hm.Sample, c, rx, ry, rz, strength, exaggeration)
 }
 
 // clamp01 clamps x to [0,1].
