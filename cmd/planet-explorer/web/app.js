@@ -2082,4 +2082,256 @@ function bandLegend(numBands) {
   });
 })();
 
+// ---- Patch Lab ----
+// Interactive 512x512 patch renderer driven by the wasm patchInit/
+// patchSelect/patchLayers/patchSetParam/patchRender/patchMinimap
+// exports (Task 17, cmd/planet-explorer/wasm/main.go). Lets a user pick
+// one of the 12 candidate windows returned by patchInit, step through
+// the 13-layer pipeline (patch.Layers()), and tweak profile params with
+// live re-renders that only recompute from the first dirty layer down
+// (Stack.RenderTo caching) — sphere-level params (tectonic FX, control
+// noise, height smooth) trigger a full ComputeSphere+ExtractFields
+// re-run; everything else is cheap. "Go!" hands the tuned profile off
+// to the existing full-resolution regenerate() path.
+
+let patchOn = false, patchCands = [], patchCandIdx = 0, patchTarget = 12, patchPrevProfile = null;
+let patchRefreshTimer = null;
+
+const patchModeBtn = $('#patch-mode-btn');
+const patchLab = $('#patch-lab');
+const patchCanvas = $('#patch-canvas');
+const patchMinimapCanvas = $('#patch-minimap');
+const patchLayerRail = $('#patch-layer-rail');
+const patchViewSel = $('#patch-view');
+const patchNextWindowBtn = $('#patch-next-window');
+const patchSeaLevelInput = $('#patch-sealevel');
+const patchGoBtn = $('#patch-go');
+
+// Every patch* wasm export returns either a plain payload string ("",
+// a JSON array, or a JSON object) on success, or a jsError JSON object
+// (always `{"error": "..."}`, see main.go's jsError helper) on failure
+// — mirrors the `json.startsWith('{"error"')` check loadDefaultProfile
+// already uses for planetExplorerDefaultProfile above.
+function isWasmError(s) {
+  return typeof s === 'string' && s.startsWith('{"error"');
+}
+function wasmErrorMessage(s) {
+  try { return JSON.parse(s).error; } catch { return s; }
+}
+
+async function enterPatchLab() {
+  if (!wasmReady) return;
+  syncKnotsFromDOM();
+  let profile;
+  try { profile = JSON.parse(profileTextarea.value); }
+  catch { alert('Patch Lab: profile JSON is invalid'); return; }
+
+  // sTect=256: a smaller tectonic face than the full production render
+  // uses, so the sphere-level precompute (and any sphere-level param
+  // recompute triggered later by patchSetParam) stays interactive.
+  const initRaw = patchInit(JSON.stringify(profile), seedInput.value, 256);
+  if (isWasmError(initRaw)) {
+    // Crust-disabled archetypes (e.g. scorched) hit ComputeSphere's
+    // error path here — surface it and leave the normal viewport alone.
+    alert('Patch Lab: ' + wasmErrorMessage(initRaw));
+    return;
+  }
+  let initData;
+  try { initData = JSON.parse(initRaw); }
+  catch { alert('Patch Lab: malformed patchInit response'); return; }
+  patchCands = initData.candidates || [];
+  if (!patchCands.length) {
+    alert('Patch Lab: no candidate windows returned');
+    return;
+  }
+
+  patchOn = true;
+  patchTarget = 12;
+  patchCandIdx = 0;
+  patchPrevProfile = profile;
+  if (patchSeaLevelInput && typeof initData.seaLevel === 'number') {
+    patchSeaLevelInput.value = initData.seaLevel;
+  }
+
+  await selectCandidate(0);
+
+  cubeCanvas.hidden = true;
+  equirectCanvas.hidden = true;
+  sphereCanvas.hidden = true;
+  patchLab.hidden = false;
+
+  buildLayerRail();
+}
+
+function exitPatchLab() {
+  patchOn = false;
+  cubeCanvas.hidden = false;
+  equirectCanvas.hidden = false;
+  sphereCanvas.hidden = false;
+  patchLab.hidden = true;
+}
+
+function buildLayerRail() {
+  const raw = patchLayers();
+  if (isWasmError(raw)) {
+    console.warn('patchLayers:', wasmErrorMessage(raw));
+    return;
+  }
+  let layers;
+  try { layers = JSON.parse(raw); } catch { return; }
+  patchLayerRail.innerHTML = '';
+  for (const l of layers) {
+    const row = document.createElement('label');
+    row.className = 'layer-row' + (l.index === patchTarget ? ' active' : '');
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'patch-target';
+    radio.value = String(l.index);
+    radio.checked = l.index === patchTarget;
+    radio.addEventListener('change', () => {
+      patchTarget = l.index;
+      for (const r of patchLayerRail.querySelectorAll('.layer-row')) r.classList.remove('active');
+      row.classList.add('active');
+      refreshPatch();
+    });
+    row.appendChild(radio);
+    const label = document.createElement('span');
+    label.textContent = `${l.index}. ${l.name}` + (l.enabled ? '' : ' (disabled)');
+    row.appendChild(label);
+    patchLayerRail.appendChild(row);
+  }
+}
+
+async function selectCandidate(i) {
+  if (!patchCands.length) return;
+  patchCandIdx = ((i % patchCands.length) + patchCands.length) % patchCands.length;
+  const err = patchSelect(JSON.stringify(patchCands[patchCandIdx].window));
+  if (isWasmError(err)) {
+    alert('Patch Lab: ' + wasmErrorMessage(err));
+    return;
+  }
+  await refreshPatch();
+  await refreshMinimap();
+}
+
+async function refreshPatch() {
+  if (!patchOn) return;
+  const view = patchViewSel ? patchViewSel.value : 'color';
+  const png = patchRender(patchTarget, view);
+  if (!(png instanceof Uint8Array)) {
+    status.textContent = 'Patch Lab error: ' + wasmErrorMessage(png);
+    return;
+  }
+  await paintToCanvas(patchCanvas, png);
+}
+
+async function refreshMinimap() {
+  if (!patchOn) return;
+  const png = patchMinimap(patchMinimapCanvas.width, patchMinimapCanvas.height);
+  if (!(png instanceof Uint8Array)) {
+    console.warn('Patch Lab minimap error:', wasmErrorMessage(png));
+    return;
+  }
+  await paintToCanvas(patchMinimapCanvas, png);
+}
+
+// Debounced so slider drags (many `input` events per second) don't
+// queue a patchRender per tick — only the last one after ~150ms of
+// quiet fires. patchSetParam itself already ran synchronously per
+// keystroke (it's cheap when only late layers are dirty); this just
+// coalesces the re-paint.
+function scheduleRefreshPatch() {
+  if (patchRefreshTimer) clearTimeout(patchRefreshTimer);
+  patchRefreshTimer = setTimeout(() => {
+    patchRefreshTimer = null;
+    refreshPatch();
+  }, 150);
+}
+
+// diffProfilePath walks two profile objects and returns the dot-joined
+// path of the first differing leaf (e.g. "tectonicFX.beltAmp",
+// "Erosion.Droplets", "CraterCount"). This is matched against each
+// patch.Layer's Params strings via a two-way strings.HasPrefix in
+// Stack.MarkDirty (pkg/planetgen/patch/stack.go) — verified by cross-
+// referencing pkg/planetgen/types/types.go's json tags against
+// patch.Layers()'s Params entries:
+//   - TectonicFX: `json:"tectonicFX,omitempty"` -> path "tectonicFX.beltAmp";
+//     Params: ["tectonicFX"] (lowercase). Matches exactly.
+//   - Erosion: no json tag (Go field name "Erosion" used verbatim) ->
+//     path "Erosion.Droplets"; Params: ["Erosion"]. Matches exactly.
+//   - CraterCount: no json tag, top-level scalar -> path "CraterCount";
+//     Params: [...,"CraterCount",...]. Matches exactly.
+// Every other Params entry (ControlConfig, Coastal, HeightSmoothRadius,
+// flow, rainShadow, civ, SnowLine, OceanColor, HasPolarCaps, ...) is
+// the same story: fields with an explicit lowercase json tag in
+// types.go line up with the lowercase Params spelling, and untagged
+// (PascalCase-by-default) fields line up with the PascalCase Params
+// spelling. No case mismatch was found, so no normalization is needed
+// here — see task-18-report.md for the full worked-example writeup.
+function diffProfilePath(prev, next) {
+  if (prev == null || next == null) return '';
+  const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const walk = (a, b, prefix) => {
+    if (!isPlainObject(a) || !isPlainObject(b)) {
+      return JSON.stringify(a) !== JSON.stringify(b) ? prefix : null;
+    }
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of keys) {
+      const path = prefix ? prefix + '.' + k : k;
+      const found = walk(a[k], b[k], path);
+      if (found) return found;
+    }
+    return null;
+  };
+  return walk(prev, next, '') || '';
+}
+
+// Wrap the existing commitProfile (a plain function declaration, so
+// this reassignment is visible to every earlier call site once the
+// script finishes its synchronous top-level run — well before any
+// slider's event listener can fire) to push edits into the live patch
+// session when Patch Lab is open.
+const baseCommitProfile = commitProfile;
+commitProfile = function patchAwareCommitProfile(profile) {
+  baseCommitProfile(profile);
+  if (!patchOn) return;
+  const changedPath = diffProfilePath(patchPrevProfile, profile);
+  patchPrevProfile = JSON.parse(JSON.stringify(profile));
+  if (!changedPath) return;
+  const raw = patchSetParam(changedPath, JSON.stringify(profile));
+  if (isWasmError(raw)) {
+    console.warn('patchSetParam:', wasmErrorMessage(raw));
+    return;
+  }
+  try {
+    if (JSON.parse(raw).sphereRecomputed) refreshMinimap();
+  } catch { /* ignore malformed reply, still attempt the re-render below */ }
+  scheduleRefreshPatch();
+};
+
+if (patchModeBtn) patchModeBtn.addEventListener('click', enterPatchLab);
+if (patchViewSel) patchViewSel.addEventListener('change', () => { if (patchOn) refreshPatch(); });
+if (patchNextWindowBtn) {
+  patchNextWindowBtn.addEventListener('click', () => {
+    if (patchOn) selectCandidate(patchCandIdx + 1);
+  });
+}
+if (patchSeaLevelInput) {
+  patchSeaLevelInput.addEventListener('input', () => {
+    if (!patchOn) return;
+    let profile;
+    try { profile = JSON.parse(profileTextarea.value); } catch { return; }
+    const payload = Object.assign({}, profile, { seaLevelView: parseFloat(patchSeaLevelInput.value) });
+    const raw = patchSetParam('seaLevelView', JSON.stringify(payload));
+    if (isWasmError(raw)) console.warn('patchSetParam seaLevelView:', wasmErrorMessage(raw));
+    scheduleRefreshPatch();
+  });
+}
+if (patchGoBtn) {
+  patchGoBtn.addEventListener('click', () => {
+    exitPatchLab();
+    regenerate();
+  });
+}
+
 init();

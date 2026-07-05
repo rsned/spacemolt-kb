@@ -112,3 +112,28 @@ aside button:hover { background: #4a4a54; }
 #param-panels textarea { margin-left: 16px; width: calc(100% - 16px); font: 11px monospace; }
 #param-panels textarea.knots-bad { border-color: #c54; background: #2a1a1a; }
 #param-panels .knots-err { margin: 2px 0 4px 16px; font: 11px monospace; color: #e88; min-height: 14px; }
+
+/* Patch Lab (Phase 13 Task 18): 512x512 patch canvas + minimap, a
+ * clickable per-layer rail, and view/window/sea-level controls. Hidden
+ * by default (toggled by app.js); the [hidden] rule below is needed
+ * because the #patch-lab ID selector otherwise outranks the UA
+ * `[hidden] { display:none }` default. */
+#patch-lab { display: flex; gap: 12px; align-items: flex-start; }
+#patch-lab[hidden] { display: none; }
+#patch-lab h2 { font-size: 13px; color: #aaa; font-weight: normal; text-transform: uppercase; letter-spacing: 0.05em; }
+.patch-lab-canvases { display: flex; flex-direction: column; gap: 6px; }
+#patch-layer-rail { display: flex; flex-direction: column; gap: 2px; min-width: 170px; padding-top: 4px; }
+#patch-layer-rail .layer-row { cursor: pointer; padding: 2px 6px; display: flex; align-items: center; gap: 6px; border-radius: 3px; font-size: 12px; color: #ccc; }
+#patch-layer-rail .layer-row:hover { background: #2c2c30; }
+.layer-row.active { background: #2a4d69; color: #fff; }
+.patch-lab-controls { display: flex; flex-direction: column; gap: 10px; min-width: 160px; font-size: 12px; color: #aaa; }
+.patch-lab-controls select, .patch-lab-controls input[type="range"] {
+  display: block; width: 100%; margin-top: 4px;
+  background: #16161a; border: 1px solid #333; color: #e6e6e6; border-radius: 4px;
+}
+.patch-lab-controls button {
+  padding: 6px 12px;
+  background: #3a3a44; color: #e6e6e6; border: 1px solid #444; border-radius: 4px;
+  cursor: pointer; font: 13px sans-serif;
+}
+.patch-lab-controls button:hover { background: #4a4a54; }
