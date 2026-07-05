@@ -79,6 +79,9 @@ func Layers() []Layer {
 	}
 	ls[0].Apply = applyTectonicBase
 	ls[1].Apply = applyTectonicFX
+	ls[2].Apply = applyControlNoise
+	ls[3].Apply = applyHeightSmooth
+	ls[4].Apply = applyNormalize
 	for i := range ls {
 		ls[i].Index = i
 		ls[i].Enabled = always
