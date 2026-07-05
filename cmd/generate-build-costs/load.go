@@ -136,12 +136,18 @@ func normalizeShipKey(s string) string {
 
 // loadShipListings returns stationID -> shipKey -> minimum listed price, where
 // shipKey is the normalized class_id. Only the cheapest listing per ship/station
-// is kept (the ask you'd actually pay).
+// is kept (the ask you'd actually pay), and only among each station's most
+// recent snapshot (MAX(captured_at) per station) — mirroring loadBooks so a
+// future accumulation of historical rows can't surface a stale ask.
 func loadShipListings(knowledgeDB *sql.DB) (map[string]map[string]float64, error) {
 	rows, err := knowledgeDB.Query(`
-WITH latest AS (SELECT station_id, class_id, MIN(price) AS p
-                FROM ship_listings GROUP BY station_id, class_id)
-SELECT station_id, class_id, p FROM latest`)
+WITH latest AS (
+  SELECT station_id, MAX(captured_at) AS cap FROM ship_listings GROUP BY station_id
+), current AS (
+  SELECT s.station_id, s.class_id, s.price
+  FROM ship_listings s JOIN latest l ON s.station_id = l.station_id AND s.captured_at = l.cap
+)
+SELECT station_id, class_id, MIN(price) FROM current GROUP BY station_id, class_id`)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +225,7 @@ func loadTargets(craftDB *sql.DB, ships []Ship, itemNames map[string]string) ([]
 	rrows, err := craftDB.Query(`
 SELECT ro.item_id AS output, ri.recipe_id, ri.item_id AS input, ri.quantity, ro.quantity AS out_qty
 FROM recipe_inputs ri JOIN recipe_outputs ro ON ri.recipe_id = ro.recipe_id
-ORDER BY ro.item_id, ri.recipe_id`)
+ORDER BY ro.item_id, ri.recipe_id, ri.item_id`)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -254,9 +260,7 @@ ORDER BY ro.item_id, ri.recipe_id`)
 	// 3. Assemble targets.
 	names := map[string]string{}
 	var targets []buildcost.Target
-	shipSet := map[string]bool{}
 	for _, s := range ships {
-		shipSet[s.ID] = true
 		names[s.ID] = s.Name
 	}
 	for k, reqs := range bom {

@@ -73,10 +73,12 @@ func newKnowledgeTestDB(t *testing.T) *sql.DB {
 	_, err = db.Exec(`
 CREATE TABLE systems (id TEXT PRIMARY KEY, empire TEXT);
 INSERT INTO systems VALUES ('sysA','Empire X');
-CREATE TABLE ship_listings (station_id TEXT, class_id TEXT, price REAL);
-INSERT INTO ship_listings VALUES ('st1','cobble',5000);
-INSERT INTO ship_listings VALUES ('st1','cobble',4800);
-INSERT INTO ship_listings VALUES ('st2','runner',9000);
+CREATE TABLE ship_listings (station_id TEXT, class_id TEXT, price REAL, captured_at TEXT);
+-- stale snapshot (cheaper, must be ignored) then fresh snapshot for st1
+INSERT INTO ship_listings VALUES ('st1','cobble',3000,'2026-07-05T10:00:00Z');
+INSERT INTO ship_listings VALUES ('st1','cobble',5000,'2026-07-05T16:00:00Z');
+INSERT INTO ship_listings VALUES ('st1','cobble',4800,'2026-07-05T16:00:00Z');
+INSERT INTO ship_listings VALUES ('st2','runner',9000,'2026-07-05T12:00:00Z');
 `)
 	if err != nil {
 		t.Fatal(err)
@@ -120,10 +122,12 @@ func TestLoadShipListings_MinPricePerStationAndKey(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// class_id "cobble" has two listings at st1 (5000, 4800); min should win,
-	// keyed under the normalized (unprefixed, since "cobble" has no underscore) key.
+	// st1 has a stale, cheaper listing (3000) at an older captured_at that must
+	// be excluded, plus two fresh listings (5000, 4800) at the latest
+	// captured_at; MIN must apply only among the latest snapshot, so the
+	// expected result is 4800 (not the stale 3000).
 	if got := listings["st1"]["cobble"]; got != 4800 {
-		t.Fatalf("st1/cobble = %v, want 4800", got)
+		t.Fatalf("st1/cobble = %v, want 4800 (stale 3000 row must be excluded)", got)
 	}
 	if got := listings["st2"]["runner"]; got != 9000 {
 		t.Fatalf("st2/runner = %v, want 9000", got)
