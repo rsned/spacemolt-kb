@@ -1,8 +1,9 @@
 # Phase 13 — Patch Lab: Sphere Tectonics → Flat-Patch Interactive Dev View
 
-**Date:** 2026-07-02
-**Status:** Reviewed — key decisions confirmed by user 2026-07-03 (merge-not-supersede,
-civ-growth-animation-as-stretch, S_tect=256 / S_prod=1024 / patch 512²)
+**Date:** 2026-07-02 (implemented 2026-07-04)
+**Status:** Implemented — Tasks 1-18 built `pkg/planetgen/patch/`, wasm exports, and the
+Patch Lab explorer UI against this spec; key decisions confirmed by user 2026-07-03
+(merge-not-supersede, civ-growth-animation-as-stretch, S_tect=256 / S_prod=1024 / patch 512²)
 **Branch:** phase-13/progressive-layers (needs re-point onto phase-0/cube-map, see §10)
 **Supersedes/absorbs:** `2026-06-14-progressive-layers-spec.md` (whole-sphere wizard) — see §2
 
@@ -143,7 +144,7 @@ Patch layer order (mirrors the production rocky crust-path stage order):
 | 0 | tectonic-base | crop | BaseHeight init + ContinentalMask; debug: plate/craton overlay |
 | 1 | tectonic-fx | patch | `ApplyTectonicFX` on patch using cropped Dist/Mag; all FX params + TectonicAge are sliders |
 | 2 | control-noise | patch | Detail + PeaksValleys fBm at patch dirs, splines, summed into heightmap |
-| 3 | height-smooth | patch | disc blur (edge-clamped) |
+| 3 | height-smooth | patch | box blur, square kernel (edge-clamped); matches `field.SmoothHeightmap` exactly — not a disc |
 | 4 | normalize | crop | applies the sphere-derived affine, not patch-local min/max |
 | 5 | coastal | patch | coastal noise; distance-to-coast computed patch-locally (§7) |
 | 6 | erosion | patch | droplet erosion, open-edge policy (§4.5) |
@@ -179,18 +180,27 @@ stages at readable resolution.
 
 - Mode toggle in planet-explorer (crust-enabled archetypes only; others get an
   explanatory message).
-- **Patch canvas** at 1:1 pixels; view selector to show any layer's output
-  (heightmap gray, biome color, river mask, civ overlay, tectonic debug).
-- **Layer rail**: ordered list with enable toggles + "rendered up to" indicator.
-- **Param panels**: reuse existing explorer panels, scoped per layer; debounced
-  auto-render on slider input.
-- **Context minimap**: small sphere-tectonics view (equirect or cube cross at
-  S_tect) with the patch window outlined — orientation + picker feedback.
-- **Picker controls**: seed, smart-pick / next-best / 0°,0° / manual pin.
+- **Patch canvas** at 1:1 pixels; view selector to show the current layer's
+  output. **As built**: three views (Color / Height / Tectonic) rather than the
+  five originally envisioned — river mask and civ overlay are visible via the
+  Color view once those layers are selected in the rail, not as separate view
+  modes.
+- **Layer rail**: ordered list; clicking a row renders the stack up to (and
+  including) that layer, using cached upstream output.
+- **Param panels**: reuse existing explorer panels; every panel's slider drives
+  the patch view while Patch Lab is open, debounced auto-render on input.
+- **Context minimap**: small sphere-tectonics view with the patch window
+  outlined — orientation + picker feedback.
+- **Picker controls**: seed (from the header) + smart-pick-by-default with a
+  **Next window** button that cycles through the ranked candidate list. **As
+  built**: there is no separate 0°/0° preset button or manual face/center pin
+  control — cycling through candidates is the only re-pick affordance.
 - **Go!**: runs the existing full production render with the tuned profile and
   shows the standard sphere/equirect views.
-- Wasm exports (names ⚠ draft): `patchInit`, `patchPick`, `patchSetParam`,
-  `patchRenderTo`, `patchLayerList`, `patchDebugView`, `patchGo`.
+- Wasm exports (as built): `patchInit`, `patchSelect`, `patchLayers`,
+  `patchSetParam`, `patchRender`, `patchMinimap` (no `patchGo`/`patchDebugView` —
+  "Go!" reuses the existing `planetExplorerGenerate`/`planetExplorerBakeEquirect`
+  exports with the tuned profile).
 - Sphere-stage params (MajorPlates, Assembly, CratonsMax, TargetLandFraction, …)
   are also editable in Patch Lab; changing one triggers sphere recompute at S_tect
   (a few seconds), re-pick (unless pinned), re-crop, full patch re-render.
@@ -228,7 +238,13 @@ Documented, not hidden — the "Go!" render is the source of truth:
   circles across the sphere); upwind terrain outside the patch is invisible.
 - **S_tect→S_prod upsampling** of tectonic fields smooths boundary detail
   slightly relative to computing tectonics natively at S_prod.
-- Post-flow **sea-level requantile** uses the S_tect sphere, not the patch.
+- Post-flow **sea-level requantile** uses the S_tect sphere, not the patch. As
+  implemented (`Context.seaLevelView()`, layer 11), absent a slider override this
+  value is provably identical to production's own post-flow requantiled
+  `OceanLevel` (both are `field.QuantileSeaLevel` over the same land-fraction
+  target) — the only real divergence from production is the resolution the
+  quantile is computed at (S_tect vs. S_prod), not the mechanism, and the
+  slider override is a deliberate Patch Lab addition, not an accidental one.
 
 ## 8. Error handling
 
