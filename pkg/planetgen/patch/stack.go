@@ -92,6 +92,8 @@ func Layers() []Layer {
 	ls[9].Apply = applyClimate
 	ls[10].Apply = applyBiomeColor
 	ls[11].Apply = applyWaterlines
+	ls[12].Apply = applyCiv
+	ls[12].Enabled = civEnabled
 	for i := range ls {
 		ls[i].Index = i
 		if ls[i].Enabled == nil {
