@@ -43,6 +43,29 @@ func TestMatrixJSON_Valid(t *testing.T) {
 	}
 }
 
+func TestCommaInt(t *testing.T) {
+	tests := []struct {
+		name string
+		in   float64
+		want string
+	}{
+		{"positive with grouping", 1894, "1,894"},
+		{"zero", 0, "0"},
+		{"three digits no grouping", 999, "999"},
+		{"millions with grouping", 1000000, "1,000,000"},
+		{"negative with grouping", -4106, "-4,106"},
+		{"negative single digit", -1, "-1"},
+		{"negative near million", -999999, "-999,999"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := commaInt(tc.in); got != tc.want {
+				t.Fatalf("commaInt(%v) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestRenderDetail_WritesTable(t *testing.T) {
 	dir := t.TempDir()
 	m := sampleMatrix()

@@ -4,6 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"html/template"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -110,7 +111,7 @@ type detailLine struct {
 
 // commaInt formats v (rounded to the nearest integer) with thousands separators.
 func commaInt(v float64) string {
-	n := int64(v + 0.5)
+	n := int64(math.Round(v))
 	neg := n < 0
 	if neg {
 		n = -n
@@ -134,7 +135,7 @@ func money(v float64, ok bool) string {
 	if !ok {
 		return "—"
 	}
-	return template.HTMLEscapeString(commaInt(v))
+	return commaInt(v)
 }
 
 // signClass returns the CSS class for a signed value, or "" when absent.
@@ -152,6 +153,9 @@ func signClass(v float64, ok bool) string {
 func renderDetail(outDir string, row MatrixRow, stations []StationMeta) error {
 	t, err := template.ParseFS(tmplFS, "templates/detail.html.tmpl")
 	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
 	var lines []detailLine
