@@ -119,6 +119,52 @@ func TestApplyTectonicFXRaisesBelts(t *testing.T) {
 	}
 }
 
+// TestFXDeltaMatchesApply pins the extraction: ApplyTectonicFX must
+// remain byte-identical to per-pixel FXDelta accumulation.
+func TestFXDeltaMatchesApply(t *testing.T) {
+	profile := &types.PlanetProfile{
+		Type: "terran", Renderer: "rocky", RadiusKm: 6371,
+		Crust: types.CrustConfig{MajorPlates: 6, MinorPlates: 6, TargetLandFraction: 0.3, Assembly: 0.5, TectonicAge: 0.4},
+		TectonicFX: defaultFXCfg(),
+	}
+	const S = 32
+	master := int64(12345)
+	pf := GeneratePlates(profile, master, S)
+	crust := GenerateCrust(profile, master, S, pf)
+	fx := ClassifyTectonics(pf, crust, profile.RadiusKm)
+
+	hmA := cubemap.NewF(S)
+	ApplyTectonicFX(hmA, fx, crust, pf, profile.TectonicFX, master, S)
+
+	g := NewFXGens(master)
+	hmB := cubemap.NewF(S)
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for py := range S {
+			for px := range S {
+				i := py*S + px
+				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
+				s := FXSample{
+					BeltDist: fx.BeltDist.Faces[face][i], BeltMag: fx.BeltMag.Faces[face][i],
+					SubdDist: fx.SubdDist.Faces[face][i], SubdMag: fx.SubdMag.Faces[face][i],
+					ArcDist: fx.ArcDist.Faces[face][i], ArcMag: fx.ArcMag.Faces[face][i],
+					RidgeDist: fx.RidgeDist.Faces[face][i], RidgeMag: fx.RidgeMag.Faces[face][i],
+					RiftDist: fx.RiftDist.Faces[face][i], RiftMag: fx.RiftMag.Faces[face][i],
+					TransformDist:   pf.Transform[face][i],
+					ContinentalMask: crust.ContinentalMask.Faces[face][i],
+				}
+				hmB.Faces[face][i] += FXDelta(dx, dy, dz, s, profile.TectonicFX, crust.TectonicAge, g)
+			}
+		}
+	}
+	for face := range cubemap.Face(cubemap.NumFaces) {
+		for i := range hmA.Faces[face] {
+			if hmA.Faces[face][i] != hmB.Faces[face][i] {
+				t.Fatalf("face %d idx %d: Apply=%v FXDelta=%v", face, i, hmA.Faces[face][i], hmB.Faces[face][i])
+			}
+		}
+	}
+}
+
 func TestApplyTectonicFXAgeSoftens(t *testing.T) {
 	const S = 64
 	p := crustTestProfile()

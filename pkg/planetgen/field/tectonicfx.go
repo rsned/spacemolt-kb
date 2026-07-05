@@ -133,6 +133,144 @@ func ClassifyTectonics(pf *PlateField, crust *CrustField, radiusKm float64) *Tec
 	return fx
 }
 
+// FXSample is the per-pixel bundle of tectonic fields FXDelta reads.
+// On the cube path the values come straight from the field rasters; on
+// the Patch Lab path they are bilinear crops upsampled at patch dirs.
+type FXSample struct {
+	BeltDist, BeltMag   float64
+	SubdDist, SubdMag   float64
+	ArcDist, ArcMag     float64
+	RidgeDist, RidgeMag float64
+	RiftDist, RiftMag   float64
+	TransformDist       float64
+	ContinentalMask     float64
+}
+
+// FXGens bundles the two seeded generators the FX pass consumes.
+type FXGens struct {
+	Act, Belt *noise.Generator
+}
+
+// NewFXGens seeds the two generators FXDelta consumes, domain-separated
+// off master exactly as ApplyTectonicFX did inline.
+func NewFXGens(master int64) *FXGens {
+	return &FXGens{
+		Act:  noise.New(seed.Domain(master, "tectonicfx.activity")),
+		Belt: noise.New(seed.Domain(master, "tectonicfx.belt")),
+	}
+}
+
+// FXDelta returns the tectonic-FX height delta at one pixel. It is the
+// exact per-pixel body of ApplyTectonicFX, extracted so the Patch Lab
+// flat path evaluates the identical formula.
+func FXDelta(dx, dy, dz float64, s FXSample, cfg types.TectonicFXConfig, age float64, g *FXGens) float64 {
+	hs := 1.0 - 0.55*age // height scale: 1.0 young → 0.45 old
+	ws := 1.0 + 0.8*age  // width scale:  1.0 young → 1.8 old
+	actFreq := cfg.ActivityFreq
+	if actFreq <= 0 {
+		actFreq = 1.5
+	}
+	beltOct := cfg.BeltOctaves
+	if beltOct <= 0 {
+		beltOct = 5
+	}
+	// Gaussian envelope, cut at 3 sigma to skip most pixels cheaply.
+	env := func(distKm, widthKm float64) float64 {
+		if widthKm <= 0 || distKm > 3*widthKm {
+			return 0
+		}
+		x := distKm / widthKm
+		return math.Exp(-x * x)
+	}
+	// Lazy activity: the fBm is a pure function of the pixel direction,
+	// and only the belt and cordillera branches consume it — those fire
+	// on a small fraction of pixels, so computing it up front for every
+	// pixel wastes the bulk of the pass.
+	activity := -1.0
+	getActivity := func() float64 {
+		if activity < 0 {
+			activity = 0.5 + 0.5*g.Act.FractalNoise3D(dx, dy, dz, 2, 2.0, 0.5, actFreq)
+		}
+		return activity
+	}
+	contHere := s.ContinentalMask
+	var dh float64
+
+	// 1. Collision belt (cont-cont): ridged relief inside a
+	// wide envelope straddling the suture.
+	if cfg.BeltAmp > 0 {
+		if e := env(s.BeltDist, cfg.BeltWidthKm*ws); e > 0 {
+			r := g.Belt.RidgedFractal3D(dx*cfg.BeltFreq, dy*cfg.BeltFreq, dz*cfg.BeltFreq, beltOct, 2.0, 0.5, 1.0)
+			mag := 0.4 + 0.6*s.BeltMag
+			dh += cfg.BeltAmp * hs * e * mag * getActivity() * r
+		}
+	}
+
+	// 2+3. Subduction (ocean-cont): cordillera on the
+	// continent side, trench on the ocean side.
+	if cfg.CordAmp > 0 || cfg.TrenchDepth > 0 {
+		d := s.SubdDist
+		mag := s.SubdMag
+		if contHere > 0.5 {
+			if e := env(d, cfg.CordWidthKm*ws); e > 0 {
+				r := g.Belt.RidgedFractal3D(dx*cfg.BeltFreq*1.4, dy*cfg.BeltFreq*1.4, dz*cfg.BeltFreq*1.4, beltOct, 2.0, 0.5, 1.0)
+				dh += cfg.CordAmp * hs * e * (0.4 + 0.6*mag) * getActivity() * r
+			}
+		} else {
+			if e := env(d, cfg.TrenchWidthKm); e > 0 {
+				dh -= cfg.TrenchDepth * e * (0.4 + 0.6*mag)
+			}
+		}
+	}
+
+	// 4. Island arc (oce-oce): trench-adjacent dotted islands
+	// gated by a mid-frequency noise so the arc is a chain,
+	// not a wall.
+	if cfg.ArcAmp > 0 && contHere < 0.5 {
+		if e := env(s.ArcDist, cfg.ArcWidthKm); e > 0 {
+			islands := smoothstep(0.55, 0.72, g.Act.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 8.0))
+			mag := 0.4 + 0.6*s.ArcMag
+			dh += cfg.ArcAmp * hs * e * mag * islands
+		}
+	}
+
+	// 5a. Mid-ocean ridge: gentle bathymetric rise.
+	if cfg.RidgeAmp > 0 && contHere < 0.5 {
+		if e := env(s.RidgeDist, cfg.RidgeWidthKm); e > 0 {
+			dh += cfg.RidgeAmp * e * (0.4 + 0.6*s.RidgeMag)
+		}
+	}
+
+	// 5b. Continental rift: floor depression + shoulder uplift.
+	if cfg.RiftDepth > 0 {
+		d := s.RiftDist
+		w := cfg.RiftWidthKm * ws
+		mag := 0.4 + 0.6*s.RiftMag
+		if e := env(d, w); e > 0 {
+			// Age deepens rifts (mature rift → Red Sea), unlike
+			// belts which age erodes: scale by (0.5 + 0.5·age).
+			dh -= cfg.RiftDepth * (0.5 + 0.5*age) * e * mag
+		}
+		if cfg.RiftShoulder > 0 {
+			sd := d - 1.6*w
+			if e := env(math.Abs(sd), w*0.7); e > 0 {
+				dh += cfg.RiftDepth * cfg.RiftShoulder * e * mag
+			}
+		}
+	}
+
+	// 6. Transform faults: small-scale roughness near the
+	// existing transform SDF.
+	if cfg.TransformAmp > 0 {
+		if e := env(s.TransformDist, cfg.TransformWidthKm); e > 0 {
+			n := g.Act.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 12.0) - 0.5
+			dh += cfg.TransformAmp * e * n
+		}
+	}
+
+	return dh
+}
+
 // ApplyTectonicFX adds the six crust-aware boundary effects to the
 // heightmap in place. TectonicAge (from crust) scales amplitude down
 // and width up so old planets read wide-and-rounded (Appalachians)
@@ -144,129 +282,22 @@ func ApplyTectonicFX(hm *cubemap.CubeMapF, fx *TectonicFXField, crust *CrustFiel
 	if hm == nil || fx == nil || crust == nil || pf == nil {
 		return
 	}
-	age := crust.TectonicAge
-	hs := 1.0 - 0.55*age // height scale: 1.0 young → 0.45 old
-	ws := 1.0 + 0.8*age  // width scale:  1.0 young → 1.8 old
-
-	actFreq := cfg.ActivityFreq
-	if actFreq <= 0 {
-		actFreq = 1.5
-	}
-	actGen := noise.New(seed.Domain(master, "tectonicfx.activity"))
-	beltGen := noise.New(seed.Domain(master, "tectonicfx.belt"))
-
-	// Gaussian envelope, cut at 3 sigma to skip most pixels cheaply.
-	env := func(distKm, widthKm float64) float64 {
-		if widthKm <= 0 || distKm > 3*widthKm {
-			return 0
-		}
-		x := distKm / widthKm
-		return math.Exp(-x * x)
-	}
-
-	beltOct := cfg.BeltOctaves
-	if beltOct <= 0 {
-		beltOct = 5
-	}
-
+	g := NewFXGens(master)
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range S {
 			for px := range S {
 				i := py*S + px
 				dx, dy, dz := cubemap.FacePixelToDir(face, px, py, S)
-				// Lazy activity: the fBm is a pure function of the
-				// pixel direction, and only the belt and cordillera
-				// branches consume it — those fire on a small fraction
-				// of pixels, so computing it up front for every pixel
-				// wastes the bulk of the pass.
-				activity := -1.0
-				getActivity := func() float64 {
-					if activity < 0 {
-						activity = 0.5 + 0.5*actGen.FractalNoise3D(dx, dy, dz, 2, 2.0, 0.5, actFreq)
-					}
-					return activity
+				s := FXSample{
+					BeltDist: fx.BeltDist.Faces[face][i], BeltMag: fx.BeltMag.Faces[face][i],
+					SubdDist: fx.SubdDist.Faces[face][i], SubdMag: fx.SubdMag.Faces[face][i],
+					ArcDist: fx.ArcDist.Faces[face][i], ArcMag: fx.ArcMag.Faces[face][i],
+					RidgeDist: fx.RidgeDist.Faces[face][i], RidgeMag: fx.RidgeMag.Faces[face][i],
+					RiftDist: fx.RiftDist.Faces[face][i], RiftMag: fx.RiftMag.Faces[face][i],
+					TransformDist:   pf.Transform[face][i],
+					ContinentalMask: crust.ContinentalMask.Faces[face][i],
 				}
-				contHere := crust.ContinentalMask.Faces[face][i]
-				var dh float64
-
-				// 1. Collision belt (cont-cont): ridged relief inside a
-				// wide envelope straddling the suture.
-				if cfg.BeltAmp > 0 {
-					if e := env(fx.BeltDist.Faces[face][i], cfg.BeltWidthKm*ws); e > 0 {
-						r := beltGen.RidgedFractal3D(
-							dx*cfg.BeltFreq, dy*cfg.BeltFreq, dz*cfg.BeltFreq,
-							beltOct, 2.0, 0.5, 1.0)
-						mag := 0.4 + 0.6*fx.BeltMag.Faces[face][i]
-						dh += cfg.BeltAmp * hs * e * mag * getActivity() * r
-					}
-				}
-
-				// 2+3. Subduction (ocean-cont): cordillera on the
-				// continent side, trench on the ocean side.
-				if cfg.CordAmp > 0 || cfg.TrenchDepth > 0 {
-					d := fx.SubdDist.Faces[face][i]
-					mag := fx.SubdMag.Faces[face][i]
-					if contHere > 0.5 {
-						if e := env(d, cfg.CordWidthKm*ws); e > 0 {
-							r := beltGen.RidgedFractal3D(
-								dx*cfg.BeltFreq*1.4, dy*cfg.BeltFreq*1.4, dz*cfg.BeltFreq*1.4,
-								beltOct, 2.0, 0.5, 1.0)
-							dh += cfg.CordAmp * hs * e * (0.4 + 0.6*mag) * getActivity() * r
-						}
-					} else {
-						if e := env(d, cfg.TrenchWidthKm); e > 0 {
-							dh -= cfg.TrenchDepth * e * (0.4 + 0.6*mag)
-						}
-					}
-				}
-
-				// 4. Island arc (oce-oce): trench-adjacent dotted islands
-				// gated by a mid-frequency noise so the arc is a chain,
-				// not a wall.
-				if cfg.ArcAmp > 0 && contHere < 0.5 {
-					if e := env(fx.ArcDist.Faces[face][i], cfg.ArcWidthKm); e > 0 {
-						islands := smoothstep(0.55, 0.72,
-							actGen.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 8.0))
-						mag := 0.4 + 0.6*fx.ArcMag.Faces[face][i]
-						dh += cfg.ArcAmp * hs * e * mag * islands
-					}
-				}
-
-				// 5a. Mid-ocean ridge: gentle bathymetric rise.
-				if cfg.RidgeAmp > 0 && contHere < 0.5 {
-					if e := env(fx.RidgeDist.Faces[face][i], cfg.RidgeWidthKm); e > 0 {
-						dh += cfg.RidgeAmp * e * (0.4 + 0.6*fx.RidgeMag.Faces[face][i])
-					}
-				}
-
-				// 5b. Continental rift: floor depression + shoulder uplift.
-				if cfg.RiftDepth > 0 {
-					d := fx.RiftDist.Faces[face][i]
-					w := cfg.RiftWidthKm * ws
-					mag := 0.4 + 0.6*fx.RiftMag.Faces[face][i]
-					if e := env(d, w); e > 0 {
-						// Age deepens rifts (mature rift → Red Sea), unlike
-						// belts which age erodes: scale by (0.5 + 0.5·age).
-						dh -= cfg.RiftDepth * (0.5 + 0.5*age) * e * mag
-					}
-					if cfg.RiftShoulder > 0 {
-						sd := d - 1.6*w
-						if e := env(math.Abs(sd), w*0.7); e > 0 {
-							dh += cfg.RiftDepth * cfg.RiftShoulder * e * mag
-						}
-					}
-				}
-
-				// 6. Transform faults: small-scale roughness near the
-				// existing transform SDF.
-				if cfg.TransformAmp > 0 {
-					if e := env(pf.Transform[face][i], cfg.TransformWidthKm); e > 0 {
-						n := actGen.FractalNoise3D(dx, dy, dz, 3, 2.0, 0.5, 12.0) - 0.5
-						dh += cfg.TransformAmp * e * n
-					}
-				}
-
-				if dh != 0 {
+				if dh := FXDelta(dx, dy, dz, s, cfg, crust.TectonicAge, g); dh != 0 {
 					hm.Faces[face][i] += dh
 				}
 			}
