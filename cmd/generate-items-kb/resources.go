@@ -30,6 +30,7 @@ type ResourceEntry struct {
 	DepletionPct    float64 // 0–100, how much has been consumed
 	LastUpdatedTick int
 	Hidden          bool
+	StationInSystem bool
 }
 
 // ResourceGroup groups all occurrences of a single resource.
@@ -48,7 +49,8 @@ func loadResourceEntries(db *sql.DB) ([]ResourceEntry, error) {
 			COALESCE(i.name, pr.resource_id), pr.resource_id,
 			COALESCE(i.category, ''),
 			pr.richness, pr.remaining, pr.last_updated_tick,
-			p.hidden
+			p.hidden,
+			EXISTS(SELECT 1 FROM pois sp WHERE sp.system_id = s.id AND sp.type = 'station')
 		FROM poi_resources pr
 		JOIN pois p ON pr.poi_id = p.id
 		JOIN systems s ON p.system_id = s.id
@@ -68,7 +70,7 @@ func loadResourceEntries(db *sql.DB) ([]ResourceEntry, error) {
 			&e.SystemName, &e.SystemID,
 			&e.POIName, &e.POIID,
 			&e.ResourceName, &e.ResourceID, &e.ResourceCategory,
-			&e.Richness, &e.Remaining, &e.LastUpdatedTick, &e.Hidden,
+			&e.Richness, &e.Remaining, &e.LastUpdatedTick, &e.Hidden, &e.StationInSystem,
 		); err != nil {
 			return nil, err
 		}
@@ -408,6 +410,7 @@ var resourceIndexTemplate = `<!DOCTYPE html>
                     <tr>
                         <th>System</th>
                         <th>System ID</th>
+                        <th>Station</th>
                         <th>POI</th>
                         <th>POI ID</th>
                         <th>Hidden</th>
@@ -424,6 +427,7 @@ var resourceIndexTemplate = `<!DOCTYPE html>
                     <tr>
                         <td><a href="../systems/{{.SystemID}}/index.html">{{.SystemName}}</a></td>
                         <td><code>{{.SystemID}}</code></td>
+                        <td>{{if .StationInSystem}}<span class="badge badge-green">✓</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
                         <td>{{.POIName}}</td>
                         <td><code>{{.POIID}}</code></td>
                         <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>

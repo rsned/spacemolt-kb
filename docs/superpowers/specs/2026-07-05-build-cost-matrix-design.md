@@ -25,7 +25,7 @@ All paths are absolute; the generator resolves them relative to `kb/` where note
 | **Finished ship price (per station)** | knowledge DB — `/home/robert/spacemolt/spacemolt-knowledge.db` (symlink → `.../spacemolt/data/spacemolt-knowledge.db`) | `ship_listings(system_id, station_id, ship_id, class_id, ship_name, category, tier, price, captured_at, ...)`. Per-station shipyard asks, 15-min fresh, sparse (~3–6 ship types/station). |
 | **Station → Empire** | knowledge DB | systems/empire mapping (as used elsewhere in the KB) for the Empire filter. Station→system via `market.db.stations(system_id,system_name)` or knowledge DB `pois`. |
 
-**Snapshot grain:** "current" order book = each station's **most recent `captured_at`** (stations snapshot on their own cadence; there can be several `captured_at` values within one hourly `bucket_utc`). Do **not** mix captured_at times across a station.
+**Snapshot grain:** "current" order book = each station's **most recent `captured_at`** (stations snapshot on their own cadence; there can be several `captured_at` values within one hourly `bucket_utc`). Do **not** mix captured_at times across a station. `market.db` enforces a **6-hour TTL**, so any row present is fresh (<6h) — there is no stale data to detect or grey out; a station either has current orders or it has none.
 
 ## 3. Cost model (the compute core)
 
@@ -73,7 +73,7 @@ Rows × station-columns, **one number + color per cell**, static HTML with the m
 
 **Cell:** the chosen metric value; **color** encodes feasibility (infeasible = muted/greyed) and margin sign; the **cheapest station in each row** is marked (`*`). For Recipe mode, the cell notes the chosen recipe (compact tag / on hover). Pinned left-hand summary columns: **cheapest station + its cost**, **best margin**, **feasible-station count**. Each row links to its detail page.
 
-**Freshness:** stations whose latest snapshot exceeds a staleness threshold are greyed/flagged; unpopulated stations are dropped from the default view (and "Show only feasible" hides them anyway).
+**Freshness:** `market.db`'s 6-hour TTL means all present data is fresh — no staleness greying is needed. Stations with no current orders are simply dropped from the default view (and "Show only feasible" hides them anyway).
 
 ## 6. Detail page — `kb/build-costs/<id>.html`
 
@@ -113,5 +113,5 @@ Below the table, an **expandable per-material walk** for a selected station: eac
 | Shortfall | Infeasible **+ partial cost + shortfall note** |
 | Margins | Items: savings vs ask + profit vs bid; Ships: savings vs `ship_listings` price (catalog fallback), profit n/a |
 | Multi-recipe | Cheapest feasible recipe per station wins; chosen recipe named in cell/detail |
-| Freshness | Per-station latest `captured_at`; stale greyed, empty dropped from default |
+| Freshness | Per-station latest `captured_at`; market.db 6h TTL = all fresh, no greying; empty stations dropped from default |
 | Architecture | `pkg/buildcost` (pure, tested) + `cmd/generate-build-costs`; outputs under `kb/build-costs/` |

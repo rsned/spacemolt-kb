@@ -512,6 +512,7 @@ func loadBoMFromDB(db *sql.DB, items map[string]*Item, ships []*Ship, facilities
 func main() {
 	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
 	systemsAll := flag.Bool("systems-only", false, "regenerate only the systems section (all system pages + jump routes)")
+	resourcesOnly := flag.Bool("resources-only", false, "regenerate only the resources index page")
 	flag.Parse()
 
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
@@ -535,6 +536,12 @@ func main() {
 	// --- Systems-section-only mode (no items/recipes/missions) ---
 	if *systemsAll {
 		generateAllSystems()
+		return
+	}
+
+	// --- Resources-only mode (just the resources index) ---
+	if *resourcesOnly {
+		generateResourcesOnly()
 		return
 	}
 
@@ -866,6 +873,23 @@ func generateAllSystems() {
 	if err := writePlanetPages(knowledgeDB, systemOutDir, systems); err != nil {
 		log.Fatalf("write planet pages: %v", err)
 	}
+
+	resourceOutDir := "kb/resources"
+	if err := writeResourcePages(resourceOutDir, knowledgeDB); err != nil {
+		log.Fatalf("write resource pages: %v", err)
+	}
+	fmt.Printf("Generated resource index in %s/\n", resourceOutDir)
+}
+
+// generateResourcesOnly regenerates just the resources index page.
+func generateResourcesOnly() {
+	knowledgeDBPath := "../spacemolt-knowledge.db"
+
+	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
+	if err != nil {
+		log.Fatalf("open knowledge database: %v", err)
+	}
+	defer func() { _ = knowledgeDB.Close() }()
 
 	resourceOutDir := "kb/resources"
 	if err := writeResourcePages(resourceOutDir, knowledgeDB); err != nil {
