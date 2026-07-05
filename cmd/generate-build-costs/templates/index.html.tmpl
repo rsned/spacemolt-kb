@@ -58,7 +58,8 @@ function render(){
   for(const r of M.rows){
     if(cat && r.cat!==cat) continue;
     if(q && !r.name.toLowerCase().includes(q)) continue;
-    if(onlyFeas && r.fc===0) continue;
+    const feasCount = mode==='recipe' ? r.rfc : r.fc;
+    if(onlyFeas && feasCount===0) continue;
     let tds=`<td class="rowhdr"><a href="./${r.id}.html">${r.name}</a> <small>${r.kind}</small></td>`;
     tds+=`<td>${r.cs? fmt(r.cc)+' @'+ (M.stations.find(s=>s.id===r.cs)||{}).name : '—'}</td>`;
     for(const s of cols){

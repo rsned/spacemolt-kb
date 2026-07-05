@@ -31,9 +31,10 @@ type clientRow struct {
 	Name  string                `json:"name"`
 	Kind  string                `json:"kind"`
 	Cat   string                `json:"cat"`
-	CS    string                `json:"cs"` // cheapest station id
-	CC    float64               `json:"cc"` // cheapest cost
-	FC    int                   `json:"fc"` // feasible count
+	CS    string                `json:"cs"`  // cheapest station id
+	CC    float64               `json:"cc"`  // cheapest cost
+	FC    int                   `json:"fc"`  // feasible count
+	RFC   int                   `json:"rfc"` // recipe feasible count
 	Cells map[string]clientCell `json:"cells"`
 }
 
@@ -54,7 +55,7 @@ func toClientModel(m Matrix) clientModel {
 		cm.Stations = append(cm.Stations, clientStation{ID: s.ID, Name: s.Name, Empire: s.Empire})
 	}
 	for _, r := range m.Rows {
-		cr := clientRow{ID: r.ID, Name: r.Name, Kind: r.Kind, Cat: r.Category, CS: r.CheapestStation, CC: r.CheapestCost, FC: r.FeasibleCount, Cells: map[string]clientCell{}}
+		cr := clientRow{ID: r.ID, Name: r.Name, Kind: r.Kind, Cat: r.Category, CS: r.CheapestStation, CC: r.CheapestCost, FC: r.FeasibleCount, RFC: r.RecipeFeasibleCount, Cells: map[string]clientCell{}}
 		for st, c := range r.Cells {
 			cr.Cells[st] = clientCell{BC: c.BoMCost, BF: c.BoMFeasible, RC: c.RecipeCost, RF: c.RecipeFeasible, RNA: c.RecipeNA, SV: c.SavingsBoM, HS: c.HasSavings, PF: c.ProfitBoM, HP: c.HasProfit}
 		}

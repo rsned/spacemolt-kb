@@ -24,14 +24,15 @@ type RowCell struct {
 
 // MatrixRow is one item/ship across all stations, plus summary columns.
 type MatrixRow struct {
-	ID              string
-	Name            string
-	Kind            string
-	Category        string
-	Cells           map[string]RowCell
-	CheapestStation string
-	CheapestCost    float64
-	FeasibleCount   int
+	ID                  string
+	Name                string
+	Kind                string
+	Category            string
+	Cells               map[string]RowCell
+	CheapestStation     string
+	CheapestCost        float64
+	FeasibleCount       int // stations where BoM is feasible
+	RecipeFeasibleCount int // stations where Recipe is feasible (and not NA)
 }
 
 // Matrix is the full render model: station columns and target rows.
@@ -80,6 +81,9 @@ func BuildMatrix(targets []buildcost.Target, books map[string]*buildcost.Book, s
 				if !haveCheapest || c.BoM.Cost < row.CheapestCost {
 					row.CheapestStation, row.CheapestCost, haveCheapest = st.ID, c.BoM.Cost, true
 				}
+			}
+			if c.Recipe.Feasible && !c.Recipe.NA {
+				row.RecipeFeasibleCount++
 			}
 		}
 		m.Rows = append(m.Rows, row)
