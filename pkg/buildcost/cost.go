@@ -45,3 +45,45 @@ func (b *Book) PriceRequirements(reqs []Requirement) ModeResult {
 	}
 	return res
 }
+
+// Recipe is one way to produce a target: its direct inputs and how many units
+// of the target it yields (OutputQty, at least 1).
+type Recipe struct {
+	ID        string
+	OutputQty float64
+	Inputs    []Requirement
+}
+
+// CheapestRecipe prices every recipe and returns the cheapest feasible one
+// (per-unit cost = total input cost / OutputQty), tagging RecipeID. When no
+// recipe is feasible, it returns the lowest partial-cost result (still
+// infeasible). An empty recipe list yields an NA result.
+func (b *Book) CheapestRecipe(recipes []Recipe) ModeResult {
+	if len(recipes) == 0 {
+		return ModeResult{NA: true, NAReason: "no recipe"}
+	}
+	var best ModeResult
+	var haveBest bool
+	for _, rec := range recipes {
+		r := b.PriceRequirements(rec.Inputs)
+		out := rec.OutputQty
+		if out < 1 {
+			out = 1
+		}
+		r.Cost /= out
+		r.RecipeID = rec.ID
+		if !haveBest || better(r, best) {
+			best, haveBest = r, true
+		}
+	}
+	return best
+}
+
+// better reports whether candidate c should replace the current best: a feasible
+// result always beats an infeasible one; among same feasibility, lower cost wins.
+func better(c, best ModeResult) bool {
+	if c.Feasible != best.Feasible {
+		return c.Feasible
+	}
+	return c.Cost < best.Cost
+}
