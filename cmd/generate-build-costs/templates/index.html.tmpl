@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Build Cost Matrix — Spacemolt KB</title>
+<style>
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
+ h1{font-size:1.4rem} .controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:.6rem 0}
+ .controls input,.controls select{background:#161b22;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;padding:.3rem}
+ table{border-collapse:collapse;font-size:.8rem} th,td{border:1px solid #21262d;padding:.25rem .4rem;text-align:right;white-space:nowrap}
+ th.rowhdr,td.rowhdr{text-align:left;position:sticky;left:0;background:#0d1117;z-index:1}
+ thead th{position:sticky;top:0;background:#161b22}
+ td.infeasible{color:#6e7681} td.cheapest{outline:2px solid #2ea043}
+ td.pos{color:#3fb950} td.neg{color:#f85149} a{color:#58a6ff}
+ .wrap{overflow:auto;max-height:80vh}
+</style>
+</head>
+<body>
+<h1>Build Cost Matrix</h1>
+<p>Live-market build cost of every item and ship at every station. BoM = from raw ore; Recipe = buy sub-assemblies. Muted = can't complete from current depth.</p>
+<div class="controls">
+ <label>Mode <select id="mode"><option value="bom">BoM</option><option value="recipe">Recipe</option></select></label>
+ <label>Metric <select id="metric"><option value="cost">Cost</option><option value="savings">Savings</option><option value="profit">Profit</option></select></label>
+ <label>Category <select id="category"></select></label>
+ <label>Empire <select id="empire"></select></label>
+ <label>Station <select id="station"></select></label>
+ <input id="search" placeholder="search name…">
+ <label><input type="checkbox" id="feasible" checked> Show only feasible</label>
+</div>
+<div class="wrap"><table id="matrix"><thead></thead><tbody></tbody></table></div>
+<script id="data" type="application/json">{{.JSON}}</script>
+<script>
+const M = JSON.parse(document.getElementById('data').textContent);
+const $ = id => document.getElementById(id);
+function fmt(n){ return n==null? '' : Math.round(n).toLocaleString(); }
+function initFilter(sel, vals){ sel.innerHTML='<option value="">All</option>'+[...new Set(vals)].filter(Boolean).sort().map(v=>`<option>${v}</option>`).join(''); }
+initFilter($('category'), M.rows.map(r=>r.cat));
+initFilter($('empire'), M.stations.map(s=>s.empire));
+initFilter($('station'), M.stations.map(s=>s.name));
+function cellVal(c, mode, metric){
+  if(!c) return {v:null, feas:false, na:false};
+  if(mode==='recipe' && c.rna) return {v:null, feas:false, na:true};
+  const cost = mode==='bom'? c.bc : c.rc;
+  const feas = mode==='bom'? c.bf : c.rf;
+  if(metric==='cost') return {v:cost, feas, na:false};
+  if(metric==='savings') return {v:c.hs? c.sv : null, feas, na:false};
+  return {v:c.hp? c.pf : null, feas, na:false};
+}
+function render(){
+  const mode=$('mode').value, metric=$('metric').value;
+  const cat=$('category').value, emp=$('empire').value, stn=$('station').value;
+  const q=$('search').value.toLowerCase(), onlyFeas=$('feasible').checked;
+  const cols = M.stations.filter(s=> (!emp||s.empire===emp) && (!stn||s.name===stn));
+  let head='<tr><th class="rowhdr">Item / Ship</th><th>Cheapest</th>';
+  head += cols.map(s=>`<th title="${s.empire}">${s.name}</th>`).join('')+'</tr>';
+  $('matrix').tHead.innerHTML=head;
+  const rowsHtml=[];
+  for(const r of M.rows){
+    if(cat && r.cat!==cat) continue;
+    if(q && !r.name.toLowerCase().includes(q)) continue;
+    if(onlyFeas && r.fc===0) continue;
+    let tds=`<td class="rowhdr"><a href="./${r.id}.html">${r.name}</a> <small>${r.kind}</small></td>`;
+    tds+=`<td>${r.cs? fmt(r.cc)+' @'+ (M.stations.find(s=>s.id===r.cs)||{}).name : '—'}</td>`;
+    for(const s of cols){
+      const cv=cellVal(r.cells[s.id], mode, metric);
+      let cls=[]; if(!cv.feas) cls.push('infeasible'); if(r.cs===s.id && metric==='cost' && mode==='bom') cls.push('cheapest');
+      if(metric!=='cost' && cv.v!=null) cls.push(cv.v>=0?'pos':'neg');
+      const txt = cv.na? 'n/a' : (cv.v==null? '' : fmt(cv.v));
+      tds+=`<td class="${cls.join(' ')}">${txt}</td>`;
+    }
+    rowsHtml.push('<tr>'+tds+'</tr>');
+  }
+  $('matrix').tBodies[0].innerHTML=rowsHtml.join('');
+}
+['mode','metric','category','empire','station','feasible'].forEach(id=>$(id).addEventListener('change',render));
+$('search').addEventListener('input',render);
+render();
+</script>
+</body>
+</html>
