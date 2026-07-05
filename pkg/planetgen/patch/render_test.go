@@ -128,5 +128,8 @@ func TestEquirectPixelRoundTripsBakeEquirectProjection(t *testing.T) {
 	if py < 85 || py > 95 {
 		t.Fatalf("expected near-equator py, got %d", py)
 	}
-	_ = px
+	// lon=0 maps to fpx = -0.5 (clamped to 0), i.e. the left edge.
+	if px < 0 || px > 2 {
+		t.Fatalf("expected near-left-edge px, got %d", px)
+	}
 }

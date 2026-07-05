@@ -200,7 +200,13 @@ function toggleJitter() {
   profileTextarea.value = prettifyJSON(JSON.stringify(prof));
   refreshJitterButtonLabel();
   renderPanels();
-  regenerate();
+  // While Patch Lab is open, route through the patch-aware path
+  // instead of the full (and pointless-in-patch-mode) regenerate().
+  if (patchOn) {
+    applyProfileToPatch(prof);
+  } else {
+    regenerate();
+  }
 }
 
 async function paintToCanvas(canvas, pngBytes) {
@@ -393,7 +399,18 @@ exportBtn.addEventListener('click', () => {
 applyBtn.addEventListener('click', () => {
   renderPanels();
   refreshJitterButtonLabel();
-  regenerate();
+  // While Patch Lab is open, a hand-edited textarea may have changed
+  // several fields at once; route through the patch-aware path (which
+  // forces a full patch resync for multi-field edits) instead of the
+  // full (and pointless-in-patch-mode) regenerate().
+  if (patchOn) {
+    let profile;
+    try { profile = JSON.parse(profileTextarea.value); }
+    catch { return; }
+    applyProfileToPatch(profile);
+  } else {
+    regenerate();
+  }
 });
 
 const importFileInput = $('#import-json-file');
@@ -409,7 +426,15 @@ if (importFileInput) {
       status.textContent = `Imported ${file.name}`;
       renderPanels();
       refreshJitterButtonLabel();
-      regenerate();
+      // An imported profile can differ from the current one in many
+      // fields at once; while Patch Lab is open route through the
+      // patch-aware path (forces a full patch resync) instead of the
+      // full (and pointless-in-patch-mode) regenerate().
+      if (patchOn) {
+        applyProfileToPatch(parsed);
+      } else {
+        regenerate();
+      }
     } catch (e) {
       status.textContent = `Import failed: ${e.message || e}`;
     } finally {
@@ -2089,10 +2114,19 @@ function bandLegend(numBands) {
 // one of the 12 candidate windows returned by patchInit, step through
 // the 13-layer pipeline (patch.Layers()), and tweak profile params with
 // live re-renders that only recompute from the first dirty layer down
-// (Stack.RenderTo caching) — sphere-level params (tectonic FX, control
-// noise, height smooth) trigger a full ComputeSphere+ExtractFields
-// re-run; everything else is cheap. "Go!" hands the tuned profile off
-// to the existing full-resolution regenerate() path.
+// (Stack.RenderTo caching). Tectonic FX, control noise, and height
+// smooth are each owned by a patch layer, so tweaking them stays cheap
+// (only that layer + downstream re-run) — they do NOT trigger a sphere
+// recompute. Only params no layer owns (MajorPlates, Assembly,
+// CratonsMax, TargetLandFraction, …) trigger a full ComputeSphere+
+// ExtractFields re-run. Consequence: the sphere-derived HMin/HMax/
+// SeaLevel0/SeaLevel scalars are cached at patchInit/last-recompute
+// time, so heavy tectonic FX / control noise / height-smooth retuning
+// can drift the preview's absolute height normalization and sea level
+// away from a fresh sphere compute until a sphere-level param changes
+// (or Patch Lab is re-entered) resyncs them — a documented divergence,
+// see the README and spec §7. "Go!" hands the tuned profile off to the
+// existing full-resolution regenerate() path.
 
 let patchOn = false, patchCands = [], patchCandIdx = 0, patchTarget = 12, patchPrevProfile = null;
 let patchRefreshTimer = null;
@@ -2286,19 +2320,59 @@ function diffProfilePath(prev, next) {
   return walk(prev, next, '') || '';
 }
 
-// Wrap the existing commitProfile (a plain function declaration, so
-// this reassignment is visible to every earlier call site once the
-// script finishes its synchronous top-level run — well before any
-// slider's event listener can fire) to push edits into the live patch
-// session when Patch Lab is open.
-const baseCommitProfile = commitProfile;
-commitProfile = function patchAwareCommitProfile(profile) {
-  baseCommitProfile(profile);
+// countProfileDiffs walks two profile objects and counts differing
+// leaves, stopping early once more than `cap` are found (the callers
+// below only need to distinguish "0", "1", and "more than 1" — no
+// need to walk a huge bulk edit to completion just to count it).
+function countProfileDiffs(prev, next, cap) {
+  if (prev == null || next == null) return cap + 1;
+  let count = 0;
+  const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const walk = (a, b) => {
+    if (count > cap) return;
+    if (!isPlainObject(a) || !isPlainObject(b)) {
+      if (JSON.stringify(a) !== JSON.stringify(b)) count++;
+      return;
+    }
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of keys) {
+      if (count > cap) return;
+      walk(a[k], b[k]);
+    }
+  };
+  walk(prev, next);
+  return count;
+}
+
+// applyProfileToPatch pushes a profile edit into the live patch
+// session (the shared logic behind the patch-aware commitProfile
+// wrapper below, and behind every other profile-writing UI action —
+// "Apply & render", jitter toggle, JSON import — so they all drive
+// Patch Lab through the same dirty-tracking path instead of silently
+// falling back to a full regenerate()). No-op when Patch Lab is closed.
+//
+// diffProfilePath only ever reports the *first* differing leaf. That's
+// fine for a single slider drag (exactly one leaf changes at a time),
+// but a hand-edited textarea / imported file / jitter toggle can change
+// several leaves in one commit — per-leaf dirty tracking on just the
+// first one could leave other changed layers stale. Rather than loop
+// diffProfilePath to find every changed leaf (more code, and each
+// individual patchSetParam call would still MarkAllDirty on
+// mismatched paths anyway once more than one sphere-level field is
+// touched), treat "more than one leaf changed" as a bulk edit and force
+// the safe, conservative path: an unmatched param path ("__fullRefresh"
+// doesn't prefix-match any patch.Layer's Params, so Stack.MarkDirty in
+// pkg/planetgen/patch/stack.go always returns true) triggers a full
+// sphere recompute + MarkAllDirty, guaranteeing every layer re-renders
+// against the new profile regardless of how many fields changed.
+function applyProfileToPatch(profile) {
   if (!patchOn) return;
-  const changedPath = diffProfilePath(patchPrevProfile, profile);
+  const diffCount = countProfileDiffs(patchPrevProfile, profile, 1);
+  if (diffCount === 0) return;
+  const path = diffCount > 1 ? '__fullRefresh' : diffProfilePath(patchPrevProfile, profile);
   patchPrevProfile = JSON.parse(JSON.stringify(profile));
-  if (!changedPath) return;
-  const raw = patchSetParam(changedPath, JSON.stringify(profile));
+  if (!path) return;
+  const raw = patchSetParam(path, JSON.stringify(profile));
   if (isWasmError(raw)) {
     console.warn('patchSetParam:', wasmErrorMessage(raw));
     return;
@@ -2307,6 +2381,17 @@ commitProfile = function patchAwareCommitProfile(profile) {
     if (JSON.parse(raw).sphereRecomputed) refreshMinimap();
   } catch { /* ignore malformed reply, still attempt the re-render below */ }
   scheduleRefreshPatch();
+}
+
+// Wrap the existing commitProfile (a plain function declaration, so
+// this reassignment is visible to every earlier call site once the
+// script finishes its synchronous top-level run — well before any
+// slider's event listener can fire) to push edits into the live patch
+// session when Patch Lab is open.
+const baseCommitProfile = commitProfile;
+commitProfile = function patchAwareCommitProfile(profile) {
+  baseCommitProfile(profile);
+  applyProfileToPatch(profile);
 };
 
 if (patchModeBtn) patchModeBtn.addEventListener('click', enterPatchLab);

@@ -100,8 +100,8 @@ to the normal sphere/cube-map/equirect views.
   **Tectonic** (plate/craton/FX debug overlay).
 - **Next window** cycles through the ranked candidate windows returned
   by the sphere-side picker (scored on FX-class diversity, boundary
-  activity, craton edges, and land/ocean mix) — the first candidate is
-  the smart-picked default.
+  activity, and land/ocean mix) — the first candidate is the
+  smart-picked default.
 - The **Sea level** slider live-overrides the waterline layer's ocean
   gate without recomputing anything upstream.
 - Every other slider panel in the sidebar (Tectonic FX, control noise,
@@ -113,7 +113,7 @@ to the normal sphere/cube-map/equirect views.
 
 ### Known divergences from production
 
-Patch Lab is a faithful crop of the production render modulo four
+Patch Lab is a faithful crop of the production render modulo five
 documented, intentional approximations — summarized here; see
 [`docs/superpowers/specs/2026-07-02-patch-lab-design.md`](../../docs/superpowers/specs/2026-07-02-patch-lab-design.md)
 §7 for the canonical list:
@@ -132,6 +132,14 @@ documented, intentional approximations — summarized here; see
    as a scalar (a patch-local quantile would not be representative of
    the globe) — absent a slider override this is the same value
    production computes, just sourced from a coarser sphere.
+5. **Stale sphere-derived scalars on patch-layer edits.** Tectonic FX,
+   control noise, and height-smooth params are each owned by a patch
+   layer, so editing them only re-runs that layer (and downstream) —
+   not a sphere recompute. Patch-layer param edits therefore reuse the
+   sphere's cached normalize bounds and sea levels, so heavy tectonic/
+   erosion retuning can drift the preview's absolute levels until a
+   sphere-level param changes (or Patch Lab is re-entered) resyncs
+   them.
 
 ## Planet picker and per-planet save (Phase 5)
 

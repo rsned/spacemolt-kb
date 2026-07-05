@@ -47,6 +47,9 @@ func ComputeSphere(profile *types.PlanetProfile, master int64, sTect int) (*Sphe
 	if profile == nil || profile.Crust.MajorPlates <= 0 {
 		return nil, fmt.Errorf("patch: Patch Lab requires a crust-enabled profile (crust.majorPlates > 0)")
 	}
+	if profile.Provinces.Count > 0 {
+		return nil, fmt.Errorf("patch: Patch Lab doesn't support province modulation yet (profile.Provinces.Count > 0)")
+	}
 	jitter := noise.GenerateJitter(profile, master, sTect)
 	plates := field.GeneratePlates(profile, master, sTect)
 	if plates == nil {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
 )
 
 var updateGoldens = flag.Bool("update", false, "re-bake patch layer goldens")
@@ -23,12 +24,21 @@ func TestPatchLayerGoldens(t *testing.T) {
 	path := filepath.Join("testdata", "goldens.json")
 	got := map[string]string{}
 	for _, arch := range []string{"terran", "arid"} {
-		prof := planetgen.GetProfile(arch)
-		if prof.Crust.MajorPlates <= 0 {
+		base := planetgen.GetProfile(arch)
+		if base.Crust.MajorPlates <= 0 {
 			t.Fatalf("%s must be crust-enabled", arch)
 		}
+		// No built-in profile sets Coastal.Amp, so layer 5 (coastal)
+		// would be a no-op identity pass and its golden would be
+		// indistinguishable from layer 4 (normalize) — pin a real
+		// coastal config on a copy (same literal as stack_test.go's
+		// countingStack, which needs the same layer actually enabled
+		// to make its invocation-count assertions meaningful) so the
+		// coastal golden has real coverage.
+		prof := *base
+		prof.Coastal = types.CoastalConfig{Amp: 0.05, Threshold: 0.5, Freq: 8}
 		master := seed.Hash("PatchGolden")
-		sd, err := ComputeSphere(prof, master, 64)
+		sd, err := ComputeSphere(&prof, master, 64)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -37,7 +47,7 @@ func TestPatchLayerGoldens(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		s := NewStack(&Context{Sphere: sd, Fields: f, Profile: prof, Master: master})
+		s := NewStack(&Context{Sphere: sd, Fields: f, Profile: &prof, Master: master})
 		for i, l := range Layers() {
 			st, err := s.RenderTo(i)
 			if err != nil {

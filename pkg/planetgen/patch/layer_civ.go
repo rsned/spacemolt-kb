@@ -2,6 +2,7 @@ package patch
 
 import (
 	"container/heap"
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -131,19 +132,25 @@ func delaunayEdges(sites []civSite) (edges [][2]int) {
 	if len(sites) < 3 {
 		return nil
 	}
-	defer func() {
-		// The vendored triangulator is not guaranteed panic-free on
-		// pathological (e.g. fully collinear) input; treat a panic
-		// the same as a returned error — no roads, not a crash.
-		if r := recover(); r != nil {
-			edges = nil
-		}
-	}()
 	pts := make([]delaunay.Point, len(sites))
 	for i, s := range sites {
 		pts[i] = delaunay.Point{X: s.X, Y: s.Y}
 	}
-	tri, err := delaunay.Triangulate(pts)
+	// The vendored triangulator is not guaranteed panic-free on
+	// pathological (e.g. fully collinear) input; treat a panic the
+	// same as a returned error — no roads, not a crash. Narrowed to
+	// just the Triangulate call (rather than the whole function) so a
+	// bug in our own edge-dedup/sort logic below panics loudly
+	// instead of being silently swallowed, matching production's
+	// feature.SphericalDelaunay, which has no recover at all.
+	tri, err := func() (t *delaunay.Triangulation, err error) {
+		defer func() {
+			if r := recover(); r != nil {
+				t, err = nil, fmt.Errorf("delaunay: triangulate panic: %v", r)
+			}
+		}()
+		return delaunay.Triangulate(pts)
+	}()
 	if err != nil || tri == nil {
 		return nil
 	}

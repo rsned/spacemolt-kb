@@ -185,16 +185,75 @@ func encodePNG(img image.Image) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// StateHash is the byte-exact per-layer regression fingerprint:
-// FNV-64a over Height's float64 bits (little-endian), then Img's
-// pixels when present. Returned as hex.
+// StateHash is the byte-exact per-layer regression fingerprint. It
+// folds in every field a layer can produce, in this fixed order so the
+// hash is deterministic and every layer's output is actually covered
+// (a golden gate that only hashed Height/Img would miss drift in
+// DistCoast, T/M/RainMult, Rivers, FlowAccum, Craters, or Sites):
+//
+//  1. Height — float64 bits, little-endian, row-major.
+//  2. DistCoast, T, M, RainMult — each skipped entirely when nil, else
+//     hashed the same way as Height.
+//  3. Rivers — skipped when nil, else one byte per element (0 or 1).
+//  4. FlowAccum — skipped when nil, else float64 bits like Height.
+//  5. Craters — skipped when empty, else each crater's Lat, Lon,
+//     Radius, Age float64 bits in that order. (feature.Crater has no
+//     Depth field — craters carry Age, not a separate depth scalar —
+//     so Age is hashed in Depth's place.)
+//  6. Sites — skipped when empty, else each site's Dir[0], Dir[1],
+//     Dir[2], Habitability, Population float64 bits in that order.
+//  7. Img — pixels, when present, hashed last.
+//
+// Returned as hex.
 func StateHash(st *State) string {
 	h := fnv.New64a()
 	var b [8]byte
-	for _, v := range st.Height.Data {
+	writeFloat := func(v float64) {
 		binary.LittleEndian.PutUint64(b[:], math.Float64bits(v))
 		h.Write(b[:])
 	}
+	writeGrid := func(g *Grid) {
+		if g == nil {
+			return
+		}
+		for _, v := range g.Data {
+			writeFloat(v)
+		}
+	}
+
+	writeGrid(st.Height)
+	writeGrid(st.DistCoast)
+	writeGrid(st.T)
+	writeGrid(st.M)
+	writeGrid(st.RainMult)
+
+	if st.Rivers != nil {
+		rb := make([]byte, len(st.Rivers))
+		for i, v := range st.Rivers {
+			if v {
+				rb[i] = 1
+			}
+		}
+		h.Write(rb)
+	}
+
+	writeGrid(st.FlowAccum)
+
+	for _, c := range st.Craters {
+		writeFloat(c.Lat)
+		writeFloat(c.Lon)
+		writeFloat(c.Radius)
+		writeFloat(c.Age)
+	}
+
+	for _, s := range st.Sites {
+		writeFloat(s.Dir[0])
+		writeFloat(s.Dir[1])
+		writeFloat(s.Dir[2])
+		writeFloat(s.Habitability)
+		writeFloat(s.Population)
+	}
+
 	if st.Img != nil {
 		h.Write(st.Img.Pix)
 	}

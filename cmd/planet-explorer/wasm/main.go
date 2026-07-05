@@ -480,13 +480,24 @@ func clampWindow(w patch.Window) patch.Window {
 }
 
 // patchSetParam(paramPath, profileJSON) → JSON {"sphereRecomputed":bool}.
-// Applies a profile-param edit to the live stack's Context. Most edits
-// only invalidate downstream layers (MarkDirty returns false); edits to
-// sphere-level params (tectonic FX, control noise, height smooth —
-// anything no layer owns) require a full ComputeSphere+ExtractFields
-// re-run. paramPath == "seaLevelView" is a special case: it's a stack-
-// side view override (Context.SeaLevelView), not a profile field, so it
-// never triggers a sphere recompute.
+// Applies a profile-param edit to the live stack's Context. Most edits,
+// including tectonic FX, control noise, and height smooth, are owned by
+// a patch layer (patch.Layers()'s Params lists), so MarkDirty returns
+// false and only that layer and everything downstream of it re-runs —
+// the sphere-global precompute (SphereData: Jitter/Plates/Crust/FX) is
+// NOT re-run. Only edits to params no layer owns (MajorPlates, Assembly,
+// CratonsMax, TargetLandFraction, …) require a full ComputeSphere+
+// ExtractFields re-run. Consequence: HMin/HMax/SeaLevel0/SeaLevel are
+// derived once by ComputeSphere and cached on SphereData — heavy
+// tectonic FX / control noise / height-smooth retuning can drift a
+// patch's absolute height normalization and sea level away from what a
+// fresh sphere compute at the new params would produce, until a
+// genuinely sphere-level param changes (or the user re-enters Patch
+// Lab) resyncs them. This is intentional (keeps slider drags
+// interactive) but is a documented divergence — see the Patch Lab
+// README and spec §7. paramPath == "seaLevelView" is a special case:
+// it's a stack-side view override (Context.SeaLevelView), not a
+// profile field, so it never triggers a sphere recompute.
 func patchSetParam(_ js.Value, args []js.Value) any {
 	if len(args) != 2 {
 		return jsError("patchSetParam: expected 2 args, got %d", len(args))

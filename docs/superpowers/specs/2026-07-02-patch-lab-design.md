@@ -124,6 +124,12 @@ score = Σ_class present(class)·w_class      # distinct FX classes in window
       + has both land and ocean              # waterline layers need a coast
 ```
 
+**As implemented** (`pkg/planetgen/patch/pick.go`), the craton-edge term was
+dropped silently during implementation: `Pick` scores only FX-class presence
+(+1 per class with >2% active pixels within the window, plus a boundary-
+density term up to +0.3 per class) and a +1 land/ocean-mix bonus. There is no
+craton-aware term at all.
+
 Deterministic given seed. UI offers: smart-pick (default), "next best" cycling
 through the top-N ranked windows, 0°/0° preset, and manual pin (face + center).
 Fully-oceanic degenerate cases still return the argmax (score is always defined).
@@ -245,6 +251,19 @@ Documented, not hidden — the "Go!" render is the source of truth:
   target) — the only real divergence from production is the resolution the
   quantile is computed at (S_tect vs. S_prod), not the mechanism, and the
   slider override is a deliberate Patch Lab addition, not an accidental one.
+- **Stale sphere-derived scalars on patch-layer param edits.** Tectonic FX,
+  control noise, and height-smooth are each owned by a patch layer
+  (`patch.Layers()`'s `Params`), so `Stack.MarkDirty` returns `false` for them
+  and only that layer (and downstream) re-renders — the sphere-global
+  precompute never re-runs. The sphere-derived `HMin`/`HMax`/`SeaLevel0`/
+  `SeaLevel` scalars (`pkg/planetgen/patch/sphere.go`) are therefore fixed at
+  patchInit/last-sphere-recompute time: patch-layer param edits reuse the
+  sphere's cached normalize bounds and sea levels, so heavy tectonic/erosion
+  retuning can drift the preview's absolute levels until a genuinely
+  sphere-level param changes (or Patch Lab is re-entered) resyncs them. This
+  is intentional — trading absolute-level fidelity for interactivity — but
+  was previously undocumented; the wasm (`patchSetParam`) and UI
+  (`app.js`, Patch Lab section) comments now spell out the consequence.
 
 ## 8. Error handling
 

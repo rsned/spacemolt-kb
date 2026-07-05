@@ -46,3 +46,15 @@ func TestComputeSphereRejectsLegacy(t *testing.T) {
 		t.Fatal("legacy (non-crust) profile must be rejected")
 	}
 }
+
+// TestComputeSphereRejectsProvinces pins the guard added because the
+// patch pipeline doesn't implement the province ramp/freq modulation
+// production applies (render/rocky.go): Patch Lab must fail loudly
+// instead of silently rendering a non-crop when Provinces is enabled.
+func TestComputeSphereRejectsProvinces(t *testing.T) {
+	p := *terranProfile(t)
+	p.Provinces.Count = 8
+	if _, err := ComputeSphere(&p, 1, 32); err == nil {
+		t.Fatal("profile with Provinces.Count > 0 must be rejected")
+	}
+}
