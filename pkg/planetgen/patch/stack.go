@@ -90,6 +90,8 @@ func Layers() []Layer {
 	ls[7].Enabled = cratersEnabled
 	ls[8].Apply = applyFlowRivers
 	ls[8].Enabled = flowEnabled
+	ls[9].Apply = applyClimate
+	ls[10].Apply = applyBiomeColor
 	for i := range ls {
 		ls[i].Index = i
 		if ls[i].Enabled == nil {
