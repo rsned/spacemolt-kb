@@ -82,9 +82,13 @@ func Layers() []Layer {
 	ls[2].Apply = applyControlNoise
 	ls[3].Apply = applyHeightSmooth
 	ls[4].Apply = applyNormalize
+	ls[5].Apply = applyCoastal
+	ls[5].Enabled = coastalEnabled
 	for i := range ls {
 		ls[i].Index = i
-		ls[i].Enabled = always
+		if ls[i].Enabled == nil {
+			ls[i].Enabled = always
+		}
 		if ls[i].Apply == nil {
 			ls[i].Apply = identity
 		}

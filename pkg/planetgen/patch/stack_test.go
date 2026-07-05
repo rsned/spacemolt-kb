@@ -1,6 +1,10 @@
 package patch
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
+)
 
 // testStack builds a Stack whose first three layers count their
 // invocations, to pin cache/dirty semantics without real layers.
@@ -12,7 +16,13 @@ func countingStack(t *testing.T, counts *[13]int) *Stack {
 	if err != nil {
 		t.Fatal(err)
 	}
-	ctx := &Context{Sphere: sd, Fields: f, Profile: sd.Profile, Master: sd.Master}
+	// No built-in test profile sets Coastal.Amp, but the dirty/cache
+	// assertions below need layer 5 (coastal) actually enabled so its
+	// invocation count is meaningful; pin a real coastal config on a
+	// copy so we don't mutate sd.Profile.
+	prof := *sd.Profile
+	prof.Coastal = types.CoastalConfig{Amp: 0.05, Threshold: 0.5, Freq: 8}
+	ctx := &Context{Sphere: sd, Fields: f, Profile: &prof, Master: sd.Master}
 	s := NewStack(ctx)
 	for i := range s.layers {
 		idx := i
