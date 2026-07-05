@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 //go:embed templates/*.tmpl
@@ -86,4 +87,103 @@ func renderIndex(outDir string, m Matrix) error {
 	}
 	defer func() { _ = f.Close() }()
 	return t.Execute(f, map[string]any{"JSON": template.JS(js)})
+}
+
+// detailLine is one station row in a per-target detail table.
+type detailLine struct {
+	StationName, Empire string
+
+	BoMFeasible bool
+	BoMCostStr  string
+	BoMCovered  int
+	BoMTotal    int
+
+	RecipeNA          bool
+	RecipeFeasible    bool
+	RecipeCostStr     string
+	RecipeFeasibleStr string
+	RecipeID          string
+
+	SavingsStr, SavingsClass string
+	ProfitStr, ProfitClass   string
+}
+
+// commaInt formats v (rounded to the nearest integer) with thousands separators.
+func commaInt(v float64) string {
+	n := int64(v + 0.5)
+	neg := n < 0
+	if neg {
+		n = -n
+	}
+	s := strconv.FormatInt(n, 10)
+	var out []byte
+	for i, c := range []byte(s) {
+		if i > 0 && (len(s)-i)%3 == 0 {
+			out = append(out, ',')
+		}
+		out = append(out, c)
+	}
+	if neg {
+		return "-" + string(out)
+	}
+	return string(out)
+}
+
+// money renders a value as a comma-formatted string, or an em dash when absent.
+func money(v float64, ok bool) string {
+	if !ok {
+		return "—"
+	}
+	return template.HTMLEscapeString(commaInt(v))
+}
+
+// signClass returns the CSS class for a signed value, or "" when absent.
+func signClass(v float64, ok bool) string {
+	if !ok {
+		return ""
+	}
+	if v >= 0 {
+		return "pos"
+	}
+	return "neg"
+}
+
+// renderDetail writes the per-target station breakdown page.
+func renderDetail(outDir string, row MatrixRow, stations []StationMeta) error {
+	t, err := template.ParseFS(tmplFS, "templates/detail.html.tmpl")
+	if err != nil {
+		return err
+	}
+	var lines []detailLine
+	for _, s := range stations {
+		c, ok := row.Cells[s.ID]
+		if !ok {
+			continue
+		}
+		ln := detailLine{
+			StationName: s.Name, Empire: s.Empire,
+			BoMFeasible: c.BoMFeasible, BoMCostStr: commaInt(c.BoMCost),
+			BoMCovered: c.BoMCovered, BoMTotal: c.BoMTotal,
+			RecipeNA: c.RecipeNA, RecipeFeasible: c.RecipeFeasible, RecipeID: c.RecipeID,
+			SavingsStr: money(c.SavingsBoM, c.HasSavings), SavingsClass: signClass(c.SavingsBoM, c.HasSavings),
+			ProfitStr: money(c.ProfitBoM, c.HasProfit), ProfitClass: signClass(c.ProfitBoM, c.HasProfit),
+		}
+		if c.RecipeNA {
+			ln.RecipeCostStr, ln.RecipeFeasibleStr = "n/a", "sub-assemblies not traded"
+		} else {
+			ln.RecipeCostStr = commaInt(c.RecipeCost)
+			if c.RecipeFeasible {
+				ln.RecipeFeasibleStr = "yes"
+			} else {
+				ln.RecipeFeasibleStr = "no"
+			}
+		}
+		lines = append(lines, ln)
+	}
+	f, err := os.Create(filepath.Join(outDir, row.ID+".html"))
+	if err != nil {
+		return err
+	}
+	defer func() { _ = f.Close() }()
+	return t.Execute(f, map[string]any{"Name": row.Name, "Kind": row.Kind, "Lines": lines})
 }

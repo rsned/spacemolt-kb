@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{.Name}} — Build Cost — Spacemolt KB</title>
+<style>
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
+ table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
+ th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+</style>
+</head>
+<body>
+<p><a href="../build-costs/">← Build Cost Matrix</a></p>
+<h1>{{.Name}} <small>({{.Kind}})</small></h1>
+<p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+<table>
+<thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
+<tbody>
+{{range .Lines}}
+<tr>
+ <td>{{.StationName}}</td><td>{{.Empire}}</td>
+ <td class="{{if not .BoMFeasible}}infeasible{{end}}">{{.BoMCostStr}}</td>
+ <td>{{.BoMCovered}}/{{.BoMTotal}}</td>
+ <td class="{{if .RecipeNA}}infeasible{{else if not .RecipeFeasible}}infeasible{{end}}">{{.RecipeCostStr}}</td>
+ <td>{{.RecipeFeasibleStr}}</td>
+ <td>{{.RecipeID}}</td>
+ <td class="{{.SavingsClass}}">{{.SavingsStr}}</td>
+ <td class="{{.ProfitClass}}">{{.ProfitStr}}</td>
+</tr>
+{{end}}
+</tbody>
+</table>
+</body>
+</html>

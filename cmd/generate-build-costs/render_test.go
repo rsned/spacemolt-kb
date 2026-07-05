@@ -42,3 +42,21 @@ func TestMatrixJSON_Valid(t *testing.T) {
 		t.Fatalf("json missing target id: %s", js)
 	}
 }
+
+func TestRenderDetail_WritesTable(t *testing.T) {
+	dir := t.TempDir()
+	m := sampleMatrix()
+	if err := renderDetail(dir, m.Rows[0], m.Stations); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(dir, "widget.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(data)
+	for _, want := range []string{"Widget", "Station One", "BoM", "Recipe", "Feasible"} {
+		if !strings.Contains(s, want) {
+			t.Fatalf("detail missing %q", want)
+		}
+	}
+}
