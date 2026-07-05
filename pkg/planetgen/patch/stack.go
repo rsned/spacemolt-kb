@@ -22,6 +22,7 @@ type Context struct {
 
 // seaLevelView resolves the effective waterline sea level.
 // Used by waterlines layer task (12).
+//
 //nolint:unused
 func (c *Context) seaLevelView() float64 {
 	if c.SeaLevelView > 0 {
@@ -55,7 +56,7 @@ type Layer struct {
 	Apply   func(*Context, *State) *State
 }
 
-func always(*Context) bool { return true }
+func always(*Context) bool                  { return true }
 func identity(_ *Context, st *State) *State { return st }
 
 // Layers returns the canonical ordered layer list. Layer tasks 8–15
@@ -76,10 +77,14 @@ func Layers() []Layer {
 		{ID: "waterlines", Name: "Waterlines", Params: []string{"SnowLine", "OceanColor", "HasPolarCaps", "PolarCapSize", "PolarCapNoise", "ShadingStrength", "ShadingExaggeration", "seaLevelView"}},
 		{ID: "civ", Name: "Civilization", Params: []string{"civ"}},
 	}
+	ls[0].Apply = applyTectonicBase
+	ls[1].Apply = applyTectonicFX
 	for i := range ls {
 		ls[i].Index = i
 		ls[i].Enabled = always
-		ls[i].Apply = identity
+		if ls[i].Apply == nil {
+			ls[i].Apply = identity
+		}
 	}
 	return ls
 }
