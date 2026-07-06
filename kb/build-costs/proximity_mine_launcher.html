@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Proximity Mine Launcher <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/weapon/proximity_mine_launcher.html">View Proximity Mine Launcher in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>94</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>14</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>12</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>21</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>29</td></tr><tr><td><a href="../items/ore/krypton_gas.html">Krypton Gas</a></td><td>8</td></tr><tr><td><a href="../items/ore/neon_gas.html">Neon Gas</a></td><td>8</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>8</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/polonium_ore.html">Polonium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>13</td></tr><tr><td><a href="../items/ore/thorium_ore.html">Thorium Ore</a></td><td>30</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>19</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>21</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>48</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_proximity_mine_launcher <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>5</td></tr><tr><td><a href="../items/component/sensor_array.html">Sensor Array</a></td><td>2</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td>4</td></tr><tr><td><a href="../items/component/tracking_system.html">Tracking System</a></td><td>1</td></tr><tr><td><a href="../items/component/warhead_assembly.html">Warhead Assembly</a></td><td>1</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">201</td>
+ <td class="infeasible">111</td>
  <td>1/16</td>
- <td class="infeasible">1,735</td>
+ <td class="infeasible">1,971</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -30,20 +59,20 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">11,458</td>
- <td>8/16</td>
- <td class="infeasible">1,190</td>
+ <td class="infeasible">11,030</td>
+ <td>7/16</td>
+ <td class="infeasible">838</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
- <td class="neg">-11,456</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">1,608</td>
  <td>4/16</td>
- <td class="infeasible">2,934</td>
+ <td class="infeasible">692</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -51,10 +80,10 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">13,758</td>
  <td>9/16</td>
- <td class="infeasible">2,572</td>
+ <td class="infeasible">2,584</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -65,18 +94,18 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">4,005</td>
  <td>5/16</td>
- <td class="infeasible">10,744</td>
+ <td class="infeasible">10,668</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
- <td class="neg">-4,003</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">131</td>
  <td>4/16</td>
- <td class="infeasible">1,832</td>
+ <td class="infeasible">1,840</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -87,7 +116,7 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">6,114</td>
  <td>2/16</td>
- <td class="infeasible">1,286</td>
+ <td class="infeasible">1,297</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">27,739</td>
  <td>6/16</td>
- <td class="infeasible">1,080</td>
+ <td class="infeasible">1,060</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">7,103</td>
  <td>4/16</td>
- <td class="infeasible">1,044</td>
+ <td class="infeasible">1,052</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">2,048</td>
  <td>1/16</td>
- <td class="infeasible">1,738</td>
+ <td class="infeasible">1,992</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -140,9 +169,9 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">2,823</td>
+ <td class="infeasible">2,837</td>
  <td>4/16</td>
- <td class="infeasible">660</td>
+ <td class="infeasible">1,068</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -175,7 +204,7 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">190,717</td>
  <td>5/16</td>
- <td class="infeasible">2,143</td>
+ <td class="infeasible">2,195</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -183,7 +212,7 @@
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">8,912</td>
  <td>3/16</td>
  <td class="infeasible">653</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">6,765</td>
  <td>3/16</td>
- <td class="infeasible">1,044</td>
+ <td class="infeasible">1,056</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -206,7 +235,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">4,802</td>
+ <td class="infeasible">4,813</td>
  <td>4/16</td>
  <td class="infeasible">421</td>
  <td>no</td>
@@ -223,7 +252,7 @@
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
- <td class="neg">-33,075</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>0/16</td>
  <td class="infeasible">3,232</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">1,160</td>
  <td>1/16</td>
- <td class="infeasible">922</td>
+ <td class="infeasible">935</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -285,7 +314,7 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">338</td>
  <td>3/16</td>
- <td class="infeasible">2,938</td>
+ <td class="infeasible">2,946</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -293,10 +322,10 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,979</td>
  <td>2/16</td>
- <td class="infeasible">715</td>
+ <td class="infeasible">1,783</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>
@@ -326,10 +355,10 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">1,904</td>
  <td>3/16</td>
- <td class="infeasible">1,091</td>
+ <td class="infeasible">1,100</td>
  <td>no</td>
  <td>build_proximity_mine_launcher</td>
  <td class="">—</td>

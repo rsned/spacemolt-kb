@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Chemical Liner <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/chemical_liner.html">View Chemical Liner in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>120</td></tr><tr><td><a href="../items/ore/chlorine_gas.html">Chlorine Gas</a></td><td>6</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>fabricate_chemical_liner <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/chlorine_compound.html">Chlorine Compound</a></td><td>4</td></tr><tr><td><a href="../items/refined/copper_piping.html">Copper Piping</a></td><td>2</td></tr><tr><td><a href="../items/refined/fluorine_etchant.html">Fluorine Etchant</a></td><td>1</td></tr><tr><td><a href="../items/refined/reinforced_glass.html">Reinforced Glass</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -21,7 +50,7 @@
  <td>iron_reach_mining_colony</td><td>crimson</td>
  <td class="infeasible">352</td>
  <td>4/11</td>
- <td class="infeasible">15</td>
+ <td class="infeasible">8</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
@@ -32,11 +61,11 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">794</td>
  <td>6/11</td>
- <td class="infeasible">88</td>
+ <td class="infeasible">108</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
- <td class="neg">-706</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -51,14 +80,14 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">722</td>
  <td>7/11</td>
  <td class="infeasible">156</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
- <td class="neg">-687</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -140,7 +169,7 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">6,818</td>
+ <td class="infeasible">6,821</td>
  <td>5/11</td>
  <td class="infeasible">0</td>
  <td>no</td>
@@ -173,8 +202,8 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">120,009,954</td>
- <td>5/11</td>
+ <td class="infeasible">10,074</td>
+ <td>4/11</td>
  <td class="infeasible">24</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
@@ -183,14 +212,14 @@
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">37</td>
  <td>3/11</td>
  <td class="infeasible">30</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
- <td class="pos">47</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -208,7 +237,7 @@
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">1,962</td>
  <td>4/11</td>
- <td class="infeasible">107</td>
+ <td class="infeasible">105</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
@@ -223,7 +252,7 @@
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
- <td class="neg">-5,267</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">1,478</td>
  <td>3/11</td>
- <td class="infeasible">124</td>
+ <td class="infeasible">121</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">490</td>
  <td>2/11</td>
  <td class="infeasible">0</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">88</td>
  <td>2/11</td>
- <td class="infeasible">140</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
@@ -293,10 +322,10 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">135</td>
  <td>3/11</td>
- <td class="infeasible">88</td>
+ <td class="infeasible">92</td>
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>fabricate_chemical_liner</td>
  <td class="">—</td>
- <td class="neg">-247</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">466</td>
  <td>3/11</td>
  <td class="infeasible">0</td>

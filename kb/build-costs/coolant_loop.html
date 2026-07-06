@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Coolant Loop <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/coolant_loop.html">View Coolant Loop in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/helium_ice.html">Helium Ice</a></td><td>2</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>4</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>assemble_coolant_loop <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td><td>2</td></tr><tr><td><a href="../items/refined/copper_piping.html">Copper Piping</a></td><td>6</td></tr><tr><td><a href="../items/refined/helium_3.html">Helium-3</a></td><td>2</td></tr><tr><td><a href="../items/refined/liquid_nitrogen.html">Liquid Nitrogen</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -30,9 +59,9 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">1,130</td>
- <td>5/6</td>
- <td class="">194</td>
+ <td class="infeasible">1,126</td>
+ <td>4/6</td>
+ <td class="">255</td>
  <td>yes</td>
  <td>assemble_coolant_loop</td>
  <td class="">—</td>
@@ -51,13 +80,13 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">442</td>
  <td>5/6</td>
  <td class="">123</td>
  <td>yes</td>
  <td>assemble_coolant_loop</td>
- <td class="pos">523</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -69,7 +98,7 @@
  <td>yes</td>
  <td>assemble_coolant_loop</td>
  <td class="">—</td>
- <td class="pos">554</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -91,7 +120,7 @@
  <td>no</td>
  <td>assemble_coolant_loop</td>
  <td class="">—</td>
- <td class="pos">804</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -140,7 +169,7 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">57</td>
+ <td class="infeasible">66</td>
  <td>2/6</td>
  <td class="infeasible">17</td>
  <td>no</td>
@@ -179,18 +208,18 @@
  <td>yes</td>
  <td>assemble_coolant_loop</td>
  <td class="">—</td>
- <td class="pos">916</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
- <td class="infeasible">8</td>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="infeasible">10</td>
  <td>2/6</td>
  <td class="infeasible">62</td>
  <td>no</td>
  <td>assemble_coolant_loop</td>
  <td class="">—</td>
- <td class="pos">1,069</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">15</td>
  <td>1/6</td>
  <td class="infeasible">0</td>
@@ -293,7 +322,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,767</td>
  <td>2/6</td>
  <td class="infeasible">17</td>
@@ -305,18 +334,18 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">12,811</td>
- <td>4/6</td>
+ <td class="infeasible">155</td>
+ <td>3/6</td>
  <td class="infeasible">3</td>
  <td>no</td>
  <td>assemble_coolant_loop</td>
  <td class="">—</td>
- <td class="neg">-12,809</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3,068</td>
+ <td class="infeasible">45</td>
  <td>1/6</td>
  <td class="infeasible">12</td>
  <td>no</td>
@@ -326,10 +355,10 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">94</td>
  <td>2/6</td>
- <td class="infeasible">18</td>
+ <td class="infeasible">17</td>
  <td>no</td>
  <td>assemble_coolant_loop</td>
  <td class="">—</td>

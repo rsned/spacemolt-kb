@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Secure Vault <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/secure_vault.html">View Secure Vault in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>1</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>21</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>25</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>11</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>weld_secure_vault <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>1</td></tr><tr><td><a href="../items/refined/durasteel_plate.html">Durasteel Plate</a></td><td>5</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -21,7 +50,7 @@
  <td>iron_reach_mining_colony</td><td>crimson</td>
  <td class="infeasible">31</td>
  <td>2/7</td>
- <td class="infeasible">970</td>
+ <td class="infeasible">980</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -32,7 +61,7 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">7,990</td>
  <td>4/7</td>
- <td class="infeasible">1,170</td>
+ <td class="infeasible">1,155</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -51,10 +80,10 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">1,816</td>
  <td>5/7</td>
- <td class="infeasible">1,195</td>
+ <td class="infeasible">1,215</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -65,7 +94,7 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">12,537</td>
  <td>3/7</td>
- <td class="">1,975</td>
+ <td class="">2,005</td>
  <td>yes</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -76,7 +105,7 @@
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">13</td>
  <td>2/7</td>
- <td class="infeasible">1,252</td>
+ <td class="infeasible">1,221</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">50,674</td>
  <td>2/7</td>
- <td class="infeasible">1,180</td>
+ <td class="infeasible">1,020</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -109,7 +138,7 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">13,961</td>
  <td>4/7</td>
- <td class="">1,975</td>
+ <td class="">1,990</td>
  <td>yes</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">570</td>
  <td>2/7</td>
- <td class="infeasible">990</td>
+ <td class="infeasible">1,010</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -142,7 +171,7 @@
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">59</td>
  <td>2/7</td>
- <td class="infeasible">1,135</td>
+ <td class="infeasible">1,150</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">2</td>
  <td>1/7</td>
- <td class="infeasible">1,075</td>
+ <td class="infeasible">1,085</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -183,7 +212,7 @@
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">32</td>
  <td>2/7</td>
  <td class="infeasible">3,750</td>
@@ -219,7 +248,7 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">21,118</td>
  <td>3/7</td>
- <td class="infeasible">1,010</td>
+ <td class="infeasible">995</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>0/7</td>
- <td class="infeasible">990</td>
+ <td class="infeasible">1,103</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">840</td>
  <td>1/7</td>
- <td class="infeasible">1,205</td>
+ <td class="infeasible">1,220</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -293,10 +322,10 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,367</td>
  <td>2/7</td>
- <td class="infeasible">250</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>weld_secure_vault</td>
  <td class="">—</td>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">170</td>
  <td>2/7</td>
  <td class="infeasible">0</td>

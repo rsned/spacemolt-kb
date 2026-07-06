@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Dark Matter Thruster <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/dark_matter_thruster.html">View Dark Matter Thruster in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>54</td></tr><tr><td><a href="../items/ore/cobalt_ore.html">Cobalt Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/dark_matter_residue.html">Dark Matter Residue</a></td><td>3</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>4</td></tr><tr><td><a href="../items/ore/ion_gas.html">Ion Gas</a></td><td>12</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>4</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>10</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_dark_matter_thruster <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/condensed_dark_matter.html">Condensed Dark Matter</a></td><td>1</td></tr><tr><td><a href="../items/component/engine_core.html">Engine Core</a></td><td>1</td></tr><tr><td><a href="../items/component/thruster_nozzle.html">Thruster Nozzle</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">1,136</td>
+ <td class="infeasible">571</td>
  <td>1/15</td>
- <td class="infeasible">7,791</td>
+ <td class="infeasible">7,678</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -30,53 +59,53 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">3,789</td>
- <td>7/15</td>
- <td class="infeasible">7,708</td>
+ <td class="infeasible">3,533</td>
+ <td>6/15</td>
+ <td class="infeasible">7,864</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
- <td class="neg">-3,788</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">1,131</td>
+ <td class="infeasible">5,487</td>
  <td>5/15</td>
- <td class="">10,647</td>
+ <td class="">10,698</td>
  <td>yes</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-1,005</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">11,461</td>
  <td>11/15</td>
- <td class="infeasible">8,060</td>
+ <td class="infeasible">7,760</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-11,303</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">870</td>
+ <td class="infeasible">867</td>
  <td>5/15</td>
  <td class="infeasible">3,888</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-623</td>
- <td class="neg">-835</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">226</td>
  <td>4/15</td>
- <td class="infeasible">7,678</td>
+ <td class="infeasible">7,746</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -87,10 +116,10 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">3,306</td>
  <td>4/15</td>
- <td class="infeasible">6,339</td>
+ <td class="infeasible">6,418</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-2,127</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">4,067</td>
  <td>6/15</td>
- <td class="infeasible">7,762</td>
+ <td class="infeasible">7,691</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -109,18 +138,18 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">28,658</td>
  <td>8/15</td>
- <td class="infeasible">7,477</td>
+ <td class="infeasible">7,474</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-28,532</td>
- <td class="neg">-28,623</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">1,848</td>
  <td>5/15</td>
- <td class="infeasible">7,665</td>
+ <td class="infeasible">7,044</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">538</td>
  <td>1/15</td>
- <td class="infeasible">4,905</td>
+ <td class="infeasible">4,940</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -140,9 +169,9 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">861</td>
+ <td class="infeasible">865</td>
  <td>3/15</td>
- <td class="">7,902</td>
+ <td class="">8,002</td>
  <td>yes</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">349</td>
  <td>4/15</td>
- <td class="infeasible">7,566</td>
+ <td class="infeasible">7,775</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -164,32 +193,32 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">1,157</td>
  <td>3/15</td>
- <td class="infeasible">7,764</td>
+ <td class="infeasible">7,753</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="pos">7,880</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">1,060,272</td>
+ <td class="infeasible">60,273</td>
  <td>4/15</td>
- <td class="infeasible">7,956</td>
+ <td class="infeasible">8,064</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-1,060,160</td>
- <td class="neg">-1,060,270</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">2,622</td>
  <td>4/15</td>
- <td class="">8,039</td>
+ <td class="">8,348</td>
  <td>yes</td>
  <td>build_dark_matter_thruster</td>
- <td class="pos">6,056</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">46</td>
  <td>2/15</td>
- <td class="infeasible">5,038</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -206,9 +235,9 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">548</td>
+ <td class="infeasible">555</td>
  <td>4/15</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">3,576</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -219,18 +248,18 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">9,699</td>
  <td>6/15</td>
- <td class="infeasible">7,202</td>
+ <td class="infeasible">7,316</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-9,594</td>
- <td class="neg">-9,697</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">1,395</td>
  <td>7/15</td>
- <td class="infeasible">7,527</td>
+ <td class="infeasible">7,762</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -241,7 +270,7 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">2,849</td>
  <td>5/15</td>
- <td class="infeasible">7,606</td>
+ <td class="infeasible">7,727</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">440</td>
  <td>1/15</td>
- <td class="infeasible">4,908</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>0/15</td>
- <td class="infeasible">7,893</td>
+ <td class="infeasible">7,941</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -285,18 +314,18 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">189</td>
  <td>3/15</td>
- <td class="infeasible">1,792</td>
+ <td class="infeasible">5,130</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="pos">3,411</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">639</td>
  <td>2/15</td>
- <td class="infeasible">8,531</td>
+ <td class="infeasible">7,307</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
@@ -307,29 +336,29 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">370</td>
  <td>4/15</td>
- <td class="infeasible">6,993</td>
+ <td class="infeasible">7,996</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>
- <td class="neg">-368</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
  <td class="infeasible">862</td>
  <td>4/15</td>
- <td class="infeasible">7,488</td>
+ <td class="infeasible">6,964</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
- <td class="neg">-750</td>
- <td class="neg">-817</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">1,810</td>
  <td>4/15</td>
- <td class="infeasible">8,198</td>
+ <td class="infeasible">7,725</td>
  <td>no</td>
  <td>build_dark_matter_thruster</td>
  <td class="">—</td>

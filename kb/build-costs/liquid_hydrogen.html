@@ -7,12 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Liquid Hydrogen <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/refined/liquid_hydrogen.html">View Liquid Hydrogen in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>compress_hydrogen_gas <small>yields 3</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+<h3>palladium_membrane_compression <small>yields 4</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td><td>8</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -25,18 +62,18 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">109</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">100</td>
+ <td class="infeasible">16</td>
  <td>1/2</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>compress_hydrogen_gas</td>
- <td class="pos">306</td>
- <td class="neg">-73</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -47,11 +84,11 @@
  <td>yes</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="neg">-12</td>
+ <td class="neg">-10</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">216</td>
  <td>2/2</td>
  <td class="">21</td>
@@ -69,7 +106,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="neg">-99</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -79,8 +116,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>compress_hydrogen_gas</td>
- <td class="pos">1,017</td>
- <td class="pos">191</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -91,7 +128,7 @@
  <td>yes</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">82</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -102,7 +139,7 @@
  <td>yes</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="neg">-484</td>
+ <td class="neg">-483</td>
 </tr>
 
 <tr>
@@ -113,7 +150,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">105</td>
+ <td class="pos">106</td>
 </tr>
 
 <tr>
@@ -124,7 +161,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="neg">-73</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -135,7 +172,7 @@
  <td>yes</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">20</td>
+ <td class="pos">19</td>
 </tr>
 
 <tr>
@@ -146,7 +183,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">94</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -157,7 +194,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">6</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -167,8 +204,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>compress_hydrogen_gas</td>
- <td class="pos">997</td>
- <td class="pos">200</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -179,18 +216,18 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">80</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">10</td>
  <td>1/2</td>
  <td class="">13</td>
  <td>yes</td>
  <td>compress_hydrogen_gas</td>
- <td class="pos">937</td>
- <td class="pos">153</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -201,18 +238,18 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">39</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">15</td>
+ <td class="infeasible">17</td>
  <td>1/2</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">66</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -223,7 +260,7 @@
  <td>yes</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">14</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -234,7 +271,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="neg">-60</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -245,7 +282,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">122</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -256,18 +293,18 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">39</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="">51</td>
  <td>2/2</td>
  <td class="">47</td>
  <td>yes</td>
  <td>palladium_membrane_compression</td>
  <td class="">—</td>
- <td class="pos">28</td>
+ <td class="pos">30</td>
 </tr>
 
 <tr>
@@ -278,7 +315,7 @@
  <td>yes</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">12</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -289,18 +326,18 @@
  <td>yes</td>
  <td>palladium_membrane_compression</td>
  <td class="pos">18</td>
- <td class="pos">14</td>
+ <td class="pos">15</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/2</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">101</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -311,7 +348,7 @@
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="pos">80</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,14 +363,14 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">250</td>
  <td>1/2</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>compress_hydrogen_gas</td>
  <td class="">—</td>
- <td class="neg">-131</td>
+ <td class="">—</td>
 </tr>
 
 </tbody>

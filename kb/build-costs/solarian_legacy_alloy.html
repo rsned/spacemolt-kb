@@ -7,12 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Solarian Legacy Alloy <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/refined/solarian_legacy_alloy.html">View Solarian Legacy Alloy in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/legacy_ore.html">Legacy Ore</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>onboard_legacy_smelting <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/legacy_ore.html">Legacy Ore</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+<h3>refine_solarian_legacy_ore <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/legacy_ore.html">Legacy Ore</a></td><td>3</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -46,12 +83,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>onboard_legacy_smelting</td>
- <td class="pos">166</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">200</td>
  <td>1/1</td>
  <td class="">200</td>
@@ -69,7 +106,7 @@
  <td>no</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
- <td class="pos">2</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -123,7 +160,7 @@
  <td class="infeasible">60</td>
  <td>no</td>
  <td>onboard_legacy_smelting</td>
- <td class="pos">1,992</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -156,7 +193,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>onboard_legacy_smelting</td>
- <td class="pos">5,000</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -178,12 +215,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>onboard_legacy_smelting</td>
- <td class="pos">1,400</td>
- <td class="pos">2</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/1</td>
  <td class="infeasible">0</td>
@@ -222,7 +259,7 @@
  <td class="">16</td>
  <td>yes</td>
  <td>onboard_legacy_smelting</td>
- <td class="pos">2,036</td>
+ <td class="pos">2,100</td>
  <td class="neg">-14</td>
 </tr>
 
@@ -241,9 +278,9 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="">1,800</td>
  <td>1/1</td>
- <td class="">1,800</td>
+ <td class="">1,480</td>
  <td>yes</td>
- <td>onboard_legacy_smelting</td>
+ <td>refine_solarian_legacy_ore</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -260,7 +297,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">0</td>
  <td>0/1</td>
  <td class="infeasible">0</td>
@@ -293,7 +330,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/1</td>
  <td class="infeasible">0</td>
@@ -321,12 +358,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>onboard_legacy_smelting</td>
- <td class="pos">4,000</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">0</td>
  <td>0/1</td>
  <td class="infeasible">0</td>

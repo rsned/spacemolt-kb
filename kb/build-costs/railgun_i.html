@@ -7,36 +7,65 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Railgun I <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/weapon/railgun_i.html">View Railgun I in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>32</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>8</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>6</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>20</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>15</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>10</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>40</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_railgun_i <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/durasteel_plate.html">Durasteel Plate</a></td><td>3</td></tr><tr><td><a href="../items/component/railgun_capacitor.html">Railgun Capacitor</a></td><td>1</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>2</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">192</td>
+ <td class="infeasible">102</td>
  <td>1/14</td>
- <td class="infeasible">1,249</td>
+ <td class="infeasible">1,499</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="pos">2,143</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">8,632</td>
- <td>8/14</td>
- <td class="infeasible">2,436</td>
+ <td class="infeasible">7,804</td>
+ <td>7/14</td>
+ <td class="infeasible">2,047</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-8,453</td>
- <td class="neg">-8,630</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,37 +75,37 @@
  <td class="infeasible">4,113</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-2,644</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">8,988</td>
  <td>10/14</td>
- <td class="infeasible">1,987</td>
+ <td class="infeasible">1,999</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-8,679</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">9,106</td>
+ <td class="infeasible">9,102</td>
  <td>6/14</td>
- <td class="infeasible">1,843</td>
+ <td class="infeasible">1,873</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-5,914</td>
- <td class="neg">-9,104</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">46</td>
  <td>3/14</td>
- <td class="infeasible">1,451</td>
+ <td class="infeasible">1,433</td>
  <td>no</td>
  <td>build_railgun_i</td>
  <td class="">—</td>
@@ -90,7 +119,7 @@
  <td class="infeasible">1,308</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-406</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,10 +127,10 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">55,235</td>
  <td>4/14</td>
- <td class="infeasible">708</td>
+ <td class="infeasible">612</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-55,233</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -109,10 +138,10 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">25,162</td>
  <td>8/14</td>
- <td class="infeasible">1,238</td>
+ <td class="infeasible">2,693</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-23,884</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">3,047</td>
  <td>6/14</td>
- <td class="infeasible">594</td>
+ <td class="infeasible">606</td>
  <td>no</td>
  <td>build_railgun_i</td>
  <td class="">—</td>
@@ -131,21 +160,21 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">1,118</td>
  <td>1/14</td>
- <td class="infeasible">1,381</td>
+ <td class="infeasible">1,647</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="pos">880</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">159</td>
+ <td class="infeasible">167</td>
  <td>3/14</td>
- <td class="infeasible">1,341</td>
+ <td class="infeasible">1,350</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="pos">2,008</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">809</td>
  <td>4/14</td>
- <td class="infeasible">645</td>
+ <td class="infeasible">651</td>
  <td>no</td>
  <td>build_railgun_i</td>
  <td class="">—</td>
@@ -178,12 +207,12 @@
  <td class="">4,018</td>
  <td>yes</td>
  <td>build_railgun_i</td>
- <td class="neg">-60,191</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">584</td>
  <td>3/14</td>
  <td class="infeasible">2,903</td>
@@ -206,7 +235,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">1,468</td>
+ <td class="infeasible">1,479</td>
  <td>4/14</td>
  <td class="infeasible">1,258</td>
  <td>no</td>
@@ -219,11 +248,11 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">20,556</td>
  <td>5/14</td>
- <td class="infeasible">1,864</td>
+ <td class="infeasible">1,855</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-20,553</td>
- <td class="neg">-20,554</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,13 +289,13 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>0/14</td>
- <td class="infeasible">1,108</td>
+ <td class="infeasible">1,123</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="pos">1,929</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -274,10 +303,10 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">800</td>
  <td>1/14</td>
- <td class="infeasible">723</td>
+ <td class="infeasible">732</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="pos">1,159</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -288,15 +317,15 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="pos">65</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,332</td>
  <td>2/14</td>
- <td class="infeasible">2,565</td>
+ <td class="infeasible">2,315</td>
  <td>no</td>
  <td>build_railgun_i</td>
  <td class="">—</td>
@@ -321,12 +350,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_railgun_i</td>
- <td class="neg">-2,289</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">2,539</td>
  <td>2/14</td>
  <td class="infeasible">0</td>

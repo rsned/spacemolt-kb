@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Thermal Smartbomb <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/weapon/thermal_smartbomb.html">View Thermal Smartbomb in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>139</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>32</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>2</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>1</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>25</td></tr><tr><td><a href="../items/ore/krypton_gas.html">Krypton Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/neon_gas.html">Neon Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/plasma_residue.html">Plasma Residue</a></td><td>4</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>17</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>16</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>19</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>15</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_thermal_smartbomb <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td>4</td></tr><tr><td><a href="../items/component/heat_sink.html">Heat Sink</a></td><td>2</td></tr><tr><td><a href="../items/component/plasma_injector.html">Plasma Injector</a></td><td>2</td></tr><tr><td><a href="../items/component/sensor_array.html">Sensor Array</a></td><td>1</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">595</td>
+ <td class="infeasible">505</td>
  <td>2/14</td>
- <td class="infeasible">667</td>
+ <td class="infeasible">911</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -30,46 +59,46 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">10,200</td>
+ <td class="infeasible">9,780</td>
  <td>7/14</td>
- <td class="infeasible">1,098</td>
+ <td class="infeasible">735</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
- <td class="neg">-10,198</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">1,692</td>
  <td>4/14</td>
- <td class="infeasible">1,256</td>
+ <td class="infeasible">809</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
- <td class="neg">-1,280</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">16,841</td>
  <td>9/14</td>
  <td class="infeasible">1,420</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
- <td class="neg">-16,429</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">989</td>
+ <td class="infeasible">987</td>
  <td>4/14</td>
- <td class="infeasible">612</td>
+ <td class="infeasible">608</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
- <td class="neg">-823</td>
- <td class="neg">-987</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -87,7 +116,7 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">4,369</td>
  <td>2/14</td>
- <td class="infeasible">863</td>
+ <td class="infeasible">817</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">4,860</td>
  <td>5/14</td>
- <td class="infeasible">164</td>
+ <td class="infeasible">156</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -109,7 +138,7 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">70,865</td>
  <td>7/14</td>
- <td class="infeasible">817</td>
+ <td class="infeasible">809</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">3,283</td>
  <td>4/14</td>
- <td class="infeasible">164</td>
+ <td class="infeasible">156</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">1,478</td>
  <td>1/14</td>
- <td class="infeasible">822</td>
+ <td class="infeasible">1,078</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -140,7 +169,7 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">1,223</td>
+ <td class="infeasible">1,237</td>
  <td>3/14</td>
  <td class="infeasible">904</td>
  <td>no</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">664</td>
  <td>4/14</td>
- <td class="infeasible">162</td>
+ <td class="infeasible">156</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">1,848</td>
  <td>3/14</td>
- <td class="infeasible">1,251</td>
+ <td class="infeasible">1,249</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -175,18 +204,18 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">190,639</td>
  <td>5/14</td>
- <td class="infeasible">837</td>
+ <td class="infeasible">665</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
- <td class="neg">-189,834</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">2,285</td>
  <td>4/14</td>
- <td class="infeasible">821</td>
+ <td class="infeasible">809</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">1,303</td>
  <td>3/14</td>
- <td class="infeasible">164</td>
+ <td class="infeasible">154</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -206,9 +235,9 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">674</td>
+ <td class="infeasible">685</td>
  <td>4/14</td>
- <td class="infeasible">581</td>
+ <td class="infeasible">583</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -223,14 +252,14 @@
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
- <td class="neg">-28,102</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">2,909</td>
  <td>6/14</td>
- <td class="infeasible">164</td>
+ <td class="infeasible">158</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -241,7 +270,7 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">1,314</td>
  <td>3/14</td>
- <td class="infeasible">1,276</td>
+ <td class="infeasible">1,272</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>0/14</td>
- <td class="infeasible">1,778</td>
+ <td class="infeasible">1,774</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>
@@ -285,15 +314,15 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">284</td>
  <td>3/14</td>
- <td class="infeasible">164</td>
+ <td class="infeasible">154</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
- <td class="pos">1,682</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,764</td>
  <td>2/14</td>
  <td class="infeasible">715</td>
@@ -321,15 +350,15 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
- <td class="pos">1,195</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">2,034</td>
  <td>4/14</td>
- <td class="infeasible">164</td>
+ <td class="infeasible">158</td>
  <td>no</td>
  <td>build_thermal_smartbomb</td>
  <td class="">—</td>

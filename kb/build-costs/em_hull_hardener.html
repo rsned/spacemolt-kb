@@ -7,20 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>EM Hull Hardener <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/defense/em_hull_hardener.html">View EM Hull Hardener in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>18</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>3</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>13</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>8</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_em_hull_hardener <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>3</td></tr><tr><td><a href="../items/component/hull_plating.html">Hull Plating</a></td><td>1</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">188</td>
- <td>2/9</td>
+ <td class="infeasible">98</td>
+ <td>1/9</td>
  <td class="infeasible">705</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
@@ -30,13 +59,13 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">4,885</td>
+ <td class="infeasible">4,717</td>
  <td>5/9</td>
  <td class="infeasible">1,228</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
- <td class="neg">-4,883</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,30 +75,30 @@
  <td class="infeasible">721</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
- <td class="neg">-370</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">3,169</td>
  <td>6/9</td>
  <td class="infeasible">1,326</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
- <td class="neg">-2,998</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">330</td>
+ <td class="infeasible">329</td>
  <td>4/9</td>
- <td class="">4,320</td>
+ <td class="">4,326</td>
  <td>yes</td>
  <td>build_em_hull_hardener</td>
- <td class="pos">1,270</td>
- <td class="neg">-328</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -90,7 +119,7 @@
  <td class="infeasible">691</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
- <td class="neg">-536</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">1,985</td>
  <td>4/9</td>
- <td class="infeasible">691</td>
+ <td class="infeasible">705</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
@@ -109,8 +138,8 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">4,848</td>
  <td>4/9</td>
- <td class="infeasible">3,733</td>
- <td>no</td>
+ <td class="">4,456</td>
+ <td>yes</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -178,15 +207,15 @@
  <td class="infeasible">1,320</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
- <td class="neg">-40,076</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">186</td>
  <td>3/9</td>
- <td class="infeasible">691</td>
+ <td class="infeasible">698</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
@@ -206,7 +235,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">220</td>
+ <td class="infeasible">224</td>
  <td>3/9</td>
  <td class="infeasible">1,320</td>
  <td>no</td>
@@ -219,18 +248,18 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">13,181</td>
  <td>4/9</td>
- <td class="infeasible">1,303</td>
+ <td class="infeasible">1,310</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
- <td class="neg">-13,179</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">1,087</td>
  <td>5/9</td>
- <td class="infeasible">1,733</td>
+ <td class="infeasible">1,726</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">90</td>
  <td>0/9</td>
- <td class="infeasible">705</td>
+ <td class="infeasible">691</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>1/9</td>
- <td class="infeasible">938</td>
+ <td class="infeasible">959</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">520</td>
  <td>1/9</td>
- <td class="infeasible">739</td>
+ <td class="infeasible">755</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
@@ -288,12 +317,12 @@
  <td class="infeasible">691</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
- <td class="neg">-8</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">863</td>
  <td>2/9</td>
  <td class="infeasible">1,491</td>
@@ -307,11 +336,11 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">140</td>
  <td>3/9</td>
- <td class="infeasible">691</td>
+ <td class="infeasible">698</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>
- <td class="neg">-138</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,15 +350,15 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
- <td class="neg">-156</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">859</td>
  <td>4/9</td>
- <td class="infeasible">698</td>
+ <td class="infeasible">691</td>
  <td>no</td>
  <td>build_em_hull_hardener</td>
  <td class="">—</td>

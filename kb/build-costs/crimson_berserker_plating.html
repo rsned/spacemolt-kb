@@ -7,24 +7,53 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Crimson Berserker Plating <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/defense/crimson_berserker_plating.html">View Crimson Berserker Plating in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>192</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/fury_crystal.html">Fury Crystal</a></td><td>30</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>94</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>20</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>53</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>83</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_crimson_berserker_plating <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/crimson_siege_plating.html">Crimson Siege Plating</a></td><td>2</td></tr><tr><td><a href="../items/refined/fury_alloy.html">Fury Alloy</a></td><td>5</td></tr><tr><td><a href="../items/component/fury_tempered_plating.html">Fury-Tempered Plating</a></td><td>3</td></tr><tr><td><a href="../items/component/heat_sink.html">Heat Sink</a></td><td>4</td></tr><tr><td><a href="../items/component/hull_plating.html">Hull Plating</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">14,743</td>
+ <td class="infeasible">17,613</td>
  <td>2/7</td>
  <td class="infeasible">2,115</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="neg">-9,924</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -32,26 +61,26 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">34,855</td>
  <td>5/7</td>
- <td class="infeasible">2,428</td>
+ <td class="infeasible">2,433</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="neg">-34,652</td>
- <td class="neg">-34,853</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">1,694</td>
  <td>3/7</td>
- <td class="infeasible">2,479</td>
+ <td class="infeasible">2,463</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="neg">-1,132</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">39,977</td>
  <td>7/7</td>
  <td class="infeasible">3,589</td>
@@ -65,18 +94,18 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">10,617</td>
  <td>2/7</td>
- <td class="infeasible">2,401</td>
+ <td class="infeasible">2,393</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
- <td class="neg">-10,615</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">275</td>
  <td>2/7</td>
- <td class="infeasible">1,722</td>
+ <td class="infeasible">1,715</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -87,10 +116,10 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">4,341</td>
  <td>1/7</td>
- <td class="infeasible">8,236</td>
+ <td class="infeasible">8,144</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="neg">-3,504</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">59,447</td>
  <td>2/7</td>
- <td class="infeasible">6,400</td>
+ <td class="infeasible">6,426</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -107,12 +136,12 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">109,563</td>
- <td>6/7</td>
- <td class="infeasible">105,167</td>
- <td>no</td>
+ <td class="infeasible">109,533</td>
+ <td>5/7</td>
+ <td class="">109,551</td>
+ <td>yes</td>
  <td>build_crimson_berserker_plating</td>
- <td class="neg">-109,017</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">1,490</td>
  <td>1/7</td>
- <td class="infeasible">2,401</td>
+ <td class="infeasible">2,385</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -131,21 +160,21 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">5,218</td>
  <td>0/7</td>
- <td class="infeasible">2,398</td>
+ <td class="infeasible">2,378</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="neg">-299</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">1,893</td>
+ <td class="infeasible">1,907</td>
  <td>2/7</td>
  <td class="infeasible">2,561</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="pos">16,107</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">192</td>
  <td>1/7</td>
- <td class="infeasible">2,478</td>
+ <td class="infeasible">2,466</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">2,523</td>
  <td>2/7</td>
- <td class="infeasible">2,393</td>
+ <td class="infeasible">2,389</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -175,18 +204,18 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">531,214</td>
  <td>3/7</td>
- <td class="infeasible">2,613</td>
+ <td class="infeasible">2,269</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="neg">-530,652</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">1,126</td>
  <td>2/7</td>
- <td class="infeasible">2,409</td>
+ <td class="infeasible">2,406</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">719</td>
  <td>2/7</td>
- <td class="infeasible">2,401</td>
+ <td class="infeasible">2,381</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -208,7 +237,7 @@
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">1,316</td>
  <td>1/7</td>
- <td class="infeasible">2,393</td>
+ <td class="infeasible">2,397</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -219,18 +248,18 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">96,611</td>
  <td>4/7</td>
- <td class="infeasible">11,804</td>
+ <td class="infeasible">11,825</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
- <td class="neg">-96,609</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">9,160</td>
  <td>6/7</td>
- <td class="infeasible">2,422</td>
+ <td class="infeasible">2,389</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -241,7 +270,7 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">13,574</td>
  <td>4/7</td>
- <td class="infeasible">2,405</td>
+ <td class="infeasible">2,397</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">12,630</td>
  <td>2/7</td>
- <td class="infeasible">2,115</td>
+ <td class="infeasible">2,073</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -260,24 +289,24 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">178</td>
  <td>0/7</td>
- <td class="infeasible">4,697</td>
+ <td class="infeasible">4,752</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="pos">1,491</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">3,771</td>
+ <td class="infeasible">3,761</td>
  <td>0/7</td>
- <td class="infeasible">9,057</td>
+ <td class="infeasible">9,105</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="pos">998</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -285,7 +314,7 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">1,681</td>
  <td>2/7</td>
- <td class="infeasible">4,653</td>
+ <td class="infeasible">4,633</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
@@ -293,7 +322,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">2,142</td>
  <td>1/7</td>
  <td class="infeasible">2,073</td>
@@ -307,11 +336,11 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">1,481</td>
  <td>2/7</td>
- <td class="infeasible">2,073</td>
+ <td class="infeasible">2,094</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>
- <td class="neg">-1,479</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,15 +350,15 @@
  <td class="infeasible">3,400</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
- <td class="pos">158</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">2,359</td>
  <td>1/7</td>
- <td class="infeasible">2,422</td>
+ <td class="infeasible">2,389</td>
  <td>no</td>
  <td>build_crimson_berserker_plating</td>
  <td class="">—</td>

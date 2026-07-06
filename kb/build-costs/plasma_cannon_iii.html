@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Plasma Cannon III <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/weapon/plasma_cannon_iii.html">View Plasma Cannon III in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>207</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>42</td></tr><tr><td><a href="../items/ore/fury_crystal.html">Fury Crystal</a></td><td>6</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>36</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/plasma_residue.html">Plasma Residue</a></td><td>6</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>22</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>26</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>21</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_plasma_cannon_iii <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td>5</td></tr><tr><td><a href="../items/refined/fury_alloy.html">Fury Alloy</a></td><td>2</td></tr><tr><td><a href="../items/component/heat_sink.html">Heat Sink</a></td><td>3</td></tr><tr><td><a href="../items/component/plasma_injector.html">Plasma Injector</a></td><td>3</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">2,201</td>
- <td>3/11</td>
- <td class="infeasible">667</td>
+ <td class="infeasible">2,011</td>
+ <td>2/11</td>
+ <td class="infeasible">911</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -30,46 +59,46 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">14,565</td>
+ <td class="infeasible">14,061</td>
  <td>6/11</td>
- <td class="infeasible">924</td>
+ <td class="infeasible">548</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
- <td class="neg">-14,563</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">2,229</td>
  <td>4/11</td>
- <td class="infeasible">899</td>
+ <td class="infeasible">887</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
- <td class="neg">-1,673</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">26,152</td>
  <td>9/11</td>
  <td class="infeasible">990</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
- <td class="neg">-25,596</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">1,241</td>
+ <td class="infeasible">1,238</td>
  <td>3/11</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">240</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
- <td class="neg">-1,239</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -87,7 +116,7 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">4,499</td>
  <td>1/11</td>
- <td class="infeasible">963</td>
+ <td class="infeasible">894</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">6,658</td>
  <td>4/11</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">234</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -107,9 +136,9 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">106,927</td>
- <td>7/11</td>
- <td class="infeasible">40,899</td>
+ <td class="infeasible">106,921</td>
+ <td>6/11</td>
+ <td class="infeasible">40,887</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">2,771</td>
  <td>3/11</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">234</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">3,920</td>
  <td>2/11</td>
- <td class="infeasible">904</td>
+ <td class="infeasible">1,155</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -140,7 +169,7 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">1,787</td>
+ <td class="infeasible">1,801</td>
  <td>2/11</td>
  <td class="infeasible">1,026</td>
  <td>no</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">672</td>
  <td>3/11</td>
- <td class="infeasible">243</td>
+ <td class="infeasible">234</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">2,756</td>
  <td>3/11</td>
- <td class="infeasible">921</td>
+ <td class="infeasible">918</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -175,18 +204,18 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">260,834</td>
  <td>4/11</td>
- <td class="infeasible">923</td>
+ <td class="infeasible">665</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
- <td class="neg">-260,139</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">1,317</td>
  <td>3/11</td>
- <td class="infeasible">905</td>
+ <td class="infeasible">887</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">277</td>
  <td>2/11</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">231</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -206,9 +235,9 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">985</td>
+ <td class="infeasible">996</td>
  <td>4/11</td>
- <td class="infeasible">240</td>
+ <td class="infeasible">243</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -223,14 +252,14 @@
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
- <td class="neg">-40,425</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">4,310</td>
  <td>7/11</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">237</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -241,7 +270,7 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">3,344</td>
  <td>3/11</td>
- <td class="infeasible">950</td>
+ <td class="infeasible">944</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">188</td>
  <td>0/11</td>
- <td class="infeasible">243</td>
+ <td class="infeasible">237</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
@@ -285,15 +314,15 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">533</td>
  <td>3/11</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">231</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
- <td class="pos">5,947</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">2,157</td>
  <td>1/11</td>
  <td class="infeasible">715</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>
- <td class="neg">-1,234</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,10 +355,10 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">2,294</td>
  <td>2/11</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">237</td>
  <td>no</td>
  <td>build_plasma_cannon_iii</td>
  <td class="">—</td>

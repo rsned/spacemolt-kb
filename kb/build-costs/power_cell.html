@@ -7,12 +7,105 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Power Cell <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/power_cell.html">View Power Cell in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>1</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>1</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>assemble_electrochemical_power_cell <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>1</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>3</td></tr><tr><td><a href="../items/refined/power_battery.html">Power Battery</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+<h3>assemble_nimh_power_cell <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>2</td></tr><tr><td><a href="../items/refined/nickel_billet.html">Nickel Billet</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+<h3>build_power_cell <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>2</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+<h3>build_silver_power_cell <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>3</td></tr><tr><td><a href="../items/refined/silver_wiring.html">Silver Wiring</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+<h3>fabricate_nuclear_power_cell <small>yields 15</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>3</td></tr><tr><td><a href="../items/refined/enriched_uranium_rod.html">Enriched Uranium Rod</a></td><td>1</td></tr><tr><td><a href="../items/component/lead_sheet.html">Lead Sheet</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+<h3>rebuild_power_cells <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/rare_salvage.html">Rare Salvage</a></td><td>2</td></tr><tr><td><a href="../items/component/salvage_components.html">Salvage Components</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+<h3>synthesize_argon_power_cell <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>2</td></tr><tr><td><a href="../items/refined/purified_argon.html">Purified Argon</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+<h3>synthesize_neon_power_cell <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>2</td></tr><tr><td><a href="../items/refined/ionized_neon.html">Ionized Neon</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+<h3>synthesize_xenon_power_cell <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>2</td></tr><tr><td><a href="../items/refined/purified_xenon.html">Purified Xenon</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -25,14 +118,14 @@
  <td>no</td>
  <td>assemble_nimh_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,470</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">6</td>
- <td>2/5</td>
- <td class="">122</td>
+ <td class="infeasible">5</td>
+ <td>1/5</td>
+ <td class="">107</td>
  <td>yes</td>
  <td>assemble_nimh_power_cell</td>
  <td class="">—</td>
@@ -43,22 +136,22 @@
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/5</td>
- <td class="">294</td>
+ <td class="">286</td>
  <td>yes</td>
  <td>assemble_nimh_power_cell</td>
  <td class="">—</td>
- <td class="pos">35</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">1,048</td>
  <td>3/5</td>
  <td class="">567</td>
  <td>yes</td>
  <td>assemble_nimh_power_cell</td>
  <td class="">—</td>
- <td class="neg">-546</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -69,7 +162,7 @@
  <td>yes</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="neg">-43</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -80,7 +173,7 @@
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">4,510</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -91,7 +184,7 @@
  <td>no</td>
  <td>rebuild_power_cells</td>
  <td class="">—</td>
- <td class="pos">2,457</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -102,16 +195,16 @@
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">864</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">2,200</td>
  <td>3/5</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>assemble_nimh_power_cell</td>
+ <td class="">1,007</td>
+ <td>yes</td>
+ <td>synthesize_neon_power_cell</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -140,13 +233,13 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">4</td>
+ <td class="infeasible">5</td>
  <td>1/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,078</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -157,7 +250,7 @@
  <td>no</td>
  <td>build_silver_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,445</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -168,7 +261,7 @@
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,247</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -177,13 +270,13 @@
  <td>0/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>assemble_electrochemical_power_cell</td>
+ <td>build_silver_power_cell</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/5</td>
  <td class="infeasible">0</td>
@@ -197,7 +290,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">4</td>
  <td>1/5</td>
- <td class="">164</td>
+ <td class="">149</td>
  <td>yes</td>
  <td>assemble_nimh_power_cell</td>
  <td class="">—</td>
@@ -245,7 +338,7 @@
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,408</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -256,18 +349,18 @@
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">1,732</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">0</td>
  <td>0/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">4,800</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -278,29 +371,29 @@
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,238</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/5</td>
- <td class="">549</td>
+ <td class="">547</td>
  <td>yes</td>
  <td>assemble_nimh_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,395</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">3,434</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -311,7 +404,7 @@
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">2,460</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -322,18 +415,18 @@
  <td>yes</td>
  <td>assemble_nimh_power_cell</td>
  <td class="">—</td>
- <td class="pos">1,599</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">0</td>
  <td>0/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>assemble_electrochemical_power_cell</td>
  <td class="">—</td>
- <td class="pos">1,647</td>
+ <td class="">—</td>
 </tr>
 
 </tbody>

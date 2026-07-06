@@ -7,35 +7,64 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Navigation Array <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/navigation_array.html">View Navigation Array in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>36</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>12</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>19</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>19</td></tr><tr><td><a href="../items/ore/krypton_gas.html">Krypton Gas</a></td><td>4</td></tr><tr><td><a href="../items/ore/neon_gas.html">Neon Gas</a></td><td>4</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>25</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>19</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>19</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_navigation_array <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/autopilot_module.html">Autopilot Module</a></td><td>1</td></tr><tr><td><a href="../items/component/navigation_core.html">Navigation Core</a></td><td>1</td></tr><tr><td><a href="../items/component/sensor_array.html">Sensor Array</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">599</td>
+ <td class="infeasible">509</td>
  <td>2/12</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">7,732</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">7,381</td>
+ <td class="infeasible">7,045</td>
  <td>7/12</td>
- <td class="infeasible">4,912</td>
+ <td class="infeasible">5,966</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">236</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -43,21 +72,21 @@
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">1,214</td>
  <td>4/12</td>
- <td class="">6,907</td>
- <td>yes</td>
+ <td class="infeasible">6,468</td>
+ <td>no</td>
  <td>build_navigation_array</td>
- <td class="neg">-596</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">11,824</td>
  <td>8/12</td>
- <td class="">5,686</td>
+ <td class="">5,733</td>
  <td>yes</td>
  <td>build_navigation_array</td>
- <td class="neg">-11,113</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -65,18 +94,18 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">1,029</td>
  <td>4/12</td>
- <td class="">6,248</td>
+ <td class="">5,200</td>
  <td>yes</td>
  <td>build_navigation_array</td>
- <td class="pos">7,145</td>
- <td class="neg">-1,027</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">63</td>
  <td>4/12</td>
- <td class="infeasible">4,472</td>
+ <td class="infeasible">4,223</td>
  <td>no</td>
  <td>build_navigation_array</td>
  <td class="">—</td>
@@ -90,7 +119,7 @@
  <td class="infeasible">1,280</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">7,319</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,10 +127,10 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">4,241</td>
  <td>5/12</td>
- <td class="infeasible">4,681</td>
+ <td class="infeasible">4,680</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">3,295</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -112,7 +141,7 @@
  <td class="infeasible">90</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="neg">-14,610</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,10 +149,10 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">8,944</td>
  <td>5/12</td>
- <td class="infeasible">4,509</td>
+ <td class="infeasible">4,395</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="neg">-1,403</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,13 +163,13 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">5,501</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">2,723</td>
+ <td class="infeasible">2,727</td>
  <td>5/12</td>
  <td class="infeasible">4,738</td>
  <td>no</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">620</td>
  <td>4/12</td>
- <td class="infeasible">4,735</td>
+ <td class="infeasible">4,687</td>
  <td>no</td>
  <td>build_navigation_array</td>
  <td class="">—</td>
@@ -175,15 +204,15 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">190,570</td>
  <td>6/12</td>
- <td class="infeasible">4,575</td>
+ <td class="infeasible">5,557</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="neg">-190,280</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">8,654</td>
  <td>4/12</td>
  <td class="infeasible">0</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">7,193</td>
  <td>4/12</td>
- <td class="infeasible">4,692</td>
+ <td class="infeasible">5,740</td>
  <td>no</td>
  <td>build_navigation_array</td>
  <td class="">—</td>
@@ -206,9 +235,9 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">3,361</td>
+ <td class="infeasible">3,372</td>
  <td>4/12</td>
- <td class="infeasible">5,901</td>
+ <td class="infeasible">5,951</td>
  <td>no</td>
  <td>build_navigation_array</td>
  <td class="">—</td>
@@ -219,10 +248,10 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">19,530</td>
  <td>6/12</td>
- <td class="infeasible">5,686</td>
+ <td class="infeasible">5,917</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="neg">-11,907</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -252,21 +281,21 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">4,814</td>
  <td>2/12</td>
- <td class="infeasible">3,997</td>
+ <td class="infeasible">5,385</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">3,280</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>0/12</td>
  <td class="infeasible">41,616</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">7,511</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -277,7 +306,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">6,841</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -285,18 +314,18 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">265</td>
  <td>4/12</td>
- <td class="infeasible">2,000</td>
+ <td class="infeasible">5,622</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">353</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,275</td>
  <td>3/12</td>
- <td class="infeasible">4,524</td>
+ <td class="infeasible">4,614</td>
  <td>no</td>
  <td>build_navigation_array</td>
  <td class="">—</td>
@@ -307,11 +336,11 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">459</td>
  <td>4/12</td>
- <td class="infeasible">5,388</td>
+ <td class="infeasible">4,445</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="pos">7,084</td>
- <td class="neg">-457</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,12 +350,12 @@
  <td class="infeasible">88</td>
  <td>no</td>
  <td>build_navigation_array</td>
- <td class="neg">-1,432</td>
- <td class="neg">-1,632</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">2,384</td>
  <td>4/12</td>
  <td class="infeasible">0</td>

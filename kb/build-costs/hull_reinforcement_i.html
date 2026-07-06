@@ -7,19 +7,48 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Hull Reinforcement I <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/defense/hull_reinforcement_i.html">View Hull Reinforcement I in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>26</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>13</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_hull_reinforcement_i <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/hull_plating.html">Hull Plating</a></td><td>2</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">193</td>
+ <td class="infeasible">103</td>
  <td>1/4</td>
  <td class="infeasible">1,410</td>
  <td>no</td>
@@ -35,8 +64,8 @@
  <td class="">1,846</td>
  <td>yes</td>
  <td>build_hull_reinforcement_i</td>
- <td class="neg">-9,240</td>
- <td class="neg">-9,283</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,12 +75,12 @@
  <td class="infeasible">1,382</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
- <td class="neg">-4</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">2,189</td>
  <td>4/4</td>
  <td class="infeasible">1,382</td>
@@ -65,18 +94,18 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">87</td>
  <td>2/4</td>
- <td class="infeasible">1,382</td>
- <td>no</td>
+ <td class="">1,775</td>
+ <td>yes</td>
  <td>build_hull_reinforcement_i</td>
- <td class="pos">31</td>
- <td class="neg">-85</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">37</td>
  <td>2/4</td>
- <td class="">1,474</td>
+ <td class="">1,420</td>
  <td>yes</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
@@ -98,10 +127,10 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">1,474</td>
  <td>2/4</td>
- <td class="infeasible">1,382</td>
+ <td class="infeasible">1,410</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
- <td class="neg">-1,472</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -112,7 +141,7 @@
  <td class="infeasible">1,466</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
- <td class="neg">-8,351</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -145,7 +174,7 @@
  <td class="infeasible">1,382</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
- <td class="pos">766</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -164,8 +193,8 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">293</td>
  <td>2/4</td>
- <td class="infeasible">1,382</td>
- <td>no</td>
+ <td class="">1,772</td>
+ <td>yes</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -178,16 +207,16 @@
  <td class="infeasible">1,382</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
- <td class="neg">-20,060</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">146</td>
  <td>2/4</td>
- <td class="infeasible">1,382</td>
- <td>no</td>
+ <td class="">1,789</td>
+ <td>yes</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -219,19 +248,19 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">26,246</td>
  <td>3/4</td>
- <td class="infeasible">1,348</td>
+ <td class="infeasible">1,362</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
- <td class="neg">-26,244</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">1,526</td>
  <td>3/4</td>
- <td class="infeasible">1,396</td>
- <td>no</td>
+ <td class="">1,772</td>
+ <td>yes</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -241,8 +270,8 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">644</td>
  <td>1/4</td>
- <td class="infeasible">1,382</td>
- <td>no</td>
+ <td class="">1,772</td>
+ <td>yes</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">90</td>
  <td>0/4</td>
- <td class="infeasible">1,410</td>
+ <td class="infeasible">1,382</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>0/4</td>
- <td class="infeasible">1,362</td>
+ <td class="infeasible">1,404</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">1,040</td>
  <td>1/4</td>
- <td class="infeasible">1,478</td>
+ <td class="infeasible">1,510</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
@@ -288,12 +317,12 @@
  <td class="infeasible">1,382</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
- <td class="neg">-22</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,714</td>
  <td>2/4</td>
  <td class="infeasible">1,382</td>
@@ -307,11 +336,11 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">185</td>
  <td>2/4</td>
- <td class="infeasible">1,382</td>
+ <td class="infeasible">1,396</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>
- <td class="neg">-183</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,15 +350,15 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
- <td class="pos">9</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">404</td>
  <td>2/4</td>
- <td class="infeasible">1,396</td>
+ <td class="infeasible">1,382</td>
  <td>no</td>
  <td>build_hull_reinforcement_i</td>
  <td class="">—</td>

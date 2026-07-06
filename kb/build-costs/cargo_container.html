@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Cargo Container <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/cargo_container.html">View Cargo Container in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>10</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>5</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_cargo_container <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/aluminum_sheet.html">Aluminum Sheet</a></td><td>3</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td>5</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -43,15 +72,15 @@
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">46</td>
  <td>2/3</td>
- <td class="infeasible">30</td>
+ <td class="infeasible">27</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="pos">378</td>
- <td class="neg">-11</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">447</td>
  <td>3/3</td>
  <td class="infeasible">36</td>
@@ -65,22 +94,22 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">33</td>
  <td>2/3</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">655</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="pos">106</td>
- <td class="neg">-31</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">14</td>
  <td>2/3</td>
- <td class="infeasible">750</td>
+ <td class="infeasible">660</td>
  <td>no</td>
  <td>build_cargo_container</td>
  <td class="">—</td>
- <td class="pos">11</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -113,7 +142,7 @@
  <td>no</td>
  <td>build_cargo_container</td>
  <td class="neg">-2,086</td>
- <td class="neg">-2,260</td>
+ <td class="neg">-2,270</td>
 </tr>
 
 <tr>
@@ -123,7 +152,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="pos">85</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,7 +163,7 @@
  <td class="infeasible">45</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="neg">-224</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -145,7 +174,7 @@
  <td class="infeasible">45</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="neg">-1</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -157,18 +186,18 @@
  <td>no</td>
  <td>build_cargo_container</td>
  <td class="">—</td>
- <td class="pos">35</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">110</td>
  <td>2/3</td>
- <td class="infeasible">45</td>
- <td>no</td>
+ <td class="">695</td>
+ <td>yes</td>
  <td>build_cargo_container</td>
  <td class="">—</td>
- <td class="neg">-65</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -178,16 +207,16 @@
  <td class="infeasible">12</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="neg">-43</td>
- <td class="neg">-66</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">55</td>
  <td>2/3</td>
- <td class="infeasible">45</td>
- <td>no</td>
+ <td class="">700</td>
+ <td>yes</td>
  <td>build_cargo_container</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -230,7 +259,7 @@
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="">586</td>
  <td>3/3</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">650</td>
  <td>no</td>
  <td>build_cargo_container</td>
  <td class="neg">-161</td>
@@ -241,8 +270,8 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">524</td>
  <td>1/3</td>
- <td class="infeasible">45</td>
- <td>no</td>
+ <td class="">695</td>
+ <td>yes</td>
  <td>build_cargo_container</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>0/3</td>
- <td class="infeasible">45</td>
+ <td class="infeasible">15</td>
  <td>no</td>
  <td>build_cargo_container</td>
  <td class="">—</td>
@@ -277,7 +306,7 @@
  <td class="infeasible">39</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="neg">-225</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -288,12 +317,12 @@
  <td class="infeasible">12</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="pos">12</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">659</td>
  <td>2/3</td>
  <td class="infeasible">60</td>
@@ -310,8 +339,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="pos">56</td>
- <td class="neg">-68</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,19 +350,19 @@
  <td class="infeasible">4</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="pos">48</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">136</td>
  <td>2/3</td>
  <td class="infeasible">45</td>
  <td>no</td>
  <td>build_cargo_container</td>
- <td class="pos">44</td>
- <td class="neg">-91</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 </tbody>

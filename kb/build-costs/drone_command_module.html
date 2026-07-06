@@ -7,19 +7,48 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Drone Command Module <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/drone_command_module.html">View Drone Command Module in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>33</td></tr><tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>30</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>1</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>17</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>17</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>17</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>17</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_drone_command_module <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/drone_ai_core.html">Drone AI Core</a></td><td>1</td></tr><tr><td><a href="../items/component/drone_comms_module.html">Drone Comms Module</a></td><td>1</td></tr><tr><td><a href="../items/component/drone_sensor_suite.html">Drone Sensor Suite</a></td><td>1</td></tr><tr><td><a href="../items/component/processing_core.html">Processing Core</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">867</td>
+ <td class="infeasible">777</td>
  <td>4/11</td>
  <td class="infeasible">5,937</td>
  <td>no</td>
@@ -32,32 +61,32 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">6,275</td>
  <td>6/11</td>
- <td class="infeasible">2,813</td>
+ <td class="infeasible">2,840</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-3,301</td>
- <td class="neg">-6,250</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">4,800</td>
  <td>6/11</td>
- <td class="infeasible">2,907</td>
+ <td class="infeasible">374</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-4,601</td>
- <td class="neg">-4,775</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">9,779</td>
  <td>7/11</td>
- <td class="infeasible">2,949</td>
+ <td class="infeasible">2,979</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-9,193</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -65,11 +94,11 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">1,112</td>
  <td>4/11</td>
- <td class="">11,428</td>
+ <td class="">11,441</td>
  <td>yes</td>
  <td>build_drone_command_module</td>
- <td class="neg">-882</td>
- <td class="neg">-1,110</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -79,7 +108,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">3,039</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -90,7 +119,7 @@
  <td class="infeasible">3,162</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-2,071</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -101,7 +130,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-4,887</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -109,10 +138,10 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">13,142</td>
  <td>6/11</td>
- <td class="infeasible">360</td>
+ <td class="infeasible">310</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-12,652</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -123,7 +152,7 @@
  <td class="infeasible">2,663</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-2,850</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,7 +163,7 @@
  <td class="infeasible">3,506</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">1,873</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -142,7 +171,7 @@
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">2,026</td>
  <td>5/11</td>
- <td class="infeasible">2,492</td>
+ <td class="infeasible">2,486</td>
  <td>no</td>
  <td>build_drone_command_module</td>
  <td class="">—</td>
@@ -153,10 +182,10 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">38</td>
  <td>2/11</td>
- <td class="infeasible">2,674</td>
+ <td class="infeasible">2,700</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">3,060</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -164,32 +193,32 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">1,333</td>
  <td>5/11</td>
- <td class="infeasible">2,493</td>
+ <td class="infeasible">2,561</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">1,641</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">30,170,610</td>
- <td>6/11</td>
+ <td class="infeasible">170,640</td>
+ <td>5/11</td>
  <td class="">2,812</td>
  <td>yes</td>
  <td>build_drone_command_module</td>
- <td class="neg">-30,170,411</td>
- <td class="neg">-30,170,575</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
- <td class="infeasible">948</td>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="infeasible">952</td>
  <td>5/11</td>
- <td class="infeasible">2,590</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-920</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -200,7 +229,7 @@
  <td class="infeasible">2,710</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-5,512</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -208,7 +237,7 @@
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">4,265</td>
  <td>4/11</td>
- <td class="infeasible">2,576</td>
+ <td class="infeasible">2,636</td>
  <td>no</td>
  <td>build_drone_command_module</td>
  <td class="">—</td>
@@ -219,10 +248,10 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">18,205</td>
  <td>6/11</td>
- <td class="infeasible">6,137</td>
+ <td class="infeasible">6,119</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-15,138</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -233,7 +262,7 @@
  <td class="infeasible">2,468</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">1,009</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -244,7 +273,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">2,291</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -255,18 +284,18 @@
  <td class="infeasible">2,640</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-1,430</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">140</td>
  <td>1/11</td>
- <td class="infeasible">2,531</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">350</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -285,48 +314,48 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">462</td>
  <td>4/11</td>
- <td class="">5,440</td>
- <td>yes</td>
+ <td class="infeasible">2,885</td>
+ <td>no</td>
  <td>build_drone_command_module</td>
- <td class="pos">3,938</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">4,287</td>
  <td>4/11</td>
- <td class="infeasible">2,626</td>
+ <td class="infeasible">2,407</td>
  <td>no</td>
  <td>build_drone_command_module</td>
- <td class="neg">-1,220</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">25,795</td>
- <td>4/11</td>
- <td class="infeasible">2,587</td>
+ <td class="infeasible">483</td>
+ <td>3/11</td>
+ <td class="infeasible">2,627</td>
  <td>no</td>
  <td>build_drone_command_module</td>
  <td class="">—</td>
- <td class="neg">-25,793</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3,928</td>
+ <td class="infeasible">905</td>
  <td>2/11</td>
- <td class="">2,922</td>
+ <td class="">3,053</td>
  <td>yes</td>
  <td>build_drone_command_module</td>
- <td class="neg">-3,386</td>
- <td class="neg">-3,893</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">1,638</td>
  <td>3/11</td>
  <td class="infeasible">0</td>

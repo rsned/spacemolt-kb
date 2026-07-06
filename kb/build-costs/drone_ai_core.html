@@ -7,20 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Drone AI Core <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/drone_ai_core.html">View Drone AI Core in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>18</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>9</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_drone_ai_core <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>4</td></tr><tr><td><a href="../items/refined/neural_extract.html">Neural Extract</a></td><td>1</td></tr><tr><td><a href="../items/component/processing_core.html">Processing Core</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">529</td>
- <td>4/8</td>
+ <td class="infeasible">439</td>
+ <td>3/8</td>
  <td class="infeasible">5,937</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
@@ -32,44 +61,44 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">3,325</td>
  <td>5/8</td>
- <td class="infeasible">4,048</td>
+ <td class="infeasible">4,075</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
- <td class="neg">-3,290</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">3,038</td>
  <td>4/8</td>
- <td class="infeasible">2,533</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="neg">-2,737</td>
- <td class="neg">-3,003</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">5,158</td>
  <td>6/8</td>
- <td class="infeasible">3,890</td>
+ <td class="infeasible">3,920</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="neg">-4,857</td>
- <td class="neg">-5,123</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">261</td>
  <td>3/8</td>
- <td class="infeasible">6,632</td>
+ <td class="infeasible">6,645</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="pos">8,317</td>
- <td class="neg">-259</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -90,7 +119,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="pos">920</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -112,8 +141,8 @@
  <td class="infeasible">4,001</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="neg">-4,501</td>
- <td class="neg">-4,576</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -142,7 +171,7 @@
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">151</td>
  <td>3/8</td>
- <td class="infeasible">2,492</td>
+ <td class="infeasible">2,486</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">20</td>
  <td>2/8</td>
- <td class="infeasible">2,674</td>
+ <td class="infeasible">2,700</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">352</td>
  <td>3/8</td>
- <td class="infeasible">2,493</td>
+ <td class="infeasible">2,561</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
@@ -178,15 +207,15 @@
  <td class="infeasible">2,627</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="neg">-90,348</td>
- <td class="neg">-90,423</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
- <td class="infeasible">130</td>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="infeasible">134</td>
  <td>4/8</td>
- <td class="infeasible">2,590</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
@@ -201,14 +230,14 @@
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
- <td class="neg">-7,064</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">1,745</td>
  <td>3/8</td>
- <td class="infeasible">2,576</td>
+ <td class="infeasible">2,636</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
@@ -219,10 +248,10 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">9,228</td>
  <td>5/8</td>
- <td class="infeasible">2,614</td>
+ <td class="infeasible">2,596</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="neg">-5,728</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>0/8</td>
- <td class="infeasible">2,531</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
@@ -285,18 +314,18 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">171</td>
  <td>3/8</td>
- <td class="infeasible">3,855</td>
+ <td class="infeasible">1,300</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="pos">2,629</td>
- <td class="neg">-136</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">3,749</td>
  <td>4/8</td>
- <td class="infeasible">2,626</td>
+ <td class="infeasible">2,407</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
@@ -305,28 +334,28 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">25,451</td>
- <td>4/8</td>
- <td class="infeasible">2,587</td>
+ <td class="infeasible">139</td>
+ <td>3/8</td>
+ <td class="infeasible">2,627</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
  <td class="">—</td>
- <td class="neg">-25,449</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3,446</td>
+ <td class="infeasible">423</td>
  <td>2/8</td>
- <td class="infeasible">2,514</td>
+ <td class="infeasible">2,645</td>
  <td>no</td>
  <td>build_drone_ai_core</td>
- <td class="neg">-3,336</td>
- <td class="neg">-3,411</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">788</td>
  <td>4/8</td>
  <td class="infeasible">0</td>

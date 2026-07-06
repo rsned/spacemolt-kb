@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Repair Nanite Container <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/repair_nanite_container.html">View Repair Nanite Container in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>120</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>6</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>6</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>culture_repair_nanites <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/neural_interface_gel.html">Neural Interface Gel</a></td><td>2</td></tr><tr><td><a href="../items/refined/silicate_composite.html">Silicate Composite</a></td><td>1</td></tr><tr><td><a href="../items/refined/thermal_ceramic.html">Thermal Ceramic</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -24,7 +53,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">6,600</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -35,7 +64,7 @@
  <td class="infeasible">42</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">6,907</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -46,18 +75,18 @@
  <td class="infeasible">22</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="neg">-5,976</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">72</td>
  <td>2/5</td>
  <td class="infeasible">22</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">68</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -65,11 +94,11 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">1,008</td>
  <td>2/5</td>
- <td class="">7,661</td>
+ <td class="">6,310</td>
  <td>yes</td>
  <td>culture_repair_nanites</td>
- <td class="neg">-1,005</td>
- <td class="neg">-1,006</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -79,7 +108,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">6,827</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -90,7 +119,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">5,521</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,10 +127,10 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">10,716</td>
  <td>2/5</td>
- <td class="infeasible">31</td>
+ <td class="infeasible">32</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="neg">-3,743</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -112,7 +141,7 @@
  <td class="infeasible">22</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="neg">-2,192</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -123,7 +152,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">4,709</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,7 +163,7 @@
  <td class="infeasible">30</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">5,752</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -156,7 +185,7 @@
  <td class="infeasible">396</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">7,183</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -173,17 +202,17 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">119,999,888</td>
- <td>2/5</td>
+ <td class="infeasible">8</td>
+ <td>1/5</td>
  <td class="infeasible">8</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="neg">-119,999,805</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">4,220</td>
  <td>2/5</td>
  <td class="infeasible">0</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">5,760</td>
  <td>2/5</td>
- <td class="infeasible">6,821</td>
+ <td class="infeasible">256</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
  <td class="">—</td>
@@ -208,7 +237,7 @@
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">360</td>
  <td>1/5</td>
- <td class="infeasible">6,149</td>
+ <td class="infeasible">6,086</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
  <td class="">—</td>
@@ -222,7 +251,7 @@
  <td class="infeasible">21</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="neg">-1,617</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">3,094</td>
  <td>2/5</td>
- <td class="infeasible">5,844</td>
+ <td class="infeasible">7,267</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
  <td class="">—</td>
@@ -260,13 +289,13 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">480</td>
  <td>1/5</td>
  <td class="infeasible">5</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">6,991</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -277,7 +306,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">7,048</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -285,21 +314,21 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">3,168</td>
  <td>1/5</td>
- <td class="infeasible">266</td>
+ <td class="infeasible">279</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="neg">-3,056</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">4</td>
  <td>1/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">6,756</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -310,7 +339,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">6,595</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -321,12 +350,12 @@
  <td class="infeasible">22</td>
  <td>no</td>
  <td>culture_repair_nanites</td>
- <td class="pos">388</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">44</td>
  <td>1/5</td>
  <td class="infeasible">0</td>

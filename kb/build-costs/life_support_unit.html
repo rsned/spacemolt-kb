@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Life Support Unit <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/life_support_unit.html">View Life Support Unit in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>3</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>7</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td>6</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_life_support_unit <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td>6</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td>3</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -24,8 +53,8 @@
  <td class="infeasible">30</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">879</td>
- <td class="pos">862</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -35,8 +64,8 @@
  <td class="infeasible">333</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-1,039</td>
- <td class="neg">-1,483</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,41 +75,41 @@
  <td class="infeasible">78</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-3,096</td>
- <td class="neg">-3,132</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">2,100</td>
  <td>7/9</td>
  <td class="infeasible">72</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-325</td>
- <td class="neg">-340</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">3,621</td>
  <td>4/9</td>
- <td class="infeasible">3,000</td>
+ <td class="infeasible">3,262</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-1,755</td>
- <td class="neg">-1,861</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">23</td>
  <td>4/9</td>
- <td class="infeasible">330</td>
+ <td class="infeasible">291</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,771</td>
- <td class="pos">1,686</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -90,7 +119,7 @@
  <td class="infeasible">30</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-113</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -101,8 +130,8 @@
  <td class="infeasible">126</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-25,307</td>
- <td class="neg">-26,175</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -112,30 +141,30 @@
  <td class="infeasible">3,009</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-2,854</td>
- <td class="neg">-3,329</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">6,518</td>
  <td>4/9</td>
- <td class="infeasible">27</td>
+ <td class="infeasible">33</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-4,743</td>
- <td class="neg">-4,758</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">1,040</td>
  <td>4/9</td>
- <td class="infeasible">30</td>
+ <td class="infeasible">33</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">680</td>
- <td class="pos">192</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -145,8 +174,8 @@
  <td class="infeasible">378</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,700</td>
- <td class="pos">1,513</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -156,18 +185,18 @@
  <td class="infeasible">135</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">2,023</td>
- <td class="pos">1,748</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">688</td>
  <td>3/9</td>
- <td class="infeasible">33</td>
+ <td class="infeasible">293</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,075</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -175,22 +204,22 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">30,632</td>
  <td>5/9</td>
- <td class="infeasible">54</td>
+ <td class="infeasible">27</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-28,908</td>
- <td class="neg">-28,958</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
- <td class="infeasible">100</td>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="infeasible">106</td>
  <td>4/9</td>
- <td class="infeasible">1,866</td>
+ <td class="infeasible">292</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,698</td>
- <td class="pos">1,660</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -200,8 +229,8 @@
  <td class="infeasible">15</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-8,513</td>
- <td class="neg">-9,041</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -211,8 +240,8 @@
  <td class="infeasible">15</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-2,720</td>
- <td class="neg">-3,215</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -222,26 +251,26 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-4,855</td>
- <td class="neg">-4,878</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">694</td>
  <td>6/9</td>
- <td class="infeasible">1,257</td>
+ <td class="infeasible">1,517</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,142</td>
- <td class="pos">1,066</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">742</td>
  <td>4/9</td>
- <td class="infeasible">24</td>
+ <td class="infeasible">287</td>
  <td>no</td>
  <td>build_life_support_unit</td>
  <td class="">—</td>
@@ -255,19 +284,19 @@
  <td class="infeasible">27</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-6,395</td>
- <td class="neg">-6,478</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>0/9</td>
  <td class="infeasible">30</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,732</td>
- <td class="pos">1,681</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -277,8 +306,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,273</td>
- <td class="pos">1,186</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -288,35 +317,35 @@
  <td class="infeasible">9</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="pos">1,655</td>
- <td class="pos">1,605</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">5,183</td>
  <td>4/9</td>
  <td class="infeasible">42</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-2,915</td>
- <td class="neg">-3,423</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">38,041</td>
- <td>4/9</td>
+ <td class="infeasible">73</td>
+ <td>3/9</td>
  <td class="infeasible">372</td>
  <td>no</td>
  <td>build_life_support_unit</td>
- <td class="neg">-36,281</td>
- <td class="neg">-36,315</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3,232</td>
+ <td class="infeasible">209</td>
  <td>3/9</td>
  <td class="infeasible">0</td>
  <td>no</td>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">1,462</td>
  <td>4/9</td>
  <td class="infeasible">0</td>

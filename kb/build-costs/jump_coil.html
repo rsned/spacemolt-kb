@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Jump Coil <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/jump_coil.html">View Jump Coil in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>16</td></tr><tr><td><a href="../items/ore/exotic_matter.html">Exotic Matter</a></td><td>6</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>10</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>fabricate_jump_coil <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/power_cell.html">Power Cell</a></td><td>2</td></tr><tr><td><a href="../items/refined/stabilized_exotic.html">Stabilized Exotic</a></td><td>2</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -30,13 +59,13 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">1,027</td>
- <td>4/10</td>
+ <td class="infeasible">199</td>
+ <td>3/10</td>
  <td class="infeasible">1,590</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
- <td class="pos">14,457</td>
- <td class="neg">-982</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,30 +75,30 @@
  <td class="infeasible">90</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
- <td class="neg">-2,109</td>
- <td class="neg">-2,114</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">4,366</td>
  <td>5/10</td>
  <td class="infeasible">1,905</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
- <td class="neg">-3,804</td>
- <td class="neg">-4,331</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">61,470</td>
+ <td class="infeasible">61,467</td>
  <td>4/10</td>
- <td class="infeasible">13,061</td>
+ <td class="infeasible">12,963</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
  <td class="">—</td>
- <td class="neg">-61,468</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -109,11 +138,11 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">4,600</td>
  <td>4/10</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">2,169</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
  <td class="">—</td>
- <td class="neg">-4,565</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -123,7 +152,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
- <td class="pos">12,409</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,13 +163,13 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
- <td class="pos">21,847</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">63,208</td>
+ <td class="infeasible">63,210</td>
  <td>3/10</td>
  <td class="infeasible">0</td>
  <td>no</td>
@@ -178,12 +207,12 @@
  <td class="infeasible">1,887</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
- <td class="neg">-74,350</td>
- <td class="neg">-90,315</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">11,440</td>
  <td>2/10</td>
  <td class="infeasible">0</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">8,808</td>
  <td>2/10</td>
- <td class="infeasible">12,837</td>
+ <td class="infeasible">13,003</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
  <td class="">—</td>
@@ -206,7 +235,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">1,084</td>
+ <td class="infeasible">1,095</td>
  <td>3/10</td>
  <td class="infeasible">1,887</td>
  <td>no</td>
@@ -223,7 +252,7 @@
  <td>no</td>
  <td>fabricate_jump_coil</td>
  <td class="">—</td>
- <td class="neg">-93</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,13 +289,13 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">10</td>
  <td>0/10</td>
  <td class="infeasible">771</td>
  <td>no</td>
  <td>fabricate_jump_coil</td>
- <td class="pos">6,544</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -293,7 +322,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">90,000</td>
  <td>1/10</td>
  <td class="infeasible">2,400</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>fabricate_jump_coil</td>
  <td class="">—</td>
- <td class="neg">-90,048</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">61,720</td>
  <td>2/10</td>
  <td class="infeasible">0</td>

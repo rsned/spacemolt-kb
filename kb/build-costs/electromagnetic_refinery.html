@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Electromagnetic Refinery <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/utility/electromagnetic_refinery.html">View Electromagnetic Refinery in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>30</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>17</td></tr><tr><td><a href="../items/ore/ion_gas.html">Ion Gas</a></td><td>12</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>7</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>35</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>18</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>11</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>7</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>44</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>15</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>25</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_electromagnetic_refinery <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/durasteel_plate.html">Durasteel Plate</a></td><td>3</td></tr><tr><td><a href="../items/utility/flotation_cell.html">Flotation Cell</a></td><td>1</td></tr><tr><td><a href="../items/utility/magnetic_ore_separator.html">Magnetic Ore Separator</a></td><td>1</td></tr><tr><td><a href="../items/component/processing_core.html">Processing Core</a></td><td>1</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">905</td>
+ <td class="infeasible">815</td>
  <td>2/16</td>
- <td class="infeasible">6,519</td>
+ <td class="infeasible">6,525</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -30,53 +59,53 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">14,114</td>
- <td>9/16</td>
- <td class="infeasible">4,575</td>
+ <td class="infeasible">13,209</td>
+ <td>8/16</td>
+ <td class="infeasible">4,593</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
- <td class="neg">-14,112</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">3,831</td>
  <td>6/16</td>
- <td class="infeasible">3,016</td>
+ <td class="infeasible">483</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
- <td class="neg">-3,187</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">14,679</td>
  <td>11/16</td>
- <td class="">5,000</td>
+ <td class="">5,042</td>
  <td>yes</td>
  <td>build_electromagnetic_refinery</td>
- <td class="neg">-14,035</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">11,497</td>
+ <td class="infeasible">11,499</td>
  <td>7/16</td>
- <td class="infeasible">5,499</td>
+ <td class="infeasible">5,542</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
- <td class="neg">-11,495</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">64</td>
  <td>4/16</td>
- <td class="infeasible">743</td>
+ <td class="infeasible">725</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">56,814</td>
  <td>5/16</td>
- <td class="infeasible">708</td>
+ <td class="infeasible">612</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -109,10 +138,10 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">25,552</td>
  <td>9/16</td>
- <td class="infeasible">2,185</td>
+ <td class="infeasible">3,640</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
- <td class="neg">-19,552</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">11,772</td>
  <td>6/16</td>
- <td class="infeasible">3,257</td>
+ <td class="infeasible">3,269</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -140,9 +169,9 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">438</td>
+ <td class="infeasible">440</td>
  <td>4/16</td>
- <td class="infeasible">3,173</td>
+ <td class="infeasible">3,176</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">894</td>
  <td>4/16</td>
- <td class="infeasible">3,319</td>
+ <td class="infeasible">3,351</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">2,474</td>
  <td>4/16</td>
- <td class="infeasible">2,493</td>
+ <td class="infeasible">2,561</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -178,15 +207,15 @@
  <td class="infeasible">4,758</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
- <td class="neg">-148,897</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">823</td>
  <td>4/16</td>
- <td class="infeasible">4,840</td>
+ <td class="infeasible">2,250</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -206,9 +235,9 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">7,470</td>
+ <td class="infeasible">7,481</td>
  <td>5/16</td>
- <td class="infeasible">3,834</td>
+ <td class="infeasible">3,894</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -219,11 +248,11 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">35,807</td>
  <td>7/16</td>
- <td class="infeasible">4,549</td>
+ <td class="infeasible">4,522</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
- <td class="neg">-35,805</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>0/16</td>
- <td class="infeasible">3,639</td>
+ <td class="infeasible">1,123</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">1,428</td>
  <td>2/16</td>
- <td class="infeasible">723</td>
+ <td class="infeasible">732</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -285,18 +314,18 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">378</td>
  <td>3/16</td>
- <td class="infeasible">3,878</td>
+ <td class="infeasible">1,323</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
- <td class="pos">137</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1,987</td>
  <td>2/16</td>
- <td class="infeasible">4,476</td>
+ <td class="infeasible">4,007</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -307,18 +336,18 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">388</td>
  <td>5/16</td>
- <td class="infeasible">3,277</td>
+ <td class="infeasible">3,317</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
- <td class="neg">-386</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
  <td class="infeasible">3,295</td>
  <td>4/16</td>
- <td class="infeasible">2,685</td>
+ <td class="infeasible">2,816</td>
  <td>no</td>
  <td>build_electromagnetic_refinery</td>
  <td class="">—</td>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">4,764</td>
  <td>4/16</td>
  <td class="infeasible">0</td>

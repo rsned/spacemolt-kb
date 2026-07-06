@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Armor Repairer II <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/defense/armor_repairer_ii.html">View Armor Repairer II in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>14</td></tr><tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>241</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>12</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>3</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>15</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>21</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>17</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_armor_repairer_ii <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/biofiber_mesh.html">Biofiber Mesh</a></td><td>1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>3</td></tr><tr><td><a href="../items/refined/durasteel_plate.html">Durasteel Plate</a></td><td>3</td></tr><tr><td><a href="../items/component/repair_nanite_container.html">Repair Nanite Container</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">695</td>
- <td>5/11</td>
- <td class="infeasible">14,102</td>
+ <td class="infeasible">645</td>
+ <td>4/11</td>
+ <td class="infeasible">14,586</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -32,11 +61,11 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">5,880</td>
  <td>6/11</td>
- <td class="infeasible">14,918</td>
+ <td class="infeasible">15,961</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-5,760</td>
- <td class="neg">-5,878</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,18 +75,18 @@
  <td class="infeasible">216</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-14,806</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">2,683</td>
  <td>7/11</td>
- <td class="infeasible">1,267</td>
+ <td class="infeasible">1,279</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-2,271</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -65,18 +94,18 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">10,753</td>
  <td>4/11</td>
- <td class="infeasible">3,591</td>
+ <td class="infeasible">3,609</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-9,948</td>
- <td class="neg">-10,751</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">28</td>
  <td>4/11</td>
- <td class="infeasible">14,405</td>
+ <td class="infeasible">14,533</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -87,7 +116,7 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">4,255</td>
  <td>4/11</td>
- <td class="infeasible">14,773</td>
+ <td class="infeasible">14,951</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -98,10 +127,10 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">52,230</td>
  <td>3/11</td>
- <td class="infeasible">14,654</td>
+ <td class="infeasible">14,168</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-52,228</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -109,7 +138,7 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">15,125</td>
  <td>6/11</td>
- <td class="">3,797</td>
+ <td class="">3,806</td>
  <td>yes</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">5,888</td>
  <td>5/11</td>
- <td class="infeasible">15,252</td>
+ <td class="infeasible">14,594</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">3,806</td>
  <td>4/11</td>
- <td class="infeasible">14,527</td>
+ <td class="infeasible">723</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -142,7 +171,7 @@
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">16,523</td>
  <td>5/11</td>
- <td class="infeasible">681</td>
+ <td class="infeasible">690</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">16</td>
  <td>2/11</td>
- <td class="infeasible">15,019</td>
+ <td class="infeasible">15,349</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -173,18 +202,18 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">241,030,138</td>
- <td>6/11</td>
+ <td class="infeasible">30,379</td>
+ <td>5/11</td>
  <td class="infeasible">904</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-241,029,808</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
- <td class="infeasible">8,509</td>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="infeasible">8,512</td>
  <td>5/11</td>
  <td class="infeasible">2,250</td>
  <td>no</td>
@@ -219,11 +248,11 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">21,704</td>
  <td>6/11</td>
- <td class="infeasible">3,884</td>
+ <td class="infeasible">3,875</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-21,584</td>
- <td class="neg">-21,702</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">984</td>
  <td>1/11</td>
- <td class="infeasible">15,536</td>
+ <td class="infeasible">14,177</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">707</td>
  <td>3/11</td>
- <td class="infeasible">14,819</td>
+ <td class="infeasible">14,398</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -293,10 +322,10 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">3,349</td>
  <td>4/11</td>
- <td class="infeasible">13,770</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
@@ -305,28 +334,28 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">19,323</td>
- <td>4/11</td>
- <td class="infeasible">14,360</td>
+ <td class="infeasible">339</td>
+ <td>3/11</td>
+ <td class="infeasible">14,514</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
  <td class="">—</td>
- <td class="neg">-19,321</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3,552</td>
+ <td class="infeasible">529</td>
  <td>2/11</td>
  <td class="infeasible">1,072</td>
  <td>no</td>
  <td>build_armor_repairer_ii</td>
- <td class="neg">-3,222</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">742</td>
  <td>4/11</td>
  <td class="infeasible">0</td>

@@ -7,12 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Superconductor <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/refined/superconductor.html">View Superconductor in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>create_silver_superconductor <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>2</td></tr><tr><td><a href="../items/refined/silver_wiring.html">Silver Wiring</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+<h3>create_superconductor <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>3</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -30,12 +67,12 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">205</td>
+ <td class="infeasible">37</td>
  <td>2/3</td>
- <td class="">244</td>
+ <td class="">76</td>
  <td>yes</td>
  <td>create_superconductor</td>
- <td class="pos">325</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -43,33 +80,33 @@
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">453</td>
  <td>2/3</td>
- <td class="">516</td>
+ <td class="">504</td>
  <td>yes</td>
  <td>create_superconductor</td>
- <td class="neg">-423</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">490</td>
  <td>2/3</td>
  <td class="">553</td>
  <td>yes</td>
  <td>create_superconductor</td>
- <td class="pos">145</td>
- <td class="neg">-455</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">270</td>
+ <td class="infeasible">269</td>
  <td>2/3</td>
- <td class="">333</td>
+ <td class="">332</td>
  <td>yes</td>
  <td>create_superconductor</td>
- <td class="pos">359</td>
- <td class="neg">-268</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -178,12 +215,12 @@
  <td class="infeasible">70</td>
  <td>no</td>
  <td>create_silver_superconductor</td>
- <td class="pos">559</td>
- <td class="neg">-68</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">80</td>
  <td>1/3</td>
  <td class="infeasible">80</td>
@@ -200,18 +237,18 @@
  <td class="infeasible">90</td>
  <td>no</td>
  <td>create_superconductor</td>
- <td class="pos">629</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">180</td>
+ <td class="infeasible">184</td>
  <td>2/3</td>
- <td class="">270</td>
+ <td class="">274</td>
  <td>yes</td>
  <td>create_superconductor</td>
- <td class="pos">449</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -222,7 +259,7 @@
  <td class="infeasible">15</td>
  <td>no</td>
  <td>create_silver_superconductor</td>
- <td class="pos">614</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -260,13 +297,13 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">10</td>
  <td>1/3</td>
  <td class="infeasible">10</td>
  <td>no</td>
  <td>create_silver_superconductor</td>
- <td class="pos">247</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -293,13 +330,13 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/3</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>create_silver_superconductor</td>
- <td class="pos">800</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -326,7 +363,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">590</td>
  <td>2/3</td>
  <td class="infeasible">590</td>

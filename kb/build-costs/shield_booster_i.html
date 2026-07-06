@@ -7,24 +7,53 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Shield Booster I <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/defense/shield_booster_i.html">View Shield Booster I in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>28</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>3</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_shield_booster_i <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>2</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>3</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">184</td>
+ <td class="infeasible">94</td>
  <td>1/7</td>
- <td class="infeasible">534</td>
+ <td class="infeasible">530</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">1,955</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -36,25 +65,25 @@
  <td>no</td>
  <td>build_shield_booster_i</td>
  <td class="">—</td>
- <td class="neg">-2,259</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">120</td>
  <td>2/7</td>
- <td class="infeasible">682</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">2,677</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">2,504</td>
  <td>4/7</td>
- <td class="infeasible">526</td>
+ <td class="infeasible">532</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
  <td class="">—</td>
@@ -65,21 +94,21 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">68</td>
  <td>2/7</td>
- <td class="infeasible">2,574</td>
+ <td class="infeasible">2,536</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">2,022</td>
- <td class="neg">-66</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">32</td>
  <td>2/7</td>
- <td class="infeasible">562</td>
+ <td class="infeasible">566</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">2,193</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -87,10 +116,10 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">2,380</td>
  <td>4/7</td>
- <td class="infeasible">1,223</td>
+ <td class="infeasible">1,234</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="neg">-346</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">536</td>
  <td>2/7</td>
- <td class="infeasible">540</td>
+ <td class="infeasible">530</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
  <td class="">—</td>
@@ -112,7 +141,7 @@
  <td class="infeasible">4,000</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="neg">-7,354</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,10 +149,10 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">1,850</td>
  <td>3/7</td>
- <td class="infeasible">1,812</td>
+ <td class="infeasible">1,816</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">84</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">348</td>
  <td>1/7</td>
- <td class="infeasible">540</td>
+ <td class="infeasible">534</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
  <td class="">—</td>
@@ -142,10 +171,10 @@
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">676</td>
  <td>3/7</td>
- <td class="infeasible">600</td>
+ <td class="infeasible">1,008</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">1,544</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -175,15 +204,15 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">40,096</td>
  <td>3/7</td>
- <td class="infeasible">702</td>
+ <td class="infeasible">754</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
  <td class="">—</td>
- <td class="neg">-40,095</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">2,248</td>
  <td>3/7</td>
  <td class="infeasible">2,100</td>
@@ -197,11 +226,11 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">1,670</td>
  <td>2/7</td>
- <td class="infeasible">2,172</td>
+ <td class="infeasible">2,178</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">138</td>
- <td class="neg">-488</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -211,7 +240,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">2,037</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -222,7 +251,7 @@
  <td class="infeasible">524</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="neg">-4,361</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -233,7 +262,7 @@
  <td class="infeasible">1,216</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">1,668</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -244,7 +273,7 @@
  <td class="infeasible">728</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">1,705</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -255,18 +284,18 @@
  <td class="infeasible">1,574</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">895</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>1/7</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">2,079</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -274,10 +303,10 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">240</td>
  <td>1/7</td>
- <td class="infeasible">922</td>
+ <td class="infeasible">935</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">1,816</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -285,21 +314,21 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">84</td>
  <td>2/7</td>
- <td class="infeasible">522</td>
+ <td class="infeasible">526</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">2,058</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">418</td>
  <td>2/7</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">534</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">1,402</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -321,15 +350,15 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
- <td class="pos">1,928</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">312</td>
  <td>2/7</td>
- <td class="infeasible">544</td>
+ <td class="infeasible">550</td>
  <td>no</td>
  <td>build_shield_booster_i</td>
  <td class="">—</td>

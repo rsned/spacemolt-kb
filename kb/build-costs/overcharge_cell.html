@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Overcharge Cell <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/consumable/overcharge_cell.html">View Overcharge Cell in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>1</td></tr><tr><td><a href="../items/ore/helium_ice.html">Helium Ice</a></td><td>1</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/plasma_residue.html">Plasma Residue</a></td><td>1</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/thorium_ore.html">Thorium Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/tritium_ice.html">Tritium Ice</a></td><td>6</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_overcharge_cell <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/power_core.html">Power Core</a></td><td>1</td></tr><tr><td><a href="../items/refined/refined_plasma_core.html">Refined Plasma Core</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -30,13 +59,13 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">225</td>
+ <td class="infeasible">141</td>
  <td>4/10</td>
  <td class="infeasible">428</td>
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
- <td class="neg">-223</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -51,25 +80,25 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">714</td>
  <td>6/10</td>
  <td class="">3,450</td>
  <td>yes</td>
  <td>build_overcharge_cell</td>
- <td class="neg">-591</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">2,644</td>
+ <td class="infeasible">2,643</td>
  <td>3/10</td>
  <td class="infeasible">286</td>
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
- <td class="neg">-2,642</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -112,7 +141,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_overcharge_cell</td>
- <td class="pos">825</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,7 +149,7 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">733</td>
  <td>4/10</td>
- <td class="infeasible">3,287</td>
+ <td class="infeasible">3,290</td>
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">70</td>
  <td>2/10</td>
- <td class="infeasible">3,425</td>
+ <td class="infeasible">3,324</td>
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
@@ -140,7 +169,7 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">204</td>
+ <td class="infeasible">205</td>
  <td>2/10</td>
  <td class="infeasible">0</td>
  <td>no</td>
@@ -179,11 +208,11 @@
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
- <td class="neg">-33</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">780</td>
  <td>2/10</td>
  <td class="infeasible">0</td>
@@ -206,7 +235,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">1,957</td>
+ <td class="infeasible">1,959</td>
  <td>4/10</td>
  <td class="infeasible">0</td>
  <td>no</td>
@@ -219,11 +248,11 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">1,748</td>
  <td>5/10</td>
- <td class="infeasible">3,321</td>
+ <td class="infeasible">3,285</td>
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
- <td class="neg">-1,746</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">2,885</td>
  <td>3/10</td>
- <td class="infeasible">311</td>
+ <td class="infeasible">629</td>
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">5</td>
  <td>1/10</td>
  <td class="infeasible">0</td>
@@ -293,7 +322,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/10</td>
  <td class="infeasible">0</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>build_overcharge_cell</td>
  <td class="">—</td>
- <td class="neg">-58</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">340</td>
  <td>2/10</td>
  <td class="infeasible">0</td>

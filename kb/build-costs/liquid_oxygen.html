@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Liquid Oxygen <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/refined/liquid_oxygen.html">View Liquid Oxygen in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td>6</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>liquefy_oxygen <small>yields 3</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -51,7 +80,7 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">30</td>
  <td>1/1</td>
  <td class="infeasible">0</td>
@@ -69,7 +98,7 @@
  <td>no</td>
  <td>liquefy_oxygen</td>
  <td class="">—</td>
- <td class="pos">2</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -113,7 +142,7 @@
  <td>no</td>
  <td>liquefy_oxygen</td>
  <td class="">—</td>
- <td class="pos">158</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -183,8 +212,8 @@
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
- <td class="">6</td>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="">12</td>
  <td>1/1</td>
  <td class="infeasible">0</td>
  <td>no</td>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">0</td>
  <td>0/1</td>
  <td class="">211</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="">198</td>
  <td>1/1</td>
- <td class="">200</td>
+ <td class="">112</td>
  <td>yes</td>
  <td>liquefy_oxygen</td>
  <td class="">—</td>
@@ -293,7 +322,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="">4,716</td>
  <td>1/1</td>
  <td class="infeasible">0</td>
@@ -305,28 +334,28 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="">37,968</td>
- <td>1/1</td>
+ <td class="infeasible">0</td>
+ <td>0/1</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>liquefy_oxygen</td>
  <td class="">—</td>
- <td class="neg">-37,966</td>
-</tr>
-
-<tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3,023</td>
- <td>0/1</td>
- <td class="">64</td>
- <td>yes</td>
- <td>liquefy_oxygen</td>
- <td class="neg">-2,063</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td class="infeasible">0</td>
+ <td>0/1</td>
+ <td class="">109</td>
+ <td>yes</td>
+ <td>liquefy_oxygen</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="">156</td>
  <td>1/1</td>
  <td class="infeasible">0</td>

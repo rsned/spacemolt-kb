@@ -7,12 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Highly Enriched Uranium <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/refined/highly_enriched_uranium.html">View Highly Enriched Uranium in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>12</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>12</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>72</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>enrich_uranium_high <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/low_enriched_uranium.html">Low-Enriched Uranium</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+<h3>unwrap_highly_enriched_uranium <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/contained_highly_enriched_uranium.html">Contained Highly Enriched Uranium</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -30,13 +67,13 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">12</td>
- <td>1/3</td>
+ <td class="infeasible">0</td>
+ <td>0/3</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="pos">11,988</td>
- <td class="neg">-10</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,30 +83,30 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="pos">2</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">500</td>
  <td>1/3</td>
  <td class="">20,000</td>
  <td>yes</td>
  <td>unwrap_highly_enriched_uranium</td>
- <td class="neg">-78</td>
- <td class="neg">-499</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">936</td>
  <td>1/3</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="">15,371</td>
+ <td>yes</td>
  <td>enrich_uranium_high</td>
- <td class="pos">11,064</td>
- <td class="neg">-934</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -112,8 +149,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="neg">-33,454</td>
- <td class="neg">-36,599</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -156,7 +193,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="pos">14,988</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -178,12 +215,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="pos">1,611</td>
- <td class="pos">2</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/3</td>
  <td class="infeasible">0</td>
@@ -223,7 +260,7 @@
  <td>no</td>
  <td>enrich_uranium_high</td>
  <td class="">—</td>
- <td class="pos">2</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -244,8 +281,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="pos">12,000</td>
- <td class="pos">1</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,7 +297,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">0</td>
  <td>0/3</td>
  <td class="infeasible">0</td>
@@ -288,12 +325,12 @@
  <td class="">8,320</td>
  <td>yes</td>
  <td>unwrap_highly_enriched_uranium</td>
- <td class="pos">7,680</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/3</td>
  <td class="infeasible">0</td>
@@ -310,8 +347,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="pos">14,840</td>
- <td class="neg">-158</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,12 +358,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>enrich_uranium_high</td>
- <td class="pos">9,084</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">0</td>
  <td>0/3</td>
  <td class="infeasible">0</td>

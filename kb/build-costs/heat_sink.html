@@ -7,12 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Heat Sink <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/heat_sink.html">View Heat Sink in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>heat_sink_casting <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/aluminum_sheet.html">Aluminum Sheet</a></td><td>6</td></tr><tr><td><a href="../items/refined/copper_piping.html">Copper Piping</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+<h3>recover_heat_sinks <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/salvage_components.html">Salvage Components</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -25,7 +62,7 @@
  <td>no</td>
  <td>recover_heat_sinks</td>
  <td class="">—</td>
- <td class="neg">-10</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -35,7 +72,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="neg">-703</td>
+ <td class="neg">-701</td>
  <td class="neg">-784</td>
 </tr>
 
@@ -43,15 +80,15 @@
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">40</td>
  <td>2/4</td>
- <td class="">80</td>
+ <td class="">77</td>
  <td>yes</td>
  <td>heat_sink_casting</td>
- <td class="pos">42</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">220</td>
  <td>4/4</td>
  <td class="">90</td>
@@ -68,7 +105,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="pos">58</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -90,7 +127,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="neg">-544</td>
+ <td class="neg">-567</td>
  <td class="">—</td>
 </tr>
 
@@ -101,7 +138,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>heat_sink_casting</td>
- <td class="neg">-166</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -112,7 +149,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="neg">-2,720</td>
+ <td class="neg">-2,724</td>
  <td class="neg">-2,767</td>
 </tr>
 
@@ -123,7 +160,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>heat_sink_casting</td>
- <td class="neg">-138</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,18 +171,18 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="neg">-146</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">52</td>
+ <td class="infeasible">58</td>
  <td>3/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="pos">70</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -156,7 +193,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>heat_sink_casting</td>
- <td class="pos">72</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -167,7 +204,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="neg">-18</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -178,18 +215,18 @@
  <td class="">46</td>
  <td>yes</td>
  <td>heat_sink_casting</td>
- <td class="pos">48</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">49</td>
  <td>2/4</td>
  <td class="">75</td>
  <td>yes</td>
  <td>heat_sink_casting</td>
- <td class="pos">35</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -200,7 +237,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="pos">48</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -211,7 +248,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>heat_sink_casting</td>
- <td class="pos">46</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -233,7 +270,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>heat_sink_casting</td>
- <td class="neg">-122</td>
+ <td class="neg">-125</td>
  <td class="">—</td>
 </tr>
 
@@ -244,7 +281,7 @@
  <td class="">77</td>
  <td>yes</td>
  <td>heat_sink_casting</td>
- <td class="neg">-136</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -260,13 +297,13 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">10</td>
  <td>1/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="pos">71</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -288,12 +325,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="pos">50</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">139</td>
  <td>2/4</td>
  <td class="infeasible">0</td>
@@ -311,7 +348,7 @@
  <td>no</td>
  <td>heat_sink_casting</td>
  <td class="">—</td>
- <td class="neg">-53</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,13 +363,13 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">94</td>
  <td>2/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>recover_heat_sinks</td>
- <td class="neg">-12</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 

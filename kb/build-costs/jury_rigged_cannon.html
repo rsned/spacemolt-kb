@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Jury-Rigged Cannon <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/weapon/jury_rigged_cannon.html">View Jury-Rigged Cannon in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>81</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>30</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>3</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>53</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>15</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>7</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>31</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_jury_rigged_cannon <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>3</td></tr><tr><td><a href="../items/refined/durasteel_plate.html">Durasteel Plate</a></td><td>3</td></tr><tr><td><a href="../items/component/heat_sink.html">Heat Sink</a></td><td>3</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td>12</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">211</td>
+ <td class="infeasible">121</td>
  <td>1/8</td>
- <td class="infeasible">1,916</td>
+ <td class="infeasible">2,410</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -32,32 +61,32 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">19,605</td>
  <td>5/8</td>
- <td class="infeasible">4,103</td>
+ <td class="infeasible">3,335</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
- <td class="neg">-19,603</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">956</td>
  <td>3/8</td>
- <td class="infeasible">1,552</td>
+ <td class="infeasible">1,540</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
- <td class="neg">-688</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">7,001</td>
  <td>6/8</td>
- <td class="infeasible">1,707</td>
+ <td class="infeasible">1,719</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
- <td class="neg">-6,733</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -65,18 +94,18 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">7,755</td>
  <td>3/8</td>
- <td class="infeasible">3,831</td>
+ <td class="infeasible">5,415</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
- <td class="neg">-7,623</td>
- <td class="neg">-7,753</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">112</td>
  <td>2/8</td>
- <td class="infeasible">3,959</td>
+ <td class="infeasible">3,725</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -87,7 +116,7 @@
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">3,919</td>
  <td>0/8</td>
- <td class="infeasible">2,271</td>
+ <td class="infeasible">2,202</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">53,125</td>
  <td>2/8</td>
- <td class="infeasible">954</td>
+ <td class="infeasible">846</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -109,7 +138,7 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">50,331</td>
  <td>5/8</td>
- <td class="infeasible">5,137</td>
+ <td class="infeasible">5,134</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">3,104</td>
  <td>0/8</td>
- <td class="infeasible">2,285</td>
+ <td class="infeasible">2,802</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -140,12 +169,12 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">754</td>
+ <td class="infeasible">768</td>
  <td>3/8</td>
- <td class="infeasible">2,367</td>
+ <td class="infeasible">2,376</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
- <td class="pos">2,606</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">81</td>
  <td>1/8</td>
- <td class="infeasible">888</td>
+ <td class="infeasible">885</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">1,153</td>
  <td>2/8</td>
- <td class="infeasible">1,602</td>
+ <td class="infeasible">3,159</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -175,18 +204,18 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">70,472</td>
  <td>3/8</td>
- <td class="infeasible">2,290</td>
+ <td class="infeasible">2,032</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
- <td class="neg">-70,204</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">467</td>
  <td>2/8</td>
- <td class="infeasible">3,808</td>
+ <td class="infeasible">5,362</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -197,7 +226,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">298</td>
  <td>2/8</td>
- <td class="infeasible">963</td>
+ <td class="infeasible">948</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -208,7 +237,7 @@
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">275</td>
  <td>2/8</td>
- <td class="infeasible">240</td>
+ <td class="infeasible">243</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -219,18 +248,18 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">54,776</td>
  <td>4/8</td>
- <td class="infeasible">849</td>
+ <td class="infeasible">840</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
- <td class="neg">-54,774</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">3,994</td>
  <td>5/8</td>
- <td class="infeasible">1,281</td>
+ <td class="infeasible">2,832</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -241,7 +270,7 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">2,264</td>
  <td>2/8</td>
- <td class="infeasible">1,651</td>
+ <td class="infeasible">3,205</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -260,10 +289,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>0/8</td>
- <td class="infeasible">837</td>
+ <td class="infeasible">846</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -272,9 +301,9 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">2,146</td>
+ <td class="infeasible">2,143</td>
  <td>1/8</td>
- <td class="infeasible">723</td>
+ <td class="infeasible">732</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -285,18 +314,18 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">327</td>
  <td>1/8</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">231</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
- <td class="neg">-59</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">2,031</td>
  <td>1/8</td>
- <td class="infeasible">1,680</td>
+ <td class="infeasible">1,430</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>
- <td class="neg">-558</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,15 +350,15 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
- <td class="neg">-228</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">724</td>
  <td>1/8</td>
- <td class="infeasible">246</td>
+ <td class="infeasible">237</td>
  <td>no</td>
  <td>build_jury_rigged_cannon</td>
  <td class="">—</td>

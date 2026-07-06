@@ -7,19 +7,48 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Dark Energy Cell <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/refined/dark_energy_cell.html">View Dark Energy Cell in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/dark_matter_residue.html">Dark Matter Residue</a></td><td>3</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>20</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/plasma_gas.html">Plasma Gas</a></td><td>6</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>16</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>assemble_dark_energy_cell <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/condensed_dark_matter.html">Condensed Dark Matter</a></td><td>1</td></tr><tr><td><a href="../items/refined/plasma_cell.html">Plasma Cell</a></td><td>2</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">950</td>
+ <td class="infeasible">475</td>
  <td>0/7</td>
  <td class="infeasible">0</td>
  <td>no</td>
@@ -30,7 +59,7 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">890</td>
+ <td class="infeasible">554</td>
  <td>4/7</td>
  <td class="infeasible">1,102</td>
  <td>no</td>
@@ -41,7 +70,7 @@
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">1,810</td>
+ <td class="infeasible">6,166</td>
  <td>4/7</td>
  <td class="">3,437</td>
  <td>yes</td>
@@ -51,7 +80,7 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">3,722</td>
  <td>5/7</td>
  <td class="infeasible">1,830</td>
@@ -63,9 +92,9 @@
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">10,540</td>
+ <td class="infeasible">10,538</td>
  <td>3/7</td>
- <td class="infeasible">1,296</td>
+ <td class="infeasible">1,308</td>
  <td>no</td>
  <td>assemble_dark_energy_cell</td>
  <td class="">—</td>
@@ -109,7 +138,7 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">10,680</td>
  <td>3/7</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">1,446</td>
  <td>no</td>
  <td>assemble_dark_energy_cell</td>
  <td class="">—</td>
@@ -140,9 +169,9 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">716</td>
+ <td class="infeasible">720</td>
  <td>1/7</td>
- <td class="infeasible">468</td>
+ <td class="infeasible">474</td>
  <td>no</td>
  <td>assemble_dark_energy_cell</td>
  <td class="">—</td>
@@ -173,7 +202,7 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">1,000,139</td>
+ <td class="infeasible">140</td>
  <td>1/7</td>
  <td class="infeasible">1,258</td>
  <td>no</td>
@@ -183,10 +212,10 @@
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">2,650</td>
  <td>3/7</td>
- <td class="infeasible">451</td>
+ <td class="infeasible">457</td>
  <td>no</td>
  <td>assemble_dark_energy_cell</td>
  <td class="">—</td>
@@ -206,7 +235,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">396</td>
+ <td class="infeasible">407</td>
  <td>3/7</td>
  <td class="infeasible">1,324</td>
  <td>no</td>
@@ -217,7 +246,7 @@
 
 <tr>
  <td>nova_terra_central</td><td>Independent</td>
- <td class="infeasible">262</td>
+ <td class="infeasible">184</td>
  <td>3/7</td>
  <td class="infeasible">1,258</td>
  <td>no</td>
@@ -239,7 +268,7 @@
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
- <td class="infeasible">3,266</td>
+ <td class="infeasible">3,272</td>
  <td>5/7</td>
  <td class="infeasible">318</td>
  <td>no</td>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">10</td>
  <td>0/7</td>
  <td class="infeasible">3,514</td>
@@ -274,7 +303,7 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/7</td>
- <td class="infeasible">332</td>
+ <td class="infeasible">318</td>
  <td>no</td>
  <td>assemble_dark_energy_cell</td>
  <td class="">—</td>
@@ -293,7 +322,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/7</td>
  <td class="infeasible">1,600</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>assemble_dark_energy_cell</td>
  <td class="">—</td>
- <td class="neg">-18</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">1,280</td>
  <td>2/7</td>
  <td class="infeasible">0</td>

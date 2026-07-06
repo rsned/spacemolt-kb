@@ -7,19 +7,40 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Magnate <small>(ship)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../ships/all.html">View Magnate in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>20052</td></tr><tr><td><a href="../items/ore/cobalt_ore.html">Cobalt Ore</a></td><td>88</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>1324</td></tr><tr><td><a href="../items/ore/dark_matter_residue.html">Dark Matter Residue</a></td><td>90</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>1480</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>1988</td></tr><tr><td><a href="../items/ore/fury_crystal.html">Fury Crystal</a></td><td>336</td></tr><tr><td><a href="../items/ore/helium_ice.html">Helium Ice</a></td><td>160</td></tr><tr><td><a href="../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td><td>480</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>320</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>9916</td></tr><tr><td><a href="../items/ore/krypton_gas.html">Krypton Gas</a></td><td>200</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>44</td></tr><tr><td><a href="../items/ore/neon_gas.html">Neon Gas</a></td><td>200</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>3390</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>684</td></tr><tr><td><a href="../items/ore/null_matter.html">Null Matter</a></td><td>272</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1260</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>518</td></tr><tr><td><a href="../items/ore/polonium_ore.html">Polonium Ore</a></td><td>40</td></tr><tr><td><a href="../items/ore/prismatic_nebulite.html">Prismatic Nebulite</a></td><td>114</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>1886</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>2560</td></tr><tr><td><a href="../items/ore/sol_alloy_ore.html">Sol Alloy Ore</a></td><td>156</td></tr><tr><td><a href="../items/ore/thorium_ore.html">Thorium Ore</a></td><td>4320</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>3386</td></tr><tr><td><a href="../items/ore/tritium_ice.html">Tritium Ice</a></td><td>960</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>6106</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>4016</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td>360</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe</h2>
+<p class="infeasible">sub-assemblies not market-traded</p>
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">244,796</td>
+ <td class="infeasible">246,094</td>
  <td>3/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -30,7 +51,7 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">1,192,815</td>
+ <td class="infeasible">1,156,148</td>
  <td>9/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -41,7 +62,7 @@
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">460,490</td>
+ <td class="infeasible">427,010</td>
  <td>2/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -51,8 +72,8 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
- <td class="infeasible">3,078,950</td>
+ <td>sol_central</td><td>solarian</td>
+ <td class="infeasible">2,843,282</td>
  <td>16/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -63,7 +84,7 @@
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">430,382</td>
+ <td class="infeasible">430,030</td>
  <td>2/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -74,7 +95,7 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">8,971</td>
+ <td class="infeasible">8,940</td>
  <td>2/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -107,7 +128,7 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">14,575,680</td>
+ <td class="infeasible">14,575,337</td>
  <td>11/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -118,7 +139,7 @@
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">154,432</td>
+ <td class="infeasible">94,432</td>
  <td>2/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -140,7 +161,7 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">417,968</td>
+ <td class="infeasible">417,982</td>
  <td>2/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -173,7 +194,7 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">2,848,312</td>
+ <td class="infeasible">848,314</td>
  <td>3/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -183,9 +204,9 @@
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
- <td class="infeasible">120,061</td>
- <td>2/30</td>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="infeasible">120,015</td>
+ <td>1/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
  <td></td>
@@ -195,7 +216,7 @@
 
 <tr>
  <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="infeasible">687,450</td>
+ <td class="infeasible">687,810</td>
  <td>1/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -206,7 +227,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">313,301</td>
+ <td class="infeasible">313,312</td>
  <td>2/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -260,7 +281,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">2,787</td>
  <td>0/30</td>
  <td class="infeasible">n/a</td>
@@ -272,7 +293,7 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">40,213</td>
+ <td class="infeasible">40,203</td>
  <td>1/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -283,7 +304,7 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">195,238</td>
+ <td class="infeasible">165,240</td>
  <td>1/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -293,7 +314,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">48,222</td>
  <td>1/30</td>
  <td class="infeasible">n/a</td>
@@ -305,7 +326,7 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">2,269,830</td>
+ <td class="infeasible">53,544</td>
  <td>1/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -316,7 +337,7 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">28,986</td>
+ <td class="infeasible">25,963</td>
  <td>1/30</td>
  <td class="infeasible">n/a</td>
  <td>sub-assemblies not traded</td>
@@ -326,7 +347,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">194,661</td>
  <td>1/30</td>
  <td class="infeasible">n/a</td>

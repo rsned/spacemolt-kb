@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Lead Shielding <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/lead_shielding.html">View Lead Shielding in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>8</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>roll_lead_shielding <small>yields 4</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/lead_sheet.html">Lead Sheet</a></td><td>10</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td>4</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -32,7 +61,7 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">705</td>
  <td>2/3</td>
- <td class="">294</td>
+ <td class="">298</td>
  <td>yes</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -51,7 +80,7 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">8,075</td>
  <td>3/3</td>
  <td class="infeasible">0</td>
@@ -65,7 +94,7 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">3</td>
  <td>1/3</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">131</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -76,7 +105,7 @@
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">1</td>
  <td>1/3</td>
- <td class="">293</td>
+ <td class="">275</td>
  <td>yes</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -135,7 +164,7 @@
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
- <td class="pos">776</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/3</td>
- <td class="infeasible">148</td>
+ <td class="infeasible">144</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">4</td>
  <td>1/3</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">130</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -175,7 +204,7 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">10</td>
  <td>1/3</td>
- <td class="infeasible">163</td>
+ <td class="infeasible">160</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -183,10 +212,10 @@
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">2</td>
  <td>1/3</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">131</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -230,18 +259,18 @@
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">110</td>
  <td>2/3</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">130</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
- <td class="pos">714</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">114</td>
  <td>2/3</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">130</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">5</td>
  <td>1/3</td>
  <td class="infeasible">0</td>
@@ -289,11 +318,11 @@
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
- <td class="pos">801</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">130</td>
  <td>1/3</td>
  <td class="infeasible">38</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
- <td class="neg">-3</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -322,18 +351,18 @@
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
- <td class="pos">816</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">14</td>
  <td>1/3</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>roll_lead_shielding</td>
  <td class="">—</td>
- <td class="pos">802</td>
+ <td class="">—</td>
 </tr>
 
 </tbody>

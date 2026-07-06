@@ -7,21 +7,50 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Focused Beam II <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/weapon/focused_beam_ii.html">View Focused Beam II in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>660</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>8</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>33</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>5</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_focused_beam_ii <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td>5</td></tr><tr><td><a href="../items/component/laser_focus_array.html">Laser Focus Array</a></td><td>2</td></tr><tr><td><a href="../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td><td>3</td></tr><tr><td><a href="../items/component/power_cell.html">Power Cell</a></td><td>2</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">842</td>
+ <td class="infeasible">752</td>
  <td>2/12</td>
- <td class="infeasible">2,822</td>
+ <td class="infeasible">3,066</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
  <td class="">—</td>
@@ -30,13 +59,13 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">2,072</td>
- <td>6/12</td>
- <td class="infeasible">674</td>
+ <td class="infeasible">1,650</td>
+ <td>5/12</td>
+ <td class="infeasible">294</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
  <td class="">—</td>
- <td class="neg">-2,070</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,18 +75,18 @@
  <td class="infeasible">918</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="neg">-34,614</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">4,508</td>
  <td>8/12</td>
  <td class="infeasible">7,258</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="neg">-3,903</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -68,8 +97,8 @@
  <td class="infeasible">10,385</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="pos">10,738</td>
- <td class="neg">-838</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -98,10 +127,10 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">4,518</td>
  <td>4/12</td>
- <td class="infeasible">330</td>
+ <td class="infeasible">74</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="pos">7,121</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -112,7 +141,7 @@
  <td class="infeasible">653</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="pos">758</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,10 +149,10 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">15,127</td>
  <td>6/12</td>
- <td class="infeasible">6,122</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="neg">-3,376</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -131,7 +160,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">16,209</td>
  <td>1/12</td>
- <td class="infeasible">658</td>
+ <td class="infeasible">924</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
  <td class="">—</td>
@@ -140,7 +169,7 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">45,813</td>
+ <td class="infeasible">45,821</td>
  <td>5/12</td>
  <td class="infeasible">760</td>
  <td>no</td>
@@ -164,7 +193,7 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">12,128</td>
  <td>3/12</td>
- <td class="infeasible">681</td>
+ <td class="infeasible">733</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
  <td class="">—</td>
@@ -173,17 +202,17 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">660,019,583</td>
- <td>5/12</td>
- <td class="infeasible">718</td>
+ <td class="infeasible">20,243</td>
+ <td>4/12</td>
+ <td class="infeasible">665</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="neg">-660,002,583</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">23,224</td>
  <td>3/12</td>
  <td class="infeasible">653</td>
@@ -200,18 +229,18 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="neg">-21,572</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">2,193</td>
+ <td class="infeasible">2,204</td>
  <td>4/12</td>
  <td class="infeasible">10,000</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="pos">9,385</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -222,8 +251,8 @@
  <td class="infeasible">5,094</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="neg">-10,885</td>
- <td class="neg">-22,159</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -255,12 +284,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="neg">-8</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">2,660</td>
  <td>2/12</td>
  <td class="infeasible">1,570</td>
@@ -288,12 +317,12 @@
  <td class="infeasible">435</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
- <td class="pos">10,313</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">284</td>
  <td>2/12</td>
  <td class="infeasible">715</td>
@@ -311,14 +340,14 @@
  <td>no</td>
  <td>build_focused_beam_ii</td>
  <td class="">—</td>
- <td class="neg">-368</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
  <td class="infeasible">1,294</td>
  <td>3/12</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">245</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
  <td class="">—</td>
@@ -326,10 +355,10 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">1,514</td>
  <td>3/12</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">54</td>
  <td>no</td>
  <td>build_focused_beam_ii</td>
  <td class="">—</td>

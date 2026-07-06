@@ -7,57 +7,86 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Anomaly Detector <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/utility/anomaly_detector.html">View Anomaly Detector in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>21</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>18</td></tr><tr><td><a href="../items/material/exotic_crystal.html">Exotic Crystal</a></td><td>2</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>12</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/krypton_gas.html">Krypton Gas</a></td><td>6</td></tr><tr><td><a href="../items/ore/neon_gas.html">Neon Gas</a></td><td>6</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>15</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>12</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_anomaly_detector_module <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td>4</td></tr><tr><td><a href="../items/material/exotic_crystal.html">Exotic Crystal</a></td><td>2</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td>3</td></tr><tr><td><a href="../items/component/processing_core.html">Processing Core</a></td><td>1</td></tr><tr><td><a href="../items/component/sensor_array.html">Sensor Array</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">392</td>
+ <td class="infeasible">302</td>
  <td>2/13</td>
  <td class="infeasible">7,230</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">15,990</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">35,033</td>
+ <td class="infeasible">34,529</td>
  <td>8/13</td>
- <td class="infeasible">33,587</td>
+ <td class="infeasible">33,656</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="neg">-12,615</td>
- <td class="neg">-35,031</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">1,424</td>
  <td>4/13</td>
- <td class="infeasible">4,022</td>
+ <td class="infeasible">159</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="neg">-867</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">8,276</td>
  <td>8/13</td>
- <td class="infeasible">4,870</td>
+ <td class="infeasible">4,900</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">9,657</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -65,11 +94,11 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">1,032</td>
  <td>4/13</td>
- <td class="infeasible">11,087</td>
+ <td class="infeasible">11,100</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">16,042</td>
- <td class="neg">-1,030</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -79,7 +108,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">17,547</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -90,7 +119,7 @@
  <td class="infeasible">1,959</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">10,948</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,10 +127,10 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">4,436</td>
  <td>5/13</td>
- <td class="infeasible">198</td>
+ <td class="infeasible">74</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">13,497</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -112,7 +141,7 @@
  <td class="infeasible">4,000</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">13,925</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -123,7 +152,7 @@
  <td class="infeasible">2,663</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">7,923</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,18 +163,18 @@
  <td class="infeasible">3,506</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">9,929</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">3,796</td>
+ <td class="infeasible">3,802</td>
  <td>5/13</td>
- <td class="infeasible">2,592</td>
+ <td class="infeasible">2,586</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">14,310</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -153,10 +182,10 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">893</td>
  <td>4/13</td>
- <td class="infeasible">2,974</td>
+ <td class="infeasible">3,000</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">20,627</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -164,10 +193,10 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">6,394</td>
  <td>4/13</td>
- <td class="infeasible">9,723</td>
+ <td class="infeasible">9,843</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">11,708</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -175,21 +204,21 @@
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">120,528</td>
  <td>6/13</td>
- <td class="infeasible">2,680</td>
+ <td class="infeasible">2,627</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="neg">-116,866</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">12,747</td>
  <td>4/13</td>
- <td class="infeasible">2,590</td>
+ <td class="infeasible">0</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">10,118</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -200,18 +229,18 @@
  <td class="infeasible">2,710</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">6,555</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">1,926</td>
+ <td class="infeasible">1,937</td>
  <td>4/13</td>
- <td class="infeasible">8,997</td>
+ <td class="infeasible">9,057</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">15,838</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -219,11 +248,11 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">12,451</td>
  <td>6/13</td>
- <td class="infeasible">2,788</td>
+ <td class="infeasible">2,770</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">4,099</td>
- <td class="neg">-12,449</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -255,18 +284,18 @@
  <td class="infeasible">2,640</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">9,270</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">30</td>
  <td>0/13</td>
- <td class="infeasible">8,321</td>
+ <td class="infeasible">5,790</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">16,692</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -277,7 +306,7 @@
  <td class="infeasible">2,064</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">16,062</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -285,21 +314,21 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">216</td>
  <td>4/13</td>
- <td class="infeasible">2,726</td>
+ <td class="infeasible">171</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">12,584</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">803</td>
  <td>3/13</td>
- <td class="infeasible">2,626</td>
+ <td class="infeasible">2,407</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">15,919</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -307,29 +336,29 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">433</td>
  <td>4/13</td>
- <td class="infeasible">2,587</td>
+ <td class="infeasible">2,627</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="pos">20,866</td>
- <td class="neg">-431</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
  <td class="infeasible">1,786</td>
  <td>3/13</td>
- <td class="infeasible">2,514</td>
+ <td class="infeasible">2,792</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
- <td class="neg">-1,224</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">2,069</td>
  <td>4/13</td>
- <td class="infeasible">0</td>
+ <td class="infeasible">54</td>
  <td>no</td>
  <td>build_anomaly_detector_module</td>
  <td class="">—</td>

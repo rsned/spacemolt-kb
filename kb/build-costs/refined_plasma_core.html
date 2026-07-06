@@ -7,12 +7,49 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Refined Plasma Core <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/refined/refined_plasma_core.html">View Refined Plasma Core in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/plasma_residue.html">Plasma Residue</a></td><td>2</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>8</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>condense_plasma_residue <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/plasma_residue.html">Plasma Residue</a></td><td>2</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+<h3>stabilize_plasma_gas <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/plasma_gas.html">Plasma Gas</a></td><td>5</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -30,12 +67,12 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">205</td>
+ <td class="infeasible">37</td>
  <td>2/4</td>
  <td class="infeasible">530</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">650</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -46,30 +83,30 @@
  <td class="infeasible">30</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="neg">-403</td>
- <td class="neg">-428</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">1,022</td>
  <td>3/4</td>
  <td class="">1,167</td>
  <td>yes</td>
  <td>condense_plasma_residue</td>
- <td class="neg">-122</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">270</td>
+ <td class="infeasible">269</td>
  <td>2/4</td>
- <td class="infeasible">629</td>
+ <td class="infeasible">635</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">302</td>
- <td class="neg">-268</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -79,7 +116,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">155</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -109,9 +146,9 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">50</td>
  <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>stabilize_plasma_gas</td>
+ <td class="">733</td>
+ <td>yes</td>
+ <td>condense_plasma_residue</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -156,7 +193,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">745</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -178,12 +215,12 @@
  <td class="infeasible">629</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">119</td>
- <td class="neg">-68</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">80</td>
  <td>1/4</td>
  <td class="infeasible">0</td>
@@ -206,7 +243,7 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">180</td>
+ <td class="infeasible">184</td>
  <td>2/4</td>
  <td class="infeasible">629</td>
  <td>no</td>
@@ -219,7 +256,7 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">547</td>
  <td>2/4</td>
- <td class="">739</td>
+ <td class="">674</td>
  <td>yes</td>
  <td>stabilize_plasma_gas</td>
  <td class="">—</td>
@@ -255,12 +292,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">621</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">10</td>
  <td>1/4</td>
  <td class="infeasible">257</td>
@@ -288,12 +325,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">2</td>
- <td class="neg">-1</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/4</td>
  <td class="infeasible">800</td>
@@ -321,12 +358,12 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>condense_plasma_residue</td>
- <td class="pos">51</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">590</td>
  <td>2/4</td>
  <td class="infeasible">0</td>

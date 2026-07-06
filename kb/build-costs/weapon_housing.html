@@ -7,25 +7,62 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Weapon Housing <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/weapon_housing.html">View Weapon Housing in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>fabricate_weapon_housing <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td>3</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+<h3>forge_weapon_housings <small>yields 3</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/salvage_components.html">Salvage Components</a></td><td>4</td></tr><tr><td><a href="../items/component/salvage_metal.html">Salvage Metal</a></td><td>15</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">182</td>
+ <td class="infeasible">92</td>
  <td>1/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_weapon_housings</td>
- <td class="pos">485</td>
- <td class="pos">364</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -35,26 +72,26 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_weapon_housings</td>
- <td class="neg">-886</td>
- <td class="neg">-1,266</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">100</td>
  <td>2/5</td>
- <td class="">745</td>
- <td>yes</td>
- <td>fabricate_weapon_housing</td>
- <td class="pos">553</td>
+ <td class="infeasible">0</td>
+ <td>no</td>
+ <td>forge_weapon_housings</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">1,412</td>
  <td>5/5</td>
- <td class="">589</td>
+ <td class="">595</td>
  <td>yes</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
@@ -65,11 +102,11 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">54</td>
  <td>2/5</td>
- <td class="">637</td>
+ <td class="">599</td>
  <td>yes</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
- <td class="neg">-52</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -79,19 +116,19 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_weapon_housings</td>
- <td class="pos">682</td>
- <td class="pos">520</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">1,494</td>
  <td>4/5</td>
- <td class="">686</td>
+ <td class="">697</td>
  <td>yes</td>
  <td>fabricate_weapon_housing</td>
- <td class="neg">-831</td>
- <td class="neg">-948</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -109,11 +146,11 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">8,252</td>
  <td>4/5</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>forge_weapon_housings</td>
- <td class="neg">-7,599</td>
- <td class="neg">-8,217</td>
+ <td class="">2,006</td>
+ <td>yes</td>
+ <td>fabricate_weapon_housing</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -134,19 +171,19 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_weapon_housings</td>
- <td class="pos">430</td>
- <td class="pos">318</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">82</td>
+ <td class="infeasible">88</td>
  <td>3/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>fabricate_weapon_housing</td>
- <td class="pos">578</td>
- <td class="pos">212</td>
+ <td>forge_weapon_housings</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -157,7 +194,7 @@
  <td>no</td>
  <td>forge_weapon_housings</td>
  <td class="">—</td>
- <td class="pos">522</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -167,29 +204,29 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>fabricate_weapon_housing</td>
- <td class="pos">433</td>
- <td class="pos">298</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="infeasible">20,068</td>
  <td>3/5</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>forge_weapon_housings</td>
- <td class="neg">-19,403</td>
+ <td class="">805</td>
+ <td>yes</td>
+ <td>fabricate_weapon_housing</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">124</td>
  <td>2/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>fabricate_weapon_housing</td>
- <td class="pos">529</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -197,7 +234,7 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">34</td>
  <td>2/5</td>
- <td class="">612</td>
+ <td class="">618</td>
  <td>yes</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
@@ -244,8 +281,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_weapon_housings</td>
- <td class="pos">382</td>
- <td class="pos">227</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,14 +297,14 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">10</td>
  <td>1/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
- <td class="pos">536</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -278,14 +315,14 @@
  <td>no</td>
  <td>forge_weapon_housings</td>
  <td class="">—</td>
- <td class="pos">386</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">62</td>
  <td>2/5</td>
- <td class="">540</td>
+ <td class="">541</td>
  <td>yes</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
@@ -293,13 +330,13 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">284</td>
  <td>2/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>fabricate_weapon_housing</td>
- <td class="pos">431</td>
+ <td>forge_weapon_housings</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -310,7 +347,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>fabricate_weapon_housing</td>
- <td class="pos">558</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -326,14 +363,14 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">244</td>
  <td>2/5</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_weapon_housings</td>
  <td class="">—</td>
- <td class="pos">302</td>
+ <td class="">—</td>
 </tr>
 
 </tbody>

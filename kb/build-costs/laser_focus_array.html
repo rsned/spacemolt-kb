@@ -7,12 +7,41 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Laser Focus Array <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/laser_focus_array.html">View Laser Focus Array in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>240</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>5</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>assemble_laser_focus_array <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>3</td></tr><tr><td><a href="../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td><td>2</td></tr><tr><td><a href="../items/refined/reinforced_glass.html">Reinforced Glass</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
@@ -36,7 +65,7 @@
  <td>no</td>
  <td>assemble_laser_focus_array</td>
  <td class="">—</td>
- <td class="pos">70</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -51,14 +80,14 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">0</td>
  <td>0/2</td>
  <td class="infeasible">1,499</td>
  <td>no</td>
  <td>assemble_laser_focus_array</td>
- <td class="pos">2,519</td>
- <td class="pos">1,994</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -68,8 +97,8 @@
  <td class="infeasible">10</td>
  <td>no</td>
  <td>assemble_laser_focus_array</td>
- <td class="pos">2,600</td>
- <td class="pos">55</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -113,7 +142,7 @@
  <td>no</td>
  <td>assemble_laser_focus_array</td>
  <td class="">—</td>
- <td class="neg">-910</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -123,8 +152,8 @@
  <td class="infeasible">1,290</td>
  <td>no</td>
  <td>assemble_laser_focus_array</td>
- <td class="pos">911</td>
- <td class="pos">329</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -168,22 +197,22 @@
  <td>no</td>
  <td>assemble_laser_focus_array</td>
  <td class="">—</td>
- <td class="neg">-4,265</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">239,999,760</td>
- <td>1/2</td>
+ <td class="infeasible">0</td>
+ <td>0/2</td>
  <td class="infeasible">7</td>
  <td>no</td>
  <td>assemble_laser_focus_array</td>
  <td class="">—</td>
- <td class="neg">-239,999,710</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">3,500</td>
  <td>1/2</td>
  <td class="infeasible">2,115</td>
@@ -222,8 +251,8 @@
  <td class="infeasible">60</td>
  <td>no</td>
  <td>assemble_laser_focus_array</td>
- <td class="neg">-4,103</td>
- <td class="neg">-5,352</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -260,7 +289,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">960</td>
  <td>1/2</td>
  <td class="infeasible">0</td>
@@ -293,7 +322,7 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">0</td>
  <td>0/2</td>
  <td class="infeasible">0</td>
@@ -311,7 +340,7 @@
  <td>no</td>
  <td>assemble_laser_focus_array</td>
  <td class="">—</td>
- <td class="neg">-218</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,7 +355,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">20</td>
  <td>0/2</td>
  <td class="infeasible">0</td>

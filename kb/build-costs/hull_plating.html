@@ -7,25 +7,62 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Hull Plating <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/component/hull_plating.html">View Hull Plating in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>10</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>5</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>forge_hull_plating <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td>4</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+<h3>reforge_hull_plating <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/component/salvage_components.html">Salvage Components</a></td><td>2</td></tr><tr><td><a href="../items/component/salvage_metal.html">Salvage Metal</a></td><td>12</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">125</td>
- <td>2/4</td>
+ <td class="infeasible">95</td>
+ <td>1/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">580</td>
- <td class="pos">435</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -35,8 +72,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="neg">-2,887</td>
- <td class="neg">-3,025</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -45,13 +82,13 @@
  <td>2/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>reforge_hull_plating</td>
- <td class="pos">633</td>
- <td class="pos">357</td>
+ <td>forge_hull_plating</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="">971</td>
  <td>4/4</td>
  <td class="infeasible">0</td>
@@ -65,21 +102,21 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">39</td>
  <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
- <td class="pos">652</td>
- <td class="neg">-36</td>
+ <td class="">792</td>
+ <td>yes</td>
+ <td>forge_hull_plating</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">17</td>
  <td>2/4</td>
- <td class="">881</td>
+ <td class="">811</td>
  <td>yes</td>
  <td>forge_hull_plating</td>
- <td class="pos">495</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -90,7 +127,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="neg">-509</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -101,8 +138,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">113</td>
- <td class="neg">-543</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -112,8 +149,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="neg">-2,172</td>
- <td class="neg">-2,311</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -123,8 +160,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">321</td>
- <td class="pos">190</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -134,8 +171,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">282</td>
- <td class="pos">76</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -144,9 +181,9 @@
  <td>2/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>forge_hull_plating</td>
- <td class="pos">642</td>
- <td class="neg">-48</td>
+ <td>reforge_hull_plating</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -156,8 +193,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_hull_plating</td>
- <td class="pos">706</td>
- <td class="pos">547</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -166,8 +203,8 @@
  <td>2/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>forge_hull_plating</td>
- <td class="pos">551</td>
+ <td>reforge_hull_plating</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -178,19 +215,19 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="neg">-9,383</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">70</td>
  <td>2/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>forge_hull_plating</td>
- <td class="pos">621</td>
- <td class="pos">490</td>
+ <td>reforge_hull_plating</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -200,7 +237,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">666</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -211,7 +248,7 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_hull_plating</td>
- <td class="pos">666</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -222,29 +259,29 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="neg">-9,432</td>
- <td class="neg">-9,587</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">598</td>
  <td>3/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
- <td class="pos">100</td>
- <td class="neg">-563</td>
+ <td class="">783</td>
+ <td>yes</td>
+ <td>forge_hull_plating</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="infeasible">524</td>
  <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
- <td class="pos">167</td>
+ <td class="">884</td>
+ <td>yes</td>
+ <td>forge_hull_plating</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -255,19 +292,19 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">615</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">20</td>
  <td>0/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_hull_plating</td>
- <td class="pos">661</td>
- <td class="pos">655</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -277,8 +314,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">339</td>
- <td class="pos">193</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -288,18 +325,18 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">632</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">662</td>
  <td>2/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
- <td>forge_hull_plating</td>
- <td class="pos">29</td>
+ <td>reforge_hull_plating</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -310,8 +347,8 @@
  <td class="infeasible">0</td>
  <td>no</td>
  <td>forge_hull_plating</td>
- <td class="pos">606</td>
- <td class="neg">-83</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -326,13 +363,13 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">166</td>
  <td>2/4</td>
  <td class="infeasible">0</td>
  <td>no</td>
  <td>reforge_hull_plating</td>
- <td class="pos">532</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 

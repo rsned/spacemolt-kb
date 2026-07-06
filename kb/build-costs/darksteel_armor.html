@@ -7,36 +7,65 @@
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
+ .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
 </style>
 </head>
 <body>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Darksteel Armor <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/defense/darksteel_armor.html">View Darksteel Armor in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/ore/adamantite_ore.html">Adamantite Ore</a></td><td>15</td></tr><tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>36</td></tr><tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>36</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/darksteel_ore.html">Darksteel Ore</a></td><td>16</td></tr><tr><td><a href="../items/ore/energy_crystal.html">Energy Crystal</a></td><td>12</td></tr><tr><td><a href="../items/material/exotic_crystal.html">Exotic Crystal</a></td><td>6</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>48</td></tr><tr><td><a href="../items/ore/helium_ice.html">Helium Ice</a></td><td>12</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>82</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>125</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>48</td></tr><tr><td><a href="../items/ore/polonium_ore.html">Polonium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/thorium_ore.html">Thorium Ore</a></td><td>324</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/tritium_ice.html">Tritium Ice</a></td><td>72</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>41</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>288</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Recipe <small>(sub-assemblies)</small></h2>
+
+<h3>build_darksteel_armor <small>yields 1</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/refined/adamantite_bar.html">Adamantite Bar</a></td><td>3</td></tr><tr><td><a href="../items/refined/darksteel_plating.html">Darksteel Plating</a></td><td>8</td></tr><tr><td><a href="../items/refined/durasteel_plate.html">Durasteel Plate</a></td><td>4</td></tr><tr><td><a href="../items/refined/graphene_sheet.html">Graphene Sheet</a></td><td>6</td></tr><tr><td><a href="../items/component/hull_plating.html">Hull Plating</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
  <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">257</td>
+ <td class="infeasible">167</td>
  <td>2/18</td>
- <td class="infeasible">2,951</td>
+ <td class="infeasible">2,959</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="pos">15,916</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">572,068</td>
- <td>7/18</td>
- <td class="infeasible">3,076</td>
+ <td class="infeasible">572,020</td>
+ <td>6/18</td>
+ <td class="infeasible">3,064</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
- <td class="neg">-572,066</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -46,18 +75,18 @@
  <td class="infeasible">2,283</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="neg">-1,798</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">459,855</td>
  <td>8/18</td>
- <td class="infeasible">3,433</td>
+ <td class="infeasible">3,449</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="neg">-458,513</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -65,18 +94,18 @@
  <td>the_core</td><td>Independent</td>
  <td class="infeasible">64,567</td>
  <td>3/18</td>
- <td class="infeasible">5,609</td>
+ <td class="infeasible">5,633</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="neg">-64,564</td>
- <td class="neg">-64,565</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">750,187</td>
  <td>3/18</td>
- <td class="infeasible">2,718</td>
+ <td class="infeasible">2,683</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -90,7 +119,7 @@
  <td class="infeasible">4,125</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="pos">10,239</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -98,7 +127,7 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">57,385</td>
  <td>3/18</td>
- <td class="infeasible">3,017</td>
+ <td class="infeasible">2,931</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -109,10 +138,10 @@
  <td>war_citadel</td><td>Independent</td>
  <td class="infeasible">233,735</td>
  <td>9/18</td>
- <td class="infeasible">3,021</td>
+ <td class="infeasible">3,033</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="neg">-232,027</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -120,10 +149,10 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">6,488</td>
  <td>4/18</td>
- <td class="infeasible">2,875</td>
+ <td class="infeasible">2,891</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="pos">9,063</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -134,15 +163,15 @@
  <td class="infeasible">3,088</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="pos">15,191</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">504,542</td>
+ <td class="infeasible">504,554</td>
  <td>5/18</td>
- <td class="infeasible">3,486</td>
+ <td class="infeasible">3,498</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -153,7 +182,7 @@
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
  <td class="infeasible">500,094</td>
  <td>2/18</td>
- <td class="infeasible">3,724</td>
+ <td class="infeasible">3,732</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -173,20 +202,20 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">36,780,446</td>
- <td>5/18</td>
+ <td class="infeasible">780,482</td>
+ <td>4/18</td>
  <td class="infeasible">3,051</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="neg">-36,779,104</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>ramens_rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">758,662</td>
  <td>4/18</td>
- <td class="infeasible">5,073</td>
+ <td class="infeasible">5,094</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -219,18 +248,18 @@
  <td>nova_terra_central</td><td>Independent</td>
  <td class="infeasible">118,487</td>
  <td>7/18</td>
- <td class="infeasible">2,833</td>
+ <td class="infeasible">2,842</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="neg">-103,243</td>
- <td class="neg">-118,485</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">10,142</td>
  <td>7/18</td>
- <td class="infeasible">5,914</td>
+ <td class="infeasible">5,893</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -252,7 +281,7 @@
  <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">22,835</td>
  <td>2/18</td>
- <td class="infeasible">2,115</td>
+ <td class="infeasible">2,073</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -260,24 +289,24 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">164</td>
  <td>1/18</td>
- <td class="infeasible">2,845</td>
+ <td class="infeasible">2,972</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="pos">15,080</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">3,364</td>
+ <td class="infeasible">3,361</td>
  <td>1/18</td>
- <td class="infeasible">3,191</td>
+ <td class="infeasible">3,251</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="pos">12,495</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
@@ -288,15 +317,15 @@
  <td class="infeasible">4,699</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="pos">5,776</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">501,986</td>
  <td>1/18</td>
- <td class="infeasible">2,323</td>
+ <td class="infeasible">2,073</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
@@ -307,11 +336,11 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">751,505</td>
  <td>4/18</td>
- <td class="infeasible">2,993</td>
+ <td class="infeasible">3,014</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
- <td class="neg">-751,503</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
@@ -321,15 +350,15 @@
  <td class="infeasible">42</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
- <td class="neg">-501,194</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">894</td>
  <td>1/18</td>
- <td class="infeasible">2,097</td>
+ <td class="infeasible">2,076</td>
  <td>no</td>
  <td>build_darksteel_armor</td>
  <td class="">—</td>
