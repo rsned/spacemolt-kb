@@ -147,3 +147,22 @@ func TestBuildMatrix_MarginUsesMarginBook(t *testing.T) {
 		t.Errorf("SavingsBoM = %v (has=%v), want 20 — margin must come from marginBooks", c.SavingsBoM, c.HasSavings)
 	}
 }
+
+func TestMatrixViability(t *testing.T) {
+	// Three targets: one BoM-only feasible, one recipe-only feasible, one infeasible.
+	m := Matrix{Rows: []MatrixRow{
+		{ID: "a", FeasibleCount: 2, RecipeFeasibleCount: 0}, // BoM only
+		{ID: "b", FeasibleCount: 0, RecipeFeasibleCount: 1}, // recipe only
+		{ID: "c", FeasibleCount: 0, RecipeFeasibleCount: 0}, // neither
+	}}
+	v := matrixViability(m)
+	if v.Total != 3 || v.BoM != 1 || v.Recipe != 1 || v.Either != 2 {
+		t.Fatalf("viability = %+v, want {Total:3 BoM:1 Recipe:1 Either:2}", v)
+	}
+	if got := v.Pct(v.Either); got != 67 {
+		t.Errorf("Pct(Either) = %d, want 67", got)
+	}
+	if got := (Viability{Total: 0}).Pct(0); got != 0 {
+		t.Errorf("Pct on empty = %d, want 0", got)
+	}
+}

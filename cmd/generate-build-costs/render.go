@@ -88,7 +88,7 @@ type radiusTab struct {
 }
 
 // renderIndex writes the landing matrix page.
-func renderIndex(outDir, fileName string, m Matrix, heading string, tabs []radiusTab) error {
+func renderIndex(outDir, fileName string, m Matrix, heading, summary string, tabs []radiusTab) error {
 	js, err := matrixJSON(m)
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func renderIndex(outDir, fileName string, m Matrix, heading string, tabs []radiu
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, map[string]any{"JSON": template.JS(js), "Heading": heading, "Tabs": tabs})
+	return t.Execute(f, map[string]any{"JSON": template.JS(js), "Heading": heading, "Summary": summary, "Tabs": tabs})
 }
 
 // detailLine is one station row in a per-target detail table.

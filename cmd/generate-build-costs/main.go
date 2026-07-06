@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -103,7 +104,13 @@ func main() {
 		for j := range 4 {
 			tabs[j] = radiusTab{Label: radiusLabels[j], File: radiusFiles[j], Active: j == radius}
 		}
-		must(renderIndex(*outDir, radiusFiles[radius], matrices[radius], headings[radius], tabs), "render index "+radiusFiles[radius])
+		v := matrixViability(matrices[radius])
+		reach := []string{"the home station only", "stations within 1 jump", "stations within 2 jumps", "stations within 3 jumps"}[radius]
+		summary := fmt.Sprintf("Of %d targets, %d%% are buildable as BoM, %d%% as recipe, %d%% by either — sourcing inputs from %s.",
+			v.Total, v.Pct(v.BoM), v.Pct(v.Recipe), v.Pct(v.Either), reach)
+		log.Printf("build-costs viability [%s]: %d%% BoM, %d%% recipe, %d%% either (of %d targets)",
+			radiusLabels[radius], v.Pct(v.BoM), v.Pct(v.Recipe), v.Pct(v.Either), v.Total)
+		must(renderIndex(*outDir, radiusFiles[radius], matrices[radius], headings[radius], summary, tabs), "render index "+radiusFiles[radius])
 	}
 
 	rowByID := make([]map[string]MatrixRow, 4)

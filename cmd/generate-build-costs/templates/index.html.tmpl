@@ -9,7 +9,9 @@
  .controls input,.controls select{background:#161b22;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;padding:.3rem}
  table{border-collapse:collapse;font-size:.8rem} th,td{border:1px solid #21262d;padding:.25rem .4rem;text-align:right;white-space:nowrap}
  th.rowhdr,td.rowhdr{text-align:left;position:sticky;left:0;background:#0d1117;z-index:1}
- thead th{position:sticky;top:0;background:#161b22}
+ thead th{position:sticky;top:0;background:#161b22;white-space:normal;max-width:7em;vertical-align:bottom}
+ thead th.rowhdr{max-width:none}
+ .summary{font-size:.85rem;color:#adbac7;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:.4rem .6rem;display:inline-block}
  td.cheapest{outline:2px solid #2ea043}
  td.pos{color:#3fb950} td.neg{color:#f85149}
  td.infeasible{color:#6e7681}
@@ -23,6 +25,7 @@
 <body>
 <h1>{{.Heading}}</h1>
 <div class="tabs">{{range .Tabs}}<a href="{{.File}}"{{if .Active}} class="active"{{end}}>{{.Label}}</a>{{end}}</div>
+<p class="summary">{{.Summary}}</p>
 <p>Live-market build cost of every item and ship at every station. BoM = from raw ore; Recipe = buy sub-assemblies. Muted = can't complete from current depth.</p>
 <p>Each tab pools sell-order depth from stations within N jumps of the column's home station; cost is the cheapest sourcing within reach. Savings/Profit always compare against the finished good at the home station.</p>
 <div class="controls">
@@ -40,6 +43,7 @@
 const M = JSON.parse(document.getElementById('data').textContent);
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const wrap12 = s => (String(s).match(/.{1,12}/g) || []).map(esc).join('<wbr>');
 function fmt(n){ return n==null? '' : Math.round(n).toLocaleString(); }
 function initFilter(sel, vals){ sel.innerHTML='<option value="">All</option>'+[...new Set(vals)].filter(Boolean).sort().map(v=>`<option>${v}</option>`).join(''); }
 initFilter($('category'), M.rows.map(r=>r.cat));
@@ -68,7 +72,7 @@ function render(){
   const q=$('search').value.toLowerCase(), onlyFeas=$('feasible').checked;
   const cols = M.stations.filter(s=> (!emp||s.empire===emp) && (!stn||s.name===stn));
   let head='<tr><th class="rowhdr">Item / Ship</th><th>Cheapest</th>';
-  head += cols.map(s=>`<th title="${esc(s.empire)}">${esc(s.name)}</th>`).join('')+'</tr>';
+  head += cols.map(s=>`<th title="${esc(s.name)} — ${esc(s.empire)}">${wrap12(s.name)}</th>`).join('')+'</tr>';
   $('matrix').tHead.innerHTML=head;
   const rowsHtml=[];
   for(const r of M.rows){

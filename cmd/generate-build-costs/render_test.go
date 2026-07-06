@@ -19,7 +19,8 @@ func sampleMatrix() Matrix {
 func TestRenderIndex_WritesFileWithData(t *testing.T) {
 	dir := t.TempDir()
 	tabs := []radiusTab{{Label: "Local", File: "index.html", Active: true}}
-	if err := renderIndex(dir, "index.html", sampleMatrix(), "Build Cost Matrix (Local)", tabs); err != nil {
+	summary := "Of 1 targets, 100% are buildable as BoM, 0% as recipe, 100% by either — sourcing inputs within Local."
+	if err := renderIndex(dir, "index.html", sampleMatrix(), "Build Cost Matrix (Local)", summary, tabs); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, "index.html"))
@@ -27,7 +28,7 @@ func TestRenderIndex_WritesFileWithData(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := string(data)
-	for _, want := range []string{"Widget", "Station One", "Show only feasible", "BoM", "Recipe"} {
+	for _, want := range []string{"Widget", "Station One", "Show only feasible", "BoM", "Recipe", "buildable as BoM"} {
 		if !strings.Contains(s, want) {
 			t.Fatalf("index.html missing %q", want)
 		}
