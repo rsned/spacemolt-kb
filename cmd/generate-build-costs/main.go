@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 	_ "modernc.org/sqlite"
 )
 
@@ -53,6 +54,11 @@ func main() {
 	targets, names, err := loadTargets(craftDB, ships, itemNames)
 	must(err, "load targets")
 
+	targetByID := make(map[string]buildcost.Target, len(targets))
+	for _, t := range targets {
+		targetByID[t.ID] = t
+	}
+
 	// Ships also contribute their category for the filter.
 	for _, s := range ships {
 		if categories[s.ID] == "" {
@@ -70,7 +76,7 @@ func main() {
 
 	must(renderIndex(*outDir, m), "render index")
 	for _, row := range m.Rows {
-		must(renderDetail(*outDir, row, stations), "render detail "+row.ID)
+		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories), "render detail "+row.ID)
 	}
 	log.Printf("build-costs: %d rows × %d stations → %s", len(m.Rows), len(stations), *outDir)
 }

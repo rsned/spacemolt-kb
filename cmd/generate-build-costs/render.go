@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
 
 //go:embed templates/*.tmpl
@@ -158,8 +160,37 @@ func signClass(v float64, ok bool) string {
 	return "neg"
 }
 
+// inputRow is one row in a BoM or recipe-input table on the detail page.
+type inputRow struct {
+	Name string
+	Qty  string
+	Href string // "" when the input has no KB catalog page
+}
+
+// recipeView is one candidate recipe's input table.
+type recipeView struct {
+	ID        string
+	OutputQty string
+	Inputs    []inputRow
+}
+
+// itemHref returns the relative URL to an item's KB catalog page, or "" when
+// its category is unknown (e.g. a sub-assembly with no catalog entry).
+func itemHref(id string, categories map[string]string) string {
+	cat := categories[id]
+	if cat == "" {
+		return ""
+	}
+	return "../items/" + cat + "/" + id + ".html"
+}
+
+// qtyStr formats a quantity without trailing zeros (2, 2.5, 0.25).
+func qtyStr(v float64) string {
+	return strconv.FormatFloat(v, 'f', -1, 64)
+}
+
 // renderDetail writes the per-target station breakdown page.
-func renderDetail(outDir string, row MatrixRow, stations []StationMeta) error {
+func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string) error {
 	t, err := template.ParseFS(tmplFS, "templates/detail.html.tmpl")
 	if err != nil {
 		return err
@@ -167,6 +198,30 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
+
+	inputRowsFor := func(reqs []buildcost.Requirement) []inputRow {
+		out := make([]inputRow, 0, len(reqs))
+		for _, r := range reqs {
+			n := names[r.ItemID]
+			if n == "" {
+				n = r.ItemID
+			}
+			out = append(out, inputRow{Name: n, Qty: qtyStr(r.Qty), Href: itemHref(r.ItemID, categories)})
+		}
+		return out
+	}
+	bom := inputRowsFor(tgt.BoM)
+	var recipes []recipeView
+	if tgt.RecipeNA == "" {
+		for _, rec := range tgt.Recipes {
+			recipes = append(recipes, recipeView{ID: rec.ID, OutputQty: qtyStr(rec.OutputQty), Inputs: inputRowsFor(rec.Inputs)})
+		}
+	}
+	selfHref := itemHref(tgt.ID, categories)
+	if row.Kind == "ship" {
+		selfHref = "../ships/all.html"
+	}
+
 	var lines []detailLine
 	for _, s := range stations {
 		c, ok := row.Cells[s.ID]
@@ -198,5 +253,8 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta) error {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, map[string]any{"Name": row.Name, "Kind": row.Kind, "Lines": lines})
+	return t.Execute(f, map[string]any{
+		"Name": row.Name, "Kind": row.Kind, "Lines": lines,
+		"SelfHref": selfHref, "BoM": bom, "Recipes": recipes, "RecipeNA": tgt.RecipeNA,
+	})
 }

@@ -69,7 +69,10 @@ func TestCommaInt(t *testing.T) {
 func TestRenderDetail_WritesTable(t *testing.T) {
 	dir := t.TempDir()
 	m := sampleMatrix()
-	if err := renderDetail(dir, m.Rows[0], m.Stations); err != nil {
+	tgt := buildcost.Target{ID: "widget", Kind: "item", BoM: []buildcost.Requirement{{ItemID: "iron", Qty: 2}}}
+	names := map[string]string{"widget": "Widget"}
+	cats := map[string]string{"widget": "Module"}
+	if err := renderDetail(dir, m.Rows[0], m.Stations, tgt, names, cats); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, "widget.html"))
@@ -81,5 +84,62 @@ func TestRenderDetail_WritesTable(t *testing.T) {
 		if !strings.Contains(s, want) {
 			t.Fatalf("detail missing %q", want)
 		}
+	}
+}
+
+func TestRenderDetail_BoMAndRecipeTables(t *testing.T) {
+	tgt := buildcost.Target{
+		ID: "widget", Kind: "item",
+		BoM:     []buildcost.Requirement{{ItemID: "iron_ore", Qty: 3}},
+		Recipes: []buildcost.Recipe{{ID: "build_widget", OutputQty: 1, Inputs: []buildcost.Requirement{{ItemID: "iron_bar", Qty: 2}}}},
+	}
+	row := MatrixRow{ID: "widget", Name: "Widget", Kind: "item", Cells: map[string]RowCell{}}
+	names := map[string]string{"iron_ore": "Iron Ore", "iron_bar": "Iron Bar", "widget": "Widget"}
+	cats := map[string]string{"iron_ore": "ore", "iron_bar": "refined", "widget": "component"}
+	dir := t.TempDir()
+	if err := renderDetail(dir, row, nil, tgt, names, cats); err != nil {
+		t.Fatalf("renderDetail: %v", err)
+	}
+	b, err := os.ReadFile(filepath.Join(dir, "widget.html"))
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	html := string(b)
+	for _, want := range []string{
+		`href="../items/ore/iron_ore.html">Iron Ore`,     // BoM input linked
+		`href="../items/refined/iron_bar.html">Iron Bar`, // recipe input linked
+		`href="../items/component/widget.html"`,          // self link
+		"build_widget",                                   // recipe id heading
+		"Bill of Materials",
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("detail html missing %q", want)
+		}
+	}
+}
+
+func TestRenderDetail_ShipNoRecipe(t *testing.T) {
+	tgt := buildcost.Target{
+		ID: "cobble", Kind: "ship",
+		BoM:      []buildcost.Requirement{{ItemID: "refined_alloy", Qty: 10}},
+		RecipeNA: "sub-assemblies not market-traded",
+	}
+	row := MatrixRow{ID: "cobble", Name: "Cobble", Kind: "ship", Cells: map[string]RowCell{}}
+	names := map[string]string{"refined_alloy": "Refined Alloy", "cobble": "Cobble"}
+	cats := map[string]string{"refined_alloy": "refined"}
+	dir := t.TempDir()
+	if err := renderDetail(dir, row, nil, tgt, names, cats); err != nil {
+		t.Fatalf("renderDetail: %v", err)
+	}
+	b, _ := os.ReadFile(filepath.Join(dir, "cobble.html"))
+	html := string(b)
+	if !strings.Contains(html, "sub-assemblies not market-traded") {
+		t.Errorf("ship detail missing RecipeNA message")
+	}
+	if !strings.Contains(html, `../ships/all.html`) {
+		t.Errorf("ship detail missing ship-index self link")
+	}
+	if strings.Contains(html, "<h3>") {
+		t.Errorf("ship detail should have no recipe (<h3>) tables")
 	}
 }
