@@ -20,7 +20,7 @@ func TestBuildMatrix_CheapestAndFeasibleCount(t *testing.T) {
 		"st3": {Sell: map[string]buildcost.Ladder{}, BestBuy: map[string]float64{}}, // infeasible
 	}
 	stations := []StationMeta{{ID: "st1"}, {ID: "st2"}, {ID: "st3"}}
-	m := BuildMatrix(targets, books, stations, map[string]string{"widget": "Widget"},
+	m := BuildMatrix(targets, books, books, stations, map[string]string{"widget": "Widget"},
 		map[string]string{"widget": "Module"}, nil, nil)
 	if len(m.Rows) != 1 {
 		t.Fatalf("rows: %d", len(m.Rows))
@@ -54,7 +54,7 @@ func TestBuildMatrix_MarginGatedOnBoMFeasibility(t *testing.T) {
 		},
 	}
 	stations := []StationMeta{{ID: "st1"}}
-	m := BuildMatrix(targets, books, stations, map[string]string{"widget": "Widget"},
+	m := BuildMatrix(targets, books, books, stations, map[string]string{"widget": "Widget"},
 		map[string]string{"widget": "Module"}, nil, nil)
 	if len(m.Rows) != 1 {
 		t.Fatalf("rows: %d", len(m.Rows))
@@ -103,7 +103,7 @@ func TestBuildMatrix_RecipeFeasibleCount(t *testing.T) {
 		"st2": {Sell: map[string]buildcost.Ladder{}, BestBuy: map[string]float64{}},
 	}
 	stations := []StationMeta{{ID: "st1"}, {ID: "st2"}}
-	m := BuildMatrix(targets, books, stations, map[string]string{"gadget": "Gadget"},
+	m := BuildMatrix(targets, books, books, stations, map[string]string{"gadget": "Gadget"},
 		map[string]string{"gadget": "Module"}, nil, nil)
 	if len(m.Rows) != 1 {
 		t.Fatalf("rows: %d", len(m.Rows))
@@ -114,5 +114,36 @@ func TestBuildMatrix_RecipeFeasibleCount(t *testing.T) {
 	}
 	if r.RecipeFeasibleCount != 1 {
 		t.Fatalf("recipe feasible count: %d want 1", r.RecipeFeasibleCount)
+	}
+}
+
+func TestBuildMatrix_MarginUsesMarginBook(t *testing.T) {
+	// Target 'widget' needs 1 iron. Cost book has cheap iron AND (deliberately)
+	// no finished 'widget' ask. Margin book carries the finished 'widget' ask.
+	// Savings must come from the margin book, proving the two are separate.
+	target := buildcost.Target{
+		ID: "widget", Kind: "item",
+		BoM: []buildcost.Requirement{{ItemID: "iron", Qty: 1}},
+	}
+	costBooks := map[string]*buildcost.Book{
+		"S": {Sell: map[string]buildcost.Ladder{"iron": {{Price: 10, Qty: 1}}}, BestBuy: map[string]float64{}},
+	}
+	marginBooks := map[string]*buildcost.Book{
+		"S": {Sell: map[string]buildcost.Ladder{"widget": {{Price: 30, Qty: 1}}}, BestBuy: map[string]float64{}},
+	}
+	stations := []StationMeta{{ID: "S", Name: "S", Empire: "Independent"}}
+	m := BuildMatrix([]buildcost.Target{target}, costBooks, marginBooks, stations,
+		map[string]string{"widget": "Widget"}, map[string]string{"widget": "component"},
+		map[string]map[string]float64{}, map[string]int{})
+	if len(m.Rows) != 1 {
+		t.Fatalf("rows = %d, want 1", len(m.Rows))
+	}
+	c := m.Rows[0].Cells["S"]
+	if c.BoMCost != 10 || !c.BoMFeasible {
+		t.Fatalf("BoM cost/feasible = %v/%v, want 10/true", c.BoMCost, c.BoMFeasible)
+	}
+	// Savings = finished ask (30, from marginBooks) - cost (10) = 20.
+	if !c.HasSavings || c.SavingsBoM != 20 {
+		t.Errorf("SavingsBoM = %v (has=%v), want 20 — margin must come from marginBooks", c.SavingsBoM, c.HasSavings)
 	}
 }

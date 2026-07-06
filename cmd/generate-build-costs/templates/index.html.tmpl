@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Build Cost Matrix — Spacemolt KB</title>
+<title>{{.Heading}} — Spacemolt KB</title>
 <style>
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
  h1{font-size:1.4rem} .controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:.6rem 0}
@@ -15,11 +15,16 @@
  td.infeasible{color:#6e7681}
  a{color:#58a6ff}
  .wrap{overflow:auto;max-height:80vh}
+ .tabs{margin:.4rem 0;display:flex;gap:.4rem}
+ .tabs a{padding:.25rem .6rem;border:1px solid #30363d;border-radius:4px;text-decoration:none}
+ .tabs a.active{background:#1f6feb;color:#fff;border-color:#1f6feb}
 </style>
 </head>
 <body>
-<h1>Build Cost Matrix</h1>
+<h1>{{.Heading}}</h1>
+<div class="tabs">{{range .Tabs}}<a href="{{.File}}"{{if .Active}} class="active"{{end}}>{{.Label}}</a>{{end}}</div>
 <p>Live-market build cost of every item and ship at every station. BoM = from raw ore; Recipe = buy sub-assemblies. Muted = can't complete from current depth.</p>
+<p>Each tab pools sell-order depth from stations within N jumps of the column's home station; cost is the cheapest sourcing within reach. Savings/Profit always compare against the finished good at the home station.</p>
 <div class="controls">
  <label>Mode <select id="mode"><option value="bom">BoM</option><option value="recipe">Recipe</option></select></label>
  <label>Metric <select id="metric"><option value="cost">Cost</option><option value="savings">Savings</option><option value="profit">Profit</option></select></label>

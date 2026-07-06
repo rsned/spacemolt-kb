@@ -53,6 +53,15 @@ func main() {
 	}
 	stations, err := loadStations(marketDB, knowledgeDB)
 	must(err, "load stations")
+	resolver, err := loadSystemResolver(knowledgeDB)
+	must(err, "load system resolver")
+	adj, err := loadConnections(knowledgeDB)
+	must(err, "load connections")
+	stationSys, unresolved := stationSystems(stations, resolver)
+	if len(unresolved) > 0 {
+		log.Printf("build-costs: %d station(s) had unresolved systems (treated as isolated): %v", len(unresolved), unresolved)
+	}
+	hopDist := stationHopDist(adj, stationSys)
 	listings, err := loadShipListings(knowledgeDB)
 	must(err, "load ship listings")
 	targets, names, err := loadTargets(craftDB, ships, itemNames)
@@ -76,13 +85,43 @@ func main() {
 		}
 	}
 
-	m := BuildMatrix(targets, books, stations, names, categories, listings, catalogPrice)
+	// Four hop radii: 0 (local) = index.html, then +1/+2/+3.
+	radiusFiles := []string{"index.html", "hop-1.html", "hop-2.html", "hop-3.html"}
+	radiusLabels := []string{"Local", "+1", "+2", "+3"}
+	headings := []string{"Build Cost Matrix (Local)", "Build Cost Matrix (+1 hop)", "Build Cost Matrix (+2 hops)", "Build Cost Matrix (+3 hops)"}
 
-	must(renderIndex(*outDir, m), "render index")
-	for _, row := range m.Rows {
-		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories), "render detail "+row.ID)
+	matrices := make([]Matrix, 4)
+	for radius := range 4 {
+		costBooks := books
+		if radius > 0 {
+			costBooks = pooledBooksForRadius(books, hopDist, stations, radius)
+		}
+		matrices[radius] = BuildMatrix(targets, costBooks, books, stations, names, categories, listings, catalogPrice)
 	}
-	log.Printf("build-costs: %d rows × %d stations → %s", len(m.Rows), len(stations), *outDir)
+	for radius := range 4 {
+		tabs := make([]radiusTab, 4)
+		for j := range 4 {
+			tabs[j] = radiusTab{Label: radiusLabels[j], File: radiusFiles[j], Active: j == radius}
+		}
+		must(renderIndex(*outDir, radiusFiles[radius], matrices[radius], headings[radius], tabs), "render index "+radiusFiles[radius])
+	}
+
+	rowByID := make([]map[string]MatrixRow, 4)
+	for radius := range 4 {
+		idx := make(map[string]MatrixRow, len(matrices[radius].Rows))
+		for _, row := range matrices[radius].Rows {
+			idx[row.ID] = row
+		}
+		rowByID[radius] = idx
+	}
+	for _, row := range matrices[0].Rows {
+		var hopRows [4]MatrixRow
+		for radius := range 4 {
+			hopRows[radius] = rowByID[radius][row.ID]
+		}
+		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories, hopRows), "render detail "+row.ID)
+	}
+	log.Printf("build-costs: %d rows × %d stations × 4 radii → %s", len(matrices[0].Rows), len(matrices[0].Stations), *outDir)
 }
 
 func must(err error, ctx string) {

@@ -80,8 +80,15 @@ func matrixJSON(m Matrix) (string, error) {
 	return string(b), err
 }
 
+// radiusTab is one entry in the hop-radius tab bar.
+type radiusTab struct {
+	Label  string
+	File   string
+	Active bool
+}
+
 // renderIndex writes the landing matrix page.
-func renderIndex(outDir string, m Matrix) error {
+func renderIndex(outDir, fileName string, m Matrix, heading string, tabs []radiusTab) error {
 	js, err := matrixJSON(m)
 	if err != nil {
 		return err
@@ -93,12 +100,12 @@ func renderIndex(outDir string, m Matrix) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
-	f, err := os.Create(filepath.Join(outDir, "index.html"))
+	f, err := os.Create(filepath.Join(outDir, fileName))
 	if err != nil {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, map[string]any{"JSON": template.JS(js)})
+	return t.Execute(f, map[string]any{"JSON": template.JS(js), "Heading": heading, "Tabs": tabs})
 }
 
 // detailLine is one station row in a per-target detail table.
@@ -115,6 +122,9 @@ type detailLine struct {
 	RecipeCostStr     string
 	RecipeFeasibleStr string
 	RecipeID          string
+
+	BoMHop    [4]string // BoM cost per radius 0..3 ("—" when infeasible)
+	RecipeHop [4]string // Recipe cost per radius 0..3 ("—" when infeasible/NA)
 
 	SavingsStr, SavingsClass string
 	ProfitStr, ProfitClass   string
@@ -139,6 +149,15 @@ func commaInt(v float64) string {
 		return "-" + string(out)
 	}
 	return string(out)
+}
+
+// hopCostStr formats a per-radius cost: the number when feasible, else an
+// em-dash (also em-dash when the station has no cell at that radius).
+func hopCostStr(cost float64, feasible, present bool) string {
+	if !present || !feasible {
+		return "—"
+	}
+	return commaInt(cost)
 }
 
 // money renders a value as a comma-formatted string, or an em dash when absent.
@@ -190,7 +209,7 @@ func qtyStr(v float64) string {
 }
 
 // renderDetail writes the per-target station breakdown page.
-func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string) error {
+func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string, hopRows [4]MatrixRow) error {
 	t, err := template.ParseFS(tmplFS, "templates/detail.html.tmpl")
 	if err != nil {
 		return err
@@ -245,6 +264,11 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 			} else {
 				ln.RecipeFeasibleStr = "no"
 			}
+		}
+		for r := range 4 {
+			hc, ok := hopRows[r].Cells[s.ID]
+			ln.BoMHop[r] = hopCostStr(hc.BoMCost, hc.BoMFeasible, ok)
+			ln.RecipeHop[r] = hopCostStr(hc.RecipeCost, hc.RecipeFeasible && !hc.RecipeNA, ok && !hc.RecipeNA)
 		}
 		lines = append(lines, ln)
 	}

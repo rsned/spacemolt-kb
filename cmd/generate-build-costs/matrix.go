@@ -46,11 +46,11 @@ type Matrix struct {
 }
 
 // BuildMatrix computes every target×station cell and the per-row summaries.
-func BuildMatrix(targets []buildcost.Target, books map[string]*buildcost.Book, stations []StationMeta,
+func BuildMatrix(targets []buildcost.Target, costBooks, marginBooks map[string]*buildcost.Book, stations []StationMeta,
 	names, categories map[string]string, listings map[string]map[string]float64, catalogPrice map[string]int) Matrix {
 	var active []StationMeta
 	for _, st := range stations {
-		if books[st.ID] != nil {
+		if costBooks[st.ID] != nil {
 			active = append(active, st)
 		}
 	}
@@ -62,7 +62,7 @@ func BuildMatrix(targets []buildcost.Target, books map[string]*buildcost.Book, s
 		}
 		haveCheapest := false
 		for _, st := range active {
-			book := books[st.ID]
+			book := costBooks[st.ID]
 			if book == nil {
 				continue
 			}
@@ -70,7 +70,7 @@ func BuildMatrix(targets []buildcost.Target, books map[string]*buildcost.Book, s
 			if t.Kind == "ship" {
 				margin = shipMargin(listings, catalogPrice, t.ID, st.ID)
 			} else {
-				margin = itemMargin(book, t.ID)
+				margin = itemMargin(marginBooks[st.ID], t.ID)
 			}
 			c := buildcost.BuildCell(t, st.ID, book, margin)
 			rc := RowCell{

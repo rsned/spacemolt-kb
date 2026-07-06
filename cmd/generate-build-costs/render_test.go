@@ -13,12 +13,13 @@ func sampleMatrix() Matrix {
 	targets := []buildcost.Target{{ID: "widget", Kind: "item", BoM: []buildcost.Requirement{{ItemID: "iron", Qty: 2}}}}
 	books := map[string]*buildcost.Book{"st1": {Sell: map[string]buildcost.Ladder{"iron": {{Price: 10, Qty: 100}}}, BestBuy: map[string]float64{}}}
 	stations := []StationMeta{{ID: "st1", Name: "Station One", Empire: "Sol"}}
-	return BuildMatrix(targets, books, stations, map[string]string{"widget": "Widget"}, map[string]string{"widget": "Module"}, nil, nil)
+	return BuildMatrix(targets, books, books, stations, map[string]string{"widget": "Widget"}, map[string]string{"widget": "Module"}, nil, nil)
 }
 
 func TestRenderIndex_WritesFileWithData(t *testing.T) {
 	dir := t.TempDir()
-	if err := renderIndex(dir, sampleMatrix()); err != nil {
+	tabs := []radiusTab{{Label: "Local", File: "index.html", Active: true}}
+	if err := renderIndex(dir, "index.html", sampleMatrix(), "Build Cost Matrix (Local)", tabs); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, "index.html"))
@@ -72,7 +73,8 @@ func TestRenderDetail_WritesTable(t *testing.T) {
 	tgt := buildcost.Target{ID: "widget", Kind: "item", BoM: []buildcost.Requirement{{ItemID: "iron", Qty: 2}}}
 	names := map[string]string{"widget": "Widget"}
 	cats := map[string]string{"widget": "Module"}
-	if err := renderDetail(dir, m.Rows[0], m.Stations, tgt, names, cats); err != nil {
+	hopRows := [4]MatrixRow{m.Rows[0], m.Rows[0], m.Rows[0], m.Rows[0]}
+	if err := renderDetail(dir, m.Rows[0], m.Stations, tgt, names, cats, hopRows); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, "widget.html"))
@@ -80,7 +82,7 @@ func TestRenderDetail_WritesTable(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := string(data)
-	for _, want := range []string{"Widget", "Station One", "BoM", "Recipe", "Feasible"} {
+	for _, want := range []string{"Widget", "Station One", "BoM", "Recipe", "Recipe used"} {
 		if !strings.Contains(s, want) {
 			t.Fatalf("detail missing %q", want)
 		}
@@ -93,11 +95,15 @@ func TestRenderDetail_BoMAndRecipeTables(t *testing.T) {
 		BoM:     []buildcost.Requirement{{ItemID: "iron_ore", Qty: 3}},
 		Recipes: []buildcost.Recipe{{ID: "build_widget", OutputQty: 1, Inputs: []buildcost.Requirement{{ItemID: "iron_bar", Qty: 2}}}},
 	}
-	row := MatrixRow{ID: "widget", Name: "Widget", Kind: "item", Cells: map[string]RowCell{}}
+	base := MatrixRow{ID: "widget", Name: "Widget", Kind: "item", Cells: map[string]RowCell{
+		"st1": {BoMCost: 100, BoMFeasible: true, RecipeCost: 120, RecipeFeasible: true},
+	}}
+	hopRows := [4]MatrixRow{base, base, base, base}
+	stations := []StationMeta{{ID: "st1", Name: "Station One", Empire: "Independent"}}
 	names := map[string]string{"iron_ore": "Iron Ore", "iron_bar": "Iron Bar", "widget": "Widget"}
 	cats := map[string]string{"iron_ore": "ore", "iron_bar": "refined", "widget": "component"}
 	dir := t.TempDir()
-	if err := renderDetail(dir, row, nil, tgt, names, cats); err != nil {
+	if err := renderDetail(dir, base, stations, tgt, names, cats, hopRows); err != nil {
 		t.Fatalf("renderDetail: %v", err)
 	}
 	b, err := os.ReadFile(filepath.Join(dir, "widget.html"))
@@ -116,6 +122,11 @@ func TestRenderDetail_BoMAndRecipeTables(t *testing.T) {
 			t.Errorf("detail html missing %q", want)
 		}
 	}
+	for _, want := range []string{"BoM +1", "Recipe +1", "100"} {
+		if !strings.Contains(html, want) {
+			t.Errorf("detail html missing %q", want)
+		}
+	}
 }
 
 func TestRenderDetail_ShipNoRecipe(t *testing.T) {
@@ -128,7 +139,8 @@ func TestRenderDetail_ShipNoRecipe(t *testing.T) {
 	names := map[string]string{"refined_alloy": "Refined Alloy", "cobble": "Cobble"}
 	cats := map[string]string{"refined_alloy": "refined"}
 	dir := t.TempDir()
-	if err := renderDetail(dir, row, nil, tgt, names, cats); err != nil {
+	hopRows := [4]MatrixRow{row, row, row, row}
+	if err := renderDetail(dir, row, nil, tgt, names, cats, hopRows); err != nil {
 		t.Fatalf("renderDetail: %v", err)
 	}
 	b, _ := os.ReadFile(filepath.Join(dir, "cobble.html"))

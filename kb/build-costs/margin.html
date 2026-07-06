@@ -8,6 +8,7 @@
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
+ .scrollx{overflow-x:auto}
 </style>
 </head>
 <body>
@@ -33,17 +34,19 @@
 
 
 <h2>Build cost by station</h2>
-<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+<div class="scrollx">
 <table>
-<thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
+<thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
- <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">1,543</td>
- <td>2/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td>iron_reach_mining_colony</td><td>Independent</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -51,10 +54,10 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">44,231</td>
- <td>11/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -62,10 +65,10 @@
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">6,466</td>
- <td>7/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -73,10 +76,10 @@
 
 <tr>
  <td>sol_central</td><td>Independent</td>
- <td class="infeasible">21,898</td>
- <td>13/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -84,10 +87,10 @@
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">11,256</td>
- <td>7/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -95,10 +98,10 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">739</td>
- <td>5/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -106,21 +109,21 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">7,284</td>
- <td>3/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">61,268</td>
- <td>6/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td>sirius_observatory_station</td><td>solarian</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -128,10 +131,10 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">80,801</td>
- <td>11/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -139,10 +142,10 @@
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">23,389</td>
- <td>4/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -150,10 +153,10 @@
 
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
- <td class="infeasible">4,256</td>
- <td>2/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -161,10 +164,10 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">2,191</td>
- <td>4/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -172,10 +175,10 @@
 
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
- <td class="infeasible">1,779</td>
- <td>6/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -183,10 +186,10 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="infeasible">3,501</td>
- <td>5/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -194,10 +197,10 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">91,991</td>
- <td>6/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -205,21 +208,21 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="infeasible">2,758</td>
- <td>6/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="infeasible">2,119</td>
- <td>3/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -227,21 +230,21 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">13,600</td>
- <td>5/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
- <td class="infeasible">135,742</td>
- <td>9/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td>nova_terra_central</td><td>solarian</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -249,10 +252,10 @@
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
- <td class="infeasible">11,054</td>
- <td>9/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -260,10 +263,10 @@
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
- <td class="infeasible">3,354</td>
- <td>4/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -271,10 +274,10 @@
 
 <tr>
  <td>synchrony_hub</td><td>Independent</td>
- <td class="infeasible">11,075</td>
- <td>2/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -282,10 +285,10 @@
 
 <tr>
  <td>the_anvil_arsenal</td><td>crimson</td>
- <td class="infeasible">766</td>
- <td>1/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -293,10 +296,10 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">5,461</td>
- <td>3/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -304,10 +307,10 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">1,020</td>
- <td>4/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -315,10 +318,10 @@
 
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
- <td class="infeasible">2,090</td>
- <td>2/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -326,10 +329,10 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">1,221</td>
- <td>7/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -337,21 +340,21 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">4,687</td>
- <td>5/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>outerrim</td>
- <td class="infeasible">5,969</td>
- <td>5/21</td>
- <td class="infeasible">n/a</td>
- <td>sub-assemblies not traded</td>
+ <td>void_gate_outpost</td><td>Independent</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td></td>
  <td class="">—</td>
  <td class="">—</td>
@@ -359,5 +362,6 @@
 
 </tbody>
 </table>
+</div>
 </body>
 </html>
