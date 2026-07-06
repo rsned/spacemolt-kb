@@ -46,7 +46,11 @@ func main() {
 	must(err, "load sell vwap")
 	books, dropped, err := loadBooks(marketDB, sellVWAP, *capMult)
 	must(err, "load books")
-	log.Printf("build-costs: dropped %d outlier sell orders (> %.0fx typical ask)", dropped, *capMult)
+	if *capMult > 0 {
+		log.Printf("build-costs: dropped %d outlier sell orders (> %.0fx typical ask)", dropped, *capMult)
+	} else {
+		log.Printf("build-costs: outlier price cap disabled")
+	}
 	stations, err := loadStations(marketDB, knowledgeDB)
 	must(err, "load stations")
 	listings, err := loadShipListings(knowledgeDB)

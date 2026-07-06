@@ -45,18 +45,18 @@ func loadSellVWAP(marketDB *sql.DB) (map[string]float64, error) {
 	return ref, rows.Err()
 }
 
-// median returns the median of a slice (0 if empty). It sorts a copy.
+// median returns a robust "typical" value from a slice (0 if empty). It sorts a
+// copy and, for even lengths, returns the lower-middle element rather than
+// averaging the two central values. This resists a high outlier polluting the
+// result in tiny even-length pools (e.g. {40, 999999} → 40, not ~500k), which
+// matters because this is a fallback reference for the outlier cap itself.
 func median(in []float64) float64 {
 	if len(in) == 0 {
 		return 0
 	}
 	s := append([]float64(nil), in...)
 	sort.Float64s(s)
-	n := len(s)
-	if n%2 == 1 {
-		return s[n/2]
-	}
-	return (s[n/2-1] + s[n/2]) / 2
+	return s[(len(s)-1)/2]
 }
 
 // loadBooks builds each station's current order book from its most recent
