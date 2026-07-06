@@ -142,8 +142,11 @@ func stationHopDist(adj map[string][]string, stationSys map[string]string) map[s
 // poolMembers returns the station ids within radius jumps of home (including
 // home), sorted for deterministic output.
 func poolMembers(hopDist map[string]map[string]int, home string, radius int) []string {
-	var members []string
+	members := []string{home}
 	for other, d := range hopDist[home] {
+		if other == home {
+			continue
+		}
 		if d <= radius {
 			members = append(members, other)
 		}

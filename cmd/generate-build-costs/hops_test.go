@@ -91,6 +91,14 @@ func TestStationHopDistAndPool(t *testing.T) {
 	}
 }
 
+func TestPoolMembers_HomeAbsentFromHopDist(t *testing.T) {
+	// "ghost" has no row in hopDist (e.g. its system failed to resolve).
+	hopDist := map[string]map[string]int{"a": {"a": 0}}
+	if got := poolMembers(hopDist, "ghost", 3); !reflect.DeepEqual(got, []string{"ghost"}) {
+		t.Errorf("poolMembers(ghost) = %v, want [ghost] (isolated station pools itself)", got)
+	}
+}
+
 // newHopsTestDB builds an in-memory knowledge DB with a systems table (id,
 // name) and a connections table (from_system, to_system), matching the
 // production schema queried by loadSystemResolver and loadConnections.
