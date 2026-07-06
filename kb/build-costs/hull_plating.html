@@ -8,6 +8,7 @@
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
+ .scrollx{overflow-x:auto}
 </style>
 </head>
 <body>
@@ -49,17 +50,19 @@
 
 
 <h2>Build cost by station</h2>
-<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+<div class="scrollx">
 <table>
-<thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
+<thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
- <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">125</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td>iron_reach_mining_colony</td><td>Independent</td>
+ <td class="infeasible">—</td>
+ <td>871</td><td>871</td><td>871</td>
+ <td class="infeasible">—</td>
+ <td>786</td><td>786</td><td>786</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -67,10 +70,10 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">3,585</td>
- <td>3/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>10,277</td><td>10,277</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>818</td><td>818</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -78,11 +81,11 @@
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">58</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>884</td><td>791</td>
+ <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -90,20 +93,20 @@
 <tr>
  <td>sol_central</td><td>Independent</td>
  <td class="">971</td>
- <td>4/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td>923</td><td>668</td><td>668</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>782</td>
  <td>reforge_hull_plating</td>
- <td class="neg">-280</td>
+ <td class="neg">-268</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">39</td>
- <td>2/4</td>
- <td class="">931</td>
- <td>yes</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="">800</td>
+ <td>793</td><td>793</td><td>793</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -111,10 +114,10 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">287</td>
- <td>3/4</td>
- <td class="">907</td>
- <td>yes</td>
+ <td class="infeasible">—</td>
+ <td>10,277</td><td>10,277</td><td>10,277</td>
+ <td class="">822</td>
+ <td>822</td><td>818</td><td>818</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -122,21 +125,21 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">1,200</td>
- <td>3/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>871</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>786</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">578</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td>sirius_observatory_station</td><td>solarian</td>
+ <td class="infeasible">—</td>
+ <td>668</td><td>668</td><td>668</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>782</td><td>782</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -144,21 +147,21 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">2,905</td>
- <td>3/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
- <td class="">—</td>
- <td class="">—</td>
+ <td class="">3,405</td>
+ <td>1,143</td><td>871</td><td>871</td>
+ <td class="">1,524</td>
+ <td>786</td><td>786</td><td>786</td>
+ <td>forge_hull_plating</td>
+ <td class="neg">-2,664</td>
+ <td class="neg">-2,811</td>
 </tr>
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">370</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>971</td><td>923</td><td>668</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -166,10 +169,10 @@
 
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
- <td class="infeasible">408</td>
- <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>1,143</td><td>871</td><td>871</td>
+ <td class="infeasible">—</td>
+ <td>786</td><td>786</td><td>786</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -177,21 +180,21 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">49</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>forge_hull_plating</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>907</td><td>791</td>
+ <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
- <td class="infeasible">12</td>
- <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -199,21 +202,21 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="infeasible">140</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>forge_hull_plating</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>791</td><td>791</td><td>791</td>
+ <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">10,074</td>
- <td>3/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>10,277</td><td>10,277</td><td>10,277</td>
+ <td class="infeasible">—</td>
+ <td>822</td><td>818</td><td>818</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -221,21 +224,21 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="infeasible">70</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>884</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="infeasible">25</td>
- <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>793</td><td>793</td><td>793</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -243,54 +246,54 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">25</td>
- <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>793</td><td>793</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
- <td class="infeasible">10,106</td>
- <td>3/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td>nova_terra_central</td><td>solarian</td>
+ <td class="">10,418</td>
+ <td>918</td><td>668</td><td>668</td>
+ <td class="infeasible">—</td>
+ <td>782</td><td>782</td><td>782</td>
  <td>reforge_hull_plating</td>
- <td class="">—</td>
- <td class="">—</td>
+ <td class="neg">-9,715</td>
+ <td class="neg">-9,728</td>
 </tr>
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
- <td class="infeasible">598</td>
- <td>3/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
+ <td class="infeasible">—</td>
+ <td>918</td><td>918</td><td>668</td>
+ <td class="">783</td>
+ <td>782</td><td>782</td><td>782</td>
+ <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
- <td class="infeasible">524</td>
- <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="">884</td>
+ <td>791</td><td>791</td><td>791</td>
+ <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>synchrony_hub</td><td>Independent</td>
- <td class="infeasible">90</td>
- <td>0/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>793</td><td>793</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -298,10 +301,10 @@
 
 <tr>
  <td>the_anvil_arsenal</td><td>crimson</td>
- <td class="infeasible">20</td>
- <td>0/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>1,695</td><td>871</td><td>871</td>
+ <td class="infeasible">—</td>
+ <td>786</td><td>786</td><td>786</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -309,10 +312,10 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">394</td>
- <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>871</td><td>871</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>786</td><td>786</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -320,10 +323,10 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">59</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>793</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -331,21 +334,21 @@
 
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
- <td class="infeasible">662</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
- <td>reforge_hull_plating</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>10,687</td><td>10,277</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>818</td>
+ <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">85</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>10,277</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>818</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -353,21 +356,21 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">24</td>
- <td>1/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>forge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>outerrim</td>
- <td class="infeasible">166</td>
- <td>2/4</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td>void_gate_outpost</td><td>Independent</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>791</td><td>791</td><td>791</td>
  <td>reforge_hull_plating</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -375,5 +378,6 @@
 
 </tbody>
 </table>
+</div>
 </body>
 </html>

@@ -8,6 +8,7 @@
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
+ .scrollx{overflow-x:auto}
 </style>
 </head>
 <body>
@@ -41,17 +42,19 @@
 
 
 <h2>Build cost by station</h2>
-<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+<div class="scrollx">
 <table>
-<thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
+<thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 
 <tr>
- <td>iron_reach_mining_colony</td><td>crimson</td>
- <td class="infeasible">720</td>
- <td>3/16</td>
- <td class="infeasible">8,071</td>
- <td>no</td>
+ <td>iron_reach_mining_colony</td><td>Independent</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -59,10 +62,10 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">18,947</td>
- <td>9/16</td>
- <td class="infeasible">272</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -70,10 +73,10 @@
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">18,656</td>
- <td>6/16</td>
- <td class="infeasible">879</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -81,10 +84,10 @@
 
 <tr>
  <td>sol_central</td><td>Independent</td>
- <td class="infeasible">8,380</td>
- <td>9/16</td>
- <td class="infeasible">26,034</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>10,214</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -92,10 +95,10 @@
 
 <tr>
  <td>the_core</td><td>Independent</td>
- <td class="infeasible">1,614</td>
- <td>4/16</td>
- <td class="infeasible">4,448</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>28,623</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -103,10 +106,10 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">311</td>
- <td>5/16</td>
- <td class="infeasible">9,456</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -114,21 +117,21 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">7,783</td>
- <td>5/16</td>
- <td class="infeasible">8,140</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">6,986</td>
- <td>4/16</td>
- <td class="infeasible">8,140</td>
- <td>no</td>
+ <td>sirius_observatory_station</td><td>solarian</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>10,214</td><td>10,214</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -136,10 +139,10 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">6,450</td>
- <td>7/16</td>
- <td class="infeasible">20,000</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -147,10 +150,10 @@
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">15,323</td>
- <td>7/16</td>
- <td class="infeasible">10,114</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -158,10 +161,10 @@
 
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
- <td class="infeasible">3,116</td>
- <td>2/16</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -169,10 +172,10 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">16,448</td>
- <td>5/16</td>
- <td class="infeasible">8,103</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -180,10 +183,10 @@
 
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>Independent</td>
- <td class="infeasible">1,069</td>
- <td>4/16</td>
- <td class="infeasible">8,140</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -191,10 +194,10 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="infeasible">6,865</td>
- <td>5/16</td>
- <td class="infeasible">8,537</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -202,10 +205,10 @@
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">101,304</td>
- <td>6/16</td>
- <td class="infeasible">8,140</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -213,21 +216,21 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="infeasible">21,285</td>
- <td>5/16</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="infeasible">37,678</td>
- <td>5/16</td>
- <td class="infeasible">8,175</td>
- <td>no</td>
+ <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>28,623</td><td>28,623</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -235,21 +238,21 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">2,013</td>
- <td>6/16</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>28,623</td><td>28,623</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
- <td class="infeasible">15,265</td>
- <td>8/16</td>
- <td class="infeasible">8,169</td>
- <td>no</td>
+ <td>nova_terra_central</td><td>solarian</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>10,350</td><td>10,214</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -257,10 +260,10 @@
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
- <td class="infeasible">9,511</td>
- <td>8/16</td>
- <td class="infeasible">9,612</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>10,350</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -268,10 +271,10 @@
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
- <td class="infeasible">839</td>
- <td>5/16</td>
- <td class="infeasible">409</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -279,10 +282,10 @@
 
 <tr>
  <td>synchrony_hub</td><td>Independent</td>
- <td class="infeasible">19,050</td>
- <td>3/16</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>28,623</td><td>28,623</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -290,10 +293,10 @@
 
 <tr>
  <td>the_anvil_arsenal</td><td>crimson</td>
- <td class="infeasible">750</td>
- <td>1/16</td>
- <td class="infeasible">1,616</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -301,10 +304,10 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">724</td>
- <td>2/16</td>
- <td class="infeasible">8,343</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -312,10 +315,10 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">3,448</td>
- <td>5/16</td>
- <td class="infeasible">24,093</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>28,623</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -323,10 +326,10 @@
 
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
- <td class="infeasible">8,529</td>
- <td>3/16</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -334,10 +337,10 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">473</td>
- <td>4/16</td>
- <td class="infeasible">8,140</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -345,21 +348,21 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3,026</td>
- <td>5/16</td>
- <td class="infeasible">9,829</td>
- <td>no</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>outerrim</td>
- <td class="infeasible">2,139</td>
- <td>5/16</td>
- <td class="infeasible">0</td>
- <td>no</td>
+ <td>void_gate_outpost</td><td>Independent</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_adaptive_shield_i</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -367,5 +370,6 @@
 
 </tbody>
 </table>
+</div>
 </body>
 </html>
