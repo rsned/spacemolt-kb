@@ -8,18 +8,22 @@ import (
 
 // RowCell is the render-ready per-station result for one target.
 type RowCell struct {
-	BoMCost        float64
-	BoMFeasible    bool
-	BoMCovered     int
-	BoMTotal       int
-	RecipeCost     float64
-	RecipeFeasible bool
-	RecipeNA       bool
-	RecipeID       string
-	SavingsBoM     float64
-	HasSavings     bool
-	ProfitBoM      float64
-	HasProfit      bool
+	BoMCost          float64
+	BoMFeasible      bool
+	BoMCovered       int
+	BoMTotal         int
+	RecipeCost       float64
+	RecipeFeasible   bool
+	RecipeNA         bool
+	RecipeID         string
+	SavingsBoM       float64
+	HasSavings       bool
+	ProfitBoM        float64
+	HasProfit        bool
+	SavingsRecipe    float64
+	HasSavingsRecipe bool
+	ProfitRecipe     float64
+	HasProfitRecipe  bool
 }
 
 // MatrixRow is one item/ship across all stations, plus summary columns.
@@ -44,14 +48,20 @@ type Matrix struct {
 // BuildMatrix computes every target×station cell and the per-row summaries.
 func BuildMatrix(targets []buildcost.Target, books map[string]*buildcost.Book, stations []StationMeta,
 	names, categories map[string]string, listings map[string]map[string]float64, catalogPrice map[string]int) Matrix {
-	m := Matrix{Stations: stations}
+	var active []StationMeta
+	for _, st := range stations {
+		if books[st.ID] != nil {
+			active = append(active, st)
+		}
+	}
+	m := Matrix{Stations: active}
 	for _, t := range targets {
 		row := MatrixRow{ID: t.ID, Name: names[t.ID], Kind: t.Kind, Category: categories[t.ID], Cells: map[string]RowCell{}}
 		if row.Name == "" {
 			row.Name = t.ID
 		}
 		haveCheapest := false
-		for _, st := range stations {
+		for _, st := range active {
 			book := books[st.ID]
 			if book == nil {
 				continue
@@ -69,11 +79,24 @@ func BuildMatrix(targets []buildcost.Target, books map[string]*buildcost.Book, s
 				RecipeCost: c.Recipe.Cost, RecipeFeasible: c.Recipe.Feasible,
 				RecipeNA: c.Recipe.NA, RecipeID: c.Recipe.RecipeID,
 			}
-			if s, ok := c.Margin.SavingsVsAsk(c.BoM.Cost); ok {
-				rc.SavingsBoM, rc.HasSavings = s, true
+			// BoM-mode margins: only meaningful when the BoM build actually completes.
+			// (Infeasible BoM cost is only a partial sum, so a margin off it would mislead.)
+			if c.BoM.Feasible {
+				if s, ok := c.Margin.SavingsVsAsk(c.BoM.Cost); ok {
+					rc.SavingsBoM, rc.HasSavings = s, true
+				}
+				if p, ok := c.Margin.ProfitVsBid(c.BoM.Cost); ok {
+					rc.ProfitBoM, rc.HasProfit = p, true
+				}
 			}
-			if p, ok := c.Margin.ProfitVsBid(c.BoM.Cost); ok {
-				rc.ProfitBoM, rc.HasProfit = p, true
+			// Recipe-mode margins: only when the recipe build completes and applies.
+			if c.Recipe.Feasible && !c.Recipe.NA {
+				if s, ok := c.Margin.SavingsVsAsk(c.Recipe.Cost); ok {
+					rc.SavingsRecipe, rc.HasSavingsRecipe = s, true
+				}
+				if p, ok := c.Margin.ProfitVsBid(c.Recipe.Cost); ok {
+					rc.ProfitRecipe, rc.HasProfitRecipe = p, true
+				}
 			}
 			row.Cells[st.ID] = rc
 			if c.BoM.Feasible {
@@ -88,6 +111,11 @@ func BuildMatrix(targets []buildcost.Target, books map[string]*buildcost.Book, s
 		}
 		m.Rows = append(m.Rows, row)
 	}
-	sort.Slice(m.Rows, func(i, j int) bool { return m.Rows[i].Name < m.Rows[j].Name })
+	sort.Slice(m.Rows, func(i, j int) bool {
+		if m.Rows[i].Name != m.Rows[j].Name {
+			return m.Rows[i].Name < m.Rows[j].Name
+		}
+		return m.Rows[i].ID < m.Rows[j].ID
+	})
 	return m
 }

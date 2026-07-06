@@ -24,6 +24,10 @@ type clientCell struct {
 	HS  bool    `json:"hs"`  // has savings
 	PF  float64 `json:"pf"`  // profit (BoM)
 	HP  bool    `json:"hp"`  // has profit
+	SVR float64 `json:"svr"` // savings (Recipe)
+	HSR bool    `json:"hsr"` // has savings (Recipe)
+	PFR float64 `json:"pfr"` // profit (Recipe)
+	HPR bool    `json:"hpr"` // has profit (Recipe)
 }
 
 type clientRow struct {
@@ -57,7 +61,11 @@ func toClientModel(m Matrix) clientModel {
 	for _, r := range m.Rows {
 		cr := clientRow{ID: r.ID, Name: r.Name, Kind: r.Kind, Cat: r.Category, CS: r.CheapestStation, CC: r.CheapestCost, FC: r.FeasibleCount, RFC: r.RecipeFeasibleCount, Cells: map[string]clientCell{}}
 		for st, c := range r.Cells {
-			cr.Cells[st] = clientCell{BC: c.BoMCost, BF: c.BoMFeasible, RC: c.RecipeCost, RF: c.RecipeFeasible, RNA: c.RecipeNA, SV: c.SavingsBoM, HS: c.HasSavings, PF: c.ProfitBoM, HP: c.HasProfit}
+			cr.Cells[st] = clientCell{
+				BC: c.BoMCost, BF: c.BoMFeasible, RC: c.RecipeCost, RF: c.RecipeFeasible, RNA: c.RecipeNA,
+				SV: c.SavingsBoM, HS: c.HasSavings, PF: c.ProfitBoM, HP: c.HasProfit,
+				SVR: c.SavingsRecipe, HSR: c.HasSavingsRecipe, PFR: c.ProfitRecipe, HPR: c.HasProfitRecipe,
+			}
 		}
 		cm.Rows = append(cm.Rows, cr)
 	}

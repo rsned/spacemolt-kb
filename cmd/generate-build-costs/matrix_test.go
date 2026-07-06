@@ -37,6 +37,55 @@ func TestBuildMatrix_CheapestAndFeasibleCount(t *testing.T) {
 	}
 }
 
+// TestBuildMatrix_MarginGatedOnBoMFeasibility proves that no savings/profit is
+// advertised on an infeasible BoM cell, even when a finished-good ask/bid
+// exists. "widget"'s BoM needs "unobtainium", which no station stocks, so the
+// BoM cost is only a partial sum (0, since nothing was purchasable) — a
+// savings/profit figure computed off that partial cost would be misleading.
+func TestBuildMatrix_MarginGatedOnBoMFeasibility(t *testing.T) {
+	targets := []buildcost.Target{{
+		ID: "widget", Kind: "item",
+		BoM: []buildcost.Requirement{{ItemID: "unobtainium", Qty: 1}},
+	}}
+	books := map[string]*buildcost.Book{
+		"st1": {
+			Sell:    map[string]buildcost.Ladder{"widget": {{Price: 50, Qty: 100}}},
+			BestBuy: map[string]float64{"widget": 40},
+		},
+	}
+	stations := []StationMeta{{ID: "st1"}}
+	m := BuildMatrix(targets, books, stations, map[string]string{"widget": "Widget"},
+		map[string]string{"widget": "Module"}, nil, nil)
+	if len(m.Rows) != 1 {
+		t.Fatalf("rows: %d", len(m.Rows))
+	}
+	c, ok := m.Rows[0].Cells["st1"]
+	if !ok {
+		t.Fatalf("missing cell for st1")
+	}
+	if c.BoMFeasible {
+		t.Fatalf("expected BoM infeasible (unobtainium stocked nowhere), got feasible")
+	}
+	if !approx(c.BoMCost, 0) {
+		t.Fatalf("BoM cost: %v want 0 (nothing purchasable)", c.BoMCost)
+	}
+	// A finished ask (50) and bid (40) both exist, so without the feasibility
+	// gate SavingsVsAsk(0)=50/HasSavings and ProfitVsBid(0)=40/HasProfit would
+	// both come back true — a misleading margin on an uncompletable build.
+	if c.HasSavings {
+		t.Fatalf("HasSavings: got true, want false (BoM infeasible, cost is only a partial sum)")
+	}
+	if c.SavingsBoM != 0 {
+		t.Fatalf("SavingsBoM: got %v, want 0 (zero value, unset)", c.SavingsBoM)
+	}
+	if c.HasProfit {
+		t.Fatalf("HasProfit: got true, want false (BoM infeasible, cost is only a partial sum)")
+	}
+	if c.ProfitBoM != 0 {
+		t.Fatalf("ProfitBoM: got %v, want 0 (zero value, unset)", c.ProfitBoM)
+	}
+}
+
 func TestBuildMatrix_RecipeFeasibleCount(t *testing.T) {
 	// gadget's BoM needs cobalt, which no station stocks (BoM infeasible
 	// everywhere). Its recipe needs copper, which only st1 stocks, so Recipe

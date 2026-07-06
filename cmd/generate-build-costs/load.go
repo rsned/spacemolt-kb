@@ -201,7 +201,8 @@ func loadTargets(craftDB *sql.DB, ships []Ship, itemNames map[string]string) ([]
 	type key struct{ id, kind string }
 	bom := map[key][]buildcost.Requirement{}
 	brows, err := craftDB.Query(`SELECT target_id, target_type, base_item_id, quantity
-	                             FROM bill_of_materials WHERE target_type IN ('item','ship')`)
+	                             FROM bill_of_materials WHERE target_type IN ('item','ship')
+	                             ORDER BY target_id, base_item_id`)
 	if err != nil {
 		return nil, nil, err
 	}

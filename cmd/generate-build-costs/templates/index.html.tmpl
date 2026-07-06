@@ -10,8 +10,10 @@
  table{border-collapse:collapse;font-size:.8rem} th,td{border:1px solid #21262d;padding:.25rem .4rem;text-align:right;white-space:nowrap}
  th.rowhdr,td.rowhdr{text-align:left;position:sticky;left:0;background:#0d1117;z-index:1}
  thead th{position:sticky;top:0;background:#161b22}
- td.infeasible{color:#6e7681} td.cheapest{outline:2px solid #2ea043}
- td.pos{color:#3fb950} td.neg{color:#f85149} a{color:#58a6ff}
+ td.cheapest{outline:2px solid #2ea043}
+ td.pos{color:#3fb950} td.neg{color:#f85149}
+ td.infeasible{color:#6e7681}
+ a{color:#58a6ff}
  .wrap{overflow:auto;max-height:80vh}
 </style>
 </head>
@@ -32,6 +34,7 @@
 <script>
 const M = JSON.parse(document.getElementById('data').textContent);
 const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function fmt(n){ return n==null? '' : Math.round(n).toLocaleString(); }
 function initFilter(sel, vals){ sel.innerHTML='<option value="">All</option>'+[...new Set(vals)].filter(Boolean).sort().map(v=>`<option>${v}</option>`).join(''); }
 initFilter($('category'), M.rows.map(r=>r.cat));
@@ -43,8 +46,16 @@ function cellVal(c, mode, metric){
   const cost = mode==='bom'? c.bc : c.rc;
   const feas = mode==='bom'? c.bf : c.rf;
   if(metric==='cost') return {v:cost, feas, na:false};
-  if(metric==='savings') return {v:c.hs? c.sv : null, feas, na:false};
-  return {v:c.hp? c.pf : null, feas, na:false};
+  if(metric==='savings'){
+    const has = mode==='recipe' ? c.hsr : c.hs;
+    const v   = mode==='recipe' ? c.svr : c.sv;
+    return {v: has ? v : null, feas, na:false};
+  }
+  {
+    const has = mode==='recipe' ? c.hpr : c.hp;
+    const v   = mode==='recipe' ? c.pfr : c.pf;
+    return {v: has ? v : null, feas, na:false};
+  }
 }
 function render(){
   const mode=$('mode').value, metric=$('metric').value;
@@ -52,7 +63,7 @@ function render(){
   const q=$('search').value.toLowerCase(), onlyFeas=$('feasible').checked;
   const cols = M.stations.filter(s=> (!emp||s.empire===emp) && (!stn||s.name===stn));
   let head='<tr><th class="rowhdr">Item / Ship</th><th>Cheapest</th>';
-  head += cols.map(s=>`<th title="${s.empire}">${s.name}</th>`).join('')+'</tr>';
+  head += cols.map(s=>`<th title="${esc(s.empire)}">${esc(s.name)}</th>`).join('')+'</tr>';
   $('matrix').tHead.innerHTML=head;
   const rowsHtml=[];
   for(const r of M.rows){
@@ -60,7 +71,7 @@ function render(){
     if(q && !r.name.toLowerCase().includes(q)) continue;
     const feasCount = mode==='recipe' ? r.rfc : r.fc;
     if(onlyFeas && feasCount===0) continue;
-    let tds=`<td class="rowhdr"><a href="./${r.id}.html">${r.name}</a> <small>${r.kind}</small></td>`;
+    let tds=`<td class="rowhdr"><a href="./${r.id}.html">${esc(r.name)}</a> <small>${esc(r.kind)}</small></td>`;
     tds+=`<td>${r.cs? fmt(r.cc)+' @'+ (M.stations.find(s=>s.id===r.cs)||{}).name : '—'}</td>`;
     for(const s of cols){
       const cv=cellVal(r.cells[s.id], mode, metric);
