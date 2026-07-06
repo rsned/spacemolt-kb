@@ -78,7 +78,8 @@ func main() {
 
 	m := BuildMatrix(targets, books, books, stations, names, categories, listings, catalogPrice)
 
-	must(renderIndex(*outDir, m), "render index")
+	tabs := []radiusTab{{Label: "Local", File: "index.html", Active: true}}
+	must(renderIndex(*outDir, "index.html", m, "Build Cost Matrix (Local)", tabs), "render index")
 	for _, row := range m.Rows {
 		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories), "render detail "+row.ID)
 	}

@@ -80,8 +80,15 @@ func matrixJSON(m Matrix) (string, error) {
 	return string(b), err
 }
 
+// radiusTab is one entry in the hop-radius tab bar.
+type radiusTab struct {
+	Label  string
+	File   string
+	Active bool
+}
+
 // renderIndex writes the landing matrix page.
-func renderIndex(outDir string, m Matrix) error {
+func renderIndex(outDir, fileName string, m Matrix, heading string, tabs []radiusTab) error {
 	js, err := matrixJSON(m)
 	if err != nil {
 		return err
@@ -93,12 +100,12 @@ func renderIndex(outDir string, m Matrix) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
-	f, err := os.Create(filepath.Join(outDir, "index.html"))
+	f, err := os.Create(filepath.Join(outDir, fileName))
 	if err != nil {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, map[string]any{"JSON": template.JS(js)})
+	return t.Execute(f, map[string]any{"JSON": template.JS(js), "Heading": heading, "Tabs": tabs})
 }
 
 // detailLine is one station row in a per-target detail table.

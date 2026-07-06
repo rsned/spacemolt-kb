@@ -18,7 +18,8 @@ func sampleMatrix() Matrix {
 
 func TestRenderIndex_WritesFileWithData(t *testing.T) {
 	dir := t.TempDir()
-	if err := renderIndex(dir, sampleMatrix()); err != nil {
+	tabs := []radiusTab{{Label: "Local", File: "index.html", Active: true}}
+	if err := renderIndex(dir, "index.html", sampleMatrix(), "Build Cost Matrix (Local)", tabs); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, "index.html"))
