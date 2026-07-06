@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -49,6 +51,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -72,19 +76,19 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="">240</td>
  <td>240</td><td>240</td><td>166</td>
- <td class="">33</td>
- <td>33</td><td>27</td><td>23</td>
+ <td class="">32</td>
+ <td>32</td><td>27</td><td>22</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>398</td><td>398</td>
- <td class="">91</td>
- <td>91</td><td>91</td><td>91</td>
+ <td>—</td><td>390</td><td>390</td>
+ <td class="">95</td>
+ <td>95</td><td>95</td><td>95</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -93,18 +97,18 @@
 <tr>
  <td>sol_central</td><td>Independent</td>
  <td class="">216</td>
- <td>216</td><td>216</td><td>216</td>
+ <td>212</td><td>212</td><td>212</td>
  <td class="">196</td>
- <td>196</td><td>54</td><td>54</td>
+ <td>196</td><td>196</td><td>196</td>
  <td>assemble_nimh_battery</td>
  <td class="neg">-106</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
- <td>5,008</td><td>4,978</td><td>4,978</td>
+ <td>5,010</td><td>4,978</td><td>4,978</td>
  <td class="infeasible">—</td>
  <td>41</td><td>41</td><td>23</td>
  <td>assemble_power_battery</td>
@@ -117,7 +121,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>240</td><td>240</td>
  <td class="infeasible">—</td>
- <td>—</td><td>31</td><td>31</td>
+ <td>—</td><td>27</td><td>27</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -137,9 +141,9 @@
 <tr>
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>216</td><td>216</td><td>216</td>
+ <td>216</td><td>212</td><td>212</td>
  <td class="infeasible">—</td>
- <td>54</td><td>54</td><td>54</td>
+ <td>196</td><td>196</td><td>196</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -159,9 +163,9 @@
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>216</td><td>216</td><td>216</td>
+ <td>212</td><td>212</td><td>212</td>
  <td class="infeasible">—</td>
- <td>196</td><td>196</td><td>54</td>
+ <td>196</td><td>196</td><td>196</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -172,7 +176,7 @@
  <td class="infeasible">—</td>
  <td>5,300</td><td>5,300</td><td>4,528</td>
  <td class="infeasible">—</td>
- <td>31</td><td>26</td><td>26</td>
+ <td>30</td><td>26</td><td>26</td>
  <td>assemble_power_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -181,9 +185,9 @@
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>398</td>
+ <td>—</td><td>—</td><td>390</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>91</td>
+ <td>—</td><td>—</td><td>95</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -194,8 +198,8 @@
  <td class="infeasible">—</td>
  <td>166</td><td>166</td><td>166</td>
  <td class="infeasible">—</td>
- <td>77</td><td>23</td><td>23</td>
- <td>assemble_power_battery</td>
+ <td>77</td><td>22</td><td>22</td>
+ <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -203,9 +207,9 @@
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>398</td><td>398</td>
+ <td>—</td><td>390</td><td>390</td>
  <td class="infeasible">—</td>
- <td>—</td><td>91</td><td>91</td>
+ <td>—</td><td>95</td><td>95</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -216,7 +220,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>240</td><td>240</td>
  <td class="infeasible">—</td>
- <td>—</td><td>31</td><td>31</td>
+ <td>—</td><td>27</td><td>27</td>
  <td>assemble_power_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -225,16 +229,16 @@
 <tr>
  <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>398</td>
+ <td>—</td><td>—</td><td>390</td>
  <td class="infeasible">—</td>
- <td>91</td><td>91</td><td>91</td>
+ <td>95</td><td>95</td><td>95</td>
  <td>assemble_power_battery</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>4,978</td><td>4,978</td><td>4,978</td>
  <td class="">50</td>
@@ -245,7 +249,7 @@
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>4,978</td><td>4,978</td><td>4,978</td>
  <td class="infeasible">—</td>
@@ -256,11 +260,11 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="infeasible">—</td>
- <td>316</td><td>216</td><td>216</td>
- <td class="">54</td>
- <td>54</td><td>54</td><td>54</td>
+ <td>316</td><td>216</td><td>212</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>196</td><td>196</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -271,7 +275,7 @@
  <td class="">316</td>
  <td>316</td><td>316</td><td>216</td>
  <td class="infeasible">—</td>
- <td>54</td><td>54</td><td>54</td>
+ <td>—</td><td>—</td><td>196</td>
  <td>assemble_power_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -280,9 +284,9 @@
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="">500</td>
- <td>500</td><td>398</td><td>398</td>
+ <td>500</td><td>390</td><td>390</td>
  <td class="infeasible">—</td>
- <td>—</td><td>91</td><td>91</td>
+ <td>—</td><td>95</td><td>95</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -348,18 +352,18 @@
  <td class="infeasible">—</td>
  <td>240</td><td>166</td><td>166</td>
  <td class="infeasible">—</td>
- <td>27</td><td>23</td><td>23</td>
+ <td>32</td><td>22</td><td>22</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="">166</td>
  <td>166</td><td>166</td><td>166</td>
  <td class="">77</td>
- <td>77</td><td>77</td><td>23</td>
+ <td>77</td><td>77</td><td>22</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -368,9 +372,9 @@
 <tr>
  <td>void_gate_outpost</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>488</td><td>488</td><td>398</td>
+ <td>480</td><td>480</td><td>390</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>91</td>
+ <td>—</td><td>—</td><td>95</td>
  <td>assemble_nimh_battery</td>
  <td class="">—</td>
  <td class="">—</td>

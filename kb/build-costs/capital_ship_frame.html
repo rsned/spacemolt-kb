@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -41,6 +43,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -52,9 +56,9 @@
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>214,531</td><td>188,391</td><td>188,391</td>
- <td class="">13,925</td>
- <td>13,719</td><td>13,524</td><td>13,524</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="">12,310</td>
+ <td>12,270</td><td>12,270</td><td>12,270</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -63,20 +67,20 @@
 <tr>
  <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>—</td><td>544,713</td><td>536,085</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>13,699</td><td>13,699</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>20,060</td><td>13,909</td>
+ <td>—</td><td>17,867</td><td>12,499</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -85,20 +89,20 @@
 <tr>
  <td>sol_central</td><td>Independent</td>
  <td class="">49,438</td>
- <td>35,270</td><td>31,650</td><td>31,538</td>
- <td class="">15,650</td>
- <td>13,488</td><td>13,488</td><td>13,488</td>
+ <td>35,270</td><td>32,522</td><td>32,410</td>
+ <td class="infeasible">—</td>
+ <td>13,774</td><td>13,774</td><td>13,774</td>
  <td>build_capital_ship_frame</td>
  <td class="neg">-48,633</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
- <td class="">14,446</td>
- <td>13,914</td><td>13,889</td><td>13,886</td>
+ <td class="">12,568</td>
+ <td>12,498</td><td>12,448</td><td>12,448</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -107,9 +111,9 @@
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>544,713</td><td>536,163</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>13,890</td><td>13,720</td><td>13,699</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -118,9 +122,9 @@
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>188,391</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>13,574</td><td>13,524</td>
+ <td>—</td><td>12,310</td><td>12,270</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -129,9 +133,9 @@
 <tr>
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>31,650</td><td>31,538</td><td>31,538</td>
- <td class="">14,379</td>
- <td>13,708</td><td>13,488</td><td>13,488</td>
+ <td>32,522</td><td>32,410</td><td>32,410</td>
+ <td class="">13,918</td>
+ <td>13,918</td><td>13,774</td><td>13,774</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -139,21 +143,21 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="">227,453</td>
- <td>215,299</td><td>214,531</td><td>188,391</td>
- <td class="">21,445</td>
- <td>13,719</td><td>13,719</td><td>13,524</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="">20,996</td>
+ <td>12,270</td><td>12,270</td><td>12,270</td>
  <td>build_capital_ship_frame</td>
- <td class="neg">-226,587</td>
- <td class="neg">-227,428</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>47,170</td><td>35,270</td><td>31,650</td>
- <td class="">13,548</td>
- <td>13,548</td><td>13,488</td><td>13,488</td>
+ <td>47,170</td><td>35,270</td><td>32,522</td>
+ <td class="infeasible">—</td>
+ <td>13,834</td><td>13,774</td><td>13,774</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -162,9 +166,9 @@
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>215,299</td><td>214,531</td><td>188,391</td>
- <td class="">14,149</td>
- <td>13,875</td><td>13,719</td><td>13,524</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="">13,925</td>
+ <td>12,270</td><td>12,270</td><td>12,270</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -175,7 +179,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>13,909</td>
+ <td>—</td><td>12,499</td><td>12,499</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -197,7 +201,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>13,909</td><td>13,909</td>
+ <td>—</td><td>12,499</td><td>12,499</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -206,9 +210,9 @@
 <tr>
  <td>gold_run_extraction_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>—</td><td>536,163</td><td>536,163</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>13,890</td><td>13,708</td><td>13,699</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -219,40 +223,40 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>20,060</td>
+ <td>—</td><td>—</td><td>17,867</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
- <td class="">13,949</td>
- <td>13,889</td><td>13,886</td><td>13,886</td>
+ <td class="">13,456</td>
+ <td>12,448</td><td>12,448</td><td>12,448</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>13,895</td><td>13,886</td><td>13,886</td>
+ <td>12,542</td><td>12,448</td><td>12,448</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="infeasible">—</td>
- <td>—</td><td>31,538</td><td>31,538</td>
- <td class="">13,718</td>
- <td>13,708</td><td>13,708</td><td>13,488</td>
+ <td>—</td><td>32,410</td><td>32,410</td>
+ <td class="">14,434</td>
+ <td>13,918</td><td>13,918</td><td>13,774</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -261,9 +265,9 @@
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>31,538</td>
+ <td>—</td><td>—</td><td>32,410</td>
  <td class="infeasible">—</td>
- <td>13,718</td><td>13,708</td><td>13,708</td>
+ <td>14,434</td><td>13,918</td><td>13,918</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -274,7 +278,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>13,909</td>
+ <td>—</td><td>—</td><td>12,499</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -285,7 +289,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>13,886</td><td>13,886</td><td>13,886</td>
+ <td>12,542</td><td>12,448</td><td>12,448</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -294,9 +298,9 @@
 <tr>
  <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>223,043</td><td>214,531</td><td>188,391</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>13,729</td><td>13,719</td><td>13,524</td>
+ <td>12,270</td><td>12,270</td><td>12,270</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -305,9 +309,9 @@
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>188,391</td><td>188,391</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>13,574</td><td>13,524</td><td>13,524</td>
+ <td>12,310</td><td>12,270</td><td>12,270</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -318,7 +322,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>13,886</td><td>13,886</td>
+ <td>—</td><td>12,542</td><td>12,448</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -327,9 +331,9 @@
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>536,163</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>13,699</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -338,16 +342,16 @@
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>536,085</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>13,699</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -362,7 +366,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>13,909</td>
+ <td>—</td><td>—</td><td>12,499</td>
  <td>build_capital_ship_frame</td>
  <td class="">—</td>
  <td class="">—</td>

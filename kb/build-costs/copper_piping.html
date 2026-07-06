@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -41,6 +43,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -52,9 +56,9 @@
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>491</td><td>68</td><td>68</td>
+ <td>458</td><td>35</td><td>35</td>
  <td class="infeasible">—</td>
- <td>486</td><td>65</td><td>65</td>
+ <td>510</td><td>89</td><td>89</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -62,21 +66,21 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="">370</td>
- <td>370</td><td>34</td><td>34</td>
- <td class="">82</td>
- <td>82</td><td>69</td><td>69</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>81</td>
+ <td class="">81</td>
+ <td>81</td><td>81</td><td>81</td>
  <td>draw_copper_piping</td>
- <td class="neg">-331</td>
- <td class="neg">-369</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>66</td><td>66</td>
+ <td>—</td><td>54</td><td>54</td>
  <td class="infeasible">—</td>
- <td>—</td><td>94</td><td>94</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -85,16 +89,16 @@
 <tr>
  <td>sol_central</td><td>Independent</td>
  <td class="">74</td>
- <td>74</td><td>59</td><td>59</td>
+ <td>68</td><td>53</td><td>53</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>88</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="neg">-47</td>
  <td class="neg">-73</td>
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -107,9 +111,9 @@
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>34</td><td>34</td>
+ <td>—</td><td>—</td><td>81</td>
  <td class="infeasible">—</td>
- <td>—</td><td>69</td><td>69</td>
+ <td>—</td><td>81</td><td>81</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -118,9 +122,9 @@
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="">97</td>
- <td>87</td><td>68</td><td>68</td>
+ <td>54</td><td>35</td><td>35</td>
  <td class="infeasible">—</td>
- <td>—</td><td>65</td><td>65</td>
+ <td>—</td><td>—</td><td>89</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -129,9 +133,9 @@
 <tr>
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>59</td><td>59</td><td>59</td>
+ <td>59</td><td>53</td><td>53</td>
  <td class="infeasible">—</td>
- <td>—</td><td>88</td><td>88</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -140,9 +144,9 @@
 <tr>
  <td>war_citadel</td><td>Independent</td>
  <td class="">501</td>
- <td>501</td><td>491</td><td>68</td>
- <td class="">512</td>
- <td>486</td><td>486</td><td>65</td>
+ <td>501</td><td>458</td><td>35</td>
+ <td class="">510</td>
+ <td>510</td><td>510</td><td>89</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -151,7 +155,7 @@
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>74</td><td>74</td><td>59</td>
+ <td>68</td><td>68</td><td>53</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
@@ -162,9 +166,9 @@
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>501</td><td>491</td><td>68</td>
+ <td>501</td><td>458</td><td>35</td>
  <td class="infeasible">—</td>
- <td>486</td><td>486</td><td>65</td>
+ <td>510</td><td>510</td><td>89</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -173,9 +177,9 @@
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>68</td><td>66</td>
+ <td>—</td><td>56</td><td>54</td>
  <td class="infeasible">—</td>
- <td>—</td><td>110</td><td>94</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -184,9 +188,9 @@
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>—</td><td>370</td><td>85</td>
+ <td>—</td><td>—</td><td>85</td>
  <td class="infeasible">—</td>
- <td>—</td><td>82</td><td>82</td>
+ <td>—</td><td>81</td><td>81</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -194,10 +198,10 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="">68</td>
- <td>68</td><td>66</td><td>66</td>
- <td class="">110</td>
- <td>110</td><td>94</td><td>94</td>
+ <td class="">56</td>
+ <td>56</td><td>54</td><td>54</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -206,9 +210,9 @@
 <tr>
  <td>gold_run_extraction_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>—</td><td>34</td><td>34</td>
+ <td>—</td><td>81</td><td>81</td>
  <td class="infeasible">—</td>
- <td>—</td><td>69</td><td>69</td>
+ <td>—</td><td>81</td><td>81</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -217,18 +221,7 @@
 <tr>
  <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>66</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>94</td>
- <td>draw_copper_piping</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td>—</td><td>—</td><td>54</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
@@ -237,7 +230,7 @@
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -248,11 +241,22 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td>draw_copper_piping</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="">1,085</td>
- <td>84</td><td>59</td><td>59</td>
+ <td>84</td><td>59</td><td>53</td>
  <td class="infeasible">—</td>
- <td>88</td><td>88</td><td>88</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="neg">-1,050</td>
  <td class="">—</td>
@@ -262,8 +266,8 @@
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="">84</td>
  <td>84</td><td>84</td><td>59</td>
- <td class="">88</td>
- <td>88</td><td>88</td><td>88</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -272,9 +276,9 @@
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="">109</td>
- <td>109</td><td>66</td><td>66</td>
- <td class="">112</td>
- <td>112</td><td>94</td><td>94</td>
+ <td>109</td><td>54</td><td>54</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="neg">-93</td>
  <td class="neg">-108</td>
@@ -294,9 +298,9 @@
 <tr>
  <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>501</td><td>491</td><td>68</td>
+ <td>501</td><td>458</td><td>35</td>
  <td class="infeasible">—</td>
- <td>486</td><td>486</td><td>65</td>
+ <td>510</td><td>510</td><td>89</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -305,9 +309,9 @@
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>68</td><td>68</td><td>68</td>
+ <td>35</td><td>35</td><td>35</td>
  <td class="infeasible">—</td>
- <td>65</td><td>65</td><td>65</td>
+ <td>—</td><td>89</td><td>89</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -327,9 +331,9 @@
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>34</td>
+ <td>—</td><td>—</td><td>81</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>69</td>
+ <td>—</td><td>—</td><td>81</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -338,20 +342,20 @@
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>370</td><td>85</td><td>34</td>
+ <td>—</td><td>85</td><td>81</td>
  <td class="infeasible">—</td>
- <td>82</td><td>82</td><td>69</td>
+ <td>81</td><td>81</td><td>81</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>370</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>82</td>
+ <td>—</td><td>—</td><td>81</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -360,9 +364,9 @@
 <tr>
  <td>void_gate_outpost</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>68</td><td>68</td><td>66</td>
+ <td>56</td><td>56</td><td>54</td>
  <td class="infeasible">—</td>
- <td>94</td><td>94</td><td>94</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>draw_copper_piping</td>
  <td class="">—</td>
  <td class="">—</td>

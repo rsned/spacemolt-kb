@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -49,6 +51,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -60,9 +64,9 @@
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>40</td><td>40</td><td>40</td>
- <td class="">14</td>
- <td>2</td><td>2</td><td>2</td>
+ <td>7</td><td>7</td><td>7</td>
+ <td class="infeasible">—</td>
+ <td>0</td><td>0</td><td>0</td>
  <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -70,17 +74,17 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="">350</td>
- <td>350</td><td>18</td><td>18</td>
- <td class="">14</td>
- <td>14</td><td>1</td><td>1</td>
- <td>onboard_munitions_fabrication</td>
- <td class="neg">-346</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>65</td>
+ <td class="">26</td>
+ <td>26</td><td>26</td><td>3</td>
+ <td>manufacture_standard_rounds</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>37</td><td>37</td>
  <td class="infeasible">—</td>
@@ -102,7 +106,7 @@
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -114,11 +118,11 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="">18</td>
- <td>18</td><td>18</td><td>18</td>
- <td class="">1</td>
- <td>1</td><td>1</td><td>1</td>
- <td>onboard_munitions_fabrication</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>65</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>26</td><td>3</td>
+ <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -126,9 +130,9 @@
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="">50</td>
- <td>40</td><td>40</td><td>40</td>
+ <td>7</td><td>7</td><td>7</td>
  <td class="">2</td>
- <td>2</td><td>2</td><td>2</td>
+ <td>0</td><td>0</td><td>0</td>
  <td>onboard_munitions_fabrication</td>
  <td class="neg">-38</td>
  <td class="">—</td>
@@ -148,9 +152,9 @@
 <tr>
  <td>war_citadel</td><td>Independent</td>
  <td class="">50</td>
- <td>50</td><td>40</td><td>40</td>
+ <td>50</td><td>7</td><td>7</td>
  <td class="">2</td>
- <td>2</td><td>2</td><td>2</td>
+ <td>2</td><td>0</td><td>0</td>
  <td>onboard_munitions_fabrication</td>
  <td class="neg">-48</td>
  <td class="">—</td>
@@ -170,9 +174,9 @@
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>50</td><td>40</td><td>40</td>
+ <td>50</td><td>7</td><td>7</td>
  <td class="infeasible">—</td>
- <td>2</td><td>2</td><td>2</td>
+ <td>2</td><td>0</td><td>0</td>
  <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -192,9 +196,9 @@
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>—</td><td>350</td><td>65</td>
+ <td>—</td><td>—</td><td>65</td>
  <td class="infeasible">—</td>
- <td>—</td><td>14</td><td>3</td>
+ <td>—</td><td>26</td><td>3</td>
  <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -214,9 +218,9 @@
 <tr>
  <td>gold_run_extraction_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>18</td><td>18</td><td>18</td>
+ <td>—</td><td>65</td><td>65</td>
  <td class="infeasible">—</td>
- <td>1</td><td>1</td><td>1</td>
+ <td>—</td><td>3</td><td>3</td>
  <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -234,7 +238,7 @@
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -245,7 +249,7 @@
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -256,7 +260,7 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="">1,000</td>
  <td>50</td><td>25</td><td>25</td>
  <td class="">40</td>
@@ -302,9 +306,9 @@
 <tr>
  <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>50</td><td>40</td><td>40</td>
+ <td>50</td><td>7</td><td>7</td>
  <td class="infeasible">—</td>
- <td>2</td><td>2</td><td>2</td>
+ <td>2</td><td>0</td><td>0</td>
  <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -312,10 +316,10 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="">40</td>
- <td>40</td><td>40</td><td>40</td>
- <td class="">2</td>
- <td>2</td><td>2</td><td>2</td>
+ <td class="">7</td>
+ <td>7</td><td>7</td><td>7</td>
+ <td class="">0</td>
+ <td>0</td><td>0</td><td>0</td>
  <td>onboard_munitions_fabrication</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -335,9 +339,9 @@
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
  <td class="">65</td>
- <td>65</td><td>65</td><td>18</td>
+ <td>65</td><td>65</td><td>65</td>
  <td class="">3</td>
- <td>3</td><td>3</td><td>1</td>
+ <td>3</td><td>3</td><td>3</td>
  <td>onboard_munitions_fabrication</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -346,20 +350,20 @@
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>350</td><td>65</td><td>18</td>
+ <td>—</td><td>65</td><td>65</td>
  <td class="infeasible">—</td>
- <td>14</td><td>3</td><td>1</td>
+ <td>26</td><td>3</td><td>3</td>
  <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>350</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>14</td>
+ <td>—</td><td>—</td><td>26</td>
  <td>manufacture_standard_rounds</td>
  <td class="">—</td>
  <td class="">—</td>
