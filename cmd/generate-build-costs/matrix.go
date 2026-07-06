@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"sort"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
@@ -43,6 +44,42 @@ type MatrixRow struct {
 type Matrix struct {
 	Stations []StationMeta
 	Rows     []MatrixRow
+}
+
+// Viability summarizes, over all targets, how many are buildable at one or more
+// stations as BoM, as Recipe, or by either mode (within the matrix's radius).
+type Viability struct {
+	Total  int
+	BoM    int
+	Recipe int
+	Either int
+}
+
+// Pct returns n as a percentage of the total, rounded to a whole number (0 if empty).
+func (v Viability) Pct(n int) int {
+	if v.Total == 0 {
+		return 0
+	}
+	return int(math.Round(100 * float64(n) / float64(v.Total)))
+}
+
+// matrixViability counts targets makeable at >=1 station in each mode.
+func matrixViability(m Matrix) Viability {
+	v := Viability{Total: len(m.Rows)}
+	for _, r := range m.Rows {
+		bom := r.FeasibleCount > 0
+		rec := r.RecipeFeasibleCount > 0
+		if bom {
+			v.BoM++
+		}
+		if rec {
+			v.Recipe++
+		}
+		if bom || rec {
+			v.Either++
+		}
+	}
+	return v
 }
 
 // BuildMatrix computes every target×station cell and the per-row summaries.
