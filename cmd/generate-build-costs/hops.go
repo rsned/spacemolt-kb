@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"sort"
+
+	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
 
 // systemResolver maps a market station's system_id — which may be a systems.id
@@ -148,4 +150,39 @@ func poolMembers(hopDist map[string]map[string]int, home string, radius int) []s
 	}
 	sort.Strings(members)
 	return members
+}
+
+// pooledBook merges the sell ladders of the member stations into a single Book
+// with each item's ladder re-sorted ascending by price. BestBuy is left empty:
+// margins use the home station's own book, never the pool.
+func pooledBook(books map[string]*buildcost.Book, members []string) *buildcost.Book {
+	pb := &buildcost.Book{Sell: map[string]buildcost.Ladder{}, BestBuy: map[string]float64{}}
+	for _, id := range members {
+		b := books[id]
+		if b == nil {
+			continue
+		}
+		for item, ladder := range b.Sell {
+			pb.Sell[item] = append(pb.Sell[item], ladder...)
+		}
+	}
+	for item, ladder := range pb.Sell {
+		sort.Slice(ladder, func(i, j int) bool { return ladder[i].Price < ladder[j].Price })
+		pb.Sell[item] = ladder
+	}
+	return pb
+}
+
+// pooledBooksForRadius returns, for each station that has a local book, a pooled
+// book combining every station within radius jumps. A station's pool always
+// includes itself, so the active-station set is identical across radii.
+func pooledBooksForRadius(books map[string]*buildcost.Book, hopDist map[string]map[string]int, stations []StationMeta, radius int) map[string]*buildcost.Book {
+	out := make(map[string]*buildcost.Book, len(stations))
+	for _, s := range stations {
+		if books[s.ID] == nil {
+			continue
+		}
+		out[s.ID] = pooledBook(books, poolMembers(hopDist, s.ID, radius))
+	}
+	return out
 }

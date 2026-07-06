@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"reflect"
 	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
 
 func TestSystemResolver_canon(t *testing.T) {
@@ -143,5 +145,54 @@ func TestLoadConnections(t *testing.T) {
 	}
 	if !reflect.DeepEqual(adj, want) {
 		t.Errorf("loadConnections = %v, want %v", adj, want)
+	}
+}
+
+func TestPooledBook_UnionAndSort(t *testing.T) {
+	books := map[string]*buildcost.Book{
+		"A": {Sell: map[string]buildcost.Ladder{"iron": {{Price: 10, Qty: 5}, {Price: 20, Qty: 5}}}},
+		"B": {Sell: map[string]buildcost.Ladder{"iron": {{Price: 15, Qty: 5}}, "gold": {{Price: 99, Qty: 1}}}},
+	}
+	pb := pooledBook(books, []string{"A", "B"})
+	// iron ladder is the union of both, re-sorted ascending by price.
+	iron := pb.Sell["iron"]
+	wantPrices := []float64{10, 15, 20}
+	if len(iron) != 3 {
+		t.Fatalf("iron ladder len = %d, want 3", len(iron))
+	}
+	for i, p := range wantPrices {
+		if iron[i].Price != p {
+			t.Errorf("iron[%d].Price = %v, want %v", i, iron[i].Price, p)
+		}
+	}
+	// gold only exists at B.
+	if len(pb.Sell["gold"]) != 1 || pb.Sell["gold"][0].Price != 99 {
+		t.Errorf("gold ladder wrong: %v", pb.Sell["gold"])
+	}
+	// A cheapest-first walk over the pool picks the globally cheapest depth.
+	w := pb.Walk("iron", 6) // 5@10 + 1@15 = 65
+	if w.Cost != 65 || w.Shortfall != 0 {
+		t.Errorf("pooled walk = %+v, want cost 65 shortfall 0", w)
+	}
+}
+
+func TestPooledBooksForRadius(t *testing.T) {
+	// A and C are 2 hops apart; radius 2 pools them, radius 1 does not.
+	hopDist := map[string]map[string]int{
+		"A": {"A": 0, "C": 2},
+		"C": {"C": 0, "A": 2},
+	}
+	books := map[string]*buildcost.Book{
+		"A": {Sell: map[string]buildcost.Ladder{"iron": {{Price: 20, Qty: 5}}}},
+		"C": {Sell: map[string]buildcost.Ladder{"iron": {{Price: 8, Qty: 5}}}},
+	}
+	stations := []StationMeta{{ID: "A"}, {ID: "C"}}
+	r1 := pooledBooksForRadius(books, hopDist, stations, 1)
+	if got := r1["A"].Walk("iron", 1).Cost; got != 20 {
+		t.Errorf("radius1 A iron = %v, want 20 (local only)", got)
+	}
+	r2 := pooledBooksForRadius(books, hopDist, stations, 2)
+	if got := r2["A"].Walk("iron", 1).Cost; got != 8 {
+		t.Errorf("radius2 A iron = %v, want 8 (C is cheaper, within 2 hops)", got)
 	}
 }
