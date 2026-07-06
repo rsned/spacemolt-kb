@@ -8,6 +8,7 @@
  table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
+ .scrollx{overflow-x:auto}
 </style>
 </head>
 <body>
@@ -44,17 +45,19 @@
 {{end}}
 
 <h2>Build cost by station</h2>
-<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.</p>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+<div class="scrollx">
 <table>
-<thead><tr><th>Station</th><th>Empire</th><th>BoM cost</th><th>BoM Feasible</th><th>Recipe cost</th><th>Recipe Feasible</th><th>Recipe</th><th>Savings</th><th>Profit</th></tr></thead>
+<thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used</th><th>Savings</th><th>Profit</th></tr></thead>
 <tbody>
 {{range .Lines}}
 <tr>
  <td>{{.StationName}}</td><td>{{.Empire}}</td>
- <td class="{{if not .BoMFeasible}}infeasible{{end}}">{{.BoMCostStr}}</td>
- <td>{{.BoMCovered}}/{{.BoMTotal}}</td>
- <td class="{{if .RecipeNA}}infeasible{{else if not .RecipeFeasible}}infeasible{{end}}">{{.RecipeCostStr}}</td>
- <td>{{.RecipeFeasibleStr}}</td>
+ <td class="{{if not .BoMFeasible}}infeasible{{end}}">{{index .BoMHop 0}}</td>
+ <td>{{index .BoMHop 1}}</td><td>{{index .BoMHop 2}}</td><td>{{index .BoMHop 3}}</td>
+ <td class="{{if .RecipeNA}}infeasible{{else if not .RecipeFeasible}}infeasible{{end}}">{{index .RecipeHop 0}}</td>
+ <td>{{index .RecipeHop 1}}</td><td>{{index .RecipeHop 2}}</td><td>{{index .RecipeHop 3}}</td>
  <td>{{.RecipeID}}</td>
  <td class="{{.SavingsClass}}">{{.SavingsStr}}</td>
  <td class="{{.ProfitClass}}">{{.ProfitStr}}</td>
@@ -62,5 +65,6 @@
 {{end}}
 </tbody>
 </table>
+</div>
 </body>
 </html>

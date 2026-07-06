@@ -123,6 +123,9 @@ type detailLine struct {
 	RecipeFeasibleStr string
 	RecipeID          string
 
+	BoMHop    [4]string // BoM cost per radius 0..3 ("—" when infeasible)
+	RecipeHop [4]string // Recipe cost per radius 0..3 ("—" when infeasible/NA)
+
 	SavingsStr, SavingsClass string
 	ProfitStr, ProfitClass   string
 }
@@ -146,6 +149,15 @@ func commaInt(v float64) string {
 		return "-" + string(out)
 	}
 	return string(out)
+}
+
+// hopCostStr formats a per-radius cost: the number when feasible, else an
+// em-dash (also em-dash when the station has no cell at that radius).
+func hopCostStr(cost float64, feasible, present bool) string {
+	if !present || !feasible {
+		return "—"
+	}
+	return commaInt(cost)
 }
 
 // money renders a value as a comma-formatted string, or an em dash when absent.
@@ -197,7 +209,7 @@ func qtyStr(v float64) string {
 }
 
 // renderDetail writes the per-target station breakdown page.
-func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string) error {
+func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string, hopRows [4]MatrixRow) error {
 	t, err := template.ParseFS(tmplFS, "templates/detail.html.tmpl")
 	if err != nil {
 		return err
@@ -252,6 +264,11 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 			} else {
 				ln.RecipeFeasibleStr = "no"
 			}
+		}
+		for r := range 4 {
+			hc, ok := hopRows[r].Cells[s.ID]
+			ln.BoMHop[r] = hopCostStr(hc.BoMCost, hc.BoMFeasible, ok)
+			ln.RecipeHop[r] = hopCostStr(hc.RecipeCost, hc.RecipeFeasible && !hc.RecipeNA, ok && !hc.RecipeNA)
 		}
 		lines = append(lines, ln)
 	}

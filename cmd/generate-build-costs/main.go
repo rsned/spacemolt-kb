@@ -106,8 +106,20 @@ func main() {
 		must(renderIndex(*outDir, radiusFiles[radius], matrices[radius], headings[radius], tabs), "render index "+radiusFiles[radius])
 	}
 
+	rowByID := make([]map[string]MatrixRow, 4)
+	for radius := range 4 {
+		idx := make(map[string]MatrixRow, len(matrices[radius].Rows))
+		for _, row := range matrices[radius].Rows {
+			idx[row.ID] = row
+		}
+		rowByID[radius] = idx
+	}
 	for _, row := range matrices[0].Rows {
-		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories), "render detail "+row.ID)
+		var hopRows [4]MatrixRow
+		for radius := range 4 {
+			hopRows[radius] = rowByID[radius][row.ID]
+		}
+		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories, hopRows), "render detail "+row.ID)
 	}
 	log.Printf("build-costs: %d rows × %d stations × 4 radii → %s", len(matrices[0].Rows), len(matrices[0].Stations), *outDir)
 }
