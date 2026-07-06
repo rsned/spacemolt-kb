@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stations Needed to Build — Spacemolt KB</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+ body{max-width:1100px;margin:0 auto;padding:1rem}
+ .factoids{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:1rem 0}
+ .factoid{background:var(--bg-card,#161b22);border:1px solid var(--border,#30363d);border-left:4px solid #6c5ce7;border-radius:8px;padding:14px}
+ .factoid .big{font-size:1.6rem;font-weight:700;color:var(--link,#58a6ff)}
+ .factoid .lbl{font-size:.85rem;color:var(--text-muted,#8b949e)}
+ .charts{display:flex;flex-wrap:wrap;gap:2rem;margin:1rem 0}
+ .chart{flex:1;min-width:280px}
+ .chart h3{font-size:1rem;margin:.2rem 0}
+ .chart-row{display:flex;align-items:flex-end;gap:6px;height:160px;border-bottom:1px solid var(--border,#30363d);padding-bottom:0}
+ .chart-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1}
+ .chart-bar{width:100%;background:#6c5ce7;border-radius:3px 3px 0 0;min-height:2px}
+ .chart-col .n{font-size:.75rem;color:var(--text-muted,#8b949e)}
+ .chart-col .x{font-size:.8rem;margin-top:.2rem}
+ .unbuildable-note{font-size:.85rem;color:var(--text-muted,#8b949e);margin-top:.5rem}
+ table{border-collapse:collapse;width:100%;font-size:.85rem;margin-top:1rem}
+ th,td{border:1px solid var(--border,#21262d);padding:.3rem .5rem;text-align:left}
+ th{cursor:pointer;background:var(--bg-card,#161b22)}
+ td.num{text-align:right}
+ .badge{font-size:.7rem;background:#9a6700;color:#fff;border-radius:3px;padding:0 .3rem;margin-left:.3rem}
+ .scrollx{overflow-x:auto}
+</style>
+</head>
+<body>
+<p><a href="index.html">← Did You Know?</a></p>
+<h1>How Many Stations to Build Anything?</h1>
+<p>The fewest distinct market stations you must shop at to source every part for one build, depth-aware, across all {{.Total}} items and ships. Count only — travel between stations is ignored. <b>BoM</b> = from raw ore; <b>Recipe</b> = from sub-assemblies.</p>
+
+<div class="factoids">
+ <div class="factoid"><div class="big">{{.SingleStation}}</div><div class="lbl">targets buildable from a single station</div></div>
+ <div class="factoid"><div class="big">{{printf "%.1f" .AvgStations}}</div><div class="lbl">average stations per buildable target</div></div>
+ <div class="factoid"><div class="big">{{.MaxStations}}</div><div class="lbl">hardest: <a href="../build-costs/{{.HardestID}}.html">{{.HardestName}}</a></div></div>
+ <div class="factoid"><div class="big">{{.UnbuildableCount}}</div><div class="lbl">targets can't be built anywhere — parts aren't all sold</div></div>
+ <div class="factoid"><div class="big">{{.BatchSensitiveCount}}</div><div class="lbl">need more stations to build 10 at once</div></div>
+</div>
+
+<div class="charts">
+ <div class="chart">
+  <h3>BoM — targets by station count</h3>
+  <div class="chart-row">
+   {{range .BoMHistogram}}<div class="chart-col"><div class="n">{{.Count}}</div><div class="chart-bar" style="height:{{.HeightPct}}%"></div><div class="x">{{.Stations}}</div></div>{{end}}
+  </div>
+  <div class="unbuildable-note">+ {{.UnbuildableCount}} unbuildable anywhere</div>
+ </div>
+ <div class="chart">
+  <h3>Recipe — targets by station count</h3>
+  <div class="chart-row">
+   {{range .RecipeHistogram}}<div class="chart-col"><div class="n">{{.Count}}</div><div class="chart-bar" style="height:{{.HeightPct}}%"></div><div class="x">{{.Stations}}</div></div>{{end}}
+  </div>
+ </div>
+</div>
+
+<h2>Every buildable target</h2>
+<div class="scrollx">
+<table id="main">
+<thead><tr><th>Target</th><th>Category</th><th>Kind</th><th>BoM stations</th><th>Recipe stations</th><th>Example cover</th></tr></thead>
+<tbody>
+{{range .Buildable}}<tr>
+<td><a href="../build-costs/{{.ID}}.html">{{.Name}}</a>{{if .BatchSensitive}}<span class="badge" title="needs more stations to build 10">×10</span>{{end}}</td>
+<td>{{.Category}}</td><td>{{.Kind}}</td>
+<td class="num" data-sort="{{.BoM.Count}}">{{.BoM.Count}}{{if not .BoM.Exact}}*{{end}}</td>
+<td class="num" data-sort="{{if .RecipeNA}}-1{{else}}{{.Recipe.Count}}{{end}}">{{if .RecipeNA}}N/A{{else}}{{.Recipe.Count}}{{if not .Recipe.Exact}}*{{end}}{{end}}</td>
+<td>{{range $i, $s := .ExampleCover}}{{if $i}}, {{end}}{{$s}}{{end}}</td>
+</tr>{{end}}
+</tbody>
+</table>
+</div>
+<p style="font-size:.8rem;color:#8b949e">* = greedy upper bound (a proven minimum wasn't searched beyond 3 stations).</p>
+
+<h2>Can't be built anywhere ({{.UnbuildableCount}})</h2>
+<p>These can't be built at any combination of stations right now — one or more inputs have no market depth anywhere.</p>
+<div class="scrollx">
+<table>
+<thead><tr><th>Target</th><th>Category</th><th>Kind</th><th>Missing input(s)</th></tr></thead>
+<tbody>
+{{range .Unbuildable}}<tr><td>{{.Name}}</td><td>{{.Category}}</td><td>{{.Kind}}</td><td>{{range $i, $m := .Missing}}{{if $i}}, {{end}}{{$m}}{{end}}</td></tr>{{end}}
+</tbody>
+</table>
+</div>
+
+<script>
+// Lightweight click-to-sort for the main table.
+document.querySelectorAll('#main th').forEach((th, idx) => th.addEventListener('click', () => {
+  const tb = th.closest('table').tBodies[0];
+  const rows = [...tb.rows];
+  const dir = th.dataset.dir === 'asc' ? -1 : 1;
+  th.dataset.dir = dir === 1 ? 'asc' : 'desc';
+  rows.sort((a, b) => {
+    const ca = a.cells[idx], cb = b.cells[idx];
+    const va = ca.dataset.sort ?? ca.textContent.trim();
+    const vb = cb.dataset.sort ?? cb.textContent.trim();
+    const na = parseFloat(va), nb = parseFloat(vb);
+    if (!isNaN(na) && !isNaN(nb)) return (na - nb) * dir;
+    return va.localeCompare(vb) * dir;
+  });
+  rows.forEach(r => tb.appendChild(r));
+}));
+</script>
+</body>
+</html>

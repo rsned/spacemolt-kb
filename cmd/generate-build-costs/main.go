@@ -26,6 +26,7 @@ func main() {
 	catalogRoot := flag.String("catalog", "../spacemolt/data/game-api", "game-api catalog root")
 	outDir := flag.String("out", "kb/build-costs", "output directory")
 	capMult := flag.Float64("price-cap-mult", 100, "drop sell orders priced above this multiple of an item's typical ask (VWAP); 0 = no cap")
+	stationCoverOut := flag.String("station-cover-out", "kb/did_you_know/stations_to_build.html", "output path for the station-cover did-you-know page; empty disables it")
 	flag.Parse()
 
 	craftDB, err := openRO(*craftPath)
@@ -128,6 +129,20 @@ func main() {
 		}
 		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories, hopRows), "render detail "+row.ID)
 	}
+	if *stationCoverOut != "" {
+		depth := stationDepthFromBooks(books)
+		stationIDs := make([]string, 0, len(stations))
+		stationNames := make(map[string]string, len(stations))
+		for _, st := range stations {
+			stationIDs = append(stationIDs, st.ID)
+			stationNames[st.ID] = st.Name
+		}
+		page := buildStationCoverPage(targets, depth, stationIDs, stationNames, itemNames, categories)
+		must(renderStationCover(*stationCoverOut, page), "render station cover")
+		log.Printf("station-cover: %d buildable, %d single-station, %d unbuildable, hardest %s (%d) → %s",
+			len(page.Buildable), page.SingleStation, page.UnbuildableCount, page.HardestID, page.MaxStations, *stationCoverOut)
+	}
+
 	log.Printf("build-costs: %d rows × %d stations × 4 radii → %s", len(matrices[0].Rows), len(matrices[0].Stations), *outDir)
 }
 
