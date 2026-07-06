@@ -14,11 +14,13 @@
  .charts{display:flex;flex-wrap:wrap;gap:2rem;margin:1rem 0}
  .chart{flex:1;min-width:280px}
  .chart h3{font-size:1rem;margin:.2rem 0}
- .chart-row{display:flex;align-items:flex-end;gap:6px;height:160px;border-bottom:1px solid var(--border,#30363d);padding-bottom:0}
- .chart-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1}
+ .chart-body{display:flex;align-items:flex-end;gap:6px;height:160px}
+ .chart-col{flex:1;height:100%;display:flex;flex-direction:column;align-items:center}
+ .chart-col .n{font-size:.72rem;color:var(--text-muted,#8b949e);height:14px;line-height:14px}
+ .bar-track{flex:1;width:100%;display:flex;align-items:flex-end}
  .chart-bar{width:100%;background:#6c5ce7;border-radius:3px 3px 0 0;min-height:2px}
- .chart-col .n{font-size:.75rem;color:var(--text-muted,#8b949e)}
- .chart-col .x{font-size:.8rem;margin-top:.2rem}
+ .chart-axis{display:flex;gap:6px;border-top:1px solid var(--border,#30363d);padding-top:3px}
+ .chart-axis .x{flex:1;text-align:center;font-size:.8rem;color:var(--text-muted,#8b949e)}
  .unbuildable-note{font-size:.85rem;color:var(--text-muted,#8b949e);margin-top:.5rem}
  table{border-collapse:collapse;width:100%;font-size:.85rem;margin-top:1rem}
  th,td{border:1px solid var(--border,#21262d);padding:.3rem .5rem;text-align:left}
@@ -34,25 +36,31 @@
 <p>The fewest distinct market stations you must shop at to source every part for one build, depth-aware, across all 838 items and ships. Count only — travel between stations is ignored. <b>BoM</b> = from raw ore; <b>Recipe</b> = from sub-assemblies.</p>
 
 <div class="factoids">
- <div class="factoid"><div class="big">106</div><div class="lbl">targets buildable from a single station</div></div>
+ <div class="factoid"><div class="big">104</div><div class="lbl">targets buildable from a single station</div></div>
  <div class="factoid"><div class="big">1.6</div><div class="lbl">average stations per buildable target</div></div>
- <div class="factoid"><div class="big">5</div><div class="lbl">hardest: <a href="../build-costs/dark_matter_projector.html">Dark Matter Projector</a></div></div>
+ <div class="factoid"><div class="big">5</div><div class="lbl">hardest: <a href="../build-costs/fury_cannon.html">Fury Cannon</a></div></div>
  <div class="factoid"><div class="big">688</div><div class="lbl">targets can't be built anywhere — parts aren't all sold</div></div>
- <div class="factoid"><div class="big">16</div><div class="lbl">need more stations to build 10 at once</div></div>
+ <div class="factoid"><div class="big">20</div><div class="lbl">need more stations to build 10 at once</div></div>
 </div>
 
 <div class="charts">
  <div class="chart">
   <h3>BoM — targets by station count</h3>
-  <div class="chart-row">
-   <div class="chart-col"><div class="n">106</div><div class="chart-bar" style="height:100%"></div><div class="x">1</div></div><div class="chart-col"><div class="n">19</div><div class="chart-bar" style="height:17%"></div><div class="x">2</div></div><div class="chart-col"><div class="n">13</div><div class="chart-bar" style="height:12%"></div><div class="x">3</div></div><div class="chart-col"><div class="n">7</div><div class="chart-bar" style="height:6%"></div><div class="x">4</div></div><div class="chart-col"><div class="n">5</div><div class="chart-bar" style="height:4%"></div><div class="x">5</div></div>
+  <div class="chart-body">
+   <div class="chart-col"><span class="n">104</span><div class="bar-track"><div class="chart-bar" style="height:100%"></div></div></div><div class="chart-col"><span class="n">21</span><div class="bar-track"><div class="chart-bar" style="height:20%"></div></div></div><div class="chart-col"><span class="n">13</span><div class="bar-track"><div class="chart-bar" style="height:12%"></div></div></div><div class="chart-col"><span class="n">9</span><div class="bar-track"><div class="chart-bar" style="height:8%"></div></div></div><div class="chart-col"><span class="n">3</span><div class="bar-track"><div class="chart-bar" style="height:2%"></div></div></div>
+  </div>
+  <div class="chart-axis">
+   <span class="x">1</span><span class="x">2</span><span class="x">3</span><span class="x">4</span><span class="x">5</span>
   </div>
   <div class="unbuildable-note">+ 688 unbuildable anywhere</div>
  </div>
  <div class="chart">
   <h3>Recipe — targets by station count</h3>
-  <div class="chart-row">
-   <div class="chart-col"><div class="n">101</div><div class="chart-bar" style="height:100%"></div><div class="x">1</div></div><div class="chart-col"><div class="n">15</div><div class="chart-bar" style="height:14%"></div><div class="x">2</div></div><div class="chart-col"><div class="n">1</div><div class="chart-bar" style="height:0%"></div><div class="x">3</div></div>
+  <div class="chart-body">
+   <div class="chart-col"><span class="n">104</span><div class="bar-track"><div class="chart-bar" style="height:100%"></div></div></div><div class="chart-col"><span class="n">16</span><div class="bar-track"><div class="chart-bar" style="height:15%"></div></div></div><div class="chart-col"><span class="n">8</span><div class="bar-track"><div class="chart-bar" style="height:7%"></div></div></div>
+  </div>
+  <div class="chart-axis">
+   <span class="x">1</span><span class="x">2</span><span class="x">3</span>
   </div>
  </div>
 </div>
@@ -63,34 +71,22 @@
 <thead><tr><th>Target</th><th>Category</th><th>Kind</th><th>BoM stations</th><th>Recipe stations</th><th>Example cover</th></tr></thead>
 <tbody>
 <tr>
-<td><a href="../build-costs/dark_matter_projector.html">Dark Matter Projector</a><span class="badge" title="needs more stations to build 10">×10</span></td>
+<td><a href="../build-costs/fury_cannon.html">Fury Cannon</a><span class="badge" title="needs more stations to build 10">×10</span></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="5">5*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="3">3</td>
 <td>deep_range_outpost, procyon_colonial_station, sol_central, treasure_cache_trading_post, war_citadel</td>
-</tr><tr>
-<td><a href="../build-costs/fury_cannon.html">Fury Cannon</a></td>
-<td>weapon</td><td>item</td>
-<td class="num" data-sort="5">5*</td>
-<td class="num" data-sort="-1">N/A</td>
-<td>deep_range_outpost, gold_run_extraction_hub, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/judgment_beam.html">Judgment Beam</a></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="5">5*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="3">3</td>
 <td>deep_range_outpost, nova_terra_central, sol_central, treasure_cache_trading_post, war_citadel</td>
-</tr><tr>
-<td><a href="../build-costs/phase_disruptor.html">Phase Disruptor</a></td>
-<td>weapon</td><td>item</td>
-<td class="num" data-sort="5">5*</td>
-<td class="num" data-sort="-1">N/A</td>
-<td>alpha_centauri_colonial_station, cargo_lanes_freight_depot, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/void_cannon.html">Void Cannon</a></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="5">5*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="3">3</td>
 <td>deep_range_outpost, node_alpha_processing_station, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/contained_reactor_fuel_assembly.html">Contained Reactor Fuel Assembly</a></td>
@@ -105,34 +101,46 @@
 <td class="num" data-sort="-1">N/A</td>
 <td>node_gamma_relay_station, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
+<td><a href="../build-costs/dark_matter_projector.html">Dark Matter Projector</a><span class="badge" title="needs more stations to build 10">×10</span></td>
+<td>weapon</td><td>item</td>
+<td class="num" data-sort="4">4*</td>
+<td class="num" data-sort="3">3</td>
+<td>deep_range_outpost, sol_central, treasure_cache_trading_post, war_citadel</td>
+</tr><tr>
 <td><a href="../build-costs/focused_beam_ii.html">Focused Beam II</a></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="4">4*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="3">3</td>
 <td>deep_range_outpost, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/focused_beam_iii.html">Focused Beam III</a></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="4">4*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="3">3</td>
 <td>deep_range_outpost, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/heavy_pulse_laser.html">Heavy Pulse Laser</a></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="4">4*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="2">2</td>
+<td>deep_range_outpost, sol_central, treasure_cache_trading_post, war_citadel</td>
+</tr><tr>
+<td><a href="../build-costs/phase_disruptor.html">Phase Disruptor</a><span class="badge" title="needs more stations to build 10">×10</span></td>
+<td>weapon</td><td>item</td>
+<td class="num" data-sort="4">4*</td>
+<td class="num" data-sort="3">3</td>
 <td>deep_range_outpost, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/solar_lance.html">Solar Lance</a></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="4">4*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="2">2</td>
 <td>deep_range_outpost, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/void_lance_ii.html">Void Lance II</a><span class="badge" title="needs more stations to build 10">×10</span></td>
 <td>weapon</td><td>item</td>
 <td class="num" data-sort="4">4*</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="3">3</td>
 <td>deep_range_outpost, sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/billhook.html">Billhook</a><span class="badge" title="needs more stations to build 10">×10</span></td>
@@ -168,7 +176,7 @@
 <td><a href="../build-costs/engine_core.html">Engine Core</a></td>
 <td>component</td><td>item</td>
 <td class="num" data-sort="3">3</td>
-<td class="num" data-sort="-1">N/A</td>
+<td class="num" data-sort="2">2</td>
 <td>sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/falchion.html">Falchion</a></td>
@@ -177,7 +185,7 @@
 <td class="num" data-sort="-1">N/A</td>
 <td>sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
-<td><a href="../build-costs/morningstar.html">Morningstar</a></td>
+<td><a href="../build-costs/morningstar.html">Morningstar</a><span class="badge" title="needs more stations to build 10">×10</span></td>
 <td>Tanker</td><td>ship</td>
 <td class="num" data-sort="3">3</td>
 <td class="num" data-sort="-1">N/A</td>
@@ -189,7 +197,7 @@
 <td class="num" data-sort="1">1</td>
 <td>sol_central, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
-<td><a href="../build-costs/ransack.html">Ransack</a></td>
+<td><a href="../build-costs/ransack.html">Ransack</a><span class="badge" title="needs more stations to build 10">×10</span></td>
 <td>Freighter</td><td>ship</td>
 <td class="num" data-sort="3">3</td>
 <td class="num" data-sort="-1">N/A</td>
@@ -207,7 +215,7 @@
 <td class="num" data-sort="-1">N/A</td>
 <td>node_gamma_relay_station, treasure_cache_trading_post, war_citadel</td>
 </tr><tr>
-<td><a href="../build-costs/warhammer.html">Warhammer</a></td>
+<td><a href="../build-costs/warhammer.html">Warhammer</a><span class="badge" title="needs more stations to build 10">×10</span></td>
 <td>Salvager</td><td>ship</td>
 <td class="num" data-sort="3">3</td>
 <td class="num" data-sort="-1">N/A</td>
@@ -218,6 +226,12 @@
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="1">1</td>
 <td>blood_forge_smelting_works, sol_central</td>
+</tr><tr>
+<td><a href="../build-costs/blood_reaver.html">Blood Reaver</a><span class="badge" title="needs more stations to build 10">×10</span></td>
+<td>weapon</td><td>item</td>
+<td class="num" data-sort="2">2</td>
+<td class="num" data-sort="1">1</td>
+<td>blood_forge_smelting_works, war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/contained_processed_thorium.html">Contained Processed Thorium</a></td>
 <td>refined</td><td>item</td>
@@ -235,7 +249,7 @@
 <td>refined</td><td>item</td>
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="1">1</td>
-<td>alpha_centauri_colonial_station, blood_forge_smelting_works</td>
+<td>alpha_centauri_colonial_station, deep_range_outpost</td>
 </tr><tr>
 <td><a href="../build-costs/depleted_uranium_rounds_box.html">Depleted Uranium Rounds Box</a></td>
 <td>ammo</td><td>item</td>
@@ -253,7 +267,13 @@
 <td>ammo</td><td>item</td>
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="1">1</td>
-<td>alpha_centauri_colonial_station, starfall_salvage_station</td>
+<td>deep_range_outpost, node_gamma_relay_station</td>
+</tr><tr>
+<td><a href="../build-costs/focused_crystal.html">Focused Crystal</a></td>
+<td>refined</td><td>item</td>
+<td class="num" data-sort="2">2</td>
+<td class="num" data-sort="1">1</td>
+<td>alpha_centauri_colonial_station, deep_range_outpost</td>
 </tr><tr>
 <td><a href="../build-costs/ghost_rounds.html">Ghost Rounds</a></td>
 <td>contraband</td><td>item</td>
@@ -283,7 +303,7 @@
 <td>ammo</td><td>item</td>
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="1">1</td>
-<td>alpha_centauri_colonial_station, starfall_salvage_station</td>
+<td>factory_belt_manufacturing_hub, node_alpha_processing_station</td>
 </tr><tr>
 <td><a href="../build-costs/phase_array.html">Phase Array</a></td>
 <td>component</td><td>item</td>
@@ -295,19 +315,19 @@
 <td>refined</td><td>item</td>
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="1">1</td>
-<td>alpha_centauri_colonial_station, factory_belt_manufacturing_hub</td>
+<td>deep_range_outpost, factory_belt_manufacturing_hub</td>
 </tr><tr>
 <td><a href="../build-costs/refined_quantum_matrix.html">Refined Quantum Matrix</a></td>
 <td>refined</td><td>item</td>
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="1">1</td>
-<td>alpha_centauri_colonial_station, nova_terra_central</td>
+<td>deep_range_outpost, grand_exchange</td>
 </tr><tr>
 <td><a href="../build-costs/stabilized_exotic.html">Stabilized Exotic</a></td>
 <td>refined</td><td>item</td>
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="1">1</td>
-<td>alpha_centauri_colonial_station, cargo_lanes_freight_depot</td>
+<td>alpha_centauri_colonial_station, deep_range_outpost</td>
 </tr><tr>
 <td><a href="../build-costs/uranium_hexafluoride.html">Uranium Hexafluoride</a></td>
 <td>refined</td><td>item</td>
@@ -325,7 +345,7 @@
 <td>component</td><td>item</td>
 <td class="num" data-sort="2">2</td>
 <td class="num" data-sort="2">2</td>
-<td>alpha_centauri_colonial_station, sol_central</td>
+<td>deep_range_outpost, sol_central</td>
 </tr><tr>
 <td><a href="../build-costs/adrenaline_surge.html">Adrenaline Surge</a></td>
 <td>consumable</td><td>item</td>
@@ -380,12 +400,6 @@
 <td class="num" data-sort="1">1</td>
 <td class="num" data-sort="1">1</td>
 <td>alpha_centauri_colonial_station</td>
-</tr><tr>
-<td><a href="../build-costs/blood_reaver.html">Blood Reaver</a><span class="badge" title="needs more stations to build 10">×10</span></td>
-<td>weapon</td><td>item</td>
-<td class="num" data-sort="1">1</td>
-<td class="num" data-sort="1">1</td>
-<td>war_citadel</td>
 </tr><tr>
 <td><a href="../build-costs/capital_armor_plate.html">Capital Armor Plate</a></td>
 <td>component</td><td>item</td>
@@ -468,13 +482,13 @@
 <td><a href="../build-costs/cryogenic_storage.html">Cryogenic Storage</a></td>
 <td>component</td><td>item</td>
 <td class="num" data-sort="1">1</td>
-<td class="num" data-sort="2">2</td>
+<td class="num" data-sort="1">1</td>
 <td>sol_central</td>
 </tr><tr>
 <td><a href="../build-costs/dark_matter_cell.html">Dark Matter Cell</a></td>
 <td>component</td><td>item</td>
 <td class="num" data-sort="1">1</td>
-<td class="num" data-sort="1">1</td>
+<td class="num" data-sort="2">2</td>
 <td>sirius_observatory_station</td>
 </tr><tr>
 <td><a href="../build-costs/darksteel_plating.html">Darksteel Plating</a></td>
@@ -513,16 +527,10 @@
 <td class="num" data-sort="1">1</td>
 <td>alpha_centauri_colonial_station</td>
 </tr><tr>
-<td><a href="../build-costs/focused_crystal.html">Focused Crystal</a><span class="badge" title="needs more stations to build 10">×10</span></td>
-<td>refined</td><td>item</td>
-<td class="num" data-sort="1">1</td>
-<td class="num" data-sort="1">1</td>
-<td>alpha_centauri_colonial_station</td>
-</tr><tr>
 <td><a href="../build-costs/fuel_cell.html">Fuel Cell</a></td>
 <td>consumable</td><td>item</td>
 <td class="num" data-sort="1">1</td>
-<td class="num" data-sort="2">2</td>
+<td class="num" data-sort="1">1</td>
 <td>sol_central</td>
 </tr><tr>
 <td><a href="../build-costs/fuel_tank.html">Fuel Tank</a></td>
@@ -756,7 +764,7 @@
 <td><a href="../build-costs/premium_fuel_cell.html">Premium Fuel Cell</a></td>
 <td>consumable</td><td>item</td>
 <td class="num" data-sort="1">1</td>
-<td class="num" data-sort="3">3</td>
+<td class="num" data-sort="2">2</td>
 <td>sol_central</td>
 </tr><tr>
 <td><a href="../build-costs/processed_null_matter.html">Processed Null Matter</a></td>
@@ -834,7 +842,7 @@
 <td><a href="../build-costs/solarian_composite.html">Solarian Composite</a></td>
 <td>refined</td><td>item</td>
 <td class="num" data-sort="1">1</td>
-<td class="num" data-sort="2">2</td>
+<td class="num" data-sort="1">1</td>
 <td>nova_terra_central</td>
 </tr><tr>
 <td><a href="../build-costs/solarian_legacy_alloy.html">Solarian Legacy Alloy</a></td>
@@ -954,7 +962,7 @@
 <td><a href="../build-costs/weapon_core.html">Weapon Core</a></td>
 <td>component</td><td>item</td>
 <td class="num" data-sort="1">1</td>
-<td class="num" data-sort="2">2</td>
+<td class="num" data-sort="1">1</td>
 <td>procyon_colonial_station</td>
 </tr><tr>
 <td><a href="../build-costs/weapon_housing.html">Weapon Housing</a></td>

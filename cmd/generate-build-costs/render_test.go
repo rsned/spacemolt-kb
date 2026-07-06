@@ -134,7 +134,9 @@ func TestRenderDetail_GalaxyBannerWhenAllInfeasible(t *testing.T) {
 	// One station, infeasible for BoM and Recipe at every radius → the table is
 	// all em-dashes, so the galaxy-wide banner must appear with the cover.
 	tgt := buildcost.Target{ID: "gizmo", Kind: "item", BoM: []buildcost.Requirement{{ItemID: "rare", Qty: 5}}}
-	cell := RowCell{BoMFeasible: false, RecipeFeasible: false}
+	// Infeasible, but 2 of 5 BoM inputs and 1 of 3 recipe inputs are sourceable →
+	// cells show coverage fractions rather than a bare em-dash.
+	cell := RowCell{BoMFeasible: false, BoMCovered: 2, BoMTotal: 5, RecipeFeasible: false, RecipeCovered: 1, RecipeTotal: 3}
 	row := MatrixRow{ID: "gizmo", Name: "Gizmo", Kind: "item", Cells: map[string]RowCell{"S1": cell}}
 	stations := []StationMeta{{ID: "S1", Name: "Station One", Empire: "Independent"}}
 	names := map[string]string{"gizmo": "Gizmo", "rare": "Rare Ore"}
@@ -150,6 +152,8 @@ func TestRenderDetail_GalaxyBannerWhenAllInfeasible(t *testing.T) {
 	for _, want := range []string{
 		"Not buildable within 3 jumps", "2 station", "Alpha", "Bravo",
 		"../did_you_know/stations_to_build.html",
+		"2/5", // BoM coverage fraction in the infeasible cell
+		"1/3", // Recipe coverage fraction
 	} {
 		if !strings.Contains(html, want) {
 			t.Errorf("banner missing %q", want)

@@ -55,7 +55,7 @@
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
- <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing). When a build can't complete, the cell shows how many of its inputs are sourceable within that radius (e.g. <code>11/16</code>); an em-dash means the station has no market there or the mode does not apply.</p>
 <div class="scrollx">
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
@@ -65,7 +65,7 @@
  <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="">120</td>
  <td>120</td><td>120</td><td>120</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>372</td><td>206</td><td>206</td>
  <td>fuse_diamond_glass</td>
  <td class="neg">-105</td>
@@ -73,10 +73,10 @@
 </tr>
 
 <tr>
- <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">280</td>
+ <td>grand_exchange</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="">276</td>
  <td>276</td><td>276</td><td>276</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
@@ -96,8 +96,8 @@
 
 <tr>
  <td>sol_central</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>3,240</td><td>3,240</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>3,240</td><td>3,240</td>
  <td class="">384</td>
  <td>384</td><td>384</td><td>384</td>
  <td>fuse_diamond_glass</td>
@@ -107,8 +107,8 @@
 
 <tr>
  <td>the_core</td><td>voidborn</td>
- <td class="infeasible">—</td>
- <td>2,900</td><td>360</td><td>360</td>
+ <td class="infeasible">0/1</td>
+ <td>2,400</td><td>360</td><td>360</td>
  <td class="">12</td>
  <td>12</td><td>12</td><td>12</td>
  <td>fuse_diamond_glass</td>
@@ -118,10 +118,10 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>280</td><td>280</td><td>276</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>280</td><td>276</td><td>276</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -129,10 +129,10 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>120</td><td>120</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>206</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>120</td><td>120</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>206</td>
  <td>fuse_reinforced_glass</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -140,9 +140,9 @@
 
 <tr>
  <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>3,240</td><td>3,240</td><td>3,240</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>384</td><td>384</td><td>384</td>
  <td>fuse_reinforced_glass</td>
  <td class="">—</td>
@@ -162,9 +162,9 @@
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>3,240</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>3,240</td>
+ <td class="infeasible">0/1</td>
  <td>384</td><td>384</td><td>384</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
@@ -184,22 +184,22 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="">6,720</td>
- <td>6,720</td><td>2,160</td><td>2,144</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>156</td>
+ <td class="">6,000</td>
+ <td>6,000</td><td>2,160</td><td>2,144</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>156</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>factory_belt_manufacturing_hub</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
+ <td>factory_belt_manufacturing_hub</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
  <td>276</td><td>276</td><td>276</td>
- <td>fuse_reinforced_glass</td>
+ <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -208,17 +208,17 @@
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="">2,160</td>
  <td>2,144</td><td>2,144</td><td>2,144</td>
- <td class="infeasible">—</td>
- <td>—</td><td>156</td><td>156</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>156</td><td>156</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>gold_run_extraction_hub</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td>gold_run_extraction_hub</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
  <td class="">280</td>
  <td>280</td><td>276</td><td>276</td>
  <td>fuse_diamond_glass</td>
@@ -228,7 +228,7 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>2,160</td><td>2,160</td><td>2,160</td>
  <td class="">520</td>
  <td>156</td><td>156</td><td>156</td>
@@ -239,32 +239,32 @@
 
 <tr>
  <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="">2,900</td>
+ <td class="">2,400</td>
  <td>360</td><td>360</td><td>360</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>12</td><td>12</td><td>12</td>
  <td>fuse_diamond_glass</td>
- <td class="neg">-2,886</td>
+ <td class="neg">-2,386</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>voidborn</td>
+ <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="">360</td>
  <td>360</td><td>360</td><td>360</td>
- <td class="infeasible">—</td>
- <td>—</td><td>12</td><td>12</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>12</td><td>12</td>
  <td>fuse_diamond_glass</td>
  <td class="neg">-346</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>solarian</td>
+ <td>nova_terra_central</td><td>Independent</td>
  <td class="">3,240</td>
  <td>3,240</td><td>3,240</td><td>3,240</td>
- <td class="infeasible">—</td>
- <td>—</td><td>384</td><td>384</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>384</td><td>384</td>
  <td>fuse_diamond_glass</td>
  <td class="neg">-3,180</td>
  <td class="neg">-3,238</td>
@@ -272,10 +272,10 @@
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
- <td class="">4,161</td>
+ <td class="">3,240</td>
  <td>3,240</td><td>3,240</td><td>3,240</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>384</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>384</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -283,10 +283,10 @@
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>2,144</td><td>2,144</td>
- <td class="infeasible">—</td>
- <td>—</td><td>156</td><td>156</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>2,144</td><td>2,144</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>156</td><td>156</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -294,9 +294,9 @@
 
 <tr>
  <td>synchrony_hub</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>360</td><td>360</td><td>360</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>156</td><td>12</td><td>12</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
@@ -304,10 +304,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>crimson</td>
+ <td>the_anvil_arsenal</td><td>Independent</td>
  <td class="">480</td>
  <td>120</td><td>120</td><td>120</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>372</td><td>372</td><td>206</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
@@ -316,10 +316,10 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>120</td><td>120</td><td>120</td>
- <td class="infeasible">—</td>
- <td>—</td><td>206</td><td>206</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>206</td><td>206</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -327,8 +327,8 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>360</td><td>360</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>360</td><td>360</td>
  <td class="">156</td>
  <td>156</td><td>156</td><td>12</td>
  <td>fuse_diamond_glass</td>
@@ -338,10 +338,10 @@
 
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">276</td>
- <td>276</td><td>276</td><td>276</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="">284</td>
+ <td>284</td><td>276</td><td>276</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -349,8 +349,8 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
  <td class="">276</td>
  <td>276</td><td>276</td><td>276</td>
  <td>fuse_diamond_glass</td>
@@ -360,10 +360,10 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
  <td class="">396</td>
- <td>390</td><td>276</td><td>276</td>
+ <td>396</td><td>276</td><td>276</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -371,10 +371,10 @@
 
 <tr>
  <td>void_gate_outpost</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>2,144</td><td>2,144</td><td>2,144</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>156</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>156</td>
  <td>fuse_diamond_glass</td>
  <td class="">—</td>
  <td class="">—</td>

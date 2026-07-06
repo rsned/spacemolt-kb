@@ -47,7 +47,7 @@
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
- <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing). When a build can't complete, the cell shows how many of its inputs are sourceable within that radius (e.g. <code>11/16</code>); an em-dash means the station has no market there or the mode does not apply.</p>
 <div class="scrollx">
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
@@ -57,7 +57,7 @@
  <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="">70</td>
  <td>66</td><td>66</td><td>66</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">1/2</td>
  <td>61</td><td>61</td><td>61</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -65,11 +65,11 @@
 </tr>
 
 <tr>
- <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>2</td><td>2</td>
- <td class="infeasible">—</td>
- <td>—</td><td>3</td><td>3</td>
+ <td>grand_exchange</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>2</td><td>2</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>3</td><td>3</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -78,20 +78,20 @@
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="">1,416</td>
- <td>2</td><td>2</td><td>2</td>
+ <td>4</td><td>4</td><td>4</td>
  <td class="">1,181</td>
- <td>2</td><td>2</td><td>2</td>
+ <td>4</td><td>4</td><td>4</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
- <td class="neg">-1,375</td>
+ <td class="neg">-1,374</td>
 </tr>
 
 <tr>
  <td>sol_central</td><td>Independent</td>
  <td class="">10</td>
  <td>10</td><td>10</td><td>10</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>1/2</td><td>1/2</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -99,9 +99,9 @@
 
 <tr>
  <td>the_core</td><td>voidborn</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>10</td><td>8</td><td>8</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">1/2</td>
  <td>18</td><td>17</td><td>7</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -112,7 +112,7 @@
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="">2</td>
  <td>2</td><td>2</td><td>2</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">1/2</td>
  <td>3</td><td>3</td><td>3</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -121,10 +121,10 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>66</td><td>66</td><td>66</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>61</td>
+ <td class="infeasible">0/2</td>
+ <td>1/2</td><td>1/2</td><td>61</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -132,10 +132,10 @@
 
 <tr>
  <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>10</td><td>10</td><td>10</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">0/2</td>
+ <td>1/2</td><td>1/2</td><td>1/2</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -143,9 +143,9 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>70</td><td>66</td><td>66</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">1/2</td>
  <td>65</td><td>61</td><td>61</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -156,8 +156,8 @@
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="">20</td>
  <td>10</td><td>10</td><td>10</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>1/2</td><td>1/2</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -167,7 +167,7 @@
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="">80</td>
  <td>70</td><td>66</td><td>66</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">1/2</td>
  <td>65</td><td>61</td><td>61</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -176,21 +176,21 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>16</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>14</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>16</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>14</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>factory_belt_manufacturing_hub</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>1,572</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>1,316</td>
+ <td>factory_belt_manufacturing_hub</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>1,572</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>1/2</td><td>1,316</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -198,17 +198,17 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>52</td><td>16</td><td>2</td>
- <td class="infeasible">—</td>
- <td>—</td><td>14</td><td>2</td>
+ <td class="infeasible">0/1</td>
+ <td>52</td><td>16</td><td>4</td>
+ <td class="infeasible">0/2</td>
+ <td>1/2</td><td>14</td><td>4</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>gold_run_extraction_hub</td><td>nebula</td>
+ <td>gold_run_extraction_hub</td><td>Independent</td>
  <td class="">142</td>
  <td>2</td><td>2</td><td>2</td>
  <td class="">119</td>
@@ -220,20 +220,20 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="">2</td>
- <td>2</td><td>2</td><td>2</td>
- <td class="infeasible">—</td>
- <td>2</td><td>2</td><td>2</td>
+ <td class="">4</td>
+ <td>4</td><td>4</td><td>4</td>
+ <td class="infeasible">1/2</td>
+ <td>4</td><td>4</td><td>4</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
- <td class="pos">39</td>
+ <td class="pos">37</td>
 </tr>
 
 <tr>
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="">10</td>
  <td>8</td><td>8</td><td>8</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">1/2</td>
  <td>17</td><td>7</td><td>7</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -241,22 +241,22 @@
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>voidborn</td>
+ <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="">60</td>
  <td>8</td><td>8</td><td>8</td>
- <td class="infeasible">—</td>
- <td>—</td><td>7</td><td>7</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>7</td><td>7</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>solarian</td>
+ <td>nova_terra_central</td><td>Independent</td>
  <td class="">22</td>
  <td>18</td><td>10</td><td>10</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>1/2</td><td>1/2</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -266,8 +266,8 @@
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="">18</td>
  <td>18</td><td>18</td><td>10</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>1/2</td><td>1/2</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -276,19 +276,19 @@
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="">16</td>
- <td>16</td><td>16</td><td>2</td>
- <td class="infeasible">—</td>
- <td>—</td><td>14</td><td>2</td>
+ <td>16</td><td>16</td><td>4</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>14</td><td>4</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
- <td class="pos">24</td>
+ <td class="pos">26</td>
 </tr>
 
 <tr>
  <td>synchrony_hub</td><td>Independent</td>
  <td class="">8</td>
  <td>8</td><td>8</td><td>8</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">1/2</td>
  <td>7</td><td>7</td><td>7</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -296,10 +296,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>crimson</td>
- <td class="infeasible">—</td>
+ <td>the_anvil_arsenal</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
  <td>70</td><td>66</td><td>66</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/2</td>
  <td>65</td><td>61</td><td>61</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
@@ -310,8 +310,8 @@
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="">66</td>
  <td>66</td><td>66</td><td>66</td>
- <td class="infeasible">—</td>
- <td>—</td><td>61</td><td>61</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>61</td><td>61</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -332,8 +332,8 @@
  <td>the_levy_customs_station</td><td>Independent</td>
  <td class="">1,572</td>
  <td>1,572</td><td>142</td><td>2</td>
- <td class="infeasible">—</td>
- <td>—</td><td>119</td><td>3</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>119</td><td>3</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -341,10 +341,10 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>1,572</td><td>2</td>
- <td class="infeasible">—</td>
- <td>—</td><td>1,316</td><td>3</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>1,572</td><td>2</td>
+ <td class="infeasible">0/2</td>
+ <td>1/2</td><td>1,316</td><td>3</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -352,10 +352,10 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>1/2</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -365,11 +365,11 @@
  <td>void_gate_outpost</td><td>Independent</td>
  <td class="">52</td>
  <td>16</td><td>16</td><td>16</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>14</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>1/2</td><td>14</td>
  <td>distill_moonshine</td>
  <td class="">—</td>
- <td class="neg">-12</td>
+ <td class="neg">-11</td>
 </tr>
 
 </tbody>

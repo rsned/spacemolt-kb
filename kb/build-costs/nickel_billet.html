@@ -47,7 +47,7 @@
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
- <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing). When a build can't complete, the cell shows how many of its inputs are sourceable within that radius (e.g. <code>11/16</code>); an em-dash means the station has no market there or the mode does not apply.</p>
 <div class="scrollx">
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
@@ -55,9 +55,9 @@
 
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>5,000</td><td>4,510</td><td>4,510</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>5,000</td><td>4,510</td><td>4,510</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -65,11 +65,11 @@
 </tr>
 
 <tr>
- <td>grand_exchange</td><td>nebula</td>
+ <td>grand_exchange</td><td>Independent</td>
  <td class="">230</td>
- <td>230</td><td>230</td><td>156</td>
+ <td>230</td><td>230</td><td>60</td>
  <td class="">230</td>
- <td>230</td><td>230</td><td>156</td>
+ <td>230</td><td>230</td><td>60</td>
  <td>smelt_nickel_billet</td>
  <td class="neg">-211</td>
  <td class="">—</td>
@@ -94,7 +94,7 @@
  <td>200</td><td>200</td><td>200</td>
  <td>smelt_nickel_billet</td>
  <td class="neg">-25</td>
- <td class="neg">-168</td>
+ <td class="neg">-167</td>
 </tr>
 
 <tr>
@@ -110,10 +110,10 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>230</td><td>230</td>
- <td class="infeasible">—</td>
- <td>—</td><td>230</td><td>230</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>230</td><td>230</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>230</td><td>230</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -121,10 +121,10 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>4,510</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>4,510</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>4,510</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>4,510</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -154,9 +154,9 @@
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>200</td><td>200</td><td>200</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>200</td><td>200</td><td>200</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -165,9 +165,9 @@
 
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>5,000</td><td>5,000</td><td>4,510</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>5,000</td><td>5,000</td><td>4,510</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -176,21 +176,21 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>380</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>380</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>380</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>380</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>factory_belt_manufacturing_hub</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>156</td><td>156</td><td>156</td>
- <td class="infeasible">—</td>
- <td>156</td><td>156</td><td>156</td>
+ <td>factory_belt_manufacturing_hub</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>60</td><td>60</td><td>60</td>
+ <td class="infeasible">0/1</td>
+ <td>60</td><td>60</td><td>60</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -198,21 +198,21 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>380</td><td>380</td>
- <td class="infeasible">—</td>
- <td>—</td><td>380</td><td>380</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>380</td><td>380</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>380</td><td>380</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>gold_run_extraction_hub</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>230</td><td>230</td>
- <td class="infeasible">—</td>
- <td>—</td><td>230</td><td>230</td>
+ <td>gold_run_extraction_hub</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>230</td><td>230</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>230</td><td>230</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -220,9 +220,9 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>380</td><td>380</td><td>380</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>380</td><td>380</td><td>380</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -231,20 +231,9 @@
 
 <tr>
  <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>4,970</td><td>4,970</td><td>4,970</td>
- <td class="infeasible">—</td>
- <td>4,970</td><td>4,970</td><td>4,970</td>
- <td>smelt_nickel_billet</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>node_gamma_relay_station</td><td>voidborn</td>
- <td class="infeasible">—</td>
- <td>4,970</td><td>4,970</td><td>4,970</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>4,970</td><td>4,970</td><td>4,970</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -252,10 +241,21 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>solarian</td>
- <td class="infeasible">—</td>
+ <td>node_gamma_relay_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>4,970</td><td>4,970</td><td>4,970</td>
+ <td class="infeasible">0/1</td>
+ <td>4,970</td><td>4,970</td><td>4,970</td>
+ <td>smelt_nickel_billet</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>nova_terra_central</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
  <td>300</td><td>200</td><td>200</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>300</td><td>200</td><td>200</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -275,10 +275,10 @@
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
- <td class="">470</td>
- <td>470</td><td>380</td><td>380</td>
- <td class="">470</td>
- <td>470</td><td>380</td><td>380</td>
+ <td class="">400</td>
+ <td>400</td><td>380</td><td>380</td>
+ <td class="">400</td>
+ <td>400</td><td>380</td><td>380</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -296,10 +296,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>crimson</td>
- <td class="infeasible">—</td>
+ <td>the_anvil_arsenal</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
  <td>5,000</td><td>5,000</td><td>4,510</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>5,000</td><td>5,000</td><td>4,510</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -308,10 +308,10 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>4,510</td><td>4,510</td>
- <td class="infeasible">—</td>
- <td>—</td><td>4,510</td><td>4,510</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>4,510</td><td>4,510</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>4,510</td><td>4,510</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -319,9 +319,9 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>4,970</td><td>4,970</td><td>4,970</td>
- <td class="infeasible">—</td>
+ <td class="infeasible">0/1</td>
  <td>4,970</td><td>4,970</td><td>4,970</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
@@ -330,10 +330,10 @@
 
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>230</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>230</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>230</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>230</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -341,10 +341,10 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>230</td><td>156</td><td>156</td>
- <td class="infeasible">—</td>
- <td>230</td><td>156</td><td>156</td>
+ <td class="infeasible">0/1</td>
+ <td>230</td><td>60</td><td>60</td>
+ <td class="infeasible">0/1</td>
+ <td>230</td><td>60</td><td>60</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -352,21 +352,21 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>Independent</td>
- <td class="">156</td>
- <td>156</td><td>156</td><td>156</td>
- <td class="">156</td>
- <td>156</td><td>156</td><td>156</td>
+ <td class="">60</td>
+ <td>60</td><td>60</td><td>60</td>
+ <td class="">60</td>
+ <td>60</td><td>60</td><td>60</td>
  <td>smelt_nickel_billet</td>
- <td class="neg">-82</td>
+ <td class="pos">14</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>void_gate_outpost</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>470</td><td>470</td><td>380</td>
- <td class="infeasible">—</td>
- <td>470</td><td>470</td><td>380</td>
+ <td class="infeasible">0/1</td>
+ <td>400</td><td>400</td><td>380</td>
+ <td class="infeasible">0/1</td>
+ <td>400</td><td>400</td><td>380</td>
  <td>smelt_nickel_billet</td>
  <td class="">—</td>
  <td class="">—</td>
