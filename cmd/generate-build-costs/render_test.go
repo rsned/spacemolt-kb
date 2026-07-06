@@ -13,7 +13,7 @@ func sampleMatrix() Matrix {
 	targets := []buildcost.Target{{ID: "widget", Kind: "item", BoM: []buildcost.Requirement{{ItemID: "iron", Qty: 2}}}}
 	books := map[string]*buildcost.Book{"st1": {Sell: map[string]buildcost.Ladder{"iron": {{Price: 10, Qty: 100}}}, BestBuy: map[string]float64{}}}
 	stations := []StationMeta{{ID: "st1", Name: "Station One", Empire: "Sol"}}
-	return BuildMatrix(targets, books, stations, map[string]string{"widget": "Widget"}, map[string]string{"widget": "Module"}, nil, nil)
+	return BuildMatrix(targets, books, books, stations, map[string]string{"widget": "Widget"}, map[string]string{"widget": "Module"}, nil, nil)
 }
 
 func TestRenderIndex_WritesFileWithData(t *testing.T) {

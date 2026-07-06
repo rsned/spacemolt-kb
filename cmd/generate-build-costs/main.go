@@ -76,7 +76,7 @@ func main() {
 		}
 	}
 
-	m := BuildMatrix(targets, books, stations, names, categories, listings, catalogPrice)
+	m := BuildMatrix(targets, books, books, stations, names, categories, listings, catalogPrice)
 
 	must(renderIndex(*outDir, m), "render index")
 	for _, row := range m.Rows {
