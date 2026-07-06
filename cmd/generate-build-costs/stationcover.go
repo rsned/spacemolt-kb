@@ -9,6 +9,29 @@ import (
 const stationCoverExactK = 3
 const stationCoverBatch = 10
 
+// galaxyCover is one target's galaxy-wide (no distance limit) BoM min-station
+// cover, with ids resolved to display names, for the build-cost detail banner.
+type galaxyCover struct {
+	Feasible bool
+	Count    int
+	Exact    bool
+	Stations []string // cover station display names (when Feasible)
+	Missing  []string // input display names with no depth anywhere (when !Feasible)
+}
+
+// galaxyCoverFor computes the galaxy-wide BoM min-station cover for one target.
+func galaxyCoverFor(t buildcost.Target, depth buildcost.StationDepth, ids []string,
+	stationNames, itemNames map[string]string) galaxyCover {
+	c := buildcost.MinStationCover(t.BoM, depth, ids, stationCoverExactK)
+	return galaxyCover{
+		Feasible: c.Feasible,
+		Count:    c.Count,
+		Exact:    c.Exact,
+		Stations: displayNames(c.Stations, stationNames),
+		Missing:  displayNames(c.Missing, itemNames),
+	}
+}
+
 type coverEntry struct {
 	ID, Name, Category, Kind string
 	BoM                      buildcost.CoverResult

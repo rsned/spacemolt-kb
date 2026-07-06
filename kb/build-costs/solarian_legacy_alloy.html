@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -49,6 +51,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -72,19 +76,19 @@
  <td>grand_exchange</td><td>nebula</td>
  <td class="">1,400</td>
  <td>1,400</td><td>1,051</td><td>1,051</td>
- <td class="">1,184</td>
- <td>1,184</td><td>809</td><td>809</td>
+ <td class="">1,182</td>
+ <td>1,182</td><td>833</td><td>833</td>
  <td>refine_solarian_legacy_ore</td>
  <td class="neg">-71</td>
  <td class="neg">-1,398</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>1,800</td><td>1,800</td>
  <td class="infeasible">—</td>
- <td>—</td><td>1,483</td><td>1,483</td>
+ <td>—</td><td>1,800</td><td>1,800</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -102,7 +106,7 @@
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>816</td><td>816</td><td>816</td>
  <td class="infeasible">—</td>
@@ -117,7 +121,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>1,051</td><td>1,051</td>
  <td class="infeasible">—</td>
- <td>—</td><td>809</td><td>809</td>
+ <td>—</td><td>833</td><td>833</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -183,7 +187,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>1,800</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>1,483</td>
+ <td>—</td><td>—</td><td>1,800</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -194,7 +198,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>1,400</td><td>1,400</td>
  <td class="infeasible">—</td>
- <td>—</td><td>1,184</td><td>1,184</td>
+ <td>—</td><td>1,182</td><td>1,182</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -205,7 +209,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>1,800</td><td>1,800</td>
  <td class="infeasible">—</td>
- <td>—</td><td>1,483</td><td>1,483</td>
+ <td>—</td><td>1,800</td><td>1,800</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -216,7 +220,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>1,051</td><td>1,051</td>
  <td class="infeasible">—</td>
- <td>—</td><td>809</td><td>809</td>
+ <td>—</td><td>833</td><td>833</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -227,14 +231,14 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>1,800</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>1,483</td>
+ <td>—</td><td>—</td><td>1,800</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="">816</td>
  <td>816</td><td>816</td><td>816</td>
  <td class="">816</td>
@@ -245,7 +249,7 @@
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>816</td><td>816</td><td>816</td>
  <td class="infeasible">—</td>
@@ -256,7 +260,7 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="">16</td>
  <td>16</td><td>16</td><td>16</td>
  <td class="">16</td>
@@ -281,9 +285,9 @@
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="">1,800</td>
  <td>1,800</td><td>1,800</td><td>1,800</td>
- <td class="">1,483</td>
- <td>1,483</td><td>1,483</td><td>1,483</td>
- <td>refine_solarian_legacy_ore</td>
+ <td class="">1,800</td>
+ <td>1,800</td><td>1,800</td><td>1,800</td>
+ <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -337,7 +341,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>1,051</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>809</td>
+ <td>—</td><td>—</td><td>833</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -348,18 +352,18 @@
  <td class="infeasible">—</td>
  <td>1,400</td><td>1,400</td><td>1,051</td>
  <td class="infeasible">—</td>
- <td>1,184</td><td>1,184</td><td>809</td>
+ <td>1,182</td><td>1,182</td><td>833</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>1,400</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>1,184</td>
+ <td>—</td><td>—</td><td>1,182</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -370,7 +374,7 @@
  <td class="infeasible">—</td>
  <td>1,800</td><td>1,800</td><td>1,800</td>
  <td class="infeasible">—</td>
- <td>1,483</td><td>1,483</td><td>1,483</td>
+ <td>1,800</td><td>1,800</td><td>1,800</td>
  <td>onboard_legacy_smelting</td>
  <td class="">—</td>
  <td class="">—</td>

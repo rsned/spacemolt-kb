@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -49,6 +51,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -73,18 +77,18 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>466</td><td>466</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>5,606</td><td>4,604</td><td>4,604</td>
+ <td>5,606</td><td>4,581</td><td>4,581</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -95,14 +99,14 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>4,701</td>
+ <td>—</td><td>—</td><td>4,725</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -117,7 +121,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>466</td><td>466</td><td>466</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -139,7 +143,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>4,701</td><td>4,701</td>
+ <td>—</td><td>4,725</td><td>4,725</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -183,7 +187,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>4,604</td>
+ <td>—</td><td>—</td><td>4,581</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -205,7 +209,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>4,604</td><td>4,604</td>
+ <td>—</td><td>4,581</td><td>4,581</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -215,9 +219,9 @@
  <td>gold_run_extraction_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
- <td class="">466</td>
- <td>466</td><td>466</td><td>466</td>
- <td>enrich_uranium_low</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -226,26 +230,15 @@
  <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
- <td class="">5,636</td>
- <td>5,606</td><td>5,606</td><td>4,604</td>
+ <td class="">5,634</td>
+ <td>5,606</td><td>5,606</td><td>4,581</td>
  <td>enrich_uranium_low</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td>enrich_uranium_low</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -256,11 +249,22 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>4,701</td><td>4,701</td><td>4,701</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td>enrich_uranium_low</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>nova_terra_central</td><td>solarian</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">—</td>
+ <td>4,725</td><td>4,725</td><td>4,725</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -271,7 +275,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>4,701</td><td>4,701</td><td>4,701</td>
+ <td>4,725</td><td>4,725</td><td>4,725</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -282,7 +286,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>4,632</td><td>4,604</td><td>4,604</td>
+ <td>4,609</td><td>4,581</td><td>4,581</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -337,7 +341,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>466</td><td>466</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -348,14 +352,14 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>466</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -370,7 +374,7 @@
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>4,632</td><td>4,632</td><td>4,604</td>
+ <td>4,609</td><td>4,609</td><td>4,581</td>
  <td>unwrap_low_enriched_uranium</td>
  <td class="">—</td>
  <td class="">—</td>

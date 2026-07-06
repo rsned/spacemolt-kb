@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -73,6 +75,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -84,9 +88,9 @@
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>81</td><td>81</td><td>81</td>
+ <td>15</td><td>15</td><td>15</td>
  <td class="infeasible">—</td>
- <td>54</td><td>54</td><td>54</td>
+ <td>10</td><td>10</td><td>10</td>
  <td>basic_iron_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -94,17 +98,17 @@
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="">705</td>
- <td>705</td><td>37</td><td>37</td>
- <td class="">469</td>
- <td>469</td><td>25</td><td>25</td>
- <td>forge_vanadium_steel</td>
- <td class="neg">-571</td>
- <td class="neg">-575</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>131</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>87</td>
+ <td>basic_iron_smelting</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>76</td><td>76</td>
  <td class="infeasible">—</td>
@@ -122,11 +126,11 @@
  <td>36</td><td>36</td><td>36</td>
  <td>forge_vanadium_steel</td>
  <td class="">—</td>
- <td class="neg">-14</td>
+ <td class="neg">-7</td>
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -138,21 +142,21 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="">37</td>
- <td>37</td><td>37</td><td>37</td>
- <td class="">25</td>
- <td>25</td><td>25</td><td>25</td>
- <td>forge_vanadium_steel</td>
- <td class="pos">71</td>
- <td class="pos">56</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>131</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>87</td>
+ <td>basic_iron_smelting</td>
+ <td class="">—</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="">120</td>
- <td>100</td><td>81</td><td>81</td>
+ <td>34</td><td>15</td><td>15</td>
  <td class="">77</td>
- <td>61</td><td>54</td><td>54</td>
+ <td>17</td><td>10</td><td>10</td>
  <td>forge_vanadium_steel</td>
  <td class="">—</td>
  <td class="neg">-74</td>
@@ -172,11 +176,11 @@
 <tr>
  <td>war_citadel</td><td>Independent</td>
  <td class="">101</td>
- <td>101</td><td>81</td><td>81</td>
+ <td>101</td><td>15</td><td>15</td>
  <td class="">67</td>
- <td>67</td><td>54</td><td>54</td>
+ <td>67</td><td>10</td><td>10</td>
  <td>sinter_tungsten_steel</td>
- <td class="pos">23</td>
+ <td class="pos">19</td>
  <td class="">—</td>
 </tr>
 
@@ -194,9 +198,9 @@
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>101</td><td>81</td><td>81</td>
+ <td>101</td><td>15</td><td>15</td>
  <td class="infeasible">—</td>
- <td>67</td><td>54</td><td>54</td>
+ <td>67</td><td>10</td><td>10</td>
  <td>basic_iron_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -216,9 +220,9 @@
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>—</td><td>705</td><td>135</td>
+ <td>—</td><td>—</td><td>135</td>
  <td class="infeasible">—</td>
- <td>—</td><td>467</td><td>87</td>
+ <td>—</td><td>—</td><td>87</td>
  <td>basic_iron_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -231,16 +235,16 @@
  <td class="infeasible">—</td>
  <td>—</td><td>55</td><td>55</td>
  <td>reclaim_steel_from_scrap</td>
- <td class="pos">87</td>
- <td class="pos">3</td>
+ <td class="">—</td>
+ <td class="neg">-32</td>
 </tr>
 
 <tr>
  <td>gold_run_extraction_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>37</td><td>37</td><td>37</td>
+ <td>—</td><td>131</td><td>131</td>
  <td class="infeasible">—</td>
- <td>25</td><td>25</td><td>25</td>
+ <td>—</td><td>87</td><td>87</td>
  <td>basic_iron_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -258,7 +262,7 @@
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -269,7 +273,7 @@
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
  <td class="infeasible">—</td>
  <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
@@ -280,7 +284,7 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="">2,010</td>
  <td>110</td><td>60</td><td>60</td>
  <td class="">1,337</td>
@@ -297,7 +301,7 @@
  <td class="">69</td>
  <td>69</td><td>69</td><td>36</td>
  <td>forge_vanadium_steel</td>
- <td class="pos">18</td>
+ <td class="">—</td>
  <td class="neg">-26</td>
 </tr>
 
@@ -308,8 +312,8 @@
  <td class="">68</td>
  <td>68</td><td>55</td><td>55</td>
  <td>forge_vanadium_steel</td>
- <td class="pos">19</td>
- <td class="neg">-33</td>
+ <td class="">—</td>
+ <td class="neg">-113</td>
 </tr>
 
 <tr>
@@ -326,9 +330,9 @@
 <tr>
  <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">—</td>
- <td>101</td><td>81</td><td>81</td>
+ <td>101</td><td>15</td><td>15</td>
  <td class="infeasible">—</td>
- <td>67</td><td>54</td><td>54</td>
+ <td>67</td><td>10</td><td>10</td>
  <td>basic_iron_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -337,9 +341,9 @@
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>81</td><td>81</td><td>81</td>
- <td class="">61</td>
- <td>54</td><td>54</td><td>54</td>
+ <td>15</td><td>15</td><td>15</td>
+ <td class="">17</td>
+ <td>10</td><td>10</td><td>10</td>
  <td>forge_vanadium_steel</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -359,9 +363,9 @@
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>135</td><td>37</td>
+ <td>—</td><td>135</td><td>131</td>
  <td class="">163</td>
- <td>163</td><td>89</td><td>25</td>
+ <td>163</td><td>89</td><td>87</td>
  <td>refine_steel</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -370,20 +374,20 @@
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>705</td><td>135</td><td>37</td>
+ <td>—</td><td>135</td><td>131</td>
  <td class="infeasible">—</td>
- <td>467</td><td>87</td><td>25</td>
+ <td>—</td><td>87</td><td>87</td>
  <td>basic_iron_smelting</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>705</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>467</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>basic_iron_smelting</td>
  <td class="">—</td>
  <td class="">—</td>

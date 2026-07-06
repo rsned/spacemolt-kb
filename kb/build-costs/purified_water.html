@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -41,6 +43,8 @@
 
 
 
+
+
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
  <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
@@ -56,30 +60,30 @@
  <td class="">58</td>
  <td>55</td><td>55</td><td>55</td>
  <td>process_water_ice</td>
- <td class="neg">-61</td>
+ <td class="neg">-44</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>grand_exchange</td><td>nebula</td>
- <td class="">16</td>
- <td>16</td><td>2</td><td>2</td>
- <td class="">13</td>
- <td>13</td><td>2</td><td>2</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>2</td><td>2</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>2</td><td>2</td>
  <td>process_water_ice</td>
- <td class="neg">-11</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>unknown_edge_waystation</td><td>outerrim</td>
+ <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="">1,416</td>
  <td>2</td><td>2</td><td>2</td>
  <td class="">1,180</td>
  <td>2</td><td>2</td><td>2</td>
  <td>process_water_ice</td>
- <td class="neg">-1,390</td>
- <td class="">—</td>
+ <td class="neg">-1,408</td>
+ <td class="neg">-1,409</td>
 </tr>
 
 <tr>
@@ -90,15 +94,15 @@
  <td>8</td><td>8</td><td>8</td>
  <td>process_water_ice</td>
  <td class="pos">14</td>
- <td class="neg">-7</td>
+ <td class="neg">-8</td>
 </tr>
 
 <tr>
- <td>the_core</td><td>Independent</td>
+ <td>the_core</td><td>voidborn</td>
  <td class="infeasible">—</td>
- <td>4</td><td>4</td><td>4</td>
+ <td>10</td><td>8</td><td>8</td>
  <td class="infeasible">—</td>
- <td>3</td><td>3</td><td>3</td>
+ <td>8</td><td>7</td><td>7</td>
  <td>process_water_ice</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -166,7 +170,7 @@
  <td class="">67</td>
  <td>58</td><td>55</td><td>55</td>
  <td>process_water_ice</td>
- <td class="neg">-71</td>
+ <td class="neg">-70</td>
  <td class="neg">-79</td>
 </tr>
 
@@ -184,9 +188,9 @@
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
  <td class="infeasible">—</td>
- <td>—</td><td>16</td><td>16</td>
+ <td>—</td><td>—</td><td>1,572</td>
  <td class="infeasible">—</td>
- <td>—</td><td>13</td><td>13</td>
+ <td>—</td><td>—</td><td>1,310</td>
  <td>process_water_ice</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -221,34 +225,34 @@
  <td class="">2</td>
  <td>2</td><td>2</td><td>2</td>
  <td>process_water_ice</td>
- <td class="pos">7</td>
+ <td class="pos">8</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_alpha_processing_station</td><td>voidborn</td>
- <td class="">4</td>
- <td>4</td><td>4</td><td>4</td>
- <td class="">3</td>
- <td>3</td><td>3</td><td>3</td>
+ <td>node_alpha_processing_station</td><td>Independent</td>
+ <td class="">10</td>
+ <td>8</td><td>8</td><td>8</td>
+ <td class="">8</td>
+ <td>7</td><td>7</td><td>7</td>
  <td>process_water_ice</td>
- <td class="pos">2</td>
+ <td class="neg">-4</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>Independent</td>
+ <td>node_gamma_relay_station</td><td>voidborn</td>
  <td class="">60</td>
- <td>4</td><td>4</td><td>4</td>
+ <td>8</td><td>8</td><td>8</td>
  <td class="">50</td>
- <td>3</td><td>3</td><td>3</td>
+ <td>7</td><td>7</td><td>7</td>
  <td>process_water_ice</td>
- <td class="neg">-55</td>
+ <td class="pos">73</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="">22</td>
  <td>18</td><td>10</td><td>10</td>
  <td class="">18</td>
@@ -282,12 +286,12 @@
 
 <tr>
  <td>synchrony_hub</td><td>Independent</td>
- <td class="">1,662</td>
- <td>4</td><td>4</td><td>4</td>
- <td class="">1,385</td>
- <td>3</td><td>3</td><td>3</td>
+ <td class="">8</td>
+ <td>8</td><td>8</td><td>8</td>
+ <td class="">7</td>
+ <td>7</td><td>7</td><td>7</td>
  <td>process_water_ice</td>
- <td class="neg">-1,653</td>
+ <td class="pos">1</td>
  <td class="">—</td>
 </tr>
 
@@ -309,16 +313,16 @@
  <td class="">55</td>
  <td>55</td><td>55</td><td>55</td>
  <td>process_water_ice</td>
- <td class="neg">-52</td>
- <td class="neg">-55</td>
+ <td class="neg">-56</td>
+ <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="">36</td>
- <td>36</td><td>4</td><td>4</td>
+ <td>8</td><td>8</td><td>8</td>
  <td class="">30</td>
- <td>30</td><td>3</td><td>3</td>
+ <td>7</td><td>7</td><td>7</td>
  <td>process_water_ice</td>
  <td class="neg">-33</td>
  <td class="">—</td>
@@ -331,27 +335,27 @@
  <td class="">1,310</td>
  <td>1,310</td><td>118</td><td>2</td>
  <td>process_water_ice</td>
- <td class="neg">-1,558</td>
+ <td class="neg">-1,561</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>16</td><td>16</td><td>2</td>
+ <td>—</td><td>1,572</td><td>2</td>
  <td class="infeasible">—</td>
- <td>13</td><td>13</td><td>2</td>
+ <td>—</td><td>1,310</td><td>2</td>
  <td>process_water_ice</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td>treasure_cache_trading_post</td><td>Independent</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>16</td>
+ <td>—</td><td>—</td><td>—</td>
  <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>13</td>
+ <td>—</td><td>—</td><td>—</td>
  <td>process_water_ice</td>
  <td class="">—</td>
  <td class="">—</td>

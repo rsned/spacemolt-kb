@@ -9,6 +9,8 @@
  th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
  .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
  .scrollx{overflow-x:auto}
+ .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
 </style>
 </head>
 <body>
@@ -43,6 +45,11 @@
 </table>
 {{end}}
 {{end}}
+
+{{if .ShowBanner}}<div class="banner">
+{{if .Cover.Feasible}}⚠ <strong>Not buildable within 3 jumps of any single station.</strong> Every cell below is em-dash because no local pool can source all inputs. Galaxy-wide, the cheapest sourcing needs <strong>{{.Cover.Count}}{{if not .Cover.Exact}}+{{end}} station{{if ne .Cover.Count 1}}s{{end}}</strong>: {{range $i, $s := .Cover.Stations}}{{if $i}}, {{end}}<code>{{$s}}</code>{{end}}. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+{{else}}⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing input{{if ne (len .Cover.Missing) 1}}s{{end}} with no depth: {{range $i, $m := .Cover.Missing}}{{if $i}}, {{end}}<code>{{$m}}</code>{{end}}. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+{{end}}</div>{{end}}
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.

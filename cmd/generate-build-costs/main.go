@@ -122,21 +122,24 @@ func main() {
 		}
 		rowByID[radius] = idx
 	}
+	// Galaxy-wide (no distance limit) per-station sell depth, reused for both
+	// the detail-page banners and the station-cover did-you-know page.
+	depth := stationDepthFromBooks(books)
+	stationIDs := make([]string, 0, len(stations))
+	stationNames := make(map[string]string, len(stations))
+	for _, st := range stations {
+		stationIDs = append(stationIDs, st.ID)
+		stationNames[st.ID] = st.Name
+	}
 	for _, row := range matrices[0].Rows {
 		var hopRows [4]MatrixRow
 		for radius := range 4 {
 			hopRows[radius] = rowByID[radius][row.ID]
 		}
-		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories, hopRows), "render detail "+row.ID)
+		cover := galaxyCoverFor(targetByID[row.ID], depth, stationIDs, stationNames, itemNames)
+		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories, hopRows, cover), "render detail "+row.ID)
 	}
 	if *stationCoverOut != "" {
-		depth := stationDepthFromBooks(books)
-		stationIDs := make([]string, 0, len(stations))
-		stationNames := make(map[string]string, len(stations))
-		for _, st := range stations {
-			stationIDs = append(stationIDs, st.ID)
-			stationNames[st.ID] = st.Name
-		}
 		page := buildStationCoverPage(targets, depth, stationIDs, stationNames, itemNames, categories)
 		must(renderStationCover(*stationCoverOut, page), "render station cover")
 		log.Printf("station-cover: %d buildable, %d single-station, %d unbuildable, hardest %s (%d) → %s",

@@ -75,7 +75,7 @@ func TestRenderDetail_WritesTable(t *testing.T) {
 	names := map[string]string{"widget": "Widget"}
 	cats := map[string]string{"widget": "Module"}
 	hopRows := [4]MatrixRow{m.Rows[0], m.Rows[0], m.Rows[0], m.Rows[0]}
-	if err := renderDetail(dir, m.Rows[0], m.Stations, tgt, names, cats, hopRows); err != nil {
+	if err := renderDetail(dir, m.Rows[0], m.Stations, tgt, names, cats, hopRows, galaxyCover{}); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, "widget.html"))
@@ -104,7 +104,7 @@ func TestRenderDetail_BoMAndRecipeTables(t *testing.T) {
 	names := map[string]string{"iron_ore": "Iron Ore", "iron_bar": "Iron Bar", "widget": "Widget"}
 	cats := map[string]string{"iron_ore": "ore", "iron_bar": "refined", "widget": "component"}
 	dir := t.TempDir()
-	if err := renderDetail(dir, base, stations, tgt, names, cats, hopRows); err != nil {
+	if err := renderDetail(dir, base, stations, tgt, names, cats, hopRows, galaxyCover{}); err != nil {
 		t.Fatalf("renderDetail: %v", err)
 	}
 	b, err := os.ReadFile(filepath.Join(dir, "widget.html"))
@@ -130,6 +130,53 @@ func TestRenderDetail_BoMAndRecipeTables(t *testing.T) {
 	}
 }
 
+func TestRenderDetail_GalaxyBannerWhenAllInfeasible(t *testing.T) {
+	// One station, infeasible for BoM and Recipe at every radius → the table is
+	// all em-dashes, so the galaxy-wide banner must appear with the cover.
+	tgt := buildcost.Target{ID: "gizmo", Kind: "item", BoM: []buildcost.Requirement{{ItemID: "rare", Qty: 5}}}
+	cell := RowCell{BoMFeasible: false, RecipeFeasible: false}
+	row := MatrixRow{ID: "gizmo", Name: "Gizmo", Kind: "item", Cells: map[string]RowCell{"S1": cell}}
+	stations := []StationMeta{{ID: "S1", Name: "Station One", Empire: "Independent"}}
+	names := map[string]string{"gizmo": "Gizmo", "rare": "Rare Ore"}
+	cats := map[string]string{"gizmo": "component"}
+	hopRows := [4]MatrixRow{row, row, row, row}
+	cover := galaxyCover{Feasible: true, Count: 2, Exact: true, Stations: []string{"Alpha", "Bravo"}}
+	dir := t.TempDir()
+	if err := renderDetail(dir, row, stations, tgt, names, cats, hopRows, cover); err != nil {
+		t.Fatalf("renderDetail: %v", err)
+	}
+	b, _ := os.ReadFile(filepath.Join(dir, "gizmo.html"))
+	html := string(b)
+	for _, want := range []string{
+		"Not buildable within 3 jumps", "2 station", "Alpha", "Bravo",
+		"../did_you_know/stations_to_build.html",
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("banner missing %q", want)
+		}
+	}
+}
+
+func TestRenderDetail_NoBannerWhenLocallyFeasible(t *testing.T) {
+	// A station where BoM is feasible at radius 0 → no banner.
+	tgt := buildcost.Target{ID: "gizmo", Kind: "item", BoM: []buildcost.Requirement{{ItemID: "iron", Qty: 1}}}
+	cell := RowCell{BoMFeasible: true, BoMCost: 10}
+	row := MatrixRow{ID: "gizmo", Name: "Gizmo", Kind: "item", Cells: map[string]RowCell{"S1": cell}}
+	stations := []StationMeta{{ID: "S1", Name: "Station One", Empire: "Independent"}}
+	names := map[string]string{"gizmo": "Gizmo", "iron": "Iron Ore"}
+	cats := map[string]string{"gizmo": "component"}
+	hopRows := [4]MatrixRow{row, row, row, row}
+	cover := galaxyCover{Feasible: true, Count: 1, Exact: true, Stations: []string{"Station One"}}
+	dir := t.TempDir()
+	if err := renderDetail(dir, row, stations, tgt, names, cats, hopRows, cover); err != nil {
+		t.Fatalf("renderDetail: %v", err)
+	}
+	b, _ := os.ReadFile(filepath.Join(dir, "gizmo.html"))
+	if strings.Contains(string(b), "Not buildable within 3 jumps") {
+		t.Errorf("banner should not appear when the target is locally feasible")
+	}
+}
+
 func TestRenderDetail_ShipNoRecipe(t *testing.T) {
 	tgt := buildcost.Target{
 		ID: "cobble", Kind: "ship",
@@ -141,7 +188,7 @@ func TestRenderDetail_ShipNoRecipe(t *testing.T) {
 	cats := map[string]string{"refined_alloy": "refined"}
 	dir := t.TempDir()
 	hopRows := [4]MatrixRow{row, row, row, row}
-	if err := renderDetail(dir, row, nil, tgt, names, cats, hopRows); err != nil {
+	if err := renderDetail(dir, row, nil, tgt, names, cats, hopRows, galaxyCover{}); err != nil {
 		t.Fatalf("renderDetail: %v", err)
 	}
 	b, _ := os.ReadFile(filepath.Join(dir, "cobble.html"))

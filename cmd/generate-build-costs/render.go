@@ -151,11 +151,14 @@ func commaInt(v float64) string {
 	return string(out)
 }
 
+// emDash marks an infeasible/absent cell in the per-radius cost columns.
+const emDash = "—"
+
 // hopCostStr formats a per-radius cost: the number when feasible, else an
 // em-dash (also em-dash when the station has no cell at that radius).
 func hopCostStr(cost float64, feasible, present bool) string {
 	if !present || !feasible {
-		return "—"
+		return emDash
 	}
 	return commaInt(cost)
 }
@@ -209,7 +212,7 @@ func qtyStr(v float64) string {
 }
 
 // renderDetail writes the per-target station breakdown page.
-func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string, hopRows [4]MatrixRow) error {
+func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string, hopRows [4]MatrixRow, cover galaxyCover) error {
 	t, err := template.ParseFS(tmplFS, "templates/detail.html.tmpl")
 	if err != nil {
 		return err
@@ -272,6 +275,23 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 		}
 		lines = append(lines, ln)
 	}
+
+	// The per-station table is "all em-dashes" when no station can build this
+	// target from raw ore or sub-assemblies at any radius 0..3. In that case
+	// show a banner with the galaxy-wide sourcing picture instead.
+	localAnyFeasible := false
+	for _, ln := range lines {
+		for r := range 4 {
+			if ln.BoMHop[r] != emDash || ln.RecipeHop[r] != emDash {
+				localAnyFeasible = true
+				break
+			}
+		}
+		if localAnyFeasible {
+			break
+		}
+	}
+
 	f, err := os.Create(filepath.Join(outDir, row.ID+".html"))
 	if err != nil {
 		return err
@@ -280,5 +300,6 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 	return t.Execute(f, map[string]any{
 		"Name": row.Name, "Kind": row.Kind, "Lines": lines,
 		"SelfHref": selfHref, "BoM": bom, "Recipes": recipes, "RecipeNA": tgt.RecipeNA,
+		"ShowBanner": !localAnyFeasible, "Cover": cover,
 	})
 }
