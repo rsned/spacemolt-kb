@@ -15,6 +15,8 @@ type RowCell struct {
 	BoMTotal         int
 	RecipeCost       float64
 	RecipeFeasible   bool
+	RecipeCovered    int
+	RecipeTotal      int
 	RecipeNA         bool
 	RecipeID         string
 	SavingsBoM       float64
@@ -114,6 +116,7 @@ func BuildMatrix(targets []buildcost.Target, costBooks, marginBooks map[string]*
 				BoMCost: c.BoM.Cost, BoMFeasible: c.BoM.Feasible,
 				BoMCovered: c.BoM.Covered, BoMTotal: c.BoM.Total,
 				RecipeCost: c.Recipe.Cost, RecipeFeasible: c.Recipe.Feasible,
+				RecipeCovered: c.Recipe.Covered, RecipeTotal: c.Recipe.Total,
 				RecipeNA: c.Recipe.NA, RecipeID: c.Recipe.RecipeID,
 			}
 			// BoM-mode margins: only meaningful when the BoM build actually completes.

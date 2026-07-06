@@ -123,8 +123,8 @@ type detailLine struct {
 	RecipeFeasibleStr string
 	RecipeID          string
 
-	BoMHop    [4]string // BoM cost per radius 0..3 ("—" when infeasible)
-	RecipeHop [4]string // Recipe cost per radius 0..3 ("—" when infeasible/NA)
+	BoMHop    [4]string // BoM cost per radius 0..3; "N/M" coverage when infeasible, "—" when absent
+	RecipeHop [4]string // Recipe cost per radius 0..3; "N/M" coverage when infeasible, "—" when absent/NA
 
 	SavingsStr, SavingsClass string
 	ProfitStr, ProfitClass   string
@@ -151,16 +151,24 @@ func commaInt(v float64) string {
 	return string(out)
 }
 
-// emDash marks an infeasible/absent cell in the per-radius cost columns.
+// emDash marks a cell with no data (station absent at that radius, or mode N/A).
 const emDash = "—"
 
-// hopCostStr formats a per-radius cost: the number when feasible, else an
-// em-dash (also em-dash when the station has no cell at that radius).
-func hopCostStr(cost float64, feasible, present bool) string {
-	if !present || !feasible {
+// hopCoverStr formats a per-radius cell: the cost when the build is feasible;
+// otherwise the materials-covered fraction "N/M" (how many of the M inputs are
+// sourceable within that radius); an em-dash only when there is no cell at all
+// or the mode does not apply.
+func hopCoverStr(cost float64, covered, total int, feasible, present bool) string {
+	if !present {
 		return emDash
 	}
-	return commaInt(cost)
+	if feasible {
+		return commaInt(cost)
+	}
+	if total <= 0 {
+		return emDash
+	}
+	return strconv.Itoa(covered) + "/" + strconv.Itoa(total)
 }
 
 // money renders a value as a comma-formatted string, or an em dash when absent.
@@ -245,6 +253,7 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 	}
 
 	var lines []detailLine
+	localAnyFeasible := false
 	for _, s := range stations {
 		c, ok := row.Cells[s.ID]
 		if !ok {
@@ -270,27 +279,19 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 		}
 		for r := range 4 {
 			hc, ok := hopRows[r].Cells[s.ID]
-			ln.BoMHop[r] = hopCostStr(hc.BoMCost, hc.BoMFeasible, ok)
-			ln.RecipeHop[r] = hopCostStr(hc.RecipeCost, hc.RecipeFeasible && !hc.RecipeNA, ok && !hc.RecipeNA)
+			recipeFeasible := hc.RecipeFeasible && !hc.RecipeNA
+			ln.BoMHop[r] = hopCoverStr(hc.BoMCost, hc.BoMCovered, hc.BoMTotal, hc.BoMFeasible, ok)
+			ln.RecipeHop[r] = hopCoverStr(hc.RecipeCost, hc.RecipeCovered, hc.RecipeTotal, recipeFeasible, ok && !hc.RecipeNA)
+			if ok && (hc.BoMFeasible || recipeFeasible) {
+				localAnyFeasible = true
+			}
 		}
 		lines = append(lines, ln)
 	}
 
-	// The per-station table is "all em-dashes" when no station can build this
-	// target from raw ore or sub-assemblies at any radius 0..3. In that case
-	// show a banner with the galaxy-wide sourcing picture instead.
-	localAnyFeasible := false
-	for _, ln := range lines {
-		for r := range 4 {
-			if ln.BoMHop[r] != emDash || ln.RecipeHop[r] != emDash {
-				localAnyFeasible = true
-				break
-			}
-		}
-		if localAnyFeasible {
-			break
-		}
-	}
+	// When no station can build this target — from raw ore or sub-assemblies —
+	// at any radius 0..3, show a banner with the galaxy-wide sourcing picture.
+	// (The cells themselves now show N/M coverage rather than a bare em-dash.)
 
 	f, err := os.Create(filepath.Join(outDir, row.ID+".html"))
 	if err != nil {

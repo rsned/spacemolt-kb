@@ -47,7 +47,7 @@
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
- <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing; em-dash = still infeasible).</p>
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing). When a build can't complete, the cell shows how many of its inputs are sourceable within that radius (e.g. <code>11/16</code>); an em-dash means the station has no market there or the mode does not apply.</p>
 <div class="scrollx">
 <table>
 <thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
@@ -55,21 +55,21 @@
 
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>3,190</td><td>3,190</td><td>3,190</td>
+ <td class="infeasible">3/13</td>
+ <td>10/13</td><td>11/13</td><td>11/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3,260</td><td>3,260</td><td>3,260</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>grand_exchange</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">10,963</td>
- <td>10,963</td><td>3,493</td><td>3,493</td>
+ <td>grand_exchange</td><td>Independent</td>
+ <td class="infeasible">5/13</td>
+ <td>5/13</td><td>7/13</td><td>9/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>3,494</td><td>3,440</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -77,10 +77,10 @@
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>3,865</td><td>3,493</td><td>3,097</td>
+ <td class="infeasible">7/13</td>
+ <td>9/13</td><td>10/13</td><td>10/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3,874</td><td>3,601</td><td>3,077</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -88,10 +88,10 @@
 
 <tr>
  <td>sol_central</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>3,259</td><td>3,259</td><td>3,040</td>
+ <td class="infeasible">9/13</td>
+ <td>9/13</td><td>10/13</td><td>10/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3,280</td><td>3,280</td><td>3,059</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -99,10 +99,10 @@
 
 <tr>
  <td>the_core</td><td>voidborn</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>4,752</td>
+ <td class="infeasible">5/13</td>
+ <td>8/13</td><td>8/13</td><td>8/13</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>3/4</td><td>4,781</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -110,10 +110,10 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>3,973</td><td>3,753</td><td>3,753</td>
+ <td class="infeasible">4/13</td>
+ <td>6/13</td><td>7/13</td><td>8/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3,977</td><td>3,757</td><td>3,757</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -121,10 +121,10 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>10,474</td><td>10,134</td><td>3,190</td>
+ <td class="infeasible">5/13</td>
+ <td>7/13</td><td>8/13</td><td>11/13</td>
+ <td class="infeasible">3/4</td>
+ <td>10,472</td><td>10,432</td><td>3,260</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -132,10 +132,10 @@
 
 <tr>
  <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">10,750</td>
- <td>3,259</td><td>3,040</td><td>3,040</td>
+ <td class="infeasible">5/13</td>
+ <td>10/13</td><td>10/13</td><td>10/13</td>
+ <td class="">10,099</td>
+ <td>3,280</td><td>3,059</td><td>3,059</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -143,10 +143,10 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>3,396</td><td>3,190</td><td>3,190</td>
+ <td class="infeasible">8/13</td>
+ <td>10/13</td><td>10/13</td><td>11/13</td>
+ <td class="infeasible">2/4</td>
+ <td>3,260</td><td>3,260</td><td>3,260</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -154,10 +154,10 @@
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>3,259</td><td>3,259</td>
+ <td class="infeasible">4/13</td>
+ <td>9/13</td><td>9/13</td><td>10/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>3,280</td><td>3,280</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -165,10 +165,10 @@
 
 <tr>
  <td>blood_forge_smelting_works</td><td>crimson</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>3,190</td><td>3,190</td>
+ <td class="infeasible">7/13</td>
+ <td>10/13</td><td>10/13</td><td>11/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3,509</td><td>3,260</td><td>3,260</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -176,21 +176,21 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">5/13</td>
+ <td>5/13</td><td>5/13</td><td>9/13</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>2/4</td><td>3/4</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>factory_belt_manufacturing_hub</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>4,106</td><td>3,946</td><td>3,946</td>
+ <td>factory_belt_manufacturing_hub</td><td>Independent</td>
+ <td class="infeasible">3/13</td>
+ <td>5/13</td><td>6/13</td><td>8/13</td>
+ <td class="infeasible">3/4</td>
+ <td>4,062</td><td>3,893</td><td>3,893</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -198,21 +198,21 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>3,097</td>
+ <td class="infeasible">4/13</td>
+ <td>6/13</td><td>9/13</td><td>10/13</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>3/4</td><td>3,077</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>gold_run_extraction_hub</td><td>nebula</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">4,043</td>
- <td>3,973</td><td>3,753</td><td>3,753</td>
+ <td>gold_run_extraction_hub</td><td>Independent</td>
+ <td class="infeasible">6/13</td>
+ <td>6/13</td><td>8/13</td><td>8/13</td>
+ <td class="">4,033</td>
+ <td>3,977</td><td>3,757</td><td>3,757</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -220,10 +220,10 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>3,865</td><td>3,865</td><td>3,493</td>
+ <td class="infeasible">7/13</td>
+ <td>9/13</td><td>9/13</td><td>10/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3,874</td><td>3,874</td><td>3,601</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -231,32 +231,32 @@
 
 <tr>
  <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>4,752</td><td>4,752</td>
+ <td class="infeasible">4/13</td>
+ <td>8/13</td><td>8/13</td><td>8/13</td>
+ <td class="infeasible">1/4</td>
+ <td>3/4</td><td>4,781</td><td>4,781</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>node_gamma_relay_station</td><td>voidborn</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>4,752</td><td>4,752</td>
+ <td>node_gamma_relay_station</td><td>Independent</td>
+ <td class="infeasible">5/13</td>
+ <td>7/13</td><td>8/13</td><td>8/13</td>
+ <td class="infeasible">1/4</td>
+ <td>2/4</td><td>4,781</td><td>4,781</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>solarian</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>4,539</td><td>3,040</td><td>3,040</td>
+ <td>nova_terra_central</td><td>Independent</td>
+ <td class="infeasible">7/13</td>
+ <td>9/13</td><td>10/13</td><td>10/13</td>
+ <td class="infeasible">3/4</td>
+ <td>4,558</td><td>3,059</td><td>3,059</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -264,10 +264,10 @@
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>4,539</td><td>3,040</td>
+ <td class="infeasible">8/13</td>
+ <td>9/13</td><td>9/13</td><td>10/13</td>
+ <td class="infeasible">2/4</td>
+ <td>3/4</td><td>4,558</td><td>3,059</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -275,10 +275,10 @@
 
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>3,097</td>
+ <td class="infeasible">3/13</td>
+ <td>5/13</td><td>8/13</td><td>10/13</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>3/4</td><td>3,077</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -286,21 +286,21 @@
 
 <tr>
  <td>synchrony_hub</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>4,941</td><td>4,752</td><td>4,752</td>
+ <td class="infeasible">3/13</td>
+ <td>8/13</td><td>8/13</td><td>8/13</td>
+ <td class="infeasible">2/4</td>
+ <td>5,133</td><td>4,781</td><td>4,781</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>crimson</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">10,336</td>
- <td>3,396</td><td>3,190</td><td>3,190</td>
+ <td>the_anvil_arsenal</td><td>Independent</td>
+ <td class="infeasible">2/13</td>
+ <td>10/13</td><td>10/13</td><td>11/13</td>
+ <td class="">10,521</td>
+ <td>3,280</td><td>3,260</td><td>3,260</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -308,10 +308,10 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">10,879</td>
- <td>10,134</td><td>3,190</td><td>3,190</td>
+ <td class="infeasible">4/13</td>
+ <td>8/13</td><td>11/13</td><td>11/13</td>
+ <td class="infeasible">3/4</td>
+ <td>10,432</td><td>3,260</td><td>3,260</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -319,10 +319,10 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>5,511</td><td>4,941</td><td>4,752</td>
+ <td class="infeasible">4/13</td>
+ <td>6/13</td><td>8/13</td><td>8/13</td>
+ <td class="infeasible">3/4</td>
+ <td>5,643</td><td>5,133</td><td>4,781</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -330,10 +330,10 @@
 
 <tr>
  <td>the_levy_customs_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>3,873</td><td>3,493</td>
+ <td class="infeasible">4/13</td>
+ <td>4/13</td><td>7/13</td><td>8/13</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>3,876</td><td>3,494</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -341,10 +341,10 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="">11,291</td>
- <td>10,657</td><td>3,946</td><td>3,493</td>
+ <td class="infeasible">3/13</td>
+ <td>5/13</td><td>8/13</td><td>9/13</td>
+ <td class="infeasible">3/4</td>
+ <td>10,665</td><td>3,893</td><td>3,440</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -352,10 +352,10 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>4,106</td><td>3,946</td>
+ <td class="infeasible">2/13</td>
+ <td>4/13</td><td>5/13</td><td>6/13</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>4,062</td><td>3,893</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -363,10 +363,10 @@
 
 <tr>
  <td>void_gate_outpost</td><td>Independent</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
- <td class="infeasible">—</td>
- <td>—</td><td>—</td><td>—</td>
+ <td class="infeasible">4/13</td>
+ <td>7/13</td><td>7/13</td><td>9/13</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>2/4</td><td>3/4</td>
  <td>build_frontier_survival_kit</td>
  <td class="">—</td>
  <td class="">—</td>
