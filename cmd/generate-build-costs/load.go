@@ -16,10 +16,59 @@ type StationMeta struct {
 	Empire string
 }
 
+// loadSellVWAP returns each item's sell-side (ask) volume-weighted average
+// trade price from market_ohlcv. VWAP is weighted by actual traded volume, so
+// resting sentinel/junk orders (which never trade) do not distort it. Items
+// with no sell-side trade history are absent from the map.
+func loadSellVWAP(marketDB *sql.DB) (map[string]float64, error) {
+	rows, err := marketDB.Query(`
+		SELECT item_id, SUM(vwap*volume) AS num, SUM(volume) AS den
+		FROM market_ohlcv
+		WHERE side='sell'
+		GROUP BY item_id
+		HAVING den > 0`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	ref := map[string]float64{}
+	for rows.Next() {
+		var id string
+		var num, den float64
+		if err := rows.Scan(&id, &num, &den); err != nil {
+			return nil, err
+		}
+		if den > 0 {
+			ref[id] = num / den
+		}
+	}
+	return ref, rows.Err()
+}
+
+// median returns the median of a slice (0 if empty). It sorts a copy.
+func median(in []float64) float64 {
+	if len(in) == 0 {
+		return 0
+	}
+	s := append([]float64(nil), in...)
+	sort.Float64s(s)
+	n := len(s)
+	if n%2 == 1 {
+		return s[n/2]
+	}
+	return (s[n/2-1] + s[n/2]) / 2
+}
+
 // loadBooks builds each station's current order book from its most recent
 // snapshot (MAX(captured_at) per station). Sell ladders are sorted ascending by
 // price; BestBuy holds the highest resting buy price per item.
-func loadBooks(marketDB *sql.DB) (map[string]*buildcost.Book, error) {
+//
+// sellVWAP is the per-item sell-side VWAP reference (from loadSellVWAP); items
+// missing from it fall back to the median of their own current order-book sell
+// prices. When capMult > 0, any sell order priced above capMult*ref is dropped
+// as an outlier (e.g. sentinel "not for sale" listings). The second return is
+// the count of dropped sell orders.
+func loadBooks(marketDB *sql.DB, sellVWAP map[string]float64, capMult float64) (map[string]*buildcost.Book, int, error) {
 	rows, err := marketDB.Query(`
 WITH latest AS (
   SELECT station_id, MAX(captured_at) AS cap FROM market_orders GROUP BY station_id
@@ -28,7 +77,7 @@ SELECT o.station_id, o.item_id, o.side, o.price_each, o.quantity
 FROM market_orders o
 JOIN latest l ON o.station_id = l.station_id AND o.captured_at = l.cap`)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer func() { _ = rows.Close() }()
 
@@ -37,7 +86,7 @@ JOIN latest l ON o.station_id = l.station_id AND o.captured_at = l.cap`)
 		var st, item, side string
 		var price, qty float64
 		if err := rows.Scan(&st, &item, &side, &price, &qty); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		b := books[st]
 		if b == nil {
@@ -54,7 +103,7 @@ JOIN latest l ON o.station_id = l.station_id AND o.captured_at = l.cap`)
 		}
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	for _, b := range books {
 		for item := range b.Sell {
@@ -63,7 +112,44 @@ JOIN latest l ON o.station_id = l.station_id AND o.captured_at = l.cap`)
 			b.Sell[item] = l
 		}
 	}
-	return books, nil
+
+	dropped := 0
+	if capMult > 0 {
+		// Gather every item's sell prices across all stations for the median fallback.
+		allSell := map[string][]float64{}
+		for _, b := range books {
+			for item, ladder := range b.Sell {
+				for _, o := range ladder {
+					allSell[item] = append(allSell[item], o.Price)
+				}
+			}
+		}
+		refFor := func(item string) float64 {
+			if v, ok := sellVWAP[item]; ok && v > 0 {
+				return v
+			}
+			return median(allSell[item])
+		}
+		for _, b := range books {
+			for item, ladder := range b.Sell {
+				ref := refFor(item)
+				if ref <= 0 {
+					continue
+				}
+				capVal := capMult * ref
+				kept := ladder[:0]
+				for _, o := range ladder {
+					if o.Price > capVal {
+						dropped++
+						continue
+					}
+					kept = append(kept, o)
+				}
+				b.Sell[item] = kept
+			}
+		}
+	}
+	return books, dropped, nil
 }
 
 // loadStations returns station columns joined to their empire via the knowledge

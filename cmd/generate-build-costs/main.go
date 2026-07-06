@@ -23,6 +23,7 @@ func main() {
 	knowledgePath := flag.String("knowledge", "../spacemolt-knowledge.db", "knowledge DB")
 	catalogRoot := flag.String("catalog", "../spacemolt/data/game-api", "game-api catalog root")
 	outDir := flag.String("out", "kb/build-costs", "output directory")
+	capMult := flag.Float64("price-cap-mult", 100, "drop sell orders priced above this multiple of an item's typical ask (VWAP); 0 = no cap")
 	flag.Parse()
 
 	craftDB, err := openRO(*craftPath)
@@ -40,8 +41,11 @@ func main() {
 	itemNames, categories, err := loadItemMeta(craftDB)
 	must(err, "load item meta")
 
-	books, err := loadBooks(marketDB)
+	sellVWAP, err := loadSellVWAP(marketDB)
+	must(err, "load sell vwap")
+	books, dropped, err := loadBooks(marketDB, sellVWAP, *capMult)
 	must(err, "load books")
+	log.Printf("build-costs: dropped %d outlier sell orders (> %.0fx typical ask)", dropped, *capMult)
 	stations, err := loadStations(marketDB, knowledgeDB)
 	must(err, "load stations")
 	listings, err := loadShipListings(knowledgeDB)

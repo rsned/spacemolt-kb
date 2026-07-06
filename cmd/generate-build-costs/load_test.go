@@ -31,7 +31,7 @@ INSERT INTO market_orders VALUES ('st1','iron','buy',8,3,'2026-07-05T16:00:00Z')
 
 func TestLoadBooks_LatestSnapshotAndSortedLadder(t *testing.T) {
 	db := newMarketTestDB(t)
-	books, err := loadBooks(db)
+	books, _, err := loadBooks(db, nil, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,9 +48,101 @@ func TestLoadBooks_LatestSnapshotAndSortedLadder(t *testing.T) {
 	}
 }
 
+func TestLoadBooks_OutlierCapVWAP(t *testing.T) {
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`
+CREATE TABLE market_orders (station_id TEXT, item_id TEXT, side TEXT, price_each REAL, quantity REAL, captured_at TEXT);
+INSERT INTO market_orders VALUES ('st1','iron','sell',40,5,'2026-07-05T16:00:00Z');
+INSERT INTO market_orders VALUES ('st1','iron','sell',999999,1,'2026-07-05T16:00:00Z');
+`); err != nil {
+		t.Fatal(err)
+	}
+
+	books, dropped, err := loadBooks(db, map[string]float64{"iron": 40}, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if dropped != 1 {
+		t.Fatalf("dropped = %d, want 1", dropped)
+	}
+	if l := books["st1"].Sell["iron"]; len(l) != 1 || l[0].Price != 40 {
+		t.Fatalf("iron ladder = %+v, want only price 40", l)
+	}
+
+	books, dropped, err = loadBooks(db, map[string]float64{"iron": 40}, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if dropped != 0 {
+		t.Fatalf("dropped = %d, want 0 (cap disabled)", dropped)
+	}
+	if l := books["st1"].Sell["iron"]; len(l) != 2 {
+		t.Fatalf("iron ladder = %+v, want both orders present", l)
+	}
+}
+
+func TestLoadBooks_MedianFallback(t *testing.T) {
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`
+CREATE TABLE market_orders (station_id TEXT, item_id TEXT, side TEXT, price_each REAL, quantity REAL, captured_at TEXT);
+INSERT INTO market_orders VALUES ('st1','iron','sell',40,5,'2026-07-05T16:00:00Z');
+INSERT INTO market_orders VALUES ('st2','iron','sell',45,5,'2026-07-05T16:00:00Z');
+INSERT INTO market_orders VALUES ('st3','iron','sell',999999,1,'2026-07-05T16:00:00Z');
+`); err != nil {
+		t.Fatal(err)
+	}
+
+	books, dropped, err := loadBooks(db, nil, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// median of {40,45,999999} is 45 -> cap 100*45=4500 -> 999999 dropped.
+	if dropped != 1 {
+		t.Fatalf("dropped = %d, want 1", dropped)
+	}
+	if l := books["st1"].Sell["iron"]; len(l) != 1 || l[0].Price != 40 {
+		t.Fatalf("st1 iron ladder = %+v, want only price 40", l)
+	}
+	if l := books["st2"].Sell["iron"]; len(l) != 1 || l[0].Price != 45 {
+		t.Fatalf("st2 iron ladder = %+v, want only price 45", l)
+	}
+	if l := books["st3"].Sell["iron"]; len(l) != 0 {
+		t.Fatalf("st3 iron ladder = %+v, want empty (sentinel dropped)", l)
+	}
+}
+
+func TestLoadSellVWAP(t *testing.T) {
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`
+CREATE TABLE market_ohlcv (station_id TEXT, item_id TEXT, side TEXT, bucket_utc TEXT, vwap REAL, volume REAL);
+INSERT INTO market_ohlcv VALUES ('st1','iron','sell','2026-07-05T00:00:00Z',400,3);
+INSERT INTO market_ohlcv VALUES ('st1','iron','sell','2026-07-05T01:00:00Z',40,1);
+INSERT INTO market_ohlcv VALUES ('st1','iron','buy','2026-07-05T00:00:00Z',9999,50);
+`); err != nil {
+		t.Fatal(err)
+	}
+
+	ref, err := loadSellVWAP(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := ref["iron"]; got != 310 {
+		t.Fatalf("ref[iron] = %v, want 310", got)
+	}
+}
+
 func TestItemMargin(t *testing.T) {
 	db := newMarketTestDB(t)
-	books, _ := loadBooks(db)
+	books, _, _ := loadBooks(db, nil, 0)
 	m := itemMargin(books["st1"], "iron")
 	if !m.HasAsk || m.FinishedAsk != 10 || !m.HasBid || m.FinishedBid != 8 {
 		t.Fatalf("margin: %+v", m)
