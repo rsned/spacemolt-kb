@@ -1,7 +1,9 @@
 package main
 
 import (
+	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
@@ -84,5 +86,50 @@ func TestBuildStationCoverPage_RecipeBestFeasible(t *testing.T) {
 	}
 	if !e.Recipe.Feasible || e.Recipe.Count != 1 {
 		t.Fatalf("recipe cover = %+v, want feasible count 1", e.Recipe)
+	}
+}
+
+func TestRenderStationCover_WritesExpectedContent(t *testing.T) {
+	p := stationCoverPage{
+		Total: 3, SingleStation: 1, MaxStations: 2, UnbuildableCount: 1,
+		BatchSensitiveCount: 1, HardestName: "Hard Widget", HardestID: "hard",
+		AvgStations: 1.5,
+		Buildable: []coverEntry{
+			{ID: "hard", Name: "Hard Widget", Category: "gadget", Kind: "item",
+				BoM:    buildcost.CoverResult{Feasible: true, Count: 2, Exact: true},
+				Recipe: buildcost.CoverResult{Feasible: true, Count: 1, Exact: true},
+				ExampleCover: []string{"Alpha", "Bravo"}},
+			{ID: "easy", Name: "Easy Widget", Category: "widget", Kind: "item",
+				BoM: buildcost.CoverResult{Feasible: true, Count: 1, Exact: true}, RecipeNA: true,
+				ExampleCover: []string{"Alpha"}, BatchSensitive: true},
+		},
+		Unbuildable: []unbuildableEntry{
+			{ID: "nope", Name: "Void Reactor", Category: "reactor", Kind: "ship", Missing: []string{"Exotic Matter"}},
+		},
+		BoMHistogram:    []histBar{{Stations: 1, Count: 1, HeightPct: 100}, {Stations: 2, Count: 1, HeightPct: 100}},
+		RecipeHistogram: []histBar{{Stations: 1, Count: 1, HeightPct: 100}},
+	}
+	dir := t.TempDir()
+	out := dir + "/stations_to_build.html"
+	if err := renderStationCover(out, p); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(data)
+	for _, want := range []string{
+		"Hard Widget",         // hardest factoid + main-table row
+		"../build-costs/hard.html", // target link
+		"Alpha, Bravo",        // example cover
+		"N/A",                 // easy's recipe column
+		"Void Reactor",        // unbuildable row
+		"Exotic Matter",       // missing input
+		"chart-bar",           // bar chart present
+	} {
+		if !strings.Contains(s, want) {
+			t.Errorf("rendered page missing %q", want)
+		}
 	}
 }
