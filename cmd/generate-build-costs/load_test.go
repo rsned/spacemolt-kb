@@ -280,12 +280,15 @@ CREATE TABLE bill_of_materials (target_id TEXT, target_type TEXT, base_item_id T
 INSERT INTO bill_of_materials VALUES ('widget','item','iron',2);
 INSERT INTO bill_of_materials VALUES ('widget','item','copper',1);
 INSERT INTO bill_of_materials VALUES ('scout','ship','iron',50);
+INSERT INTO bill_of_materials VALUES ('forge','facility','titanium_ore',8);
+INSERT INTO bill_of_materials VALUES ('forge','facility','copper_ore',2);
 
 CREATE TABLE recipe_inputs (recipe_id TEXT, item_id TEXT, quantity REAL);
 CREATE TABLE recipe_outputs (recipe_id TEXT, item_id TEXT, quantity REAL);
 INSERT INTO recipe_inputs VALUES ('r1','iron',2);
 INSERT INTO recipe_inputs VALUES ('r1','copper',1);
 INSERT INTO recipe_outputs VALUES ('r1','widget',1);
+INSERT INTO recipe_outputs VALUES ('forge_ghost_rounds','ghost_rounds',2);
 `)
 	if err != nil {
 		t.Fatal(err)
