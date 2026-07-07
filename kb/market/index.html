@@ -3,26 +3,33 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Market History — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <style>
- body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
- a{color:#58a6ff} h1{margin:.3rem 0} h2{margin:1.6rem 0 .3rem;font-size:1.15rem}
- .legend{font-size:.85rem;color:#8b949e;max-width:80ch}
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+ a{color:var(--link)} h1{margin:.3rem 0} h2{margin:1.6rem 0 .3rem;font-size:1.15rem}
+ .legend{font-size:.85rem;color:var(--muted);max-width:80ch}
  .cards{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
- .card{display:block;min-width:8rem;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:.7rem .9rem;color:#c9d1d9;text-decoration:none}
- .card:hover{border-color:#58a6ff}
- .card .n{font-size:1.5rem;color:#e3b341;line-height:1}
+ .card{display:block;min-width:8rem;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.7rem .9rem;color:var(--text);text-decoration:none}
+ .card:hover{border-color:var(--link)}
+ .card .n{font-size:1.5rem;color:var(--accent);line-height:1}
  .card .g{text-transform:capitalize;margin-top:.2rem}
- .card .v{font-size:.8rem;color:#8b949e;margin-top:.15rem}
+ .card .v{font-size:.8rem;color:var(--muted);margin-top:.15rem}
 </style>
 </head>
 <body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
 <p><a href="../">← Spacemolt KB</a></p>
 <h1>Market History</h1>
 <p class="legend">Daily price history for every traded item, aggregated <strong>galaxy-wide</strong> from the <strong>sell-side</strong> (ask) order book. Each chart is a daily <strong>candlestick</strong> panel (green up, red down; body spans open→close, wick spans low→high) over a <strong>volume</strong> strip, across the collected ~16-day window. Pick a category to browse its items, most-traded first.</p>
 <div class="cards">
 <a class="card" href="ammo/"><div class="n">37</div><div class="g">ammo</div><div class="v">vol 240.3M</div></a>
 <a class="card" href="component/"><div class="n">128</div><div class="g">component</div><div class="v">vol 84.7M</div></a>
-<a class="card" href="consumable/"><div class="n">44</div><div class="g">consumable</div><div class="v">vol 19.3M</div></a>
+<a class="card" href="consumable/"><div class="n">44</div><div class="g">consumable</div><div class="v">vol 19.2M</div></a>
 <a class="card" href="contraband/"><div class="n">5</div><div class="g">contraband</div><div class="v">vol 30K</div></a>
 <a class="card" href="defense/"><div class="n">41</div><div class="g">defense</div><div class="v">vol 980K</div></a>
 <a class="card" href="material/"><div class="n">2</div><div class="g">material</div><div class="v">vol 215K</div></a>

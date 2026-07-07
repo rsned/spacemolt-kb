@@ -3,23 +3,30 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>faction — Facility Build Costs — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <style>
- body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
- a{color:#58a6ff}
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+ a{color:var(--link)}
  table{border-collapse:collapse;font-size:.85rem;margin-top:.3rem}
- th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
+ th,td{border:1px solid var(--border2);padding:.3rem .5rem;text-align:right}
  th:first-child,td:first-child{text-align:left}
  .toc{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 1rem;font-size:.8rem}
- .toc a{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:.15rem .5rem;text-decoration:none;text-transform:capitalize}
- .toc a.active{border-color:#e3b341;color:#e3b341}
- .fac{border-top:1px solid #30363d;margin-top:1.3rem;padding-top:.4rem;scroll-margin-top:.5rem}
- .fac h2{margin:.2rem 0;font-size:1.05rem} .fac h2 small{color:#8b949e;font-weight:400}
- .view h3{margin:.6rem 0 .1rem;font-size:.9rem;color:#c9d1d9}
- .infeasible{color:#6e7681} .note{color:#8b949e;font-weight:400} .empty{color:#6e7681;font-size:.85rem;margin:.2rem 0}
+ .toc a{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.15rem .5rem;text-decoration:none;text-transform:capitalize}
+ .toc a.active{border-color:var(--accent);color:var(--accent)}
+ .fac{border-top:1px solid var(--border);margin-top:1.3rem;padding-top:.4rem;scroll-margin-top:.5rem}
+ .fac h2{margin:.2rem 0;font-size:1.05rem} .fac h2 small{color:var(--muted);font-weight:400}
+ .view h3{margin:.6rem 0 .1rem;font-size:.9rem;color:var(--text)}
+ .infeasible{color:var(--muted2)} .note{color:var(--muted);font-weight:400} .empty{color:var(--muted2);font-size:.85rem;margin:.2rem 0}
  h1{margin:.2rem 0;text-transform:capitalize}
 </style>
 </head>
 <body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
 <p><a href="../">← Facility Build Costs</a></p>
 <div class="toc">
 <a href="../ammo/">ammo (184)</a>
@@ -54,20 +61,20 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>4000</td><td>130.03</td><td>520,132.38</td>
-  <td class="">2.54</td>
-  <td class="">10,157.00</td>
+  <td class="">2.26</td>
+  <td class="">9,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>500</td><td>41.71</td><td>20,853.94</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td class="">35.48</td>
+  <td class="">17,742.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>3000</td><td>382.22</td><td>1,146,656.28</td>
-  <td class="">23.30</td>
-  <td class="">69,908.00</td>
+  <td>3000</td><td>382.22</td><td>1,146,657.58</td>
+  <td class="">22.68</td>
+  <td class="">68,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -78,8 +85,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>750</td><td>240.69</td><td>180,514.57</td>
-  <td class="">497.91</td>
-  <td class="">373,433.00</td>
+  <td class="">500.00</td>
+  <td class="">375,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -89,8 +96,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>2,178,219.17</strong></td>
-     <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
+     <td><strong>2,178,220.47</strong></td>
+     <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -104,26 +111,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>1000</td><td>114.92</td><td>114,922.81</td>
-  <td class="">71.03</td>
-  <td class="">71,026.00</td>
+  <td>1000</td><td>114.94</td><td>114,943.78</td>
+  <td class="">66.96</td>
+  <td class="">66,958.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>500</td><td>343.87</td><td>171,937.19</td>
-  <td class="">571.96</td>
-  <td class="">285,981.00</td>
+  <td>500</td><td>343.87</td><td>171,935.32</td>
+  <td class="">578.25</td>
+  <td class="">289,124.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>250</td><td>333.12</td><td>83,280.50</td>
-  <td class="">257.00</td>
-  <td class="">64,250.00</td>
+  <td>250</td><td>333.11</td><td>83,276.68</td>
+  <td class="">249.00</td>
+  <td class="">62,250.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>370,140.49</strong></td>
-     <td colspan="2" class=""><strong>421,257.00</strong></td></tr>
+     <td><strong>370,155.77</strong></td>
+     <td colspan="2" class=""><strong>418,332.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -160,24 +167,24 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>500</td><td>41.71</td><td>20,853.94</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td class="">35.48</td>
+  <td class="">17,742.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iridium_ore.html">Iridium Ore</a></td>
   <td>200</td><td>61.38</td><td>12,275.07</td>
-  <td class="">9.85</td>
-  <td class="">1,970.00</td>
+  <td class="">9.70</td>
+  <td class="">1,940.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>500</td><td>382.22</td><td>191,109.38</td>
-  <td class="">15.18</td>
-  <td class="">7,588.00</td>
+  <td>500</td><td>382.22</td><td>191,109.60</td>
+  <td class="">12.13</td>
+  <td class="">6,067.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
-  <td>400</td><td>168.13</td><td>67,251.22</td>
+  <td>400</td><td>168.13</td><td>67,251.23</td>
   <td class="">15.24</td>
   <td class="">6,096.00</td>
  </tr>
@@ -196,8 +203,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>500</td><td>240.69</td><td>120,343.05</td>
-  <td class="">496.87</td>
-  <td class="">248,433.00</td>
+  <td class="">500.00</td>
+  <td class="">250,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/trade_crystal.html">Trade Crystal</a></td>
@@ -213,8 +220,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>12,646,776.58</strong></td>
-     <td colspan="2" class="infeasible"><strong>9/12 covered</strong></td></tr>
+     <td><strong>12,646,776.80</strong></td>
+     <td colspan="2" class="infeasible"><strong>10/12 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -228,9 +235,9 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>500</td><td>343.87</td><td>171,937.19</td>
-  <td class="">571.96</td>
-  <td class="">285,981.00</td>
+  <td>500</td><td>343.87</td><td>171,935.32</td>
+  <td class="">578.25</td>
+  <td class="">289,124.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td>
@@ -240,7 +247,7 @@
  </tr>
  <tr>
   <td><a href="../../../items/refined/superconductor.html">Superconductor</a></td>
-  <td>200</td><td>745.53</td><td>149,105.37</td>
+  <td>200</td><td>745.53</td><td>149,106.43</td>
   <td class="">60.00</td>
   <td class="">12,000.00</td>
  </tr>
@@ -252,7 +259,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>576,823.66</strong></td>
+     <td><strong>576,822.85</strong></td>
      <td colspan="2" class="infeasible"><strong>3/4 covered</strong></td></tr>
  </tbody></table>
  
@@ -272,8 +279,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>8000</td><td>130.03</td><td>1,040,264.76</td>
-  <td class="">3.77</td>
-  <td class="">30,157.00</td>
+  <td class="">3.63</td>
+  <td class="">29,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -283,9 +290,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>6000</td><td>382.22</td><td>2,293,312.56</td>
-  <td class="">24.15</td>
-  <td class="">144,908.00</td>
+  <td>6000</td><td>382.22</td><td>2,293,315.16</td>
+  <td class="">23.84</td>
+  <td class="">143,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -296,8 +303,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>1500</td><td>240.69</td><td>361,029.14</td>
-  <td class="">498.96</td>
-  <td class="">748,433.00</td>
+  <td class="">500.00</td>
+  <td class="">750,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -307,7 +314,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>4,356,438.34</strong></td>
+     <td><strong>4,356,440.94</strong></td>
      <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -322,26 +329,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>2000</td><td>114.92</td><td>229,845.61</td>
-  <td class="">78.33</td>
-  <td class="">156,652.00</td>
+  <td>2000</td><td>114.94</td><td>229,887.56</td>
+  <td class="">73.02</td>
+  <td class="">146,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>1000</td><td>343.87</td><td>343,874.38</td>
-  <td class="">592.81</td>
-  <td class="">592,806.00</td>
+  <td>1000</td><td>343.87</td><td>343,870.63</td>
+  <td class="">598.85</td>
+  <td class="">598,850.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>500</td><td>333.12</td><td>166,560.99</td>
-  <td class="">257.00</td>
-  <td class="">128,500.00</td>
+  <td>500</td><td>333.11</td><td>166,553.36</td>
+  <td class="">250.29</td>
+  <td class="">125,145.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>740,280.99</strong></td>
-     <td colspan="2" class=""><strong>877,958.00</strong></td></tr>
+     <td><strong>740,311.55</strong></td>
+     <td colspan="2" class=""><strong>870,042.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -366,14 +373,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>400</td><td>41.71</td><td>16,683.15</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td class="">33.60</td>
+  <td class="">13,442.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>1400</td><td>382.22</td><td>535,106.26</td>
-  <td class="">21.36</td>
-  <td class="">29,908.00</td>
+  <td>1400</td><td>382.22</td><td>535,106.87</td>
+  <td class="">20.03</td>
+  <td class="">28,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -384,8 +391,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>400</td><td>240.69</td><td>96,274.44</td>
-  <td class="">496.08</td>
-  <td class="">198,433.00</td>
+  <td class="">500.00</td>
+  <td class="">200,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -395,8 +402,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>982,873.65</strong></td>
-     <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
+     <td><strong>982,874.26</strong></td>
+     <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -410,20 +417,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>500</td><td>114.92</td><td>57,461.40</td>
-  <td class="">68.92</td>
-  <td class="">34,460.00</td>
+  <td>500</td><td>114.94</td><td>57,471.89</td>
+  <td class="">62.23</td>
+  <td class="">31,116.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>400</td><td>343.87</td><td>137,549.75</td>
-  <td class="">565.20</td>
-  <td class="">226,078.00</td>
+  <td>400</td><td>343.87</td><td>137,548.25</td>
+  <td class="">570.80</td>
+  <td class="">228,320.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>195,011.16</strong></td>
-     <td colspan="2" class=""><strong>260,538.00</strong></td></tr>
+     <td><strong>195,020.14</strong></td>
+     <td colspan="2" class=""><strong>259,436.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -448,14 +455,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>150</td><td>41.71</td><td>6,256.18</td>
-  <td class="">31.32</td>
-  <td class="">4,698.00</td>
+  <td class="">31.00</td>
+  <td class="">4,650.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>550</td><td>382.22</td><td>210,220.32</td>
-  <td class="">15.89</td>
-  <td class="">8,738.00</td>
+  <td>550</td><td>382.22</td><td>210,220.56</td>
+  <td class="">12.81</td>
+  <td class="">7,045.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -466,8 +473,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>150</td><td>240.69</td><td>36,102.91</td>
-  <td class="">489.55</td>
-  <td class="">73,433.00</td>
+  <td class="">500.00</td>
+  <td class="">75,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -477,7 +484,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>378,564.75</strong></td>
+     <td><strong>378,564.98</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -492,20 +499,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>200</td><td>114.92</td><td>22,984.56</td>
-  <td class="">64.30</td>
-  <td class="">12,860.00</td>
+  <td>200</td><td>114.94</td><td>22,988.76</td>
+  <td class="">52.48</td>
+  <td class="">10,497.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>74,565.72</strong></td>
-     <td colspan="2" class=""><strong>91,070.00</strong></td></tr>
+     <td><strong>74,569.35</strong></td>
+     <td colspan="2" class=""><strong>90,207.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -524,8 +531,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>3440</td><td>130.03</td><td>447,313.85</td>
-  <td class="">2.14</td>
-  <td class="">7,357.00</td>
+  <td class="">1.90</td>
+  <td class="">6,533.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/carbon_ore.html">Carbon Ore</a></td>
@@ -542,14 +549,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>520</td><td>41.71</td><td>21,688.09</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td class="">35.77</td>
+  <td class="">18,602.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>2640</td><td>382.22</td><td>1,009,057.53</td>
-  <td class="">23.07</td>
-  <td class="">60,908.00</td>
+  <td>2640</td><td>382.22</td><td>1,009,058.67</td>
+  <td class="">22.36</td>
+  <td class="">59,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
@@ -572,8 +579,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>720</td><td>240.69</td><td>173,293.99</td>
-  <td class="">497.82</td>
-  <td class="">358,433.00</td>
+  <td class="">500.00</td>
+  <td class="">360,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -583,8 +590,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>3,799,104.47</strong></td>
-     <td colspan="2" class="infeasible"><strong>8/10 covered</strong></td></tr>
+     <td><strong>3,799,105.61</strong></td>
+     <td colspan="2" class="infeasible"><strong>9/10 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -598,21 +605,21 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>800</td><td>114.92</td><td>91,938.25</td>
-  <td class="">70.28</td>
-  <td class="">56,226.00</td>
+  <td>800</td><td>114.94</td><td>91,955.02</td>
+  <td class="">65.70</td>
+  <td class="">52,558.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>400</td><td>343.87</td><td>137,549.75</td>
-  <td class="">565.20</td>
-  <td class="">226,078.00</td>
+  <td>400</td><td>343.87</td><td>137,548.25</td>
+  <td class="">570.80</td>
+  <td class="">228,320.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>200</td><td>333.12</td><td>66,624.40</td>
-  <td class="">257.00</td>
-  <td class="">51,400.00</td>
+  <td>200</td><td>333.11</td><td>66,621.34</td>
+  <td class="">249.00</td>
+  <td class="">49,800.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/sensor_package.html">Sensor Package</a></td>
@@ -622,13 +629,13 @@
  </tr>
  <tr>
   <td><a href="../../../items/component/precision_optic.html">Precision Optic</a></td>
-  <td>30</td><td>671.13</td><td>20,133.81</td>
-  <td class="">166.47</td>
-  <td class="">4,994.00</td>
+  <td>30</td><td>670.91</td><td>20,127.20</td>
+  <td class="">133.80</td>
+  <td class="">4,014.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>533,908.90</strong></td>
+     <td><strong>533,914.51</strong></td>
      <td colspan="2" class="infeasible"><strong>4/5 covered</strong></td></tr>
  </tbody></table>
  
@@ -659,9 +666,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>15400</td><td>382.22</td><td>5,886,168.91</td>
-  <td class="">24.67</td>
-  <td class="">379,908.00</td>
+  <td>15400</td><td>382.22</td><td>5,886,175.59</td>
+  <td class="">24.55</td>
+  <td class="">378,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -683,7 +690,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>16,504,468.97</strong></td>
+     <td><strong>16,504,475.64</strong></td>
      <td colspan="2" class="infeasible"><strong>3/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -698,15 +705,15 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>3000</td><td>114.92</td><td>344,768.42</td>
-  <td class="">89.01</td>
-  <td class="">267,020.00</td>
+  <td>3000</td><td>114.94</td><td>344,831.34</td>
+  <td class="">78.02</td>
+  <td class="">234,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>800</td><td>343.87</td><td>275,099.51</td>
-  <td class="">586.12</td>
-  <td class="">468,894.00</td>
+  <td>800</td><td>343.87</td><td>275,096.51</td>
+  <td class="">592.71</td>
+  <td class="">474,166.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/armor_plate.html">Armor Plate</a></td>
@@ -716,14 +723,14 @@
  </tr>
  <tr>
   <td><a href="../../../items/component/capital_armor_plate.html">Capital Armor Plate</a></td>
-  <td>100</td><td>8,271.78</td><td>827,178.35</td>
-  <td class="">4,468.63</td>
-  <td class="">446,863.00</td>
+  <td>100</td><td>8,272.07</td><td>827,207.31</td>
+  <td class="">4,399.78</td>
+  <td class="">439,978.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,526,961.58</strong></td>
-     <td colspan="2" class=""><strong>1,189,562.00</strong></td></tr>
+     <td><strong>1,527,050.46</strong></td>
+     <td colspan="2" class=""><strong>1,154,976.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -754,24 +761,24 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>200</td><td>41.71</td><td>8,341.57</td>
-  <td class="">31.84</td>
-  <td class="">6,369.00</td>
+  <td class="">31.00</td>
+  <td class="">6,200.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>2200</td><td>382.22</td><td>840,881.27</td>
-  <td class="">22.69</td>
-  <td class="">49,908.00</td>
+  <td>2200</td><td>382.22</td><td>840,882.23</td>
+  <td class="">21.84</td>
+  <td class="">48,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>500</td><td>71.81</td><td>35,905.27</td>
-  <td class="">24.95</td>
-  <td class="">12,473.00</td>
+  <td class="">24.92</td>
+  <td class="">12,461.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
-  <td>500</td><td>94.69</td><td>47,345.76</td>
+  <td>500</td><td>94.69</td><td>47,345.79</td>
   <td class="">1.00</td>
   <td class="">500.00</td>
  </tr>
@@ -784,8 +791,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>200</td><td>240.69</td><td>48,137.22</td>
-  <td class="">492.17</td>
-  <td class="">98,433.00</td>
+  <td class="">500.00</td>
+  <td class="">100,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -795,7 +802,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>18,931,488.95</strong></td>
+     <td><strong>18,931,489.93</strong></td>
      <td colspan="2" class="infeasible"><strong>8/9 covered</strong></td></tr>
  </tbody></table>
  
@@ -810,9 +817,9 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>1000</td><td>114.92</td><td>114,922.81</td>
-  <td class="">71.03</td>
-  <td class="">71,026.00</td>
+  <td>1000</td><td>114.94</td><td>114,943.78</td>
+  <td class="">66.96</td>
+  <td class="">66,958.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/flex_polymer.html">Flex Polymer</a></td>
@@ -828,14 +835,14 @@
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>200</td><td>343.87</td><td>68,774.88</td>
-  <td class="">535.71</td>
-  <td class="">107,142.00</td>
+  <td>200</td><td>343.87</td><td>68,774.13</td>
+  <td class="">544.35</td>
+  <td class="">108,870.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>214,322.06</strong></td>
-     <td colspan="2" class=""><strong>193,768.00</strong></td></tr>
+     <td><strong>214,342.27</strong></td>
+     <td colspan="2" class=""><strong>191,428.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -854,8 +861,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>8000</td><td>130.03</td><td>1,040,264.76</td>
-  <td class="">3.77</td>
-  <td class="">30,157.00</td>
+  <td class="">3.63</td>
+  <td class="">29,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -865,9 +872,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>6000</td><td>382.22</td><td>2,293,312.56</td>
-  <td class="">24.15</td>
-  <td class="">144,908.00</td>
+  <td>6000</td><td>382.22</td><td>2,293,315.16</td>
+  <td class="">23.84</td>
+  <td class="">143,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -878,8 +885,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>1500</td><td>240.69</td><td>361,029.14</td>
-  <td class="">498.96</td>
-  <td class="">748,433.00</td>
+  <td class="">500.00</td>
+  <td class="">750,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -889,7 +896,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>4,356,438.34</strong></td>
+     <td><strong>4,356,440.94</strong></td>
      <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -904,26 +911,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>2000</td><td>114.92</td><td>229,845.61</td>
-  <td class="">78.33</td>
-  <td class="">156,652.00</td>
+  <td>2000</td><td>114.94</td><td>229,887.56</td>
+  <td class="">73.02</td>
+  <td class="">146,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>1000</td><td>343.87</td><td>343,874.38</td>
-  <td class="">592.81</td>
-  <td class="">592,806.00</td>
+  <td>1000</td><td>343.87</td><td>343,870.63</td>
+  <td class="">598.85</td>
+  <td class="">598,850.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>500</td><td>333.12</td><td>166,560.99</td>
-  <td class="">257.00</td>
-  <td class="">128,500.00</td>
+  <td>500</td><td>333.11</td><td>166,553.36</td>
+  <td class="">250.29</td>
+  <td class="">125,145.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>740,280.99</strong></td>
-     <td colspan="2" class=""><strong>877,958.00</strong></td></tr>
+     <td><strong>740,311.55</strong></td>
+     <td colspan="2" class=""><strong>870,042.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -953,9 +960,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>225</td><td>382.22</td><td>85,999.22</td>
-  <td class="">11.12</td>
-  <td class="">2,502.00</td>
+  <td>225</td><td>382.22</td><td>85,999.32</td>
+  <td class="">7.80</td>
+  <td class="">1,755.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -966,8 +973,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>25</td><td>240.69</td><td>6,017.15</td>
-  <td class="">437.32</td>
-  <td class="">10,933.00</td>
+  <td class="">500.00</td>
+  <td class="">12,500.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -977,7 +984,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>116,358.80</strong></td>
+     <td><strong>116,358.89</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -992,20 +999,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>100</td><td>114.92</td><td>11,492.28</td>
-  <td class="">56.60</td>
-  <td class="">5,660.00</td>
+  <td>100</td><td>114.94</td><td>11,494.38</td>
+  <td class="">50.00</td>
+  <td class="">5,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>25</td><td>343.87</td><td>8,596.86</td>
-  <td class="">490.00</td>
-  <td class="">12,250.00</td>
+  <td>25</td><td>343.87</td><td>8,596.77</td>
+  <td class="">522.00</td>
+  <td class="">13,050.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>20,089.14</strong></td>
-     <td colspan="2" class=""><strong>17,910.00</strong></td></tr>
+     <td><strong>20,091.14</strong></td>
+     <td colspan="2" class=""><strong>18,050.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1024,8 +1031,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>15000</td><td>130.03</td><td>1,950,496.42</td>
-  <td class="">4.34</td>
-  <td class="">65,157.00</td>
+  <td class="">4.27</td>
+  <td class="">64,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -1035,15 +1042,15 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>13100</td><td>382.22</td><td>5,007,065.77</td>
-  <td class="">24.61</td>
-  <td class="">322,408.00</td>
+  <td>13100</td><td>382.22</td><td>5,007,071.44</td>
+  <td class="">24.47</td>
+  <td class="">320,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>2000</td><td>71.81</td><td>143,621.10</td>
-  <td class="">24.99</td>
-  <td class="">49,973.00</td>
+  <td class="">24.98</td>
+  <td class="">49,961.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1054,8 +1061,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>2500</td><td>240.69</td><td>601,715.24</td>
-  <td class="">499.37</td>
-  <td class="">1,248,433.00</td>
+  <td class="">500.00</td>
+  <td class="">1,250,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1065,7 +1072,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>8,766,438.08</strong></td>
+     <td><strong>8,766,443.76</strong></td>
      <td colspan="2" class="infeasible"><strong>5/7 covered</strong></td></tr>
  </tbody></table>
  
@@ -1080,32 +1087,32 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>4000</td><td>114.92</td><td>459,691.23</td>
-  <td class="">96.00</td>
-  <td class="">384,020.00</td>
+  <td>4000</td><td>114.94</td><td>459,775.12</td>
+  <td class="">80.51</td>
+  <td class="">322,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>1500</td><td>343.87</td><td>515,811.57</td>
-  <td class="">604.65</td>
-  <td class="">906,977.00</td>
+  <td>1500</td><td>343.87</td><td>515,805.95</td>
+  <td class="">609.43</td>
+  <td class="">914,142.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>1000</td><td>333.12</td><td>333,121.99</td>
-  <td class="">257.36</td>
-  <td class="">257,356.00</td>
+  <td>1000</td><td>333.11</td><td>333,106.71</td>
+  <td class="">252.15</td>
+  <td class="">252,145.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/durasteel_plate.html">Durasteel Plate</a></td>
-  <td>400</td><td>193.94</td><td>77,576.01</td>
-  <td class="">213.03</td>
-  <td class="">85,213.00</td>
+  <td>400</td><td>193.93</td><td>77,573.86</td>
+  <td class="">206.01</td>
+  <td class="">82,405.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,386,200.80</strong></td>
-     <td colspan="2" class=""><strong>1,633,566.00</strong></td></tr>
+     <td><strong>1,386,261.63</strong></td>
+     <td colspan="2" class=""><strong>1,570,739.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1135,9 +1142,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>900</td><td>382.22</td><td>343,996.88</td>
-  <td class="">19.34</td>
-  <td class="">17,408.00</td>
+  <td>900</td><td>382.22</td><td>343,997.27</td>
+  <td class="">17.27</td>
+  <td class="">15,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1148,8 +1155,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>100</td><td>240.69</td><td>24,068.61</td>
-  <td class="">484.33</td>
-  <td class="">48,433.00</td>
+  <td class="">500.00</td>
+  <td class="">50,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1159,7 +1166,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>465,435.18</strong></td>
+     <td><strong>465,435.57</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1174,20 +1181,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>400</td><td>114.92</td><td>45,969.12</td>
-  <td class="">68.15</td>
-  <td class="">27,260.00</td>
+  <td>400</td><td>114.94</td><td>45,977.51</td>
+  <td class="">60.04</td>
+  <td class="">24,016.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>100</td><td>343.87</td><td>34,387.44</td>
-  <td class="">514.53</td>
-  <td class="">51,453.00</td>
+  <td>100</td><td>343.87</td><td>34,387.06</td>
+  <td class="">528.86</td>
+  <td class="">52,886.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>80,356.56</strong></td>
-     <td colspan="2" class=""><strong>78,713.00</strong></td></tr>
+     <td><strong>80,364.57</strong></td>
+     <td colspan="2" class=""><strong>76,902.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1212,14 +1219,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>300</td><td>41.71</td><td>12,512.36</td>
-  <td class="">35.55</td>
-  <td class="">10,666.00</td>
+  <td class="">31.32</td>
+  <td class="">9,396.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>2900</td><td>382.22</td><td>1,108,434.41</td>
-  <td class="">23.24</td>
-  <td class="">67,408.00</td>
+  <td>2900</td><td>382.22</td><td>1,108,435.66</td>
+  <td class="">22.60</td>
+  <td class="">65,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1230,8 +1237,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>1300</td><td>240.69</td><td>312,891.92</td>
-  <td class="">498.79</td>
-  <td class="">648,433.00</td>
+  <td class="">500.00</td>
+  <td class="">650,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1241,7 +1248,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,744,514.70</strong></td>
+     <td><strong>1,744,515.96</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1256,15 +1263,15 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>1200</td><td>114.92</td><td>137,907.37</td>
-  <td class="">72.17</td>
-  <td class="">86,601.00</td>
+  <td>1200</td><td>114.94</td><td>137,932.53</td>
+  <td class="">68.03</td>
+  <td class="">81,634.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>300</td><td>343.87</td><td>103,162.31</td>
-  <td class="">554.57</td>
-  <td class="">166,370.00</td>
+  <td>300</td><td>343.87</td><td>103,161.19</td>
+  <td class="">561.33</td>
+  <td class="">168,400.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/armor_plate.html">Armor Plate</a></td>
@@ -1274,8 +1281,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>267,708.12</strong></td>
-     <td colspan="2" class=""><strong>253,271.00</strong></td></tr>
+     <td><strong>267,732.16</strong></td>
+     <td colspan="2" class=""><strong>250,334.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1305,9 +1312,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>450</td><td>382.22</td><td>171,998.44</td>
-  <td class="">14.36</td>
-  <td class="">6,462.00</td>
+  <td>450</td><td>382.22</td><td>171,998.64</td>
+  <td class="">11.42</td>
+  <td class="">5,141.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1318,8 +1325,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>50</td><td>240.69</td><td>12,034.30</td>
-  <td class="">468.66</td>
-  <td class="">23,433.00</td>
+  <td class="">500.00</td>
+  <td class="">25,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1329,7 +1336,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>232,717.59</strong></td>
+     <td><strong>232,717.79</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1344,20 +1351,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>200</td><td>114.92</td><td>22,984.56</td>
-  <td class="">64.30</td>
-  <td class="">12,860.00</td>
+  <td>200</td><td>114.94</td><td>22,988.76</td>
+  <td class="">52.48</td>
+  <td class="">10,497.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>50</td><td>343.87</td><td>17,193.72</td>
-  <td class="">500.24</td>
-  <td class="">25,012.00</td>
+  <td>50</td><td>343.87</td><td>17,193.53</td>
+  <td class="">522.00</td>
+  <td class="">26,100.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>40,178.28</strong></td>
-     <td colspan="2" class=""><strong>37,872.00</strong></td></tr>
+     <td><strong>40,182.29</strong></td>
+     <td colspan="2" class=""><strong>36,597.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1381,19 +1388,19 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>600</td><td>382.22</td><td>229,331.26</td>
-  <td class="">16.53</td>
-  <td class="">9,916.00</td>
+  <td>600</td><td>382.22</td><td>229,331.52</td>
+  <td class="">13.66</td>
+  <td class="">8,195.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>200</td><td>71.81</td><td>14,362.11</td>
-  <td class="">24.86</td>
-  <td class="">4,973.00</td>
+  <td class="">24.80</td>
+  <td class="">4,961.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
-  <td>200</td><td>94.69</td><td>18,938.30</td>
+  <td>200</td><td>94.69</td><td>18,938.32</td>
   <td class="">1.00</td>
   <td class="">200.00</td>
  </tr>
@@ -1411,7 +1418,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>6,208,824.62</strong></td>
+     <td><strong>6,208,824.89</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1426,9 +1433,9 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>300</td><td>114.92</td><td>34,476.84</td>
-  <td class="">66.87</td>
-  <td class="">20,060.00</td>
+  <td>300</td><td>114.94</td><td>34,483.13</td>
+  <td class="">56.50</td>
+  <td class="">16,951.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/flex_polymer.html">Flex Polymer</a></td>
@@ -1444,8 +1451,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>45,690.18</strong></td>
-     <td colspan="2" class=""><strong>26,160.00</strong></td></tr>
+     <td><strong>45,696.47</strong></td>
+     <td colspan="2" class=""><strong>23,051.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1470,14 +1477,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>150</td><td>41.71</td><td>6,256.18</td>
-  <td class="">31.32</td>
-  <td class="">4,698.00</td>
+  <td class="">31.00</td>
+  <td class="">4,650.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>550</td><td>382.22</td><td>210,220.32</td>
-  <td class="">15.89</td>
-  <td class="">8,738.00</td>
+  <td>550</td><td>382.22</td><td>210,220.56</td>
+  <td class="">12.81</td>
+  <td class="">7,045.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1488,8 +1495,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>150</td><td>240.69</td><td>36,102.91</td>
-  <td class="">489.55</td>
-  <td class="">73,433.00</td>
+  <td class="">500.00</td>
+  <td class="">75,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1499,7 +1506,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>378,564.75</strong></td>
+     <td><strong>378,564.98</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1514,20 +1521,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>200</td><td>114.92</td><td>22,984.56</td>
-  <td class="">64.30</td>
-  <td class="">12,860.00</td>
+  <td>200</td><td>114.94</td><td>22,988.76</td>
+  <td class="">52.48</td>
+  <td class="">10,497.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>74,565.72</strong></td>
-     <td colspan="2" class=""><strong>91,070.00</strong></td></tr>
+     <td><strong>74,569.35</strong></td>
+     <td colspan="2" class=""><strong>90,207.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1552,14 +1559,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>150</td><td>41.71</td><td>6,256.18</td>
-  <td class="">31.32</td>
-  <td class="">4,698.00</td>
+  <td class="">31.00</td>
+  <td class="">4,650.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>750</td><td>382.22</td><td>286,664.07</td>
-  <td class="">18.21</td>
-  <td class="">13,658.00</td>
+  <td>750</td><td>382.22</td><td>286,664.40</td>
+  <td class="">15.72</td>
+  <td class="">11,791.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1570,8 +1577,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>150</td><td>240.69</td><td>36,102.91</td>
-  <td class="">489.55</td>
-  <td class="">73,433.00</td>
+  <td class="">500.00</td>
+  <td class="">75,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1581,7 +1588,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>458,461.75</strong></td>
+     <td><strong>458,462.08</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1596,20 +1603,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>300</td><td>114.92</td><td>34,476.84</td>
-  <td class="">66.87</td>
-  <td class="">20,060.00</td>
+  <td>300</td><td>114.94</td><td>34,483.13</td>
+  <td class="">56.50</td>
+  <td class="">16,951.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>86,058.00</strong></td>
-     <td colspan="2" class=""><strong>98,270.00</strong></td></tr>
+     <td><strong>86,063.73</strong></td>
+     <td colspan="2" class=""><strong>96,661.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1627,15 +1634,15 @@
  <tbody>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>200</td><td>382.22</td><td>76,443.75</td>
-  <td class="">10.96</td>
-  <td class="">2,193.00</td>
+  <td>200</td><td>382.22</td><td>76,443.84</td>
+  <td class="">7.40</td>
+  <td class="">1,480.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>50</td><td>71.81</td><td>3,590.53</td>
-  <td class="">24.46</td>
-  <td class="">1,223.00</td>
+  <td class="">24.22</td>
+  <td class="">1,211.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
@@ -1657,7 +1664,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>113,185.11</strong></td>
+     <td><strong>113,185.20</strong></td>
      <td colspan="2" class="infeasible"><strong>4/5 covered</strong></td></tr>
  </tbody></table>
  
@@ -1672,9 +1679,9 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>100</td><td>114.92</td><td>11,492.28</td>
-  <td class="">56.60</td>
-  <td class="">5,660.00</td>
+  <td>100</td><td>114.94</td><td>11,494.38</td>
+  <td class="">50.00</td>
+  <td class="">5,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/flex_polymer.html">Flex Polymer</a></td>
@@ -1684,8 +1691,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>13,000.10</strong></td>
-     <td colspan="2" class=""><strong>7,010.00</strong></td></tr>
+     <td><strong>13,002.20</strong></td>
+     <td colspan="2" class=""><strong>6,350.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1710,14 +1717,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>150</td><td>41.71</td><td>6,256.18</td>
-  <td class="">31.32</td>
-  <td class="">4,698.00</td>
+  <td class="">31.00</td>
+  <td class="">4,650.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>750</td><td>382.22</td><td>286,664.07</td>
-  <td class="">18.21</td>
-  <td class="">13,658.00</td>
+  <td>750</td><td>382.22</td><td>286,664.40</td>
+  <td class="">15.72</td>
+  <td class="">11,791.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1728,8 +1735,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>150</td><td>240.69</td><td>36,102.91</td>
-  <td class="">489.55</td>
-  <td class="">73,433.00</td>
+  <td class="">500.00</td>
+  <td class="">75,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1739,7 +1746,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>458,461.75</strong></td>
+     <td><strong>458,462.08</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1754,20 +1761,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>300</td><td>114.92</td><td>34,476.84</td>
-  <td class="">66.87</td>
-  <td class="">20,060.00</td>
+  <td>300</td><td>114.94</td><td>34,483.13</td>
+  <td class="">56.50</td>
+  <td class="">16,951.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>86,058.00</strong></td>
-     <td colspan="2" class=""><strong>98,270.00</strong></td></tr>
+     <td><strong>86,063.73</strong></td>
+     <td colspan="2" class=""><strong>96,661.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1786,20 +1793,20 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>4600</td><td>130.03</td><td>598,152.24</td>
-  <td class="">2.86</td>
-  <td class="">13,157.00</td>
+  <td class="">2.62</td>
+  <td class="">12,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>500</td><td>41.71</td><td>20,853.94</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td class="">35.48</td>
+  <td class="">17,742.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>3500</td><td>382.22</td><td>1,337,765.66</td>
-  <td class="">23.55</td>
-  <td class="">82,408.00</td>
+  <td>3500</td><td>382.22</td><td>1,337,767.18</td>
+  <td class="">23.01</td>
+  <td class="">80,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1810,8 +1817,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>800</td><td>240.69</td><td>192,548.88</td>
-  <td class="">498.04</td>
-  <td class="">398,433.00</td>
+  <td class="">500.00</td>
+  <td class="">400,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1821,8 +1828,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>2,468,015.85</strong></td>
-     <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
+     <td><strong>2,468,017.37</strong></td>
+     <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1836,26 +1843,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>1200</td><td>114.92</td><td>137,907.37</td>
-  <td class="">72.17</td>
-  <td class="">86,601.00</td>
+  <td>1200</td><td>114.94</td><td>137,932.53</td>
+  <td class="">68.03</td>
+  <td class="">81,634.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>500</td><td>343.87</td><td>171,937.19</td>
-  <td class="">571.96</td>
-  <td class="">285,981.00</td>
+  <td>500</td><td>343.87</td><td>171,935.32</td>
+  <td class="">578.25</td>
+  <td class="">289,124.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>300</td><td>333.12</td><td>99,936.60</td>
-  <td class="">257.00</td>
-  <td class="">77,100.00</td>
+  <td>300</td><td>333.11</td><td>99,932.01</td>
+  <td class="">249.00</td>
+  <td class="">74,700.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>409,781.16</strong></td>
-     <td colspan="2" class=""><strong>449,682.00</strong></td></tr>
+     <td><strong>409,799.86</strong></td>
+     <td colspan="2" class=""><strong>445,458.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1874,8 +1881,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>5200</td><td>130.03</td><td>676,172.09</td>
-  <td class="">3.11</td>
-  <td class="">16,157.00</td>
+  <td class="">2.89</td>
+  <td class="">15,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -1885,9 +1892,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>5400</td><td>382.22</td><td>2,063,981.31</td>
-  <td class="">24.06</td>
-  <td class="">129,908.00</td>
+  <td>5400</td><td>382.22</td><td>2,063,983.65</td>
+  <td class="">23.71</td>
+  <td class="">128,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1898,8 +1905,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>1100</td><td>240.69</td><td>264,754.70</td>
-  <td class="">498.58</td>
-  <td class="">548,433.00</td>
+  <td class="">500.00</td>
+  <td class="">550,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1909,7 +1916,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>3,544,733.38</strong></td>
+     <td><strong>3,544,735.71</strong></td>
      <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -1924,26 +1931,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>2000</td><td>114.92</td><td>229,845.61</td>
-  <td class="">78.33</td>
-  <td class="">156,652.00</td>
+  <td>2000</td><td>114.94</td><td>229,887.56</td>
+  <td class="">73.02</td>
+  <td class="">146,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>800</td><td>343.87</td><td>275,099.51</td>
-  <td class="">586.12</td>
-  <td class="">468,894.00</td>
+  <td>800</td><td>343.87</td><td>275,096.51</td>
+  <td class="">592.71</td>
+  <td class="">474,166.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>300</td><td>333.12</td><td>99,936.60</td>
-  <td class="">257.00</td>
-  <td class="">77,100.00</td>
+  <td>300</td><td>333.11</td><td>99,932.01</td>
+  <td class="">249.00</td>
+  <td class="">74,700.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>604,881.72</strong></td>
-     <td colspan="2" class=""><strong>702,646.00</strong></td></tr>
+     <td><strong>604,916.08</strong></td>
+     <td colspan="2" class=""><strong>694,913.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -1968,14 +1975,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>300</td><td>41.71</td><td>12,512.36</td>
-  <td class="">35.55</td>
-  <td class="">10,666.00</td>
+  <td class="">31.32</td>
+  <td class="">9,396.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>1900</td><td>382.22</td><td>726,215.65</td>
-  <td class="">22.32</td>
-  <td class="">42,408.00</td>
+  <td>1900</td><td>382.22</td><td>726,216.47</td>
+  <td class="">21.34</td>
+  <td class="">40,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -1986,8 +1993,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>300</td><td>240.69</td><td>72,205.83</td>
-  <td class="">494.78</td>
-  <td class="">148,433.00</td>
+  <td class="">500.00</td>
+  <td class="">150,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -1997,7 +2004,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,076,717.52</strong></td>
+     <td><strong>1,076,718.35</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -2012,20 +2019,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>800</td><td>114.92</td><td>91,938.25</td>
-  <td class="">70.28</td>
-  <td class="">56,226.00</td>
+  <td>800</td><td>114.94</td><td>91,955.02</td>
+  <td class="">65.70</td>
+  <td class="">52,558.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>300</td><td>343.87</td><td>103,162.31</td>
-  <td class="">554.57</td>
-  <td class="">166,370.00</td>
+  <td>300</td><td>343.87</td><td>103,161.19</td>
+  <td class="">561.33</td>
+  <td class="">168,400.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>195,100.56</strong></td>
-     <td colspan="2" class=""><strong>222,596.00</strong></td></tr>
+     <td><strong>195,116.21</strong></td>
+     <td colspan="2" class=""><strong>220,958.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2044,8 +2051,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>76000</td><td>130.03</td><td>9,882,515.19</td>
-  <td class="">4.87</td>
-  <td class="">370,157.00</td>
+  <td class="">4.86</td>
+  <td class="">369,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -2056,20 +2063,20 @@
  <tr>
   <td><a href="../../../items/ore/iridium_ore.html">Iridium Ore</a></td>
   <td>800</td><td>61.38</td><td>49,100.28</td>
-  <td class="">15.01</td>
-  <td class="">12,007.00</td>
+  <td class="">12.57</td>
+  <td class="">10,057.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>92000</td><td>382.22</td><td>35,164,125.99</td>
-  <td class="">24.94</td>
-  <td class="">2,294,908.00</td>
+  <td>92000</td><td>382.22</td><td>35,164,165.83</td>
+  <td class="">24.92</td>
+  <td class="">2,293,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>12500</td><td>71.81</td><td>897,631.87</td>
   <td class="">25.00</td>
-  <td class="">312,473.00</td>
+  <td class="">312,461.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
@@ -2103,7 +2110,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>81,725,623.44</strong></td>
+     <td><strong>81,725,663.30</strong></td>
      <td colspan="2" class="infeasible"><strong>6/10 covered</strong></td></tr>
  </tbody></table>
  
@@ -2118,44 +2125,44 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>20000</td><td>114.92</td><td>2,298,456.14</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td>20000</td><td>114.94</td><td>2,298,875.58</td>
+  <td class="">86.50</td>
+  <td class="">1,730,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>8000</td><td>343.87</td><td>2,750,995.06</td>
+  <td>8000</td><td>343.87</td><td>2,750,965.06</td>
   <td class="infeasible">—</td>
   <td class="infeasible">—</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>5000</td><td>333.12</td><td>1,665,609.93</td>
-  <td class="">261.51</td>
-  <td class="">1,307,574.00</td>
+  <td>5000</td><td>333.11</td><td>1,665,533.56</td>
+  <td class="">258.50</td>
+  <td class="">1,292,475.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/durasteel_plate.html">Durasteel Plate</a></td>
-  <td>2500</td><td>193.94</td><td>484,850.04</td>
-  <td class="">215.36</td>
-  <td class="">538,397.00</td>
+  <td>2500</td><td>193.93</td><td>484,836.60</td>
+  <td class="">214.03</td>
+  <td class="">535,086.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/superconductor.html">Superconductor</a></td>
-  <td>800</td><td>745.53</td><td>596,421.48</td>
+  <td>800</td><td>745.53</td><td>596,425.74</td>
   <td class="">286.80</td>
   <td class="">229,440.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/capital_armor_plate.html">Capital Armor Plate</a></td>
-  <td>300</td><td>8,271.78</td><td>2,481,535.04</td>
-  <td class="">7,863.41</td>
-  <td class="">2,359,022.00</td>
+  <td>300</td><td>8,272.07</td><td>2,481,621.94</td>
+  <td class="">7,740.68</td>
+  <td class="">2,322,205.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>10,277,867.70</strong></td>
-     <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
+     <td><strong>10,278,258.47</strong></td>
+     <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2174,8 +2181,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>16000</td><td>130.03</td><td>2,080,529.51</td>
-  <td class="">4.38</td>
-  <td class="">70,157.00</td>
+  <td class="">4.32</td>
+  <td class="">69,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -2185,15 +2192,15 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>15200</td><td>382.22</td><td>5,809,725.16</td>
-  <td class="">24.66</td>
-  <td class="">374,908.00</td>
+  <td>15200</td><td>382.22</td><td>5,809,731.75</td>
+  <td class="">24.54</td>
+  <td class="">373,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>1500</td><td>71.81</td><td>107,715.82</td>
-  <td class="">24.98</td>
-  <td class="">37,473.00</td>
+  <td class="">24.97</td>
+  <td class="">37,461.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -2204,8 +2211,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>3000</td><td>240.69</td><td>722,058.28</td>
-  <td class="">499.48</td>
-  <td class="">1,498,433.00</td>
+  <td class="">500.00</td>
+  <td class="">1,500,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -2215,7 +2222,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>10,098,944.64</strong></td>
+     <td><strong>10,098,951.22</strong></td>
      <td colspan="2" class="infeasible"><strong>5/7 covered</strong></td></tr>
  </tbody></table>
  
@@ -2230,32 +2237,32 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>5000</td><td>114.92</td><td>574,614.03</td>
-  <td class="">105.07</td>
-  <td class="">525,352.00</td>
+  <td>5000</td><td>114.94</td><td>574,718.90</td>
+  <td class="">82.01</td>
+  <td class="">410,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>2000</td><td>343.87</td><td>687,748.76</td>
-  <td class="">614.84</td>
-  <td class="">1,229,678.00</td>
+  <td>2000</td><td>343.87</td><td>687,741.26</td>
+  <td class="">618.56</td>
+  <td class="">1,237,128.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>1000</td><td>333.12</td><td>333,121.99</td>
-  <td class="">257.36</td>
-  <td class="">257,356.00</td>
+  <td>1000</td><td>333.11</td><td>333,106.71</td>
+  <td class="">252.15</td>
+  <td class="">252,145.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/durasteel_plate.html">Durasteel Plate</a></td>
-  <td>300</td><td>193.94</td><td>58,182.01</td>
-  <td class="">212.71</td>
-  <td class="">63,813.00</td>
+  <td>300</td><td>193.93</td><td>58,180.39</td>
+  <td class="">204.35</td>
+  <td class="">61,305.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,653,666.79</strong></td>
-     <td colspan="2" class=""><strong>2,076,199.00</strong></td></tr>
+     <td><strong>1,653,747.26</strong></td>
+     <td colspan="2" class=""><strong>1,960,625.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2274,8 +2281,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>38000</td><td>130.03</td><td>4,941,257.59</td>
-  <td class="">4.74</td>
-  <td class="">180,157.00</td>
+  <td class="">4.71</td>
+  <td class="">179,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -2286,20 +2293,20 @@
  <tr>
   <td><a href="../../../items/ore/iridium_ore.html">Iridium Ore</a></td>
   <td>300</td><td>61.38</td><td>18,412.60</td>
-  <td class="">9.90</td>
-  <td class="">2,970.00</td>
+  <td class="">9.80</td>
+  <td class="">2,940.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>33000</td><td>382.22</td><td>12,613,219.10</td>
-  <td class="">24.85</td>
-  <td class="">819,908.00</td>
+  <td>33000</td><td>382.22</td><td>12,613,233.40</td>
+  <td class="">24.79</td>
+  <td class="">818,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>5000</td><td>71.81</td><td>359,052.75</td>
   <td class="">24.99</td>
-  <td class="">124,973.00</td>
+  <td class="">124,961.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
@@ -2333,7 +2340,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>22,467,177.56</strong></td>
+     <td><strong>22,467,191.86</strong></td>
      <td colspan="2" class="infeasible"><strong>6/10 covered</strong></td></tr>
  </tbody></table>
  
@@ -2348,38 +2355,38 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>10000</td><td>114.92</td><td>1,149,228.07</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td>10000</td><td>114.94</td><td>1,149,437.79</td>
+  <td class="">85.00</td>
+  <td class="">850,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>4000</td><td>343.87</td><td>1,375,497.53</td>
-  <td class="">798.78</td>
-  <td class="">3,195,132.00</td>
+  <td>4000</td><td>343.87</td><td>1,375,482.53</td>
+  <td class="">801.18</td>
+  <td class="">3,204,738.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>2500</td><td>333.12</td><td>832,804.97</td>
-  <td class="">259.31</td>
-  <td class="">648,272.00</td>
+  <td>2500</td><td>333.11</td><td>832,766.78</td>
+  <td class="">255.36</td>
+  <td class="">638,411.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/durasteel_plate.html">Durasteel Plate</a></td>
-  <td>1000</td><td>193.94</td><td>193,940.02</td>
-  <td class="">213.61</td>
-  <td class="">213,613.00</td>
+  <td>1000</td><td>193.93</td><td>193,934.64</td>
+  <td class="">210.76</td>
+  <td class="">210,763.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/superconductor.html">Superconductor</a></td>
-  <td>300</td><td>745.53</td><td>223,658.06</td>
+  <td>300</td><td>745.53</td><td>223,659.65</td>
   <td class="">60.00</td>
   <td class="">18,000.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>3,775,128.64</strong></td>
-     <td colspan="2" class="infeasible"><strong>4/5 covered</strong></td></tr>
+     <td><strong>3,775,281.39</strong></td>
+     <td colspan="2" class=""><strong>4,921,959.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2398,8 +2405,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>23000</td><td>130.03</td><td>2,990,761.18</td>
-  <td class="">4.57</td>
-  <td class="">105,157.00</td>
+  <td class="">4.52</td>
+  <td class="">104,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -2409,15 +2416,15 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>17500</td><td>382.22</td><td>6,688,828.31</td>
-  <td class="">24.71</td>
-  <td class="">432,408.00</td>
+  <td>17500</td><td>382.22</td><td>6,688,835.89</td>
+  <td class="">24.60</td>
+  <td class="">430,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>2500</td><td>71.81</td><td>179,526.37</td>
-  <td class="">24.99</td>
-  <td class="">62,473.00</td>
+  <td class="">24.98</td>
+  <td class="">62,461.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -2428,8 +2435,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>4000</td><td>240.69</td><td>962,744.38</td>
-  <td class="">499.61</td>
-  <td class="">1,998,433.00</td>
+  <td class="">500.00</td>
+  <td class="">2,000,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -2439,7 +2446,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>12,519,605.64</strong></td>
+     <td><strong>12,519,613.22</strong></td>
      <td colspan="2" class="infeasible"><strong>5/7 covered</strong></td></tr>
  </tbody></table>
  
@@ -2454,32 +2461,32 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>5000</td><td>114.92</td><td>574,614.03</td>
-  <td class="">105.07</td>
-  <td class="">525,352.00</td>
+  <td>5000</td><td>114.94</td><td>574,718.90</td>
+  <td class="">82.01</td>
+  <td class="">410,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>2500</td><td>343.87</td><td>859,685.96</td>
-  <td class="">678.05</td>
-  <td class="">1,695,132.00</td>
+  <td>2500</td><td>343.87</td><td>859,676.58</td>
+  <td class="">681.90</td>
+  <td class="">1,704,738.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>1500</td><td>333.12</td><td>499,682.98</td>
-  <td class="">257.90</td>
-  <td class="">386,856.00</td>
+  <td>1500</td><td>333.11</td><td>499,660.07</td>
+  <td class="">253.53</td>
+  <td class="">380,291.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/durasteel_plate.html">Durasteel Plate</a></td>
-  <td>500</td><td>193.94</td><td>96,970.01</td>
-  <td class="">213.23</td>
-  <td class="">106,613.00</td>
+  <td>500</td><td>193.93</td><td>96,967.32</td>
+  <td class="">207.53</td>
+  <td class="">103,763.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>2,030,952.98</strong></td>
-     <td colspan="2" class=""><strong>2,713,953.00</strong></td></tr>
+     <td><strong>2,031,022.86</strong></td>
+     <td colspan="2" class=""><strong>2,598,839.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2498,8 +2505,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>6300</td><td>130.03</td><td>819,208.50</td>
-  <td class="">3.44</td>
-  <td class="">21,657.00</td>
+  <td class="">3.26</td>
+  <td class="">20,552.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -2509,9 +2516,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>4550</td><td>382.22</td><td>1,739,095.36</td>
-  <td class="">23.88</td>
-  <td class="">108,658.00</td>
+  <td>4550</td><td>382.22</td><td>1,739,097.33</td>
+  <td class="">23.47</td>
+  <td class="">106,791.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -2522,8 +2529,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>1150</td><td>240.69</td><td>276,789.01</td>
-  <td class="">498.64</td>
-  <td class="">573,433.00</td>
+  <td class="">500.00</td>
+  <td class="">575,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -2533,7 +2540,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>3,332,330.09</strong></td>
+     <td><strong>3,332,332.06</strong></td>
      <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -2548,26 +2555,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>1500</td><td>114.92</td><td>172,384.21</td>
-  <td class="">73.53</td>
-  <td class="">110,301.00</td>
+  <td>1500</td><td>114.94</td><td>172,415.67</td>
+  <td class="">69.66</td>
+  <td class="">104,486.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>750</td><td>343.87</td><td>257,905.79</td>
-  <td class="">584.15</td>
-  <td class="">438,113.00</td>
+  <td>750</td><td>343.87</td><td>257,902.97</td>
+  <td class="">590.78</td>
+  <td class="">443,083.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>400</td><td>333.12</td><td>133,248.79</td>
-  <td class="">257.00</td>
-  <td class="">102,800.00</td>
+  <td>400</td><td>333.11</td><td>133,242.68</td>
+  <td class="">249.36</td>
+  <td class="">99,745.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>563,538.79</strong></td>
-     <td colspan="2" class=""><strong>651,214.00</strong></td></tr>
+     <td><strong>563,561.33</strong></td>
+     <td colspan="2" class=""><strong>647,314.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2592,14 +2599,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>200</td><td>41.71</td><td>8,341.57</td>
-  <td class="">31.84</td>
-  <td class="">6,369.00</td>
+  <td class="">31.00</td>
+  <td class="">6,200.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>1200</td><td>382.22</td><td>458,662.51</td>
-  <td class="">20.76</td>
-  <td class="">24,908.00</td>
+  <td>1200</td><td>382.22</td><td>458,663.03</td>
+  <td class="">19.20</td>
+  <td class="">23,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -2610,8 +2617,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>200</td><td>240.69</td><td>48,137.22</td>
-  <td class="">492.17</td>
-  <td class="">98,433.00</td>
+  <td class="">500.00</td>
+  <td class="">100,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -2621,7 +2628,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>691,179.35</strong></td>
+     <td><strong>691,179.87</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -2636,20 +2643,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>500</td><td>114.92</td><td>57,461.40</td>
-  <td class="">68.92</td>
-  <td class="">34,460.00</td>
+  <td>500</td><td>114.94</td><td>57,471.89</td>
+  <td class="">62.23</td>
+  <td class="">31,116.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>200</td><td>343.87</td><td>68,774.88</td>
-  <td class="">535.71</td>
-  <td class="">107,142.00</td>
+  <td>200</td><td>343.87</td><td>68,774.13</td>
+  <td class="">544.35</td>
+  <td class="">108,870.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>126,236.28</strong></td>
-     <td colspan="2" class=""><strong>141,602.00</strong></td></tr>
+     <td><strong>126,246.02</strong></td>
+     <td colspan="2" class=""><strong>139,986.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2668,8 +2675,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>40000</td><td>130.03</td><td>5,201,323.78</td>
-  <td class="">4.75</td>
-  <td class="">190,157.00</td>
+  <td class="">4.73</td>
+  <td class="">189,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -2679,15 +2686,15 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>30000</td><td>382.22</td><td>11,466,562.82</td>
-  <td class="">24.83</td>
-  <td class="">744,908.00</td>
+  <td>30000</td><td>382.22</td><td>11,466,575.82</td>
+  <td class="">24.77</td>
+  <td class="">743,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>5000</td><td>71.81</td><td>359,052.75</td>
   <td class="">24.99</td>
-  <td class="">124,973.00</td>
+  <td class="">124,961.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -2709,7 +2716,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>22,141,244.47</strong></td>
+     <td><strong>22,141,257.46</strong></td>
      <td colspan="2" class="infeasible"><strong>4/7 covered</strong></td></tr>
  </tbody></table>
  
@@ -2724,32 +2731,32 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>8000</td><td>114.92</td><td>919,382.46</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td>8000</td><td>114.94</td><td>919,550.23</td>
+  <td class="">84.26</td>
+  <td class="">674,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>5000</td><td>343.87</td><td>1,719,371.91</td>
-  <td class="">839.03</td>
-  <td class="">4,195,132.00</td>
+  <td>5000</td><td>343.87</td><td>1,719,353.16</td>
+  <td class="">840.95</td>
+  <td class="">4,204,738.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>2500</td><td>333.12</td><td>832,804.97</td>
-  <td class="">259.31</td>
-  <td class="">648,272.00</td>
+  <td>2500</td><td>333.11</td><td>832,766.78</td>
+  <td class="">255.36</td>
+  <td class="">638,411.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/durasteel_plate.html">Durasteel Plate</a></td>
-  <td>1000</td><td>193.94</td><td>193,940.02</td>
-  <td class="">213.61</td>
-  <td class="">213,613.00</td>
+  <td>1000</td><td>193.93</td><td>193,934.64</td>
+  <td class="">210.76</td>
+  <td class="">210,763.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>3,665,499.35</strong></td>
-     <td colspan="2" class="infeasible"><strong>3/4 covered</strong></td></tr>
+     <td><strong>3,665,604.81</strong></td>
+     <td colspan="2" class=""><strong>5,727,959.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2768,8 +2775,8 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>12600</td><td>130.03</td><td>1,638,416.99</td>
-  <td class="">4.22</td>
-  <td class="">53,157.00</td>
+  <td class="">4.13</td>
+  <td class="">52,052.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
@@ -2779,9 +2786,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>9100</td><td>382.22</td><td>3,478,190.72</td>
-  <td class="">24.44</td>
-  <td class="">222,408.00</td>
+  <td>9100</td><td>382.22</td><td>3,478,194.66</td>
+  <td class="">24.24</td>
+  <td class="">220,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -2792,8 +2799,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>2300</td><td>240.69</td><td>553,578.02</td>
-  <td class="">499.32</td>
-  <td class="">1,148,433.00</td>
+  <td class="">500.00</td>
+  <td class="">1,150,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -2803,7 +2810,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>6,664,660.18</strong></td>
+     <td><strong>6,664,664.12</strong></td>
      <td colspan="2" class="infeasible"><strong>4/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -2818,26 +2825,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>3000</td><td>114.92</td><td>344,768.42</td>
-  <td class="">89.01</td>
-  <td class="">267,020.00</td>
+  <td>3000</td><td>114.94</td><td>344,831.34</td>
+  <td class="">78.02</td>
+  <td class="">234,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>1500</td><td>343.87</td><td>515,811.57</td>
-  <td class="">604.65</td>
-  <td class="">906,977.00</td>
+  <td>1500</td><td>343.87</td><td>515,805.95</td>
+  <td class="">609.43</td>
+  <td class="">914,142.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>800</td><td>333.12</td><td>266,497.59</td>
-  <td class="">257.00</td>
-  <td class="">205,600.00</td>
+  <td>800</td><td>333.11</td><td>266,485.37</td>
+  <td class="">251.68</td>
+  <td class="">201,345.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,127,077.58</strong></td>
-     <td colspan="2" class=""><strong>1,379,597.00</strong></td></tr>
+     <td><strong>1,127,122.65</strong></td>
+     <td colspan="2" class=""><strong>1,349,534.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2867,9 +2874,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>175</td><td>382.22</td><td>66,888.28</td>
-  <td class="">10.82</td>
-  <td class="">1,893.00</td>
+  <td>175</td><td>382.22</td><td>66,888.36</td>
+  <td class="">6.89</td>
+  <td class="">1,205.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -2880,8 +2887,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>25</td><td>240.69</td><td>6,017.15</td>
-  <td class="">437.32</td>
-  <td class="">10,933.00</td>
+  <td class="">500.00</td>
+  <td class="">12,500.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -2891,7 +2898,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>96,384.54</strong></td>
+     <td><strong>96,384.62</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -2906,20 +2913,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>75</td><td>114.92</td><td>8,619.21</td>
-  <td class="">51.47</td>
-  <td class="">3,860.00</td>
+  <td>75</td><td>114.94</td><td>8,620.78</td>
+  <td class="">50.00</td>
+  <td class="">3,750.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>25</td><td>343.87</td><td>8,596.86</td>
-  <td class="">490.00</td>
-  <td class="">12,250.00</td>
+  <td>25</td><td>343.87</td><td>8,596.77</td>
+  <td class="">522.00</td>
+  <td class="">13,050.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>17,216.07</strong></td>
-     <td colspan="2" class=""><strong>16,110.00</strong></td></tr>
+     <td><strong>17,217.55</strong></td>
+     <td colspan="2" class=""><strong>16,800.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -2956,20 +2963,20 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>500</td><td>41.71</td><td>20,853.94</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td class="">35.48</td>
+  <td class="">17,742.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iridium_ore.html">Iridium Ore</a></td>
   <td>100</td><td>61.38</td><td>6,137.53</td>
-  <td class="">9.70</td>
-  <td class="">970.00</td>
+  <td class="">9.40</td>
+  <td class="">940.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>500</td><td>382.22</td><td>191,109.38</td>
-  <td class="">15.18</td>
-  <td class="">7,588.00</td>
+  <td>500</td><td>382.22</td><td>191,109.60</td>
+  <td class="">12.13</td>
+  <td class="">6,067.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
@@ -2992,8 +2999,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>500</td><td>240.69</td><td>120,343.05</td>
-  <td class="">496.87</td>
-  <td class="">248,433.00</td>
+  <td class="">500.00</td>
+  <td class="">250,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3003,8 +3010,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>9,629,820.59</strong></td>
-     <td colspan="2" class="infeasible"><strong>8/11 covered</strong></td></tr>
+     <td><strong>9,629,820.81</strong></td>
+     <td colspan="2" class="infeasible"><strong>9/11 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3018,9 +3025,9 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>500</td><td>343.87</td><td>171,937.19</td>
-  <td class="">571.96</td>
-  <td class="">285,981.00</td>
+  <td>500</td><td>343.87</td><td>171,935.32</td>
+  <td class="">578.25</td>
+  <td class="">289,124.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td>
@@ -3030,13 +3037,13 @@
  </tr>
  <tr>
   <td><a href="../../../items/refined/superconductor.html">Superconductor</a></td>
-  <td>100</td><td>745.53</td><td>74,552.69</td>
+  <td>100</td><td>745.53</td><td>74,553.22</td>
   <td class="">60.00</td>
   <td class="">6,000.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>431,950.29</strong></td>
+     <td><strong>431,948.94</strong></td>
      <td colspan="2" class="infeasible"><strong>2/3 covered</strong></td></tr>
  </tbody></table>
  
@@ -3074,14 +3081,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>200</td><td>41.71</td><td>8,341.57</td>
-  <td class="">31.84</td>
-  <td class="">6,369.00</td>
+  <td class="">31.00</td>
+  <td class="">6,200.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>200</td><td>382.22</td><td>76,443.75</td>
-  <td class="">10.96</td>
-  <td class="">2,193.00</td>
+  <td>200</td><td>382.22</td><td>76,443.84</td>
+  <td class="">7.40</td>
+  <td class="">1,480.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -3092,8 +3099,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>200</td><td>240.69</td><td>48,137.22</td>
-  <td class="">492.17</td>
-  <td class="">98,433.00</td>
+  <td class="">500.00</td>
+  <td class="">100,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3103,7 +3110,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>3,237,837.64</strong></td>
+     <td><strong>3,237,837.73</strong></td>
      <td colspan="2" class="infeasible"><strong>7/8 covered</strong></td></tr>
  </tbody></table>
  
@@ -3118,9 +3125,9 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>200</td><td>343.87</td><td>68,774.88</td>
-  <td class="">535.71</td>
-  <td class="">107,142.00</td>
+  <td>200</td><td>343.87</td><td>68,774.13</td>
+  <td class="">544.35</td>
+  <td class="">108,870.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td>
@@ -3130,7 +3137,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>130,595.01</strong></td>
+     <td><strong>130,594.26</strong></td>
      <td colspan="2" class="infeasible"><strong>1/2 covered</strong></td></tr>
  </tbody></table>
  
@@ -3155,15 +3162,15 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>300</td><td>114.92</td><td>34,476.84</td>
-  <td class="">66.87</td>
-  <td class="">20,060.00</td>
+  <td>300</td><td>114.94</td><td>34,483.13</td>
+  <td class="">56.50</td>
+  <td class="">16,951.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/trade_cipher.html">Trade Cipher</a></td>
@@ -3173,8 +3180,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>87,758.11</strong></td>
-     <td colspan="2" class=""><strong>98,940.00</strong></td></tr>
+     <td><strong>87,763.84</strong></td>
+     <td colspan="2" class=""><strong>97,331.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3193,14 +3200,14 @@
  <tr>
   <td><a href="../../../items/ore/aluminum_ore.html">Aluminum Ore</a></td>
   <td>12360</td><td>130.03</td><td>1,607,209.05</td>
-  <td class="">4.20</td>
-  <td class="">51,957.00</td>
+  <td class="">4.11</td>
+  <td class="">50,852.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/copper_ore.html">Copper Ore</a></td>
-  <td>800</td><td>48.12</td><td>38,495.11</td>
-  <td class="">4.00</td>
-  <td class="">3,200.00</td>
+  <td>800</td><td>48.12</td><td>38,495.18</td>
+  <td class="">3.98</td>
+  <td class="">3,188.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/energy_crystal.html">Energy Crystal</a></td>
@@ -3217,14 +3224,14 @@
  <tr>
   <td><a href="../../../items/ore/iridium_ore.html">Iridium Ore</a></td>
   <td>80</td><td>61.38</td><td>4,910.03</td>
-  <td class="">9.63</td>
-  <td class="">770.00</td>
+  <td class="">9.25</td>
+  <td class="">740.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>10080</td><td>382.22</td><td>3,852,765.11</td>
-  <td class="">24.49</td>
-  <td class="">246,908.00</td>
+  <td>10080</td><td>382.22</td><td>3,852,769.47</td>
+  <td class="">24.31</td>
+  <td class="">245,041.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/krypton_gas.html">Krypton Gas</a></td>
@@ -3241,8 +3248,8 @@
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>1500</td><td>71.81</td><td>107,715.82</td>
-  <td class="">24.98</td>
-  <td class="">37,473.00</td>
+  <td class="">24.97</td>
+  <td class="">37,461.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
@@ -3252,7 +3259,7 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
-  <td>320</td><td>94.69</td><td>30,301.29</td>
+  <td>320</td><td>94.69</td><td>30,301.30</td>
   <td class="">1.00</td>
   <td class="">320.00</td>
  </tr>
@@ -3271,8 +3278,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>3280</td><td>240.69</td><td>789,450.39</td>
-  <td class="">499.52</td>
-  <td class="">1,638,433.00</td>
+  <td class="">500.00</td>
+  <td class="">1,640,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3282,7 +3289,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>8,676,261.26</strong></td>
+     <td><strong>8,676,265.71</strong></td>
      <td colspan="2" class="infeasible"><strong>11/15 covered</strong></td></tr>
  </tbody></table>
  
@@ -3297,50 +3304,50 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>2500</td><td>114.92</td><td>287,307.02</td>
-  <td class="">83.93</td>
-  <td class="">209,832.00</td>
+  <td>2500</td><td>114.94</td><td>287,359.45</td>
+  <td class="">76.02</td>
+  <td class="">190,047.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>1000</td><td>343.87</td><td>343,874.38</td>
-  <td class="">592.81</td>
-  <td class="">592,806.00</td>
+  <td>1000</td><td>343.87</td><td>343,870.63</td>
+  <td class="">598.85</td>
+  <td class="">598,850.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/titanium_alloy.html">Titanium Alloy</a></td>
-  <td>600</td><td>333.12</td><td>199,873.19</td>
-  <td class="">257.00</td>
-  <td class="">154,200.00</td>
+  <td>600</td><td>333.11</td><td>199,864.03</td>
+  <td class="">250.91</td>
+  <td class="">150,545.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/durasteel_plate.html">Durasteel Plate</a></td>
-  <td>300</td><td>193.94</td><td>58,182.01</td>
-  <td class="">212.71</td>
-  <td class="">63,813.00</td>
+  <td>300</td><td>193.93</td><td>58,180.39</td>
+  <td class="">204.35</td>
+  <td class="">61,305.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/sensor_cluster.html">Sensor Cluster</a></td>
-  <td>80</td><td>2,654.05</td><td>212,324.25</td>
+  <td>80</td><td>2,654.01</td><td>212,320.86</td>
   <td class="">226.00</td>
   <td class="">18,080.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/communications_array.html">Communications Array</a></td>
-  <td>40</td><td>809.18</td><td>32,367.01</td>
+  <td>40</td><td>808.63</td><td>32,345.39</td>
   <td class="">78.00</td>
   <td class="">3,120.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/quantum_processor.html">Quantum Processor</a></td>
-  <td>40</td><td>10,417.18</td><td>416,687.36</td>
+  <td>40</td><td>10,420.87</td><td>416,834.78</td>
   <td class="">6,400.00</td>
   <td class="">256,000.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,550,615.22</strong></td>
-     <td colspan="2" class=""><strong>1,297,851.00</strong></td></tr>
+     <td><strong>1,550,775.53</strong></td>
+     <td colspan="2" class=""><strong>1,277,947.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3370,9 +3377,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>275</td><td>382.22</td><td>105,110.16</td>
-  <td class="">11.89</td>
-  <td class="">3,269.00</td>
+  <td>275</td><td>382.22</td><td>105,110.28</td>
+  <td class="">8.56</td>
+  <td class="">2,353.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -3383,8 +3390,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>75</td><td>240.69</td><td>18,051.46</td>
-  <td class="">479.11</td>
-  <td class="">35,933.00</td>
+  <td class="">500.00</td>
+  <td class="">37,500.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3394,7 +3401,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>189,282.37</strong></td>
+     <td><strong>189,282.49</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -3409,20 +3416,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>100</td><td>114.92</td><td>11,492.28</td>
-  <td class="">56.60</td>
-  <td class="">5,660.00</td>
+  <td>100</td><td>114.94</td><td>11,494.38</td>
+  <td class="">50.00</td>
+  <td class="">5,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>75</td><td>343.87</td><td>25,790.58</td>
-  <td class="">509.17</td>
-  <td class="">38,188.00</td>
+  <td>75</td><td>343.87</td><td>25,790.30</td>
+  <td class="">526.48</td>
+  <td class="">39,486.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>37,282.86</strong></td>
-     <td colspan="2" class=""><strong>43,848.00</strong></td></tr>
+     <td><strong>37,284.68</strong></td>
+     <td colspan="2" class=""><strong>44,486.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3452,9 +3459,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>120</td><td>382.22</td><td>45,866.25</td>
-  <td class="">10.46</td>
-  <td class="">1,255.00</td>
+  <td>120</td><td>382.22</td><td>45,866.30</td>
+  <td class="">5.00</td>
+  <td class="">600.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -3465,8 +3472,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>20</td><td>240.69</td><td>4,813.72</td>
-  <td class="">421.65</td>
-  <td class="">8,433.00</td>
+  <td class="">500.00</td>
+  <td class="">10,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3476,7 +3483,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>69,117.93</strong></td>
+     <td><strong>69,117.99</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -3491,20 +3498,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>50</td><td>114.92</td><td>5,746.14</td>
+  <td>50</td><td>114.94</td><td>5,747.19</td>
   <td class="">50.00</td>
   <td class="">2,500.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>20</td><td>343.87</td><td>6,877.49</td>
-  <td class="">490.00</td>
-  <td class="">9,800.00</td>
+  <td>20</td><td>343.87</td><td>6,877.41</td>
+  <td class="">522.00</td>
+  <td class="">10,440.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>12,623.63</strong></td>
-     <td colspan="2" class=""><strong>12,300.00</strong></td></tr>
+     <td><strong>12,624.60</strong></td>
+     <td colspan="2" class=""><strong>12,940.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3529,24 +3536,24 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>500</td><td>41.71</td><td>20,853.94</td>
-  <td class="infeasible">—</td>
-  <td class="infeasible">—</td>
+  <td class="">35.48</td>
+  <td class="">17,742.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>2500</td><td>382.22</td><td>955,546.90</td>
-  <td class="">22.96</td>
-  <td class="">57,408.00</td>
+  <td>2500</td><td>382.22</td><td>955,547.98</td>
+  <td class="">22.22</td>
+  <td class="">55,541.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/nickel_ore.html">Nickel Ore</a></td>
   <td>300</td><td>71.81</td><td>21,543.16</td>
-  <td class="">24.91</td>
-  <td class="">7,473.00</td>
+  <td class="">24.87</td>
+  <td class="">7,461.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
-  <td>300</td><td>94.69</td><td>28,407.46</td>
+  <td>300</td><td>94.69</td><td>28,407.47</td>
   <td class="">1.00</td>
   <td class="">300.00</td>
  </tr>
@@ -3559,8 +3566,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>500</td><td>240.69</td><td>120,343.05</td>
-  <td class="">496.87</td>
-  <td class="">248,433.00</td>
+  <td class="">500.00</td>
+  <td class="">250,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3570,8 +3577,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>1,727,934.49</strong></td>
-     <td colspan="2" class="infeasible"><strong>6/8 covered</strong></td></tr>
+     <td><strong>1,727,935.59</strong></td>
+     <td colspan="2" class="infeasible"><strong>7/8 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3585,15 +3592,15 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>1000</td><td>114.92</td><td>114,922.81</td>
-  <td class="">71.03</td>
-  <td class="">71,026.00</td>
+  <td>1000</td><td>114.94</td><td>114,943.78</td>
+  <td class="">66.96</td>
+  <td class="">66,958.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>500</td><td>343.87</td><td>171,937.19</td>
-  <td class="">571.96</td>
-  <td class="">285,981.00</td>
+  <td>500</td><td>343.87</td><td>171,935.32</td>
+  <td class="">578.25</td>
+  <td class="">289,124.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/flex_polymer.html">Flex Polymer</a></td>
@@ -3603,8 +3610,8 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>295,906.92</strong></td>
-     <td colspan="2" class=""><strong>365,107.00</strong></td></tr>
+     <td><strong>295,926.01</strong></td>
+     <td colspan="2" class=""><strong>364,182.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3634,9 +3641,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>500</td><td>382.22</td><td>191,109.38</td>
-  <td class="">15.18</td>
-  <td class="">7,588.00</td>
+  <td>500</td><td>382.22</td><td>191,109.60</td>
+  <td class="">12.13</td>
+  <td class="">6,067.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -3647,8 +3654,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>100</td><td>240.69</td><td>24,068.61</td>
-  <td class="">484.33</td>
-  <td class="">48,433.00</td>
+  <td class="">500.00</td>
+  <td class="">50,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3658,7 +3665,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>305,641.17</strong></td>
+     <td><strong>305,641.39</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -3673,20 +3680,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>200</td><td>114.92</td><td>22,984.56</td>
-  <td class="">64.30</td>
-  <td class="">12,860.00</td>
+  <td>200</td><td>114.94</td><td>22,988.76</td>
+  <td class="">52.48</td>
+  <td class="">10,497.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>100</td><td>343.87</td><td>34,387.44</td>
-  <td class="">514.53</td>
-  <td class="">51,453.00</td>
+  <td>100</td><td>343.87</td><td>34,387.06</td>
+  <td class="">528.86</td>
+  <td class="">52,886.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>57,372.00</strong></td>
-     <td colspan="2" class=""><strong>64,313.00</strong></td></tr>
+     <td><strong>57,375.82</strong></td>
+     <td colspan="2" class=""><strong>63,383.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3710,9 +3717,9 @@
  </tr>
  <tr>
   <td><a href="../../../items/ore/copper_ore.html">Copper Ore</a></td>
-  <td>80</td><td>48.12</td><td>3,849.51</td>
-  <td class="">4.00</td>
-  <td class="">320.00</td>
+  <td>80</td><td>48.12</td><td>3,849.52</td>
+  <td class="">3.85</td>
+  <td class="">308.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/energy_crystal.html">Energy Crystal</a></td>
@@ -3723,14 +3730,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>190</td><td>41.71</td><td>7,924.50</td>
-  <td class="">31.67</td>
-  <td class="">6,018.00</td>
+  <td class="">31.00</td>
+  <td class="">5,890.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>790</td><td>382.22</td><td>301,952.82</td>
-  <td class="">18.55</td>
-  <td class="">14,658.00</td>
+  <td>790</td><td>382.22</td><td>301,953.16</td>
+  <td class="">16.19</td>
+  <td class="">12,791.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/krypton_gas.html">Krypton Gas</a></td>
@@ -3759,8 +3766,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>190</td><td>240.69</td><td>45,730.36</td>
-  <td class="">491.75</td>
-  <td class="">93,433.00</td>
+  <td class="">500.00</td>
+  <td class="">95,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3770,7 +3777,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>552,909.80</strong></td>
+     <td><strong>552,910.15</strong></td>
      <td colspan="2" class="infeasible"><strong>9/11 covered</strong></td></tr>
  </tbody></table>
  
@@ -3785,26 +3792,26 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>300</td><td>114.92</td><td>34,476.84</td>
-  <td class="">66.87</td>
-  <td class="">20,060.00</td>
+  <td>300</td><td>114.94</td><td>34,483.13</td>
+  <td class="">56.50</td>
+  <td class="">16,951.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/component/sensor_array.html">Sensor Array</a></td>
   <td>40</td><td>575.86</td><td>23,034.47</td>
-  <td class="">753.85</td>
-  <td class="">30,154.00</td>
+  <td class="infeasible">—</td>
+  <td class="infeasible">—</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>109,092.47</strong></td>
-     <td colspan="2" class=""><strong>128,424.00</strong></td></tr>
+     <td><strong>109,098.20</strong></td>
+     <td colspan="2" class="infeasible"><strong>2/3 covered</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3829,14 +3836,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>150</td><td>41.71</td><td>6,256.18</td>
-  <td class="">31.32</td>
-  <td class="">4,698.00</td>
+  <td class="">31.00</td>
+  <td class="">4,650.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>950</td><td>382.22</td><td>363,107.82</td>
-  <td class="">19.64</td>
-  <td class="">18,658.00</td>
+  <td>950</td><td>382.22</td><td>363,108.23</td>
+  <td class="">17.67</td>
+  <td class="">16,791.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -3847,8 +3854,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>150</td><td>240.69</td><td>36,102.91</td>
-  <td class="">489.55</td>
-  <td class="">73,433.00</td>
+  <td class="">500.00</td>
+  <td class="">75,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -3858,7 +3865,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>538,358.76</strong></td>
+     <td><strong>538,359.17</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -3873,20 +3880,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>400</td><td>114.92</td><td>45,969.12</td>
-  <td class="">68.15</td>
-  <td class="">27,260.00</td>
+  <td>400</td><td>114.94</td><td>45,977.51</td>
+  <td class="">60.04</td>
+  <td class="">24,016.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>97,550.28</strong></td>
-     <td colspan="2" class=""><strong>105,470.00</strong></td></tr>
+     <td><strong>97,558.11</strong></td>
+     <td colspan="2" class=""><strong>103,726.00</strong></td></tr>
  </tbody></table>
  
 </div>
@@ -3923,14 +3930,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>150</td><td>41.71</td><td>6,256.18</td>
-  <td class="">31.32</td>
-  <td class="">4,698.00</td>
+  <td class="">31.00</td>
+  <td class="">4,650.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>150</td><td>382.22</td><td>57,332.81</td>
-  <td class="">10.62</td>
-  <td class="">1,593.00</td>
+  <td>150</td><td>382.22</td><td>57,332.88</td>
+  <td class="">6.20</td>
+  <td class="">930.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -3941,8 +3948,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>150</td><td>240.69</td><td>36,102.91</td>
-  <td class="">489.55</td>
-  <td class="">73,433.00</td>
+  <td class="">500.00</td>
+  <td class="">75,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/trade_crystal.html">Trade Crystal</a></td>
@@ -3958,7 +3965,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>3,166,645.63</strong></td>
+     <td><strong>3,166,645.70</strong></td>
      <td colspan="2" class="infeasible"><strong>8/9 covered</strong></td></tr>
  </tbody></table>
  
@@ -3973,9 +3980,9 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>150</td><td>343.87</td><td>51,581.16</td>
-  <td class="">521.40</td>
-  <td class="">78,210.00</td>
+  <td>150</td><td>343.87</td><td>51,580.59</td>
+  <td class="">531.40</td>
+  <td class="">79,710.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td>
@@ -3991,7 +3998,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>115,101.40</strong></td>
+     <td><strong>115,100.84</strong></td>
      <td colspan="2" class="infeasible"><strong>2/3 covered</strong></td></tr>
  </tbody></table>
  
@@ -4017,14 +4024,14 @@
  <tr>
   <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
   <td>250</td><td>41.71</td><td>10,426.97</td>
-  <td class="">34.06</td>
-  <td class="">8,516.00</td>
+  <td class="">31.00</td>
+  <td class="">7,750.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
-  <td>850</td><td>382.22</td><td>324,885.95</td>
-  <td class="">19.01</td>
-  <td class="">16,158.00</td>
+  <td>850</td><td>382.22</td><td>324,886.31</td>
+  <td class="">16.81</td>
+  <td class="">14,291.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
@@ -4035,8 +4042,8 @@
  <tr>
   <td><a href="../../../items/ore/titanium_ore.html">Titanium Ore</a></td>
   <td>250</td><td>240.69</td><td>60,171.52</td>
-  <td class="">493.73</td>
-  <td class="">123,433.00</td>
+  <td class="">500.00</td>
+  <td class="">125,000.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/ore/tungsten_ore.html">Tungsten Ore</a></td>
@@ -4046,7 +4053,7 @@
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>604,308.91</strong></td>
+     <td><strong>604,309.28</strong></td>
      <td colspan="2" class="infeasible"><strong>5/6 covered</strong></td></tr>
  </tbody></table>
  
@@ -4061,20 +4068,20 @@
  <tbody>
  <tr>
   <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
-  <td>300</td><td>114.92</td><td>34,476.84</td>
-  <td class="">66.87</td>
-  <td class="">20,060.00</td>
+  <td>300</td><td>114.94</td><td>34,483.13</td>
+  <td class="">56.50</td>
+  <td class="">16,951.00</td>
  </tr>
  <tr>
   <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
-  <td>250</td><td>343.87</td><td>85,968.60</td>
-  <td class="">546.92</td>
-  <td class="">136,730.00</td>
+  <td>250</td><td>343.87</td><td>85,967.66</td>
+  <td class="">554.00</td>
+  <td class="">138,500.00</td>
  </tr>
  
  <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
-     <td><strong>120,445.44</strong></td>
-     <td colspan="2" class=""><strong>156,790.00</strong></td></tr>
+     <td><strong>120,450.79</strong></td>
+     <td colspan="2" class=""><strong>155,451.00</strong></td></tr>
  </tbody></table>
  
 </div>

@@ -3,17 +3,24 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tungsten Slug Case — Build Cost — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <style>
- body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
- table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
- th:first-child,td:first-child{text-align:left} .infeasible{color:#6e7681} .pos{color:#3fb950} .neg{color:#f85149} a{color:#58a6ff}
- .legend{font-size:.8rem;color:#8b949e;max-width:70ch}
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+ table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid var(--border2);padding:.3rem .5rem;text-align:right}
+ th:first-child,td:first-child{text-align:left} .infeasible{color:var(--muted2)} .pos{color:var(--up)} .neg{color:var(--down)} a{color:var(--link)}
+ .legend{font-size:.8rem;color:var(--muted);max-width:70ch}
  .scrollx{overflow-x:auto}
- .banner{background:#1c2128;border:1px solid #30363d;border-left:4px solid #d29922;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
- .banner strong{color:#e3b341} .banner code{color:#c9d1d9}
+ .banner{background:var(--panel2);border:1px solid var(--border);border-left:4px solid var(--accent2);border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:var(--accent)} .banner code{color:var(--text)}
 </style>
 </head>
 <body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
 <p><a href="../build-costs/">← Build Cost Matrix</a></p>
 <h1>Tungsten Slug Case <small>(item)</small></h1>
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
@@ -54,11 +61,11 @@
 <tbody>
 
 <tr>
- <td>Iron Reach Mining Colony</td><td>crimson</td>
+ <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>41</td><td>41</td><td>41</td>
- <td class="">19</td>
- <td>19</td><td>19</td><td>19</td>
+ <td>12</td><td>12</td><td>12</td>
+ <td class="">18</td>
+ <td>18</td><td>18</td><td>18</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -67,9 +74,9 @@
 <tr>
  <td>grand_exchange</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>17</td><td>13</td><td>13</td>
+ <td>12</td><td>8</td><td>8</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>1/2</td><td>25</td>
+ <td>1/2</td><td>30</td><td>30</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -78,9 +85,9 @@
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>39</td><td>9</td>
- <td class="">21</td>
- <td>21</td><td>21</td><td>21</td>
+ <td>1/2</td><td>4</td><td>4</td>
+ <td class="">42</td>
+ <td>42</td><td>42</td><td>35</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -90,10 +97,10 @@
  <td>sol_central</td><td>Independent</td>
  <td class="">50</td>
  <td>50</td><td>35</td><td>35</td>
- <td class="">44</td>
- <td>35</td><td>23</td><td>23</td>
+ <td class="infeasible">1/2</td>
+ <td>31</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
- <td class="neg">-47</td>
+ <td class="neg">-19</td>
  <td class="">—</td>
 </tr>
 
@@ -101,19 +108,19 @@
  <td>the_core</td><td>voidborn</td>
  <td class="infeasible">1/2</td>
  <td>1/2</td><td>1/2</td><td>1/2</td>
- <td class="">26</td>
- <td>26</td><td>26</td><td>26</td>
+ <td class="">20</td>
+ <td>20</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>cargo_lanes_freight_depot</td><td>nebula</td>
+ <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>1/2</td><td>13</td>
+ <td>14</td><td>14</td><td>8</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>1/2</td><td>25</td>
+ <td>1/2</td><td>1/2</td><td>32</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -122,9 +129,9 @@
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="">70</td>
- <td>60</td><td>41</td><td>41</td>
- <td class="">37</td>
- <td>37</td><td>19</td><td>19</td>
+ <td>60</td><td>41</td><td>12</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>18</td><td>18</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -134,8 +141,8 @@
  <td>sirius_observatory_station</td><td>Independent</td>
  <td class="infeasible">1/2</td>
  <td>35</td><td>35</td><td>35</td>
- <td class="">96</td>
- <td>24</td><td>23</td><td>23</td>
+ <td class="">92</td>
+ <td>20</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -143,12 +150,12 @@
 
 <tr>
  <td>war_citadel</td><td>Independent</td>
- <td class="">51</td>
- <td>51</td><td>41</td><td>41</td>
+ <td class="">12</td>
+ <td>12</td><td>12</td><td>12</td>
  <td class="infeasible">1/2</td>
- <td>19</td><td>19</td><td>19</td>
+ <td>18</td><td>18</td><td>18</td>
  <td>manufacture_tungsten_slugs</td>
- <td class="neg">-43</td>
+ <td class="neg">-1</td>
  <td class="">—</td>
 </tr>
 
@@ -157,73 +164,73 @@
  <td class="infeasible">1/2</td>
  <td>50</td><td>50</td><td>35</td>
  <td class="">53</td>
- <td>35</td><td>35</td><td>23</td>
+ <td>34</td><td>31</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>Blood Forge Smelting Works</td><td>crimson</td>
+ <td>blood_forge_smelting_works</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>51</td><td>41</td><td>41</td>
- <td class="">51</td>
- <td>19</td><td>19</td><td>19</td>
+ <td>12</td><td>12</td><td>12</td>
+ <td class="infeasible">1/2</td>
+ <td>18</td><td>18</td><td>18</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>Deep Range Outpost</td><td>outerrim</td>
- <td class="">12</td>
- <td>12</td><td>12</td><td>9</td>
+ <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>1/2</td><td>21</td>
+ <td>1/2</td><td>4</td><td>4</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>1/2</td><td>35</td>
  <td>manufacture_tungsten_slugs</td>
- <td class="pos">0</td>
+ <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
  <td class="infeasible">0/2</td>
- <td>17</td><td>17</td><td>17</td>
- <td class="infeasible">0/2</td>
- <td>1/2</td><td>1/2</td><td>28</td>
+ <td>12</td><td>12</td><td>12</td>
+ <td class="infeasible">1/2</td>
+ <td>33</td><td>33</td><td>33</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>First Step Memorial Station</td><td>outerrim</td>
- <td class="">47</td>
- <td>36</td><td>9</td><td>9</td>
+ <td>first_step_memorial_station</td><td>Independent</td>
+ <td class="">12</td>
+ <td>12</td><td>4</td><td>4</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>21</td><td>21</td>
+ <td>41</td><td>35</td><td>35</td>
  <td>manufacture_tungsten_slugs</td>
- <td class="neg">-9</td>
+ <td class="pos">17</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>gold_run_extraction_hub</td><td>Independent</td>
+ <td class="">23</td>
+ <td>14</td><td>14</td><td>8</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>66</td><td>13</td>
- <td class="infeasible">1/2</td>
- <td>1/2</td><td>25</td><td>25</td>
+ <td>1/2</td><td>32</td><td>32</td>
  <td>manufacture_tungsten_slugs</td>
- <td class="">—</td>
- <td class="">—</td>
+ <td class="neg">-19</td>
+ <td class="neg">-21</td>
 </tr>
 
 <tr>
- <td>Ramen&#39;s Rest</td><td>outerrim</td>
+ <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>1/2</td><td>39</td>
+ <td>1/2</td><td>1/2</td><td>4</td>
  <td class="infeasible">1/2</td>
- <td>21</td><td>21</td><td>21</td>
+ <td>42</td><td>42</td><td>42</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -234,7 +241,7 @@
  <td class="infeasible">1/2</td>
  <td>1/2</td><td>1/2</td><td>1/2</td>
  <td class="infeasible">1/2</td>
- <td>26</td><td>26</td><td>26</td>
+ <td>20</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -244,19 +251,19 @@
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">1/2</td>
  <td>1/2</td><td>1/2</td><td>1/2</td>
- <td class="">31</td>
- <td>31</td><td>26</td><td>26</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>Nova Terra Central</td><td>solarian</td>
+ <td>nova_terra_central</td><td>Independent</td>
  <td class="">1,010</td>
  <td>60</td><td>35</td><td>35</td>
  <td class="infeasible">1/2</td>
- <td>24</td><td>24</td><td>23</td>
+ <td>20</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="neg">-1,008</td>
@@ -267,7 +274,7 @@
  <td class="">60</td>
  <td>60</td><td>60</td><td>35</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>24</td><td>24</td>
+ <td>1/2</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -276,20 +283,20 @@
 <tr>
  <td>starfall_salvage_station</td><td>Independent</td>
  <td class="">64</td>
- <td>40</td><td>28</td><td>9</td>
- <td class="">38</td>
- <td>38</td><td>21</td><td>21</td>
+ <td>40</td><td>4</td><td>4</td>
+ <td class="infeasible">1/2</td>
+ <td>44</td><td>35</td><td>35</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>synchrony_hub</td><td>Independent</td>
+ <td>synchrony_hub</td><td>voidborn</td>
  <td class="infeasible">1/2</td>
  <td>1/2</td><td>1/2</td><td>1/2</td>
- <td class="">56</td>
- <td>27</td><td>26</td><td>26</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>20</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -298,20 +305,20 @@
 <tr>
  <td>the_anvil_arsenal</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>51</td><td>41</td><td>41</td>
- <td class="">27</td>
- <td>19</td><td>19</td><td>19</td>
+ <td>12</td><td>12</td><td>12</td>
+ <td class="">26</td>
+ <td>18</td><td>18</td><td>18</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_crucible_garrison</td><td>crimson</td>
+ <td>the_crucible_garrison</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>41</td><td>41</td><td>41</td>
+ <td>41</td><td>12</td><td>12</td>
  <td class="infeasible">0/2</td>
- <td>19</td><td>19</td><td>19</td>
+ <td>18</td><td>18</td><td>18</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -321,19 +328,19 @@
  <td>the_experiment_research_station</td><td>Independent</td>
  <td class="infeasible">1/2</td>
  <td>1/2</td><td>1/2</td><td>1/2</td>
- <td class="">29</td>
- <td>29</td><td>27</td><td>26</td>
+ <td class="infeasible">1/2</td>
+ <td>1/2</td><td>1/2</td><td>20</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>nebula</td>
+ <td>the_levy_customs_station</td><td>Independent</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>17</td><td>13</td>
+ <td>1/2</td><td>12</td><td>8</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>28</td><td>25</td>
+ <td>1/2</td><td>35</td><td>30</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -341,10 +348,10 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="">17</td>
- <td>17</td><td>17</td><td>13</td>
+ <td class="">12</td>
+ <td>12</td><td>12</td><td>8</td>
  <td class="infeasible">1/2</td>
- <td>1/2</td><td>28</td><td>25</td>
+ <td>33</td><td>33</td><td>30</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -353,9 +360,9 @@
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>17</td><td>17</td>
+ <td>0/2</td><td>12</td><td>12</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>1/2</td><td>1/2</td>
+ <td>1/2</td><td>33</td><td>33</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -364,20 +371,9 @@
 <tr>
  <td>void_gate_outpost</td><td>Independent</td>
  <td class="">40</td>
- <td>36</td><td>36</td><td>9</td>
- <td class="infeasible">1/2</td>
- <td>35</td><td>35</td><td>21</td>
- <td>manufacture_tungsten_slugs</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>mera_sanctum</td><td>Independent</td>
- <td class="infeasible">0/2</td>
- <td>0/2</td><td>0/2</td><td>0/2</td>
- <td class="infeasible">0/2</td>
- <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>12</td><td>12</td><td>4</td>
+ <td class="">44</td>
+ <td>41</td><td>41</td><td>35</td>
  <td>manufacture_tungsten_slugs</td>
  <td class="">—</td>
  <td class="">—</td>
