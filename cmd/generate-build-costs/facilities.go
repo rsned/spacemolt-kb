@@ -143,3 +143,21 @@ func loadRecipeOutputItem(craftDB *sql.DB) (map[string]string, error) {
 	}
 	return out, rows.Err()
 }
+
+// facilityGroup returns the navigation group for a facility: non-production
+// facilities group by their own category; production facilities group by the
+// market category of the item their recipe produces, falling back to "other"
+// when the produced item is unknown or uncategorized.
+func facilityGroup(f FacilityRec, recipeOut, itemCat map[string]string) string {
+	if f.Category != "production" {
+		return f.Category
+	}
+	out := recipeOut[f.RecipeID]
+	if out == "" {
+		return "other"
+	}
+	if cat := itemCat[out]; cat != "" {
+		return cat
+	}
+	return "other"
+}

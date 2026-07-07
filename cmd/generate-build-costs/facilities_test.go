@@ -106,3 +106,29 @@ func TestLoadRecipeOutputItem(t *testing.T) {
 		t.Fatalf("recipe output = %q, want ghost_rounds", out["forge_ghost_rounds"])
 	}
 }
+
+func TestFacilityGroup(t *testing.T) {
+	recipeOut := map[string]string{"build_railgun": "railgun", "mystery": "unknownitem"}
+	itemCat := map[string]string{"railgun": "weapon"}
+	cases := []struct {
+		name string
+		f    FacilityRec
+		want string
+	}{
+		{"production resolves to produced-item category",
+			FacilityRec{Category: "production", RecipeID: "build_railgun"}, "weapon"},
+		{"production with no recipe output -> other",
+			FacilityRec{Category: "production", RecipeID: "none"}, "other"},
+		{"production with uncategorized output -> other",
+			FacilityRec{Category: "production", RecipeID: "mystery"}, "other"},
+		{"non-production uses facility category",
+			FacilityRec{Category: "service", RecipeID: "build_railgun"}, "service"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := facilityGroup(tc.f, recipeOut, itemCat); got != tc.want {
+				t.Fatalf("facilityGroup = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
