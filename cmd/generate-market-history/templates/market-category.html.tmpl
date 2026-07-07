@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{.Category}} — Market History — Spacemolt KB</title>
+<style>
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
+ a{color:#58a6ff} h1{margin:.3rem 0;text-transform:capitalize} h2{margin:0 0 .2rem;font-size:1rem}
+ .legend{font-size:.85rem;color:#8b949e;max-width:80ch}
+ .item{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:760px}
+ .stat{font-size:.8rem;color:#8b949e;margin:.1rem 0 .4rem}
+ .chart{width:100%;height:auto;display:block;background:#0d1117;border-radius:4px}
+ .chart .body.up,.chart .wick.up,.chart .vol.up{fill:#3fb950;stroke:#3fb950}
+ .chart .body.down,.chart .wick.down,.chart .vol.down{fill:#f85149;stroke:#f85149}
+ .chart .wick{stroke-width:1}
+ .chart .axis{fill:#8b949e;font-size:10px}
+ .chart .grid{stroke:#21262d;stroke-width:1}
+</style>
+</head>
+<body>
+<p><a href="../">← Market History</a></p>
+<h1>{{.Category}}</h1>
+<p class="legend">Galaxy-wide sell-side daily candlesticks with a volume strip, most-traded first. Green = up day (close ≥ open), red = down.</p>
+{{range .Items}}<section class="item" id="{{.ID}}">
+<h2>{{if .ItemHref}}<a href="{{.ItemHref}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}</h2>
+<div class="stat">{{.Stat}}</div>
+{{.Chart}}
+</section>
+{{end}}</body>
+</html>
