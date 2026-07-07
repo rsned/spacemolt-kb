@@ -2,8 +2,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"os"
+	"path/filepath"
 	"sort"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
@@ -39,4 +42,60 @@ func fmtMoney(v float64) string {
 		return "-" + s
 	}
 	return s
+}
+
+// FacilityRec is the minimal facility shape the build-cost pages need: identity,
+// category, level, its production recipe id (used only for grouping), and the
+// direct build_materials that construct it (the Recipe view).
+type FacilityRec struct {
+	ID       string
+	Name     string
+	Category string
+	Level    int
+	RecipeID string
+	Build    []buildcost.Requirement
+}
+
+// facilityCatDoc / facilityCatItem mirror the fields of catalog_facilities.json
+// that the build-cost pages consume.
+type facilityCatDoc struct {
+	Items []facilityCatItem `json:"items"`
+}
+
+type facilityCatItem struct {
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	Category       string `json:"category"`
+	Level          int    `json:"level"`
+	RecipeID       string `json:"recipe_id"`
+	BuildMaterials []struct {
+		ItemID   string  `json:"item_id"`
+		Quantity float64 `json:"quantity"`
+	} `json:"build_materials"`
+}
+
+// loadFacilityCatalog reads catalog_facilities.json from the newest snapshot dir
+// under root and returns the trimmed facility records.
+func loadFacilityCatalog(root string) ([]FacilityRec, error) {
+	dir, err := findLatestCatalogDir(root)
+	if err != nil {
+		return nil, err
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "catalog_facilities.json"))
+	if err != nil {
+		return nil, err
+	}
+	var doc facilityCatDoc
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return nil, err
+	}
+	out := make([]FacilityRec, 0, len(doc.Items))
+	for _, it := range doc.Items {
+		rec := FacilityRec{ID: it.ID, Name: it.Name, Category: it.Category, Level: it.Level, RecipeID: it.RecipeID}
+		for _, m := range it.BuildMaterials {
+			rec.Build = append(rec.Build, buildcost.Requirement{ItemID: m.ItemID, Qty: m.Quantity})
+		}
+		out = append(out, rec)
+	}
+	return out, nil
 }

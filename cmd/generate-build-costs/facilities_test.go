@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
@@ -35,5 +37,39 @@ func TestFmtMoney(t *testing.T) {
 		if got := fmtMoney(in); got != want {
 			t.Fatalf("fmtMoney(%v) = %q, want %q", in, got, want)
 		}
+	}
+}
+
+func TestLoadFacilityCatalog(t *testing.T) {
+	dir := t.TempDir()
+	snap := filepath.Join(dir, "20260706")
+	if err := os.MkdirAll(snap, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	blob := `{"items":[
+	  {"id":"forge","name":"Ghost Forge","category":"production","level":2,"recipe_id":"forge_ghost_rounds",
+	   "build_materials":[{"item_id":"hot_cell","quantity":2},{"item_id":"titanium_ingot","quantity":3}]},
+	  {"id":"depot","name":"Depot","category":"service","level":1,"build_materials":[]}
+	]}`
+	if err := os.WriteFile(filepath.Join(snap, "catalog_facilities.json"), []byte(blob), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	recs, err := loadFacilityCatalog(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	byID := map[string]FacilityRec{}
+	for _, r := range recs {
+		byID[r.ID] = r
+	}
+	f := byID["forge"]
+	if f.Name != "Ghost Forge" || f.Category != "production" || f.Level != 2 || f.RecipeID != "forge_ghost_rounds" {
+		t.Fatalf("forge = %+v", f)
+	}
+	if len(f.Build) != 2 || f.Build[0].ItemID != "hot_cell" || f.Build[0].Qty != 2 {
+		t.Fatalf("forge build = %+v", f.Build)
+	}
+	if byID["depot"].Category != "service" || len(byID["depot"].Build) != 0 {
+		t.Fatalf("depot = %+v", byID["depot"])
 	}
 }
