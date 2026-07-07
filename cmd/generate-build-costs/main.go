@@ -27,6 +27,7 @@ func main() {
 	outDir := flag.String("out", "kb/build-costs", "output directory")
 	capMult := flag.Float64("price-cap-mult", 100, "drop sell orders priced above this multiple of an item's typical ask (VWAP); 0 = no cap")
 	stationCoverOut := flag.String("station-cover-out", "kb/did_you_know/stations_to_build.html", "output path for the station-cover did-you-know page; empty disables it")
+	facilitiesOut := flag.String("facilities-out", "kb/build-costs/facilities", "output dir for facility build-cost pages; empty disables")
 	flag.Parse()
 
 	craftDB, err := openRO(*craftPath)
@@ -144,6 +145,22 @@ func main() {
 		must(renderStationCover(*stationCoverOut, page), "render station cover")
 		log.Printf("station-cover: %d buildable, %d single-station, %d unbuildable, hardest %s (%d) → %s",
 			len(page.Buildable), page.SingleStation, page.UnbuildableCount, page.HardestID, page.MaxStations, *stationCoverOut)
+	}
+
+	if *facilitiesOut != "" {
+		facRecs, err := loadFacilityCatalog(*catalogRoot)
+		must(err, "load facility catalog")
+		facBoM, err := loadFacilityBoM(craftDB)
+		must(err, "load facility bom")
+		recipeOut, err := loadRecipeOutputItem(craftDB)
+		must(err, "load recipe outputs")
+		gb := galaxyBook(books)
+		fPages, fSummaries := buildFacilityPages(facRecs, facBoM, recipeOut, itemNames, categories, sellVWAP, gb)
+		must(renderFacilitiesIndex(*facilitiesOut, fSummaries), "render facilities index")
+		for _, p := range fPages {
+			must(renderFacilityGroup(*facilitiesOut, p), "render facility group "+p.Group)
+		}
+		log.Printf("facility build-costs: %d facilities across %d groups → %s", len(facRecs), len(fPages), *facilitiesOut)
 	}
 
 	log.Printf("build-costs: %d rows × %d stations × 4 radii → %s", len(matrices[0].Rows), len(matrices[0].Stations), *outDir)
