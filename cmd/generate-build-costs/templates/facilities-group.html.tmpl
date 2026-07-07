@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{.Heading}} — Facility Build Costs — Spacemolt KB</title>
+<style>
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
+ a{color:#58a6ff}
+ table{border-collapse:collapse;font-size:.85rem;margin-top:.3rem}
+ th,td{border:1px solid #21262d;padding:.3rem .5rem;text-align:right}
+ th:first-child,td:first-child{text-align:left}
+ .toc{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 1rem;font-size:.8rem}
+ .toc a{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:.15rem .5rem;text-decoration:none;text-transform:capitalize}
+ .toc a.active{border-color:#e3b341;color:#e3b341}
+ .fac{border-top:1px solid #30363d;margin-top:1.3rem;padding-top:.4rem;scroll-margin-top:.5rem}
+ .fac h2{margin:.2rem 0;font-size:1.05rem} .fac h2 small{color:#8b949e;font-weight:400}
+ .view h3{margin:.6rem 0 .1rem;font-size:.9rem;color:#c9d1d9}
+ .infeasible{color:#6e7681} .note{color:#8b949e;font-weight:400} .empty{color:#6e7681;font-size:.85rem;margin:.2rem 0}
+ h1{margin:.2rem 0;text-transform:capitalize}
+</style>
+</head>
+<body>
+<p><a href="../">← Facility Build Costs</a></p>
+<div class="toc">
+{{range .TOC}}<a href="{{.Href}}"{{if .Active}} class="active"{{end}}>{{.Group}} ({{.Count}})</a>
+{{end}}</div>
+<h1>{{.Heading}}</h1>
+{{range .Facilities}}
+<section class="fac" id="{{.ID}}">
+ <h2><a href="{{.Href}}">{{.Name}}</a> <small>L{{.Level}}{{if .Produces}} · produces {{.Produces}}{{end}}</small></h2>
+ {{template "facview" .BoM}}
+ {{template "facview" .Recipe}}
+</section>
+{{end}}
+{{define "facview"}}
+<div class="view">
+ <h3>{{.Title}}</h3>
+ {{if .Empty}}<p class="empty">No components.</p>{{else}}
+ <table>
+ <thead><tr><th>Component</th><th>Qty</th><th>MKT-AVG</th><th>MKT total</th><th>Galaxy</th><th>Galaxy total</th></tr></thead>
+ <tbody>
+ {{range .Components}}<tr>
+  <td>{{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td>
+  <td>{{.Qty}}</td><td>{{.MktUnit}}</td><td>{{.MktTotal}}</td>
+  <td class="{{if .GalInfeasible}}infeasible{{end}}">{{.GalUnit}}</td>
+  <td class="{{if .GalInfeasible}}infeasible{{end}}">{{.GalTotal}}</td>
+ </tr>
+ {{end}}
+ <tr><td colspan="3"><strong>build cost</strong> <span class="note">{{.MktNote}}</span></td>
+     <td><strong>{{.MktBuildCost}}</strong></td>
+     <td colspan="2" class="{{if .GalInfeasible}}infeasible{{end}}"><strong>{{.GalBuildCost}}</strong></td></tr>
+ </tbody></table>
+ {{end}}
+</div>
+{{end}}
+</body>
+</html>
