@@ -3,26 +3,33 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{.Heading}} — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <style>
- body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
  h1{font-size:1.4rem} .controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:.6rem 0}
- .controls input,.controls select{background:#161b22;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;padding:.3rem}
- table{border-collapse:collapse;font-size:.8rem} th,td{border:1px solid #21262d;padding:.25rem .4rem;text-align:right;white-space:nowrap}
- th.rowhdr,td.rowhdr{text-align:left;position:sticky;left:0;background:#0d1117;z-index:1}
- thead th{position:sticky;top:0;background:#161b22;white-space:normal;max-width:7em;vertical-align:bottom}
+ .controls input,.controls select{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:.3rem}
+ table{border-collapse:collapse;font-size:.8rem} th,td{border:1px solid var(--border2);padding:.25rem .4rem;text-align:right;white-space:nowrap}
+ th.rowhdr,td.rowhdr{text-align:left;position:sticky;left:0;background:var(--bg);z-index:1}
+ thead th{position:sticky;top:0;background:var(--panel);white-space:normal;max-width:7em;vertical-align:bottom}
  thead th.rowhdr{max-width:none}
- .summary{font-size:.85rem;color:#adbac7;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:.4rem .6rem;display:inline-block}
- td.cheapest{outline:2px solid #2ea043}
- td.pos{color:#3fb950} td.neg{color:#f85149}
- td.infeasible{color:#6e7681}
- a{color:#58a6ff}
+ .summary{font-size:.85rem;color:var(--dim);background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.4rem .6rem;display:inline-block}
+ td.cheapest{outline:2px solid var(--up2)}
+ td.pos{color:var(--up)} td.neg{color:var(--down)}
+ td.infeasible{color:var(--muted2)}
+ a{color:var(--link)}
  .wrap{overflow:auto;max-height:80vh}
  .tabs{margin:.4rem 0;display:flex;gap:.4rem}
- .tabs a{padding:.25rem .6rem;border:1px solid #30363d;border-radius:4px;text-decoration:none}
- .tabs a.active{background:#1f6feb;color:#fff;border-color:#1f6feb}
+ .tabs a{padding:.25rem .6rem;border:1px solid var(--border);border-radius:4px;text-decoration:none}
+ .tabs a.active{background:var(--link2);color:#fff;border-color:var(--link2)}
 </style>
 </head>
 <body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
 <h1>{{.Heading}}</h1>
 <div class="tabs">{{range .Tabs}}<a href="{{.File}}"{{if .Active}} class="active"{{end}}>{{.Label}}</a>{{end}}</div>
 <p class="summary">{{.Summary}}</p>

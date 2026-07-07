@@ -4,33 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stations Needed to Build — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="stylesheet" href="../smui.css">
 <style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
  body{max-width:1100px;margin:0 auto;padding:1rem}
  .factoids{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:1rem 0}
- .factoid{background:var(--bg-card,#161b22);border:1px solid var(--border,#30363d);border-left:4px solid #6c5ce7;border-radius:8px;padding:14px}
- .factoid .big{font-size:1.6rem;font-weight:700;color:var(--link,#58a6ff)}
- .factoid .lbl{font-size:.85rem;color:var(--text-muted,#8b949e)}
+ .factoid{background:var(--bg-card,var(--panel));border:1px solid var(--border,var(--border));border-left:4px solid var(--purple);border-radius:8px;padding:14px}
+ .factoid .big{font-size:1.6rem;font-weight:700;color:var(--link,var(--link))}
+ .factoid .lbl{font-size:.85rem;color:var(--text-muted,var(--muted))}
  .charts{display:flex;flex-wrap:wrap;gap:2rem;margin:1rem 0}
  .chart{flex:1;min-width:280px}
  .chart h3{font-size:1rem;margin:.2rem 0}
  .chart-body{display:flex;align-items:flex-end;gap:6px;height:160px}
  .chart-col{flex:1;height:100%;display:flex;flex-direction:column;align-items:center}
- .chart-col .n{font-size:.72rem;color:var(--text-muted,#8b949e);height:14px;line-height:14px}
+ .chart-col .n{font-size:.72rem;color:var(--text-muted,var(--muted));height:14px;line-height:14px}
  .bar-track{flex:1;width:100%;display:flex;align-items:flex-end}
- .chart-bar{width:100%;background:#6c5ce7;border-radius:3px 3px 0 0;min-height:2px}
- .chart-axis{display:flex;gap:6px;border-top:1px solid var(--border,#30363d);padding-top:3px}
- .chart-axis .x{flex:1;text-align:center;font-size:.8rem;color:var(--text-muted,#8b949e)}
- .unbuildable-note{font-size:.85rem;color:var(--text-muted,#8b949e);margin-top:.5rem}
+ .chart-bar{width:100%;background:var(--purple);border-radius:3px 3px 0 0;min-height:2px}
+ .chart-axis{display:flex;gap:6px;border-top:1px solid var(--border,var(--border));padding-top:3px}
+ .chart-axis .x{flex:1;text-align:center;font-size:.8rem;color:var(--text-muted,var(--muted))}
+ .unbuildable-note{font-size:.85rem;color:var(--text-muted,var(--muted));margin-top:.5rem}
  table{border-collapse:collapse;width:100%;font-size:.85rem;margin-top:1rem}
- th,td{border:1px solid var(--border,#21262d);padding:.3rem .5rem;text-align:left}
- th{cursor:pointer;background:var(--bg-card,#161b22)}
+ th,td{border:1px solid var(--border,var(--border2));padding:.3rem .5rem;text-align:left}
+ th{cursor:pointer;background:var(--bg-card,var(--panel))}
  td.num{text-align:right}
- .badge{font-size:.7rem;background:#9a6700;color:#fff;border-radius:3px;padding:0 .3rem;margin-left:.3rem}
+ .badge{font-size:.7rem;background:var(--accent3);color:#fff;border-radius:3px;padding:0 .3rem;margin-left:.3rem}
  .scrollx{overflow-x:auto}
 </style>
 </head>
 <body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
 <p><a href="index.html">← Did You Know?</a></p>
 <h1>How Many Stations to Build Anything?</h1>
 <p>The fewest distinct market stations you must shop at to source every part for one build, depth-aware, across all {{.Total}} items and ships. Count only — travel between stations is ignored. <b>BoM</b> = from raw ore; <b>Recipe</b> = from sub-assemblies.</p>
@@ -80,7 +87,7 @@
 </tbody>
 </table>
 </div>
-<p style="font-size:.8rem;color:#8b949e">* = greedy upper bound (a proven minimum wasn't searched beyond 3 stations).</p>
+<p style="font-size:.8rem;color:var(--muted)">* = greedy upper bound (a proven minimum wasn't searched beyond 3 stations).</p>
 
 <h2>Can't be built anywhere ({{.UnbuildableCount}})</h2>
 <p>These can't be built at any combination of stations right now — one or more inputs have no market depth anywhere.</p>
