@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
@@ -274,6 +275,150 @@ type FacilityGroupSummary struct {
 	Count       int
 }
 
+// LevelStat is the MKT-cost and buildability summary for one facility level
+// within a category. BoM/Recipe are pre-rendered "mean ± sd" strings (or "—")
+// over facilities with a fully-priced bill; Count is every facility at the
+// level; Buildable counts those sourceable from live galaxy depth via either view.
+type LevelStat struct {
+	Level     int
+	Count     int
+	BoM       string
+	Recipe    string
+	Buildable int
+}
+
+// CategoryStat is one category's stats block on the landing page: its group
+// name, total facility count, and per-level rows (ascending by level).
+type CategoryStat struct {
+	Group  string
+	Count  int
+	Levels []LevelStat
+}
+
+// levelAccum accumulates a category-level's cost samples and buildable count.
+type levelAccum struct {
+	count       int
+	bomCosts    []float64
+	recipeCosts []float64
+	buildable   int
+}
+
+// fmtCompact abbreviates a value with a K/M/B suffix for the stats tables
+// (e.g. 4_100_000 → "4.1M", 900_000 → "900K", 250 → "250"). M and B carry one
+// decimal; K and bare values are whole.
+func fmtCompact(v float64) string {
+	neg := v < 0
+	if neg {
+		v = -v
+	}
+	var s string
+	switch {
+	case v >= 1e9:
+		s = strconv.FormatFloat(v/1e9, 'f', 1, 64) + "B"
+	case v >= 1e6:
+		s = strconv.FormatFloat(v/1e6, 'f', 1, 64) + "M"
+	case v >= 1e3:
+		s = strconv.FormatFloat(v/1e3, 'f', 0, 64) + "K"
+	default:
+		s = strconv.FormatFloat(v, 'f', 0, 64)
+	}
+	if neg {
+		return "-" + s
+	}
+	return s
+}
+
+// meanSDOf returns the mean and sample (n-1) standard deviation of xs. For a
+// single sample the sd is 0; for an empty sample both are 0.
+func meanSDOf(xs []float64) (mean, sd float64) {
+	if len(xs) == 0 {
+		return 0, 0
+	}
+	for _, x := range xs {
+		mean += x
+	}
+	mean /= float64(len(xs))
+	if len(xs) < 2 {
+		return mean, 0
+	}
+	var ss float64
+	for _, x := range xs {
+		d := x - mean
+		ss += d * d
+	}
+	return mean, math.Sqrt(ss / float64(len(xs)-1))
+}
+
+// mktStatStr renders a cost sample as "—" (empty), "4.1M" (one sample), or
+// "4.1M ± 2.0M" (two or more), using compact K/M/B formatting.
+func mktStatStr(xs []float64) string {
+	if len(xs) == 0 {
+		return emDash
+	}
+	mean, sd := meanSDOf(xs)
+	if len(xs) < 2 {
+		return fmtCompact(mean)
+	}
+	return fmtCompact(mean) + " ± " + fmtCompact(sd)
+}
+
+// accumulateFacilityStats folds one facility's two numeric views into the
+// per-(group, level) accumulator. A cost sample is recorded only when a view is
+// non-empty and fully priced; a facility counts as buildable when either
+// non-empty view is fully coverable from live galaxy depth.
+func accumulateFacilityStats(acc map[string]map[int]*levelAccum, group string, level int, bom, recipe FacilityView) {
+	if acc[group] == nil {
+		acc[group] = map[int]*levelAccum{}
+	}
+	a := acc[group][level]
+	if a == nil {
+		a = &levelAccum{}
+		acc[group][level] = a
+	}
+	a.count++
+	if bom.MktCount > 0 && bom.MktPriced == bom.MktCount {
+		a.bomCosts = append(a.bomCosts, bom.MktTotal)
+	}
+	if recipe.MktCount > 0 && recipe.MktPriced == recipe.MktCount {
+		a.recipeCosts = append(a.recipeCosts, recipe.MktTotal)
+	}
+	if (bom.MktCount > 0 && bom.GalFeasible) || (recipe.MktCount > 0 && recipe.GalFeasible) {
+		a.buildable++
+	}
+}
+
+// categoryStatsFrom renders the accumulator into group-sorted CategoryStat
+// blocks, each with level rows ascending by level.
+func categoryStatsFrom(acc map[string]map[int]*levelAccum) []CategoryStat {
+	groups := make([]string, 0, len(acc))
+	for g := range acc {
+		groups = append(groups, g)
+	}
+	sort.Strings(groups)
+	out := make([]CategoryStat, 0, len(groups))
+	for _, g := range groups {
+		levels := make([]int, 0, len(acc[g]))
+		for lv := range acc[g] {
+			levels = append(levels, lv)
+		}
+		sort.Ints(levels)
+		cs := CategoryStat{Group: g}
+		for _, lv := range levels {
+			a := acc[g][lv]
+			cs.Count += a.count
+			cs.Levels = append(cs.Levels, LevelStat{
+				Level:     lv,
+				Count:     a.count,
+				BoM:       mktStatStr(a.bomCosts),
+				Recipe:    mktStatStr(a.recipeCosts),
+				Buildable: a.buildable,
+			})
+		}
+		out = append(out, cs)
+	}
+	return out
+}
+
 // facilityViewVM converts a numeric view into rendered strings, applying the
 // em-dash for unpriced/uncovered cells, a "k/N priced" note when MKT-AVG is
 // partial, and an "N/M covered" galaxy total when depth is short.
@@ -316,17 +461,21 @@ func facDetailHref(f FacilityRec) string {
 // views, and assembles the per-group pages (facilities alphabetical within a
 // group) plus the landing summaries. Both outputs are group-name sorted; every
 // page carries the full cross-group TOC with its own group flagged active.
-func buildFacilityPages(recs []FacilityRec, facBoM map[string][]buildcost.Requirement, recipeOut, names, cats map[string]string, sellVWAP map[string]float64, galaxy *buildcost.Book) ([]FacilityGroupPage, []FacilityGroupSummary) {
+func buildFacilityPages(recs []FacilityRec, facBoM map[string][]buildcost.Requirement, recipeOut, names, cats map[string]string, sellVWAP map[string]float64, galaxy *buildcost.Book) ([]FacilityGroupPage, []FacilityGroupSummary, []CategoryStat) {
 	grouped := map[string][]FacilityEntryVM{}
+	statAcc := map[string]map[int]*levelAccum{}
 	for _, f := range recs {
 		g := facilityGroup(f, recipeOut, cats)
 		entry := FacilityEntryVM{ID: f.ID, Name: f.Name, Href: facDetailHref(f), Level: f.Level}
 		if out := recipeOut[f.RecipeID]; out != "" && f.Category == "production" {
 			entry.Produces = compName(out, names)
 		}
-		entry.BoM = facilityViewVM("BoM (ore)", buildFacilityView(facBoM[f.ID], sellVWAP, galaxy, names, cats))
-		entry.Recipe = facilityViewVM("Recipe (components)", buildFacilityView(f.Build, sellVWAP, galaxy, names, cats))
+		bomView := buildFacilityView(facBoM[f.ID], sellVWAP, galaxy, names, cats)
+		recView := buildFacilityView(f.Build, sellVWAP, galaxy, names, cats)
+		entry.BoM = facilityViewVM("BoM (ore)", bomView)
+		entry.Recipe = facilityViewVM("Recipe (components)", recView)
 		grouped[g] = append(grouped[g], entry)
+		accumulateFacilityStats(statAcc, g, f.Level, bomView, recView)
 	}
 
 	groupNames := make([]string, 0, len(grouped))
@@ -350,5 +499,5 @@ func buildFacilityPages(recs []FacilityRec, facBoM map[string][]buildcost.Requir
 		}
 		pages = append(pages, FacilityGroupPage{Group: g, Heading: g, Facilities: facs, TOC: toc})
 	}
-	return pages, summaries
+	return pages, summaries, categoryStatsFrom(statAcc)
 }

@@ -5,13 +5,21 @@
 <title>Facility Build Costs — Spacemolt KB</title>
 <style>
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
- a{color:#58a6ff} h1{margin:.3rem 0}
+ a{color:#58a6ff} h1{margin:.3rem 0} h2{margin:1.6rem 0 .3rem;font-size:1.15rem} h3{margin:0 0 .2rem;font-size:.95rem}
  .legend{font-size:.85rem;color:#8b949e;max-width:80ch}
  .cards{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
  .card{display:block;min-width:8rem;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:.7rem .9rem;color:#c9d1d9;text-decoration:none}
  .card:hover{border-color:#58a6ff}
  .card .n{font-size:1.5rem;color:#e3b341;line-height:1}
  .card .g{text-transform:capitalize;margin-top:.2rem}
+ .explainer p{max-width:80ch;font-size:.9rem;color:#c9d1d9;margin:.4rem 0}
+ code{background:#161b22;border:1px solid #30363d;border-radius:3px;padding:0 .25rem;font-size:.85em}
+ .statblocks{display:flex;flex-wrap:wrap;gap:1rem 1.6rem;margin-top:.6rem}
+ .statblock{min-width:22rem}
+ .statblock h3 .g{text-transform:capitalize;color:#e3b341} .statblock h3 small{color:#8b949e;font-weight:400}
+ table{border-collapse:collapse;font-size:.8rem;margin:.2rem 0 .4rem}
+ th,td{border:1px solid #21262d;padding:.25rem .5rem;text-align:right} th:first-child,td:first-child{text-align:left}
+ td.dash{color:#6e7681}
 </style>
 </head>
 <body>
@@ -19,7 +27,29 @@
 <h1>Facility Build Costs</h1>
 <p class="legend">Cost to <strong>construct</strong> each facility, two ways: <strong>BoM (ore)</strong> flattens the build to raw materials; <strong>Recipe (components)</strong> uses the direct build components. Each is priced by <strong>MKT-AVG</strong> (sell-side volume-weighted average) and <strong>Galaxy</strong> (cheapest sourcing, walking pooled sell-order depth across every station). Production facilities are grouped by what they produce; others by facility type.</p>
 <div class="cards">
-{{range .}}<a class="card" href="{{.Href}}"><div class="n">{{.Count}}</div><div class="g">{{.Group}}</div></a>
+{{range .Summaries}}<a class="card" href="{{.Href}}"><div class="n">{{.Count}}</div><div class="g">{{.Group}}</div></a>
 {{end}}</div>
+
+<section class="explainer">
+<h2>How to read the two prices</h2>
+<p><strong>MKT-AVG</strong> is the sell-side volume-weighted average of <em>past trades</em> (price × quantity). It shows a value for any component that has <em>ever</em> traded, whether or not it is for sale right now, and does <em>not</em> check current supply — a "typical cost" estimate.</p>
+<p><strong>Galaxy</strong> walks the <em>current</em> resting sell orders pooled across every station, filling cheapest-first until the required quantity is met. It is all-or-nothing per component: when a component cannot be fully sourced from live depth it shows <code>—</code>, and the build-cost line shows <code>N/M covered</code>. A large gap between the two columns means a facility is priceable in theory but not actually sourceable from the market right now.</p>
+</section>
+
+<section class="stats">
+<h2>Category stats</h2>
+<p class="legend">Mean ± standard deviation of the <strong>MKT-AVG</strong> build cost by facility level, and how many facilities are <strong>currently buildable</strong> (inputs fully sourceable from live galaxy depth via BoM or Recipe). Cost stats cover facilities with a fully-priced bill, so a level's count may exceed the number priced; <code>—</code> means none at that level are fully priced.</p>
+<div class="statblocks">
+{{range .Stats}}<div class="statblock">
+<h3><span class="g">{{.Group}}</span> <small>{{.Count}}</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+{{range .Levels}}<tr><td>L{{.Level}}</td><td>{{.Count}}</td><td{{if eq .BoM "—"}} class="dash"{{end}}>{{.BoM}}</td><td{{if eq .Recipe "—"}} class="dash"{{end}}>{{.Recipe}}</td><td>{{.Buildable}}</td></tr>
+{{end}}</tbody>
+</table>
+</div>
+{{end}}</div>
+</section>
 </body>
 </html>

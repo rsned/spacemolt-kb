@@ -13,7 +13,13 @@ func TestRenderFacilitiesIndex(t *testing.T) {
 		{Group: "weapon", Href: "weapon/", Count: 2},
 		{Group: "service", Href: "service/", Count: 1},
 	}
-	if err := renderFacilitiesIndex(dir, summaries); err != nil {
+	stats := []CategoryStat{
+		{Group: "weapon", Count: 2, Levels: []LevelStat{
+			{Level: 1, Count: 1, BoM: "4.1M ± 2.0M", Recipe: "900K", Buildable: 1},
+			{Level: 2, Count: 1, BoM: "—", Recipe: "1.2M", Buildable: 0},
+		}},
+	}
+	if err := renderFacilitiesIndex(dir, summaries, stats); err != nil {
 		t.Fatal(err)
 	}
 	b, err := os.ReadFile(filepath.Join(dir, "index.html"))
@@ -21,7 +27,13 @@ func TestRenderFacilitiesIndex(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := string(b)
-	for _, want := range []string{"Facility Build Costs", `href="weapon/"`, "weapon", "service", ">2<"} {
+	for _, want := range []string{
+		"Facility Build Costs", `href="weapon/"`, "weapon", "service", ">2<",
+		"How to read the two prices", "MKT-AVG", "Galaxy", "N/M covered",
+		"Category stats", "Buildable now",
+		"4.1M ± 2.0M", "900K", // stat cells rendered
+		`class="dash"`,        // the em-dash BoM cell gets the muted class
+	} {
 		if !strings.Contains(s, want) {
 			t.Fatalf("index missing %q", want)
 		}
