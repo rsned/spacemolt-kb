@@ -32,13 +32,21 @@
 <table>
 <thead><tr><th>Material</th><th>Qty</th></tr></thead>
 <tbody>
-<tr><td><a href="../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>1</td></tr>
+<tr><td><a href="../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>1</td></tr>
 </tbody>
 </table>
 
 
 
 <h2>Recipes <small>(sub-assemblies)</small></h2>
+
+<h3>biogas_fuel_synthesis <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/misc/crystallized_biogas.html">Crystallized Biogas</a></td><td>1</td></tr>
+</tbody>
+</table>
 
 <h3>catalyze_fuel_cells <small>yields 50</small></h3>
 <table>
@@ -61,6 +69,38 @@
 <thead><tr><th>Input</th><th>Qty</th></tr></thead>
 <tbody>
 <tr><td><a href="../items/component/salvage_components.html">Salvage Components</a></td><td>5</td></tr>
+</tbody>
+</table>
+
+<h3>ember_gland_combustion <small>yields 3</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/misc/ember_gland.html">Ember Gland</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+<h3>fusion_pearl_processing <small>yields 4</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/misc/fusion_pearl.html">Fusion Pearl</a></td><td>2</td></tr>
+</tbody>
+</table>
+
+<h3>levity_gas_synthesis <small>yields 2</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/misc/levity_bladder.html">Levity Bladder</a></td><td>3</td></tr>
+</tbody>
+</table>
+
+<h3>noble_gas_liquefaction <small>yields 3</small></h3>
+<table>
+<thead><tr><th>Input</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/misc/noble_condensate.html">Noble Condensate</a></td><td>2</td></tr>
 </tbody>
 </table>
 
@@ -87,21 +127,21 @@
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
  <td class="infeasible">2/5</td>
- <td>52</td><td>52</td><td>52</td>
+ <td>55</td><td>55</td><td>55</td>
  <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>0/1</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>grand_exchange</td><td>Independent</td>
+ <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">3/5</td>
  <td>4/5</td><td>4/5</td><td>4/5</td>
  <td class="infeasible">0/1</td>
  <td>0/1</td><td>575</td><td>575</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -109,22 +149,22 @@
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
  <td class="infeasible">4/5</td>
- <td>4/5</td><td>223</td><td>223</td>
+ <td>4/5</td><td>225</td><td>225</td>
  <td class="infeasible">0/1</td>
  <td>2,055</td><td>2,055</td><td>2,027</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
- <td class="">308</td>
- <td>200</td><td>176</td><td>176</td>
+ <td>sol_central</td><td>solarian</td>
+ <td class="">287</td>
+ <td>179</td><td>170</td><td>170</td>
  <td class="infeasible">0/1</td>
- <td>486</td><td>486</td><td>486</td>
- <td>drain_fuel_reserves</td>
- <td class="neg">-173</td>
+ <td>487</td><td>487</td><td>487</td>
+ <td>biogas_fuel_synthesis</td>
+ <td class="neg">-152</td>
  <td class="">—</td>
 </tr>
 
@@ -134,7 +174,7 @@
  <td>3/5</td><td>3/5</td><td>4/5</td>
  <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>0/1</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -145,7 +185,7 @@
  <td>4/5</td><td>4/5</td><td>4/5</td>
  <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>582</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -153,32 +193,32 @@
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
  <td class="infeasible">3/5</td>
- <td>4/5</td><td>4/5</td><td>52</td>
- <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/1</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">3/5</td>
- <td>277</td><td>176</td><td>176</td>
+ <td>4/5</td><td>4/5</td><td>55</td>
  <td class="infeasible">0/1</td>
- <td>486</td><td>486</td><td>486</td>
- <td>drain_fuel_reserves</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>war_citadel</td><td>Independent</td>
- <td class="">52</td>
- <td>52</td><td>52</td><td>52</td>
- <td class="infeasible">0/3</td>
+ <td>sirius_observatory_station</td><td>solarian</td>
+ <td class="infeasible">3/5</td>
+ <td>271</td><td>170</td><td>170</td>
+ <td class="infeasible">0/1</td>
+ <td>487</td><td>487</td><td>487</td>
+ <td>biogas_fuel_synthesis</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>war_citadel</td><td>crimson</td>
+ <td class="">71</td>
+ <td>55</td><td>55</td><td>55</td>
+ <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -186,21 +226,21 @@
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
  <td class="infeasible">3/5</td>
- <td>207</td><td>200</td><td>176</td>
+ <td>186</td><td>179</td><td>170</td>
  <td class="infeasible">0/1</td>
- <td>497</td><td>486</td><td>486</td>
- <td>drain_fuel_reserves</td>
+ <td>502</td><td>487</td><td>487</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>blood_forge_smelting_works</td><td>Independent</td>
- <td class="infeasible">2/5</td>
- <td>52</td><td>52</td><td>52</td>
- <td class="infeasible">0/3</td>
+ <td class="infeasible">1/5</td>
+ <td>56</td><td>55</td><td>55</td>
+ <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -208,21 +248,21 @@
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
  <td class="infeasible">2/5</td>
- <td>2/5</td><td>3/5</td><td>249</td>
- <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/1</td><td>2,127</td>
- <td>catalyze_fuel_cells</td>
+ <td>2/5</td><td>3/5</td><td>253</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>2,127</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
- <td class="infeasible">2/5</td>
+ <td class="infeasible">3/5</td>
  <td>4/5</td><td>4/5</td><td>4/5</td>
  <td class="infeasible">0/1</td>
  <td>0/1</td><td>575</td><td>575</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -230,21 +270,21 @@
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
  <td class="infeasible">3/5</td>
- <td>4/5</td><td>249</td><td>223</td>
+ <td>4/5</td><td>253</td><td>225</td>
  <td class="infeasible">0/1</td>
  <td>2,127</td><td>2,127</td><td>2,027</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>gold_run_extraction_hub</td><td>Independent</td>
+ <td>gold_run_extraction_hub</td><td>nebula</td>
  <td class="infeasible">4/5</td>
  <td>4/5</td><td>4/5</td><td>4/5</td>
- <td class="infeasible">0/3</td>
+ <td class="infeasible">0/1</td>
  <td>0/1</td><td>582</td><td>582</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -252,10 +292,10 @@
 <tr>
  <td>ramens_rest</td><td>Independent</td>
  <td class="infeasible">3/5</td>
- <td>4/5</td><td>4/5</td><td>223</td>
+ <td>4/5</td><td>4/5</td><td>225</td>
  <td class="infeasible">0/1</td>
  <td>2,055</td><td>2,055</td><td>2,055</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -264,9 +304,9 @@
  <td>node_alpha_processing_station</td><td>Independent</td>
  <td class="infeasible">2/5</td>
  <td>3/5</td><td>4/5</td><td>4/5</td>
- <td class="infeasible">0/3</td>
+ <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -275,20 +315,20 @@
  <td>node_gamma_relay_station</td><td>Independent</td>
  <td class="infeasible">3/5</td>
  <td>3/5</td><td>4/5</td><td>4/5</td>
- <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/1</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="infeasible">4/5</td>
- <td>227</td><td>177</td><td>176</td>
- <td class="infeasible">0/3</td>
- <td>0/1</td><td>486</td><td>486</td>
- <td>catalyze_fuel_cells</td>
+ <td>221</td><td>171</td><td>170</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>487</td><td>487</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -296,76 +336,76 @@
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
  <td class="infeasible">4/5</td>
- <td>227</td><td>227</td><td>177</td>
- <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/1</td><td>486</td>
- <td>catalyze_fuel_cells</td>
+ <td>221</td><td>221</td><td>171</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>487</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>starfall_salvage_station</td><td>Independent</td>
+ <td>starfall_salvage_station</td><td>outerrim</td>
  <td class="infeasible">2/5</td>
- <td>4/5</td><td>272</td><td>223</td>
- <td class="infeasible">0/3</td>
+ <td>4/5</td><td>276</td><td>225</td>
+ <td class="infeasible">0/1</td>
  <td>0/1</td><td>2,127</td><td>2,027</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>synchrony_hub</td><td>voidborn</td>
+ <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">2/5</td>
  <td>4/5</td><td>4/5</td><td>4/5</td>
- <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/1</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">1/5</td>
- <td>52</td><td>52</td><td>52</td>
+ <td>55</td><td>55</td><td>55</td>
  <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>0/1</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">3/5</td>
- <td>4/5</td><td>52</td><td>52</td>
- <td class="infeasible">0/3</td>
+ <td class="infeasible">4/5</td>
+ <td>4/5</td><td>55</td><td>55</td>
+ <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">3/5</td>
+ <td class="infeasible">2/5</td>
  <td>4/5</td><td>4/5</td><td>4/5</td>
- <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/3</td><td>0/1</td>
- <td>catalyze_fuel_cells</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>Independent</td>
+ <td>the_levy_customs_station</td><td>nebula</td>
  <td class="infeasible">2/5</td>
  <td>2/5</td><td>4/5</td><td>4/5</td>
  <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>575</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -374,31 +414,31 @@
  <td>traders_rest_resort_station</td><td>Independent</td>
  <td class="infeasible">3/5</td>
  <td>4/5</td><td>4/5</td><td>4/5</td>
- <td class="infeasible">0/3</td>
+ <td class="infeasible">0/1</td>
  <td>575</td><td>575</td><td>575</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">1/5</td>
- <td>2/5</td><td>4/5</td><td>4/5</td>
- <td class="infeasible">0/3</td>
+ <td class="infeasible">2/5</td>
+ <td>3/5</td><td>4/5</td><td>4/5</td>
+ <td class="infeasible">0/1</td>
  <td>0/1</td><td>0/1</td><td>575</td>
- <td>catalyze_fuel_cells</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">4/5</td>
- <td>4/5</td><td>4/5</td><td>249</td>
+ <td>4/5</td><td>4/5</td><td>253</td>
  <td class="infeasible">0/1</td>
  <td>2,127</td><td>2,127</td><td>2,127</td>
- <td>drain_fuel_reserves</td>
+ <td>biogas_fuel_synthesis</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>

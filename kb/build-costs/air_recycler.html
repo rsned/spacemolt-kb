@@ -32,7 +32,7 @@
 <table>
 <thead><tr><th>Material</th><th>Qty</th></tr></thead>
 <tbody>
-<tr><td><a href="../items/ore/argon_gas.html">Argon Gas</a></td><td>8</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/neon_gas.html">Neon Gas</a></td><td>4</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>2</td></tr>
+<tr><td><a href="../items/ore/argon_gas.html">Argon Gas</a></td><td>8</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/neon_gas.html">Neon Gas</a></td><td>4</td></tr><tr><td><a href="../items/ore/nickel_ore.html">Nickel Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/platinum_ore.html">Platinum Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/silicon_ore.html">Silicon Ore</a></td><td>1</td></tr><tr><td><a href="../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>2</td></tr>
 </tbody>
 </table>
 
@@ -50,7 +50,9 @@
 
 
 
-
+<div class="banner">
+⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing input with no depth: <code>Silicon Ore</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+</div>
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
@@ -72,11 +74,11 @@
 </tr>
 
 <tr>
- <td>grand_exchange</td><td>Independent</td>
+ <td>grand_exchange</td><td>nebula</td>
  <td class="infeasible">5/8</td>
  <td>6/8</td><td>6/8</td><td>7/8</td>
  <td class="infeasible">2/4</td>
- <td>3/4</td><td>163</td><td>151</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>assemble_air_recycler</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -94,7 +96,7 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
+ <td>sol_central</td><td>solarian</td>
  <td class="infeasible">6/8</td>
  <td>7/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">2/4</td>
@@ -119,8 +121,8 @@
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
  <td class="infeasible">4/8</td>
  <td>5/8</td><td>6/8</td><td>6/8</td>
- <td class="infeasible">1/4</td>
- <td>193</td><td>181</td><td>163</td>
+ <td class="infeasible">0/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>assemble_air_recycler</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -138,7 +140,7 @@
 </tr>
 
 <tr>
- <td>sirius_observatory_station</td><td>Independent</td>
+ <td>sirius_observatory_station</td><td>solarian</td>
  <td class="infeasible">5/8</td>
  <td>7/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">2/4</td>
@@ -149,7 +151,7 @@
 </tr>
 
 <tr>
- <td>war_citadel</td><td>Independent</td>
+ <td>war_citadel</td><td>crimson</td>
  <td class="infeasible">7/8</td>
  <td>7/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">3/4</td>
@@ -172,7 +174,7 @@
 
 <tr>
  <td>blood_forge_smelting_works</td><td>Independent</td>
- <td class="infeasible">2/8</td>
+ <td class="infeasible">1/8</td>
  <td>7/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
@@ -194,7 +196,7 @@
 
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
- <td class="infeasible">2/8</td>
+ <td class="infeasible">3/8</td>
  <td>7/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">1/4</td>
  <td>2/4</td><td>3/4</td><td>3/4</td>
@@ -215,11 +217,11 @@
 </tr>
 
 <tr>
- <td>gold_run_extraction_hub</td><td>Independent</td>
+ <td>gold_run_extraction_hub</td><td>nebula</td>
  <td class="infeasible">5/8</td>
  <td>5/8</td><td>6/8</td><td>6/8</td>
  <td class="infeasible">3/4</td>
- <td>193</td><td>166</td><td>163</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>assemble_air_recycler</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -259,7 +261,7 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
+ <td>nova_terra_central</td><td>solarian</td>
  <td class="infeasible">6/8</td>
  <td>7/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">1/4</td>
@@ -281,7 +283,7 @@
 </tr>
 
 <tr>
- <td>starfall_salvage_station</td><td>Independent</td>
+ <td>starfall_salvage_station</td><td>outerrim</td>
  <td class="infeasible">5/8</td>
  <td>6/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">1/4</td>
@@ -292,7 +294,7 @@
 </tr>
 
 <tr>
- <td>synchrony_hub</td><td>voidborn</td>
+ <td>synchrony_hub</td><td>Independent</td>
  <td class="infeasible">5/8</td>
  <td>6/8</td><td>6/8</td><td>6/8</td>
  <td class="infeasible">1/4</td>
@@ -303,7 +305,7 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
  <td class="infeasible">1/8</td>
  <td>7/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">2/4</td>
@@ -315,7 +317,7 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">3/8</td>
+ <td class="infeasible">4/8</td>
  <td>6/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">2/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
@@ -326,7 +328,7 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">3/8</td>
+ <td class="infeasible">2/8</td>
  <td>6/8</td><td>6/8</td><td>6/8</td>
  <td class="infeasible">2/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
@@ -336,11 +338,11 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>Independent</td>
+ <td>the_levy_customs_station</td><td>nebula</td>
  <td class="infeasible">2/8</td>
  <td>2/8</td><td>5/8</td><td>6/8</td>
  <td class="infeasible">1/4</td>
- <td>1/4</td><td>3/4</td><td>163</td>
+ <td>1/4</td><td>3/4</td><td>3/4</td>
  <td>assemble_air_recycler</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -351,7 +353,7 @@
  <td class="infeasible">4/8</td>
  <td>6/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">2/4</td>
- <td>3/4</td><td>3/4</td><td>151</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>assemble_air_recycler</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -359,8 +361,8 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">3/8</td>
- <td>5/8</td><td>7/8</td><td>7/8</td>
+ <td class="infeasible">4/8</td>
+ <td>6/8</td><td>7/8</td><td>7/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>2/4</td><td>3/4</td>
  <td>assemble_air_recycler</td>
@@ -369,7 +371,7 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
  <td class="infeasible">4/8</td>
  <td>6/8</td><td>6/8</td><td>7/8</td>
  <td class="infeasible">0/4</td>

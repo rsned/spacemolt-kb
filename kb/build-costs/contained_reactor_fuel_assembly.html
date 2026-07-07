@@ -32,7 +32,7 @@
 <table>
 <thead><tr><th>Material</th><th>Qty</th></tr></thead>
 <tbody>
-<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>36</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>8</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>18</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>18</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>8</td></tr><tr><td><a href="../items/ore/thorium_ore.html">Thorium Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/tungsten_ore.html">Tungsten Ore</a></td><td>9</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>48</td></tr>
+<tr><td><a href="../items/misc/anchor_plate.html">Anchor Plate</a></td><td>6</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>8</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>18</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>8</td></tr><tr><td><a href="../items/ore/thorium_ore.html">Thorium Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>48</td></tr><tr><td><a href="../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>6</td></tr>
 </tbody>
 </table>
 
@@ -51,7 +51,7 @@
 
 
 <div class="banner">
-⚠ <strong>Not buildable within 3 jumps of any single station.</strong> No local pool covers all inputs — the cells below show how many each station reaches. Galaxy-wide, the cheapest sourcing needs <strong>4+ stations</strong>: <code>first_step_memorial_station</code>, <code>node_gamma_relay_station</code>, <code>sol_central</code>, <code>war_citadel</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing input with no depth: <code>Anchor Plate</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
 </div>
 
 <h2>Build cost by station</h2>
@@ -64,9 +64,9 @@
 
 <tr>
  <td>iron_reach_mining_colony</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
- <td class="infeasible">1/4</td>
+ <td class="infeasible">1/8</td>
+ <td>4/8</td><td>4/8</td><td>4/8</td>
+ <td class="infeasible">0/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
  <td class="">—</td>
@@ -74,11 +74,11 @@
 </tr>
 
 <tr>
- <td>grand_exchange</td><td>Independent</td>
- <td class="infeasible">3/9</td>
- <td>4/9</td><td>5/9</td><td>6/9</td>
+ <td>grand_exchange</td><td>nebula</td>
+ <td class="infeasible">2/8</td>
+ <td>3/8</td><td>3/8</td><td>4/8</td>
  <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td>1/4</td><td>2/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -86,8 +86,8 @@
 
 <tr>
  <td>unknown_edge_waystation</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">1/8</td>
+ <td>1/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -96,9 +96,9 @@
 </tr>
 
 <tr>
- <td>sol_central</td><td>Independent</td>
- <td class="infeasible">6/9</td>
- <td>6/9</td><td>7/9</td><td>7/9</td>
+ <td>sol_central</td><td>solarian</td>
+ <td class="infeasible">4/8</td>
+ <td>4/8</td><td>5/8</td><td>5/8</td>
  <td class="infeasible">0/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -108,8 +108,8 @@
 
 <tr>
  <td>the_core</td><td>voidborn</td>
- <td class="infeasible">3/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">2/8</td>
+ <td>2/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -119,10 +119,10 @@
 
 <tr>
  <td>cargo_lanes_freight_depot</td><td>Independent</td>
- <td class="infeasible">3/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">2/8</td>
+ <td>3/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>1/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -130,8 +130,8 @@
 
 <tr>
  <td>the_rampart_checkpoint</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>3/9</td><td>3/9</td><td>5/9</td>
+ <td class="infeasible">1/8</td>
+ <td>2/8</td><td>2/8</td><td>4/8</td>
  <td class="infeasible">1/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -140,9 +140,9 @@
 </tr>
 
 <tr>
- <td>sirius_observatory_station</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>7/9</td><td>7/9</td><td>7/9</td>
+ <td>sirius_observatory_station</td><td>solarian</td>
+ <td class="infeasible">1/8</td>
+ <td>5/8</td><td>5/8</td><td>5/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -151,9 +151,9 @@
 </tr>
 
 <tr>
- <td>war_citadel</td><td>Independent</td>
- <td class="infeasible">5/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td>war_citadel</td><td>crimson</td>
+ <td class="infeasible">4/8</td>
+ <td>4/8</td><td>4/8</td><td>4/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>2/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -163,8 +163,8 @@
 
 <tr>
  <td>alpha_centauri_colonial_station</td><td>Independent</td>
- <td class="infeasible">3/9</td>
- <td>6/9</td><td>6/9</td><td>7/9</td>
+ <td class="infeasible">2/8</td>
+ <td>4/8</td><td>4/8</td><td>5/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -174,8 +174,8 @@
 
 <tr>
  <td>blood_forge_smelting_works</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">0/8</td>
+ <td>4/8</td><td>4/8</td><td>4/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>2/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -185,8 +185,8 @@
 
 <tr>
  <td>deep_range_outpost</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">1/8</td>
+ <td>1/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -196,8 +196,8 @@
 
 <tr>
  <td>factory_belt_manufacturing_hub</td><td>nebula</td>
- <td class="infeasible">2/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">2/8</td>
+ <td>4/8</td><td>4/8</td><td>4/8</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -207,8 +207,8 @@
 
 <tr>
  <td>first_step_memorial_station</td><td>Independent</td>
- <td class="infeasible">4/9</td>
- <td>4/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">3/8</td>
+ <td>3/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -217,11 +217,11 @@
 </tr>
 
 <tr>
- <td>gold_run_extraction_hub</td><td>Independent</td>
- <td class="infeasible">4/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td>gold_run_extraction_hub</td><td>nebula</td>
+ <td class="infeasible">2/8</td>
+ <td>3/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>1/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -229,8 +229,8 @@
 
 <tr>
  <td>ramens_rest</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>2/9</td><td>4/9</td>
+ <td class="infeasible">1/8</td>
+ <td>1/8</td><td>1/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>0/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -240,8 +240,8 @@
 
 <tr>
  <td>node_alpha_processing_station</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>4/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">1/8</td>
+ <td>3/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -251,8 +251,8 @@
 
 <tr>
  <td>node_gamma_relay_station</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">2/8</td>
+ <td>2/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -261,9 +261,9 @@
 </tr>
 
 <tr>
- <td>nova_terra_central</td><td>Independent</td>
- <td class="infeasible">4/9</td>
- <td>5/9</td><td>7/9</td><td>7/9</td>
+ <td>nova_terra_central</td><td>solarian</td>
+ <td class="infeasible">3/8</td>
+ <td>4/8</td><td>5/8</td><td>5/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -273,8 +273,8 @@
 
 <tr>
  <td>procyon_colonial_station</td><td>Independent</td>
- <td class="infeasible">4/9</td>
- <td>5/9</td><td>5/9</td><td>7/9</td>
+ <td class="infeasible">3/8</td>
+ <td>4/8</td><td>4/8</td><td>5/8</td>
  <td class="infeasible">0/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -283,9 +283,9 @@
 </tr>
 
 <tr>
- <td>starfall_salvage_station</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td>starfall_salvage_station</td><td>outerrim</td>
+ <td class="infeasible">1/8</td>
+ <td>2/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -294,9 +294,9 @@
 </tr>
 
 <tr>
- <td>synchrony_hub</td><td>voidborn</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td>synchrony_hub</td><td>Independent</td>
+ <td class="infeasible">1/8</td>
+ <td>2/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -305,10 +305,10 @@
 </tr>
 
 <tr>
- <td>the_anvil_arsenal</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
- <td class="infeasible">1/4</td>
+ <td>the_anvil_arsenal</td><td>crimson</td>
+ <td class="infeasible">1/8</td>
+ <td>4/8</td><td>4/8</td><td>4/8</td>
+ <td class="infeasible">0/4</td>
  <td>1/4</td><td>2/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
  <td class="">—</td>
@@ -317,8 +317,8 @@
 
 <tr>
  <td>the_crucible_garrison</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>3/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">2/8</td>
+ <td>2/8</td><td>4/8</td><td>4/8</td>
  <td class="infeasible">2/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -328,8 +328,8 @@
 
 <tr>
  <td>the_experiment_research_station</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>3/9</td><td>4/9</td>
+ <td class="infeasible">0/8</td>
+ <td>1/8</td><td>2/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -338,11 +338,11 @@
 </tr>
 
 <tr>
- <td>the_levy_customs_station</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>5/9</td><td>5/9</td>
+ <td>the_levy_customs_station</td><td>nebula</td>
+ <td class="infeasible">1/8</td>
+ <td>1/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>0/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -350,10 +350,10 @@
 
 <tr>
  <td>traders_rest_resort_station</td><td>Independent</td>
- <td class="infeasible">4/9</td>
- <td>4/9</td><td>5/9</td><td>6/9</td>
+ <td class="infeasible">3/8</td>
+ <td>3/8</td><td>4/8</td><td>4/8</td>
  <td class="infeasible">0/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td>1/4</td><td>1/4</td><td>2/4</td>
  <td>wrap_reactor_fuel_assembly</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -361,8 +361,8 @@
 
 <tr>
  <td>treasure_cache_trading_post</td><td>nebula</td>
- <td class="infeasible">2/9</td>
- <td>3/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">2/8</td>
+ <td>3/8</td><td>4/8</td><td>4/8</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>0/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>
@@ -371,9 +371,9 @@
 </tr>
 
 <tr>
- <td>void_gate_outpost</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>4/9</td><td>4/9</td><td>4/9</td>
+ <td>void_gate_outpost</td><td>outerrim</td>
+ <td class="infeasible">2/8</td>
+ <td>3/8</td><td>3/8</td><td>3/8</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>wrap_reactor_fuel_assembly</td>

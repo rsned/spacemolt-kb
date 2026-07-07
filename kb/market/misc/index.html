@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>misc — Market History — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+ a{color:var(--link)} h1{margin:.3rem 0;text-transform:capitalize} h2{margin:0 0 .2rem;font-size:1rem}
+ .legend{font-size:.85rem;color:var(--muted);max-width:80ch}
+ .item{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:760px}
+ .stat{font-size:.8rem;color:var(--muted);margin:.1rem 0 .4rem}
+ .chart{width:100%;height:auto;display:block;background:var(--bg);border-radius:4px}
+ .chart .body.up,.chart .wick.up,.chart .vol.up{fill:var(--up);stroke:var(--up)}
+ .chart .body.down,.chart .wick.down,.chart .vol.down{fill:var(--down);stroke:var(--down)}
+ .chart .wick{stroke-width:1}
+ .chart .axis{fill:var(--muted);font-size:10px}
+ .chart .grid{stroke:var(--grid);stroke-width:1;stroke-dasharray:3 3}
+</style>
+</head>
+<body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
+<p><a href="../">← Market History</a></p>
+<h1>misc</h1>
+<p class="legend">Galaxy-wide sell-side daily candlesticks with a volume strip, most-traded first. Green = up day (close ≥ open), red = down.</p>
+<section class="item" id="crystallized_biogas">
+<h2><a href="../../items/misc/crystallized_biogas.html">Crystallized Biogas</a></h2>
+<div class="stat">last 37 · -32.7% · H 55 / L 37 · vol 6 · 2d</div>
+<svg viewBox="0 0 720 260" class="chart" role="img" aria-label="daily price and volume"><line x1="44.0" y1="10.0" x2="710.0" y2="10.0" class="grid"/><text x="4" y="13.0" class="axis">57</text><line x1="44.0" y1="52.5" x2="710.0" y2="52.5" class="grid"/><text x="4" y="55.5" class="axis">51</text><line x1="44.0" y1="95.0" x2="710.0" y2="95.0" class="grid"/><text x="4" y="98.0" class="axis">46</text><line x1="44.0" y1="137.5" x2="710.0" y2="137.5" class="grid"/><text x="4" y="140.5" class="axis">41</text><line x1="44.0" y1="180.0" x2="710.0" y2="180.0" class="grid"/><text x="4" y="183.0" class="axis">35</text><line x1="210.5" y1="24.2" x2="210.5" y2="24.2" class="wick up"/><rect x="203.5" y="24.2" width="14.0" height="1.0" class="body up"/><rect x="203.5" y="227.0" width="14.0" height="8.0" class="vol up"/><line x1="543.5" y1="165.8" x2="543.5" y2="165.8" class="wick up"/><rect x="536.5" y="165.8" width="14.0" height="1.0" class="body up"/><rect x="536.5" y="195.0" width="14.0" height="40.0" class="vol up"/><text x="210.5" y="252.0" class="axis" text-anchor="middle">07-02</text><text x="543.5" y="252.0" class="axis" text-anchor="middle">07-03</text></svg>
+</section>
+<section class="item" id="ember_gland">
+<h2><a href="../../items/misc/ember_gland.html">Ember Gland</a></h2>
+<div class="stat">last 114 · &#43;0.0% · H 114 / L 114 · vol 2 · 1d</div>
+<svg viewBox="0 0 720 260" class="chart" role="img" aria-label="daily price and volume"><line x1="44.0" y1="10.0" x2="710.0" y2="10.0" class="grid"/><text x="4" y="13.0" class="axis">125</text><line x1="44.0" y1="52.5" x2="710.0" y2="52.5" class="grid"/><text x="4" y="55.5" class="axis">120</text><line x1="44.0" y1="95.0" x2="710.0" y2="95.0" class="grid"/><text x="4" y="98.0" class="axis">114</text><line x1="44.0" y1="137.5" x2="710.0" y2="137.5" class="grid"/><text x="4" y="140.5" class="axis">108</text><line x1="44.0" y1="180.0" x2="710.0" y2="180.0" class="grid"/><text x="4" y="183.0" class="axis">103</text><line x1="377.0" y1="95.0" x2="377.0" y2="95.0" class="wick up"/><rect x="370.0" y="95.0" width="14.0" height="1.0" class="body up"/><rect x="370.0" y="195.0" width="14.0" height="40.0" class="vol up"/><text x="377.0" y="252.0" class="axis" text-anchor="middle">07-03</text></svg>
+</section>
+<section class="item" id="caustic_sac">
+<h2><a href="../../items/misc/caustic_sac.html">Caustic Sac</a></h2>
+<div class="stat">last 172 · &#43;0.0% · H 172 / L 172 · vol 1 · 1d</div>
+<svg viewBox="0 0 720 260" class="chart" role="img" aria-label="daily price and volume"><line x1="44.0" y1="10.0" x2="710.0" y2="10.0" class="grid"/><text x="4" y="13.0" class="axis">189</text><line x1="44.0" y1="52.5" x2="710.0" y2="52.5" class="grid"/><text x="4" y="55.5" class="axis">181</text><line x1="44.0" y1="95.0" x2="710.0" y2="95.0" class="grid"/><text x="4" y="98.0" class="axis">172</text><line x1="44.0" y1="137.5" x2="710.0" y2="137.5" class="grid"/><text x="4" y="140.5" class="axis">163</text><line x1="44.0" y1="180.0" x2="710.0" y2="180.0" class="grid"/><text x="4" y="183.0" class="axis">155</text><line x1="377.0" y1="95.0" x2="377.0" y2="95.0" class="wick up"/><rect x="370.0" y="95.0" width="14.0" height="1.0" class="body up"/><rect x="370.0" y="195.0" width="14.0" height="40.0" class="vol up"/><text x="377.0" y="252.0" class="axis" text-anchor="middle">07-03</text></svg>
+</section>
+</body>
+</html>

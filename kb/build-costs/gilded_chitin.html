@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gilded Chitin — Build Cost — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+ table{border-collapse:collapse;font-size:.85rem;margin-top:1rem} th,td{border:1px solid var(--border2);padding:.3rem .5rem;text-align:right}
+ th:first-child,td:first-child{text-align:left} .infeasible{color:var(--muted2)} .pos{color:var(--up)} .neg{color:var(--down)} a{color:var(--link)}
+ .legend{font-size:.8rem;color:var(--muted);max-width:70ch}
+ .scrollx{overflow-x:auto}
+ .banner{background:var(--panel2);border:1px solid var(--border);border-left:4px solid var(--accent2);border-radius:6px;padding:.7rem .9rem;margin:1rem 0;max-width:80ch;font-size:.9rem}
+ .banner strong{color:var(--accent)} .banner code{color:var(--text)}
+</style>
+</head>
+<body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
+<p><a href="../build-costs/">← Build Cost Matrix</a></p>
+<h1>Gilded Chitin <small>(item)</small></h1>
+<p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
+
+<p><a href="../items/misc/gilded_chitin.html">View Gilded Chitin in the catalog →</a></p>
+
+<h2>Bill of Materials <small>(raw inputs)</small></h2>
+
+<table>
+<thead><tr><th>Material</th><th>Qty</th></tr></thead>
+<tbody>
+<tr><td><a href="../items/misc/gilded_chitin.html">Gilded Chitin</a></td><td>1</td></tr>
+</tbody>
+</table>
+
+
+
+
+<div class="banner">
+⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing input with no depth: <code>Gilded Chitin</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+</div>
+
+<h2>Build cost by station</h2>
+<p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
+ <strong>@0</strong> is local; <strong>+1/+2/+3</strong> pool inputs from stations within that many jumps (cheapest sourcing). When a build can't complete, the cell shows how many of its inputs are sourceable within that radius (e.g. <code>11/16</code>); an em-dash means the station has no market there or the mode does not apply.</p>
+<div class="scrollx">
+<table>
+<thead><tr><th>Station</th><th>Empire</th><th>BoM @0</th><th>BoM +1</th><th>BoM +2</th><th>BoM +3</th><th>Recipe @0</th><th>Recipe +1</th><th>Recipe +2</th><th>Recipe +3</th><th>Recipe used (@0)</th><th>Savings</th><th>Profit</th></tr></thead>
+<tbody>
+
+<tr>
+ <td>iron_reach_mining_colony</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>grand_exchange</td><td>nebula</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>unknown_edge_waystation</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>sol_central</td><td>solarian</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>the_core</td><td>voidborn</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>cargo_lanes_freight_depot</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>the_rampart_checkpoint</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>sirius_observatory_station</td><td>solarian</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>war_citadel</td><td>crimson</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>alpha_centauri_colonial_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>blood_forge_smelting_works</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>deep_range_outpost</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>factory_belt_manufacturing_hub</td><td>nebula</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>first_step_memorial_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>gold_run_extraction_hub</td><td>nebula</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>ramens_rest</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>node_alpha_processing_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>node_gamma_relay_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>nova_terra_central</td><td>solarian</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>procyon_colonial_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>starfall_salvage_station</td><td>outerrim</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>synchrony_hub</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>the_anvil_arsenal</td><td>crimson</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>the_crucible_garrison</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>the_experiment_research_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>the_levy_customs_station</td><td>nebula</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>traders_rest_resort_station</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>treasure_cache_trading_post</td><td>nebula</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>void_gate_outpost</td><td>outerrim</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">—</td>
+ <td>—</td><td>—</td><td>—</td>
+ <td></td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+</body>
+</html>
