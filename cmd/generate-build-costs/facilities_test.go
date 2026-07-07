@@ -181,3 +181,103 @@ func TestBuildFacilityView(t *testing.T) {
 		t.Fatalf("exotic name = %q", byID["exotic"].Name)
 	}
 }
+
+func TestFacilityViewVM_CoverageAndPricedNote(t *testing.T) {
+	// 3 components, 2 priced, galaxy covers 2 of 3 → infeasible with coverage note.
+	v := FacilityView{
+		MktCount: 3, MktPriced: 2, MktTotal: 850,
+		GalFeasible: false, GalCovered: 2,
+		Components: []FacilityComponentCost{
+			{Name: "Titanium Ore", Href: "../../../items/ore/titanium_ore.html", Qty: 8, MktUnit: 100, HasMkt: true, GalUnit: 90, GalFull: true},
+			{Name: "Exotic", Qty: 5}, // unpriced, not full
+		},
+	}
+	vm := facilityViewVM("BoM (ore)", v)
+	if vm.Title != "BoM (ore)" || vm.Empty {
+		t.Fatalf("vm header = %+v", vm)
+	}
+	if vm.MktBuildCost != "850.00" || vm.MktNote != "(2/3 priced)" {
+		t.Fatalf("mkt = %q note %q", vm.MktBuildCost, vm.MktNote)
+	}
+	if !vm.GalInfeasible || vm.GalBuildCost != "2/3 covered" {
+		t.Fatalf("gal = %q infeasible=%v", vm.GalBuildCost, vm.GalInfeasible)
+	}
+	c0 := vm.Components[0]
+	if c0.MktUnit != "100.00" || c0.MktTotal != "800.00" || c0.GalUnit != "90.00" || c0.GalTotal != "720.00" || c0.GalInfeasible {
+		t.Fatalf("component0 = %+v", c0)
+	}
+	c1 := vm.Components[1]
+	if c1.MktUnit != "—" || c1.GalUnit != "—" || !c1.GalInfeasible {
+		t.Fatalf("component1 = %+v", c1)
+	}
+}
+
+func TestBuildFacilityPages_GroupsSortTOC(t *testing.T) {
+	recs := []FacilityRec{
+		{ID: "b_forge", Name: "B Forge", Category: "production", RecipeID: "r_wpn", Level: 2,
+			Build: []buildcost.Requirement{{ItemID: "iron", Qty: 2}}},
+		{ID: "a_forge", Name: "A Forge", Category: "production", RecipeID: "r_wpn", Level: 1,
+			Build: []buildcost.Requirement{{ItemID: "iron", Qty: 1}}},
+		{ID: "depot", Name: "Depot", Category: "service",
+			Build: []buildcost.Requirement{{ItemID: "iron", Qty: 3}}},
+	}
+	facBoM := map[string][]buildcost.Requirement{
+		"a_forge": {{ItemID: "iron_ore", Qty: 2}},
+		"b_forge": {{ItemID: "iron_ore", Qty: 4}},
+		"depot":   {{ItemID: "iron_ore", Qty: 6}},
+	}
+	recipeOut := map[string]string{"r_wpn": "railgun"}
+	names := map[string]string{"railgun": "Railgun", "iron": "Iron", "iron_ore": "Iron Ore"}
+	cats := map[string]string{"railgun": "weapon", "iron": "component", "iron_ore": "ore"}
+	sellVWAP := map[string]float64{"iron": 10, "iron_ore": 5}
+	galaxy := &buildcost.Book{Sell: map[string]buildcost.Ladder{
+		"iron":     {{Price: 9, Qty: 100}},
+		"iron_ore": {{Price: 4, Qty: 100}},
+	}, BestBuy: map[string]float64{}}
+
+	pages, summaries := buildFacilityPages(recs, facBoM, recipeOut, names, cats, sellVWAP, galaxy)
+
+	// Two groups: weapon (2), service (1); summaries sorted by group name.
+	if len(summaries) != 2 || summaries[0].Group != "service" || summaries[1].Group != "weapon" {
+		t.Fatalf("summaries = %+v", summaries)
+	}
+	if summaries[1].Count != 2 || summaries[1].Href != "weapon/" {
+		t.Fatalf("weapon summary = %+v", summaries[1])
+	}
+	var weapon FacilityGroupPage
+	for _, p := range pages {
+		if p.Group == "weapon" {
+			weapon = p
+		}
+	}
+	// Facilities alphabetical within the group.
+	if len(weapon.Facilities) != 2 || weapon.Facilities[0].ID != "a_forge" {
+		t.Fatalf("weapon facilities = %+v", weapon.Facilities)
+	}
+	f := weapon.Facilities[0]
+	if f.Href != "../../../facilities/production/a_forge.html" {
+		t.Fatalf("detail href = %q", f.Href)
+	}
+	if f.Produces != "Railgun" {
+		t.Fatalf("produces = %q", f.Produces)
+	}
+	if f.BoM.Title != "BoM (ore)" || f.Recipe.Title != "Recipe (components)" {
+		t.Fatalf("view titles = %q / %q", f.BoM.Title, f.Recipe.Title)
+	}
+	// TOC on every page lists all groups with the active one flagged and links to siblings.
+	var activeService bool
+	for _, e := range weapon.TOC {
+		if e.Group == "weapon" && !e.Active {
+			t.Fatalf("weapon TOC entry should be active")
+		}
+		if e.Group == "service" {
+			activeService = e.Active
+			if e.Href != "../service/" {
+				t.Fatalf("service TOC href = %q", e.Href)
+			}
+		}
+	}
+	if activeService {
+		t.Fatalf("service should not be active on the weapon page")
+	}
+}

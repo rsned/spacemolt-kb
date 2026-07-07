@@ -227,3 +227,128 @@ func buildFacilityView(reqs []buildcost.Requirement, sellVWAP map[string]float64
 	v.GalTotal, v.GalFeasible, v.GalCovered = gr.Cost, gr.Feasible, gr.Covered
 	return v
 }
+
+// ComponentVM is a rendered component row.
+type ComponentVM struct {
+	Name, Href, Qty   string
+	MktUnit, MktTotal string
+	GalUnit, GalTotal string
+	GalInfeasible     bool
+}
+
+// ViewVM is a rendered cost view (BoM or Recipe).
+type ViewVM struct {
+	Title         string
+	Components    []ComponentVM
+	MktBuildCost  string
+	MktNote       string // "(k/N priced)" when some components lack a price
+	GalBuildCost  string // money when feasible, else "N/M covered"
+	GalInfeasible bool
+	Empty         bool
+}
+
+// FacilityEntryVM is one facility section on a group page.
+type FacilityEntryVM struct {
+	ID, Name, Href, Produces string
+	Level                    int
+	BoM, Recipe              ViewVM
+}
+
+// FacilityTOCEntry is one entry in the horizontal cross-group TOC.
+type FacilityTOCEntry struct {
+	Group, Href string
+	Count       int
+	Active      bool
+}
+
+// FacilityGroupPage is a rendered per-group page.
+type FacilityGroupPage struct {
+	Group, Heading string
+	Facilities     []FacilityEntryVM
+	TOC            []FacilityTOCEntry
+}
+
+// FacilityGroupSummary is a landing-page card.
+type FacilityGroupSummary struct {
+	Group, Href string
+	Count       int
+}
+
+// facilityViewVM converts a numeric view into rendered strings, applying the
+// em-dash for unpriced/uncovered cells, a "k/N priced" note when MKT-AVG is
+// partial, and an "N/M covered" galaxy total when depth is short.
+func facilityViewVM(title string, v FacilityView) ViewVM {
+	vm := ViewVM{Title: title, Empty: len(v.Components) == 0}
+	for _, c := range v.Components {
+		cvm := ComponentVM{Name: c.Name, Href: c.Href, Qty: qtyStr(c.Qty), MktUnit: emDash, MktTotal: emDash, GalUnit: emDash, GalTotal: emDash}
+		if c.HasMkt {
+			cvm.MktUnit = fmtMoney(c.MktUnit)
+			cvm.MktTotal = fmtMoney(c.MktUnit * c.Qty)
+		}
+		if c.GalFull {
+			cvm.GalUnit = fmtMoney(c.GalUnit)
+			cvm.GalTotal = fmtMoney(c.GalUnit * c.Qty)
+		} else {
+			cvm.GalInfeasible = true
+		}
+		vm.Components = append(vm.Components, cvm)
+	}
+	vm.MktBuildCost = fmtMoney(v.MktTotal)
+	if v.MktPriced < v.MktCount {
+		vm.MktNote = fmt.Sprintf("(%d/%d priced)", v.MktPriced, v.MktCount)
+	}
+	if v.GalFeasible {
+		vm.GalBuildCost = fmtMoney(v.GalTotal)
+	} else {
+		vm.GalBuildCost = fmt.Sprintf("%d/%d covered", v.GalCovered, v.MktCount)
+		vm.GalInfeasible = true
+	}
+	return vm
+}
+
+// facDetailHref links to a facility's existing KB detail page from a group page
+// (three levels up to kb/, then facilities/<category>/<id>.html).
+func facDetailHref(f FacilityRec) string {
+	return "../../../facilities/" + f.Category + "/" + f.ID + ".html"
+}
+
+// buildFacilityPages groups the facilities, builds each facility's two cost
+// views, and assembles the per-group pages (facilities alphabetical within a
+// group) plus the landing summaries. Both outputs are group-name sorted; every
+// page carries the full cross-group TOC with its own group flagged active.
+func buildFacilityPages(recs []FacilityRec, facBoM map[string][]buildcost.Requirement, recipeOut, names, cats map[string]string, sellVWAP map[string]float64, galaxy *buildcost.Book) ([]FacilityGroupPage, []FacilityGroupSummary) {
+	grouped := map[string][]FacilityEntryVM{}
+	for _, f := range recs {
+		g := facilityGroup(f, recipeOut, cats)
+		entry := FacilityEntryVM{ID: f.ID, Name: f.Name, Href: facDetailHref(f), Level: f.Level}
+		if out := recipeOut[f.RecipeID]; out != "" && f.Category == "production" {
+			entry.Produces = compName(out, names)
+		}
+		entry.BoM = facilityViewVM("BoM (ore)", buildFacilityView(facBoM[f.ID], sellVWAP, galaxy, names, cats))
+		entry.Recipe = facilityViewVM("Recipe (components)", buildFacilityView(f.Build, sellVWAP, galaxy, names, cats))
+		grouped[g] = append(grouped[g], entry)
+	}
+
+	groupNames := make([]string, 0, len(grouped))
+	for g := range grouped {
+		groupNames = append(groupNames, g)
+	}
+	sort.Strings(groupNames)
+
+	summaries := make([]FacilityGroupSummary, 0, len(groupNames))
+	for _, g := range groupNames {
+		summaries = append(summaries, FacilityGroupSummary{Group: g, Href: g + "/", Count: len(grouped[g])})
+	}
+
+	pages := make([]FacilityGroupPage, 0, len(groupNames))
+	for _, g := range groupNames {
+		facs := grouped[g]
+		sort.Slice(facs, func(i, j int) bool { return facs[i].Name < facs[j].Name })
+		toc := make([]FacilityTOCEntry, 0, len(groupNames))
+		for _, other := range groupNames {
+			toc = append(toc, FacilityTOCEntry{Group: other, Href: "../" + other + "/", Count: len(grouped[other]), Active: other == g})
+		}
+		pages = append(pages, FacilityGroupPage{Group: g, Heading: g, Facilities: facs, TOC: toc})
+	}
+	return pages, summaries
+}
