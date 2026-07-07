@@ -394,15 +394,15 @@ func TestBuildPages_GroupSortAndCards(t *testing.T) {
 
 	pages, cards := buildPages(candles, names, categories)
 
-	// Cards sorted by category name: other, ore, weapon.
+	// Cards sorted by category name (bytewise): "ore" < "other" < "weapon".
 	if len(cards) != 3 {
 		t.Fatalf("want 3 cards, got %d: %+v", len(cards), cards)
 	}
-	if cards[0].Category != "other" || cards[1].Category != "ore" || cards[2].Category != "weapon" {
+	if cards[0].Category != "ore" || cards[1].Category != "other" || cards[2].Category != "weapon" {
 		t.Fatalf("card order = %v/%v/%v", cards[0].Category, cards[1].Category, cards[2].Category)
 	}
-	if cards[1].Count != 2 || cards[1].VolStr != "400" {
-		t.Errorf("ore card = %+v, want Count=2 VolStr=400", cards[1])
+	if cards[0].Count != 2 || cards[0].VolStr != "400" {
+		t.Errorf("ore card = %+v, want Count=2 VolStr=400", cards[0])
 	}
 
 	// Find the ore page; items sorted by total volume desc -> gold(300) before iron(100).
