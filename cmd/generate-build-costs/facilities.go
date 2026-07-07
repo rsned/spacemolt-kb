@@ -161,3 +161,69 @@ func facilityGroup(f FacilityRec, recipeOut, itemCat map[string]string) string {
 	}
 	return "other"
 }
+
+// FacilityComponentCost is one component within a cost view, priced two ways.
+type FacilityComponentCost struct {
+	ItemID  string
+	Name    string
+	Href    string // items page link, or "" when uncategorized
+	Qty     float64
+	MktUnit float64 // sell VWAP per unit
+	HasMkt  bool
+	GalUnit float64 // average per-unit fill price from the galaxy depth walk
+	GalFull bool    // galaxy depth fully covers the required qty
+}
+
+// FacilityView is one costing view (BoM or Recipe) of constructing a facility.
+type FacilityView struct {
+	Components  []FacilityComponentCost
+	MktTotal    float64 // sum over priced components
+	MktPriced   int     // components with a sell VWAP
+	MktCount    int     // total components
+	GalTotal    float64 // pooled galaxy cost (partial when infeasible)
+	GalFeasible bool    // every component fully covered by galaxy depth
+	GalCovered  int     // components fully covered
+}
+
+// facItemHref returns the relative link to an item's KB catalog page from a
+// facility group page (kb/build-costs/facilities/<group>/index.html → three
+// levels up), or "" when the item's category is unknown.
+func facItemHref(id string, cats map[string]string) string {
+	cat := cats[id]
+	if cat == "" {
+		return ""
+	}
+	return "../../../items/" + cat + "/" + id + ".html"
+}
+
+// compName returns an item's display name, falling back to its id.
+func compName(id string, names map[string]string) string {
+	if n := names[id]; n != "" {
+		return n
+	}
+	return id
+}
+
+// buildFacilityView prices a requirement set two ways: MKT-AVG (sell VWAP per
+// unit, summed over components that have a price) and Galaxy (pooled sell-order
+// depth walked cheapest-first). Coverage is reported when depth is short.
+func buildFacilityView(reqs []buildcost.Requirement, sellVWAP map[string]float64, galaxy *buildcost.Book, names, cats map[string]string) FacilityView {
+	v := FacilityView{MktCount: len(reqs)}
+	for _, r := range reqs {
+		c := FacilityComponentCost{ItemID: r.ItemID, Qty: r.Qty, Name: compName(r.ItemID, names), Href: facItemHref(r.ItemID, cats)}
+		if u, ok := sellVWAP[r.ItemID]; ok && u > 0 {
+			c.MktUnit, c.HasMkt = u, true
+			v.MktTotal += u * r.Qty
+			v.MktPriced++
+		}
+		w := galaxy.Walk(r.ItemID, r.Qty)
+		if w.Shortfall <= 0 && w.Covered > 0 {
+			c.GalFull = true
+			c.GalUnit = w.Cost / w.Covered
+		}
+		v.Components = append(v.Components, c)
+	}
+	gr := galaxy.PriceRequirements(reqs)
+	v.GalTotal, v.GalFeasible, v.GalCovered = gr.Cost, gr.Feasible, gr.Covered
+	return v
+}

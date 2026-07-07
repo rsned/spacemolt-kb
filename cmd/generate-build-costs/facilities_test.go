@@ -132,3 +132,52 @@ func TestFacilityGroup(t *testing.T) {
 		})
 	}
 }
+
+func TestBuildFacilityView(t *testing.T) {
+	reqs := []buildcost.Requirement{
+		{ItemID: "titanium_ore", Qty: 8},
+		{ItemID: "copper_ore", Qty: 2},
+		{ItemID: "exotic", Qty: 5}, // no VWAP, thin galaxy depth
+	}
+	sellVWAP := map[string]float64{"titanium_ore": 100, "copper_ore": 25}
+	galaxy := &buildcost.Book{Sell: map[string]buildcost.Ladder{
+		"titanium_ore": {{Price: 90, Qty: 100}},
+		"copper_ore":   {{Price: 20, Qty: 100}},
+		"exotic":       {{Price: 5, Qty: 2}}, // only 2 of 5 available
+	}, BestBuy: map[string]float64{}}
+	names := map[string]string{"titanium_ore": "Titanium Ore", "copper_ore": "Copper Ore", "exotic": "Exotic"}
+	cats := map[string]string{"titanium_ore": "ore", "copper_ore": "ore"} // exotic uncategorized
+
+	v := buildFacilityView(reqs, sellVWAP, galaxy, names, cats)
+
+	if v.MktCount != 3 || v.MktPriced != 2 {
+		t.Fatalf("mkt count/priced = %d/%d, want 3/2", v.MktCount, v.MktPriced)
+	}
+	// MKT total over priced components only: 8*100 + 2*25 = 850.
+	if v.MktTotal != 850 {
+		t.Fatalf("MktTotal = %v, want 850", v.MktTotal)
+	}
+	// Galaxy is infeasible (exotic short 3), covered 2 of 3 components.
+	if v.GalFeasible || v.GalCovered != 2 {
+		t.Fatalf("galaxy feasible=%v covered=%d, want false/2", v.GalFeasible, v.GalCovered)
+	}
+	byID := map[string]FacilityComponentCost{}
+	for _, c := range v.Components {
+		byID[c.ItemID] = c
+	}
+	if !byID["titanium_ore"].HasMkt || byID["titanium_ore"].MktUnit != 100 {
+		t.Fatalf("titanium mkt = %+v", byID["titanium_ore"])
+	}
+	if byID["titanium_ore"].Href != "../../../items/ore/titanium_ore.html" {
+		t.Fatalf("titanium href = %q", byID["titanium_ore"].Href)
+	}
+	if !byID["titanium_ore"].GalFull || byID["titanium_ore"].GalUnit != 90 {
+		t.Fatalf("titanium galaxy = %+v", byID["titanium_ore"])
+	}
+	if byID["exotic"].HasMkt || byID["exotic"].GalFull || byID["exotic"].Href != "" {
+		t.Fatalf("exotic = %+v (want no mkt, not full, no href)", byID["exotic"])
+	}
+	if byID["exotic"].Name != "Exotic" {
+		t.Fatalf("exotic name = %q", byID["exotic"].Name)
+	}
+}
