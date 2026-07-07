@@ -311,13 +311,17 @@ func fmtCompact(v float64) string {
 	if neg {
 		v = -v
 	}
+	// Thresholds are nudged below each round boundary so a value that would round
+	// UP to "1000" in the lower unit promotes to the next unit instead (e.g.
+	// 999,999 → "1.0M", not "1000K"). B/M carry one decimal (boundary 999.95×),
+	// K and bare are whole (boundary 999.5×).
 	var s string
 	switch {
-	case v >= 1e9:
+	case v >= 999_950_000:
 		s = strconv.FormatFloat(v/1e9, 'f', 1, 64) + "B"
-	case v >= 1e6:
+	case v >= 999_500:
 		s = strconv.FormatFloat(v/1e6, 'f', 1, 64) + "M"
-	case v >= 1e3:
+	case v >= 999.5:
 		s = strconv.FormatFloat(v/1e3, 'f', 0, 64) + "K"
 	default:
 		s = strconv.FormatFloat(v, 'f', 0, 64)

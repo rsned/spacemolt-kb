@@ -309,6 +309,10 @@ func TestFmtCompact(t *testing.T) {
 		250:           "250",
 		0:             "0",
 		-1_500_000:    "-1.5M",
+		// Boundary cases: must promote to the next unit, not render "1000K"/"1000.0M".
+		999_999:     "1.0M",
+		999_999_999: "1.0B",
+		999:         "999",
 	}
 	for in, want := range cases {
 		if got := fmtCompact(in); got != want {
