@@ -2,6 +2,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -98,4 +99,47 @@ func loadFacilityCatalog(root string) ([]FacilityRec, error) {
 		out = append(out, rec)
 	}
 	return out, nil
+}
+
+// loadFacilityBoM returns facility id -> flattened base-material requirements,
+// from bill_of_materials rows with target_type='facility'.
+func loadFacilityBoM(craftDB *sql.DB) (map[string][]buildcost.Requirement, error) {
+	rows, err := craftDB.Query(`SELECT target_id, base_item_id, quantity
+	                            FROM bill_of_materials WHERE target_type='facility'
+	                            ORDER BY target_id, base_item_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	out := map[string][]buildcost.Requirement{}
+	for rows.Next() {
+		var id, base string
+		var qty float64
+		if err := rows.Scan(&id, &base, &qty); err != nil {
+			return nil, err
+		}
+		out[id] = append(out[id], buildcost.Requirement{ItemID: base, Qty: qty})
+	}
+	return out, rows.Err()
+}
+
+// loadRecipeOutputItem returns recipe id -> its first output item id (ordered),
+// used to resolve what a production facility makes for grouping.
+func loadRecipeOutputItem(craftDB *sql.DB) (map[string]string, error) {
+	rows, err := craftDB.Query(`SELECT recipe_id, item_id FROM recipe_outputs ORDER BY recipe_id, item_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	out := map[string]string{}
+	for rows.Next() {
+		var rid, iid string
+		if err := rows.Scan(&rid, &iid); err != nil {
+			return nil, err
+		}
+		if _, seen := out[rid]; !seen {
+			out[rid] = iid
+		}
+	}
+	return out, rows.Err()
 }

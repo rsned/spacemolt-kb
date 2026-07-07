@@ -73,3 +73,36 @@ func TestLoadFacilityCatalog(t *testing.T) {
 		t.Fatalf("depot = %+v", byID["depot"])
 	}
 }
+
+func TestLoadFacilityBoM(t *testing.T) {
+	db := newCraftTestDB(t)
+	bom, err := loadFacilityBoM(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := bom["widget"]; ok {
+		t.Fatal("widget is an item, must not appear in facility BoM")
+	}
+	reqs := bom["forge"]
+	if len(reqs) != 2 {
+		t.Fatalf("forge BoM = %+v", reqs)
+	}
+	got := map[string]float64{}
+	for _, r := range reqs {
+		got[r.ItemID] = r.Qty
+	}
+	if got["titanium_ore"] != 8 || got["copper_ore"] != 2 {
+		t.Fatalf("forge BoM quantities = %+v", got)
+	}
+}
+
+func TestLoadRecipeOutputItem(t *testing.T) {
+	db := newCraftTestDB(t)
+	out, err := loadRecipeOutputItem(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out["forge_ghost_rounds"] != "ghost_rounds" {
+		t.Fatalf("recipe output = %q, want ghost_rounds", out["forge_ghost_rounds"])
+	}
+}
