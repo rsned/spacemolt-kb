@@ -38,18 +38,29 @@ func BuildRecipeMaps(recipes map[string]*Recipe) (map[string][]*Recipe, error) {
 	return itemToRecipes, nil
 }
 
-// SelectRecipe chooses the optimal recipe for an item.
+// SelectRecipe chooses the optimal recipe for an item using only its structure
+// (no market awareness). See selectRecipe for the filtering layers.
+func SelectRecipe(itemToRecipes map[string][]*Recipe, itemID string) *Recipe {
+	return selectRecipe(itemToRecipes, itemID, nil)
+}
+
+// selectRecipe chooses the optimal recipe for an item.
 //
 // Filtering layers, applied in order so that each falls back to the next when
 // it would eliminate every candidate:
 //  1. drop packaging recipes (wrap_* / unwrap_*) — these form X↔contained_X
 //     cycles in the data and are never the right BoM source.
 //  2. drop salvage-input recipes — non-primary production paths.
-//  3. of what remains, pick the recipe with the largest total output quantity.
+//  3. when sourceable is non-nil, drop recipes with an input that cannot be
+//     obtained (not market-available and not itself craftable-from-sourceable).
+//     This stops a shorter recipe path that terminates in an unbuyable item
+//     (e.g. control_node via superfluid_vial, which has no market supply) from
+//     being chosen over a longer path whose inputs can actually be sourced.
+//  4. of what remains, pick the recipe with the largest total output quantity.
 //
-// If both filters are empty, falls back to the raw recipe list before picking
-// by max output.
-func SelectRecipe(itemToRecipes map[string][]*Recipe, itemID string) *Recipe {
+// Each layer is a fallback: if it would eliminate every candidate it is
+// skipped, so a fully-unsourceable item still resolves to some recipe.
+func selectRecipe(itemToRecipes map[string][]*Recipe, itemID string, sourceable map[string]bool) *Recipe {
 	recipes := itemToRecipes[itemID]
 	if len(recipes) == 0 {
 		return nil
@@ -60,9 +71,14 @@ func SelectRecipe(itemToRecipes map[string][]*Recipe, itemID string) *Recipe {
 		candidates = recipes
 	}
 
-	nonSalvage := filterRecipes(candidates, func(r *Recipe) bool { return !UsesSalvage(r) })
-	if len(nonSalvage) > 0 {
+	if nonSalvage := filterRecipes(candidates, func(r *Recipe) bool { return !UsesSalvage(r) }); len(nonSalvage) > 0 {
 		candidates = nonSalvage
+	}
+
+	if sourceable != nil {
+		if srcOK := filterRecipes(candidates, func(r *Recipe) bool { return allInputsSourceable(r, sourceable) }); len(srcOK) > 0 {
+			candidates = srcOK
+		}
 	}
 
 	var bestRecipe *Recipe
@@ -79,6 +95,58 @@ func SelectRecipe(itemToRecipes map[string][]*Recipe, itemID string) *Recipe {
 	}
 
 	return bestRecipe
+}
+
+// allInputsSourceable reports whether every input of r is in the sourceable set.
+func allInputsSourceable(r *Recipe, sourceable map[string]bool) bool {
+	for _, in := range r.Inputs {
+		if !sourceable[in.ItemID] {
+			return false
+		}
+	}
+	return true
+}
+
+// ComputeSourceable returns the set of item IDs that can actually be obtained.
+//
+// An item is sourceable if it is market-available on its own, or a
+// non-packaging recipe produces it from inputs that are all (recursively)
+// sourceable. isTerminal reports whether the BoM flattener treats an item as a
+// base material (no recipe expansion); a terminal item is sourceable only when
+// market-available, mirroring the flattener so selection and pricing agree.
+// isTerminal may be nil, in which case every item is allowed a recipe path.
+//
+// The result is a least-fixpoint, computed by iterating to convergence: each
+// pass can only add items, and there are finitely many, so it terminates.
+func ComputeSourceable(itemToRecipes map[string][]*Recipe, marketAvailable map[string]bool, isTerminal func(string) bool) map[string]bool {
+	sourceable := make(map[string]bool, len(marketAvailable))
+	for id, ok := range marketAvailable {
+		if ok {
+			sourceable[id] = true
+		}
+	}
+	for {
+		changed := false
+		for item, recipes := range itemToRecipes {
+			if sourceable[item] || (isTerminal != nil && isTerminal(item)) {
+				continue
+			}
+			for _, r := range recipes {
+				if IsPackagingRecipe(r) {
+					continue
+				}
+				if allInputsSourceable(r, sourceable) {
+					sourceable[item] = true
+					changed = true
+					break
+				}
+			}
+		}
+		if !changed {
+			break
+		}
+	}
+	return sourceable
 }
 
 func filterRecipes(in []*Recipe, keep func(*Recipe) bool) []*Recipe {

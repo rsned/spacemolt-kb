@@ -509,10 +509,54 @@ func loadBoMFromDB(db *sql.DB, items map[string]*Item, ships []*Ship, facilities
 	return nil
 }
 
+// loadMarketAvailable returns the set of item IDs with sell-side trade history
+// in the market DB — the items a builder can actually buy inputs for. It drives
+// market-aware BoM recipe selection. On any problem (empty path, open/query
+// error, no rows) it returns nil, and selection falls back to structure-only.
+func loadMarketAvailable(path string) map[string]bool {
+	if path == "" {
+		return nil
+	}
+	mdb, err := sql.Open("sqlite", path)
+	if err != nil {
+		log.Printf("warning: open market-db %q: %v; BoM recipe selection will not be market-aware", path, err)
+		return nil
+	}
+	defer func() { _ = mdb.Close() }()
+
+	rows, err := mdb.Query(`SELECT item_id FROM market_ohlcv WHERE side='sell' GROUP BY item_id HAVING SUM(volume) > 0`)
+	if err != nil {
+		log.Printf("warning: query market_ohlcv in %q: %v; BoM recipe selection will not be market-aware", path, err)
+		return nil
+	}
+	defer func() { _ = rows.Close() }()
+
+	set := make(map[string]bool)
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			log.Printf("warning: scan market item: %v", err)
+			return nil
+		}
+		set[id] = true
+	}
+	if err := rows.Err(); err != nil {
+		log.Printf("warning: iterate market items: %v; BoM recipe selection will not be market-aware", err)
+		return nil
+	}
+	if len(set) == 0 {
+		log.Printf("warning: market-db %q has no sell-side items; BoM recipe selection will not be market-aware", path)
+		return nil
+	}
+	log.Printf("market-aware BoM selection: %d sell-side items loaded from %s", len(set), path)
+	return set
+}
+
 func main() {
 	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
 	systemsAll := flag.Bool("systems-only", false, "regenerate only the systems section (all system pages + jump routes)")
 	resourcesOnly := flag.Bool("resources-only", false, "regenerate only the resources index page")
+	marketDBPath := flag.String("market-db", "../spacemolt/data/market.db", "market DB for market-aware BoM recipe selection (empty to disable)")
 	flag.Parse()
 
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
@@ -697,7 +741,8 @@ func main() {
 		log.Fatalf("migrate BOM schema: %v", err)
 	}
 
-	calculator, err := bom.NewCalculator(db, bomRecipes, bomItems)
+	marketAvailable := loadMarketAvailable(*marketDBPath)
+	calculator, err := bom.NewCalculatorWithMarket(db, bomRecipes, bomItems, marketAvailable)
 	if err != nil {
 		log.Fatalf("initialize BOM calculator: %v", err)
 	}

@@ -205,3 +205,112 @@ func TestSelectRecipe_PackagingOnlyFallback(t *testing.T) {
 		t.Errorf("expected unwrap_widget as last-resort fallback, got %v", selected)
 	}
 }
+
+// TestSelectRecipe_PrefersSourceable reproduces the control_node regression:
+// three recipes produce the item, two of them tie on max output quantity, but
+// one of those ties (superfluid_winding) requires an input with no market
+// supply. With a sourceability set, the buyable path must win even though it is
+// not the lexicographically- or iteration-first max-output recipe.
+func TestSelectRecipe_PrefersSourceable(t *testing.T) {
+	recipes := map[string]*Recipe{
+		// Unsourceable: input has no market supply. Ties on output qty (2).
+		"superfluid_winding": {
+			ID:      "superfluid_winding",
+			Inputs:  []RecipeItem{{ItemID: "superfluid_vial", Quantity: 2}},
+			Outputs: []RecipeItem{{ItemID: "control_node", Quantity: 2}},
+		},
+		// Unsourceable: input has no market supply. Fewer outputs (1).
+		"silica_lens_fabrication": {
+			ID:      "silica_lens_fabrication",
+			Inputs:  []RecipeItem{{ItemID: "silica_lens", Quantity: 2}},
+			Outputs: []RecipeItem{{ItemID: "control_node", Quantity: 1}},
+		},
+		// Sourceable: every input is market-available. Ties on output qty (2).
+		"assemble_control_node": {
+			ID:      "assemble_control_node",
+			Inputs:  []RecipeItem{{ItemID: "circuit_board", Quantity: 2}, {ItemID: "copper_wiring", Quantity: 4}},
+			Outputs: []RecipeItem{{ItemID: "control_node", Quantity: 2}},
+		},
+	}
+	itemToRecipes, _ := BuildRecipeMaps(recipes)
+	sourceable := map[string]bool{"circuit_board": true, "copper_wiring": true}
+
+	got := selectRecipe(itemToRecipes, "control_node", sourceable)
+	if got == nil || got.ID != "assemble_control_node" {
+		t.Errorf("with sourceability, expected assemble_control_node, got %v", got)
+	}
+
+	// Without a sourceability set, selection is structure-only: a max-output
+	// recipe wins (either 2-output tie), never the 1-output silica recipe.
+	structOnly := SelectRecipe(itemToRecipes, "control_node")
+	if structOnly == nil || structOnly.Outputs[0].Quantity != 2 {
+		t.Errorf("structure-only selection should pick a max-output (2) recipe, got %v", structOnly)
+	}
+}
+
+// TestSelectRecipe_SourceableFallback verifies that when NO recipe is fully
+// sourceable, the layer is skipped and the item still resolves (to the
+// max-output recipe) rather than returning nil.
+func TestSelectRecipe_SourceableFallback(t *testing.T) {
+	recipes := map[string]*Recipe{
+		"make_exotic_a": {
+			ID:      "make_exotic_a",
+			Inputs:  []RecipeItem{{ItemID: "unobtainium", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "exotic", Quantity: 1}},
+		},
+		"make_exotic_b": {
+			ID:      "make_exotic_b",
+			Inputs:  []RecipeItem{{ItemID: "unobtainium", Quantity: 2}},
+			Outputs: []RecipeItem{{ItemID: "exotic", Quantity: 3}},
+		},
+	}
+	itemToRecipes, _ := BuildRecipeMaps(recipes)
+	got := selectRecipe(itemToRecipes, "exotic", map[string]bool{}) // nothing sourceable
+	if got == nil || got.ID != "make_exotic_b" {
+		t.Errorf("with no sourceable path, expected fallback to max-output make_exotic_b, got %v", got)
+	}
+}
+
+// TestComputeSourceable exercises the fixpoint: market-available base items seed
+// the set; an intermediate becomes sourceable once all its inputs are; a chain
+// that bottoms out in an unbuyable base item stays unsourceable; and a terminal
+// item is sourceable only when market-available (never via a recipe).
+func TestComputeSourceable(t *testing.T) {
+	recipes := map[string]*Recipe{
+		// widget <- gear (craftable) + iron_ore (market base)
+		"make_widget": {
+			ID:      "make_widget",
+			Inputs:  []RecipeItem{{ItemID: "gear", Quantity: 1}, {ItemID: "iron_ore", Quantity: 2}},
+			Outputs: []RecipeItem{{ItemID: "widget", Quantity: 1}},
+		},
+		// gear <- copper_ore (market base)
+		"make_gear": {
+			ID:      "make_gear",
+			Inputs:  []RecipeItem{{ItemID: "copper_ore", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "gear", Quantity: 1}},
+		},
+		// relic <- superfluid_vial (unbuyable base, no recipe, not market)
+		"make_relic": {
+			ID:      "make_relic",
+			Inputs:  []RecipeItem{{ItemID: "superfluid_vial", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "relic", Quantity: 1}},
+		},
+	}
+	itemToRecipes, _ := BuildRecipeMaps(recipes)
+	market := map[string]bool{"iron_ore": true, "copper_ore": true}
+	// terminal: items with no producing recipe are base materials here.
+	isTerminal := func(id string) bool { return len(itemToRecipes[id]) == 0 }
+
+	src := ComputeSourceable(itemToRecipes, market, isTerminal)
+
+	for _, id := range []string{"iron_ore", "copper_ore", "gear", "widget"} {
+		if !src[id] {
+			t.Errorf("expected %s to be sourceable", id)
+		}
+	}
+	for _, id := range []string{"superfluid_vial", "relic"} {
+		if src[id] {
+			t.Errorf("expected %s to be UNsourceable", id)
+		}
+	}
+}

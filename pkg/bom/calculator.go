@@ -35,24 +35,53 @@ type Calculator struct {
 	recipes       map[string]*Recipe
 	itemToRecipes map[string][]*Recipe
 	items         map[string]*Item
+	sourceable    map[string]bool // nil unless a market-available set was supplied
 	memo          map[string][]MaterialRequirement
 	mu            sync.RWMutex
 }
 
-// NewCalculator creates a new calculator with database and data
+// NewCalculator creates a calculator that selects recipes purely by structure
+// (no market awareness). Equivalent to NewCalculatorWithMarket with a nil set.
 func NewCalculator(db *sql.DB, recipes map[string]*Recipe, items map[string]*Item) (*Calculator, error) {
+	return NewCalculatorWithMarket(db, recipes, items, nil)
+}
+
+// NewCalculatorWithMarket creates a calculator that, when marketAvailable is
+// non-nil, prefers recipe paths whose inputs can actually be sourced (are
+// market-available or craftable from market-available items) over shorter paths
+// that terminate in an unbuyable item. Pass nil to disable market awareness.
+func NewCalculatorWithMarket(db *sql.DB, recipes map[string]*Recipe, items map[string]*Item, marketAvailable map[string]bool) (*Calculator, error) {
 	itemToRecipes, err := BuildRecipeMaps(recipes)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Calculator{
+	c := &Calculator{
 		db:            db,
 		recipes:       recipes,
 		itemToRecipes: itemToRecipes,
 		items:         items,
 		memo:          make(map[string][]MaterialRequirement),
-	}, nil
+	}
+	if marketAvailable != nil {
+		c.sourceable = ComputeSourceable(itemToRecipes, marketAvailable, c.isTerminal)
+	}
+	return c, nil
+}
+
+// isTerminal reports whether the flattener stops at itemID without expanding a
+// recipe: unknown items, ore/material catalog categories, and items no recipe
+// produces. It mirrors the terminal conditions in calculatePerUnit so that
+// sourceability and flattening agree.
+func (c *Calculator) isTerminal(itemID string) bool {
+	item, ok := c.items[itemID]
+	if !ok {
+		return true
+	}
+	if item.Category == "ore" || item.Category == "material" {
+		return true
+	}
+	return len(c.itemToRecipes[itemID]) == 0
 }
 
 // Calculate returns base materials needed to produce `quantity` units of itemID.
@@ -102,7 +131,7 @@ func (c *Calculator) calculatePerUnit(itemID string, path []string) ([]MaterialR
 	// past this frame's length.
 	nextPath := append(append([]string(nil), path...), itemID)
 
-	recipe := SelectRecipe(c.itemToRecipes, itemID)
+	recipe := selectRecipe(c.itemToRecipes, itemID, c.sourceable)
 	if recipe == nil {
 		return []MaterialRequirement{{ItemID: itemID, Quantity: 1}}, nil
 	}
@@ -228,7 +257,7 @@ func (c *Calculator) CalculateAll(
 			HasAlternatives: len(c.itemToRecipes[itemID]) > 1,
 		}
 
-		if recipe := SelectRecipe(c.itemToRecipes, itemID); recipe != nil {
+		if recipe := selectRecipe(c.itemToRecipes, itemID, c.sourceable); recipe != nil {
 			result.RecipePath = []string{recipe.ID}
 		}
 
