@@ -26,6 +26,36 @@ func TestCandlestickSVG_UpDownBodies(t *testing.T) {
 	}
 }
 
+func TestCandlestickSVG_LogScaleForSkew(t *testing.T) {
+	// A wide high/low ratio (1 → 42000) triggers the log10 price axis.
+	cs := []DailyCandle{
+		{Day: "2026-06-21", Open: 1, High: 1, Low: 1, Close: 1, Volume: 5},
+		{Day: "2026-06-22", Open: 1, High: 42000, Low: 1, Close: 42000, Volume: 9},
+	}
+	out := string(candlestickSVG(cs))
+	if !strings.Contains(out, ">log<") {
+		t.Errorf("expected a log-scale indicator: %s", out)
+	}
+	if strings.Contains(out, "NaN") || strings.Contains(out, "Inf") {
+		t.Errorf("numeric blowup on log scale: %s", out)
+	}
+	if n := strings.Count(out, `class="grid"`); n != priceTicks {
+		t.Errorf("want %d gridlines, got %d", priceTicks, n)
+	}
+}
+
+func TestCandlestickSVG_TightRangeStaysLinear(t *testing.T) {
+	// A modest ratio (100 → 200) keeps the linear axis (no log indicator).
+	cs := []DailyCandle{
+		{Day: "2026-06-21", Open: 100, High: 120, Low: 100, Close: 110, Volume: 5},
+		{Day: "2026-06-22", Open: 110, High: 200, Low: 105, Close: 190, Volume: 9},
+	}
+	out := string(candlestickSVG(cs))
+	if strings.Contains(out, ">log<") {
+		t.Errorf("tight-range chart should stay linear: %s", out)
+	}
+}
+
 func TestPriceScale(t *testing.T) {
 	// 10% headroom on each side of the data range.
 	if lo, hi := priceScale(100, 200); lo != 90 || hi != 210 {

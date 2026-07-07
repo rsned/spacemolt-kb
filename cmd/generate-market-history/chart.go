@@ -3,21 +3,23 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"math"
 	"strings"
 )
 
 // SVG geometry (user units). viewBox is fixed; the element scales to 100% width.
 const (
-	chartW     = 720.0
-	chartVBH   = 260.0
-	priceTop   = 10.0
-	priceH     = 170.0
-	volTop     = 195.0
-	volH       = 40.0
-	plotLeft   = 44.0
-	plotRt     = 710.0
-	xLabelY    = 252.0
-	priceTicks = 5 // horizontal gridlines/labels across the price panel
+	chartW       = 720.0
+	chartVBH     = 260.0
+	priceTop     = 10.0
+	priceH       = 170.0
+	volTop       = 195.0
+	volH         = 40.0
+	plotLeft     = 44.0
+	plotRt       = 710.0
+	xLabelY      = 252.0
+	priceTicks   = 5  // horizontal gridlines/labels across the price panel
+	logSkewRatio = 100 // high/low ratio at or above which the price axis goes log10
 )
 
 // priceScale returns the padded [lo, hi] y-axis bounds: the data min/max
@@ -64,13 +66,31 @@ func candlestickSVG(candles []DailyCandle) template.HTML {
 			vmax = c.Volume
 		}
 	}
-	scaleLo, scaleHi := priceScale(pmin, pmax)
-	srange := scaleHi - scaleLo
-	yFor := func(p float64) float64 {
-		if srange == 0 {
-			return priceTop + priceH/2
+	// Heavily-skewed items (a wide low cluster plus a rare high spike) are
+	// unreadable on a linear axis — the cluster collapses to the floor. When the
+	// high/low ratio is large, switch to a log10 price axis so the low values
+	// spread out while the spike is still shown in full. yFor maps a price to a
+	// y-coordinate; tickVal maps a top→bottom fraction back to a price label.
+	useLog := pmin > 0 && pmax/pmin >= logSkewRatio
+	var yFor func(float64) float64
+	var tickVal func(frac float64) float64
+	if useLog {
+		lLo, lHi := math.Log10(pmin), math.Log10(pmax)
+		pad := (lHi - lLo) * 0.10
+		lLo, lHi = lLo-pad, lHi+pad
+		lr := lHi - lLo
+		yFor = func(p float64) float64 { return priceTop + (lHi-math.Log10(p))/lr*priceH }
+		tickVal = func(frac float64) float64 { return math.Pow(10, lHi-frac*lr) }
+	} else {
+		scaleLo, scaleHi := priceScale(pmin, pmax)
+		srange := scaleHi - scaleLo
+		yFor = func(p float64) float64 {
+			if srange == 0 {
+				return priceTop + priceH/2
+			}
+			return priceTop + (scaleHi-p)/srange*priceH
 		}
-		return priceTop + (scaleHi-p)/srange*priceH
+		tickVal = func(frac float64) float64 { return scaleHi - frac*srange }
 	}
 
 	slot := (plotRt - plotLeft) / float64(len(candles))
@@ -81,14 +101,18 @@ func candlestickSVG(candles []DailyCandle) template.HTML {
 
 	var b strings.Builder
 	fmt.Fprintf(&b, `<svg viewBox="0 0 %.0f %.0f" class="chart" role="img" aria-label="daily price and volume">`, chartW, chartVBH)
-	// Price axis: evenly-spaced horizontal gridlines (top=scaleHi … bottom=scaleLo)
-	// with value labels, so candle levels are easy to read off.
+	// Price axis: evenly-spaced horizontal gridlines (top=high … bottom=low) with
+	// value labels, so candle levels are easy to read off.
 	for i := range priceTicks {
 		frac := float64(i) / float64(priceTicks-1)
 		y := priceTop + frac*priceH
-		val := scaleHi - frac*srange
+		val := tickVal(frac)
 		fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="grid"/>`, plotLeft, y, plotRt, y)
 		fmt.Fprintf(&b, `<text x="4" y="%.1f" class="axis">%s</text>`, y+3, fmtCompact(val))
+	}
+	// Signal a non-linear axis so readers know the spacing is logarithmic.
+	if useLog {
+		fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" text-anchor="end" class="axis">log</text>`, plotRt, priceTop+8)
 	}
 
 	for i, c := range candles {
