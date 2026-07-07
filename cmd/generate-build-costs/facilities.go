@@ -276,8 +276,8 @@ type FacilityGroupSummary struct {
 }
 
 // LevelStat is the MKT-cost and buildability summary for one facility level
-// within a category. BoM/Recipe are pre-rendered "mean ± sd" strings (or "—")
-// over facilities with a fully-priced bill; Count is every facility at the
+// within a category. BoM/Recipe are pre-rendered "median (min–max)" strings (or
+// "—") over facilities with a fully-priced bill; Count is every facility at the
 // level; Buildable counts those sourceable from live galaxy depth via either view.
 type LevelStat struct {
 	Level     int
@@ -332,38 +332,37 @@ func fmtCompact(v float64) string {
 	return s
 }
 
-// meanSDOf returns the mean and sample (n-1) standard deviation of xs. For a
-// single sample the sd is 0; for an empty sample both are 0.
-func meanSDOf(xs []float64) (mean, sd float64) {
-	if len(xs) == 0 {
-		return 0, 0
+// medianRangeOf returns the median, minimum, and maximum of xs, which must be
+// non-empty. The median of an even-length sample is the mean of its two middle
+// values. xs is not mutated (a sorted copy is used).
+func medianRangeOf(xs []float64) (median, lo, hi float64) {
+	s := append([]float64(nil), xs...)
+	sort.Float64s(s)
+	n := len(s)
+	lo, hi = s[0], s[n-1]
+	if n%2 == 1 {
+		median = s[n/2]
+	} else {
+		median = (s[n/2-1] + s[n/2]) / 2
 	}
-	for _, x := range xs {
-		mean += x
-	}
-	mean /= float64(len(xs))
-	if len(xs) < 2 {
-		return mean, 0
-	}
-	var ss float64
-	for _, x := range xs {
-		d := x - mean
-		ss += d * d
-	}
-	return mean, math.Sqrt(ss / float64(len(xs)-1))
+	return median, lo, hi
 }
 
 // mktStatStr renders a cost sample as "—" (empty), "4.1M" (one sample), or
-// "4.1M ± 2.0M" (two or more), using compact K/M/B formatting.
+// "57.7M (52M–1.1B)" (two or more): the median with the full min–max range in
+// parentheses, using compact K/M/B formatting. Median-with-range (not mean±sd)
+// is used because facility build costs are strongly right-skewed — a cluster of
+// cheap facilities plus a thin tail of end-game variants — so mean±sd overstates
+// the spread and can imply an impossible negative lower bound.
 func mktStatStr(xs []float64) string {
 	if len(xs) == 0 {
 		return emDash
 	}
-	mean, sd := meanSDOf(xs)
 	if len(xs) < 2 {
-		return fmtCompact(mean)
+		return fmtCompact(xs[0])
 	}
-	return fmtCompact(mean) + " ± " + fmtCompact(sd)
+	median, lo, hi := medianRangeOf(xs)
+	return fmtCompact(median) + " (" + fmtCompact(lo) + "–" + fmtCompact(hi) + ")"
 }
 
 // accumulateFacilityStats folds one facility's two numeric views into the

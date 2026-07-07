@@ -326,11 +326,16 @@ func TestMktStatStr(t *testing.T) {
 		t.Fatalf("empty sample = %q, want em-dash", got)
 	}
 	if got := mktStatStr([]float64{4_100_000}); got != "4.1M" {
-		t.Fatalf("single sample = %q, want 4.1M (no ±)", got)
+		t.Fatalf("single sample = %q, want 4.1M (no range)", got)
 	}
-	// mean of {2M, 6M} = 4M; sample sd = sqrt(((-2M)^2+(2M)^2)/1) = ~2.83M.
-	if got := mktStatStr([]float64{2_000_000, 6_000_000}); got != "4.0M ± 2.8M" {
-		t.Fatalf("two samples = %q, want '4.0M ± 2.8M'", got)
+	// median of {2M, 6M} = 4M (mean of the two middle values); min 2M, max 6M.
+	if got := mktStatStr([]float64{2_000_000, 6_000_000}); got != "4.0M (2.0M–6.0M)" {
+		t.Fatalf("two samples = %q, want '4.0M (2.0M–6.0M)'", got)
+	}
+	// Odd count, right-skewed: sorted {2M, 4M, 60M} → median 4M, min 2M, max 60M.
+	// The outlier lifts max far above the median but does not move it (unlike a mean).
+	if got := mktStatStr([]float64{60_000_000, 2_000_000, 4_000_000}); got != "4.0M (2.0M–60.0M)" {
+		t.Fatalf("skewed sample = %q, want '4.0M (2.0M–60.0M)'", got)
 	}
 }
 
