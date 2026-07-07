@@ -5,13 +5,21 @@
 <title>Facility Build Costs — Spacemolt KB</title>
 <style>
  body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:#0d1117;color:#c9d1d9}
- a{color:#58a6ff} h1{margin:.3rem 0}
+ a{color:#58a6ff} h1{margin:.3rem 0} h2{margin:1.6rem 0 .3rem;font-size:1.15rem} h3{margin:0 0 .2rem;font-size:.95rem}
  .legend{font-size:.85rem;color:#8b949e;max-width:80ch}
  .cards{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
  .card{display:block;min-width:8rem;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:.7rem .9rem;color:#c9d1d9;text-decoration:none}
  .card:hover{border-color:#58a6ff}
  .card .n{font-size:1.5rem;color:#e3b341;line-height:1}
  .card .g{text-transform:capitalize;margin-top:.2rem}
+ .explainer p{max-width:80ch;font-size:.9rem;color:#c9d1d9;margin:.4rem 0}
+ code{background:#161b22;border:1px solid #30363d;border-radius:3px;padding:0 .25rem;font-size:.85em}
+ .statblocks{display:flex;flex-wrap:wrap;gap:1rem 1.6rem;margin-top:.6rem}
+ .statblock{min-width:22rem}
+ .statblock h3 .g{text-transform:capitalize;color:#e3b341} .statblock h3 small{color:#8b949e;font-weight:400}
+ table{border-collapse:collapse;font-size:.8rem;margin:.2rem 0 .4rem}
+ th,td{border:1px solid #21262d;padding:.25rem .5rem;text-align:right} th:first-child,td:first-child{text-align:left}
+ td.dash{color:#6e7681}
 </style>
 </head>
 <body>
@@ -37,5 +45,229 @@
 <a class="card" href="utility/"><div class="n">252</div><div class="g">utility</div></a>
 <a class="card" href="weapon/"><div class="n">260</div><div class="g">weapon</div></a>
 </div>
+
+<section class="explainer">
+<h2>How to read the two prices</h2>
+<p><strong>MKT-AVG</strong> is the sell-side volume-weighted average of <em>past trades</em> (price × quantity). It shows a value for any component that has <em>ever</em> traded, whether or not it is for sale right now, and does <em>not</em> check current supply — a "typical cost" estimate.</p>
+<p><strong>Galaxy</strong> walks the <em>current</em> resting sell orders pooled across every station, filling cheapest-first until the required quantity is met. It is all-or-nothing per component: when a component cannot be fully sourced from live depth it shows <code>—</code>, and the build-cost line shows <code>N/M covered</code>. A large gap between the two columns means a facility is priceable in theory but not actually sourceable from the market right now.</p>
+</section>
+
+<section class="stats">
+<h2>Category stats</h2>
+<p class="legend">Mean ± standard deviation of the <strong>MKT-AVG</strong> build cost by facility level, and how many facilities are <strong>currently buildable</strong> (inputs fully sourceable from live galaxy depth via BoM or Recipe). Cost stats cover facilities with a fully-priced bill, so a level's count may exceed the number priced; <code>—</code> means none at that level are fully priced.</p>
+<div class="statblocks">
+<div class="statblock">
+<h3><span class="g">ammo</span> <small>184</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>46</td><td>7.1M ± 9.6M</td><td>3.6M ± 3.8M</td><td>0</td></tr>
+<tr><td>L2</td><td>46</td><td>25.5M ± 33.7M</td><td>6.9M ± 9.4M</td><td>0</td></tr>
+<tr><td>L3</td><td>46</td><td>56.2M ± 80.7M</td><td>10.5M ± 15.1M</td><td>0</td></tr>
+<tr><td>L4</td><td>46</td><td>169.9M ± 243.4M</td><td>30.6M ± 41.8M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">component</span> <small>558</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>141</td><td>5.6M ± 5.1M</td><td>2.6M ± 1.7M</td><td>6</td></tr>
+<tr><td>L2</td><td>138</td><td>17.4M ± 17.7M</td><td>4.8M ± 4.9M</td><td>2</td></tr>
+<tr><td>L3</td><td>138</td><td>63.0M ± 64.2M</td><td>9.4M ± 9.6M</td><td>2</td></tr>
+<tr><td>L4</td><td>138</td><td>188.0M ± 193.1M</td><td>27.9M ± 30.2M</td><td>0</td></tr>
+<tr><td>L5</td><td>3</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">consumable</span> <small>149</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>36</td><td>4.2M ± 3.7M</td><td>2.5M ± 1.6M</td><td>0</td></tr>
+<tr><td>L2</td><td>35</td><td>13.4M ± 14.8M</td><td>4.3M ± 4.5M</td><td>0</td></tr>
+<tr><td>L3</td><td>35</td><td>45.0M ± 34.7M</td><td>8.0M ± 7.0M</td><td>0</td></tr>
+<tr><td>L4</td><td>35</td><td>134.9M ± 105.9M</td><td>22.4M ± 22.1M</td><td>0</td></tr>
+<tr><td>L5</td><td>8</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">contraband</span> <small>40</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>16</td><td>3.6M ± 644K</td><td>1.3M ± 742K</td><td>2</td></tr>
+<tr><td>L2</td><td>8</td><td>8.0M ± 1.5M</td><td>2.1M ± 338K</td><td>0</td></tr>
+<tr><td>L3</td><td>8</td><td>26.0M ± 5.4M</td><td>3.9M ± 905K</td><td>0</td></tr>
+<tr><td>L4</td><td>8</td><td>77.6M ± 18.5M</td><td>8.7M ± 2.1M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">defense</span> <small>172</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>43</td><td>5.3M ± 3.5M</td><td>4.3M ± 3.0M</td><td>8</td></tr>
+<tr><td>L2</td><td>43</td><td>19.0M ± 15.4M</td><td>11.3M ± 9.0M</td><td>0</td></tr>
+<tr><td>L3</td><td>43</td><td>69.4M ± 55.0M</td><td>24.7M ± 19.5M</td><td>0</td></tr>
+<tr><td>L4</td><td>43</td><td>199.5M ± 157.9M</td><td>77.3M ± 60.3M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">drone</span> <small>20</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>5</td><td>6.0M ± 3.9M</td><td>1.3M ± 946K</td><td>2</td></tr>
+<tr><td>L2</td><td>5</td><td>24.0M ± 13.3M</td><td>3.9M ± 2.3M</td><td>0</td></tr>
+<tr><td>L3</td><td>5</td><td>73.0M ± 42.3M</td><td>9.4M ± 5.5M</td><td>0</td></tr>
+<tr><td>L4</td><td>5</td><td>220.4M ± 124.2M</td><td>25.1M ± 14.8M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">faction</span> <small>43</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>15</td><td>758K ± 1.1M</td><td>74K ± 51K</td><td>13</td></tr>
+<tr><td>L2</td><td>13</td><td>3.3M ± 3.9M</td><td>269K ± 211K</td><td>10</td></tr>
+<tr><td>L3</td><td>10</td><td>7.9M ± 5.9M</td><td>896K ± 564K</td><td>10</td></tr>
+<tr><td>L4</td><td>3</td><td>13.8M ± 8.0M</td><td>2.3M ± 1.3M</td><td>3</td></tr>
+<tr><td>L5</td><td>2</td><td>51.7M ± 41.9M</td><td>6.9M ± 4.7M</td><td>2</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">infrastructure</span> <small>65</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>18</td><td>8.5M ± 34.1M</td><td>1.5M ± 5.6M</td><td>11</td></tr>
+<tr><td>L2</td><td>9</td><td>121.1M ± 354.1M</td><td>20.9M ± 59.1M</td><td>7</td></tr>
+<tr><td>L3</td><td>14</td><td>498.3M ± 1.8B</td><td>85.2M ± 309.3M</td><td>10</td></tr>
+<tr><td>L4</td><td>7</td><td>13.7M ± 23.4M</td><td>3.7M ± 7.9M</td><td>5</td></tr>
+<tr><td>L5</td><td>17</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">material</span> <small>8</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>2</td><td>5.5M ± 2.1M</td><td>2.5M ± 126K</td><td>0</td></tr>
+<tr><td>L2</td><td>2</td><td>21.5M ± 7.4M</td><td>7.0M ± 127K</td><td>0</td></tr>
+<tr><td>L3</td><td>2</td><td>76.8M ± 36.6M</td><td>14.3M ± 4.9M</td><td>0</td></tr>
+<tr><td>L4</td><td>2</td><td>206.1M ± 98.5M</td><td>41.0M ± 4.4M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">mining</span> <small>36</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>9</td><td>24.1M ± 16.7M</td><td>9.4M ± 6.0M</td><td>0</td></tr>
+<tr><td>L2</td><td>9</td><td>79.8M ± 53.6M</td><td>20.9M ± 13.4M</td><td>0</td></tr>
+<tr><td>L3</td><td>9</td><td>191.3M ± 114.8M</td><td>28.3M ± 17.1M</td><td>0</td></tr>
+<tr><td>L4</td><td>9</td><td>603.9M ± 363.3M</td><td>88.7M ± 52.7M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">ore</span> <small>8</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>2</td><td>3.0M ± 169K</td><td>2.0M ± 24K</td><td>0</td></tr>
+<tr><td>L2</td><td>2</td><td>7.0M ± 53K</td><td>1.9M ± 390</td><td>0</td></tr>
+<tr><td>L3</td><td>2</td><td>25.0M ± 761K</td><td>4.4M ± 222K</td><td>0</td></tr>
+<tr><td>L4</td><td>2</td><td>71.2M ± 4.0M</td><td>11.0M ± 48K</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">other</span> <small>210</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>60</td><td>5.0M ± 2.3M</td><td>2.3M ± 1.1M</td><td>1</td></tr>
+<tr><td>L2</td><td>64</td><td>15.5M ± 8.3M</td><td>4.1M ± 3.0M</td><td>1</td></tr>
+<tr><td>L3</td><td>44</td><td>72.1M ± 44.7M</td><td>8.9M ± 5.6M</td><td>1</td></tr>
+<tr><td>L4</td><td>41</td><td>238.5M ± 155.4M</td><td>28.6M ± 20.8M</td><td>0</td></tr>
+<tr><td>L5</td><td>1</td><td class="dash">—</td><td>2.0M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">personal</span> <small>13</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>4</td><td>454K ± 768K</td><td>25K ± 29K</td><td>3</td></tr>
+<tr><td>L2</td><td>4</td><td>1.9M ± 3.1M</td><td>120K ± 123K</td><td>3</td></tr>
+<tr><td>L3</td><td>4</td><td>5.3M ± 7.7M</td><td>425K ± 384K</td><td>3</td></tr>
+<tr><td>L4</td><td>1</td><td>2.8M</td><td>464K</td><td>1</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">refined</span> <small>468</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>135</td><td>4.7M ± 5.0M</td><td>2.8M ± 2.8M</td><td>5</td></tr>
+<tr><td>L2</td><td>112</td><td>15.3M ± 16.5M</td><td>3.4M ± 4.5M</td><td>4</td></tr>
+<tr><td>L3</td><td>108</td><td>52.3M ± 56.3M</td><td>7.8M ± 10.7M</td><td>0</td></tr>
+<tr><td>L4</td><td>108</td><td>152.8M ± 156.7M</td><td>21.1M ± 28.2M</td><td>0</td></tr>
+<tr><td>L5</td><td>5</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">service</span> <small>68</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>9</td><td>1.9M ± 1.3M</td><td>270K ± 204K</td><td>8</td></tr>
+<tr><td>L2</td><td>8</td><td>6.3M ± 4.4M</td><td>933K ± 704K</td><td>8</td></tr>
+<tr><td>L3</td><td>8</td><td>17.1M ± 11.6M</td><td>3.0M ± 2.5M</td><td>7</td></tr>
+<tr><td>L4</td><td>8</td><td>41.9M ± 25.7M</td><td>10.9M ± 9.6M</td><td>3</td></tr>
+<tr><td>L5</td><td>35</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">utility</span> <small>252</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>63</td><td>7.4M ± 6.8M</td><td>3.8M ± 3.4M</td><td>2</td></tr>
+<tr><td>L2</td><td>63</td><td>25.1M ± 24.7M</td><td>8.0M ± 8.5M</td><td>0</td></tr>
+<tr><td>L3</td><td>63</td><td>112.2M ± 109.9M</td><td>14.5M ± 17.5M</td><td>0</td></tr>
+<tr><td>L4</td><td>63</td><td>352.9M ± 346.4M</td><td>43.1M ± 50.4M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">weapon</span> <small>260</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>65</td><td>23.9M ± 15.2M</td><td>9.0M ± 5.7M</td><td>0</td></tr>
+<tr><td>L2</td><td>65</td><td>79.7M ± 49.9M</td><td>19.8M ± 12.5M</td><td>0</td></tr>
+<tr><td>L3</td><td>65</td><td>131.4M ± 81.7M</td><td>25.2M ± 15.7M</td><td>0</td></tr>
+<tr><td>L4</td><td>65</td><td>396.1M ± 248.5M</td><td>78.5M ± 49.1M</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
 </body>
 </html>
