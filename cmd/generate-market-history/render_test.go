@@ -63,3 +63,32 @@ func TestRenderMarketIndex(t *testing.T) {
 		t.Error("missing legend text")
 	}
 }
+
+func TestRenderCategoryPage_NoLinkItem(t *testing.T) {
+	dir := t.TempDir()
+	page := CategoryPage{
+		Category: "other",
+		Items: []ItemVM{{
+			ID:       "mystery_widget",
+			Name:     "mystery_widget",
+			Category: "other",
+			ItemHref: "",
+			Stat:     "last 2 · +0.0% · H 2 / L 1 · vol 5 · 1d",
+			Candles:  []DailyCandle{{Day: "2026-06-21", Open: 1, High: 2, Low: 1, Close: 2, Volume: 5}},
+		}},
+	}
+	if err := renderCategoryPage(dir, page); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "other", "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(raw)
+	if !strings.Contains(html, "mystery_widget") {
+		t.Error("item name missing")
+	}
+	if strings.Contains(html, `href="../../items/other/`) || strings.Contains(html, `<a href="">`) {
+		t.Errorf("no-link item should not render an anchor: %s", html)
+	}
+}

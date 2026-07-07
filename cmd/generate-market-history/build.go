@@ -88,8 +88,11 @@ func buildPages(candles map[string][]DailyCandle, names, categories map[string]s
 			continue
 		}
 		cat := categories[id]
+		href := ""
 		if cat == "" {
 			cat = "other"
+		} else {
+			href = fmt.Sprintf("../../items/%s/%s.html", cat, id)
 		}
 		name := names[id]
 		if name == "" {
@@ -101,7 +104,7 @@ func buildPages(candles map[string][]DailyCandle, names, categories map[string]s
 			ID:       id,
 			Name:     name,
 			Category: cat,
-			ItemHref: fmt.Sprintf("../../items/%s/%s.html", cat, id),
+			ItemHref: href,
 			Stat:     fmtStat(s),
 			Candles:  cs,
 			Summary:  s,

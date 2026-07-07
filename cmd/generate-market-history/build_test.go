@@ -79,6 +79,9 @@ func TestBuildPages_GroupSortAndCards(t *testing.T) {
 	if len(other.Items) != 1 || other.Items[0].Name != "mystery" {
 		t.Errorf("other page = %+v", other.Items)
 	}
+	if other.Items[0].ItemHref != "" {
+		t.Errorf("other-bucket item should have no link, got %q", other.Items[0].ItemHref)
+	}
 }
 
 func TestFmtStat(t *testing.T) {

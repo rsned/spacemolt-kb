@@ -22,7 +22,7 @@
 <h1>{{.Category}}</h1>
 <p class="legend">Galaxy-wide sell-side daily candlesticks with a volume strip, most-traded first. Green = up day (close ≥ open), red = down.</p>
 {{range .Items}}<section class="item" id="{{.ID}}">
-<h2><a href="{{.ItemHref}}">{{.Name}}</a></h2>
+<h2>{{if .ItemHref}}<a href="{{.ItemHref}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}</h2>
 <div class="stat">{{.Stat}}</div>
 {{.Chart}}
 </section>
