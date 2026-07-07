@@ -112,16 +112,7 @@ func buildPages(candles map[string][]DailyCandle, names, categories map[string]s
 	for cat := range byCat {
 		cats = append(cats, cat)
 	}
-	// Sort with "other" first, then alphabetically
-	sort.Slice(cats, func(i, j int) bool {
-		if cats[i] == "other" {
-			return true
-		}
-		if cats[j] == "other" {
-			return false
-		}
-		return cats[i] < cats[j]
-	})
+	sort.Strings(cats)
 
 	var pages []CategoryPage
 	var cards []CategoryCard
