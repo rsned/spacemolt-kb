@@ -314,3 +314,34 @@ func TestComputeSourceable(t *testing.T) {
 		}
 	}
 }
+
+// TestSelectRecipe_DeterministicTieBreak verifies that when candidates tie on
+// total output, the lexicographically smallest recipe ID wins — so the result
+// does not depend on map-iteration order. Runs many times to defeat the random
+// seed of Go map iteration.
+func TestSelectRecipe_DeterministicTieBreak(t *testing.T) {
+	recipes := map[string]*Recipe{
+		"zzz_make_gizmo": {
+			ID:      "zzz_make_gizmo",
+			Inputs:  []RecipeItem{{ItemID: "iron_ore", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "gizmo", Quantity: 2}},
+		},
+		"aaa_make_gizmo": {
+			ID:      "aaa_make_gizmo",
+			Inputs:  []RecipeItem{{ItemID: "copper_ore", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "gizmo", Quantity: 2}},
+		},
+		"mmm_make_gizmo": {
+			ID:      "mmm_make_gizmo",
+			Inputs:  []RecipeItem{{ItemID: "silicon_ore", Quantity: 1}},
+			Outputs: []RecipeItem{{ItemID: "gizmo", Quantity: 2}},
+		},
+	}
+	for i := 0; i < 50; i++ {
+		itemToRecipes, _ := BuildRecipeMaps(recipes)
+		got := SelectRecipe(itemToRecipes, "gizmo")
+		if got == nil || got.ID != "aaa_make_gizmo" {
+			t.Fatalf("iteration %d: expected aaa_make_gizmo (smallest ID among output ties), got %v", i, got)
+		}
+	}
+}

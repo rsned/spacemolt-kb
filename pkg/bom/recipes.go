@@ -82,14 +82,23 @@ func selectRecipe(itemToRecipes map[string][]*Recipe, itemID string, sourceable 
 	}
 
 	var bestRecipe *Recipe
-	maxOutputs := 0
+	bestOutputs := 0
 	for _, recipe := range candidates {
 		totalOutputs := 0
 		for _, output := range recipe.Outputs {
 			totalOutputs += output.Quantity
 		}
-		if totalOutputs > maxOutputs {
-			maxOutputs = totalOutputs
+		if totalOutputs == 0 {
+			continue
+		}
+		// Largest total output wins; ties are broken by the lexicographically
+		// smallest recipe ID. The explicit ID tie-break is essential: candidates
+		// come from a map-backed reverse index (BuildRecipeMaps), so without it
+		// the winner among equal-output recipes depends on Go's randomized map
+		// iteration order and the whole BoM regen is non-reproducible.
+		if bestRecipe == nil || totalOutputs > bestOutputs ||
+			(totalOutputs == bestOutputs && recipe.ID < bestRecipe.ID) {
+			bestOutputs = totalOutputs
 			bestRecipe = recipe
 		}
 	}

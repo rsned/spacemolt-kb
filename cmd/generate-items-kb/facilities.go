@@ -476,7 +476,7 @@ var htmlFacilityDetailTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Facilities</a> / <a href="./">{{titleCase .Facility.Category}}</a> / {{.Facility.Name}}</div>
 
-        <h2>{{.Facility.Name}}{{if .Facility.Unique}} <span class="badge badge-rare">Unique</span>{{end}}{{if .Facility.AlwaysOn}} <span class="badge">Always On</span>{{end}}</h2>
+        <h2>{{.Facility.Name}}{{if .Facility.Empire}} <span class="badge {{empireBadgeClass .Facility.Empire}}">{{titleCase .Facility.Empire}}</span>{{end}}{{if .Facility.PirateBaseOnly}} <span class="badge badge-red">Pirate Base</span>{{end}}{{if .Facility.StationOrFactionOnly}} <span class="badge badge-orange">Faction Only</span>{{end}}{{if .Facility.Unique}} <span class="badge badge-rare">Unique</span>{{end}}{{if .Facility.AlwaysOn}} <span class="badge">Always On</span>{{end}}</h2>
 
         {{if .Facility.Description}}
         <blockquote class="item-desc">{{.Facility.Description}}</blockquote>
@@ -656,6 +656,7 @@ func writeFacilityPages(outDir string, facilities map[string]*Facility, items ma
 		"dirName":                dirName,
 		"upgradeSVG":             generateUpgradeSVG,
 		"facilityHasProperties":  facilityHasProperties,
+		"empireBadgeClass":       empireBadgeClass,
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
 		},
@@ -850,6 +851,30 @@ func facilityHasProperties(f *Facility) bool {
 		f.RequiresServiceType != "" || f.PersonalBonusType != "" || f.FactionCap > 0 ||
 		f.ScanPower > 0 || f.ScanFalloff > 0 || f.FleetUpkeep || f.AllowsContraband ||
 		f.PirateBaseOnly || f.StationOrFactionOnly || f.ExpansionOf != ""
+}
+
+// empireBadgeClass maps a facility's owning empire/faction to a badge color
+// class from smui.css, so the empire badge reads at a glance. Unknown empires
+// fall back to purple. The two spellings outer_rim/outerrim in the data share a
+// color. (Distinct from ships.go's factionBadgeClass, which maps ship faction
+// tags with a different value set and palette.)
+func empireBadgeClass(empire string) string {
+	switch empire {
+	case "pirates":
+		return "badge-red"
+	case "crimson_pact":
+		return "badge-orange"
+	case "solarian":
+		return "badge-yellow"
+	case "nebula", "nebula_trade":
+		return "badge-frost"
+	case "outer_rim", "outerrim":
+		return "badge-green"
+	case "voidborn":
+		return "badge-purple"
+	default:
+		return "badge-purple"
+	}
 }
 
 // populateBuiltByFacility adds a BuiltBy entry on each item for every facility
