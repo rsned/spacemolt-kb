@@ -28,7 +28,7 @@ func TestRenderIndex_WritesFileWithData(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := string(data)
-	for _, want := range []string{"Widget", "Station One", "Show only feasible", "BoM", "Recipe", "buildable as BoM"} {
+	for _, want := range []string{"Widget", "Station One", "Show only feasible", "BoM", "Recipe", "buildable as BoM", "facilities/", "Facility build costs"} {
 		if !strings.Contains(s, want) {
 			t.Fatalf("index.html missing %q", want)
 		}
