@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — July 1, 2026 vs June 26, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-06-26.html">&larr; 2026-06-26</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-07-02.html">2026-07-02 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; July 1, 2026 vs June 26, 2026</h2>
+<div class="diff-summary">135 additions, 1 deletion, 22 modifications across 6 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+41</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+46</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~1</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+1</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~17</span></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+1</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+46</span> <span class="diff-del">&minus;1</span> <span class="diff-mod">~0</span></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~4</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+41</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../recipes/Refining/adamant_tooth_forging.html">Adamant Tooth Forging</a> <span class="text-muted">(adamant_tooth_forging)</span></li><li class="diff-add">+ <a href="../recipes/Refining/anchor_plate_forging.html">Anchor Plate Forging</a> <span class="text-muted">(anchor_plate_forging)</span></li><li class="diff-add">+ <a href="../recipes/Components/baleen_capital_plate.html">Baleen Capital Plate</a> <span class="text-muted">(baleen_capital_plate)</span></li><li class="diff-add">+ <a href="../recipes/Refining/biogas_fuel_synthesis.html">Biogas Fuel Synthesis</a> <span class="text-muted">(biogas_fuel_synthesis)</span></li><li class="diff-add">+ <a href="../recipes/Weapons/build_scrap_harpoon.html">Build Scrap Harpoon</a> <span class="text-muted">(build_scrap_harpoon)</span></li><li class="diff-add">+ <a href="../recipes/Refining/carapace_plating.html">Carapace Plating</a> <span class="text-muted">(carapace_plating)</span></li><li class="diff-add">+ <a href="../recipes/Refining/caustic_polymer_synthesis.html">Caustic Polymer Synthesis</a> <span class="text-muted">(caustic_polymer_synthesis)</span></li><li class="diff-add">+ <a href="../recipes/Refining/cobalt_ink_refining.html">Cobalt Ink Refining</a> <span class="text-muted">(cobalt_ink_refining)</span></li><li class="diff-add">+ <a href="../recipes/Refining/cobalt_superconductor.html">Cobalt Superconductor</a> <span class="text-muted">(cobalt_superconductor)</span></li><li class="diff-add">+ <a href="../recipes/Refining/crystal_melt_distillation.html">Crystal Melt Distillation</a> <span class="text-muted">(crystal_melt_distillation)</span></li><li class="diff-add">+ <a href="../recipes/Refining/ember_gland_combustion.html">Ember Gland Combustion</a> <span class="text-muted">(ember_gland_combustion)</span></li><li class="diff-add">+ <a href="../recipes/Refining/exotic_distillate_refining.html">Exotic Distillate Refining</a> <span class="text-muted">(exotic_distillate_refining)</span></li><li class="diff-add">+ <a href="../recipes/Refining/exotic_lattice_fusion.html">Exotic Lattice Fusion</a> <span class="text-muted">(exotic_lattice_fusion)</span></li><li class="diff-add">+ <a href="../recipes/Refining/ferrous_nodule_smelting.html">Ferrous Nodule Smelting</a> <span class="text-muted">(ferrous_nodule_smelting)</span></li><li class="diff-add">+ <a href="../recipes/Refining/foil_scale_smelting.html">Foil Scale Smelting</a> <span class="text-muted">(foil_scale_smelting)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/forge_trade_authenticator_pirate.html">Forge Trade Authenticator (Pirate)</a> <span class="text-muted">(forge_trade_authenticator_pirate)</span></li><li class="diff-add">+ <a href="../recipes/Refining/fusion_pearl_processing.html">Fusion Pearl Processing</a> <span class="text-muted">(fusion_pearl_processing)</span></li><li class="diff-add">+ <a href="../recipes/Refining/galvanic_cell_assembly.html">Galvanic Cell Assembly</a> <span class="text-muted">(galvanic_cell_assembly)</span></li><li class="diff-add">+ <a href="../recipes/Refining/gilded_chitin_smelting.html">Gilded Chitin Smelting</a> <span class="text-muted">(gilded_chitin_smelting)</span></li><li class="diff-add">+ <a href="../recipes/Refining/graphene_thread_weaving.html">Graphene Thread Weaving</a> <span class="text-muted">(graphene_thread_weaving)</span></li><li class="diff-add">+ <a href="../recipes/Components/hoarfrost_core_reactor.html">Hoarfrost Core Reactor</a> <span class="text-muted">(hoarfrost_core_reactor)</span></li><li class="diff-add">+ <a href="../recipes/Refining/ion_nodule_extraction.html">Ion Nodule Extraction</a> <span class="text-muted">(ion_nodule_extraction)</span></li><li class="diff-add">+ <a href="../recipes/Refining/irradiated_marrow_tap.html">Irradiated Marrow Tap</a> <span class="text-muted">(irradiated_marrow_tap)</span></li><li class="diff-add">+ <a href="../recipes/Refining/krypton_bladder_purification.html">Krypton Bladder Purification</a> <span class="text-muted">(krypton_bladder_purification)</span></li><li class="diff-add">+ <a href="../recipes/Components/lattice_jump_core.html">Lattice Jump Core</a> <span class="text-muted">(lattice_jump_core)</span></li><li class="diff-add">+ <a href="../recipes/Components/leviathan_core_reactor.html">Leviathan Core Reactor</a> <span class="text-muted">(leviathan_core_reactor)</span></li><li class="diff-add">+ <a href="../recipes/Refining/levity_gas_synthesis.html">Levity Gas Synthesis</a> <span class="text-muted">(levity_gas_synthesis)</span></li><li class="diff-add">+ <a href="../recipes/Refining/mantis_claw_plating.html">Mantis Claw Plating</a> <span class="text-muted">(mantis_claw_plating)</span></li><li class="diff-add">+ <a href="../recipes/Refining/nitrogen_bladder_decanting.html">Nitrogen Bladder Decanting</a> <span class="text-muted">(nitrogen_bladder_decanting)</span></li><li class="diff-add">+ <a href="../recipes/Refining/noble_gas_liquefaction.html">Noble Gas Liquefaction</a> <span class="text-muted">(noble_gas_liquefaction)</span></li><li class="diff-add">+ <a href="../recipes/Refining/pan_galactic_alloy_synthesis.html">Pan-Galactic Alloy Synthesis</a> <span class="text-muted">(pan_galactic_alloy_synthesis)</span></li><li class="diff-add">+ <a href="../recipes/Refining/radiant_bile_enrichment.html">Radiant Bile Enrichment</a> <span class="text-muted">(radiant_bile_enrichment)</span></li><li class="diff-add">+ <a href="../recipes/Refining/rime_fang_plating.html">Rime Fang Plating</a> <span class="text-muted">(rime_fang_plating)</span></li><li class="diff-add">+ <a href="../recipes/Refining/silica_lens_fabrication.html">Silica Lens Fabrication</a> <span class="text-muted">(silica_lens_fabrication)</span></li><li class="diff-add">+ <a href="../recipes/Refining/storm_node_capacitance.html">Storm Node Capacitance</a> <span class="text-muted">(storm_node_capacitance)</span></li><li class="diff-add">+ <a href="../recipes/Refining/superfluid_winding.html">Superfluid Winding</a> <span class="text-muted">(superfluid_winding)</span></li><li class="diff-add">+ <a href="../recipes/Refining/tritium_pearl_enrichment.html">Tritium Pearl Enrichment</a> <span class="text-muted">(tritium_pearl_enrichment)</span></li><li class="diff-add">+ <a href="../recipes/Refining/tungsten_nugget_drawing.html">Tungsten Nugget Drawing</a> <span class="text-muted">(tungsten_nugget_drawing)</span></li><li class="diff-add">+ <a href="../recipes/Refining/vanadium_plate_forging.html">Vanadium Plate Forging</a> <span class="text-muted">(vanadium_plate_forging)</span></li><li class="diff-add">+ <a href="../recipes/Refining/verdigris_smelting.html">Verdigris Smelting</a> <span class="text-muted">(verdigris_smelting)</span></li><li class="diff-add">+ <a href="../recipes/Refining/whale_oil_rendering.html">Whale Oil Rendering</a> <span class="text-muted">(whale_oil_rendering)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+46</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~1</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../items/misc/adamant_tooth.html">Adamant Tooth</a> <span class="text-muted">(adamant_tooth)</span></li><li class="diff-add">+ <a href="../items/misc/alloy_scale.html">Alloy Scale</a> <span class="text-muted">(alloy_scale)</span></li><li class="diff-add">+ <a href="../items/misc/anchor_plate.html">Anchor Plate</a> <span class="text-muted">(anchor_plate)</span></li><li class="diff-add">+ <a href="../items/misc/caustic_sac.html">Caustic Sac</a> <span class="text-muted">(caustic_sac)</span></li><li class="diff-add">+ <a href="../items/misc/charge_gland.html">Charge Gland</a> <span class="text-muted">(charge_gland)</span></li><li class="diff-add">+ <a href="../items/refined/cobalt_concentrate.html">Cobalt Concentrate</a> <span class="text-muted">(cobalt_concentrate)</span></li><li class="diff-add">+ <a href="../items/misc/cobalt_ink.html">Cobalt Ink</a> <span class="text-muted">(cobalt_ink)</span></li><li class="diff-add">+ <a href="../items/misc/creature_carapace.html">Creature Carapace</a> <span class="text-muted">(creature_carapace)</span></li><li class="diff-add">+ <a href="../items/misc/crystal_melt.html">Crystal Melt</a> <span class="text-muted">(crystal_melt)</span></li><li class="diff-add">+ <a href="../items/misc/crystallized_biogas.html">Crystallized Biogas</a> <span class="text-muted">(crystallized_biogas)</span></li><li class="diff-add">+ <a href="../items/misc/ember_gland.html">Ember Gland</a> <span class="text-muted">(ember_gland)</span></li><li class="diff-add">+ <a href="../items/misc/exotic_distillate.html">Exotic Distillate</a> <span class="text-muted">(exotic_distillate)</span></li><li class="diff-add">+ <a href="../items/refined/exotic_lattice.html">Exotic Lattice</a> <span class="text-muted">(exotic_lattice)</span></li><li class="diff-add">+ <a href="../items/misc/ferrous_nodule.html">Ferrous Nodule</a> <span class="text-muted">(ferrous_nodule)</span></li><li class="diff-add">+ <a href="../items/misc/foil_scale.html">Foil Scale</a> <span class="text-muted">(foil_scale)</span></li><li class="diff-add">+ <a href="../items/misc/fusion_pearl.html">Fusion Pearl</a> <span class="text-muted">(fusion_pearl)</span></li><li class="diff-add">+ <a href="../items/misc/gilded_chitin.html">Gilded Chitin</a> <span class="text-muted">(gilded_chitin)</span></li><li class="diff-add">+ <a href="../items/misc/graphene_thread.html">Graphene Thread</a> <span class="text-muted">(graphene_thread)</span></li><li class="diff-add">+ <a href="../items/misc/hoarfrost_heartcore.html">Hoarfrost Heartcore</a> <span class="text-muted">(hoarfrost_heartcore)</span></li><li class="diff-add">+ <a href="../items/misc/ion_nodule.html">Ion Nodule</a> <span class="text-muted">(ion_nodule)</span></li><li class="diff-add">+ <a href="../items/misc/irradiated_marrow.html">Irradiated Marrow</a> <span class="text-muted">(irradiated_marrow)</span></li><li class="diff-add">+ <a href="../items/misc/krypton_bladder.html">Krypton Bladder</a> <span class="text-muted">(krypton_bladder)</span></li><li class="diff-add">+ <a href="../items/misc/leviathan_heartcore.html">Leviathan Heartcore</a> <span class="text-muted">(leviathan_heartcore)</span></li><li class="diff-add">+ <a href="../items/misc/levity_bladder.html">Levity Bladder</a> <span class="text-muted">(levity_bladder)</span></li><li class="diff-add">+ <a href="../items/misc/lumen_oil.html">Lumen Oil</a> <span class="text-muted">(lumen_oil)</span></li><li class="diff-add">+ <a href="../items/misc/mantis_claw.html">Mantis Claw</a> <span class="text-muted">(mantis_claw)</span></li><li class="diff-add">+ <a href="../items/misc/nitrogen_bladder.html">Nitrogen Bladder</a> <span class="text-muted">(nitrogen_bladder)</span></li><li class="diff-add">+ <a href="../items/misc/noble_condensate.html">Noble Condensate</a> <span class="text-muted">(noble_condensate)</span></li><li class="diff-add">+ <a href="../items/misc/phase_pearl.html">Phase Pearl</a> <span class="text-muted">(phase_pearl)</span></li><li class="diff-add">+ <a href="../items/misc/prism_charged_ichor.html">Prism-Charged Ichor</a> <span class="text-muted">(prism_charged_ichor)</span></li><li class="diff-add">+ <a href="../items/component/prismatic_carapace.html">Prismatic Carapace</a> <span class="text-muted">(prismatic_carapace)</span></li><li class="diff-add">+ <a href="../items/misc/quantum_silk.html">Quantum Silk</a> <span class="text-muted">(quantum_silk)</span></li><li class="diff-add">+ <a href="../items/misc/radiant_bile.html">Radiant Bile</a> <span class="text-muted">(radiant_bile)</span></li><li class="diff-add">+ <a href="../items/misc/rime_fang.html">Rime Fang</a> <span class="text-muted">(rime_fang)</span></li><li class="diff-add">+ <a href="../items/weapon/scrap_harpoon.html">Scrap Harpoon</a> <span class="text-muted">(scrap_harpoon)</span></li><li class="diff-add">+ <a href="../items/misc/silica_lens.html">Silica Lens</a> <span class="text-muted">(silica_lens)</span></li><li class="diff-add">+ <a href="../items/misc/storm_node.html">Storm Node</a> <span class="text-muted">(storm_node)</span></li><li class="diff-add">+ <a href="../items/misc/superfluid_vial.html">Superfluid Vial</a> <span class="text-muted">(superfluid_vial)</span></li><li class="diff-add">+ <a href="../items/misc/tritium_pearl.html">Tritium Pearl</a> <span class="text-muted">(tritium_pearl)</span></li><li class="diff-add">+ <a href="../items/misc/tungsten_nugget.html">Tungsten Nugget</a> <span class="text-muted">(tungsten_nugget)</span></li><li class="diff-add">+ <a href="../items/misc/umbral_residue.html">Umbral Residue</a> <span class="text-muted">(umbral_residue)</span></li><li class="diff-add">+ <a href="../items/misc/verdigris_curd.html">Verdigris Curd</a> <span class="text-muted">(verdigris_curd)</span></li><li class="diff-add">+ <a href="../items/misc/void_ichor.html">Void Ichor</a> <span class="text-muted">(void_ichor)</span></li><li class="diff-add">+ <a href="../items/misc/void_charged_ichor.html">Void-Charged Ichor</a> <span class="text-muted">(void_charged_ichor)</span></li><li class="diff-add">+ <a href="../items/misc/whale_baleen.html">Whale Baleen</a> <span class="text-muted">(whale_baleen)</span></li><li class="diff-add">+ <a href="../items/misc/whale_oil.html">Whale Oil</a> <span class="text-muted">(whale_oil)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/weapon/scrapgun.html">scrapgun</a></div>
+<div class="diff-field"><span class="diff-field-name">ammo_type:</span> <span class="diff-del">&#34;autocannon&#34;</span> &rarr; <span class="diff-add">&#34;junk&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+1</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~17</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../ships/Industrial/oil_money.html">Oil Money</a> <span class="text-muted">(oil_money)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../ships/Combat/annihilator.html">annihilator</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">145</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/apotheosis.html">apotheosis</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">130</span> &rarr; <span class="diff-add">135</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/armageddon.html">armageddon</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">75</span> &rarr; <span class="diff-add">150</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/crimson_devastator.html">crimson_devastator</a></div>
+<div class="diff-field"><span class="diff-field-name">power_capacity:</span> <span class="diff-del">160</span> &rarr; <span class="diff-add">185</span></div><div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">65</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/crowbar.html">crowbar</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/cudgel.html">cudgel</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">24</span> &rarr; <span class="diff-add">35</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/fait_accompli.html">fait_accompli</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">65</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/first_step_dreadnought.html">first_step_dreadnought</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">85</span> &rarr; <span class="diff-add">130</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/halberd.html">halberd</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">25</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/losers_weepers.html">losers_weepers</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/opus_magna.html">opus_magna</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">100</span> &rarr; <span class="diff-add">125</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/pantheon.html">pantheon</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">75</span> &rarr; <span class="diff-add">85</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/reckoning.html">reckoning</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">70</span> &rarr; <span class="diff-add">125</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/severance_package.html">severance_package</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">39</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/subjugator.html">subjugator</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">85</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/superposition.html">superposition</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">85</span> &rarr; <span class="diff-add">105</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/swarm_boss.html">swarm_boss</a></div>
+<div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">26</span> &rarr; <span class="diff-add">30</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+1</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../skills/xenobiology.html">Xenobiology</a> <span class="text-muted">(xenobiology)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+46</span>
+        <span class="diff-del">&minus;1</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../facilities/production/adamant_tooth_furnace.html">Adamant Tooth Furnace</a> <span class="text-muted">(adamant_tooth_furnace)</span></li><li class="diff-add">+ <a href="../facilities/production/baleen_plate_works.html">Baleen Plate Works</a> <span class="text-muted">(baleen_plate_works)</span></li><li class="diff-add">+ <a href="../facilities/production/barnacle_plate_forge.html">Barnacle Plate Forge</a> <span class="text-muted">(barnacle_plate_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/biogas_cracker.html">Biogas Cracker</a> <span class="text-muted">(biogas_cracker)</span></li><li class="diff-add">+ <a href="../facilities/production/biogas_distillation_plant.html">Biogas Distillation Plant</a> <span class="text-muted">(biogas_distillation_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/blubber_rendery.html">Blubber Rendery</a> <span class="text-muted">(blubber_rendery)</span></li><li class="diff-add">+ <a href="../facilities/production/brine_coolant_processor.html">Brine Coolant Processor</a> <span class="text-muted">(brine_coolant_processor)</span></li><li class="diff-add">+ <a href="../facilities/production/carapace_lamination_works.html">Carapace Lamination Works</a> <span class="text-muted">(carapace_lamination_works)</span></li><li class="diff-add">+ <a href="../facilities/production/carapace_press.html">Carapace Press</a> <span class="text-muted">(carapace_press)</span></li><li class="diff-add">+ <a href="../facilities/production/caustic_processing_plant.html">Caustic Processing Plant</a> <span class="text-muted">(caustic_processing_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/chitin_gold_furnace.html">Chitin Gold Furnace</a> <span class="text-muted">(chitin_gold_furnace)</span></li><li class="diff-add">+ <a href="../facilities/production/cobalt_concentration_plant.html">Cobalt Concentration Plant</a> <span class="text-muted">(cobalt_concentration_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/cobalt_ink_leecher.html">Cobalt Ink Leecher</a> <span class="text-muted">(cobalt_ink_leecher)</span></li><li class="diff-add">+ <a href="../facilities/production/cobalt_superconductor_foundry.html">Cobalt Superconductor Foundry</a> <span class="text-muted">(cobalt_superconductor_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/cryo_decant_station.html">Cryo Decant Station</a> <span class="text-muted">(cryo_decant_station)</span></li><li class="diff-add">+ <a href="../facilities/production/ember_gland_furnace.html">Ember Gland Furnace</a> <span class="text-muted">(ember_gland_furnace)</span></li><li class="diff-add">+ <a href="../facilities/production/exotic_lattice_foundry.html">Exotic Lattice Foundry</a> <span class="text-muted">(exotic_lattice_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/foil_scale_smeltery.html">Foil Scale Smeltery</a> <span class="text-muted">(foil_scale_smeltery)</span></li><li class="diff-add">+ <a href="../facilities/production/fusion_pearl_mill.html">Fusion Pearl Mill</a> <span class="text-muted">(fusion_pearl_mill)</span></li><li class="diff-add">+ <a href="../facilities/production/galvanic_biorefinery.html">Galvanic Biorefinery</a> <span class="text-muted">(galvanic_biorefinery)</span></li><li class="diff-add">+ <a href="../facilities/production/graphene_weave_reactor.html">Graphene Weave Reactor</a> <span class="text-muted">(graphene_weave_reactor)</span></li><li class="diff-add">+ <a href="../facilities/production/harpoon_rigging_shop.html">Harpoon Rigging Shop</a> <span class="text-muted">(harpoon_rigging_shop)</span></li><li class="diff-add">+ <a href="../facilities/production/hoarfrost_core_forge.html">Hoarfrost Core Forge</a> <span class="text-muted">(hoarfrost_core_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/ion_extraction_press.html">Ion Extraction Press</a> <span class="text-muted">(ion_extraction_press)</span></li><li class="diff-add">+ <a href="../facilities/production/krypton_purification_lab.html">Krypton Purification Lab</a> <span class="text-muted">(krypton_purification_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/lattice_jump_assembler.html">Lattice Jump Assembler</a> <span class="text-muted">(lattice_jump_assembler)</span></li><li class="diff-add">+ <a href="../facilities/faction/letter_of_marque_office.html">Letter of Marque Office</a> <span class="text-muted">(letter_of_marque_office)</span></li><li class="diff-add">+ <a href="../facilities/production/leviathan_core_forge.html">Leviathan Core Forge</a> <span class="text-muted">(leviathan_core_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/levity_gas_cracker.html">Levity Gas Cracker</a> <span class="text-muted">(levity_gas_cracker)</span></li><li class="diff-add">+ <a href="../facilities/production/mantis_claw_press.html">Mantis Claw Press</a> <span class="text-muted">(mantis_claw_press)</span></li><li class="diff-add">+ <a href="../facilities/production/marrow_tap_reactor.html">Marrow Tap Reactor</a> <span class="text-muted">(marrow_tap_reactor)</span></li><li class="diff-add">+ <a href="../facilities/production/nebula_distillery.html">Nebula Distillery</a> <span class="text-muted">(nebula_distillery)</span></li><li class="diff-add">+ <a href="../facilities/production/noble_gas_liquefier.html">Noble Gas Liquefier</a> <span class="text-muted">(noble_gas_liquefier)</span></li><li class="diff-add">+ <a href="../facilities/production/pan_galactic_foundry.html">Pan-Galactic Foundry</a> <span class="text-muted">(pan_galactic_foundry)</span></li><li class="diff-add">+ <a href="../facilities/production/prismatic_alloy_forge.html">Prismatic Alloy Forge</a> <span class="text-muted">(prismatic_alloy_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/radiant_bile_enricher.html">Radiant Bile Enricher</a> <span class="text-muted">(radiant_bile_enricher)</span></li><li class="diff-add">+ <a href="../facilities/production/rime_fang_press.html">Rime Fang Press</a> <span class="text-muted">(rime_fang_press)</span></li><li class="diff-add">+ <a href="../facilities/production/scarab_plate_forge.html">Scarab Plate Forge</a> <span class="text-muted">(scarab_plate_forge)</span></li><li class="diff-add">+ <a href="../facilities/production/silica_optics_lab.html">Silica Optics Lab</a> <span class="text-muted">(silica_optics_lab)</span></li><li class="diff-add">+ <a href="../facilities/production/slag_smeltery.html">Slag Smeltery</a> <span class="text-muted">(slag_smeltery)</span></li><li class="diff-add">+ <a href="../facilities/production/snail_draw_mill.html">Snail Draw Mill</a> <span class="text-muted">(snail_draw_mill)</span></li><li class="diff-add">+ <a href="../facilities/production/storm_node_capacitor_bank.html">Storm Node Capacitor Bank</a> <span class="text-muted">(storm_node_capacitor_bank)</span></li><li class="diff-add">+ <a href="../facilities/production/superfluid_winder.html">Superfluid Winder</a> <span class="text-muted">(superfluid_winder)</span></li><li class="diff-add">+ <a href="../facilities/production/the_wire_room.html">The Wire Room</a> <span class="text-muted">(the_wire_room)</span></li><li class="diff-add">+ <a href="../facilities/production/tritium_pearl_enricher.html">Tritium Pearl Enricher</a> <span class="text-muted">(tritium_pearl_enricher)</span></li><li class="diff-add">+ <a href="../facilities/production/verdigris_smeltery.html">Verdigris Smeltery</a> <span class="text-muted">(verdigris_smeltery)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../facilities/faction/faction_workshop.html">Faction Workshop</a> <span class="text-muted">(faction_workshop)</span></li></ul>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~4</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/brachium/index.html">brachium</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/first_step/index.html">first_step</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0013/index.html">gsc_0013</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/unknown_edge/index.html">unknown_edge</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">6</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>
