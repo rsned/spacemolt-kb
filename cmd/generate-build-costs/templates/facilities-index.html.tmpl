@@ -38,12 +38,12 @@
 
 <section class="stats">
 <h2>Category stats</h2>
-<p class="legend">Mean ± standard deviation of the <strong>MKT-AVG</strong> build cost by facility level, and how many facilities are <strong>currently buildable</strong> (inputs fully sourceable from live galaxy depth via BoM or Recipe). Cost stats cover facilities with a fully-priced bill, so a level's count may exceed the number priced; <code>—</code> means none at that level are fully priced.</p>
+<p class="legend"><strong>Median</strong> MKT-AVG build cost by facility level, with the full <strong>(min–max)</strong> range in parentheses, and how many facilities are <strong>currently buildable</strong> (inputs fully sourceable from live galaxy depth via BoM or Recipe). The median with a min–max range is shown rather than mean ± sd because costs within a level are strongly right-skewed — most facilities cluster low, with a thin tail of far pricier end-game variants — so a mean would sit well above the typical facility. Cost stats cover facilities with a fully-priced bill, so a level's count may exceed the number priced; <code>—</code> means none at that level are fully priced.</p>
 <div class="statblocks">
 {{range .Stats}}<div class="statblock">
 <h3><span class="g">{{.Group}}</span> <small>{{.Count}}</small></h3>
 <table>
-<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT (mean±sd)</th><th>Recipe MKT (mean±sd)</th><th>Buildable now</th></tr></thead>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
 {{range .Levels}}<tr><td>L{{.Level}}</td><td>{{.Count}}</td><td{{if eq .BoM "—"}} class="dash"{{end}}>{{.BoM}}</td><td{{if eq .Recipe "—"}} class="dash"{{end}}>{{.Recipe}}</td><td>{{.Buildable}}</td></tr>
 {{end}}</tbody>
