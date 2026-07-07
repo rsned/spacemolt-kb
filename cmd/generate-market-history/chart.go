@@ -8,16 +8,37 @@ import (
 
 // SVG geometry (user units). viewBox is fixed; the element scales to 100% width.
 const (
-	chartW   = 720.0
-	chartVBH = 260.0
-	priceTop = 10.0
-	priceH   = 170.0
-	volTop   = 195.0
-	volH     = 40.0
-	plotLeft = 44.0
-	plotRt   = 710.0
-	xLabelY  = 252.0
+	chartW     = 720.0
+	chartVBH   = 260.0
+	priceTop   = 10.0
+	priceH     = 170.0
+	volTop     = 195.0
+	volH       = 40.0
+	plotLeft   = 44.0
+	plotRt     = 710.0
+	xLabelY    = 252.0
+	priceTicks = 5 // horizontal gridlines/labels across the price panel
 )
+
+// priceScale returns the padded [lo, hi] y-axis bounds: the data min/max
+// expanded by 10% of the data range on each side, so the tallest wicks sit
+// inside the panel with headroom rather than flush against its edges. lo is
+// clamped at 0 (prices are non-negative). A flat series (min==max) pads by 10%
+// of the level, or ±1 at zero, so the gridline labels still differ.
+func priceScale(pmin, pmax float64) (lo, hi float64) {
+	pad := (pmax - pmin) * 0.10
+	if pad == 0 {
+		pad = pmax * 0.10
+		if pad == 0 {
+			pad = 1
+		}
+	}
+	lo, hi = pmin-pad, pmax+pad
+	if lo < 0 {
+		lo = 0
+	}
+	return lo, hi
+}
 
 // candlestickSVG renders one item's galaxy-wide sell-side daily OHLC as a
 // self-contained inline SVG: a price panel of candles above a volume panel.
@@ -43,12 +64,13 @@ func candlestickSVG(candles []DailyCandle) template.HTML {
 			vmax = c.Volume
 		}
 	}
-	prange := pmax - pmin
+	scaleLo, scaleHi := priceScale(pmin, pmax)
+	srange := scaleHi - scaleLo
 	yFor := func(p float64) float64 {
-		if prange == 0 {
+		if srange == 0 {
 			return priceTop + priceH/2
 		}
-		return priceTop + (pmax-p)/prange*priceH
+		return priceTop + (scaleHi-p)/srange*priceH
 	}
 
 	slot := (plotRt - plotLeft) / float64(len(candles))
@@ -59,10 +81,15 @@ func candlestickSVG(candles []DailyCandle) template.HTML {
 
 	var b strings.Builder
 	fmt.Fprintf(&b, `<svg viewBox="0 0 %.0f %.0f" class="chart" role="img" aria-label="daily price and volume">`, chartW, chartVBH)
-	// Price axis: max at top, min at bottom, baseline grid line.
-	fmt.Fprintf(&b, `<text x="4" y="%.1f" class="axis">%s</text>`, priceTop+8, fmtCompact(pmax))
-	fmt.Fprintf(&b, `<text x="4" y="%.1f" class="axis">%s</text>`, priceTop+priceH, fmtCompact(pmin))
-	fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="grid"/>`, plotLeft, priceTop+priceH, plotRt, priceTop+priceH)
+	// Price axis: evenly-spaced horizontal gridlines (top=scaleHi … bottom=scaleLo)
+	// with value labels, so candle levels are easy to read off.
+	for i := range priceTicks {
+		frac := float64(i) / float64(priceTicks-1)
+		y := priceTop + frac*priceH
+		val := scaleHi - frac*srange
+		fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="grid"/>`, plotLeft, y, plotRt, y)
+		fmt.Fprintf(&b, `<text x="4" y="%.1f" class="axis">%s</text>`, y+3, fmtCompact(val))
+	}
 
 	for i, c := range candles {
 		cx := plotLeft + (float64(i)+0.5)*slot

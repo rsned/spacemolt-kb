@@ -20,9 +20,28 @@ func TestCandlestickSVG_UpDownBodies(t *testing.T) {
 	if !strings.Contains(out, `class="body up"`) || !strings.Contains(out, `class="body down"`) {
 		t.Error("expected both up and down bodies")
 	}
-	// Price axis labels use the compact formatter for the max (16) and min (8).
-	if !strings.Contains(out, ">16<") || !strings.Contains(out, ">8<") {
-		t.Errorf("missing axis labels: %s", out)
+	// Price axis draws evenly-spaced horizontal gridlines with value labels.
+	if n := strings.Count(out, `class="grid"`); n != priceTicks {
+		t.Errorf("want %d gridlines, got %d", priceTicks, n)
+	}
+}
+
+func TestPriceScale(t *testing.T) {
+	// 10% headroom on each side of the data range.
+	if lo, hi := priceScale(100, 200); lo != 90 || hi != 210 {
+		t.Errorf("priceScale(100,200) = %v,%v want 90,210", lo, hi)
+	}
+	// Bottom clamps at zero when padding would go negative.
+	if lo, hi := priceScale(1, 21); lo != 0 || hi != 23 {
+		t.Errorf("priceScale(1,21) = %v,%v want 0,23", lo, hi)
+	}
+	// Flat series pads by 10% of the level.
+	if lo, hi := priceScale(50, 50); lo != 45 || hi != 55 {
+		t.Errorf("priceScale(50,50) = %v,%v want 45,55", lo, hi)
+	}
+	// Flat at zero falls back to a unit band, clamped at 0 below.
+	if lo, hi := priceScale(0, 0); lo != 0 || hi != 1 {
+		t.Errorf("priceScale(0,0) = %v,%v want 0,1", lo, hi)
 	}
 }
 
