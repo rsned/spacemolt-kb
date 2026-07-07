@@ -6,8 +6,10 @@ import (
 	"path/filepath"
 )
 
-// renderFacilitiesIndex writes the facility build-cost landing page.
-func renderFacilitiesIndex(outDir string, summaries []FacilityGroupSummary) error {
+// renderFacilitiesIndex writes the facility build-cost landing page: the group
+// cards, a legend explaining the MKT-AVG vs Galaxy prices, and a per-category
+// stats breakdown.
+func renderFacilitiesIndex(outDir string, summaries []FacilityGroupSummary, stats []CategoryStat) error {
 	t, err := template.ParseFS(tmplFS, "templates/facilities-index.html.tmpl")
 	if err != nil {
 		return err
@@ -20,7 +22,7 @@ func renderFacilitiesIndex(outDir string, summaries []FacilityGroupSummary) erro
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, summaries)
+	return t.Execute(f, map[string]any{"Summaries": summaries, "Stats": stats})
 }
 
 // renderFacilityGroup writes one group's page to outDir/<group>/index.html.

@@ -155,8 +155,8 @@ func main() {
 		recipeOut, err := loadRecipeOutputItem(craftDB)
 		must(err, "load recipe outputs")
 		gb := galaxyBook(books)
-		fPages, fSummaries := buildFacilityPages(facRecs, facBoM, recipeOut, itemNames, categories, sellVWAP, gb)
-		must(renderFacilitiesIndex(*facilitiesOut, fSummaries), "render facilities index")
+		fPages, fSummaries, fStats := buildFacilityPages(facRecs, facBoM, recipeOut, itemNames, categories, sellVWAP, gb)
+		must(renderFacilitiesIndex(*facilitiesOut, fSummaries, fStats), "render facilities index")
 		for _, p := range fPages {
 			must(renderFacilityGroup(*facilitiesOut, p), "render facility group "+p.Group)
 		}

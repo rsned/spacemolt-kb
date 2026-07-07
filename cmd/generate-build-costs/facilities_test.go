@@ -235,11 +235,29 @@ func TestBuildFacilityPages_GroupsSortTOC(t *testing.T) {
 		"iron_ore": {{Price: 4, Qty: 100}},
 	}, BestBuy: map[string]float64{}}
 
-	pages, summaries := buildFacilityPages(recs, facBoM, recipeOut, names, cats, sellVWAP, galaxy)
+	pages, summaries, stats := buildFacilityPages(recs, facBoM, recipeOut, names, cats, sellVWAP, galaxy)
 
 	// Two groups: weapon (2), service (1); summaries sorted by group name.
 	if len(summaries) != 2 || summaries[0].Group != "service" || summaries[1].Group != "weapon" {
 		t.Fatalf("summaries = %+v", summaries)
+	}
+
+	// Stats are group-sorted like summaries, with per-level rows ascending.
+	if len(stats) != 2 || stats[0].Group != "service" || stats[1].Group != "weapon" {
+		t.Fatalf("stats groups = %+v", stats)
+	}
+	ws := stats[1] // weapon
+	if ws.Count != 2 || len(ws.Levels) != 2 {
+		t.Fatalf("weapon stats = %+v", ws)
+	}
+	if ws.Levels[0].Level != 1 || ws.Levels[1].Level != 2 {
+		t.Fatalf("weapon levels not ascending: %+v", ws.Levels)
+	}
+	// a_forge (L1): BoM iron_ore×2 @ VWAP 5 = 10; Recipe iron×1 @ 10 = 10; both
+	// fully priced and galaxy-feasible (ample depth) → single-sample means, buildable.
+	l1 := ws.Levels[0]
+	if l1.Count != 1 || l1.BoM != "10" || l1.Recipe != "10" || l1.Buildable != 1 {
+		t.Fatalf("weapon L1 stat = %+v", l1)
 	}
 	if summaries[1].Count != 2 || summaries[1].Href != "weapon/" {
 		t.Fatalf("weapon summary = %+v", summaries[1])
@@ -279,5 +297,83 @@ func TestBuildFacilityPages_GroupsSortTOC(t *testing.T) {
 	}
 	if activeService {
 		t.Fatalf("service should not be active on the weapon page")
+	}
+}
+
+func TestFmtCompact(t *testing.T) {
+	cases := map[float64]string{
+		4_100_000:     "4.1M",
+		900_000:       "900K",
+		250_000:       "250K",
+		2_000_000_000: "2.0B",
+		250:           "250",
+		0:             "0",
+		-1_500_000:    "-1.5M",
+		// Boundary cases: must promote to the next unit, not render "1000K"/"1000.0M".
+		999_999:     "1.0M",
+		999_999_999: "1.0B",
+		999:         "999",
+	}
+	for in, want := range cases {
+		if got := fmtCompact(in); got != want {
+			t.Fatalf("fmtCompact(%v) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+func TestMktStatStr(t *testing.T) {
+	if got := mktStatStr(nil); got != "—" {
+		t.Fatalf("empty sample = %q, want em-dash", got)
+	}
+	if got := mktStatStr([]float64{4_100_000}); got != "4.1M" {
+		t.Fatalf("single sample = %q, want 4.1M (no ±)", got)
+	}
+	// mean of {2M, 6M} = 4M; sample sd = sqrt(((-2M)^2+(2M)^2)/1) = ~2.83M.
+	if got := mktStatStr([]float64{2_000_000, 6_000_000}); got != "4.0M ± 2.8M" {
+		t.Fatalf("two samples = %q, want '4.0M ± 2.8M'", got)
+	}
+}
+
+func TestBuildFacilityPages_StatsExcludePartialAndCountBuildable(t *testing.T) {
+	// Two weapon-L1 facilities, both with no Recipe (empty Build) so the Recipe
+	// stat has no samples. `full`'s BoM is fully priced and galaxy-feasible;
+	// `partial`'s BoM component is unpriced and unstocked, so it is excluded from
+	// the cost mean and is not buildable by any route.
+	recs := []FacilityRec{
+		{ID: "full", Name: "Full", Category: "production", RecipeID: "r", Level: 1},
+		{ID: "partial", Name: "Partial", Category: "production", RecipeID: "r", Level: 1},
+	}
+	facBoM := map[string][]buildcost.Requirement{
+		"full":    {{ItemID: "iron_ore", Qty: 4}},  // priced + stocked
+		"partial": {{ItemID: "rare", Qty: 5}},       // no VWAP, no galaxy depth
+	}
+	recipeOut := map[string]string{"r": "railgun"}
+	names := map[string]string{"railgun": "Railgun"}
+	cats := map[string]string{"railgun": "weapon"}
+	sellVWAP := map[string]float64{"iron": 10, "iron_ore": 5}
+	galaxy := &buildcost.Book{Sell: map[string]buildcost.Ladder{
+		"iron":     {{Price: 9, Qty: 100}},
+		"iron_ore": {{Price: 4, Qty: 100}},
+	}, BestBuy: map[string]float64{}} // no "rare" ladder → partial is unbuildable
+
+	_, _, stats := buildFacilityPages(recs, facBoM, recipeOut, names, cats, sellVWAP, galaxy)
+	if len(stats) != 1 || stats[0].Group != "weapon" {
+		t.Fatalf("stats = %+v", stats)
+	}
+	l1 := stats[0].Levels[0]
+	if l1.Count != 2 {
+		t.Fatalf("level count = %d, want 2 (both facilities)", l1.Count)
+	}
+	// BoM mean over `full` only (iron_ore×4 @ 5 = 20); `partial` excluded (unpriced).
+	if l1.BoM != "20" {
+		t.Fatalf("BoM stat = %q, want 20 (partial excluded)", l1.BoM)
+	}
+	// Neither facility has a fully-priced non-empty Recipe view.
+	if l1.Recipe != "—" {
+		t.Fatalf("Recipe stat = %q, want em-dash", l1.Recipe)
+	}
+	// Only `full` is buildable; `partial`'s BoM lacks depth and it has no Recipe route.
+	if l1.Buildable != 1 {
+		t.Fatalf("buildable = %d, want 1", l1.Buildable)
 	}
 }
