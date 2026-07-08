@@ -12,8 +12,18 @@ type DailyCandle struct {
 	Volume float64
 }
 
+// notForSalePrice is the game's "not for sale" sentinel ask (also seen as the
+// round 1000000 sibling). market_ohlcv folds resting order-book quantity —
+// including these sentinels — into a bucket's high/close/vwap, so a
+// sentinel-touched bucket would otherwise put a 999999 wick (and, when it is the
+// day's last bucket, a 999999 close) on the candle. Excluding buckets at or
+// above it is safe: the highest genuine sell high in the data is
+// pathfinder_drive at ~773k, well clear of this cutoff.
+const notForSalePrice = 999999
+
 // loadDailyCandles streams every sell-side market_ohlcv row and folds the
 // hourly buckets into per-item daily candles pooled across all stations.
+// Buckets contaminated by the notForSalePrice sentinel (see above) are excluded.
 // Rows arrive grouped by item and chronologically within item (bucket, then
 // station_id), so day bucketing and first/last selection are a linear fold.
 // Each returned slice is in ascending-day order.
@@ -21,8 +31,8 @@ func loadDailyCandles(db *sql.DB) (map[string][]DailyCandle, error) {
 	rows, err := db.Query(`SELECT item_id, station_id, bucket_utc,
 		open_price, high_price, low_price, close_price, volume
 		FROM market_ohlcv
-		WHERE side = 'sell'
-		ORDER BY item_id, bucket_utc, station_id`)
+		WHERE side = 'sell' AND high_price < ?
+		ORDER BY item_id, bucket_utc, station_id`, notForSalePrice)
 	if err != nil {
 		return nil, err
 	}

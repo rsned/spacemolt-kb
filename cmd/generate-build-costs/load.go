@@ -16,17 +16,27 @@ type StationMeta struct {
 	Empire string
 }
 
-// loadSellVWAP returns each item's sell-side (ask) volume-weighted average
-// trade price from market_ohlcv. VWAP is weighted by actual traded volume, so
-// resting sentinel/junk orders (which never trade) do not distort it. Items
-// with no sell-side trade history are absent from the map.
+// notForSalePrice is the game's "not for sale" sentinel ask (also seen as the
+// round 1000000 sibling). Contrary to an earlier assumption, market_ohlcv folds
+// resting order-book quantity — including these sentinels — into volume/vwap, so
+// any bucket whose high touched the sentinel has a wildly inflated vwap (e.g.
+// iron_ore's sell VWAP reads 382cr against a ~2cr live ask). Excluding buckets
+// at or above it is a self-contained filter: the highest genuine sell high in
+// the data is pathfinder_drive at ~773k, well clear of this cutoff.
+const notForSalePrice = 999999
+
+// loadSellVWAP returns each item's sell-side (ask) volume-weighted average price
+// from market_ohlcv, excluding any bucket contaminated by the notForSalePrice
+// sentinel (see above). Items with no clean sell-side history are absent from
+// the map (so an item only ever listed at the sentinel falls back to the
+// order-book median in loadBooks rather than reporting a bogus ~1M average).
 func loadSellVWAP(marketDB *sql.DB) (map[string]float64, error) {
 	rows, err := marketDB.Query(`
 		SELECT item_id, SUM(vwap*volume) AS num, SUM(volume) AS den
 		FROM market_ohlcv
-		WHERE side='sell'
+		WHERE side='sell' AND high_price < ?
 		GROUP BY item_id
-		HAVING den > 0`)
+		HAVING den > 0`, notForSalePrice)
 	if err != nil {
 		return nil, err
 	}

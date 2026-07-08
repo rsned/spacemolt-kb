@@ -123,10 +123,16 @@ func TestLoadSellVWAP(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := db.Exec(`
-CREATE TABLE market_ohlcv (station_id TEXT, item_id TEXT, side TEXT, bucket_utc TEXT, vwap REAL, volume REAL);
-INSERT INTO market_ohlcv VALUES ('st1','iron','sell','2026-07-05T00:00:00Z',400,3);
-INSERT INTO market_ohlcv VALUES ('st1','iron','sell','2026-07-05T01:00:00Z',40,1);
-INSERT INTO market_ohlcv VALUES ('st1','iron','buy','2026-07-05T00:00:00Z',9999,50);
+CREATE TABLE market_ohlcv (station_id TEXT, item_id TEXT, side TEXT, bucket_utc TEXT, high_price REAL, vwap REAL, volume REAL);
+-- clean sell buckets: VWAP = (400*3 + 40*1)/(3+1) = 310.
+INSERT INTO market_ohlcv VALUES ('st1','iron','sell','2026-07-05T00:00:00Z',500,400,3);
+INSERT INTO market_ohlcv VALUES ('st1','iron','sell','2026-07-05T01:00:00Z',45,40,1);
+-- sentinel-contaminated bucket: its huge vwap*volume must NOT enter the average.
+INSERT INTO market_ohlcv VALUES ('st1','iron','sell','2026-07-05T02:00:00Z',999999,800,1000);
+-- a buy row that must be ignored entirely.
+INSERT INTO market_ohlcv VALUES ('st1','iron','buy','2026-07-05T00:00:00Z',9999,9999,50);
+-- an item that ONLY ever appears at the sentinel must be absent from the map.
+INSERT INTO market_ohlcv VALUES ('st1','ghost','sell','2026-07-05T00:00:00Z',1000000,1000000,7);
 `); err != nil {
 		t.Fatal(err)
 	}
@@ -136,7 +142,10 @@ INSERT INTO market_ohlcv VALUES ('st1','iron','buy','2026-07-05T00:00:00Z',9999,
 		t.Fatal(err)
 	}
 	if got := ref["iron"]; got != 310 {
-		t.Fatalf("ref[iron] = %v, want 310", got)
+		t.Fatalf("ref[iron] = %v, want 310 (sentinel bucket excluded)", got)
+	}
+	if _, ok := ref["ghost"]; ok {
+		t.Fatalf("ref[ghost] = %v, want absent (all buckets are sentinel)", ref["ghost"])
 	}
 }
 

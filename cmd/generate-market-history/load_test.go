@@ -63,6 +63,34 @@ func TestLoadDailyCandles_FoldsByDay(t *testing.T) {
 	}
 }
 
+func TestLoadDailyCandles_ExcludesSentinelBuckets(t *testing.T) {
+	db := newMarketDB(t)
+	defer func() { _ = db.Close() }()
+
+	// day 2026-06-21: one clean bucket plus a notForSalePrice-sentinel bucket
+	// whose 999999 high/close and resting volume must be fully excluded.
+	insOHLCV(t, db, "A", "ore_x", "sell", "2026-06-21T15:00:00Z", 10, 12, 9, 11, 100)
+	insOHLCV(t, db, "A", "ore_x", "sell", "2026-06-21T16:00:00Z", 5, 999999, 5, 999999, 500)
+	// ore_y: every bucket is sentinel, so it yields no candle at all.
+	insOHLCV(t, db, "A", "ore_y", "sell", "2026-06-21T15:00:00Z", 5, 1000000, 5, 1000000, 42)
+
+	got, err := loadDailyCandles(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cs := got["ore_x"]
+	if len(cs) != 1 {
+		t.Fatalf("want 1 candle for ore_x, got %d", len(cs))
+	}
+	c := cs[0]
+	if c.High != 12 || c.Close != 11 || c.Low != 9 || c.Volume != 100 {
+		t.Errorf("candle contaminated by sentinel bucket: %+v", c)
+	}
+	if _, ok := got["ore_y"]; ok {
+		t.Errorf("ore_y has only sentinel buckets, expected no candle, got %+v", got["ore_y"])
+	}
+}
+
 func TestLoadDailyCandles_SameBucketTieBreakByStation(t *testing.T) {
 	db := newMarketDB(t)
 	defer func() { _ = db.Close() }()
