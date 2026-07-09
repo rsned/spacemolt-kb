@@ -204,9 +204,10 @@ type NoFacilityRecipe struct {
 }
 
 // groupByRecipe buckets public lines by the recipe they run, sorted by recipe
-// name; lines within a group sort by station name. Facilities whose recipe is
-// absent from the crafting DB are dropped -- every ID resolves today, and a
-// group with no name or category would render as a dead link.
+// name; lines within a group sort by station name, then station ID, then
+// facility ID. Facilities whose recipe is absent from the crafting DB are
+// dropped -- every ID resolves today, and a group with no name or category
+// would render as a dead link.
 func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRecipeGroup {
 	byRecipe := make(map[string][]PublicFacility)
 	for _, f := range facs {
@@ -221,6 +222,9 @@ func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRec
 		r := recipes[id]
 		slices.SortFunc(lines, func(a, b PublicFacility) int {
 			if c := cmp.Compare(a.StationName, b.StationName); c != 0 {
+				return c
+			}
+			if c := cmp.Compare(a.StationID, b.StationID); c != 0 {
 				return c
 			}
 			return cmp.Compare(a.FacilityID, b.FacilityID)
@@ -588,7 +592,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
                     <span class="badge badge-frost" style="font-size:0.7em; vertical-align:middle;" title="Requires a production facility">Facility Only</span>
 {{- end}}
 {{- range .Outputs}}
-                    <small style="font-size:0.75em; font-weight:normal;">&rarr; <a href="{{itemURL .ItemCategory .ItemID}}">{{.ItemName}}</a> &times;{{.Quantity}}</small>
+                    <small style="font-size:0.75em; font-weight:normal;">&rarr; {{if .ItemCategory}}<a href="{{itemURL .ItemCategory .ItemID}}">{{.ItemName}}</a>{{else}}{{.ItemName}}{{end}} &times;{{.Quantity}}</small>
 {{- end}}
                     <a href="#" class="back-top">[top]</a>
                 </h3>
@@ -675,7 +679,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
 {{- range .Facilities}}
                             <tr>
                                 <td><a href="{{.RecipeDirName}}/{{.RecipeID}}.html">{{.RecipeName}}</a></td>
-                                <td>{{range .Outputs}}<a href="{{itemURL .ItemCategory .ItemID}}">{{.ItemName}}</a> &times;{{.Quantity}} {{end}}</td>
+                                <td>{{range .Outputs}}{{if .ItemCategory}}<a href="{{itemURL .ItemCategory .ItemID}}">{{.ItemName}}</a>{{else}}{{.ItemName}}{{end}} &times;{{.Quantity}} {{end}}</td>
                                 <td>{{if .FacilityType}}<a href="../facilities/production/{{.FacilityType}}.html">{{.FacilityName}}</a>{{else}}{{.FacilityName}}{{end}}</td>
                                 <td class="num-cell" data-sort="{{.Level}}">{{.Level}}</td>
                                 <td class="num-cell" data-sort="{{.FeePerRun}}">{{comma .FeePerRun}}</td>
