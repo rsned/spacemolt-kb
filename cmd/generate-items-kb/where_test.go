@@ -101,8 +101,8 @@ func newKnowledgeFixture(t *testing.T) *sql.DB {
 		`INSERT INTO pois VALUES ('starfall_salvage_station','starfall','Starfall Salvage Station','station')`,
 		// Base ID differs from POI ID -- the COALESCE(b.poi_id, ...) path.
 		`INSERT INTO bases VALUES ('confederacy_central_command','sol_central','Confederacy Central Command')`,
-		// Base ID equals POI ID -- the direct path.
-		`INSERT INTO bases VALUES ('starfall_salvage_station','starfall_salvage_station','Starfall Salvage Station')`,
+		// No bases row for starfall_salvage_station -- the COALESCE falls back to pf.station_id.
+		// This tests the fallback path where station_id is a pois.id with no bases entry.
 		`INSERT INTO factions VALUES ('fac_known','Hex Collective','HEXC')`,
 
 		// Row 1: fully resolvable, base-ID station.
@@ -175,10 +175,14 @@ func TestLoadPublicFacilities(t *testing.T) {
 		t.Errorf("f1 owner = %q/%q, want Hex Collective/HEXC", f1.OwnerName, f1.OwnerTag)
 	}
 
-	// Row 2: station_id is itself a POI id.
+	// Row 2: station_id is itself a POI id with no bases row, testing COALESCE fallback.
 	f2 := byID["f2"]
 	if f2.SystemID != "starfall" {
 		t.Errorf("f2.SystemID = %q, want starfall", f2.SystemID)
+	}
+	// Station name resolved through pois.name via COALESCE fallback.
+	if f2.StationName != "Starfall Salvage Station" {
+		t.Errorf("f2.StationName = %q, want Starfall Salvage Station (from pois fallback)", f2.StationName)
 	}
 	// Unresolved faction: OwnerName stays empty, OwnerID is preserved for display.
 	if f2.OwnerName != "" {
