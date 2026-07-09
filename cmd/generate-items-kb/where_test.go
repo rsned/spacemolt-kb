@@ -215,3 +215,140 @@ func TestLoadPublicFacilitiesMissingTable(t *testing.T) {
 		t.Fatalf("err = %v, want errNoPublicFacilities", err)
 	}
 }
+
+func TestGroupByRecipe(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+	facs, err := loadPublicFacilities(newKnowledgeFixture(t))
+	if err != nil {
+		t.Fatalf("loadPublicFacilities: %v", err)
+	}
+
+	groups := groupByRecipe(facs, recipes)
+
+	// Two distinct recipe_ids among the 3 public rows: refine_steel, hand_recipe.
+	if len(groups) != 2 {
+		t.Fatalf("got %d groups, want 2", len(groups))
+	}
+	// Sorted by recipe name: "Hand Recipe" < "Refine Steel".
+	if groups[0].RecipeName != "Hand Recipe" || groups[1].RecipeName != "Refine Steel" {
+		t.Fatalf("groups not sorted by name: %q, %q", groups[0].RecipeName, groups[1].RecipeName)
+	}
+
+	rs := groups[1]
+	if len(rs.Facilities) != 2 {
+		t.Fatalf("refine_steel has %d facilities, want 2", len(rs.Facilities))
+	}
+	// Facilities within a group sort by station name: Confederacy < Starfall.
+	if rs.Facilities[0].StationName != "Confederacy Central Command" {
+		t.Errorf("first facility station = %q, want Confederacy Central Command",
+			rs.Facilities[0].StationName)
+	}
+	if !rs.FacilityOnly {
+		t.Error("refine_steel.FacilityOnly = false, want true")
+	}
+	if rs.RecipeCategory != "Refining" {
+		t.Errorf("refine_steel.RecipeCategory = %q, want Refining", rs.RecipeCategory)
+	}
+	if len(rs.Outputs) != 1 || rs.Outputs[0].ItemID != "steel_plate" {
+		t.Errorf("refine_steel outputs = %+v, want one steel_plate", rs.Outputs)
+	}
+}
+
+func TestGroupByStation(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+	facs, err := loadPublicFacilities(newKnowledgeFixture(t))
+	if err != nil {
+		t.Fatalf("loadPublicFacilities: %v", err)
+	}
+
+	stations := groupByStation(facs, recipes)
+
+	if len(stations) != 2 {
+		t.Fatalf("got %d stations, want 2", len(stations))
+	}
+	// Ordered by facility count descending: CCC has 2, Starfall has 1.
+	if stations[0].StationID != "confederacy_central_command" || stations[0].Count != 2 {
+		t.Fatalf("first station = %s (%d facilities), want confederacy_central_command (2)",
+			stations[0].StationID, stations[0].Count)
+	}
+	if stations[1].Count != 1 {
+		t.Errorf("second station count = %d, want 1", stations[1].Count)
+	}
+
+	// CCC's two facilities are in different recipe categories -> two blocks,
+	// sorted by category name: Components < Refining.
+	ccc := stations[0]
+	if len(ccc.Categories) != 2 {
+		t.Fatalf("CCC has %d category blocks, want 2", len(ccc.Categories))
+	}
+	if ccc.Categories[0].Category != "Components" || ccc.Categories[1].Category != "Refining" {
+		t.Errorf("CCC categories = %q, %q; want Components, Refining",
+			ccc.Categories[0].Category, ccc.Categories[1].Category)
+	}
+	// Fee range spans both facilities: 5 (Broken Line) .. 40 (Salvage Smelter).
+	if ccc.FeeMin != 5 || ccc.FeeMax != 40 {
+		t.Errorf("CCC fee range = %d..%d, want 5..40", ccc.FeeMin, ccc.FeeMax)
+	}
+	// Recipe metadata is attached to each station facility.
+	if ccc.Categories[1].Facilities[0].RecipeName != "Refine Steel" {
+		t.Errorf("RecipeName = %q, want Refine Steel",
+			ccc.Categories[1].Facilities[0].RecipeName)
+	}
+}
+
+func TestSplitNoFacilityRecipes(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+	// refine_steel and hand_recipe have public lines; gap_recipe does not.
+	covered := map[string]bool{"refine_steel": true, "hand_recipe": true}
+
+	facilityOnly, noFacilityNeeded := splitNoFacilityRecipes(recipes, covered)
+
+	// gap_recipe is facility_only with no line -> the gap table.
+	if len(facilityOnly) != 1 || facilityOnly[0].ID != "gap_recipe" {
+		t.Fatalf("facilityOnly = %+v, want [gap_recipe]", facilityOnly)
+	}
+	if facilityOnly[0].Category != "Weapons" || facilityOnly[0].DirName != "Weapons" {
+		t.Errorf("gap_recipe category/dir = %q/%q, want Weapons/Weapons",
+			facilityOnly[0].Category, facilityOnly[0].DirName)
+	}
+	if facilityOnly[0].OutputID != "copper_wire" || facilityOnly[0].OutputQty != 1 {
+		t.Errorf("gap_recipe output = %s x%d, want copper_wire x1",
+			facilityOnly[0].OutputID, facilityOnly[0].OutputQty)
+	}
+
+	// Covered recipes appear in NEITHER table.
+	if len(noFacilityNeeded) != 0 {
+		t.Fatalf("noFacilityNeeded = %+v, want empty (both non-gap recipes are covered)", noFacilityNeeded)
+	}
+
+	// Now uncover hand_recipe: it is not facility_only, so it lands in the
+	// second table, never the first.
+	facilityOnly, noFacilityNeeded = splitNoFacilityRecipes(recipes, map[string]bool{"refine_steel": true})
+	if len(noFacilityNeeded) != 1 || noFacilityNeeded[0].ID != "hand_recipe" {
+		t.Fatalf("noFacilityNeeded = %+v, want [hand_recipe]", noFacilityNeeded)
+	}
+	if len(facilityOnly) != 1 || facilityOnly[0].ID != "gap_recipe" {
+		t.Fatalf("facilityOnly = %+v, want [gap_recipe] still", facilityOnly)
+	}
+
+	// The two tables must never overlap and never lose a recipe.
+	seen := map[string]bool{}
+	for _, r := range append(append([]NoFacilityRecipe{}, facilityOnly...), noFacilityNeeded...) {
+		if seen[r.ID] {
+			t.Errorf("recipe %s appears in both tables", r.ID)
+		}
+		seen[r.ID] = true
+	}
+	if len(seen) != len(recipes)-1 { // minus the one covered recipe
+		t.Errorf("split covers %d recipes, want %d", len(seen), len(recipes)-1)
+	}
+}

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"cmp"
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"slices"
 )
 
 // errNoPublicFacilities is returned when the knowledge DB predates the
@@ -138,4 +140,213 @@ func loadPublicFacilities(db *sql.DB) ([]PublicFacility, error) {
 		out = append(out, f)
 	}
 	return out, rows.Err()
+}
+
+// WhereRecipeGroup is one recipe and every public line that runs it.
+type WhereRecipeGroup struct {
+	RecipeID       string
+	RecipeName     string
+	RecipeCategory string
+	RecipeDirName  string // category with spaces -> underscores, for the URL path
+	FacilityOnly   bool
+	Outputs        []RecipeItem
+	Facilities     []PublicFacility
+}
+
+// WhereStationFacility is a public line with its recipe metadata attached, for
+// rendering inside a station's section.
+type WhereStationFacility struct {
+	PublicFacility
+	RecipeName    string
+	RecipeDirName string
+	Outputs       []RecipeItem
+}
+
+// WhereStationCategory is one recipe-category block within a station.
+type WhereStationCategory struct {
+	Category   string
+	Facilities []WhereStationFacility
+}
+
+// WhereStationGroup is one station and everything craftable there, bucketed by
+// recipe category.
+type WhereStationGroup struct {
+	StationID   string
+	StationName string
+	SystemID    string
+	SystemName  string
+	Count       int
+	FeeMin      int
+	FeeMax      int
+	Categories  []WhereStationCategory
+}
+
+// NoFacilityRecipe is a recipe with no known public line, for the two dense
+// tables at the bottom of the by-recipe tab.
+type NoFacilityRecipe struct {
+	ID             string
+	Name           string
+	Category       string
+	DirName        string
+	OutputID       string
+	OutputName     string
+	OutputCategory string
+	OutputQty      int
+	CraftingTime   float64
+}
+
+// groupByRecipe buckets public lines by the recipe they run, sorted by recipe
+// name; lines within a group sort by station name. Facilities whose recipe is
+// absent from the crafting DB are dropped -- every ID resolves today, and a
+// group with no name or category would render as a dead link.
+func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRecipeGroup {
+	byRecipe := make(map[string][]PublicFacility)
+	for _, f := range facs {
+		if _, ok := recipes[f.RecipeID]; !ok {
+			continue
+		}
+		byRecipe[f.RecipeID] = append(byRecipe[f.RecipeID], f)
+	}
+
+	groups := make([]WhereRecipeGroup, 0, len(byRecipe))
+	for id, lines := range byRecipe {
+		r := recipes[id]
+		slices.SortFunc(lines, func(a, b PublicFacility) int {
+			if c := cmp.Compare(a.StationName, b.StationName); c != 0 {
+				return c
+			}
+			return cmp.Compare(a.FacilityID, b.FacilityID)
+		})
+		groups = append(groups, WhereRecipeGroup{
+			RecipeID:       r.ID,
+			RecipeName:     r.Name,
+			RecipeCategory: r.Category,
+			RecipeDirName:  dirName(r.Category),
+			FacilityOnly:   r.FacilityOnly,
+			Outputs:        r.Outputs,
+			Facilities:     lines,
+		})
+	}
+	slices.SortFunc(groups, func(a, b WhereRecipeGroup) int {
+		if c := cmp.Compare(a.RecipeName, b.RecipeName); c != 0 {
+			return c
+		}
+		return cmp.Compare(a.RecipeID, b.RecipeID)
+	})
+	return groups
+}
+
+// groupByStation buckets public lines by station (count descending, then name)
+// and, within each station, by recipe category (name ascending). The category
+// grouping is what keeps a 219-line station scannable.
+func groupByStation(facs []PublicFacility, recipes map[string]*Recipe) []WhereStationGroup {
+	type stationAcc struct {
+		g     WhereStationGroup
+		byCat map[string][]WhereStationFacility
+	}
+	acc := make(map[string]*stationAcc)
+
+	for _, f := range facs {
+		r, ok := recipes[f.RecipeID]
+		if !ok {
+			continue
+		}
+		a, ok := acc[f.StationID]
+		if !ok {
+			a = &stationAcc{
+				g: WhereStationGroup{
+					StationID:   f.StationID,
+					StationName: f.StationName,
+					SystemID:    f.SystemID,
+					SystemName:  f.SystemName,
+					FeeMin:      f.FeePerRun,
+					FeeMax:      f.FeePerRun,
+				},
+				byCat: make(map[string][]WhereStationFacility),
+			}
+			acc[f.StationID] = a
+		}
+		a.g.Count++
+		a.g.FeeMin = min(a.g.FeeMin, f.FeePerRun)
+		a.g.FeeMax = max(a.g.FeeMax, f.FeePerRun)
+		a.byCat[r.Category] = append(a.byCat[r.Category], WhereStationFacility{
+			PublicFacility: f,
+			RecipeName:     r.Name,
+			RecipeDirName:  dirName(r.Category),
+			Outputs:        r.Outputs,
+		})
+	}
+
+	stations := make([]WhereStationGroup, 0, len(acc))
+	for _, a := range acc {
+		cats := make([]WhereStationCategory, 0, len(a.byCat))
+		for name, lines := range a.byCat {
+			slices.SortFunc(lines, func(x, y WhereStationFacility) int {
+				if c := cmp.Compare(x.RecipeName, y.RecipeName); c != 0 {
+					return c
+				}
+				return cmp.Compare(x.FacilityID, y.FacilityID)
+			})
+			cats = append(cats, WhereStationCategory{Category: name, Facilities: lines})
+		}
+		slices.SortFunc(cats, func(x, y WhereStationCategory) int {
+			return cmp.Compare(x.Category, y.Category)
+		})
+		a.g.Categories = cats
+		stations = append(stations, a.g)
+	}
+
+	slices.SortFunc(stations, func(a, b WhereStationGroup) int {
+		if c := cmp.Compare(b.Count, a.Count); c != 0 { // count descending
+			return c
+		}
+		if c := cmp.Compare(a.StationName, b.StationName); c != 0 {
+			return c
+		}
+		return cmp.Compare(a.StationID, b.StationID)
+	})
+	return stations
+}
+
+// splitNoFacilityRecipes partitions the recipes with no known public line into
+// the two dense tables.
+//
+// The split is on facility_only, and the distinction is the whole point: a
+// facility_only recipe with no public line genuinely cannot be crafted at a
+// bare station, while a non-facility_only one can be crafted anywhere, so the
+// absence of a public line barely matters. Recipes that DO have a public line
+// appear in neither table.
+func splitNoFacilityRecipes(recipes map[string]*Recipe, covered map[string]bool) (facilityOnly, noFacilityNeeded []NoFacilityRecipe) {
+	for id, r := range recipes {
+		if covered[id] {
+			continue
+		}
+		e := NoFacilityRecipe{
+			ID:           r.ID,
+			Name:         r.Name,
+			Category:     r.Category,
+			DirName:      dirName(r.Category),
+			CraftingTime: r.CraftingTime,
+		}
+		if len(r.Outputs) > 0 {
+			o := r.Outputs[0]
+			e.OutputID, e.OutputName, e.OutputCategory, e.OutputQty =
+				o.ItemID, o.ItemName, o.ItemCategory, o.Quantity
+		}
+		if r.FacilityOnly {
+			facilityOnly = append(facilityOnly, e)
+		} else {
+			noFacilityNeeded = append(noFacilityNeeded, e)
+		}
+	}
+
+	byName := func(a, b NoFacilityRecipe) int {
+		if c := cmp.Compare(a.Name, b.Name); c != 0 {
+			return c
+		}
+		return cmp.Compare(a.ID, b.ID)
+	}
+	slices.SortFunc(facilityOnly, byName)
+	slices.SortFunc(noFacilityNeeded, byName)
+	return facilityOnly, noFacilityNeeded
 }
