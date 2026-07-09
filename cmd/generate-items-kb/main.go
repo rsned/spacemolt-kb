@@ -669,7 +669,10 @@ func main() {
 		log.Fatalf("load recipes: %v", err)
 	}
 
-	// Overlay hidden flag from catalog JSON.
+	// Overlay hidden/no_recycle/fuel_output from catalog JSON. facility_only is
+	// already loaded from the crafting DB (both sources agree); the overlay
+	// re-sets it, so a missing catalog degrades the hidden flag but never
+	// silently flattens facility_only, which the Where-To-Craft page splits on.
 	recipeCatalogPath := filepath.Join(catalogDir, "catalog_recipes.json")
 	if err := loadRecipeOverlay(recipeCatalogPath, recipes); err != nil {
 		log.Printf("warning: load recipe overlay: %v (hidden flag will be omitted)", err)
@@ -2449,7 +2452,7 @@ func poiIcon(poiType string) string {
 }
 
 func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
-	rows, err := db.Query(`SELECT id, name, COALESCE(description,''), COALESCE(category,''), crafting_time FROM recipes ORDER BY id`)
+	rows, err := db.Query(`SELECT id, name, COALESCE(description,''), COALESCE(category,''), crafting_time, COALESCE(facility_only, 0) FROM recipes ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
@@ -2458,7 +2461,7 @@ func loadRecipes(db *sql.DB) (map[string]*Recipe, error) {
 	recipes := make(map[string]*Recipe)
 	for rows.Next() {
 		var r Recipe
-		if err := rows.Scan(&r.ID, &r.Name, &r.Description, &r.Category, &r.CraftingTime); err != nil {
+		if err := rows.Scan(&r.ID, &r.Name, &r.Description, &r.Category, &r.CraftingTime, &r.FacilityOnly); err != nil {
 			return nil, err
 		}
 		recipes[r.ID] = &r
