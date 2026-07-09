@@ -3,6 +3,9 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -350,5 +353,77 @@ func TestSplitNoFacilityRecipes(t *testing.T) {
 	}
 	if len(seen) != len(recipes)-1 { // minus the one covered recipe
 		t.Errorf("split covers %d recipes, want %d", len(seen), len(recipes)-1)
+	}
+}
+
+func TestWriteWherePage(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+	dir := t.TempDir()
+	if err := writeWherePage(dir, newKnowledgeFixture(t), recipes); err != nil {
+		t.Fatalf("writeWherePage: %v", err)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(dir, "where.html"))
+	if err != nil {
+		t.Fatalf("read where.html: %v", err)
+	}
+	html := string(raw)
+
+	for _, want := range []string{
+		`id="by-recipe"`,
+		`id="by-station"`,
+		`id="r-refine_steel"`,                           // recipe deep-link anchor
+		`id="s-confederacy_central_command"`,            // station deep-link anchor
+		`../systems/sol/index.html`,                     // station -> system link
+		`../facilities/production/salvage_smelter.html`, // facility -> type link
+		`Refining/refine_steel.html`,                    // recipe -> recipe page link
+		`../items/material/steel_plate.html`,            // output -> item link
+		`Gap Recipe`,                                    // facility-only gap table
+		`No Known Public Line`,
+		`No Facility Required`,
+		`fac_unknown_hash`, // unresolved faction renders raw
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("where.html missing %q", want)
+		}
+	}
+
+	// The private (public=0) facility must never reach the page.
+	if strings.Contains(html, "Private Line") || strings.Contains(html, "private_lab") {
+		t.Error("public=0 facility leaked into rendered HTML")
+	}
+
+	// Copy rule from the spec: never claim absolute impossibility.
+	for _, banned := range []string{"nowhere", "impossible"} {
+		if strings.Contains(strings.ToLower(html), banned) {
+			t.Errorf("page contains banned absolute-claim word %q", banned)
+		}
+	}
+}
+
+func TestWriteWherePageEmptyTable(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+	db := newKnowledgeFixture(t)
+	if _, err := db.Exec(`DELETE FROM public_facilities`); err != nil {
+		t.Fatalf("clear table: %v", err)
+	}
+
+	dir := t.TempDir()
+	if err := writeWherePage(dir, db, recipes); err != nil {
+		t.Fatalf("writeWherePage on empty table: %v", err)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "where.html"))
+	if err != nil {
+		t.Fatalf("read where.html: %v", err)
+	}
+	// With no lines at all, every recipe falls into one of the two dense tables.
+	if !strings.Contains(string(raw), "Hand Recipe") {
+		t.Error("empty-table page should still list all recipes as having no public line")
 	}
 }

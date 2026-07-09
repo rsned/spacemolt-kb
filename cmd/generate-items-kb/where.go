@@ -5,7 +5,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
+	htmltpl "html/template"
+	"log"
+	"os"
+	"path/filepath"
 	"slices"
+	"strings"
+
+	humanize "github.com/dustin/go-humanize"
 )
 
 // errNoPublicFacilities is returned when the knowledge DB predates the
@@ -350,3 +358,343 @@ func splitNoFacilityRecipes(recipes map[string]*Recipe, covered map[string]bool)
 	slices.SortFunc(noFacilityNeeded, byName)
 	return facilityOnly, noFacilityNeeded
 }
+
+// wherePageData is the root template context for where.html.
+type wherePageData struct {
+	StationCount     int
+	FacilityCount    int
+	RecipesCovered   int
+	FacilityOnlyGap  int
+	LastSeenTick     int
+	RecipeGroups     []WhereRecipeGroup
+	StationGroups    []WhereStationGroup
+	FacilityOnlyNone []NoFacilityRecipe
+	NoFacilityNeeded []NoFacilityRecipe
+}
+
+// writeWherePage renders kb/recipes/where.html.
+//
+// MUST be called after writeRecipePages: that function calls
+// cleanGeneratedFiles on the same directory, which deletes every .html in it.
+func writeWherePage(outDir string, knowledgeDB *sql.DB, recipes map[string]*Recipe) error {
+	facs, err := loadPublicFacilities(knowledgeDB)
+	if err != nil {
+		return fmt.Errorf("load public facilities: %w", err)
+	}
+
+	covered := make(map[string]bool, len(facs))
+	maxTick := 0
+	for _, f := range facs {
+		covered[f.RecipeID] = true
+		maxTick = max(maxTick, f.LastSeenTick)
+	}
+
+	recipeGroups := groupByRecipe(facs, recipes)
+	stationGroups := groupByStation(facs, recipes)
+	facilityOnlyNone, noFacilityNeeded := splitNoFacilityRecipes(recipes, covered)
+
+	data := wherePageData{
+		StationCount:     len(stationGroups),
+		FacilityCount:    len(facs),
+		RecipesCovered:   len(recipeGroups),
+		FacilityOnlyGap:  len(facilityOnlyNone),
+		LastSeenTick:     maxTick,
+		RecipeGroups:     recipeGroups,
+		StationGroups:    stationGroups,
+		FacilityOnlyNone: facilityOnlyNone,
+		NoFacilityNeeded: noFacilityNeeded,
+	}
+
+	funcs := htmltpl.FuncMap{
+		"comma": func(n int) string { return humanize.Comma(int64(n)) },
+		"lower": strings.ToLower, // faction dirs are the lowercased tag: kb/factions/hexc/
+		"fmtTime": func(f float64) string {
+			if f == 0 {
+				return "-"
+			}
+			return fmt.Sprintf("%.1fs", f)
+		},
+		"itemURL": func(category, id string) string {
+			if category == "" {
+				return ""
+			}
+			return fmt.Sprintf("../items/%s/%s.html", category, id)
+		},
+		"shortHash": func(s string) string {
+			if len(s) > 8 {
+				return s[:8]
+			}
+			return s
+		},
+	}
+
+	tmpl := htmltpl.Must(htmltpl.New("where").Funcs(funcs).Parse(whereTemplate))
+
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return err
+	}
+	outPath := filepath.Join(outDir, "where.html")
+	f, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+	if err := tmpl.Execute(f, data); err != nil {
+		_ = f.Close()
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	log.Printf("Where-To-Craft: %d public lines, %d recipes covered, %d stations, %d facility-only gaps",
+		len(facs), len(recipeGroups), len(stationGroups), len(facilityOnlyNone))
+	return nil
+}
+
+// whereTabScript selects the tab from the URL hash: #s-<station> opens the
+// by-station tab, anything else opens by-recipe, so external deep links land
+// on the right view and scroll to their anchor.
+var whereTabScript = `    <script>
+    (function() {
+      var buttons = document.querySelectorAll(".tab-btn");
+      function show(id) {
+        document.querySelectorAll(".tab-panel").forEach(function(p) { p.hidden = (p.id !== id); });
+        buttons.forEach(function(b) { b.classList.toggle("active", b.dataset.tab === id); });
+      }
+      var hash = location.hash.slice(1);
+      var initial = (hash === "by-station" || hash.indexOf("s-") === 0) ? "by-station" : "by-recipe";
+      show(initial);
+      if (hash && hash !== "by-recipe" && hash !== "by-station") {
+        var el = document.getElementById(hash);
+        if (el) el.scrollIntoView();
+      }
+      buttons.forEach(function(b) {
+        b.addEventListener("click", function() {
+          show(b.dataset.tab);
+          history.replaceState(null, "", "#" + b.dataset.tab);
+        });
+      });
+    })();
+    </script>`
+
+// denseTableTemplate renders one of the two dense gap tables (facility-only
+// with no public line, and no-facility-required). The brief's original
+// template repeated this markup twice, differing only in the range variable;
+// it is defined once here and invoked twice from whereTemplate so the two
+// tables can never drift out of sync with each other.
+var denseTableTemplate = `{{define "denseTable"}}
+            <table class="dense sortable">
+                <thead>
+                    <tr>
+                        <th class="sortable">Recipe</th>
+                        <th class="sortable">Category</th>
+                        <th class="sortable">Output</th>
+                        <th class="sortable">Qty</th>
+                        <th class="sortable">Craft Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+{{- range .}}
+                    <tr>
+                        <td><a href="{{.DirName}}/{{.ID}}.html">{{.Name}}</a></td>
+                        <td><a href="{{.DirName}}/">{{.Category}}</a></td>
+                        <td>{{if .OutputCategory}}<a href="{{itemURL .OutputCategory .OutputID}}">{{.OutputName}}</a>{{else}}{{.OutputName}}{{end}}</td>
+                        <td class="num-cell" data-sort="{{.OutputQty}}">{{.OutputQty}}</td>
+                        <td class="num-cell" data-sort="{{.CraftingTime}}">{{fmtTime .CraftingTime}}</td>
+                    </tr>
+{{- end}}
+                </tbody>
+            </table>
+{{end}}`
+
+var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where Can I Make This - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+    <style>
+        .tabs { display: flex; gap: 4px; margin: 20px 0 8px; border-bottom: 2px solid var(--border); }
+        .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px;
+                   padding: 10px 18px; font-size: 1em; cursor: pointer; color: var(--text-muted); }
+        .tab-btn:hover { color: var(--link); }
+        .tab-btn.active { color: var(--link); border-bottom-color: var(--link); font-weight: 600; }
+        .summary-cards { display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
+        .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
+        .summary-card .num { font-size: 1.8em; font-weight: 700; }
+        .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+        .freshness { font-size: 0.85em; color: var(--text-muted); margin-bottom: 8px; }
+        .toc { columns: 3; column-gap: 24px; margin: 16px 0 32px; }
+        .toc a { display: block; padding: 2px 0; color: var(--link); text-decoration: none; font-size: 0.95em; }
+        .toc a:hover { text-decoration: underline; }
+        .where-section { margin-top: 32px; scroll-margin-top: 16px; }
+        .where-section h3 { margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+        .where-section table { width: 100%; font-size: 0.9em; }
+        .where-section th { text-align: left; cursor: pointer; user-select: none; white-space: nowrap; }
+        .where-section th:hover { color: var(--link); }
+        .where-section td { padding: 4px 8px; }
+        .where-section tr:hover { background: var(--bg-hover, rgba(128,128,128,0.08)); }
+        .cat-block { margin: 16px 0 24px; }
+        .cat-block h4 { margin: 0 0 4px; font-size: 0.95em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        .dense { font-size: 0.85em; width: 100%; }
+        .dense td, .dense th { padding: 2px 8px; }
+        .callout { border: 1px solid var(--border); border-left: 4px solid #999; padding: 12px 16px; margin: 24px 0 8px; border-radius: 4px; background: var(--bg-card); }
+        .callout.warn { border-left-color: #d08040; }
+        .callout h3 { margin: 0 0 4px; }
+        .callout p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
+        .back-top { font-size: 0.8em; margin-left: 8px; color: var(--text-muted); }
+        .num-cell { text-align: right; font-variant-numeric: tabular-nums; }
+        @media (max-width: 768px) { .toc { columns: 2; } }
+        @media (max-width: 480px) { .toc { columns: 1; } }
+    </style>
+</head>
+<body>
+` + siteHeader + `
+    <main class="container page-content">
+        <h2>Where Can I Make This</h2>
+        <p>Public production facilities across the galaxy: which stations rent a line for a given recipe, and what each station can produce.</p>
+
+        <div class="summary-cards">
+            <div class="summary-card"><div class="num">{{.StationCount}}</div><div class="label">Stations With Public Lines</div></div>
+            <div class="summary-card"><div class="num">{{.FacilityCount}}</div><div class="label">Public Facilities</div></div>
+            <div class="summary-card"><div class="num">{{.RecipesCovered}}</div><div class="label">Recipes Covered</div></div>
+            <div class="summary-card"><div class="num">{{.FacilityOnlyGap}}</div><div class="label">Facility-Only, No Public Line</div></div>
+        </div>
+        <p class="freshness">Facility data as of tick {{comma .LastSeenTick}}. Station survey bots report roughly hourly. Private and faction-owned facilities are not listed here.</p>
+
+        <div class="tabs">
+            <button class="tab-btn" data-tab="by-recipe">By Recipe</button>
+            <button class="tab-btn" data-tab="by-station">By Station</button>
+        </div>
+
+        <section class="tab-panel" id="by-recipe">
+            <div class="card" style="padding: 12px 16px">
+                <div class="section-label">Jump To Recipe</div>
+                <div class="toc">
+{{- range .RecipeGroups}}
+                    <a href="#r-{{.RecipeID}}">{{.RecipeName}} ({{len .Facilities}})</a>
+{{- end}}
+                </div>
+            </div>
+
+{{- range .RecipeGroups}}
+            <div id="r-{{.RecipeID}}" class="where-section">
+                <h3>
+                    <a href="{{.RecipeDirName}}/{{.RecipeID}}.html">{{.RecipeName}}</a>
+                    <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{len .Facilities}} station{{if ne (len .Facilities) 1}}s{{end}}</span>
+{{- if .FacilityOnly}}
+                    <span class="badge badge-frost" style="font-size:0.7em; vertical-align:middle;" title="Requires a production facility">Facility Only</span>
+{{- end}}
+{{- range .Outputs}}
+                    <small style="font-size:0.75em; font-weight:normal;">&rarr; <a href="{{itemURL .ItemCategory .ItemID}}">{{.ItemName}}</a> &times;{{.Quantity}}</small>
+{{- end}}
+                    <a href="#" class="back-top">[top]</a>
+                </h3>
+                <table class="sortable">
+                    <thead>
+                        <tr>
+                            <th class="sortable">Station</th>
+                            <th class="sortable">System</th>
+                            <th class="sortable">Facility</th>
+                            <th class="sortable">Level</th>
+                            <th class="sortable">Fee/run</th>
+                            <th class="sortable">Qty/run</th>
+                            <th class="sortable">Items/hr</th>
+                            <th class="sortable">Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+{{- range .Facilities}}
+                        <tr>
+                            <td><a href="#s-{{.StationID}}">{{.StationName}}</a></td>
+                            <td>{{if .SystemID}}<a href="../systems/{{.SystemID}}/index.html">{{.SystemName}}</a>{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
+                            <td>{{if .FacilityType}}<a href="../facilities/production/{{.FacilityType}}.html">{{.FacilityName}}</a>{{else}}{{.FacilityName}}{{end}}</td>
+                            <td class="num-cell" data-sort="{{.Level}}">{{.Level}}</td>
+                            <td class="num-cell" data-sort="{{.FeePerRun}}">{{comma .FeePerRun}}</td>
+                            <td class="num-cell" data-sort="{{.QtyPerRun}}">{{if .QtyPerRun}}{{.QtyPerRun}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
+                            <td class="num-cell" data-sort="{{.ItemsPerHour}}">{{if .ItemsPerHour}}{{comma .ItemsPerHour}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
+                            <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{end}}</td>
+                        </tr>
+{{- end}}
+                    </tbody>
+                </table>
+            </div>
+{{- end}}
+
+            <div class="callout warn">
+                <h3>Facility-Only &mdash; No Known Public Line ({{len .FacilityOnlyNone}})</h3>
+                <p>These recipes require a production facility, and no public line for them has been surveyed. They cannot be crafted at a bare station. A private or faction-owned facility may still run them &mdash; those never appear in this data.</p>
+            </div>
+{{template "denseTable" .FacilityOnlyNone}}
+
+            <div class="callout">
+                <h3>No Facility Required ({{len .NoFacilityNeeded}})</h3>
+                <p>No public line has been surveyed for these, but none is needed &mdash; they can be crafted at any station. A public facility would only add throughput.</p>
+            </div>
+{{template "denseTable" .NoFacilityNeeded}}
+        </section>
+
+        <section class="tab-panel" id="by-station" hidden>
+            <div class="card" style="padding: 12px 16px">
+                <div class="section-label">Jump To Station</div>
+                <div class="toc">
+{{- range .StationGroups}}
+                    <a href="#s-{{.StationID}}">{{.StationName}} ({{.Count}})</a>
+{{- end}}
+                </div>
+            </div>
+
+{{- range .StationGroups}}
+            <div id="s-{{.StationID}}" class="where-section">
+                <h3>
+                    {{.StationName}}
+                    <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{.Count}} facilit{{if eq .Count 1}}y{{else}}ies{{end}}</span>
+                    {{if .SystemID}}<small style="font-size:0.75em; font-weight:normal;">in <a href="../systems/{{.SystemID}}/index.html">{{.SystemName}}</a></small>{{end}}
+                    <small style="font-size:0.75em; font-weight:normal;" class="text-muted">fees {{comma .FeeMin}}&ndash;{{comma .FeeMax}}/run</small>
+                    <a href="#" class="back-top">[top]</a>
+                </h3>
+{{- range .Categories}}
+                <div class="cat-block">
+                    <h4>{{.Category}}</h4>
+                    <table class="sortable">
+                        <thead>
+                            <tr>
+                                <th class="sortable">Recipe</th>
+                                <th class="sortable">Output</th>
+                                <th class="sortable">Facility</th>
+                                <th class="sortable">Level</th>
+                                <th class="sortable">Fee/run</th>
+                                <th class="sortable">Qty/run</th>
+                                <th class="sortable">Items/hr</th>
+                                <th class="sortable">Owner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+{{- range .Facilities}}
+                            <tr>
+                                <td><a href="{{.RecipeDirName}}/{{.RecipeID}}.html">{{.RecipeName}}</a></td>
+                                <td>{{range .Outputs}}<a href="{{itemURL .ItemCategory .ItemID}}">{{.ItemName}}</a> &times;{{.Quantity}} {{end}}</td>
+                                <td>{{if .FacilityType}}<a href="../facilities/production/{{.FacilityType}}.html">{{.FacilityName}}</a>{{else}}{{.FacilityName}}{{end}}</td>
+                                <td class="num-cell" data-sort="{{.Level}}">{{.Level}}</td>
+                                <td class="num-cell" data-sort="{{.FeePerRun}}">{{comma .FeePerRun}}</td>
+                                <td class="num-cell" data-sort="{{.QtyPerRun}}">{{if .QtyPerRun}}{{.QtyPerRun}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
+                                <td class="num-cell" data-sort="{{.ItemsPerHour}}">{{if .ItemsPerHour}}{{comma .ItemsPerHour}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
+                                <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{end}}</td>
+                            </tr>
+{{- end}}
+                        </tbody>
+                    </table>
+                </div>
+{{- end}}
+            </div>
+{{- end}}
+        </section>
+    </main>
+` + sortScript + `
+` + whereTabScript + `
+` + themeScript + `
+</body>
+</html>
+`
