@@ -6,6 +6,7 @@ import (
 	"cmp"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	htmltpl "html/template"
@@ -556,6 +557,7 @@ func main() {
 	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
 	systemsAll := flag.Bool("systems-only", false, "regenerate only the systems section (all system pages + jump routes)")
 	resourcesOnly := flag.Bool("resources-only", false, "regenerate only the resources index page")
+	whereOnly := flag.Bool("where-only", false, "regenerate only the where-to-craft page (kb/recipes/where.html)")
 	marketDBPath := flag.String("market-db", "../spacemolt/data/market.db", "market DB for market-aware BoM recipe selection (empty to disable)")
 	flag.Parse()
 
@@ -586,6 +588,12 @@ func main() {
 	// --- Resources-only mode (just the resources index) ---
 	if *resourcesOnly {
 		generateResourcesOnly()
+		return
+	}
+
+	// --- Where-only mode (just the where-to-craft page) ---
+	if *whereOnly {
+		generateWhereOnly(dbPath)
 		return
 	}
 
@@ -856,6 +864,11 @@ func main() {
 
 	// --- Missions generation ---
 	generateAllMissions(items)
+
+	// --- Where-to-craft page ---
+	// MUST run after writeRecipePages: that call cleans every .html out of
+	// kb/recipes/ before writing, which would delete where.html.
+	generateWherePage(recipes)
 }
 
 // generateAllMissions loads mission templates from the knowledge database and
@@ -886,6 +899,50 @@ func generateAllMissions(items map[string]*Item) {
 		log.Fatalf("write mission pages: %v", err)
 	}
 	fmt.Printf("Generated %d mission pages in %s/\n", len(missions), missionOutDir)
+}
+
+// generateWherePage renders the Where-To-Craft side page from the knowledge
+// DB's public_facilities table.
+//
+// Every failure here is a warning, not a fatal: public_facilities is a new
+// table, and a knowledge DB from before it landed must not break a full site
+// regeneration.
+func generateWherePage(recipes map[string]*Recipe) {
+	knowledgeDBPath := "../spacemolt-knowledge.db"
+
+	knowledgeDB, err := sql.Open("sqlite", knowledgeDBPath)
+	if err != nil {
+		log.Printf("warning: open knowledge database for where-page: %v (page will be skipped)", err)
+		return
+	}
+	defer func() { _ = knowledgeDB.Close() }()
+
+	if err := writeWherePage("kb/recipes", knowledgeDB, recipes); err != nil {
+		if errors.Is(err, errNoPublicFacilities) {
+			log.Printf("note: knowledge DB has no public_facilities table; skipping where-page")
+			return
+		}
+		log.Printf("warning: write where-page: %v (page will be skipped)", err)
+		return
+	}
+	fmt.Println("Generated where-to-craft page in kb/recipes/where.html")
+}
+
+// generateWhereOnly regenerates just the where-to-craft page. It needs the
+// crafting DB for recipe names/categories/facility_only and the knowledge DB
+// for the facility rows.
+func generateWhereOnly(craftingDBPath string) {
+	db, err := sql.Open("sqlite", craftingDBPath)
+	if err != nil {
+		log.Fatalf("open crafting database: %v", err)
+	}
+	defer func() { _ = db.Close() }()
+
+	recipes, err := loadRecipes(db)
+	if err != nil {
+		log.Fatalf("load recipes: %v", err)
+	}
+	generateWherePage(recipes)
 }
 
 // generateAllSystems loads all systems and generates all system/planet/resource pages.
@@ -2981,6 +3038,7 @@ var recipeTopTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Recipes</h2>
         <p class="text-muted mt-1">{{len .}} categories of crafting recipes.</p>
+        <p class="mt-2"><a href="where.html">&#x1F3ED; Where Can I Make This? &mdash; public facilities by recipe and by station &rarr;</a></p>
         <div class="item-categories">
 {{- range .}}
             <a href="{{.DirName}}/" class="item-cat-card">
