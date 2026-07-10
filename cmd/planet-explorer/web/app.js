@@ -33,16 +33,50 @@ function snapshotOriginal(profile) {
   catch { originalProfile = null; }
 }
 
+// ---- Worker RPC ----
+// The wasm module lives in a dedicated Worker (web/worker.js) so
+// multi-second computes never freeze this thread. Every wasm call goes
+// through rpc(); results resolve asynchronously in send order.
+let worker = null;
+const pendingRPCs = new Map(); // id -> {resolve, reject, name}
+let nextRPCId = 1;
+
+function bootWorker() {
+  worker = new Worker('worker.js');
+  worker.onmessage = (e) => {
+    const m = e.data;
+    if (m.type === 'ready') {
+      wasmReady = true;
+      return;
+    }
+    if (m.type === 'progress') {
+      onWorkerProgress(m); // no-op until the busy overlay task
+      return;
+    }
+    const p = pendingRPCs.get(m.id);
+    if (!p) return;
+    pendingRPCs.delete(m.id);
+    if (m.error !== undefined) p.reject(new Error(m.error));
+    else p.resolve(m.result);
+  };
+}
+
+function onWorkerProgress(_m) {} // replaced by the busy-overlay task
+
+function rpc(name, ...args) {
+  return new Promise((resolve, reject) => {
+    const id = nextRPCId++;
+    pendingRPCs.set(id, { resolve, reject, name });
+    worker.postMessage({ id, name, args });
+  });
+}
+
 async function init() {
   status.textContent = 'Loading wasm…';
-  const go = new Go();
-  const result = await WebAssembly.instantiateStreaming(fetch('wasm'), go.importObject);
-  go.run(result.instance);
-  wasmReady = true;
-  status.textContent = 'Ready';
-
+  bootWorker();
   await refreshPlanetPicker();
-  loadDefaultProfile();
+  await loadDefaultProfile();
+  status.textContent = 'Ready';
 }
 
 // refreshPlanetPicker fetches /profiles, replaces the dropdown
@@ -72,9 +106,9 @@ async function refreshPlanetPicker() {
   }
 }
 
-function loadDefaultProfile() {
+async function loadDefaultProfile() {
   const type = typePicker.value;
-  const json = planetExplorerDefaultProfile(type);
+  const json = await rpc('planetExplorerDefaultProfile', type);
   if (typeof json === 'string' && json.startsWith('{"error"')) {
     status.textContent = 'Error: ' + json;
     return;
@@ -138,18 +172,18 @@ async function regenerate() {
   const mode = viewModeSel ? viewModeSel.value : 'color';
   let cubePNG;
   if (mode === 'heightmap') {
-    cubePNG = planetExplorerGenerateHeightmap(profileJSON, seed, size);
-  } else if (debugBypass.size > 0 && window.planetExplorerGenerateWithBypass) {
-    cubePNG = planetExplorerGenerateWithBypass(profileJSON, seed, size, JSON.stringify([...debugBypass]));
+    cubePNG = await rpc('planetExplorerGenerateHeightmap', profileJSON, seed, size);
+  } else if (debugBypass.size > 0) {
+    cubePNG = await rpc('planetExplorerGenerateWithBypass', profileJSON, seed, size, JSON.stringify([...debugBypass]));
   } else {
-    cubePNG = planetExplorerGenerate(profileJSON, seed, size);
+    cubePNG = await rpc('planetExplorerGenerate', profileJSON, seed, size);
   }
   if (!(cubePNG instanceof Uint8Array)) {
     status.textContent = 'Error: ' + cubePNG;
     return;
   }
   await paintToCanvas(cubeCanvas, cubePNG);
-  const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
+  const equirectPNG = await rpc('planetExplorerBakeEquirect', cubePNG, equirectCanvas.width, equirectCanvas.height);
   if (equirectPNG instanceof Uint8Array) {
     await paintToCanvas(equirectCanvas, equirectPNG);
     refreshSphereTexture();
@@ -161,17 +195,15 @@ async function regenerate() {
   // the unlit hemisphere via the sun-direction dot product. Empty
   // Uint8Array means civ disabled — clear the texture so we fall back
   // to the original day-only render.
-  if (window.planetExplorerGenerateNight) {
-    const nightCubePNG = planetExplorerGenerateNight(profileJSON, seed, size);
-    if (nightCubePNG instanceof Uint8Array && nightCubePNG.length > 0) {
-      const nightEqPNG = planetExplorerBakeEquirect(nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height);
-      if (nightEqPNG instanceof Uint8Array) {
-        await paintToCanvas(nightEquirectCanvas, nightEqPNG);
-        refreshSphereNightTexture();
-      }
-    } else {
-      sphereNightTextureData = null;
+  const nightCubePNG = await rpc('planetExplorerGenerateNight', profileJSON, seed, size);
+  if (nightCubePNG instanceof Uint8Array && nightCubePNG.length > 0) {
+    const nightEqPNG = await rpc('planetExplorerBakeEquirect', nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height);
+    if (nightEqPNG instanceof Uint8Array) {
+      await paintToCanvas(nightEquirectCanvas, nightEqPNG);
+      refreshSphereNightTexture();
     }
+  } else {
+    sphereNightTextureData = null;
   }
 
   const elapsed = (performance.now() - t0).toFixed(0);
@@ -1909,10 +1941,6 @@ function setStageBypass(stage, bypassed) {
 }
 
 async function refreshDebugView() {
-  if (!window.planetExplorerGenerateDebug) {
-    console.warn('debug API not available; rebuild wasm');
-    return;
-  }
   // Mirror regenerate(): show progress text and yield to the browser
   // so the repaint happens before the wasm call blocks the main thread.
   // Without the yield, the synchronous wasm work runs immediately and
@@ -1925,7 +1953,7 @@ async function refreshDebugView() {
   const seed = seedInput.value;
   const size = parseInt(faceSizeSel.value, 10) || 256;
   const bypassJSON = JSON.stringify([...debugBypass]);
-  const result = window.planetExplorerGenerateDebug(profileJSON, seed, size, bypassJSON);
+  const result = await rpc('planetExplorerGenerateDebug', profileJSON, seed, size, bypassJSON);
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) {
@@ -2163,7 +2191,7 @@ async function enterPatchLab() {
   // sTect=256: a smaller tectonic face than the full production render
   // uses, so the sphere-level precompute (and any sphere-level param
   // recompute triggered later by patchSetParam) stays interactive.
-  const initRaw = patchInit(JSON.stringify(profile), seedInput.value, 256);
+  const initRaw = await rpc('patchInit', JSON.stringify(profile), seedInput.value, 256);
   if (isWasmError(initRaw)) {
     // Crust-disabled archetypes (e.g. scorched) hit ComputeSphere's
     // error path here — surface it and leave the normal viewport alone.
@@ -2194,7 +2222,7 @@ async function enterPatchLab() {
   sphereCanvas.hidden = true;
   patchLab.hidden = false;
 
-  buildLayerRail();
+  await buildLayerRail();
 }
 
 function exitPatchLab() {
@@ -2205,8 +2233,8 @@ function exitPatchLab() {
   patchLab.hidden = true;
 }
 
-function buildLayerRail() {
-  const raw = patchLayers();
+async function buildLayerRail() {
+  const raw = await rpc('patchLayers');
   if (isWasmError(raw)) {
     console.warn('patchLayers:', wasmErrorMessage(raw));
     return;
@@ -2239,7 +2267,7 @@ function buildLayerRail() {
 async function selectCandidate(i) {
   if (!patchCands.length) return;
   patchCandIdx = ((i % patchCands.length) + patchCands.length) % patchCands.length;
-  const err = patchSelect(JSON.stringify(patchCands[patchCandIdx].window));
+  const err = await rpc('patchSelect', JSON.stringify(patchCands[patchCandIdx].window));
   if (isWasmError(err)) {
     alert('Patch Lab: ' + wasmErrorMessage(err));
     return;
@@ -2251,7 +2279,7 @@ async function selectCandidate(i) {
 async function refreshPatch() {
   if (!patchOn) return;
   const view = patchViewSel ? patchViewSel.value : 'color';
-  const png = patchRender(patchTarget, view);
+  const png = await rpc('patchRender', patchTarget, view);
   if (!(png instanceof Uint8Array)) {
     status.textContent = 'Patch Lab error: ' + wasmErrorMessage(png);
     return;
@@ -2261,7 +2289,7 @@ async function refreshPatch() {
 
 async function refreshMinimap() {
   if (!patchOn) return;
-  const png = patchMinimap(patchMinimapCanvas.width, patchMinimapCanvas.height);
+  const png = await rpc('patchMinimap', patchMinimapCanvas.width, patchMinimapCanvas.height);
   if (!(png instanceof Uint8Array)) {
     console.warn('Patch Lab minimap error:', wasmErrorMessage(png));
     return;
@@ -2365,14 +2393,14 @@ function countProfileDiffs(prev, next, cap) {
 // pkg/planetgen/patch/stack.go always returns true) triggers a full
 // sphere recompute + MarkAllDirty, guaranteeing every layer re-renders
 // against the new profile regardless of how many fields changed.
-function applyProfileToPatch(profile) {
+async function applyProfileToPatch(profile) {
   if (!patchOn) return;
   const diffCount = countProfileDiffs(patchPrevProfile, profile, 1);
   if (diffCount === 0) return;
   const path = diffCount > 1 ? '__fullRefresh' : diffProfilePath(patchPrevProfile, profile);
   patchPrevProfile = JSON.parse(JSON.stringify(profile));
   if (!path) return;
-  const raw = patchSetParam(path, JSON.stringify(profile));
+  const raw = await rpc('patchSetParam', path, JSON.stringify(profile));
   if (isWasmError(raw)) {
     console.warn('patchSetParam:', wasmErrorMessage(raw));
     return;
@@ -2402,12 +2430,12 @@ if (patchNextWindowBtn) {
   });
 }
 if (patchSeaLevelInput) {
-  patchSeaLevelInput.addEventListener('input', () => {
+  patchSeaLevelInput.addEventListener('input', async () => {
     if (!patchOn) return;
     let profile;
     try { profile = JSON.parse(profileTextarea.value); } catch { return; }
     const payload = Object.assign({}, profile, { seaLevelView: parseFloat(patchSeaLevelInput.value) });
-    const raw = patchSetParam('seaLevelView', JSON.stringify(payload));
+    const raw = await rpc('patchSetParam', 'seaLevelView', JSON.stringify(payload));
     if (isWasmError(raw)) console.warn('patchSetParam seaLevelView:', wasmErrorMessage(raw));
     scheduleRefreshPatch();
   });
