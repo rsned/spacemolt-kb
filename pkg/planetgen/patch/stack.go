@@ -199,6 +199,7 @@ func (s *Stack) RenderTo(target int) (*State, error) {
 	}
 	for i := start; i <= target; i++ {
 		if s.layers[i].Enabled(s.ctx) {
+			reportProgress("layer:"+s.layers[i].ID, i+1, len(s.layers))
 			st = s.layers[i].Apply(s.ctx, st)
 		}
 		s.cache[i] = st
