@@ -43,10 +43,21 @@ let nextRPCId = 1;
 
 function bootWorker() {
   worker = new Worker('worker.js');
+  // Fires when worker.js itself fails to parse/load (e.g. importScripts
+  // 404). Boot failures inside the worker arrive as 'boot_error' instead.
+  worker.onerror = (e) => {
+    status.textContent = `Worker failed to load: ${e.message || 'unknown error'}`;
+    console.error('worker error:', e.message, e.filename, e.lineno);
+  };
   worker.onmessage = (e) => {
     const m = e.data;
     if (m.type === 'ready') {
       wasmReady = true;
+      return;
+    }
+    if (m.type === 'boot_error') {
+      status.textContent = 'Wasm failed to load in worker: ' + m.error;
+      console.error('wasm boot error:', m.error);
       return;
     }
     if (m.type === 'progress') {

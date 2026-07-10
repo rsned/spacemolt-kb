@@ -28,10 +28,21 @@ const ready = (async () => {
   go.run(result.instance);
   self.postMessage({ type: 'ready' });
 })();
+// A rejected boot must be loud: unhandled rejections in a Worker fire no
+// event on the main thread's Worker object, so without this the page
+// would spin forever with zero console output.
+ready.catch((err) => {
+  self.postMessage({ type: 'boot_error', error: String(err && err.stack || err) });
+});
 
 self.onmessage = async (e) => {
   const { id, name, args } = e.data;
-  await ready;
+  try {
+    await ready;
+  } catch (err) {
+    self.postMessage({ type: 'result', id, error: 'wasm boot failed: ' + String(err) });
+    return;
+  }
   currentId = id;
   let result;
   try {
