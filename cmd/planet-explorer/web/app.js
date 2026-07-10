@@ -2369,6 +2369,7 @@ async function enterPatchLab() {
   }
 
   await selectCandidate(0);
+  if (!patchOn) return; // cancelled mid-entry: cancelCompute already restored the normal view
 
   cubeCanvas.hidden = true;
   equirectCanvas.hidden = true;
@@ -2376,6 +2377,7 @@ async function enterPatchLab() {
   patchLab.hidden = false;
 
   await buildLayerRail();
+  if (!patchOn) return; // cancelled mid-entry: cancelCompute already restored the normal view
 }
 
 function exitPatchLab() {
