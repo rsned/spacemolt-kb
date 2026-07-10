@@ -2477,6 +2477,7 @@ const patchMinimapCanvas = $('#patch-minimap');
 const patchLayerRail = $('#patch-layer-rail');
 const patchViewSel = $('#patch-view');
 const patchNextWindowBtn = $('#patch-next-window');
+const patchRecomputeBtn = $('#patch-recompute');
 const patchSeaLevelInput = $('#patch-sealevel');
 const patchGoBtn = $('#patch-go');
 
@@ -2755,6 +2756,26 @@ if (patchViewSel) patchViewSel.addEventListener('change', () => { if (patchOn) r
 if (patchNextWindowBtn) {
   patchNextWindowBtn.addEventListener('click', () => {
     if (patchOn) selectCandidate(patchCandIdx + 1);
+  });
+}
+if (patchRecomputeBtn) {
+  patchRecomputeBtn.addEventListener('click', async () => {
+    if (!patchOn) return;
+    const raw = await quiet(rpc('patchRecomputeSphere'));
+    if (raw === null) return; // cancelled
+    if (isWasmError(raw)) {
+      status.textContent = 'Recompute failed: ' + wasmErrorMessage(raw);
+      return;
+    }
+    let data;
+    try { data = JSON.parse(raw); } catch { data = {}; }
+    if (patchSeaLevelInput && typeof data.seaLevel === 'number') {
+      patchSeaLevelInput.value = data.seaLevel;
+    }
+    await buildLayerRail();
+    await refreshMinimap();
+    await refreshPatch();
+    status.textContent = 'Sphere recomputed — scalars resynced';
   });
 }
 if (patchSeaLevelInput) {
