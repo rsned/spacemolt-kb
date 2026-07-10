@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"errors"
 	"os"
@@ -607,5 +608,185 @@ func TestSummarizeOwners(t *testing.T) {
 	}
 	if got[2].StationOwned {
 		t.Error("unresolved faction must not be marked station-owned")
+	}
+}
+
+// markPriceExtremes tags the cheapest and costliest lines of a comparison set,
+// ranked on cost per output unit. These cases pin the rules that keep the
+// colouring meaningful: it takes at least two differently-priced lines to have
+// a "best" and a "worst".
+func TestMarkPriceExtremes(t *testing.T) {
+	mk := func(id string, fee, qty int) PublicFacility {
+		return PublicFacility{FacilityID: id, FeePerRun: fee, QtyPerRun: qty}
+	}
+	ranks := func(rows []PublicFacility) map[string]string {
+		ptrs := make([]*PublicFacility, len(rows))
+		for i := range rows {
+			ptrs[i] = &rows[i]
+		}
+		markPriceExtremes(ptrs)
+		got := make(map[string]string, len(rows))
+		for _, r := range rows {
+			got[r.FacilityID] = r.PriceRank
+		}
+		return got
+	}
+
+	tests := []struct {
+		name string
+		rows []PublicFacility
+		want map[string]string
+	}{{
+		name: "ranks on fee per unit, not fee per run",
+		// b is dearer per run but yields 10x, so it is the cheaper unit.
+		rows: []PublicFacility{mk("a", 100, 1), mk("b", 200, 10)},
+		want: map[string]string{"a": priceWorst, "b": priceBest},
+	}, {
+		name: "single row stays plain",
+		rows: []PublicFacility{mk("a", 100, 1)},
+		want: map[string]string{"a": ""},
+	}, {
+		name: "every row priced alike stays plain",
+		rows: []PublicFacility{mk("a", 18, 3), mk("b", 18, 3), mk("c", 18, 3)},
+		want: map[string]string{"a": "", "b": "", "c": ""},
+	}, {
+		name: "tied extremes all colour",
+		rows: []PublicFacility{mk("a", 1, 1), mk("b", 9, 1), mk("c", 1, 1), mk("d", 9, 1)},
+		want: map[string]string{"a": priceBest, "c": priceBest, "b": priceWorst, "d": priceWorst},
+	}, {
+		name: "middle rows stay plain",
+		rows: []PublicFacility{mk("a", 1, 1), mk("b", 5, 1), mk("c", 9, 1)},
+		want: map[string]string{"a": priceBest, "b": "", "c": priceWorst},
+	}, {
+		name: "unpriceable rows are skipped, not ranked",
+		// qty 0 cannot yield a per-unit cost. One priced row remains -> no colour.
+		rows: []PublicFacility{mk("a", 100, 0), mk("b", 50, 1)},
+		want: map[string]string{"a": "", "b": ""},
+	}}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := ranks(tc.rows)
+			for id, want := range tc.want {
+				if got[id] != want {
+					t.Errorf("row %s: PriceRank = %q, want %q", id, got[id], want)
+				}
+			}
+		})
+	}
+}
+
+// A station block lists many different recipes. Comparing a bolt against a
+// warship module is meaningless, so extremes are found per recipe, not across
+// the whole block.
+func TestGroupByStationPriceRankIsPerRecipe(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+	mk := func(id, recipe string, fee, qty int) PublicFacility {
+		return PublicFacility{
+			StationID: "ccc", StationName: "CCC", FacilityID: id,
+			RecipeID: recipe, FeePerRun: fee, QtyPerRun: qty,
+		}
+	}
+	// Two duplicate lines per recipe at one station. refine_steel is dear in
+	// absolute terms; if extremes were taken across the block, its cheap line
+	// (50/unit) would never be "best" and gap_recipe's dear line (2/unit)
+	// would never be "worst".
+	facs := []PublicFacility{
+		mk("s1", "refine_steel", 50, 1),
+		mk("s2", "refine_steel", 90, 1),
+		mk("g1", "gap_recipe", 1, 1),
+		mk("g2", "gap_recipe", 2, 1),
+	}
+
+	stations := groupByStation(facs, recipes)
+	if len(stations) != 1 {
+		t.Fatalf("got %d stations, want 1", len(stations))
+	}
+	got := map[string]string{}
+	for _, cat := range stations[0].Categories {
+		for _, f := range cat.Facilities {
+			got[f.FacilityID] = f.PriceRank
+		}
+	}
+	want := map[string]string{
+		"s1": priceBest, "s2": priceWorst,
+		"g1": priceBest, "g2": priceWorst,
+	}
+	for id, w := range want {
+		if got[id] != w {
+			t.Errorf("row %s: PriceRank = %q, want %q", id, got[id], w)
+		}
+	}
+}
+
+// A recipe section lists the same recipe at many stations, so the whole table
+// is one comparison set.
+func TestGroupByRecipePriceRank(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+	mk := func(id, station string, fee, qty int) PublicFacility {
+		return PublicFacility{
+			StationID: station, StationName: station, FacilityID: id,
+			RecipeID: "refine_steel", FeePerRun: fee, QtyPerRun: qty,
+		}
+	}
+	facs := []PublicFacility{
+		mk("f1", "alpha", 2, 2),   // 1.0/unit -> best
+		mk("f2", "alpha", 200, 2), // 100.0/unit
+		mk("f3", "bravo", 1000, 2),
+	} // 500.0/unit -> worst
+
+	groups := groupByRecipe(facs, recipes)
+	if len(groups) != 1 {
+		t.Fatalf("got %d groups, want 1", len(groups))
+	}
+	want := map[string]string{"f1": priceBest, "f2": "", "f3": priceWorst}
+	for _, f := range groups[0].Facilities {
+		if f.PriceRank != want[f.FacilityID] {
+			t.Errorf("row %s: PriceRank = %q, want %q", f.FacilityID, f.PriceRank, want[f.FacilityID])
+		}
+	}
+}
+
+// The colour must reach the page as a class on the fee cell.
+func TestRenderWherePagePriceClasses(t *testing.T) {
+	data := wherePageData{
+		StationCount: 1,
+		RecipeGroups: []WhereRecipeGroup{{
+			RecipeID: "refine_steel", RecipeName: "Refine Steel", RecipeCategory: "Refining",
+			RecipeDirName: "Refining",
+			Facilities: []PublicFacility{
+				{StationID: "a", StationName: "Alpha", FacilityID: "f1", FeePerRun: 2, QtyPerRun: 2, PriceRank: priceBest},
+				{StationID: "b", StationName: "Bravo", FacilityID: "f2", FeePerRun: 1000, QtyPerRun: 2, PriceRank: priceWorst},
+				{StationID: "c", StationName: "Cesium", FacilityID: "f3", FeePerRun: 200, QtyPerRun: 2},
+			},
+		}},
+	}
+	var buf bytes.Buffer
+	if err := renderWherePage(&buf, data); err != nil {
+		t.Fatalf("renderWherePage: %v", err)
+	}
+	got := buf.String()
+	// Count the rendered cells, not the stylesheet rule that also names them.
+	if n := strings.Count(got, `class="num-cell fee-best"`); n != 1 {
+		t.Errorf("fee-best cells = %d, want 1", n)
+	}
+	if n := strings.Count(got, `class="num-cell fee-worst"`); n != 1 {
+		t.Errorf("fee-worst cells = %d, want 1", n)
+	}
+	// The unranked middle row must carry no price class.
+	if n := strings.Count(got, `class="num-cell"`); n == 0 {
+		t.Error("no plain num-cell rendered; the unranked row lost its class")
+	}
+	// The stylesheet must define both, or the classes are inert.
+	for _, sel := range []string{".fee-best", ".fee-worst"} {
+		if !strings.Contains(got, sel) {
+			t.Errorf("stylesheet does not define %s", sel)
+		}
 	}
 }

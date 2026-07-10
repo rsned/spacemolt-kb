@@ -46,6 +46,72 @@ type PublicFacility struct {
 	OwnerTag  string
 
 	LastSeenTick int
+
+	// PriceRank is priceBest, priceWorst, or empty, set by markPriceExtremes
+	// relative to the other lines running the same recipe in the same table.
+	// It is a rendering hint, not a property of the facility: the same line is
+	// ranked separately in the by-recipe and by-station views, whose comparison
+	// sets differ.
+	PriceRank string
+}
+
+// Price ranks, used as CSS class suffixes (fee-best / fee-worst).
+const (
+	priceBest  = "best"
+	priceWorst = "worst"
+)
+
+// perUnitFee is what one unit of output costs to rent, the only figure that
+// compares two lines fairly: a line charging twice as much per run but yielding
+// ten times the goods is the cheaper line.
+//
+// Reports false when the line yields nothing, which cannot be ranked.
+func perUnitFee(f PublicFacility) (float64, bool) {
+	if f.QtyPerRun <= 0 {
+		return 0, false
+	}
+	return float64(f.FeePerRun) / float64(f.QtyPerRun), true
+}
+
+// markPriceExtremes tags the cheapest and costliest lines of one comparison set
+// -- lines running the same recipe, which is the only set where price is
+// comparable. Callers pass pointers into the slice they are about to render.
+//
+// Fewer than two priced lines, or every line priced alike, leaves the whole set
+// plain: a lone row is neither the best nor the worst deal, and marking a
+// uniformly-priced set both best and worst says nothing. Tied extremes all
+// colour, since they are equally the best (or worst) available.
+func markPriceExtremes(rows []*PublicFacility) {
+	var lo, hi float64
+	priced := 0
+	for _, r := range rows {
+		v, ok := perUnitFee(*r)
+		if !ok {
+			continue
+		}
+		if priced == 0 || v < lo {
+			lo = v
+		}
+		if priced == 0 || v > hi {
+			hi = v
+		}
+		priced++
+	}
+	if priced < 2 || lo == hi {
+		return
+	}
+	for _, r := range rows {
+		v, ok := perUnitFee(*r)
+		if !ok {
+			continue
+		}
+		switch v {
+		case lo:
+			r.PriceRank = priceBest
+		case hi:
+			r.PriceRank = priceWorst
+		}
+	}
 }
 
 // facilityDetails is the narrow slice of details_json we consume. The three
@@ -316,6 +382,12 @@ func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRec
 			}
 			return cmp.Compare(a.FacilityID, b.FacilityID)
 		})
+		// Every line here runs this recipe, so the section is one comparison set.
+		ptrs := make([]*PublicFacility, len(lines))
+		for i := range lines {
+			ptrs[i] = &lines[i]
+		}
+		markPriceExtremes(ptrs)
 		groups = append(groups, WhereRecipeGroup{
 			RecipeID:       r.ID,
 			RecipeName:     r.Name,
@@ -386,6 +458,17 @@ func groupByStation(facs []PublicFacility, recipes map[string]*Recipe) []WhereSt
 				}
 				return cmp.Compare(x.FacilityID, y.FacilityID)
 			})
+			// A block lists many recipes, so each recipe is its own comparison
+			// set -- a station often runs the same recipe on several lines at
+			// different fees, and those are what a reader is choosing between.
+			byRecipe := make(map[string][]*PublicFacility)
+			for i := range lines {
+				id := lines[i].RecipeID
+				byRecipe[id] = append(byRecipe[id], &lines[i].PublicFacility)
+			}
+			for _, set := range byRecipe {
+				markPriceExtremes(set)
+			}
 			cats = append(cats, WhereStationCategory{Category: name, Facilities: lines})
 		}
 		slices.SortFunc(cats, func(x, y WhereStationCategory) int {
@@ -651,6 +734,8 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
         .callout p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         .back-top { font-size: 0.8em; margin-left: 8px; color: var(--text-muted); }
         .num-cell { text-align: right; font-variant-numeric: tabular-nums; }
+        .fee-best  { color: hsl(var(--smui-green)); font-weight: 600; }
+        .fee-worst { color: hsl(var(--smui-red));   font-weight: 600; }
         @media (max-width: 768px) { .toc { columns: 2; } }
         @media (max-width: 480px) { .toc { columns: 1; } }
     </style>
@@ -743,7 +828,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
                             <td>{{if .SystemID}}<a href="../systems/{{.SystemID}}/index.html">{{.SystemName}}</a>{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
                             <td>{{if .FacilityType}}<a href="../facilities/production/{{.FacilityType}}.html">{{.FacilityName}}</a>{{else}}{{.FacilityName}}{{end}}</td>
                             <td class="num-cell" data-sort="{{.Level}}">{{.Level}}</td>
-                            <td class="num-cell" data-sort="{{.FeePerRun}}">{{comma .FeePerRun}}</td>
+                            <td class="num-cell{{if .PriceRank}} fee-{{.PriceRank}}{{end}}" data-sort="{{.FeePerRun}}"{{if .PriceRank}} title="{{if eq .PriceRank "best"}}Cheapest{{else}}Costliest{{end}} per unit of output among the lines running this recipe here"{{end}}>{{comma .FeePerRun}}</td>
                             <td class="num-cell" data-sort="{{.QtyPerRun}}">{{if .QtyPerRun}}{{.QtyPerRun}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
                             <td class="num-cell" data-sort="{{.ItemsPerHour}}">{{if .ItemsPerHour}}{{comma .ItemsPerHour}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
                             <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else if .OwnerID}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{else}}<span class="badge">Station Facility</span>{{end}}</td>
@@ -809,7 +894,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
                                 <td>{{range .Outputs}}{{if .ItemCategory}}<a href="{{itemURL .ItemCategory .ItemID}}">{{.ItemName}}</a>{{else}}{{.ItemName}}{{end}} &times;{{.Quantity}} {{end}}</td>
                                 <td>{{if .FacilityType}}<a href="../facilities/production/{{.FacilityType}}.html">{{.FacilityName}}</a>{{else}}{{.FacilityName}}{{end}}</td>
                                 <td class="num-cell" data-sort="{{.Level}}">{{.Level}}</td>
-                                <td class="num-cell" data-sort="{{.FeePerRun}}">{{comma .FeePerRun}}</td>
+                                <td class="num-cell{{if .PriceRank}} fee-{{.PriceRank}}{{end}}" data-sort="{{.FeePerRun}}"{{if .PriceRank}} title="{{if eq .PriceRank "best"}}Cheapest{{else}}Costliest{{end}} per unit of output among the lines running this recipe here"{{end}}>{{comma .FeePerRun}}</td>
                                 <td class="num-cell" data-sort="{{.QtyPerRun}}">{{if .QtyPerRun}}{{.QtyPerRun}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
                                 <td class="num-cell" data-sort="{{.ItemsPerHour}}">{{if .ItemsPerHour}}{{comma .ItemsPerHour}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
                                 <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else if .OwnerID}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{else}}<span class="badge">Station Facility</span>{{end}}</td>
