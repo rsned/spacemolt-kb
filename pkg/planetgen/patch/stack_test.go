@@ -79,3 +79,128 @@ func TestStackSphereParamSignals(t *testing.T) {
 		t.Fatal("crust seeding params must signal a sphere recompute")
 	}
 }
+
+// dirtyFromOf exposes the private dirtyFrom for assertions without
+// widening the API.
+func dirtyFromOf(s *Stack) int { return s.dirtyFrom }
+
+func TestMarkDirtyClimateFieldsNarrowToLayer9(t *testing.T) {
+	var counts [13]int
+	s := countingStack(t, &counts)
+	if _, err := s.RenderTo(12); err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{"ControlConfig.Temperature.Amp", "ControlConfig.Humidity.Freq"} {
+		s.MarkAllDirty()
+		if _, err := s.RenderTo(12); err != nil {
+			t.Fatal(err)
+		}
+		if sphere := s.MarkDirty(path); sphere {
+			t.Fatalf("MarkDirty(%q) = true, want false (climate layer owns it)", path)
+		}
+		if got := dirtyFromOf(s); got != 9 {
+			t.Fatalf("MarkDirty(%q): dirtyFrom = %d, want 9 (climate)", path, got)
+		}
+	}
+}
+
+func TestMarkDirtyControlDetailStillLayer2(t *testing.T) {
+	var counts [13]int
+	s := countingStack(t, &counts)
+	if _, err := s.RenderTo(12); err != nil {
+		t.Fatal(err)
+	}
+	if sphere := s.MarkDirty("ControlConfig.Detail.Amp"); sphere {
+		t.Fatal("MarkDirty(ControlConfig.Detail.Amp) = true, want false")
+	}
+	if got := dirtyFromOf(s); got != 2 {
+		t.Fatalf("dirtyFrom = %d, want 2 (control-noise)", got)
+	}
+}
+
+func TestMarkDirtyBulkControlConfigDirtiesEarliestOwner(t *testing.T) {
+	var counts [13]int
+	s := countingStack(t, &counts)
+	if _, err := s.RenderTo(12); err != nil {
+		t.Fatal(err)
+	}
+	// A whole-subtree edit ("ControlConfig") touches both layer 2's
+	// pattern and layer 9's more-specific patterns; the earliest
+	// consuming layer must re-run.
+	if sphere := s.MarkDirty("ControlConfig"); sphere {
+		t.Fatal("MarkDirty(ControlConfig) = true, want false")
+	}
+	if got := dirtyFromOf(s); got != 2 {
+		t.Fatalf("dirtyFrom = %d, want 2", got)
+	}
+}
+
+func TestMarkDirtyInertParamsAreNoOps(t *testing.T) {
+	var counts [13]int
+	s := countingStack(t, &counts)
+	if _, err := s.RenderTo(12); err != nil {
+		t.Fatal(err)
+	}
+	clean := dirtyFromOf(s)
+	for _, path := range []string{"OceanLevel", "Continents.Scale", "Ridged.Amp", "Basin.Freq"} {
+		if sphere := s.MarkDirty(path); sphere {
+			t.Fatalf("MarkDirty(%q) = true, want false (inert on crust path)", path)
+		}
+		if got := dirtyFromOf(s); got != clean {
+			t.Fatalf("MarkDirty(%q) moved dirtyFrom %d -> %d, want unchanged", path, clean, got)
+		}
+	}
+}
+
+func TestMarkDirtySphereParamsStillRecompute(t *testing.T) {
+	var counts [13]int
+	s := countingStack(t, &counts)
+	for _, path := range []string{"Crust.MajorPlates", "__fullRefresh", "JitterCellCount"} {
+		if sphere := s.MarkDirty(path); !sphere {
+			t.Fatalf("MarkDirty(%q) = false, want true (sphere-level)", path)
+		}
+	}
+}
+
+// TestClimateNarrowingEquality proves the narrowed path is not just
+// cheaper but CORRECT: editing Temperature via MarkDirty then
+// re-rendering equals a from-scratch stack built on the edited profile.
+func TestClimateNarrowingEquality(t *testing.T) {
+	sd := testSphere(t)
+	w := Pick(sd, 32, 64, 1)[0].Window
+	f, err := ExtractFields(sd, w)
+	if err != nil {
+		t.Fatal(err)
+	}
+	edited := *sd.Profile
+	edited.ControlConfig.Temperature.Amp += 0.25
+
+	// Path A: live stack, original profile rendered, then edit +
+	// MarkDirty + re-render (what patchSetParam does).
+	profA := *sd.Profile
+	ctxA := &Context{Sphere: sd, Fields: f, Profile: &profA, Master: sd.Master}
+	sA := NewStack(ctxA)
+	if _, err := sA.RenderTo(12); err != nil {
+		t.Fatal(err)
+	}
+	ctxA.Profile = &edited
+	if sphere := sA.MarkDirty("ControlConfig.Temperature.Amp"); sphere {
+		t.Fatal("Temperature edit must not signal a sphere recompute")
+	}
+	stA, err := sA.RenderTo(12)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Path B: fresh stack on the edited profile.
+	ctxB := &Context{Sphere: sd, Fields: f, Profile: &edited, Master: sd.Master}
+	sB := NewStack(ctxB)
+	stB, err := sB.RenderTo(12)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if ha, hb := StateHash(stA), StateHash(stB); ha != hb {
+		t.Fatalf("narrowed re-render diverged from fresh render: %s != %s", ha, hb)
+	}
+}
