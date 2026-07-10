@@ -668,6 +668,9 @@ function renderPanels() {
   renderContinentsPanel(profile, panels);
   renderCratersPanel(profile, panels);
   renderErosionPanel(profile, panels);
+  renderFlowPanel(profile, panels);
+  renderRainShadowPanel(profile, panels);
+  renderCivPanel(profile, panels);
   renderBiomePanel(profile, panels);
   renderCurlPanel(profile, panels);
   renderStormBandsPanel(profile, panels);
@@ -1275,6 +1278,147 @@ function renderErosionPanel(profile, panels) {
     'Brush sharpness exponent in 1/(1+r)^k. 0/missing = 1.0 (3-pixel wide channels). 4-8 = near-single-pixel for narrow rivers.',
     e.BrushFalloff || 0, 0, 16, '0.5',
     v => { profile.Erosion.BrushFalloff = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderFlowPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Rivers (Flow)',
+    'Planchon-Darboux fill + D8 flow accumulation carves river channels into the heightmap. RiverThreshold = 0 disables the pass entirely. Profile JSON key: "flow".');
+  if (!profile.flow) profile.flow = { riverThreshold: 0, riverDepth: 0 };
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.flow) || {};
+    profile.flow = { riverThreshold: orig.riverThreshold || 0, riverDepth: orig.riverDepth || 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.flow = { riverThreshold: 0, riverDepth: 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable river carving (RiverThreshold = 0)', clear));
+
+  panel.appendChild(makeNumberRow('RiverThreshold',
+    'Flow-accumulation cutoff above which a cell becomes river. 0 disables. Lower = more rivers (archetype defaults: 200–1500).',
+    profile.flow.riverThreshold ?? 0, 0, 5000, '10',
+    v => { profile.flow.riverThreshold = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('RiverDepth',
+    'Height units carved along river channels (defaults: 0.005–0.025).',
+    profile.flow.riverDepth ?? 0, 0, 0.1, '0.001',
+    v => { profile.flow.riverDepth = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderRainShadowPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Rain Shadow',
+    'Orographic rainfall: an upwind walk over the heightmap boosts windward rain and dries leeward slopes. WalkSteps = 0 disables the pass entirely. Profile JSON key: "rainShadow".');
+  if (!profile.rainShadow) {
+    profile.rainShadow = { walkSteps: 0, stepArcRad: 0, mountainCutoff: 0, windRainBoost: 0, leeFactor: 0 };
+  }
+  const rs = profile.rainShadow;
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.rainShadow) || {};
+    profile.rainShadow = {
+      walkSteps: orig.walkSteps || 0, stepArcRad: orig.stepArcRad || 0,
+      mountainCutoff: orig.mountainCutoff || 0, windRainBoost: orig.windRainBoost || 0,
+      leeFactor: orig.leeFactor || 0,
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.rainShadow = { walkSteps: 0, stepArcRad: 0, mountainCutoff: 0, windRainBoost: 0, leeFactor: 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable rain shadow (WalkSteps = 0)', clear));
+
+  panel.appendChild(makeNumberRow('WalkSteps',
+    'Upwind walk length in steps. 0 disables (default 12).',
+    rs.walkSteps ?? 0, 0, 60, '1',
+    v => { profile.rainShadow.walkSteps = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('StepArcRad',
+    'Arc length of one walk step in radians (default 0.087 ≈ 5°).',
+    rs.stepArcRad ?? 0, 0, 0.3, '0.001',
+    v => { profile.rainShadow.stepArcRad = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('MountainCutoff',
+    'Height threshold for orographic uplift (defaults 0.55–0.65).',
+    rs.mountainCutoff ?? 0, 0, 1, '0.01',
+    v => { profile.rainShadow.mountainCutoff = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('WindRainBoost',
+    'Upwind rainfall multiplier minus 1 (defaults 0.2–0.4).',
+    rs.windRainBoost ?? 0, 0, 2, '0.05',
+    v => { profile.rainShadow.windRainBoost = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('LeeFactor',
+    'Leeward drying strength (defaults 0.05–0.15).',
+    rs.leeFactor ?? 0, 0, 1, '0.01',
+    v => { profile.rainShadow.leeFactor = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderCivPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Civilization',
+    'Settlement sites (Bridson-spaced), farmland, roads, and the Black-Marble nightside. Tier = 0 disables civ entirely. Profile JSON key: "civ".');
+  if (!profile.civ) {
+    profile.civ = { tier: 0, siteMinDistRad: 0, siteMaxDistRad: 0, maxPopulation: 0, nightLightHue: 0, agricultureRatio: 0 };
+  }
+  const cv = profile.civ;
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.civ) || {};
+    profile.civ = {
+      tier: orig.tier || 0, siteMinDistRad: orig.siteMinDistRad || 0,
+      siteMaxDistRad: orig.siteMaxDistRad || 0, maxPopulation: orig.maxPopulation || 0,
+      nightLightHue: orig.nightLightHue || 0, agricultureRatio: orig.agricultureRatio || 0,
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.civ = { tier: 0, siteMinDistRad: 0, siteMaxDistRad: 0, maxPopulation: 0, nightLightHue: 0, agricultureRatio: 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable civilization (Tier = 0)', clear));
+
+  panel.appendChild(makeNumberRow('Tier',
+    '0 = disabled; 1 = full civilization (terran default 0.5).',
+    cv.tier ?? 0, 0, 1, '0.05',
+    v => { profile.civ.tier = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('SiteMinDistRad',
+    'Bridson minimum site separation, radians (default 0.0314).',
+    cv.siteMinDistRad ?? 0, 0, 0.3, '0.001',
+    v => { profile.civ.siteMinDistRad = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('SiteMaxDistRad',
+    'Bridson maximum site separation, radians (default 0.1047).',
+    cv.siteMaxDistRad ?? 0, 0, 0.5, '0.001',
+    v => { profile.civ.siteMaxDistRad = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('MaxPopulation',
+    'Population scale for the most populous site (default 1.0).',
+    cv.maxPopulation ?? 0, 0, 10, '0.1',
+    v => { profile.civ.maxPopulation = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('NightLightHue',
+    'Hue (0..1) of nightside city lights; 0.12 ≈ sodium orange.',
+    cv.nightLightHue ?? 0, 0, 1, '0.01',
+    v => { profile.civ.nightLightHue = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('AgricultureRatio',
+    'Farmland-to-city area ratio (default 0.4).',
+    cv.agricultureRatio ?? 0, 0, 2, '0.05',
+    v => { profile.civ.agricultureRatio = v; commitProfile(profile); }));
 
   panels.appendChild(panel);
 }
