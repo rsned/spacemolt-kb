@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	htmltpl "html/template"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -204,10 +205,15 @@ type NoFacilityRecipe struct {
 }
 
 // groupByRecipe buckets public lines by the recipe they run, sorted by recipe
-// name; lines within a group sort by station name, then station ID, then
-// facility ID. Facilities whose recipe is absent from the crafting DB are
-// dropped -- every ID resolves today, and a group with no name or category
-// would render as a dead link.
+// name. Facilities whose recipe is absent from the crafting DB are dropped --
+// every ID resolves today, and a group with no name or category would render as
+// a dead link.
+//
+// Lines within a group answer "where should I go to make this", so they sort by
+// station name, then cheapest fee, then highest throughput, then faction name.
+// StationID and FacilityID close the sort: neither station name nor faction
+// name is a key, and slices.SortFunc is not stable, so without a unique final
+// comparison the committed HTML could reorder between regenerations.
 func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRecipeGroup {
 	byRecipe := make(map[string][]PublicFacility)
 	for _, f := range facs {
@@ -222,6 +228,15 @@ func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRec
 		r := recipes[id]
 		slices.SortFunc(lines, func(a, b PublicFacility) int {
 			if c := cmp.Compare(a.StationName, b.StationName); c != 0 {
+				return c
+			}
+			if c := cmp.Compare(a.FeePerRun, b.FeePerRun); c != 0 {
+				return c // cheapest first
+			}
+			if c := cmp.Compare(b.ItemsPerHour, a.ItemsPerHour); c != 0 {
+				return c // fastest first
+			}
+			if c := cmp.Compare(a.OwnerName, b.OwnerName); c != 0 {
 				return c
 			}
 			if c := cmp.Compare(a.StationID, b.StationID); c != 0 {
@@ -409,6 +424,31 @@ func writeWherePage(outDir string, knowledgeDB *sql.DB, recipes map[string]*Reci
 		NoFacilityNeeded: noFacilityNeeded,
 	}
 
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return err
+	}
+	outPath := filepath.Join(outDir, "where.html")
+	f, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+	if err := renderWherePage(f, data); err != nil {
+		_ = f.Close()
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	log.Printf("Where-To-Craft: %d public lines, %d recipes covered, %d stations, %d facility-only gaps",
+		len(facs), len(recipeGroups), len(stationGroups), len(facilityOnlyNone))
+	return nil
+}
+
+// renderWherePage writes the page HTML for data. It is separate from
+// writeWherePage so the template can be exercised against hand-built rows —
+// notably station-owned facilities, which do not yet exist in the knowledge DB.
+func renderWherePage(w io.Writer, data wherePageData) error {
 	funcs := htmltpl.FuncMap{
 		"comma": func(n int) string { return humanize.Comma(int64(n)) },
 		"lower": strings.ToLower, // faction dirs are the lowercased tag: kb/factions/hexc/
@@ -432,27 +472,11 @@ func writeWherePage(outDir string, knowledgeDB *sql.DB, recipes map[string]*Reci
 		},
 	}
 
-	tmpl := htmltpl.Must(htmltpl.New("where").Funcs(funcs).Parse(whereTemplate))
-
-	if err := os.MkdirAll(outDir, 0o755); err != nil {
-		return err
-	}
-	outPath := filepath.Join(outDir, "where.html")
-	f, err := os.Create(outPath)
+	tmpl, err := htmltpl.New("where").Funcs(funcs).Parse(whereTemplate)
 	if err != nil {
 		return err
 	}
-	if err := tmpl.Execute(f, data); err != nil {
-		_ = f.Close()
-		return err
-	}
-	if err := f.Close(); err != nil {
-		return err
-	}
-
-	log.Printf("Where-To-Craft: %d public lines, %d recipes covered, %d stations, %d facility-only gaps",
-		len(facs), len(recipeGroups), len(stationGroups), len(facilityOnlyNone))
-	return nil
+	return tmpl.Execute(w, data)
 }
 
 // whereTabScript selects the tab from the URL hash: #s-<station> opens the
@@ -606,7 +630,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
                             <th class="sortable">Fee/run</th>
                             <th class="sortable">Qty/run</th>
                             <th class="sortable">Items/hr</th>
-                            <th class="sortable">Owner</th>
+                            <th class="sortable">Source</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -619,7 +643,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
                             <td class="num-cell" data-sort="{{.FeePerRun}}">{{comma .FeePerRun}}</td>
                             <td class="num-cell" data-sort="{{.QtyPerRun}}">{{if .QtyPerRun}}{{.QtyPerRun}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
                             <td class="num-cell" data-sort="{{.ItemsPerHour}}">{{if .ItemsPerHour}}{{comma .ItemsPerHour}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
-                            <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{end}}</td>
+                            <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else if .OwnerID}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{else}}<span class="badge">Station Facility</span>{{end}}</td>
                         </tr>
 {{- end}}
                     </tbody>
@@ -672,7 +696,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
                                 <th class="sortable">Fee/run</th>
                                 <th class="sortable">Qty/run</th>
                                 <th class="sortable">Items/hr</th>
-                                <th class="sortable">Owner</th>
+                                <th class="sortable">Source</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -685,7 +709,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
                                 <td class="num-cell" data-sort="{{.FeePerRun}}">{{comma .FeePerRun}}</td>
                                 <td class="num-cell" data-sort="{{.QtyPerRun}}">{{if .QtyPerRun}}{{.QtyPerRun}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
                                 <td class="num-cell" data-sort="{{.ItemsPerHour}}">{{if .ItemsPerHour}}{{comma .ItemsPerHour}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
-                                <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{end}}</td>
+                                <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else if .OwnerID}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{else}}<span class="badge">Station Facility</span>{{end}}</td>
                             </tr>
 {{- end}}
                         </tbody>

@@ -427,3 +427,131 @@ func TestWriteWherePageEmptyTable(t *testing.T) {
 		t.Error("empty-table page should still list all recipes as having no public line")
 	}
 }
+
+// TestSourceCellStationOwned pins how the Source column renders each of the
+// three owner shapes. Station-owned facilities carry no faction_id, so the
+// scraper writes an empty owner_faction; they must render as a "Station" badge
+// rather than an empty <code> box.
+//
+// This is forward-compatible coverage: today public_facilities holds only
+// faction-owned rented lines, but the scraper is being fixed to also capture
+// the station_facilities section of the `facility list` response, where every
+// row has an empty owner.
+func TestSourceCellStationOwned(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+
+	facs := []PublicFacility{
+		// Station-owned: no owner at all.
+		{StationID: "grand_exchange_station", StationName: "Grand Exchange Station",
+			SystemID: "haven", SystemName: "Haven", FacilityID: "f750", FacilityName: "Iron Refinery",
+			FacilityType: "iron_refinery", RecipeID: "refine_steel", Level: 1,
+			FeePerRun: 9, QtyPerRun: 2, ItemsPerHour: 6666},
+		// Faction-owned, resolved.
+		{StationID: "grand_exchange_station", StationName: "Grand Exchange Station",
+			SystemID: "haven", SystemName: "Haven", FacilityID: "fx", FacilityName: "Salvage Smelter",
+			FacilityType: "salvage_smelter", RecipeID: "refine_steel", Level: 2,
+			FeePerRun: 40, OwnerID: "fac_known", OwnerName: "Hex Collective", OwnerTag: "HEXC"},
+		// Faction-owned, unresolved hash.
+		{StationID: "grand_exchange_station", StationName: "Grand Exchange Station",
+			SystemID: "haven", SystemName: "Haven", FacilityID: "fy", FacilityName: "Frost Furnace",
+			FacilityType: "frost_furnace", RecipeID: "hand_recipe", Level: 1,
+			FeePerRun: 22, OwnerID: "8d6cdcb7026e799a00fea973d56d8ada"},
+	}
+
+	covered := map[string]bool{"refine_steel": true, "hand_recipe": true}
+	facilityOnly, noFacility := splitNoFacilityRecipes(recipes, covered)
+	data := wherePageData{
+		StationCount: 1, FacilityCount: len(facs), RecipesCovered: 2,
+		FacilityOnlyGap: len(facilityOnly), LastSeenTick: 1306917,
+		RecipeGroups:     groupByRecipe(facs, recipes),
+		StationGroups:    groupByStation(facs, recipes),
+		FacilityOnlyNone: facilityOnly, NoFacilityNeeded: noFacility,
+	}
+
+	var buf strings.Builder
+	if err := renderWherePage(&buf, data); err != nil {
+		t.Fatalf("renderWherePage: %v", err)
+	}
+	html := buf.String()
+
+	// A station-owned row must say "Station", not render an empty code box.
+	if strings.Contains(html, `<code title=""></code>`) {
+		t.Error("station-owned facility rendered an empty <code> box in the Source column")
+	}
+	if want := `<span class="badge">Station Facility</span>`; !strings.Contains(html, want) {
+		t.Errorf("missing Station Facility badge for owner-less facility; want %q", want)
+	}
+	// Every facility table carries the renamed header. One table renders per
+	// recipe group and per station category block, so the count tracks the
+	// fixture's shape; what matters is that some render and none say "Owner".
+	if n := strings.Count(html, "<th class=\"sortable\">Source</th>"); n < 2 {
+		t.Errorf("Source column header appears %d times, want at least 2 (by-recipe + by-station)", n)
+	}
+	if strings.Contains(html, "<th class=\"sortable\">Owner</th>") {
+		t.Error("stale Owner column header still present")
+	}
+	// Resolved and unresolved faction rendering both survive.
+	if !strings.Contains(html, `../factions/hexc/index.html`) {
+		t.Error("resolved faction should still link to its lowercased-tag page")
+	}
+	if !strings.Contains(html, `8d6cdcb7`) {
+		t.Error("unresolved faction should still render its truncated hash")
+	}
+	if strings.Contains(html, `href=""`) {
+		t.Error("page emitted an empty href")
+	}
+}
+
+// TestGroupByRecipeFacilityOrder pins the ordering of facilities within a
+// recipe section: station name, then cheapest fee, then highest throughput,
+// then faction name. StationID/FacilityID close the sort so it stays
+// deterministic -- the rendered HTML is committed to git.
+func TestGroupByRecipeFacilityOrder(t *testing.T) {
+	recipes, err := loadRecipes(newCraftingFixture(t))
+	if err != nil {
+		t.Fatalf("loadRecipes: %v", err)
+	}
+
+	mk := func(id, station string, fee, iph int, owner string) PublicFacility {
+		return PublicFacility{
+			StationID: station, StationName: station, FacilityID: id,
+			RecipeID: "refine_steel", FeePerRun: fee, ItemsPerHour: iph,
+			OwnerName: owner, OwnerID: owner,
+		}
+	}
+	// Deliberately shuffled input.
+	facs := []PublicFacility{
+		mk("f6", "bravo", 5, 100, "Zeta"),
+		mk("f2", "alpha", 10, 500, "Acme"),
+		mk("f5", "alpha", 10, 500, "Acme"), // full tie with f2 -> FacilityID decides
+		mk("f1", "alpha", 5, 100, "Acme"),
+		mk("f4", "alpha", 10, 900, "Acme"), // same fee as f2, faster -> ranks before it
+		mk("f3", "alpha", 10, 500, "Aardvark"),
+	}
+
+	groups := groupByRecipe(facs, recipes)
+	if len(groups) != 1 {
+		t.Fatalf("got %d groups, want 1", len(groups))
+	}
+	var got []string
+	for _, f := range groups[0].Facilities {
+		got = append(got, f.FacilityID)
+	}
+
+	// alpha before bravo (station name).
+	// Within alpha: fee 5 (f1) first; then fee 10 sorted by items/hr desc ->
+	// f4 (900), then the 500s by faction name: Aardvark (f3) before Acme
+	// (f2, f5), and f2 before f5 by facility ID.
+	want := []string{"f1", "f4", "f3", "f2", "f5", "f6"}
+	if len(got) != len(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("order = %v, want %v", got, want)
+		}
+	}
+}
