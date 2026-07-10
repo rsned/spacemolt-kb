@@ -8,6 +8,12 @@
 //	planetExplorerBakeEquirect(cubePNG Uint8Array, w int, h int)                               Uint8Array
 //	planetExplorerDefaultProfile(planetType string)                                             string  // JSON
 //	planetExplorerGenerateDebug(profileJSON, seedStr, faceSize, bypassJSON)                    string  // JSON
+//	patchInit(profileJSON string, seedStr string, sTect int)                                   string  // JSON
+//	patchSelect(windowJSON string)                                                              string  // "" or JSON error
+//	patchLayers()                                                                               string  // JSON
+//	patchSetParam(paramPath string, profileJSON string)                                        string  // JSON
+//	patchRender(targetLayer int, view string)                                                  Uint8Array
+//	patchMinimap(width int, height int)                                                        Uint8Array
 //
 //go:build js && wasm
 
@@ -23,6 +29,7 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/patch"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/seed"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/types"
@@ -39,6 +46,12 @@ func main() {
 	js.Global().Set("planetExplorerDefaultProfile", js.FuncOf(defaultProfile))
 	js.Global().Set("planetExplorerGenerateDebug", js.FuncOf(generateDebug))
 	js.Global().Set("planetExplorerGenerateWithBypass", js.FuncOf(generateWithBypass))
+	js.Global().Set("patchInit", js.FuncOf(patchInit))
+	js.Global().Set("patchSelect", js.FuncOf(patchSelect))
+	js.Global().Set("patchLayers", js.FuncOf(patchLayers))
+	js.Global().Set("patchSetParam", js.FuncOf(patchSetParam))
+	js.Global().Set("patchRender", js.FuncOf(patchRender))
+	js.Global().Set("patchMinimap", js.FuncOf(patchMinimap))
 	<-make(chan struct{}) // keep the WASM process alive
 }
 
@@ -326,6 +339,272 @@ func generateDebug(_ js.Value, args []js.Value) any {
 	}
 	out, _ := json.Marshal(map[string]any{"stages": stages})
 	return js.ValueOf(string(out))
+}
+
+// patchSession holds the Patch Lab wizard's server-side (in-wasm)
+// state across the patchInit → patchSelect → patchLayers/patchSetParam
+// /patchRender/patchMinimap call sequence. Only one patch session is
+// live at a time (mirrors the single-sphere planetExplorerGenerate
+// model). profile is kept alongside the brief's sketch fields because
+// patch.Context requires a *types.PlanetProfile and patchSelect's
+// signature (windowJSON only) has no way to pass one in — patchInit's
+// decoded profile is threaded through from here.
+var patchSession struct {
+	sd      *patch.SphereData
+	profile *types.PlanetProfile
+	stack   *patch.Stack
+	window  patch.Window
+	sTect   int
+	master  int64
+}
+
+// patchInit(profileJSON, seedStr, sTect) → JSON string
+// {"seaLevel":..., "seaLevel0":..., "candidates":[{"window":{...},"score":...}, ...]}.
+// Runs the sphere-global tectonic precompute and picks the top-12
+// candidate 512x512 (virtual S_prod=1024) patch windows, storing the
+// sphere for the subsequent patchSelect call.
+func patchInit(_ js.Value, args []js.Value) any {
+	if len(args) != 3 {
+		return jsError("patchInit: expected 3 args, got %d", len(args))
+	}
+	var prof types.PlanetProfile
+	if err := json.Unmarshal([]byte(args[0].String()), &prof); err != nil {
+		return jsError("patchInit: bad profile JSON: %v", err)
+	}
+	master := seed.Hash(args[1].String())
+	sTect := args[2].Int()
+
+	sd, err := patch.ComputeSphere(&prof, master, sTect)
+	if err != nil {
+		return jsError("patchInit: %v", err)
+	}
+	cands := patch.Pick(sd, 512, 1024, 12)
+
+	patchSession.sd = sd
+	patchSession.profile = &prof
+	patchSession.master = master
+	patchSession.sTect = sTect
+	patchSession.stack = nil
+	patchSession.window = patch.Window{}
+
+	out, err := json.Marshal(map[string]any{
+		"seaLevel":   sd.SeaLevel,
+		"seaLevel0":  sd.SeaLevel0,
+		"candidates": cands,
+	})
+	if err != nil {
+		return jsError("patchInit: marshal: %v", err)
+	}
+	return string(out)
+}
+
+// patchSelect(windowJSON) → "" on success, or a jsError JSON string.
+// Extracts the patch fields for the given window and builds a fresh
+// layer Stack, storing both for subsequent calls.
+func patchSelect(_ js.Value, args []js.Value) any {
+	if len(args) != 1 {
+		return jsError("patchSelect: expected 1 arg, got %d", len(args))
+	}
+	if patchSession.sd == nil {
+		return jsError("patchSelect: call patchInit first")
+	}
+	var w patch.Window
+	if err := json.Unmarshal([]byte(args[0].String()), &w); err != nil {
+		return jsError("patchSelect: bad window JSON: %v", err)
+	}
+	if err := w.Valid(); err != nil {
+		return jsError("patchSelect: %v", err)
+	}
+	fields, err := patch.ExtractFields(patchSession.sd, w)
+	if err != nil {
+		return jsError("patchSelect: %v", err)
+	}
+	ctx := &patch.Context{
+		Sphere:  patchSession.sd,
+		Fields:  fields,
+		Profile: patchSession.profile,
+		Master:  patchSession.master,
+	}
+	patchSession.stack = patch.NewStack(ctx)
+	patchSession.window = w
+	return ""
+}
+
+// patchLayers() → JSON array
+// [{"index":0,"id":"tectonic-base","name":"Tectonic base","enabled":true}, ...].
+func patchLayers(_ js.Value, _ []js.Value) any {
+	if patchSession.stack == nil {
+		return jsError("patchLayers: call patchSelect first")
+	}
+	ctx := patchSession.stack.Ctx()
+	ls := patch.Layers()
+	out := make([]map[string]any, len(ls))
+	for i, l := range ls {
+		enabled := true
+		if l.Enabled != nil {
+			enabled = l.Enabled(ctx)
+		}
+		out[i] = map[string]any{
+			"index":   l.Index,
+			"id":      l.ID,
+			"name":    l.Name,
+			"enabled": enabled,
+		}
+	}
+	b, err := json.Marshal(out)
+	if err != nil {
+		return jsError("patchLayers: marshal: %v", err)
+	}
+	return string(b)
+}
+
+// clampWindow re-validates a window after a sphere recompute, clamping
+// X0/Y0 so the window stays within [0, SProd-Size]. SProd (the virtual
+// production face size) doesn't change when sTect changes, so this is
+// normally a no-op — kept for the general case per the task brief.
+func clampWindow(w patch.Window) patch.Window {
+	maxX := max(w.SProd-w.Size, 0)
+	if w.X0 > maxX {
+		w.X0 = maxX
+	}
+	if w.X0 < 0 {
+		w.X0 = 0
+	}
+	if w.Y0 > maxX {
+		w.Y0 = maxX
+	}
+	if w.Y0 < 0 {
+		w.Y0 = 0
+	}
+	return w
+}
+
+// patchSetParam(paramPath, profileJSON) → JSON {"sphereRecomputed":bool}.
+// Applies a profile-param edit to the live stack's Context. Most edits,
+// including tectonic FX, control noise, and height smooth, are owned by
+// a patch layer (patch.Layers()'s Params lists), so MarkDirty returns
+// false and only that layer and everything downstream of it re-runs —
+// the sphere-global precompute (SphereData: Jitter/Plates/Crust/FX) is
+// NOT re-run. Only edits to params no layer owns (MajorPlates, Assembly,
+// CratonsMax, TargetLandFraction, …) require a full ComputeSphere+
+// ExtractFields re-run. Consequence: HMin/HMax/SeaLevel0/SeaLevel are
+// derived once by ComputeSphere and cached on SphereData — heavy
+// tectonic FX / control noise / height-smooth retuning can drift a
+// patch's absolute height normalization and sea level away from what a
+// fresh sphere compute at the new params would produce, until a
+// genuinely sphere-level param changes (or the user re-enters Patch
+// Lab) resyncs them. This is intentional (keeps slider drags
+// interactive) but is a documented divergence — see the Patch Lab
+// README and spec §7. paramPath == "seaLevelView" is a special case:
+// it's a stack-side view override (Context.SeaLevelView), not a
+// profile field, so it never triggers a sphere recompute.
+func patchSetParam(_ js.Value, args []js.Value) any {
+	if len(args) != 2 {
+		return jsError("patchSetParam: expected 2 args, got %d", len(args))
+	}
+	if patchSession.stack == nil {
+		return jsError("patchSetParam: call patchSelect first")
+	}
+	paramPath := args[0].String()
+	profileJSON := args[1].String()
+	ctx := patchSession.stack.Ctx()
+
+	sphereRecomputed := false
+	if paramPath == "seaLevelView" {
+		var payload struct {
+			SeaLevelView float64 `json:"seaLevelView"`
+		}
+		if err := json.Unmarshal([]byte(profileJSON), &payload); err != nil {
+			return jsError("patchSetParam: bad seaLevelView JSON: %v", err)
+		}
+		ctx.SeaLevelView = payload.SeaLevelView
+		patchSession.stack.MarkDirty(paramPath)
+	} else {
+		var prof types.PlanetProfile
+		if err := json.Unmarshal([]byte(profileJSON), &prof); err != nil {
+			return jsError("patchSetParam: bad profile JSON: %v", err)
+		}
+		ctx.Profile = &prof
+		patchSession.profile = &prof
+		if patchSession.stack.MarkDirty(paramPath) {
+			sd, err := patch.ComputeSphere(ctx.Profile, patchSession.master, patchSession.sTect)
+			if err != nil {
+				return jsError("patchSetParam: recompute sphere: %v", err)
+			}
+			w := clampWindow(patchSession.window)
+			fields, err := patch.ExtractFields(sd, w)
+			if err != nil {
+				return jsError("patchSetParam: extract fields: %v", err)
+			}
+			patchSession.sd = sd
+			patchSession.window = w
+			ctx.Sphere = sd
+			ctx.Fields = fields
+			patchSession.stack.MarkAllDirty()
+			sphereRecomputed = true
+		}
+	}
+
+	out, err := json.Marshal(map[string]any{"sphereRecomputed": sphereRecomputed})
+	if err != nil {
+		return jsError("patchSetParam: marshal: %v", err)
+	}
+	return string(out)
+}
+
+// patchRender(targetLayer, view) → Uint8Array of PNG bytes. view is one
+// of "color" (ColorPNG), "height" (HeightPNG), or "tectonic"
+// (TectonicDebugPNG).
+func patchRender(_ js.Value, args []js.Value) any {
+	if len(args) != 2 {
+		return jsError("patchRender: expected 2 args, got %d", len(args))
+	}
+	if patchSession.stack == nil {
+		return jsError("patchRender: call patchSelect first")
+	}
+	target := args[0].Int()
+	view := args[1].String()
+
+	st, err := patchSession.stack.RenderTo(target)
+	if err != nil {
+		return jsError("patchRender: %v", err)
+	}
+
+	var b []byte
+	switch view {
+	case "color":
+		b, err = patch.ColorPNG(st)
+	case "height":
+		b, err = patch.HeightPNG(st)
+	case "tectonic":
+		b, err = patch.TectonicDebugPNG(patchSession.stack.Ctx(), st)
+	default:
+		return jsError("patchRender: unknown view %q", view)
+	}
+	if err != nil {
+		return jsError("patchRender: encode: %v", err)
+	}
+	return jsBytes(b)
+}
+
+// patchMinimap(width, height) → Uint8Array of an equirect PNG of the
+// stored sphere's continental mask (FX-tinted) with the selected
+// window's footprint outlined in white. Requires patchSelect to have
+// run so the outlined window is meaningful.
+func patchMinimap(_ js.Value, args []js.Value) any {
+	if len(args) != 2 {
+		return jsError("patchMinimap: expected 2 args, got %d", len(args))
+	}
+	if patchSession.stack == nil {
+		return jsError("patchMinimap: call patchSelect first")
+	}
+	width := args[0].Int()
+	height := args[1].Int()
+	b, err := patch.MinimapPNG(patchSession.sd, patchSession.window, width, height)
+	if err != nil {
+		return jsError("patchMinimap: %v", err)
+	}
+	return jsBytes(b)
 }
 
 func goBytes(uint8Array js.Value) []byte {

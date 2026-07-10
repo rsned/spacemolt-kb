@@ -56,6 +56,7 @@
         </select>
       </label>
       <button id="render-btn">Regenerate</button>
+      <button id="patch-mode-btn" title="Enter Patch Lab: tune a single 512x512 patch through the per-layer pipeline, then Go! to the full render.">Patch Lab</button>
       <button id="toggle-jitter-btn" title="Flip JitterEnabled in the profile JSON and re-render. Click again to flip back.">Jitter: ?</button>
       <button id="export-json-btn">Export JSON</button>
       <button id="save-profile-btn" disabled title="Save the current slider state to the selected planet's JSON file.">Save</button>
@@ -142,6 +143,29 @@
     </section>
   </aside>
   <section class="viewport">
+    <section id="patch-lab" hidden>
+      <div class="patch-lab-canvases">
+        <h2>Patch (512&sup2;)</h2>
+        <canvas id="patch-canvas" width="512" height="512"></canvas>
+        <h2>Minimap</h2>
+        <canvas id="patch-minimap" width="360" height="180"></canvas>
+      </div>
+      <div id="patch-layer-rail"></div>
+      <div class="patch-lab-controls">
+        <label>View
+          <select id="patch-view">
+            <option value="color" selected>Color</option>
+            <option value="height">Height</option>
+            <option value="tectonic">Tectonic</option>
+          </select>
+        </label>
+        <button id="patch-next-window">Next window</button>
+        <label>Sea level
+          <input id="patch-sealevel" type="range" min="0" max="1" step="0.005">
+        </label>
+        <button id="patch-go">Go! (full render)</button>
+      </div>
+    </section>
     <h2>Rotating sphere <button id="sphere-pause" type="button" class="sphere-pause-btn" title="Pause or resume the auto-rotation. Pausing the rotation drops the page's CPU use to ~0%.">Pause</button></h2>
     <div class="planet-sphere">
       <canvas id="sphere-canvas" width="800" height="800"></canvas>
