@@ -58,16 +58,162 @@ function bootWorker() {
     pendingRPCs.delete(m.id);
     if (m.error !== undefined) p.reject(new Error(m.error));
     else p.resolve(m.result);
+    busyMaybeHide();
   };
 }
-
-function onWorkerProgress(_m) {} // replaced by the busy-overlay task
 
 function rpc(name, ...args) {
   return new Promise((resolve, reject) => {
     const id = nextRPCId++;
     pendingRPCs.set(id, { resolve, reject, name });
+    busyMaybeShow();
     worker.postMessage({ id, name, args });
+  });
+}
+
+// ---- Busy overlay ----
+// Shown when any RPC is still pending after SHOW_DELAY_MS, so quick
+// param sets never flash a spinner. Whimsy is cosmetic; the honest
+// stage key and i/n counter always render beside it.
+const BUSY_SHOW_DELAY_MS = 150;
+const busyOverlay = $('#busy-overlay');
+const busyWhimsy = $('#busy-whimsy');
+const busyStage = $('#busy-stage');
+const busyBarFill = $('#busy-bar-fill');
+let busyTimer = null;
+let lastWhimsyKey = '';
+
+const RPC_LABELS = {
+  planetExplorerGenerate: 'Rendering the planet',
+  planetExplorerGenerateNight: 'Turning on the city lights',
+  planetExplorerGenerateHeightmap: 'Measuring the mountains',
+  planetExplorerGenerateWithBypass: 'Rendering the planet (with bypasses)',
+  planetExplorerBakeEquirect: 'Flattening the globe',
+  planetExplorerGenerateDebug: 'Rendering every pipeline stage',
+  planetExplorerDefaultProfile: 'Fetching defaults',
+  patchInit: 'Surveying the whole sphere',
+  patchSelect: 'Cutting out your patch',
+  patchLayers: 'Listing the layers',
+  patchSetParam: 'Applying the tweak',
+  patchRender: 'Painting the patch',
+  patchMinimap: 'Drawing the minimap',
+  patchRecomputeSphere: 'Recomputing the sphere',
+};
+
+const WHIMSY = {
+  'sphere:jitter': ['Wobbling the crust (on purpose)'],
+  'sphere:plates': ['Smashing continental plates together', 'Filing tectonic grievances'],
+  'sphere:crust': ['Baking a fresh planetary crust', 'Arranging cratons like furniture'],
+  'sphere:fx': ['Classifying mountain-making collisions'],
+  'sphere:splines': ['Sculpting hills with cubic splines'],
+  'sphere:tectonic-fx': ['Making mountains out of molehills'],
+  'sphere:smooth': ['Sanding down the rough edges'],
+  'sphere:normalize': ['Convincing the peaks to fit in [0,1]'],
+  'sphere:erode': ['Raining on the mountains for a few eons', 'Hiding dinosaur bones'],
+  'sphere:flow': ['Rerouting rivers for scenic value'],
+  'layer:tectonic-base': ['Laying the tectonic foundation'],
+  'layer:tectonic-fx': ['Crumpling the crust artistically'],
+  'layer:control-noise': ['Seasoning with fractal noise'],
+  'layer:height-smooth': ['Buffing out the pixel wrinkles'],
+  'layer:normalize': ['Renormalizing with bureaucratic rigor'],
+  'layer:coastal': ['Nibbling the coastlines'],
+  'layer:erosion': ['Applying 10,000 years of drizzle', 'Hiding dinosaur bones'],
+  'layer:craters': ['Throwing rocks from space'],
+  'layer:flow-rivers': ['Teaching water to flow downhill'],
+  'layer:climate': ['Negotiating with the rain shadow'],
+  'layer:biome-color': ['Coloring inside the biome lines'],
+  'layer:waterlines': ['Filling the oceans — do not disturb'],
+  'layer:civ': ['Zoning land for tiny civilizations', 'Approving planning permission'],
+  Crust: ['Baking a fresh planetary crust'],
+  ControlFields: ['Seasoning with fractal noise'],
+  Ridged: ['Extruding dramatic ridge lines'],
+  TectonicFX: ['Making mountains out of molehills'],
+  Basin: ['Digging decorative basins'],
+  Continents: ['Rolling out the continents'],
+  HeightSmooth: ['Sanding down the rough edges'],
+  Normalize: ['Convincing the peaks to fit in [0,1]'],
+  Coastal: ['Nibbling the coastlines'],
+  Erosion: ['Applying 10,000 years of drizzle', 'Hiding dinosaur bones'],
+  Flow: ['Teaching water to flow downhill'],
+  Craters: ['Throwing rocks from space'],
+  Palette: ['Mixing planetary paint'],
+  Snow: ['Dusting the peaks with snow'],
+  Ocean: ['Filling the oceans'],
+  PolarCaps: ['Icing the poles'],
+  Shading: ['Adding dramatic lighting'],
+  Ejecta: ['Splattering crater ejecta tastefully'],
+  Civ: ['Zoning land for tiny civilizations'],
+  LUT: ['Applying the cinematic color grade'],
+  'render:jitter': ['Wobbling the crust (on purpose)'],
+  'render:plates': ['Smashing continental plates together'],
+  'render:heightmap': ['Raising mountains, digging seas'],
+  'render:flow': ['Rerouting rivers for scenic value'],
+  'render:colorize': ['Arguing about paint colors'],
+};
+
+function busyMaybeShow() {
+  if (busyTimer !== null || !busyOverlay.hidden) return;
+  busyTimer = setTimeout(() => {
+    busyTimer = null;
+    if (pendingRPCs.size === 0) return;
+    const first = pendingRPCs.values().next().value;
+    busyWhimsy.textContent = RPC_LABELS[first.name] || 'Working…';
+    busyStage.textContent = '';
+    busyBarFill.style.width = '0%';
+    lastWhimsyKey = '';
+    busyOverlay.hidden = false;
+  }, BUSY_SHOW_DELAY_MS);
+}
+
+function busyMaybeHide() {
+  if (pendingRPCs.size > 0) return;
+  if (busyTimer !== null) { clearTimeout(busyTimer); busyTimer = null; }
+  busyOverlay.hidden = true;
+}
+
+function onWorkerProgress(m) {
+  if (busyOverlay.hidden) return;
+  if (m.stage !== lastWhimsyKey) {
+    lastWhimsyKey = m.stage;
+    const pool = WHIMSY[m.stage];
+    if (pool) busyWhimsy.textContent = pool[Math.floor(Math.random() * pool.length)];
+  }
+  busyStage.textContent = m.n > 0 ? `${m.stage} (${m.i}/${m.n})` : m.stage;
+  if (m.n > 0) busyBarFill.style.width = `${Math.round((m.i / m.n) * 100)}%`;
+}
+
+// cancelCompute kills the worker mid-compute. All in-flight RPCs
+// reject with 'cancelled'; the wasm-side patch session dies with the
+// worker, so an open Patch Lab is exited (cancel means abandon).
+function cancelCompute() {
+  worker.terminate();
+  for (const p of pendingRPCs.values()) p.reject(new Error('cancelled'));
+  pendingRPCs.clear();
+  wasmReady = false;
+  busyMaybeHide();
+  bootWorker();
+  if (patchOn) {
+    exitPatchLab();
+    status.textContent = 'Cancelled — Patch Lab session reset';
+  } else {
+    status.textContent = 'Cancelled';
+  }
+}
+const busyCancelBtn = $('#busy-cancel');
+if (busyCancelBtn) busyCancelBtn.addEventListener('click', cancelCompute);
+
+// quiet wraps a driver's RPC promise so it NEVER rejects (drivers are
+// often fire-and-forget; a rejection would surface as an unhandled-
+// rejection console error). A cancelCompute() rejection is expected
+// and silent; anything else lands in the status line and the console.
+// Callers must treat a null result as "stop this driver".
+function quiet(p) {
+  return p.catch((e) => {
+    if (!(e && e.message === 'cancelled')) {
+      status.textContent = 'Error: ' + (e && e.message || e);
+      console.warn(e);
+    }
+    return null;
   });
 }
 
@@ -108,7 +254,8 @@ async function refreshPlanetPicker() {
 
 async function loadDefaultProfile() {
   const type = typePicker.value;
-  const json = await rpc('planetExplorerDefaultProfile', type);
+  const json = await quiet(rpc('planetExplorerDefaultProfile', type));
+  if (json === null) return;
   if (typeof json === 'string' && json.startsWith('{"error"')) {
     status.textContent = 'Error: ' + json;
     return;
@@ -172,18 +319,20 @@ async function regenerate() {
   const mode = viewModeSel ? viewModeSel.value : 'color';
   let cubePNG;
   if (mode === 'heightmap') {
-    cubePNG = await rpc('planetExplorerGenerateHeightmap', profileJSON, seed, size);
+    cubePNG = await quiet(rpc('planetExplorerGenerateHeightmap', profileJSON, seed, size));
   } else if (debugBypass.size > 0) {
-    cubePNG = await rpc('planetExplorerGenerateWithBypass', profileJSON, seed, size, JSON.stringify([...debugBypass]));
+    cubePNG = await quiet(rpc('planetExplorerGenerateWithBypass', profileJSON, seed, size, JSON.stringify([...debugBypass])));
   } else {
-    cubePNG = await rpc('planetExplorerGenerate', profileJSON, seed, size);
+    cubePNG = await quiet(rpc('planetExplorerGenerate', profileJSON, seed, size));
   }
+  if (cubePNG === null) return;
   if (!(cubePNG instanceof Uint8Array)) {
     status.textContent = 'Error: ' + cubePNG;
     return;
   }
   await paintToCanvas(cubeCanvas, cubePNG);
-  const equirectPNG = await rpc('planetExplorerBakeEquirect', cubePNG, equirectCanvas.width, equirectCanvas.height);
+  const equirectPNG = await quiet(rpc('planetExplorerBakeEquirect', cubePNG, equirectCanvas.width, equirectCanvas.height));
+  if (equirectPNG === null) return;
   if (equirectPNG instanceof Uint8Array) {
     await paintToCanvas(equirectCanvas, equirectPNG);
     refreshSphereTexture();
@@ -195,9 +344,11 @@ async function regenerate() {
   // the unlit hemisphere via the sun-direction dot product. Empty
   // Uint8Array means civ disabled — clear the texture so we fall back
   // to the original day-only render.
-  const nightCubePNG = await rpc('planetExplorerGenerateNight', profileJSON, seed, size);
+  const nightCubePNG = await quiet(rpc('planetExplorerGenerateNight', profileJSON, seed, size));
+  if (nightCubePNG === null) return;
   if (nightCubePNG instanceof Uint8Array && nightCubePNG.length > 0) {
-    const nightEqPNG = await rpc('planetExplorerBakeEquirect', nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height);
+    const nightEqPNG = await quiet(rpc('planetExplorerBakeEquirect', nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height));
+    if (nightEqPNG === null) return;
     if (nightEqPNG instanceof Uint8Array) {
       await paintToCanvas(nightEquirectCanvas, nightEqPNG);
       refreshSphereNightTexture();
@@ -1953,7 +2104,8 @@ async function refreshDebugView() {
   const seed = seedInput.value;
   const size = parseInt(faceSizeSel.value, 10) || 256;
   const bypassJSON = JSON.stringify([...debugBypass]);
-  const result = await rpc('planetExplorerGenerateDebug', profileJSON, seed, size, bypassJSON);
+  const result = await quiet(rpc('planetExplorerGenerateDebug', profileJSON, seed, size, bypassJSON));
+  if (result === null) return;
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) {
@@ -2191,7 +2343,8 @@ async function enterPatchLab() {
   // sTect=256: a smaller tectonic face than the full production render
   // uses, so the sphere-level precompute (and any sphere-level param
   // recompute triggered later by patchSetParam) stays interactive.
-  const initRaw = await rpc('patchInit', JSON.stringify(profile), seedInput.value, 256);
+  const initRaw = await quiet(rpc('patchInit', JSON.stringify(profile), seedInput.value, 256));
+  if (initRaw === null) return;
   if (isWasmError(initRaw)) {
     // Crust-disabled archetypes (e.g. scorched) hit ComputeSphere's
     // error path here — surface it and leave the normal viewport alone.
@@ -2234,7 +2387,8 @@ function exitPatchLab() {
 }
 
 async function buildLayerRail() {
-  const raw = await rpc('patchLayers');
+  const raw = await quiet(rpc('patchLayers'));
+  if (raw === null) return;
   if (isWasmError(raw)) {
     console.warn('patchLayers:', wasmErrorMessage(raw));
     return;
@@ -2267,7 +2421,8 @@ async function buildLayerRail() {
 async function selectCandidate(i) {
   if (!patchCands.length) return;
   patchCandIdx = ((i % patchCands.length) + patchCands.length) % patchCands.length;
-  const err = await rpc('patchSelect', JSON.stringify(patchCands[patchCandIdx].window));
+  const err = await quiet(rpc('patchSelect', JSON.stringify(patchCands[patchCandIdx].window)));
+  if (err === null) return;
   if (isWasmError(err)) {
     alert('Patch Lab: ' + wasmErrorMessage(err));
     return;
@@ -2279,7 +2434,8 @@ async function selectCandidate(i) {
 async function refreshPatch() {
   if (!patchOn) return;
   const view = patchViewSel ? patchViewSel.value : 'color';
-  const png = await rpc('patchRender', patchTarget, view);
+  const png = await quiet(rpc('patchRender', patchTarget, view));
+  if (png === null) return;
   if (!(png instanceof Uint8Array)) {
     status.textContent = 'Patch Lab error: ' + wasmErrorMessage(png);
     return;
@@ -2289,7 +2445,8 @@ async function refreshPatch() {
 
 async function refreshMinimap() {
   if (!patchOn) return;
-  const png = await rpc('patchMinimap', patchMinimapCanvas.width, patchMinimapCanvas.height);
+  const png = await quiet(rpc('patchMinimap', patchMinimapCanvas.width, patchMinimapCanvas.height));
+  if (png === null) return;
   if (!(png instanceof Uint8Array)) {
     console.warn('Patch Lab minimap error:', wasmErrorMessage(png));
     return;
@@ -2400,7 +2557,8 @@ async function applyProfileToPatch(profile) {
   const path = diffCount > 1 ? '__fullRefresh' : diffProfilePath(patchPrevProfile, profile);
   patchPrevProfile = JSON.parse(JSON.stringify(profile));
   if (!path) return;
-  const raw = await rpc('patchSetParam', path, JSON.stringify(profile));
+  const raw = await quiet(rpc('patchSetParam', path, JSON.stringify(profile)));
+  if (raw === null) return;
   if (isWasmError(raw)) {
     console.warn('patchSetParam:', wasmErrorMessage(raw));
     return;
@@ -2435,7 +2593,8 @@ if (patchSeaLevelInput) {
     let profile;
     try { profile = JSON.parse(profileTextarea.value); } catch { return; }
     const payload = Object.assign({}, profile, { seaLevelView: parseFloat(patchSeaLevelInput.value) });
-    const raw = await rpc('patchSetParam', 'seaLevelView', JSON.stringify(payload));
+    const raw = await quiet(rpc('patchSetParam', 'seaLevelView', JSON.stringify(payload)));
+    if (raw === null) return;
     if (isWasmError(raw)) console.warn('patchSetParam seaLevelView:', wasmErrorMessage(raw));
     scheduleRefreshPatch();
   });

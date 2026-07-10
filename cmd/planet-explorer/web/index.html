@@ -181,6 +181,15 @@
     </div>
   </section>
 </main>
+<div id="busy-overlay" hidden>
+  <div class="busy-box">
+    <div class="busy-spinner" aria-hidden="true"></div>
+    <div id="busy-whimsy">Working…</div>
+    <div id="busy-stage"></div>
+    <div class="busy-bar"><div id="busy-bar-fill"></div></div>
+    <button id="busy-cancel" type="button" title="Terminate the compute. Cancelling mid-Patch-Lab resets the patch session.">Cancel</button>
+  </div>
+</div>
 <details id="debug-panel" class="debug-panel">
   <summary>Pipeline debug view <small>(click to expand)</small></summary>
   <div class="debug-controls">
