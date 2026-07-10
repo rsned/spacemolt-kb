@@ -9,9 +9,8 @@ import (
 
 // distanceToCoastPatch: two-pass chamfer distance (in pixels) to the
 // nearest coastline crossing of threshold, converted to the JFA
-// field's [0,1] angular-fraction units: one face spans ~π/2 radians,
-// so 1 px ≈ (π/2)/SProd radians, and the JFA field divides by π.
-func distanceToCoastPatch(hm *Grid, threshold float64, sProd int) *Grid {
+// field's [0,1] angular-fraction units.
+func distanceToCoastPatch(hm *Grid, threshold float64, pxRad float64) *Grid {
 	size := hm.Size
 	const inf = math.MaxFloat64
 	d := NewGrid(size)
@@ -60,7 +59,7 @@ func distanceToCoastPatch(hm *Grid, threshold float64, sProd int) *Grid {
 		}
 	}
 	// Pixels → angular fraction of π (JFA units).
-	pxToFrac := (math.Pi / 2) / float64(sProd) / math.Pi
+	pxToFrac := pxRad / math.Pi
 	for i, v := range d.Data {
 		if v == inf {
 			d.Data[i] = 1
@@ -81,7 +80,7 @@ func applyCoastal(ctx *Context, st *State) *State {
 	w := ctx.Fields.Window
 	p := ctx.Profile
 	sea := ctx.Sphere.SeaLevel0
-	dist := distanceToCoastPatch(st.Height, sea, w.SProd)
+	dist := distanceToCoastPatch(st.Height, sea, w.PxRad())
 	gen := noise.NewCoastalGen(seed.Domain(ctx.Master, "coastal"))
 
 	ns := *st

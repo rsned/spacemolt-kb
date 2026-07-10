@@ -55,3 +55,11 @@ func TestWindowSamplerRoundTrip(t *testing.T) {
 		}
 	}
 }
+
+func TestWindowPxRad(t *testing.T) {
+	w := Window{SProd: 1024}
+	want := (math.Pi / 2) / 1024.0
+	if got := w.PxRad(); got != want {
+		t.Fatalf("PxRad() = %v, want %v", got, want)
+	}
+}

@@ -2,6 +2,7 @@ package patch
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 )
@@ -38,6 +39,10 @@ func (w Window) Valid() error {
 func (w Window) Dir(ix, iy int) (x, y, z float64) {
 	return cubemap.FacePixelToDir(w.Face, w.X0+ix, w.Y0+iy, w.SProd)
 }
+
+// PxRad is the angular size of one virtual production pixel in
+// radians: a cube face spans π/2 radians across SProd pixels.
+func (w Window) PxRad() float64 { return (math.Pi / 2) / float64(w.SProd) }
 
 // Sampler returns a direction-space sampler over a patch grid — the
 // patch analog of CubeMapF.Sample. Directions off the window clamp to

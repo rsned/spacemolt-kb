@@ -37,6 +37,18 @@ func ColorPNG(st *State) ([]byte, error) {
 	return encodePNG(st.Img)
 }
 
+// fxTints are the five tectonic FX class debug tints in canonical
+// class order (belt=red, subduction=orange, arc=yellow, ridge=cyan,
+// rift=magenta). Shared by TectonicDebugPNG (patch-resolution grids)
+// and MinimapPNG (sphere-resolution fields).
+var fxTints = [5]color.RGBA{
+	{R: 200, G: 40, B: 40, A: 255},
+	{R: 230, G: 120, B: 30, A: 255},
+	{R: 230, G: 210, B: 60, A: 255},
+	{R: 60, G: 200, B: 220, A: 255},
+	{R: 200, G: 60, B: 200, A: 255},
+}
+
 // fxClass is one tectonic FX class's cropped patch fields and debug
 // tint color, shared by TectonicDebugPNG (patch-resolution Dist/Mag
 // grids) and minimapTint (sphere-resolution CubeMapF fields).
@@ -73,11 +85,11 @@ func TectonicDebugPNG(ctx *Context, st *State) ([]byte, error) {
 	f := ctx.Fields
 	size := f.Window.Size
 	classes := []fxClass{
-		{f.BeltDist, f.BeltMag, color.RGBA{R: 200, G: 40, B: 40, A: 255}},
-		{f.SubdDist, f.SubdMag, color.RGBA{R: 230, G: 120, B: 30, A: 255}},
-		{f.ArcDist, f.ArcMag, color.RGBA{R: 230, G: 210, B: 60, A: 255}},
-		{f.RidgeDist, f.RidgeMag, color.RGBA{R: 60, G: 200, B: 220, A: 255}},
-		{f.RiftDist, f.RiftMag, color.RGBA{R: 200, G: 60, B: 200, A: 255}},
+		{f.BeltDist, f.BeltMag, fxTints[0]},
+		{f.SubdDist, f.SubdMag, fxTints[1]},
+		{f.ArcDist, f.ArcMag, fxTints[2]},
+		{f.RidgeDist, f.RidgeMag, fxTints[3]},
+		{f.RiftDist, f.RiftMag, fxTints[4]},
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, size, size))
@@ -120,11 +132,11 @@ func MinimapPNG(sd *SphereData, w Window, width, height int) ([]byte, error) {
 		Dist, Mag *cubemap.CubeMapF
 		Tint      color.RGBA
 	}{
-		{sd.FX.BeltDist, sd.FX.BeltMag, color.RGBA{R: 200, G: 40, B: 40, A: 255}},
-		{sd.FX.SubdDist, sd.FX.SubdMag, color.RGBA{R: 230, G: 120, B: 30, A: 255}},
-		{sd.FX.ArcDist, sd.FX.ArcMag, color.RGBA{R: 230, G: 210, B: 60, A: 255}},
-		{sd.FX.RidgeDist, sd.FX.RidgeMag, color.RGBA{R: 60, G: 200, B: 220, A: 255}},
-		{sd.FX.RiftDist, sd.FX.RiftMag, color.RGBA{R: 200, G: 60, B: 200, A: 255}},
+		{sd.FX.BeltDist, sd.FX.BeltMag, fxTints[0]},
+		{sd.FX.SubdDist, sd.FX.SubdMag, fxTints[1]},
+		{sd.FX.ArcDist, sd.FX.ArcMag, fxTints[2]},
+		{sd.FX.RidgeDist, sd.FX.RidgeMag, fxTints[3]},
+		{sd.FX.RiftDist, sd.FX.RiftMag, fxTints[4]},
 	}
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range base.Size {

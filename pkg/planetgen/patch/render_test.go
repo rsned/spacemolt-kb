@@ -2,6 +2,7 @@ package patch
 
 import (
 	"bytes"
+	"image/color"
 	"image/png"
 	"testing"
 )
@@ -131,5 +132,21 @@ func TestEquirectPixelRoundTripsBakeEquirectProjection(t *testing.T) {
 	// lon=0 maps to fpx = -0.5 (clamped to 0), i.e. the left edge.
 	if px < 0 || px > 2 {
 		t.Fatalf("expected near-left-edge px, got %d", px)
+	}
+}
+
+// TestFxTintsPinned pins the five debug tints in canonical class order
+// (belt, subduction, arc, ridge, rift) so the TectonicDebugPNG /
+// MinimapPNG dedup cannot silently change a color.
+func TestFxTintsPinned(t *testing.T) {
+	want := [5]color.RGBA{
+		{R: 200, G: 40, B: 40, A: 255},
+		{R: 230, G: 120, B: 30, A: 255},
+		{R: 230, G: 210, B: 60, A: 255},
+		{R: 60, G: 200, B: 220, A: 255},
+		{R: 200, G: 60, B: 200, A: 255},
+	}
+	if fxTints != want {
+		t.Fatalf("fxTints = %v, want %v", fxTints, want)
 	}
 }
