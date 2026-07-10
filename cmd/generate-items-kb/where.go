@@ -190,6 +190,78 @@ type WhereStationGroup struct {
 	Categories  []WhereStationCategory
 }
 
+// WhereOwnerSummary is one row of the owner rollup above the tabs: a faction
+// (or the stations themselves) and how much public industry it runs.
+type WhereOwnerSummary struct {
+	OwnerID   string
+	OwnerName string // empty when the faction does not resolve
+	OwnerTag  string
+
+	// StationOwned marks the row for lines the stations run themselves. Those
+	// carry no faction_id, so they aggregate into a single row rather than
+	// silently sharing the empty-ID faction bucket with nothing to name it.
+	StationOwned bool
+
+	Facilities int
+	Stations   int
+	Recipes    int
+	FeeMin     int
+	FeeMax     int
+}
+
+// summarizeOwners rolls facilities up by owning faction, with station-owned
+// lines gathered into one row. Sorted by facility count descending; OwnerID
+// closes the sort so equal counts cannot reorder between regenerations.
+func summarizeOwners(facs []PublicFacility) []WhereOwnerSummary {
+	type acc struct {
+		row      WhereOwnerSummary
+		stations map[string]bool
+		recipes  map[string]bool
+	}
+	byOwner := make(map[string]*acc)
+
+	for _, f := range facs {
+		a, ok := byOwner[f.OwnerID]
+		if !ok {
+			a = &acc{
+				row: WhereOwnerSummary{
+					OwnerID:      f.OwnerID,
+					OwnerName:    f.OwnerName,
+					OwnerTag:     f.OwnerTag,
+					StationOwned: f.OwnerID == "",
+					FeeMin:       f.FeePerRun,
+					FeeMax:       f.FeePerRun,
+				},
+				stations: make(map[string]bool),
+				recipes:  make(map[string]bool),
+			}
+			byOwner[f.OwnerID] = a
+		}
+		a.row.Facilities++
+		a.row.FeeMin = min(a.row.FeeMin, f.FeePerRun)
+		a.row.FeeMax = max(a.row.FeeMax, f.FeePerRun)
+		a.stations[f.StationID] = true
+		a.recipes[f.RecipeID] = true
+	}
+
+	out := make([]WhereOwnerSummary, 0, len(byOwner))
+	for _, a := range byOwner {
+		a.row.Stations = len(a.stations)
+		a.row.Recipes = len(a.recipes)
+		out = append(out, a.row)
+	}
+	slices.SortFunc(out, func(a, b WhereOwnerSummary) int {
+		if c := cmp.Compare(b.Facilities, a.Facilities); c != 0 {
+			return c // most facilities first
+		}
+		if c := cmp.Compare(a.OwnerName, b.OwnerName); c != 0 {
+			return c
+		}
+		return cmp.Compare(a.OwnerID, b.OwnerID)
+	})
+	return out
+}
+
 // NoFacilityRecipe is a recipe with no known public line, for the two dense
 // tables at the bottom of the by-recipe tab.
 type NoFacilityRecipe struct {
@@ -385,6 +457,7 @@ type wherePageData struct {
 	RecipesCovered   int
 	FacilityOnlyGap  int
 	LastSeenTick     int
+	Owners           []WhereOwnerSummary
 	RecipeGroups     []WhereRecipeGroup
 	StationGroups    []WhereStationGroup
 	FacilityOnlyNone []NoFacilityRecipe
@@ -418,6 +491,7 @@ func writeWherePage(outDir string, knowledgeDB *sql.DB, recipes map[string]*Reci
 		RecipesCovered:   len(recipeGroups),
 		FacilityOnlyGap:  len(facilityOnlyNone),
 		LastSeenTick:     maxTick,
+		Owners:           summarizeOwners(facs),
 		RecipeGroups:     recipeGroups,
 		StationGroups:    stationGroups,
 		FacilityOnlyNone: facilityOnlyNone,
@@ -544,6 +618,9 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
     <link rel="stylesheet" href="../smui.css">
     <link rel="stylesheet" href="../system.css">
     <style>
+        .owners { margin: 20px 0 8px; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; background: var(--bg-card); }
+        .owners > summary { cursor: pointer; font-weight: 600; }
+        .owners table { margin-top: 10px; }
         .tabs { display: flex; gap: 4px; margin: 20px 0 8px; border-bottom: 2px solid var(--border); }
         .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px;
                    padding: 10px 18px; font-size: 1em; cursor: pointer; color: var(--text-muted); }
@@ -591,6 +668,32 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
             <div class="summary-card"><div class="num">{{.FacilityOnlyGap}}</div><div class="label">Facility-Only, No Public Line</div></div>
         </div>
         <p class="freshness">Facility data as of tick {{comma .LastSeenTick}}. Station survey bots report roughly hourly. Private and faction-owned facilities are not listed here.</p>
+
+        <details class="owners" open>
+            <summary>Facility Owners ({{len .Owners}})</summary>
+            <table class="dense sortable">
+                <thead>
+                    <tr>
+                        <th class="sortable">Source</th>
+                        <th class="sortable">Facilities</th>
+                        <th class="sortable">Stations</th>
+                        <th class="sortable">Recipes</th>
+                        <th class="sortable">Fee/run range</th>
+                    </tr>
+                </thead>
+                <tbody>
+{{- range .Owners}}
+                    <tr>
+                        <td>{{if .OwnerName}}<a href="../factions/{{lower .OwnerTag}}/index.html">{{.OwnerName}}</a>{{else if .OwnerID}}<code title="{{.OwnerID}}">{{shortHash .OwnerID}}</code>{{else}}<span class="badge">Station Facility</span>{{end}}</td>
+                        <td class="num-cell" data-sort="{{.Facilities}}">{{comma .Facilities}}</td>
+                        <td class="num-cell" data-sort="{{.Stations}}">{{comma .Stations}}</td>
+                        <td class="num-cell" data-sort="{{.Recipes}}">{{comma .Recipes}}</td>
+                        <td class="num-cell" data-sort="{{.FeeMin}}">{{if eq .FeeMin .FeeMax}}{{comma .FeeMin}}{{else}}{{comma .FeeMin}}&ndash;{{comma .FeeMax}}{{end}}</td>
+                    </tr>
+{{- end}}
+                </tbody>
+            </table>
+        </details>
 
         <div class="tabs">
             <button class="tab-btn" data-tab="by-recipe">By Recipe</button>

@@ -555,3 +555,57 @@ func TestGroupByRecipeFacilityOrder(t *testing.T) {
 		}
 	}
 }
+
+// TestSummarizeOwners pins the faction/owner rollup shown above the tabs:
+// one row per owning faction, plus one row for station-owned lines, sorted by
+// facility count descending.
+func TestSummarizeOwners(t *testing.T) {
+	mk := func(id, station, recipe, owner, name, tag string, fee int) PublicFacility {
+		return PublicFacility{
+			StationID: station, StationName: station, FacilityID: id, RecipeID: recipe,
+			FeePerRun: fee, OwnerID: owner, OwnerName: name, OwnerTag: tag,
+		}
+	}
+	facs := []PublicFacility{
+		// Hex: 3 facilities, 2 stations, 2 distinct recipes, fees 5..40
+		mk("a", "alpha", "refine_steel", "hex", "Hex Collective", "HEXC", 40),
+		mk("b", "bravo", "refine_steel", "hex", "Hex Collective", "HEXC", 5),
+		mk("c", "bravo", "hand_recipe", "hex", "Hex Collective", "HEXC", 12),
+		// Station-owned: 2 facilities, 1 station, fees 9..50
+		mk("d", "voss", "refine_steel", "", "", "", 9),
+		mk("e", "voss", "gap_recipe", "", "", "", 50),
+		// Unresolved hash: 1 facility
+		mk("f", "alpha", "hand_recipe", "8d6cdcb7026e799a00fea973d56d8ada", "", "", 22),
+	}
+
+	got := summarizeOwners(facs)
+	if len(got) != 3 {
+		t.Fatalf("got %d owner rows, want 3", len(got))
+	}
+
+	// Sorted by facility count desc: Hex (3), station-owned (2), unresolved (1).
+	if got[0].OwnerName != "Hex Collective" || got[0].Facilities != 3 {
+		t.Errorf("row 0 = %+v, want Hex Collective with 3 facilities", got[0])
+	}
+	if got[0].Stations != 2 || got[0].Recipes != 2 {
+		t.Errorf("Hex stations/recipes = %d/%d, want 2/2", got[0].Stations, got[0].Recipes)
+	}
+	if got[0].FeeMin != 5 || got[0].FeeMax != 40 {
+		t.Errorf("Hex fee range = %d..%d, want 5..40", got[0].FeeMin, got[0].FeeMax)
+	}
+
+	if !got[1].StationOwned || got[1].Facilities != 2 {
+		t.Errorf("row 1 = %+v, want station-owned with 2 facilities", got[1])
+	}
+	if got[1].FeeMin != 9 || got[1].FeeMax != 50 {
+		t.Errorf("station-owned fee range = %d..%d, want 9..50", got[1].FeeMin, got[1].FeeMax)
+	}
+
+	// Unresolved faction keeps its raw ID so the template can show a short hash.
+	if got[2].OwnerID != "8d6cdcb7026e799a00fea973d56d8ada" || got[2].OwnerName != "" {
+		t.Errorf("row 2 = %+v, want unresolved hash with empty name", got[2])
+	}
+	if got[2].StationOwned {
+		t.Error("unresolved faction must not be marked station-owned")
+	}
+}

@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="../smui.css">
     <link rel="stylesheet" href="../system.css">
     <style>
+        .owners { margin: 20px 0 8px; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; background: var(--bg-card); }
+        .owners > summary { cursor: pointer; font-weight: 600; }
+        .owners table { margin-top: 10px; }
         .tabs { display: flex; gap: 4px; margin: 20px 0 8px; border-bottom: 2px solid var(--border); }
         .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px;
                    padding: 10px 18px; font-size: 1em; cursor: pointer; color: var(--text-muted); }
@@ -74,6 +77,86 @@
             <div class="summary-card"><div class="num">234</div><div class="label">Facility-Only, No Public Line</div></div>
         </div>
         <p class="freshness">Facility data as of tick 1,307,122. Station survey bots report roughly hourly. Private and faction-owned facilities are not listed here.</p>
+
+        <details class="owners" open>
+            <summary>Facility Owners (9)</summary>
+            <table class="dense sortable">
+                <thead>
+                    <tr>
+                        <th class="sortable">Source</th>
+                        <th class="sortable">Facilities</th>
+                        <th class="sortable">Stations</th>
+                        <th class="sortable">Recipes</th>
+                        <th class="sortable">Fee/run range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="../factions/busy/index.html">Busy Being Dead</a></td>
+                        <td class="num-cell" data-sort="132">132</td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="117">117</td>
+                        <td class="num-cell" data-sort="28">28&ndash;2,000,000</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../factions/hexc/index.html">Hex Collective</a></td>
+                        <td class="num-cell" data-sort="84">84</td>
+                        <td class="num-cell" data-sort="4">4</td>
+                        <td class="num-cell" data-sort="65">65</td>
+                        <td class="num-cell" data-sort="4">4&ndash;200,000</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge">Station Facility</span></td>
+                        <td class="num-cell" data-sort="41">41</td>
+                        <td class="num-cell" data-sort="2">2</td>
+                        <td class="num-cell" data-sort="36">36</td>
+                        <td class="num-cell" data-sort="9">9&ndash;875</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../factions/beat/index.html">BEAT</a></td>
+                        <td class="num-cell" data-sort="19">19</td>
+                        <td class="num-cell" data-sort="3">3</td>
+                        <td class="num-cell" data-sort="16">16</td>
+                        <td class="num-cell" data-sort="8">8&ndash;5,000</td>
+                    </tr>
+                    <tr>
+                        <td><code title="8d6cdcb7026e799a00fea973d56d8ada">8d6cdcb7</code></td>
+                        <td class="num-cell" data-sort="11">11</td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="11">11</td>
+                        <td class="num-cell" data-sort="1">1&ndash;425</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../factions/crft/index.html">Crafting Collective</a></td>
+                        <td class="num-cell" data-sort="4">4</td>
+                        <td class="num-cell" data-sort="2">2</td>
+                        <td class="num-cell" data-sort="4">4</td>
+                        <td class="num-cell" data-sort="2">2&ndash;100</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../factions/noir/index.html">Interstellar Continental</a></td>
+                        <td class="num-cell" data-sort="2">2</td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="2">2</td>
+                        <td class="num-cell" data-sort="500">500</td>
+                    </tr>
+                    <tr>
+                        <td><code title="80c92da42f237293e66f81bbef17c16d">80c92da4</code></td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="33">33</td>
+                    </tr>
+                    <tr>
+                        <td><code title="cc3ff44743ebee087275a3096a378dc6">cc3ff447</code></td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="1">1</td>
+                        <td class="num-cell" data-sort="1100">1,100</td>
+                    </tr>
+                </tbody>
+            </table>
+        </details>
 
         <div class="tabs">
             <button class="tab-btn" data-tab="by-recipe">By Recipe</button>
