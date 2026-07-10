@@ -162,7 +162,9 @@
         <button id="patch-next-window">Next window</button>
         <button id="patch-recompute" title="Re-run the sphere-global precompute with the current profile, resyncing HMin/HMax/SeaLevel0/SeaLevel after heavy FX tuning (the documented stale-scalar divergence). Slow — full progress bar applies.">Recompute sphere</button>
         <label>Sea level
-          <input id="patch-sealevel" type="range" min="0" max="1" step="0.005">
+          <input id="patch-sealevel" type="range" min="0" max="1" step="0.005"
+                 title="Preview-only waterline override. NOT written to the profile — Go! renders with the profile's own sea level.">
+          <small class="sealevel-hint">view only — not applied on Go!</small>
         </label>
         <button id="patch-go">Go! (full render)</button>
       </div>

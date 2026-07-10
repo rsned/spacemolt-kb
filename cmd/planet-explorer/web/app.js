@@ -2535,6 +2535,7 @@ async function enterPatchLab() {
   equirectCanvas.hidden = true;
   sphereCanvas.hidden = true;
   patchLab.hidden = false;
+  document.body.classList.add('patch-mode');
 
   await buildLayerRail();
   if (!patchOn) return; // cancelled mid-entry: cancelCompute already restored the normal view
@@ -2546,6 +2547,7 @@ function exitPatchLab() {
   equirectCanvas.hidden = false;
   sphereCanvas.hidden = false;
   patchLab.hidden = true;
+  document.body.classList.remove('patch-mode');
 }
 
 async function buildLayerRail() {
@@ -2635,6 +2637,7 @@ function scheduleRefreshPatch() {
   patchRefreshTimer = setTimeout(() => {
     patchRefreshTimer = null;
     refreshPatch();
+    buildLayerRail(); // "(disabled)" labels track live Enabled gates
   }, 150);
 }
 
