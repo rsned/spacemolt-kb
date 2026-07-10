@@ -302,69 +302,77 @@ function syncKnotsFromDOM() {
 }
 
 async function regenerate() {
-  if (!wasmReady) return;
-  syncKnotsFromDOM();
-  status.textContent = 'Rendering…';
-  await new Promise(r => setTimeout(r, 0)); // yield to repaint
+  if (regenerate.inFlight) return;
+  regenerate.inFlight = true;
+  renderBtn.disabled = true;
+  try {
+    if (!wasmReady) return;
+    syncKnotsFromDOM();
+    status.textContent = 'Rendering…';
+    await new Promise(r => setTimeout(r, 0)); // yield to repaint
 
-  const profileJSON = profileTextarea.value;
-  const seed = seedInput.value;
-  const size = parseInt(faceSizeSel.value, 10) || 256;
+    const profileJSON = profileTextarea.value;
+    const seed = seedInput.value;
+    const size = parseInt(faceSizeSel.value, 10) || 256;
 
-  const t0 = performance.now();
+    const t0 = performance.now();
 
-  // Cube-sphere path for both rocky and gas-giant profiles. Rocky uses the
-  // full pipeline (plates, jitter, JFA coastal, erosion, craters); gas
-  // giants use the gas-giant renderer.
-  const mode = viewModeSel ? viewModeSel.value : 'color';
-  let cubePNG;
-  if (mode === 'heightmap') {
-    cubePNG = await quiet(rpc('planetExplorerGenerateHeightmap', profileJSON, seed, size));
-  } else if (debugBypass.size > 0) {
-    cubePNG = await quiet(rpc('planetExplorerGenerateWithBypass', profileJSON, seed, size, JSON.stringify([...debugBypass])));
-  } else {
-    cubePNG = await quiet(rpc('planetExplorerGenerate', profileJSON, seed, size));
-  }
-  if (cubePNG === null) return;
-  if (!(cubePNG instanceof Uint8Array)) {
-    status.textContent = 'Error: ' + cubePNG;
-    return;
-  }
-  await paintToCanvas(cubeCanvas, cubePNG);
-  const equirectPNG = await quiet(rpc('planetExplorerBakeEquirect', cubePNG, equirectCanvas.width, equirectCanvas.height));
-  if (equirectPNG === null) return;
-  if (equirectPNG instanceof Uint8Array) {
-    await paintToCanvas(equirectCanvas, equirectPNG);
-    refreshSphereTexture();
-  }
-
-  // Phase 9b nightside: when the profile has Civ.Tier > 0 the wasm
-  // exposes a separate Black-Marble cube-map. Bake it to an offscreen
-  // equirect and stash the ImageData so renderSphere can blend it onto
-  // the unlit hemisphere via the sun-direction dot product. Empty
-  // Uint8Array means civ disabled — clear the texture so we fall back
-  // to the original day-only render.
-  const nightCubePNG = await quiet(rpc('planetExplorerGenerateNight', profileJSON, seed, size));
-  if (nightCubePNG === null) return;
-  if (nightCubePNG instanceof Uint8Array && nightCubePNG.length > 0) {
-    const nightEqPNG = await quiet(rpc('planetExplorerBakeEquirect', nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height));
-    if (nightEqPNG === null) return;
-    if (nightEqPNG instanceof Uint8Array) {
-      await paintToCanvas(nightEquirectCanvas, nightEqPNG);
-      refreshSphereNightTexture();
+    // Cube-sphere path for both rocky and gas-giant profiles. Rocky uses the
+    // full pipeline (plates, jitter, JFA coastal, erosion, craters); gas
+    // giants use the gas-giant renderer.
+    const mode = viewModeSel ? viewModeSel.value : 'color';
+    let cubePNG;
+    if (mode === 'heightmap') {
+      cubePNG = await quiet(rpc('planetExplorerGenerateHeightmap', profileJSON, seed, size));
+    } else if (debugBypass.size > 0) {
+      cubePNG = await quiet(rpc('planetExplorerGenerateWithBypass', profileJSON, seed, size, JSON.stringify([...debugBypass])));
+    } else {
+      cubePNG = await quiet(rpc('planetExplorerGenerate', profileJSON, seed, size));
     }
-  } else {
-    sphereNightTextureData = null;
-  }
+    if (cubePNG === null) return;
+    if (!(cubePNG instanceof Uint8Array)) {
+      status.textContent = 'Error: ' + cubePNG;
+      return;
+    }
+    await paintToCanvas(cubeCanvas, cubePNG);
+    const equirectPNG = await quiet(rpc('planetExplorerBakeEquirect', cubePNG, equirectCanvas.width, equirectCanvas.height));
+    if (equirectPNG === null) return;
+    if (equirectPNG instanceof Uint8Array) {
+      await paintToCanvas(equirectCanvas, equirectPNG);
+      refreshSphereTexture();
+    }
 
-  const elapsed = (performance.now() - t0).toFixed(0);
-  status.textContent = `Rendered in ${elapsed} ms`;
-  renderPanels();
+    // Phase 9b nightside: when the profile has Civ.Tier > 0 the wasm
+    // exposes a separate Black-Marble cube-map. Bake it to an offscreen
+    // equirect and stash the ImageData so renderSphere can blend it onto
+    // the unlit hemisphere via the sun-direction dot product. Empty
+    // Uint8Array means civ disabled — clear the texture so we fall back
+    // to the original day-only render.
+    const nightCubePNG = await quiet(rpc('planetExplorerGenerateNight', profileJSON, seed, size));
+    if (nightCubePNG === null) return;
+    if (nightCubePNG instanceof Uint8Array && nightCubePNG.length > 0) {
+      const nightEqPNG = await quiet(rpc('planetExplorerBakeEquirect', nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height));
+      if (nightEqPNG === null) return;
+      if (nightEqPNG instanceof Uint8Array) {
+        await paintToCanvas(nightEquirectCanvas, nightEqPNG);
+        refreshSphereNightTexture();
+      }
+    } else {
+      sphereNightTextureData = null;
+    }
 
-  // Debug panel: now supported for both rocky (flat path) and non-rocky (cube path).
-  const debugPanel = document.getElementById('debug-panel');
-  if (debugPanel && debugPanel.open) {
-    refreshDebugView();
+    const elapsed = (performance.now() - t0).toFixed(0);
+    status.textContent = `Rendered in ${elapsed} ms`;
+    renderPanels();
+
+    // Debug panel: now supported for both rocky (flat path) and non-rocky (cube path).
+    const debugPanel = document.getElementById('debug-panel');
+    if (debugPanel && debugPanel.open) {
+      refreshDebugView();
+    }
+  } finally {
+    regenerate.inFlight = false;
+    renderBtn.disabled = false;
   }
 }
 
@@ -2311,6 +2319,13 @@ function bandLegend(numBands) {
 let patchOn = false, patchCands = [], patchCandIdx = 0, patchTarget = 12, patchPrevProfile = null;
 let patchRefreshTimer = null;
 
+// Latest-wins coalescing: while a patchRender RPC is in flight, any
+// number of further refresh requests collapse into ONE queued flag;
+// when the running render lands, exactly one more runs with the
+// NEWEST target/view. A drag can never queue 30 stale renders.
+let patchRenderInFlight = false;
+let patchRenderQueued = false;
+
 const patchModeBtn = $('#patch-mode-btn');
 const patchLab = $('#patch-lab');
 const patchCanvas = $('#patch-canvas');
@@ -2435,14 +2450,23 @@ async function selectCandidate(i) {
 
 async function refreshPatch() {
   if (!patchOn) return;
-  const view = patchViewSel ? patchViewSel.value : 'color';
-  const png = await quiet(rpc('patchRender', patchTarget, view));
-  if (png === null) return;
-  if (!(png instanceof Uint8Array)) {
-    status.textContent = 'Patch Lab error: ' + wasmErrorMessage(png);
-    return;
+  if (patchRenderInFlight) { patchRenderQueued = true; return; }
+  patchRenderInFlight = true;
+  try {
+    do {
+      patchRenderQueued = false;
+      const view = patchViewSel ? patchViewSel.value : 'color';
+      const png = await quiet(rpc('patchRender', patchTarget, view));
+      if (png === null) return; // cancelled
+      if (!(png instanceof Uint8Array)) {
+        status.textContent = 'Patch Lab error: ' + wasmErrorMessage(png);
+        return;
+      }
+      await paintToCanvas(patchCanvas, png);
+    } while (patchRenderQueued && patchOn);
+  } finally {
+    patchRenderInFlight = false;
   }
-  await paintToCanvas(patchCanvas, png);
 }
 
 async function refreshMinimap() {
