@@ -21,8 +21,11 @@ var (
 
 // RenderRocky generates a rocky planet cube map.
 func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeMap {
+	reportProgress("render:jitter", 1, 5)
 	jitter := noise.GenerateJitter(profile, seed, S)
+	reportProgress("render:plates", 2, 5)
 	plates := field.GeneratePlates(profile, seed, S)
+	reportProgress("render:heightmap", 3, 5)
 	heightmap, craters, oceanLevel := generateRockyHeightmapWithJitter(profile, seed, S, jitter, plates)
 	// Phase 12: on the crust path the ocean level is derived from the
 	// height histogram rather than fixed by the profile. Copy-on-differ
@@ -38,8 +41,10 @@ func RenderRocky(profile *types.PlanetProfile, seed int64, S int) *cubemap.CubeM
 	// but does not return the FlowField in the non-debug path).
 	var flow *field.FlowField
 	if profile.Flow.RiverThreshold > 0 {
+		reportProgress("render:flow", 4, 5)
 		flow = field.GenerateFlow(heightmap, profile.Flow)
 	}
+	reportProgress("render:colorize", 5, 5)
 	return colorizeRocky(profile, seed, S, heightmap, craters, jitter, plates, flow)
 }
 
@@ -221,6 +226,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	crustOn := plates != nil && profile.Crust.MajorPlates > 0
 	var crust *field.CrustField
 	if crustOn {
+		reportProgress("Crust", 0, 0)
 		crust = field.GenerateCrust(profile, seed, S, plates)
 		for face := range cubemap.Face(cubemap.NumFaces) {
 			copy(heightmap.Faces[face], crust.BaseHeight.Faces[face])
@@ -239,10 +245,14 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	cfFields := orderedControlFields(profile.ControlConfig)
 	useControl := !isZeroControlConfig(cfFields) && hasAnySpline(cfFields)
 	if useControl {
+		reportProgress("ControlFields", 0, 0)
 		fields := field.GenerateControlFields(seed, profile.ControlConfig, S, jitter)
 		var ridgedGen *noise.Generator
 		if !crustOn && profile.Ridged.Amp > 0 && profile.Ridged.Freq > 0 && profile.Ridged.Octaves > 0 {
 			ridgedGen = noise.New(pgseed.Domain(seed, "ridged"))
+		}
+		if ridgedGen != nil {
+			reportProgress("Ridged", 0, 0)
 		}
 		var provRamp, provRFreq *cubemap.CubeMapF
 		if profile.Provinces.Count > 0 {
@@ -498,6 +508,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// arc/ridge/rift/fault), replacing legacy Ridged+Basin on the
 	// crust path.
 	if crustOn {
+		reportProgress("TectonicFX", 0, 0)
 		bypassed := bypass["TectonicFX"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
@@ -530,6 +541,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// creating ocean basins. Disabled when Basin.Depth == 0 or there
 	// are no plates. The crust path replaces it with TectonicFX above.
 	if plates != nil && !crustOn && profile.Basin.Depth > 0 && profile.Basin.PlateDivergentScaleKm > 0 {
+		reportProgress("Basin", 0, 0)
 		bypassed := bypass["Basin"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
@@ -570,6 +582,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// Phase 4 Task 5: Apply Voronoi continents baseline if enabled.
 	// The crust path supersedes it — landmasses come from cratons.
 	if profile.Continents.Seeds > 0 && !crustOn {
+		reportProgress("Continents", 0, 0)
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
 			hmBefore = heightmap.Clone()
@@ -624,6 +637,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// Phase 5 follow-up: smooth heightmap to reduce per-pixel popcorn so
 	// erosion can form coherent channels.
 	if profile.HeightSmoothRadius > 0 {
+		reportProgress("HeightSmooth", 0, 0)
 		bypassed := bypass["HeightSmooth"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
@@ -654,6 +668,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// heightmap hitting the crust's resolved target land fraction.
 	oceanLevel := profile.OceanLevel
 
+	reportProgress("Normalize", 0, 0)
 	hMin, hMax := 1.0, 0.0
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for _, h := range heightmap.Faces[face] {
@@ -687,6 +702,9 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// Phase 4 Task 3: Apply coastal noise enhancement if enabled.
 	{
 		active := profile.Coastal.Amp > 0 && oceanLevel > 0
+		if active {
+			reportProgress("Coastal", 0, 0)
+		}
 		bypassed := bypass["Coastal"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
@@ -729,6 +747,9 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// face area; floor at 5000 so previews at face=64 still show channels.
 	{
 		active := profile.Erosion.Droplets > 0
+		if active {
+			reportProgress("Erosion", 0, 0)
+		}
 		bypassed := bypass["Erosion"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
@@ -767,6 +788,9 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 	// cut through the eroded terrain. Disabled when RiverThreshold==0.
 	{
 		active := profile.Flow.RiverThreshold > 0
+		if active {
+			reportProgress("Flow", 0, 0)
+		}
 		bypassed := bypass["Flow"]
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
@@ -809,6 +833,7 @@ func generateRockyHeightmapDebug(profile *types.PlanetProfile, seed int64, S int
 
 	var craters []feature.Crater
 	if profile.CraterCount > 0 {
+		reportProgress("Craters", 0, 0)
 		var hmBefore *cubemap.CubeMapF
 		if frame != nil {
 			hmBefore = heightmap.Clone()
@@ -879,6 +904,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 	out := cubemap.New(S)
 
 	// Stage: Palette/Biome base color.
+	reportProgress("Palette", 0, 0)
 	bypassPalette := bypass["Palette"]
 	for face := range cubemap.Face(cubemap.NumFaces) {
 		for py := range S {
@@ -947,6 +973,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 
 	// Stage: Snow.
 	if profile.SnowLine > 0 {
+		reportProgress("Snow", 0, 0)
 		bypassed := bypass["Snow"]
 		if !bypassed {
 			for face := range cubemap.Face(cubemap.NumFaces) {
@@ -978,6 +1005,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 
 	// Stage: Ocean.
 	if profile.OceanLevel > 0 {
+		reportProgress("Ocean", 0, 0)
 		bypassed := bypass["Ocean"]
 		for face := range cubemap.Face(cubemap.NumFaces) {
 			for py := range S {
@@ -1008,6 +1036,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 
 	// Stage: PolarCaps.
 	if profile.HasPolarCaps && profile.PolarCapSize > 0 {
+		reportProgress("PolarCaps", 0, 0)
 		bypassed := bypass["PolarCaps"]
 		for face := range cubemap.Face(cubemap.NumFaces) {
 			for py := range S {
@@ -1040,6 +1069,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 
 	// Stage: Shading (slope-based Lambertian).
 	if profile.ShadingStrength > 0 {
+		reportProgress("Shading", 0, 0)
 		bypassed := bypass["Shading"]
 		if !bypassed {
 			exag := profile.ShadingExaggeration
@@ -1069,6 +1099,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 
 	// Stage: Ejecta.
 	if profile.PowerLawAlpha > 0 && len(craters) > 0 {
+		reportProgress("Ejecta", 0, 0)
 		bypassed := bypass["Ejecta"]
 		if !bypassed {
 			for face := range cubemap.Face(cubemap.NumFaces) {
@@ -1105,6 +1136,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 	// matches what gets blended into the day cube-map. Grep for
 	// "SEED-STREAM-MIRROR" to find the paired site.
 	if profile.Civ.Tier > 0 {
+		reportProgress("Civ", 0, 0)
 		civ := feature.GenerateCiv(heightmap, tField, mField, plates, flow, rainShadow, profile, seed, S)
 		if civ != nil {
 			if frame != nil {
@@ -1144,6 +1176,7 @@ func colorizeRockyDebug(profile *types.PlanetProfile, seed int64, S int, heightm
 	// Stage: LUT (final color grade).
 	if name := profile.LUT; name != "" {
 		if lut := planetcolor.LookupLUT(name); lut != nil {
+			reportProgress("LUT", 0, 0)
 			bypassed := bypass["LUT"]
 			if !bypassed {
 				for face := range cubemap.Face(cubemap.NumFaces) {
