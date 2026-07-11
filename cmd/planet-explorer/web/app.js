@@ -177,7 +177,20 @@ function busyMaybeShow() {
 }
 
 function busyMaybeHide() {
-  if (pendingRPCs.size > 0) return;
+  if (pendingRPCs.size > 0) {
+    // Still busy with the next queued call. Retitle the visible overlay
+    // so it never shows a finished call's label (e.g. a generate clicked
+    // while defaults were loading used to sit on "Fetching defaults"
+    // for the whole multi-minute render).
+    if (!busyOverlay.hidden) {
+      const first = pendingRPCs.values().next().value;
+      busyWhimsy.textContent = RPC_LABELS[first.name] || 'Working…';
+      busyStage.textContent = '';
+      busyBarFill.style.width = '0%';
+      lastWhimsyKey = '';
+    }
+    return;
+  }
   if (busyTimer !== null) { clearTimeout(busyTimer); busyTimer = null; }
   busyOverlay.hidden = true;
 }
