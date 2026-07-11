@@ -137,17 +137,19 @@ aside button:hover { background: #4a4a54; }
   cursor: pointer; font: 13px sans-serif;
 }
 
-/* Busy overlay: shown when a worker RPC exceeds 150 ms. The spinner
-   animates transform only, so it keeps spinning on the compositor
-   even while this thread is briefly busy painting results. */
+/* Busy toast: shown when a worker RPC exceeds 150 ms. Non-blocking —
+   the page stays fully interactive during long computes; only the
+   toast itself takes pointer events (so Cancel stays clickable). The
+   spinner animates transform only, so it keeps spinning on the
+   compositor even while this thread is briefly busy painting results. */
 #busy-overlay {
-  position: fixed; inset: 0; z-index: 1000;
-  background: rgba(10, 12, 18, 0.55);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed; right: 16px; bottom: 16px; z-index: 1000;
+  pointer-events: none;
 }
 .busy-box {
   background: #1c2028; border: 1px solid #444; border-radius: 8px;
-  padding: 24px 32px; text-align: center; min-width: 320px; color: #ddd;
+  padding: 16px 22px; text-align: center; min-width: 280px; color: #ddd;
+  pointer-events: auto; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 .busy-spinner {
   width: 36px; height: 36px; margin: 0 auto 12px;

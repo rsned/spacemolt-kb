@@ -330,9 +330,12 @@ async function regenerate() {
   regenerate.inFlight = true;
   renderBtn.disabled = true;
   try {
-    if (!wasmReady) return;
+    // Not gated on wasmReady: the worker queues messages until the wasm
+    // boots, and a failed boot rejects them with a visible error. A
+    // silent return here ate clicks made in the first seconds after
+    // page load (or right after Cancel's worker respawn).
     syncKnotsFromDOM();
-    status.textContent = 'Rendering…';
+    status.textContent = wasmReady ? 'Rendering…' : 'Rendering… (worker still booting)';
     await new Promise(r => setTimeout(r, 0)); // yield to repaint
 
     const profileJSON = profileTextarea.value;
@@ -2518,7 +2521,9 @@ function wasmErrorMessage(s) {
 }
 
 async function enterPatchLab() {
-  if (!wasmReady) return;
+  // Not gated on wasmReady — see regenerate(): the worker queues
+  // messages until the wasm boots, so early clicks just wait instead
+  // of silently doing nothing.
   syncKnotsFromDOM();
   let profile;
   try { profile = JSON.parse(profileTextarea.value); }
