@@ -2620,6 +2620,7 @@ async function selectCandidate(i) {
     alert('Patch Lab: ' + wasmErrorMessage(err));
     return;
   }
+  drawPatchGlobe(patchCands[patchCandIdx].window);
   await refreshPatch();
   await refreshMinimap();
 }
@@ -2654,6 +2655,143 @@ async function refreshMinimap() {
     return;
   }
   await paintToCanvas(patchMinimapCanvas, png);
+}
+
+// ---- Orientation globe ----
+// The equirect minimap distorts windows brutally near the poles, so the
+// globe shows where the patch really sits: an orthographic sphere
+// rotated to put the patch center under the viewer's nose, with the
+// equator, the 0° meridian, and the N/S axis for reference.
+
+const patchGlobeCanvas = $('#patch-globe');
+
+// Port of cubemap.FaceUVToDir. Face order matches pkg/planetgen/cubemap:
+// 0=+X, 1=−X, 2=+Y (north), 3=−Y, 4=+Z, 5=−Z.
+function faceUVToDir(face, u, v) {
+  const sc = 2 * u - 1, tc = 2 * v - 1;
+  let x, y, z;
+  switch (face) {
+    case 0: x = 1; y = -tc; z = -sc; break;
+    case 1: x = -1; y = -tc; z = sc; break;
+    case 2: x = sc; y = 1; z = tc; break;
+    case 3: x = sc; y = -1; z = -tc; break;
+    case 4: x = sc; y = -tc; z = 1; break;
+    default: x = -sc; y = -tc; z = -1; break;
+  }
+  const inv = 1 / Math.hypot(x, y, z);
+  return [x * inv, y * inv, z * inv];
+}
+
+// Direction at the center of window pixel (ix, iy) — the JS twin of
+// patch.Window.Dir.
+function windowPixelDir(win, ix, iy) {
+  return faceUVToDir(win.face, (win.x0 + ix + 0.5) / win.sProd, (win.y0 + iy + 0.5) / win.sProd);
+}
+
+function drawPatchGlobe(win) {
+  if (!patchGlobeCanvas || !win) return;
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const norm = (a) => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
+
+  // View basis: patch center toward the viewer, north up (falls back to
+  // +Z-up for patches sitting on a pole, where "north up" is undefined).
+  const fwd = windowPixelDir(win, (win.size - 1) / 2, (win.size - 1) / 2);
+  let up = [0 - fwd[0] * fwd[1], 1 - fwd[1] * fwd[1], 0 - fwd[2] * fwd[1]];
+  if (Math.hypot(up[0], up[1], up[2]) < 1e-3) {
+    up = [0 - fwd[0] * fwd[2], 0 - fwd[1] * fwd[2], 1 - fwd[2] * fwd[2]];
+  }
+  up = norm(up);
+  const right = norm(cross(fwd, up)); // east to the right, matching the minimap
+
+  const ctx = patchGlobeCanvas.getContext('2d');
+  const W = patchGlobeCanvas.width, H = patchGlobeCanvas.height;
+  const cx = W / 2, cy = H / 2, r = Math.min(W, H) / 2 - 26;
+  const proj = (p) => [cx + r * dot(p, right), cy - r * dot(p, up), dot(p, fwd)];
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Sphere disc + silhouette.
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.fillStyle = '#10141c';
+  ctx.fill();
+  ctx.strokeStyle = '#4a5266';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // strokeArc draws the front-facing (z >= 0) portions of a polyline on
+  // the sphere given a point generator over t ∈ [0, 1].
+  const strokeArc = (pointAt, style, width, steps = 96) => {
+    ctx.strokeStyle = style;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    let pen = false;
+    for (let i = 0; i <= steps; i++) {
+      const [sx, sy, vz] = proj(pointAt(i / steps));
+      if (vz >= 0) {
+        if (pen) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy);
+        pen = true;
+      } else {
+        pen = false;
+      }
+    }
+    ctx.stroke();
+  };
+
+  // Graticule every 30°, then the two reference lines on top. Longitude
+  // 0 is +X (the minimap's left edge); north pole is +Y.
+  for (let latDeg = -60; latDeg <= 60; latDeg += 30) {
+    const lat = latDeg * Math.PI / 180, cl = Math.cos(lat), sl = Math.sin(lat);
+    if (latDeg !== 0) strokeArc(t => [cl * Math.cos(2 * Math.PI * t), sl, cl * Math.sin(2 * Math.PI * t)], '#2c3342', 1);
+  }
+  for (let lonDeg = 0; lonDeg < 360; lonDeg += 30) {
+    const lon = lonDeg * Math.PI / 180, cLon = Math.cos(lon), sLon = Math.sin(lon);
+    if (lonDeg !== 0) {
+      strokeArc(t => { const lat = Math.PI * (t - 0.5), cl = Math.cos(lat); return [cl * cLon, Math.sin(lat), cl * sLon]; }, '#2c3342', 1);
+    }
+  }
+  // Equator (blue) and the 0° meridian half-arc (orange).
+  strokeArc(t => [Math.cos(2 * Math.PI * t), 0, Math.sin(2 * Math.PI * t)], '#6cf', 1.5);
+  strokeArc(t => { const lat = Math.PI * (t - 0.5), cl = Math.cos(lat); return [cl, Math.sin(lat), 0]; }, '#fb4', 1.5);
+
+  // Polar axis sticking out of both poles; dimmed when the pole is on
+  // the far side.
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  for (const [pole, label] of [[[0, 1, 0], 'N'], [[0, -1, 0], 'S']]) {
+    const [x1, y1, z1] = proj(pole);
+    const [x2, y2] = proj([pole[0] * 1.22, pole[1] * 1.22, pole[2] * 1.22]);
+    const front = z1 >= 0;
+    ctx.strokeStyle = front ? '#ddd' : '#555';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.fillStyle = front ? '#ddd' : '#666';
+    ctx.fillText(label, x2, y2 + (y2 < y1 ? -4 : 12));
+  }
+
+  // The selected window, its edges sampled so curvature shows. It faces
+  // the viewer by construction, so no visibility test needed.
+  const N = 24;
+  const edge = [];
+  for (let i = 0; i <= N; i++) edge.push([win.size * i / N, 0]);
+  for (let i = 1; i <= N; i++) edge.push([win.size, win.size * i / N]);
+  for (let i = 1; i <= N; i++) edge.push([win.size * (1 - i / N), win.size]);
+  for (let i = 1; i < N; i++) edge.push([0, win.size * (1 - i / N)]);
+  ctx.beginPath();
+  edge.forEach(([ix, iy], i) => {
+    const [sx, sy] = proj(windowPixelDir(win, ix - 0.5, iy - 0.5));
+    if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 }
 
 // Debounced so slider drags (many `input` events per second) don't
