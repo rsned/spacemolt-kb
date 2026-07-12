@@ -150,3 +150,54 @@ func TestFxTintsPinned(t *testing.T) {
 		t.Fatalf("fxTints = %v, want %v", fxTints, want)
 	}
 }
+
+func TestShadedColorPNGDecodesAndFallsBack(t *testing.T) {
+	ctx := testContext(t)
+	s := NewStack(ctx)
+
+	// Before biome-color Img is nil: must fall back to ShadedHeightPNG.
+	st0, err := s.RenderTo(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shadedHeight, err := ShadedHeightPNG(ctx, st0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	finished0, err := ShadedColorPNG(ctx, st0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(shadedHeight, finished0) {
+		t.Fatal("ShadedColorPNG with nil Img must equal ShadedHeightPNG")
+	}
+
+	// At the top of the stack it must shade the color image: decodable,
+	// window-sized, and different bytes from the unshaded ColorPNG.
+	top, err := s.RenderTo(12)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if top.Img == nil {
+		t.Fatal("test assumption broken: layer 12 has no Img")
+	}
+	finished, err := ShadedColorPNG(ctx, top)
+	if err != nil {
+		t.Fatal(err)
+	}
+	img, err := png.Decode(bytes.NewReader(finished))
+	if err != nil {
+		t.Fatalf("ShadedColorPNG produced undecodable PNG: %v", err)
+	}
+	size := ctx.Fields.Window.Size
+	if b := img.Bounds(); b.Dx() != size || b.Dy() != size {
+		t.Fatalf("ShadedColorPNG size = %v, want %dx%d", b, size, size)
+	}
+	plain, err := ColorPNG(top)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(plain, finished) {
+		t.Fatal("ShadedColorPNG must differ from unshaded ColorPNG")
+	}
+}

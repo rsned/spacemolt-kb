@@ -28,35 +28,64 @@ func HeightPNG(st *State) ([]byte, error) {
 	return encodePNG(img)
 }
 
-// ShadedHeightPNG renders st.Height as a hillshaded grayscale PNG:
-// the production Shading stage's Lambertian math (SlopeShadeSampled,
-// same fixed off-center sun) applied to the raw height grid, so relief
-// reads even where absolute height differences are a few gray levels.
-// Uses the profile's ShadingStrength/ShadingExaggeration when the
-// profile has shading enabled, else the debug defaults 0.5 / 8.
-func ShadedHeightPNG(ctx *Context, st *State) ([]byte, error) {
-	w := ctx.Fields.Window
-	size := st.Height.Size
-	strength, exag := 0.5, 8.0
+// shadeParams resolves the hillshade strength/exaggeration for the
+// patch debug views: the profile's ShadingStrength/ShadingExaggeration
+// when the profile has shading enabled, else debug defaults 0.5 / 8.
+func shadeParams(ctx *Context) (strength, exag float64) {
+	strength, exag = 0.5, 8.0
 	if p := ctx.Profile; p != nil && p.ShadingStrength > 0 {
 		strength = p.ShadingStrength
 		if p.ShadingExaggeration > 0 {
 			exag = p.ShadingExaggeration
 		}
 	}
+	return strength, exag
+}
+
+// shadePNG hillshades a per-pixel base color with the production
+// Shading stage's Lambertian math (SlopeShadeSampled, same fixed
+// off-center sun) against st.Height, and encodes the result.
+func shadePNG(ctx *Context, st *State, baseAt func(ix, iy int) color.RGBA) ([]byte, error) {
+	w := ctx.Fields.Window
+	size := st.Height.Size
+	strength, exag := shadeParams(ctx)
 	sampler := w.Sampler(st.Height)
 	img := image.NewRGBA(image.Rect(0, 0, size, size))
 	for iy := range size {
 		for ix := range size {
-			g := uint8(min(255, max(0, int(st.Height.At(ix, iy)*255))))
 			rx, ry, rz := w.Dir(ix, iy)
-			c := render.SlopeShadeSampled(sampler, color.RGBA{R: g, G: g, B: g, A: 255},
-				rx, ry, rz, strength, exag)
+			c := render.SlopeShadeSampled(sampler, baseAt(ix, iy), rx, ry, rz, strength, exag)
 			o := (iy*size + ix) * 4
 			img.Pix[o], img.Pix[o+1], img.Pix[o+2], img.Pix[o+3] = c.R, c.G, c.B, 255
 		}
 	}
 	return encodePNG(img)
+}
+
+// ShadedHeightPNG renders st.Height as a hillshaded grayscale PNG, so
+// relief reads even where absolute height differences are a few gray
+// levels.
+func ShadedHeightPNG(ctx *Context, st *State) ([]byte, error) {
+	return shadePNG(ctx, st, func(ix, iy int) color.RGBA {
+		g := uint8(min(255, max(0, int(st.Height.At(ix, iy)*255))))
+		return color.RGBA{R: g, G: g, B: g, A: 255}
+	})
+}
+
+// ShadedColorPNG renders st.Img with the production relief shading on
+// top — the "finished view": biome/waterline/civ colors plus the
+// Shading stage, the closest patch-resolution preview of what Go!
+// produces. Falls back to ShadedHeightPNG while Img is nil (layers
+// before biome-color).
+func ShadedColorPNG(ctx *Context, st *State) ([]byte, error) {
+	if st.Img == nil {
+		return ShadedHeightPNG(ctx, st)
+	}
+	return shadePNG(ctx, st, func(ix, iy int) color.RGBA {
+		c := st.Img.RGBAAt(ix, iy)
+		c.A = 255
+		return c
+	})
 }
 
 // ColorPNG renders st.Img — the biome/waterline-colored render — as a

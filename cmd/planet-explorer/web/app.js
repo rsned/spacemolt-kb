@@ -2488,6 +2488,9 @@ function bandLegend(numBands) {
 // existing full-resolution regenerate() path.
 
 let patchOn = false, patchCands = [], patchCandIdx = 0, patchTarget = 12, patchPrevProfile = null;
+// Finished view: synthetic rail entry after the real layers — renders
+// the top of the stack with view 'finished' (color + relief shading).
+let patchFinished = false;
 let patchRefreshTimer = null;
 
 // Latest-wins coalescing: while a patchRender RPC is in flight, any
@@ -2551,6 +2554,7 @@ async function enterPatchLab() {
 
   patchOn = true;
   patchTarget = 12;
+  patchFinished = false;
   patchCandIdx = 0;
   patchPrevProfile = profile;
   if (patchSeaLevelInput && typeof initData.seaLevel === 'number') {
@@ -2600,6 +2604,8 @@ async function buildLayerRail() {
     radio.checked = l.index === patchTarget;
     radio.addEventListener('change', () => {
       patchTarget = l.index;
+      patchFinished = false;
+      refreshTectonicLegend();
       for (const r of patchLayerRail.querySelectorAll('.layer-row')) r.classList.remove('active');
       row.classList.add('active');
       refreshPatch();
@@ -2607,6 +2613,33 @@ async function buildLayerRail() {
     row.appendChild(radio);
     const label = document.createElement('span');
     label.textContent = `${l.index}. ${l.name}` + (l.enabled ? '' : ' (disabled)');
+    row.appendChild(label);
+    patchLayerRail.appendChild(row);
+  }
+
+  // Synthetic "Finished view" entry: not a compute layer — renders the
+  // full stack with the production relief shading on top (the closest
+  // preview of what Go! produces).
+  if (layers.length) {
+    const last = layers[layers.length - 1].index;
+    const row = document.createElement('label');
+    row.className = 'layer-row' + (patchFinished ? ' active' : '');
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'patch-target';
+    radio.value = 'finished';
+    radio.checked = patchFinished;
+    radio.addEventListener('change', () => {
+      patchTarget = last;
+      patchFinished = true;
+      refreshTectonicLegend();
+      for (const r of patchLayerRail.querySelectorAll('.layer-row')) r.classList.remove('active');
+      row.classList.add('active');
+      refreshPatch();
+    });
+    row.appendChild(radio);
+    const label = document.createElement('span');
+    label.textContent = `${last + 1}. Finished view`;
     row.appendChild(label);
     patchLayerRail.appendChild(row);
   }
@@ -2633,7 +2666,7 @@ async function refreshPatch() {
   try {
     do {
       patchRenderQueued = false;
-      const view = patchViewSel ? patchViewSel.value : 'color';
+      const view = patchFinished ? 'finished' : (patchViewSel ? patchViewSel.value : 'color');
       const png = await quiet(rpc('patchRender', patchTarget, view));
       if (png === null) return; // cancelled
       if (!(png instanceof Uint8Array)) {
@@ -2925,9 +2958,18 @@ commitProfile = function patchAwareCommitProfile(profile) {
 if (patchModeBtn) patchModeBtn.addEventListener('click', enterPatchLab);
 const tectonicLegend = $('#tectonic-legend');
 function refreshTectonicLegend() {
-  if (tectonicLegend) tectonicLegend.hidden = !(patchOn && patchViewSel && patchViewSel.value === 'tectonic');
+  if (tectonicLegend) tectonicLegend.hidden = !(patchOn && !patchFinished && patchViewSel && patchViewSel.value === 'tectonic');
 }
-if (patchViewSel) patchViewSel.addEventListener('change', () => { refreshTectonicLegend(); if (patchOn) refreshPatch(); });
+if (patchViewSel) patchViewSel.addEventListener('change', () => {
+  // Picking an explicit view leaves the synthetic Finished entry: the
+  // dropdown would otherwise appear dead while 'finished' overrides it.
+  if (patchFinished) {
+    patchFinished = false;
+    buildLayerRail();
+  }
+  refreshTectonicLegend();
+  if (patchOn) refreshPatch();
+});
 if (patchNextWindowBtn) {
   patchNextWindowBtn.addEventListener('click', () => {
     if (patchOn) selectCandidate(patchCandIdx + 1);

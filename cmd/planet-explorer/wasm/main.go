@@ -569,8 +569,9 @@ func patchSetParam(_ js.Value, args []js.Value) any {
 }
 
 // patchRender(targetLayer, view) → Uint8Array of PNG bytes. view is one
-// of "color" (ColorPNG), "height" (ShadedHeightPNG), or "tectonic"
-// (TectonicDebugPNG).
+// of "color" (ColorPNG), "height" (ShadedHeightPNG), "tectonic"
+// (TectonicDebugPNG), or "finished" (ShadedColorPNG: color + relief
+// shading, the Go! preview).
 func patchRender(_ js.Value, args []js.Value) any {
 	if len(args) != 2 {
 		return jsError("patchRender: expected 2 args, got %d", len(args))
@@ -594,6 +595,8 @@ func patchRender(_ js.Value, args []js.Value) any {
 		b, err = patch.ShadedHeightPNG(patchSession.stack.Ctx(), st)
 	case "tectonic":
 		b, err = patch.TectonicDebugPNG(patchSession.stack.Ctx(), st)
+	case "finished":
+		b, err = patch.ShadedColorPNG(patchSession.stack.Ctx(), st)
 	default:
 		return jsError("patchRender: unknown view %q", view)
 	}
