@@ -2565,6 +2565,7 @@ async function enterPatchLab() {
   sphereCanvas.hidden = true;
   patchLab.hidden = false;
   document.body.classList.add('patch-mode');
+  refreshTectonicLegend();
 
   await buildLayerRail();
   if (!patchOn) return; // cancelled mid-entry: cancelCompute already restored the normal view
@@ -2922,7 +2923,11 @@ commitProfile = function patchAwareCommitProfile(profile) {
 };
 
 if (patchModeBtn) patchModeBtn.addEventListener('click', enterPatchLab);
-if (patchViewSel) patchViewSel.addEventListener('change', () => { if (patchOn) refreshPatch(); });
+const tectonicLegend = $('#tectonic-legend');
+function refreshTectonicLegend() {
+  if (tectonicLegend) tectonicLegend.hidden = !(patchOn && patchViewSel && patchViewSel.value === 'tectonic');
+}
+if (patchViewSel) patchViewSel.addEventListener('change', () => { refreshTectonicLegend(); if (patchOn) refreshPatch(); });
 if (patchNextWindowBtn) {
   patchNextWindowBtn.addEventListener('click', () => {
     if (patchOn) selectCandidate(patchCandIdx + 1);

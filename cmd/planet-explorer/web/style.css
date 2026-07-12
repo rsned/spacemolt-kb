@@ -175,3 +175,12 @@ body.patch-mode .planet-equirect {
 }
 
 .sealevel-hint { color: #8a93a5; font-size: 0.75em; margin-left: 4px; }
+
+/* Tectonic legend: shown in the Patch Lab controls only while the
+   view selector is on Tectonic. */
+#tectonic-legend { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: #bbb; padding: 8px; background: #16181f; border: 1px solid #2c3342; border-radius: 6px; }
+#tectonic-legend[hidden] { display: none; }
+.legend-row { display: flex; align-items: center; gap: 6px; }
+.legend-chip { width: 12px; height: 12px; border-radius: 3px; flex: 0 0 auto; }
+.legend-chip.legend-line { height: 3px; border-radius: 1px; background: #828ca0; }
+.legend-note { color: #78808f; margin-top: 2px; }

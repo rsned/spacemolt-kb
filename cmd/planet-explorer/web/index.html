@@ -162,6 +162,15 @@
             <option value="tectonic">Tectonic</option>
           </select>
         </label>
+        <div id="tectonic-legend" hidden>
+          <div class="legend-row"><span class="legend-chip" style="background:#c82828"></span>Collision belt &mdash; continent vs continent</div>
+          <div class="legend-row"><span class="legend-chip" style="background:#e6781e"></span>Subduction &mdash; ocean under continent</div>
+          <div class="legend-row"><span class="legend-chip" style="background:#e6d23c"></span>Island arc &mdash; ocean vs ocean</div>
+          <div class="legend-row"><span class="legend-chip" style="background:#3cc8dc"></span>Mid-ocean ridge &mdash; spreading (ocean)</div>
+          <div class="legend-row"><span class="legend-chip" style="background:#c83cc8"></span>Continental rift &mdash; spreading (land)</div>
+          <div class="legend-row"><span class="legend-chip legend-line"></span>Plate boundary &mdash; untinted = transform (sliding sideways)</div>
+          <small class="legend-note">Tints fade to nothing 300&nbsp;km from the boundary; brightness tracks collision/spreading speed.</small>
+        </div>
         <button id="patch-next-window">Next window</button>
         <button id="patch-recompute" title="Re-run the sphere-global precompute with the current profile, resyncing HMin/HMax/SeaLevel0/SeaLevel after heavy FX tuning (the documented stale-scalar divergence). Slow — full progress bar applies.">Recompute sphere</button>
         <label>Sea level
