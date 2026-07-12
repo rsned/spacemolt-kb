@@ -166,15 +166,23 @@ JOIN latest l ON o.station_id = l.station_id AND o.captured_at = l.cap`)
 // DB systems table (station.system_id -> systems.id -> systems.empire).
 func loadStations(marketDB, knowledgeDB *sql.DB) ([]StationMeta, error) {
 	empire := map[string]string{}
-	erows, err := knowledgeDB.Query(`SELECT id, COALESCE(empire,'') FROM systems`)
+	erows, err := knowledgeDB.Query(`SELECT id, COALESCE(empire,''), police_level, is_stronghold FROM systems`)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = erows.Close() }()
 	for erows.Next() {
 		var id, emp string
-		if err := erows.Scan(&id, &emp); err != nil {
+		var police int
+		var stronghold bool
+		if err := erows.Scan(&id, &emp, &police, &stronghold); err != nil {
 			return nil, err
+		}
+		// A lawless system (no police, non-stronghold) is not under empire control;
+		// its empire tag is nearest-empire drift, so treat it as independent space.
+		// Mirrors the empire-footprint sweep in cmd/generate-items-kb.
+		if police == 0 && !stronghold {
+			emp = ""
 		}
 		empire[id] = emp
 	}

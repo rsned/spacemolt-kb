@@ -172,8 +172,10 @@ func newKnowledgeTestDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 	_, err = db.Exec(`
-CREATE TABLE systems (id TEXT PRIMARY KEY, empire TEXT);
-INSERT INTO systems VALUES ('sysA','Empire X');
+CREATE TABLE systems (id TEXT PRIMARY KEY, empire TEXT, police_level INTEGER, is_stronghold BOOLEAN);
+INSERT INTO systems VALUES ('sysA','Empire X',5,0);
+-- A lawless system (police 0, non-stronghold) whose empire field is nearest-empire drift.
+INSERT INTO systems VALUES ('sysLawless','crimson',0,0);
 CREATE TABLE ship_listings (station_id TEXT, class_id TEXT, price REAL, captured_at TEXT);
 -- stale snapshot (cheaper, must be ignored) then fresh snapshot for st1
 INSERT INTO ship_listings VALUES ('st1','cobble',3000,'2026-07-05T10:00:00Z');
@@ -214,6 +216,30 @@ func TestLoadStations_EmpireJoinAndFallback(t *testing.T) {
 	st2 := byID["st2"]
 	if st2.Empire != "Independent" {
 		t.Fatalf("st2 expected fallback empire Independent, got %+v", st2)
+	}
+}
+
+func TestLoadStations_LawlessSystemIsIndependent(t *testing.T) {
+	marketDB := newMarketTestDB(t)
+	// A station in a lawless system whose knowledge-DB empire field reads "crimson"
+	// (nearest-empire drift). Lawless space is not under empire control, so the
+	// column must render as Independent, not the drifting empire tag.
+	if _, err := marketDB.Exec(`INSERT INTO stations VALUES ('hex','Hex Star','sysLawless','Dheneb')`); err != nil {
+		t.Fatal(err)
+	}
+	knowledgeDB := newKnowledgeTestDB(t)
+
+	stations, err := loadStations(marketDB, knowledgeDB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	byID := map[string]StationMeta{}
+	for _, s := range stations {
+		byID[s.ID] = s
+	}
+	hex := byID["hex"]
+	if hex.Empire != "Independent" {
+		t.Fatalf("lawless station expected Empire Independent, got %+v", hex)
 	}
 }
 

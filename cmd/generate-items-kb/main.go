@@ -1948,16 +1948,26 @@ func systemTemplateFuncs(sysLookup map[string]*System) htmltpl.FuncMap {
 			}
 			return false
 		},
-		"formatEmpire": func(empire string, lastUpdatedTick int) string {
-			if lastUpdatedTick == 0 {
-				return "Unknown"
-			}
-			if empire == "" {
-				return "Neutral"
-			}
-			return titleCase(empire)
-		},
+		"formatEmpire": formatEmpire,
 	}
+}
+
+// formatEmpire renders a system's empire affiliation for display. A lawless
+// system (no police presence and not a stronghold) is independent space even
+// when the catalog tags it with a nearest-empire name that drifts between
+// scrapes, so it reads as "Independent" rather than the unstable tag. Mirrors
+// the empire-footprint sweep used on the Systems overview.
+func formatEmpire(empire string, lastUpdatedTick, policeLevel int, isStronghold bool) string {
+	if lastUpdatedTick == 0 {
+		return "Unknown"
+	}
+	if policeLevel == 0 && !isStronghold {
+		return "Independent"
+	}
+	if empire == "" {
+		return "Neutral"
+	}
+	return titleCase(empire)
 }
 
 func writeSystemPages(outDir string, systems []*System) error {
@@ -3249,7 +3259,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
 {{- range .Systems}}
         <tr>
           <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}</td>
-          <td>{{if eq (formatEmpire .Empire .LastUpdatedTick) "Unknown"}}<span class="text-muted">Unknown</span>{{else}}{{formatEmpire .Empire .LastUpdatedTick}}{{end}}</td>
+          <td>{{if eq (formatEmpire .Empire .LastUpdatedTick .PoliceLevel .IsStronghold) "Unknown"}}<span class="text-muted">Unknown</span>{{else}}{{formatEmpire .Empire .LastUpdatedTick .PoliceLevel .IsStronghold}}{{end}}</td>
           <td>{{if ne .LastUpdatedTick 0}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
           <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
           <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
@@ -3296,7 +3306,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
                 </div>
                 <div class="sys-meta-item">
                     <span class="label">Empire</span>
-                    <span class="stat">{{if eq (formatEmpire .Empire .LastUpdatedTick) "Unknown"}}<span class="text-muted">Unknown</span>{{else}}{{formatEmpire .Empire .LastUpdatedTick}}{{end}}</span>
+                    <span class="stat">{{if eq (formatEmpire .Empire .LastUpdatedTick .PoliceLevel .IsStronghold) "Unknown"}}<span class="text-muted">Unknown</span>{{else}}{{formatEmpire .Empire .LastUpdatedTick .PoliceLevel .IsStronghold}}{{end}}</span>
                 </div>
                 <div class="sys-meta-item">
                     <span class="label">Position</span>
