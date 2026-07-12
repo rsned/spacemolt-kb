@@ -151,6 +151,28 @@ func MinimapPNG(sd *SphereData, w Window, width, height int) ([]byte, error) {
 		}
 	}
 
+	// All plate boundaries, on top of the FX tints: most boundary
+	// stretches are transform (|vRel·n| below the convergent threshold)
+	// or too weak to tint, so without this the minimap shows only the
+	// few active segments. Steel gray reads on both the black ocean and
+	// the white continental mask. Within-face 4-neighbor test (same
+	// semantics as plateBoundary in the patch view); a border lying
+	// exactly on a cube-face seam may drop single pixels — invisible at
+	// minimap scale.
+	if sd.Plates != nil {
+		steel := color.RGBA{R: 130, G: 140, B: 160, A: 255}
+		for face := range cubemap.Face(cubemap.NumFaces) {
+			ids := sd.Plates.PlateID[face]
+			for py := range base.Size {
+				for px := range base.Size {
+					if plateBoundary(ids, base.Size, px, py) {
+						base.Set(face, px, py, planetcolor.Blend(base.Get(face, px, py), steel, 0.8))
+					}
+				}
+			}
+		}
+	}
+
 	img := cubemap.BakeEquirect(base, width, height)
 
 	white := color.RGBA{R: 255, G: 255, B: 255, A: 255}
