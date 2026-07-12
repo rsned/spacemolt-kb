@@ -569,7 +569,7 @@ func patchSetParam(_ js.Value, args []js.Value) any {
 }
 
 // patchRender(targetLayer, view) → Uint8Array of PNG bytes. view is one
-// of "color" (ColorPNG), "height" (HeightPNG), or "tectonic"
+// of "color" (ColorPNG), "height" (ShadedHeightPNG), or "tectonic"
 // (TectonicDebugPNG).
 func patchRender(_ js.Value, args []js.Value) any {
 	if len(args) != 2 {
@@ -591,7 +591,7 @@ func patchRender(_ js.Value, args []js.Value) any {
 	case "color":
 		b, err = patch.ColorPNG(st)
 	case "height":
-		b, err = patch.HeightPNG(st)
+		b, err = patch.ShadedHeightPNG(patchSession.stack.Ctx(), st)
 	case "tectonic":
 		b, err = patch.TectonicDebugPNG(patchSession.stack.Ctx(), st)
 	default:

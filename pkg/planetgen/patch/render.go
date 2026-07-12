@@ -12,6 +12,7 @@ import (
 
 	planetcolor "github.com/rsned/spacemolt-kb/pkg/planetgen/color"
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/render"
 )
 
 // HeightPNG renders st.Height as a grayscale PNG, clamping [0,1] to
@@ -23,6 +24,37 @@ func HeightPNG(st *State) ([]byte, error) {
 		g := uint8(min(255, max(0, int(v*255))))
 		o := i * 4
 		img.Pix[o], img.Pix[o+1], img.Pix[o+2], img.Pix[o+3] = g, g, g, 255
+	}
+	return encodePNG(img)
+}
+
+// ShadedHeightPNG renders st.Height as a hillshaded grayscale PNG:
+// the production Shading stage's Lambertian math (SlopeShadeSampled,
+// same fixed off-center sun) applied to the raw height grid, so relief
+// reads even where absolute height differences are a few gray levels.
+// Uses the profile's ShadingStrength/ShadingExaggeration when the
+// profile has shading enabled, else the debug defaults 0.5 / 8.
+func ShadedHeightPNG(ctx *Context, st *State) ([]byte, error) {
+	w := ctx.Fields.Window
+	size := st.Height.Size
+	strength, exag := 0.5, 8.0
+	if p := ctx.Profile; p != nil && p.ShadingStrength > 0 {
+		strength = p.ShadingStrength
+		if p.ShadingExaggeration > 0 {
+			exag = p.ShadingExaggeration
+		}
+	}
+	sampler := w.Sampler(st.Height)
+	img := image.NewRGBA(image.Rect(0, 0, size, size))
+	for iy := range size {
+		for ix := range size {
+			g := uint8(min(255, max(0, int(st.Height.At(ix, iy)*255))))
+			rx, ry, rz := w.Dir(ix, iy)
+			c := render.SlopeShadeSampled(sampler, color.RGBA{R: g, G: g, B: g, A: 255},
+				rx, ry, rz, strength, exag)
+			o := (iy*size + ix) * 4
+			img.Pix[o], img.Pix[o+1], img.Pix[o+2], img.Pix[o+3] = c.R, c.G, c.B, 255
+		}
 	}
 	return encodePNG(img)
 }
