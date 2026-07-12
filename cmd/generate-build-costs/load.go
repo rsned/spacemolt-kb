@@ -4,9 +4,27 @@ import (
 	"database/sql"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
+
+// latestMarketCapture returns a human-readable UTC timestamp of the most recent
+// order-book capture in the market DB, for the station-cover page's "last
+// updated" footer. Returns "" when the market has no orders.
+func latestMarketCapture(marketDB *sql.DB) (string, error) {
+	var raw sql.NullString
+	if err := marketDB.QueryRow(`SELECT MAX(captured_at) FROM market_orders`).Scan(&raw); err != nil {
+		return "", err
+	}
+	if !raw.Valid || raw.String == "" {
+		return "", nil
+	}
+	if ts, err := time.Parse(time.RFC3339, raw.String); err == nil {
+		return ts.UTC().Format("2006-01-02 15:04 UTC"), nil
+	}
+	return raw.String, nil
+}
 
 // StationMeta is a station column: its id, display name, system, and empire.
 type StationMeta struct {

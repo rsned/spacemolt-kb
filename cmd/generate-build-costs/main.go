@@ -141,7 +141,9 @@ func main() {
 		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories, hopRows, cover), "render detail "+row.ID)
 	}
 	if *stationCoverOut != "" {
-		page := buildStationCoverPage(targets, depth, stationIDs, stationNames, itemNames, categories)
+		lastUpdated, err := latestMarketCapture(marketDB)
+		must(err, "load market capture time")
+		page := buildStationCoverPage(targets, depth, stationIDs, stationNames, itemNames, categories, lastUpdated)
 		must(renderStationCover(*stationCoverOut, page), "render station cover")
 		log.Printf("station-cover: %d buildable, %d single-station, %d unbuildable, hardest %s (%d) → %s",
 			len(page.Buildable), page.SingleStation, page.UnbuildableCount, page.HardestID, page.MaxStations, *stationCoverOut)

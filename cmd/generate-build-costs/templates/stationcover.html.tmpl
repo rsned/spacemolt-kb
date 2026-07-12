@@ -118,5 +118,6 @@ document.querySelectorAll('#main th').forEach((th, idx) => th.addEventListener('
   rows.forEach(r => tb.appendChild(r));
 }));
 </script>
+{{if .LastUpdated}}<footer class="page-updated" style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: {{.LastUpdated}}</footer>{{end}}
 </body>
 </html>

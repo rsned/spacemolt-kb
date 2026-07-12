@@ -9,6 +9,13 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
 
+func TestBuildStationCoverPage_LastUpdatedFlowsToPage(t *testing.T) {
+	p := buildStationCoverPage(nil, buildcost.StationDepth{}, nil, nil, nil, nil, "2026-07-12 15:00 UTC")
+	if p.LastUpdated != "2026-07-12 15:00 UTC" {
+		t.Fatalf("LastUpdated = %q, want %q", p.LastUpdated, "2026-07-12 15:00 UTC")
+	}
+}
+
 func TestStationDepthFromBooks_SumsLadder(t *testing.T) {
 	books := map[string]*buildcost.Book{
 		"A": {Sell: map[string]buildcost.Ladder{
@@ -36,7 +43,7 @@ func TestBuildStationCoverPage_PartitionAndStats(t *testing.T) {
 	names := map[string]string{"A": "Alpha", "B": "Bravo"}
 	items := map[string]string{"easy": "Easy", "hard": "Hard", "nope": "Nope", "exotic": "Exotic Matter"}
 	cats := map[string]string{"easy": "widget", "hard": "gadget", "nope": "frigate"}
-	p := buildStationCoverPage(targets, depth, []string{"A", "B"}, names, items, cats)
+	p := buildStationCoverPage(targets, depth, []string{"A", "B"}, names, items, cats, "")
 
 	if p.Total != 3 {
 		t.Fatalf("Total = %d, want 3", p.Total)
@@ -79,7 +86,7 @@ func TestBuildStationCoverPage_RecipeBestFeasible(t *testing.T) {
 	depth := buildcost.StationDepth{"A": {"iron": 10}}
 	p := buildStationCoverPage(targets, depth, []string{"A"},
 		map[string]string{"A": "Alpha"}, map[string]string{"widget": "Widget"},
-		map[string]string{"widget": "widget"})
+		map[string]string{"widget": "widget"}, "")
 	e := p.Buildable[0]
 	if e.RecipeNA {
 		t.Fatalf("recipe should be feasible via r2, got NA")

@@ -64,6 +64,9 @@ type stationCoverPage struct {
 	Unbuildable         []unbuildableEntry
 	BoMHistogram        []histBar
 	RecipeHistogram     []histBar
+	// LastUpdated is the freshness of the market data this page was built from
+	// (the latest order-book capture), shown in the page footer.
+	LastUpdated string
 }
 
 // stationDepthFromBooks sums each station's sell-ladder quantities per item.
@@ -132,8 +135,8 @@ func displayNames(ids []string, names map[string]string) []string {
 }
 
 func buildStationCoverPage(targets []buildcost.Target, depth buildcost.StationDepth, stationIDs []string,
-	stationNames, itemNames, categories map[string]string) stationCoverPage {
-	p := stationCoverPage{Total: len(targets)}
+	stationNames, itemNames, categories map[string]string, lastUpdated string) stationCoverPage {
+	p := stationCoverPage{Total: len(targets), LastUpdated: lastUpdated}
 	var sumStations int
 
 	for _, t := range targets {
