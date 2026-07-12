@@ -79,7 +79,7 @@ func poissonPatch(ctx *Context, hab *Grid) []civSite {
 	w := ctx.Fields.Window
 	// Radii in virtual pixels: SiteMinDistRad/SiteMaxDistRad are
 	// angular; one virtual pixel ~ (pi/2)/SProd radians.
-	pxRad := (math.Pi / 2) / float64(w.SProd)
+	pxRad := w.PxRad()
 	rMin := cfg.SiteMinDistRad / pxRad
 	rMax := cfg.SiteMaxDistRad / pxRad
 	if rMin <= 0 || rMax < rMin {

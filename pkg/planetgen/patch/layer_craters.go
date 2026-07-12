@@ -27,7 +27,7 @@ func applyCraters(ctx *Context, st *State) *State {
 		cz := math.Cos(cr.Lat) * math.Sin(cr.Lon)
 		// Cheap window cull: compare against the window center dir.
 		mx, my, mz := w.Dir(w.Size/2, w.Size/2)
-		halfDiag := float64(w.Size) / float64(w.SProd) * (math.Pi / 2) // window half-diagonal upper bound, radians
+		halfDiag := float64(w.Size) * w.PxRad() // window half-diagonal upper bound, radians
 		if math.Acos(clampDot(cx*mx+cy*my+cz*mz)) > cr.Radius+halfDiag {
 			continue
 		}

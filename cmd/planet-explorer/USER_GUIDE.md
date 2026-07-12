@@ -495,7 +495,7 @@ Widths are Gaussian sigmas in km. Each effect disables individually at zero ampl
 
 ---
 
-### Rivers (Flow) *(JSON-only — no UI panel yet)*
+### Rivers (Flow) Panel
 
 **Purpose:** D8 flow accumulation + Planchon-Darboux pit fill, then carve channels where flow exceeds a threshold
 **Effect:** Mature river networks that actually drain to the ocean — distinct from particle-erosion droplets
@@ -524,7 +524,7 @@ Profile field: `Flow` (JSON key `"flow"`). `RiverThreshold == 0` disables the en
 
 ---
 
-### Rain Shadow (Wind) *(JSON-only — no UI panel yet)*
+### Rain Shadow (Wind) Panel
 
 **Purpose:** Wind-tangent moisture advection — upwind sides of mountain ranges get more rain, lee sides get less
 **Effect:** Modulates the Whittaker M (humidity) input so deserts naturally appear behind mountain belts (rain shadow), and rainforests appear on windward slopes
@@ -718,7 +718,7 @@ Profile field: `Cloud` (JSON key `"cloud"`). `Coverage == 0` disables the entire
 
 ---
 
-### Civilization *(JSON-only — no UI panel yet)*
+### Civilization Panel
 
 **Purpose:** Multi-pass civilization-sign overlay — habitability scalar, Bridson-disc site placement, Zipfian population assignment, road generation (Delaunay + MST + A\*), agriculture patches, and nightside lights
 **Effect:** A populated, "lived-in" planet with cities along coasts and rivers, road networks linking them, farmland around population centers, and city lights visible on the night side
@@ -1403,14 +1403,18 @@ output = fbm(warped_p)
 
 ### Performance issues
 
-**Symptoms:** Renders take >30 seconds, browser freezes
+**Symptoms:** Renders take >30 seconds
+
+The Wasm pipeline runs in a dedicated Web Worker (Phase 14), not the
+main thread, so a slow render no longer freezes the tab or triggers a
+"Page Unresponsive" dialog — the busy overlay stays interactive and
+you can **Cancel** at any time. If a render is simply taking too long:
 **Solutions:**
 - Reduce Face Size to 256 or 128
 - Reduce Octaves to 3–4
 - Disable Provinces (Count = 0)
 - Disable Craters (Count = 0)
-- Close other browser tabs
-- Try different browser
+- Click **Cancel** and lower parameters before retrying
 
 ---
 

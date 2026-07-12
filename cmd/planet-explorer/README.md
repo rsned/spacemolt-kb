@@ -5,7 +5,9 @@ Web-based parameter explorer for the planet generator. Compiles
 
 ## Build
 
-The Wasm binary is a build artifact, not committed:
+The Wasm binary at `cmd/planet-explorer/web/planet-explorer.wasm` is
+committed so the explorer works straight from a checkout. After any Go
+change that affects it, rebuild it and commit the refreshed artifact:
 
 ```bash
 GOOS=js GOARCH=wasm go build \
@@ -86,15 +88,43 @@ When you're happy with the tuned profile, **Go!** hands off to the
 existing, unchanged full production render at S_prod and switches back
 to the normal sphere/cube-map/equirect views.
 
+### Architecture: Web Worker (Phase 14)
+
+The Wasm module runs inside a dedicated `web/worker.js`, not the main
+thread — `wasm_exec.js` is loaded there via `importScripts`, and
+`index.html` no longer has a script tag for it. `app.js` talks to the
+worker through a promise-based RPC layer, handing off large buffers
+(profile bytes, PNGs) as Transferables. Because generation and Patch
+Lab recomputation both run off the main thread, the tab stays
+scrollable and interactive during a render — no "Page Unresponsive"
+dialogs, even at full production face size.
+
+The Go pipeline reports progress through canonical stage keys via
+`__pxProgress`, forwarded to the main thread as `{type: 'progress'}`
+messages. `app.js` shows these in a busy overlay (delayed 150ms to
+avoid flashing on fast renders) with whimsical per-stage descriptors
+plus an honest `i/n` stage counter and progress bar.
+
+**Cancel** terminates the worker and respawns a fresh one; every
+in-flight RPC promise rejects with `'cancelled'`. If Patch Lab is open
+when you cancel, that session dies with the worker — cancel means
+abandon, not pause — and re-entering Patch Lab re-initializes it from
+scratch. `enterPatchLab` guards its UI mutations against a cancel that
+lands mid-entry.
+
 ### Using it
 
 - **Patch Lab** button (next to Regenerate) enters the mode; it
   requires a crust-enabled archetype (the legacy non-crust path has no
   tectonic fields to extract) and swaps out the rotating-sphere/
-  cube-map/equirect canvases for the patch canvas + minimap.
+  cube-map/equirect canvases for the patch canvas + minimap. Entering
+  Patch Lab also hides the normal-view headers/controls that don't
+  apply in patch mode.
 - The **layer rail** lists all 13 layers in pipeline order; picking a
   row renders the stack up to (and including) that layer, using cached
-  output for everything upstream.
+  output for everything upstream. Rows for layers a param edit made
+  irrelevant show a live "(disabled)" label (e.g. "civ (disabled)"
+  when `Civ.Tier == 0`) that refreshes as you tune params.
 - The **View** selector shows the current layer's output as **Color**
   (biome/palette colorization), **Height** (grayscale heightmap), or
   **Tectonic** (plate/craton/FX debug overlay).
@@ -103,11 +133,22 @@ to the normal sphere/cube-map/equirect views.
   activity, and land/ocean mix) — the first candidate is the
   smart-picked default.
 - The **Sea level** slider live-overrides the waterline layer's ocean
-  gate without recomputing anything upstream.
+  gate without recomputing anything upstream. It's marked "view only —
+  not applied on Go!" because the full production render at S_prod
+  recomputes its own sea level rather than inheriting this override.
 - Every other slider panel in the sidebar (Tectonic FX, control noise,
-  erosion, coastal, climate, civ, …) also drives the patch view while
-  Patch Lab is open — editing a param marks its owning layer (and
-  everything downstream of it) dirty and debounces a re-render.
+  erosion, coastal, climate, Rivers (Flow), Rain Shadow, Civilization, …)
+  also drives the patch view while Patch Lab is open — editing a param
+  marks its owning layer (and everything downstream of it) dirty and
+  debounces a re-render. `MarkDirty` matches the most specific field
+  changed (e.g. `ControlConfig.Temperature`/`Humidity` re-run only the
+  climate layer); sphere-level params (`OceanLevel`, `Continents`,
+  `Ridged`, `Basin`) are inert no-ops while Patch Lab is open.
+- **Recompute sphere** re-runs the sphere-side pipeline (plates,
+  cratons, JFA, flow) with the current profile and resyncs the patch's
+  cached `HMin`/`HMax`/`SeaLevel0`/`SeaLevel` scalars — use it after
+  heavy tectonic/erosion retuning to pull the preview's absolute levels
+  back in line with the sphere (see divergence #5 below).
 - **Go! (full render)** exits Patch Lab and runs the normal production
   pipeline with the current profile.
 
@@ -137,9 +178,9 @@ documented, intentional approximations — summarized here; see
    layer, so editing them only re-runs that layer (and downstream) —
    not a sphere recompute. Patch-layer param edits therefore reuse the
    sphere's cached normalize bounds and sea levels, so heavy tectonic/
-   erosion retuning can drift the preview's absolute levels until a
-   sphere-level param changes (or Patch Lab is re-entered) resyncs
-   them.
+   erosion retuning can drift the preview's absolute levels — resync on
+   demand via the **Recompute sphere** button, or by re-entering
+   Patch Lab.
 
 ## Planet picker and per-planet save (Phase 5)
 

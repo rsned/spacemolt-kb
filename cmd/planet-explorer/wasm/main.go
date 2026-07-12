@@ -14,6 +14,7 @@
 //	patchSetParam(paramPath string, profileJSON string)                                        string  // JSON
 //	patchRender(targetLayer int, view string)                                                  Uint8Array
 //	patchMinimap(width int, height int)                                                        Uint8Array
+//	patchRecomputeSphere()                                                                      string  // JSON {"seaLevel":..., "seaLevel0":...}
 //
 //go:build js && wasm
 
@@ -39,6 +40,7 @@ func main() {
 	// Wasm has no filesystem; force planetgen to skip the disk lookup
 	// and use the in-code GetProfile defaults exclusively.
 	planetgen.SetProfileRoot("")
+	registerProgressHooks()
 	js.Global().Set("planetExplorerGenerate", js.FuncOf(generate))
 	js.Global().Set("planetExplorerGenerateNight", js.FuncOf(generateNight))
 	js.Global().Set("planetExplorerGenerateHeightmap", js.FuncOf(generateHeightmap))
@@ -52,6 +54,7 @@ func main() {
 	js.Global().Set("patchSetParam", js.FuncOf(patchSetParam))
 	js.Global().Set("patchRender", js.FuncOf(patchRender))
 	js.Global().Set("patchMinimap", js.FuncOf(patchMinimap))
+	js.Global().Set("patchRecomputeSphere", js.FuncOf(patchRecomputeSphere))
 	<-make(chan struct{}) // keep the WASM process alive
 }
 
@@ -358,6 +361,19 @@ var patchSession struct {
 	master  int64
 }
 
+// registerProgressHooks forwards Go pipeline progress to the JS global
+// __pxProgress(stage, i, n) when the embedder (worker.js) defined it
+// before booting the wasm. No-op in a context without the global.
+func registerProgressHooks() {
+	cb := js.Global().Get("__pxProgress")
+	if cb.Type() != js.TypeFunction {
+		return
+	}
+	fn := func(stage string, i, n int) { cb.Invoke(stage, i, n) }
+	patch.SetProgressHook(fn)
+	render.SetProgressHook(fn)
+}
+
 // patchInit(profileJSON, seedStr, sTect) → JSON string
 // {"seaLevel":..., "seaLevel0":..., "candidates":[{"window":{...},"score":...}, ...]}.
 // Runs the sphere-global tectonic precompute and picks the top-12
@@ -553,8 +569,9 @@ func patchSetParam(_ js.Value, args []js.Value) any {
 }
 
 // patchRender(targetLayer, view) → Uint8Array of PNG bytes. view is one
-// of "color" (ColorPNG), "height" (HeightPNG), or "tectonic"
-// (TectonicDebugPNG).
+// of "color" (ColorPNG), "height" (ShadedHeightPNG), "tectonic"
+// (TectonicDebugPNG), or "finished" (ShadedColorPNG: color + relief
+// shading, the Go! preview).
 func patchRender(_ js.Value, args []js.Value) any {
 	if len(args) != 2 {
 		return jsError("patchRender: expected 2 args, got %d", len(args))
@@ -575,9 +592,11 @@ func patchRender(_ js.Value, args []js.Value) any {
 	case "color":
 		b, err = patch.ColorPNG(st)
 	case "height":
-		b, err = patch.HeightPNG(st)
+		b, err = patch.ShadedHeightPNG(patchSession.stack.Ctx(), st)
 	case "tectonic":
 		b, err = patch.TectonicDebugPNG(patchSession.stack.Ctx(), st)
+	case "finished":
+		b, err = patch.ShadedColorPNG(patchSession.stack.Ctx(), st)
 	default:
 		return jsError("patchRender: unknown view %q", view)
 	}
@@ -605,6 +624,39 @@ func patchMinimap(_ js.Value, args []js.Value) any {
 		return jsError("patchMinimap: %v", err)
 	}
 	return jsBytes(b)
+}
+
+// patchRecomputeSphere() → JSON {"seaLevel":..., "seaLevel0":...}.
+// Re-runs the sphere-global precompute with the session's CURRENT
+// profile and re-extracts the window's fields, resyncing the four
+// sphere-derived scalars (HMin/HMax/SeaLevel0/SeaLevel) that heavy FX
+// / control-noise / height-smooth retuning drifts away from a fresh
+// compute — the stale-scalar divergence documented in the Patch Lab
+// spec §7. Marks every layer dirty; the caller re-renders.
+func patchRecomputeSphere(_ js.Value, _ []js.Value) any {
+	if patchSession.stack == nil {
+		return jsError("patchRecomputeSphere: call patchSelect first")
+	}
+	sd, err := patch.ComputeSphere(patchSession.profile, patchSession.master, patchSession.sTect)
+	if err != nil {
+		return jsError("patchRecomputeSphere: %v", err)
+	}
+	w := clampWindow(patchSession.window)
+	fields, err := patch.ExtractFields(sd, w)
+	if err != nil {
+		return jsError("patchRecomputeSphere: extract fields: %v", err)
+	}
+	patchSession.sd = sd
+	patchSession.window = w
+	ctx := patchSession.stack.Ctx()
+	ctx.Sphere = sd
+	ctx.Fields = fields
+	patchSession.stack.MarkAllDirty()
+	out, err := json.Marshal(map[string]any{"seaLevel": sd.SeaLevel, "seaLevel0": sd.SeaLevel0})
+	if err != nil {
+		return jsError("patchRecomputeSphere: marshal: %v", err)
+	}
+	return string(out)
 }
 
 func goBytes(uint8Array js.Value) []byte {

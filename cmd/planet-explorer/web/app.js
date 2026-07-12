@@ -33,16 +33,220 @@ function snapshotOriginal(profile) {
   catch { originalProfile = null; }
 }
 
+// ---- Worker RPC ----
+// The wasm module lives in a dedicated Worker (web/worker.js) so
+// multi-second computes never freeze this thread. Every wasm call goes
+// through rpc(); results resolve asynchronously in send order.
+let worker = null;
+const pendingRPCs = new Map(); // id -> {resolve, reject, name}
+let nextRPCId = 1;
+
+function bootWorker() {
+  worker = new Worker('worker.js');
+  // Fires when worker.js itself fails to parse/load (e.g. importScripts
+  // 404). Boot failures inside the worker arrive as 'boot_error' instead.
+  worker.onerror = (e) => {
+    status.textContent = `Worker failed to load: ${e.message || 'unknown error'}`;
+    console.error('worker error:', e.message, e.filename, e.lineno);
+  };
+  worker.onmessage = (e) => {
+    const m = e.data;
+    if (m.type === 'ready') {
+      wasmReady = true;
+      return;
+    }
+    if (m.type === 'boot_error') {
+      status.textContent = 'Wasm failed to load in worker: ' + m.error;
+      console.error('wasm boot error:', m.error);
+      return;
+    }
+    if (m.type === 'progress') {
+      onWorkerProgress(m); // no-op until the busy overlay task
+      return;
+    }
+    const p = pendingRPCs.get(m.id);
+    if (!p) return;
+    pendingRPCs.delete(m.id);
+    if (m.error !== undefined) p.reject(new Error(m.error));
+    else p.resolve(m.result);
+    busyMaybeHide();
+  };
+}
+
+function rpc(name, ...args) {
+  return new Promise((resolve, reject) => {
+    const id = nextRPCId++;
+    pendingRPCs.set(id, { resolve, reject, name });
+    busyMaybeShow();
+    worker.postMessage({ id, name, args });
+  });
+}
+
+// ---- Busy overlay ----
+// Shown when any RPC is still pending after SHOW_DELAY_MS, so quick
+// param sets never flash a spinner. Whimsy is cosmetic; the honest
+// stage key and i/n counter always render beside it.
+const BUSY_SHOW_DELAY_MS = 150;
+const busyOverlay = $('#busy-overlay');
+const busyWhimsy = $('#busy-whimsy');
+const busyStage = $('#busy-stage');
+const busyBarFill = $('#busy-bar-fill');
+let busyTimer = null;
+let lastWhimsyKey = '';
+
+const RPC_LABELS = {
+  planetExplorerGenerate: 'Rendering the planet',
+  planetExplorerGenerateNight: 'Turning on the city lights',
+  planetExplorerGenerateHeightmap: 'Measuring the mountains',
+  planetExplorerGenerateWithBypass: 'Rendering the planet (with bypasses)',
+  planetExplorerBakeEquirect: 'Flattening the globe',
+  planetExplorerGenerateDebug: 'Rendering every pipeline stage',
+  planetExplorerDefaultProfile: 'Fetching defaults',
+  patchInit: 'Surveying the whole sphere',
+  patchSelect: 'Cutting out your patch',
+  patchLayers: 'Listing the layers',
+  patchSetParam: 'Applying the tweak',
+  patchRender: 'Painting the patch',
+  patchMinimap: 'Drawing the minimap',
+  patchRecomputeSphere: 'Recomputing the sphere',
+};
+
+const WHIMSY = {
+  'sphere:jitter': ['Wobbling the crust (on purpose)'],
+  'sphere:plates': ['Smashing continental plates together', 'Filing tectonic grievances'],
+  'sphere:crust': ['Baking a fresh planetary crust', 'Arranging cratons like furniture'],
+  'sphere:fx': ['Classifying mountain-making collisions'],
+  'sphere:splines': ['Sculpting hills with cubic splines'],
+  'sphere:tectonic-fx': ['Making mountains out of molehills'],
+  'sphere:smooth': ['Sanding down the rough edges'],
+  'sphere:normalize': ['Convincing the peaks to fit in [0,1]'],
+  'sphere:erode': ['Raining on the mountains for a few eons', 'Hiding dinosaur bones'],
+  'sphere:flow': ['Rerouting rivers for scenic value'],
+  'layer:tectonic-base': ['Laying the tectonic foundation'],
+  'layer:tectonic-fx': ['Crumpling the crust artistically'],
+  'layer:control-noise': ['Seasoning with fractal noise'],
+  'layer:height-smooth': ['Buffing out the pixel wrinkles'],
+  'layer:normalize': ['Renormalizing with bureaucratic rigor'],
+  'layer:coastal': ['Nibbling the coastlines'],
+  'layer:erosion': ['Applying 10,000 years of drizzle', 'Hiding dinosaur bones'],
+  'layer:craters': ['Throwing rocks from space'],
+  'layer:flow-rivers': ['Teaching water to flow downhill'],
+  'layer:climate': ['Negotiating with the rain shadow'],
+  'layer:biome-color': ['Coloring inside the biome lines'],
+  'layer:waterlines': ['Filling the oceans — do not disturb'],
+  'layer:civ': ['Zoning land for tiny civilizations', 'Approving planning permission'],
+  Crust: ['Baking a fresh planetary crust'],
+  ControlFields: ['Seasoning with fractal noise'],
+  Ridged: ['Extruding dramatic ridge lines'],
+  TectonicFX: ['Making mountains out of molehills'],
+  Basin: ['Digging decorative basins'],
+  Continents: ['Rolling out the continents'],
+  HeightSmooth: ['Sanding down the rough edges'],
+  Normalize: ['Convincing the peaks to fit in [0,1]'],
+  Coastal: ['Nibbling the coastlines'],
+  Erosion: ['Applying 10,000 years of drizzle', 'Hiding dinosaur bones'],
+  Flow: ['Teaching water to flow downhill'],
+  Craters: ['Throwing rocks from space'],
+  Palette: ['Mixing planetary paint'],
+  Snow: ['Dusting the peaks with snow'],
+  Ocean: ['Filling the oceans'],
+  PolarCaps: ['Icing the poles'],
+  Shading: ['Adding dramatic lighting'],
+  Ejecta: ['Splattering crater ejecta tastefully'],
+  Civ: ['Zoning land for tiny civilizations'],
+  LUT: ['Applying the cinematic color grade'],
+  'render:jitter': ['Wobbling the crust (on purpose)'],
+  'render:plates': ['Smashing continental plates together'],
+  'render:heightmap': ['Raising mountains, digging seas'],
+  'render:flow': ['Rerouting rivers for scenic value'],
+  'render:colorize': ['Arguing about paint colors'],
+};
+
+function busyMaybeShow() {
+  if (busyTimer !== null || !busyOverlay.hidden) return;
+  busyTimer = setTimeout(() => {
+    busyTimer = null;
+    if (pendingRPCs.size === 0) return;
+    const first = pendingRPCs.values().next().value;
+    busyWhimsy.textContent = RPC_LABELS[first.name] || 'Working…';
+    busyStage.textContent = '';
+    busyBarFill.style.width = '0%';
+    lastWhimsyKey = '';
+    busyOverlay.hidden = false;
+  }, BUSY_SHOW_DELAY_MS);
+}
+
+function busyMaybeHide() {
+  if (pendingRPCs.size > 0) {
+    // Still busy with the next queued call. Retitle the visible overlay
+    // so it never shows a finished call's label (e.g. a generate clicked
+    // while defaults were loading used to sit on "Fetching defaults"
+    // for the whole multi-minute render).
+    if (!busyOverlay.hidden) {
+      const first = pendingRPCs.values().next().value;
+      busyWhimsy.textContent = RPC_LABELS[first.name] || 'Working…';
+      busyStage.textContent = '';
+      busyBarFill.style.width = '0%';
+      lastWhimsyKey = '';
+    }
+    return;
+  }
+  if (busyTimer !== null) { clearTimeout(busyTimer); busyTimer = null; }
+  busyOverlay.hidden = true;
+}
+
+function onWorkerProgress(m) {
+  if (busyOverlay.hidden) return;
+  if (m.stage !== lastWhimsyKey) {
+    lastWhimsyKey = m.stage;
+    const pool = WHIMSY[m.stage];
+    if (pool) busyWhimsy.textContent = pool[Math.floor(Math.random() * pool.length)];
+  }
+  busyStage.textContent = m.n > 0 ? `${m.stage} (${m.i}/${m.n})` : m.stage;
+  if (m.n > 0) busyBarFill.style.width = `${Math.round((m.i / m.n) * 100)}%`;
+}
+
+// cancelCompute kills the worker mid-compute. All in-flight RPCs
+// reject with 'cancelled'; the wasm-side patch session dies with the
+// worker, so an open Patch Lab is exited (cancel means abandon).
+function cancelCompute() {
+  worker.terminate();
+  for (const p of pendingRPCs.values()) p.reject(new Error('cancelled'));
+  pendingRPCs.clear();
+  wasmReady = false;
+  busyMaybeHide();
+  bootWorker();
+  if (patchOn) {
+    exitPatchLab();
+    status.textContent = 'Cancelled — Patch Lab session reset';
+  } else {
+    status.textContent = 'Cancelled';
+  }
+}
+const busyCancelBtn = $('#busy-cancel');
+if (busyCancelBtn) busyCancelBtn.addEventListener('click', cancelCompute);
+
+// quiet wraps a driver's RPC promise so it NEVER rejects (drivers are
+// often fire-and-forget; a rejection would surface as an unhandled-
+// rejection console error). A cancelCompute() rejection is expected
+// and silent; anything else lands in the status line and the console.
+// Callers must treat a null result as "stop this driver".
+function quiet(p) {
+  return p.catch((e) => {
+    if (!(e && e.message === 'cancelled')) {
+      status.textContent = 'Error: ' + (e && e.message || e);
+      console.warn(e);
+    }
+    return null;
+  });
+}
+
 async function init() {
   status.textContent = 'Loading wasm…';
-  const go = new Go();
-  const result = await WebAssembly.instantiateStreaming(fetch('wasm'), go.importObject);
-  go.run(result.instance);
-  wasmReady = true;
-  status.textContent = 'Ready';
-
+  bootWorker();
   await refreshPlanetPicker();
-  loadDefaultProfile();
+  await loadDefaultProfile();
+  status.textContent = 'Ready';
 }
 
 // refreshPlanetPicker fetches /profiles, replaces the dropdown
@@ -72,9 +276,10 @@ async function refreshPlanetPicker() {
   }
 }
 
-function loadDefaultProfile() {
+async function loadDefaultProfile() {
   const type = typePicker.value;
-  const json = planetExplorerDefaultProfile(type);
+  const json = await quiet(rpc('planetExplorerDefaultProfile', type));
+  if (json === null) return;
   if (typeof json === 'string' && json.startsWith('{"error"')) {
     status.textContent = 'Error: ' + json;
     return;
@@ -121,50 +326,60 @@ function syncKnotsFromDOM() {
 }
 
 async function regenerate() {
-  if (!wasmReady) return;
-  syncKnotsFromDOM();
-  status.textContent = 'Rendering…';
-  await new Promise(r => setTimeout(r, 0)); // yield to repaint
+  if (regenerate.inFlight) return;
+  regenerate.inFlight = true;
+  renderBtn.disabled = true;
+  try {
+    // Not gated on wasmReady: the worker queues messages until the wasm
+    // boots, and a failed boot rejects them with a visible error. A
+    // silent return here ate clicks made in the first seconds after
+    // page load (or right after Cancel's worker respawn).
+    syncKnotsFromDOM();
+    status.textContent = wasmReady ? 'Rendering…' : 'Rendering… (worker still booting)';
+    await new Promise(r => setTimeout(r, 0)); // yield to repaint
 
-  const profileJSON = profileTextarea.value;
-  const seed = seedInput.value;
-  const size = parseInt(faceSizeSel.value, 10) || 256;
+    const profileJSON = profileTextarea.value;
+    const seed = seedInput.value;
+    const size = parseInt(faceSizeSel.value, 10) || 256;
 
-  const t0 = performance.now();
+    const t0 = performance.now();
 
-  // Cube-sphere path for both rocky and gas-giant profiles. Rocky uses the
-  // full pipeline (plates, jitter, JFA coastal, erosion, craters); gas
-  // giants use the gas-giant renderer.
-  const mode = viewModeSel ? viewModeSel.value : 'color';
-  let cubePNG;
-  if (mode === 'heightmap') {
-    cubePNG = planetExplorerGenerateHeightmap(profileJSON, seed, size);
-  } else if (debugBypass.size > 0 && window.planetExplorerGenerateWithBypass) {
-    cubePNG = planetExplorerGenerateWithBypass(profileJSON, seed, size, JSON.stringify([...debugBypass]));
-  } else {
-    cubePNG = planetExplorerGenerate(profileJSON, seed, size);
-  }
-  if (!(cubePNG instanceof Uint8Array)) {
-    status.textContent = 'Error: ' + cubePNG;
-    return;
-  }
-  await paintToCanvas(cubeCanvas, cubePNG);
-  const equirectPNG = planetExplorerBakeEquirect(cubePNG, equirectCanvas.width, equirectCanvas.height);
-  if (equirectPNG instanceof Uint8Array) {
-    await paintToCanvas(equirectCanvas, equirectPNG);
-    refreshSphereTexture();
-  }
+    // Cube-sphere path for both rocky and gas-giant profiles. Rocky uses the
+    // full pipeline (plates, jitter, JFA coastal, erosion, craters); gas
+    // giants use the gas-giant renderer.
+    const mode = viewModeSel ? viewModeSel.value : 'color';
+    let cubePNG;
+    if (mode === 'heightmap') {
+      cubePNG = await quiet(rpc('planetExplorerGenerateHeightmap', profileJSON, seed, size));
+    } else if (debugBypass.size > 0) {
+      cubePNG = await quiet(rpc('planetExplorerGenerateWithBypass', profileJSON, seed, size, JSON.stringify([...debugBypass])));
+    } else {
+      cubePNG = await quiet(rpc('planetExplorerGenerate', profileJSON, seed, size));
+    }
+    if (cubePNG === null) return;
+    if (!(cubePNG instanceof Uint8Array)) {
+      status.textContent = 'Error: ' + cubePNG;
+      return;
+    }
+    await paintToCanvas(cubeCanvas, cubePNG);
+    const equirectPNG = await quiet(rpc('planetExplorerBakeEquirect', cubePNG, equirectCanvas.width, equirectCanvas.height));
+    if (equirectPNG === null) return;
+    if (equirectPNG instanceof Uint8Array) {
+      await paintToCanvas(equirectCanvas, equirectPNG);
+      refreshSphereTexture();
+    }
 
-  // Phase 9b nightside: when the profile has Civ.Tier > 0 the wasm
-  // exposes a separate Black-Marble cube-map. Bake it to an offscreen
-  // equirect and stash the ImageData so renderSphere can blend it onto
-  // the unlit hemisphere via the sun-direction dot product. Empty
-  // Uint8Array means civ disabled — clear the texture so we fall back
-  // to the original day-only render.
-  if (window.planetExplorerGenerateNight) {
-    const nightCubePNG = planetExplorerGenerateNight(profileJSON, seed, size);
+    // Phase 9b nightside: when the profile has Civ.Tier > 0 the wasm
+    // exposes a separate Black-Marble cube-map. Bake it to an offscreen
+    // equirect and stash the ImageData so renderSphere can blend it onto
+    // the unlit hemisphere via the sun-direction dot product. Empty
+    // Uint8Array means civ disabled — clear the texture so we fall back
+    // to the original day-only render.
+    const nightCubePNG = await quiet(rpc('planetExplorerGenerateNight', profileJSON, seed, size));
+    if (nightCubePNG === null) return;
     if (nightCubePNG instanceof Uint8Array && nightCubePNG.length > 0) {
-      const nightEqPNG = planetExplorerBakeEquirect(nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height);
+      const nightEqPNG = await quiet(rpc('planetExplorerBakeEquirect', nightCubePNG, nightEquirectCanvas.width, nightEquirectCanvas.height));
+      if (nightEqPNG === null) return;
       if (nightEqPNG instanceof Uint8Array) {
         await paintToCanvas(nightEquirectCanvas, nightEqPNG);
         refreshSphereNightTexture();
@@ -172,16 +387,19 @@ async function regenerate() {
     } else {
       sphereNightTextureData = null;
     }
-  }
 
-  const elapsed = (performance.now() - t0).toFixed(0);
-  status.textContent = `Rendered in ${elapsed} ms`;
-  renderPanels();
+    const elapsed = (performance.now() - t0).toFixed(0);
+    status.textContent = `Rendered in ${elapsed} ms`;
+    renderPanels();
 
-  // Debug panel: now supported for both rocky (flat path) and non-rocky (cube path).
-  const debugPanel = document.getElementById('debug-panel');
-  if (debugPanel && debugPanel.open) {
-    refreshDebugView();
+    // Debug panel: now supported for both rocky (flat path) and non-rocky (cube path).
+    const debugPanel = document.getElementById('debug-panel');
+    if (debugPanel && debugPanel.open) {
+      refreshDebugView();
+    }
+  } finally {
+    regenerate.inFlight = false;
+    renderBtn.disabled = false;
   }
 }
 
@@ -477,6 +695,9 @@ function renderPanels() {
   renderContinentsPanel(profile, panels);
   renderCratersPanel(profile, panels);
   renderErosionPanel(profile, panels);
+  renderFlowPanel(profile, panels);
+  renderRainShadowPanel(profile, panels);
+  renderCivPanel(profile, panels);
   renderBiomePanel(profile, panels);
   renderCurlPanel(profile, panels);
   renderStormBandsPanel(profile, panels);
@@ -1084,6 +1305,147 @@ function renderErosionPanel(profile, panels) {
     'Brush sharpness exponent in 1/(1+r)^k. 0/missing = 1.0 (3-pixel wide channels). 4-8 = near-single-pixel for narrow rivers.',
     e.BrushFalloff || 0, 0, 16, '0.5',
     v => { profile.Erosion.BrushFalloff = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderFlowPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Rivers (Flow)',
+    'Planchon-Darboux fill + D8 flow accumulation carves river channels into the heightmap. RiverThreshold = 0 disables the pass entirely. Profile JSON key: "flow".');
+  if (!profile.flow) profile.flow = { riverThreshold: 0, riverDepth: 0 };
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.flow) || {};
+    profile.flow = { riverThreshold: orig.riverThreshold || 0, riverDepth: orig.riverDepth || 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.flow = { riverThreshold: 0, riverDepth: 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable river carving (RiverThreshold = 0)', clear));
+
+  panel.appendChild(makeNumberRow('RiverThreshold',
+    'Flow-accumulation cutoff above which a cell becomes river. 0 disables. Lower = more rivers (archetype defaults: 200–1500).',
+    profile.flow.riverThreshold ?? 0, 0, 5000, '10',
+    v => { profile.flow.riverThreshold = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('RiverDepth',
+    'Height units carved along river channels (defaults: 0.005–0.025).',
+    profile.flow.riverDepth ?? 0, 0, 0.1, '0.001',
+    v => { profile.flow.riverDepth = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderRainShadowPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Rain Shadow',
+    'Orographic rainfall: an upwind walk over the heightmap boosts windward rain and dries leeward slopes. WalkSteps = 0 disables the pass entirely. Profile JSON key: "rainShadow".');
+  if (!profile.rainShadow) {
+    profile.rainShadow = { walkSteps: 0, stepArcRad: 0, mountainCutoff: 0, windRainBoost: 0, leeFactor: 0 };
+  }
+  const rs = profile.rainShadow;
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.rainShadow) || {};
+    profile.rainShadow = {
+      walkSteps: orig.walkSteps || 0, stepArcRad: orig.stepArcRad || 0,
+      mountainCutoff: orig.mountainCutoff || 0, windRainBoost: orig.windRainBoost || 0,
+      leeFactor: orig.leeFactor || 0,
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.rainShadow = { walkSteps: 0, stepArcRad: 0, mountainCutoff: 0, windRainBoost: 0, leeFactor: 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable rain shadow (WalkSteps = 0)', clear));
+
+  panel.appendChild(makeNumberRow('WalkSteps',
+    'Upwind walk length in steps. 0 disables (default 12).',
+    rs.walkSteps ?? 0, 0, 60, '1',
+    v => { profile.rainShadow.walkSteps = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('StepArcRad',
+    'Arc length of one walk step in radians (default 0.087 ≈ 5°).',
+    rs.stepArcRad ?? 0, 0, 0.3, '0.001',
+    v => { profile.rainShadow.stepArcRad = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('MountainCutoff',
+    'Height threshold for orographic uplift (defaults 0.55–0.65).',
+    rs.mountainCutoff ?? 0, 0, 1, '0.01',
+    v => { profile.rainShadow.mountainCutoff = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('WindRainBoost',
+    'Upwind rainfall multiplier minus 1 (defaults 0.2–0.4).',
+    rs.windRainBoost ?? 0, 0, 2, '0.05',
+    v => { profile.rainShadow.windRainBoost = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('LeeFactor',
+    'Leeward drying strength (defaults 0.05–0.15).',
+    rs.leeFactor ?? 0, 0, 1, '0.01',
+    v => { profile.rainShadow.leeFactor = v; commitProfile(profile); }));
+
+  panels.appendChild(panel);
+}
+
+function renderCivPanel(profile, panels) {
+  if (profile.Renderer !== 'rocky') return;
+  const panel = makePanel('Civilization',
+    'Settlement sites (Bridson-spaced), farmland, roads, and the Black-Marble nightside. Tier = 0 disables civ entirely. Profile JSON key: "civ".');
+  if (!profile.civ) {
+    profile.civ = { tier: 0, siteMinDistRad: 0, siteMaxDistRad: 0, maxPopulation: 0, nightLightHue: 0, agricultureRatio: 0 };
+  }
+  const cv = profile.civ;
+
+  const reset = () => {
+    const orig = (originalProfile && originalProfile.civ) || {};
+    profile.civ = {
+      tier: orig.tier || 0, siteMinDistRad: orig.siteMinDistRad || 0,
+      siteMaxDistRad: orig.siteMaxDistRad || 0, maxPopulation: orig.maxPopulation || 0,
+      nightLightHue: orig.nightLightHue || 0, agricultureRatio: orig.agricultureRatio || 0,
+    };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const clear = () => {
+    profile.civ = { tier: 0, siteMinDistRad: 0, siteMaxDistRad: 0, maxPopulation: 0, nightLightHue: 0, agricultureRatio: 0 };
+    commitProfile(profile);
+    renderPanels();
+  };
+  const controls = panelControls(panel);
+  controls.appendChild(makeAuxBtn('Reset', 'Restore to loaded JSON values', reset));
+  controls.appendChild(makeAuxBtn('Clear', 'Disable civilization (Tier = 0)', clear));
+
+  panel.appendChild(makeNumberRow('Tier',
+    '0 = disabled; 1 = full civilization (terran default 0.5).',
+    cv.tier ?? 0, 0, 1, '0.05',
+    v => { profile.civ.tier = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('SiteMinDistRad',
+    'Bridson minimum site separation, radians (default 0.0314).',
+    cv.siteMinDistRad ?? 0, 0, 0.3, '0.001',
+    v => { profile.civ.siteMinDistRad = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('SiteMaxDistRad',
+    'Bridson maximum site separation, radians (default 0.1047).',
+    cv.siteMaxDistRad ?? 0, 0, 0.5, '0.001',
+    v => { profile.civ.siteMaxDistRad = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('MaxPopulation',
+    'Population scale for the most populous site (default 1.0).',
+    cv.maxPopulation ?? 0, 0, 10, '0.1',
+    v => { profile.civ.maxPopulation = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('NightLightHue',
+    'Hue (0..1) of nightside city lights; 0.12 ≈ sodium orange.',
+    cv.nightLightHue ?? 0, 0, 1, '0.01',
+    v => { profile.civ.nightLightHue = v; commitProfile(profile); }));
+  panel.appendChild(makeNumberRow('AgricultureRatio',
+    'Farmland-to-city area ratio (default 0.4).',
+    cv.agricultureRatio ?? 0, 0, 2, '0.05',
+    v => { profile.civ.agricultureRatio = v; commitProfile(profile); }));
 
   panels.appendChild(panel);
 }
@@ -1909,10 +2271,6 @@ function setStageBypass(stage, bypassed) {
 }
 
 async function refreshDebugView() {
-  if (!window.planetExplorerGenerateDebug) {
-    console.warn('debug API not available; rebuild wasm');
-    return;
-  }
   // Mirror regenerate(): show progress text and yield to the browser
   // so the repaint happens before the wasm call blocks the main thread.
   // Without the yield, the synchronous wasm work runs immediately and
@@ -1925,7 +2283,8 @@ async function refreshDebugView() {
   const seed = seedInput.value;
   const size = parseInt(faceSizeSel.value, 10) || 256;
   const bypassJSON = JSON.stringify([...debugBypass]);
-  const result = window.planetExplorerGenerateDebug(profileJSON, seed, size, bypassJSON);
+  const result = await quiet(rpc('planetExplorerGenerateDebug', profileJSON, seed, size, bypassJSON));
+  if (result === null) return;
   let parsed;
   try { parsed = JSON.parse(result); }
   catch (e) {
@@ -2129,7 +2488,17 @@ function bandLegend(numBands) {
 // existing full-resolution regenerate() path.
 
 let patchOn = false, patchCands = [], patchCandIdx = 0, patchTarget = 12, patchPrevProfile = null;
+// Finished view: synthetic rail entry after the real layers — renders
+// the top of the stack with view 'finished' (color + relief shading).
+let patchFinished = false;
 let patchRefreshTimer = null;
+
+// Latest-wins coalescing: while a patchRender RPC is in flight, any
+// number of further refresh requests collapse into ONE queued flag;
+// when the running render lands, exactly one more runs with the
+// NEWEST target/view. A drag can never queue 30 stale renders.
+let patchRenderInFlight = false;
+let patchRenderQueued = false;
 
 const patchModeBtn = $('#patch-mode-btn');
 const patchLab = $('#patch-lab');
@@ -2138,6 +2507,7 @@ const patchMinimapCanvas = $('#patch-minimap');
 const patchLayerRail = $('#patch-layer-rail');
 const patchViewSel = $('#patch-view');
 const patchNextWindowBtn = $('#patch-next-window');
+const patchRecomputeBtn = $('#patch-recompute');
 const patchSeaLevelInput = $('#patch-sealevel');
 const patchGoBtn = $('#patch-go');
 
@@ -2154,7 +2524,9 @@ function wasmErrorMessage(s) {
 }
 
 async function enterPatchLab() {
-  if (!wasmReady) return;
+  // Not gated on wasmReady — see regenerate(): the worker queues
+  // messages until the wasm boots, so early clicks just wait instead
+  // of silently doing nothing.
   syncKnotsFromDOM();
   let profile;
   try { profile = JSON.parse(profileTextarea.value); }
@@ -2163,7 +2535,8 @@ async function enterPatchLab() {
   // sTect=256: a smaller tectonic face than the full production render
   // uses, so the sphere-level precompute (and any sphere-level param
   // recompute triggered later by patchSetParam) stays interactive.
-  const initRaw = patchInit(JSON.stringify(profile), seedInput.value, 256);
+  const initRaw = await quiet(rpc('patchInit', JSON.stringify(profile), seedInput.value, 256));
+  if (initRaw === null) return;
   if (isWasmError(initRaw)) {
     // Crust-disabled archetypes (e.g. scorched) hit ComputeSphere's
     // error path here — surface it and leave the normal viewport alone.
@@ -2181,6 +2554,7 @@ async function enterPatchLab() {
 
   patchOn = true;
   patchTarget = 12;
+  patchFinished = false;
   patchCandIdx = 0;
   patchPrevProfile = profile;
   if (patchSeaLevelInput && typeof initData.seaLevel === 'number') {
@@ -2188,13 +2562,17 @@ async function enterPatchLab() {
   }
 
   await selectCandidate(0);
+  if (!patchOn) return; // cancelled mid-entry: cancelCompute already restored the normal view
 
   cubeCanvas.hidden = true;
   equirectCanvas.hidden = true;
   sphereCanvas.hidden = true;
   patchLab.hidden = false;
+  document.body.classList.add('patch-mode');
+  refreshTectonicLegend();
 
-  buildLayerRail();
+  await buildLayerRail();
+  if (!patchOn) return; // cancelled mid-entry: cancelCompute already restored the normal view
 }
 
 function exitPatchLab() {
@@ -2203,10 +2581,12 @@ function exitPatchLab() {
   equirectCanvas.hidden = false;
   sphereCanvas.hidden = false;
   patchLab.hidden = true;
+  document.body.classList.remove('patch-mode');
 }
 
-function buildLayerRail() {
-  const raw = patchLayers();
+async function buildLayerRail() {
+  const raw = await quiet(rpc('patchLayers'));
+  if (raw === null) return;
   if (isWasmError(raw)) {
     console.warn('patchLayers:', wasmErrorMessage(raw));
     return;
@@ -2224,6 +2604,8 @@ function buildLayerRail() {
     radio.checked = l.index === patchTarget;
     radio.addEventListener('change', () => {
       patchTarget = l.index;
+      patchFinished = false;
+      refreshTectonicLegend();
       for (const r of patchLayerRail.querySelectorAll('.layer-row')) r.classList.remove('active');
       row.classList.add('active');
       refreshPatch();
@@ -2234,39 +2616,216 @@ function buildLayerRail() {
     row.appendChild(label);
     patchLayerRail.appendChild(row);
   }
+
+  // Synthetic "Finished view" entry: not a compute layer — renders the
+  // full stack with the production relief shading on top (the closest
+  // preview of what Go! produces).
+  if (layers.length) {
+    const last = layers[layers.length - 1].index;
+    const row = document.createElement('label');
+    row.className = 'layer-row' + (patchFinished ? ' active' : '');
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'patch-target';
+    radio.value = 'finished';
+    radio.checked = patchFinished;
+    radio.addEventListener('change', () => {
+      patchTarget = last;
+      patchFinished = true;
+      refreshTectonicLegend();
+      for (const r of patchLayerRail.querySelectorAll('.layer-row')) r.classList.remove('active');
+      row.classList.add('active');
+      refreshPatch();
+    });
+    row.appendChild(radio);
+    const label = document.createElement('span');
+    label.textContent = `${last + 1}. Finished view`;
+    row.appendChild(label);
+    patchLayerRail.appendChild(row);
+  }
 }
 
 async function selectCandidate(i) {
   if (!patchCands.length) return;
   patchCandIdx = ((i % patchCands.length) + patchCands.length) % patchCands.length;
-  const err = patchSelect(JSON.stringify(patchCands[patchCandIdx].window));
+  const err = await quiet(rpc('patchSelect', JSON.stringify(patchCands[patchCandIdx].window)));
+  if (err === null) return;
   if (isWasmError(err)) {
     alert('Patch Lab: ' + wasmErrorMessage(err));
     return;
   }
+  drawPatchGlobe(patchCands[patchCandIdx].window);
   await refreshPatch();
   await refreshMinimap();
 }
 
 async function refreshPatch() {
   if (!patchOn) return;
-  const view = patchViewSel ? patchViewSel.value : 'color';
-  const png = patchRender(patchTarget, view);
-  if (!(png instanceof Uint8Array)) {
-    status.textContent = 'Patch Lab error: ' + wasmErrorMessage(png);
-    return;
+  if (patchRenderInFlight) { patchRenderQueued = true; return; }
+  patchRenderInFlight = true;
+  try {
+    do {
+      patchRenderQueued = false;
+      const view = patchFinished ? 'finished' : (patchViewSel ? patchViewSel.value : 'color');
+      const png = await quiet(rpc('patchRender', patchTarget, view));
+      if (png === null) return; // cancelled
+      if (!(png instanceof Uint8Array)) {
+        status.textContent = 'Patch Lab error: ' + wasmErrorMessage(png);
+        return;
+      }
+      await paintToCanvas(patchCanvas, png);
+    } while (patchRenderQueued && patchOn);
+  } finally {
+    patchRenderInFlight = false;
   }
-  await paintToCanvas(patchCanvas, png);
 }
 
 async function refreshMinimap() {
   if (!patchOn) return;
-  const png = patchMinimap(patchMinimapCanvas.width, patchMinimapCanvas.height);
+  const png = await quiet(rpc('patchMinimap', patchMinimapCanvas.width, patchMinimapCanvas.height));
+  if (png === null) return;
   if (!(png instanceof Uint8Array)) {
     console.warn('Patch Lab minimap error:', wasmErrorMessage(png));
     return;
   }
   await paintToCanvas(patchMinimapCanvas, png);
+}
+
+// ---- Orientation globe ----
+// The equirect minimap distorts windows brutally near the poles, so the
+// globe shows where the patch really sits: an orthographic sphere
+// rotated to put the patch center under the viewer's nose, with the
+// equator, the 0° meridian, and the N/S axis for reference.
+
+const patchGlobeCanvas = $('#patch-globe');
+
+// Port of cubemap.FaceUVToDir. Face order matches pkg/planetgen/cubemap:
+// 0=+X, 1=−X, 2=+Y (north), 3=−Y, 4=+Z, 5=−Z.
+function faceUVToDir(face, u, v) {
+  const sc = 2 * u - 1, tc = 2 * v - 1;
+  let x, y, z;
+  switch (face) {
+    case 0: x = 1; y = -tc; z = -sc; break;
+    case 1: x = -1; y = -tc; z = sc; break;
+    case 2: x = sc; y = 1; z = tc; break;
+    case 3: x = sc; y = -1; z = -tc; break;
+    case 4: x = sc; y = -tc; z = 1; break;
+    default: x = -sc; y = -tc; z = -1; break;
+  }
+  const inv = 1 / Math.hypot(x, y, z);
+  return [x * inv, y * inv, z * inv];
+}
+
+// Direction at the center of window pixel (ix, iy) — the JS twin of
+// patch.Window.Dir.
+function windowPixelDir(win, ix, iy) {
+  return faceUVToDir(win.face, (win.x0 + ix + 0.5) / win.sProd, (win.y0 + iy + 0.5) / win.sProd);
+}
+
+function drawPatchGlobe(win) {
+  if (!patchGlobeCanvas || !win) return;
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const norm = (a) => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
+
+  // View basis: patch center toward the viewer, north up (falls back to
+  // +Z-up for patches sitting on a pole, where "north up" is undefined).
+  const fwd = windowPixelDir(win, (win.size - 1) / 2, (win.size - 1) / 2);
+  let up = [0 - fwd[0] * fwd[1], 1 - fwd[1] * fwd[1], 0 - fwd[2] * fwd[1]];
+  if (Math.hypot(up[0], up[1], up[2]) < 1e-3) {
+    up = [0 - fwd[0] * fwd[2], 0 - fwd[1] * fwd[2], 1 - fwd[2] * fwd[2]];
+  }
+  up = norm(up);
+  const right = norm(cross(fwd, up)); // east to the right, matching the minimap
+
+  const ctx = patchGlobeCanvas.getContext('2d');
+  const W = patchGlobeCanvas.width, H = patchGlobeCanvas.height;
+  const cx = W / 2, cy = H / 2, r = Math.min(W, H) / 2 - 26;
+  const proj = (p) => [cx + r * dot(p, right), cy - r * dot(p, up), dot(p, fwd)];
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Sphere disc + silhouette.
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.fillStyle = '#10141c';
+  ctx.fill();
+  ctx.strokeStyle = '#4a5266';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // strokeArc draws the front-facing (z >= 0) portions of a polyline on
+  // the sphere given a point generator over t ∈ [0, 1].
+  const strokeArc = (pointAt, style, width, steps = 96) => {
+    ctx.strokeStyle = style;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    let pen = false;
+    for (let i = 0; i <= steps; i++) {
+      const [sx, sy, vz] = proj(pointAt(i / steps));
+      if (vz >= 0) {
+        if (pen) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy);
+        pen = true;
+      } else {
+        pen = false;
+      }
+    }
+    ctx.stroke();
+  };
+
+  // Graticule every 30°, then the two reference lines on top. Longitude
+  // 0 is +X (the minimap's left edge); north pole is +Y.
+  for (let latDeg = -60; latDeg <= 60; latDeg += 30) {
+    const lat = latDeg * Math.PI / 180, cl = Math.cos(lat), sl = Math.sin(lat);
+    if (latDeg !== 0) strokeArc(t => [cl * Math.cos(2 * Math.PI * t), sl, cl * Math.sin(2 * Math.PI * t)], '#2c3342', 1);
+  }
+  for (let lonDeg = 0; lonDeg < 360; lonDeg += 30) {
+    const lon = lonDeg * Math.PI / 180, cLon = Math.cos(lon), sLon = Math.sin(lon);
+    if (lonDeg !== 0) {
+      strokeArc(t => { const lat = Math.PI * (t - 0.5), cl = Math.cos(lat); return [cl * cLon, Math.sin(lat), cl * sLon]; }, '#2c3342', 1);
+    }
+  }
+  // Equator (blue) and the 0° meridian half-arc (orange).
+  strokeArc(t => [Math.cos(2 * Math.PI * t), 0, Math.sin(2 * Math.PI * t)], '#6cf', 1.5);
+  strokeArc(t => { const lat = Math.PI * (t - 0.5), cl = Math.cos(lat); return [cl, Math.sin(lat), 0]; }, '#fb4', 1.5);
+
+  // Polar axis sticking out of both poles; dimmed when the pole is on
+  // the far side.
+  ctx.font = '12px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  for (const [pole, label] of [[[0, 1, 0], 'N'], [[0, -1, 0], 'S']]) {
+    const [x1, y1, z1] = proj(pole);
+    const [x2, y2] = proj([pole[0] * 1.22, pole[1] * 1.22, pole[2] * 1.22]);
+    const front = z1 >= 0;
+    ctx.strokeStyle = front ? '#ddd' : '#555';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.fillStyle = front ? '#ddd' : '#666';
+    ctx.fillText(label, x2, y2 + (y2 < y1 ? -4 : 12));
+  }
+
+  // The selected window, its edges sampled so curvature shows. It faces
+  // the viewer by construction, so no visibility test needed.
+  const N = 24;
+  const edge = [];
+  for (let i = 0; i <= N; i++) edge.push([win.size * i / N, 0]);
+  for (let i = 1; i <= N; i++) edge.push([win.size, win.size * i / N]);
+  for (let i = 1; i <= N; i++) edge.push([win.size * (1 - i / N), win.size]);
+  for (let i = 1; i < N; i++) edge.push([0, win.size * (1 - i / N)]);
+  ctx.beginPath();
+  edge.forEach(([ix, iy], i) => {
+    const [sx, sy] = proj(windowPixelDir(win, ix - 0.5, iy - 0.5));
+    if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 }
 
 // Debounced so slider drags (many `input` events per second) don't
@@ -2279,6 +2838,7 @@ function scheduleRefreshPatch() {
   patchRefreshTimer = setTimeout(() => {
     patchRefreshTimer = null;
     refreshPatch();
+    buildLayerRail(); // "(disabled)" labels track live Enabled gates
   }, 150);
 }
 
@@ -2365,14 +2925,15 @@ function countProfileDiffs(prev, next, cap) {
 // pkg/planetgen/patch/stack.go always returns true) triggers a full
 // sphere recompute + MarkAllDirty, guaranteeing every layer re-renders
 // against the new profile regardless of how many fields changed.
-function applyProfileToPatch(profile) {
+async function applyProfileToPatch(profile) {
   if (!patchOn) return;
   const diffCount = countProfileDiffs(patchPrevProfile, profile, 1);
   if (diffCount === 0) return;
   const path = diffCount > 1 ? '__fullRefresh' : diffProfilePath(patchPrevProfile, profile);
   patchPrevProfile = JSON.parse(JSON.stringify(profile));
   if (!path) return;
-  const raw = patchSetParam(path, JSON.stringify(profile));
+  const raw = await quiet(rpc('patchSetParam', path, JSON.stringify(profile)));
+  if (raw === null) return;
   if (isWasmError(raw)) {
     console.warn('patchSetParam:', wasmErrorMessage(raw));
     return;
@@ -2395,19 +2956,53 @@ commitProfile = function patchAwareCommitProfile(profile) {
 };
 
 if (patchModeBtn) patchModeBtn.addEventListener('click', enterPatchLab);
-if (patchViewSel) patchViewSel.addEventListener('change', () => { if (patchOn) refreshPatch(); });
+const tectonicLegend = $('#tectonic-legend');
+function refreshTectonicLegend() {
+  if (tectonicLegend) tectonicLegend.hidden = !(patchOn && !patchFinished && patchViewSel && patchViewSel.value === 'tectonic');
+}
+if (patchViewSel) patchViewSel.addEventListener('change', () => {
+  // Picking an explicit view leaves the synthetic Finished entry: the
+  // dropdown would otherwise appear dead while 'finished' overrides it.
+  if (patchFinished) {
+    patchFinished = false;
+    buildLayerRail();
+  }
+  refreshTectonicLegend();
+  if (patchOn) refreshPatch();
+});
 if (patchNextWindowBtn) {
   patchNextWindowBtn.addEventListener('click', () => {
     if (patchOn) selectCandidate(patchCandIdx + 1);
   });
 }
+if (patchRecomputeBtn) {
+  patchRecomputeBtn.addEventListener('click', async () => {
+    if (!patchOn) return;
+    const raw = await quiet(rpc('patchRecomputeSphere'));
+    if (raw === null) return; // cancelled
+    if (isWasmError(raw)) {
+      status.textContent = 'Recompute failed: ' + wasmErrorMessage(raw);
+      return;
+    }
+    let data;
+    try { data = JSON.parse(raw); } catch { data = {}; }
+    if (patchSeaLevelInput && typeof data.seaLevel === 'number') {
+      patchSeaLevelInput.value = data.seaLevel;
+    }
+    await buildLayerRail();
+    await refreshMinimap();
+    await refreshPatch();
+    status.textContent = 'Sphere recomputed — scalars resynced';
+  });
+}
 if (patchSeaLevelInput) {
-  patchSeaLevelInput.addEventListener('input', () => {
+  patchSeaLevelInput.addEventListener('input', async () => {
     if (!patchOn) return;
     let profile;
     try { profile = JSON.parse(profileTextarea.value); } catch { return; }
     const payload = Object.assign({}, profile, { seaLevelView: parseFloat(patchSeaLevelInput.value) });
-    const raw = patchSetParam('seaLevelView', JSON.stringify(payload));
+    const raw = await quiet(rpc('patchSetParam', 'seaLevelView', JSON.stringify(payload)));
+    if (raw === null) return;
     if (isWasmError(raw)) console.warn('patchSetParam seaLevelView:', wasmErrorMessage(raw));
     scheduleRefreshPatch();
   });

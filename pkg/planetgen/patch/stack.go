@@ -71,7 +71,7 @@ func Layers() []Layer {
 		{ID: "erosion", Name: "Erosion", Params: []string{"Erosion"}},
 		{ID: "craters", Name: "Craters", Params: []string{"CraterCount", "CraterMinRadius", "CraterMaxRadius", "CraterDepth", "PowerLawAlpha", "MariaDensityFactor", "SurfaceAge", "SecondaryDensity"}},
 		{ID: "flow-rivers", Name: "Rivers", Params: []string{"flow"}},
-		{ID: "climate", Name: "Climate", Params: []string{"rainShadow"}},
+		{ID: "climate", Name: "Climate", Params: []string{"rainShadow", "ControlConfig.Temperature", "ControlConfig.Humidity"}},
 		{ID: "biome-color", Name: "Biome color", Params: []string{"BiomeTable", "Palette", "EquatorialPalette", "PolarPalette", "Warp", "LUT"}},
 		{ID: "waterlines", Name: "Waterlines", Params: []string{"SnowLine", "OceanColor", "HasPolarCaps", "PolarCapSize", "PolarCapNoise", "ShadingStrength", "ShadingExaggeration", "seaLevelView"}},
 		{ID: "civ", Name: "Civilization", Params: []string{"civ"}},
@@ -121,22 +121,62 @@ func NewStack(ctx *Context) *Stack {
 
 func (s *Stack) Ctx() *Context { return s.ctx }
 
-// MarkDirty maps a changed profile param path to the earliest owning
-// layer. Returns true when the param belongs to the sphere precompute
-// (no stack layer owns it) — caller must recompute SphereData +
-// Fields, then MarkAllDirty.
+// inertParams are profile params the crust-path pipeline never reads.
+// Patch Lab sessions are always crust-path (ComputeSphere rejects
+// crust-disabled profiles), so edits to these change nothing — mapping
+// them to a sphere recompute would spend seconds producing an
+// identical SphereData. Matched by path prefix, like Layer.Params.
+var inertParams = []string{"OceanLevel", "Continents", "Ridged", "Basin"}
+
+// MarkDirty maps a changed profile param path to the owning layer.
+//
+// Matching rules:
+//  1. Inert params (crust path never reads them): no-op, returns false.
+//  2. The edit sits at/under one or more layer patterns: the MOST
+//     SPECIFIC (longest) pattern wins, so "ControlConfig.Temperature.Amp"
+//     dirties climate (layer 9) while "ControlConfig.Detail.Amp" still
+//     dirties control-noise (layer 2).
+//  3. The edit is BROADER than some pattern (paramPath is a proper
+//     prefix of it, e.g. a whole-"ControlConfig" replacement): several
+//     layers may consume parts of the subtree — the EARLIEST matching
+//     layer is dirtied.
+//
+// Returns true when no layer owns the param — the sphere precompute
+// does — and the caller must recompute SphereData + Fields, then
+// MarkAllDirty.
 func (s *Stack) MarkDirty(paramPath string) bool {
+	for _, p := range inertParams {
+		if strings.HasPrefix(paramPath, p) {
+			return false
+		}
+	}
+	bestSpecific, bestLen := -1, -1 // longest pattern containing the edit
+	broadEarliest := -1            // earliest layer whose pattern the edit contains
 	for i := range s.layers {
 		for _, p := range s.layers[i].Params {
-			if strings.HasPrefix(paramPath, p) || strings.HasPrefix(p, paramPath) {
-				if i < s.dirtyFrom {
-					s.dirtyFrom = i
+			switch {
+			case strings.HasPrefix(paramPath, p):
+				if len(p) > bestLen {
+					bestSpecific, bestLen = i, len(p)
 				}
-				return false
+			case strings.HasPrefix(p, paramPath):
+				if broadEarliest == -1 {
+					broadEarliest = i
+				}
 			}
 		}
 	}
-	return true
+	target := bestSpecific
+	if broadEarliest != -1 && (target == -1 || broadEarliest < target) {
+		target = broadEarliest
+	}
+	if target == -1 {
+		return true
+	}
+	if target < s.dirtyFrom {
+		s.dirtyFrom = target
+	}
+	return false
 }
 
 func (s *Stack) MarkAllDirty() { s.dirtyFrom = 0 }
@@ -159,6 +199,7 @@ func (s *Stack) RenderTo(target int) (*State, error) {
 	}
 	for i := start; i <= target; i++ {
 		if s.layers[i].Enabled(s.ctx) {
+			reportProgress("layer:"+s.layers[i].ID, i+1, len(s.layers))
 			st = s.layers[i].Apply(s.ctx, st)
 		}
 		s.cache[i] = st
