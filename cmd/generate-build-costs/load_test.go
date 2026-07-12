@@ -176,6 +176,8 @@ CREATE TABLE systems (id TEXT PRIMARY KEY, empire TEXT, police_level INTEGER, is
 INSERT INTO systems VALUES ('sysA','Empire X',5,0);
 -- A lawless system (police 0, non-stronghold) whose empire field is nearest-empire drift.
 INSERT INTO systems VALUES ('sysLawless','crimson',0,0);
+-- Canonical station display names + system ids; market.db stores slugs/hashes.
+CREATE TABLE pois (id TEXT PRIMARY KEY, name TEXT, system_id TEXT, type TEXT);
 CREATE TABLE ship_listings (station_id TEXT, class_id TEXT, price REAL, captured_at TEXT);
 -- stale snapshot (cheaper, must be ignored) then fresh snapshot for st1
 INSERT INTO ship_listings VALUES ('st1','cobble',3000,'2026-07-05T10:00:00Z');
@@ -240,6 +242,62 @@ func TestLoadStations_LawlessSystemIsIndependent(t *testing.T) {
 	hex := byID["hex"]
 	if hex.Empire != "Independent" {
 		t.Fatalf("lawless station expected Empire Independent, got %+v", hex)
+	}
+}
+
+func TestLoadStations_ResolvesNameAndSystemFromKnowledgePOIs(t *testing.T) {
+	marketDB := newMarketTestDB(t)
+	// market.db stores a raw hash in station_name and a differently-cased system_id
+	// (both the actual live-scrape behaviour). The canonical display name and system
+	// come from the knowledge DB POI keyed by the same station id.
+	if _, err := marketDB.Exec(
+		`INSERT INTO stations VALUES ('hex','98ebahash','Dheneb','Dheneb')`); err != nil {
+		t.Fatal(err)
+	}
+	knowledgeDB := newKnowledgeTestDB(t)
+	if _, err := knowledgeDB.Exec(
+		`INSERT INTO pois VALUES ('hex','Hex Star','sysLawless','station')`); err != nil {
+		t.Fatal(err)
+	}
+
+	stations, err := loadStations(marketDB, knowledgeDB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var hex StationMeta
+	for _, s := range stations {
+		if s.ID == "hex" {
+			hex = s
+		}
+	}
+	if hex.Name != "Hex Star" {
+		t.Errorf("Name = %q, want canonical POI name %q", hex.Name, "Hex Star")
+	}
+	if hex.System != "sysLawless" {
+		t.Errorf("System = %q, want canonical POI system %q", hex.System, "sysLawless")
+	}
+	// Resolving the canonical (lawless) system must also drive the empire label.
+	if hex.Empire != "Independent" {
+		t.Errorf("Empire = %q, want Independent (lawless via resolved system)", hex.Empire)
+	}
+}
+
+func TestLoadStations_FallsBackToMarketWhenNoPOI(t *testing.T) {
+	marketDB := newMarketTestDB(t) // st1 -> Station One / sysA, has no POI row
+	knowledgeDB := newKnowledgeTestDB(t)
+
+	stations, err := loadStations(marketDB, knowledgeDB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var st1 StationMeta
+	for _, s := range stations {
+		if s.ID == "st1" {
+			st1 = s
+		}
+	}
+	if st1.Name != "Station One" || st1.System != "sysA" {
+		t.Fatalf("expected market-DB fallback name/system, got %+v", st1)
 	}
 }
 

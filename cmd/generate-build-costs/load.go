@@ -190,6 +190,28 @@ func loadStations(marketDB, knowledgeDB *sql.DB) ([]StationMeta, error) {
 		return nil, err
 	}
 
+	// Canonical station display name + system id, keyed by station/POI id. Preferred
+	// over market.db, whose station_name can be a raw slug or hash and whose
+	// system_id can be differently cased ("Dheneb" vs "dheneb") — both observed in
+	// live scrapes. The knowledge DB POI is the same source the system pages render.
+	type poiMeta struct{ name, system string }
+	poi := map[string]poiMeta{}
+	prows, err := knowledgeDB.Query(`SELECT id, COALESCE(name,''), COALESCE(system_id,'') FROM pois`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = prows.Close() }()
+	for prows.Next() {
+		var id, name, system string
+		if err := prows.Scan(&id, &name, &system); err != nil {
+			return nil, err
+		}
+		poi[id] = poiMeta{name: name, system: system}
+	}
+	if err := prows.Err(); err != nil {
+		return nil, err
+	}
+
 	rows, err := marketDB.Query(`SELECT station_id, station_name, system_id, system_name FROM stations`)
 	if err != nil {
 		return nil, err
@@ -201,6 +223,14 @@ func loadStations(marketDB, knowledgeDB *sql.DB) ([]StationMeta, error) {
 		var sysName string
 		if err := rows.Scan(&m.ID, &m.Name, &m.System, &sysName); err != nil {
 			return nil, err
+		}
+		if pm, ok := poi[m.ID]; ok {
+			if pm.name != "" {
+				m.Name = pm.name
+			}
+			if pm.system != "" {
+				m.System = pm.system
+			}
 		}
 		m.Empire = empire[m.System]
 		if m.Empire == "" {
