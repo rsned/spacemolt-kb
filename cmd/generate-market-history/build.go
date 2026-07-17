@@ -64,8 +64,9 @@ type ItemVM struct {
 
 // CategoryPage is one category's page: its items sorted most-traded first.
 type CategoryPage struct {
-	Category string
-	Items    []ItemVM
+	Category    string
+	Items       []ItemVM
+	LastUpdated string
 }
 
 // CategoryCard is one landing-page card.

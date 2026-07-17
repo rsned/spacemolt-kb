@@ -24,12 +24,13 @@ func renderMarketIndex(outDir string, cards []CategoryCard) error {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, map[string]any{"Cards": cards})
+	return t.Execute(f, map[string]any{"Cards": cards, "LastUpdated": lastMarketUpdate})
 }
 
 // renderCategoryPage writes outDir/<category>/index.html, rendering each item's
 // candlestick chart inline.
 func renderCategoryPage(outDir string, page CategoryPage) error {
+	page.LastUpdated = lastMarketUpdate
 	for i := range page.Items {
 		page.Items[i].Chart = candlestickSVG(page.Items[i].Candles)
 	}

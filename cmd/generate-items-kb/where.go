@@ -545,6 +545,7 @@ type wherePageData struct {
 	StationGroups    []WhereStationGroup
 	FacilityOnlyNone []NoFacilityRecipe
 	NoFacilityNeeded []NoFacilityRecipe
+	LastUpdated      string
 }
 
 // writeWherePage renders kb/recipes/where.html.
@@ -579,6 +580,7 @@ func writeWherePage(outDir string, knowledgeDB *sql.DB, recipes map[string]*Reci
 		StationGroups:    stationGroups,
 		FacilityOnlyNone: facilityOnlyNone,
 		NoFacilityNeeded: noFacilityNeeded,
+		LastUpdated:      lastMarketUpdate,
 	}
 
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
@@ -911,6 +913,7 @@ var whereTemplate = denseTableTemplate + `<!DOCTYPE html>
 ` + sortScript + `
 ` + whereTabScript + `
 ` + themeScript + `
+{{if .LastUpdated}}<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: {{.LastUpdated}}</footer>{{end}}
 </body>
 </html>
 `

@@ -6,7 +6,11 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
 
-const stationCoverExactK = 3
+// stationCoverExactK bounds the exact minimum-cover search: minimums are proven
+// for 1..K stations, and anything beyond falls to a greedy upper bound (marked
+// with * on the page). Raising it is cheap while no item needs >prev-K stations,
+// because the exact search returns at the smallest feasible k.
+const stationCoverExactK = 5
 const stationCoverBatch = 10
 
 // galaxyCover is one target's galaxy-wide (no distance limit) BoM min-station
@@ -67,6 +71,9 @@ type stationCoverPage struct {
 	// LastUpdated is the freshness of the market data this page was built from
 	// (the latest order-book capture), shown in the page footer.
 	LastUpdated string
+	// ExactK is the largest station count for which the minimum is proven exactly;
+	// counts above it are greedy upper bounds. Drives the footnote wording.
+	ExactK int
 }
 
 // stationDepthFromBooks sums each station's sell-ladder quantities per item.
@@ -136,7 +143,7 @@ func displayNames(ids []string, names map[string]string) []string {
 
 func buildStationCoverPage(targets []buildcost.Target, depth buildcost.StationDepth, stationIDs []string,
 	stationNames, itemNames, categories map[string]string, lastUpdated string) stationCoverPage {
-	p := stationCoverPage{Total: len(targets), LastUpdated: lastUpdated}
+	p := stationCoverPage{Total: len(targets), LastUpdated: lastUpdated, ExactK: stationCoverExactK}
 	var sumStations int
 
 	for _, t := range targets {

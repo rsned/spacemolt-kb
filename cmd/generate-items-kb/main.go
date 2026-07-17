@@ -22,6 +22,7 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/bom"
 	"github.com/rsned/spacemolt-kb/pkg/hyperjump"
 	"github.com/rsned/spacemolt-kb/pkg/kbdb"
+	"github.com/rsned/spacemolt-kb/pkg/marketmeta"
 	"github.com/rsned/spacemolt-kb/pkg/systemmap"
 	_ "modernc.org/sqlite"
 )
@@ -553,6 +554,28 @@ func loadMarketAvailable(path string) map[string]bool {
 	return set
 }
 
+// lastMarketUpdate is the freshness of the market data (latest order-book
+// capture) for the where-page "last updated" footer. Empty when unavailable.
+var lastMarketUpdate string
+
+// loadLastMarketUpdate returns the latest market-order capture timestamp for the
+// footer, or "" on any problem (empty path, open/query error).
+func loadLastMarketUpdate(path string) string {
+	if path == "" {
+		return ""
+	}
+	mdb, err := sql.Open("sqlite", path)
+	if err != nil {
+		return ""
+	}
+	defer func() { _ = mdb.Close() }()
+	ts, err := marketmeta.LatestCapture(mdb)
+	if err != nil {
+		return ""
+	}
+	return ts
+}
+
 func main() {
 	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
 	systemsAll := flag.Bool("systems-only", false, "regenerate only the systems section (all system pages + jump routes)")
@@ -753,6 +776,7 @@ func main() {
 	}
 
 	marketAvailable := loadMarketAvailable(*marketDBPath)
+	lastMarketUpdate = loadLastMarketUpdate(*marketDBPath)
 	calculator, err := bom.NewCalculatorWithMarket(db, bomRecipes, bomItems, marketAvailable)
 	if err != nil {
 		log.Fatalf("initialize BOM calculator: %v", err)

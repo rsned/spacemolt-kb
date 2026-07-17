@@ -8,8 +8,13 @@ import (
 	"flag"
 	"log"
 
+	"github.com/rsned/spacemolt-kb/pkg/marketmeta"
 	_ "modernc.org/sqlite"
 )
+
+// lastMarketUpdate is the freshness of the market data (latest order-book
+// capture) for the "last updated" footer, shared across every rendered page.
+var lastMarketUpdate string
 
 func openRO(path string) (*sql.DB, error) {
 	return sql.Open("sqlite", "file:"+path+"?mode=ro")
@@ -48,6 +53,8 @@ func main() {
 	marketDB, err := openRO(*marketPath)
 	must(err, "open market")
 	defer func() { _ = marketDB.Close() }()
+	lastMarketUpdate, err = marketmeta.LatestCapture(marketDB)
+	must(err, "load market capture time")
 	craftDB, err := openRO(*craftPath)
 	must(err, "open crafting")
 	defer func() { _ = craftDB.Close() }()

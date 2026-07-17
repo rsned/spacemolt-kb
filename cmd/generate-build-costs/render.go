@@ -105,7 +105,7 @@ func renderIndex(outDir, fileName string, m Matrix, heading, summary string, tab
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, map[string]any{"JSON": template.JS(js), "Heading": heading, "Summary": summary, "Tabs": tabs})
+	return t.Execute(f, map[string]any{"JSON": template.JS(js), "Heading": heading, "Summary": summary, "Tabs": tabs, "LastUpdated": lastMarketUpdate})
 }
 
 // detailLine is one station row in a per-target detail table.
@@ -301,6 +301,6 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 	return t.Execute(f, map[string]any{
 		"Name": row.Name, "Kind": row.Kind, "Lines": lines,
 		"SelfHref": selfHref, "BoM": bom, "Recipes": recipes, "RecipeNA": tgt.RecipeNA,
-		"ShowBanner": !localAnyFeasible, "Cover": cover,
+		"ShowBanner": !localAnyFeasible, "Cover": cover, "LastUpdated": lastMarketUpdate,
 	})
 }

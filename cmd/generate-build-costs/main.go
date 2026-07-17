@@ -12,8 +12,13 @@ import (
 	"path/filepath"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
+	"github.com/rsned/spacemolt-kb/pkg/marketmeta"
 	_ "modernc.org/sqlite"
 )
+
+// lastMarketUpdate is the freshness of the market data (latest order-book
+// capture) for the "last updated" footer, shared across every rendered page.
+var lastMarketUpdate string
 
 func openRO(path string) (*sql.DB, error) {
 	return sql.Open("sqlite", "file:"+path+"?mode=ro")
@@ -36,6 +41,8 @@ func main() {
 	marketDB, err := openRO(*marketPath)
 	must(err, "open market")
 	defer func() { _ = marketDB.Close() }()
+	lastMarketUpdate, err = marketmeta.LatestCapture(marketDB)
+	must(err, "load market capture time")
 	knowledgeDB, err := openRO(*knowledgePath)
 	must(err, "open knowledge")
 	defer func() { _ = knowledgeDB.Close() }()
@@ -141,9 +148,7 @@ func main() {
 		must(renderDetail(*outDir, row, stations, targetByID[row.ID], itemNames, categories, hopRows, cover), "render detail "+row.ID)
 	}
 	if *stationCoverOut != "" {
-		lastUpdated, err := latestMarketCapture(marketDB)
-		must(err, "load market capture time")
-		page := buildStationCoverPage(targets, depth, stationIDs, stationNames, itemNames, categories, lastUpdated)
+		page := buildStationCoverPage(targets, depth, stationIDs, stationNames, itemNames, categories, lastMarketUpdate)
 		must(renderStationCover(*stationCoverOut, page), "render station cover")
 		log.Printf("station-cover: %d buildable, %d single-station, %d unbuildable, hardest %s (%d) → %s",
 			len(page.Buildable), page.SingleStation, page.UnbuildableCount, page.HardestID, page.MaxStations, *stationCoverOut)

@@ -267,6 +267,7 @@ type FacilityGroupPage struct {
 	Group, Heading string
 	Facilities     []FacilityEntryVM
 	TOC            []FacilityTOCEntry
+	LastUpdated    string
 }
 
 // FacilityGroupSummary is a landing-page card.

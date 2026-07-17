@@ -22,7 +22,7 @@ func renderFacilitiesIndex(outDir string, summaries []FacilityGroupSummary, stat
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	return t.Execute(f, map[string]any{"Summaries": summaries, "Stats": stats})
+	return t.Execute(f, map[string]any{"Summaries": summaries, "Stats": stats, "LastUpdated": lastMarketUpdate})
 }
 
 // renderFacilityGroup writes one group's page to outDir/<group>/index.html.
@@ -31,6 +31,7 @@ func renderFacilityGroup(outDir string, page FacilityGroupPage) error {
 	if err != nil {
 		return err
 	}
+	page.LastUpdated = lastMarketUpdate
 	dir := filepath.Join(outDir, page.Group)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
