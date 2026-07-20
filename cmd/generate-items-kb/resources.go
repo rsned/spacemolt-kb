@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+
+	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 )
 
 // ResourceEntry is a single resource occurrence at a POI.
@@ -162,6 +164,118 @@ func loadAllResourceItems(db *sql.DB) (map[string]struct {
 	return items, rows.Err()
 }
 
+// resourceSlug converts a resource display name into the slug shared by the
+// page anchor, the highlight CSS class, and the map dropdown value.
+func resourceSlug(name string) string {
+	r := strings.NewReplacer(" ", "-", "'", "")
+	return strings.ToLower(r.Replace(name))
+}
+
+// systemResourceClasses maps each system ID to the sorted set of
+// "r-<slug>" classes for the resources it contains. Systems with no
+// surveyed deposits are absent from the result.
+func systemResourceClasses(groups []ResourceGroup) map[string][]string {
+	seen := make(map[string]map[string]bool)
+	for _, g := range groups {
+		if len(g.Entries) == 0 {
+			continue
+		}
+		class := "r-" + resourceSlug(g.ResourceName)
+		for _, e := range g.Entries {
+			if seen[e.SystemID] == nil {
+				seen[e.SystemID] = make(map[string]bool)
+			}
+			seen[e.SystemID][class] = true
+		}
+	}
+
+	out := make(map[string][]string, len(seen))
+	for sysID, classSet := range seen {
+		classes := make([]string, 0, len(classSet))
+		for c := range classSet {
+			classes = append(classes, c)
+		}
+		slices.Sort(classes)
+		out[sysID] = classes
+	}
+	return out
+}
+
+// resourceHighlightCSS emits one highlight rule per discovered resource.
+func resourceHighlightCSS(groups []ResourceGroup) string {
+	var b strings.Builder
+	for _, g := range groups {
+		if len(g.Entries) == 0 {
+			continue
+		}
+		slug := resourceSlug(g.ResourceName)
+		fmt.Fprintf(&b, "#res-map[data-active=\"%s\"] .r-%s{fill:#ffc832;r:9;stroke:#fff0b8;stroke-width:1.5}\n", slug, slug)
+	}
+	return b.String()
+}
+
+// loadSystemsForMap loads system geometry and jump connections for the
+// resource map. Unlike loadSystemsForStats it pulls position and empire.
+func loadSystemsForMap(db *sql.DB) ([]*galaxymap.System, map[string]*galaxymap.System, error) {
+	rows, err := db.Query(`
+		SELECT id, name, position_x, position_y, police_level,
+		       COALESCE(empire, ''), is_stronghold, last_updated_tick
+		FROM systems ORDER BY name
+	`)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var systems []*galaxymap.System
+	byID := make(map[string]*galaxymap.System)
+	for rows.Next() {
+		var s galaxymap.System
+		if err := rows.Scan(&s.ID, &s.Name, &s.PositionX, &s.PositionY,
+			&s.PoliceLevel, &s.Empire, &s.IsStronghold, &s.LastUpdatedTick); err != nil {
+			return nil, nil, err
+		}
+		if s.ID == "" {
+			continue
+		}
+		systems = append(systems, &s)
+		byID[s.ID] = &s
+	}
+	if err := rows.Err(); err != nil {
+		return nil, nil, err
+	}
+
+	// Jump connections, so the map shows the galaxy's network structure the
+	// way the in-game map does rather than a field of unconnected dots.
+	connRows, err := db.Query(`SELECT from_system, to_system, distance FROM connections`)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer func() { _ = connRows.Close() }()
+
+	for connRows.Next() {
+		var fromID, toID string
+		var distance int
+		if err := connRows.Scan(&fromID, &toID, &distance); err != nil {
+			return nil, nil, err
+		}
+		from, ok := byID[fromID]
+		if !ok {
+			continue
+		}
+		name := toID
+		if to, ok := byID[toID]; ok {
+			name = to.Name
+		}
+		from.Connections = append(from.Connections, galaxymap.Connection{
+			SystemID: toID,
+			Name:     name,
+			Distance: distance,
+		})
+	}
+	return systems, byID, connRows.Err()
+}
+
 func writeResourcePages(outDir string, db *sql.DB) error {
 	entries, err := loadResourceEntries(db)
 	if err != nil {
@@ -253,10 +367,7 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 			}
 			return fmt.Sprintf("%d", t)
 		},
-		"anchorID": func(name string) string {
-			r := strings.NewReplacer(" ", "-", "'", "")
-			return strings.ToLower(r.Replace(name))
-		},
+		"anchorID": resourceSlug,
 		"sanitizeName": sanitizeName,
 		"itemPageURL": func(category, resourceID string) string {
 			if category == "" {
@@ -285,13 +396,46 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 		explorationPct = 100.0 * float64(exploredSystems) / float64(totalSystems)
 	}
 
+	mapSystems, mapByID, err := loadSystemsForMap(db)
+	if err != nil {
+		return fmt.Errorf("load systems for map: %w", err)
+	}
+	classes := systemResourceClasses(groups)
+
+	var explored, unexplored []*galaxymap.System
+	for _, s := range mapSystems {
+		if s.LastUpdatedTick > 0 {
+			explored = append(explored, s)
+		} else {
+			unexplored = append(unexplored, s)
+		}
+	}
+
+	mapSVG := galaxymap.Render(explored, unexplored, mapByID, galaxymap.Options{
+		ShowEmpireBlobs:  false,
+		ShowConnections:  true,
+		LinkPrefix:       "../",
+		HighlightClasses: func(id string) []string { return classes[id] },
+	})
+
+	firstSlug := ""
+	for _, g := range groups {
+		if len(g.Entries) > 0 {
+			firstSlug = resourceSlug(g.ResourceName)
+			break
+		}
+	}
+
 	data := struct {
-		Groups           []ResourceGroup
-		TotalPOIs        int
-		TotalTypes       int
-		TotalSystems     int
-		ExploredSystems  int
-		ExplorationPct   float64
+		Groups          []ResourceGroup
+		TotalPOIs       int
+		TotalTypes      int
+		TotalSystems    int
+		ExploredSystems int
+		ExplorationPct  float64
+		MapSVG          htmltpl.HTML
+		HighlightCSS    htmltpl.CSS
+		FirstSlug       string
 	}{
 		Groups:          groups,
 		TotalPOIs:       len(entries),
@@ -299,6 +443,9 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 		TotalSystems:    totalSystems,
 		ExploredSystems: exploredSystems,
 		ExplorationPct:  explorationPct,
+		MapSVG:          htmltpl.HTML(mapSVG),         //nolint:gosec // generated internally from trusted DB data
+		HighlightCSS:    htmltpl.CSS(resourceHighlightCSS(groups)), //nolint:gosec // generated internally from trusted DB data
+		FirstSlug:       firstSlug,
 	}
 
 	outPath := filepath.Join(outDir, "index.html")
@@ -353,6 +500,22 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         .undiscovered p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         @media (max-width: 768px) { .toc { columns: 2; } }
         @media (max-width: 480px) { .toc { columns: 1; } }
+        #res-map-wrap { width: 100%; margin: 16px 0 24px; background: var(--bg-card);
+            border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        #res-map-wrap svg { width: 100%; height: auto; display: block;
+            border-radius: 4px; }
+        #res-map { width: 100%; }
+        #res-map-wrap select { width: 100%; margin-bottom: 10px; padding: 6px; }
+        .res-map-empty { display: none; font-size: 0.85em; color: var(--text-muted);
+            margin-top: 8px; }
+        #res-map[data-empty="1"] + .res-map-empty { display: block; }
+        /* Base map reads like the in-game chart: bright stars on a visible
+           jump network. Highlighted systems then stand out against it. */
+        #res-map line { stroke: #8593ad; stroke-width: 1.4; opacity: 0.62; }
+        #res-map .galaxy-sys-dot { fill: #e6ecf5; r: 5; stroke: #0a0e1a;
+            stroke-width: 0.6; transition: none; }
+        #res-map .galaxy-sys-label { fill: #e8eef7; font-size: 24px; }
+    {{.HighlightCSS}}
     </style>
 </head>
 <body>
@@ -360,6 +523,18 @@ var resourceIndexTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Resources</h2>
         <p>All known mineable resources across surveyed systems, grouped by type.</p>
+
+        <div id="res-map-wrap">
+            <select id="res-map-select" aria-label="Highlight resource on map">
+{{- range .Groups}}
+{{- if gt (len .Entries) 0}}
+                <option value="{{anchorID .ResourceName}}">{{.ResourceName}} ({{len .Entries}})</option>
+{{- end}}
+{{- end}}
+            </select>
+            <div id="res-map" data-active="{{.FirstSlug}}">{{.MapSVG}}</div>
+            <div class="res-map-empty">No systems with this resource have been surveyed yet.</div>
+        </div>
 
         <div class="summary-cards">
             <div class="summary-card">
@@ -445,8 +620,42 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         </div>
 {{- end}}
     </main>
+` + resMapSyncScript + `
 ` + sortScript + `
 ` + themeScript + `
 </body>
 </html>
 `
+
+// resMapSyncScript keeps the resource-map highlight in sync between the
+// dropdown, the URL hash, and the map's data-active attribute.
+var resMapSyncScript = `    <script>
+    (function () {
+      var map = document.getElementById('res-map');
+      var sel = document.getElementById('res-map-select');
+      if (!map || !sel) return;
+
+      var valid = {};
+      for (var i = 0; i < sel.options.length; i++) valid[sel.options[i].value] = true;
+
+      function apply(slug, updateHash) {
+        if (!valid[slug]) {
+          map.setAttribute('data-empty', '1');
+          map.removeAttribute('data-active');
+          return;
+        }
+        map.removeAttribute('data-empty');
+        map.setAttribute('data-active', slug);
+        if (sel.value !== slug) sel.value = slug;
+        if (updateHash && location.hash.slice(1) !== slug) {
+          history.replaceState(null, '', '#' + slug);
+        }
+      }
+
+      sel.addEventListener('change', function () { apply(sel.value, true); });
+      window.addEventListener('hashchange', function () { apply(location.hash.slice(1), false); });
+
+      var initial = location.hash.slice(1);
+      apply(valid[initial] ? initial : sel.value, false);
+    })();
+    </script>`
