@@ -468,9 +468,21 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         .undiscovered p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         @media (max-width: 768px) { .toc { columns: 2; } }
         @media (max-width: 480px) { .toc { columns: 1; } }
-        #res-map-wrap { margin: 16px 0; }
+        #res-map-wrap { position: sticky; top: 8px; float: right; width: 380px;
+            margin: 0 0 16px 24px; background: var(--bg-card);
+            border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        #res-map-wrap svg { width: 100%; height: auto; display: block;
+            border-radius: 4px; }
         #res-map { width: 100%; max-width: 480px; }
+        #res-map-wrap select { width: 100%; margin-top: 8px; padding: 4px; }
+        .res-map-empty { display: none; font-size: 0.85em; color: var(--text-muted);
+            margin-top: 8px; }
+        #res-map[data-empty="1"] + .res-map-empty { display: block; }
+        #res-map .galaxy-sys-dot { fill: #2a3038; r: 3; transition: none; }
     {{.HighlightCSS}}
+        @media (max-width: 1100px) {
+            #res-map-wrap { float: none; width: 100%; position: static; margin-left: 0; }
+        }
     </style>
 </head>
 <body>
@@ -481,6 +493,14 @@ var resourceIndexTemplate = `<!DOCTYPE html>
 
         <div id="res-map-wrap">
             <div id="res-map" data-active="{{.FirstSlug}}">{{.MapSVG}}</div>
+            <div class="res-map-empty">No systems with this resource have been surveyed yet.</div>
+            <select id="res-map-select" aria-label="Highlight resource on map">
+{{- range .Groups}}
+{{- if gt (len .Entries) 0}}
+                <option value="{{anchorID .ResourceName}}">{{.ResourceName}} ({{len .Entries}})</option>
+{{- end}}
+{{- end}}
+            </select>
         </div>
 
         <div class="summary-cards">
@@ -567,8 +587,42 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         </div>
 {{- end}}
     </main>
+` + resMapSyncScript + `
 ` + sortScript + `
 ` + themeScript + `
 </body>
 </html>
 `
+
+// resMapSyncScript keeps the resource-map highlight in sync between the
+// dropdown, the URL hash, and the map's data-active attribute.
+var resMapSyncScript = `    <script>
+    (function () {
+      var map = document.getElementById('res-map');
+      var sel = document.getElementById('res-map-select');
+      if (!map || !sel) return;
+
+      var valid = {};
+      for (var i = 0; i < sel.options.length; i++) valid[sel.options[i].value] = true;
+
+      function apply(slug, updateHash) {
+        if (!valid[slug]) {
+          map.setAttribute('data-empty', '1');
+          map.removeAttribute('data-active');
+          return;
+        }
+        map.removeAttribute('data-empty');
+        map.setAttribute('data-active', slug);
+        if (sel.value !== slug) sel.value = slug;
+        if (updateHash && location.hash.slice(1) !== slug) {
+          history.replaceState(null, '', '#' + slug);
+        }
+      }
+
+      sel.addEventListener('change', function () { apply(sel.value, true); });
+      window.addEventListener('hashchange', function () { apply(location.hash.slice(1), false); });
+
+      var initial = location.hash.slice(1);
+      apply(valid[initial] ? initial : sel.value, false);
+    })();
+    </script>`
