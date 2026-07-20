@@ -19,6 +19,8 @@
 - All generated JS goes inline in the template, matching the existing `themeScript` / `sortScript` pattern in `cmd/generate-items-kb/main.go:2822,2835`.
 - Work happens in `/home/robert/spacemolt/kb` on branch `feat/resource-galaxy-map`. Do **not** touch `/home/robert/spacemolt/kb-phase-0-cube-map` (stale 2026-07-03 side branch).
 - Generated site output under `kb/` is committed to the repo; regenerating it is expected.
+- **Never run `git add -A`, `git add .`, or `git add kb/`.** The working tree carries ~3,423 pre-existing modified files under `kb/` (from a 2026-07-16 regen, unrelated to this branch), and a full regeneration produces further unrelated drift — market-derived BoM pages, jump maps, empire reclassifications. Stage only the exact paths a task produced, named individually. If a `git status` after your commit shows fewer than ~3,400 remaining modified files, you over-staged: reset and redo.
+- Before committing regenerated HTML, diff it and confirm every staged change is attributable to this feature. Restore anything else with `git checkout -- <path>`.
 
 ## Deviation from spec
 
@@ -104,7 +106,7 @@ b.WriteString(fmt.Sprintf(`<a href="%ssystems/%s/"><circle cx="%.1f" cy="%.1f" r
     opt.LinkPrefix, s.ID, sx, sy, dotColor, classes, s.Name))
 ```
 
-**Preserve the existing double-`</a>` bug.** For capitals and strongholds the current code emits `</a>` inside the label branch *and* again unconditionally afterward — 10 occurrences in the committed output. Keep it exactly as-is here. Task 3 fixes it, after Task 2 has proven the extraction clean. Fixing it now makes Task 2 fail for the right reason at the wrong time.
+**Preserve the existing double-`</a>` bug.** For capitals and strongholds the current code emits `</a>` inside the label branch *and* again unconditionally afterward — 15 occurrences in the pinned-snapshot render. Keep it exactly as-is here. Task 3 fixes it, after Task 2 has proven the extraction clean. Fixing it now makes Task 2 fail for the right reason at the wrong time.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -364,7 +366,7 @@ The committed `kb/galaxy-map.html` will differ from its previous version — it 
 
 **Interfaces:**
 - Consumes: `Render`, `System`, `Options` from Task 1.
-- Produces: no API change. Output changes by exactly 10 removed `</a>` tokens.
+- Produces: no API change. Output changes by exactly 15 removed `</a>` tokens (the count equals capitals plus strongholds in the current DB).
 
 Pre-existing bug, now safe to fix because Task 2 has locked the extraction. Capitals and strongholds close their anchor twice: once inside the label branch, once unconditionally after.
 
@@ -988,15 +990,28 @@ Open `kb/resources/index.html` and confirm:
 
 Item 6 is the one most likely to fail — it depends on `LinkPrefix: "../"` from Task 5.
 
-- [ ] **Step 5: Commit any regenerated output**
+- [ ] **Step 5: Commit only the feature-attributable output**
+
+The full regeneration in Step 2 touches hundreds of files unrelated to this
+feature. Stage **only** the two this feature owns:
 
 ```bash
 cd /home/robert/spacemolt/kb
-git add kb/
-git commit -m 'chore(kb): regenerate site with resource galaxy map
+git add kb/resources/index.html kb/galaxy-map.html
+git commit -m 'chore(kb): regenerate resource and galaxy map pages
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>'
 ```
+
+Then confirm you did not sweep in unrelated drift:
+
+```bash
+git show --stat HEAD | tail -5
+git status --short | wc -l
+```
+
+Expected: the commit touches exactly 2 files, and the remaining modified count
+is still in the ~3,400 range (pre-existing drift, left alone deliberately).
 
 - [ ] **Step 6: Push**
 
