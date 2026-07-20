@@ -514,7 +514,7 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         #res-map line { stroke: #8593ad; stroke-width: 1.4; opacity: 0.62; }
         #res-map .galaxy-sys-dot { fill: #e6ecf5; r: 5; stroke: #0a0e1a;
             stroke-width: 0.6; transition: none; }
-        #res-map .galaxy-sys-label { fill: #e8eef7; }
+        #res-map .galaxy-sys-label { fill: #e8eef7; font-size: 24px; }
     {{.HighlightCSS}}
     </style>
 </head>
