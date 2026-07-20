@@ -60,6 +60,44 @@ func TestSystemResourceClassesDedupesRepeatedSystem(t *testing.T) {
 	}
 }
 
+// TestSystemResourceClassesReturnsSortedOrder guards the slices.Sort call in
+// systemResourceClasses. It uses eight resources in one system, inserted in
+// reverse-alphabetical order by slug, so that:
+//   - random Go map iteration order coincides with sorted order only by
+//     astronomically unlikely chance (1 in 8! if it were uniform), unlike a
+//     2-element case where "sorted by luck" happens ~75% of the time; and
+//   - a regression that merely preserves insertion order (rather than
+//     sorting) also fails, since insertion order here is the exact reverse
+//     of the expected sorted output.
+func TestSystemResourceClassesReturnsSortedOrder(t *testing.T) {
+	groups := []ResourceGroup{
+		{ResourceName: "Zirconium Ore", ResourceID: "zirconium_ore", Entries: []ResourceEntry{{SystemID: "nova"}}},
+		{ResourceName: "Yttrium Ore", ResourceID: "yttrium_ore", Entries: []ResourceEntry{{SystemID: "nova"}}},
+		{ResourceName: "Xenon Gas", ResourceID: "xenon_gas", Entries: []ResourceEntry{{SystemID: "nova"}}},
+		{ResourceName: "Water Ice", ResourceID: "water_ice", Entries: []ResourceEntry{{SystemID: "nova"}}},
+		{ResourceName: "Vanadium Ore", ResourceID: "vanadium_ore", Entries: []ResourceEntry{{SystemID: "nova"}}},
+		{ResourceName: "Uranium Ore", ResourceID: "uranium_ore", Entries: []ResourceEntry{{SystemID: "nova"}}},
+		{ResourceName: "Tungsten Ore", ResourceID: "tungsten_ore", Entries: []ResourceEntry{{SystemID: "nova"}}},
+		{ResourceName: "Silver Ore", ResourceID: "silver_ore", Entries: []ResourceEntry{{SystemID: "nova"}}},
+	}
+
+	got := systemResourceClasses(groups)
+
+	want := []string{
+		"r-silver-ore",
+		"r-tungsten-ore",
+		"r-uranium-ore",
+		"r-vanadium-ore",
+		"r-water-ice",
+		"r-xenon-gas",
+		"r-yttrium-ore",
+		"r-zirconium-ore",
+	}
+	if !reflect.DeepEqual(got["nova"], want) {
+		t.Errorf("got %v, want %v", got["nova"], want)
+	}
+}
+
 func TestSystemResourceClassesSkipsUndiscovered(t *testing.T) {
 	groups := []ResourceGroup{
 		{ResourceName: "Unobtainium", ResourceID: "unobtainium", Entries: []ResourceEntry{}},
