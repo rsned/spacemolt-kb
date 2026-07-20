@@ -162,6 +162,43 @@ func loadAllResourceItems(db *sql.DB) (map[string]struct {
 	return items, rows.Err()
 }
 
+// resourceSlug converts a resource display name into the slug shared by the
+// page anchor, the highlight CSS class, and the map dropdown value.
+func resourceSlug(name string) string {
+	r := strings.NewReplacer(" ", "-", "'", "")
+	return strings.ToLower(r.Replace(name))
+}
+
+// systemResourceClasses maps each system ID to the sorted set of
+// "r-<slug>" classes for the resources it contains. Systems with no
+// surveyed deposits are absent from the result.
+func systemResourceClasses(groups []ResourceGroup) map[string][]string {
+	seen := make(map[string]map[string]bool)
+	for _, g := range groups {
+		if len(g.Entries) == 0 {
+			continue
+		}
+		class := "r-" + resourceSlug(g.ResourceName)
+		for _, e := range g.Entries {
+			if seen[e.SystemID] == nil {
+				seen[e.SystemID] = make(map[string]bool)
+			}
+			seen[e.SystemID][class] = true
+		}
+	}
+
+	out := make(map[string][]string, len(seen))
+	for sysID, classSet := range seen {
+		classes := make([]string, 0, len(classSet))
+		for c := range classSet {
+			classes = append(classes, c)
+		}
+		slices.Sort(classes)
+		out[sysID] = classes
+	}
+	return out
+}
+
 func writeResourcePages(outDir string, db *sql.DB) error {
 	entries, err := loadResourceEntries(db)
 	if err != nil {
@@ -253,10 +290,7 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 			}
 			return fmt.Sprintf("%d", t)
 		},
-		"anchorID": func(name string) string {
-			r := strings.NewReplacer(" ", "-", "'", "")
-			return strings.ToLower(r.Replace(name))
-		},
+		"anchorID": resourceSlug,
 		"sanitizeName": sanitizeName,
 		"itemPageURL": func(category, resourceID string) string {
 			if category == "" {
