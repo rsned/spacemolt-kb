@@ -107,3 +107,26 @@ func TestRenderEmptyExploredReturnsPlaceholder(t *testing.T) {
 		t.Errorf("expected the no-systems placeholder, got: %s", svg)
 	}
 }
+
+func TestRenderCapitalDotClosesAnchorExactlyOnce(t *testing.T) {
+	sol := &System{
+		ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0,
+		Empire: "solarian", LastUpdatedTick: 100,
+	}
+	other := &System{
+		ID: "vega", Name: "Vega", PositionX: 100, PositionY: 100,
+		Empire: "nebula", LastUpdatedTick: 100,
+	}
+	explored := []*System{sol, other}
+	m := map[string]*System{"sol": sol, "vega": other}
+
+	svg := Render(explored, nil, m, Options{})
+
+	if strings.Contains(svg, "</a></a>") {
+		t.Errorf("doubled anchor close in output:\n%s", svg)
+	}
+	// One anchor open and one close per system.
+	if open, close := strings.Count(svg, "<a href="), strings.Count(svg, "</a>"); open != close {
+		t.Errorf("unbalanced anchors: %d open, %d close", open, close)
+	}
+}

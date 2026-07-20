@@ -272,7 +272,7 @@ func Render(explored, unexplored []*System, systemMap map[string]*System, opt Op
 
 		// Label for major systems (capitals or strongholds).
 		if s.IsStronghold || isCapital(s.ID) {
-			b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" class="galaxy-sys-label" fill="#d8dee9" font-size="12" font-weight="bold">%s</text></a>`,
+			b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" class="galaxy-sys-label" fill="#d8dee9" font-size="12" font-weight="bold">%s</text>`,
 				sx+8, sy+4, s.Name))
 		}
 		b.WriteString(`</a>`)
