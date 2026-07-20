@@ -209,7 +209,7 @@ func resourceHighlightCSS(groups []ResourceGroup) string {
 			continue
 		}
 		slug := resourceSlug(g.ResourceName)
-		fmt.Fprintf(&b, "#res-map[data-active=\"%s\"] .r-%s{fill:#ffcc44;r:6;stroke:#7a5c00}\n", slug, slug)
+		fmt.Fprintf(&b, "#res-map[data-active=\"%s\"] .r-%s{fill:#ffcc44;r:9;stroke:#7a5c00;stroke-width:1.5}\n", slug, slug)
 	}
 	return b.String()
 }
@@ -468,21 +468,17 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         .undiscovered p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         @media (max-width: 768px) { .toc { columns: 2; } }
         @media (max-width: 480px) { .toc { columns: 1; } }
-        #res-map-wrap { position: sticky; top: 8px; float: right; width: 380px;
-            margin: 0 0 16px 24px; background: var(--bg-card);
+        #res-map-wrap { width: 100%; margin: 16px 0 24px; background: var(--bg-card);
             border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
         #res-map-wrap svg { width: 100%; height: auto; display: block;
             border-radius: 4px; }
-        #res-map { width: 100%; max-width: 480px; }
-        #res-map-wrap select { width: 100%; margin-top: 8px; padding: 4px; }
+        #res-map { width: 100%; }
+        #res-map-wrap select { width: 100%; margin-bottom: 10px; padding: 6px; }
         .res-map-empty { display: none; font-size: 0.85em; color: var(--text-muted);
             margin-top: 8px; }
         #res-map[data-empty="1"] + .res-map-empty { display: block; }
-        #res-map .galaxy-sys-dot { fill: #2a3038; r: 3; transition: none; }
+        #res-map .galaxy-sys-dot { fill: #2a3038; r: 4; transition: none; }
     {{.HighlightCSS}}
-        @media (max-width: 1100px) {
-            #res-map-wrap { float: none; width: 100%; position: static; margin-left: 0; }
-        }
     </style>
 </head>
 <body>
@@ -492,8 +488,6 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         <p>All known mineable resources across surveyed systems, grouped by type.</p>
 
         <div id="res-map-wrap">
-            <div id="res-map" data-active="{{.FirstSlug}}">{{.MapSVG}}</div>
-            <div class="res-map-empty">No systems with this resource have been surveyed yet.</div>
             <select id="res-map-select" aria-label="Highlight resource on map">
 {{- range .Groups}}
 {{- if gt (len .Entries) 0}}
@@ -501,6 +495,8 @@ var resourceIndexTemplate = `<!DOCTYPE html>
 {{- end}}
 {{- end}}
             </select>
+            <div id="res-map" data-active="{{.FirstSlug}}">{{.MapSVG}}</div>
+            <div class="res-map-empty">No systems with this resource have been surveyed yet.</div>
         </div>
 
         <div class="summary-cards">
