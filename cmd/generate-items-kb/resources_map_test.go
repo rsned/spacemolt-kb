@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -107,5 +108,28 @@ func TestSystemResourceClassesSkipsUndiscovered(t *testing.T) {
 
 	if len(got) != 0 {
 		t.Errorf("undiscovered resource produced classes: %v", got)
+	}
+}
+
+func TestResourceHighlightCSSOneRulePerDiscoveredResource(t *testing.T) {
+	groups := []ResourceGroup{
+		{ResourceName: "Iron Ore", Entries: []ResourceEntry{{SystemID: "sol"}}},
+		{ResourceName: "Water Ice", Entries: []ResourceEntry{{SystemID: "vega"}}},
+		{ResourceName: "Unobtainium", Entries: []ResourceEntry{}},
+	}
+
+	css := resourceHighlightCSS(groups)
+
+	if !strings.Contains(css, `#res-map[data-active="iron-ore"] .r-iron-ore`) {
+		t.Errorf("missing iron-ore rule:\n%s", css)
+	}
+	if !strings.Contains(css, `#res-map[data-active="water-ice"] .r-water-ice`) {
+		t.Errorf("missing water-ice rule:\n%s", css)
+	}
+	if strings.Contains(css, "unobtainium") {
+		t.Errorf("undiscovered resource must not get a rule:\n%s", css)
+	}
+	if n := strings.Count(css, "data-active="); n != 2 {
+		t.Errorf("got %d rules, want 2", n)
 	}
 }

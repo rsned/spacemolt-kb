@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+
+	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 )
 
 // ResourceEntry is a single resource occurrence at a POI.
@@ -199,6 +201,49 @@ func systemResourceClasses(groups []ResourceGroup) map[string][]string {
 	return out
 }
 
+// resourceHighlightCSS emits one highlight rule per discovered resource.
+func resourceHighlightCSS(groups []ResourceGroup) string {
+	var b strings.Builder
+	for _, g := range groups {
+		if len(g.Entries) == 0 {
+			continue
+		}
+		slug := resourceSlug(g.ResourceName)
+		fmt.Fprintf(&b, "#res-map[data-active=\"%s\"] .r-%s{fill:#ffcc44;r:6;stroke:#7a5c00}\n", slug, slug)
+	}
+	return b.String()
+}
+
+// loadSystemsForMap loads system geometry and jump connections for the
+// resource map. Unlike loadSystemsForStats it pulls position and empire.
+func loadSystemsForMap(db *sql.DB) ([]*galaxymap.System, map[string]*galaxymap.System, error) {
+	rows, err := db.Query(`
+		SELECT id, name, position_x, position_y, police_level,
+		       COALESCE(empire, ''), is_stronghold, last_updated_tick
+		FROM systems ORDER BY name
+	`)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var systems []*galaxymap.System
+	byID := make(map[string]*galaxymap.System)
+	for rows.Next() {
+		var s galaxymap.System
+		if err := rows.Scan(&s.ID, &s.Name, &s.PositionX, &s.PositionY,
+			&s.PoliceLevel, &s.Empire, &s.IsStronghold, &s.LastUpdatedTick); err != nil {
+			return nil, nil, err
+		}
+		if s.ID == "" {
+			continue
+		}
+		systems = append(systems, &s)
+		byID[s.ID] = &s
+	}
+	return systems, byID, rows.Err()
+}
+
 func writeResourcePages(outDir string, db *sql.DB) error {
 	entries, err := loadResourceEntries(db)
 	if err != nil {
@@ -319,13 +364,46 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 		explorationPct = 100.0 * float64(exploredSystems) / float64(totalSystems)
 	}
 
+	mapSystems, mapByID, err := loadSystemsForMap(db)
+	if err != nil {
+		return fmt.Errorf("load systems for map: %w", err)
+	}
+	classes := systemResourceClasses(groups)
+
+	var explored, unexplored []*galaxymap.System
+	for _, s := range mapSystems {
+		if s.LastUpdatedTick > 0 {
+			explored = append(explored, s)
+		} else {
+			unexplored = append(unexplored, s)
+		}
+	}
+
+	mapSVG := galaxymap.Render(explored, unexplored, mapByID, galaxymap.Options{
+		ShowEmpireBlobs:  false,
+		ShowConnections:  false,
+		LinkPrefix:       "../",
+		HighlightClasses: func(id string) []string { return classes[id] },
+	})
+
+	firstSlug := ""
+	for _, g := range groups {
+		if len(g.Entries) > 0 {
+			firstSlug = resourceSlug(g.ResourceName)
+			break
+		}
+	}
+
 	data := struct {
-		Groups           []ResourceGroup
-		TotalPOIs        int
-		TotalTypes       int
-		TotalSystems     int
-		ExploredSystems  int
-		ExplorationPct   float64
+		Groups          []ResourceGroup
+		TotalPOIs       int
+		TotalTypes      int
+		TotalSystems    int
+		ExploredSystems int
+		ExplorationPct  float64
+		MapSVG          htmltpl.HTML
+		HighlightCSS    htmltpl.CSS
+		FirstSlug       string
 	}{
 		Groups:          groups,
 		TotalPOIs:       len(entries),
@@ -333,6 +411,9 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 		TotalSystems:    totalSystems,
 		ExploredSystems: exploredSystems,
 		ExplorationPct:  explorationPct,
+		MapSVG:          htmltpl.HTML(mapSVG),         //nolint:gosec // generated internally from trusted DB data
+		HighlightCSS:    htmltpl.CSS(resourceHighlightCSS(groups)), //nolint:gosec // generated internally from trusted DB data
+		FirstSlug:       firstSlug,
 	}
 
 	outPath := filepath.Join(outDir, "index.html")
@@ -387,6 +468,9 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         .undiscovered p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         @media (max-width: 768px) { .toc { columns: 2; } }
         @media (max-width: 480px) { .toc { columns: 1; } }
+        #res-map-wrap { margin: 16px 0; }
+        #res-map { width: 100%; max-width: 480px; }
+    {{.HighlightCSS}}
     </style>
 </head>
 <body>
@@ -394,6 +478,10 @@ var resourceIndexTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Resources</h2>
         <p>All known mineable resources across surveyed systems, grouped by type.</p>
+
+        <div id="res-map-wrap">
+            <div id="res-map" data-active="{{.FirstSlug}}">{{.MapSVG}}</div>
+        </div>
 
         <div class="summary-cards">
             <div class="summary-card">
