@@ -626,7 +626,23 @@ go run ./cmd/generate-items-kb -resources-only
 diff /tmp/galaxymap-verify/resources-before.html kb/resources/index.html && echo "UNCHANGED"
 ```
 
-Expected: `UNCHANGED`. This task is pure refactor plus dead-but-tested helpers; the delegation of `anchorID` to `resourceSlug` must not alter a single anchor.
+**Correction (found during execution):** a whole-file `diff` is NOT a valid
+unchanged-check here. `cmd/generate-items-kb` reads the live knowledge DB,
+which a running agent fleet writes continuously, so `remaining`, depletion
+percentages, and tick columns drift between any two runs regardless of code
+changes. Compare the tokens this task could actually affect instead:
+
+```bash
+cd /home/robert/spacemolt/kb
+grep -o 'id="[a-z0-9-]*" class="resource-section"' /tmp/galaxymap-verify/resources-before.html | sort > /tmp/galaxymap-verify/anchors-before.txt
+go run ./cmd/generate-items-kb -resources-only
+grep -o 'id="[a-z0-9-]*" class="resource-section"' kb/resources/index.html | sort > /tmp/galaxymap-verify/anchors-after.txt
+diff /tmp/galaxymap-verify/anchors-before.txt /tmp/galaxymap-verify/anchors-after.txt && echo "ANCHORS UNCHANGED"
+```
+
+Expected: `ANCHORS UNCHANGED`, 54 anchors on both sides. This task is pure
+refactor plus dead-but-tested helpers; the delegation of `anchorID` to
+`resourceSlug` must not alter a single anchor.
 
 - [ ] **Step 6: Commit**
 
@@ -926,7 +942,23 @@ echo "--- no connections:" && grep -c '<line' kb/resources/index.html
 echo "--- no blobs:"     && grep -c 'feGaussianBlur' kb/resources/index.html
 ```
 
-Expected: 505 dots; 52 highlight rules; 52 options; 0 lines; 0 blur filters.
+Expected: 0 connection lines and 0 blur filters (these are absolute — they
+prove `ShowConnections` and `ShowEmpireBlobs` are off).
+
+The other three counts are **data-dependent, not fixed constants** — the live
+DB is written continuously by a running agent fleet. Derive the expectations
+rather than hardcoding them:
+
+```bash
+DB=/home/robert/spacemolt/spacemolt/data/spacemolt-knowledge.db
+echo "expected dots:      $(sqlite3 $DB 'select count(*) from systems')"
+echo "expected rules/opts: $(sqlite3 $DB 'select count(distinct resource_id) from poi_resources')"
+```
+
+At the time of writing these were 505 and 52. Assert that dots equal the
+system count, and that highlight rules equal options equal the distinct
+resource count. A mismatch between rules and options is a real bug; a change
+in the absolute numbers is just the game moving.
 
 - [ ] **Step 5: Commit**
 
