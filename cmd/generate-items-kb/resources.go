@@ -209,7 +209,7 @@ func resourceHighlightCSS(groups []ResourceGroup) string {
 			continue
 		}
 		slug := resourceSlug(g.ResourceName)
-		fmt.Fprintf(&b, "#res-map[data-active=\"%s\"] .r-%s{fill:#ffcc44;r:9;stroke:#7a5c00;stroke-width:1.5}\n", slug, slug)
+		fmt.Fprintf(&b, "#res-map[data-active=\"%s\"] .r-%s{fill:#ffc832;r:9;stroke:#fff0b8;stroke-width:1.5}\n", slug, slug)
 	}
 	return b.String()
 }
@@ -241,7 +241,39 @@ func loadSystemsForMap(db *sql.DB) ([]*galaxymap.System, map[string]*galaxymap.S
 		systems = append(systems, &s)
 		byID[s.ID] = &s
 	}
-	return systems, byID, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, nil, err
+	}
+
+	// Jump connections, so the map shows the galaxy's network structure the
+	// way the in-game map does rather than a field of unconnected dots.
+	connRows, err := db.Query(`SELECT from_system, to_system, distance FROM connections`)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer func() { _ = connRows.Close() }()
+
+	for connRows.Next() {
+		var fromID, toID string
+		var distance int
+		if err := connRows.Scan(&fromID, &toID, &distance); err != nil {
+			return nil, nil, err
+		}
+		from, ok := byID[fromID]
+		if !ok {
+			continue
+		}
+		name := toID
+		if to, ok := byID[toID]; ok {
+			name = to.Name
+		}
+		from.Connections = append(from.Connections, galaxymap.Connection{
+			SystemID: toID,
+			Name:     name,
+			Distance: distance,
+		})
+	}
+	return systems, byID, connRows.Err()
 }
 
 func writeResourcePages(outDir string, db *sql.DB) error {
@@ -381,7 +413,7 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 
 	mapSVG := galaxymap.Render(explored, unexplored, mapByID, galaxymap.Options{
 		ShowEmpireBlobs:  false,
-		ShowConnections:  false,
+		ShowConnections:  true,
 		LinkPrefix:       "../",
 		HighlightClasses: func(id string) []string { return classes[id] },
 	})
@@ -477,7 +509,12 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         .res-map-empty { display: none; font-size: 0.85em; color: var(--text-muted);
             margin-top: 8px; }
         #res-map[data-empty="1"] + .res-map-empty { display: block; }
-        #res-map .galaxy-sys-dot { fill: #2a3038; r: 4; transition: none; }
+        /* Base map reads like the in-game chart: bright stars on a visible
+           jump network. Highlighted systems then stand out against it. */
+        #res-map line { stroke: #8593ad; stroke-width: 1.4; opacity: 0.62; }
+        #res-map .galaxy-sys-dot { fill: #e6ecf5; r: 5; stroke: #0a0e1a;
+            stroke-width: 0.6; transition: none; }
+        #res-map .galaxy-sys-label { fill: #e8eef7; }
     {{.HighlightCSS}}
     </style>
 </head>
