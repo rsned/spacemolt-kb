@@ -572,7 +572,7 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         </div>
 
 {{- range .Groups}}
-        <div id="{{anchorID .ResourceName}}" class="resource-section">
+        <div id="{{anchorID .ResourceName}}" class="resource-section"{{if ne (anchorID .ResourceName) $.FirstSlug}} hidden{{end}}>
             <h3>{{.ResourceName}} <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{if eq (len .Entries) 0}}Undiscovered{{else}}{{len .Entries}} deposits{{end}}</span>{{if .ResourceCategory}} <small style="font-size:0.8em; font-weight:normal;"><a href="{{itemPageURL .ResourceCategory .ResourceID}}">Details</a></small>{{end}} <a href="#" class="back-top">[top]</a></h3>
 {{- if eq (len .Entries) 0}}
             <div class="undiscovered">
@@ -638,15 +638,30 @@ var resMapSyncScript = `    <script>
       var valid = {};
       for (var i = 0; i < sel.options.length; i++) valid[sel.options[i].value] = true;
 
+      // Every resource section, discovered or not, keyed by its slug id.
+      var sections = document.querySelectorAll('.resource-section');
+      var byId = {};
+      for (var j = 0; j < sections.length; j++) byId[sections[j].id] = sections[j];
+
+      function showOnly(slug) {
+        for (var k = 0; k < sections.length; k++) {
+          sections[k].hidden = (sections[k].id !== slug);
+        }
+      }
+
       function apply(slug, updateHash) {
-        if (!valid[slug]) {
+        if (!byId[slug]) slug = sel.value; // unknown hash falls back to the first resource
+        if (valid[slug]) {
+          map.removeAttribute('data-empty');
+          map.setAttribute('data-active', slug);
+          if (sel.value !== slug) sel.value = slug;
+        } else {
+          // A known but undiscovered resource: no systems to light, show the
+          // "not yet discovered" note but still reveal its section below.
           map.setAttribute('data-empty', '1');
           map.removeAttribute('data-active');
-          return;
         }
-        map.removeAttribute('data-empty');
-        map.setAttribute('data-active', slug);
-        if (sel.value !== slug) sel.value = slug;
+        showOnly(slug);
         if (updateHash && location.hash.slice(1) !== slug) {
           history.replaceState(null, '', '#' + slug);
         }
@@ -656,6 +671,6 @@ var resMapSyncScript = `    <script>
       window.addEventListener('hashchange', function () { apply(location.hash.slice(1), false); });
 
       var initial = location.hash.slice(1);
-      apply(valid[initial] ? initial : sel.value, false);
+      apply(byId[initial] ? initial : sel.value, false);
     })();
     </script>`
