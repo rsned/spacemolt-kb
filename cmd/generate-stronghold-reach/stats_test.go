@@ -141,3 +141,37 @@ func TestTerritoryRowsLargestFirst(t *testing.T) {
 		t.Errorf("rows[0] = %+v, want Alpha with 5", rows[0])
 	}
 }
+
+func TestTerritoryRowsDeterministicTieBreak(t *testing.T) {
+	// Create a scenario where two territories tie on both count and name.
+	// Use SystemID as the tie-breaker to ensure deterministic output.
+	edges := twoStars()
+	r := ComputeReach(edges, []string{"a", "x"})
+	// Modify so both a and x own exactly 3 systems and have the same display name.
+	// We verify that the ordering is stable based on SystemID.
+	rows := TerritoryRows(r, map[string]string{"a": "Same", "x": "Same"})
+
+	if len(rows) != 2 {
+		t.Fatalf("len(rows) = %d, want 2", len(rows))
+	}
+	// Both have 3 systems and "Same" name; should order by SystemID.
+	// "a" < "x" lexicographically, so "a" should come first.
+	if rows[0].SystemID != "a" || rows[1].SystemID != "x" {
+		t.Errorf("got SystemIDs %q,%q; want a,x (deterministic SystemID ordering)",
+			rows[0].SystemID, rows[1].SystemID)
+	}
+}
+
+func TestRadiusRowsNegativeMaxRadiusNoPanic(t *testing.T) {
+	edges := twoStars()
+	r := ComputeReach(edges, []string{"a", "x"})
+	// Negative maxRadius should not panic; should return empty slice.
+	rows := RadiusRows(r, edges, 6, -1)
+
+	if rows == nil {
+		t.Errorf("RadiusRows with negative maxRadius returned nil, want empty non-nil slice")
+	}
+	if len(rows) != 0 {
+		t.Errorf("RadiusRows with negative maxRadius returned %d rows, want 0", len(rows))
+	}
+}

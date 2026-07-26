@@ -57,7 +57,7 @@ func componentCount(edges []Edge, inSet map[string]bool) int {
 
 // RadiusRows builds one row per radius from 1 to maxRadius inclusive.
 func RadiusRows(r Reach, edges []Edge, total, maxRadius int) []RadiusRow {
-	rows := make([]RadiusRow, 0, maxRadius)
+	rows := make([]RadiusRow, 0, max(0, maxRadius))
 	prevBlobs := -1
 	for radius := 1; radius <= maxRadius; radius++ {
 		inSet := make(map[string]bool)
@@ -103,7 +103,10 @@ func TerritoryRows(r Reach, names map[string]string) []TerritoryRow {
 		if c := cmp.Compare(b.Systems, a.Systems); c != 0 {
 			return c
 		}
-		return cmp.Compare(a.Name, b.Name)
+		if c := cmp.Compare(a.Name, b.Name); c != 0 {
+			return c
+		}
+		return cmp.Compare(a.SystemID, b.SystemID)
 	})
 	return rows
 }
