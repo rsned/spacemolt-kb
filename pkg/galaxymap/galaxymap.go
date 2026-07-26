@@ -44,6 +44,24 @@ type Options struct {
 	HighlightClasses func(systemID string) []string
 	// LinkPrefix is prepended to the "systems/<id>/" href on each dot.
 	LinkPrefix string
+	// ReachBlob, if non-nil, replaces the grey territory blob with a
+	// per-radius blob whose geometry carries "rb-<n>" activation classes.
+	// It takes precedence over ShowEmpireBlobs.
+	ReachBlob *ReachBlob
+}
+
+// ReachBlob configures a radius-layered metaball blob: geometry is emitted
+// once, tagged with the radius at which it becomes active, so a page can
+// reveal successive frames with CSS instead of re-rendering the map.
+type ReachBlob struct {
+	// Radius returns the activation radius for a system — the lowest
+	// frame at which it is in reach — or -1 if it is never in reach.
+	Radius func(systemID string) int
+	// Max is the highest radius frame rendered. Geometry whose
+	// activation radius exceeds Max is omitted entirely.
+	Max int
+	// Color is the blob fill. Empty means the default grey.
+	Color string
 }
 
 // Render generates a galaxy SVG map (or a placeholder string if there are
@@ -126,7 +144,7 @@ func Render(explored, unexplored []*System, systemMap map[string]*System, opt Op
 	// read later by the dot-color default and the unexplored-dot loop.
 	const blobColor = "#E8E8E8" // Light white/grey
 
-	if opt.ShowEmpireBlobs {
+	if opt.ShowEmpireBlobs || opt.ReachBlob != nil {
 		// Metaball filter for explored territory blob.
 		b.WriteString(`<defs><filter id="goo-galaxy" x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">`)
 		b.WriteString(`<feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/>`)
@@ -136,6 +154,43 @@ func Render(explored, unexplored []*System, systemMap map[string]*System, opt Op
 
 		// Territory blob - only for explored systems and their connections.
 		blobR := 28.0
+
+		fill := blobColor
+		if opt.ReachBlob != nil && opt.ReachBlob.Color != "" {
+			fill = opt.ReachBlob.Color
+		}
+
+		// radiusOf reports a system's activation radius, or 0 when no
+		// ReachBlob is configured (every element is always active).
+		radiusOf := func(id string) int {
+			if opt.ReachBlob == nil {
+				return 0
+			}
+			return opt.ReachBlob.Radius(id)
+		}
+
+		// blobClass returns the class attribute for a blob element whose
+		// endpoints have the given radii, and false if the element must
+		// not be drawn at all.
+		blobClass := func(radii ...int) (string, bool) {
+			if opt.ReachBlob == nil {
+				return "", true
+			}
+			r := 0
+			for _, x := range radii {
+				if x < 0 {
+					return "", false
+				}
+				if x > r {
+					r = x
+				}
+			}
+			if r > opt.ReachBlob.Max {
+				return "", false
+			}
+			return fmt.Sprintf(` class="rb-%d"`, r), true
+		}
+
 		b.WriteString(`<g filter="url(#goo-galaxy)">`)
 
 		// Thick connection lines between explored systems.
@@ -155,14 +210,23 @@ func Render(explored, unexplored []*System, systemMap map[string]*System, opt Op
 				if target == nil {
 					continue
 				}
-				b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%.0f"/>`,
-					tx(s.PositionX), ty(s.PositionY), tx(target.PositionX), ty(target.PositionY), blobColor, blobR*1.2))
+				cls, ok := blobClass(radiusOf(s.ID), radiusOf(target.ID))
+				if !ok {
+					continue
+				}
+				b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%.0f"%s/>`,
+					tx(s.PositionX), ty(s.PositionY), tx(target.PositionX), ty(target.PositionY), fill, blobR*1.2, cls))
 			}
 		}
 
 		// Circles at each explored system position.
 		for _, s := range explored {
-			b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="%s"/>`, tx(s.PositionX), ty(s.PositionY), blobR, blobColor))
+			cls, ok := blobClass(radiusOf(s.ID))
+			if !ok {
+				continue
+			}
+			b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="%s"%s/>`,
+				tx(s.PositionX), ty(s.PositionY), blobR, fill, cls))
 		}
 		b.WriteString(`</g>`)
 	}

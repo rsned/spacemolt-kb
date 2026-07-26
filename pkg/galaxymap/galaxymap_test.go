@@ -108,6 +108,129 @@ func TestRenderEmptyExploredReturnsPlaceholder(t *testing.T) {
 	}
 }
 
+// reachSample returns a three-system chain sol(0) - vega(1) - rigel(2).
+func reachSample() ([]*System, map[string]*System) {
+	a := &System{
+		ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0, IsStronghold: true,
+		Connections: []Connection{{SystemID: "vega", Distance: 10}},
+	}
+	b := &System{
+		ID: "vega", Name: "Vega", PositionX: 100, PositionY: 0,
+		Connections: []Connection{{SystemID: "sol", Distance: 10}, {SystemID: "rigel", Distance: 10}},
+	}
+	c := &System{
+		ID: "rigel", Name: "Rigel", PositionX: 200, PositionY: 0,
+		Connections: []Connection{{SystemID: "vega", Distance: 10}},
+	}
+	return []*System{a, b, c}, map[string]*System{"sol": a, "vega": b, "rigel": c}
+}
+
+func reachRadius(m map[string]int) func(string) int {
+	return func(id string) int {
+		if r, ok := m[id]; ok {
+			return r
+		}
+		return -1
+	}
+}
+
+func TestReachBlobEmitsActivationClassPerSystem(t *testing.T) {
+	explored, m := reachSample()
+	svg := Render(explored, nil, m, Options{
+		ReachBlob: &ReachBlob{
+			Radius: reachRadius(map[string]int{"sol": 0, "vega": 1, "rigel": 2}),
+			Max:    2,
+			Color:  "#e53e3e",
+		},
+	})
+
+	if !strings.Contains(svg, "feGaussianBlur") {
+		t.Errorf("ReachBlob should emit the metaball filter")
+	}
+	for _, want := range []string{`class="rb-0"`, `class="rb-1"`, `class="rb-2"`} {
+		if !strings.Contains(svg, want) {
+			t.Errorf("missing %s in:\n%s", want, svg)
+		}
+	}
+	if !strings.Contains(svg, "#e53e3e") {
+		t.Errorf("blob fill color not applied")
+	}
+}
+
+func TestReachBlobEdgeUsesMaxOfEndpoints(t *testing.T) {
+	explored, m := reachSample()
+	svg := Render(explored, nil, m, Options{
+		ReachBlob: &ReachBlob{
+			Radius: reachRadius(map[string]int{"sol": 0, "vega": 1, "rigel": 2}),
+			Max:    2,
+		},
+	})
+
+	// sol(0)-vega(1) activates at 1; vega(1)-rigel(2) activates at 2.
+	// Circles contribute rb-0, rb-1, rb-2 once each, so each edge class
+	// must appear exactly one time beyond its circle.
+	if got := strings.Count(svg, `class="rb-1"`); got != 2 {
+		t.Errorf("rb-1 count = %d, want 2 (one circle + one edge)", got)
+	}
+	if got := strings.Count(svg, `class="rb-2"`); got != 2 {
+		t.Errorf("rb-2 count = %d, want 2 (one circle + one edge)", got)
+	}
+	if got := strings.Count(svg, `class="rb-0"`); got != 1 {
+		t.Errorf("rb-0 count = %d, want 1 (circle only)", got)
+	}
+}
+
+func TestReachBlobOmitsBeyondMax(t *testing.T) {
+	explored, m := reachSample()
+	svg := Render(explored, nil, m, Options{
+		ReachBlob: &ReachBlob{
+			Radius: reachRadius(map[string]int{"sol": 0, "vega": 1, "rigel": 2}),
+			Max:    1,
+		},
+	})
+
+	if strings.Contains(svg, `class="rb-2"`) {
+		t.Errorf("radius above Max should emit no blob geometry")
+	}
+	if !strings.Contains(svg, `class="rb-1"`) {
+		t.Errorf("radius at Max should still be drawn")
+	}
+}
+
+func TestReachBlobOmitsUnreachableSystems(t *testing.T) {
+	explored, m := reachSample()
+	// rigel is never in reach.
+	svg := Render(explored, nil, m, Options{
+		ReachBlob: &ReachBlob{
+			Radius: reachRadius(map[string]int{"sol": 0, "vega": 1}),
+			Max:    5,
+		},
+	})
+
+	// Two circles (rb-0, rb-1) and one edge (rb-1). The vega-rigel edge
+	// must be dropped because rigel is unreachable.
+	if got := strings.Count(svg, `class="rb-`); got != 3 {
+		t.Errorf("blob element count = %d, want 3", got)
+	}
+}
+
+func TestReachBlobDoesNotRecolorSystemDots(t *testing.T) {
+	explored, m := reachSample()
+	svg := Render(explored, nil, m, Options{
+		ReachBlob: &ReachBlob{
+			Radius: reachRadius(map[string]int{"sol": 0, "vega": 1, "rigel": 2}),
+			Max:    2,
+			Color:  "#e53e3e",
+		},
+	})
+
+	// vega has no empire and is not a stronghold, so its dot keeps the
+	// grey default rather than picking up the blob color.
+	if !strings.Contains(svg, `fill="#E8E8E8"`) {
+		t.Errorf("system dots should keep the grey default fill")
+	}
+}
+
 func TestRenderCapitalDotClosesAnchorExactlyOnce(t *testing.T) {
 	sol := &System{
 		ID: "sol", Name: "Sol", PositionX: 0, PositionY: 0,
