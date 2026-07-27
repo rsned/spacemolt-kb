@@ -50,8 +50,12 @@ func main() {
 	}
 
 	names := make(map[string]string, len(systems))
+	empireByID := make(map[string]string, len(systems))
 	for _, s := range systems {
 		names[s.ID] = s.Name
+		if s.Empire != "" {
+			empireByID[s.ID] = s.Empire
+		}
 	}
 
 	rows := RadiusRows(reach, edges, len(systems), reach.Max)
@@ -63,11 +67,17 @@ func main() {
 		ShowConnections: true,
 		LinkPrefix:      "../",
 		HighlightClasses: func(id string) []string {
-			d, ok := reach.Dist[id]
-			if !ok {
-				return nil
+			var classes []string
+			// Empire membership is emitted regardless of reach: an
+			// empire system keeps its own color until a frame covers
+			// it, at which point the per-frame rule outranks it.
+			if e, ok := empireByID[id]; ok {
+				classes = append(classes, "emp-"+e)
 			}
-			return []string{fmt.Sprintf("sr-%d", d)}
+			if d, ok := reach.Dist[id]; ok {
+				classes = append(classes, fmt.Sprintf("sr-%d", d))
+			}
+			return classes
 		},
 		ReachBlob: &galaxymap.ReachBlob{
 			Radius: func(id string) int {
@@ -77,10 +87,14 @@ func main() {
 				return -1
 			},
 			Max: reach.Max,
-			// Fire-engine red. The goo filter renders the blob at 0.25
-			// alpha, so the base color has to be vivid to read as red
-			// against the near-black background.
-			Color: "#ff1d1d",
+			// White, deliberately NOT red: the Crimson empire's own color
+			// is #DC143C, so a red blob would swallow Crimson systems
+			// visually. White is distinct from all five empire colors,
+			// and matches the territory blob on the main galaxy map.
+			// The goo filter renders it at 0.25 alpha, so over the
+			// near-black background it lands as a soft grey wash that
+			// every dot color still reads against.
+			Color: "#E8E8E8",
 		},
 	})
 

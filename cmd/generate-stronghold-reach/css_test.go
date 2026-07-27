@@ -73,3 +73,50 @@ func TestReachCSSZeroMaxProducesNoFrameRules(t *testing.T) {
 		t.Errorf("no frames means no frame rules, got:\n%s", css)
 	}
 }
+
+func TestReachCSSEmitsEmpireDotColors(t *testing.T) {
+	css := ReachCSS(3)
+
+	for _, want := range []string{
+		"#reach-map .emp-crimson{fill:#DC143C;}",
+		"#reach-map .emp-nebula{fill:#00CED1;}",
+		"#reach-map .emp-outerrim{fill:#2E8B57;}",
+		"#reach-map .emp-solarian{fill:#FFD700;}",
+		"#reach-map .emp-voidborn{fill:#9932CC;}",
+	} {
+		if !strings.Contains(css, want) {
+			t.Errorf("missing empire dot rule %q", want)
+		}
+	}
+}
+
+func TestReachCSSEmpireRulesPrecedeStrongholdRule(t *testing.T) {
+	css := ReachCSS(3)
+
+	// Empire rules and the stronghold rule have equal specificity
+	// (id + class), so source order decides. Strongholds are neutral and
+	// never carry an emp- class today, but if that ever changes the
+	// stronghold color must win.
+	emp := strings.Index(css, "#reach-map .emp-crimson")
+	sr0 := strings.Index(css, "#reach-map .sr-0")
+	if emp < 0 || sr0 < 0 {
+		t.Fatalf("expected both rules present; emp=%d sr0=%d", emp, sr0)
+	}
+	if emp > sr0 {
+		t.Errorf("empire rules must come before the stronghold rule (emp=%d, sr-0=%d)", emp, sr0)
+	}
+}
+
+func TestReachCSSFrameRulesOutrankEmpireColors(t *testing.T) {
+	css := ReachCSS(3)
+
+	// Covering a system must repaint it. Frame rules add an attribute
+	// selector on top of id+class, so they outrank the empire rules by
+	// specificity regardless of source order.
+	if !strings.Contains(css, `#reach-map[data-r="2"] .sr-1`) {
+		t.Fatalf("frame rule missing")
+	}
+	if strings.Contains(css, `#reach-map .sr-1{`) {
+		t.Errorf("frame reveal must be attribute-qualified, not a bare id+class rule")
+	}
+}

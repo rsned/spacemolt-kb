@@ -15,17 +15,17 @@ const pageTemplate = `<!DOCTYPE html>
         .reach-controls input[type=range] { flex:1; min-width:240px; }
         .reach-controls button { padding:4px 12px; cursor:pointer; }
         .reach-readout { font-weight:bold; font-size:1.05em; margin:0 0 12px; }
-        .stat-hero { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #e53e3e;
+        .stat-hero { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #ff9500;
                      border-radius:8px; padding:20px; margin:20px 0; }
-        .stat-hero .value { font-size:2em; font-weight:bold; color:#e53e3e; }
+        .stat-hero .value { font-size:2em; font-weight:bold; color:#ff9500; }
         table.reach td.event { white-space:nowrap; }
-        table.reach .tag-merge { color:#e53e3e; font-weight:bold; }
+        table.reach .tag-merge { color:#ff9500; font-weight:bold; }
         table.reach .tag-empire { display:inline-block; margin-left:6px; padding:1px 7px; border-radius:10px;
-                                  background:rgba(255,29,29,0.12); border:1px solid rgba(255,29,29,0.35);
+                                  background:rgba(255,149,0,0.12); border:1px solid rgba(255,149,0,0.35);
                                   font-size:0.85em; white-space:nowrap; }
-        .holdouts { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #ff1d1d;
+        .holdouts { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #ff9500;
                     border-radius:8px; padding:14px 18px; margin:12px 0 4px; }
-        .holdouts strong { color:#ff1d1d; }
+        .holdouts strong { color:#ff9500; }
 {{.ReachCSS}}
     </style>
 </head>
@@ -70,7 +70,7 @@ const pageTemplate = `<!DOCTYPE html>
         <p class="reach-readout" id="readout"></p>
 
         <div id="reach-map" data-r="{{.DefaultRadius}}">{{.MapSVG}}</div>
-        <p class="text-muted mt-1">Red territory marks systems within the selected number of jumps. Dim stars are out of reach at this radius. The nine strongholds are the bright red dots.</p>
+        <p class="text-muted mt-1">The pale wash marks systems within the selected number of jumps; the nine strongholds at its heart are the orange dots. Stars still out of reach keep their own colors — empire-held systems glow in their empire's color and unclaimed ones stay dim — until the wash swallows them and they turn white.</p>
 
         <h3 class="mt-3">Coverage at Every Radius</h3>
         <table class="reach">
