@@ -70,7 +70,7 @@ const pageTemplate = `<!DOCTYPE html>
         <p class="reach-readout" id="readout"></p>
 
         <div id="reach-map" data-r="{{.DefaultRadius}}">{{.MapSVG}}</div>
-        <p class="text-muted mt-1">The pale wash marks systems within the selected number of jumps; the nine strongholds at its heart are the orange dots. Stars still out of reach keep their own colors — empire-held systems glow in their empire's color and unclaimed ones stay dim — until the wash swallows them and they turn white.</p>
+        <p class="text-muted mt-1">The five colored territories are the empires, each one a single unbroken run of systems. The pale wash spreading out of the orange stronghold dots is pirate reach at the selected number of jumps — drag the slider and watch it creep across empire space. Systems still out of reach keep their own color; once the wash covers them they turn white.</p>
 
         <h3 class="mt-3">Coverage at Every Radius</h3>
         <table class="reach">
@@ -104,6 +104,7 @@ const pageTemplate = `<!DOCTYPE html>
             <li><strong>Nine blobs become one.</strong> Each patch of reach always contains a stronghold, so the count can only fall: {{.MergeStory}}.</li>
             <li><strong>{{.TopTerritory}} dominates.</strong> It is the nearest stronghold for {{.TopTerritoryCount}} systems, far more than any other.</li>
             <li><strong>Empire territory is not far behind.</strong> The Events column marks the radius at which reach first touches each of the five empires — hover a tag for the border system it arrives through.</li>
+            <li><strong>Jump gates only — wormholes are not counted.</strong> Every distance here is a count of jump-gate traversals. The galaxy's permanent wormhole fixtures are shortcuts that sidestep that network entirely, and they are not part of this calculation: a system shown {{.MaxRadius}} jumps out may in practice be a single wormhole transit from pirate space. Treat these numbers as the distance the gate network imposes, not the shortest possible trip.</li>
             {{if .UnreachableCount}}<li><strong>{{.UnreachableCount}} systems have no route to any stronghold</strong> and are drawn permanently dim.</li>{{end}}
         </ul>
 

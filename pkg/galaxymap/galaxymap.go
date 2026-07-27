@@ -48,6 +48,28 @@ type Options struct {
 	// per-radius blob whose geometry carries "rb-<n>" activation classes.
 	// It takes precedence over ShowEmpireBlobs.
 	ReachBlob *ReachBlob
+	// GroupBlobs, if non-nil, draws one static colored territory blob per
+	// group beneath any ReachBlob layer.
+	GroupBlobs *GroupBlobs
+}
+
+// GroupBlob is one static territory blob: every system whose group key
+// matches Key is drawn in Color, linked to its same-group neighbors.
+type GroupBlob struct {
+	// Key is the group identifier. It is emitted as a "gb-<Key>" class on
+	// the blob's group element, so it must be CSS-class safe.
+	Key string
+	// Color is the blob fill.
+	Color string
+}
+
+// GroupBlobs configures static per-group territory blobs. Groups are drawn
+// in slice order, so callers control layering and output stays byte-stable.
+type GroupBlobs struct {
+	// Group returns a system's group key, or "" for no group.
+	Group func(systemID string) string
+	// Groups lists the groups to draw, in draw order.
+	Groups []GroupBlob
 }
 
 // ReachBlob configures a radius-layered metaball blob: geometry is emitted
@@ -144,7 +166,7 @@ func Render(explored, unexplored []*System, systemMap map[string]*System, opt Op
 	// read later by the dot-color default and the unexplored-dot loop.
 	const blobColor = "#E8E8E8" // Light white/grey
 
-	if opt.ShowEmpireBlobs || opt.ReachBlob != nil {
+	if opt.ShowEmpireBlobs || opt.ReachBlob != nil || opt.GroupBlobs != nil {
 		// Metaball filter for explored territory blob.
 		b.WriteString(`<defs><filter id="goo-galaxy" x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">`)
 		b.WriteString(`<feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/>`)
@@ -154,6 +176,50 @@ func Render(explored, unexplored []*System, systemMap map[string]*System, opt Op
 
 		// Territory blob - only for explored systems and their connections.
 		blobR := 28.0
+
+		// Static per-group territory blobs, drawn first so that any
+		// ReachBlob layer washes over them rather than hiding under.
+		if opt.GroupBlobs != nil {
+			for _, g := range opt.GroupBlobs.Groups {
+				b.WriteString(fmt.Sprintf(`<g filter="url(#goo-galaxy)" class="gb-%s">`, g.Key))
+
+				drawnGroup := make(map[string]bool)
+				for _, s := range explored {
+					if opt.GroupBlobs.Group(s.ID) != g.Key {
+						continue
+					}
+					for _, conn := range s.Connections {
+						if !exploredSet[conn.SystemID] {
+							continue
+						}
+						if opt.GroupBlobs.Group(conn.SystemID) != g.Key {
+							continue // only link systems within the group
+						}
+						key := s.ID + "|" + conn.SystemID
+						rev := conn.SystemID + "|" + s.ID
+						if drawnGroup[key] || drawnGroup[rev] {
+							continue
+						}
+						drawnGroup[key] = true
+						target := systemMap[conn.SystemID]
+						if target == nil {
+							continue
+						}
+						b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s" stroke-width="%.0f"/>`,
+							tx(s.PositionX), ty(s.PositionY), tx(target.PositionX), ty(target.PositionY), g.Color, blobR*1.2))
+					}
+				}
+
+				for _, s := range explored {
+					if opt.GroupBlobs.Group(s.ID) != g.Key {
+						continue
+					}
+					b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.0f" fill="%s"/>`,
+						tx(s.PositionX), ty(s.PositionY), blobR, g.Color))
+				}
+				b.WriteString(`</g>`)
+			}
+		}
 
 		fill := blobColor
 		if opt.ReachBlob != nil && opt.ReachBlob.Color != "" {

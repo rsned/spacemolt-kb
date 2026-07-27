@@ -253,3 +253,87 @@ func TestRenderCapitalDotClosesAnchorExactlyOnce(t *testing.T) {
 		t.Errorf("unbalanced anchors: %d open, %d close", open, close)
 	}
 }
+
+func TestGroupBlobsDrawOnePerGroupWithOwnColor(t *testing.T) {
+	explored, m := reachSample()
+	svg := Render(explored, nil, m, Options{
+		GroupBlobs: &GroupBlobs{
+			Group: func(id string) string {
+				switch id {
+				case "sol", "vega":
+					return "alpha"
+				default:
+					return ""
+				}
+			},
+			Groups: []GroupBlob{{Key: "alpha", Color: "#00CED1"}},
+		},
+	})
+
+	if !strings.Contains(svg, `class="gb-alpha"`) {
+		t.Errorf("missing group blob element in:\n%s", svg)
+	}
+	if !strings.Contains(svg, "#00CED1") {
+		t.Errorf("group color not applied")
+	}
+	if !strings.Contains(svg, "feGaussianBlur") {
+		t.Errorf("GroupBlobs alone should still emit the metaball filter")
+	}
+}
+
+func TestGroupBlobsOnlyLinkSameGroupNeighbors(t *testing.T) {
+	// sol-vega share a group; vega-rigel do not, so only one blob edge.
+	explored, m := reachSample()
+	svg := Render(explored, nil, m, Options{
+		GroupBlobs: &GroupBlobs{
+			Group: func(id string) string {
+				if id == "sol" || id == "vega" {
+					return "alpha"
+				}
+				return ""
+			},
+			Groups: []GroupBlob{{Key: "alpha", Color: "#00CED1"}},
+		},
+	})
+
+	// Two circles (sol, vega) plus one edge (sol-vega) = 3 elements.
+	if got := strings.Count(svg, "#00CED1"); got != 3 {
+		t.Errorf("group element count = %d, want 3 (2 circles + 1 edge)", got)
+	}
+}
+
+func TestGroupBlobsDrawnBeneathReachBlob(t *testing.T) {
+	explored, m := reachSample()
+	svg := Render(explored, nil, m, Options{
+		GroupBlobs: &GroupBlobs{
+			Group:  func(string) string { return "alpha" },
+			Groups: []GroupBlob{{Key: "alpha", Color: "#00CED1"}},
+		},
+		ReachBlob: &ReachBlob{
+			Radius: reachRadius(map[string]int{"sol": 0, "vega": 1, "rigel": 2}),
+			Max:    2,
+			Color:  "#E8E8E8",
+		},
+	})
+
+	// SVG paints in document order, so the group blobs must come first
+	// for the reach wash to read as layered over empire territory.
+	gb := strings.Index(svg, `class="gb-alpha"`)
+	rb := strings.Index(svg, `class="rb-`)
+	if gb < 0 || rb < 0 {
+		t.Fatalf("expected both layers; gb=%d rb=%d", gb, rb)
+	}
+	if gb > rb {
+		t.Errorf("group blobs must precede the reach blob (gb=%d, rb=%d)", gb, rb)
+	}
+}
+
+func TestGroupBlobsNilLeavesOutputUnchanged(t *testing.T) {
+	explored, m := reachSample()
+	with := Render(explored, nil, m, Options{ShowEmpireBlobs: true, GroupBlobs: nil})
+	without := Render(explored, nil, m, Options{ShowEmpireBlobs: true})
+
+	if with != without {
+		t.Errorf("nil GroupBlobs must not change output")
+	}
+}

@@ -79,6 +79,12 @@ func main() {
 			}
 			return classes
 		},
+		// Static empire territories, drawn beneath the reach wash so a
+		// covered empire reads as washed-out rather than hidden.
+		GroupBlobs: &galaxymap.GroupBlobs{
+			Group:  func(id string) string { return empireByID[id] },
+			Groups: empireGroupBlobs(),
+		},
 		ReachBlob: &galaxymap.ReachBlob{
 			Radius: func(id string) int {
 				if d, ok := reach.Dist[id]; ok {

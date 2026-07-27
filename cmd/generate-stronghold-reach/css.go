@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 )
 
 // Reach map palette. Stronghold dots are orange rather than red so they
@@ -20,6 +22,16 @@ const (
 //
 // Keys are ordered explicitly rather than ranged over a map so the
 // generated CSS is byte-stable across runs.
+// empireGroupBlobs renders the same palette as static territory blobs, in
+// the same fixed order, so the generated SVG is byte-stable across runs.
+func empireGroupBlobs() []galaxymap.GroupBlob {
+	out := make([]galaxymap.GroupBlob, 0, len(empireDotColors))
+	for _, e := range empireDotColors {
+		out = append(out, galaxymap.GroupBlob{Key: e.Slug, Color: e.Color})
+	}
+	return out
+}
+
 var empireDotColors = []struct{ Slug, Color string }{
 	{"crimson", "#DC143C"},
 	{"nebula", "#00CED1"},
