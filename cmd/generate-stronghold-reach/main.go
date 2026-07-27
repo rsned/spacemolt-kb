@@ -4,6 +4,7 @@
 package main
 
 import (
+	"cmp"
 	"database/sql"
 	"encoding/json"
 	"flag"
@@ -96,10 +97,12 @@ func main() {
 		DefaultRadius     int
 		Rows              []RadiusRow
 		Territory         []TerritoryRow
+		EmpireArrivals    map[int][]EmpireArrival
 		MergeStory        string
 		TopTerritory      string
 		TopTerritoryCount int
 		FarthestNames     string
+		FarthestCount     int
 		UnreachableCount  int
 		ReachCSS          template.CSS
 		MapSVG            template.HTML
@@ -112,8 +115,10 @@ func main() {
 		DefaultRadius:    min(defaultRadius, reach.Max),
 		Rows:             rows,
 		Territory:        territory,
+		EmpireArrivals:   empireArrivals(reach, systems),
 		MergeStory:       mergeStory(rows),
 		FarthestNames:    farthestNames(reach, names),
+		FarthestCount:    farthestCount(reach),
 		UnreachableCount: len(systems) - len(reach.Dist),
 		ReachCSS:         template.CSS(ReachCSS(reach.Max)),
 		MapSVG:           template.HTML(svg),
@@ -194,6 +199,64 @@ func mergeStory(rows []RadiusRow) string {
 	return strings.Join(parts, ", ")
 }
 
+// empireDisplayNames maps the DB's empire slug to its display name.
+var empireDisplayNames = map[string]string{
+	"solarian": "Solarian",
+	"voidborn": "Voidborn",
+	"crimson":  "Crimson",
+	"nebula":   "Nebula",
+	"outerrim": "Outer Rim",
+}
+
+// EmpireArrival records an empire being touched by stronghold reach for the
+// first time, and the system it is reached through.
+type EmpireArrival struct {
+	Empire string
+	Via    string
+}
+
+// empireArrivals groups empires by the radius at which reach first touches
+// their territory. Empires with no reachable system are omitted.
+//
+// Ties are resolved deterministically: within a radius, arrivals are ordered
+// by empire display name, and the "via" system is the lowest-sorting name
+// among that empire's systems at that radius.
+func empireArrivals(r Reach, systems []*galaxymap.System) map[int][]EmpireArrival {
+	type arrival struct {
+		radius int
+		via    string
+	}
+	first := make(map[string]arrival)
+	for _, s := range systems {
+		if s.Empire == "" {
+			continue
+		}
+		d, ok := r.Dist[s.ID]
+		if !ok {
+			continue
+		}
+		cur, seen := first[s.Empire]
+		if !seen || d < cur.radius || (d == cur.radius && s.Name < cur.via) {
+			first[s.Empire] = arrival{radius: d, via: s.Name}
+		}
+	}
+
+	out := make(map[int][]EmpireArrival, len(first))
+	for slug, a := range first {
+		display := empireDisplayNames[slug]
+		if display == "" {
+			display = slug
+		}
+		out[a.radius] = append(out[a.radius], EmpireArrival{Empire: display, Via: a.via})
+	}
+	for radius := range out {
+		slices.SortFunc(out[radius], func(x, y EmpireArrival) int {
+			return cmp.Compare(x.Empire, y.Empire)
+		})
+	}
+	return out
+}
+
 // farthestNames lists the systems sitting at the maximum reach distance.
 func farthestNames(r Reach, names map[string]string) string {
 	var out []string
@@ -208,4 +271,15 @@ func farthestNames(r Reach, names map[string]string) string {
 	}
 	slices.Sort(out)
 	return strings.Join(out, ", ")
+}
+
+// farthestCount counts the systems sitting at the maximum reach distance.
+func farthestCount(r Reach) int {
+	n := 0
+	for _, d := range r.Dist {
+		if d == r.Max {
+			n++
+		}
+	}
+	return n
 }

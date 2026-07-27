@@ -3,6 +3,8 @@ package main
 import (
 	"slices"
 	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 )
 
 // twoStars returns two disjoint 3-node chains: a-b-c and x-y-z, plus a
@@ -290,5 +292,80 @@ func TestEveryReachComponentContainsAStronghold(t *testing.T) {
 				t.Errorf("radius %d: component %v contains no stronghold", radius, ids)
 			}
 		}
+	}
+}
+
+// empireSystems builds systems for the twoStars fixture, assigning empires
+// so that "gamma" is reachable at two different radii and "delta" at one.
+func empireSystems() []*galaxymap.System {
+	return []*galaxymap.System{
+		{ID: "a", Name: "Aye"},                  // source, no empire
+		{ID: "b", Name: "Bee", Empire: "gamma"}, // d=1
+		{ID: "c", Name: "Cee", Empire: "gamma"}, // d=2, later than Bee
+		{ID: "x", Name: "Exe"},                  // source, no empire
+		{ID: "y", Name: "Wye", Empire: "gamma"}, // d=1, ties with Bee
+		{ID: "z", Name: "Zed", Empire: "delta"}, // d=2
+	}
+}
+
+func TestEmpireArrivalsUsesFirstRadius(t *testing.T) {
+	edges := twoStars()
+	r := ComputeReach(edges, []string{"a", "x"})
+	got := empireArrivals(r, empireSystems())
+
+	if _, ok := got[2]; ok {
+		for _, a := range got[2] {
+			if a.Empire == "gamma" {
+				t.Errorf("gamma recorded at radius 2; it is first reached at radius 1")
+			}
+		}
+	}
+	if len(got[1]) != 1 || got[1][0].Empire != "gamma" {
+		t.Errorf("radius 1 arrivals = %+v, want one gamma", got[1])
+	}
+	if len(got[2]) != 1 || got[2][0].Empire != "delta" {
+		t.Errorf("radius 2 arrivals = %+v, want one delta", got[2])
+	}
+}
+
+func TestEmpireArrivalsTieBreaksViaByLowestName(t *testing.T) {
+	edges := twoStars()
+	r := ComputeReach(edges, []string{"a", "x"})
+	got := empireArrivals(r, empireSystems())
+
+	// Bee and Wye are both gamma at radius 1; "Bee" sorts lower.
+	if len(got[1]) != 1 {
+		t.Fatalf("radius 1 arrivals = %+v, want exactly one", got[1])
+	}
+	if got[1][0].Via != "Bee" {
+		t.Errorf("Via = %q, want %q (lowest-sorting name at that radius)", got[1][0].Via, "Bee")
+	}
+}
+
+func TestEmpireArrivalsSkipsEmpirelessAndUnreachable(t *testing.T) {
+	// Only "a" is a source and the y-z star is disconnected from it.
+	r := ComputeReach([]Edge{{"a", "b"}}, []string{"a"})
+	systems := []*galaxymap.System{
+		{ID: "a", Name: "Aye"},
+		{ID: "b", Name: "Bee"},                  // reachable but no empire
+		{ID: "z", Name: "Zed", Empire: "delta"}, // has an empire but unreachable
+	}
+	got := empireArrivals(r, systems)
+
+	if len(got) != 0 {
+		t.Errorf("arrivals = %+v, want none (no reachable empire system)", got)
+	}
+}
+
+func TestEmpireArrivalsUsesDisplayNames(t *testing.T) {
+	r := ComputeReach([]Edge{{"a", "b"}}, []string{"a"})
+	systems := []*galaxymap.System{
+		{ID: "a", Name: "Aye"},
+		{ID: "b", Name: "Bee", Empire: "outerrim"},
+	}
+	got := empireArrivals(r, systems)
+
+	if len(got[1]) != 1 || got[1][0].Empire != "Outer Rim" {
+		t.Errorf("arrivals = %+v, want display name %q", got[1], "Outer Rim")
 	}
 }

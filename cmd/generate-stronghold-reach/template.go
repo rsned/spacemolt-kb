@@ -18,7 +18,14 @@ const pageTemplate = `<!DOCTYPE html>
         .stat-hero { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #e53e3e;
                      border-radius:8px; padding:20px; margin:20px 0; }
         .stat-hero .value { font-size:2em; font-weight:bold; color:#e53e3e; }
-        table.reach td.merge { color:#e53e3e; font-weight:bold; }
+        table.reach td.event { white-space:nowrap; }
+        table.reach .tag-merge { color:#e53e3e; font-weight:bold; }
+        table.reach .tag-empire { display:inline-block; margin-left:6px; padding:1px 7px; border-radius:10px;
+                                  background:rgba(255,29,29,0.12); border:1px solid rgba(255,29,29,0.35);
+                                  font-size:0.85em; white-space:nowrap; }
+        .holdouts { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #ff1d1d;
+                    border-radius:8px; padding:14px 18px; margin:12px 0 4px; }
+        .holdouts strong { color:#ff1d1d; }
 {{.ReachCSS}}
     </style>
 </head>
@@ -51,6 +58,10 @@ const pageTemplate = `<!DOCTYPE html>
             <div class="label">is all it takes to reach {{if .UnreachableCount}}{{.ReachableCount}} of the {{.TotalSystems}} known systems{{else}}every one of the {{.TotalSystems}} known systems{{end}} from the nearest stronghold</div>
         </div>
 
+        <div class="holdouts">
+            <strong>The last holdouts:</strong> {{.FarthestCount}} systems sit a full {{.MaxRadius}} jumps out — the deepest anyone in this galaxy gets from pirate territory. They are <strong>{{.FarthestNames}}</strong>.
+        </div>
+
         <div class="reach-controls">
             <button id="prev" type="button">&larr;</button>
             <input type="range" id="radius" min="1" max="{{.MaxRadius}}" value="{{.DefaultRadius}}" step="1">
@@ -63,7 +74,7 @@ const pageTemplate = `<!DOCTYPE html>
 
         <h3 class="mt-3">Coverage at Every Radius</h3>
         <table class="reach">
-            <thead><tr><th>Jumps</th><th>Systems in reach</th><th>% of galaxy</th><th>Separate blobs</th><th></th></tr></thead>
+            <thead><tr><th>Jumps</th><th>Systems in reach</th><th>% of galaxy</th><th>Separate blobs</th><th>Events</th></tr></thead>
             <tbody>
             {{range .Rows}}
                 <tr>
@@ -71,7 +82,7 @@ const pageTemplate = `<!DOCTYPE html>
                     <td>{{.Systems}}</td>
                     <td>{{printf "%.1f" .Percent}}%</td>
                     <td>{{.Blobs}}</td>
-                    <td class="merge">{{if .Merged}}merge{{end}}</td>
+                    <td class="event">{{if .Merged}}<span class="tag-merge">merge</span>{{end}}{{range index $.EmpireArrivals .Radius}}<span class="tag-empire" title="first reached via {{.Via}}">{{.Empire}} reached</span>{{end}}</td>
                 </tr>
             {{end}}
             </tbody>
@@ -92,7 +103,7 @@ const pageTemplate = `<!DOCTYPE html>
         <ul>
             <li><strong>Nine blobs become one.</strong> Each patch of reach always contains a stronghold, so the count can only fall: {{.MergeStory}}.</li>
             <li><strong>{{.TopTerritory}} dominates.</strong> It is the nearest stronghold for {{.TopTerritoryCount}} systems, far more than any other.</li>
-            <li><strong>The last holdouts.</strong> {{.FarthestNames}} sit {{.MaxRadius}} jumps out — the deepest anyone in this galaxy gets from pirate territory.</li>
+            <li><strong>Empire territory is not far behind.</strong> The Events column marks the radius at which reach first touches each of the five empires — hover a tag for the border system it arrives through.</li>
             {{if .UnreachableCount}}<li><strong>{{.UnreachableCount}} systems have no route to any stronghold</strong> and are drawn permanently dim.</li>{{end}}
         </ul>
 

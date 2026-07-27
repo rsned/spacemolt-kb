@@ -16,7 +16,14 @@
         .stat-hero { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #e53e3e;
                      border-radius:8px; padding:20px; margin:20px 0; }
         .stat-hero .value { font-size:2em; font-weight:bold; color:#e53e3e; }
-        table.reach td.merge { color:#e53e3e; font-weight:bold; }
+        table.reach td.event { white-space:nowrap; }
+        table.reach .tag-merge { color:#e53e3e; font-weight:bold; }
+        table.reach .tag-empire { display:inline-block; margin-left:6px; padding:1px 7px; border-radius:10px;
+                                  background:rgba(255,29,29,0.12); border:1px solid rgba(255,29,29,0.35);
+                                  font-size:0.85em; white-space:nowrap; }
+        .holdouts { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #ff1d1d;
+                    border-radius:8px; padding:14px 18px; margin:12px 0 4px; }
+        .holdouts strong { color:#ff1d1d; }
 #reach-map .galaxy-sys-dot{fill:#3a4557;}
 #reach-map .sr-0{fill:#ff2d2d;}
 #reach-map .rb-1,#reach-map .rb-2,#reach-map .rb-3,#reach-map .rb-4,#reach-map .rb-5,#reach-map .rb-6,#reach-map .rb-7,#reach-map .rb-8,#reach-map .rb-9,#reach-map .rb-10,#reach-map .rb-11,#reach-map .rb-12,#reach-map .rb-13,#reach-map .rb-14{display:none;}
@@ -80,6 +87,10 @@
             <div class="label">is all it takes to reach every one of the 505 known systems from the nearest stronghold</div>
         </div>
 
+        <div class="holdouts">
+            <strong>The last holdouts:</strong> 5 systems sit a full 14 jumps out — the deepest anyone in this galaxy gets from pirate territory. They are <strong>82 Eridani, Blackthorn, GSC-0036, Muscida, Windmere</strong>.
+        </div>
+
         <div class="reach-controls">
             <button id="prev" type="button">&larr;</button>
             <input type="range" id="radius" min="1" max="14" value="5" step="1">
@@ -92,7 +103,7 @@
 
         <h3 class="mt-3">Coverage at Every Radius</h3>
         <table class="reach">
-            <thead><tr><th>Jumps</th><th>Systems in reach</th><th>% of galaxy</th><th>Separate blobs</th><th></th></tr></thead>
+            <thead><tr><th>Jumps</th><th>Systems in reach</th><th>% of galaxy</th><th>Separate blobs</th><th>Events</th></tr></thead>
             <tbody>
             
                 <tr>
@@ -100,7 +111,7 @@
                     <td>18</td>
                     <td>3.6%</td>
                     <td>9</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -108,7 +119,7 @@
                     <td>41</td>
                     <td>8.1%</td>
                     <td>9</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -116,7 +127,7 @@
                     <td>72</td>
                     <td>14.3%</td>
                     <td>9</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -124,7 +135,7 @@
                     <td>114</td>
                     <td>22.6%</td>
                     <td>8</td>
-                    <td class="merge">merge</td>
+                    <td class="event"><span class="tag-merge">merge</span><span class="tag-empire" title="first reached via Azmidi">Nebula reached</span><span class="tag-empire" title="first reached via Hamal">Voidborn reached</span></td>
                 </tr>
             
                 <tr>
@@ -132,7 +143,7 @@
                     <td>171</td>
                     <td>33.9%</td>
                     <td>8</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -140,7 +151,7 @@
                     <td>235</td>
                     <td>46.5%</td>
                     <td>6</td>
-                    <td class="merge">merge</td>
+                    <td class="event"><span class="tag-merge">merge</span><span class="tag-empire" title="first reached via Grumium">Solarian reached</span></td>
                 </tr>
             
                 <tr>
@@ -148,7 +159,7 @@
                     <td>285</td>
                     <td>56.4%</td>
                     <td>4</td>
-                    <td class="merge">merge</td>
+                    <td class="event"><span class="tag-merge">merge</span><span class="tag-empire" title="first reached via Last Light">Outer Rim reached</span></td>
                 </tr>
             
                 <tr>
@@ -156,7 +167,7 @@
                     <td>335</td>
                     <td>66.3%</td>
                     <td>2</td>
-                    <td class="merge">merge</td>
+                    <td class="event"><span class="tag-merge">merge</span></td>
                 </tr>
             
                 <tr>
@@ -164,7 +175,7 @@
                     <td>389</td>
                     <td>77.0%</td>
                     <td>1</td>
-                    <td class="merge">merge</td>
+                    <td class="event"><span class="tag-merge">merge</span><span class="tag-empire" title="first reached via The Rampart">Crimson reached</span></td>
                 </tr>
             
                 <tr>
@@ -172,7 +183,7 @@
                     <td>430</td>
                     <td>85.1%</td>
                     <td>1</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -180,7 +191,7 @@
                     <td>461</td>
                     <td>91.3%</td>
                     <td>1</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -188,7 +199,7 @@
                     <td>486</td>
                     <td>96.2%</td>
                     <td>1</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -196,7 +207,7 @@
                     <td>500</td>
                     <td>99.0%</td>
                     <td>1</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
                 <tr>
@@ -204,7 +215,7 @@
                     <td>505</td>
                     <td>100.0%</td>
                     <td>1</td>
-                    <td class="merge"></td>
+                    <td class="event"></td>
                 </tr>
             
             </tbody>
@@ -241,7 +252,7 @@
         <ul>
             <li><strong>Nine blobs become one.</strong> Each patch of reach always contains a stronghold, so the count can only fall: 9 at 1, 8 at 4, 6 at 6, 4 at 7, 2 at 8, and a single blob at 9.</li>
             <li><strong>Algol dominates.</strong> It is the nearest stronghold for 142 systems, far more than any other.</li>
-            <li><strong>The last holdouts.</strong> 82 Eridani, Blackthorn, GSC-0036, Muscida, Windmere sit 14 jumps out — the deepest anyone in this galaxy gets from pirate territory.</li>
+            <li><strong>Empire territory is not far behind.</strong> The Events column marks the radius at which reach first touches each of the five empires — hover a tag for the border system it arrives through.</li>
             
         </ul>
 
