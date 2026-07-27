@@ -48,7 +48,7 @@ const pageTemplate = `<!DOCTYPE html>
 
         <div class="stat-hero">
             <div class="value">{{.MaxRadius}} jumps</div>
-            <div class="label">is all it takes to reach every one of the {{.TotalSystems}} known systems from the nearest stronghold</div>
+            <div class="label">is all it takes to reach {{if .UnreachableCount}}{{.ReachableCount}} of the {{.TotalSystems}} known systems{{else}}every one of the {{.TotalSystems}} known systems{{end}} from the nearest stronghold</div>
         </div>
 
         <div class="reach-controls">

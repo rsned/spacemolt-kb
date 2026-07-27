@@ -87,6 +87,7 @@ func main() {
 
 	data := struct {
 		TotalSystems      int
+		ReachableCount    int
 		EdgeCount         int
 		MaxRadius         int
 		DefaultRadius     int
@@ -102,6 +103,7 @@ func main() {
 		StatsJSON         template.JS
 	}{
 		TotalSystems:     len(systems),
+		ReachableCount:   len(reach.Dist),
 		EdgeCount:        len(edges),
 		MaxRadius:        reach.Max,
 		DefaultRadius:    min(defaultRadius, reach.Max),
@@ -166,8 +168,9 @@ func statsByRadius(rows []RadiusRow) map[string]radiusStat {
 	return m
 }
 
-// mergeStory renders the blob-count sequence as prose, e.g.
-// "9 at 3 jumps, 8 at 4, 6 at 6, 4 at 7, 2 at 8, and a single blob at 9".
+// mergeStory renders the blob-count sequence as prose, keyed by the radius
+// each count first appears at, e.g.
+// "9 at 1, 8 at 4, 6 at 6, 4 at 7, 2 at 8, and a single blob at 9".
 func mergeStory(rows []RadiusRow) string {
 	var parts []string
 	prev := -1
@@ -181,6 +184,9 @@ func mergeStory(rows []RadiusRow) string {
 			break
 		}
 		parts = append(parts, fmt.Sprintf("%d at %d", r.Blobs, r.Radius))
+	}
+	if len(parts) > 1 {
+		parts[len(parts)-1] = "and " + parts[len(parts)-1]
 	}
 	return strings.Join(parts, ", ")
 }

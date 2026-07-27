@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 // twoStars returns two disjoint 3-node chains: a-b-c and x-y-z, plus a
 // bridge c-z that only closes at higher radius.
@@ -129,7 +132,8 @@ func TestTerritoryRowsSortedByCountThenName(t *testing.T) {
 }
 
 func TestTerritoryRowsLargestFirst(t *testing.T) {
-	// a reaches a,b,c,z,y,x when it is the only source.
+	// a and x are both sources, but a is force-fed y and z below so its
+	// territory outweighs x's.
 	edges := twoStars()
 	r := ComputeReach(edges, []string{"a", "x"})
 	// Force an imbalance by making x own nothing but itself.
@@ -143,12 +147,11 @@ func TestTerritoryRowsLargestFirst(t *testing.T) {
 }
 
 func TestTerritoryRowsDeterministicTieBreak(t *testing.T) {
-	// Create a scenario where two territories tie on both count and name.
-	// Use SystemID as the tie-breaker to ensure deterministic output.
+	// a and x already own exactly 3 systems each (see twoStars); give them
+	// the same display name so the count and name tie-breaks both wash
+	// out and SystemID is the only thing left to order by.
 	edges := twoStars()
 	r := ComputeReach(edges, []string{"a", "x"})
-	// Modify so both a and x own exactly 3 systems and have the same display name.
-	// We verify that the ordering is stable based on SystemID.
 	rows := TerritoryRows(r, map[string]string{"a": "Same", "x": "Same"})
 
 	if len(rows) != 2 {
@@ -173,5 +176,119 @@ func TestRadiusRowsNegativeMaxRadiusNoPanic(t *testing.T) {
 	}
 	if len(rows) != 0 {
 		t.Errorf("RadiusRows with negative maxRadius returned %d rows, want 0", len(rows))
+	}
+}
+
+// threeStrongholdBridge builds three chains anchored on the sources p, q,
+// and r, joined by two bridges that only enter the reach set at higher
+// radius:
+//
+//	p - p1 - p2 - p3
+//	                \
+//	                 q2 - q1 - q
+//	                  \
+//	                   r1 - r
+//
+// The q2-r1 bridge merges the q and r chains at radius 2; the p3-q2 bridge
+// merges the p chain onto that pair at radius 3, the graph's max distance.
+// This gives blob counts 3 -> 2 -> 1 across three sources, unlike twoStars
+// (used by the tests above), which only ever goes 2 -> 1 with a single pair
+// of sources.
+func threeStrongholdBridge() (edges []Edge, sources []string) {
+	edges = []Edge{
+		{"p", "p1"}, {"p1", "p2"}, {"p2", "p3"},
+		{"q", "q1"}, {"q1", "q2"},
+		{"r", "r1"},
+		{"q2", "r1"},
+		{"p3", "q2"},
+	}
+	sources = []string{"p", "q", "r"}
+	return edges, sources
+}
+
+// componentsOf groups the members of inSet into connected components using
+// only the in-set edges. It is a separate, membership-returning
+// implementation from componentCount's union-find (which only counts), so
+// this test does not rely on the correctness of the code it is checking.
+func componentsOf(edges []Edge, inSet map[string]bool) []map[string]bool {
+	parent := make(map[string]string, len(inSet))
+	for id := range inSet {
+		parent[id] = id
+	}
+	var find func(string) string //nolint:staticcheck // S1021 false positive: self-referential closure needs the two-step declare-then-assign
+	find = func(x string) string {
+		for parent[x] != x {
+			parent[x] = parent[parent[x]]
+			x = parent[x]
+		}
+		return x
+	}
+	for _, e := range edges {
+		if !inSet[e.A] || !inSet[e.B] {
+			continue
+		}
+		ra, rb := find(e.A), find(e.B)
+		if ra != rb {
+			parent[ra] = rb
+		}
+	}
+
+	groups := make(map[string]map[string]bool)
+	for id := range inSet {
+		root := find(id)
+		if groups[root] == nil {
+			groups[root] = make(map[string]bool)
+		}
+		groups[root][id] = true
+	}
+	out := make([]map[string]bool, 0, len(groups))
+	for _, g := range groups {
+		out = append(out, g)
+	}
+	return out
+}
+
+// TestEveryReachComponentContainsAStronghold proves the invariant the
+// design doc committed to: at every radius, every connected component of
+// the "<=radius" in-set contains at least one stronghold. This is what
+// guarantees RadiusRows' blob count can only fall as radius grows — the
+// page's central claim.
+func TestEveryReachComponentContainsAStronghold(t *testing.T) {
+	edges, sources := threeStrongholdBridge()
+	sourceSet := make(map[string]bool, len(sources))
+	for _, s := range sources {
+		sourceSet[s] = true
+	}
+
+	r := ComputeReach(edges, sources)
+	if r.Max < 2 {
+		t.Fatalf("test fixture is too shallow: Max = %d, want >= 2 to exercise multiple merges", r.Max)
+	}
+
+	for radius := 1; radius <= r.Max; radius++ {
+		inSet := make(map[string]bool)
+		for id, d := range r.Dist {
+			if d <= radius {
+				inSet[id] = true
+			}
+		}
+
+		for _, comp := range componentsOf(edges, inSet) {
+			hasSource := false
+			for id := range comp {
+				if sourceSet[id] {
+					hasSource = true
+					break
+				}
+			}
+			if !hasSource {
+				ids := make([]string, 0, len(comp))
+				for id := range comp {
+					ids = append(ids, id)
+				}
+				slices.Sort(ids)
+				t.Errorf("radius %d: component %v contains no stronghold", radius, ids)
+			}
+		}
 	}
 }

@@ -7,9 +7,9 @@ import (
 
 // Reach map palette.
 const (
-	dotDim         = "#3a4557"
-	dotInReach     = "#f0f4f8"
-	dotStronghold  = "#ff2d2d"
+	dotDim        = "#3a4557"
+	dotInReach    = "#f0f4f8"
+	dotStronghold = "#ff2d2d"
 )
 
 // ReachCSS generates the frame-reveal rules for radii 1..maxRadius.
@@ -17,6 +17,10 @@ const (
 // Radius 0 is excluded on purpose: the strongholds are in reach at every
 // frame, so their rb-0 geometry is never hidden and their sr-0 dots get a
 // single static rule instead of one per frame.
+//
+// The rb-N classes these selectors target are emitted by
+// galaxymap.Render's ReachBlob geometry (pkg/galaxymap/galaxymap.go); the
+// sr-N classes come from this package's HighlightClasses callback.
 func ReachCSS(maxRadius int) string {
 	var b strings.Builder
 

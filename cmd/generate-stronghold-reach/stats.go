@@ -32,7 +32,7 @@ func componentCount(edges []Edge, inSet map[string]bool) int {
 	for id := range inSet {
 		parent[id] = id
 	}
-	var find func(string) string //nolint:staticcheck
+	var find func(string) string //nolint:staticcheck // S1021 false positive: self-referential closure needs the two-step declare-then-assign
 	find = func(x string) string {
 		for parent[x] != x {
 			parent[x] = parent[parent[x]]
