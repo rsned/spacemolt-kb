@@ -75,8 +75,11 @@ func main() {
 				}
 				return -1
 			},
-			Max:   reach.Max,
-			Color: "#c53030",
+			Max: reach.Max,
+			// Fire-engine red. The goo filter renders the blob at 0.25
+			// alpha, so the base color has to be vivid to read as red
+			// against the near-black background.
+			Color: "#ff1d1d",
 		},
 	})
 
