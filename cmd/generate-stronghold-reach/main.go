@@ -124,6 +124,7 @@ func main() {
 		FarthestNames     string
 		FarthestCount     int
 		UnreachableCount  int
+		JumpSections      []JumpSection
 		ReachCSS          template.CSS
 		MapSVG            template.HTML
 		StatsJSON         template.JS
@@ -140,6 +141,7 @@ func main() {
 		FarthestNames:    farthestNames(reach, names),
 		FarthestCount:    farthestCount(reach),
 		UnreachableCount: len(systems) - len(reach.Dist),
+		JumpSections:     JumpSections(reach, names, reach.Max),
 		ReachCSS:         template.CSS(ReachCSS(reach.Max)),
 		MapSVG:           template.HTML(svg),
 		StatsJSON:        template.JS(statsJSON),

@@ -369,3 +369,66 @@ func TestEmpireArrivalsUsesDisplayNames(t *testing.T) {
 		t.Errorf("arrivals = %+v, want display name %q", got[1], "Outer Rim")
 	}
 }
+
+func TestJumpSectionsGroupsByExactDistance(t *testing.T) {
+	edges := twoStars()
+	r := ComputeReach(edges, []string{"a", "x"})
+	// dist: a=0 x=0 b=1 y=1 c=2 z=2
+	names := map[string]string{"a": "Ay", "b": "Bee", "c": "Cee", "x": "Ex", "y": "Why", "z": "Zed"}
+
+	got := JumpSections(r, names, r.Max)
+
+	want := []JumpSection{
+		{Radius: 0, Systems: []JumpEntry{{"a", "Ay"}, {"x", "Ex"}}},
+		{Radius: 1, Systems: []JumpEntry{{"b", "Bee"}, {"y", "Why"}}},
+		{Radius: 2, Systems: []JumpEntry{{"c", "Cee"}, {"z", "Zed"}}},
+	}
+	if !slices.EqualFunc(got, want, func(a, b JumpSection) bool {
+		return a.Radius == b.Radius && slices.Equal(a.Systems, b.Systems)
+	}) {
+		t.Errorf("JumpSections = %+v, want %+v", got, want)
+	}
+}
+
+func TestJumpSectionsCoversEveryReachableSystemExactlyOnce(t *testing.T) {
+	edges := twoStars()
+	r := ComputeReach(edges, []string{"a"})
+
+	seen := map[string]int{}
+	for _, sec := range JumpSections(r, nil, r.Max) {
+		for _, e := range sec.Systems {
+			seen[e.SystemID]++
+		}
+	}
+	if len(seen) != len(r.Dist) {
+		t.Errorf("indexed %d systems, want %d", len(seen), len(r.Dist))
+	}
+	for id, n := range seen {
+		if n != 1 {
+			t.Errorf("system %s listed %d times, want 1", id, n)
+		}
+	}
+}
+
+func TestJumpSectionsFallsBackToIDWhenNameMissing(t *testing.T) {
+	r := ComputeReach(twoStars(), []string{"a"})
+	secs := JumpSections(r, map[string]string{}, r.Max)
+	if secs[0].Systems[0].Name != "a" {
+		t.Errorf("Name = %q, want the ID %q as fallback", secs[0].Systems[0].Name, "a")
+	}
+}
+
+func TestJumpSectionsOmitsEmptyRadiiAndRespectsMax(t *testing.T) {
+	r := ComputeReach(twoStars(), []string{"a"})
+	// twoStars is a 6-node chain from a, so max distance is 5. Asking for 2
+	// must truncate rather than emit empty sections out to 5.
+	secs := JumpSections(r, nil, 2)
+	if len(secs) != 3 {
+		t.Fatalf("len(secs) = %d, want 3 (radii 0,1,2)", len(secs))
+	}
+	for _, s := range secs {
+		if len(s.Systems) == 0 {
+			t.Errorf("radius %d emitted with no systems", s.Radius)
+		}
+	}
+}

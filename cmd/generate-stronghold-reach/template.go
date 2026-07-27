@@ -26,6 +26,15 @@ const pageTemplate = `<!DOCTYPE html>
         .holdouts { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid #ff9500;
                     border-radius:8px; padding:14px 18px; margin:12px 0 4px; }
         .holdouts strong { color:#ff9500; }
+        .jump-index { margin-top:8px; }
+        .jump-index .jump-group { margin:18px 0 24px; }
+        .jump-index h4 { margin:0 0 8px; font-size:1.05em; }
+        .jump-index h4 .count { color:var(--text-muted); font-weight:normal; font-size:0.85em; margin-left:8px; }
+        .jump-index ul { column-count:5; column-gap:28px; list-style:none; margin:0; padding:0;
+                         font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:0.86em; }
+        .jump-index li { break-inside:avoid; padding:1px 0; overflow-wrap:anywhere; }
+        @media (max-width:900px) { .jump-index ul { column-count:3; } }
+        @media (max-width:600px) { .jump-index ul { column-count:2; } }
 {{.ReachCSS}}
     </style>
 </head>
@@ -110,6 +119,19 @@ const pageTemplate = `<!DOCTYPE html>
 
         <h3 class="mt-3">Data Source</h3>
         <p class="text-muted">System positions, jump-gate connections, and stronghold flags come from the knowledge database ({{.TotalSystems}} systems, {{.EdgeCount}} jump gates). The nine strongholds are the systems flagged <code>is_stronghold</code>; all nine are neutral, with no empire and no police presence. Distance is the minimum number of jump-gate traversals to the nearest stronghold via a multi-source breadth-first search.</p>
+
+        <h3 class="mt-3">Every System, By Jumps</h3>
+        <p class="text-muted">The full index, grouped by exact distance to the nearest stronghold and listed by system ID so the page can be searched directly for the ID that appears in logs and tooling.</p>
+        <div class="jump-index">
+        {{range .JumpSections}}
+            <div class="jump-group">
+                <h4>{{if .Radius}}{{.Radius}} jump{{if ne .Radius 1}}s{{end}}{{else}}0 jumps &mdash; the strongholds themselves{{end}}<span class="count">{{len .Systems}} systems</span></h4>
+                <ul>
+                {{range .Systems}}<li><a href="../systems/{{.SystemID}}/" title="{{.Name}}">{{.SystemID}}</a></li>{{end}}
+                </ul>
+            </div>
+        {{end}}
+        </div>
 
         <p class="text-muted mt-3"><a href="./">&larr; Back to Did You Know?</a></p>
     </main>

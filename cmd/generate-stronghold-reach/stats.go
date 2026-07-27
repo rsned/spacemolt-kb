@@ -110,3 +110,49 @@ func TerritoryRows(r Reach, names map[string]string) []TerritoryRow {
 	})
 	return rows
 }
+
+// JumpEntry is one system in the by-jumps index.
+type JumpEntry struct {
+	SystemID string
+	Name     string
+}
+
+// JumpSection lists every system sitting at exactly Radius jumps from the
+// nearest stronghold.
+type JumpSection struct {
+	Radius  int
+	Systems []JumpEntry
+}
+
+// JumpSections groups reachable systems by their exact distance, one section
+// per radius from 0 to maxRadius inclusive. Radii with no systems at that
+// exact distance are omitted rather than emitted empty.
+//
+// Entries are ordered by system ID, which is the token the rendered page is
+// searched by; names are looked up for display and fall back to the ID.
+func JumpSections(r Reach, names map[string]string, maxRadius int) []JumpSection {
+	byRadius := make(map[int][]JumpEntry)
+	for id, d := range r.Dist {
+		if d > maxRadius {
+			continue
+		}
+		name := names[id]
+		if name == "" {
+			name = id
+		}
+		byRadius[d] = append(byRadius[d], JumpEntry{SystemID: id, Name: name})
+	}
+
+	sections := make([]JumpSection, 0, len(byRadius))
+	for radius := 0; radius <= maxRadius; radius++ {
+		entries := byRadius[radius]
+		if len(entries) == 0 {
+			continue
+		}
+		slices.SortFunc(entries, func(a, b JumpEntry) int {
+			return cmp.Compare(a.SystemID, b.SystemID)
+		})
+		sections = append(sections, JumpSection{Radius: radius, Systems: entries})
+	}
+	return sections
+}
