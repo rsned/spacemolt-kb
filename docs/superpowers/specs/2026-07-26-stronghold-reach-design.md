@@ -93,11 +93,31 @@ busiest gateway."
 
 ### Snapshot staleness
 
-The checked-in `kb/galaxy-map.html` was generated against an older snapshot and
-shows 378 systems; the DB now holds 505. This page is generated from current
-data, so its counts will not match that page until it is regenerated.
-Regenerating `galaxy-map.html` is **out of scope here** and will be done
-separately.
+**Corrected 2026-07-26 (after implementation).** This section originally claimed
+the checked-in `kb/galaxy-map.html` was stale at 378 systems against a DB of 505.
+That was wrong — the figure was carried over from the earlier
+`2026-07-20-resource-galaxy-map-design.md` without being re-measured, and the
+file already contained all 505 systems.
+
+The real staleness was in the `systems.empire` field's *meaning*, not the system
+count. The checked-in map was generated when that field held a **region** label
+(every system tagged with its nearest empire, 364 systems colored). The field has
+since been corrected to mean **ownership**, of which there are only 70 systems.
+Regenerating recolors 294 of 505 dots from empire colors to unclaimed grey:
+
+| | as-committed map | regenerated |
+|---|---|---|
+| unclaimed | 131 | 425 |
+| nebula | 97 | 17 |
+| solarian | 87 | 15 |
+| voidborn | 75 | 10 |
+| crimson | 60 | 16 |
+| outerrim | 45 | 12 |
+
+The conclusion still held: this page reads current data, so it disagreed with the
+checked-in map until that map was regenerated. `galaxy-map.html` was out of scope
+for this work and was regenerated separately in `061b9aab0`, which brought the
+two pages into agreement on the same 70 owned systems.
 
 ## Decisions
 
@@ -283,7 +303,7 @@ A single acceptance check against the live DB confirms the headline numbers:
 
 ## Out of scope
 
-- Regenerating `kb/galaxy-map.html` from the current 505-system snapshot.
-  Acknowledged as stale; separate work.
+- Regenerating `kb/galaxy-map.html` for the corrected empire-ownership
+  semantics. Was separate work; done in `061b9aab0`.
 - Per-stronghold reach pages.
 - Weighting by jump distance, fuel cost, or danger — hop count only.
