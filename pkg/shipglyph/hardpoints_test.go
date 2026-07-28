@@ -52,14 +52,32 @@ func TestHardpointIDsAreStableAndUnique(t *testing.T) {
 	}
 }
 
-func TestHardpointsSitInsideTheHull(t *testing.T) {
-	s := Stats{ID: "war_wagon", Class: "Bulk Hauler", Faction: "crimson", Scale: 4,
-		Weapon: 2, Defense: 2, Utility: 8}
+func TestHardpointPlacementPinsInsetAndSpread(t *testing.T) {
+	// Two weapon slots on a spine hull: the weapon zone is {0.06, 0.40}, so
+	// the pair must land exactly on the zone ends, alternating starboard then
+	// port, each inset to 55% of the local half-width. This pins both the
+	// spread arithmetic and hardpointInset. Asserting only |Y| <= half-width
+	// would hold for any inset in [0,1] and so could never fail.
+	s := Stats{ID: "pin", Class: "Cruiser", Faction: "crimson", Scale: 3, Weapon: 2}
 	d := Infer(s)
-	for _, h := range Hardpoints(d, s) {
-		w := hullHalfWidth(d, h.Pos.X)
-		if math.Abs(h.Pos.Y) > w+1e-9 {
-			t.Errorf("%s at Y=%v exceeds half-width %v at X=%v", h.ID, h.Pos.Y, w, h.Pos.X)
+	hps := Hardpoints(d, s)
+
+	if len(hps) != 2 {
+		t.Fatalf("len = %d, want 2", len(hps))
+	}
+	if hullHalfWidth(d, 0.06) <= 0 {
+		t.Fatalf("test would be vacuous: half-width at the forward zone end is 0")
+	}
+
+	wantX := []float64{0.06, 0.40}
+	wantSign := []float64{1, -1}
+	for i, h := range hps {
+		if math.Abs(h.Pos.X-wantX[i]) > 1e-9 {
+			t.Errorf("%s X = %v, want %v", h.ID, h.Pos.X, wantX[i])
+		}
+		wantY := wantSign[i] * hullHalfWidth(d, wantX[i]) * hardpointInset
+		if math.Abs(h.Pos.Y-wantY) > 1e-9 {
+			t.Errorf("%s Y = %v, want %v", h.ID, h.Pos.Y, wantY)
 		}
 	}
 }
@@ -71,14 +89,19 @@ func TestHardpointsZeroSlotsProducesNone(t *testing.T) {
 	}
 }
 
-func TestHardpointsAreDeterministic(t *testing.T) {
-	s := Stats{ID: "superposition", Class: "Drone Carrier", Faction: "voidborn", Scale: 4,
-		Weapon: 2, Defense: 5, Utility: 6}
-	d := Infer(s)
-	a, b := Hardpoints(d, s), Hardpoints(d, s)
-	for i := range a {
-		if a[i] != b[i] {
-			t.Fatalf("hardpoint %d diverged: %+v vs %+v", i, a[i], b[i])
-		}
+func TestSingleHardpointSitsOnTheCenterline(t *testing.T) {
+	// With one marker there is no pair to mirror, so it takes the zone
+	// midpoint on the centerline rather than an offset side.
+	s := Stats{ID: "solo", Class: "Cruiser", Faction: "crimson", Scale: 3, Weapon: 1}
+	hps := Hardpoints(Infer(s), s)
+
+	if len(hps) != 1 {
+		t.Fatalf("len = %d, want 1", len(hps))
+	}
+	if math.Abs(hps[0].Pos.X-0.23) > 1e-9 {
+		t.Errorf("X = %v, want 0.23 (midpoint of zone {0.06, 0.40})", hps[0].Pos.X)
+	}
+	if hps[0].Pos.Y != 0 {
+		t.Errorf("Y = %v, want exactly 0", hps[0].Pos.Y)
 	}
 }

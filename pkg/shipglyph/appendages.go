@@ -57,8 +57,14 @@ func appendagePoly(d Descriptor, a Appendage, side float64) []Point {
 		span = 0.2
 	}
 
-	// Sweep converts to how far aft the outboard edge trails the root.
-	trail := span * math.Tan(a.Sweep*math.Pi/180)
+	// Sweep arrives from externally-authored overlay JSON, so bound it before
+	// it reaches tan(): angles near 90 degrees produce an enormous trail and
+	// an appendage that extends far off the glyph. The trail is then capped to
+	// half the hull length, which keeps even an extreme sweep attached to the
+	// ship it belongs to.
+	sweep := math.Min(85, math.Max(-85, a.Sweep))
+	trail := span * math.Tan(sweep*math.Pi/180)
+	trail = math.Min(0.5, math.Max(-0.5, trail))
 
 	var chordFwd, chordAft, tipFwd, tipAft float64
 	switch a.Kind {
