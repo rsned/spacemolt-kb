@@ -76,8 +76,13 @@ func TestWriteContactSheetProducesPage(t *testing.T) {
 func TestWriteContactSheetEscapesNames(t *testing.T) {
 	dir := t.TempDir()
 	glyphs := []renderedGlyph{{
-		Stats: shipglyph.Stats{ID: "x", Name: `Ship <script>alert(1)</script>`, Class: "Cruiser", Faction: "crimson"},
-		SVG:   `<svg class="ship-glyph"></svg>`,
+		Stats: shipglyph.Stats{
+			ID:      "x",
+			Name:    `Ship <script>alert(1)</script>`,
+			Class:   `Cruiser <img src=x onerror=alert(2)>`,
+			Faction: "crimson",
+		},
+		SVG: `<svg class="ship-glyph"></svg>`,
 	}}
 	if err := writeContactSheet(dir, glyphs); err != nil {
 		t.Fatal(err)
@@ -85,5 +90,8 @@ func TestWriteContactSheetEscapesNames(t *testing.T) {
 	data, _ := os.ReadFile(filepath.Join(dir, "index.html"))
 	if strings.Contains(string(data), "<script>alert(1)</script>") {
 		t.Errorf("ship name was not HTML-escaped")
+	}
+	if strings.Contains(string(data), "<img src=x") {
+		t.Errorf("ship class was not HTML-escaped")
 	}
 }

@@ -110,10 +110,13 @@ var contactSheetTmpl = htmltpl.Must(htmltpl.New("contactsheet").Funcs(htmltpl.Fu
 <script>
 (function () {
   var toggle = document.getElementById('theme-toggle');
+  var root = document.documentElement;
+  var stored = localStorage.getItem('theme');
+  if (stored === 'dark') root.classList.add('dark');
   if (!toggle) return;
   toggle.addEventListener('click', function () {
-    var root = document.documentElement;
-    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.classList.toggle('dark');
+    localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
   });
 })();
 </script>
