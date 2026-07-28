@@ -4,20 +4,20 @@ import "testing"
 
 func TestArchetypeOfKnownAndUnknownClasses(t *testing.T) {
 	cases := map[string]string{
-		"Liner":        "needle",
-		"Courier":      "needle",
-		"Dreadnought":  "spine",
-		"Freighter":    "slab",
-		"Bulk Hauler":  "slab",
-		"Tanker":       "drum",
+		"Liner":         "needle",
+		"Courier":       "needle",
+		"Dreadnought":   "spine",
+		"Freighter":     "slab",
+		"Bulk Hauler":   "slab",
+		"Tanker":        "drum",
 		"Gas Harvester": "drum",
-		"Miner":        "rig",
-		"Salvager":     "rig",
+		"Miner":         "rig",
+		"Salvager":      "rig",
 		"Fleet Carrier": "rack",
 		"Drone Carrier": "rack",
-		"Fighter":      "dart",
-		"Research":     "pod",
-		"Nonsense":     "spine",
+		"Fighter":       "dart",
+		"Research":      "pod",
+		"Nonsense":      "spine",
 	}
 	for class, want := range cases {
 		if got := archetypeOf(class); got != want {
