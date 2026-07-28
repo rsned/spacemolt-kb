@@ -189,25 +189,13 @@ func archetypeZones(fam string) MountZones {
 // enginesFor returns a plausible engine nozzle count from hull scale.
 func enginesFor(s Stats) int {
 	n := 1 + s.Scale/2
-	if n < 1 {
-		n = 1
-	}
-	if n > 4 {
-		n = 4
-	}
-	return n
+	return min(max(n, 1), 4)
 }
 
 // bayCells returns the number of carrier bays from hull scale.
 func bayCells(s Stats) int {
 	n := 2 + s.Scale
-	if n < 2 {
-		n = 2
-	}
-	if n > 7 {
-		n = 7
-	}
-	return n
+	return min(max(n, 2), 7)
 }
 
 // greebleFor picks surface detail density from faction and scale.

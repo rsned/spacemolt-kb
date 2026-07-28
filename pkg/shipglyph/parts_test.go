@@ -33,6 +33,24 @@ func TestPartHalfWidthBeamInterpolates(t *testing.T) {
 	}
 }
 
+func TestBeamPartUsesAbsoluteSpineCoordinates(t *testing.T) {
+	// Beam control points are authored in absolute spine coordinates: in
+	// infer.go every beam's Points range equals its own Span. partHalfWidth
+	// must therefore pass global t to beamHalfWidth, not part-local u.
+	// Switching to u would pass every other test in this package while
+	// silently deforming every multi-part hull.
+	p := HullPart{
+		Kind: "beam", Span: [2]float64{0.5, 1.0},
+		Points: [][2]float64{{0.5, 0.10}, {1.0, 0.30}},
+	}
+	// t=0.75 is halfway between the control points, so the correct answer is
+	// 0.20. Part-local u would be 0.5, which clamps to the first control
+	// point and yields 0.10 instead.
+	if got := partHalfWidth(p, 0.75); math.Abs(got-0.20) > 1e-9 {
+		t.Errorf("partHalfWidth(t=0.75) = %v, want 0.20; 0.10 means part-local u is being passed", got)
+	}
+}
+
 func TestPartHalfWidthEngineConeTapers(t *testing.T) {
 	p := HullPart{Kind: "engine_cone", Span: [2]float64{0.8, 1.0}, Bells: 3}
 	near, far := partHalfWidth(p, 0.82), partHalfWidth(p, 0.99)

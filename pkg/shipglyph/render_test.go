@@ -97,6 +97,31 @@ func TestRenderUsesCurrentColorNotHardcodedColors(t *testing.T) {
 	}
 }
 
+func TestRenderScopesIDsWithPrefix(t *testing.T) {
+	s := Stats{ID: "comet", Name: "Comet",
+		Class: "Liner", Faction: "nebula", Scale: 4, Defense: 4, Utility: 5}
+	d := Infer(s)
+
+	prefixed := Render(d, s, Options{Size: 200, ShowHardpoints: true, Title: s.Name, IDPrefix: "abc-"})
+	if !strings.Contains(prefixed, `id="abc-region-bow"`) {
+		t.Errorf("missing prefixed region ID")
+	}
+	if !strings.Contains(prefixed, `id="abc-hull"`) {
+		t.Errorf("missing prefixed hull ID")
+	}
+	if strings.Contains(prefixed, `id="region-bow"`) || strings.Contains(prefixed, `id="hull"`) {
+		t.Errorf("unprefixed IDs leaked through when IDPrefix was set")
+	}
+
+	unprefixed := Render(d, s, Options{Size: 200, ShowHardpoints: true, Title: s.Name})
+	if !strings.Contains(unprefixed, `id="region-bow"`) {
+		t.Errorf("missing unprefixed region ID")
+	}
+	if !strings.Contains(unprefixed, `id="hull"`) {
+		t.Errorf("missing unprefixed hull ID")
+	}
+}
+
 func TestRenderIsByteIdenticalAcrossRuns(t *testing.T) {
 	s := Stats{ID: "yard_sale", Name: "Yard Sale",
 		Class: "Salvager", Faction: "outerrim", Scale: 3, Defense: 1, Utility: 4}

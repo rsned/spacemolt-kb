@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -55,5 +56,43 @@ func TestToStatsMapsSlotFields(t *testing.T) {
 func TestLoadShipCatalogMissingFileErrors(t *testing.T) {
 	if _, err := loadShipCatalog(filepath.Join(t.TempDir(), "nope.json")); err == nil {
 		t.Errorf("expected an error for a missing catalog")
+	}
+}
+
+func TestValidateCatalogRejectsEmptyID(t *testing.T) {
+	ships := []catalogShip{
+		{ID: "prayer", Name: "Prayer"},
+		{ID: "", Name: "Nameless"},
+	}
+	err := validateCatalog(ships)
+	if err == nil {
+		t.Fatalf("expected an error for an empty id")
+	}
+	if !strings.Contains(err.Error(), "Nameless") {
+		t.Errorf("error %q does not name the offending ship", err)
+	}
+}
+
+func TestValidateCatalogRejectsDuplicateID(t *testing.T) {
+	ships := []catalogShip{
+		{ID: "comet", Name: "Comet"},
+		{ID: "comet", Name: "Comet Mk II"},
+	}
+	err := validateCatalog(ships)
+	if err == nil {
+		t.Fatalf("expected an error for a duplicate id")
+	}
+	if !strings.Contains(err.Error(), "comet") {
+		t.Errorf("error %q does not name the offending id", err)
+	}
+}
+
+func TestValidateCatalogAcceptsCleanCatalog(t *testing.T) {
+	ships := []catalogShip{
+		{ID: "prayer", Name: "Prayer"},
+		{ID: "comet", Name: "Comet"},
+	}
+	if err := validateCatalog(ships); err != nil {
+		t.Errorf("unexpected error for a clean catalog: %v", err)
 	}
 }

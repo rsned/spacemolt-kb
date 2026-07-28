@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 
 	"github.com/rsned/spacemolt-kb/pkg/shipglyph"
 )
@@ -37,6 +39,39 @@ func loadShipCatalog(path string) ([]catalogShip, error) {
 		return nil, fmt.Errorf("parse ship catalog: %w", err)
 	}
 	return catalog.Items, nil
+}
+
+// validateCatalog checks the catalog for problems that would produce broken
+// output: an empty id would write a file literally named ".svg", and two
+// ships sharing an id would silently overwrite each other. It reports every
+// offending id at once rather than failing on the first.
+func validateCatalog(ships []catalogShip) error {
+	var empty []string
+	byID := make(map[string][]string)
+	for _, c := range ships {
+		if c.ID == "" {
+			empty = append(empty, c.Name)
+			continue
+		}
+		byID[c.ID] = append(byID[c.ID], c.Name)
+	}
+	if len(empty) > 0 {
+		slices.Sort(empty)
+		return fmt.Errorf("catalog has %d ship(s) with an empty id: %v", len(empty), empty)
+	}
+
+	var dupes []string
+	for id, names := range byID {
+		if len(names) > 1 {
+			slices.Sort(names)
+			dupes = append(dupes, fmt.Sprintf("%s %v", id, names))
+		}
+	}
+	if len(dupes) > 0 {
+		slices.Sort(dupes)
+		return fmt.Errorf("catalog has duplicate ship ids: %s", strings.Join(dupes, ", "))
+	}
+	return nil
 }
 
 // toStats projects a catalog ship onto the shape-inference input.

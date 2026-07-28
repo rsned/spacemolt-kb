@@ -4,6 +4,12 @@ import "math"
 
 // profileSamples is how many points are taken along each side of the hull.
 // High enough for smooth curves at glyph size, low enough to keep SVGs small.
+//
+// Changing this interacts with the region-boundary comparisons in
+// regions.go: those filters (p.X >= lo && p.X <= hi) are inclusive at both
+// ends, and today no sample lands exactly on 0.25 or 0.75 only because
+// t = i/95 makes those products non-integral. If profileSamples changes, a
+// sample could land on a boundary exactly and be assigned to two regions.
 const profileSamples = 96
 
 // partHalfWidth returns the hull half-width contributed by part p at spine
@@ -117,13 +123,13 @@ func sampleProfile(d Descriptor, st Style, seed uint64, side int) []Point {
 		t := float64(i) / float64(profileSamples-1)
 		w := hullHalfWidth(d, t)
 
-		if st.Lobed {
+		if st.Lobed > 0 {
 			// Organic swelling: a slow wave that never narrows the hull.
-			w *= 1 + 0.18*math.Sin(t*math.Pi*3.0)
+			w *= 1 + st.Lobed*math.Sin(t*math.Pi*3.0)
 		}
-		if st.Flute {
+		if st.Flute > 0 {
 			// Regular perpendicular notches.
-			w *= 1 - 0.06*math.Abs(math.Sin(t*math.Pi*9))
+			w *= 1 - st.Flute*math.Abs(math.Sin(t*math.Pi*9))
 		}
 		if st.Jitter > 0 {
 			w *= 1 + st.Jitter*(r.next()*2-1)

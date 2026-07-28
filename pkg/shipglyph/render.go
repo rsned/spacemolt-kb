@@ -15,6 +15,11 @@ type Options struct {
 	ShowHardpoints bool
 	// Title is the accessible title, normally the ship's display name.
 	Title string
+	// IDPrefix is prepended to every element ID in the glyph. Leave it empty
+	// for standalone .svg files, where the plain IDs are unique within the
+	// file and are the contract consumers select on. Set it when inlining
+	// many glyphs into a single page, so their IDs cannot collide.
+	IDPrefix string
 }
 
 // glyphMargin is the fraction of Size left empty around the hull.
@@ -41,6 +46,11 @@ func Render(d Descriptor, s Stats, opts Options) string {
 	top := opts.Size * glyphMargin
 
 	outline := Outline(d, st, seed)
+
+	// eid scopes an element ID with opts.IDPrefix, which is empty for
+	// standalone files and a per-ship prefix when many glyphs are inlined
+	// into one page (see Options.IDPrefix).
+	eid := func(s string) string { return opts.IDPrefix + s }
 
 	// Aspect is length divided by maximum beam, so the widest point of the
 	// hull must map to exactly half of length/aspect. The half-widths in a
@@ -70,7 +80,7 @@ func Render(d Descriptor, s Stats, opts Options) string {
 	if opts.Title != "" {
 		fmt.Fprintf(&b, `<title>%s</title>`, html.EscapeString(opts.Title))
 	}
-	b.WriteString(`<g id="hull" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">`)
+	fmt.Fprintf(&b, `<g id="%s" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">`, eid("hull"))
 
 	regions := Regions(d, st, seed)
 	for _, name := range RegionNames {
@@ -78,22 +88,22 @@ func Render(d Descriptor, s Stats, opts Options) string {
 		if len(poly) < 3 {
 			continue
 		}
-		fmt.Fprintf(&b, `<path id="region-%s" class="glyph-region" d="%s"/>`,
-			name, pathData(poly, project))
+		fmt.Fprintf(&b, `<path id="%s" class="glyph-region" d="%s"/>`,
+			eid("region-"+name), pathData(poly, project))
 	}
 	if len(outline) >= 3 {
-		fmt.Fprintf(&b, `<path id="region-outline" class="glyph-outline" stroke-width="1.8" d="%s"/>`,
-			pathData(outline, project))
+		fmt.Fprintf(&b, `<path id="%s" class="glyph-outline" stroke-width="1.8" d="%s"/>`,
+			eid("region-outline"), pathData(outline, project))
 	}
 	b.WriteString(`</g>`)
 
 	// Appendages sit outside the hull group so they can be styled separately
 	// and are never mistaken for damage regions.
 	if shapes := AppendageShapes(d); len(shapes) > 0 {
-		b.WriteString(`<g id="appendages" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">`)
+		fmt.Fprintf(&b, `<g id="%s" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">`, eid("appendages"))
 		for _, sh := range shapes {
 			fmt.Fprintf(&b, `<path id="%s" class="glyph-appendage glyph-ap-%s" d="%s"/>`,
-				sh.ID, sh.Kind, pathData(sh.Poly, project))
+				eid(sh.ID), sh.Kind, pathData(sh.Poly, project))
 		}
 		b.WriteString(`</g>`)
 	}
@@ -101,11 +111,11 @@ func Render(d Descriptor, s Stats, opts Options) string {
 	if opts.ShowHardpoints {
 		hps := Hardpoints(d, s)
 		if len(hps) > 0 {
-			b.WriteString(`<g id="hardpoints" fill="none" stroke="currentColor" stroke-width="1">`)
+			fmt.Fprintf(&b, `<g id="%s" fill="none" stroke="currentColor" stroke-width="1">`, eid("hardpoints"))
 			for _, h := range hps {
 				x, y := project(h.Pos)
 				fmt.Fprintf(&b, `<circle id="%s" class="glyph-hp glyph-hp-%s" cx="%.2f" cy="%.2f" r="%.2f"/>`,
-					h.ID, h.Kind, x, y, opts.Size*0.018)
+					eid(h.ID), h.Kind, x, y, opts.Size*0.018)
 			}
 			b.WriteString(`</g>`)
 		}

@@ -46,14 +46,16 @@ type Style struct {
 	// interpolates, so the smoothed outline sits slightly inside the raw
 	// control polygon.
 	Smooth bool
-	// Flute adds regular perpendicular notches along the hull sides.
-	Flute bool
+	// Flute is the notch depth for regular perpendicular notches along the
+	// hull sides, as a fraction of local half-width. Zero disables fluting.
+	Flute float64
 	// Jitter is the fractional per-vertex displacement applied independently
 	// to each side, producing the Outer Rim's welded-scrap asymmetry.
 	Jitter float64
-	// Lobed expands each control point into an organic bulge before
-	// smoothing, producing the Voidborn's flowing forms.
-	Lobed bool
+	// Lobed is the amplitude of the organic bulge wave applied before
+	// smoothing, as a fraction of local half-width, producing the Voidborn's
+	// flowing forms. Zero disables it.
+	Lobed float64
 }
 
 // StyleFor returns the rendering treatment for a faction. Unknown or empty
@@ -65,11 +67,11 @@ func StyleFor(faction string) Style {
 	case "nebula":
 		return Style{Name: "nebula", Smooth: true}
 	case "solarian":
-		return Style{Name: "solarian", Flute: true, Chamfer: 0.10}
+		return Style{Name: "solarian", Flute: 0.06, Chamfer: 0.10}
 	case "outerrim":
 		return Style{Name: "outerrim", Jitter: 0.08}
 	case "voidborn":
-		return Style{Name: "voidborn", Smooth: true, Lobed: true}
+		return Style{Name: "voidborn", Smooth: true, Lobed: 0.18}
 	case "pirate":
 		return Style{Name: "pirate", Jitter: 0.10, Chamfer: 0.18}
 	default:
