@@ -56,6 +56,33 @@ func TestOutlineChamferAddsVertices(t *testing.T) {
 	}
 }
 
+func TestChamferCutsAtTheCorrectPositions(t *testing.T) {
+	// A unit square chamfered at f=0.25: each corner is replaced by two
+	// points, each one quarter of the way along its two adjacent edges.
+	// This pins the cut arithmetic itself — a chamfer that merely duplicated
+	// each vertex without cutting would pass a point-count check but fail
+	// this one.
+	square := []Point{{0, 0}, {1, 0}, {1, 1}, {0, 1}}
+	want := []Point{
+		{0, 0.25}, {0.25, 0},
+		{0.75, 0}, {1, 0.25},
+		{1, 0.75}, {0.75, 1},
+		{0.25, 1}, {0, 0.75},
+	}
+
+	got := chamfer(square, 0.25)
+
+	if len(got) != len(want) {
+		t.Fatalf("len = %d, want %d", len(got), len(want))
+	}
+	for i := range want {
+		if math.Abs(got[i].X-want[i].X) > 1e-9 || math.Abs(got[i].Y-want[i].Y) > 1e-9 {
+			t.Errorf("point %d = (%v, %v), want (%v, %v)",
+				i, got[i].X, got[i].Y, want[i].X, want[i].Y)
+		}
+	}
+}
+
 func TestOutlineIsDeterministic(t *testing.T) {
 	d := Infer(Stats{ID: "excessive_force", Class: "Drone Carrier", Faction: "outerrim", Scale: 4})
 	st := StyleFor("outerrim")

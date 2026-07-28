@@ -41,7 +41,10 @@ type Style struct {
 	// Chamfer is the fraction of a segment cut away at each vertex, giving
 	// the angular Crimson look. Zero disables chamfering.
 	Chamfer float64
-	// Smooth joins control points with a Catmull-Rom spline.
+	// Smooth rounds the hull with a Chaikin corner-cutting pass, giving the
+	// flowing Nebula and Voidborn forms. Chaikin approximates rather than
+	// interpolates, so the smoothed outline sits slightly inside the raw
+	// control polygon.
 	Smooth bool
 	// Flute adds regular perpendicular notches along the hull sides.
 	Flute bool
