@@ -3,6 +3,7 @@ package shipglyph
 import (
 	"fmt"
 	"html"
+	"math"
 	"strings"
 )
 
@@ -36,13 +37,31 @@ func Render(d Descriptor, s Stats, opts Options) string {
 	}
 	usable := opts.Size * (1 - 2*glyphMargin)
 	length := usable
-	beam := usable / aspect
 	cx := opts.Size / 2
 	top := opts.Size * glyphMargin
 
+	outline := Outline(d, st, seed)
+
+	// Aspect is length divided by maximum beam, so the widest point of the
+	// hull must map to exactly half of length/aspect. The half-widths in a
+	// Descriptor describe shape, not scale, and their maxima differ by
+	// archetype; without this normalisation they would multiply with Aspect
+	// and each archetype would render narrower than declared by its own
+	// factor.
+	var maxHalf float64
+	for _, p := range outline {
+		if a := math.Abs(p.Y); a > maxHalf {
+			maxHalf = a
+		}
+	}
+	scaleY := 1.0
+	if maxHalf > 0 {
+		scaleY = (length / (2 * aspect)) / maxHalf
+	}
+
 	// project maps glyph space to SVG user space, nose at the top.
 	project := func(p Point) (float64, float64) {
-		return cx + p.Y*beam, top + p.X*length
+		return cx + p.Y*scaleY, top + p.X*length
 	}
 
 	var b strings.Builder
@@ -62,9 +81,6 @@ func Render(d Descriptor, s Stats, opts Options) string {
 		fmt.Fprintf(&b, `<path id="region-%s" class="glyph-region" d="%s"/>`,
 			name, pathData(poly, project))
 	}
-
-	// The full outline is drawn last so it reads as the dominant contour.
-	outline := Outline(d, st, seed)
 	if len(outline) >= 3 {
 		fmt.Fprintf(&b, `<path id="region-outline" class="glyph-outline" stroke-width="1.8" d="%s"/>`,
 			pathData(outline, project))

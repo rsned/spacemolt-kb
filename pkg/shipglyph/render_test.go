@@ -1,6 +1,8 @@
 package shipglyph
 
 import (
+	"math"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -124,5 +126,79 @@ func TestRenderEveryFactionProducesOutput(t *testing.T) {
 		if !strings.Contains(out, "<path") {
 			t.Errorf("faction %q produced no paths", f)
 		}
+	}
+}
+
+func TestRenderNeutralizesOverlaySuppliedKind(t *testing.T) {
+	d := Descriptor{
+		Aspect:     3,
+		Hull:       []HullPart{{Kind: "box", Span: [2]float64{0, 1}, Half: 0.2}},
+		Appendages: []Appendage{{Kind: `w"><script>`, At: 0.5, Span: 0.2, Side: "both"}},
+	}
+	out := Render(d, Stats{ID: "x", Name: "X", Faction: "crimson"}, Options{Size: 200})
+
+	if strings.Contains(out, "<script>") {
+		t.Errorf("overlay-supplied kind injected markup into the glyph")
+	}
+	// The kind should be sanitized; the raw unsanitized form should not appear
+	// anywhere in the attributes. Check that the dangerous characters from
+	// the input kind do not appear together in any SVG attribute context.
+	if strings.Contains(out, `glyph-ap-w">`) || strings.Contains(out, `id="ap-w">`) {
+		t.Errorf("overlay-supplied kind broke out of its attribute")
+	}
+}
+
+// outlineXExtent parses the glyph's outline path back out of the rendered
+// markup and returns the min and max SVG x coordinates.
+func outlineXExtent(t *testing.T, svg string) (float64, float64) {
+	t.Helper()
+	i := strings.Index(svg, `id="region-outline"`)
+	if i < 0 {
+		t.Fatalf("no region-outline path in output")
+	}
+	j := strings.Index(svg[i:], ` d="`)
+	if j < 0 {
+		t.Fatalf("outline path has no d attribute")
+	}
+	start := i + j + 4
+	end := strings.Index(svg[start:], `"`)
+	if end < 0 {
+		t.Fatalf("unterminated d attribute")
+	}
+
+	minX, maxX := math.Inf(1), math.Inf(-1)
+	for k, tok := range strings.Fields(svg[start : start+end]) {
+		if k%2 != 0 {
+			continue // odd tokens are y coordinates
+		}
+		v, err := strconv.ParseFloat(strings.TrimLeft(tok, "ML"), 64)
+		if err != nil {
+			t.Fatalf("unparsable x token %q", tok)
+		}
+		minX = math.Min(minX, v)
+		maxX = math.Max(maxX, v)
+	}
+	return minX, maxX
+}
+
+func TestRenderHonorsDeclaredAspect(t *testing.T) {
+	// Aspect is length divided by maximum beam, so two descriptors declaring
+	// the same Aspect must render to the same beam even when their half-width
+	// maxima differ by 4x: half-widths describe shape, not scale.
+	const size = 200.0
+	s := Stats{ID: "aspect", Name: "Aspect", Faction: "crimson"}
+	narrow := Descriptor{Aspect: 3, Hull: []HullPart{{Kind: "box", Span: [2]float64{0, 1}, Half: 0.10}}}
+	wide := Descriptor{Aspect: 3, Hull: []HullPart{{Kind: "box", Span: [2]float64{0, 1}, Half: 0.40}}}
+
+	nMin, nMax := outlineXExtent(t, Render(narrow, s, Options{Size: size}))
+	wMin, wMax := outlineXExtent(t, Render(wide, s, Options{Size: size}))
+	nBeam, wBeam := nMax-nMin, wMax-wMin
+
+	if math.Abs(nBeam-wBeam) > 0.5 {
+		t.Errorf("beam varies with half-width: narrow %.2f vs wide %.2f; Aspect must govern proportion", nBeam, wBeam)
+	}
+	want := size * (1 - 2*glyphMargin) / 3
+	if math.Abs(nBeam-want) > 1.0 {
+		t.Errorf("beam = %.2f, want %.2f (length/aspect)", nBeam, want)
 	}
 }

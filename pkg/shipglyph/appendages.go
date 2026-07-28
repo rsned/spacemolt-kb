@@ -3,6 +3,7 @@ package shipglyph
 import (
 	"fmt"
 	"math"
+	"strings"
 )
 
 // AppendageShape is a closed polygon for one hull appendage, on one side.
@@ -15,19 +16,42 @@ type AppendageShape struct {
 	Poly []Point
 }
 
+// safeKind reduces an appendage kind to characters valid in an SVG id and a
+// CSS class. Kinds arrive from hand-authored overlay JSON, which is trusted to
+// be well-intentioned but not to be syntactically careful, and the result is
+// interpolated into attributes of a glyph embedded directly in KB pages.
+func safeKind(kind string) string {
+	var b strings.Builder
+	for _, r := range kind {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9', r == '_', r == '-':
+			b.WriteRune(r)
+		case r >= 'A' && r <= 'Z':
+			b.WriteRune(r + ('a' - 'A'))
+		default:
+			b.WriteByte('-')
+		}
+	}
+	if b.Len() == 0 {
+		return "unknown"
+	}
+	return b.String()
+}
+
 // AppendageShapes builds polygons for every appendage in the descriptor. A
 // "both" appendage yields two shapes, one per side.
 func AppendageShapes(d Descriptor) []AppendageShape {
 	var out []AppendageShape
 	for i, a := range d.Appendages {
+		kind := safeKind(a.Kind)
 		for _, side := range sidesOf(a.Side) {
 			suffix := "s"
 			if side < 0 {
 				suffix = "p"
 			}
 			out = append(out, AppendageShape{
-				ID:   fmt.Sprintf("ap-%s-%d%s", a.Kind, i+1, suffix),
-				Kind: a.Kind,
+				ID:   fmt.Sprintf("ap-%s-%d%s", kind, i+1, suffix),
+				Kind: kind,
 				Poly: appendagePoly(d, a, side),
 			})
 		}

@@ -1,6 +1,9 @@
 package shipglyph
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestAppendageShapesBothSidesProduceTwoShapes(t *testing.T) {
 	d := Descriptor{
@@ -85,5 +88,23 @@ func TestAppendageShapesNoneIsEmpty(t *testing.T) {
 	d := Descriptor{Hull: []HullPart{{Kind: "box", Span: [2]float64{0, 1}, Half: 0.2}}}
 	if got := AppendageShapes(d); len(got) != 0 {
 		t.Errorf("len = %d, want 0", len(got))
+	}
+}
+
+func TestAppendageShapesSanitizesKindForMarkup(t *testing.T) {
+	d := Descriptor{
+		Hull:       []HullPart{{Kind: "box", Span: [2]float64{0, 1}, Half: 0.2}},
+		Appendages: []Appendage{{Kind: `wing" onload="x`, At: 0.5, Span: 0.2, Side: "port"}},
+	}
+	got := AppendageShapes(d)
+
+	if len(got) != 1 {
+		t.Fatalf("len = %d, want 1", len(got))
+	}
+	if strings.ContainsAny(got[0].ID, `"<>&`) {
+		t.Errorf("ID %q still contains markup-breaking characters", got[0].ID)
+	}
+	if strings.ContainsAny(got[0].Kind, `"<>&`) {
+		t.Errorf("Kind %q still contains markup-breaking characters", got[0].Kind)
 	}
 }
