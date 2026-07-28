@@ -1,0 +1,87 @@
+/* Ship glyph contact sheet */
+
+.glyph-sheet {
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.glyph-intro {
+  color: hsl(var(--muted-foreground));
+  font-size: var(--text-ui);
+  margin-bottom: 2rem;
+}
+
+.glyph-group {
+  margin-bottom: 3rem;
+}
+
+.glyph-group h2 {
+  font-size: var(--text-label);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--smui-surface-2));
+  border-bottom: 1px solid hsl(var(--border));
+  margin-bottom: 1rem;
+}
+
+.glyph-count {
+  opacity: 0.6;
+  margin-left: 0.5rem;
+}
+
+.glyph-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.glyph-cell {
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  background: hsl(var(--smui-surface-2));
+  text-align: center;
+}
+
+/* Glyph strokes inherit currentColor, so both themes work with no overrides. */
+.ship-glyph {
+  width: 100%;
+  height: auto;
+  color: hsl(var(--foreground));
+}
+
+.glyph-region {
+  opacity: 0.35;
+}
+
+.glyph-outline {
+  opacity: 1;
+}
+
+.glyph-appendage {
+  opacity: 0.85;
+}
+
+.glyph-hp {
+  opacity: 0.7;
+}
+
+.glyph-cell figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-top: 0.4rem;
+}
+
+.glyph-name {
+  font-size: var(--text-ui);
+}
+
+.glyph-class {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+}

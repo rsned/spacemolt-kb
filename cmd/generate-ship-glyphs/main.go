@@ -65,6 +65,10 @@ func main() {
 		rendered = append(rendered, renderedGlyph{Stats: s, SVG: svg})
 	}
 
+	if err := writeContactSheet(*outDir, rendered); err != nil {
+		log.Fatalf("write contact sheet: %v", err)
+	}
+
 	fmt.Printf("Generated %d ship glyphs (%d with overlays) in %s/\n",
 		len(rendered), overlaid, *outDir)
 }
