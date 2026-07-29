@@ -24,5 +24,12 @@ numpy>=2.5
 scipy>=1.18
 shapely>=2.1
 alphashape>=1.3
-lu-vp-detect>=1.0
+# lu-vp-detect is NOT a dependency: it is broken on OpenCV 5.x
+# (vp_detection.py:179 does `lines = lines[:, 0]` to strip a singleton
+# dimension from LSD's old (N, 1, 4) return, but OpenCV 5.0's LSD returns
+# (N, 4) directly, so the slice yields a 1-D array and the next index raises
+# IndexError) and it never exposed the per-cluster line memberships stage 2's
+# confidence measure needs (get_vp_clusters/get_lines are not in its API).
+# tools/footprint/camera.py calls cv2.createLineSegmentDetector directly and
+# implements the orthogonal-VP fit and confidence itself instead.
 pytest>=9.1
