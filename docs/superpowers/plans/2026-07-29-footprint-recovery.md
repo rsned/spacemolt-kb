@@ -1255,10 +1255,14 @@ git commit -m "feat(footprint): stage 3 MoGe-2 point map"
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_mirror.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
+
+import dataclasses
 
 import numpy as np
+from scipy.spatial import cKDTree
 
 def _load(name):
     """Import a pipeline module through the package.
@@ -1273,10 +1277,33 @@ def _load(name):
 mirror = _load("mirror")
 
 
+def _chamfer(a, b):
+    """Symmetric mean nearest-neighbour distance between two clouds."""
+    return 0.5 * (cKDTree(b).query(a)[0].mean() + cKDTree(a).query(b)[0].mean())
+
+
 def _symmetric_hull(seed=0, n=4000):
-    """A bilaterally symmetric slab, mirror plane normal = +Y, offset 0."""
+    """A tapered, bilaterally symmetric hull: mirror plane normal +Y, offset 0.
+
+    Deliberately NOT a uniform box. A uniform box is symmetric about all three
+    coordinate planes, so the solver could return +X or +Z and be right. Worse,
+    an "asymmetric" variant built by breaking only Y would leave Z an exact
+    symmetry plane and the solver would correctly find it: measured on the box
+    version, Z residual 0.069 vs Y 0.183 at n=4000, and the Z figure is pure
+    sampling noise that falls monotonically with density (0.135 at n=500 ->
+    0.025 at n=80000). A residual-above-ceiling assertion on that fixture would
+    be testing cloud density, not asymmetry.
+
+    The x-dependent taper breaks X symmetry and the x-dependent keel offset
+    breaks Z symmetry, leaving Y the unique answer. Measured: Y=0.0000 exactly,
+    X=0.119, Z=0.117 at n=4000, and Y stays exact as density changes.
+    """
     rng = np.random.default_rng(seed)
-    half = rng.uniform([-2, 0.05, -0.5], [2, 1.0, 0.5], size=(n // 2, 3))
+    x = rng.uniform(-2.0, 2.0, n // 2)
+    halfwidth = 0.15 + 0.85 * (1.0 - (x + 2.0) / 4.0)   # wide at the nose
+    y = 0.05 + halfwidth * rng.uniform(0.0, 1.0, n // 2)
+    z = rng.uniform(-0.5, 0.5, n // 2) + 0.4 * (x / 2.0) ** 2   # keel
+    half = np.column_stack([x, y, z])
     return np.vstack([half, half * [1, -1, 1]])
 
 
@@ -1289,14 +1316,49 @@ def test_solve_finds_the_known_symmetry_plane():
     assert sym.residual < mirror.RESIDUAL_CEILING, sym.residual
 
 
+def _lopsided_hull(seed=0, n=4000):
+    """The symmetric hull plus a sponson attached to the +Y side only.
+
+    Do NOT build this by shoving one side along an axis: `lop[lop[:,1]>0, 0] +=
+    1.2` leaves Z an exact symmetry plane, so the solver correctly returns Z
+    with a LOW residual and the asymmetry assertion fails on correct code.
+    Adding mass to one side leaves no candidate plane: measured best residual
+    over a grid of arbitrary planes is 0.094 / 0.094 / 0.085 at n =
+    2000 / 4000 / 20000, i.e. driven by shape rather than sampling density.
+    """
+    pts = _symmetric_hull(seed, n)
+    rng = np.random.default_rng(seed + 99)
+    m = n // 8
+    sponson = np.column_stack([rng.uniform(-0.5, 0.9, m),
+                               rng.uniform(1.0, 1.8, m),
+                               rng.uniform(-0.3, 0.3, m)])
+    return np.vstack([pts, sponson])
+
+
 def test_solve_reports_a_high_residual_on_an_asymmetric_hull():
     # Scrap-built hulls are deliberately lopsided; the residual is how we know
     # not to trust the mirrored half.
-    pts = _symmetric_hull()
-    lop = pts.copy()
-    lop[lop[:, 1] > 0, 0] += 1.2  # shove one whole side down the long axis
-    sym = mirror.solve(lop)
+    sym = mirror.solve(_lopsided_hull())
     assert sym.residual > mirror.RESIDUAL_CEILING, sym.residual
+
+
+def test_residual_ceiling_tolerates_a_noisy_symmetric_hull():
+    """A symmetric hull with measurement noise must stay UNDER the ceiling.
+
+    Without this, RESIDUAL_CEILING is only ever shown to separate 0.0 from
+    0.085 — and the exact-zero case is an artifact of the fixture mirroring
+    points exactly, which no real point map does. Measured Y residual on the
+    symmetric hull at noise sigma 0.005 / 0.01 / 0.02 / 0.04 is 0.011 / 0.022 /
+    0.038 / 0.054, against a lopsided hull's 0.094. So the ceiling at 0.06
+    separates the two only while cloud noise stays below roughly sigma 0.04.
+    CARRY THIS INTO TASK 9: the noise level of real MoGe clouds is unmeasured,
+    so re-validate the ceiling against real clouds there. This test proves the
+    mechanism, not that 0.06 is the right number for real art.
+    """
+    pts = _symmetric_hull()
+    noisy = pts + np.random.default_rng(7).normal(0, 0.02, pts.shape)
+    sym = mirror.solve(noisy)
+    assert sym.residual < mirror.RESIDUAL_CEILING, sym.residual
 
 
 def test_reflect_is_an_involution():
@@ -1308,22 +1370,63 @@ def test_reflect_is_an_involution():
 
 
 def test_complete_fills_the_occluded_half():
-    # Keep only one side, as a single view would; completion must restore the
-    # other side to within the sampling density.
+    """Keep one side, as a single view would; completion must restore the other.
+
+    The assertion compares the completed cloud against the KNOWN full hull.
+    Counting how many points land at y < 0 is not enough: `complete` could
+    ignore `sym` entirely and return
+    `np.vstack([visible, visible * [1, -1, 1]])`, which satisfies any count-
+    based assertion while reflecting across a hardcoded plane rather than the
+    solved one. Chamfer against ground truth fails for a wrong plane, so this
+    test actually exercises `sym`.
+    """
     pts = _symmetric_hull()
     visible = pts[pts[:, 1] > 0]
     sym = mirror.solve(visible)
     full = mirror.complete(visible, sym)
     assert (full[:, 1] < 0).sum() >= len(visible) - 1
+    assert _chamfer(full, pts) < 0.05, _chamfer(full, pts)
+
+
+def test_complete_uses_the_solved_plane_not_a_hardcoded_one():
+    """A deliberately wrong plane must produce a visibly wrong completion.
+
+    This is the red half of the test above: it pins down that `complete`
+    reflects across `sym.normal`/`sym.offset`. If it did not, both this and the
+    previous test would pass on an implementation that always mirrors in Y.
+    """
+    pts = _symmetric_hull()
+    visible = pts[pts[:, 1] > 0]
+    good = mirror.solve(visible)
+    wrong = dataclasses.replace(good, normal=np.array([1.0, 0.0, 0.0]), offset=0.0)
+    assert _chamfer(mirror.complete(visible, wrong), pts) > 0.2
 
 
 def test_affine_refinement_is_a_noop_on_metric_input():
-    # MoGe-2 is already metric, so the optional scale/shift solve must not
-    # wander away from identity when it has nothing to correct.
+    """MoGe-2 is already metric, so the scale/shift solve must stay at identity.
+
+    On its own this assertion is satisfied by `scale = 1.0` hardcoded and no
+    refinement at all, so it is paired with the recovery test below. Keep both:
+    this one pins "does not wander", that one pins "actually solves".
+    """
     pts = _symmetric_hull()
     sym = mirror.solve(pts, refine_affine=True)
     assert abs(sym.scale - 1.0) < 0.05, sym.scale
     assert abs(sym.shift) < 0.05, sym.shift
+
+
+def test_affine_refinement_recovers_a_known_depth_scaling():
+    """Distort depth by a known factor; the refinement must undo it.
+
+    This is the falsifiable half of the pair above. A stub that returns
+    scale=1.0 passes the no-op test and fails this one, which is the whole
+    point: the affine solve is what makes an affine-invariant point map usable,
+    so it must be shown to do arithmetic rather than return its initial value.
+    """
+    pts = _symmetric_hull()
+    squashed = pts * [1.0, 1.0, 0.6]
+    sym = mirror.solve(squashed, refine_affine=True)
+    assert abs(sym.scale - 1.0 / 0.6) < 0.1 * (1.0 / 0.6), sym.scale
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
