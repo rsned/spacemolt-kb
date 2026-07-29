@@ -6,7 +6,7 @@
 
 **Architecture:** A seven-stage Python pipeline under `tools/footprint/`. Each stage reads the previous stage's file from `data/footprints/<id>/` and writes its own, so any stage re-runs without repeating the ones before it. A synthetic scene generator built in Task 1 provides ground truth for every later stage, so no stage's correctness depends on trusting a hero image.
 
-**Tech Stack:** Python 3.12, PyTorch + MoGe-2 (`Ruicheng/moge-2-vitl-normal`), OpenCV, NumPy, SciPy, Shapely, alphashape, lu-vp-detect, pytest.
+**Tech Stack:** Python 3.12, PyTorch + MoGe-2 (`Ruicheng/moge-2-vitl-normal`), OpenCV (contrib build), NumPy, SciPy, Shapely, alphashape, pytest. The vanishing-point fit is implemented on `cv2.createLineSegmentDetector` directly — see Task 3 for why lu-vp-detect is not used.
 
 ## Note on a spec detail
 
@@ -79,7 +79,7 @@ python3 -m venv ~/moge-venv
 ~/moge-venv/bin/pip install --upgrade pip
 ~/moge-venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu121
 ~/moge-venv/bin/pip install git+https://github.com/microsoft/MoGe.git
-~/moge-venv/bin/pip install opencv-python-headless numpy scipy shapely alphashape lu-vp-detect pytest
+~/moge-venv/bin/pip install opencv-contrib-python numpy scipy shapely alphashape pytest
 ~/moge-venv/bin/pip freeze > tools/footprint/requirements.lock.txt
 ```
 
@@ -96,7 +96,6 @@ numpy>=1.26
 scipy>=1.14
 shapely>=2.0
 alphashape>=1.3
-lu-vp-detect>=1.0
 pytest>=8.0
 ```
 
@@ -553,23 +552,34 @@ git commit -m "feat(footprint): stage 1 chroma-key matte"
 **Files:**
 - Create: `tools/footprint/camera.py`
 - Test: `tools/footprint/test_camera.py`
+- Modify: `tools/footprint/requirements.txt` (remove `lu-vp-detect`)
+
+**Why this task does not use lu-vp-detect.** The plan originally wrapped that
+library. It is broken on OpenCV 5.x: `vp_detection.py:179` does
+`lines = lines[:, 0]` to strip a singleton dimension from LSD's `(N, 1, 4)`
+return, but OpenCV 5.0 returns `(N, 4)` directly, so the slice yields a 1-D
+array and the next index raises `IndexError`. It also never exposed the cluster
+memberships a confidence measure needs — `get_vp_clusters` and `get_lines` do
+not exist in its API. `cv2.createLineSegmentDetector` itself is healthy and
+returns 1,525 usable segments on `magnate.webp`, so this task uses the detector
+directly and implements the orthogonal-VP fit.
 
 **Interfaces:**
 - Consumes: `synth.Scene`, `matte.extract`, `paths.artifact_dir`
-- Produces: `camera.fit(image_rgb, mask) -> camera.Fit` where `Fit` is a dataclass with `R: np.ndarray (3,3)`, `focal: float | None` (None means orthographic), `principal: tuple[float,float]`, `confidence: float`, `source: str` in `{"auto","clicks"}`
-- Produces: `camera.fit_from_clicks(clicks: dict) -> camera.Fit` reading the fallback format
-- Produces: `camera.run(ship_id, image_rgb, mask, clicks=None) -> camera.Fit`, writing `camera.json`
+- Produces: `camera.detect_segments(image_rgb, mask, min_length) -> np.ndarray (N,4)` of `(x1,y1,x2,y2)`
+- Produces: `camera.fit(image_rgb, mask) -> camera.Fit`, a dataclass with `R: np.ndarray (3,3)`, `focal: float | None` (None means orthographic), `principal: tuple[float,float]`, `confidence: float`, `source: str` in `{"auto","clicks"}`, `n_segments: int`, `inliers: tuple[int,int,int]`
+- Produces: `camera.fit_from_clicks(clicks, principal=None) -> camera.Fit`
+- Produces: `camera.clicks_from_scene(scene) -> dict`
+- Produces: `camera.run(ship_id, image_rgb, mask, clicks=None) -> Fit`, writing `camera.json`
 - Produces: `camera.CONFIDENCE_FLOOR = 0.35`
 
-**Fallback click format** — `data/footprints/<id>/clicks.json`:
+**Fallback click format** — `data/footprints/<id>/clicks.json`, unchanged:
 
 ```json
 {"axis_x": [[[x1,y1],[x2,y2]], [[x3,y3],[x4,y4]]],
  "axis_y": [[[x1,y1],[x2,y2]], [[x3,y3],[x4,y4]]],
  "axis_z": [[[x1,y1],[x2,y2]], [[x3,y3],[x4,y4]]]}
 ```
-
-Two line segments per axis, each two clicked endpoints in pixels. A vanishing point is the intersection of its axis's two lines.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -579,8 +589,9 @@ Two line segments per axis, each two clicked endpoints in pixels. A vanishing po
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_camera.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
 
 import numpy as np
 
@@ -599,9 +610,37 @@ matte = _load("matte")
 camera = _load("camera")
 
 
-def _angle_between(a, b):
-    c = np.clip((a * b).sum() / (np.linalg.norm(a) * np.linalg.norm(b)), -1, 1)
-    return np.degrees(np.arccos(abs(c)))
+def _axis_angle(a, b):
+    """Angle in degrees between two directions, ignoring sign."""
+    c = np.clip(abs(float(np.dot(a, b))) / (np.linalg.norm(a) * np.linalg.norm(b)), -1, 1)
+    return float(np.degrees(np.arccos(c)))
+
+
+def _best_permutation_error(R_fit, R_true):
+    """Largest axis error under the best matching of fitted axes to true axes.
+
+    The fit recovers three orthogonal directions but not which is which, so a
+    row-by-row comparison would fail on a correct answer that came back in a
+    different order.
+    """
+    import itertools
+    best = 180.0
+    for perm in itertools.permutations(range(3)):
+        worst = max(_axis_angle(R_fit[perm[i]], R_true[i]) for i in range(3))
+        best = min(best, worst)
+    return best
+
+
+def test_detect_segments_finds_the_box_edges():
+    s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
+    mask, _ = matte.extract(s.image)
+    seg = camera.detect_segments(s.image, mask, min_length=30.0)
+
+    assert seg.ndim == 2 and seg.shape[1] == 4, seg.shape
+    # A shaded box shows at least its silhouette and the three interior edges
+    # meeting at the near corner. Fewer than six means the detector or the
+    # masking is broken, not that the scene is simple.
+    assert len(seg) >= 6, len(seg)
 
 
 def test_fit_recovers_the_synthetic_rotation_within_five_degrees():
@@ -610,9 +649,8 @@ def test_fit_recovers_the_synthetic_rotation_within_five_degrees():
     fit = camera.fit(s.image, mask)
 
     assert fit.confidence > camera.CONFIDENCE_FLOOR, fit.confidence
-    for axis in range(3):
-        err = _angle_between(fit.R[axis], s.R[axis])
-        assert err < 5.0, f"axis {axis} off by {err:.1f} deg"
+    err = _best_permutation_error(fit.R, s.R)
+    assert err < 5.0, f"worst axis off by {err:.1f} deg"
 
 
 def test_fit_recovers_the_synthetic_focal_within_ten_percent():
@@ -620,26 +658,53 @@ def test_fit_recovers_the_synthetic_focal_within_ten_percent():
     mask, _ = matte.extract(s.image)
     fit = camera.fit(s.image, mask)
 
-    assert fit.focal is not None
-    assert abs(fit.focal - s.K[0, 0]) / s.K[0, 0] < 0.10, fit.focal
+    assert fit.focal is not None, "a perspective render must not be called ortho"
+    assert abs(fit.focal - s.K[0, 0]) / s.K[0, 0] < 0.10, (fit.focal, s.K[0, 0])
 
 
-def test_clicks_fallback_matches_the_auto_fit():
-    # Two lines per axis taken from the known projection must produce
-    # essentially the same rotation as the automatic fit.
+def test_fit_is_deterministic():
+    # The RANSAC is seeded. Two fits of the same image must agree exactly, or
+    # every downstream artifact becomes irreproducible.
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
-    clicks = camera.clicks_from_scene(s)
-    fit = camera.fit_from_clicks(clicks)
-    for axis in range(3):
-        assert _angle_between(fit.R[axis], s.R[axis]) < 5.0
+    mask, _ = matte.extract(s.image)
+    a, b = camera.fit(s.image, mask), camera.fit(s.image, mask)
+
+    assert np.allclose(a.R, b.R), "rotation differs between identical fits"
+    assert a.focal == b.focal
+    assert a.confidence == b.confidence
 
 
-def test_low_confidence_is_reported_not_hidden():
-    # A featureless disc has no parallel structural lines, so the fit must
-    # report low confidence rather than inventing a camera.
+def test_clicks_fallback_matches_the_known_camera():
+    s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
+    fit = camera.fit_from_clicks(camera.clicks_from_scene(s),
+                                 principal=(s.K[0, 2], s.K[1, 2]))
+
+    assert _best_permutation_error(fit.R, s.R) < 5.0
+    assert fit.source == "clicks"
+    assert abs(fit.focal - s.K[0, 0]) / s.K[0, 0] < 0.10
+
+
+def test_clicks_reject_parallel_lines():
+    # Two parallel clicked lines never intersect, so the vanishing point is
+    # undefined. That must raise, not silently return a huge coordinate.
+    clicks = {"axis_x": [[[0, 0], [100, 0]], [[0, 50], [100, 50]]],
+              "axis_y": [[[0, 0], [0, 100]], [[50, 0], [50, 100]]],
+              "axis_z": [[[0, 0], [100, 100]], [[10, 0], [110, 100]]]}
+    try:
+        camera.fit_from_clicks(clicks)
+    except ValueError as e:
+        assert "parallel" in str(e).lower(), str(e)
+    else:
+        raise AssertionError("parallel clicked lines must raise")
+
+
+def test_featureless_subject_reports_low_confidence():
+    # A smooth ellipsoid has no straight structural edges, so there is no
+    # Manhattan frame to recover. The fit must say so rather than invent one.
     s = synth.cylinder_scene(radius=2.0, height=0.2, azimuth_deg=0, elevation_deg=89)
     mask, _ = matte.extract(s.image)
     fit = camera.fit(s.image, mask)
+
     assert fit.confidence <= camera.CONFIDENCE_FLOOR, fit.confidence
 ```
 
@@ -650,8 +715,6 @@ Expected: FAIL — `camera.py` does not exist.
 
 - [ ] **Step 3: Write `camera.py`**
 
-The focal length is unknown but `lu_vp_detect` needs one, so iterate: fit vanishing points at a seed focal, recompute the focal from the orthocentre of the VP triangle, refit. Three iterations converge on these images.
-
 ```python
 #!/usr/bin/env python3
 """Stage 2: fit the camera from vanishing points.
@@ -661,6 +724,10 @@ three orthogonal vanishing points give rotation and focal length outright and
 reveal whether a render is orthographic or mildly perspective. Never assume the
 3/4 view: a low-confidence fit routes the ship to the hand-clicked fallback.
 
+Implemented directly on cv2's line segment detector. lu-vp-detect is not used:
+it breaks on OpenCV 5.x (it strips a singleton dimension LSD no longer emits)
+and never exposed the cluster memberships a confidence measure needs.
+
     ~/moge-venv/bin/python -m tools.footprint.camera <image>
 """
 
@@ -669,14 +736,15 @@ import json
 
 import cv2
 import numpy as np
-from lu_vp_detect import VPDetection
 
 from . import paths
 
 CONFIDENCE_FLOOR = 0.35
-_SEED_FOCAL = 1500.0
-_ITERATIONS = 3
-_ORTHO_FOCAL = 1e5  # beyond this the projection is orthographic for our purposes
+MIN_LENGTH_FRACTION = 0.04     # of the smaller image side
+INLIER_ANGLE_TOL_DEG = 2.0
+RANSAC_ITERATIONS = 2000
+RANSAC_SEED = 0
+ORTHO_FOCAL = 1e5              # beyond this the projection is orthographic
 
 
 @dataclasses.dataclass
@@ -686,75 +754,153 @@ class Fit:
     principal: tuple
     confidence: float
     source: str
+    n_segments: int
+    inliers: tuple
 
     def to_json(self) -> dict:
         return {"R": self.R.tolist(), "focal": self.focal,
-                "principal": list(self.principal),
-                "confidence": self.confidence, "source": self.source}
+                "principal": list(self.principal), "confidence": self.confidence,
+                "source": self.source, "n_segments": self.n_segments,
+                "inliers": list(self.inliers)}
 
 
-def _focal_from_vps(vps_2d, principal):
-    """Orthocentre relation: for orthogonal VPs, f^2 = -(v1-pp).(v2-pp)."""
-    pp = np.asarray(principal, dtype=float)
-    vals = []
-    for i in range(3):
-        for j in range(i + 1, 3):
-            d = -np.dot(vps_2d[i] - pp, vps_2d[j] - pp)
-            if d > 0:
-                vals.append(np.sqrt(d))
-    return float(np.median(vals)) if vals else None
+def detect_segments(image_rgb, mask, min_length: float) -> np.ndarray:
+    """Line segments inside the subject, as (N, 4) rows of (x1, y1, x2, y2).
+
+    OpenCV 5 returns (N, 4) from LSD; OpenCV 4 returned (N, 1, 4). Both are
+    accepted so a future pin change does not silently produce zero segments.
+    """
+    grey = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2GRAY)
+    grey = np.where(mask > 0, grey, 0).astype(np.uint8)
+
+    detected = cv2.createLineSegmentDetector(0).detect(grey)[0]
+    if detected is None or len(detected) == 0:
+        return np.zeros((0, 4), np.float32)
+    seg = np.asarray(detected, dtype=np.float64)
+    if seg.ndim == 3:
+        seg = seg[:, 0]
+
+    dx, dy = seg[:, 2] - seg[:, 0], seg[:, 3] - seg[:, 1]
+    return seg[np.hypot(dx, dy) >= min_length]
 
 
-def _rotation_from_vps(vps_2d, focal, principal):
-    pp = np.asarray(principal, dtype=float)
-    dirs = []
-    for v in vps_2d:
-        d = np.array([v[0] - pp[0], v[1] - pp[1], focal])
-        dirs.append(d / np.linalg.norm(d))
-    R = np.stack(dirs)
-    # Re-orthonormalise: the fitted directions are only approximately orthogonal.
-    u, _, vt = np.linalg.svd(R)
-    return u @ vt
+def _homogeneous_lines(seg: np.ndarray) -> np.ndarray:
+    p1 = np.column_stack([seg[:, 0], seg[:, 1], np.ones(len(seg))])
+    p2 = np.column_stack([seg[:, 2], seg[:, 3], np.ones(len(seg))])
+    return np.cross(p1, p2)
+
+
+def _vp_from(lines, i, j):
+    v = np.cross(lines[i], lines[j])
+    if abs(v[2]) < 1e-9:          # the two lines are parallel in the image
+        return None
+    return v[:2] / v[2]
+
+
+def _focal_from_two_vps(v1, v2, pp):
+    """Orthocentre relation: for orthogonal directions, f^2 = -(v1-pp).(v2-pp)."""
+    d = -float(np.dot(np.asarray(v1) - pp, np.asarray(v2) - pp))
+    return np.sqrt(d) if d > 0 else None
+
+
+def _directions(vps, focal, pp):
+    d = np.array([[v[0] - pp[0], v[1] - pp[1], focal] for v in vps], dtype=float)
+    return d / np.linalg.norm(d, axis=1, keepdims=True)
+
+
+def _third_vp(v1, v2, focal, pp):
+    d = _directions([v1, v2], focal, pp)
+    d3 = np.cross(d[0], d[1])
+    if abs(d3[2]) < 1e-9:
+        return None
+    return np.array([pp[0] + focal * d3[0] / d3[2], pp[1] + focal * d3[1] / d3[2]])
+
+
+def _score(seg, vps, tol_deg):
+    """Assign each segment to the vanishing point it points at, or to none.
+
+    A segment votes for a vp when the line from its midpoint to that vp is
+    parallel to the segment itself. Returns (labels, per-vp counts).
+    """
+    mid = np.column_stack([(seg[:, 0] + seg[:, 2]) / 2, (seg[:, 1] + seg[:, 3]) / 2])
+    d = np.column_stack([seg[:, 2] - seg[:, 0], seg[:, 3] - seg[:, 1]])
+    d = d / np.maximum(np.linalg.norm(d, axis=1, keepdims=True), 1e-12)
+
+    best = np.full(len(seg), -1)
+    best_err = np.full(len(seg), np.inf)
+    for k, v in enumerate(vps):
+        to_vp = np.asarray(v)[None, :] - mid
+        to_vp = to_vp / np.maximum(np.linalg.norm(to_vp, axis=1, keepdims=True), 1e-12)
+        cos = np.abs(np.sum(to_vp * d, axis=1))
+        err = np.degrees(np.arccos(np.clip(cos, -1, 1)))
+        take = err < np.minimum(best_err, tol_deg)
+        best[take], best_err[take] = k, err[take]
+
+    counts = tuple(int((best == k).sum()) for k in range(3))
+    return best, counts
+
+
+def _confidence(counts, n_segments):
+    """Explained fraction, penalised when one direction dominates.
+
+    A fit that assigns every segment to one vanishing point has found a single
+    edge direction, not a Manhattan frame, so the balance term must pull it
+    down. Both terms are needed: coverage alone rewards a degenerate fit, and
+    balance alone rewards a fit that explains three segments out of a thousand.
+    """
+    if n_segments == 0 or max(counts) == 0:
+        return 0.0
+    coverage = sum(counts) / n_segments
+    balance = min(counts) / max(counts)
+    return float(coverage * balance)
 
 
 def fit(image_rgb: np.ndarray, mask: np.ndarray) -> Fit:
     h, w = mask.shape
-    principal = (w / 2.0, h / 2.0)
-    masked = image_rgb.copy()
-    masked[mask == 0] = 0
+    pp = np.array([w / 2.0, h / 2.0])
+    seg = detect_segments(image_rgb, mask, min(h, w) * MIN_LENGTH_FRACTION)
+    if len(seg) < 6:
+        return Fit(np.eye(3), None, tuple(pp), 0.0, "auto", len(seg), (0, 0, 0))
 
-    focal = _SEED_FOCAL
-    vpd = None
-    for _ in range(_ITERATIONS):
-        vpd = VPDetection(length_thresh=min(h, w) * 0.04,
-                          principal_point=principal, focal_length=focal, seed=0)
-        vpd.find_vps(cv2.cvtColor(masked, cv2.COLOR_RGB2BGR))
-        new_focal = _focal_from_vps(vpd.vps_2D, principal)
-        if new_focal is None:
-            break
-        focal = new_focal
+    lines = _homogeneous_lines(seg)
+    rng = np.random.default_rng(RANSAC_SEED)
+    best = None
 
-    clusters = vpd.get_vp_clusters() if vpd is not None else None
-    confidence = _confidence(clusters, vpd)
-    if focal is None or confidence <= CONFIDENCE_FLOOR:
-        return Fit(R=np.eye(3), focal=None, principal=principal,
-                   confidence=confidence, source="auto")
+    for _ in range(RANSAC_ITERATIONS):
+        i, j, k, m = rng.choice(len(seg), 4, replace=False)
+        v1, v2 = _vp_from(lines, i, j), _vp_from(lines, k, m)
+        if v1 is None or v2 is None:
+            continue
+        focal = _focal_from_two_vps(v1, v2, pp)
+        if focal is None or focal < 1e-6:
+            continue
+        v3 = _third_vp(v1, v2, focal, pp)
+        if v3 is None:
+            continue
+        _, counts = _score(seg, [v1, v2, v3], INLIER_ANGLE_TOL_DEG)
+        conf = _confidence(counts, len(seg))
+        if best is None or conf > best[0]:
+            best = (conf, [v1, v2, v3], focal, counts)
 
-    R = _rotation_from_vps(vpd.vps_2D, focal, principal)
-    return Fit(R=R, focal=None if focal > _ORTHO_FOCAL else float(focal),
-               principal=principal, confidence=confidence, source="auto")
+    if best is None:
+        return Fit(np.eye(3), None, tuple(pp), 0.0, "auto", len(seg), (0, 0, 0))
+
+    conf, vps, focal, counts = best
+    if conf <= CONFIDENCE_FLOOR:
+        return Fit(np.eye(3), None, tuple(pp), conf, "auto", len(seg), counts)
+
+    R = _orthonormalise(_directions(vps, focal, pp))
+    return Fit(R, None if focal > ORTHO_FOCAL else float(focal), tuple(pp),
+               conf, "auto", len(seg), counts)
 
 
-def _confidence(clusters, vpd):
-    """Fraction of detected segments assigned to one of the three VP clusters."""
-    if vpd is None or clusters is None:
-        return 0.0
-    assigned = sum(len(c) for c in clusters)
-    total = len(vpd.get_lines()) if hasattr(vpd, "get_lines") else assigned
-    if not total:
-        return 0.0
-    balance = min(len(c) for c in clusters) / max(1, max(len(c) for c in clusters))
-    return float(assigned / total) * float(balance)
+def _orthonormalise(d: np.ndarray) -> np.ndarray:
+    """Nearest rotation matrix to three approximately orthogonal directions."""
+    u, _, vt = np.linalg.svd(d)
+    R = u @ vt
+    if np.linalg.det(R) < 0:
+        R[-1] *= -1
+    return R
 
 
 def _intersect(l1, l2):
@@ -775,14 +921,17 @@ def fit_from_clicks(clicks: dict, principal=None) -> Fit:
         if v is None:
             raise ValueError(f"{key}: the two clicked lines are parallel in image space")
         vps.append(v)
-    if principal is None:
-        principal = tuple(np.mean(vps, axis=0))
-    focal = _focal_from_vps(vps, principal)
-    if focal is None:
+    pp = np.asarray(principal if principal is not None else np.mean(vps, axis=0), dtype=float)
+
+    focals = [f for f in (_focal_from_two_vps(vps[i], vps[j], pp)
+                          for i, j in ((0, 1), (0, 2), (1, 2))) if f is not None]
+    if not focals:
         raise ValueError("clicked vanishing points are not mutually orthogonal")
-    return Fit(R=_rotation_from_vps(vps, focal, principal),
-               focal=None if focal > _ORTHO_FOCAL else float(focal),
-               principal=principal, confidence=1.0, source="clicks")
+    focal = float(np.median(focals))
+
+    return Fit(_orthonormalise(_directions(vps, focal, pp)),
+               None if focal > ORTHO_FOCAL else focal, tuple(pp),
+               1.0, "clicks", 0, (0, 0, 0))
 
 
 def clicks_from_scene(scene) -> dict:
@@ -803,44 +952,77 @@ def clicks_from_scene(scene) -> dict:
 
 def run(ship_id: str, image_rgb, mask, clicks=None) -> Fit:
     f = fit_from_clicks(clicks) if clicks else fit(image_rgb, mask)
-    (paths.artifact_dir(ship_id) / "camera.json").write_text(json.dumps(f.to_json(), indent=2))
+    (paths.artifact_dir(ship_id) / "camera.json").write_text(
+        json.dumps(f.to_json(), indent=2))
     return f
 ```
 
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `~/moge-venv/bin/python -m pytest tools/footprint/test_camera.py -v`
-Expected: PASS, 4 tests.
+Expected: PASS, 7 tests.
 
-If `test_fit_recovers_the_synthetic_rotation_within_five_degrees` fails, print `vpd.vps_2D` and check whether the three VPs came out in a different axis order than the scene's — the fit is order-agnostic and the test compares row by row. Sort `dirs` by which world axis each is closest to before building `R`.
+If the rotation test fails, print `fit.inliers` and `fit.n_segments` first. Few
+segments means `MIN_LENGTH_FRACTION` is culling the box edges — lower it and
+say so in the report. Balanced inlier counts with a bad rotation means the
+orthocentre focal is wrong, not the clustering.
 
-- [ ] **Step 5: Report the fit on the real art**
+- [ ] **Step 5: Prove the confidence gate can fail**
+
+The gate is the whole point of this stage, so demonstrate it rather than assume
+it. Temporarily replace `_confidence`'s return with `return 1.0`, run
+`test_featureless_subject_reports_low_confidence`, and confirm it goes RED.
+Restore, confirm GREEN. Paste both outputs into the report.
+
+- [ ] **Step 6: Report the fit on the 14 keyable hero images**
 
 ```bash
 ~/moge-venv/bin/python - <<'PY'
-import cv2, glob, os, sys
-sys.path.insert(0, "tools")
-from footprint import camera, matte
+import cv2, glob, json, os, re, sys
+sys.path.insert(0, ".")
+from tools.footprint import camera, matte
+ids = {s["id"] for s in json.load(open(
+    "/home/robert/spacemolt/spacemolt/data/game-api/latest/catalog_ships.json"))["items"]}
+pre = re.compile(r"^(crimson|nebula|solarian|outerrim|voidborn|pirate)_")
 for p in sorted(glob.glob(os.path.expanduser("~/Downloads/*.webp"))):
+    key = os.path.basename(p)[:-5]
+    if key not in ids:
+        key = pre.sub("", key)
+    if key not in ids:
+        continue
     img = cv2.cvtColor(cv2.imread(p), cv2.COLOR_BGR2RGB)
-    if img is None: continue
     m, _ = matte.extract(img)
+    if not matte.keyability(img)[0]:
+        print(f"{key:20s} SKIPPED - not keyable")
+        continue
     f = camera.fit(img, m)
-    kind = "ortho" if f.focal is None else f"f={f.focal:.0f}"
-    print(f"{os.path.basename(p):28s} conf {f.confidence:.2f}  {kind}")
+    kind = "ortho" if f.focal is None else f"f={f.focal:7.0f}"
+    print(f"{key:20s} conf {f.confidence:.2f}  {kind}  segs={f.n_segments:4d} "
+          f"inliers={f.inliers}")
 PY
 ```
 
-Record which ships fall below `CONFIDENCE_FLOOR`. Those need click files before the batch runs; that is expected, not a failure.
+Record which of the 14 fall below `CONFIDENCE_FLOOR`. Those need click files
+before the batch runs; that is the designed path, not a failure. Do NOT lower
+`CONFIDENCE_FLOOR` to make more ships pass — the floor exists to route bad fits
+to the fallback, and moving it defeats the stage.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Remove the dead dependency**
+
+Delete the `lu-vp-detect` line from `tools/footprint/requirements.txt`, add a
+comment recording why (broken on OpenCV 5.x, and its accessors never exposed
+cluster membership), and regenerate `requirements.lock.txt`. Do not uninstall
+it from the venv — leave the environment alone; the requirement file is the
+statement of intent.
+
+- [ ] **Step 8: Commit**
 
 ```bash
-git add tools/footprint/camera.py tools/footprint/test_camera.py
+git add tools/footprint/camera.py tools/footprint/test_camera.py \
+        tools/footprint/requirements.txt tools/footprint/requirements.lock.txt
 git commit -m "feat(footprint): stage 2 vanishing-point camera fit"
 ```
 
----
 
 ### Task 4: Stage 3 — MoGe-2 point map
 
@@ -2131,4 +2313,4 @@ git commit -m "feat(footprint): batch driver and end-to-end validation"
 
 **Two spec items are deliberately not in this plan**, because they belong to the consuming half: the `Merge` fix, and grading against inferred glyphs. This plan ends at `profile.json`.
 
-**Known soft spots**, flagged rather than hidden. `camera._confidence` uses `lu_vp_detect` accessors (`get_vp_clusters`, `get_lines`) whose exact names should be verified against the installed version in Task 3 Step 4; if they differ, the confidence formula stays the same and only the accessor changes. `ground.sweep_alpha` counts covered points via a `MultiPoint` intersection, which is correct but slow on large clouds — subsample to 2000 points per cloud if the sweep takes more than a minute.
+**Known soft spots**, flagged rather than hidden. `ground.sweep_alpha` counts covered points via a `MultiPoint` intersection, which is correct but slow on large clouds — subsample to 2000 points per cloud if the sweep takes more than a minute. Task 3's RANSAC is the least certain part of this plan: it samples four segments per iteration to hypothesise two vanishing points, which needs both sampled pairs to be genuinely parallel in 3D. On a hull with few long straight edges that may take many iterations to hit, and the honest outcome is a low confidence that routes the ship to the click fallback rather than a wrong camera.
