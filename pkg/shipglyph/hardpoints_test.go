@@ -52,12 +52,13 @@ func TestHardpointIDsAreStableAndUnique(t *testing.T) {
 	}
 }
 
-func TestHardpointPlacementPinsInsetAndSpread(t *testing.T) {
-	// Two weapon slots on a spine hull: the weapon zone is {0.06, 0.40}, so
-	// the pair must land exactly on the zone ends, alternating starboard then
-	// port, each inset to 55% of the local half-width. This pins both the
-	// spread arithmetic and hardpointInset. Asserting only |Y| <= half-width
-	// would hold for any inset in [0,1] and so could never fail.
+func TestHardpointPairMirrorsAtOneStation(t *testing.T) {
+	// Two weapon slots on a spine hull: the weapon zone is {0.08, 0.32}, and
+	// two markers make a single station, so both land on the zone midpoint —
+	// one starboard, one port — each inset to 55% of the local half-width.
+	// This pins both the station arithmetic and hardpointInset. Asserting only
+	// |Y| <= half-width would hold for any inset in [0,1] and so could never
+	// fail.
 	s := Stats{ID: "pin", Class: "Cruiser", Faction: "crimson", Scale: 3, Weapon: 2}
 	d := Infer(s)
 	hps := Hardpoints(d, s)
@@ -65,19 +66,68 @@ func TestHardpointPlacementPinsInsetAndSpread(t *testing.T) {
 	if len(hps) != 2 {
 		t.Fatalf("len = %d, want 2", len(hps))
 	}
-	if hullHalfWidth(d, 0.06) <= 0 {
-		t.Fatalf("test would be vacuous: half-width at the forward zone end is 0")
+	const wantX = 0.20 // midpoint of {0.08, 0.32}
+	if hullHalfWidth(d, wantX) <= 0 {
+		t.Fatalf("test would be vacuous: half-width at the station is 0")
 	}
 
-	wantX := []float64{0.06, 0.40}
 	wantSign := []float64{1, -1}
+	for i, h := range hps {
+		if math.Abs(h.Pos.X-wantX) > 1e-9 {
+			t.Errorf("%s X = %v, want %v", h.ID, h.Pos.X, wantX)
+		}
+		wantY := wantSign[i] * hullHalfWidth(d, wantX) * hardpointInset
+		if math.Abs(h.Pos.Y-wantY) > 1e-9 {
+			t.Errorf("%s Y = %v, want %v", h.ID, h.Pos.Y, wantY)
+		}
+	}
+}
+
+func TestHardpointStationsSpreadAcrossTheZone(t *testing.T) {
+	// Five weapon slots make three stations across the zone {0.08, 0.32}:
+	// the first two are full mirrored pairs at the zone ends' inner spread,
+	// and the odd fifth marker takes the last station on the centerline.
+	s := Stats{ID: "spread", Class: "Cruiser", Faction: "crimson", Scale: 3, Weapon: 5}
+	d := Infer(s)
+	hps := Hardpoints(d, s)
+
+	if len(hps) != 5 {
+		t.Fatalf("len = %d, want 5", len(hps))
+	}
+	wantX := []float64{0.08, 0.08, 0.20, 0.20, 0.32}
 	for i, h := range hps {
 		if math.Abs(h.Pos.X-wantX[i]) > 1e-9 {
 			t.Errorf("%s X = %v, want %v", h.ID, h.Pos.X, wantX[i])
 		}
-		wantY := wantSign[i] * hullHalfWidth(d, wantX[i]) * hardpointInset
-		if math.Abs(h.Pos.Y-wantY) > 1e-9 {
-			t.Errorf("%s Y = %v, want %v", h.ID, h.Pos.Y, wantY)
+	}
+	// Each pair mirrors exactly; the leftover sits on the centerline.
+	for _, pair := range [][2]int{{0, 1}, {2, 3}} {
+		a, b := hps[pair[0]], hps[pair[1]]
+		if a.Pos.Y <= 0 || b.Pos.Y >= 0 || math.Abs(a.Pos.Y+b.Pos.Y) > 1e-9 {
+			t.Errorf("%s/%s Y = %v/%v, want equal and opposite", a.ID, b.ID, a.Pos.Y, b.Pos.Y)
+		}
+	}
+	if hps[4].Pos.Y != 0 {
+		t.Errorf("%s Y = %v, want exactly 0 for the unpaired marker", hps[4].ID, hps[4].Pos.Y)
+	}
+}
+
+func TestHardpointKindsDoNotShareHull(t *testing.T) {
+	// Mount zones for the three kinds must be disjoint: markers carry no
+	// per-kind position meaning, so an overlap renders as scatter. Check the
+	// spans actually used, across every shape family.
+	for _, fam := range []string{"needle", "dart", "spine", "slab", "drum", "rig", "rack", "pod"} {
+		z := archetypeZones(fam)
+		bands := [][2]float64{z.Weapon[0], z.Defense[0], z.Utility[0]}
+		names := []string{"weapon", "defense", "utility"}
+		for i := 1; i < len(bands); i++ {
+			if bands[i][0] <= bands[i-1][1] {
+				t.Errorf("%s: %s zone starts at %v, inside the %s zone ending at %v",
+					fam, names[i], bands[i][0], names[i-1], bands[i-1][1])
+			}
+		}
+		if bands[2][1] > 0.9 {
+			t.Errorf("%s: utility zone ends at %v, too far into the stern taper", fam, bands[2][1])
 		}
 	}
 }
@@ -98,8 +148,8 @@ func TestSingleHardpointSitsOnTheCenterline(t *testing.T) {
 	if len(hps) != 1 {
 		t.Fatalf("len = %d, want 1", len(hps))
 	}
-	if math.Abs(hps[0].Pos.X-0.23) > 1e-9 {
-		t.Errorf("X = %v, want 0.23 (midpoint of zone {0.06, 0.40})", hps[0].Pos.X)
+	if math.Abs(hps[0].Pos.X-0.20) > 1e-9 {
+		t.Errorf("X = %v, want 0.20 (midpoint of zone {0.08, 0.32})", hps[0].Pos.X)
 	}
 	if hps[0].Pos.Y != 0 {
 		t.Errorf("Y = %v, want exactly 0", hps[0].Pos.Y)

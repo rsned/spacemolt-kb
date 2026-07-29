@@ -58,7 +58,9 @@
 
 
 
-
+<div class="banner">
+⚠ <strong>Not buildable within 3 jumps of any single station.</strong> No local pool covers all inputs — the cells below show how many each station reaches. Galaxy-wide, the cheapest sourcing needs <strong>2 stations</strong>: <code>Gold Run Extraction Hub</code>, <code>Mobile Capital</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+</div>
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
@@ -70,11 +72,11 @@
 
 <tr>
  <td>Iron Reach Mining Colony</td><td>crimson</td>
- <td class="infeasible">2/4</td>
+ <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>557</td><td>557</td>
- <td>forge_weapon_housings</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -82,18 +84,7 @@
 <tr>
  <td>Grand Exchange</td><td>nebula</td>
  <td class="infeasible">2/4</td>
- <td>2/4</td><td>3/4</td><td>61,402</td>
- <td class="infeasible">0/2</td>
- <td>623</td><td>543</td><td>531</td>
- <td>forge_weapon_housings</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Unknown Edge Waystation</td><td>outerrim</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>3/4</td><td>3/4</td>
+ <td>2/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
  <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
@@ -102,33 +93,55 @@
 </tr>
 
 <tr>
- <td>Sol Central</td><td>solarian</td>
- <td class="">3,156</td>
- <td>3,156</td><td>3,156</td><td>3,156</td>
- <td class="">499</td>
- <td>499</td><td>478</td><td>478</td>
+ <td>Unknown Edge Waystation</td><td>outerrim</td>
+ <td class="infeasible">1/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>fabricate_weapon_housing</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Sol Central</td><td>solarian</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>The Core</td><td>voidborn</td>
- <td class="infeasible">1/4</td>
+ <td class="infeasible">2/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
- <td class="">641</td>
- <td>635</td><td>561</td><td>507</td>
- <td>fabricate_weapon_housing</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>Cargo Lanes Freight Depot</td><td>nebula</td>
- <td class="infeasible">1/4</td>
- <td>2/4</td><td>3/4</td><td>62,362</td>
- <td class="">608</td>
- <td>543</td><td>543</td><td>543</td>
+ <td class="infeasible">2/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>forge_weapon_housings</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Mobile Capital</td><td>outerrim</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -136,10 +149,10 @@
 
 <tr>
  <td>The Rampart Checkpoint</td><td>crimson</td>
- <td class="infeasible">3/4</td>
- <td>3/4</td><td>3/4</td><td>3/4</td>
- <td class="">617</td>
- <td>615</td><td>615</td><td>557</td>
+ <td class="infeasible">1/4</td>
+ <td>1/4</td><td>1/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -148,9 +161,9 @@
 <tr>
  <td>Sirius Observatory Station</td><td>solarian</td>
  <td class="infeasible">1/4</td>
- <td>3,156</td><td>3,156</td><td>3,060</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>478</td><td>478</td><td>478</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -161,7 +174,7 @@
  <td class="infeasible">3/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>0/2</td><td>557</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -169,11 +182,11 @@
 
 <tr>
  <td>Alpha Centauri Colonial Station</td><td>solarian</td>
- <td class="infeasible">1/4</td>
- <td>3,156</td><td>3,156</td><td>3,156</td>
+ <td class="infeasible">2/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>499</td><td>499</td><td>478</td>
- <td>forge_weapon_housings</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -183,8 +196,8 @@
  <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>0/2</td><td>557</td>
- <td>forge_weapon_housings</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -192,7 +205,7 @@
 <tr>
  <td>Deep Range Outpost</td><td>outerrim</td>
  <td class="infeasible">2/4</td>
- <td>2/4</td><td>3/4</td><td>3/4</td>
+ <td>2/4</td><td>2/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
  <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
@@ -203,18 +216,7 @@
 <tr>
  <td>Factory Belt Manufacturing Hub</td><td>nebula</td>
  <td class="infeasible">1/4</td>
- <td>1/4</td><td>2/4</td><td>3/4</td>
- <td class="infeasible">0/2</td>
- <td>531</td><td>531</td><td>531</td>
- <td>forge_weapon_housings</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>First Step Memorial Station</td><td>outerrim</td>
- <td class="infeasible">2/4</td>
- <td>2/4</td><td>3/4</td><td>3/4</td>
+ <td>1/4</td><td>2/4</td><td>2/4</td>
  <td class="infeasible">0/2</td>
  <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
@@ -223,12 +225,23 @@
 </tr>
 
 <tr>
+ <td>First Step Memorial Station</td><td>outerrim</td>
+ <td class="infeasible">1/4</td>
+ <td>1/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
  <td>Gold Run Extraction Hub</td><td>nebula</td>
  <td class="infeasible">2/4</td>
- <td>2/4</td><td>62,362</td><td>62,362</td>
- <td class="">543</td>
- <td>543</td><td>543</td><td>543</td>
- <td>fabricate_weapon_housing</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -236,7 +249,7 @@
 <tr>
  <td>Ramen&#39;s Rest</td><td>outerrim</td>
  <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>3/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
  <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
@@ -248,9 +261,9 @@
  <td>Node Alpha Processing Station</td><td>voidborn</td>
  <td class="infeasible">2/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
- <td class="">662</td>
- <td>561</td><td>507</td><td>507</td>
- <td>fabricate_weapon_housing</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -259,9 +272,9 @@
  <td>Node Gamma Relay Station</td><td>voidborn</td>
  <td class="infeasible">2/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
- <td class="">646</td>
- <td>588</td><td>507</td><td>507</td>
- <td>fabricate_weapon_housing</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -269,9 +282,9 @@
 <tr>
  <td>Nova Terra Central</td><td>solarian</td>
  <td class="infeasible">3/4</td>
- <td>3/4</td><td>3,156</td><td>3,060</td>
- <td class="">558</td>
- <td>558</td><td>478</td><td>478</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -280,9 +293,9 @@
 <tr>
  <td>Procyon Colonial Station</td><td>solarian</td>
  <td class="infeasible">3/4</td>
- <td>3/4</td><td>3/4</td><td>3,060</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>558</td><td>558</td><td>478</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -290,11 +303,11 @@
 
 <tr>
  <td>Starfall Salvage Station</td><td>outerrim</td>
- <td class="infeasible">3/4</td>
- <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
  <td>0/2</td><td>0/2</td><td>0/2</td>
- <td>forge_weapon_housings</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -304,8 +317,8 @@
  <td class="infeasible">2/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
  <td class="infeasible">0/2</td>
- <td>507</td><td>507</td><td>507</td>
- <td>forge_weapon_housings</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -315,7 +328,7 @@
  <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>0/2</td><td>557</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -323,11 +336,11 @@
 
 <tr>
  <td>The Crucible Garrison</td><td>crimson</td>
- <td class="infeasible">2/4</td>
- <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">1/4</td>
+ <td>1/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>615</td><td>557</td><td>557</td>
- <td>forge_weapon_housings</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -337,18 +350,18 @@
  <td class="infeasible">0/4</td>
  <td>2/4</td><td>2/4</td><td>2/4</td>
  <td class="infeasible">0/2</td>
- <td>507</td><td>507</td><td>507</td>
- <td>forge_weapon_housings</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>The Levy Customs Station</td><td>nebula</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>3/4</td><td>62,362</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>2/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>543</td><td>543</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -357,10 +370,10 @@
 <tr>
  <td>Trader&#39;s Rest Resort Station</td><td>nebula</td>
  <td class="infeasible">1/4</td>
- <td>2/4</td><td>3/4</td><td>61,402</td>
+ <td>2/4</td><td>2/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>623</td><td>531</td><td>531</td>
- <td>forge_weapon_housings</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -369,8 +382,8 @@
  <td>Treasure Cache Trading Post</td><td>nebula</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>2/4</td>
- <td class="">531</td>
- <td>531</td><td>531</td><td>531</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>fabricate_weapon_housing</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -378,8 +391,19 @@
 
 <tr>
  <td>Void Gate Outpost</td><td>outerrim</td>
- <td class="infeasible">2/4</td>
- <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">1/4</td>
+ <td>2/4</td><td>2/4</td><td>3/4</td>
+ <td class="infeasible">0/2</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
+ <td>forge_weapon_housings</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Voss Redoubt</td><td>nebula</td>
+ <td class="infeasible">1/4</td>
+ <td>1/4</td><td>1/4</td><td>1/4</td>
  <td class="infeasible">0/2</td>
  <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
@@ -389,10 +413,10 @@
 
 <tr>
  <td>Hex Star</td><td>Independent</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>3/4</td><td>3/4</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>3/4</td><td>3/4</td>
  <td class="infeasible">0/2</td>
- <td>0/2</td><td>0/2</td><td>558</td>
+ <td>0/2</td><td>0/2</td><td>0/2</td>
  <td>forge_weapon_housings</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -401,5 +425,6 @@
 </tbody>
 </table>
 </div>
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-07-17 01:25 UTC</footer>
 </body>
 </html>

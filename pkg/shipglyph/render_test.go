@@ -85,6 +85,24 @@ func TestRenderEmitsHardpointIDs(t *testing.T) {
 	}
 }
 
+func TestRenderGivesEachSlotKindItsOwnMark(t *testing.T) {
+	// The three kinds must be told apart by silhouette, not only by class:
+	// weapon is a circle, defense a square, utility a diamond. A shared
+	// element for all three renders as undifferentiated scatter.
+	out := renderFixture(t, Stats{ID: "magnate", Name: "Magnate",
+		Class: "Command", Faction: "solarian", Scale: 4, Weapon: 1, Defense: 1, Utility: 1})
+
+	for _, tc := range []struct{ id, element string }{
+		{"hp-w1", "circle"},
+		{"hp-d1", "rect"},
+		{"hp-u1", "path"},
+	} {
+		if !strings.Contains(out, `<`+tc.element+` id="`+tc.id+`"`) {
+			t.Errorf("%s is not a <%s>:\n%s", tc.id, tc.element, out)
+		}
+	}
+}
+
 func TestRenderUsesCurrentColorNotHardcodedColors(t *testing.T) {
 	out := renderFixture(t, Stats{ID: "paradox", Name: "Paradox",
 		Class: "Fighter", Faction: "voidborn", Scale: 1, Weapon: 2, Defense: 2, Utility: 1})

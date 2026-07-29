@@ -678,9 +678,21 @@ package shipglyph
 
 import "testing"
 
-func TestSeedOfIsStableAndDistinct(t *testing.T) {
-	if SeedOf("prayer") != SeedOf("prayer") {
-		t.Errorf("SeedOf is not stable")
+func TestSeedOfPinsTheHashingScheme(t *testing.T) {
+	// Golden FNV-1a values. Every ship's visual jitter derives from SeedOf,
+	// so a change here silently re-rolls all 335 glyphs. Pin it so that
+	// change fails loudly instead. Comparing SeedOf(x) to SeedOf(x) would
+	// not: a pure function always equals itself, so such a test can never
+	// fail and pins nothing.
+	cases := map[string]uint64{
+		"prayer":    0x874bdcd93ae8b92a,
+		"comet":     0x6d628c8e1de4078f,
+		"war_wagon": 0xa398ce717915ef06,
+	}
+	for id, want := range cases {
+		if got := SeedOf(id); got != want {
+			t.Errorf("SeedOf(%q) = %#x, want %#x", id, got, want)
+		}
 	}
 	if SeedOf("prayer") == SeedOf("comet") {
 		t.Errorf("SeedOf collided for two different ids")
@@ -2212,7 +2224,10 @@ git commit -m "feat(shipglyph): SVG renderer with stable region and hardpoint ID
 
 **Interfaces:**
 - Consumes: `shipglyph.Stats`, `Infer`, `LoadOverlay`, `Merge`, `Render`, `Options`.
-- Produces: `catalogShip` struct; `loadShipCatalog(path string) ([]catalogShip, error)`; `toStats(c catalogShip) shipglyph.Stats`.
+- Produces: `catalogShip` struct; `loadShipCatalog(path string) ([]catalogShip, error)`; `toStats(c catalogShip) shipglyph.Stats`; `renderedGlyph` struct with fields `Stats shipglyph.Stats` and `SVG string`.
+
+This task ends with a **fully building, fully passing** package. It writes the
+SVGs but not the contact sheet; Task 10 adds that and wires it into `main`.
 
 Follows the `cmd/generate-items-kb` convention: paths relative to the repo root, `../spacemolt/data/game-api/latest/catalog_ships.json`.
 
@@ -2370,6 +2385,13 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/shipglyph"
 )
 
+// renderedGlyph pairs a ship's stats with its finished SVG markup. Task 10's
+// contact sheet consumes these.
+type renderedGlyph struct {
+	Stats shipglyph.Stats
+	SVG   string
+}
+
 func main() {
 	catalogPath := flag.String("catalog", "../spacemolt/data/game-api/latest/catalog_ships.json",
 		"path to catalog_ships.json")
@@ -2416,27 +2438,32 @@ func main() {
 		rendered = append(rendered, renderedGlyph{Stats: s, SVG: svg})
 	}
 
-	if err := writeContactSheet(*outDir, rendered); err != nil {
-		log.Fatalf("write contact sheet: %v", err)
-	}
-
 	fmt.Printf("Generated %d ship glyphs (%d with overlays) in %s/\n",
 		len(rendered), overlaid, *outDir)
 }
 ```
 
-This references `renderedGlyph` and `writeContactSheet`, which Task 10 creates. Until then the package will not build — that is expected and is why Steps 5 and 6 below defer the full build check to Task 10.
+- [ ] **Step 5: Run tests and build**
 
-- [ ] **Step 5: Run the catalog tests**
+Run: `go build ./... && go test ./cmd/generate-ship-glyphs/ -v`
+Expected: build succeeds and all three catalog tests PASS.
 
-Run: `go vet ./cmd/generate-ship-glyphs/ 2>&1 | head`
-Expected: errors naming `renderedGlyph` and `writeContactSheet` as undefined, and nothing else. Any *other* undefined symbol is a real mistake to fix now.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Run the generator end to end**
 
 ```bash
-git add cmd/generate-ship-glyphs/
-git commit -m "feat(generate-ship-glyphs): catalog loader and generator entry point"
+go build -o bin/generate-ship-glyphs ./cmd/generate-ship-glyphs
+./bin/generate-ship-glyphs
+ls kb/ships/glyphs/*.svg | wc -l
+```
+
+Expected: one SVG per catalog ship (335 at time of writing). The binary goes in `bin/`, never the repo root.
+
+- [ ] **Step 7: Lint and commit**
+
+```bash
+golangci-lint run ./cmd/generate-ship-glyphs/
+git add cmd/generate-ship-glyphs/ kb/ships/glyphs/
+git commit -m "feat(generate-ship-glyphs): render one top-down glyph SVG per catalog ship"
 ```
 
 ---
@@ -2446,11 +2473,14 @@ git commit -m "feat(generate-ship-glyphs): catalog loader and generator entry po
 **Files:**
 - Create: `cmd/generate-ship-glyphs/contactsheet.go`
 - Create: `kb/ships/glyphs/glyphs.css`
+- Modify: `cmd/generate-ship-glyphs/main.go` (add the contact sheet call)
 - Test: `cmd/generate-ship-glyphs/contactsheet_test.go`
 
 **Interfaces:**
-- Consumes: `shipglyph.Stats` (Task 2); `toStats` (Task 9).
-- Produces: `renderedGlyph` struct with fields `Stats shipglyph.Stats` and `SVG string`; `writeContactSheet(outDir string, glyphs []renderedGlyph) error`; `groupByFaction(glyphs []renderedGlyph) []factionGroup`.
+- Consumes: `shipglyph.Stats` (Task 2); `toStats`, `renderedGlyph` (Task 9).
+- Produces: `factionGroup` struct with fields `Key string`, `Name string`, `Glyphs []renderedGlyph`; `writeContactSheet(outDir string, glyphs []renderedGlyph) error`; `groupByFaction(glyphs []renderedGlyph) []factionGroup`.
+
+`renderedGlyph` already exists in `main.go` from Task 9 — do **not** redeclare it.
 
 The page follows the existing KB shell: `<link rel="stylesheet" href="../../smui.css">` plus a page-specific stylesheet, a `site-header` with a `theme-toggle` button. Glyph strokes inherit `currentColor`, so the theme handles light and dark with no per-glyph work.
 
@@ -2571,12 +2601,6 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/shipglyph"
 )
-
-// renderedGlyph pairs a ship's stats with its finished SVG markup.
-type renderedGlyph struct {
-	Stats shipglyph.Stats
-	SVG   string
-}
 
 // factionGroup is one section of the contact sheet.
 type factionGroup struct {
@@ -2805,12 +2829,24 @@ Create `kb/ships/glyphs/glyphs.css`:
 }
 ```
 
-- [ ] **Step 5: Run all tests and build**
+- [ ] **Step 5: Wire the contact sheet into main**
+
+In `cmd/generate-ship-glyphs/main.go`, insert this immediately before the final
+`fmt.Printf` in `main`:
+
+```go
+	if err := writeContactSheet(*outDir, rendered); err != nil {
+		log.Fatalf("write contact sheet: %v", err)
+	}
+
+```
+
+- [ ] **Step 6: Run all tests and build**
 
 Run: `go build ./... && go test ./... 2>&1 | tail -20`
-Expected: PASS everywhere. The generator package now compiles, since `renderedGlyph` and `writeContactSheet` exist.
+Expected: PASS everywhere.
 
-- [ ] **Step 6: Run the generator and verify determinism**
+- [ ] **Step 7: Run the generator and verify determinism**
 
 ```bash
 go build -o bin/generate-ship-glyphs ./cmd/generate-ship-glyphs
@@ -2824,7 +2860,7 @@ diff /tmp/a /tmp/b && echo "DETERMINISTIC"
 
 Expected: 335 SVGs, `index.html` present, and `DETERMINISTIC` printed. The binary goes in `bin/`, never the repo root.
 
-- [ ] **Step 7: Lint and commit**
+- [ ] **Step 8: Lint and commit**
 
 ```bash
 golangci-lint run ./cmd/generate-ship-glyphs/ ./pkg/shipglyph/

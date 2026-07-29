@@ -58,7 +58,9 @@
 
 
 
-
+<div class="banner">
+⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing inputs with no depth: <code>Lead Ore</code>, <code>Silver Ore</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+</div>
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
@@ -81,10 +83,10 @@
 
 <tr>
  <td>Grand Exchange</td><td>nebula</td>
- <td class="infeasible">4/9</td>
- <td>4/9</td><td>4/9</td><td>5/9</td>
+ <td class="infeasible">2/9</td>
+ <td>4/9</td><td>5/9</td><td>6/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/3</td><td>1/3</td>
+ <td>0/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -93,9 +95,9 @@
 <tr>
  <td>Unknown Edge Waystation</td><td>outerrim</td>
  <td class="infeasible">1/9</td>
- <td>1/9</td><td>3/9</td><td>3/9</td>
+ <td>3/9</td><td>3/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>1/3</td><td>1/3</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -105,19 +107,19 @@
  <td>Sol Central</td><td>solarian</td>
  <td class="infeasible">4/9</td>
  <td>5/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">1/3</td>
- <td>1/3</td><td>2/3</td><td>2,002</td>
- <td>build_ion_emitter</td>
+ <td class="infeasible">2/3</td>
+ <td>2/3</td><td>2/3</td><td>2/3</td>
+ <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
 
 <tr>
  <td>The Core</td><td>voidborn</td>
- <td class="infeasible">2/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
- <td class="infeasible">0/3</td>
- <td>3,060</td><td>3,048</td><td>2,889</td>
+ <td class="infeasible">3/9</td>
+ <td>3/9</td><td>3/9</td><td>3/9</td>
+ <td class="infeasible">1/3</td>
+ <td>1/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -125,11 +127,22 @@
 
 <tr>
  <td>Cargo Lanes Freight Depot</td><td>nebula</td>
- <td class="infeasible">1/9</td>
- <td>1/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">3/9</td>
+ <td>4/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">1/3</td>
+ <td>1/3</td><td>1/3</td><td>1/3</td>
+ <td>build_ion_emitter_gas_method</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Mobile Capital</td><td>outerrim</td>
+ <td class="infeasible">3/9</td>
+ <td>3/9</td><td>3/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/3</td><td>1/3</td>
- <td>build_ion_emitter</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
+ <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -149,9 +162,9 @@
  <td>Sirius Observatory Station</td><td>solarian</td>
  <td class="infeasible">4/9</td>
  <td>6/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">0/3</td>
- <td>2/3</td><td>2,002</td><td>2,002</td>
- <td>build_ion_emitter</td>
+ <td class="infeasible">1/3</td>
+ <td>2/3</td><td>2/3</td><td>2/3</td>
+ <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -160,9 +173,9 @@
  <td>War Citadel</td><td>crimson</td>
  <td class="infeasible">6/9</td>
  <td>6/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">1/3</td>
+ <td class="infeasible">0/3</td>
  <td>1/3</td><td>1/3</td><td>1/3</td>
- <td>build_ion_emitter_gas_method</td>
+ <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -171,9 +184,9 @@
  <td>Alpha Centauri Colonial Station</td><td>solarian</td>
  <td class="infeasible">4/9</td>
  <td>4/9</td><td>5/9</td><td>6/9</td>
- <td class="infeasible">0/3</td>
- <td>1/3</td><td>1/3</td><td>2/3</td>
- <td>build_ion_emitter</td>
+ <td class="infeasible">1/3</td>
+ <td>2/3</td><td>2/3</td><td>2/3</td>
+ <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -183,7 +196,7 @@
  <td class="infeasible">0/9</td>
  <td>6/9</td><td>6/9</td><td>6/9</td>
  <td class="infeasible">0/3</td>
- <td>1/3</td><td>1/3</td><td>1/3</td>
+ <td>0/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -192,9 +205,9 @@
 <tr>
  <td>Deep Range Outpost</td><td>outerrim</td>
  <td class="infeasible">1/9</td>
- <td>1/9</td><td>3/9</td><td>3/9</td>
+ <td>1/9</td><td>2/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/3</td><td>1/3</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -202,7 +215,7 @@
 
 <tr>
  <td>Factory Belt Manufacturing Hub</td><td>nebula</td>
- <td class="infeasible">2/9</td>
+ <td class="infeasible">1/9</td>
  <td>4/9</td><td>5/9</td><td>5/9</td>
  <td class="infeasible">0/3</td>
  <td>0/3</td><td>0/3</td><td>1/3</td>
@@ -213,10 +226,10 @@
 
 <tr>
  <td>First Step Memorial Station</td><td>outerrim</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>3/9</td><td>3/9</td>
+ <td class="infeasible">1/9</td>
+ <td>1/9</td><td>3/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>1/3</td><td>1/3</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -224,11 +237,11 @@
 
 <tr>
  <td>Gold Run Extraction Hub</td><td>nebula</td>
- <td class="infeasible">0/9</td>
- <td>1/9</td><td>4/9</td><td>4/9</td>
- <td class="infeasible">0/3</td>
- <td>0/3</td><td>1/3</td><td>1/3</td>
- <td>build_ion_emitter</td>
+ <td class="infeasible">2/9</td>
+ <td>4/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">1/3</td>
+ <td>1/3</td><td>1/3</td><td>1/3</td>
+ <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -236,9 +249,9 @@
 <tr>
  <td>Ramen&#39;s Rest</td><td>outerrim</td>
  <td class="infeasible">1/9</td>
- <td>1/9</td><td>1/9</td><td>3/9</td>
+ <td>3/9</td><td>3/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>0/3</td><td>1/3</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -247,9 +260,9 @@
 <tr>
  <td>Node Alpha Processing Station</td><td>voidborn</td>
  <td class="infeasible">1/9</td>
- <td>4/9</td><td>4/9</td><td>4/9</td>
- <td class="infeasible">2/3</td>
- <td>3,048</td><td>2,889</td><td>2,889</td>
+ <td>3/9</td><td>3/9</td><td>3/9</td>
+ <td class="infeasible">1/3</td>
+ <td>1/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -257,10 +270,10 @@
 
 <tr>
  <td>Node Gamma Relay Station</td><td>voidborn</td>
- <td class="infeasible">3/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">2/9</td>
+ <td>2/9</td><td>3/9</td><td>3/9</td>
  <td class="infeasible">1/3</td>
- <td>2/3</td><td>2,889</td><td>2,889</td>
+ <td>1/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -270,8 +283,8 @@
  <td>Nova Terra Central</td><td>solarian</td>
  <td class="infeasible">3/9</td>
  <td>6/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">1/3</td>
- <td>2,694</td><td>2,002</td><td>2,002</td>
+ <td class="infeasible">0/3</td>
+ <td>1/3</td><td>2/3</td><td>2/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -281,8 +294,8 @@
  <td>Procyon Colonial Station</td><td>solarian</td>
  <td class="infeasible">5/9</td>
  <td>5/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">1/3</td>
- <td>2,694</td><td>2,694</td><td>2,002</td>
+ <td class="infeasible">0/3</td>
+ <td>0/3</td><td>1/3</td><td>2/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -292,8 +305,8 @@
  <td>Starfall Salvage Station</td><td>outerrim</td>
  <td class="infeasible">2/9</td>
  <td>2/9</td><td>3/9</td><td>3/9</td>
- <td class="infeasible">1/3</td>
- <td>1/3</td><td>1/3</td><td>1/3</td>
+ <td class="infeasible">0/3</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -302,9 +315,9 @@
 <tr>
  <td>Synchrony Hub</td><td>voidborn</td>
  <td class="infeasible">1/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td>2/9</td><td>3/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>2,889</td><td>2,889</td><td>2,889</td>
+ <td>1/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -312,11 +325,11 @@
 
 <tr>
  <td>The Anvil Arsenal</td><td>crimson</td>
- <td class="infeasible">0/9</td>
+ <td class="infeasible">1/9</td>
  <td>6/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">0/3</td>
+ <td class="infeasible">1/3</td>
  <td>1/3</td><td>1/3</td><td>1/3</td>
- <td>build_ion_emitter</td>
+ <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
 </tr>
@@ -335,9 +348,9 @@
 <tr>
  <td>The Experiment Research Station</td><td>voidborn</td>
  <td class="infeasible">1/9</td>
- <td>2/9</td><td>3/9</td><td>4/9</td>
+ <td>2/9</td><td>2/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>2,889</td><td>2,889</td>
+ <td>0/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter_gas_method</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -346,7 +359,7 @@
 <tr>
  <td>The Levy Customs Station</td><td>nebula</td>
  <td class="infeasible">0/9</td>
- <td>0/9</td><td>2/9</td><td>4/9</td>
+ <td>0/9</td><td>3/9</td><td>5/9</td>
  <td class="infeasible">1/3</td>
  <td>1/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter_gas_method</td>
@@ -357,7 +370,7 @@
 <tr>
  <td>Trader&#39;s Rest Resort Station</td><td>nebula</td>
  <td class="infeasible">2/9</td>
- <td>4/9</td><td>5/9</td><td>5/9</td>
+ <td>4/9</td><td>5/9</td><td>6/9</td>
  <td class="infeasible">0/3</td>
  <td>0/3</td><td>1/3</td><td>1/3</td>
  <td>build_ion_emitter</td>
@@ -379,9 +392,20 @@
 <tr>
  <td>Void Gate Outpost</td><td>outerrim</td>
  <td class="infeasible">1/9</td>
- <td>3/9</td><td>3/9</td><td>3/9</td>
+ <td>2/9</td><td>2/9</td><td>3/9</td>
  <td class="infeasible">0/3</td>
- <td>1/3</td><td>1/3</td><td>1/3</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
+ <td>build_ion_emitter</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Voss Redoubt</td><td>nebula</td>
+ <td class="infeasible">2/9</td>
+ <td>2/9</td><td>2/9</td><td>2/9</td>
+ <td class="infeasible">0/3</td>
+ <td>0/3</td><td>0/3</td><td>0/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -392,7 +416,7 @@
  <td class="infeasible">0/9</td>
  <td>0/9</td><td>5/9</td><td>6/9</td>
  <td class="infeasible">0/3</td>
- <td>0/3</td><td>1/3</td><td>2,694</td>
+ <td>0/3</td><td>0/3</td><td>1/3</td>
  <td>build_ion_emitter</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -401,5 +425,6 @@
 </tbody>
 </table>
 </div>
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-07-17 01:25 UTC</footer>
 </body>
 </html>

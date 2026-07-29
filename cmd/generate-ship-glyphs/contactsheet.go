@@ -93,6 +93,11 @@ var contactSheetTmpl = htmltpl.Must(htmltpl.New("contactsheet").Funcs(htmltpl.Fu
 <main class="glyph-sheet">
 <h1>Ship Glyph Contact Sheet</h1>
 <p class="glyph-intro">{{.Total}} ships, grouped by faction. Top-down schematic outlines generated from class archetype, faction design language and slot counts.</p>
+<ul class="glyph-legend">
+  <li><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.4"/></svg>Weapon slot</li>
+  <li><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4.2" y="4.2" width="7.6" height="7.6"/></svg>Defense slot</li>
+  <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.8 L12.2 8 L8 12.2 L3.8 8 Z"/></svg>Utility slot</li>
+</ul>
 {{range .Groups}}
 <section class="glyph-group" id="faction-{{.Key}}">
   <h2>{{.Name}} <span class="glyph-count">{{len .Glyphs}}</span></h2>

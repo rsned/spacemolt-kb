@@ -163,25 +163,29 @@ func archetypeAppendages(fam string, s Stats) []Appendage {
 }
 
 // archetypeZones returns default hardpoint mount ranges for a shape family.
+// The three kinds must not overlap: markers carry no per-kind position
+// meaning, so interleaved zones read as scatter rather than as banks of
+// mounts. Zones also stop short of the extreme stern so markers do not
+// land in the narrowest part of a tapered hull.
 func archetypeZones(fam string) MountZones {
 	switch fam {
 	case "needle", "dart":
 		return MountZones{
-			Weapon:  [][2]float64{{0.10, 0.45}},
-			Defense: [][2]float64{{0.35, 0.70}},
-			Utility: [][2]float64{{0.55, 0.92}},
+			Weapon:  [][2]float64{{0.10, 0.36}},
+			Defense: [][2]float64{{0.42, 0.60}},
+			Utility: [][2]float64{{0.66, 0.86}},
 		}
 	case "rack":
 		return MountZones{
-			Weapon:  [][2]float64{{0.08, 0.30}},
-			Defense: [][2]float64{{0.20, 0.80}},
-			Utility: [][2]float64{{0.30, 0.90}},
+			Weapon:  [][2]float64{{0.08, 0.26}},
+			Defense: [][2]float64{{0.32, 0.54}},
+			Utility: [][2]float64{{0.60, 0.86}},
 		}
 	default:
 		return MountZones{
-			Weapon:  [][2]float64{{0.06, 0.40}},
-			Defense: [][2]float64{{0.30, 0.72}},
-			Utility: [][2]float64{{0.50, 0.94}},
+			Weapon:  [][2]float64{{0.08, 0.32}},
+			Defense: [][2]float64{{0.38, 0.58}},
+			Utility: [][2]float64{{0.64, 0.86}},
 		}
 	}
 }

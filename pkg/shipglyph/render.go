@@ -114,8 +114,7 @@ func Render(d Descriptor, s Stats, opts Options) string {
 			fmt.Fprintf(&b, `<g id="%s" fill="none" stroke="currentColor" stroke-width="1">`, eid("hardpoints"))
 			for _, h := range hps {
 				x, y := project(h.Pos)
-				fmt.Fprintf(&b, `<circle id="%s" class="glyph-hp glyph-hp-%s" cx="%.2f" cy="%.2f" r="%.2f"/>`,
-					eid(h.ID), h.Kind, x, y, opts.Size*0.018)
+				b.WriteString(hardpointMark(eid(h.ID), h.Kind, x, y, opts.Size))
 			}
 			b.WriteString(`</g>`)
 		}
@@ -123,6 +122,28 @@ func Render(d Descriptor, s Stats, opts Options) string {
 
 	b.WriteString(`</svg>`)
 	return b.String()
+}
+
+// hardpointMark renders one mount marker. Each slot kind gets its own
+// silhouette and radius so a glance separates guns from defenses from
+// utility mounts without reading positions: weapon is a circle, defense a
+// square, utility a diamond.
+func hardpointMark(id, kind string, x, y, size float64) string {
+	class := fmt.Sprintf("glyph-hp glyph-hp-%s", kind)
+	switch kind {
+	case "defense":
+		r := size * 0.017
+		return fmt.Sprintf(`<rect id="%s" class="%s" x="%.2f" y="%.2f" width="%.2f" height="%.2f"/>`,
+			id, class, x-r, y-r, 2*r, 2*r)
+	case "utility":
+		r := size * 0.018
+		return fmt.Sprintf(`<path id="%s" class="%s" d="M%.2f %.2f L%.2f %.2f L%.2f %.2f L%.2f %.2f Z"/>`,
+			id, class, x, y-r, x+r, y, x, y+r, x-r, y)
+	default:
+		r := size * 0.020
+		return fmt.Sprintf(`<circle id="%s" class="%s" cx="%.2f" cy="%.2f" r="%.2f"/>`,
+			id, class, x, y, r)
+	}
 }
 
 // pathData converts a closed polygon in glyph space to an SVG path.

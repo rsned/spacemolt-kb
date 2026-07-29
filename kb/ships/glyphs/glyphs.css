@@ -9,7 +9,32 @@
 .glyph-intro {
   color: hsl(var(--muted-foreground));
   font-size: var(--text-ui);
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.glyph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  color: hsl(var(--muted-foreground));
+  font-size: var(--text-ui);
+}
+
+.glyph-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.glyph-legend svg {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
 }
 
 .glyph-group {
@@ -68,6 +93,21 @@
 
 .glyph-hp {
   opacity: 0.7;
+}
+
+/* Weapon mounts read first; utility mounts are the most numerous and so
+   sit back the furthest. */
+.glyph-hp-weapon {
+  opacity: 0.95;
+  stroke-width: 1.4;
+}
+
+.glyph-hp-defense {
+  opacity: 0.8;
+}
+
+.glyph-hp-utility {
+  opacity: 0.6;
 }
 
 .glyph-cell figcaption {
