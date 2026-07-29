@@ -1996,11 +1996,24 @@ _FACTION_PREFIX = re.compile(r"^(crimson|nebula|solarian|outerrim|voidborn|pirat
 
 
 def resolve_heroes() -> dict:
-    """Map ship ID to hero image path, for images whose name matches a ship."""
+    """Map ship ID to hero image path, for images whose name matches a ship.
+
+    The raw stem is tried first, and only then the faction-prefix-stripped
+    form. Order matters: five current ship IDs legitimately begin with a
+    faction name (crimson_devastator, crimson_stiletto, nebula_tender,
+    solarian_foundation, voidborn_event_horizon), so stripping first would
+    turn crimson_devastator.webp into "devastator", match nothing, and drop
+    the image silently. The stripped form is still needed because catalog IDs
+    carried a faction prefix before ~March 2026 and some art is named for the
+    old scheme — outerrim_prayer.webp is the ship now called "prayer". No ID
+    collides under stripping, so this order is unambiguous.
+    """
     ids = {s["id"] for s in json.load(open(CATALOG))["items"]}
     out = {}
     for p in sorted(paths.HERO_DIR.glob(paths.HERO_GLOB)):
-        key = _FACTION_PREFIX.sub("", p.stem)
+        key = p.stem
+        if key not in ids:
+            key = _FACTION_PREFIX.sub("", key)
         if key in ids:
             out[key] = p
     return out
