@@ -1,13 +1,25 @@
-# Direct dependencies. torch must come from the CUDA index first:
+# Direct dependencies. On a fresh machine, pre-install torch from the CUDA
+# index first as a hint:
 #   pip install torch --index-url https://download.pytorch.org/whl/cu121
-# Note: installing moge below pulls in its own torch resolution (observed:
-# torch 2.13.0+cu130, replacing the cu121 2.5.1 build installed a step
-# earlier). CUDA was re-verified available after that happens; the cu121
-# index install is still the documented entry point per the design doc.
+# In practice, installing moge below pulls in its own torch resolution and
+# may upgrade past that pre-install (observed: torch 2.13.0+cu130, replacing
+# a cu121 2.5.1 build installed a step earlier). The floor recorded here is
+# what MoGe actually resolved to, re-verified for CUDA availability
+# afterward, not the cu121 version the pre-install step produces.
 # Exact versions that produced a given result: requirements.lock.txt
 torch>=2.13
 moge @ git+https://github.com/microsoft/MoGe.git
-opencv-python-headless>=5.0
+# opencv-contrib-python, not opencv-python or opencv-python-headless: moge
+# pip-requires opencv-python, lu-vp-detect pip-requires opencv-contrib-python
+# specifically (it calls cv2.createLineSegmentDetector, a contrib-only API),
+# and all three opencv-* distributions install into the same cv2/ site-
+# packages path, last-installed-wins for shared files. Mixing any two
+# corrupts the install (an uninstall of one removed the shared top-level
+# __init__.py/binary needed by the other). Contrib is a strict superset of
+# the plain build, so installing only it satisfies every actual runtime need
+# in one non-colliding package. `pip check` will still flag moge's own
+# opencv-python requirement as unmet; that's expected and safe to ignore.
+opencv-contrib-python>=5.0
 numpy>=2.5
 scipy>=1.18
 shapely>=2.1
