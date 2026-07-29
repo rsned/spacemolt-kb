@@ -80,8 +80,27 @@ python3 -m venv ~/moge-venv
 ~/moge-venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu121
 ~/moge-venv/bin/pip install git+https://github.com/microsoft/MoGe.git
 ~/moge-venv/bin/pip install opencv-python-headless numpy scipy shapely alphashape lu-vp-detect pytest
-~/moge-venv/bin/pip freeze > tools/footprint/requirements.txt
+~/moge-venv/bin/pip freeze > tools/footprint/requirements.lock.txt
 ```
+
+Then hand-write `tools/footprint/requirements.txt` with the direct dependencies only. A full `pip freeze` records torch's CUDA-specific build, which plain `pip install -r` cannot resolve from PyPI — so the freeze is a lockfile for exact reproduction, and this file is what the README's setup instructions actually use:
+
+```
+# Direct dependencies. torch must come from the CUDA index first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# Exact versions that produced a given result: requirements.lock.txt
+torch>=2.5
+moge @ git+https://github.com/microsoft/MoGe.git
+opencv-python-headless>=4.10
+numpy>=1.26
+scipy>=1.14
+shapely>=2.0
+alphashape>=1.3
+lu-vp-detect>=1.0
+pytest>=8.0
+```
+
+Take the lower bounds from what actually installed — read them out of `requirements.lock.txt` rather than copying the numbers above if they differ.
 
 Verify CUDA is visible before continuing:
 
@@ -317,7 +336,11 @@ Design: `docs/superpowers/specs/2026-07-29-hero-art-footprint-recovery-design.md
 ## Setup
 
     python3 -m venv ~/moge-venv
+    ~/moge-venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cu121
     ~/moge-venv/bin/pip install -r tools/footprint/requirements.txt
+
+torch comes from the CUDA index first; the rest resolve from PyPI. To
+reproduce an exact environment instead, use `requirements.lock.txt`.
 
 This venv is deliberately separate from `~/sd-venv`; do not merge them.
 
@@ -1888,7 +1911,48 @@ def test_moge_chain_is_reported_not_asserted(capsys):
               f"mirror residual={sym.residual:.4f} "
               f"(ceiling {mirror.RESIDUAL_CEILING})")
     assert len(cloud.points) > 0
+
+
+@pytest.mark.skipif(
+    not __import__("importlib").util.find_spec("torch")
+    or not __import__("torch").cuda.is_available(), reason="needs CUDA")
+def test_moge_clears_a_floor_on_real_hero_art():
+    """The gate on what we actually depend on.
+
+    The synthetic check above is reporting-only because a flat-shaded render is
+    out of distribution for MoGe. A hero image is not: it is a rendered object
+    on a plain ground, which is what the model was trained on. So this one
+    asserts. Skips when the art is absent rather than failing in a clean
+    checkout.
+    """
+    import cv2
+    pointmap = _load("pointmap")
+    matte = _load("matte")
+    paths = _load("paths")
+
+    hero = paths.HERO_DIR / "outerrim_prayer.webp"
+    if not hero.exists():
+        pytest.skip(f"no hero art at {hero}")
+
+    img = cv2.cvtColor(cv2.imread(str(hero)), cv2.COLOR_BGR2RGB)
+    mask, _ = matte.extract(img)
+    cloud = pointmap.infer(img, mask)
+
+    assert len(cloud.points) > 10_000, "point map is implausibly sparse"
+    assert np.isfinite(cloud.points).all()
+    assert (cloud.points[:, 2] > 0).all(), "points behind the camera"
+
+    # A hull seen in 3/4 must have real depth relief. A collapsed depth range
+    # means the model read the image as a flat card, which would make every
+    # downstream footprint a silhouette rather than a shape.
+    d = cloud.points[:, 2]
+    assert d.std() / d.mean() > 0.02, f"depth relief {d.std() / d.mean():.4f} too flat"
+
+    sym = mirror.solve(cloud.points)
+    assert sym.residual < 0.25, f"Prayer is a boxy hull; residual {sym.residual:.3f}"
 ```
+
+The floors are deliberately loose. They catch the failure modes that would silently poison every footprint — a flat depth read, points behind the camera, a cloud too sparse to outline — without encoding a guess about how accurate MoGe happens to be. If a floor fails, investigate the model or the input before relaxing the number.
 
 - [ ] **Step 2: Run the test to verify it fails**
 
