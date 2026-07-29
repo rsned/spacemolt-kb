@@ -29,6 +29,8 @@ class Scene:
     footprint_xz: np.ndarray
     up: np.ndarray
     ortho: bool
+    vertices: np.ndarray
+    faces: list
 
 
 def _look_at(azimuth_deg, elevation_deg, distance):
@@ -100,7 +102,7 @@ def _scene(v, f, footprint_xz, azimuth_deg, elevation_deg, ortho):
     R, t = _look_at(azimuth_deg, elevation_deg, radius)
     return Scene(image=_render(v, f, K, R, t, ortho), K=K, R=R, t=t,
                  points=_surface_samples(v, f), footprint_xz=footprint_xz,
-                 up=UP.copy(), ortho=ortho)
+                 up=UP.copy(), ortho=ortho, vertices=v, faces=f)
 
 
 def box_scene(length, width, height, azimuth_deg, elevation_deg, ortho=False):
