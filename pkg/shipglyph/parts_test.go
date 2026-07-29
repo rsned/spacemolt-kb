@@ -88,7 +88,7 @@ func TestSampleProfileIsDeterministic(t *testing.T) {
 	}
 }
 
-func TestSampleProfileJitterDiffersBySide(t *testing.T) {
+func TestSampleProfileSkewDiffersBySide(t *testing.T) {
 	d := Infer(Stats{ID: "yard_sale", Class: "Salvager", Faction: "outerrim", Scale: 3})
 	st := StyleFor("outerrim")
 	star := sampleProfile(d, st, SeedOf("yard_sale"), 1)
@@ -102,7 +102,45 @@ func TestSampleProfileJitterDiffersBySide(t *testing.T) {
 		}
 	}
 	if same {
-		t.Errorf("outerrim sides are mirror-identical; jitter should break symmetry")
+		t.Errorf("outerrim sides are mirror-identical; skew should break symmetry")
+	}
+}
+
+func TestOutlineCarriesNoSurfaceDetail(t *testing.T) {
+	// A silhouette shows shape, not greeble. On a constant-width hull the
+	// half-width may reverse direction only where a style deliberately shapes
+	// it: at a panel joint, or at an extremum of the Voidborn lobe wave, which
+	// runs 1.5 cycles and so turns at most three times. Everything above that
+	// budget is surface detail. The old per-sample jitter reversed on roughly
+	// half of all 96 samples.
+	const lobeReversals = 3
+	budget := skewPanels + lobeReversals
+	d := Descriptor{Hull: []HullPart{{Kind: "box", Span: [2]float64{0, 1}, Half: 0.2}}}
+
+	for _, faction := range []string{"crimson", "nebula", "solarian", "outerrim", "voidborn", "pirate", ""} {
+		st := StyleFor(faction)
+		prof := sampleProfile(d, st, SeedOf("straightedge"), 1)
+
+		reversals, prevDir := 0, 0
+		for i := 1; i < len(prof); i++ {
+			dir := 0
+			switch delta := prof[i].Y - prof[i-1].Y; {
+			case delta > 1e-12:
+				dir = 1
+			case delta < -1e-12:
+				dir = -1
+			}
+			if dir != 0 && prevDir != 0 && dir != prevDir {
+				reversals++
+			}
+			if dir != 0 {
+				prevDir = dir
+			}
+		}
+		if reversals > budget {
+			t.Errorf("%s: %d width reversals on a constant-width hull, want <= %d — "+
+				"the profile is carrying surface detail", st.Name, reversals, budget)
+		}
 	}
 }
 

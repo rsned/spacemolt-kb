@@ -28,18 +28,18 @@ func TestStyleForKnownFactions(t *testing.T) {
 	if !StyleFor("nebula").Smooth {
 		t.Errorf("nebula should be smooth")
 	}
-	if StyleFor("solarian").Flute <= 0 {
-		t.Errorf("solarian should flute")
+	if StyleFor("solarian").Chamfer <= StyleFor("").Chamfer {
+		t.Errorf("solarian should chamfer harder than the neutral fallback")
 	}
-	if StyleFor("outerrim").Jitter <= 0 {
-		t.Errorf("outerrim should jitter")
+	if StyleFor("outerrim").Skew <= 0 {
+		t.Errorf("outerrim should skew")
 	}
 	if StyleFor("voidborn").Lobed <= 0 {
 		t.Errorf("voidborn should be lobed")
 	}
 	p := StyleFor("pirate")
-	if p.Jitter <= 0 || p.Chamfer <= 0 {
-		t.Errorf("pirate should both jitter and chamfer, got %+v", p)
+	if p.Skew <= 0 || p.Chamfer <= 0 {
+		t.Errorf("pirate should both skew and chamfer, got %+v", p)
 	}
 }
 

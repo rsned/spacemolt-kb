@@ -46,12 +46,12 @@ type Style struct {
 	// interpolates, so the smoothed outline sits slightly inside the raw
 	// control polygon.
 	Smooth bool
-	// Flute is the notch depth for regular perpendicular notches along the
-	// hull sides, as a fraction of local half-width. Zero disables fluting.
-	Flute float64
-	// Jitter is the fractional per-vertex displacement applied independently
-	// to each side, producing the Outer Rim's welded-scrap asymmetry.
-	Jitter float64
+	// Skew is the fractional half-width deviation applied per hull panel,
+	// independently to each side, producing the Outer Rim's welded-scrap
+	// asymmetry. It deviates once per panel joint and runs straight in
+	// between: an outline carries a ship's shape, not its surface detail, so
+	// nothing here may act at per-sample frequency.
+	Skew float64
 	// Lobed is the amplitude of the organic bulge wave applied before
 	// smoothing, as a fraction of local half-width, producing the Voidborn's
 	// flowing forms. Zero disables it.
@@ -67,13 +67,13 @@ func StyleFor(faction string) Style {
 	case "nebula":
 		return Style{Name: "nebula", Smooth: true}
 	case "solarian":
-		return Style{Name: "solarian", Flute: 0.06, Chamfer: 0.10}
+		return Style{Name: "solarian", Chamfer: 0.14}
 	case "outerrim":
-		return Style{Name: "outerrim", Jitter: 0.08}
+		return Style{Name: "outerrim", Skew: 0.10}
 	case "voidborn":
 		return Style{Name: "voidborn", Smooth: true, Lobed: 0.18}
 	case "pirate":
-		return Style{Name: "pirate", Jitter: 0.10, Chamfer: 0.18}
+		return Style{Name: "pirate", Skew: 0.12, Chamfer: 0.18}
 	default:
 		return Style{Name: "neutral", Chamfer: 0.08}
 	}

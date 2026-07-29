@@ -105,18 +105,56 @@ func hullHalfWidth(d Descriptor, t float64) float64 {
 	return w
 }
 
+// skewPanels is how many hull panels a skewed side is built from. Skew
+// deviates the hull once per panel joint and runs straight in between, so the
+// hull reads as welded from mismatched plate.
+//
+// This must stay far below profileSamples. A deviation per sample is surface
+// detail, and surface detail has no business on a silhouette: at glyph size it
+// renders as a sawtooth edge that buries the ship's actual shape.
+const skewPanels = 3
+
+// panelKnots draws one half-width multiplier per panel joint from r.
+func panelKnots(r *rng, amp float64) []float64 {
+	k := make([]float64, skewPanels+1)
+	for i := range k {
+		k[i] = 1 + amp*(r.next()*2-1)
+	}
+	return k
+}
+
+// panelSkewAt interpolates the panel-joint multipliers linearly at t in
+// [0, 1], so each panel is a straight run between two joints.
+func panelSkewAt(k []float64, t float64) float64 {
+	if len(k) < 2 {
+		return 1
+	}
+	pos := t * float64(len(k)-1)
+	i := int(pos)
+	if i >= len(k)-1 {
+		return k[len(k)-1]
+	}
+	f := pos - float64(i)
+	return k[i] + f*(k[i+1]-k[i])
+}
+
 // sampleProfile walks the spine from nose to tail and returns one side of the
 // hull outline. side is +1 for starboard (positive Y) or -1 for port.
-// Style-driven jitter is seeded per side, so asymmetric factions differ left to
+// Style-driven skew is seeded per side, so asymmetric factions differ left to
 // right while symmetric ones mirror exactly.
 func sampleProfile(d Descriptor, st Style, seed uint64, side int) []Point {
-	// Port gets a distinct sub-seed so its jitter is independent. Symmetric
-	// styles have Jitter == 0 and are therefore unaffected.
+	// Port gets a distinct sub-seed so its skew is independent. Symmetric
+	// styles have Skew == 0 and are therefore unaffected.
 	sub := seed
 	if side < 0 {
 		sub = seed ^ 0x5bf03635
 	}
 	r := newRNG(sub)
+
+	var knots []float64
+	if st.Skew > 0 {
+		knots = panelKnots(r, st.Skew)
+	}
 
 	out := make([]Point, profileSamples)
 	for i := range profileSamples {
@@ -127,12 +165,8 @@ func sampleProfile(d Descriptor, st Style, seed uint64, side int) []Point {
 			// Organic swelling: a slow wave that never narrows the hull.
 			w *= 1 + st.Lobed*math.Sin(t*math.Pi*3.0)
 		}
-		if st.Flute > 0 {
-			// Regular perpendicular notches.
-			w *= 1 - st.Flute*math.Abs(math.Sin(t*math.Pi*9))
-		}
-		if st.Jitter > 0 {
-			w *= 1 + st.Jitter*(r.next()*2-1)
+		if knots != nil {
+			w *= panelSkewAt(knots, t)
 		}
 		if w < 0 {
 			w = 0
