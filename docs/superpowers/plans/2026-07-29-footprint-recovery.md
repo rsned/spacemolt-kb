@@ -129,15 +129,14 @@ def artifact_dir(ship_id: str) -> pathlib.Path:
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_synth.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
 
 import numpy as np
 
-_spec = importlib.util.spec_from_file_location(
-    "synth", os.path.join(os.path.dirname(__file__), "synth.py"))
-synth = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(synth)
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+synth = importlib.import_module("tools.footprint.synth")
 
 
 def test_box_scene_footprint_is_a_rectangle_of_the_right_aspect():
@@ -377,11 +376,14 @@ import os
 import numpy as np
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 synth = _load("synth")
 matte = _load("matte")
@@ -560,11 +562,14 @@ import os
 import numpy as np
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 synth = _load("synth")
 matte = _load("matte")
@@ -844,11 +849,14 @@ import numpy as np
 import pytest
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 synth = _load("synth")
 matte = _load("matte")
@@ -1048,11 +1056,14 @@ import os
 import numpy as np
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 mirror = _load("mirror")
 
@@ -1270,11 +1281,14 @@ import os
 import numpy as np
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 synth = _load("synth")
 matte = _load("matte")
@@ -1342,12 +1356,11 @@ _DILATE = 5
 def reproject(points: np.ndarray, intrinsics: np.ndarray, shape) -> np.ndarray:
     h, w = shape
     K = intrinsics.copy()
-    if K[0, 2] < 2.0:  # normalised intrinsics, as MoGe returns
-        K = K @ np.diag([w, h, 1.0])
-        K[0, 2] *= w / max(K[0, 2], 1e-9) if False else 1.0
-        K = intrinsics.copy()
-        K[0, 0] *= w; K[1, 1] *= h
-        K[0, 2] *= w; K[1, 2] *= h
+    if K[0, 2] <= 2.0:  # MoGe returns intrinsics normalised to the unit square
+        K[0, 0] *= w
+        K[1, 1] *= h
+        K[0, 2] *= w
+        K[1, 2] *= h
 
     front = points[points[:, 2] > 1e-6]
     uv = (front @ K.T)[:, :2] / front[:, 2:3]
@@ -1382,22 +1395,7 @@ def run(ship_id: str, points, intrinsics, mask) -> float:
 Run: `~/moge-venv/bin/python -m pytest tools/footprint/test_gate.py -v`
 Expected: PASS, 3 tests.
 
-- [ ] **Step 5: Simplify the intrinsics denormalisation**
-
-The `reproject` block above contains a dead branch left from working out the normalisation. Replace the whole `if K[0, 2] < 2.0:` block with:
-
-```python
-    K = intrinsics.copy()
-    if K[0, 2] <= 2.0:  # MoGe returns intrinsics normalised to the unit square
-        K[0, 0] *= w
-        K[1, 1] *= h
-        K[0, 2] *= w
-        K[1, 2] *= h
-```
-
-Re-run the tests to confirm they still pass. This step exists because the dead branch is a real defect and removing it is worth its own verification.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add tools/footprint/gate.py tools/footprint/test_gate.py
@@ -1434,11 +1432,14 @@ import os
 import numpy as np
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 ground = _load("ground")
 
@@ -1643,11 +1644,14 @@ import numpy as np
 from shapely.geometry import Polygon
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 profile = _load("profile")
 
@@ -1820,11 +1824,14 @@ import numpy as np
 import pytest
 
 def _load(name):
-    spec = importlib.util.spec_from_file_location(
-        name, os.path.join(os.path.dirname(__file__), name + ".py"))
-    m = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(m)
-    return m
+    """Import a pipeline module through the package.
+
+    The modules use `from . import paths`, so they must be imported as package
+    members. Loading them as standalone files raises ImportError: attempted
+    relative import with no known parent package.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+    return importlib.import_module(f"tools.footprint.{name}")
 
 synth = _load("synth")
 mirror = _load("mirror")
