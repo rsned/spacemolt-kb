@@ -1,0 +1,16 @@
+# Direct dependencies. torch must come from the CUDA index first:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# Note: installing moge below pulls in its own torch resolution (observed:
+# torch 2.13.0+cu130, replacing the cu121 2.5.1 build installed a step
+# earlier). CUDA was re-verified available after that happens; the cu121
+# index install is still the documented entry point per the design doc.
+# Exact versions that produced a given result: requirements.lock.txt
+torch>=2.13
+moge @ git+https://github.com/microsoft/MoGe.git
+opencv-python-headless>=5.0
+numpy>=2.5
+scipy>=1.18
+shapely>=2.1
+alphashape>=1.3
+lu-vp-detect>=1.0
+pytest>=9.1
