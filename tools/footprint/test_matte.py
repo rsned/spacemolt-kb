@@ -8,7 +8,9 @@ import os
 import pathlib
 import sys
 
+import cv2
 import numpy as np
+import pytest
 
 def _load(name):
     """Import a pipeline module through the package.
@@ -22,6 +24,33 @@ def _load(name):
 
 synth = _load("synth")
 matte = _load("matte")
+paths = _load("paths")
+
+
+# The 19 files under HERO_DIR that match a real catalog ship, classified by
+# keyability against the actual art (measured 2026-07-29; see task-2-report.md
+# for the full corner_spread/border_std table). The other 18 files that also
+# match HERO_GLOB are unrelated downloads (banners, maps, portraits, fleet
+# views) and are not part of this catalog.
+KEYABLE_HERO_IDS = [
+    "comet", "excessive_force", "ledger", "liquidity_event", "magnate",
+    "outerrim_prayer", "premiere", "rapid_smelter", "reliquary", "smelter",
+    "superposition", "thermodynamic_end", "war_wagon", "yard_sale",
+]
+NOT_KEYABLE_HERO_IDS = ["bonanza", "crowbar", "last_warning", "paradox", "principia"]
+
+
+def _load_hero(stem):
+    """Load a real hero image by filename stem, skipping cleanly if the art
+    drop isn't present in this environment (paths.HERO_DIR defaults to
+    ~/Downloads, which won't exist in CI)."""
+    p = paths.HERO_DIR / f"{stem}.webp"
+    if not p.exists():
+        pytest.skip(f"hero art not present: {p}")
+    img = cv2.imread(str(p))
+    if img is None:
+        pytest.skip(f"hero art unreadable: {p}")
+    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
 def test_matte_recovers_the_rendered_subject():
@@ -71,3 +100,63 @@ def test_matte_is_not_fooled_by_a_magenta_subject_pixel():
     img[cy - half:cy + half + 1, cx - half:cx + half + 1] = matte.background_color(s.image)
     mask2, _ = matte.extract(img)
     assert mask2[cy, cx] == 1
+
+
+def test_keyability_true_for_a_flat_background_hero_image():
+    img = _load_hero("outerrim_prayer")
+    is_keyable, corner_spread, border_std = matte.keyability(img)
+    assert is_keyable
+    assert abs(corner_spread - 7.8) < 0.5, corner_spread
+    assert abs(border_std - 3.6) < 0.5, border_std
+
+
+def test_keyability_false_for_a_scene_render_that_passes_the_corner_test():
+    # paradox is a lit cavern: its four corners happen to agree with each
+    # other (corner_spread 1.1, well under threshold) but the border is far
+    # from flat (border_std 47.3). This is the test that proves the border
+    # term is load-bearing: delete it from keyability() and this reddens,
+    # since corner_spread alone would call paradox keyable.
+    img = _load_hero("paradox")
+    is_keyable, corner_spread, border_std = matte.keyability(img)
+    assert not is_keyable
+    assert corner_spread < matte.CORNER_SPREAD_THRESHOLD, corner_spread
+    assert border_std > matte.BORDER_STD_THRESHOLD, border_std
+
+
+def test_keyability_false_for_a_scene_render_that_fails_the_corner_test():
+    # principia fails on the other axis too: corner_spread 50.9. Note this
+    # does NOT prove the corner term is load-bearing the way the paradox
+    # test above proves the border term is: principia's border_std (67.2)
+    # already exceeds threshold on its own, and empirically that's true of
+    # every one of the 5 not-keyable images in the current catalog (see
+    # task-2-report.md) — border_std alone currently reproduces the exact
+    # same 14/5 split as the full AND rule. Deleting the corner term from
+    # keyability() would NOT redden this test, or any other test in this
+    # file, against today's art. The corner_spread computation itself is
+    # still worth checking directly (this test does that), and the term
+    # stays in keyability() as a second line of defense for an image shape
+    # neither of these 19 happens to instantiate — a flat border with
+    # mismatched corners — but no current fixture proves it's load-bearing.
+    img = _load_hero("principia")
+    is_keyable, corner_spread, border_std = matte.keyability(img)
+    assert not is_keyable
+    assert corner_spread > matte.CORNER_SPREAD_THRESHOLD, corner_spread
+
+
+def test_keyability_matches_the_hero_art_catalog():
+    # Hardcoded, not derived: if a future art drop changes which of these 19
+    # are keyable, this must go red and force a look, not quietly adapt.
+    mismatches = []
+    for stem in KEYABLE_HERO_IDS:
+        img = _load_hero(stem)
+        is_keyable, corner_spread, border_std = matte.keyability(img)
+        if not is_keyable:
+            mismatches.append(f"{stem}: expected keyable, got not-keyable "
+                               f"(corner_spread={corner_spread:.1f}, border_std={border_std:.1f})")
+    for stem in NOT_KEYABLE_HERO_IDS:
+        img = _load_hero(stem)
+        is_keyable, corner_spread, border_std = matte.keyability(img)
+        if is_keyable:
+            mismatches.append(f"{stem}: expected not-keyable, got keyable "
+                               f"(corner_spread={corner_spread:.1f}, border_std={border_std:.1f})")
+    assert not mismatches, "\n".join(mismatches)
