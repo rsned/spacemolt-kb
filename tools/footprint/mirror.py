@@ -20,12 +20,32 @@ in both scale and shift; solving only for scale would leave the cloud sheared.
 It exists on `solve` (two-sided input) only -- `solve_from_view` refuses it, see
 that function's docstring.
 
-`solve_from_view` is the one-view entry point and DOES NOT YET FIND THE PLANE.
-Its objective, silhouette agreement subject to a depth-separation floor, has a
-measured degeneracy that the true plane loses to; the evidence is in the comment
-on `_PROXIMITY_CEILING` and in the deliberately failing
-`test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds`. Do not
-route real ships through it as if it were trustworthy.
+`solve_from_view` is the one-view entry point, and how far to trust it is worth
+stating precisely.
+
+Silhouette agreement subject to a depth-separation floor -- the objective this
+stage was originally specified with -- is DEGENERATE on its own: agreement
+saturates at exactly 1.0000 for any plane that recedes the mirrored half clear
+of the hull, above the true plane's 0.9969-0.9997, and the depth floor cannot
+exclude it because such a plane has MORE separation than the truth. What makes
+the search tractable is the second constraint, `_PROXIMITY_CEILING` -- the
+mirrored half must land NEAR the visible surface, not merely behind it. Its
+comment carries the calibration, the cheaper substitutes that were measured to
+fail, and the obliquity range over which it holds.
+
+With that constraint the axis is recovered to within 10 degrees at every
+synthetic obliquity tested (0.18 / 1.74 / 8.19 / 3.40 degrees at obliquity
+0.500 / 0.707 / 0.866 / 0.966). Accuracy is NOT uniform: it degrades to ~8
+degrees near obliquity 0.866, where the returned plane is a mild recession, and
+both constraints lose their margins outside roughly 0.3 <= obliquity <= 0.9.
+
+REAL-ART ACCURACY IS UNPROVEN. The five hero clouds measured in task 6b all
+solve without reporting failure, at obliquities 0.574-0.856 that sit inside the
+usable band, but the recovered normals are NOT yet mutually consistent across
+ships. There is no ground truth on real art to settle it, and that inconsistency
+is the strongest evidence available that the synthetic result does not
+straightforwardly transfer. Treat a real solve as a measurement to be checked
+downstream, not as an answer.
 
     ~/moge-venv/bin/python -m tools.footprint.mirror <ship_id>
 """
