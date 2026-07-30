@@ -2121,24 +2121,18 @@ def test_alpha_shape_keeps_a_concavity_a_convex_hull_would_erase():
     assert poly.area < 6.0, f"gap partially filled: area {poly.area:.3f}"
 
 
-def test_canonicalise_accepts_a_multi_part_footprint():
-    """A twin-nacelle footprint is a MultiPolygon, which has no `.exterior`.
+def test_hull_of_two_bars_stays_multi_part():
+    """The twin-nacelle footprint must survive as a MultiPolygon.
 
-    Reading `poly.exterior` raises AttributeError on exactly the shape this
-    pipeline is built to represent. The defect was previously masked by
-    `hull` collapsing to its largest part, so this test guards the pair.
+    This is the `hull` half of the pair guarded here; the `profile.canonicalise`
+    half lives in Task 8's test file, because `profile.py` does not exist yet at
+    Task 7 time and importing it here raises ModuleNotFoundError at collection.
     """
     rng = np.random.default_rng(0)
     xy = np.vstack([rng.uniform([-2, -1.0], [2, -0.4], size=(3000, 2)),
                     rng.uniform([-2, 0.4], [2, 1.0], size=(3000, 2))])
     poly = ground.hull(xy, alpha=3.0)
     assert poly.geom_type == "MultiPolygon", poly.geom_type
-
-    profile = _load("profile")
-    canon = profile.canonicalise(poly, np.array([0.0, 1.0]))
-    xs = np.concatenate([np.array(g.exterior.coords)[:, 0]
-                         for g in canon.geoms])
-    assert abs((xs.max() - xs.min()) - 1.0) < 1e-6, xs.max() - xs.min()
 
 
 def _point(x, y):
@@ -2153,11 +2147,23 @@ def test_alpha_shape_of_a_solid_rectangle_has_the_right_area():
     assert abs(poly.area - 8.0) / 8.0 < 0.15, poly.area
 
 
-def test_sweep_picks_one_alpha_for_the_whole_batch():
+def test_sweep_picks_the_tightest_alpha_that_keeps_its_points():
+    """Assert the VALUE, not merely membership in the candidate list.
+
+    `assert alpha in candidates` cannot fail: sweep_alpha returns a candidate by
+    construction, so a stub returning `candidates[0]` (0.5) and a stub returning
+    `max(candidates)` (20.0) both pass it. Both are wrong.
+
+    Measured on these three clouds: alpha 0.5 keeps 2000/2000 points (area
+    7.849, 1 part), alpha 3.0 keeps 2000/2000 (area 7.764, 1 part), alpha 20.0
+    fragments into 3 parts and keeps only 1644/2000 = 82.2%, failing the 90%
+    retention bar. So 3.0 is the tightest passing candidate and the only correct
+    answer.
+    """
     rng = np.random.default_rng(2)
     clouds = [rng.uniform([-2, -1], [2, 1], size=(2000, 2)) for _ in range(3)]
     alpha = ground.sweep_alpha(clouds, candidates=[0.5, 3.0, 20.0])
-    assert alpha in (0.5, 3.0, 20.0)
+    assert alpha == 3.0, alpha
     assert isinstance(alpha, float)
 ```
 
@@ -2185,11 +2191,34 @@ import json
 
 import alphashape
 import numpy as np
+import shapely
 from shapely.geometry import MultiPolygon, mapping
 
 from . import paths
 
 ALPHA_CANDIDATES = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0, 13.0]
+
+# alphashape's cost is superlinear and severe: measured on a uniform rectangle,
+# 2k points take 0.59s, 8k take 2.66s, 20k take 7.79s and 50k take 21.54s. A
+# production MoGe cloud is ~400k points, and sweep_alpha evaluates every
+# candidate against every cloud. Extrapolating, a 7-candidate sweep over 335
+# ships at full density is hundreds of hours. Subsample before both the sweep
+# and the final hull; the footprint outline does not need every point, and using
+# the same cap for both keeps the chosen alpha meaningful for the hull it will
+# be applied to.
+SWEEP_SAMPLE = 20_000
+
+
+def subsample(xy: np.ndarray, cap: int = SWEEP_SAMPLE, seed: int = 0) -> np.ndarray:
+    """Deterministically thin a cloud to at most `cap` points.
+
+    Seeded, because an alpha swept on one random subset and applied to another
+    is not the alpha that was validated.
+    """
+    if len(xy) <= cap:
+        return xy
+    idx = np.random.default_rng(seed).choice(len(xy), size=cap, replace=False)
+    return xy[np.sort(idx)]
 
 
 def up_vector(sym, points, normals=None, fit=None) -> np.ndarray:
@@ -2302,9 +2331,11 @@ def sweep_alpha(clouds_xy, candidates=None) -> float:
     feature this stage exists to capture — and, because the batch shares one
     alpha, one twin-hull ship would drag every other ship toward convex-hull
     behaviour.
+
+    Pass ALREADY-SUBSAMPLED clouds: see SWEEP_SAMPLE and the note on `hull`.
     """
     candidates = candidates or ALPHA_CANDIDATES
-    best = float(candidates[0])
+    best = float(min(float(c) for c in candidates))
     for a in sorted(float(c) for c in candidates):
         ok = True
         for xy in clouds_xy:
@@ -2312,9 +2343,14 @@ def sweep_alpha(clouds_xy, candidates=None) -> float:
             if p.is_empty or p.area <= 0:
                 ok = False
                 break
-            from shapely.geometry import MultiPoint
-            covered = p.buffer(1e-9).intersection(MultiPoint(xy.tolist()))
-            kept = len(covered.geoms) if hasattr(covered, "geoms") else int(not covered.is_empty)
+            # shapely.contains_xy, not MultiPoint(...).intersection: measured at
+            # 50k points the MultiPoint route takes 1.53s and this takes 0.012s,
+            # a 127x difference, and it is called once per candidate per cloud.
+            # They also disagree — MultiPoint with buffer(1e-9) counts boundary
+            # vertices as covered and reports 50000/50000, while contains_xy
+            # reports 49747. The threshold below is calibrated against
+            # contains_xy's stricter count.
+            kept = int(shapely.contains_xy(p, xy[:, 0], xy[:, 1]).sum())
             if kept < 0.9 * len(xy):
                 ok = False
                 break
@@ -2324,7 +2360,7 @@ def sweep_alpha(clouds_xy, candidates=None) -> float:
 
 
 def run(ship_id: str, points, up, alpha: float):
-    xy = project(points, up)
+    xy = subsample(project(points, up))
     poly = hull(xy, alpha)
     (paths.artifact_dir(ship_id) / "footprint.json").write_text(
         json.dumps({"alpha": alpha, "polygon": mapping(poly)}, indent=2))
@@ -2334,9 +2370,15 @@ def run(ship_id: str, points, up, alpha: float):
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `~/moge-venv/bin/python -m pytest tools/footprint/test_ground.py -v`
-Expected: PASS, 4 tests.
+Expected: PASS, 8 tests.
 
-If `test_alpha_shape_keeps_a_concavity_a_convex_hull_would_erase` fails, alpha is too small — a small alpha degenerates to the convex hull. Raise the test's alpha until the gap survives and record the working value in `ALPHA_CANDIDATES`.
+Do NOT adjust the test fixtures' alpha to make a test go green. The alpha values
+in these tests are measured against the fixtures they use — the two-bar
+concavity fixture transitions from one gap-filled blob to two parts between
+alpha 2.4 and 2.5, and 3.0 is chosen to sit above that with margin. If
+`test_alpha_shape_keeps_a_concavity_a_convex_hull_would_erase` fails, `hull` is
+collapsing or over-merging parts; fix `hull`, and report the measurement if you
+believe the recorded transition is wrong.
 
 - [ ] **Step 5: Commit**
 
@@ -2437,6 +2479,46 @@ def test_aspect_matches_length_over_maximum_beam():
     poly = Polygon([(0, -0.1), (1, -0.1), (1, 0.1), (0, 0.1)])
     w, _ = profile.sample(poly)
     assert abs(profile.aspect(w) - 5.0) < 1e-6, profile.aspect(w)
+
+
+def test_canonicalise_accepts_a_multi_part_footprint():
+    """A twin-nacelle footprint is a MultiPolygon, which has no `.exterior`.
+
+    Reading `poly.exterior` raises AttributeError on exactly the shape this
+    pipeline exists to represent. The defect was previously masked by
+    `ground.hull` collapsing to its largest part, which silently discarded the
+    other nacelle — so this test and Task 7's `test_hull_of_two_bars_stays_multi_part`
+    guard the two halves of one bug. It lives here rather than in Task 7 because
+    it needs both modules, and `profile.py` does not exist at Task 7 time.
+    """
+    ground = _load("ground")
+    rng = np.random.default_rng(0)
+    xy = np.vstack([rng.uniform([-2, -1.0], [2, -0.4], size=(3000, 2)),
+                    rng.uniform([-2, 0.4], [2, 1.0], size=(3000, 2))])
+    poly = ground.hull(xy, alpha=3.0)
+    assert poly.geom_type == "MultiPolygon", poly.geom_type
+
+    canon = profile.canonicalise(poly, np.array([0.0, 1.0]))
+    xs = np.concatenate([np.array(g.exterior.coords)[:, 0] for g in canon.geoms])
+    assert abs((xs.max() - xs.min()) - 1.0) < 1e-6, xs.max() - xs.min()
+
+
+def test_sample_of_a_multi_part_footprint_does_not_crash():
+    """`sample` must handle the MultiPolygon that `canonicalise` now returns.
+
+    A station cut across two nacelles yields a MultiLineString; a station in the
+    gap between them (if the parts do not span the full length) yields nothing.
+    Both paths must produce a finite half-width array of the right length.
+    """
+    ground = _load("ground")
+    rng = np.random.default_rng(0)
+    xy = np.vstack([rng.uniform([-2, -1.0], [2, -0.4], size=(3000, 2)),
+                    rng.uniform([-2, 0.4], [2, 1.0], size=(3000, 2))])
+    canon = profile.canonicalise(ground.hull(xy, alpha=3.0), np.array([0.0, 1.0]))
+    w, concave = profile.sample(canon)
+    assert len(w) == profile.STATIONS
+    assert np.isfinite(w).all()
+    assert concave[profile.STATIONS // 2], "a two-nacelle cut must flag as split"
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
@@ -2532,7 +2614,7 @@ def run(ship_id: str, poly, sym_normal_xy, quality: dict) -> dict:
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `~/moge-venv/bin/python -m pytest tools/footprint/test_profile.py -v`
-Expected: PASS, 4 tests.
+Expected: PASS, 6 tests.
 
 - [ ] **Step 5: Commit**
 
