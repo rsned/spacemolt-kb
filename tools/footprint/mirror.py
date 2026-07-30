@@ -153,8 +153,26 @@ def solve(points: np.ndarray, init_scale: float = 1.0, init_shift: float = 0.0,
     # correct basin more chances to win regardless of such perturbation, and a
     # result that terminates ON a bound is discarded outright below rather
     # than trusted as a real local optimum.
+    # Verified load-bearing, by disabling the multi-start and running each init
+    # alone against this same fixture (true scale 1.6667):
+    #     init=0.5 -> scale=0.2000 cost=0.00729  ON BOUND
+    #     init=1.0 -> scale=1.6667 cost=0.00000
+    #     init=2.0 -> scale=1.6667 cost=0.00000
+    #     init=3.0 -> scale=1.6667 cost=0.00000
+    #     init=4.5 -> scale=0.2000 cost=0.00729  ON BOUND
+    # Two of five single starts land on the bound at a cost under
+    # RESIDUAL_CEILING, so the grid plus the bound-discard is what makes this
+    # robust rather than either alone.
+    #
+    # 0.5 is retained deliberately even though it is itself a bound-lander here
+    # and is therefore always discarded on THIS fixture: that it always fails is
+    # a property of one synthetic hull, not a guarantee, and pruning a start
+    # because it never wins on the only fixture we have is how a grid quietly
+    # stops covering its range. Pruning it is a real option -- it would cut the
+    # refine_affine cost measurably -- but it needs a test that pins which
+    # starts matter, so it is deferred to Task 6b, which rewrites this search.
     scale_bounds = (0.2, 5.0)
-    scale_starts = sorted({1.0, 2.0, init_scale}) if refine_affine else [init_scale]  # TRIAL: drop 0.5
+    scale_starts = sorted({0.5, 1.0, 2.0, init_scale}) if refine_affine else [init_scale]
 
     best = None
     best_any = None  # fallback if every candidate terminates on a scale bound
