@@ -1250,6 +1250,22 @@ git commit -m "feat(footprint): stage 3 MoGe-2 point map"
 
 ### Task 5: Stage 4 — mirror-constrained symmetry solve
 
+> **STATUS 2026-07-29: DONE (commit `b21ca1db7`), but the plane SEARCH it builds
+> is superseded on real data.** Everything else here stands as the synthetic
+> foundation — `reflect`, `complete`, the affine scale/shift solve, the
+> extent-normalised residual, the two-sided fixtures — and its 8 tests pass.
+> What does not survive real clouds is using self-chamfer to FIND the plane: a
+> one-view cloud is a front-surface sheet, and the reflection that best matches
+> a sheet folds it onto itself. See the spec section "The plane cannot be found
+> by self-chamfer" for the measurements, and **Task 6b** for the replacement
+> objective, which is built after Task 6 because it needs `gate.reproject`.
+>
+> `RESIDUAL_CEILING` below reads 0.06 for historical reasons. The shipped value
+> is **0.013**: this plan's calibration numbers were computed in raw chamfer
+> units while `solve()` divides by the sample's bounding-box diagonal (measured
+> 4.683 on the fixture), a 4.68× unit mismatch. Use 0.013, and treat it as
+> uncalibrated against real data until Task 6b re-measures it.
+
 **Files:**
 - Create: `tools/footprint/mirror.py`
 - Test: `tools/footprint/test_mirror.py`
@@ -1259,7 +1275,7 @@ git commit -m "feat(footprint): stage 3 MoGe-2 point map"
 - Produces: `mirror.solve(points: np.ndarray, init_scale=1.0, init_shift=0.0, refine_affine=False) -> mirror.Symmetry` where `Symmetry` is a dataclass with `normal: np.ndarray (3,)`, `offset: float`, `scale: float`, `shift: float`, `residual: float`
 - Produces: `mirror.reflect(points, normal, offset) -> np.ndarray`
 - Produces: `mirror.complete(points, sym) -> np.ndarray` returning the union of the cloud and its reflection
-- Produces: `mirror.run(ship_id, cloud, refine_affine=False) -> Symmetry`, writing `cloud_resolved.npz`
+- Produces: `mirror.run(ship_id, cloud, refine_affine=False) -> Symmetry`, writing `cloud_resolved.npz`. **Task 6b changes this signature to `run(ship_id, cloud, mask, refine_affine=False)`** and routes it to `solve_from_view`, since real clouds are one-sided. Implement the two-argument form here; Task 6b adds `mask`.
 - Produces: `mirror.RESIDUAL_CEILING = 0.06`
 
 - [ ] **Step 1: Write the failing test**
@@ -1770,6 +1786,165 @@ Expected: PASS, 3 tests.
 ```bash
 git add tools/footprint/gate.py tools/footprint/test_gate.py
 git commit -m "feat(footprint): stage 5 reprojection silhouette gate"
+```
+
+---
+
+### Task 6b: Stage 4 rewrite — silhouette-and-depth plane search
+
+**Why this task exists.** Task 5's `solve()` finds the plane by minimising
+chamfer between the cloud and its own reflection. On two-sided synthetic
+fixtures that is correct and its tests pass. On real one-view clouds it fails
+structurally, because a one-view point map is a front-surface **sheet** and the
+reflection that best matches a sheet is the one that folds the sheet onto
+itself; the true bilateral plane scores worse, since it maps visible points onto
+the occluded half where there is nothing to match.
+
+Measured on `outerrim_prayer` / `ledger` / `smelter` with the Task 5 solver: the
+plane cuts through the cloud (41% / 54% / 64% of points on the + side) within
+2.3% / 0.5% / 7.8% of the centroid; recovered normals are mutually inconsistent
+(`[0.06,0.94,0.33]`, `[0.35,0.93,-0.10]`, `[-0.77,0.35,-0.53]`); `complete()`
+raises extent by only 1.035× / 1.035× / 1.059×; and the supposed occluded half
+sits `+0.18` behind a hull 6.3 deep (2.8%) and `+0.007` behind one 5 deep
+(0.15%), where a real half-hull sits roughly a beam's width back. Cloud noise is
+ruled out: measured local surface roughness is 0.00036 absolute / 0.00003
+relative, and a synthetic hull at matched relative noise gives residual 0.00007,
+230× below the observed 0.01625.
+
+This matters more than it would have before the stage 2 demotion, because
+`sym.normal` is now the lateral axis of the reference frame — a wrong normal
+rotates every footprint, not just the mirrored half.
+
+**Files:**
+- Modify: `tools/footprint/mirror.py`
+- Test: `tools/footprint/test_mirror.py`
+
+**Interfaces:**
+- Consumes: `pointmap.Cloud`, `gate.reproject` (Task 6), the stage 1 matte
+- Produces: `mirror.solve_from_view(points, mask, intrinsics, refine_affine=False) -> mirror.Symmetry`. The existing `solve(points, ...)` is KEPT unchanged for two-sided input and remains what the synthetic tests exercise; the new entry point is what `run.process` calls on real clouds.
+- Produces: `mirror.Symmetry` gains `depth_separation: float` — the mean signed depth of mirrored points behind the visible surface at shared pixels, in cloud units. This is the discriminating term and must be recorded in `quality.json`, not merely thresholded.
+- Produces: `mirror.MIN_DEPTH_SEPARATION_FRACTION = 0.10` — of the cloud's z-extent. Below this the plane is a fold and the solve must report failure rather than return it.
+
+**The objective.** For a candidate plane, reflect the cloud, then score two
+terms that a fold cannot satisfy together:
+
+1. **Silhouette agreement** — the fraction of mirrored points whose reprojection
+   lands inside the matte. The occluded half is behind the ship, so it must
+   project within the same silhouette. Use `gate.reproject` so this shares one
+   implementation with stage 5.
+2. **Depth separation** — at pixels where both a visible and a mirrored point
+   land, the mean of (mirrored z − visible z). A genuine occluded half is
+   *behind* the visible surface; a fold puts it at the same depth. This is the
+   term that breaks the degeneracy.
+
+Maximise silhouette agreement subject to depth separation clearing
+`MIN_DEPTH_SEPARATION_FRACTION` of the z-extent. Keep the chamfer value as the
+reported `residual` — chamfer is still the right measure of *how symmetric the
+hull is* once the plane is known. It is only the search it cannot drive.
+
+- [ ] **Step 1: Write the failing test — a one-sided synthetic cloud**
+
+The fixture must be one-sided, because that is the regime the Task 5 solver
+fails in. Build it by hiding the far half of a known hull the way a camera
+would, then check the solver recovers the plane anyway.
+
+```python
+def _one_sided_view(scene_like_hull, normal, offset, keep_fraction=0.62, seed=0):
+    """Keep the camera-facing side of a hull, as a single view would.
+
+    NOT `pts[pts[:, 1] > 0]`: removing the far half exactly is
+    information-theoretically unrecoverable by any self-consistency objective
+    (proved by grid search — a spurious interior fold scores 0.025 against the
+    true plane's 0.095), which is why Task 5's fixture was replaced. A real view
+    keeps a majority of one side plus a foreshortened sliver of the other, and
+    that sliver is what a correct solver uses.
+    """
+    n = np.asarray(normal, dtype=float)
+    n /= np.linalg.norm(n)
+    sd = scene_like_hull @ n - offset
+    rng = np.random.default_rng(seed)
+    keep = (sd > 0) | (rng.random(len(sd)) > keep_fraction)
+    return scene_like_hull[keep]
+
+
+def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
+    """The regression test for the whole task: same input, both solvers.
+
+    `solve` (self-chamfer) must fold and `solve_from_view` must not. Asserting
+    only that the new solver works would leave the test passing if someone
+    quietly routed it back to the old objective.
+    """
+    hull = _symmetric_hull()
+    view = _one_sided_view(hull, [0.0, 1.0, 0.0], 0.0)
+    mask, K = _mask_and_intrinsics_for(view)       # render the view's silhouette
+
+    good = mirror.solve_from_view(view, mask, K)
+    axis_err = np.degrees(np.arccos(min(1.0, abs(good.normal @ [0, 1, 0]))))
+    assert axis_err < 8.0, axis_err
+    assert good.depth_separation > 0.0, good.depth_separation
+
+    folded = mirror.solve(view)                    # the superseded objective
+    fold_err = np.degrees(np.arccos(min(1.0, abs(folded.normal @ [0, 1, 0]))))
+    assert fold_err > 20.0, (
+        "the self-chamfer solve is expected to fold on one-sided input; if it "
+        "no longer does, this task's premise changed and the fixture is wrong")
+```
+
+- [ ] **Step 2: Run it and confirm both halves behave as stated**
+
+Run: `~/moge-venv/bin/python -m pytest tools/footprint/test_mirror.py -k from_view -v`
+Expected: FAIL on `solve_from_view` not existing. Before implementing, confirm
+the second half of the assertion independently — that `solve` really does fold
+on this fixture — and record the measured `fold_err`. If it does not fold, the
+fixture is not one-sided enough and must be rebuilt before continuing.
+
+- [ ] **Step 3: Implement `solve_from_view`**
+
+Search plane orientation and offset as in `solve`, but score with the two terms
+above instead of chamfer. Reuse `_chamfer` only to fill `residual`.
+
+- [ ] **Step 4: Prove the depth term is load-bearing**
+
+Delete the depth-separation constraint, leaving silhouette agreement alone, and
+confirm the fold returns and the test reddens. A fold reprojects *inside* the
+matte perfectly well, so silhouette agreement alone is not sufficient — if the
+test still passes without the depth term, it is not testing what it claims.
+Record the measured numbers both ways in a comment.
+
+- [ ] **Step 5: Re-measure the real clouds and re-derive the ceiling**
+
+```bash
+~/moge-venv/bin/python - <<'PY'
+import sys; sys.path.insert(0, ".")
+from tools.footprint import matte, pointmap, mirror, paths
+import cv2, os
+for name in ("outerrim_prayer", "ledger", "smelter", "magnate", "comet"):
+    p = os.path.join(str(paths.HERO_DIR), f"{name}.webp")
+    img = cv2.cvtColor(cv2.imread(p), cv2.COLOR_BGR2RGB)
+    m, _ = matte.extract(img)
+    c = pointmap.infer(img, m)
+    s = mirror.solve_from_view(c.points, m, c.intrinsics)
+    full = mirror.complete(c.points, s)
+    import numpy as np
+    ext = np.linalg.norm(c.points.max(0) - c.points.min(0))
+    gain = np.linalg.norm(full.max(0) - full.min(0)) / ext
+    print(f"{name:18s} residual={s.residual:.5f} depth_sep={s.depth_separation:.4f} "
+          f"extent_gain={gain:.3f} normal={np.round(s.normal,3)}")
+PY
+```
+
+Report the table. A working solve should show `extent_gain` clearly above the
+1.035× the folding solver produced, and mutually consistent normals across
+ships. **Do not retune `RESIDUAL_CEILING` to make these pass** — report the
+measured residuals and propose a value with its justification, noting that the
+old 0.013 was derived from a synthetic hull with Gaussian noise and that real
+clouds are the better calibration source.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add tools/footprint/mirror.py tools/footprint/test_mirror.py
+git commit -m "feat(footprint): find the symmetry plane by silhouette and depth, not self-chamfer"
 ```
 
 ---
@@ -2318,6 +2493,10 @@ profile = _load("profile")
 def _ground_truth_chain(scene):
     """Stages 4-7 on a perfect cloud: our arithmetic, no network involved."""
     cam = scene.points @ scene.R.T + scene.t
+    # `solve`, not `solve_from_view`: scene.points is a TWO-SIDED volume sampled
+    # over the whole mesh, which is the regime self-chamfer handles correctly.
+    # This chain exists to validate our arithmetic, so it must not depend on the
+    # silhouette machinery the real path uses.
     sym = mirror.solve(cam)
     full = mirror.complete(cam, sym)
     up = scene.up @ scene.R.T
@@ -2360,7 +2539,9 @@ def test_moge_chain_is_reported_not_asserted(capsys):
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
     mask, _ = matte.extract(s.image)
     cloud = pointmap.infer(s.image, mask)
-    sym = mirror.solve(cloud.points)
+    # A MoGe cloud is one-sided even on a synthetic render, so this is the
+    # view-based solve, not the two-sided one.
+    sym = mirror.solve_from_view(cloud.points, mask, cloud.intrinsics)
     with capsys.disabled():
         print(f"\n  MoGe on synthetic box: n={len(cloud.points)} "
               f"mirror residual={sym.residual:.4f} "
@@ -2408,8 +2589,17 @@ def test_moge_clears_a_floor_on_real_hero_art():
     d = cloud.points[:, 2]
     assert d.std() / d.mean() > 0.02, f"depth relief {d.std() / d.mean():.4f} too flat"
 
-    sym = mirror.solve(cloud.points)
+    sym = mirror.solve_from_view(cloud.points, mask, cloud.intrinsics)
     assert sym.residual < 0.25, f"Prayer is a boxy hull; residual {sym.residual:.3f}"
+    # The fold check, which is the failure this stage actually had: a folded
+    # plane leaves the completed cloud barely larger than the visible one
+    # (measured 1.035x with the superseded self-chamfer solve). A genuine
+    # occluded half must add real width.
+    import numpy as np
+    full = mirror.complete(cloud.points, sym)
+    ext = float(np.linalg.norm(cloud.points.max(0) - cloud.points.min(0)))
+    gain = float(np.linalg.norm(full.max(0) - full.min(0))) / ext
+    assert gain > 1.15, f"completion added almost nothing ({gain:.3f}x): plane folded"
 ```
 
 The floors are deliberately loose. They catch the failure modes that would silently poison every footprint — a flat depth read, points behind the camera, a cloud too sparse to outline — without encoding a guess about how accurate MoGe happens to be. If a floor fails, investigate the model or the input before relaxing the number.
@@ -2488,7 +2678,10 @@ def _stage_1_to_4(ship_id, image_path, background):
     fit = camera.run(ship_id, img, mask, clicks=clicks)
 
     cloud = pointmap.run(ship_id, img, mask, background=background)
-    sym = mirror.run(ship_id, cloud)
+    # Real clouds are one-sided, so this routes to solve_from_view (Task 6b),
+    # which needs the matte and the intrinsics to score silhouette agreement
+    # and depth separation.
+    sym = mirror.run(ship_id, cloud, mask)
     return img, mask, frac, fit, cloud, sym
 
 
@@ -2590,7 +2783,7 @@ git commit -m "feat(footprint): batch driver and end-to-end validation"
 
 ## Self-Review
 
-**Spec coverage.** All seven stages have a task. The batch-pinned alpha is Task 7 `sweep_alpha` plus `run._pick_alpha`. The separate venv is Task 1 Step 1. Stage 2 is a cross-check rather than a gate (revised 2026-07-29): `run.process` has no `needs_clicks` branch, and the reference frame comes from `ground.up_vector`'s geometric derivation, which is covered by three tests in Task 7 including one asserting a confident-but-wrong camera fit does not override it. Stage 5 exclusion is `run.process` returning `failed_silhouette_gate` and the report separating it from `ok`. Alpha shape over convex hull is Task 7, with a test that fails on a convex hull. Scale **and** shift is `mirror.solve`'s `refine_affine` path with its own no-op test. The synthetic end-to-end test is Task 9. The `disc+beam` gap needs no code — no local art matches those ships, so `resolve_heroes` will not return them.
+**Spec coverage.** All seven stages have a task. The batch-pinned alpha is Task 7 `sweep_alpha` plus `run._pick_alpha`. The separate venv is Task 1 Step 1. Stage 2 is a cross-check rather than a gate (revised 2026-07-29): `run.process` has no `needs_clicks` branch, and the reference frame comes from `ground.up_vector`'s geometric derivation, which is covered by three tests in Task 7 including one asserting a confident-but-wrong camera fit does not override it. Stage 5 exclusion is `run.process` returning `failed_silhouette_gate` and the report separating it from `ok`. Alpha shape over convex hull is Task 7, with a test that fails on a convex hull. Scale **and** shift is `mirror.solve`'s `refine_affine` path with its own no-op test, paired with a recovery test on a known depth squash (the no-op assertion alone passes with `scale` hardcoded to 1.0). The stage 4 plane search on real one-view clouds is Task 6b's `solve_from_view`, built after Task 6 because it scores against `gate.reproject`; `mirror.solve` remains the two-sided path and is what the synthetic ground-truth chain exercises. The synthetic end-to-end test is Task 9. The `disc+beam` gap needs no code — no local art matches those ships, so `resolve_heroes` will not return them.
 
 **Two spec items are deliberately not in this plan**, because they belong to the consuming half: the `Merge` fix, and grading against inferred glyphs. This plan ends at `profile.json`.
 
