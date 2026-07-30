@@ -208,15 +208,21 @@ def inside_fraction(points: np.ndarray, intrinsics: np.ndarray, mask: np.ndarray
 # depth_separation is what actually discriminates, which is why `run()` now
 # refuses to pass without one (see below; see MIN_DEPTH_SEPARATION_FRACTION's
 # comment for why "15 degrees off the mean view direction" needs the exact
-# rotation axis stated to be reproducible, and for the confirmation -- via a
-# 600-random-plane search for the true degenerate optimum -- that this
-# specific fold IS the tangential one, not merely an arbitrary wrong plane).
-# This floor is kept only as a
-# necessary-but-not-sufficient pre-filter, set just above the fold band
-# reported by the team lead's own synthetic sweep (0.750 worst fold, 0.998
-# true plane); it is synthetic-derived, not measured on real solved clouds
-# (there are none yet -- stage 4 currently folds), and Task 6b re-derives it
-# once real solved planes exist.
+# rotation axis stated to be reproducible, and for a 600-random-plane search
+# on a separate sheet that independently corroborates this specific fold as
+# consistent with the tangential one -- not a proof that it IS the unique
+# minimiser, just that it sits well inside the same degenerate band).
+#
+# NO value of `MIR_FLOOR` sits above the fold band: folds have been measured
+# as high as 0.92+ (this module's own 15-degree case above: 0.9156), which
+# is above 0.85 too. This floor is NOT what excludes folds -- that is
+# `depth_separation`'s job (see `MIN_DEPTH_SEPARATION_FRACTION` below), and
+# `run()` requires both. What this floor actually catches is GROSS spill: a
+# plane so wrong its reprojection barely lands on the silhouette at all,
+# e.g. a shifted cloud at 0.161 or an arbitrary random-normal plane at 0.35.
+# It is synthetic-derived, not measured on real solved clouds (there are
+# none yet -- stage 4 currently folds), and Task 6b re-derives it once real
+# solved planes exist.
 MIR_FLOOR = 0.85
 
 # `depth_separation` is task 6b's discriminating term (mean of mirrored-z

@@ -497,17 +497,20 @@ def test_run_rejects_a_fold_that_clears_mirrored_fraction_on_its_own(tmp_path, m
     rotation axis -- see `_one_sided_hull_and_fold`'s docstring; "N degrees
     off the mean view direction" alone underdetermines the plane, and most
     angles/axes in that family are NOT folds at all, just ordinary wrong
-    planes) off the mean view direction. This specific case is confirmed to
-    be the genuine TANGENTIAL fold -- the actual degenerate optimum a
-    self-consistency objective converges to, not merely one of the family --
-    by an independent 600-random-plane search on a separate sheet for the
-    minimum-|depth_separation| candidate, which landed at -0.00002 of that
-    sheet's z-extent (vs. that sheet's true plane at +0.29210, a ~12315x
-    margin); this fixture's own -0.0013 (-0.04% of z_extent) is the same
-    signature (see gate.py's `MIN_DEPTH_SEPARATION_FRACTION` comment for the
-    full resolution, including why the OTHER angles in both sweeps read
-    meaningfully positive instead -- they are ordinary wrong planes, not
-    folds). Measured on this exact fixture: `mirrored_fraction` (this fold's
+    planes) off the mean view direction. This specific case is independently
+    corroborated as consistent with the genuine TANGENTIAL fold -- the
+    actual degenerate optimum a self-consistency objective converges to, not
+    an arbitrary wrong plane from the family -- by a 600-random-plane search
+    on a SEPARATE sheet for the minimum-|depth_separation| candidate, which
+    landed at -0.00002 of that sheet's z-extent (vs. that sheet's true plane
+    at +0.29210, a ~12315x margin); this fixture's own -0.0013 (-0.04% of
+    z_extent) is the same signature and sits well inside that degenerate
+    band, though that search does not by itself establish this exact plane
+    as THE minimiser for this hull (see gate.py's
+    `MIN_DEPTH_SEPARATION_FRACTION` comment for the full resolution,
+    including why the OTHER angles in both sweeps read meaningfully positive
+    instead -- they are ordinary wrong planes, not folds). Measured on this
+    exact fixture: `mirrored_fraction` (this fold's
     own `inside_fraction`) is 0.9156 -- ABOVE `MIR_FLOOR` (0.85) -- while its
     `depth_separation` is -0.0013, BELOW `MIN_DEPTH_SEPARATION_FRACTION *
     z_extent`: the mirrored half sits at the same depth as the visible
