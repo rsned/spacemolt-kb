@@ -1864,8 +1864,14 @@ terms that a fold cannot satisfy together:
 
 1. **Silhouette agreement** — the fraction of mirrored points whose reprojection
    lands inside the matte. The occluded half is behind the ship, so it must
-   project within the same silhouette. Use `gate.reproject` so this shares one
-   implementation with stage 5.
+   project within the same silhouette. Use **`gate.project`** (per-point `(uv, ok)`)
+   and **`gate.inside_fraction`**, not `gate.reproject`. `reproject` returns a
+   closed mask and discards the per-point information both of these terms need —
+   the fraction is not recoverable from a mask, and term 2 needs `uv` *and* `z`
+   per point to pair mirrored against visible at shared pixels. Task 6's fix
+   round extracts `project` for exactly this reason, so that stage 4 and stage 5
+   share one projection and one intrinsics-denormalisation rule rather than
+   diverging.
 2. **Depth separation** — at pixels where both a visible and a mirrored point
    land, the mean of (mirrored z − visible z). A genuine occluded half is
    *behind* the visible surface; a fold puts it at the same depth. This is the
@@ -1876,13 +1882,21 @@ Maximise silhouette agreement subject to depth separation clearing
 reported `residual` — chamfer is still the right measure of *how symmetric the
 hull is* once the plane is known. It is only the search it cannot drive.
 
-**Budget: `gate.score` costs 90.7ms per call at 400k points** (measured in Task
-6; `reproject` 92.9ms, dominated by the projection matmul and indexing, with the
-morphological close only ~2ms, and linear in point count). At 100–300 optimiser
-iterations that is 10–30s per ship from this term alone. **Subsample the cloud
-for the search** — a few tens of thousands of points is ample to score
-silhouette overlap — and score the winning plane once at full density. Report
-the subsample size you chose and the timing you measured.
+**Budget — and a correction.** An earlier draft of this task said `gate.score`
+costs 90.7ms per call at 400k points, so the search would take 10–30s per ship,
+and told you to subsample for speed. **That was priced against the wrong
+function.** The Task 6 review profiled the operation this search actually
+performs — the inside-matte *fraction* at `mirror._SUBSAMPLE = 4000`, the
+subsample the existing solver already uses — at **0.333ms**, so 300 evaluations
+is about 0.1s per ship. Speed is not a concern here and you should not contort
+the design for it.
+
+**But do not call `gate.score` in the loop, for a correctness reason.** `score`
+builds a mask and closes it morphologically, which makes it density-coupled: the
+same cloud scores 0.204 at 4000 subsampled points and 0.991 at 60k. A subsampled
+IoU is comparable neither to `IOU_FLOOR` nor across candidate planes with
+differing point counts. Use the per-point `gate.inside_fraction`, which involves
+no closing and is density-invariant.
 
 **Also solve `shift` here.** Self-chamfer cannot identify it: with the plane
 offset free the objective is translation-equivariant, so `shift` and `offset`
@@ -2058,6 +2072,19 @@ Report `sep/zext` and `obliquity` per ship, not just the raw separation — the
 synthetic sweep above shows the achievable separation spans a factor of 50 across
 the obliquity range, so a raw number without its obliquity says nothing about
 whether the solve succeeded.
+
+**Also calibrate `gate.MIR_FLOOR` here, because this is the first point at which
+a correct plane exists to calibrate against.** Task 6's fix round adds
+`gate.inside_fraction` and a provisional floor but cannot pin it: the mirrored
+fraction is only meaningful once stage 4 returns a plane that is not a fold. Add
+the mirrored fraction to the table above, and report it for the solved plane
+alongside at least three deliberately wrong planes per ship (`n = +x`, `n = +y`,
+`n = +z`, and the solved plane with `offset + 1`). The review measured this
+separation on the old folding solve: mirrored fraction spans 0.078–0.933 across
+those cases, and `outerrim_prayer` with `offset + 1` reads 0.267 where union IoU
+passed it at 0.734. Propose a floor with the margin stated on both sides, and
+say plainly if the populations overlap — if they do, that is a finding, not a
+number to split.
 
 Report the table. A working solve should show `extent_gain` clearly above the
 1.035× the folding solver produced, and mutually consistent normals across
@@ -2627,6 +2654,51 @@ def test_sample_of_a_multi_part_footprint_does_not_crash():
     assert len(w) == profile.STATIONS
     assert np.isfinite(w).all()
     assert concave[profile.STATIONS // 2], "a two-nacelle cut must flag as split"
+
+
+def test_a_plausible_hull_passes_the_dimensional_check():
+    """A 5:1 hull with real depth must not be rejected.
+
+    The bounds exist to catch pancakes and slivers, so they must not fire on an
+    ordinary hull — a check that rejects everything is as useless as one that
+    rejects nothing.
+    """
+    poly = Polygon([(0, -0.1), (1, -0.1), (1, 0.1), (0, 0.1)])
+    w, _ = profile.sample(poly)
+    assert abs(profile.aspect(w) - 5.0) < 1e-6, profile.aspect(w)
+    # beam = 0.2, so depth 0.08 is depth/beam = 0.40, well above the 0.15 floor
+    assert profile.implausible(w, depth_extent=0.08) is None
+
+
+def test_a_flattened_reconstruction_is_rejected_as_a_pancake():
+    """The case stage 5 provably cannot catch.
+
+    A cloud flattened along the viewing rays reprojects to the SAME silhouette —
+    measured IoU 0.9910 either way — so it arrives here with silhouette_pass
+    true. If this check does not fire, nothing in the pipeline does.
+    """
+    poly = Polygon([(0, -0.1), (1, -0.1), (1, 0.1), (0, 0.1)])
+    w, _ = profile.sample(poly)
+    reason = profile.implausible(w, depth_extent=0.01)   # depth/beam = 0.05
+    assert reason is not None, "a flat card must not be publishable"
+    assert "flat card" in reason, reason
+
+
+def test_an_implausible_aspect_is_rejected_and_says_why():
+    """Both ends of the aspect band, and the reason string is part of the API.
+
+    The batch report names why each ship was excluded, so an empty or generic
+    reason would make a failure unactionable.
+    """
+    stubby = Polygon([(0, -0.6), (1, -0.6), (1, 0.6), (0, 0.6)])     # aspect 0.83
+    w, _ = profile.sample(stubby)
+    r = profile.implausible(w, depth_extent=1.0)
+    assert r is not None and "stubby" in r, r
+
+    sliver = Polygon([(0, -0.02), (1, -0.02), (1, 0.02), (0, 0.02)])  # aspect 25
+    w, _ = profile.sample(sliver)
+    r = profile.implausible(w, depth_extent=1.0)
+    assert r is not None and "sliver" in r, r
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
@@ -2710,19 +2782,64 @@ def aspect(w: np.ndarray) -> float:
     return float("inf") if m <= 0 else 1.0 / (2.0 * m)
 
 
-def run(ship_id: str, poly, sym_normal_xy, quality: dict) -> dict:
+# Stage 7 is the ONLY place a scale or depth error can be caught. The stage 5
+# silhouette gate is provably blind to both: `uv = K.p / p_z` is exactly
+# invariant under `p -> lambda(p) . p` for any positive per-point lambda, so a
+# uniformly scaled cloud and a cloud flattened along the viewing rays reproject
+# to the identical silhouette. Measured in the Task 6 review: flattening a cloud
+# to 10% of its depth extent leaves IoU at 0.9910, unchanged to four decimals
+# from the unflattened cloud, and x5 global scale likewise. A hull reconstructed
+# as a billboard arrives here with `silhouette_pass: true`.
+#
+# So these bounds are not defensive boilerplate — they are the pipeline's only
+# check on the dimension it exists to publish.
+ASPECT_BOUNDS = (1.2, 12.0)      # derived from the catalog's own ship dimensions
+MIN_DEPTH_TO_BEAM = 0.15         # below this the reconstruction is a pancake
+
+
+def implausible(w: np.ndarray, depth_extent: float) -> str | None:
+    """Why this profile must not be published, or None if it is plausible.
+
+    Returns a reason string rather than a bool so the batch report can say what
+    was wrong with each excluded ship instead of just counting failures.
+    """
+    a = aspect(w)
+    lo, hi = ASPECT_BOUNDS
+    if not np.isfinite(a):
+        return "degenerate footprint: zero maximum beam"
+    if a < lo:
+        return f"aspect {a:.2f} below {lo}: too stubby to be a hull"
+    if a > hi:
+        return f"aspect {a:.2f} above {hi}: a sliver, not a hull"
+    beam = 2.0 * float(np.max(w))
+    if depth_extent / beam < MIN_DEPTH_TO_BEAM:
+        return (f"depth/beam {depth_extent / beam:.3f} below "
+                f"{MIN_DEPTH_TO_BEAM}: reconstructed as a flat card")
+    return None
+
+
+def run(ship_id: str, poly, sym_normal_xy, quality: dict,
+        depth_extent: float | None = None) -> dict:
     canon = canonicalise(poly, sym_normal_xy)
     w, concave = sample(canon)
+    reason = None if depth_extent is None else implausible(w, depth_extent)
     data = {"id": ship_id, "stations": STATIONS, "w": w.tolist(),
-            "concave": concave.tolist(), "aspect": aspect(w), "quality": quality}
+            "concave": concave.tolist(), "aspect": aspect(w), "quality": quality,
+            "dimensional_pass": reason is None, "dimensional_reason": reason}
     (paths.artifact_dir(ship_id) / "profile.json").write_text(json.dumps(data, indent=2))
     return data
 ```
 
+`depth_extent` is optional so the ground-truth chain in Task 9 can call `run`
+without a cloud, but `run.process` must always pass it — a profile written with
+`dimensional_pass` unevaluated is exactly the silent publish this check exists to
+prevent, so Task 9's driver treats a missing `depth_extent` as a failure rather
+than a skip.
+
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `~/moge-venv/bin/python -m pytest tools/footprint/test_profile.py -v`
-Expected: PASS, 6 tests.
+Expected: PASS, 9 tests.
 
 - [ ] **Step 5: Commit**
 
