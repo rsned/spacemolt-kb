@@ -113,11 +113,45 @@ A fold satisfies the first and fails the second, which is what makes the pair
 well-posed where chamfer alone is not. Depth separation is the discriminating
 term and must be reported, not just thresholded.
 
-Two consequences for sequencing. The reprojection machinery (stage 5) is now a
-dependency of stage 4, so it is built first. And because a correctly completed
-cloud is a volume rather than a sheet, this also repairs stage 6's reference
-frame: a principal-axis decomposition of a volume gives usable hull axes, where
-the same decomposition of a sheet returns the camera direction.
+**Measured, on a back-face-culled synthetic hull surface.** A fold's depth
+separation is 343x to 27000x smaller than the true plane's, so the pair
+discriminates decisively. But the *achievable* separation depends on obliquity —
+how much the lateral axis points toward the camera, `|n·ẑ|`:
+
+| obliquity | true plane, sep / z-extent | best fold | ratio |
+|-----------|---------------------------|-----------|-------|
+| 0.500     | 0.028                     | 0.0001    | 343x  |
+| 0.707     | 0.098                     | 0.0001    | 947x  |
+| 0.866     | 0.292                     | 0.00003   | 12314x |
+| 1.000     | 1.399                     | 0.0001    | 19050x |
+
+**This sets a coverage limit, and it is a property of the viewing angle, not of
+the code.** At obliquity 0 — a bow-on or stern-on view, where the symmetry plane
+contains the view direction — reflection moves nothing in depth and separation is
+exactly zero. The depth term carries no signal there, and since silhouette
+agreement alone admits folds, the plane is not recoverable at all for such a
+ship. Ships must therefore be reported with their obliquity, and a low-obliquity
+ship is a reconstruction failure to be listed, not a reason to lower the
+threshold. The floor is 1% of z-extent, which clears the worst measured true
+plane by 2.8x and the worst measured fold by 100x; it is deliberately far below
+the 10% an earlier draft of this spec assumed, because 10% would have rejected
+correct solves on anything closer to bow-on than a three-quarter view.
+
+One consequence for sequencing: the reprojection machinery (stage 5) is now a
+dependency of stage 4, so it is built first.
+
+*(An earlier draft of this section also claimed the completed cloud repairs stage
+6's reference frame, on the grounds that a principal-axis decomposition of a
+sheet "returns the camera direction". That is wrong, and measurement says so: on
+a back-face-culled sheet, stage 6's in-plane decomposition recovers the
+longitudinal axis to 0.11 degrees, against 0.03 for the full cloud, with
+`|L·ẑ| = 0.001` — no camera-direction contamination at all. The reason is that
+stage 6 projects the lateral component out **before** taking the principal axis,
+so the decomposition happens inside the symmetry plane where hull length
+dominates regardless of sheet or volume. The degeneracy would only appear in an
+unconstrained 3D decomposition, which is not what stage 6 does. This is worth
+stating positively: stage 6's frame depends on stage 4's plane **normal** but not
+on the quality of its completion.)*
 
 Chamfer against a reflection remains correct for the *residual* — for asking
 how symmetric a hull is once the plane is known — and for scoring a plane on a
