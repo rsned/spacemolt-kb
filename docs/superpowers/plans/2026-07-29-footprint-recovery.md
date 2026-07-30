@@ -1823,7 +1823,41 @@ rotates every footprint, not just the mirrored half.
 - Consumes: `pointmap.Cloud`, `gate.reproject` (Task 6), the stage 1 matte
 - Produces: `mirror.solve_from_view(points, mask, intrinsics, refine_affine=False) -> mirror.Symmetry`. The existing `solve(points, ...)` is KEPT unchanged for two-sided input and remains what the synthetic tests exercise; the new entry point is what `run.process` calls on real clouds.
 - Produces: `mirror.Symmetry` gains `depth_separation: float` — the mean signed depth of mirrored points behind the visible surface at shared pixels, in cloud units. This is the discriminating term and must be recorded in `quality.json`, not merely thresholded.
-- Produces: `mirror.MIN_DEPTH_SEPARATION_FRACTION = 0.10` — of the cloud's z-extent. Below this the plane is a fold and the solve must report failure rather than return it.
+- Produces: `mirror.Symmetry` gains `obliquity: float` — `abs(normal @ [0,0,1])`, how much the recovered lateral axis points toward the camera. **This is not decoration: the achievable depth separation is a steep function of it** (see below), so `depth_separation` is uninterpretable without it. Record both in `quality.json`.
+- Produces: `mirror.MIN_DEPTH_SEPARATION_FRACTION = 0.01` — of the cloud's z-extent. Below this the plane is a fold and the solve must report failure rather than return it.
+
+**The 0.10 in the first draft of this task was wrong and would have rejected
+correct solves.** Measured on a clean synthetic front-surface sheet (ellipsoid
+2.0 x 1.0 x 0.6, back-face culled, ~27k visible points), sweeping the angle
+between the lateral axis and the view direction, `obliquity = |n·ẑ|`:
+
+| obliquity | true-plane sep / z-extent | best fold sep / z-extent | ratio |
+|-----------|---------------------------|--------------------------|-------|
+| 0.500     | 0.028                     | 0.0001                   | 343x  |
+| 0.707     | 0.098                     | 0.0001                   | 947x  |
+| 0.866     | 0.292                     | 0.00003                  | 12314x |
+| 0.966     | 0.938                     | 0.00002                  | 27715x |
+| 1.000     | 1.399                     | 0.0001                   | 19050x |
+
+Two conclusions, and they point opposite ways:
+
+- **The objective works.** A fold's depth separation is 343x to 27000x smaller
+  than the true plane's at every angle tested. The term breaks the degeneracy
+  exactly as intended, which is why this task proceeds as designed.
+- **A fixed 0.10 floor is a bug.** It is above the true-plane separation at
+  obliquity 0.500 and only marginally below it at 0.707, so it would reject the
+  correct answer for any ship whose lateral axis is more than about 45 degrees
+  from the view direction — i.e. anything rendered closer to bow-on than a
+  three-quarter view. 0.01 clears the worst measured true plane by 2.8x and the
+  worst measured fold by 100x.
+
+Because separation collapses to **exactly zero** at obliquity 0 (a bow-on view,
+where the mirror plane contains the view direction and reflection moves nothing
+in depth), the depth term carries no signal there at all. Report `obliquity`
+per ship in Step 5. If any real hero image comes back below ~0.3, say so
+plainly rather than tuning the floor down to admit it: at that angle this
+objective cannot distinguish a fold, and that is a finding about which ships
+this pipeline can handle, not a constant to adjust.
 
 **The objective.** For a candidate plane, reflect the cloud, then score two
 terms that a fold cannot satisfy together:
@@ -1870,27 +1904,68 @@ in Step 5, state the margin, and say plainly what it separates.
 
 - [ ] **Step 1: Write the failing test — a one-sided synthetic cloud**
 
-The fixture must be one-sided, because that is the regime the Task 5 solver
-fails in. Build it by hiding the far half of a known hull the way a camera
-would, then check the solver recovers the plane anyway.
+The fixture must be a **front-facing SURFACE SHEET**, not a subsample of a solid
+volume. This is the single most important thing in this task, and the first draft
+of it was wrong in a way that would have failed on correct code.
+
+**Do NOT build the fixture from `_symmetric_hull()`.** That fixture samples a
+solid volume, and reflecting a bilaterally symmetric *solid* across its true
+plane maps the solid onto itself — so the depth separation of the CORRECT answer
+is zero by construction. Measured directly: sweeping azimuth 0–70 degrees at
+elevation 25, the true plane's `depth_separation / z-extent` came out
+−0.004, −0.000, −0.003, +0.002, +0.005 — indistinguishable from zero, sometimes
+negative, against a floor of 0.01. `assert good.depth_separation > 0.0` fails
+about half the time on a perfect solver. Depth separation only exists for a
+one-view sheet, where the reflected front surface becomes the genuinely occluded
+back surface.
 
 ```python
-def _one_sided_view(scene_like_hull, normal, offset, keep_fraction=0.62, seed=0):
-    """Keep the camera-facing side of a hull, as a single view would.
+def _hull_surface(n=60000, a=2.0, b=1.0, c=0.6, seed=0):
+    """Points ON a hull surface, with outward normals. Symmetry plane: y=0.
 
-    NOT `pts[pts[:, 1] > 0]`: removing the far half exactly is
-    information-theoretically unrecoverable by any self-consistency objective
-    (proved by grid search — a spurious interior fold scores 0.025 against the
-    true plane's 0.095), which is why Task 5's fixture was replaced. A real view
-    keeps a majority of one side plus a foreshortened sliver of the other, and
-    that sliver is what a correct solver uses.
+    An ellipsoid rather than the tapered `_symmetric_hull`, because we need
+    analytic outward normals to cull back faces, and because the taper is not
+    what this test is about — the plane search is. Its symmetry about x and z is
+    harmless here: this test asserts the recovered axis against a known answer
+    rather than relying on the axis being unique.
     """
-    n = np.asarray(normal, dtype=float)
-    n /= np.linalg.norm(n)
-    sd = scene_like_hull @ n - offset
     rng = np.random.default_rng(seed)
-    keep = (sd > 0) | (rng.random(len(sd)) > keep_fraction)
-    return scene_like_hull[keep]
+    v = rng.normal(size=(n, 3))
+    v /= np.linalg.norm(v, axis=1, keepdims=True)
+    pts = v * np.array([a, b, c])
+    nrm = v / np.array([a, b, c])
+    nrm /= np.linalg.norm(nrm, axis=1, keepdims=True)
+    return pts, nrm
+
+
+def _one_sided_view(obliquity_deg=60.0, dist=8.0, shape=(480, 640), focal=600.0):
+    """Render a hull as a single view: back-face culled, in camera coordinates.
+
+    `obliquity_deg` is the angle that rotates the symmetry-plane normal toward
+    the camera. It is the parameter that controls how much depth separation the
+    TRUE plane can possibly show, so it is explicit rather than buried: at 0 the
+    plane contains the view direction and separation is exactly zero; measured
+    true-plane separation / z-extent is 0.028 at 30 deg, 0.098 at 45, 0.292 at
+    60, 0.938 at 75. 60 is chosen to sit well clear of the 0.01 floor while
+    staying a plausible three-quarter view.
+
+    Returns (points_cam, mask, K, expected_normal_cam).
+    """
+    b = np.radians(obliquity_deg)
+    R = np.array([[1.0, 0.0, 0.0],
+                  [0.0, np.cos(b), np.sin(b)],
+                  [0.0, -np.sin(b), np.cos(b)]])
+    pts_w, nrm_w = _hull_surface()
+    t = np.array([0.0, 0.0, dist])
+    cam = pts_w @ R.T + t
+    nrm_c = nrm_w @ R.T
+    viewdir = cam / np.linalg.norm(cam, axis=1, keepdims=True)
+    view = cam[(nrm_c * viewdir).sum(1) < 0]     # back-face cull
+
+    h, w = shape
+    K = np.array([[focal, 0.0, w / 2.0], [0.0, focal, h / 2.0], [0.0, 0.0, 1.0]])
+    mask = gate.reproject(view, K, shape)        # the view's own silhouette
+    return view, mask, K, R @ np.array([0.0, 1.0, 0.0])
 
 
 def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
@@ -1900,21 +1975,33 @@ def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
     only that the new solver works would leave the test passing if someone
     quietly routed it back to the old objective.
     """
-    hull = _symmetric_hull()
-    view = _one_sided_view(hull, [0.0, 1.0, 0.0], 0.0)
-    mask, K = _mask_and_intrinsics_for(view)       # render the view's silhouette
+    view, mask, K, n_true = _one_sided_view(obliquity_deg=60.0)
+    zext = float(view[:, 2].max() - view[:, 2].min())
 
     good = mirror.solve_from_view(view, mask, K)
-    axis_err = np.degrees(np.arccos(min(1.0, abs(good.normal @ [0, 1, 0]))))
+    axis_err = np.degrees(np.arccos(min(1.0, abs(good.normal @ n_true))))
     assert axis_err < 8.0, axis_err
-    assert good.depth_separation > 0.0, good.depth_separation
+    # Measured 0.292 * zext for the true plane at this obliquity, versus
+    # 0.00003 * zext for the best fold — a 12000x gap. Assert well inside it.
+    assert good.depth_separation > 0.05 * zext, good.depth_separation
+    assert good.obliquity > 0.8, good.obliquity     # cos(60 deg) rotation -> 0.866
 
     folded = mirror.solve(view)                    # the superseded objective
-    fold_err = np.degrees(np.arccos(min(1.0, abs(folded.normal @ [0, 1, 0]))))
+    fold_err = np.degrees(np.arccos(min(1.0, abs(folded.normal @ n_true))))
     assert fold_err > 20.0, (
         "the self-chamfer solve is expected to fold on one-sided input; if it "
         "no longer does, this task's premise changed and the fixture is wrong")
 ```
+
+Note `gate.reproject(view, K, shape)` is used to build the fixture's own mask, so
+the test's silhouette and the solver's scoring share one projection. `reproject`
+takes `(points, intrinsics, shape)` and returns a closed `(H,W)` uint8 mask —
+verified against the delivered Task 6 signature. It treats intrinsics with
+`K[0,2] <= 2.0` as unit-normalised, so the explicit pixel-unit `K` above is
+passed through unscaled, which is what we want.
+
+`test_mirror.py` does not currently import `gate`; add `gate = _load("gate")`
+alongside the existing `_load` calls at the top of the file.
 
 - [ ] **Step 2: Run it and confirm both halves behave as stated**
 
@@ -1933,9 +2020,15 @@ above instead of chamfer. Reuse `_chamfer` only to fill `residual`.
 
 Delete the depth-separation constraint, leaving silhouette agreement alone, and
 confirm the fold returns and the test reddens. A fold reprojects *inside* the
-matte perfectly well, so silhouette agreement alone is not sufficient — if the
-test still passes without the depth term, it is not testing what it claims.
-Record the measured numbers both ways in a comment.
+matte perfectly well — measured silhouette agreement was 0.55 for the true plane
+and comparable for folds on the synthetic sheet — so silhouette agreement alone
+is not sufficient. If the test still passes without the depth term, it is not
+testing what it claims.
+
+Record the measured numbers both ways in a comment. For reference, the numbers
+this step should reproduce on the `obliquity_deg=60` fixture: true plane
+`sep/zext = 0.292`, best fold found by a 400-plane random search
+`sep/zext = 0.00003`.
 
 - [ ] **Step 5: Re-measure the real clouds and re-derive the ceiling**
 
@@ -1953,11 +2046,18 @@ for name in ("outerrim_prayer", "ledger", "smelter", "magnate", "comet"):
     full = mirror.complete(c.points, s)
     import numpy as np
     ext = np.linalg.norm(c.points.max(0) - c.points.min(0))
+    zext = c.points[:, 2].max() - c.points[:, 2].min()
     gain = np.linalg.norm(full.max(0) - full.min(0)) / ext
     print(f"{name:18s} residual={s.residual:.5f} depth_sep={s.depth_separation:.4f} "
+          f"sep/zext={s.depth_separation/zext:.4f} obliquity={s.obliquity:.3f} "
           f"extent_gain={gain:.3f} normal={np.round(s.normal,3)}")
 PY
 ```
+
+Report `sep/zext` and `obliquity` per ship, not just the raw separation — the
+synthetic sweep above shows the achievable separation spans a factor of 50 across
+the obliquity range, so a raw number without its obliquity says nothing about
+whether the solve succeeded.
 
 Report the table. A working solve should show `extent_gain` clearly above the
 1.035× the folding solver produced, and mutually consistent normals across
