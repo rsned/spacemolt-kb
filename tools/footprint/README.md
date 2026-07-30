@@ -53,36 +53,45 @@ discriminator at all. Its own inputs shift ~10% with the background — MoGe's
 recovered metric scale is itself free, and `mean z` moves by that much
 between `raw` and `neutral` for the same subject above — so a 3-6% spread
 difference can't be trusted to mean anything. Checked this against ground
-truth on the two synthetic scenes, where the true focal length (1400 px) is
+truth on two synthetic scenes, where the true focal length (1400 px) is
 known and MoGe's recovered focal is directly checkable:
 
-| scene    | background | depth spread | focal error |
-|----------|------------|--------------:|------------:|
-| box      | raw        |        0.0349 |       +9.5% |
-| box      | neutral    |        0.0479 |      −13.4% |
-| cylinder | raw        |        0.0492 |       +4.4% |
-| cylinder | neutral    |        0.0480 |       −1.0% |
+| scene                        | background | depth spread | focal error |
+|-------------------------------|------------|--------------:|------------:|
+| box(4,2,1.5, az35,el30)       | raw        |        0.0349 |       +9.5% |
+| box(4,2,1.5, az35,el30)       | neutral    |        0.0479 |      −13.4% |
+| cylinder(1.2,3, az40,el25)    | raw        |        0.0380 |      +16.4% |
+| cylinder(1.2,3, az40,el25)    | neutral    |        0.0409 |       +1.8% |
 
-In both scenes, the setting with the *larger* depth spread has the *worse*
-focal accuracy (box: neutral's larger spread pairs with the larger error;
-cylinder: raw's larger spread pairs with the larger error) — the opposite of
-what "larger spread = less flat = better" would predict. The metric is
-anti-correlated with accuracy where accuracy is actually checkable, so it
-cannot be used to pick a winner on the real hero images either, where there
-is no ground truth to fall back on.
+The two scenes disagree on which *direction* the relationship even runs. On
+the box, the larger-spread setting (`neutral`, 0.0479) has the *worse* focal
+error (−13.4% vs. +9.5%). On the cylinder, the larger-spread setting (also
+`neutral`, 0.0409) has the *better* focal error (+1.8% vs. +16.4%) — the
+opposite pairing. (An earlier draft of this section claimed the box's
+pairing held "in both scenes"; a different cylinder fixture happened to
+agree with the box by chance, and citing it as a second confirming data
+point was wrong — this table replaces it with a cylinder fixture that
+disagrees.) Since the sign of the depth-spread/accuracy relationship isn't
+stable across fixtures, the metric carries no reliable signal about
+reconstruction quality at all — not merely "anti-correlated," which would
+itself imply a stable, exploitable (if inverted) relationship that isn't
+there either.
 
-**The experiment as specified could not separate `raw` from `neutral`.**
-`neutral` is still the recorded default, but on a different, sounder ground:
-`raw` makes the reconstructed cloud depend on the backdrop staying a flat,
-uniform key — which is exactly the condition stage 1's `keyability()` gate
-exists to check, because it does not always hold (5 of the 19 catalog-matched
-hero images are environmental scene renders with no flat key at all).
-`neutral` behaves identically regardless of what the backdrop is, which is
-the property a batch driver over a full, mixed art drop needs. `run.py`
-should pass `background="neutral"` (Task 9).
+**The experiment as specified could not separate `raw` from `neutral`, and
+focal error doesn't settle it either**: `neutral` is markedly better on the
+cylinder (+1.8% vs. +16.4%) and markedly worse on the box (−13.4% vs.
++9.5%). `neutral` is still the recorded default, but on the one argument
+that doesn't depend on a measurement that disagrees with itself: `raw` makes
+the reconstructed cloud depend on the backdrop staying a flat, uniform key —
+which is exactly the condition stage 1's `keyability()` gate exists to
+check, because it does not always hold (5 of the 19 catalog-matched hero
+images are environmental scene renders with no flat key at all). `neutral`
+behaves identically regardless of what the backdrop is, which is the
+property a batch driver over a full, mixed art drop needs. `run.py` should
+pass `background="neutral"` (Task 9).
 
-The truth-referenced discriminator that actually works — per-background
-focal error against `synth`'s known camera — is recorded above for anyone
-revisiting this decision. Once Tasks 6-8 land, stage 5's reprojection IoU and
-stage 7's footprint error against `synth` ground truth are the checkable
-signals to use instead of a proxy like depth spread.
+Neither depth spread nor focal error is a usable discriminator from this
+experiment; both are recorded above for anyone revisiting this decision, not
+as evidence for either setting. Once Tasks 6-8 land, stage 5's reprojection
+IoU and stage 7's footprint error against `synth` ground truth are the
+checkable signals to use instead.
