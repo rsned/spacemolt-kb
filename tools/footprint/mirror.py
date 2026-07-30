@@ -33,11 +33,20 @@ mirrored half must land NEAR the visible surface, not merely behind it. Its
 comment carries the calibration, the cheaper substitutes that were measured to
 fail, and the obliquity range over which it holds.
 
-With that constraint the axis is recovered to within 10 degrees at every
-synthetic obliquity tested (0.18 / 1.74 / 8.19 / 3.40 degrees at obliquity
-0.500 / 0.707 / 0.866 / 0.966). Accuracy is NOT uniform: it degrades to ~8
-degrees near obliquity 0.866, where the returned plane is a mild recession, and
-both constraints lose their margins outside roughly 0.3 <= obliquity <= 0.9.
+With that constraint, axis error across the synthetic sweep is 0.18 / 1.74 /
+8.19 / 3.40 degrees at obliquity 0.500 / 0.707 / 0.866 / 0.966. Three of those
+four are sound and track their true obliquity closely (recovered 0.502 / 0.686 /
+0.949). The 0.866 case does NOT: it returns a receded plane at obliquity 0.928,
+tilted toward the camera, so it is a wrong kind of answer rather than a
+near-miss, and `test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds`
+is a strict xfail recording exactly that. Both constraints also lose their
+margins outside roughly 0.3 <= obliquity <= 0.9.
+
+NO REPLACEMENT DISCRIMINATOR IS CURRENTLY KNOWN -- four were measured and
+rejected, and the task report lists them with their numbers. Anything that
+rewards the mirrored half for being entirely BEHIND the visible surface will be
+won by the degeneracy, which is what it does best, and any candidate has to be
+swept across obliquity rather than measured at one angle.
 
 REAL-ART ACCURACY IS UNPROVEN. The five hero clouds measured in task 6b all
 solve without reporting failure, at obliquities 0.574-0.856 that sit inside the

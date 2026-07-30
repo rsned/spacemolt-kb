@@ -11,6 +11,7 @@ import sys
 import dataclasses
 
 import numpy as np
+import pytest
 from scipy.spatial import cKDTree
 
 def _load(name):
@@ -508,6 +509,16 @@ def _axis_err(a, b):
     return float(np.degrees(np.arccos(min(1.0, abs(np.asarray(a) @ np.asarray(b))))))
 
 
+@pytest.mark.xfail(strict=True, reason=
+    "at obliquity 0.866 the search returns a RECEDED plane, not a near-miss: "
+    "recovered obliquity 0.928 against a true 0.866. Silhouette agreement "
+    "saturates at exactly 1.0000 for any plane that pushes the mirrored half "
+    "clear of the hull, while the true plane grazes the rim at 0.9969-0.9997, "
+    "so the true answer is not the maximum. The depth term cannot arbitrate "
+    "(a receded plane has MORE separation) and proximity populations overlap "
+    "above obliquity ~0.93. Needs a different discriminator, not a tuned "
+    "constant; four were measured and rejected. Delete this marker only when "
+    "the objective changes, never the assertions.")
 def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
     """The regression test for the whole task: same input, both solvers.
 
@@ -515,22 +526,33 @@ def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
     only that the new solver works would leave the test passing if someone
     quietly routed it back to the old objective.
 
-    THE BAR IS 10 DEGREES, NOT 8, AND THAT IS A RECORDED WEAKNESS OF THE STAGE.
-    The objective as originally specified does not identify the plane at all --
-    silhouette agreement saturates at exactly 1.0000 for any plane that pushes
-    the mirrored half clear of the hull (strictly interior to the matte, so
-    nothing spills), while the TRUE plane grazes the silhouette rim and measures
-    0.9969-0.9997, so the true answer is not the maximum and loses by ~5e-4. The
-    depth term cannot arbitrate: a receded plane has MORE separation (1.14 of
-    z-extent against 0.357). What makes the search tractable is
-    `mirror._PROXIMITY_CEILING`, and its own comment carries the calibration and
+    STRICT XFAIL. The objective as originally specified does not identify the
+    plane: silhouette agreement saturates at exactly 1.0000 for any plane that
+    pushes the mirrored half clear of the hull (strictly interior to the matte,
+    so nothing spills), while the TRUE plane grazes the silhouette rim and
+    measures 0.9969-0.9997, so the true answer is not the maximum and loses by
+    ~5e-4. The depth term cannot arbitrate: a receded plane has MORE separation
+    (1.14 of z-extent against 0.357). `mirror._PROXIMITY_CEILING` is what makes
+    the search tractable at all, and its own comment carries the calibration and
     the obliquity range over which it holds.
 
-    Accuracy is not uniform across the view, and the assertion below is set by
-    the worst case rather than the typical one. It degrades near obliquity 0.866,
-    where the returned plane is a mild recession (obliquity 0.928 against a true
-    0.866, depth separation 0.50 of z-extent against 0.357). See the comment on
-    the assertion for the numbers and for why tightening it is the wrong move.
+    WHAT FAILS HERE IS A WRONG KIND OF ANSWER, NOT A TOLERANCE. Sweeping the
+    view, recovered obliquity against true: 0.502/0.500, 0.686/0.707,
+    0.928/0.866, 0.949/0.966 -- axis error 0.18 / 1.74 / 8.19 / 3.40 degrees.
+    The three sound views track their true obliquity; the 0.866 case is tilted
+    0.062 TOWARD the camera, which is the receded family. Widening the bar to 10
+    degrees makes this green on that wrong reconstruction, and so does
+    `_PROXIMITY_CEILING = 0.09`; both were tried and rejected for the same
+    reason. `strict=True` so the marker cannot rot into an ignored skip: when the
+    objective is replaced this XPASSes and pytest fails on it.
+
+    NO REPLACEMENT DISCRIMINATOR IS CURRENTLY KNOWN. Four were measured and
+    rejected -- the task report lists them with their numbers. Two are worth
+    knowing before proposing a fifth: anything rewarding "entirely behind the
+    visible surface" is WON by the degeneracy (the receded plane scores a perfect
+    0.0000 on the physically necessary no-point-in-front test, better than the
+    truth), and any candidate must be swept across obliquity, since every
+    statistic tested so far behaves differently at 0.500 and 0.966 than at 0.866.
 
     The two tests below pin WHY each constraint is needed: the depth floor is the
     only thing that rejects the tangential fold, and the proximity ceiling is the
@@ -542,12 +564,13 @@ def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
 
     good = mirror.solve_from_view(view, mask, k)
     assert good.failure is None, good.failure
-    assert _axis_err(good.normal, n_true) < 10.0, _axis_err(good.normal, n_true)
     # Measured axis error by obliquity: 0.500 -> 0.18, 0.707 -> 1.74,
-    # 0.866 -> 8.19, 0.966 -> 3.40 degrees. 10.0 clears the worst by 1.2x.
-    # Do NOT tighten this to 8.0 by setting _PROXIMITY_CEILING = 0.09: that
-    # answer is still a receded plane (obliquity 0.926 vs a true 0.866), so it
-    # would be a green test standing on a wrong reconstruction.
+    # 0.866 -> 8.19, 0.966 -> 3.40 degrees. This is the 0.866 case, and 8.0 is
+    # kept deliberately: widening it to 10.0 passes, and so does
+    # _PROXIMITY_CEILING = 0.09, but both do so on a receded plane (recovered
+    # obliquity 0.928 against a true 0.866) -- a green test standing on a wrong
+    # reconstruction. The marker above records that; do not move this number.
+    assert _axis_err(good.normal, n_true) < 8.0, _axis_err(good.normal, n_true)
     # Measured 0.357 * zext for the true plane at this obliquity, versus
     # 0.00005 * zext for the tangential fold -- a 7000x gap. Assert well
     # inside it.
