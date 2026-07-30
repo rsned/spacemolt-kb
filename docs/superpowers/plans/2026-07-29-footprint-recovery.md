@@ -2129,10 +2129,18 @@ def _hull_cloud(n=4000, seed=0):
     Extents must differ: measured 3.999 long, 1.599 wide, 0.800 tall. If two
     were equal the principal axis would be ambiguous and the test could pass on
     a solver that picked either. The rotation angle (1.15 rad) is chosen so a
-    stub returning a fixed coordinate axis fails with margin: verified that
-    a fixed +Z stub, a mean-normal stub and a longitudinal-instead-of-up stub
-    score |dot| = 0.798 / 0.798 / 0.001 against the 0.98 bar, while the
-    intended derivation scores 0.999999.
+    stub returning a fixed coordinate axis fails with margin. Measured |dot|
+    against the true up, all three against the 0.98 bar:
+
+        fixed +Z axis                       0.798
+        centroid direction (the old         0.167
+          normals-mean fallback's shape)
+        longitudinal instead of up          0.001
+        the intended derivation             0.999999
+
+    (An earlier draft of this docstring recorded 0.798 for the centroid stub as
+    well. Measured, it is 0.167 — the stub fails harder than claimed, not less
+    hard, but the number was wrong and is corrected here.)
     """
     rng = np.random.default_rng(seed)
     local = rng.uniform([-2.0, -0.8, -0.4], [2.0, 0.8, 0.4], size=(n, 3))
