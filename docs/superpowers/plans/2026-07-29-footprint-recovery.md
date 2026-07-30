@@ -2632,6 +2632,13 @@ git commit -m "feat(footprint): stage 7 canonical profile"
 - Test: `tools/footprint/test_endtoend.py`
 - Modify: `tools/footprint/README.md`
 
+**Sequencing:** Task 6b MUST be complete before this task starts. The end-to-end
+test and `run.process` both call `mirror.solve_from_view`, which Task 6b creates —
+running this task against the plain self-chamfer `solve` would exercise the very
+plane search that was measured to fold, and the `gain > 1.15` assertion below is
+precisely the check that fold fails (measured 1.035x). Execution order for the
+remaining tasks is 6b, 7, 8, 9 — not the numeric order.
+
 **Interfaces:**
 - Consumes: every stage module
 - Produces: `run.resolve_heroes() -> dict[str, pathlib.Path]` mapping ship ID to hero image path
@@ -2674,6 +2681,21 @@ mirror = _load("mirror")
 ground = _load("ground")
 profile = _load("profile")
 
+# Match test_pointmap.py exactly. Do NOT write the guard as
+# `pytest.mark.skipif(not __import__("importlib").util.find_spec("torch"), ...)`:
+# `importlib.util` is a SUBMODULE and is not bound by `import importlib`, so that
+# expression raises `AttributeError: module 'importlib' has no attribute 'util'`
+# in plain Python. Verified — it only appears to work under pytest, because
+# pytest imports importlib.util itself as a side effect. Relying on another
+# library's imports to make your guard evaluable is a latent collection failure.
+#
+# Also per-function marks, never a module-level `pytestmark`: pytest applies a
+# bare `pytestmark` to every test in the module regardless of where the line sits
+# in the file, which would skip the two CPU-only ground-truth tests on a box with
+# no GPU — and those are the tests that assert our own arithmetic.
+torch = pytest.importorskip("torch")
+needs_cuda = pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
+
 
 def _ground_truth_chain(scene):
     """Stages 4-7 on a perfect cloud: our arithmetic, no network involved."""
@@ -2715,9 +2737,7 @@ def test_vertical_cylinder_recovers_a_circular_profile():
         "a circle must be widest amidships"
 
 
-@pytest.mark.skipif(
-    not __import__("importlib").util.find_spec("torch")
-    or not __import__("torch").cuda.is_available(), reason="needs CUDA")
+@needs_cuda
 def test_moge_chain_is_reported_not_asserted(capsys):
     pointmap = _load("pointmap")
     matte = _load("matte")
@@ -2734,9 +2754,7 @@ def test_moge_chain_is_reported_not_asserted(capsys):
     assert len(cloud.points) > 0
 
 
-@pytest.mark.skipif(
-    not __import__("importlib").util.find_spec("torch")
-    or not __import__("torch").cuda.is_available(), reason="needs CUDA")
+@needs_cuda
 def test_moge_clears_a_floor_on_real_hero_art():
     """The gate on what we actually depend on.
 
@@ -2780,7 +2798,6 @@ def test_moge_clears_a_floor_on_real_hero_art():
     # plane leaves the completed cloud barely larger than the visible one
     # (measured 1.035x with the superseded self-chamfer solve). A genuine
     # occluded half must add real width.
-    import numpy as np
     full = mirror.complete(cloud.points, sym)
     ext = float(np.linalg.norm(cloud.points.max(0) - cloud.points.min(0)))
     gain = float(np.linalg.norm(full.max(0) - full.min(0))) / ext
@@ -2799,7 +2816,10 @@ Expected: FAIL — the ground-truth chain exercises `ground.project` with a scen
 The likely defect is the up vector: `scene.up` is world-space and must be rotated into camera space by `scene.R` before `ground.project` uses it, since the cloud is in camera coordinates. That rotation is `scene.up @ scene.R.T`, which the test already does — if it still fails, check that `mirror.complete` returns camera-space points and that `profile.canonicalise` receives the symmetry normal projected into the same ground frame.
 
 Run: `~/moge-venv/bin/python -m pytest tools/footprint/test_endtoend.py -v -s`
-Expected: PASS, 3 tests (the MoGe one prints a line and asserts only that it produced points).
+Expected on a CUDA box: PASS, 4 tests. On a CPU-only box: 2 passed, 2 skipped — and
+verify that explicitly with `CUDA_VISIBLE_DEVICES="" ~/moge-venv/bin/python -m pytest
+tools/footprint/test_endtoend.py -q`, because the whole point of the per-function
+marks is that the two ground-truth tests still run without a GPU.
 
 - [ ] **Step 4: Write `run.py`**
 
