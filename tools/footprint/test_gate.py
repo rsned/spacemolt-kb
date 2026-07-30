@@ -113,12 +113,48 @@ def _one_sided_hull_and_fold(seed=0):
     self-consistency objective actually converges to (see the task 6b
     brief's rationale for why self-chamfer folds on one-sided input).
 
+    EXACT construction, stated precisely enough to reproduce independently
+    (this matters: an earlier version of this comment said "15 degrees off
+    the mean view direction" without stating the rotation axis, and a
+    second, independent measurement on a different hull at the same nominal
+    angle got a meaningfully different depth_separation -- see
+    MIN_DEPTH_SEPARATION_FRACTION's comment in gate.py for the full
+    reconciliation):
+
+      1. `s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)`.
+      2. Back-face cull: keep only mesh triangles whose face normal points
+         toward the camera (`face_normal . (eye - face_centroid) > 0`, all in
+         WORLD coordinates) -- this is what makes the cloud one-sided, unlike
+         `_dense_surface_cloud`, which samples the whole closed mesh.
+      3. Barycentric-sample 30,000 points over the kept (front-facing)
+         triangles only, area-weighted, seeded (`seed=0` by default) --
+         `visible_world`, then `visible_cam = visible_world @ s.R.T + s.t`.
+      4. TRUE bilateral plane: reflect `visible_world` across the box's own
+         real world symmetry plane, normal `[1, 0, 0]`, offset `0` (the box
+         is centred on the origin) -- this is the actual correct answer for
+         this hull, not an approximation.
+      5. FOLD: in CAMERA space (camera is at the camera-space origin, so a
+         point's own direction from the origin IS its view direction),
+         `centre = visible_cam.mean(axis=0)`, `view_dir = centre /
+         |centre|`. Rotation axis: `perp = normalize([1,0,0] - ([1,0,0] .
+         view_dir) * view_dir)` -- i.e. the component of the WORLD x-axis
+         perpendicular to `view_dir` (an arbitrary but fixed choice; this is
+         exactly the free parameter the reconciliation above is about).
+         `fold_normal = cos(15deg) * view_dir + sin(15deg) * perp`, offset
+         `centre @ fold_normal` (plane passes through the visible cloud's
+         own centroid).
+
     Returns (visible_cam, true_mirror_cam, true_depth_separation, fold_cam,
-    fold_depth_separation). Measured on this exact fixture: true plane
-    inside_fraction 0.999 / depth_separation +0.179; fold inside_fraction
-    0.9156 / depth_separation -0.0013 -- the fold clears MIR_FLOOR (0.85) on
-    fraction alone but sits at essentially zero depth separation, not behind
-    the visible surface.
+    fold_depth_separation, z_extent), where `z_extent` is
+    `visible_cam[:, 2].max() - visible_cam[:, 2].min()` (3.3875 on this
+    fixture). Measured on this exact fixture: true plane inside_fraction
+    0.999 / depth_separation +0.1792 (+5.29% of z_extent); fold
+    inside_fraction 0.9156 / depth_separation -0.0013 (-0.04% of z_extent)
+    -- the fold clears MIR_FLOOR (0.85) on fraction alone but sits at
+    essentially zero depth separation (sign flips right around this angle;
+    a full 0/10/15/20/30-degree sweep with the shared-pixel counts checked
+    is in gate.py's MIN_DEPTH_SEPARATION_FRACTION comment), not behind the
+    visible surface.
     """
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
     verts = s.vertices
@@ -145,6 +181,7 @@ def _one_sided_hull_and_fold(seed=0):
     u[swap], v[swap] = 1.0 - u[swap], 1.0 - v[swap]
     visible_world = fa[pick] + u * (fb[pick] - fa[pick]) + v * (fc[pick] - fa[pick])
     visible_cam = visible_world @ s.R.T + s.t
+    z_extent = float(visible_cam[:, 2].max() - visible_cam[:, 2].min())
 
     # TRUE bilateral plane: the box's real world symmetry plane, x=0.
     true_mirror_world = _reflect(visible_world, np.array([1.0, 0.0, 0.0]), 0.0)
@@ -152,9 +189,11 @@ def _one_sided_hull_and_fold(seed=0):
     true_depth_sep = _depth_separation(visible_cam, true_mirror_cam, s.K, s.image.shape[:2])
 
     # FOLD: reflect in CAMERA space across a plane through the visible
-    # cloud's own centroid, normal tilted 15 degrees off the mean view
+    # cloud's own centroid, normal tilted 15 degrees (about the WORLD
+    # x-axis's component perpendicular to view_dir) off the mean view
     # direction (camera is at the camera-space origin, so a point's own
-    # direction from the origin IS its view direction).
+    # direction from the origin IS its view direction). See the docstring
+    # above for exactly why this precision matters.
     centre = visible_cam.mean(axis=0)
     view_dir = centre / np.linalg.norm(centre)
     perp = np.array([1.0, 0.0, 0.0]) - (np.array([1.0, 0.0, 0.0]) @ view_dir) * view_dir
@@ -164,7 +203,7 @@ def _one_sided_hull_and_fold(seed=0):
     fold_cam = _reflect(visible_cam, fold_normal, float(centre @ fold_normal))
     fold_depth_sep = _depth_separation(visible_cam, fold_cam, s.K, s.image.shape[:2])
 
-    return visible_cam, true_mirror_cam, true_depth_sep, fold_cam, fold_depth_sep
+    return visible_cam, true_mirror_cam, true_depth_sep, fold_cam, fold_depth_sep, z_extent
 
 
 def test_perfect_cloud_scores_near_one():
@@ -277,15 +316,18 @@ def test_run_merges_into_an_existing_quality_json_instead_of_clobbering_it(tmp_p
     NOTE: `run`'s signature and return type changed from the original
     3-argument, float-returning version (`run(ship_id, points, intrinsics,
     mask) -> float`, recording `silhouette_iou`/`silhouette_pass`) to
-    `run(ship_id, points, mirrored, intrinsics, mask, depth_separation=None)
-    -> dict`, recording `silhouette_iou`/`mirrored_fraction`/`mirrored_pass`
-    (plus `depth_separation` and `mirrored_pass_reason` when applicable).
-    This is an intentional, twice-revised interface change (the metric the
+    `run(ship_id, points, mirrored, intrinsics, mask, depth_separation=None,
+    z_extent=None) -> dict`, recording
+    `silhouette_iou`/`mirrored_fraction`/`mirrored_pass` (plus
+    `depth_separation` and `mirrored_pass_reason` when applicable). This is
+    an intentional, three-times-revised interface change (the metric the
     gate verdicts on moved from union IoU to a mirrored-fraction-AND-depth
-    conjunction -- see `IOU_FLOOR`'s and `MIR_FLOOR`'s comments in gate.py),
-    not a design conflict, so this test is updated to the new contract
-    rather than left failing against the old one; the property under test
-    -- merge, don't clobber -- is unchanged.
+    conjunction, then the depth term moved from an absolute `> 0` check to
+    a fraction of `z_extent` -- see `IOU_FLOOR`'s, `MIR_FLOOR`'s, and
+    `MIN_DEPTH_SEPARATION_FRACTION`'s comments in gate.py), not a design
+    conflict, so this test is updated to the new contract rather than left
+    failing against the old one; the property under test -- merge, don't
+    clobber -- is unchanged.
     """
     monkeypatch.setattr(gate.paths, "FOOTPRINT_ROOT", tmp_path)
     art_dir = gate.paths.artifact_dir("test_ship")
@@ -294,7 +336,7 @@ def test_run_merges_into_an_existing_quality_json_instead_of_clobbering_it(tmp_p
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
     mask, _ = matte.extract(s.image)
     cam = _project_scene(s)
-    result = gate.run("test_ship", cam, cam, s.K, mask, depth_separation=0.5)
+    result = gate.run("test_ship", cam, cam, s.K, mask, depth_separation=0.5, z_extent=1.0)
 
     data = json.loads((art_dir / "quality.json").read_text())
     assert data["pre_existing_key"] == 42
@@ -311,9 +353,10 @@ def test_run_returns_a_dict_not_a_bare_float(tmp_path, monkeypatch):
     wanted the verdict to recompute `iou >= gate.IOU_FLOOR` itself -- flagged
     in review as a real gap. `run` now returns the dict it also persists, so
     `mirrored_pass` is read directly, not re-derived. Checked both with and
-    without `depth_separation`, since the key set differs: an absent depth
-    term adds `mirrored_pass_reason` and omits `depth_separation` entirely
-    (never records `None`), a supplied one does the reverse when it passes.
+    without `depth_separation`/`z_extent`, since the key set differs: an
+    absent depth term adds `mirrored_pass_reason` and omits
+    `depth_separation` entirely (never records `None`), a supplied one does
+    the reverse when it passes.
     """
     monkeypatch.setattr(gate.paths, "FOOTPRINT_ROOT", tmp_path)
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
@@ -326,7 +369,8 @@ def test_run_returns_a_dict_not_a_bare_float(tmp_path, monkeypatch):
                               "mirrored_pass_reason"}
     assert no_depth["mirrored_pass"] is False
 
-    with_depth = gate.run("test_ship_dict_with_depth", cam, cam, s.K, mask, depth_separation=0.5)
+    with_depth = gate.run("test_ship_dict_with_depth", cam, cam, s.K, mask,
+                           depth_separation=0.5, z_extent=1.0)
     assert set(with_depth) == {"silhouette_iou", "mirrored_fraction", "mirrored_pass",
                                 "depth_separation"}
     assert with_depth["mirrored_pass"] is True
@@ -353,6 +397,26 @@ def test_run_fails_without_depth_separation_even_with_a_perfect_mirror(tmp_path,
     assert "not supplied" in result["mirrored_pass_reason"]
 
 
+def test_run_fails_without_z_extent_even_with_a_positive_depth_separation(tmp_path, monkeypatch):
+    """Paired with the test above: an absent `z_extent` is EQUALLY an
+    unevaluated gate, even when `depth_separation` itself is a plausible
+    positive number -- `depth_separation` cannot be judged against
+    `MIN_DEPTH_SEPARATION_FRACTION` without knowing what fraction of what,
+    so this must not silently fall back to a bare `> 0` check.
+    """
+    monkeypatch.setattr(gate.paths, "FOOTPRINT_ROOT", tmp_path)
+    s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
+    mask, _ = matte.extract(s.image)
+    visible = _project_scene(s)
+
+    result = gate.run("ship_no_z_extent", visible, visible, s.K, mask, depth_separation=0.5)
+    assert result["mirrored_fraction"] > gate.MIR_FLOOR, result
+    assert result["mirrored_pass"] is False
+    assert "z_extent" not in result       # z_extent itself is never recorded, only checked
+    assert "depth_separation" in result   # but the depth_separation that WAS supplied still is
+    assert "z_extent not supplied" in result["mirrored_pass_reason"]
+
+
 def test_run_flags_a_garbage_mirrored_half_that_union_iou_would_pass(tmp_path, monkeypatch):
     """The regression test for the metric change from fix round 1.
 
@@ -372,7 +436,7 @@ def test_run_flags_a_garbage_mirrored_half_that_union_iou_would_pass(tmp_path, m
     `IOU_FLOOR` of 0.70, i.e. the OLD verdict would have called this ship
     solved -- while `mirrored_fraction` is 0.2325, well below `MIR_FLOOR`
     (0.85), correctly failing it. Also checked WITH a plausible positive
-    `depth_separation` supplied, to confirm this one fails on
+    `depth_separation`/`z_extent` supplied, to confirm this one fails on
     `mirrored_fraction` specifically, not merely because the depth term
     happened to be missing.
     """
@@ -386,7 +450,8 @@ def test_run_flags_a_garbage_mirrored_half_that_union_iou_would_pass(tmp_path, m
     rng = np.random.default_rng(2)
     garbage = garbage[rng.choice(len(garbage), 2000, replace=False)]
 
-    result = gate.run("ship_bad_mirror", visible, garbage, s.K, mask, depth_separation=0.5)
+    result = gate.run("ship_bad_mirror", visible, garbage, s.K, mask,
+                       depth_separation=0.5, z_extent=1.0)
     assert result["silhouette_iou"] > gate.IOU_FLOOR, result
     assert result["mirrored_fraction"] < gate.MIR_FLOOR, result
     assert result["mirrored_pass"] is False
@@ -395,22 +460,24 @@ def test_run_flags_a_garbage_mirrored_half_that_union_iou_would_pass(tmp_path, m
 
 def test_run_passes_a_mirrored_half_consistent_with_the_matte_and_a_real_depth_term(tmp_path, monkeypatch):
     """Paired with the tests above: a good mirrored half WITH a genuine,
-    positive depth separation must pass -- otherwise `mirrored_pass is False`
-    would be satisfied by a verdict that always fails, and the conjunction
-    would never actually let a solved ship through.
+    positive depth separation (checked against the fixture's own real
+    z-extent) must pass -- otherwise `mirrored_pass is False` would be
+    satisfied by a verdict that always fails, and the conjunction would
+    never actually let a solved ship through.
 
-    Uses the geometrically-real TRUE-plane fixture below (not an arbitrary
-    placeholder number) so this is a real positive case, not just "some
-    positive float makes it pass".
+    Uses the geometrically-real TRUE-plane fixture below (not arbitrary
+    placeholder numbers) so this is a real positive case, not just "some
+    positive float clears some other positive float".
     """
     monkeypatch.setattr(gate.paths, "FOOTPRINT_ROOT", tmp_path)
-    visible_cam, true_mirror_cam, true_depth_sep, _, _ = _one_sided_hull_and_fold()
+    visible_cam, true_mirror_cam, true_depth_sep, _, _, z_extent = _one_sided_hull_and_fold()
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
     mask, _ = matte.extract(s.image)
 
-    assert true_depth_sep > 0, true_depth_sep  # sanity: this fixture IS the genuine case
+    # sanity: this fixture IS the genuine case, clearing the threshold with margin
+    assert true_depth_sep >= gate.MIN_DEPTH_SEPARATION_FRACTION * z_extent, (true_depth_sep, z_extent)
     result = gate.run("ship_good_mirror_real_depth", visible_cam, true_mirror_cam, s.K, mask,
-                       depth_separation=true_depth_sep)
+                       depth_separation=true_depth_sep, z_extent=z_extent)
     assert result["mirrored_fraction"] > gate.MIR_FLOOR, result
     assert result["mirrored_pass"] is True
     assert "mirrored_pass_reason" not in result
@@ -426,14 +493,20 @@ def test_run_rejects_a_fold_that_clears_mirrored_fraction_on_its_own(tmp_path, m
 
     The fold here is built geometrically, not asserted by fiat: reflect a
     back-face-culled ("visible-only") synthetic hull across a plane through
-    its own centroid, with a normal only 15 degrees off the mean view
-    direction (see `_one_sided_hull_and_fold`). Measured on this exact
-    fixture: `mirrored_fraction` (this fold's own `inside_fraction`) is
-    0.9156 -- ABOVE `MIR_FLOOR` (0.85) -- while its `depth_separation` is
-    -0.0013, i.e. essentially zero and not positive: the mirrored half sits
-    at the same depth as the visible surface, the definition of a fold. The
-    true bilateral plane on the SAME visible cloud reads 0.999 / +0.179 for
-    comparison (see the paired passing test above).
+    its own centroid, with a normal 15 degrees (about a precisely stated
+    rotation axis -- see `_one_sided_hull_and_fold`'s docstring; "N degrees
+    off the mean view direction" alone underdetermines the plane) off the
+    mean view direction. Measured on this exact fixture: `mirrored_fraction`
+    (this fold's own `inside_fraction`) is 0.9156 -- ABOVE `MIR_FLOOR`
+    (0.85) -- while its `depth_separation` is -0.0013, i.e. essentially zero
+    and BELOW `MIN_DEPTH_SEPARATION_FRACTION * z_extent` (a small positive
+    number): the mirrored half sits at the same depth as the visible
+    surface, the definition of a fold, not meaningfully behind it. The true
+    bilateral plane on the SAME visible cloud reads 0.999 / +0.179 (+5.29%
+    of z_extent) for comparison (see the paired passing test above; the full
+    reconciliation against a second, independently-measured sweep that
+    disagreed at the same nominal angle -- because of the free rotation-axis
+    parameter -- is in gate.py's `MIN_DEPTH_SEPARATION_FRACTION` comment).
 
     Confirmed load-bearing by construction: dropping the `depth_separation`
     check (i.e. gating on `mirrored_fraction >= MIR_FLOOR` alone) would flip
@@ -443,19 +516,20 @@ def test_run_rejects_a_fold_that_clears_mirrored_fraction_on_its_own(tmp_path, m
     standing in for "no depth term available yet".
     """
     monkeypatch.setattr(gate.paths, "FOOTPRINT_ROOT", tmp_path)
-    visible_cam, _, _, fold_cam, fold_depth_sep = _one_sided_hull_and_fold()
+    visible_cam, _, _, fold_cam, fold_depth_sep, z_extent = _one_sided_hull_and_fold()
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
     mask, _ = matte.extract(s.image)
 
     frac = gate.inside_fraction(fold_cam, s.K, mask)
-    assert frac > gate.MIR_FLOOR, frac              # the fold WOULD pass on fraction alone
-    assert fold_depth_sep <= 0, fold_depth_sep       # ...but it is not behind the visible surface
+    assert frac > gate.MIR_FLOOR, frac  # the fold WOULD pass on fraction alone
+    # ...but it is not meaningfully behind the visible surface:
+    assert fold_depth_sep < gate.MIN_DEPTH_SEPARATION_FRACTION * z_extent, (fold_depth_sep, z_extent)
 
     result = gate.run("ship_fold", visible_cam, fold_cam, s.K, mask,
-                       depth_separation=fold_depth_sep)
+                       depth_separation=fold_depth_sep, z_extent=z_extent)
     assert result["mirrored_fraction"] > gate.MIR_FLOOR, result
     assert result["mirrored_pass"] is False
-    assert "same depth" in result["mirrored_pass_reason"]
+    assert "MIN_DEPTH_SEPARATION_FRACTION" in result["mirrored_pass_reason"]
 
 
 def test_project_returns_arrays_aligned_with_the_input_points():

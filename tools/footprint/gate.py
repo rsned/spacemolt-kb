@@ -206,7 +206,10 @@ def inside_fraction(points: np.ndarray, intrinsics: np.ndarray, mask: np.ndarray
 # sits at the SAME depth as the visible surface, the definition of a fold),
 # where the true plane reads +0.179 to +0.18 (meaningfully behind it) --
 # depth_separation is what actually discriminates, which is why `run()` now
-# refuses to pass without one (see below). This floor is kept only as a
+# refuses to pass without one (see below; see MIN_DEPTH_SEPARATION_FRACTION's
+# comment for why "15 degrees off the mean view direction" needs the exact
+# rotation axis stated to be reproducible, and for the independent
+# cross-check against a second sweep). This floor is kept only as a
 # necessary-but-not-sufficient pre-filter, set just above the fold band
 # reported by the team lead's own synthetic sweep (0.750 worst fold, 0.998
 # true plane); it is synthetic-derived, not measured on real solved clouds
@@ -216,17 +219,62 @@ MIR_FLOOR = 0.85
 
 # `depth_separation` is task 6b's discriminating term (mean of mirrored-z
 # minus visible-z at shared reprojected pixels), computed by the caller
-# (`mirror.solve_from_view`), not by this module -- `run()` only checks it.
-# `> 0` is a minimal sanity check (mirrored genuinely behind visible, not at
-# the same depth), not the calibrated magnitude threshold: that threshold is
-# `mirror.MIN_DEPTH_SEPARATION_FRACTION` (a fraction of the cloud's own
-# z-extent, which this module does not have as an input), enforced upstream
-# by `solve_from_view` before it returns a plane at all. This is a second,
-# cheap line of defence for a caller that hands `run()` a raw value anyway.
-_DEPTH_SEPARATION_MIN = 0.0
+# (`mirror.solve_from_view`), not by this module -- `run()` only checks it,
+# against a FRACTION of the cloud's own z-extent, since ships range from
+# fighters to haulers and an absolute distance means nothing across that
+# range (the same reason `mirror.RESIDUAL_CEILING` is a fraction, not an
+# absolute distance).
+#
+# This threshold is owned HERE, not in mirror.py, because of the import
+# direction: `gate` imports only `paths`, and task 6b makes `mirror` import
+# `gate` (`solve_from_view` calls `gate.reproject`). A threshold owned by
+# `mirror` but needed by `gate.run` would be an import cycle -- one owner,
+# imported downhill, so `run()` takes `z_extent` as a parameter rather than
+# computing it (it has no access to the full cloud, only `mirrored`).
+#
+# 0.01 is provisional, and -- like `MIR_FLOOR` -- only excludes the
+# degenerate near-zero-separation fold; it does NOT mean "this plane is
+# right". A wrong-but-not-folded plane can have a LARGER depth separation
+# than the true bilateral plane (confirmed independently: see below), so
+# nothing about clearing this threshold ranks candidates -- maximising
+# `inside_fraction` is what the task 6b SEARCH does for that; this gate only
+# rejects the one specific failure mode inside_fraction cannot see.
+#
+# Measured independently, TWICE, on two different single-global-plane
+# "near-view-direction" sweeps (this module's own back-face-culled box, see
+# test_gate.py's `_one_sided_hull_and_fold`; a separate hand-built sheet),
+# and the two disagree at the same nominal angle -- because "N degrees off
+# the mean view direction" underdetermines the plane: the rotation AXIS is a
+# free parameter neither sweep pinned down, so they are different plane
+# families at the same label, not a contradiction about one plane. This
+# module's own sweep (box z-extent 3.3875, camera coordinates, rotating
+# about a fixed axis perpendicular to the mean view direction, reflecting a
+# 30k-point back-face-culled cloud with ~9300-10000 of 30000 candidate
+# points landing on a shared pixel with the visible cloud at every angle --
+# checked explicitly, not a small-sample artifact):
+#
+#   angle   inside_fraction   depth_separation   as a fraction of z-extent
+#     0        0.8684             +0.1159                 +3.42%
+#    10        0.8963             +0.0287                 +0.85%
+#    15        0.9156             -0.0013                 -0.04%  <- sign change
+#    20        0.9289             +0.0384                 +1.13%
+#    30        0.9554             +0.1263                 +3.73%
+#   TRUE       0.9993             +0.1792                 +5.29%
+#
+# Both independent sweeps agree on the SHAPE (a trough between roughly 10
+# and 20 degrees, well below the true plane's separation at every angle
+# tried) and disagree only on whether that trough crosses zero -- exactly
+# the free-rotation-axis sensitivity above. 0.01 sits below this module's own
+# near-zero crossing (which is what test_gate.py's fold fixture uses) while
+# staying a minimal, not-yet-real-cloud-calibrated check; task 6b re-derives
+# it once real solved planes exist, where the actual tangential-fold
+# degenerate solution -- which is not a single global plane, in general --
+# is what actually needs excluding.
+MIN_DEPTH_SEPARATION_FRACTION = 0.01
 
 
-def run(ship_id: str, points, mirrored, intrinsics, mask, depth_separation: float | None = None) -> dict:
+def run(ship_id: str, points, mirrored, intrinsics, mask,
+        depth_separation: float | None = None, z_extent: float | None = None) -> dict:
     """Score the gate and record diagnostics and verdict in quality.json.
 
     `mirrored_pass` is the verdict now — not `silhouette_iou` (see
@@ -239,13 +287,13 @@ def run(ship_id: str, points, mirrored, intrinsics, mask, depth_separation: floa
 
     `mirrored_fraction` alone cannot tell a correct plane from a fold (see
     `MIR_FLOOR`), so `mirrored_pass` requires BOTH `mirrored_fraction` above
-    `MIR_FLOOR` AND a `depth_separation` that says the mirrored half is
-    genuinely behind the visible surface. `depth_separation` defaults to
-    `None` because it does not exist until task 6b's `solve_from_view`
-    computes it -- an ABSENT depth term is an unevaluated gate, and an
+    `MIR_FLOOR` AND a `depth_separation` that clears
+    `MIN_DEPTH_SEPARATION_FRACTION * z_extent`. `depth_separation` and
+    `z_extent` default to `None` because neither exists until task 6b's
+    `solve_from_view` computes them -- an ABSENT depth term (or an absent
+    `z_extent` to evaluate it against) is an unevaluated gate, and an
     unevaluated gate must never read as a pass, so `mirrored_pass` is
-    `False` whenever `depth_separation` is `None`, with
-    `mirrored_pass_reason` recording why.
+    `False` in either case, with `mirrored_pass_reason` recording why.
     """
     mirrored = np.asarray(mirrored)
     combined = np.vstack([points, mirrored]) if len(mirrored) else np.asarray(points)
@@ -257,11 +305,18 @@ def run(ship_id: str, points, mirrored, intrinsics, mask, depth_separation: floa
         reason = ("depth_separation not supplied — mirrored_fraction alone cannot "
                    "distinguish a correct symmetry plane from a fold (see MIR_FLOOR); "
                    "an unevaluated depth term must not read as a pass")
-    elif depth_separation <= _DEPTH_SEPARATION_MIN:
+    elif z_extent is None:
         mirrored_pass = False
-        reason = (f"depth_separation={depth_separation:.4f} is not positive — the "
-                   "mirrored half sits at the same depth as the visible surface, "
-                   "which is what a fold does, not a genuine occluded half")
+        reason = ("z_extent not supplied — depth_separation cannot be evaluated against "
+                   "MIN_DEPTH_SEPARATION_FRACTION without it; an unevaluated depth term "
+                   "must not read as a pass")
+    elif depth_separation < MIN_DEPTH_SEPARATION_FRACTION * z_extent:
+        mirrored_pass = False
+        reason = (f"depth_separation={depth_separation:.4f} is below "
+                   f"MIN_DEPTH_SEPARATION_FRACTION * z_extent="
+                   f"{MIN_DEPTH_SEPARATION_FRACTION * z_extent:.4f} — the mirrored half "
+                   "is not meaningfully behind the visible surface, which is what a "
+                   "fold looks like")
     elif frac < MIR_FLOOR:
         mirrored_pass = False
         reason = f"mirrored_fraction={frac:.4f} is below MIR_FLOOR={MIR_FLOOR}"
