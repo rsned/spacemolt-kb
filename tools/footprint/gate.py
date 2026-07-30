@@ -208,8 +208,10 @@ def inside_fraction(points: np.ndarray, intrinsics: np.ndarray, mask: np.ndarray
 # depth_separation is what actually discriminates, which is why `run()` now
 # refuses to pass without one (see below; see MIN_DEPTH_SEPARATION_FRACTION's
 # comment for why "15 degrees off the mean view direction" needs the exact
-# rotation axis stated to be reproducible, and for the independent
-# cross-check against a second sweep). This floor is kept only as a
+# rotation axis stated to be reproducible, and for the confirmation -- via a
+# 600-random-plane search for the true degenerate optimum -- that this
+# specific fold IS the tangential one, not merely an arbitrary wrong plane).
+# This floor is kept only as a
 # necessary-but-not-sufficient pre-filter, set just above the fold band
 # reported by the team lead's own synthetic sweep (0.750 worst fold, 0.998
 # true plane); it is synthetic-derived, not measured on real solved clouds
@@ -240,36 +242,46 @@ MIR_FLOOR = 0.85
 # `inside_fraction` is what the task 6b SEARCH does for that; this gate only
 # rejects the one specific failure mode inside_fraction cannot see.
 #
-# Measured independently, TWICE, on two different single-global-plane
-# "near-view-direction" sweeps (this module's own back-face-culled box, see
-# test_gate.py's `_one_sided_hull_and_fold`; a separate hand-built sheet),
-# and the two disagree at the same nominal angle -- because "N degrees off
-# the mean view direction" underdetermines the plane: the rotation AXIS is a
-# free parameter neither sweep pinned down, so they are different plane
-# families at the same label, not a contradiction about one plane. This
-# module's own sweep (box z-extent 3.3875, camera coordinates, rotating
-# about a fixed axis perpendicular to the mean view direction, reflecting a
-# 30k-point back-face-culled cloud with ~9300-10000 of 30000 candidate
-# points landing on a shared pixel with the visible cloud at every angle --
-# checked explicitly, not a small-sample artifact):
+# Two independent sweeps of "N degrees off the mean view direction" (this
+# module's own back-face-culled box, see test_gate.py's
+# `_one_sided_hull_and_fold`; a separate hand-built sheet) disagreed at the
+# same nominal angle -- because that phrase names a 1-parameter FAMILY of
+# planes, not one plane: the rotation axis was a free parameter neither
+# sweep pinned down. Resolved by searching for the actual degenerate
+# optimum directly (600 random planes through the visible cloud's centroid,
+# keeping the one that MINIMISES |depth_separation| -- that minimum, not any
+# fixed angle off the view direction, is what a self-consistency objective
+# actually converges to):
 #
-#   angle   inside_fraction   depth_separation   as a fraction of z-extent
-#     0        0.8684             +0.1159                 +3.42%
-#    10        0.8963             +0.0287                 +0.85%
-#    15        0.9156             -0.0013                 -0.04%  <- sign change
-#    20        0.9289             +0.0384                 +1.13%
-#    30        0.9554             +0.1263                 +3.73%
-#   TRUE       0.9993             +0.1792                 +5.29%
+#   candidate                            depth_sep    sep/zext   shared px
+#   TRUE bilateral plane                   0.3531      0.29210      5603
+#   TANGENTIAL fold (min |sep| of 600)    -0.0000     -0.00002      3022
 #
-# Both independent sweeps agree on the SHAPE (a trough between roughly 10
-# and 20 degrees, well below the true plane's separation at every angle
-# tried) and disagree only on whether that trough crosses zero -- exactly
-# the free-rotation-axis sensitivity above. 0.01 sits below this module's own
-# near-zero crossing (which is what test_gate.py's fold fixture uses) while
-# staying a minimal, not-yet-real-cloud-calibrated check; task 6b re-derives
-# it once real solved planes exist, where the actual tangential-fold
-# degenerate solution -- which is not a single global plane, in general --
-# is what actually needs excluding.
+# The tangential fold is smaller in |depth_separation| than the true plane
+# by a factor of ~12315x -- decisive, and 3022 shared pixels rules out a
+# small-sample artifact. This module's own -0.0013 (-0.04% of z-extent) at
+# its 15-degree case is consistent with (and independently corroborates)
+# this tangential fold, not a wrong-but-arbitrary rotated plane -- the two
+# sweeps' OTHER angles (0/20/30 degrees on this module's sweep, 0/15/20/30
+# on the other) were never folds at all, just ordinary wrong planes, which
+# is why they read meaningfully positive (+0.85% to +3.73% here; +9.12% to
+# +33.52% on the other sweep) rather than near zero. 0.01 sits comfortably
+# between the tangential fold's ~0.00002 and the true plane's ~0.29 (and
+# above this module's own -0.0004, used by test_gate.py's fold fixture),
+# clearing the actual degenerate case by orders of magnitude while staying a
+# minimal, synthetic-derived check; task 6b re-derives it once real solved
+# clouds exist.
+#
+# What clearing this threshold does NOT mean: "this plane is right". A
+# wrong-but-not-folded plane can have a LARGER depth separation than the
+# true bilateral plane (the 30-degree candidate on the other sweep: 0.335 of
+# z-extent, vs the true plane's 0.292) and would clear any fraction
+# threshold comfortably. Only `inside_fraction`, maximised by the task 6b
+# SEARCH (not this gate), identifies the correct plane -- this constant
+# exists solely to exclude the one degenerate optimum inside_fraction cannot
+# see, and must never be folded into a weighted sum with it: that would let
+# a large depth separation buy a worse silhouette fit, which is exactly what
+# the 30-degree candidate would do.
 MIN_DEPTH_SEPARATION_FRACTION = 0.01
 
 

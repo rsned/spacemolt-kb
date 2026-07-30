@@ -495,18 +495,25 @@ def test_run_rejects_a_fold_that_clears_mirrored_fraction_on_its_own(tmp_path, m
     back-face-culled ("visible-only") synthetic hull across a plane through
     its own centroid, with a normal 15 degrees (about a precisely stated
     rotation axis -- see `_one_sided_hull_and_fold`'s docstring; "N degrees
-    off the mean view direction" alone underdetermines the plane) off the
-    mean view direction. Measured on this exact fixture: `mirrored_fraction`
-    (this fold's own `inside_fraction`) is 0.9156 -- ABOVE `MIR_FLOOR`
-    (0.85) -- while its `depth_separation` is -0.0013, i.e. essentially zero
-    and BELOW `MIN_DEPTH_SEPARATION_FRACTION * z_extent` (a small positive
-    number): the mirrored half sits at the same depth as the visible
-    surface, the definition of a fold, not meaningfully behind it. The true
-    bilateral plane on the SAME visible cloud reads 0.999 / +0.179 (+5.29%
-    of z_extent) for comparison (see the paired passing test above; the full
-    reconciliation against a second, independently-measured sweep that
-    disagreed at the same nominal angle -- because of the free rotation-axis
-    parameter -- is in gate.py's `MIN_DEPTH_SEPARATION_FRACTION` comment).
+    off the mean view direction" alone underdetermines the plane, and most
+    angles/axes in that family are NOT folds at all, just ordinary wrong
+    planes) off the mean view direction. This specific case is confirmed to
+    be the genuine TANGENTIAL fold -- the actual degenerate optimum a
+    self-consistency objective converges to, not merely one of the family --
+    by an independent 600-random-plane search on a separate sheet for the
+    minimum-|depth_separation| candidate, which landed at -0.00002 of that
+    sheet's z-extent (vs. that sheet's true plane at +0.29210, a ~12315x
+    margin); this fixture's own -0.0013 (-0.04% of z_extent) is the same
+    signature (see gate.py's `MIN_DEPTH_SEPARATION_FRACTION` comment for the
+    full resolution, including why the OTHER angles in both sweeps read
+    meaningfully positive instead -- they are ordinary wrong planes, not
+    folds). Measured on this exact fixture: `mirrored_fraction` (this fold's
+    own `inside_fraction`) is 0.9156 -- ABOVE `MIR_FLOOR` (0.85) -- while its
+    `depth_separation` is -0.0013, BELOW `MIN_DEPTH_SEPARATION_FRACTION *
+    z_extent`: the mirrored half sits at the same depth as the visible
+    surface, not meaningfully behind it. The true bilateral plane on the
+    SAME visible cloud reads 0.999 / +0.179 (+5.29% of z_extent) for
+    comparison (see the paired passing test above).
 
     Confirmed load-bearing by construction: dropping the `depth_separation`
     check (i.e. gating on `mirrored_fraction >= MIR_FLOOR` alone) would flip
