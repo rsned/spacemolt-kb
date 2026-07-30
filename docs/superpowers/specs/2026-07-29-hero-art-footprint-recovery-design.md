@@ -190,7 +190,7 @@ stage is re-runnable without repeating the ones before it.
 | 2 | Camera fit from vanishing points | `camera.json`: rotation, focal or `ortho`, confidence |
 | 3 | MoGe point map | `cloud.npz`, recovered FOV |
 | 4 | Mirror-constrained solve for plane, depth scale and shift (uses stage 5's reprojection; **built after it** — see "The plane cannot be found by self-chamfer") | `cloud_resolved.npz`, symmetry plane, residual, depth separation |
-| 5 | Silhouette gate: reproject, IoU against the matte | pass/fail, score |
+| 5 | Silhouette gate: mirrored-half spill inside the matte (union IoU recorded as a diagnostic only) | pass/fail, mirrored fraction, IoU |
 | 6 | Orthographic projection to the ground plane, alpha shape | `footprint.json` polygon |
 | 7 | Canonicalise and sample | `profile.json`: `w(t)`, per-station concavity flag |
 
@@ -238,6 +238,43 @@ disagreement is logged, not averaged away.
 **Stage 5 is the honesty gate.** A ship that fails it is excluded from the
 numbers and listed as a reconstruction failure. It is never quietly folded
 into an average.
+
+**Stage 5 gates on mirrored-half spill, not on union IoU.** *(Revised
+2026-07-29, after measuring the delivered gate against real MoGe clouds.)* The
+original design scored IoU between the whole reprojected cloud and the matte.
+That metric cannot work here, for two reasons that are algebra rather than
+tuning:
+
+- `pointmap.infer` keeps exactly the points inside the matte, so the visible
+  half reprojects onto the pixels it was read from. Union IoU is ≈0.993 **by
+  construction**, whatever the geometry is doing, and can only be pulled down by
+  mirrored-half spill. `IoU = |truth| / (|truth| + |spill|)`, so a 0.70 floor
+  fires only once the mirrored half spills more than 43% of the silhouette's own
+  area.
+- `uv = K·p / p_z` is **exactly invariant** under `p → λ(p)·p` for any positive
+  per-point λ. IoU therefore cannot see any motion along the viewing rays,
+  including global scale. Measured: a cloud flattened to 10% of its depth extent
+  scores 0.9910, identical to four decimals to the unflattened one; ×5 global
+  scale likewise. A hull reconstructed as a billboard passes.
+
+Measured on real clouds, nine of twelve deliberately wrong symmetry planes pass
+the 0.70 floor, and the known-broken fold from the superseded stage 4 scores
+0.89–0.95 while arbitrary axis-aligned normals score 0.65–0.81 — the floor sits
+*inside* the garbage band, so no threshold separates the populations.
+
+The gate therefore scores the **mirrored half alone**: the fraction of
+mirrored-only points whose projection lands inside the matte, combined with stage
+4's `depth_separation`. That fraction spans 0.078–0.933 over the same cases where
+union IoU spans only 0.57–0.95, and it rejects an offset error at 0.267 that
+union IoU passes at 0.734. It is also density-invariant — no morphological
+closing — so unlike IoU it is safe to evaluate on a subsampled cloud. Union IoU
+is still computed and recorded as a diagnostic; it simply does not decide
+anything.
+
+**Consequence: metric scale is unvalidated by any silhouette test**, so stage 7
+carries a dimensional plausibility check (aspect band and a pancake guard on
+depth-extent versus beam) before a profile is published. Nothing upstream of it
+can catch a uniformly scaled or depth-flattened hull.
 
 **Stage 6 uses an alpha shape, not a convex hull.** These hulls have real
 concavities — the gaps between nacelles — and a convex hull erases exactly
@@ -381,7 +418,7 @@ grading metric, plus one golden ship whose profile is checked by hand.
   never two-sided ones**, or the same error recurs with a different number.
 
   Until then, treat the asymmetry label as uncalibrated. It labels, and does not
-  exclude — stage 5 is the only exclusion gate.
+  exclude — stage 5 is the silhouette exclusion gate, with stage 7's dimensional check catching the scale errors stage 5 is provably blind to.
 - **A hero image may not depict the ship the catalog describes.** The art is
   generated, not authoritative. A large disagreement is evidence about the
   art as much as about the descriptor.
