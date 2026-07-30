@@ -2067,8 +2067,21 @@ def test_up_vector_sign_follows_the_viewer():
 
 
 def test_alpha_shape_keeps_a_concavity_a_convex_hull_would_erase():
-    # Two parallel bars with a gap: the nacelle case. A convex hull spans the
-    # gap; an alpha shape must not.
+    """Two parallel bars with a gap: the nacelle case.
+
+    Measured on this exact fixture (true two-bar area 4.800, convex hull 7.987):
+    the alpha shape is a single gap-filled blob up to alpha 2.4 (area 7.85-7.88)
+    and correctly splits into 2 parts from alpha 2.5 up. alpha=3.0 therefore
+    sits above the transition with margin.
+
+    The area assertion is what makes this test bite. Without it, the two
+    `contains` checks pass on an implementation that keeps only the LARGEST
+    part — that part still holds one bar's interior point, and the gap is
+    trivially absent from it. Measured: max-area returns 2.336 (one bar),
+    keeping both returns 4.663. So the area bound below is the assertion that
+    fails for `max(geoms, key=area)`, and it is the bug this fixture exists to
+    catch.
+    """
     rng = np.random.default_rng(0)
     left = rng.uniform([-2, -1.0], [2, -0.4], size=(3000, 2))
     right = rng.uniform([-2, 0.4], [2, 1.0], size=(3000, 2))
@@ -2076,8 +2089,30 @@ def test_alpha_shape_keeps_a_concavity_a_convex_hull_would_erase():
 
     poly = ground.hull(xy, alpha=3.0)
     assert not poly.contains_properly(_point(0.0, 0.0)), "gap was filled in"
-    assert poly.contains(_point(0.0, -0.7))
-    assert poly.contains(_point(0.0, 0.7))
+    assert poly.contains(_point(0.0, -0.7)), "lost the lower bar"
+    assert poly.contains(_point(0.0, 0.7)), "lost the upper bar"
+    assert poly.area > 4.0, f"only kept part of the hull: area {poly.area:.3f}"
+    assert poly.area < 6.0, f"gap partially filled: area {poly.area:.3f}"
+
+
+def test_canonicalise_accepts_a_multi_part_footprint():
+    """A twin-nacelle footprint is a MultiPolygon, which has no `.exterior`.
+
+    Reading `poly.exterior` raises AttributeError on exactly the shape this
+    pipeline is built to represent. The defect was previously masked by
+    `hull` collapsing to its largest part, so this test guards the pair.
+    """
+    rng = np.random.default_rng(0)
+    xy = np.vstack([rng.uniform([-2, -1.0], [2, -0.4], size=(3000, 2)),
+                    rng.uniform([-2, 0.4], [2, 1.0], size=(3000, 2))])
+    poly = ground.hull(xy, alpha=3.0)
+    assert poly.geom_type == "MultiPolygon", poly.geom_type
+
+    profile = _load("profile")
+    canon = profile.canonicalise(poly, np.array([0.0, 1.0]))
+    xs = np.concatenate([np.array(g.exterior.coords)[:, 0]
+                         for g in canon.geoms])
+    assert abs((xs.max() - xs.min()) - 1.0) < 1e-6, xs.max() - xs.min()
 
 
 def _point(x, y):
@@ -2191,19 +2226,56 @@ def project(points: np.ndarray, up: np.ndarray) -> np.ndarray:
     return np.stack([points @ e1, points @ e2], axis=1)
 
 
+SPECK_AREA_FRACTION = 0.01     # of the largest part; below this it is noise
+
+
 def hull(xy: np.ndarray, alpha: float):
+    """The alpha shape, keeping every substantial part.
+
+    Do NOT reduce a MultiPolygon to `max(geoms, key=area)`. A ship with
+    separated nacelles has a genuinely MULTI-PART footprint, and taking the
+    largest part reports one nacelle as the whole ship. Measured on the
+    two-bar fixture below (bars at y in [-1,-0.4] and [0.4,1.0], true area
+    4.800): at alpha 3.0 the alpha shape correctly splits into 2 parts, and
+    max-area returns 2.336 — one bar — while keeping both returns 4.663.
+
+    That collapse also corrupted two things downstream, which is why this is
+    not a cosmetic choice:
+      - `profile.canonicalise` reads `.exterior`, which a MultiPolygon does not
+        have, so the collapse was masking an AttributeError rather than
+        avoiding one.
+      - `sweep_alpha` requires a cloud to retain 90% of its points; a collapsed
+        twin-nacelle hull retains about half, so the sweep rejected every alpha
+        tight enough to resolve the gap and drove the WHOLE BATCH toward
+        convex-hull behaviour.
+
+    Specks are still dropped: parts below SPECK_AREA_FRACTION of the largest
+    are outlier noise, not structure.
+    """
     poly = alphashape.alphashape(xy, alpha)
-    if isinstance(poly, MultiPolygon):
-        poly = max(poly.geoms, key=lambda g: g.area)
-    return poly
+    if not isinstance(poly, MultiPolygon):
+        return poly
+    parts = sorted(poly.geoms, key=lambda g: g.area, reverse=True)
+    if not parts:
+        return poly
+    floor = parts[0].area * SPECK_AREA_FRACTION
+    keep = [g for g in parts if g.area >= floor]
+    return keep[0] if len(keep) == 1 else MultiPolygon(keep)
 
 
 def sweep_alpha(clouds_xy, candidates=None) -> float:
-    """Pick one alpha for the whole batch: the tightest that stays connected.
+    """Pick one alpha for the whole batch: the tightest that keeps its points.
 
-    Larger alpha hugs the points more closely but fragments; the batch value is
-    the largest candidate for which every cloud still yields a single polygon
-    holding most of its points.
+    Larger alpha hugs the points more closely but eventually sheds them; the
+    batch value is the largest candidate for which every cloud's alpha shape
+    still contains most of its own points.
+
+    The criterion is point retention, NOT connectivity. A footprint that splits
+    into two parts is the correct answer for a ship with separated nacelles, so
+    requiring a single polygon would reject exactly the alphas that resolve the
+    feature this stage exists to capture — and, because the batch shares one
+    alpha, one twin-hull ship would drag every other ship toward convex-hull
+    behaviour.
     """
     candidates = candidates or ALPHA_CANDIDATES
     best = float(candidates[0])
@@ -2381,7 +2453,12 @@ def canonicalise(poly, sym_normal_xy: np.ndarray):
     angle = np.degrees(np.arctan2(axis[1], axis[0]))
     out = affinity.rotate(poly, -angle, origin="centroid", use_radians=False)
 
-    xs, ys = np.array(out.exterior.coords).T
+    # Every part's coords, not `out.exterior`: a twin-nacelle footprint is a
+    # MultiPolygon, which has no `.exterior` at all (AttributeError). This was
+    # previously hidden by ground.hull collapsing to its largest part, which
+    # silently discarded the other nacelle.
+    geoms = list(out.geoms) if hasattr(out, "geoms") else [out]
+    xs, ys = np.concatenate([np.array(g.exterior.coords) for g in geoms]).T
     length = xs.max() - xs.min()
     if length <= 0:
         raise ValueError("degenerate footprint: zero length along the hull axis")
