@@ -1601,10 +1601,23 @@ git commit -m "feat(footprint): stage 4 mirror-constrained symmetry solve"
 
 **Interfaces:**
 - Consumes: `pointmap.Cloud`, `mirror.Symmetry`, the stage 1 mask
-- Produces: `gate.reproject(points, intrinsics, shape) -> np.ndarray` returning a `(H,W)` uint8 mask
-- Produces: `gate.score(points, intrinsics, mask) -> float` returning IoU in `[0,1]`
-- Produces: `gate.run(ship_id, points, intrinsics, mask) -> float`, appending to `data/footprints/<id>/quality.json`
-- Produces: `gate.IOU_FLOOR = 0.70`
+- Produces: `gate.project(points, intrinsics, shape) -> tuple[np.ndarray, np.ndarray]` returning per-point `(uv, ok)`, both length N and aligned with `points`
+- Produces: `gate.reproject(points, intrinsics, shape) -> np.ndarray` returning a `(H,W)` uint8 mask, built from `project`
+- Produces: `gate.inside_fraction(points, intrinsics, mask) -> float` — fraction of points landing inside the matte. Density-invariant; this is what stage 4 and the gate verdict use
+- Produces: `gate.score(points, intrinsics, mask) -> float` returning union IoU in `[0,1]` — **a recorded diagnostic that decides nothing**
+- Produces: `gate.run(ship_id, points, mirrored, intrinsics, mask) -> dict`, appending to `data/footprints/<id>/quality.json`
+- Produces: `gate.MIR_FLOOR` (provisional; calibrated in Task 6b) and `gate.IOU_FLOOR = 0.70` (diagnostic only)
+
+**Amended 2026-07-29 after review.** The original design gated on union IoU. That
+cannot work, and the reason is algebra, not calibration — see the spec's "Stage 5
+gates on mirrored-half spill". In short: `pointmap.infer` keeps exactly the
+matte's points, so the visible half reprojects onto the pixels it was read from
+and union IoU is ≈0.993 by construction; and `uv = K·p/p_z` is exactly invariant
+under `p → λ(p)·p`, so IoU cannot see along-ray motion at all, including global
+scale and depth flattening. Measured: 9 of 12 deliberately wrong symmetry planes
+pass the 0.70 floor, and a cloud flattened to 10% of its depth extent scores
+0.9910 — identical to four decimals to the unflattened one. The gate therefore
+scores the **mirrored half alone**, combined with stage 4's `depth_separation`.
 
 - [ ] **Step 1: Write the failing test**
 
