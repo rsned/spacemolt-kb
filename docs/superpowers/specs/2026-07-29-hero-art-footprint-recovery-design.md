@@ -68,6 +68,48 @@ approach in single-view symmetric reconstruction — not a fudge factor.
 Affine-invariant means both scale and shift are unknown. Solving only for
 scale leaves the footprint sheared.
 
+**The plane cannot be found by self-chamfer.** *(Revised 2026-07-29, after
+measurement.)* The original design minimised chamfer distance between the
+cloud and its own reflection. That objective is wrong for a single view, and
+not marginally: a one-view point map is a front-surface **sheet**, not a
+volume, and the reflection that best matches a sheet is the one that folds the
+sheet onto itself. The true bilateral plane scores *worse*, because it maps
+visible points onto the occluded half where there are no points to match.
+
+Measured on `outerrim_prayer`, `ledger` and `smelter`: the recovered plane cuts
+through the cloud (41%, 54%, 64% of points on one side) within 2.3%, 0.5% and
+7.8% of the centroid; the recovered normals are mutually inconsistent;
+completion increases extent by only 1.035×, 1.035× and 1.059×; and the supposed
+occluded half sits just 2.8% and 0.15% behind the visible surface where a real
+half-hull would sit roughly a beam's width back. Cloud noise is ruled out as
+the cause — measured surface roughness is 0.00003 relative, and a synthetic
+hull at matched noise yields a residual 230× smaller than observed. The same
+degeneracy is provable synthetically: given a hull with one half removed, a
+spurious interior fold scores 0.025 against the true plane's 0.095.
+
+**The objective is silhouette agreement plus depth separation.** The occluded
+half is not merely symmetric, it is *behind* the visible surface and *within*
+the silhouette. Both are checkable:
+
+- every mirrored point must reproject inside the matte, and
+- at a shared pixel, the mirrored point must lie measurably behind the visible
+  one.
+
+A fold satisfies the first and fails the second, which is what makes the pair
+well-posed where chamfer alone is not. Depth separation is the discriminating
+term and must be reported, not just thresholded.
+
+Two consequences for sequencing. The reprojection machinery (stage 5) is now a
+dependency of stage 4, so it is built first. And because a correctly completed
+cloud is a volume rather than a sheet, this also repairs stage 6's reference
+frame: a principal-axis decomposition of a volume gives usable hull axes, where
+the same decomposition of a sheet returns the camera direction.
+
+Chamfer against a reflection remains correct for the *residual* — for asking
+how symmetric a hull is once the plane is known — and for scoring a plane on a
+two-sided synthetic fixture. It is only the plane search on one-sided real data
+that it cannot do.
+
 ### Camera verification
 
 Do not assume the (1,1,1) view — measure it. These hulls are Manhattan-world
@@ -99,7 +141,7 @@ stage is re-runnable without repeating the ones before it.
 | 1 | Chroma-key matte | `matte.png`, foreground fraction |
 | 2 | Camera fit from vanishing points | `camera.json`: rotation, focal or `ortho`, confidence |
 | 3 | MoGe point map | `cloud.npz`, recovered FOV |
-| 4 | Mirror-constrained solve for plane, depth scale and shift | `cloud_resolved.npz`, symmetry plane, residual |
+| 4 | Mirror-constrained solve for plane, depth scale and shift (uses stage 5's reprojection; **built after it** — see "The plane cannot be found by self-chamfer") | `cloud_resolved.npz`, symmetry plane, residual, depth separation |
 | 5 | Silhouette gate: reproject, IoU against the matte | pass/fail, score |
 | 6 | Orthographic projection to the ground plane, alpha shape | `footprint.json` polygon |
 | 7 | Canonicalise and sample | `profile.json`: `w(t)`, per-station concavity flag |
@@ -273,6 +315,15 @@ grading metric, plus one golden ship whose profile is checked by hand.
   and pirate scrap ships are the entire point of the `Skew` style. The stage
   4 residual is the detector: a high residual means "do not mirror this one",
   and may mean the footprint is only half recoverable.
+- **The residual threshold is not yet calibrated against real data.** Measured
+  stage 4 residuals on the first three real clouds were 0.0163, 0.0146 and
+  0.0140 against a ceiling of 0.013 derived from synthetic fixtures — every ship
+  would read as asymmetric. Those numbers came from the self-chamfer solve that
+  has since been replaced, so they are not evidence about the hulls; they must be
+  re-measured once the silhouette-plus-depth objective lands, and the ceiling
+  set from real clouds rather than from a synthetic hull with Gaussian noise.
+  Until then, treat the asymmetry label as uncalibrated. It labels, and does not
+  exclude — stage 5 is the only exclusion gate.
 - **A hero image may not depict the ship the catalog describes.** The art is
   generated, not authoritative. A large disagreement is evidence about the
   art as much as about the descriptor.
