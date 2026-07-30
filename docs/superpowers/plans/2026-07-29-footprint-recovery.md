@@ -1837,7 +1837,7 @@ rotates every footprint, not just the mirrored half.
 - Produces: `mirror.solve_from_view(points, mask, intrinsics, refine_affine=False) -> mirror.Symmetry`. The existing `solve(points, ...)` is KEPT unchanged for two-sided input and remains what the synthetic tests exercise; the new entry point is what `run.process` calls on real clouds.
 - Produces: `mirror.Symmetry` gains `depth_separation: float` — the mean signed depth of mirrored points behind the visible surface at shared pixels, in cloud units. This is the discriminating term and must be recorded in `quality.json`, not merely thresholded.
 - Produces: `mirror.Symmetry` gains `obliquity: float` — `abs(normal @ [0,0,1])`, how much the recovered lateral axis points toward the camera. **This is not decoration: the achievable depth separation is a steep function of it** (see below), so `depth_separation` is uninterpretable without it. Record both in `quality.json`.
-- Produces: `mirror.MIN_DEPTH_SEPARATION_FRACTION = 0.01` — of the cloud's z-extent. Below this the plane is a fold and the solve must report failure rather than return it.
+- Consumes: `gate.MIN_DEPTH_SEPARATION_FRACTION = 0.01` — of the cloud's z-extent. Below this the plane is a fold and the solve must report failure rather than return it. **The constant lives in `gate.py`, not here, and 6b imports it.** That direction is forced: `gate` imports only `paths`, while 6b makes `mirror` import `gate`, so a constant owned by `mirror` and needed by `gate.run` would be an import cycle. One owner, imported downhill.
 
 **The 0.10 in the first draft of this task was wrong and would have rejected
 correct solves.** Measured on a clean synthetic front-surface sheet (ellipsoid
@@ -1889,6 +1889,34 @@ terms that a fold cannot satisfy together:
    land, the mean of (mirrored z − visible z). A genuine occluded half is
    *behind* the visible surface; a fold puts it at the same depth. This is the
    term that breaks the degeneracy.
+
+**A threshold on depth separation rejects the degenerate fold, but does NOT
+identify the correct plane — the search's maximum does.** Measured on a
+back-face-culled sheet at obliquity 0.866 (z-extent 1.209), reflecting the visible
+cloud across planes rotated away from the mean view direction:
+
+```
+candidate                     inside_fraction   depth_sep   sep/zext
+TRUE bilateral plane                   0.9980      0.3531     0.2921
+plane  0 deg off view dir              0.7498      0.1683     0.1392
+plane 15 deg off view dir              0.8611      0.1102     0.0912
+plane 20 deg off view dir              0.9004      0.1769     0.1464
+plane 30 deg off view dir              0.9290      0.4052     0.3352
+```
+
+The 30-degree candidate has a *larger* depth separation than the true plane
+(0.335 vs 0.292 of z-extent) and clears any fraction threshold comfortably, so
+`depth_separation > threshold` cannot be read as "this plane is right". Only the
+tangential fold — the plane that maps the sheet onto itself — collapses to
+near-zero separation, and that is the single case the threshold catches.
+
+What actually distinguishes the true plane in this table is that it **maximises
+`inside_fraction`** (0.998 against 0.75–0.93). So the search must genuinely
+maximise, and the depth term is a *constraint that excludes the degenerate
+optimum*, not a score to be traded off against the silhouette term. Do not
+reformulate this as a weighted sum of the two — a weighted sum would let a large
+depth separation buy a worse silhouette fit, which is precisely the 30-degree
+candidate.
 
 Maximise silhouette agreement subject to depth separation clearing
 `MIN_DEPTH_SEPARATION_FRACTION` of the z-extent. Keep the chamfer value as the
