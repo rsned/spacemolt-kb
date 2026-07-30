@@ -2106,6 +2106,28 @@ fixture is not one-sided enough and must be rebuilt before continuing.
 Search plane orientation and offset as in `solve`, but score with the two terms
 above instead of chamfer. Reuse `_chamfer` only to fill `residual`.
 
+**The canonical tangential fold, for fixtures.** Do not construct a fold as "N
+degrees off the mean view direction" — that underdetermines the plane, because the
+rotation axis is a free parameter, and two people using the same label measured
+depth separations differing by a factor of 80. The axis-independent definition is
+**the plane that minimises |depth_separation|**, found by a seeded search over
+normals on the sphere. Measured that way on a back-face-culled sheet at obliquity
+0.866 (z-extent 1.209), searching 600 seeded random normals through the centroid:
+
+```
+object                              depth_sep   sep/zext   shared px
+TRUE bilateral plane                   0.3531    0.29210        5603
+TANGENTIAL fold (min |sep| of 600)    -0.0000   -0.00002        3022
+```
+
+3022 shared pixels, so the near-zero value is a real signature and not a mean over
+too few samples. That is a 12315x margin, and `MIN_DEPTH_SEPARATION_FRACTION = 0.01`
+sits comfortably between the two.
+
+For a test fixture, run the search once and **hardcode the normal it finds** with the
+seed and the measured separation recorded in the docstring, so the test does not pay
+for 600 reflections on every run and does not silently change if the search changes.
+
 - [ ] **Step 4: Prove the depth term is load-bearing**
 
 Delete the depth-separation constraint, leaving silhouette agreement alone, and
