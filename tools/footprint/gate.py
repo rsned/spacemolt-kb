@@ -185,24 +185,48 @@ def inside_fraction(points: np.ndarray, intrinsics: np.ndarray, mask: np.ndarray
     return float(hits.sum() / denom)
 
 
-# PROVISIONAL — do not treat this as tuned. `mirrored_fraction` is only
-# meaningful once stage 4 returns a genuine symmetry plane rather than a
-# fold, and stage 4 currently folds (see mirror.py's RESIDUAL_CEILING comment
-# and the task 6b brief), so there is no population of correctly-solved real
-# ships to calibrate a separator against yet.
+# PROVISIONAL, and re-derived once already — see fix round 2 in
+# task-6-report.md. `mirrored_fraction` ALONE cannot distinguish a correct
+# symmetry plane from a fold: a fold reflects the visible sheet roughly onto
+# itself, so it reprojects inside the matte just as well as the true plane
+# does. Measured directly on a synthetic back-face-culled sheet, reflecting
+# the same visible cloud across various candidate planes through its
+# centroid:
 #
-# The one concrete real-cloud number that exists: a deliberately wrong plane
-# (`outerrim_prayer` with `offset + 1`) reads `mirrored_fraction` 0.267 where
-# the OLD union-IoU verdict passed it at 0.734 — exactly the blind spot this
-# replaces. Across the broader solved-and-garbage sweep, `mirrored_fraction`
-# spans 0.078-0.933, so that single known-bad point does not by itself locate
-# a clean separator between solved and garbage. Set just above the one known-
-# bad number pending task 6b's real calibration, which will have both actual
-# solved clouds and the depth-separation term to draw the line properly.
-MIR_FLOOR = 0.35
+#   TRUE bilateral plane                inside_fraction 0.998   (real number)
+#   fold, normal along mean view dir     inside_fraction 0.750-0.92+
+#   fold, random normals                 inside_fraction 0.35-0.95
+#
+# Independently reproduced in this codebase (see test_gate.py's fold
+# fixtures): a fold whose normal is tilted only 15 degrees off the mean view
+# direction reads inside_fraction 0.9156 — ABOVE any floor that would still
+# separate it from a genuine 0.998-0.999 true plane, so no value of
+# MIR_FLOOR alone makes this floor sufficient on its own. That same fold
+# reads depth_separation -0.0013 (essentially zero, i.e. the mirrored half
+# sits at the SAME depth as the visible surface, the definition of a fold),
+# where the true plane reads +0.179 to +0.18 (meaningfully behind it) --
+# depth_separation is what actually discriminates, which is why `run()` now
+# refuses to pass without one (see below). This floor is kept only as a
+# necessary-but-not-sufficient pre-filter, set just above the fold band
+# reported by the team lead's own synthetic sweep (0.750 worst fold, 0.998
+# true plane); it is synthetic-derived, not measured on real solved clouds
+# (there are none yet -- stage 4 currently folds), and Task 6b re-derives it
+# once real solved planes exist.
+MIR_FLOOR = 0.85
+
+# `depth_separation` is task 6b's discriminating term (mean of mirrored-z
+# minus visible-z at shared reprojected pixels), computed by the caller
+# (`mirror.solve_from_view`), not by this module -- `run()` only checks it.
+# `> 0` is a minimal sanity check (mirrored genuinely behind visible, not at
+# the same depth), not the calibrated magnitude threshold: that threshold is
+# `mirror.MIN_DEPTH_SEPARATION_FRACTION` (a fraction of the cloud's own
+# z-extent, which this module does not have as an input), enforced upstream
+# by `solve_from_view` before it returns a plane at all. This is a second,
+# cheap line of defence for a caller that hands `run()` a raw value anyway.
+_DEPTH_SEPARATION_MIN = 0.0
 
 
-def run(ship_id: str, points, mirrored, intrinsics, mask) -> dict:
+def run(ship_id: str, points, mirrored, intrinsics, mask, depth_separation: float | None = None) -> dict:
     """Score the gate and record diagnostics and verdict in quality.json.
 
     `mirrored_pass` is the verdict now — not `silhouette_iou` (see
@@ -212,16 +236,49 @@ def run(ship_id: str, points, mirrored, intrinsics, mask) -> dict:
     information about whether the guessed symmetry plane is right — the
     visible half's own reprojection is uninformative by construction (see
     `IOU_FLOOR`).
+
+    `mirrored_fraction` alone cannot tell a correct plane from a fold (see
+    `MIR_FLOOR`), so `mirrored_pass` requires BOTH `mirrored_fraction` above
+    `MIR_FLOOR` AND a `depth_separation` that says the mirrored half is
+    genuinely behind the visible surface. `depth_separation` defaults to
+    `None` because it does not exist until task 6b's `solve_from_view`
+    computes it -- an ABSENT depth term is an unevaluated gate, and an
+    unevaluated gate must never read as a pass, so `mirrored_pass` is
+    `False` whenever `depth_separation` is `None`, with
+    `mirrored_pass_reason` recording why.
     """
     mirrored = np.asarray(mirrored)
     combined = np.vstack([points, mirrored]) if len(mirrored) else np.asarray(points)
     iou = score(combined, intrinsics, mask)
     frac = inside_fraction(mirrored, intrinsics, mask) if len(mirrored) else 0.0
+
+    if depth_separation is None:
+        mirrored_pass = False
+        reason = ("depth_separation not supplied — mirrored_fraction alone cannot "
+                   "distinguish a correct symmetry plane from a fold (see MIR_FLOOR); "
+                   "an unevaluated depth term must not read as a pass")
+    elif depth_separation <= _DEPTH_SEPARATION_MIN:
+        mirrored_pass = False
+        reason = (f"depth_separation={depth_separation:.4f} is not positive — the "
+                   "mirrored half sits at the same depth as the visible surface, "
+                   "which is what a fold does, not a genuine occluded half")
+    elif frac < MIR_FLOOR:
+        mirrored_pass = False
+        reason = f"mirrored_fraction={frac:.4f} is below MIR_FLOOR={MIR_FLOOR}"
+    else:
+        mirrored_pass = True
+        reason = None
+
     result = {
         "silhouette_iou": iou,
         "mirrored_fraction": frac,
-        "mirrored_pass": frac >= MIR_FLOOR,
+        "mirrored_pass": mirrored_pass,
     }
+    if depth_separation is not None:
+        result["depth_separation"] = depth_separation
+    if reason is not None:
+        result["mirrored_pass_reason"] = reason
+
     p = paths.artifact_dir(ship_id) / "quality.json"
     data = json.loads(p.read_text()) if p.exists() else {}
     data.update(result)
