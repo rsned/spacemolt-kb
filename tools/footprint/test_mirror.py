@@ -24,6 +24,12 @@ def _load(name):
 
 
 mirror = _load("mirror")
+# mirror.py already imports pointmap unconditionally (`from . import paths,
+# pointmap`), so this costs nothing extra: if it weren't importable here, the
+# `mirror` import above would already have failed. Only used below to build a
+# plain Cloud value for the run()/load() round trip -- no CUDA, no model
+# inference, so unlike test_pointmap.py this needs no `needs_cuda` mark.
+pointmap = _load("pointmap")
 
 
 def _chamfer(a, b):
@@ -121,13 +127,18 @@ def test_residual_ceiling_tolerates_a_noisy_symmetric_hull():
     un-normalised chamfer numbers, ~4.68x the actual `Symmetry.residual`
     values on this fixture; see the note in `_symmetric_hull` for how the
     mismatch surfaced.)
-    CARRY THIS INTO TASK 9: measured directly against 3 real MoGe-2 clouds
+    CARRY THIS INTO TASK 6B: measured directly against 3 real MoGe-2 clouds
     (see the task report), residuals were 0.014-0.016 -- ABOVE this ceiling
-    and above the synthetic lopsided-hull number. Real MoGe noise is
-    evidently higher than this synthetic Gaussian model produces, so
-    re-validate the ceiling against real clouds there. This test proves the
-    mechanism (noise apart from asymmetry), not that 0.013 is the right
-    number for real art.
+    and above the synthetic lopsided-hull number. That is not primarily a
+    noise-model problem: `_partially_visible()` below (this file's one-VIEW
+    fixture, near half plus a sparse far-half sample -- what production
+    actually gets, unlike this test's fully two-sided `_symmetric_hull()`) is
+    already at residual ~0.013-0.014 while EXACTLY symmetric, before any of
+    THIS test's noise is added. Partial coverage alone explains the real
+    numbers; see the longer note beside `RESIDUAL_CEILING` in mirror.py. This
+    test proves the mechanism (noise apart from asymmetry, on the ONLY
+    two-sided fixture where doing so is meaningful), not that 0.013 is the
+    right number for real art -- Task 6b re-derives that from real clouds.
     """
     pts = _symmetric_hull()
     noisy = pts + np.random.default_rng(7).normal(0, 0.02, pts.shape)
@@ -164,18 +175,34 @@ def _partially_visible(seed=0, n=4000, far_frac=0.25):
     A real photographed hull is not literally binary like that: foreshortening
     thins the far side's point density near the grazing viewing angle but does
     not erase it entirely. Keeping a random far_frac of the far half models
-    that. Measured (seed 0): axis error stays 0.0 degrees and chamfer-to-truth
-    stays 0.0000 for far_frac >= 0.25 (0.20 already gets close: axis error 1.9
-    degrees, chamfer 0.031); at far_frac=0.15 the solver locks onto the wrong
-    SVD starting axis entirely (axis error 90.0 degrees, chamfer 0.041).
-    far_frac=0.25 keeps clear margin above that break point.
+    that.
+
+    The kept far points get isotropic noise (sigma=0.01) added on top of the
+    subsample: without it, they are `half * [1, -1, 1]` exactly (see
+    `_symmetric_hull`), i.e. bit-for-bit mirrors of near-side points, which
+    foreshortened real pixels never are. That mattered in practice: with exact
+    mirrors, `test_complete_fills_the_occluded_half`'s `chamfer < 0.05`
+    assertion measured chamfer-to-truth of EXACTLY 0.0000 at far_frac=0.25 --
+    a margin so perfect it could not distinguish a correct solve from one that
+    got lucky, only from one that failed outright. With sigma=0.01 noise,
+    that same assertion now measures a real, non-zero 0.0020 -- still well
+    under the 0.05 ceiling, but an actual measurement rather than an artifact
+    of exact duplication.
+
+    Re-measured the far_frac breakpoint under this noise (seed 0): axis error
+    stays under 0.05 degrees and chamfer-to-truth stays under 0.003 for
+    far_frac >= 0.20; at far_frac=0.18 it's borderline (axis error 2.1 degrees,
+    chamfer 0.036); at far_frac=0.15 the solver still locks onto the wrong SVD
+    starting axis entirely (axis error 90.0 degrees, chamfer 0.042) -- the same
+    break point as without noise. far_frac=0.25 keeps clear margin above it.
     """
     pts = _symmetric_hull(seed, n)
     near = pts[pts[:, 1] > 0]
     far = pts[pts[:, 1] <= 0]
     rng = np.random.default_rng(seed + 501)
     keep = rng.choice(len(far), int(len(far) * far_frac), replace=False)
-    return np.vstack([near, far[keep]])
+    far_kept = far[keep] + rng.normal(0.0, 0.01, (len(keep), 3))
+    return np.vstack([near, far_kept])
 
 
 def test_complete_fills_the_occluded_half():
@@ -219,12 +246,20 @@ def test_complete_uses_the_solved_plane_not_a_hardcoded_one():
     distance in the full-to-pts direction regardless of which plane is used
     to complete it. 0.1 sits with real margin below the measured 0.130 and
     above the true plane's 0.0.)
+
+    `good` was previously built only as a `dataclasses.replace` base and never
+    itself asserted on, so the "correct vs incorrect" comparison the docstring
+    describes was never actually made -- a `complete()` that ignores `sym` and
+    returns `points` unchanged (no reflection at all) measures chamfer 0.1028
+    against `pts`, which also clears `> 0.1`, so that inert stub passed this
+    test undetected. Asserting on `good` directly closes that gap.
     """
     pts = _symmetric_hull()
     visible = pts[pts[:, 1] > 0]
     good = mirror.Symmetry(normal=np.array([0.0, 1.0, 0.0]), offset=0.0,
                             scale=1.0, shift=0.0, residual=0.0)
     wrong = dataclasses.replace(good, normal=np.array([1.0, 0.0, 0.0]), offset=0.0)
+    assert _chamfer(mirror.complete(visible, good), pts) < 0.05
     assert _chamfer(mirror.complete(visible, wrong), pts) > 0.1
 
 
@@ -263,19 +298,37 @@ def _rotated_symmetric_hull(seed=0, n=4000, angle_deg=30.0):
 
 
 def test_affine_refinement_is_a_noop_on_metric_input():
-    """MoGe-2 is already metric, so the scale/shift solve must stay at identity.
+    """MoGe-2 is already metric, so the scale solve must stay at identity, and
+    the plane must still be found, even when initialised away from shift=0.
 
-    On its own this assertion is satisfied by `scale = 1.0` hardcoded and no
-    refinement at all, so it is paired with the recovery test below. Keep both:
-    this one pins "does not wander", that one pins "actually solves". Uses
-    `_rotated_symmetric_hull`, not `_symmetric_hull`, so this is a real check
-    of "does not wander off 1.0" rather than a check of a direction the cost
-    is mathematically incapable of moving in -- see that fixture's docstring.
+    On its own the scale assertion is satisfied by `scale = 1.0` hardcoded and
+    no refinement at all, so it is paired with the recovery test below. Keep
+    both: this one pins "does not wander", that one pins "actually solves".
+    Uses `_rotated_symmetric_hull`, not `_symmetric_hull`, so this is a real
+    check of "does not wander off 1.0" rather than a check of a direction the
+    cost is mathematically incapable of moving in -- see that fixture's
+    docstring.
+
+    Deliberately does NOT assert on `sym.shift`. `shift` is not identifiable
+    by self-reflection chamfer at all, for any normal -- see the comment
+    beside `_apply_affine` in mirror.py and its measured table (init_shift
+    0.0/0.7/-1.5 -> shift 0.000000/0.561740/-1.205369, all at residual
+    ~1e-8-1e-16: three different answers, all equally valid, because `off`
+    absorbs any shift exactly). An `abs(sym.shift) < 0.05` assertion here only
+    ever passed because init_shift defaults to 0.0 -- it could not have failed
+    on a solve() that silently ignored shift entirely. What DOES hold
+    regardless of init_shift, verified directly at init_shift=0.7: scale stays
+    1.000000 and the recovered normal stays exact (axis error 0.0 degrees) --
+    that is the real "no-op on metric input" guarantee, so that's what this
+    asserts instead.
     """
     pts = _rotated_symmetric_hull()
-    sym = mirror.solve(pts, refine_affine=True)
+    sym = mirror.solve(pts, refine_affine=True, init_shift=0.7)
+    true_normal = np.array([0.0, np.cos(np.radians(30.0)), np.sin(np.radians(30.0))])
+    axis_err = np.degrees(np.arccos(min(1.0, abs(sym.normal @ true_normal))))
     assert abs(sym.scale - 1.0) < 0.05, sym.scale
-    assert abs(sym.shift) < 0.05, sym.shift
+    assert axis_err < 5.0, axis_err
+    assert sym.residual < mirror.RESIDUAL_CEILING, sym.residual
 
 
 def test_affine_refinement_recovers_a_known_depth_scaling():
@@ -294,3 +347,29 @@ def test_affine_refinement_recovers_a_known_depth_scaling():
     squashed = pts * [1.0, 1.0, 0.6]
     sym = mirror.solve(squashed, refine_affine=True)
     assert abs(sym.scale - 1.0 / 0.6) < 0.1 * (1.0 / 0.6), sym.scale
+
+
+def test_run_writes_cloud_resolved_and_load_round_trips(tmp_path, monkeypatch):
+    """`run()` writes 6 npz keys nothing else pins; `load()` must read them back.
+
+    Without this, stages 5-7 would each hand-roll `np.load(...)["normal"]`
+    etc. against `cloud_resolved.npz`, unpinned by any test -- a key rename in
+    `run()` would break them silently, the same gap `pointmap.py` closed with
+    its own `load()` and `test_run_writes_cloud_and_load_round_trips`.
+    """
+    monkeypatch.setattr(mirror.paths, "FOOTPRINT_ROOT", tmp_path)
+    pts = _symmetric_hull()
+    cloud = pointmap.Cloud(points=pts, pixels=np.zeros((len(pts), 2), dtype=np.float32),
+                            normals=None, intrinsics=np.eye(3))
+
+    written_sym = mirror.run("test_ship", cloud)
+    out = tmp_path / "test_ship" / "cloud_resolved.npz"
+    assert out.exists()
+
+    loaded_sym, loaded_points = mirror.load("test_ship")
+    assert np.allclose(loaded_sym.normal, written_sym.normal)
+    assert loaded_sym.offset == written_sym.offset
+    assert loaded_sym.scale == written_sym.scale
+    assert loaded_sym.shift == written_sym.shift
+    assert loaded_sym.residual == written_sym.residual
+    assert np.allclose(loaded_points, mirror.complete(pts, written_sym))
