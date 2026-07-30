@@ -1911,6 +1911,41 @@ IoU is comparable neither to `IOU_FLOOR` nor across candidate planes with
 differing point counts. Use the per-point `gate.inside_fraction`, which involves
 no closing and is density-invariant.
 
+**Fix the bound-discard guard, which is currently defeated and untested.**
+Task 5 added a guard that discards any optimiser result terminating on a scale
+bound, then falls back to `best_any` — the best result of any kind — if every
+candidate was discarded. That fallback returns exactly the value the guard exists
+to reject. Measured on the recovery fixture, 3 axes x scale0 in {0.5, 1.0, 2.0},
+9 candidates:
+
+```
+axis=0 scale0=0.5/1.0/2.0 -> scale=0.200000  residual 1.21e-02  ON BOUND (x3)
+axis=1 scale0=0.5         -> scale=0.200000  residual 7.88e-03  ON BOUND
+axis=1 scale0=1.0         -> scale=1.666667  residual 4.87e-09
+axis=1 scale0=2.0         -> scale=1.666667  residual 2.68e-09
+axis=2 scale0=0.5/1.0     -> scale=0.200000  residual 7.29e-03  ON BOUND (x2)
+axis=2 scale0=2.0         -> scale=1.473616  residual 1.75e-02
+```
+
+Two separate problems:
+
+- **The guard is not outcome-determining, so no test pins it.** `axis=1` at
+  `scale0=1.0/2.0` already wins on raw residual (2.68e-9 against ≥7.29e-03), so
+  deleting the guard entirely leaves the final answer identical — verified by
+  mutation. It is currently unfalsifiable code.
+- **`best_any` silently defeats it.** With `scale0=0.5` alone, all three axes land
+  on the bound, `best` stays `None`, and the fallback returns a bound result at
+  residual 0.0073 — *under* `RESIDUAL_CEILING`, i.e. a 5x depth collapse reported
+  as trustworthy. That is precisely the false-trust failure the guard was added
+  for.
+
+Required: an all-bounds outcome must be a reported **failure**, not a silent
+fallback. Add a field to `Symmetry` (you are already adding `depth_separation` and
+`obliquity`) or raise — your call, but it must be visible to `run.process` and
+recorded in `quality.json`. Pin it with a test that constructs the all-bounds case
+and asserts the failure is surfaced; a guard whose removal changes no test is not
+a guard.
+
 **Also solve `shift` here.** Self-chamfer cannot identify it: with the plane
 offset free the objective is translation-equivariant, so `shift` and `offset`
 form a flat valley, and Task 5's measured shifts of 0.000000 / 0.561740 /
