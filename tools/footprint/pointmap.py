@@ -27,6 +27,10 @@ class Cloud:
     points: np.ndarray
     pixels: np.ndarray
     normals: np.ndarray | None
+    # MoGe's own unit-square-normalised matrix (fx, fy, cx, cy all fractions
+    # of width/height), NOT a pixel-space K. Denormalise by multiplying the
+    # first row by image width and the second by image height before using
+    # it as an OpenCV intrinsics matrix.
     intrinsics: np.ndarray
 
 
@@ -40,6 +44,8 @@ def _composite(image_rgb, mask, background):
     """Replace the chroma key with a neutral field, or leave it alone."""
     if background == "raw":
         return image_rgb
+    if background != "neutral":
+        raise ValueError(f"unknown background {background!r}")
     out = image_rgb.copy()
     out[mask == 0] = NEUTRAL
     return out
