@@ -65,8 +65,22 @@ scale **and shift** that minimise reprojection error between the cloud and
 its mirror. This is a real geometric constraint, and it is the standard
 approach in single-view symmetric reconstruction — not a fudge factor.
 
-Affine-invariant means both scale and shift are unknown. Solving only for
-scale leaves the footprint sheared.
+Affine-invariant means both scale and shift are unknown.
+
+*(Corrected 2026-07-29.)* An earlier version of this paragraph said that solving
+only for scale "leaves the footprint sheared". That is wrong — the shift is a
+z-translation, which is not a shear. The real situation is more specific:
+**self-chamfer cannot identify the shift at all.** With the plane offset free,
+the objective is translation-equivariant — `cost(n, off, P + t·e_z)` equals
+`cost(n, off − t·n_z, P)` — so shift and offset form a flat valley. Measured:
+initial shifts of 0.0, 0.7 and −1.5 return 0.000000, 0.561740 and −1.205369 on
+one cloud, all at costs below 1e-7. Any test asserting a small recovered shift
+passes only because the initial value defaults to zero.
+
+The shift *is* identifiable by the silhouette-and-depth objective, because
+reprojection under perspective is sensitive to a z-translation where chamfer
+between a cloud and its own reflection is not. So the shift solve belongs to
+that objective, not to the chamfer search.
 
 **The plane cannot be found by self-chamfer.** *(Revised 2026-07-29, after
 measurement.)* The original design minimised chamfer distance between the
@@ -315,13 +329,23 @@ grading metric, plus one golden ship whose profile is checked by hand.
   and pirate scrap ships are the entire point of the `Skew` style. The stage
   4 residual is the detector: a high residual means "do not mirror this one",
   and may mean the footprint is only half recoverable.
-- **The residual threshold is not yet calibrated against real data.** Measured
-  stage 4 residuals on the first three real clouds were 0.0163, 0.0146 and
-  0.0140 against a ceiling of 0.013 derived from synthetic fixtures — every ship
-  would read as asymmetric. Those numbers came from the self-chamfer solve that
-  has since been replaced, so they are not evidence about the hulls; they must be
-  re-measured once the silhouette-plus-depth objective lands, and the ceiling
-  set from real clouds rather than from a synthetic hull with Gaussian noise.
+- **The residual threshold is not yet calibrated against real data, and must be
+  calibrated on ONE-VIEW clouds.** Measured stage 4 residuals on the first three
+  real clouds were 0.0163, 0.0146 and 0.0140 against a ceiling of 0.013 derived
+  from synthetic fixtures — every ship would read as asymmetric. Those numbers
+  came from the self-chamfer solve that has since been replaced, so they are not
+  evidence about the hulls.
+
+  The calibration error underneath them is the part worth remembering. The 0.013
+  ceiling was set from a *two-sided* synthetic hull, which production never has.
+  On a one-view fixture that is exactly symmetric with zero noise, the residual
+  is already 0.0123 — partial visibility alone consumes almost the whole budget,
+  before any noise or asymmetry exists, and that alone accounts for the real
+  numbers above. Because the residual divides by the *observed* bounding box, it
+  is partly a function of how much of the hull the camera saw, so the constant
+  cannot come from synthetic data at all. **Rule: calibrate on one-view clouds,
+  never two-sided ones**, or the same error recurs with a different number.
+
   Until then, treat the asymmetry label as uncalibrated. It labels, and does not
   exclude — stage 5 is the only exclusion gate.
 - **A hero image may not depict the ship the catalog describes.** The art is

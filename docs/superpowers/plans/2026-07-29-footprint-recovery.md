@@ -1842,6 +1842,32 @@ Maximise silhouette agreement subject to depth separation clearing
 reported `residual` — chamfer is still the right measure of *how symmetric the
 hull is* once the plane is known. It is only the search it cannot drive.
 
+**Budget: `gate.score` costs 90.7ms per call at 400k points** (measured in Task
+6; `reproject` 92.9ms, dominated by the projection matmul and indexing, with the
+morphological close only ~2ms, and linear in point count). At 100–300 optimiser
+iterations that is 10–30s per ship from this term alone. **Subsample the cloud
+for the search** — a few tens of thousands of points is ample to score
+silhouette overlap — and score the winning plane once at full density. Report
+the subsample size you chose and the timing you measured.
+
+**Also solve `shift` here.** Self-chamfer cannot identify it: with the plane
+offset free the objective is translation-equivariant, so `shift` and `offset`
+form a flat valley, and Task 5's measured shifts of 0.000000 / 0.561740 /
+−1.205369 from initial values 0.0 / 0.7 / −1.5 all sat below 1e-7 cost on one
+cloud. Reprojection under perspective *is* sensitive to a z-translation, so this
+objective can identify what chamfer cannot. Pin it with a test that recovers a
+known injected shift, and confirm it reddens when the solve returns its initial
+value.
+
+**Calibrate `RESIDUAL_CEILING` on ONE-VIEW clouds, never two-sided ones.** The
+old 0.013 came from a two-sided synthetic hull, which production never has: on a
+one-view fixture that is exactly symmetric with zero noise the residual is
+already 0.0123, and 0.0133 at sigma 0.005 — over the ceiling before any
+asymmetry exists. Because the residual divides by the *observed* bounding box it
+is partly a function of how much of the hull the camera saw, which is why no
+synthetic constant transfers. Derive the new value from the real clouds measured
+in Step 5, state the margin, and say plainly what it separates.
+
 - [ ] **Step 1: Write the failing test — a one-sided synthetic cloud**
 
 The fixture must be one-sided, because that is the regime the Task 5 solver
