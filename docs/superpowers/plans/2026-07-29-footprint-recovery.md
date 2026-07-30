@@ -1619,9 +1619,46 @@ matte = _load("matte")
 gate = _load("gate")
 
 
+def _dense_surface_cloud(scene, target=60_000, seed=0):
+    """Barycentric samples over the scene mesh, at realistic cloud density.
+
+    `Scene.points` is far too sparse to stand in for a MoGe cloud: 2400 samples
+    across a mask covering 75192 px is 0.032 points per pixel, where MoGe
+    returns roughly ONE point per valid pixel. Reprojecting the sparse set and
+    closing it with a 5x5 kernel cannot produce a filled region, so a PERFECT
+    cloud scores IoU 0.127 — below IOU_FLOOR. Measured: 0.053 / 0.127 / 0.319 /
+    0.499 at dilation 3 / 5 / 9 / 15, i.e. no dilation rescues it.
+
+    That would have made `test_perfect_cloud_scores_near_one` fail on correct
+    code, and worse, `test_displaced_cloud_scores_low` would have passed for the
+    wrong reason — everything scores low when nothing fills.
+
+    Sampling the mesh at realistic density fixes it at the fixture, not by
+    loosening the assertion. Measured perfect / displaced IoU: 0.957 / 0.122 at
+    20k samples, 0.991 / 0.123 at 60k, 0.993 / 0.123 at 250k. 60k is the knee.
+    """
+    verts = scene.vertices
+    tris = []
+    for face in scene.faces:
+        idx = np.asarray(face)
+        for i in range(1, len(idx) - 1):          # fan-triangulate each polygon
+            tris.append([idx[0], idx[i], idx[i + 1]])
+    tris = np.array(tris)
+
+    a, b, c = verts[tris[:, 0]], verts[tris[:, 1]], verts[tris[:, 2]]
+    area = 0.5 * np.linalg.norm(np.cross(b - a, c - a), axis=1)
+
+    rng = np.random.default_rng(seed)
+    pick = rng.choice(len(tris), size=target, p=area / area.sum())
+    u, v = rng.random((target, 1)), rng.random((target, 1))
+    fold = (u + v) > 1.0                          # reflect into the triangle
+    u[fold], v[fold] = 1.0 - u[fold], 1.0 - v[fold]
+    return a[pick] + u * (b[pick] - a[pick]) + v * (c[pick] - a[pick])
+
+
 def _project_scene(s):
-    """World surface samples through the known camera, as a perfect cloud."""
-    return s.points @ s.R.T + s.t
+    """A realistically dense perfect cloud, in camera coordinates."""
+    return _dense_surface_cloud(s) @ s.R.T + s.t
 
 
 def test_perfect_cloud_scores_near_one():
@@ -1632,6 +1669,15 @@ def test_perfect_cloud_scores_near_one():
 
 
 def test_displaced_cloud_scores_low():
+    """A misaligned reconstruction must fail the gate.
+
+    This assertion is only meaningful BECAUSE test_perfect_cloud_scores_near_one
+    passes on the same fixture: without that pairing, "scores low" is satisfied
+    by a gate that scores everything low, which is exactly what the original
+    sparse fixture did (perfect cloud 0.127, displaced 0.024 — both under the
+    floor, test green, gate useless). Measured here: 0.991 perfect vs 0.123
+    displaced.
+    """
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
     mask, _ = matte.extract(s.image)
     cam = _project_scene(s)
@@ -2107,8 +2153,11 @@ def test_sample_flags_a_split_cross_section():
     poly = Polygon([(0, -0.3), (1, -0.3), (1, -0.1), (0, -0.1)]).union(
         Polygon([(0, 0.1), (1, 0.1), (1, 0.3), (0, 0.3)]))
     w, concave = profile.sample(poly)
-    assert concave[48], "a split cross-section must be flagged"
-    assert abs(w[48] - 0.3) < 1e-6, w[48]
+    mid = profile.STATIONS // 2      # NOT a hardcoded 48: STATIONS is 96 today,
+                                     # and a literal index silently tests the
+                                     # wrong station if that constant changes.
+    assert concave[mid], "a split cross-section must be flagged"
+    assert abs(w[mid] - 0.3) < 1e-6, w[mid]
 
 
 def test_aspect_matches_length_over_maximum_beam():
@@ -2297,7 +2346,9 @@ def test_vertical_cylinder_recovers_a_circular_profile():
     # A circle of unit length has half-width sqrt(t - t^2) / 2 ... check the
     # midships beam equals the length, i.e. aspect 1.
     assert abs(profile.aspect(w) - 1.0) < 0.20, profile.aspect(w)
-    assert w[48] > w[8] and w[48] > w[-8], "a circle must be widest amidships"
+    mid, near_end = profile.STATIONS // 2, profile.STATIONS // 12
+    assert w[mid] > w[near_end] and w[mid] > w[-near_end], \
+        "a circle must be widest amidships"
 
 
 @pytest.mark.skipif(
@@ -2344,6 +2395,11 @@ def test_moge_clears_a_floor_on_real_hero_art():
 
     assert len(cloud.points) > 10_000, "point map is implausibly sparse"
     assert np.isfinite(cloud.points).all()
+    # Documented invariant, NOT a test of our code: MoGe emits camera-space
+    # points with strictly positive depth by construction (measured z in
+    # [23.9, 137] even on pure random-noise input), so this cannot fail unless
+    # a later change starts transforming the cloud. It is here because
+    # gate.reproject relies on it when it filters points[:, 2] > 1e-6.
     assert (cloud.points[:, 2] > 0).all(), "points behind the camera"
 
     # A hull seen in 3/4 must have real depth relief. A collapsed depth range
