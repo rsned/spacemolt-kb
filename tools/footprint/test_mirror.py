@@ -4,6 +4,7 @@ Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_mirror.py
 """
 
 import importlib
+import json
 import pathlib
 import sys
 
@@ -30,6 +31,11 @@ mirror = _load("mirror")
 # plain Cloud value for the run()/load() round trip -- no CUDA, no model
 # inference, so unlike test_pointmap.py this needs no `needs_cuda` mark.
 pointmap = _load("pointmap")
+# `mirror` imports `gate` (for `project`, `inside_fraction` and
+# `MIN_DEPTH_SEPARATION_FRACTION`), so this too costs nothing extra. Used to
+# build the one-view fixtures' own silhouettes, so the test's matte and the
+# solver's scoring share exactly one projection.
+gate = _load("gate")
 
 
 def _chamfer(a, b):
@@ -368,8 +374,364 @@ def test_run_writes_cloud_resolved_and_load_round_trips(tmp_path, monkeypatch):
 
     loaded_sym, loaded_points = mirror.load("test_ship")
     assert np.allclose(loaded_sym.normal, written_sym.normal)
+    assert loaded_sym.depth_separation == written_sym.depth_separation
+    assert loaded_sym.failure == written_sym.failure
     assert loaded_sym.offset == written_sym.offset
     assert loaded_sym.scale == written_sym.scale
     assert loaded_sym.shift == written_sym.shift
     assert loaded_sym.residual == written_sym.residual
     assert np.allclose(loaded_points, mirror.complete(pts, written_sym))
+
+
+# --------------------------------------------------------------------------
+# One-view fixtures for `solve_from_view` (stage 4's real-cloud entry point).
+# --------------------------------------------------------------------------
+
+def _hull_surface(n=60000, a=2.0, b=1.0, c=0.6, keel=0.9, waist=0.35, seed=0):
+    """Points ON a hull surface, with outward normals. Symmetry plane: y=0.
+
+    A quadric would be simpler but is DEGENERATE for this test, measured. The
+    task brief's fixture was a plain ellipsoid (`pts = v * [a, b, c]`) on the
+    grounds that "its symmetry about x and z is harmless here: this test
+    asserts the recovered axis against a known answer rather than relying on
+    the axis being unique". That reasoning does not survive measurement: on the
+    plain ellipsoid, back-face-culled at obliquity 0.866, the reflections
+    across ALL THREE coordinate planes map the solid onto itself, so all three
+    reproject inside the silhouette and score essentially the same silhouette
+    agreement --
+
+        candidate      inside_fraction   depth_sep / z-extent
+        y=0 (TRUE)          0.9980              +0.331
+        x=0                 0.9984              +0.00015
+        z=0                 0.9981              +0.290
+
+    -- i.e. z=0 BEATS the true plane by 1e-4 while clearing the depth floor
+    comfortably, so "maximise silhouette agreement subject to the depth
+    constraint" is entitled to return a plane 90 degrees from the truth. A
+    perfect solver fails an `axis_err < 8.0` assertion on that fixture.
+
+    Fixed by deforming the ellipsoid EVENLY in x (a keel that drops the belly
+    toward the nose and tail, and a waist that narrows them), which breaks z=0
+    while leaving both y=0 (the answer) and x=0 (the fold, see
+    `_tangential_fold`) exact. Same measurement on this fixture:
+
+        y=0 (TRUE)          0.9976              +0.357
+        x=0 (fold)          0.9988              +0.00005
+        z=0                 0.7987              +0.236
+
+    z=0 is now demoted by 0.20 of silhouette agreement, and x=0 -- which still
+    scores ABOVE the true plane, structurally, because it maps the visible
+    sheet exactly onto itself -- is left as the single competitor the depth
+    constraint has to reject. That is the arrangement this task is about.
+
+    Keeping x=0 exact is deliberate for the same reason: it makes the depth
+    constraint load-bearing rather than decorative (see
+    `test_the_depth_constraint_is_what_rejects_the_tangential_fold`).
+
+    Outward normals come from the deformation's Jacobian: for points q = f(p),
+    normals transform as J^-T n, not as J n. They are needed to cull back faces
+    -- the whole point of the fixture is a front-surface SHEET, not a subsample
+    of a solid volume. Reflecting a bilaterally symmetric SOLID across its true
+    plane maps the solid onto itself, so the correct answer's depth separation
+    is zero by construction; measured on `_symmetric_hull` (a solid) it comes
+    out -0.004 to +0.005 of z-extent across viewing angles, sometimes negative.
+    Depth separation exists only for a one-view sheet, where the reflected
+    front surface becomes the genuinely occluded back surface.
+    """
+    rng = np.random.default_rng(seed)
+    v = rng.normal(size=(n, 3))
+    v /= np.linalg.norm(v, axis=1, keepdims=True)
+    p = v * np.array([a, b, c])
+    nrm = v / np.array([a, b, c])
+    nrm /= np.linalg.norm(nrm, axis=1, keepdims=True)
+
+    x, y = p[:, 0], p[:, 1]
+    u = (x / a) ** 2                                  # even in x, so x=0 stays exact
+    q = np.column_stack([x, y * (1.0 - waist * u), p[:, 2] + keel * c * u])
+
+    j = np.zeros((n, 3, 3))
+    j[:, 0, 0] = 1.0
+    j[:, 1, 0] = -2.0 * waist * x * y / a ** 2
+    j[:, 1, 1] = 1.0 - waist * u
+    j[:, 2, 0] = 2.0 * keel * c * x / a ** 2
+    j[:, 2, 2] = 1.0
+    nq = np.einsum("nji,nj->ni", np.linalg.inv(j), nrm)   # n' = J^-T n
+    nq /= np.linalg.norm(nq, axis=1, keepdims=True)
+    return q, nq
+
+
+def _one_sided_view(obliquity_deg=60.0, dist=8.0, shape=(480, 640), focal=600.0, seed=0):
+    """Render the hull as a single view: back-face culled, in camera coordinates.
+
+    `obliquity_deg` rotates the symmetry-plane normal toward the camera. It is
+    the parameter that bounds how much depth separation the TRUE plane can
+    possibly show, so it is explicit rather than buried: at 0 the plane
+    contains the view direction and reflection moves nothing in depth, so the
+    separation is exactly zero and the depth term carries no signal at all.
+    Measured true-plane depth_separation / z-extent on this fixture: 0.045 at
+    20 deg, 0.094 at 30, 0.204 at 45, 0.357 at 60, 0.654 at 75, 0.971 at 85.
+    60 sits well clear of the 0.01 floor while staying a plausible
+    three-quarter view.
+
+    Returns `(view, mask, K, R, t)`. `R` and `t` are handed back so a test can
+    build the EXACT camera-space image of any world plane
+    (`_plane(R, t, world_normal)`) instead of approximating it -- the true
+    plane's offset is `n . t`, NOT `n . centroid`: the visible sheet's centroid
+    is not on the symmetry plane, and using it costs 0.07 of silhouette
+    agreement and half the depth separation (measured 0.9267 / 0.140 against
+    the true plane's 0.9980 / 0.341 on the undeformed ellipsoid).
+    """
+    b = np.radians(obliquity_deg)
+    r = np.array([[1.0, 0.0, 0.0],
+                  [0.0, np.cos(b), np.sin(b)],
+                  [0.0, -np.sin(b), np.cos(b)]])
+    pts_w, nrm_w = _hull_surface(seed=seed)
+    t = np.array([0.0, 0.0, dist])
+    cam = pts_w @ r.T + t
+    nrm_c = nrm_w @ r.T
+    viewdir = cam / np.linalg.norm(cam, axis=1, keepdims=True)
+    view = cam[(nrm_c * viewdir).sum(1) < 0]              # back-face cull
+
+    h, w = shape
+    k = np.array([[focal, 0.0, w / 2.0], [0.0, focal, h / 2.0], [0.0, 0.0, 1.0]])
+    mask = gate.reproject(view, k, shape)                  # the view's own silhouette
+    return view, mask, k, r, t
+
+
+def _plane(r, t, world_normal):
+    """The camera-space (normal, offset) of a world plane through the origin."""
+    n = r @ np.asarray(world_normal, dtype=float)
+    return n, float(n @ t)
+
+
+def _axis_err(a, b):
+    return float(np.degrees(np.arccos(min(1.0, abs(np.asarray(a) @ np.asarray(b))))))
+
+
+def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
+    """The regression test for the whole task: same input, both solvers.
+
+    `solve` (self-chamfer) must fold and `solve_from_view` must not. Asserting
+    only that the new solver works would leave the test passing if someone
+    quietly routed it back to the old objective.
+
+    LEFT FAILING DELIBERATELY, at obliquity 0.866 only. The objective this task
+    specifies does not identify the plane, measured, and this test says so rather
+    than being loosened until it agrees. Axis error from `solve_from_view` as
+    delivered, sweeping the view: 0.18 / 1.74 / 8.19 / 3.40 degrees at obliquity
+    0.500 / 0.707 / 0.866 / 0.966 -- so three of four views are recovered to
+    within 3.4 degrees and this one misses the 8-degree threshold by 0.19. That
+    near-miss is not a tolerance question: the returned plane is a receded one
+    (obliquity 0.928 against a true 0.866, depth separation 0.50 of z-extent
+    against 0.357), and _PROXIMITY_CEILING = 0.09 would turn this assertion green
+    while leaving that same wrong plane in place. See that constant's comment for
+    the sweep and for why it was not adopted.
+
+    The cause is pinned by the two tests below and by the
+    comment on `mirror._PROXIMITY_CEILING`: silhouette agreement saturates at
+    exactly 1.0000 for any plane that pushes the mirrored half clear of the hull
+    -- strictly interior to the matte, so nothing spills -- while the TRUE plane
+    grazes the silhouette rim and measures 0.9969-0.9997. The true answer is
+    therefore not the maximum of the objective, and it loses by ~5e-4. The depth
+    term cannot arbitrate (a receded plane has MORE separation, 1.14 of z-extent
+    against 0.357) and neither can proximity at every obliquity (the populations
+    overlap above ~0.93). Fixing this needs a different discriminator, not a
+    tuned constant; the task report lists the four that were measured and
+    rejected.
+    """
+    view, mask, k, r, t = _one_sided_view(obliquity_deg=60.0)
+    n_true, _ = _plane(r, t, [0.0, 1.0, 0.0])
+    zext = float(view[:, 2].max() - view[:, 2].min())
+
+    good = mirror.solve_from_view(view, mask, k)
+    assert good.failure is None, good.failure
+    assert _axis_err(good.normal, n_true) < 8.0, _axis_err(good.normal, n_true)
+    # Measured 0.357 * zext for the true plane at this obliquity, versus
+    # 0.00005 * zext for the tangential fold -- a 7000x gap. Assert well
+    # inside it.
+    assert good.depth_separation > 0.05 * zext, good.depth_separation
+    assert good.obliquity > 0.8, good.obliquity        # cos(60 deg) rotation -> 0.866
+
+    folded = mirror.solve(view)                        # the superseded objective
+    assert _axis_err(folded.normal, n_true) > 20.0, (
+        "the self-chamfer solve is expected to fold on one-sided input; if it "
+        "no longer does, this task's premise changed and the fixture is wrong")
+
+
+def _receded_plane(view, q=1.05):
+    """A plane behind the cloud, normal along the mean view direction.
+
+    The canonical member of the family that defeats "maximise silhouette
+    agreement". Reflecting across it pushes the whole sheet away from the camera,
+    and because `uv = K p / p_z` that SHRINKS the projection until every mirrored
+    point is strictly interior to the matte. Axis-independent by construction --
+    normal = the direction from the camera to the cloud's centroid -- so it needs
+    no seeded search and no hardcoded numbers, unlike "N degrees off the view
+    direction", which names a one-parameter family rather than a plane.
+
+    `q` places the plane that fraction of the way through the cloud's own span
+    along that normal; 1.05 puts it just behind everything.
+    """
+    n = view.mean(axis=0)
+    n = n / np.linalg.norm(n)
+    proj = view @ n
+    return n, float(proj.min() + q * (proj.max() - proj.min()))
+
+
+def _metrics(view, mask, k, n, off):
+    """(inside_fraction, depth_separation, proximity) for one candidate plane."""
+    n = np.asarray(n, dtype=float)
+    n = n / np.linalg.norm(n)
+    mirrored = mirror.reflect(view, n, off)
+    depth = mirror._visible_depth(view, k, mask.shape)
+    sep, _ = mirror._depth_separation(depth, mirrored, k, mask.shape)
+    extent = float(np.linalg.norm(view.max(axis=0) - view.min(axis=0)))
+    near = float(cKDTree(view).query(mirrored)[0].mean()) / extent
+    return gate.inside_fraction(mirrored, k, mask), sep, near
+
+
+def test_silhouette_agreement_alone_cannot_reject_the_tangential_fold():
+    """The depth floor is load-bearing, not decorative.
+
+    The canonical tangential fold on this fixture is not a searched-for normal
+    but an exact one: the hull is symmetric about world x=0 as well as y=0 (see
+    `_hull_surface`), and reflection across x=0 maps the CAMERA position to
+    itself, so it maps the visible sheet exactly onto itself. That is the
+    definition of a fold, stated axis-independently.
+
+    Its silhouette agreement is at or ABOVE the true plane's -- structurally, not
+    coincidentally, since it reprojects onto the very pixels the visible points
+    were read from -- so no floor on `inside_fraction` can separate them, and
+    only `depth_separation` can.
+    """
+    view, mask, k, r, t = _one_sided_view(obliquity_deg=60.0)
+    zext = float(view[:, 2].max() - view[:, 2].min())
+
+    true_frac, true_sep, _ = _metrics(view, mask, k, *_plane(r, t, [0.0, 1.0, 0.0]))
+    fold_frac, fold_sep, _ = _metrics(view, mask, k, *_plane(r, t, [1.0, 0.0, 0.0]))
+
+    assert fold_frac >= true_frac, (fold_frac, true_frac)      # 0.9988 vs 0.9976
+    assert abs(fold_sep) < 0.001 * zext, fold_sep              # measured 0.00005 * zext
+    assert true_sep > 0.05 * zext, true_sep                    # measured 0.357 * zext
+    assert abs(fold_sep) < gate.MIN_DEPTH_SEPARATION_FRACTION * zext, fold_sep
+    assert true_sep > gate.MIN_DEPTH_SEPARATION_FRACTION * zext, true_sep
+
+
+def test_silhouette_agreement_alone_cannot_reject_a_receded_plane():
+    """Silhouette agreement is MAXIMISED by a wrong plane, and the depth term
+    cannot see it either -- which is why `solve_from_view` needs a proximity
+    ceiling as well.
+
+    This is the measurement that contradicts this task's brief. The brief's
+    evidence for "maximise inside_fraction subject to the depth constraint"
+    compared candidates at a fixed offset through the centroid; with the offset
+    free, a plane behind the cloud reaches inside_fraction 1.0000 -- ABOVE the
+    true plane -- while having MORE depth separation than the true plane, so it
+    clears the floor comfortably. What it cannot do is land near the hull.
+    """
+    view, mask, k, r, t = _one_sided_view(obliquity_deg=60.0)
+    zext = float(view[:, 2].max() - view[:, 2].min())
+
+    true_frac, true_sep, true_near = _metrics(view, mask, k, *_plane(r, t, [0.0, 1.0, 0.0]))
+    far_frac, far_sep, far_near = _metrics(view, mask, k, *_receded_plane(view))
+
+    assert far_frac >= true_frac, (far_frac, true_frac)        # 1.0000 vs 0.9976
+    assert far_sep > true_sep, (far_sep, true_sep)             # 1.14 vs 0.357 of zext
+    assert far_sep > gate.MIN_DEPTH_SEPARATION_FRACTION * zext, far_sep
+    # Only proximity separates them: measured 0.0610 against 0.2157 of extent.
+    assert true_near < mirror._PROXIMITY_CEILING < far_near, (true_near, far_near)
+
+
+def test_solve_from_view_reports_failure_when_no_plane_clears_the_depth_floor():
+    """An unreachable depth floor must surface as `failure`, not as an answer.
+
+    Raising `MIN_DEPTH_SEPARATION_FRACTION` above what any plane can achieve is
+    the same situation a bow-on hero image produces for real: at obliquity 0 the
+    symmetry plane contains the view direction, reflection moves nothing in
+    depth, and the separation is EXACTLY zero, so no floor is clearable. Forcing
+    it here rather than rendering a bow-on view keeps the test to a couple of
+    seconds and makes the mechanism, not the fixture, the thing under test.
+    """
+    view, mask, k, _, _ = _one_sided_view(obliquity_deg=60.0)
+    original = gate.MIN_DEPTH_SEPARATION_FRACTION
+    try:
+        gate.MIN_DEPTH_SEPARATION_FRACTION = 100.0
+        sym = mirror.solve_from_view(view, mask, k)
+    finally:
+        gate.MIN_DEPTH_SEPARATION_FRACTION = original
+    assert sym.failure is not None
+    assert "depth_separation" in sym.failure, sym.failure
+    # The numbers are still reported, so a failing ship can be diagnosed.
+    assert sym.depth_separation != 0.0
+
+
+def test_solve_reports_failure_when_every_scale_lands_on_a_bound():
+    """An all-bounds affine solve is a reported failure, not a silent fallback.
+
+    Task 5's guard discarded results terminating on a scale bound and then fell
+    back to `best_any` -- the best result of ANY kind -- which returns exactly
+    what the guard exists to reject. Measured on this fixture with 0.5 as the only
+    scale start: all three SVD axes run to the 0.2 lower bound and the fallback
+    returns residual 0.0073, UNDER RESIDUAL_CEILING, i.e. a 5x depth collapse
+    reported as trustworthy against a true scale of 1/0.6 = 1.667.
+
+    Constructing the case needs the scale multi-start narrowed to 0.5 alone,
+    which is why `_SCALE_STARTS` is a module constant. Without this test the guard
+    is unfalsifiable: deleting it entirely changes no other test, because with the
+    default starts the correct basin wins on raw residual anyway.
+    """
+    squashed = _rotated_symmetric_hull() * [1.0, 1.0, 0.6]
+    original = mirror._SCALE_STARTS
+    try:
+        mirror._SCALE_STARTS = (0.5,)
+        sym = mirror.solve(squashed, refine_affine=True, init_scale=0.5)
+    finally:
+        mirror._SCALE_STARTS = original
+
+    assert sym.scale <= 0.2 + 1e-9, sym.scale             # it really is on the bound
+    assert sym.residual < mirror.RESIDUAL_CEILING, sym.residual   # and looks trustworthy
+    assert sym.failure is not None, (
+        "an all-bounds solve returns a bound artifact at a residual under "
+        "RESIDUAL_CEILING; it must not be reportable as a pass")
+    assert "bound" in sym.failure, sym.failure
+
+
+def test_obliquity_tracks_the_normal_it_is_derived_from():
+    """`obliquity` is derived, so it cannot drift out of step with `normal`.
+
+    A stored field would: `dataclasses.replace(sym, normal=...)` leaves it stale,
+    and `load()` would have to restore it from a file that could disagree.
+    """
+    sym = mirror.Symmetry(normal=np.array([0.0, 1.0, 0.0]), offset=0.0, scale=1.0,
+                          shift=0.0, residual=0.0)
+    assert sym.obliquity == 0.0
+    assert dataclasses.replace(sym, normal=np.array([0.0, 0.0, 1.0])).obliquity == 1.0
+    # Unnormalised normals must not inflate it.
+    assert abs(dataclasses.replace(
+        sym, normal=np.array([0.0, 3.0, 3.0])).obliquity - 1 / np.sqrt(2)) < 1e-12
+
+
+def test_run_records_the_symmetry_diagnostics_in_quality_json(tmp_path, monkeypatch):
+    """`obliquity`, `depth_separation` and `failure` must reach quality.json.
+
+    `gate.run` cannot write them -- it never sees a `Symmetry` -- so a failure
+    that lived only in the returned dataclass would vanish from the batch report.
+    Both stages merge into the same file, so this also pins that `mirror.run`
+    writes rather than replaces.
+    """
+    monkeypatch.setattr(mirror.paths, "FOOTPRINT_ROOT", tmp_path)
+    q = tmp_path / "test_ship"
+    q.mkdir(parents=True, exist_ok=True)
+    (q / "quality.json").write_text(json.dumps({"silhouette_iou": 0.5}))
+
+    pts = _symmetric_hull()
+    cloud = pointmap.Cloud(points=pts, pixels=np.zeros((len(pts), 2), dtype=np.float32),
+                           normals=None, intrinsics=np.eye(3))
+    sym = mirror.run("test_ship", cloud)
+
+    data = json.loads((q / "quality.json").read_text())
+    assert data["silhouette_iou"] == 0.5              # the earlier key survives
+    assert data["obliquity"] == sym.obliquity
+    assert data["depth_separation"] == sym.depth_separation
+    assert data["symmetry_residual"] == sym.residual
+    assert data["symmetry_failure"] == sym.failure
