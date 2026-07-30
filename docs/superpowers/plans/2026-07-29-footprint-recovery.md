@@ -23,7 +23,7 @@ Everything else in the spec stands as written.
 
 - MoGe runs in its own virtualenv at `~/moge-venv`, never in `~/sd-venv`. The portrait pipeline must not break because this one needed a different torch.
 - The alpha radius is pinned **once per batch**, never per ship. It is chosen by sweeping a range across all recovered clouds and taking the value that maximises mean stage 5 silhouette IoU, and the chosen value is recorded with the results.
-- Stage 2 gates stage 3. A low-confidence vanishing-point fit sends that ship to the hand-clicked fallback. It never silently inherits an assumed camera.
+- Stage 2 is a cross-check, not a gate (REVISED 2026-07-29 after measurement; see the spec section "Stage 2 is a cross-check, not a gate"). Only 1 of 14 keyable hero images supports a trustworthy three-VP fit, because most renders are two-point-perspective or near-orthographic in one axis — the weak axes' vanishing points sit 25–57 image diagonals out with 0–2 supporting segments. A 15× search budget does not change it. The reference frame comes from recovered geometry instead: lateral axis = stage 4's symmetry-plane normal, longitudinal axis = the cloud's principal axis within that plane, up = lateral × longitudinal. No ship is skipped for low camera confidence, and no hand-clicking is required. Where stage 2 is confident, its rotation is compared to the geometric frame and the agreement logged, never averaged.
 - Stage 5 is an exclusion gate. A ship that fails it is listed as a reconstruction failure and excluded from every aggregate. It is never quietly folded into an average.
 - Stage 6 uses an alpha shape, never a convex hull. A convex hull erases the concavities that distinguish one hull from another.
 - The pipeline is batch-shaped: pointing it at a full 335-ship art drop is a path change, not a rewrite. No ship ID is hardcoded outside test fixtures.
@@ -392,8 +392,9 @@ git commit -m "feat(footprint): scaffold pipeline with synthetic ground truth"
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_matte.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
 
 import numpy as np
 
@@ -1002,10 +1003,23 @@ for p in sorted(glob.glob(os.path.expanduser("~/Downloads/*.webp"))):
 PY
 ```
 
-Record which of the 14 fall below `CONFIDENCE_FLOOR`. Those need click files
-before the batch runs; that is the designed path, not a failure. Do NOT lower
-`CONFIDENCE_FLOOR` to make more ships pass — the floor exists to route bad fits
-to the fallback, and moving it defeats the stage.
+Record which of the 14 fall below `CONFIDENCE_FLOOR`. Do NOT lower
+`CONFIDENCE_FLOOR` to make more ships pass — calibrate it on synthetic ground
+truth only.
+
+**OUTCOME, 2026-07-29 (this step has been run; kept for the record).** 1 of 14
+passes (`ledger`, 0.057). This is a property of the art: on most of these
+renders the weak axes' vanishing points sit 25–57 image diagonals from the
+principal point with 0–2 supporting segments, so the render is
+two-point-perspective or near-orthographic in one axis, and several hulls are
+curved with few straight structural lines at all. Confidence is unchanged at
+2000 / 8000 / 30000 RANSAC iterations, so it is not a search-budget problem.
+
+Consequently **stage 2 was demoted from a gate to a cross-check** and the
+reference frame now comes from recovered geometry — see the Global Constraints
+and `ground.up_vector` in Task 7. No click files are needed, and the
+hand-clicked path (`fit_from_clicks`, `clicks_from_scene`) remains available but
+is no longer on the batch's critical path.
 
 - [ ] **Step 7: Remove the dead dependency**
 
@@ -1047,8 +1061,9 @@ The model is a 2 GB download and needs a GPU, so the tests skip cleanly when it 
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_pointmap.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
 
 import numpy as np
 import pytest
@@ -1583,8 +1598,9 @@ git commit -m "feat(footprint): stage 4 mirror-constrained symmetry solve"
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_gate.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
 
 import numpy as np
 
@@ -1720,7 +1736,7 @@ git commit -m "feat(footprint): stage 5 reprojection silhouette gate"
 
 **Interfaces:**
 - Consumes: `mirror.Symmetry`, `camera.Fit`
-- Produces: `ground.up_vector(fit: camera.Fit, sym: mirror.Symmetry, normals=None) -> np.ndarray`
+- Produces: `ground.up_vector(sym: mirror.Symmetry, points: np.ndarray, normals=None, fit: camera.Fit | None = None) -> np.ndarray`. Derives the hull frame from geometry; `fit` is accepted only for logging agreement and never overrides it. NOTE the argument order changed on 2026-07-29 — `sym` and `points` are now first and `fit` is last and optional.
 - Produces: `ground.project(points, up) -> np.ndarray (N,2)`
 - Produces: `ground.hull(xy: np.ndarray, alpha: float) -> shapely.geometry.Polygon`
 - Produces: `ground.sweep_alpha(clouds_xy: list[np.ndarray], candidates: list[float]) -> float`
@@ -1734,8 +1750,10 @@ git commit -m "feat(footprint): stage 5 reprojection silhouette gate"
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_ground.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
+import types
 
 import numpy as np
 
@@ -1756,6 +1774,75 @@ def test_projection_drops_the_up_axis():
     pts = np.array([[1.0, 5.0, 2.0], [3.0, -7.0, 4.0]])
     xy = ground.project(pts, up=np.array([0.0, 1.0, 0.0]))
     assert np.allclose(xy, [[1.0, 2.0], [3.0, 4.0]])
+
+
+def _hull_cloud(n=4000, seed=0):
+    """A hull whose three axes have DISTINCT extents, in a rotated frame.
+
+    Extents must differ: measured 3.999 long, 1.599 wide, 0.800 tall. If two
+    were equal the principal axis would be ambiguous and the test could pass on
+    a solver that picked either. The rotation angle (1.15 rad) is chosen so a
+    stub returning a fixed coordinate axis fails with margin: verified that
+    a fixed +Z stub, a mean-normal stub and a longitudinal-instead-of-up stub
+    score |dot| = 0.798 / 0.798 / 0.001 against the 0.98 bar, while the
+    intended derivation scores 0.999999.
+    """
+    rng = np.random.default_rng(seed)
+    local = rng.uniform([-2.0, -0.8, -0.4], [2.0, 0.8, 0.4], size=(n, 3))
+    axis = np.array([0.3, 0.5, 0.81])
+    axis /= np.linalg.norm(axis)
+    c, s = np.cos(1.15), np.sin(1.15)
+    K = np.array([[0, -axis[2], axis[1]], [axis[2], 0, -axis[0]], [-axis[1], axis[0], 0]])
+    R = np.eye(3) * c + s * K + (1 - c) * np.outer(axis, axis)
+    # local x = longitudinal, y = lateral, z = up
+    return local @ R.T, R[:, 1], R[:, 2]
+
+
+def test_up_vector_comes_from_the_hull_geometry():
+    """Recover a known up from the symmetry plane and the cloud's own axes.
+
+    The cloud is deliberately rotated out of axis alignment and given three
+    distinct extents, so this fails for a stub returning a fixed axis, for one
+    returning the mean normal, and for one that confuses the longitudinal and
+    up axes. `fit=None` throughout: the geometric path is the primary one, not
+    a fallback.
+    """
+    pts, lateral, up_true = _hull_cloud()
+    sym = types.SimpleNamespace(normal=lateral, offset=0.0)
+    up = ground.up_vector(sym, pts, normals=None, fit=None)
+    assert abs(abs(float(up @ up_true)) - 1.0) < 0.02, up @ up_true
+
+
+def test_up_vector_ignores_a_confident_but_wrong_camera_fit():
+    """A confident camera fit must not override the geometric frame.
+
+    Stage 2 is a cross-check (see Global Constraints). One of fourteen real
+    images produces a confident fit at all, and on a synthetic oracle roughly
+    one seed in thirty produces a confident fit that is 24 degrees wrong, so a
+    code path that deferred to `fit` would import that error. Passing a
+    deliberately garbage R with high confidence must change nothing.
+    """
+    pts, lateral, up_true = _hull_cloud()
+    sym = types.SimpleNamespace(normal=lateral, offset=0.0)
+    baseline = ground.up_vector(sym, pts, normals=None, fit=None)
+    bogus = types.SimpleNamespace(R=np.eye(3), confidence=0.99, source="auto")
+    assert np.allclose(ground.up_vector(sym, pts, normals=None, fit=bogus), baseline)
+
+
+def test_up_vector_sign_follows_the_viewer():
+    """Up must point toward the camera side, not away from it.
+
+    Sign is the one thing geometry alone cannot settle — lateral x longitudinal
+    is up or down depending on handedness — so it is resolved from the normals.
+    Flipping every normal must flip the returned up, or the sign logic is dead
+    code and the footprint could come out mirrored.
+    """
+    pts, lateral, _ = _hull_cloud()
+    sym = types.SimpleNamespace(normal=lateral, offset=0.0)
+    normals = np.tile(np.array([0.0, 0.0, -1.0]), (len(pts), 1))
+    a = ground.up_vector(sym, pts, normals=normals, fit=None)
+    b = ground.up_vector(sym, pts, normals=-normals, fit=None)
+    assert float(a @ b) < -0.98, (a, b)
 
 
 def test_alpha_shape_keeps_a_concavity_a_convex_hull_would_erase():
@@ -1823,22 +1910,52 @@ from . import paths
 ALPHA_CANDIDATES = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0, 13.0]
 
 
-def up_vector(fit, sym, normals=None) -> np.ndarray:
-    """World up in camera coordinates.
+def up_vector(sym, points, normals=None, fit=None) -> np.ndarray:
+    """World up in camera coordinates, from the hull's own recovered geometry.
 
-    The vanishing-point fit is authoritative when it is confident: its three
-    axes are the Manhattan frame, and up is the one most nearly perpendicular
-    to the symmetry-plane normal and most vertical in image space. Failing
-    that, fall back to the dominant surface normal, which on a ship is the deck.
+    REVISED 2026-07-29. This used to treat a confident vanishing-point fit as
+    authoritative and fall back to `normals.mean(axis=0)`. Both were wrong:
+
+    - Only 1 of 14 keyable hero images produces a confident fit at all, so the
+      camera path is the exception, not the rule (see the plan's Global
+      Constraints).
+    - The mean surface normal of a SINGLE-VIEW cloud points roughly at the
+      camera, not at the deck, because every visible facet faces the viewer.
+      That fallback would have returned a badly wrong up on every ship that
+      used it.
+
+    The hull frame is fully determined by geometry already recovered upstream:
+    the symmetry-plane normal is the lateral axis, the cloud's principal axis
+    within that plane is longitudinal, and up is their cross product.
+
+    `fit` is accepted only to log agreement where stage 2 is confident; it
+    never overrides the geometric frame.
     """
-    if fit is not None and fit.confidence > 0:
-        candidates = list(fit.R) + [-a for a in fit.R]
-        best = max(candidates, key=lambda a: -abs(float(a @ sym.normal)))
-        return best / np.linalg.norm(best)
+    lateral = np.asarray(sym.normal, dtype=float)
+    lateral /= np.linalg.norm(lateral)
+
+    # Longitudinal: the dominant direction of the cloud with the lateral
+    # component projected out, so it is guaranteed to lie in the symmetry plane.
+    centred = points - points.mean(axis=0)
+    in_plane = centred - np.outer(centred @ lateral, lateral)
+    longitudinal = np.linalg.svd(in_plane, full_matrices=False)[2][0]
+    longitudinal /= np.linalg.norm(longitudinal)
+
+    up = np.cross(lateral, longitudinal)
+    up /= np.linalg.norm(up)
+
+    # Sign: the hull is seen from above, so the camera lies on the +up side.
+    # In camera coordinates the viewer sits at the origin looking down +Z, so
+    # the visible surface's normals carry the sign even though their mean is a
+    # poor direction estimate. Fall back to "points away from the cloud
+    # centroid's viewing direction" when normals are absent.
     if normals is not None and len(normals):
-        mean = normals.mean(axis=0)
-        return mean / np.linalg.norm(mean)
-    raise ValueError("no camera fit and no normals: up vector is undetermined")
+        reference = -np.asarray(normals, dtype=float).mean(axis=0)
+    else:
+        reference = -points.mean(axis=0)
+    if float(up @ reference) < 0:
+        up = -up
+    return up
 
 
 def project(points: np.ndarray, up: np.ndarray) -> np.ndarray:
@@ -1945,8 +2062,9 @@ git commit -m "feat(footprint): stage 6 ground projection and alpha shape"
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_profile.py
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
 
 import numpy as np
 from shapely.geometry import Polygon
@@ -2125,8 +2243,9 @@ hard assertion there would fail for reasons unrelated to this code.
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_endtoend.py -v -s
 """
 
-import importlib.util
-import os
+import importlib
+import pathlib
+import sys
 
 import numpy as np
 import pytest
@@ -2328,10 +2447,12 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
 
     if iou < gate.IOU_FLOOR:
         return {"id": ship_id, "status": "failed_silhouette_gate", "quality": quality}
-    if fit.confidence <= camera.CONFIDENCE_FLOOR and fit.source == "auto":
-        return {"id": ship_id, "status": "needs_clicks", "quality": quality}
 
-    up = ground.up_vector(fit, sym, cloud.normals)
+    # No needs_clicks branch: stage 2 is a cross-check, not a gate (REVISED
+    # 2026-07-29 — see Global Constraints). The frame comes from the recovered
+    # geometry, so a low camera confidence no longer excludes a ship. Where the
+    # fit IS confident, up_vector logs the agreement; it never overrides.
+    up = ground.up_vector(sym, full, cloud.normals, fit=fit)
     poly = ground.run(ship_id, full, up, alpha)
     sym_xy = ground.project(sym.normal[None, :], up)[0]
     data = profile.run(ship_id, poly, sym_xy, quality)
@@ -2346,8 +2467,9 @@ def _pick_alpha(heroes, background):
     clouds = []
     for ship_id, path in heroes.items():
         _, _, _, fit, cloud, sym = _stage_1_to_4(ship_id, path, background)
-        up = ground.up_vector(fit, sym, cloud.normals)
-        clouds.append(ground.project(mirror.complete(cloud.points, sym), up))
+        full = mirror.complete(cloud.points, sym)
+        up = ground.up_vector(sym, full, cloud.normals, fit=fit)
+        clouds.append(ground.project(full, up))
     return ground.sweep_alpha(clouds)
 
 
@@ -2412,7 +2534,7 @@ git commit -m "feat(footprint): batch driver and end-to-end validation"
 
 ## Self-Review
 
-**Spec coverage.** All seven stages have a task. The batch-pinned alpha is Task 7 `sweep_alpha` plus `run._pick_alpha`. The separate venv is Task 1 Step 1. The stage 2 gate on stage 3 is enforced in `run.process` via the `needs_clicks` status. Stage 5 exclusion is `run.process` returning `failed_silhouette_gate` and the report separating it from `ok`. Alpha shape over convex hull is Task 7, with a test that fails on a convex hull. Scale **and** shift is `mirror.solve`'s `refine_affine` path with its own no-op test. The synthetic end-to-end test is Task 9. The `disc+beam` gap needs no code — no local art matches those ships, so `resolve_heroes` will not return them.
+**Spec coverage.** All seven stages have a task. The batch-pinned alpha is Task 7 `sweep_alpha` plus `run._pick_alpha`. The separate venv is Task 1 Step 1. Stage 2 is a cross-check rather than a gate (revised 2026-07-29): `run.process` has no `needs_clicks` branch, and the reference frame comes from `ground.up_vector`'s geometric derivation, which is covered by three tests in Task 7 including one asserting a confident-but-wrong camera fit does not override it. Stage 5 exclusion is `run.process` returning `failed_silhouette_gate` and the report separating it from `ok`. Alpha shape over convex hull is Task 7, with a test that fails on a convex hull. Scale **and** shift is `mirror.solve`'s `refine_affine` path with its own no-op test. The synthetic end-to-end test is Task 9. The `disc+beam` gap needs no code — no local art matches those ships, so `resolve_heroes` will not return them.
 
 **Two spec items are deliberately not in this plan**, because they belong to the consuming half: the `Merge` fix, and grading against inferred glyphs. This plan ends at `profile.json`.
 

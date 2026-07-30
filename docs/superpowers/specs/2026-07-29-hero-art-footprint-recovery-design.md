@@ -104,9 +104,39 @@ stage is re-runnable without repeating the ones before it.
 | 6 | Orthographic projection to the ground plane, alpha shape | `footprint.json` polygon |
 | 7 | Canonicalise and sample | `profile.json`: `w(t)`, per-station concavity flag |
 
-**Stage 2 gates stage 3.** A low-confidence vanishing-point fit sends that
-ship to the hand-clicked fallback. It never silently inherits an assumed
-camera.
+**Stage 2 is a cross-check, not a gate.** *(Revised 2026-07-29, after
+measurement. The original design made a low-confidence vanishing-point fit
+route the ship to a hand-clicked fallback.)*
+
+Measured on the 14 keyable hero images with a resolution-invariant,
+null-normalised confidence, only one — `ledger` — supports a trustworthy
+three-vanishing-point fit. The cause is a property of the art, not of the
+estimator: on most of these renders the weak axes' vanishing points sit 25–57
+image diagonals from the principal point with 0–2 supporting segments, i.e.
+effectively at infinity, so the render is two-point-perspective or
+near-orthographic in one axis. Several hulls are curved and carry few straight
+structural lines at all. Raising the search budget 15× changes nothing (1/14 at
+2000, 8000 and 30000 RANSAC iterations; the one passing ship plateaus at 0.057).
+Hand-clicking three line pairs per ship does not scale to 335.
+
+**The reference frame therefore comes from the recovered geometry, not the
+camera.** The hull's own axes are already available downstream of stage 4:
+
+- lateral axis = the symmetry-plane normal from stage 4
+- longitudinal axis = the principal axis of the cloud *within* that plane
+- up = lateral × longitudinal
+
+This assumes no camera; it measures the hull frame from recovered 3D geometry,
+which keeps the original intent — nothing silently inherits an assumed
+viewpoint. Where stage 2 *is* confident, its rotation is compared against the
+geometric frame and the agreement logged. Disagreement is recorded, never
+averaged.
+
+Two consequences worth stating plainly. First, the original constraint had no
+implementation path in any case: stage 3 takes no camera input, so stage 2
+could never have gated it — the gate only ever decided whether a ship was
+skipped outright. Second, stage 2's focal length is consumed by nothing; the
+stage 5 reprojection uses MoGe's intrinsics.
 
 **Stage 3 input is an open question**, to be settled on two or three images
 before the batch runs: whether MoGe performs better on the raw magenta image
