@@ -2013,11 +2013,29 @@ back surface.
 def _hull_surface(n=60000, a=2.0, b=1.0, c=0.6, seed=0):
     """Points ON a hull surface, with outward normals. Symmetry plane: y=0.
 
-    An ellipsoid rather than the tapered `_symmetric_hull`, because we need
-    analytic outward normals to cull back faces, and because the taper is not
-    what this test is about — the plane search is. Its symmetry about x and z is
-    harmless here: this test asserts the recovered axis against a known answer
-    rather than relying on the axis being unique.
+    **CORRECTED 2026-07-30 — a plain ellipsoid is DEGENERATE here and would have
+    failed a correct solver.** The draft above dismissed its symmetry about x and
+    z as "harmless". It is not: a plain ellipsoid's z=0 plane scores
+    `inside_fraction` 0.9981 against the true y=0 plane's 0.9980, while clearing
+    the depth floor — so a rival plane 90 degrees from the truth WINS the
+    objective, and the fixture rejects a correct answer. This is the fourth
+    fixture in this plan to fail that way, after Task 5's Z-symmetric lopsided
+    hull, Task 6's 30x-too-sparse cloud, and Task 6b's solid-volume sheet. The
+    pattern is identical every time: the fixture was too clean and too symmetric,
+    not the assertion careless.
+
+    Deform the hull evenly in x — a keel and a waist — so that z=0 is broken while
+    x=0 remains an exact symmetry plane. The taper is not decoration; it is what
+    makes the answer unique.
+
+    Two further corrections measured while fixing this:
+      - The true plane's offset is `n·t` (the camera translation), NOT
+        `n·centroid`. Using the centroid costs 0.07 of silhouette agreement and
+        halves the depth separation.
+      - The canonical tangential fold is ANALYTIC on this fixture — reflection
+        across world x=0 fixes the camera position — so no seeded 600-plane
+        search and no hardcoded normal are needed here. Prefer the analytic form
+        where the geometry supplies one.
     """
     rng = np.random.default_rng(seed)
     v = rng.normal(size=(n, 3))
