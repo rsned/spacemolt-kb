@@ -12,6 +12,7 @@ reconstruction failures. Failures are listed, never averaged in.
 
 import argparse
 import json
+import logging
 import re
 import sys
 
@@ -19,6 +20,8 @@ import cv2
 import numpy as np
 
 from . import camera, gate, ground, matte, mirror, paths, pointmap, profile
+
+logger = logging.getLogger(__name__)
 
 CATALOG = "/home/robert/spacemolt/spacemolt/data/game-api/latest/catalog_ships.json"
 _FACTION_PREFIX = re.compile(r"^(crimson|nebula|solarian|outerrim|voidborn|pirate)_")
@@ -128,15 +131,72 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
     return data
 
 
+def _ship_ground_xy(ship_id, path, background):
+    """One ship's contribution to the alpha sweep: its completed cloud, ground-projected.
+
+    Factored out of `_pick_alpha` so the per-ship isolation below has a single
+    seam to catch around, and so a test can monkeypatch this one function
+    instead of faking a whole Cloud/Symmetry/Fit chain.
+    """
+    _, _, _, fit, cloud, sym = _stage_1_to_4(ship_id, path, background)
+    full = mirror.complete(cloud.points, sym)
+    up = ground.up_vector(sym, full, cloud.normals, fit=fit)
+    return ground.project(full, up)
+
+
 def _pick_alpha(heroes, background):
-    """One alpha for the batch, from the clouds themselves."""
+    """One alpha for the batch, from the clouds themselves.
+
+    A ship whose stages 1-4 raise (e.g. a hero image that fails to load, or a
+    degenerate reconstruction) is skipped here rather than aborting the whole
+    sweep -- see task-9 fix round 1: the batch is meant to scale from 19 to
+    335 ships, and one bad image must not cost every other ship its alpha.
+    `process()` (called separately, per ship, below) is what records that
+    ship as a failure; this function only needs SOME clouds to pick a batch
+    alpha from.
+
+    If EVERY ship fails, `clouds` is empty and `ground.sweep_alpha` would
+    silently return `min(ALPHA_CANDIDATES)` -- a real-looking number with no
+    evidence behind it -- so that case raises instead of returning one.
+    """
     clouds = []
     for ship_id, path in heroes.items():
-        _, _, _, fit, cloud, sym = _stage_1_to_4(ship_id, path, background)
-        full = mirror.complete(cloud.points, sym)
-        up = ground.up_vector(sym, full, cloud.normals, fit=fit)
-        clouds.append(ground.project(full, up))
+        try:
+            clouds.append(_ship_ground_xy(ship_id, path, background))
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as e:
+            logger.warning("ship %s raised during the alpha sweep, skipping it: %s: %s",
+                           ship_id, type(e).__name__, e)
+    if not clouds:
+        raise RuntimeError(
+            "every ship failed stages 1-4; cannot pick a batch alpha from zero clouds")
     return ground.sweep_alpha(clouds)
+
+
+def _run_batch(heroes, alpha, background):
+    """Process every ship, isolating a per-ship exception from the rest of the batch.
+
+    `process()` can raise -- e.g. `profile.canonicalise`'s
+    ValueError("degenerate footprint...") on a real reconstruction whose hull
+    axis collapses -- and an uncaught exception on ship N would previously
+    lose ships 1..N-1's already-computed results too (report.json is written
+    once, at the end, from the full `results` list). See task-9 fix round 1.
+    A per-ship exception is recorded as `failed_exception` and the batch
+    continues; only KeyboardInterrupt/SystemExit propagate.
+    """
+    results = []
+    for ship_id, path in heroes.items():
+        try:
+            results.append(process(ship_id, path, alpha, background))
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as e:
+            logger.warning("ship %s raised during processing: %s: %s",
+                           ship_id, type(e).__name__, e)
+            results.append({"id": ship_id, "status": "failed_exception", "quality": {},
+                            "reason": f"{type(e).__name__}: {e}"})
+    return results
 
 
 def main():
@@ -158,14 +218,21 @@ def main():
     alpha = args.alpha if args.alpha else _pick_alpha(heroes, args.background)
     print(f"batch alpha = {alpha}")
 
-    results = [process(i, p, alpha, args.background) for i, p in heroes.items()]
+    results = _run_batch(heroes, alpha, args.background)
     ok = [r for r in results if r["status"].startswith("ok")]
     print(f"\nrecovered {len(ok)} / {len(results)}")
     for r in results:
         if not r["status"].startswith("ok"):
+            # .get(), not r["quality"][...]: a failed_exception record's
+            # `quality` is empty (the stage that would have filled it in is
+            # exactly what raised), so this must not itself raise while
+            # reporting a failure.
+            q = r.get("quality", {})
+            iou = q.get("silhouette_iou")
+            conf = q.get("camera_confidence")
             print(f"  {r['id']:22s} {r['status']:26s} "
-                  f"iou={r['quality']['silhouette_iou']:.2f} "
-                  f"conf={r['quality']['camera_confidence']:.2f}")
+                  f"iou={'n/a' if iou is None else f'{iou:.2f}'} "
+                  f"conf={'n/a' if conf is None else f'{conf:.2f}'}")
 
     with open(args.report, "w") as f:
         json.dump({"alpha": alpha, "background": args.background,

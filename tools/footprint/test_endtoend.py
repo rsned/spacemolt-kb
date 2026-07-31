@@ -28,6 +28,7 @@ synth = _load("synth")
 mirror = _load("mirror")
 ground = _load("ground")
 profile = _load("profile")
+run = _load("run")
 
 # Match test_pointmap.py exactly. Do NOT write the guard as
 # `pytest.mark.skipif(not __import__("importlib").util.find_spec("torch"), ...)`:
@@ -150,3 +151,71 @@ def test_moge_clears_a_floor_on_real_hero_art():
     ext = float(np.linalg.norm(cloud.points.max(0) - cloud.points.min(0)))
     gain = float(np.linalg.norm(full.max(0) - full.min(0))) / ext
     assert gain > 1.15, f"completion added almost nothing ({gain:.3f}x): plane folded"
+
+
+# --- Task 9 fix round 1: a single ship must not be able to kill the batch ---
+#
+# `run.process` can raise -- most concretely `profile.canonicalise`'s
+# ValueError("degenerate footprint...") on a real reconstruction whose hull
+# axis collapses, a plausible outcome scaling from 19 to 335 ships -- and
+# `main()`'s original list comprehension over every ship had no exception
+# handling at all, so one bad ship on the tail end of a long batch would
+# lose every earlier ship's already-computed result (report.json is written
+# once, from the full list, at the very end). These tests exercise the seam
+# directly (`_run_batch` / `_pick_alpha`'s per-ship helper `_ship_ground_xy`)
+# rather than the real pipeline, so they need neither CUDA nor real hero art.
+
+def test_batch_isolates_a_per_ship_exception(monkeypatch):
+    def fake_process(ship_id, image_path, alpha, background):
+        if ship_id == "bad_ship":
+            raise ValueError("degenerate footprint: zero length along the hull axis")
+        return {"id": ship_id, "status": "ok", "quality": {}}
+
+    monkeypatch.setattr(run, "process", fake_process)
+    heroes = {"good_one": pathlib.Path("a.webp"), "bad_ship": pathlib.Path("b.webp"),
+              "good_two": pathlib.Path("c.webp")}
+
+    results = run._run_batch(heroes, alpha=3.0, background="neutral")
+
+    by_id = {r["id"]: r for r in results}
+    assert len(results) == 3, "the two good ships' results must survive the bad one"
+    assert by_id["good_one"]["status"] == "ok"
+    assert by_id["good_two"]["status"] == "ok"
+    assert by_id["bad_ship"]["status"] == "failed_exception"
+    assert "degenerate footprint" in by_id["bad_ship"]["reason"]
+
+
+def test_batch_does_not_swallow_keyboard_interrupt(monkeypatch):
+    def fake_process(ship_id, image_path, alpha, background):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(run, "process", fake_process)
+    with pytest.raises(KeyboardInterrupt):
+        run._run_batch({"any_ship": pathlib.Path("a.webp")}, alpha=3.0, background="neutral")
+
+
+def test_pick_alpha_skips_a_ship_whose_stages_raise(monkeypatch):
+    def fake_ground_xy(ship_id, path, background):
+        if ship_id == "bad_ship":
+            raise ValueError("boom")
+        return np.zeros((10, 2))
+
+    seen = []
+    monkeypatch.setattr(run, "_ship_ground_xy", fake_ground_xy)
+    monkeypatch.setattr(run.ground, "sweep_alpha", lambda clouds: seen.append(len(clouds)) or 7.0)
+
+    heroes = {"good_one": pathlib.Path("a.webp"), "bad_ship": pathlib.Path("b.webp"),
+              "good_two": pathlib.Path("c.webp")}
+    alpha = run._pick_alpha(heroes, "neutral")
+
+    assert alpha == 7.0
+    assert seen == [2], "sweep_alpha must only see the two ships that didn't raise"
+
+
+def test_pick_alpha_raises_when_every_ship_fails(monkeypatch):
+    def always_raises(ship_id, path, background):
+        raise ValueError("boom")
+
+    monkeypatch.setattr(run, "_ship_ground_xy", always_raises)
+    with pytest.raises(RuntimeError, match="every ship failed"):
+        run._pick_alpha({"bad_one": pathlib.Path("a.webp")}, "neutral")
