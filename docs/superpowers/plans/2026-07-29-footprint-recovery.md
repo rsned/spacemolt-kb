@@ -3250,9 +3250,27 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
     up = ground.up_vector(sym, full, cloud.normals, fit=fit)
     poly = ground.run(ship_id, full, up, alpha)
     sym_xy = ground.project(sym.normal[None, :], up)[0]
-    data = profile.run(ship_id, poly, sym_xy, quality)
+
+    # depth_extent is in hull-length units — the units profile.implausible's
+    # own tests use (beam comes from a footprint canonicalised to length == 1),
+    # so the raw up-axis extent must be divided by the footprint's raw length.
+    # Length is the POLYGON's extent along the longitudinal axis — the same
+    # measure canonicalise normalises by — not the raw point extent:
+    # ground.hull drops speck parts, and a dropped speck must not change the
+    # denominator. (AMENDED 2026-07-31: the previous draft never passed
+    # depth_extent at all, which left dimensional_pass True for every real
+    # ship — the exact silent publish Task 8 says this check exists to
+    # prevent — and never read dimensional_pass into status.)
+    axis = np.array([-sym_xy[1], sym_xy[0]])
+    axis /= np.linalg.norm(axis)
+    geoms = poly.geoms if hasattr(poly, "geoms") else [poly]
+    along = np.concatenate([np.array(g.exterior.coords) @ axis for g in geoms])
+    depth_extent = float(np.ptp(full @ up)) / float(along.max() - along.min())
+    data = profile.run(ship_id, poly, sym_xy, quality, depth_extent=depth_extent)
     data["status"] = "ok"
-    if sym.residual > mirror.RESIDUAL_CEILING:
+    if not data["dimensional_pass"]:
+        data["status"] = "failed_dimensional_check"
+    elif sym.residual > mirror.RESIDUAL_CEILING:
         data["status"] = "ok_asymmetric"
     return data
 
@@ -3329,7 +3347,7 @@ git commit -m "feat(footprint): batch driver and end-to-end validation"
 
 ## Self-Review
 
-**Spec coverage.** All seven stages have a task. The batch-pinned alpha is Task 7 `sweep_alpha` plus `run._pick_alpha`. The separate venv is Task 1 Step 1. Stage 2 is a cross-check rather than a gate (revised 2026-07-29): `run.process` has no `needs_clicks` branch, and the reference frame comes from `ground.up_vector`'s geometric derivation, which is covered by three tests in Task 7 including one asserting a confident-but-wrong camera fit does not override it. Stage 5 exclusion is `run.process` returning `failed_silhouette_gate` and the report separating it from `ok`. Alpha shape over convex hull is Task 7, with a test that fails on a convex hull. Scale **and** shift is `mirror.solve`'s `refine_affine` path with its own no-op test, paired with a recovery test on a known depth squash (the no-op assertion alone passes with `scale` hardcoded to 1.0). The stage 4 plane search on real one-view clouds is Task 6b's `solve_from_view`, built after Task 6 because it scores against `gate.reproject`; `mirror.solve` remains the two-sided path and is what the synthetic ground-truth chain exercises. The synthetic end-to-end test is Task 9. The `disc+beam` gap needs no code — no local art matches those ships, so `resolve_heroes` will not return them.
+**Spec coverage.** All seven stages have a task. The batch-pinned alpha is Task 7 `sweep_alpha` plus `run._pick_alpha`. The separate venv is Task 1 Step 1. Stage 2 is a cross-check rather than a gate (revised 2026-07-29): `run.process` has no `needs_clicks` branch, and the reference frame comes from `ground.up_vector`'s geometric derivation, which is covered by three tests in Task 7 including one asserting a confident-but-wrong camera fit does not override it. Stage 5 exclusion is `run.process` returning `failed_silhouette_gate` and the report separating it from `ok`. Alpha shape over convex hull is Task 7, with a test that fails on a convex hull. Scale is `mirror.solve`'s multi-start scale solve, with a recovery test on a known depth squash; shift was NOT delivered — `solve_from_view(refine_affine=True)` raises NotImplementedError and nothing in this task may request it (Task 6b ruling). What actually catches a scaled or flattened hull in production is stage 7's dimensional check (AMENDED 2026-07-31): `run.process` computes `depth_extent` in hull-length units and passes it to `profile.run`, reads `dimensional_pass` back, and reports `failed_dimensional_check` — excluded from every `ok` aggregate like any other reconstruction failure. The stage 4 plane search on real one-view clouds is Task 6b's `solve_from_view`, built after Task 6 because it scores against `gate.reproject`; `mirror.solve` remains the two-sided path and is what the synthetic ground-truth chain exercises. The synthetic end-to-end test is Task 9. The `disc+beam` gap needs no code — no local art matches those ships, so `resolve_heroes` will not return them.
 
 **Two spec items are deliberately not in this plan**, because they belong to the consuming half: the `Merge` fix, and grading against inferred glyphs. This plan ends at `profile.json`.
 
