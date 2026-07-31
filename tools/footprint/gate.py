@@ -185,45 +185,82 @@ def inside_fraction(points: np.ndarray, intrinsics: np.ndarray, mask: np.ndarray
     return float(hits.sum() / denom)
 
 
-# PROVISIONAL, and re-derived once already — see fix round 2 in
-# task-6-report.md. `mirrored_fraction` ALONE cannot distinguish a correct
-# symmetry plane from a fold: a fold reflects the visible sheet roughly onto
-# itself, so it reprojects inside the matte just as well as the true plane
-# does. Measured directly on a synthetic back-face-culled sheet, reflecting
-# the same visible cloud across various candidate planes through its
-# centroid:
+# PROVISIONAL, and re-derived TWICE on synthetic evidence already (fix
+# rounds 2-3) before this, its third derivation: Task 6b has now produced
+# real solved planes, which is exactly what those earlier derivations said
+# was missing.
+#
+# `mirrored_fraction` ALONE cannot distinguish a correct symmetry plane from
+# a fold: a fold reflects the visible sheet roughly onto itself, so it
+# reprojects inside the matte just as well as the true plane does. Measured
+# directly on a synthetic back-face-culled sheet, reflecting the same
+# visible cloud across various candidate planes through its centroid:
 #
 #   TRUE bilateral plane                inside_fraction 0.998   (real number)
 #   fold, normal along mean view dir     inside_fraction 0.750-0.92+
 #   fold, random normals                 inside_fraction 0.35-0.95
 #
 # Independently reproduced in this codebase (see test_gate.py's fold
-# fixtures): a fold whose normal is tilted only 15 degrees off the mean view
-# direction reads inside_fraction 0.9156 — ABOVE any floor that would still
-# separate it from a genuine 0.998-0.999 true plane, so no value of
-# MIR_FLOOR alone makes this floor sufficient on its own. That same fold
-# reads depth_separation -0.0013 (essentially zero, i.e. the mirrored half
-# sits at the SAME depth as the visible surface, the definition of a fold),
-# where the true plane reads +0.179 to +0.18 (meaningfully behind it) --
-# depth_separation is what actually discriminates, which is why `run()` now
-# refuses to pass without one (see below; see MIN_DEPTH_SEPARATION_FRACTION's
-# comment for why "15 degrees off the mean view direction" needs the exact
-# rotation axis stated to be reproducible, and for a 600-random-plane search
-# on a separate sheet that independently corroborates this specific fold as
-# consistent with the tangential one -- not a proof that it IS the unique
-# minimiser, just that it sits well inside the same degenerate band).
+# fixtures): a plane whose normal is tilted only 15 degrees off the mean
+# view direction reads inside_fraction 0.9156. (This specific candidate was
+# later shown, by directly searching for the true degenerate optimum --
+# see `MIN_DEPTH_SEPARATION_FRACTION` below -- to NOT be the tangential
+# fold itself, just an intermediate wrong plane; the genuine tangential
+# fold reads inside_fraction 0.5698, well below any reasonable floor. The
+# 0.9156 number is kept here as a real, reproducible data point, not as a
+# claim about what it is.) NO value of `MIR_FLOOR` sits above this
+# synthetic fold band (up to 0.92+): this floor is NOT designed to exclude
+# folds -- that is `depth_separation`'s job (see
+# `MIN_DEPTH_SEPARATION_FRACTION` below), and `run()` requires both, even
+# though in every case measured so far `MIR_FLOOR` alone already rejects
+# every fold too (see that constant's comment for the honest accounting of
+# why it is still kept regardless).
 #
-# NO value of `MIR_FLOOR` sits above the fold band: folds have been measured
-# as high as 0.92+ (this module's own 15-degree case above: 0.9156), which
-# is above 0.85 too. This floor is NOT what excludes folds -- that is
-# `depth_separation`'s job (see `MIN_DEPTH_SEPARATION_FRACTION` below), and
-# `run()` requires both. What this floor actually catches is GROSS spill: a
-# plane so wrong its reprojection barely lands on the silhouette at all,
-# e.g. a shifted cloud at 0.161 or an arbitrary random-normal plane at 0.35.
-# It is synthetic-derived, not measured on real solved clouds (there are
-# none yet -- stage 4 currently folds), and Task 6b re-derives it once real
-# solved planes exist.
-MIR_FLOOR = 0.85
+# Measured on FIVE REAL MoGe clouds (Task 6b's `solve_from_view` output),
+# which is the new evidence this revision rests on:
+#
+#   solved planes (5 real ships)      mirrored_fraction 0.9890 - 0.9994
+#   deliberately wrong planes         mirrored_fraction up to 0.9300
+#                                      (`smelter` at offset+1), another at 0.89
+#
+# The two populations do not overlap, but the margin is THIN: 0.96 sits only
+# ~1.03x above the worst wrong plane (0.96/0.9300) and ~1.03x below the
+# weakest solved plane (0.9890/0.96) -- state that honestly rather than
+# presenting 0.96 as well-separated. It also rests on a solver that is right
+# on synthetic fixtures and NOT YET VERIFIED on real art: the recovered
+# normals across those same five ships are still mutually inconsistent (see
+# mirror.py). This is five real ships of evidence, not zero, but still five.
+#
+# This floor is one of THREE checks, and none is sufficient alone:
+#
+#   1. `MIR_FLOOR` (here) -- catches gross spill (a shifted cloud at 0.161,
+#      an arbitrary random-normal plane at 0.35), a MODERATELY wrong real
+#      plane the depth term happens not to catch (offset+1 at 0.93), and --
+#      on every case measured so far -- the tangential fold too (0.57, see
+#      `MIN_DEPTH_SEPARATION_FRACTION` below). Does NOT catch the
+#      receded-plane degeneracy below (that clears fraction at 1.0000).
+#   2. `depth_separation` / `MIN_DEPTH_SEPARATION_FRACTION` -- exists to
+#      catch the tangential fold independently of fraction, but no measured
+#      candidate to date is admitted by check #1 and only rejected by this
+#      one; see its own comment for why it is defensive rather than
+#      demonstrated. Does NOT catch the receded-plane degeneracy either --
+#      a receded plane's depth separation is large and positive (it is
+#      genuinely far from the visible surface, just in the wrong place),
+#      not near zero, so it clears this threshold easily too.
+#   3. A proximity ceiling in mirror.py (mean mirrored-to-visible distance
+#      <= 0.10 of extent, NOT enforced here) -- catches the RECEDED-PLANE
+#      degeneracy Task 6b found in the specified objective: a plane normal
+#      to the view axis, placed behind the hull, recedes the reflection
+#      until `inside_fraction` is EXACTLY 1.0000 -- ABOVE the true plane's
+#      0.998 -- while clearing the depth floor by three orders of
+#      magnitude. This candidate clears BOTH of this module's own checks;
+#      no value of `MIR_FLOOR` rejects a score of 1.0, and no depth
+#      threshold rejects a large, genuinely-positive separation. Only
+#      `mirror.py`'s proximity ceiling catches it -- this module's gate is
+#      not a complete defence by itself.
+#
+# Task 6b re-derives all three once more real solved clouds exist.
+MIR_FLOOR = 0.96
 
 # `depth_separation` is task 6b's discriminating term (mean of mirrored-z
 # minus visible-z at shared reprojected pixels), computed by the caller
@@ -240,54 +277,56 @@ MIR_FLOOR = 0.85
 # imported downhill, so `run()` takes `z_extent` as a parameter rather than
 # computing it (it has no access to the full cloud, only `mirrored`).
 #
-# 0.01 is provisional, and -- like `MIR_FLOOR` -- only excludes the
-# degenerate near-zero-separation fold; it does NOT mean "this plane is
-# right". A wrong-but-not-folded plane can have a LARGER depth separation
-# than the true bilateral plane (confirmed independently: see below), so
-# nothing about clearing this threshold ranks candidates -- maximising
-# `inside_fraction` is what the task 6b SEARCH does for that; this gate only
-# rejects the one specific failure mode inside_fraction cannot see.
+# "N degrees off the mean view direction" (an earlier way of trying to
+# construct a fold, see test_gate.py's `_one_sided_hull_and_fold`) names a
+# 1-parameter FAMILY of planes, not one plane, and does not reliably locate
+# the actual degenerate optimum: this module's own 15-degree case
+# (depth_sep -0.0013, -0.04% of z-extent) turned out NOT to be the
+# tangential fold -- just an intermediate wrong plane that happens to also
+# have a small depth separation. The actual tangential fold was found by
+# searching 800 random planes through a sheet's own centroid for the one
+# that MINIMISES `|depth_separation|` (that minimum, not any fixed angle
+# off the view direction, is the true degenerate optimum):
 #
-# Two independent sweeps of "N degrees off the mean view direction" (this
-# module's own back-face-culled box, see test_gate.py's
-# `_one_sided_hull_and_fold`; a separate hand-built sheet) disagreed at the
-# same nominal angle -- because that phrase names a 1-parameter FAMILY of
-# planes, not one plane: the rotation axis was a free parameter neither
-# sweep pinned down. Resolved by searching for the actual degenerate
-# optimum directly (600 random planes through the visible cloud's centroid,
-# keeping the one that MINIMISES |depth_separation| -- that minimum, not any
-# fixed angle off the view direction, is what a self-consistency objective
-# actually converges to):
+#   candidate                inside_fraction   depth_sep    sep/zext
+#   TRUE bilateral plane           0.9988         0.27349      0.27349
+#   TANGENTIAL fold (min of 800)   0.5698        -0.00007     -0.00007
 #
-#   candidate                            depth_sep    sep/zext   shared px
-#   TRUE bilateral plane                   0.3531      0.29210      5603
-#   TANGENTIAL fold (min |sep| of 600)    -0.0000     -0.00002      3022
+# SAY THIS PLAINLY: `MIN_DEPTH_SEPARATION_FRACTION` is DEFENSIVE, not
+# demonstrated. The tangential fold's own `inside_fraction` (0.5698) fails
+# `MIR_FLOOR` (0.96) on fraction alone -- so does every other fold or wrong
+# plane measured to date, real or synthetic (real wrong planes up to 0.93,
+# this module's own 15-degree case at 0.9156). No measured candidate is
+# currently admitted by `mirrored_fraction >= MIR_FLOOR` and THEN caught by
+# this check -- there is no observed case this constant is the thing doing
+# the rejecting for. It is kept because it is cheap, it is correct on the
+# one case it was designed for (a ~4000x margin below this threshold on the
+# sheet above), and the fold population sampled to date is small -- not
+# because it has caught anything in practice. Nobody should later cite it
+# as proven protection against a case that has actually been observed
+# passing fraction and only fraction.
 #
-# The tangential fold is smaller in |depth_separation| than the true plane
-# by a factor of ~12315x -- decisive, and 3022 shared pixels rules out a
-# small-sample artifact. This module's own -0.0013 (-0.04% of z-extent) at
-# its 15-degree case is consistent with (and independently corroborates)
-# this tangential fold, not a wrong-but-arbitrary rotated plane -- the two
-# sweeps' OTHER angles (0/20/30 degrees on this module's sweep, 0/15/20/30
-# on the other) were never folds at all, just ordinary wrong planes, which
-# is why they read meaningfully positive (+0.85% to +3.73% here; +9.12% to
-# +33.52% on the other sweep) rather than near zero. 0.01 sits comfortably
-# between the tangential fold's ~0.00002 and the true plane's ~0.29 (and
-# above this module's own -0.0004, used by test_gate.py's fold fixture),
-# clearing the actual degenerate case by orders of magnitude while staying a
-# minimal, synthetic-derived check; task 6b re-derives it once real solved
-# clouds exist.
+# It also does NOT catch the receded-plane degeneracy (see `MIR_FLOOR`'s
+# comment): that candidate's depth separation is large and positive --
+# genuinely far from the visible surface, just in the wrong place, not a
+# fold -- so it clears this threshold easily too; only `mirror.py`'s
+# proximity ceiling rejects it.
 #
-# What clearing this threshold does NOT mean: "this plane is right". A
-# wrong-but-not-folded plane can have a LARGER depth separation than the
-# true bilateral plane (the 30-degree candidate on the other sweep: 0.335 of
-# z-extent, vs the true plane's 0.292) and would clear any fraction
-# threshold comfortably. Only `inside_fraction`, maximised by the task 6b
-# SEARCH (not this gate), identifies the correct plane -- this constant
-# exists solely to exclude the one degenerate optimum inside_fraction cannot
-# see, and must never be folded into a weighted sum with it: that would let
-# a large depth separation buy a worse silhouette fit, which is exactly what
-# the 30-degree candidate would do.
+# Clearing this threshold does NOT mean "this plane is right", regardless
+# of the above: a wrong-but-not-folded plane can have a LARGER depth
+# separation than the true bilateral plane (a 30-degree-off-view-direction
+# candidate on an earlier sweep: 0.335 of z-extent, vs. the true plane's
+# 0.292) and would clear any fraction threshold comfortably. Only
+# `inside_fraction`, maximised by the task 6b SEARCH (not this gate),
+# identifies the correct plane -- this constant exists solely to exclude
+# the one degenerate optimum inside_fraction cannot see, and must never be
+# folded into a weighted sum with it: that would let a large depth
+# separation buy a worse silhouette fit, which is exactly what the
+# 30-degree candidate would do.
+#
+# 0.01 sits far below the tangential fold's ~0.00007 in relative terms
+# while remaining a minimal, synthetic-derived check; task 6b re-derives it
+# once more real solved clouds exist.
 MIN_DEPTH_SEPARATION_FRACTION = 0.01
 
 

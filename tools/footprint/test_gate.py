@@ -108,10 +108,21 @@ def _depth_separation(visible_cam, candidate_cam, K, shape):
 
 def _one_sided_hull_and_fold(seed=0):
     """A back-face-culled ("visible-only") synthetic hull, its TRUE bilateral
-    mirror, and a FOLD -- a wrong plane whose normal is only 15 degrees off
-    the mean view direction, which is the family of wrong planes a
-    self-consistency objective actually converges to (see the task 6b
+    mirror, and an INTERMEDIATE WRONG PLANE -- a normal only 15 degrees off
+    the mean view direction, from the same family of near-view-direction
+    planes a self-consistency objective converges to (see the task 6b
     brief's rationale for why self-chamfer folds on one-sided input).
+
+    NOTE: despite this function's name and the "fold_*" return values below,
+    this specific plane is now known NOT to be the genuine tangential fold
+    (the actual degenerate optimum): directly searching for the minimum-
+    |depth_separation| plane found the true tangential fold at
+    inside_fraction 0.5698, far below this candidate's 0.9156 (see
+    MIN_DEPTH_SEPARATION_FRACTION's comment in gate.py). This candidate is
+    kept and still named "fold" for continuity with earlier fix rounds, but
+    it is accurately described as an intermediate wrong plane -- one that
+    happens to have a small depth separation without being the true
+    minimiser -- not a confirmed fold.
 
     EXACT construction, stated precisely enough to reproduce independently
     (this matters: an earlier version of this comment said "15 degrees off
@@ -148,13 +159,13 @@ def _one_sided_hull_and_fold(seed=0):
     fold_depth_separation, z_extent), where `z_extent` is
     `visible_cam[:, 2].max() - visible_cam[:, 2].min()` (3.3875 on this
     fixture). Measured on this exact fixture: true plane inside_fraction
-    0.999 / depth_separation +0.1792 (+5.29% of z_extent); fold
-    inside_fraction 0.9156 / depth_separation -0.0013 (-0.04% of z_extent)
-    -- the fold clears MIR_FLOOR (0.85) on fraction alone but sits at
-    essentially zero depth separation (sign flips right around this angle;
-    a full 0/10/15/20/30-degree sweep with the shared-pixel counts checked
-    is in gate.py's MIN_DEPTH_SEPARATION_FRACTION comment), not behind the
-    visible surface.
+    0.999 / depth_separation +0.1792 (+5.29% of z_extent); this intermediate
+    wrong plane inside_fraction 0.9156 / depth_separation -0.0013 (-0.04% of
+    z_extent) -- BELOW MIR_FLOOR (0.96), and also below
+    MIN_DEPTH_SEPARATION_FRACTION * z_extent, so it is now rejected on both
+    terms rather than being a case where fraction alone would admit it (a
+    full 0/10/15/20/30-degree sweep with the shared-pixel counts checked is
+    in gate.py's MIN_DEPTH_SEPARATION_FRACTION comment).
     """
     s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
     verts = s.vertices
@@ -483,47 +494,35 @@ def test_run_passes_a_mirrored_half_consistent_with_the_matte_and_a_real_depth_t
     assert "mirrored_pass_reason" not in result
 
 
-def test_run_rejects_a_fold_that_clears_mirrored_fraction_on_its_own(tmp_path, monkeypatch):
-    """The regression test for fix round 2, and the whole reason the
-    conjunction exists: a fold can clear `MIR_FLOOR` by itself (a fold
-    reflects the visible sheet roughly onto itself, so it reprojects inside
-    the matte just as well as the true plane), and `mirrored_fraction` has no
-    way to tell the difference. `depth_separation` does, because a fold sits
-    at the SAME depth as the visible surface rather than genuinely behind it.
+def test_run_rejects_an_intermediate_wrong_plane_on_both_terms(tmp_path, monkeypatch):
+    """Regression test for what `_one_sided_hull_and_fold`'s 15-degree
+    candidate actually is, now that fix round 5 corrected the record: NOT
+    the genuine tangential fold (directly searching 800 random planes for
+    the minimum-|depth_separation| candidate found the true tangential fold
+    at inside_fraction 0.5698, on a separate sheet -- see gate.py's
+    `MIN_DEPTH_SEPARATION_FRACTION` comment), just an intermediate wrong
+    plane that happens to also have a small depth separation.
 
-    The fold here is built geometrically, not asserted by fiat: reflect a
-    back-face-culled ("visible-only") synthetic hull across a plane through
-    its own centroid, with a normal 15 degrees (about a precisely stated
-    rotation axis -- see `_one_sided_hull_and_fold`'s docstring; "N degrees
-    off the mean view direction" alone underdetermines the plane, and most
-    angles/axes in that family are NOT folds at all, just ordinary wrong
-    planes) off the mean view direction. This specific case is independently
-    corroborated as consistent with the genuine TANGENTIAL fold -- the
-    actual degenerate optimum a self-consistency objective converges to, not
-    an arbitrary wrong plane from the family -- by a 600-random-plane search
-    on a SEPARATE sheet for the minimum-|depth_separation| candidate, which
-    landed at -0.00002 of that sheet's z-extent (vs. that sheet's true plane
-    at +0.29210, a ~12315x margin); this fixture's own -0.0013 (-0.04% of
-    z_extent) is the same signature and sits well inside that degenerate
-    band, though that search does not by itself establish this exact plane
-    as THE minimiser for this hull (see gate.py's
-    `MIN_DEPTH_SEPARATION_FRACTION` comment for the full resolution,
-    including why the OTHER angles in both sweeps read meaningfully positive
-    instead -- they are ordinary wrong planes, not folds). Measured on this
-    exact fixture: `mirrored_fraction` (this fold's
-    own `inside_fraction`) is 0.9156 -- ABOVE `MIR_FLOOR` (0.85) -- while its
-    `depth_separation` is -0.0013, BELOW `MIN_DEPTH_SEPARATION_FRACTION *
-    z_extent`: the mirrored half sits at the same depth as the visible
-    surface, not meaningfully behind it. The true bilateral plane on the
-    SAME visible cloud reads 0.999 / +0.179 (+5.29% of z_extent) for
-    comparison (see the paired passing test above).
+    This candidate's `mirrored_fraction` (0.9156) cleared the OLD
+    `MIR_FLOOR` (0.85) -- which is why an earlier version of this test
+    asserted "the fold WOULD pass on fraction alone" and used that to prove
+    `depth_separation` was necessary. `MIR_FLOOR` was subsequently raised to
+    0.96 on real-cloud evidence, and 0.9156 does NOT clear 0.96: this
+    candidate is now rejected on BOTH terms, not admitted by one and caught
+    by the other. That is not a design regression -- it means this specific
+    real geometric wrong plane no longer serves as an example of "fraction
+    alone would have been fooled" (see
+    `test_run_rejects_a_high_mirrored_fraction_synthetically_paired_with_a
+    _failing_depth_term` below for the test that keeps the depth/z_extent
+    conjunction itself falsifiable, since no currently-measured real or
+    synthetic plane exercises "fraction admits, depth alone catches" -- see
+    gate.py's `MIN_DEPTH_SEPARATION_FRACTION` comment, which says so
+    plainly).
 
-    Confirmed load-bearing by construction: dropping the `depth_separation`
-    check (i.e. gating on `mirrored_fraction >= MIR_FLOOR` alone) would flip
-    this assertion, since 0.9156 clears 0.85 -- this is exactly the
-    `test_run_fails_without_depth_separation_even_with_a_perfect_mirror`
-    scenario, but with a geometrically real fold instead of a perfect mirror
-    standing in for "no depth term available yet".
+    `run()`'s `elif` ordering checks `depth_separation` before
+    `mirrored_fraction`, so the reported reason here names
+    `MIN_DEPTH_SEPARATION_FRACTION`, not `MIR_FLOOR` -- asserted explicitly
+    so a future reordering of the checks is visible here too.
     """
     monkeypatch.setattr(gate.paths, "FOOTPRINT_ROOT", tmp_path)
     visible_cam, _, _, fold_cam, fold_depth_sep, z_extent = _one_sided_hull_and_fold()
@@ -531,12 +530,47 @@ def test_run_rejects_a_fold_that_clears_mirrored_fraction_on_its_own(tmp_path, m
     mask, _ = matte.extract(s.image)
 
     frac = gate.inside_fraction(fold_cam, s.K, mask)
-    assert frac > gate.MIR_FLOOR, frac  # the fold WOULD pass on fraction alone
-    # ...but it is not meaningfully behind the visible surface:
+    assert frac < gate.MIR_FLOOR, frac  # no longer clears fraction alone at 0.96
     assert fold_depth_sep < gate.MIN_DEPTH_SEPARATION_FRACTION * z_extent, (fold_depth_sep, z_extent)
 
-    result = gate.run("ship_fold", visible_cam, fold_cam, s.K, mask,
+    result = gate.run("ship_intermediate_wrong_plane", visible_cam, fold_cam, s.K, mask,
                        depth_separation=fold_depth_sep, z_extent=z_extent)
+    assert result["mirrored_fraction"] < gate.MIR_FLOOR, result
+    assert result["mirrored_pass"] is False
+    assert "MIN_DEPTH_SEPARATION_FRACTION" in result["mirrored_pass_reason"]
+
+
+def test_run_rejects_a_high_mirrored_fraction_synthetically_paired_with_a_failing_depth_term(
+        tmp_path, monkeypatch):
+    """Keeps the depth_separation/z_extent conjunction itself falsifiable,
+    given that gate.py's `MIN_DEPTH_SEPARATION_FRACTION` comment now states
+    plainly that NO measured real or synthetic candidate -- not the
+    intermediate wrong plane above, not the genuine tangential fold
+    (0.5698), not any real wrong plane (up to 0.93) -- is currently admitted
+    by `mirrored_fraction >= MIR_FLOOR` and only then caught by the depth
+    check; every one of them already fails on fraction alone at 0.96.
+
+    So this test does NOT claim to reproduce a naturally occurring
+    geometric case (there isn't one on record). It pairs the TRUE plane's
+    real, geometrically genuine `mirrored_fraction` (which clears
+    `MIR_FLOOR` comfortably) with a `depth_separation` value taken from the
+    intermediate-wrong-plane fixture above -- i.e. a real number, just not
+    one that actually arose from reflecting THIS mirrored cloud -- to prove
+    `run()`'s conjunction logic itself still enforces the depth requirement
+    in code, independent of whether such a plane has ever been observed.
+    This is a test of the gating MECHANISM, not a claim about geometry.
+    """
+    monkeypatch.setattr(gate.paths, "FOOTPRINT_ROOT", tmp_path)
+    visible_cam, true_mirror_cam, _, _, wrong_depth_sep, z_extent = _one_sided_hull_and_fold()
+    s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
+    mask, _ = matte.extract(s.image)
+
+    high_frac = gate.inside_fraction(true_mirror_cam, s.K, mask)
+    assert high_frac > gate.MIR_FLOOR, high_frac  # genuinely clears fraction alone
+    assert wrong_depth_sep < gate.MIN_DEPTH_SEPARATION_FRACTION * z_extent, wrong_depth_sep
+
+    result = gate.run("ship_synthetic_depth_override", visible_cam, true_mirror_cam, s.K, mask,
+                       depth_separation=wrong_depth_sep, z_extent=z_extent)
     assert result["mirrored_fraction"] > gate.MIR_FLOOR, result
     assert result["mirrored_pass"] is False
     assert "MIN_DEPTH_SEPARATION_FRACTION" in result["mirrored_pass_reason"]
