@@ -11,13 +11,16 @@ looks right.
 """
 
 import json
+import logging
 
 import alphashape
 import numpy as np
 import shapely
 from shapely.geometry import MultiPolygon, mapping
 
-from . import paths
+from . import camera, paths
+
+logger = logging.getLogger(__name__)
 
 ALPHA_CANDIDATES = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0, 13.0]
 
@@ -80,15 +83,42 @@ def up_vector(sym, points, normals=None, fit=None) -> np.ndarray:
 
     # Sign: the hull is seen from above, so the camera lies on the +up side.
     # In camera coordinates the viewer sits at the origin looking down +Z, so
-    # the visible surface's normals carry the sign even though their mean is a
-    # poor direction estimate. Fall back to "points away from the cloud
-    # centroid's viewing direction" when normals are absent.
+    # a VISIBLE (front-facing) facet's normal points back toward the camera --
+    # its mean IS the toward-camera direction already, no negation needed.
+    # Without normals, approximate the same toward-camera direction from the
+    # cloud's own position: the points sit away from the camera along the
+    # aggregate view direction, so the toward-camera direction is the
+    # negative of their mean position.
+    #
+    # (This branch previously negated the normals mean too, which points the
+    # reference AWAY from the camera instead -- the opposite of the no-normals
+    # fallback on the same scene. Confirmed empirically: on a cloud offset
+    # away from a camera at the origin with normals pointing back toward it
+    # (satisfying both branches' own stated assumption), the old code gave
+    # dot(with_normals_up, without_normals_up) == -1.0 -- a flipped footprint
+    # on every real ship, since real ships always supply normals. See
+    # `test_up_vector_sign_agrees_between_normals_and_fallback_paths`.)
     if normals is not None and len(normals):
-        reference = -np.asarray(normals, dtype=float).mean(axis=0)
+        reference = np.asarray(normals, dtype=float).mean(axis=0)
     else:
         reference = -points.mean(axis=0)
     if float(up @ reference) < 0:
         up = -up
+
+    if fit is not None and fit.confidence > camera.CONFIDENCE_FLOOR:
+        # Cross-check only, never a selector: `camera.Fit.R`'s rows are world-
+        # axis directions up to an unknown row permutation and per-row sign
+        # (see `camera.Fit`'s own docstring), so there is no single "up row"
+        # to read off -- the best-agreeing row (by |dot|) is whichever axis
+        # the fit's own geometry happens to land closest to this geometric up.
+        # That agreement is logged for later review; it never touches `up`.
+        R = np.asarray(fit.R, dtype=float)
+        agreement = float(np.max(np.abs(R @ up)))
+        logger.info(
+            "up_vector: geometric up vs. confident camera fit "
+            "(confidence=%.3f, source=%s) best-row agreement |dot|=%.3f",
+            fit.confidence, fit.source, agreement)
+
     return up
 
 

@@ -4,6 +4,7 @@ Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_ground.py
 """
 
 import importlib
+import logging
 import pathlib
 import sys
 import types
@@ -21,6 +22,7 @@ def _load(name):
     return importlib.import_module(f"tools.footprint.{name}")
 
 ground = _load("ground")
+camera = _load("camera")
 
 
 def test_projection_drops_the_up_axis():
@@ -104,6 +106,59 @@ def test_up_vector_sign_follows_the_viewer():
     a = ground.up_vector(sym, pts, normals=normals, fit=None)
     b = ground.up_vector(sym, pts, normals=-normals, fit=None)
     assert float(a @ b) < -0.98, (a, b)
+
+
+def test_up_vector_logs_agreement_with_a_confident_fit(caplog):
+    """The plan requires a confident stage-2 fit's agreement with the
+    geometric frame to be LOGGED (never used to steer the answer -- see
+    `up_vector`'s docstring and the module docstring on `mirror.Symmetry`).
+    `test_up_vector_ignores_a_confident_but_wrong_camera_fit` only proves
+    `fit` doesn't override the result, which is trivially true if `fit` is
+    simply unused -- it does not prove the logging side of the contract is
+    implemented at all. This does.
+    """
+    pts, lateral, _ = _hull_cloud()
+    sym = types.SimpleNamespace(normal=lateral, offset=0.0)
+    confident = types.SimpleNamespace(
+        R=np.eye(3), confidence=camera.CONFIDENCE_FLOOR + 0.01, source="auto")
+    with caplog.at_level(logging.INFO, logger="tools.footprint.ground"):
+        ground.up_vector(sym, pts, normals=None, fit=confident)
+    assert any("agreement" in r.getMessage().lower() for r in caplog.records), caplog.records
+
+
+def test_up_vector_is_silent_on_an_unconfident_fit(caplog):
+    """Below stage 2's own confidence floor, `fit.R` is `np.eye(3)` --
+    unrotated filler, not a real measurement (see `camera.fit`'s own floor
+    check). There is nothing worth comparing, so nothing should be logged.
+    """
+    pts, lateral, _ = _hull_cloud()
+    sym = types.SimpleNamespace(normal=lateral, offset=0.0)
+    unconfident = types.SimpleNamespace(
+        R=np.eye(3), confidence=camera.CONFIDENCE_FLOOR - 0.01, source="auto")
+    with caplog.at_level(logging.INFO, logger="tools.footprint.ground"):
+        ground.up_vector(sym, pts, normals=None, fit=unconfident)
+    assert not caplog.records, caplog.records
+
+
+def test_up_vector_sign_agrees_between_normals_and_fallback_paths():
+    """Both sign-resolution paths describe the SAME physical convention --
+    "which side is the toward-camera side" -- and must resolve the same sign
+    on a scene that satisfies both: a cloud offset away from a camera at the
+    origin, with normals pointing back toward it (viewer-facing, as any real
+    visible surface's normals do). Real ships always supply normals, so if
+    the two paths disagreed, this fixture's own no-normals fallback path
+    (exercised by the other tests in this file) would be silently inverted
+    relative to what real footprints actually get.
+    """
+    pts, lateral, _ = _hull_cloud()
+    pts = pts + np.array([0.0, 0.0, 20.0])  # offset away from a camera at the origin
+    sym = types.SimpleNamespace(normal=lateral, offset=0.0)
+    direction = pts.mean(axis=0)
+    direction /= np.linalg.norm(direction)
+    normals = np.tile(-direction, (len(pts), 1))  # viewer-facing: back toward the camera
+    with_normals = ground.up_vector(sym, pts, normals=normals, fit=None)
+    without_normals = ground.up_vector(sym, pts, normals=None, fit=None)
+    assert np.allclose(with_normals, without_normals), (with_normals, without_normals)
 
 
 def test_alpha_shape_keeps_a_concavity_a_convex_hull_would_erase():
