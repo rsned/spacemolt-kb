@@ -95,3 +95,58 @@ experiment; both are recorded above for anyone revisiting this decision, not
 as evidence for either setting. Once Tasks 6-8 land, stage 5's reprojection
 IoU and stage 7's footprint error against `synth` ground truth are the
 checkable signals to use instead.
+
+## Results
+
+Batch run: `~/moge-venv/bin/python -m tools.footprint.run --all`, batch alpha
+`13.0` (the tightest alpha in `ground.ALPHA_CANDIDATES` that still kept 90% of
+every cloud's own points — `run._pick_alpha`/`ground.sweep_alpha`), background
+`neutral` (the setting recorded above under Background handling).
+
+**14 of 19 hero images recovered.** All 14 landed as `ok_asymmetric`, not
+plain `ok`: `mirror.RESIDUAL_CEILING` (0.013) was calibrated on a two-sided
+synthetic cloud, and every real one-view cloud's `mirror_residual` in this
+batch falls in 0.022-0.100 — consistent with `mirror.py`'s own documented
+measurement that partial one-view coverage alone puts real clouds at or above
+that ceiling with no actual asymmetry required. `ok_asymmetric` here is an
+artifact of the residual ceiling being tuned for a different regime, not
+evidence these 14 hulls are lopsided.
+
+Recovered: comet, excessive_force, ledger, liquidity_event, magnate,
+premiere, principia, rapid_smelter, reliquary, smelter, superposition,
+thermodynamic_end, war_wagon, yard_sale.
+
+**5 did not recover:**
+
+| id | status | reason |
+|----|--------|--------|
+| bonanza | `failed_silhouette_gate` | `mirrored_fraction=0.9448` below `gate.MIR_FLOOR=0.96` — the guessed symmetry plane's mirrored half does not land inside bonanza's own silhouette closely enough to trust |
+| crowbar | `failed_dimensional_check` | aspect 0.98 below `profile.ASPECT_BOUNDS`'s floor of 1.2 — reads as too stubby to be a hull |
+| last_warning | `failed_dimensional_check` | aspect 1.00 below 1.2 — same failure mode as crowbar |
+| paradox | `failed_dimensional_check` | aspect 0.51 below 1.2 |
+| prayer | `failed_dimensional_check` | aspect 0.59 below 1.2 |
+
+All four dimensional failures score well on every other quality signal
+(silhouette IoU 0.98-0.99, mirrored_fraction 0.98-1.00) — the aspect-bound
+gate is catching something the silhouette and mirror checks are structurally
+blind to (`uv = K.p / p_z` is invariant under any positive per-point depth
+scale, so a flattened or foreshortened reconstruction reprojects identically
+to a correct one; see `profile.py`'s comment on `ASPECT_BOUNDS`). Whether
+these four are genuine reconstruction failures (an over-flattened one-view
+cloud) or ships whose true footprint is legitimately closer to square than
+`ASPECT_BOUNDS`'s 1.2 floor assumes is not settled by this run — that
+determination is for the consuming half of the plan, which has ground-truth
+glyphs to check against. `prayer` (outerrim_prayer) is notable here: it is
+the ship named throughout `mirror.py`'s and this file's own calibration notes
+as a well-behaved case on every other axis, so its dimensional failure is
+worth a first look there.
+
+`bonanza`'s failure is the only stage-5 exclusion in this batch; nothing
+required the click fallback. `camera_confidence` clears
+`camera.CONFIDENCE_FLOOR` (0.05) for only 2 of the 19 (`bonanza` 0.064,
+`ledger` 0.057) — the other 17 sit at 0.03 or lower, matching the plan's own
+finding that only a small minority of keyable hero images produce a confident
+vanishing-point fit. `ground.up_vector`'s Task 9 revision means it did not
+matter either way: stage 2 is a cross-check logged for agreement, not a gate,
+so no ship in this batch was excluded or overridden on camera confidence —
+`bonanza` failed on the silhouette gate, not the camera fit.
