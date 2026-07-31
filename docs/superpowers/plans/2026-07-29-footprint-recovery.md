@@ -3234,14 +3234,29 @@ def _stage_1_to_4(ship_id, image_path, background):
 def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
     img, mask, frac, fit, cloud, sym = _stage_1_to_4(ship_id, image_path, background)
 
+    # AMENDED 2026-07-31: this call was written against the pre-Task-6 gate
+    # (union-IoU verdict, merged-cloud argument) and threw TypeError against
+    # the real signature. The verdict is `mirrored_pass` — union IoU was
+    # demoted to a diagnostic in Task 6 ("union IoU is provably blind") — and
+    # gate.run takes the visible and mirrored halves separately, plus the
+    # depth term it treats as an automatic fail when missing. z_extent is the
+    # VISIBLE one-view cloud's z-range, the same convention test_gate.py's
+    # fixtures define. Do not slice the mirrored half out of `full` by faith:
+    # verify mirror.complete's ordering, or obtain it from mirror's own API.
     full = mirror.complete(cloud.points, sym)
-    iou = gate.run(ship_id, full, cloud.intrinsics, mask)
-    quality = {"silhouette_iou": iou, "mirror_residual": sym.residual,
+    mirrored = full[len(cloud.points):]  # verify ordering against mirror.complete
+    z_extent = float(cloud.points[:, 2].max() - cloud.points[:, 2].min())
+    gate_result = gate.run(ship_id, cloud.points, mirrored, cloud.intrinsics, mask,
+                           depth_separation=sym.depth_separation, z_extent=z_extent)
+    quality = {"silhouette_iou": gate_result["silhouette_iou"],
+               "mirrored_fraction": gate_result["mirrored_fraction"],
+               "mirror_residual": sym.residual,
                "camera_confidence": fit.confidence, "camera_source": fit.source,
                "foreground_fraction": frac, "alpha": alpha}
 
-    if iou < gate.IOU_FLOOR:
-        return {"id": ship_id, "status": "failed_silhouette_gate", "quality": quality}
+    if not gate_result["mirrored_pass"]:
+        return {"id": ship_id, "status": "failed_silhouette_gate",
+                "reason": gate_result.get("mirrored_pass_reason"), "quality": quality}
 
     # No needs_clicks branch: stage 2 is a cross-check, not a gate (REVISED
     # 2026-07-29 — see Global Constraints). The frame comes from the recovered
