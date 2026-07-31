@@ -291,9 +291,18 @@ footprint is disjoint are flagged.
 The alpha radius is pinned once per batch, not tuned per ship. A per-ship
 alpha is a free parameter that can be turned until any footprint looks
 right, which would make the grading meaningless. It is chosen by sweeping a
-small range across all recovered clouds and taking the value that maximises
-mean stage 5 silhouette IoU, and the chosen value is recorded with the
-results.
+small range across all recovered clouds and taking the smallest value that
+retains at least 90% of every cloud's projected points, and the chosen value
+is recorded with the results.
+
+*(Revised 2026-07-31, user ruling.)* The original criterion here —
+"maximises mean stage 5 silhouette IoU" — was degenerate as written: stage 5
+reprojects the resolved cloud, which is fixed before alpha exists, and stage
+6 never feeds back into it, so that IoU is constant in alpha and "maximise"
+selects nothing. A faithful reinterpretation (alpha-shaping the reprojected
+cloud in the image plane against the matte, with an explicit pixel→metric
+scale transfer) was considered and declined in favour of the simpler
+point-retention criterion above.
 
 ### Environment
 
