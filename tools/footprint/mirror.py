@@ -124,6 +124,25 @@ from . import gate, paths, pointmap
 RESIDUAL_CEILING = 0.013
 _SUBSAMPLE = 4000
 
+# A floor on `Symmetry.obliquity`, gating the batch driver's stage-4 verdict
+# (`run.process`'s `failed_low_obliquity`), not calibrated fresh here: it is
+# the same 0.3 already documented on `Symmetry.obliquity` above ("below
+# roughly 0.3 the depth term cannot distinguish a fold at all") and in
+# `solve_from_view`'s own module docstring ("Both constraints also lose
+# their margins outside roughly 0.3 <= obliquity <= 0.9"). A near-bow-on view
+# can still clear every check `solve_from_view` runs on itself
+# (`gate.MIR_FLOOR`, the depth floor, the proximity ceiling) while sitting in
+# a regime those checks are independently documented not to discriminate in
+# -- `sym.failure is None` is not the same claim as "trustworthy at this
+# obliquity", and this constant is the difference between the two. Only a
+# floor, not the 0.9 ceiling from the same comment: the populations above
+# ~0.93 overlap on `mirrored_fraction` too (see `gate.MIR_FLOOR`'s comment),
+# but that is the receded-plane degeneracy `_PROXIMITY_CEILING` exists to
+# reject, not a property of high obliquity on its own, and the plan's own
+# language ("a low-obliquity ship is a reconstruction failure") only names
+# the low end.
+OBLIQUITY_FLOOR = 0.3
+
 # Scale multi-starts for `solve`'s affine refinement. A module constant only so
 # a test can construct the all-bounds case (see the guard at the end of
 # `solve`); it is not a knob.

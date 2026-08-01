@@ -10,9 +10,11 @@ Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_endtoend.py -v -s
 import importlib
 import pathlib
 import sys
+import types
 
 import numpy as np
 import pytest
+from shapely.geometry import Polygon
 
 def _load(name):
     """Import a pipeline module through the package.
@@ -219,3 +221,107 @@ def test_pick_alpha_raises_when_every_ship_fails(monkeypatch):
     monkeypatch.setattr(run, "_ship_ground_xy", always_raises)
     with pytest.raises(RuntimeError, match="every ship failed"):
         run._pick_alpha({"bad_one": pathlib.Path("a.webp")}, "neutral")
+
+
+# --- Task 9 final review I1: run._depth_extent was untested -------------
+#
+# run.process's hull-length-unit conversion is the pipeline's ONLY check on
+# scale/depth error (profile.py's own comment on ASPECT_BOUNDS: silhouette
+# IoU is provably invariant to it). It had no coverage of its own until now
+# -- exercised only indirectly by the real batch, where an earlier draft
+# never passed depth_extent at all and nothing caught it (see run.py's
+# AMENDED comment on _depth_extent). These construct known synthetic
+# geometry through the same axis/along/ptp expression `_depth_extent` uses,
+# then check `profile.implausible` sees the units it expects on both sides.
+
+def test_depth_extent_bridges_to_profile_implausible_on_a_healthy_hull():
+    # length 4.0 along x, beam 0.4 (half-width 0.2) -- not length 1.0, so the
+    # "divide by the polygon's raw length" step in _depth_extent is actually
+    # exercised rather than accidentally a no-op.
+    poly = Polygon([(0, -0.2), (4, -0.2), (4, 0.2), (0, 0.2)])
+    sym_xy = np.array([0.0, 1.0])          # axis = [-1, 0]: poly's x-extent is the length
+    up = np.array([0.0, 0.0, 1.0])
+    # Raw z-range 0.5 over raw length 4.0 -> depth_extent 0.125; canonicalised
+    # beam is 0.2/4.0 = 0.05, so half-beam-doubled = 0.1 and depth/beam =
+    # 1.25, comfortably above profile.MIN_DEPTH_TO_BEAM (0.15).
+    full = np.array([[0.0, 0.0, 0.0], [4.0, 0.0, 0.5]])
+
+    depth_extent = run._depth_extent(full, up, poly, sym_xy)
+    assert abs(depth_extent - 0.125) < 1e-9, depth_extent
+
+    canon = profile.canonicalise(poly, sym_xy)
+    w, _ = profile.sample(canon)
+    assert profile.implausible(w, depth_extent) is None
+
+
+def test_depth_extent_bridges_to_profile_implausible_on_a_flat_card():
+    # Same footprint, but a cloud flattened to 1% of its former z-range --
+    # the case silhouette IoU is provably blind to and depth_extent alone
+    # exists to catch.
+    poly = Polygon([(0, -0.2), (4, -0.2), (4, 0.2), (0, 0.2)])
+    sym_xy = np.array([0.0, 1.0])
+    up = np.array([0.0, 0.0, 1.0])
+    full = np.array([[0.0, 0.0, 0.0], [4.0, 0.0, 0.005]])
+
+    depth_extent = run._depth_extent(full, up, poly, sym_xy)
+    assert abs(depth_extent - 0.00125) < 1e-9, depth_extent
+
+    canon = profile.canonicalise(poly, sym_xy)
+    w, _ = profile.sample(canon)
+    reason = profile.implausible(w, depth_extent)
+    assert reason is not None and "flat card" in reason, reason
+
+
+# --- Task 9 final review C1/C2/C3: new gates in run.process --------------
+#
+# Beyond I1's explicit test requirement, these three cover the new early-exit
+# branches directly (the real batch re-run also exercises them on real art,
+# but a monkeypatched unit test pins the routing logic itself rather than
+# relying on which real ships happen to trip each gate this time).
+
+def test_process_skips_moge_for_an_unkeyable_image(monkeypatch, tmp_path):
+    monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
+    monkeypatch.setattr(run, "_stage_1",
+                        lambda ship_id, image_path: ("img", "mask", 0.3, False, 50.9, 67.2))
+
+    def fail_if_called(*a, **k):
+        raise AssertionError("_stage_2_to_4 (camera/MoGe/mirror) must not run "
+                             "on an unkeyable image")
+    monkeypatch.setattr(run, "_stage_2_to_4", fail_if_called)
+
+    result = run.process("scene_ship", pathlib.Path("a.webp"), alpha=3.0, background="neutral")
+    assert result["status"] == "failed_unkeyable"
+    assert result["quality"]["corner_spread"] == 50.9
+    assert "environmental scene render" in result["reason"]
+
+
+def test_process_reports_failed_symmetry_solve_when_sym_failure_is_set(monkeypatch, tmp_path):
+    monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
+    monkeypatch.setattr(run, "_stage_1",
+                        lambda ship_id, image_path: ("img", "mask", 0.3, True, 1.0, 1.0))
+    fit = types.SimpleNamespace(confidence=0.02, source="auto")
+    sym = mirror.Symmetry(normal=np.array([0.0, 0.0, 1.0]), offset=0.0, scale=1.0, shift=0.0,
+                          residual=0.05, depth_separation=0.1,
+                          failure="no candidate plane satisfied both constraints")
+    monkeypatch.setattr(run, "_stage_2_to_4", lambda *a: (fit, None, sym))
+
+    result = run.process("bad_solve_ship", pathlib.Path("a.webp"), alpha=3.0, background="neutral")
+    assert result["status"] == "failed_symmetry_solve"
+    assert result["reason"] == sym.failure
+    assert result["quality"]["obliquity"] == sym.obliquity
+
+
+def test_process_reports_failed_low_obliquity(monkeypatch, tmp_path):
+    monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
+    monkeypatch.setattr(run, "_stage_1",
+                        lambda ship_id, image_path: ("img", "mask", 0.3, True, 1.0, 1.0))
+    fit = types.SimpleNamespace(confidence=0.02, source="auto")
+    # normal mostly in-plane (x), tiny z component -> low obliquity (near bow-on).
+    sym = mirror.Symmetry(normal=np.array([1.0, 0.0, 0.05]), offset=0.0, scale=1.0, shift=0.0,
+                          residual=0.05, depth_separation=0.1, failure=None)
+    assert sym.obliquity < mirror.OBLIQUITY_FLOOR, sym.obliquity
+    monkeypatch.setattr(run, "_stage_2_to_4", lambda *a: (fit, None, sym))
+
+    result = run.process("bow_on_ship", pathlib.Path("a.webp"), alpha=3.0, background="neutral")
+    assert result["status"] == "failed_low_obliquity"
+    assert "obliquity=" in result["reason"]

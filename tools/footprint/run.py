@@ -51,10 +51,25 @@ def resolve_heroes() -> dict:
     return out
 
 
-def _stage_1_to_4(ship_id, image_path, background):
+def _stage_1(ship_id, image_path):
+    """Matte + keyability. Cheap and CPU-only, so this runs -- and can reject
+    an image -- before any MoGe inference is spent on it (task-9 final
+    review C1).
+
+    `matte.run` recomputes `extract()`/`keyability()` a second time
+    internally to do its own file-writing (`matte.png`, `keyability.json`);
+    that's cheap enough here (no GPU, no MoGe) that it isn't worth threading
+    those internals back out of `matte.run` just to avoid the duplicate
+    call.
+    """
     img = cv2.cvtColor(cv2.imread(str(image_path)), cv2.COLOR_BGR2RGB)
     mask, frac = matte.extract(img)
+    is_keyable, corner_spread, border_std = matte.keyability(img)
+    matte.run(ship_id, img)
+    return img, mask, frac, is_keyable, corner_spread, border_std
 
+
+def _stage_2_to_4(ship_id, img, mask, background):
     clicks_path = paths.artifact_dir(ship_id) / "clicks.json"
     clicks = json.loads(clicks_path.read_text()) if clicks_path.exists() else None
     fit = camera.run(ship_id, img, mask, clicks=clicks)
@@ -64,11 +79,94 @@ def _stage_1_to_4(ship_id, image_path, background):
     # which needs the matte and the intrinsics to score silhouette agreement
     # and depth separation.
     sym = mirror.run(ship_id, cloud, mask)
-    return img, mask, frac, fit, cloud, sym
+    return fit, cloud, sym
+
+
+def _fail(ship_id, status, quality, reason):
+    """Build a failure record, and clear any stale profile.json.
+
+    A ship that used to reach stage 7 and now fails earlier (a stricter gate,
+    a worse solve on a re-run) must not leave behind a profile.json this run
+    never wrote -- see task-9 final review I3. `missing_ok=True`: most
+    failing ships never had one.
+    """
+    (paths.artifact_dir(ship_id) / "profile.json").unlink(missing_ok=True)
+    return {"id": ship_id, "status": status, "quality": quality, "reason": reason}
+
+
+def _depth_extent(full, up, poly, sym_xy) -> float:
+    """The completed cloud's up-axis extent, in HULL-LENGTH units.
+
+    Hull-length units because that is what `profile.implausible` and its own
+    tests use (beam comes from a footprint canonicalised to length == 1), so
+    the raw up-axis extent must be divided by the footprint's raw length.
+    Length is the POLYGON's extent along the longitudinal axis -- the same
+    measure `canonicalise` normalises by -- not the raw point extent:
+    `ground.hull` drops speck parts, and a dropped speck must not change the
+    denominator. (AMENDED 2026-07-31: an earlier draft never passed
+    depth_extent at all, which left `dimensional_pass` True for every real
+    ship -- the exact silent publish Task 8 says this check exists to
+    prevent.)
+
+    Factored out of `process()` (task-9 final review I1) so it has its own
+    seam to test with known synthetic geometry -- this expression is the
+    ONLY place a scale or depth error can still be caught (see profile.py's
+    comment on `ASPECT_BOUNDS`), so it needs its own coverage, not just a
+    real-batch smoke test.
+    """
+    axis = np.array([-sym_xy[1], sym_xy[0]])
+    axis /= np.linalg.norm(axis)
+    geoms = poly.geoms if hasattr(poly, "geoms") else [poly]
+    along = np.concatenate([np.array(g.exterior.coords) @ axis for g in geoms])
+    return float(np.ptp(full @ up)) / float(along.max() - along.min())
 
 
 def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
-    img, mask, frac, fit, cloud, sym = _stage_1_to_4(ship_id, image_path, background)
+    img, mask, frac, is_keyable, corner_spread, border_std = _stage_1(ship_id, image_path)
+    if not is_keyable:
+        # Environmental scene renders (a ship in a hall, a cavern, a hangar)
+        # still yield a plausible-looking foreground fraction from a colour-
+        # distance threshold -- matte.extract segments scenery, not the
+        # subject -- so every downstream stage would run on garbage. Caught
+        # here, before MoGe, rather than downstream where it's expensive and
+        # indirect (task-9 final review C1).
+        return _fail(ship_id, "failed_unkeyable",
+                     {"foreground_fraction": frac, "corner_spread": corner_spread,
+                      "border_std": border_std},
+                     f"corner_spread={corner_spread:.2f} (floor "
+                     f"{matte.CORNER_SPREAD_THRESHOLD}) / border_std={border_std:.2f} "
+                     f"(floor {matte.BORDER_STD_THRESHOLD}): background is not a flat "
+                     "chroma key, this looks like an environmental scene render")
+
+    fit, cloud, sym = _stage_2_to_4(ship_id, img, mask, background)
+
+    if sym.failure is not None:
+        # `Symmetry.failure`: "Non-None means DO NOT TRUST this result... a
+        # field rather than an exception because the measured numbers are
+        # worth recording for the failing ship" -- mirror.py's own words.
+        # Never read before this fix (task-9 final review C3): gate.run has
+        # no proximity check of its own, so a proximity-infeasible solve
+        # (the receded-plane degeneracy `mirror._PROXIMITY_CEILING` exists to
+        # reject) could clear `mirrored_pass` anyway and publish as ok.
+        return _fail(ship_id, "failed_symmetry_solve",
+                     {"foreground_fraction": frac, "camera_confidence": fit.confidence,
+                      "camera_source": fit.source, "mirror_residual": sym.residual,
+                      "obliquity": sym.obliquity},
+                     sym.failure)
+
+    if sym.obliquity < mirror.OBLIQUITY_FLOOR:
+        # A near-bow-on view can still clear every check solve_from_view runs
+        # on itself while sitting in a regime those checks are documented not
+        # to discriminate in -- see mirror.OBLIQUITY_FLOOR's comment (task-9
+        # final review C2).
+        return _fail(ship_id, "failed_low_obliquity",
+                     {"foreground_fraction": frac, "camera_confidence": fit.confidence,
+                      "camera_source": fit.source, "mirror_residual": sym.residual,
+                      "obliquity": sym.obliquity},
+                     f"obliquity={sym.obliquity:.3f} is below "
+                     f"mirror.OBLIQUITY_FLOOR={mirror.OBLIQUITY_FLOOR}: near bow-on, "
+                     "where the depth-separation term cannot reliably distinguish a "
+                     "fold from a genuine occluded half")
 
     full = mirror.complete(cloud.points, sym)
     # mirror.complete returns np.vstack([affine(points), reflect(affine(points))])
@@ -92,12 +190,13 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
     quality = {"silhouette_iou": gate_result["silhouette_iou"],
                "mirrored_fraction": gate_result["mirrored_fraction"],
                "mirror_residual": sym.residual,
+               "obliquity": sym.obliquity,
                "camera_confidence": fit.confidence, "camera_source": fit.source,
                "foreground_fraction": frac, "alpha": alpha}
 
     if not gate_result["mirrored_pass"]:
-        return {"id": ship_id, "status": "failed_silhouette_gate", "quality": quality,
-                "reason": gate_result.get("mirrored_pass_reason")}
+        return _fail(ship_id, "failed_silhouette_gate", quality,
+                     gate_result.get("mirrored_pass_reason"))
 
     # No needs_clicks branch: stage 2 is a cross-check, not a gate (REVISED
     # 2026-07-29 — see Global Constraints). The frame comes from the recovered
@@ -107,27 +206,19 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
     poly = ground.run(ship_id, full, up, alpha)
     sym_xy = ground.project(sym.normal[None, :], up)[0]
 
-    # depth_extent is in hull-length units — the units profile.implausible's
-    # own tests use (beam comes from a footprint canonicalised to length == 1),
-    # so the raw up-axis extent must be divided by the footprint's raw length.
-    # Length is the POLYGON's extent along the longitudinal axis — the same
-    # measure canonicalise normalises by — not the raw point extent:
-    # ground.hull drops speck parts, and a dropped speck must not change the
-    # denominator. (AMENDED 2026-07-31: the previous draft never passed
-    # depth_extent at all, which left dimensional_pass True for every real
-    # ship — the exact silent publish Task 8 says this check exists to
-    # prevent — and never read dimensional_pass into status.)
-    axis = np.array([-sym_xy[1], sym_xy[0]])
-    axis /= np.linalg.norm(axis)
-    geoms = poly.geoms if hasattr(poly, "geoms") else [poly]
-    along = np.concatenate([np.array(g.exterior.coords) @ axis for g in geoms])
-    depth_extent = float(np.ptp(full @ up)) / float(along.max() - along.min())
+    depth_extent = _depth_extent(full, up, poly, sym_xy)
     data = profile.run(ship_id, poly, sym_xy, quality, depth_extent=depth_extent)
     data["status"] = "ok"
     if not data["dimensional_pass"]:
         data["status"] = "failed_dimensional_check"
     elif sym.residual > mirror.RESIDUAL_CEILING:
         data["status"] = "ok_asymmetric"
+    # profile.run already wrote profile.json, but WITHOUT `status` -- it is
+    # computed here, after profile.run returns, from fields profile.run does
+    # not itself know the meaning of (RESIDUAL_CEILING is mirror's). Rewrite
+    # the file so a consumer reading profile.json alone (not report.json)
+    # still sees the verdict (task-9 final review I3).
+    (paths.artifact_dir(ship_id) / "profile.json").write_text(json.dumps(data, indent=2))
     return data
 
 
@@ -137,11 +228,24 @@ def _ship_ground_xy(ship_id, path, background):
     Factored out of `_pick_alpha` so the per-ship isolation below has a single
     seam to catch around, and so a test can monkeypatch this one function
     instead of faking a whole Cloud/Symmetry/Fit chain.
+
+    Subsampled before returning (task-9 final review C4): `ground.sweep_alpha`
+    is documented to require ALREADY-SUBSAMPLED clouds ("Pass ALREADY-
+    SUBSAMPLED clouds", ground.py's `sweep_alpha` docstring) because
+    `alphashape`'s cost is superlinear -- a real MoGe cloud completed to both
+    halves is ~800k points, and a single un-subsampled `hull()` call on one
+    did not finish in 5 minutes. Passing raw density also silently invalidates
+    the chosen alpha itself: a value that keeps 90% of an 800k-point cloud is
+    not the same value that keeps 90% of a 20k-point subsample of it, since
+    retention is density-dependent -- so this was picking an alpha on one
+    density and applying it (in `ground.run`, via its own `subsample` call) to
+    another.
     """
-    _, _, _, fit, cloud, sym = _stage_1_to_4(ship_id, path, background)
+    img, mask, _, _, _, _ = _stage_1(ship_id, path)
+    fit, cloud, sym = _stage_2_to_4(ship_id, img, mask, background)
     full = mirror.complete(cloud.points, sym)
     up = ground.up_vector(sym, full, cloud.normals, fit=fit)
-    return ground.project(full, up)
+    return ground.subsample(ground.project(full, up))
 
 
 def _pick_alpha(heroes, background):
@@ -194,6 +298,11 @@ def _run_batch(heroes, alpha, background):
         except Exception as e:
             logger.warning("ship %s raised during processing: %s: %s",
                            ship_id, type(e).__name__, e)
+            # Same stale-file rule as _fail() (task-9 final review I3): an
+            # UNEXPECTED exception can still leave a previous run's
+            # profile.json on disk for a ship this run never actually
+            # reached stage 7 for.
+            (paths.artifact_dir(ship_id) / "profile.json").unlink(missing_ok=True)
             results.append({"id": ship_id, "status": "failed_exception", "quality": {},
                             "reason": f"{type(e).__name__}: {e}"})
     return results

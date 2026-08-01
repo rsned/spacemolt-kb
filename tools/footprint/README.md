@@ -98,55 +98,99 @@ checkable signals to use instead.
 
 ## Results
 
-Batch run: `~/moge-venv/bin/python -m tools.footprint.run --all`, batch alpha
-`13.0` (the tightest alpha in `ground.ALPHA_CANDIDATES` that still kept 90% of
-every cloud's own points — `run._pick_alpha`/`ground.sweep_alpha`), background
-`neutral` (the setting recorded above under Background handling).
+**Superseded once, by the final-review fix wave (task-9 final review, 2026-07-31)
+— this section reflects the RE-RUN, not the original batch.** The first run
+(batch alpha 13.0, 14/19 recovered) predates four correctness fixes to
+`run.py` and is kept here only as history for what changed and why:
 
-**14 of 19 hero images recovered.** All 14 landed as `ok_asymmetric`, not
-plain `ok`: `mirror.RESIDUAL_CEILING` (0.013) was calibrated on a two-sided
-synthetic cloud, and every real one-view cloud's `mirror_residual` in this
-batch falls in 0.022-0.100 — consistent with `mirror.py`'s own documented
-measurement that partial one-view coverage alone puts real clouds at or above
-that ceiling with no actual asymmetry required. `ok_asymmetric` here is an
-artifact of the residual ceiling being tuned for a different regime, not
-evidence these 14 hulls are lopsided.
+- **C1 — keyability was computed but never consulted.** `matte.keyability`
+  existed and `matte.run` wrote `keyability.json`, but nothing in `run.py`
+  ever called either; `process` went straight from `matte.extract` to
+  camera/MoGe/mirror. Five of the 19 hero images are environmental scene
+  renders (a ship in a hall, a cavern, a hangar) rather than a flat chroma
+  key, and a colour-distance threshold still segments something plausible-
+  looking off them — `matte.extract` was quietly matting *scenery*, and one
+  of those five (`principia`) reconstructed well enough on every other
+  signal to publish as `ok_asymmetric` in the first run. `process` now
+  checks keyability first, before spending any MoGe inference, and reports
+  `failed_unkeyable` with the measured `corner_spread`/`border_std`.
+- **C2 — no obliquity floor.** `mirror.py` has always documented that below
+  roughly obliquity 0.3 the depth-separation term cannot distinguish a fold
+  from a genuine occluded half, but nothing in `run.py` read
+  `sym.obliquity`. `mirror.OBLIQUITY_FLOOR = 0.3` is now a real gate
+  (`failed_low_obliquity`), and `obliquity` is recorded in `quality` for
+  every ship that reaches stage 4, not only the failures.
+- **C3 — `sym.failure` was computed and never read.** `mirror.Symmetry`'s own
+  docstring says a non-`None` `failure` means "do not trust this result,"
+  but `process` never checked it, so a proximity-infeasible solve could
+  still clear `gate.run`'s `mirrored_pass` (which has no proximity check of
+  its own) and publish. Now checked immediately after `mirror.run`
+  (`failed_symmetry_solve`).
+- **C4 — the alpha sweep violated `ground.sweep_alpha`'s own contract.**
+  `ground.py` documents "pass ALREADY-SUBSAMPLED clouds" because
+  `alphashape`'s cost is superlinear; `_ship_ground_xy` was passing full
+  ~800k-point completed clouds, and a single un-subsampled `hull()` call did
+  not finish in 5 minutes. It also meant the alpha chosen on full-density
+  clouds was being applied (via `ground.run`'s own `subsample`) to a 20k
+  subsample — not the density it was validated on. `_ship_ground_xy` now
+  subsamples before the sweep, the same way `ground.run` already does.
+
+Batch run: `~/moge-venv/bin/python -m tools.footprint.run --all`, batch alpha
+now **`3.0`** (down from 13.0 — expected per C4: a value that keeps 90% of an
+800k-point cloud is not the value that keeps 90% of the 20k-point subsample
+the sweep now correctly evaluates). Background `neutral`, unchanged (see
+Background handling above).
+
+**13 of 19 hero images recovered**, all as `ok_asymmetric` for the same
+reason recorded before: `mirror.RESIDUAL_CEILING` (0.013) was calibrated on a
+two-sided synthetic cloud, and every real one-view cloud's `mirror_residual`
+in this batch (0.022-0.100) sits at or above it — see `mirror.py`'s own
+documented measurement that partial one-view coverage alone accounts for
+this, no actual hull asymmetry required. Every recovered ship's `obliquity`
+falls in 0.557-0.851, comfortably inside `mirror.OBLIQUITY_FLOOR`'s 0.3 floor
+and the ~0.9 upper edge past which `gate.MIR_FLOOR` stops separating —
+C2's new gate did not exclude anyone in this batch, but exists for the
+335-ship scale-up. Likewise C3: no recovered or excluded ship in this batch
+carried a non-`None` `sym.failure`.
 
 Recovered: comet, excessive_force, ledger, liquidity_event, magnate,
-premiere, principia, rapid_smelter, reliquary, smelter, superposition,
-thermodynamic_end, war_wagon, yard_sale.
+premiere, rapid_smelter, reliquary, smelter, superposition, thermodynamic_end,
+war_wagon, yard_sale.
 
-**5 did not recover:**
+**6 did not recover:**
 
 | id | status | reason |
 |----|--------|--------|
-| bonanza | `failed_silhouette_gate` | `mirrored_fraction=0.9448` below `gate.MIR_FLOOR=0.96` — the guessed symmetry plane's mirrored half does not land inside bonanza's own silhouette closely enough to trust |
-| crowbar | `failed_dimensional_check` | aspect 0.98 below `profile.ASPECT_BOUNDS`'s floor of 1.2 — reads as too stubby to be a hull |
-| last_warning | `failed_dimensional_check` | aspect 1.00 below 1.2 — same failure mode as crowbar |
-| paradox | `failed_dimensional_check` | aspect 0.51 below 1.2 |
-| prayer | `failed_dimensional_check` | aspect 0.59 below 1.2 |
+| bonanza | `failed_unkeyable` | corner_spread=17.11 / border_std=24.73, both above the floor of 10.0 — this is the ship that failed the silhouette gate in the first run; the unkeyable background was the actual root cause, the silhouette failure was a downstream symptom |
+| crowbar | `failed_unkeyable` | corner_spread=5.26 (passes) / border_std=38.97 (fails) — the four corner patches agree, but the border varies too much: a scene render whose corners happen to be visually flat |
+| last_warning | `failed_unkeyable` | corner_spread=7.40 (passes) / border_std=39.87 (fails) — same border-only failure mode as crowbar |
+| paradox | `failed_unkeyable` | corner_spread=1.12 (passes) / border_std=47.32 (fails) — same border-only failure mode |
+| principia | `failed_unkeyable` | corner_spread=50.88 / border_std=67.21, both well above the floor — the cavern scene render that published as `ok_asymmetric` in the first run; this is the case C1 exists to catch |
+| prayer | `failed_dimensional_check` | aspect 0.56 below `profile.ASPECT_BOUNDS`'s floor of 1.2 — reads as too stubby to be a hull |
 
-All four dimensional failures score well on every other quality signal
-(silhouette IoU 0.98-0.99, mirrored_fraction 0.98-1.00) — the aspect-bound
-gate is catching something the silhouette and mirror checks are structurally
-blind to (`uv = K.p / p_z` is invariant under any positive per-point depth
-scale, so a flattened or foreshortened reconstruction reprojects identically
-to a correct one; see `profile.py`'s comment on `ASPECT_BOUNDS`). Whether
-these four are genuine reconstruction failures (an over-flattened one-view
-cloud) or ships whose true footprint is legitimately closer to square than
-`ASPECT_BOUNDS`'s 1.2 floor assumes is not settled by this run — that
-determination is for the consuming half of the plan, which has ground-truth
-glyphs to check against. `prayer` (outerrim_prayer) is notable here: it is
-the ship named throughout `mirror.py`'s and this file's own calibration notes
-as a well-behaved case on every other axis, so its dimensional failure is
-worth a first look there.
+**The I6 correction:** the first run reported four `failed_dimensional_check`
+ships and framed all four as an open flattening-vs-stubby question. Three of
+those four (`crowbar`, `last_warning`, `paradox`) are now caught upstream as
+`failed_unkeyable` — they never had a trustworthy reconstruction to be
+"stubby" or "flattened" in the first place, since the mask that fed every
+later stage was segmenting scenery, not hull. `prayer` is the one ship that
+is genuinely keyable (`corner_spread`/`border_std` both comfortably under the
+floor, `foreground_fraction` 0.44) and still fails the dimensional check —
+scoring well on every other signal (silhouette IoU 0.993, mirrored_fraction
+0.998, obliquity 0.857) exactly as before. Whether `prayer`'s low aspect
+(0.56) is a genuine reconstruction flattening or a hull that really is closer
+to square than `ASPECT_BOUNDS`'s 1.2 floor assumes is still not settled by
+this run — that determination is for the consuming half of the plan, which
+has ground-truth glyphs to check against. `prayer` (outerrim_prayer) remains
+notable as the ship named throughout `mirror.py`'s own calibration notes as
+well-behaved on every other axis, so it is worth a first look there — but the
+question is now narrowed to one ship, not four.
 
-`bonanza`'s failure is the only stage-5 exclusion in this batch; nothing
-required the click fallback. `camera_confidence` clears
-`camera.CONFIDENCE_FLOOR` (0.05) for only 2 of the 19 (`bonanza` 0.064,
-`ledger` 0.057) — the other 17 sit at 0.03 or lower, matching the plan's own
-finding that only a small minority of keyable hero images produce a confident
-vanishing-point fit. `ground.up_vector`'s Task 9 revision means it did not
-matter either way: stage 2 is a cross-check logged for agreement, not a gate,
-so no ship in this batch was excluded or overridden on camera confidence —
-`bonanza` failed on the silhouette gate, not the camera fit.
+`camera_confidence` clears `camera.CONFIDENCE_FLOOR` (0.05) for only 1 of the
+14 ships that reach stage 2 in this run (`ledger`, 0.057; `bonanza`, the
+other ship that used to clear it, is now excluded before camera confidence
+is even relevant) — consistent with the plan's own finding that only a small
+minority of keyable hero images produce a confident vanishing-point fit.
+`ground.up_vector`'s Task 9 revision means it did not matter either way:
+stage 2 is a cross-check logged for agreement, not a gate, so no ship in this
+batch was excluded or overridden on camera confidence.

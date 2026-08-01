@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
 """Stage 7: canonicalise the footprint into glyph space and sample it.
 
-Glyph space runs X from 0 at the nose to 1 at the tail with Y a signed
+Glyph space runs X along the hull's long axis from 0 to 1 with Y a signed
 half-width, so a canonicalised footprint sampled at the same 96 stations
 pkg/shipglyph uses is directly comparable to an inferred profile. Stations
 where the cross-section splits are flagged: a single half-width per station
 cannot express the gap between two nacelles, and that limitation is a finding,
 not something to average away.
+
+WHICH END IS X=0 (bow vs stern) IS NOT RESOLVED HERE. `canonicalise` rotates
+using the symmetry-plane normal's in-ground direction (`axis = [-n[1], n[0]]`
+below), and that direction's SIGN is arbitrary: `mirror.reflect` depends only
+on the plane, not which way its normal points, so `mirror.solve`/
+`solve_from_view` never fix a sign -- `(n, off)` and `(-n, -off)` are the same
+plane to every stage upstream of this one. Measured directly on the Task 9
+batch: `ledger`'s canonicalised profile tapers toward x=0 and `yard_sale`'s
+tapers toward x=1, with nothing in the code that would explain a consistent
+choice between them (see task-9 final review, finding I2). `run()` below
+therefore records `"orientation": "unknown"` in profile.json rather than a
+value nothing in this pipeline actually determined. Disambiguating bow from
+stern is left to the consuming half, which has glyph ground truth to check a
+candidate orientation against -- inventing a heuristic here (longest taper,
+narrowest end, etc.) would just be a guess wearing a schema field.
 
     ~/moge-venv/bin/python -m tools.footprint.profile <ship_id>
 """
@@ -107,13 +122,28 @@ def implausible(w: np.ndarray, depth_extent: float) -> str | None:
     return None
 
 
+# Bumped whenever a field is added, removed, or changes meaning -- the Go
+# reader (not built yet) needs a version to gate on rather than guessing from
+# key presence. Added ahead of that reader existing (task-9 final review
+# M12) specifically so "schema": 1 is already the FIRST profile.json any
+# consumer ever sees, not something retrofitted onto files it must special-
+# case.
+SCHEMA_VERSION = 1
+
+
 def run(ship_id: str, poly, sym_normal_xy, quality: dict,
         depth_extent: float | None = None) -> dict:
     canon = canonicalise(poly, sym_normal_xy)
     w, concave = sample(canon)
     reason = None if depth_extent is None else implausible(w, depth_extent)
-    data = {"id": ship_id, "stations": STATIONS, "w": w.tolist(),
-            "concave": concave.tolist(), "aspect": aspect(w), "quality": quality,
+    data = {"schema": SCHEMA_VERSION, "id": ship_id, "stations": STATIONS,
+            "w": w.tolist(), "concave": concave.tolist(), "aspect": aspect(w),
+            # See this module's docstring: canonicalise's X=0 end (bow vs
+            # stern) is not determined by anything in this pipeline. Recorded
+            # explicitly, not omitted, so a consumer must handle it rather
+            # than silently assuming a convention that was never established.
+            "orientation": "unknown",
+            "quality": quality,
             "dimensional_pass": reason is None, "dimensional_reason": reason}
     (paths.artifact_dir(ship_id) / "profile.json").write_text(json.dumps(data, indent=2))
     return data
