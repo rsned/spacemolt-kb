@@ -8,6 +8,7 @@ Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_endtoend.py -v -s
 """
 
 import importlib
+import json
 import pathlib
 import sys
 import types
@@ -325,3 +326,65 @@ def test_process_reports_failed_low_obliquity(monkeypatch, tmp_path):
     result = run.process("bow_on_ship", pathlib.Path("a.webp"), alpha=3.0, background="neutral")
     assert result["status"] == "failed_low_obliquity"
     assert "obliquity=" in result["reason"]
+
+
+# --- Followup Item 1: resolve_heroes must accept .png, deterministically ---
+#
+# `paths.HERO_GLOB` was a single hardcoded "*.webp" pattern; the 402-image
+# chromakey drop is .png. `paths.HERO_GLOBS` now globs both and
+# `resolve_heroes` merges them into a sorted union, with an explicit
+# preference rule for the case where the same ship id resolves from two
+# files (a leftover .webp beside its .png replacement, most concretely).
+
+def test_resolve_heroes_globs_both_extensions_and_prefers_exact_stem(monkeypatch, tmp_path, caplog):
+    monkeypatch.setattr(run.paths, "HERO_DIR", tmp_path)
+    monkeypatch.setattr(run, "CATALOG", str(tmp_path / "catalog.json"))
+    (tmp_path / "catalog.json").write_text(json.dumps({"items": [
+        {"id": "alpha"}, {"id": "bravo"}, {"id": "gamma"}, {"id": "prayer"},
+    ]}))
+
+    # Distinct ids across the two extensions: both must resolve, and neither
+    # extension is preferred over the other in this case.
+    (tmp_path / "alpha.webp").touch()
+    (tmp_path / "bravo.png").touch()
+
+    # Same id from both extensions, both exact-stem matches: the tie-break is
+    # "first in sorted order", and "gamma.png" sorts before "gamma.webp".
+    (tmp_path / "gamma.webp").touch()
+    (tmp_path / "gamma.png").touch()
+
+    # An exact-stem match must win over one that only matches after
+    # faction-prefix stripping, even though the stripped file
+    # ("outerrim_prayer.webp") sorts BEFORE the exact one ("prayer.png") --
+    # proving this is a real preference rule, not just sort order.
+    (tmp_path / "outerrim_prayer.webp").touch()
+    (tmp_path / "prayer.png").touch()
+
+    with caplog.at_level("WARNING"):
+        heroes = run.resolve_heroes()
+
+    assert heroes["alpha"] == tmp_path / "alpha.webp"
+    assert heroes["bravo"] == tmp_path / "bravo.png"
+    assert heroes["gamma"] == tmp_path / "gamma.png"
+    assert heroes["prayer"] == tmp_path / "prayer.png"
+
+    # Never silently double-process: exactly two ships resolved from more
+    # than one file, and both were logged by name.
+    assert "gamma.webp" in caplog.text and "gamma.png" in caplog.text
+    assert "outerrim_prayer.webp" in caplog.text and "prayer.png" in caplog.text
+
+
+def test_resolve_heroes_hero_glob_override_pins_a_single_pattern(monkeypatch, tmp_path):
+    """SMKB_HERO_GLOB (paths.HERO_GLOBS, once set) narrows resolve_heroes to
+    one pattern -- useful for pointing at a directory that mixes the new png
+    drop with unrelated leftover webp files without picking either up.
+    """
+    monkeypatch.setattr(run.paths, "HERO_DIR", tmp_path)
+    monkeypatch.setattr(run.paths, "HERO_GLOBS", ("*.png",))
+    monkeypatch.setattr(run, "CATALOG", str(tmp_path / "catalog.json"))
+    (tmp_path / "catalog.json").write_text(json.dumps({"items": [{"id": "alpha"}]}))
+    (tmp_path / "alpha.webp").touch()
+    (tmp_path / "alpha.png").touch()
+
+    assert run.resolve_heroes() == {"alpha": tmp_path / "alpha.png"}
+

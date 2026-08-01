@@ -39,15 +39,46 @@ def resolve_heroes() -> dict:
     carried a faction prefix before ~March 2026 and some art is named for the
     old scheme — outerrim_prayer.webp is the ship now called "prayer". No ID
     collides under stripping, so this order is unambiguous.
+
+    `paths.HERO_GLOBS` globs both `.webp` (the original 19-ship drop) and
+    `.png` (the 402-image chromakey drop) and merges them into a single
+    sorted union, so the same directory can hold both without either being
+    ignored. Two files can legitimately resolve to the same ship id (a
+    leftover .webp beside its .png replacement, or two files that both need
+    faction-prefix stripping), and that must never mean silently double-
+    processing the ship or silently dropping one file with no record of it:
+    the exact-stem match wins over one that needed stripping, and among two
+    matches of the same kind the first in sorted order wins -- both cases log
+    a warning naming the files involved so a stale leftover is discoverable,
+    not just invisible.
     """
     ids = {s["id"] for s in json.load(open(CATALOG))["items"]}
-    out = {}
-    for p in sorted(paths.HERO_DIR.glob(paths.HERO_GLOB)):
-        key = p.stem
+    files = sorted({p for pattern in paths.HERO_GLOBS for p in paths.HERO_DIR.glob(pattern)})
+
+    out = {}         # ship id -> winning path
+    exact = {}        # ship id -> whether the winner's stem matched with no stripping
+    for p in files:
+        stem = p.stem
+        is_exact = stem in ids
+        key = stem if is_exact else _FACTION_PREFIX.sub("", stem)
         if key not in ids:
-            key = _FACTION_PREFIX.sub("", key)
-        if key in ids:
+            continue
+
+        if key not in out:
             out[key] = p
+            exact[key] = is_exact
+        elif is_exact and not exact[key]:
+            # The incumbent needed prefix-stripping to match; this file
+            # didn't, so it wins regardless of sort order.
+            logger.warning("ship %s resolves from multiple hero images (%s and %s); "
+                           "using the exact-stem match %s", key, out[key], p, p)
+            out[key] = p
+            exact[key] = True
+        else:
+            # Either both exact or both stripped: `files` is already sorted,
+            # so the incumbent -- the earlier file -- is the preferred one.
+            logger.warning("ship %s resolves from multiple hero images (%s and %s); "
+                           "using %s (first in sorted order)", key, out[key], p, out[key])
     return out
 
 
