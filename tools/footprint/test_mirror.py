@@ -509,16 +509,16 @@ def _axis_err(a, b):
     return float(np.degrees(np.arccos(min(1.0, abs(np.asarray(a) @ np.asarray(b))))))
 
 
-@pytest.mark.xfail(strict=True, reason=
-    "at obliquity 0.866 the search returns a RECEDED plane, not a near-miss: "
-    "recovered obliquity 0.928 against a true 0.866. Silhouette agreement "
-    "saturates at exactly 1.0000 for any plane that pushes the mirrored half "
-    "clear of the hull, while the true plane grazes the rim at 0.9969-0.9997, "
-    "so the true answer is not the maximum. The depth term cannot arbitrate "
-    "(a receded plane has MORE separation) and proximity populations overlap "
-    "above obliquity ~0.93. Needs a different discriminator, not a tuned "
-    "constant; four were measured and rejected. Delete this marker only when "
-    "the objective changes, never the assertions.")
+# A strict xfail lived here from 2026-07-30 to 2026-08-01: at obliquity 0.866
+# the search returned a RECEDED plane (silhouette agreement saturates at
+# exactly 1.0000 for any plane that pushes the mirrored half clear of the
+# hull, while the true plane grazes the rim ~5e-4 below it, and neither the
+# depth term nor proximity could arbitrate above ~0.93). The marker's own
+# terms said to delete it only when the OBJECTIVE changed — and the
+# upright-art prior (2026-08-01) is that change: its feather-light tie-break
+# (UPRIGHT_TIEBREAK * |implied-up_x|) outweighs the receded family's ~5e-4
+# winning margin, so the true plane is the maximum again. The assertions
+# below are the originals, untouched, exactly as the marker demanded.
 def test_solve_from_view_recovers_the_plane_a_self_chamfer_solve_folds():
     """The regression test for the whole task: same input, both solvers.
 
@@ -760,3 +760,75 @@ def test_run_records_the_symmetry_diagnostics_in_quality_json(tmp_path, monkeypa
     assert data["depth_separation"] == sym.depth_separation
     assert data["symmetry_residual"] == sym.residual
     assert data["symmetry_failure"] == sym.failure
+
+
+# --- Upright-art prior ------------------------------------------------------
+
+def _square_section_view(yaw_deg=50.0, elev_deg=25.0, dist=8.0,
+                         shape=(480, 640), focal=600.0, seed=0):
+    """A hull with a SQUARE cross-section, seen from a genuine 3/4 view.
+
+    b == c makes the bilateral (y=0) and dorsal (z=0) planes geometrically
+    identical competitors — the tie the upright prior exists to break. The
+    existing `_one_sided_view` fixture cannot exercise this: it rotates only
+    about the camera x-axis, so both candidate frames keep their implied up
+    inside the screen-vertical plane and the prior is silent on either. Here
+    the camera yaws around the world up axis then looks down from `elev_deg`,
+    the composition every hero shot uses (ship upright on screen), so the
+    dorsal candidate's implied up lands screen-horizontal — exactly the roll
+    fingerprint measured on the 22 real swaps.
+
+    Returns (view, mask, K, true_normal_cam, dorsal_normal_cam).
+    """
+    rng = np.random.default_rng(seed)
+    v = rng.normal(size=(60000, 3))
+    v /= np.linalg.norm(v, axis=1, keepdims=True)
+    p = v * np.array([2.0, 1.0, 1.0])                  # a=2, b=c=1: square section
+    nrm = v / np.array([2.0, 1.0, 1.0])
+    nrm /= np.linalg.norm(nrm, axis=1, keepdims=True)
+
+    ps, el = np.radians(yaw_deg), np.radians(elev_deg)
+    eye = dist * np.array([np.sin(ps) * np.cos(el), np.cos(ps) * np.cos(el), np.sin(el)])
+    f = -eye / np.linalg.norm(eye)                     # cam z: forward
+    right = np.cross(f, np.array([0.0, 0.0, 1.0]))     # cam x: screen right
+    right /= np.linalg.norm(right)
+    down = np.cross(f, right)                          # cam y: screen down
+    r = np.vstack([right, down, f])
+
+    cam = (p - eye) @ r.T
+    nrm_c = nrm @ r.T
+    viewdir = cam / np.linalg.norm(cam, axis=1, keepdims=True)
+    view = cam[(nrm_c * viewdir).sum(1) < 0]
+
+    h, w = shape
+    k = np.array([[focal, 0.0, w / 2.0], [0.0, focal, h / 2.0], [0.0, 0.0, 1.0]])
+    mask = gate.reproject(view, k, shape)
+    return view, mask, k, r @ np.array([0.0, 1.0, 0.0]), r @ np.array([0.0, 0.0, 1.0])
+
+
+def test_upright_penalty_fires_on_a_rolled_frame_only():
+    """The mechanism, pinned directly: the dorsal candidate's implied up is
+    screen-horizontal and must be penalised past the cone; the bilateral
+    candidate's is screen-vertical and must cost ~nothing. The margin matters:
+    the real swaps won their ties by 0.002-0.017 of silhouette agreement, so
+    the dorsal penalty has to dwarf that scale."""
+    view, mask, k, n_true, n_dorsal = _square_section_view()
+    rng = np.random.default_rng(1)
+    sample = view[rng.choice(len(view), 4000, replace=False)]
+
+    p_true = mirror.upright_penalty(sample, n_true)
+    p_dorsal = mirror.upright_penalty(sample, n_dorsal)
+    assert p_true < 0.02, p_true
+    assert p_dorsal > 0.1, p_dorsal
+
+
+def test_solve_from_view_breaks_a_square_section_tie_toward_upright():
+    """End to end: on a square-section hull both planes reproject equally well,
+    so without the prior the winner is whichever basin numerical noise favours.
+    With it, the solver must return the bilateral plane — near the true normal
+    and far from the dorsal one."""
+    view, mask, k, n_true, n_dorsal = _square_section_view()
+    sym = mirror.solve_from_view(view, mask, k)
+    assert sym.failure is None, sym.failure
+    assert _axis_err(sym.normal, n_true) < 12.0, _axis_err(sym.normal, n_true)
+    assert _axis_err(sym.normal, n_dorsal) > 45.0, _axis_err(sym.normal, n_dorsal)

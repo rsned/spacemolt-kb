@@ -15,7 +15,8 @@
     "yard_sale": "",
     "bonanza": "great guess despite background distractions",
     "paradox": "great guess despite background distractions",
-    "principia": "great guess despite background distractions"
+    "principia": "great guess despite background distractions",
+    "symposium": "tripo silhouette very good (user); moge picked wrong mirror plane"
   },
   "moge_wins": {
     "comet": "captures forward canards, wing curve and widening",
@@ -23,7 +24,8 @@
     "liquidity_event": "both did well, moge edges out",
     "rapid_smelter": "",
     "reliquary": "long skinny rectangle is right; tripo much thicker",
-    "thermodynamic_end": "not bad (tricky tentacle trailing off back third)"
+    "thermodynamic_end": "not bad (tricky tentacle trailing off back third)",
+    "cobble": "good MoGe outline but displayed bow/stern is FLIPPED (user, 2026-08-01) \u2014 true bow is at the end the sheet renders as stern (display pins wider-end-down, so cobble's real nose is the wider end)"
   },
   "view_anomalies": {
     "_meta": "User full-sheet observation 2026-08-01: ~15% of hero shots point AWAY from camera (stern view); some are shot from BELOW the ground plane. Pipeline elevation is unsigned (up is resolved toward-viewer), so below-plane reads as above. Examples:",
@@ -35,17 +37,63 @@
     ],
     "shot_from_below": {
       "cryogenic_survey": "~-45 deg, camera below the 0 plane"
-    }
+    },
+    "ordinance": "RESOLVED as a sheet bug, not an image problem (2026-08-01): the contact sheet thumbnail was showing crimson_ordinance.png \u2014 the pair's zoomed render, cropped by the frame (2217 border px) \u2014 while the pipeline correctly solved from ordinance.png, which fits fully in frame. Thumbnail resolution fixed to prefer exact stems. crimson_ordinance.png itself IS unusable-cropped; keep it out of any future two-view cross-checks for this hull."
   },
   "ground_truth_shapes": {
     "four_on_the_floor": "fat X-wing; squarish overall (user, 2026-08-01)",
     "last_warning": "engines huge relative to the ship, mounted at the middle; almost squarish (user, 2026-08-01)",
     "datum": "shaped like a Star Wars Snowspeeder: flat and wide, wide-angle wings starting at the front, widening to max at midpoint, tapering to the back (user, 2026-08-01)",
     "start_praying": "variant of prayer: cargo container with an ellipsoid engine cone welded to the back (user, 2026-08-01)",
-    "omniscience": "like a cross between an octopus and a jellyfish (user, 2026-08-01) \u2014 radial/organic, no strong bilateral symmetry plane; explains the failed_symmetry_solve (inside_fraction 0.9513 vs MIR_FLOOR 0.96) | catalog lore: \"The Omniscience-class does not study phenomena from a distance. Its organic sensor arrays extend into the fabric of whatever it is observing, becoming temporarily entangled with the subject of study.\" \u2014 the extended sensor arrays are the tentacles; asymmetry is canonical."
+    "omniscience": "like a cross between an octopus and a jellyfish (user, 2026-08-01) \u2014 radial/organic, no strong bilateral symmetry plane; explains the failed_symmetry_solve (inside_fraction 0.9513 vs MIR_FLOOR 0.96) | catalog lore: \"The Omniscience-class does not study phenomena from a distance. Its organic sensor arrays extend into the fabric of whatever it is observing, becoming temporarily entangled with the subject of study.\" \u2014 the extended sensor arrays are the tentacles; asymmetry is canonical.",
+    "symposium": "mirror solve picked the WRONG plane (user, triad eyeball 2026-08-01): +Y correct (beam axis) but frame rolled 90deg about Y \u2014 +X points down through the floor, +Z along width. Solver locked the horizontal dorsal/ventral near-symmetry plane, so the recovered 'footprint' is a SIDE profile. TripoSR silhouette is very good for it.",
+    "prayer": "(user, 2026-08-01) prayer's TRUE pose matches the solved frame of APPRAISAL, not its own solve: +Z straight screen-vertical, +Y toward lower-left, +X toward upper-left. In camera coords (appraisal's display-canonicalised solve): X=[-0.62,-0.33,0.71], Y=[-0.78,0.26,-0.56], Z=[-0.00,-0.91,-0.42]. prayer's own solve gives Z=[-0.75,-0.56,0.35] (screen-horizontal up = plane-swap fingerprint) \u2014 the solver rolled ~90deg about Y onto the dorsal plane, so the 0.56 aspect is a SIDE-profile artifact. Same applies to start_praying (Z=[-0.77,-0.44,0.45]). Earlier 'cargo container + engine cone' shape note stands.",
+    "crowbar": "looks like the police flying cars (spinners) from the original Blade Runner (user, 2026-08-01) \u2014 compact car-proportioned craft, so plan aspect should be roughly sedan-like (~1.8-2.2), a bit longer than wide. Pipeline currently measures 1.10 (recovered under the 0.8 floor) \u2014 plausibly under-elongated; candidate for the upright-prior re-solve / mesh cross-check.",
+    "broadaxe": "another X-wing-looking ship, like four_on_the_floor (user, 2026-08-01) \u2014 squarish plan from crossed wings; pipeline measures aspect 1.05, consistent with the confirmed-squat family that motivated the 0.8 floor.",
+    "crucible": "the larger, less-greebled version of the crowbar (user, 2026-08-01) \u2014 same Blade Runner spinner / flying-car morphology, so plan aspect should be car-like (~1.8-2.2). Crucible was a plane-swap suspect; the upright-prior prototype re-solve gives aspect 1.32 (was rolled). Cross-check against crowbar (currently 1.10) \u2014 as a hull family they should measure alike.",
+    "fugue": "like a lionfish: lionfish body shape with wispy tendrils coming off its flippers and tail (user, 2026-08-01) \u2014 organic Voidborn-style morphology; tendrils will read as thin protrusions the alpha shape may drop, and the body sets the true plan aspect.",
+    "manifest_destiny": "shaped like a Battlestar Galactica Colonial Viper (user, 2026-08-01) \u2014 narrow pointed nose, body widening to twin/triple engine block at the stern, moderate delta plan; aspect should be ~2-2.5. Was a plane-swap suspect; upright-prior prototype re-solve measured 2.20, consistent with Viper proportions.",
+    "nebulous": "like a manta ray or butterfly: large nebulous wings either side of a central body (user, 2026-08-01) \u2014 genuinely wide plan, wider than long or near-square; measured 0.99 after the 0.8-floor re-run, consistent. Wing edges are diffuse/wispy (Voidborn), so silhouette-derived beam may vary between renders/methods.",
+    "overdue": "shaped like the Starship Troopers Pegasus-class gunship (user, 2026-08-01) \u2014 blocky dropship: stubby forward cockpit, wide slab body with engine pods outboard on short wing stubs; plan reads wide-bodied, aspect ~1.3-1.8. overdue/overhead are a hull family \u2014 their recovered profiles should agree.",
+    "overhead": "shaped like the Starship Troopers Pegasus-class gunship (user, 2026-08-01) \u2014 blocky dropship: stubby forward cockpit, wide slab body with engine pods outboard on short wing stubs; plan reads wide-bodied, aspect ~1.3-1.8. overdue/overhead are a hull family \u2014 their recovered profiles should agree.",
+    "rift_siphon": "looks like a giant sand flea (user, 2026-08-01) \u2014 compact rounded-humped body, likely legs/appendage detail below; plan should read as a stubby rounded oval, modest aspect (~1.2-1.6). Organic morphology, likely Voidborn-grown.",
+    "voidborn_singularity": "looks like the Batwing (user, 2026-08-01; reference https://images-na.ssl-images-amazon.com/images/I/81a5cCG3P6L.jpg \u2014 the 1989 movie Batwing). Reference proportions: wingspan ~2x body length, so true plan aspect ~0.5-0.6 with a scalloped concave trailing edge and notched wingtips. Pipeline measures 0.91 \u2014 likely still UNDER-wide (beam clipped), not over: flag for mesh cross-check and possibly the alpha shape eating the thin wing tips. Another confirmed genuinely-sub-1 ship; the 0.8 floor may still be too high for this one if a better solve widens it further.",
+    "apeiron": "strong Batwing curvature and shaping, like voidborn_singularity (user, 2026-08-01) \u2014 wide scalloped flying-wing plan, true aspect plausibly well below 1 (Batwing reference is ~0.5-0.6). Pipeline measured 0.65 pre-upright and it remains failed_dimensional_check under the 0.8 floor \u2014 this may be a CORRECT measurement being rejected, the mirror image of the prayer case: second concrete datum that the 0.8 floor rejects real flying wings."
   },
   "notes": [
     "2026-08-01: the 4 remaining dimensional-check failures after the shadow-key fix (four_on_the_floor 1.04, last_warning 0.94, datum 1.06, start_praying 0.45; prayer 0.56) all have user-confirmed squat/wide ground-truth shapes and high-confidence solves (silhouette IoU >=0.99, mirrored_fraction >=0.997) \u2014 the ASPECT_BOUNDS floor of 1.2 rejects real ship shapes in this population, not bad reconstructions.",
-    "2026-08-01 (user lore): Voidborn ships are 'grown' \u2014 omniscience's hero image is genuinely asymmetric (octopus/jellyfish). BUT many Voidborn ships ARE symmetric (user): 38/50 recover ok, median mirror_residual 0.085 vs 0.063-0.075 other factions. Voidborn over-represents in failures (12/36, incl. 8 of the 14 aspect<0.8 suspects). Selection rule: per-ship metrics govern; Voidborn is only a weak prior that a weird solve may be a real grown shape, not a solver error."
-  ]
+    "2026-08-01 (user lore): Voidborn ships are 'grown' \u2014 omniscience's hero image is genuinely asymmetric (octopus/jellyfish). BUT many Voidborn ships ARE symmetric (user): 38/50 recover ok, median mirror_residual 0.085 vs 0.063-0.075 other factions. Voidborn over-represents in failures (12/36, incl. 8 of the 14 aspect<0.8 suspects). Selection rule: per-ship metrics govern; Voidborn is only a weak prior that a weird solve may be a real grown shape, not a solver error.",
+    "2026-08-01 (user, triad eyeball over the full sheet): hero art has a dominant composition convention \u2014 the BOW faces screen-LEFT on most ships (triad +Y pinned screen-right pointed at the stern 'on most of them'). Candidate nose-disambiguation prior for the consuming half: bow = screen-left end of the projected long axis; exceptions include the ~15% stern-toward-camera shots already listed in view_anomalies.",
+    "2026-08-01 (user, triad eyeball): junk_convoy triad CORRECT \u2014 ship pointed up and away to the left of camera. (junk_convoy is a DIFFERENT ship from convoy, which is the failed_low_obliquity one.)",
+    "2026-08-01 (user, selection-pattern insight): most 'recovered footprint' panel wins are ships with OUT-RIGGER NACELLE/ENGINE PODS \u2014 the footprint polygon preserves the hull-to-pod gap, while the 96-station w(t) envelope (and TripoSR smoothing) blob the pods back onto the body. The profile schema's concave[] flags mark which stations are split (gap exists) but the gap geometry itself is discarded \u2014 a consuming-half consideration: pod ships need the polygon (or per-station interval sets), not just the envelope.",
+    "2026-08-01 (user, mesh-improvement insight): many tripo wins would improve by SQUARING the out-jutting wide sections at the rear \u2014 TripoSR rounds off blocky engine housings; the wide bottom-third parts should be more rectangular. Candidate fusion post-process: flatten w(t) bumps to their local max (plateau snapping) within the wide rear region."
+  ],
+  "plane_swap_suspects_2026-08-01": {
+    "heuristic": "solved up-vector tilted >50deg from screen-vertical while shot elevation <55deg (assumes hero art keeps ships visually upright, which the user's triad eyeball supports); symposium is the user-confirmed instance",
+    "ships": [
+      "convoy",
+      "pike",
+      "cryogenic_survey",
+      "syndicate",
+      "guillotine",
+      "crucible",
+      "portcullis",
+      "blind_spot",
+      "spit_and_prayer",
+      "paramount",
+      "manifest_destiny",
+      "start_praying",
+      "munitions_foundry",
+      "symposium",
+      "no_refunds",
+      "buckler",
+      "prayer",
+      "absolute_zero",
+      "bad_influence",
+      "confluence",
+      "capacity",
+      "prospect"
+    ],
+    "note": "prayer + start_praying BOTH flag: their 0.45-0.56 aspects may be side-profile artifacts of a swapped plane (container cross-section is near-square, both planes score alike), NOT ground-truth squatness. cryogenic_survey flags consistently with its known from-below shot."
+  }
 }

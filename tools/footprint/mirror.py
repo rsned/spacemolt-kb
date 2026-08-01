@@ -124,6 +124,67 @@ from . import gate, paths, pointmap
 RESIDUAL_CEILING = 0.013
 _SUBSAMPLE = 4000
 
+# --- Upright-art prior (2026-08-01) -----------------------------------------
+# Hero art keeps ships visually upright: the user's bound, from eyeballing the
+# full 267-ship triad sheet, is that every image's true up axis lies within
+# +/-20 degrees of screen-vertical. The plane search needs this because a hull
+# with a near-square cross-section ties between its bilateral plane and its
+# dorsal/ventral plane (the frame rolls 90 degrees about the beam axis and the
+# published "footprint" silently becomes a SIDE profile). Measured on the full
+# batch before this prior existed: 22 ships carried the roll fingerprint
+# (solved up tilted >50 degrees from screen-vertical in a non-top-down shot),
+# user-confirmed on symposium and the prayer family.
+#
+# The penalty acts on the candidate's IMPLIED UP -- the cross product of the
+# candidate normal with the cloud's in-plane principal axis -- not on the
+# normal's own screen components: a surrogate penalty on |n_y| was measured to
+# fix only 20 of the 22 (prayer/start_praying's rolled plane has its normal
+# pointing mostly into depth, |n_y|=0.17, inside any reasonable cone).
+# |up_x| is the right scalar: it is the horizontal screen component of the
+# implied up, ~0 for an upright ship AND for a genuine top-down shot (where
+# up collapses toward the view axis and the prior correctly says nothing),
+# large only for a rolled frame.
+#
+# Inside the cone the tie-break is feather-light (UPRIGHT_TIEBREAK: 1% of
+# silhouette agreement at |up_x|=1) so legitimate candidates are ranked by
+# the real objective; beyond the cone (sin 25 degrees: the user's 20 plus
+# solve-noise margin) it climbs steeply enough that a roll must BEAT the
+# upright plane by >~25% agreement to survive, which measured ties never
+# approach (the 22 swaps all sat within 0.002-0.017 of their upright rival).
+# Prototype validation, 22 suspects + 15 controls: 20/22 fixed by the
+# surrogate form alone with zero control regressions >3 degrees except
+# taxonomy/datum/comet/juggernaut moving TOWARD upright, all staying above
+# MIR_FLOOR.
+UPRIGHT_CONE = 0.42
+UPRIGHT_STEEP = 1.0
+UPRIGHT_TIEBREAK = 0.01
+
+
+def _implied_up_abs_x(sample: np.ndarray, n: np.ndarray) -> float:
+    """|screen-x component| of the up axis implied by candidate normal `n`.
+
+    Implied up = n x (principal axis of the sample projected into the plane) --
+    the same frame construction ground.up_vector and the consuming tools use.
+    Sign-free: a roll is a roll whichever way up ends up pointing.
+    """
+    inplane = sample - np.outer(sample @ n, n)
+    inplane = inplane - inplane.mean(axis=0)
+    # Principal in-plane axis from the 3x3 scatter -- eigh on the small matrix
+    # rather than an SVD of the full sample, this runs once per cost call.
+    _, vecs = np.linalg.eigh(inplane.T @ inplane)
+    lon = vecs[:, -1]
+    up = np.cross(n, lon)
+    norm = np.linalg.norm(up)
+    if norm < 1e-12:
+        return 0.0
+    return float(abs(up[0]) / norm)
+
+
+def upright_penalty(sample: np.ndarray, n: np.ndarray) -> float:
+    """Cost-units penalty for a rolled candidate frame; ~0 inside the cone."""
+    ux = _implied_up_abs_x(sample, n)
+    return UPRIGHT_TIEBREAK * ux + UPRIGHT_STEEP * max(0.0, ux - UPRIGHT_CONE)
+
 # A floor on `Symmetry.obliquity`, gating the batch driver's stage-4 verdict
 # (`run.process`'s `failed_low_obliquity`), not calibrated fresh here: it is
 # the same 0.3 already documented on `Symmetry.obliquity` above ("below
@@ -657,7 +718,10 @@ def solve_from_view(points: np.ndarray, mask: np.ndarray, intrinsics: np.ndarray
         if not feasible:
             return (1.0 + max(0.0, floor - sep) / max(floor, 1e-12)
                     + max(0.0, near - _PROXIMITY_CEILING) / _PROXIMITY_CEILING)
-        return -frac
+        # Upright-art prior: applied to feasible candidates only, in the coarse
+        # ranking and the refinement alike, so upright basins get seeded and a
+        # rolled frame cannot win a near-tie -- see the constants' comment.
+        return -frac + upright_penalty(sample, _sph(x[0], x[1]))
 
     # Coarse pass: every hemisphere direction, and for each of them offsets
     # across the cloud's own span along it, widened 10% because the true plane
