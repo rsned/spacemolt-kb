@@ -7,12 +7,14 @@ hard assertion there would fail for reasons unrelated to this code.
 Run: ~/moge-venv/bin/python -m pytest tools/footprint/test_endtoend.py -v -s
 """
 
+import dataclasses
 import importlib
 import json
 import pathlib
 import sys
 import types
 
+import cv2
 import numpy as np
 import pytest
 from shapely.geometry import Polygon
@@ -32,6 +34,8 @@ mirror = _load("mirror")
 ground = _load("ground")
 profile = _load("profile")
 run = _load("run")
+matte = _load("matte")
+pointmap = _load("pointmap")
 
 # Match test_pointmap.py exactly. Do NOT write the guard as
 # `pytest.mark.skipif(not __import__("importlib").util.find_spec("torch"), ...)`:
@@ -387,4 +391,133 @@ def test_resolve_heroes_hero_glob_override_pins_a_single_pattern(monkeypatch, tm
     (tmp_path / "alpha.png").touch()
 
     assert run.resolve_heroes() == {"alpha": tmp_path / "alpha.png"}
+
+
+# --- Followup Item 2: stages 1-4 must run exactly once per ship ------------
+#
+# The old `--all` path composed `_pick_alpha` (via `_ship_ground_xy`) and
+# `_run_batch` (via `process()`) over the same heroes dict, so `_stage_1`/
+# `_stage_2_to_4` -- the two expensive, MoGe-inference-bearing stages -- ran
+# TWICE per ship. `_run_all` is the replacement: Phase A runs them once via
+# `_process_phase_a` and Phase B reloads their artifacts from disk
+# (`_reload_for_phase_b`) instead of recomputing. The two tests below check
+# each half: that `_reload_for_phase_b` actually reconstructs what stages 1-4
+# wrote, and that `_run_all`'s control flow never calls `_stage_1`/
+# `_stage_2_to_4` more than once per ship.
+
+def test_reload_for_phase_b_reconstructs_stage_4_output_from_artifacts(tmp_path, monkeypatch):
+    """`_reload_for_phase_b` must read back exactly what stages 1-4 wrote to
+    disk, since Phase B depends on it standing in for the in-memory Phase A
+    result `_run_all` deliberately does not keep alive for a whole batch
+    (see `_reload_for_phase_b`'s own docstring on the memory bound).
+
+    Written by hand with `np.savez_compressed`/`cv2.imwrite`, not via the
+    real `matte.run`/`pointmap.run`/`mirror.run` (the latter needs the MoGe
+    model): `pointmap.load`/`mirror.load` already have their own read/write
+    round-trip coverage (test_pointmap.py, test_mirror.py), so this only
+    needs to exercise `_reload_for_phase_b`'s OWN job -- wiring those two
+    loaders together with a matte reload and a caller-supplied `fit` into one
+    `_Stage4Result`, matching test_pointmap.py's own
+    `test_load_reads_a_handwritten_npz` pattern for the same reason: a bug
+    tying the reader to exactly what the real writer happens to produce
+    (field order, dtype) would not be caught by round-tripping through the
+    same code.
+    """
+    monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
+    ship_id = "reload_ship"
+    art_dir = run.paths.artifact_dir(ship_id)
+
+    mask = np.zeros((10, 10), dtype=np.uint8)
+    mask[2:8, 2:8] = 1
+    cv2.imwrite(str(art_dir / "matte.png"), mask * 255)
+
+    cloud_points = np.array([[0.0, 0.0, 5.0], [1.0, 0.0, 5.0], [0.0, 1.0, 5.0]])
+    cloud_normals = np.array([[0.0, 0.0, -1.0]] * 3)
+    intrinsics = np.array([[1.0, 0.0, 0.5], [0.0, 1.0, 0.5], [0.0, 0.0, 1.0]])
+    np.savez_compressed(art_dir / "cloud.npz", points=cloud_points,
+                        pixels=np.zeros((3, 2), np.float32),
+                        normals=cloud_normals, intrinsics=intrinsics)
+
+    sym = mirror.Symmetry(normal=np.array([1.0, 0.0, 0.0]), offset=0.0, scale=1.0, shift=0.0,
+                          residual=0.001, depth_separation=0.5, failure=None)
+    full = mirror.complete(cloud_points, sym)
+    np.savez_compressed(art_dir / "cloud_resolved.npz", points=full, normal=sym.normal,
+                        offset=sym.offset, scale=sym.scale, shift=sym.shift,
+                        residual=sym.residual, depth_separation=sym.depth_separation,
+                        failure="")
+
+    fit = types.SimpleNamespace(confidence=0.42, source="auto")
+    stage4 = run._reload_for_phase_b(ship_id, fit)
+
+    assert stage4.fit is fit
+    assert np.array_equal(stage4.mask, mask)
+    assert abs(stage4.frac - float(mask.mean())) < 1e-9
+    assert np.allclose(stage4.cloud.points, cloud_points)
+    assert np.allclose(stage4.cloud.normals, cloud_normals)
+    assert np.allclose(stage4.cloud.intrinsics, intrinsics)
+    assert np.allclose(stage4.sym.normal, sym.normal)
+    assert stage4.sym.failure is None
+    assert np.allclose(stage4.full, full)
+
+
+def test_run_all_runs_stages_1_4_exactly_once_per_ship(monkeypatch, tmp_path):
+    """The regression test for the bug Item 2 fixes: before this restructure,
+    `main()`'s `--all` path ran `_stage_1`/`_stage_2_to_4` twice per ship.
+    Counting wrappers around the real module functions -- not around
+    `_process_phase_a`/`_process_phase_b` themselves -- are what make this a
+    real check of the bug rather than a trivially-true statement about the
+    new control flow's shape.
+
+    `_reload_for_phase_b` is stubbed so Phase B does not need real Phase-A-
+    written artifacts on disk -- that reload contract has its own dedicated
+    test above; this test's only concern is the invocation count.
+    `_stage_1`/`_stage_2_to_4` are faked to report every ship keyable, with a
+    real, non-degenerate symmetric cloud (`synth.box_scene`'s own two-sided
+    points, solved with the real `mirror.solve` -- the same CPU-only
+    construction `_ground_truth_chain` above already uses) so the real
+    `ground.up_vector`/`ground.subsample`/`ground.project` Phase A calls, and
+    the real `ground.sweep_alpha` picking a batch alpha, all run against
+    genuine geometry rather than a fixture hand-picked to avoid tripping one
+    of THEIR assertions for unrelated reasons.
+    """
+    monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
+
+    s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
+    cam = s.points @ s.R.T + s.t
+    sym = dataclasses.replace(mirror.solve(cam), depth_separation=1.0)
+    full = mirror.complete(cam, sym)
+    mask, _ = matte.extract(s.image)
+    cloud = pointmap.Cloud(points=cam, pixels=np.zeros((len(cam), 2), np.float32),
+                           normals=None, intrinsics=s.K)
+    fit = types.SimpleNamespace(confidence=1.0, source="clicks", R=np.eye(3))
+
+    calls = {"stage_1": 0, "stage_2_to_4": 0}
+
+    def fake_stage_1(ship_id, image_path):
+        calls["stage_1"] += 1
+        return s.image, mask, float(mask.mean()), True, 0.0, 0.0
+
+    def fake_stage_2_to_4(ship_id, img, m, background):
+        calls["stage_2_to_4"] += 1
+        return fit, cloud, sym
+
+    def fake_reload(ship_id, cached_fit):
+        return run._Stage4Result(frac=float(mask.mean()), fit=cached_fit, cloud=cloud,
+                                 sym=sym, mask=mask, full=full)
+
+    monkeypatch.setattr(run, "_stage_1", fake_stage_1)
+    monkeypatch.setattr(run, "_stage_2_to_4", fake_stage_2_to_4)
+    monkeypatch.setattr(run, "_reload_for_phase_b", fake_reload)
+
+    heroes = {"ship_a": pathlib.Path("a.webp"), "ship_b": pathlib.Path("b.webp"),
+              "ship_c": pathlib.Path("c.webp")}
+    alpha, results = run._run_all(heroes, "neutral")
+
+    assert calls["stage_1"] == 3, calls
+    assert calls["stage_2_to_4"] == 3, calls
+    assert [r["id"] for r in results] == list(heroes)
+    # Every ship reached Phase B (none dropped out in Phase A) and got a real
+    # verdict, not just a count -- otherwise this could pass by every ship
+    # raising in Phase A and Phase B's reload path never running at all.
+    assert all(r["status"] for r in results)
 

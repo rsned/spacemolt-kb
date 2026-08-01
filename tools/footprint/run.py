@@ -11,6 +11,7 @@ reconstruction failures. Failures are listed, never averaged in.
 """
 
 import argparse
+import dataclasses
 import json
 import logging
 import re
@@ -152,7 +153,43 @@ def _depth_extent(full, up, poly, sym_xy) -> float:
     return float(np.ptp(full @ up)) / float(along.max() - along.min())
 
 
-def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
+@dataclasses.dataclass
+class _Stage4Result:
+    """What Phase A (stages 1-4) hands to Phase B (stages 5-7).
+
+    `frac`, `fit`, `cloud`, `sym` and `mask` are exactly `process()`'s own
+    local variables at the point stages 1-4 finish successfully, bundled so
+    Phase A and Phase B can be two separately callable halves of what used to
+    be one function (Item 2's stages-1-4-once restructure) without changing
+    either half's behaviour.
+
+    `full` is `None` from `_process_phase_a` -- Phase A does not itself need
+    the completed (mirrored) cloud, only `sym`, so it leaves that to whichever
+    half of the pipeline needs it: `process()`'s own single-ship path
+    recomputes it from `cloud`/`sym` exactly as the old inline code did,
+    while the batch path (`_run_all`/`_reload_for_phase_b`) reloads it
+    straight from `cloud_resolved.npz` (`mirror.load` already wrote the
+    completed cloud there, so recomputing it a second time would be exactly
+    the kind of redundant stage-4-adjacent work Item 2 exists to remove).
+    """
+    frac: float
+    fit: camera.Fit
+    cloud: pointmap.Cloud
+    sym: mirror.Symmetry
+    mask: np.ndarray
+    full: np.ndarray | None = None
+
+
+def _process_phase_a(ship_id: str, image_path, background: str):
+    """Stages 1-4: matte/keyability, camera fit, MoGe cloud, symmetry solve.
+
+    Returns a `_Stage4Result` on success, or a failure dict (from `_fail`) the
+    moment an unkeyable image, a self-reported symmetry-solve failure, or a
+    too-close-to-bow-on view rules the ship out. Factored out of `process()`
+    (Item 2) so `process()`'s single-ship path and the batch driver's Phase A
+    pass share one copy of these gates instead of each re-implementing them --
+    see this module's docstring on the stages-1-4-once restructure.
+    """
     img, mask, frac, is_keyable, corner_spread, border_std = _stage_1(ship_id, image_path)
     if not is_keyable:
         # Environmental scene renders (a ship in a hall, a cavern, a hangar)
@@ -199,11 +236,27 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
                      "where the depth-separation term cannot reliably distinguish a "
                      "fold from a genuine occluded half")
 
-    full = mirror.complete(cloud.points, sym)
+    return _Stage4Result(frac=frac, fit=fit, cloud=cloud, sym=sym, mask=mask)
+
+
+def _process_phase_b(ship_id: str, stage4: _Stage4Result, alpha: float) -> dict:
+    """Stages 5-7: silhouette gate, ground projection, profile.
+
+    Takes the `_Stage4Result` a successful `_process_phase_a` produced --
+    either straight from Phase A (process()'s single-ship path) or
+    reconstructed from disk (`_reload_for_phase_b`, the batch path) -- and
+    never touches stages 1-4 itself.
+    """
+    cloud, sym, mask, fit, frac = (stage4.cloud, stage4.sym, stage4.mask,
+                                   stage4.fit, stage4.frac)
+    full = stage4.full if stage4.full is not None else mirror.complete(cloud.points, sym)
     # mirror.complete returns np.vstack([affine(points), reflect(affine(points))])
     # (see mirror.py's `complete`), so the first len(cloud.points) rows are the
     # visible half and the rest are the mirrored half -- verified by reading
-    # complete()'s body, not assumed from call-site convention.
+    # complete()'s body, not assumed from call-site convention. Holds equally
+    # for a reloaded `full`: `mirror.run` writes `cloud_resolved.npz` from
+    # this exact same `complete()` call, so `mirror.load`'s `full` has the
+    # same layout.
     n = len(cloud.points)
     assert len(full) == 2 * n, (len(full), n)
     mirrored = full[n:]
@@ -253,8 +306,28 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
     return data
 
 
+def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
+    """Run every stage for one ship. Unchanged behaviour and statuses (Item
+    2's brief) -- only the body is now `_process_phase_a` followed by
+    `_process_phase_b`, so the batch driver (`_run_all`) can reuse the exact
+    same gates without paying for stages 1-4 twice.
+    """
+    stage4 = _process_phase_a(ship_id, image_path, background)
+    if isinstance(stage4, dict):
+        return stage4
+    return _process_phase_b(ship_id, stage4, alpha)
+
+
 def _ship_ground_xy(ship_id, path, background):
     """One ship's contribution to the alpha sweep: its completed cloud, ground-projected.
+
+    SUPERSEDED for the batch path by `_run_all`, which computes the same
+    ground xy inline in its own Phase A loop instead of calling this a second
+    time after `process()` already ran stages 1-4 once (Item 2's brief: the
+    `_pick_alpha`/`_run_batch` composition below ran stages 1-4 TWICE per
+    ship -- once here, once inside `process()`). Kept, unchanged, because
+    `test_pick_alpha_skips_a_ship_whose_stages_raise` and
+    `test_pick_alpha_raises_when_every_ship_fails` monkeypatch it directly.
 
     Factored out of `_pick_alpha` so the per-ship isolation below has a single
     seam to catch around, and so a test can monkeypatch this one function
@@ -281,6 +354,11 @@ def _ship_ground_xy(ship_id, path, background):
 
 def _pick_alpha(heroes, background):
     """One alpha for the batch, from the clouds themselves.
+
+    SUPERSEDED for the batch path by `_run_all` (see `_ship_ground_xy`'s
+    docstring); kept for `test_pick_alpha_skips_a_ship_whose_stages_raise`
+    and `test_pick_alpha_raises_when_every_ship_fails`, which call it
+    directly.
 
     A ship whose stages 1-4 raise (e.g. a hero image that fails to load, or a
     degenerate reconstruction) is skipped here rather than aborting the whole
@@ -312,6 +390,12 @@ def _pick_alpha(heroes, background):
 def _run_batch(heroes, alpha, background):
     """Process every ship, isolating a per-ship exception from the rest of the batch.
 
+    SUPERSEDED for the batch path by `_run_all` (see `_ship_ground_xy`'s
+    docstring: calling `process()` per ship here always re-runs stages 1-4,
+    which is exactly what Item 2 removes from the production path). Kept for
+    `test_batch_isolates_a_per_ship_exception` and
+    `test_batch_does_not_swallow_keyboard_interrupt`, which call it directly.
+
     `process()` can raise -- e.g. `profile.canonicalise`'s
     ValueError("degenerate footprint...") on a real reconstruction whose hull
     axis collapses -- and an uncaught exception on ship N would previously
@@ -339,6 +423,106 @@ def _run_batch(heroes, alpha, background):
     return results
 
 
+def _reload_for_phase_b(ship_id: str, fit: camera.Fit) -> _Stage4Result:
+    """Reconstruct one ship's Phase A result from its artifacts, for Phase B.
+
+    `_run_all` does not keep Phase A's in-memory result alive for the whole
+    batch -- a completed cloud is ~19MB per ship (Item 2's brief), and 402 of
+    those does not fit in memory at once -- so Phase B reloads what stages
+    6-7 need from what Phase A already wrote to disk instead: the matte
+    (`matte.png`, stage 1), the MoGe cloud (`cloud.npz`, stage 3, via
+    `pointmap.load`) and the solved symmetry plus completed cloud
+    (`cloud_resolved.npz`, stage 4, via `mirror.load` -- both previously had
+    no caller). `foreground_fraction` is recomputed as `mask.mean()` rather
+    than persisted anywhere new, since it's one float and matches exactly what
+    `_stage_1` computed it as originally (`matte.extract`'s own return value).
+
+    `fit` is the one piece the caller must supply rather than this function
+    reloading it: a `camera.Fit` is a handful of scalars and a 3x3 rotation,
+    not an array that scales with point count, so `_run_all` just keeps it in
+    memory across the batch instead of adding a reader to `camera.json` --
+    `camera.py` is outside this restructure's file scope, and `camera.json`
+    already has no loader to begin with.
+    """
+    matte_path = paths.artifact_dir(ship_id) / "matte.png"
+    mask = (cv2.imread(str(matte_path), cv2.IMREAD_GRAYSCALE) > 0).astype(np.uint8)
+    cloud = pointmap.load(ship_id)
+    sym, full = mirror.load(ship_id)
+    return _Stage4Result(frac=float(mask.mean()), fit=fit, cloud=cloud, sym=sym,
+                         mask=mask, full=full)
+
+
+def _run_all(heroes: dict, background: str, alpha: float | None = None):
+    """The production `--all`/`--ship` driver: stages 1-4 run once per ship.
+
+    Phase A runs stages 1-4 for every ship via `_process_phase_a`. A ship
+    that fails one of its gates (or raises) gets its final result right here
+    and never reaches Phase B. A ship that clears them contributes its
+    subsampled ground xy to the alpha sweep (task-9 final review C4's
+    subsampling requirement, same as `_ship_ground_xy`) -- computed inline,
+    once, right after Phase A returns, rather than by calling `_ship_ground_xy`
+    (which would mean running `_stage_1`/`_stage_2_to_4` a second time). Only
+    that small array and the ship's tiny `camera.Fit` are kept past this loop
+    -- not the cloud, the mask, or the completed points -- so memory stays
+    bounded across a batch of hundreds of ships (see `_reload_for_phase_b`).
+
+    Alpha is picked once from every surviving ship's xy, unless the caller
+    already pins one (`--alpha` on the command line). Phase B then reloads
+    each surviving ship's stage 1-4 artifacts from disk and runs stages 5-7 --
+    so stages 1-4 never run twice for any ship, unlike the
+    `_pick_alpha` + `_run_batch` composition those functions are kept for
+    (see their docstrings).
+
+    Returns `(alpha, results)`, with `results` in the same order as `heroes`
+    regardless of which ships dropped out in Phase A vs. Phase B.
+    """
+    fits = {}
+    xys = []
+    results = {}
+    for ship_id, path in heroes.items():
+        try:
+            outcome = _process_phase_a(ship_id, path, background)
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as e:
+            logger.warning("ship %s raised during stages 1-4: %s: %s",
+                           ship_id, type(e).__name__, e)
+            (paths.artifact_dir(ship_id) / "profile.json").unlink(missing_ok=True)
+            results[ship_id] = {"id": ship_id, "status": "failed_exception", "quality": {},
+                                "reason": f"{type(e).__name__}: {e}"}
+            continue
+
+        if isinstance(outcome, dict):
+            results[ship_id] = outcome
+            continue
+
+        full = mirror.complete(outcome.cloud.points, outcome.sym)
+        up = ground.up_vector(outcome.sym, full, outcome.cloud.normals, fit=outcome.fit)
+        xys.append((ship_id, ground.subsample(ground.project(full, up))))
+        fits[ship_id] = outcome.fit
+
+    if alpha is None:
+        if not xys:
+            raise RuntimeError(
+                "every ship failed stages 1-4; cannot pick a batch alpha from zero clouds")
+        alpha = ground.sweep_alpha([xy for _, xy in xys])
+
+    for ship_id, _ in xys:
+        try:
+            stage4 = _reload_for_phase_b(ship_id, fits[ship_id])
+            results[ship_id] = _process_phase_b(ship_id, stage4, alpha)
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as e:
+            logger.warning("ship %s raised during processing: %s: %s",
+                           ship_id, type(e).__name__, e)
+            (paths.artifact_dir(ship_id) / "profile.json").unlink(missing_ok=True)
+            results[ship_id] = {"id": ship_id, "status": "failed_exception", "quality": {},
+                                "reason": f"{type(e).__name__}: {e}"}
+
+    return alpha, [results[ship_id] for ship_id in heroes if ship_id in results]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--all", action="store_true")
@@ -355,10 +539,13 @@ def main():
         print("no hero images matched a catalog ship", file=sys.stderr)
         return 1
 
-    alpha = args.alpha if args.alpha else _pick_alpha(heroes, args.background)
+    # `_run_all`, not `_pick_alpha` + `_run_batch`: that composition ran
+    # stages 1-4 twice per ship (task-9-followup Item 2). `args.alpha`, when
+    # given, is passed straight through and skips the sweep entirely, same as
+    # before.
+    alpha, results = _run_all(heroes, args.background, alpha=args.alpha)
     print(f"batch alpha = {alpha}")
 
-    results = _run_batch(heroes, alpha, args.background)
     ok = [r for r in results if r["status"].startswith("ok")]
     print(f"\nrecovered {len(ok)} / {len(results)}")
     for r in results:
