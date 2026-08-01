@@ -160,29 +160,107 @@ def test_moge_clears_a_floor_on_real_hero_art():
     assert gain > 1.15, f"completion added almost nothing ({gain:.3f}x): plane folded"
 
 
-# --- Task 9 fix round 1: a single ship must not be able to kill the batch ---
+# --- Task 9 fix round 1 / followup fix round 1: a single ship must not be
+# able to kill the batch, and this coverage lives on `_run_all` now ---------
 #
-# `run.process` can raise -- most concretely `profile.canonicalise`'s
-# ValueError("degenerate footprint...") on a real reconstruction whose hull
-# axis collapses, a plausible outcome scaling from 19 to 335 ships -- and
-# `main()`'s original list comprehension over every ship had no exception
-# handling at all, so one bad ship on the tail end of a long batch would
-# lose every earlier ship's already-computed result (report.json is written
-# once, from the full list, at the very end). These tests exercise the seam
-# directly (`_run_batch` / `_pick_alpha`'s per-ship helper `_ship_ground_xy`)
-# rather than the real pipeline, so they need neither CUDA nor real hero art.
+# `_process_phase_a`/`_reload_for_phase_b`/`_process_phase_b` can raise --
+# most concretely `profile.canonicalise`'s ValueError("degenerate
+# footprint...") on a real reconstruction whose hull axis collapses, a
+# plausible outcome scaling from 19 to 335 ships -- and an uncaught exception
+# on ship N must not lose ships 1..N-1's already-computed results
+# (`report.json` is written once, from the full `results` list, at the very
+# end). This was originally proven against `_run_batch`/`_pick_alpha` (task-9
+# fix round 1), a two-pass composition that ran stages 1-4 twice per ship;
+# `_run_all` replaced that composition (followup Item 2) but initially had no
+# isolation coverage of its own -- the four tests below (followup fix round
+# 1) port the same properties directly onto it, split across Phase A and
+# Phase B since `_run_all`, unlike the old composition, can fail a ship in
+# either phase for different reasons. They monkeypatch `_run_all`'s own seams
+# (`_process_phase_a`, `_reload_for_phase_b`, `_process_phase_b`) rather than
+# the real pipeline, so they need neither CUDA nor real hero art.
 
-def test_batch_isolates_a_per_ship_exception(monkeypatch):
-    def fake_process(ship_id, image_path, alpha, background):
+def test_run_all_isolates_a_per_ship_exception_in_phase_a(monkeypatch):
+    def fake_phase_a(ship_id, path, background):
         if ship_id == "bad_ship":
             raise ValueError("degenerate footprint: zero length along the hull axis")
+        # A dict return is itself a valid `_process_phase_a` outcome (an
+        # early gate failure) -- reused here as a stand-in "already done, no
+        # Phase B needed" result so this test only has to prove the Phase A
+        # try/except, not exercise real Phase B geometry too.
         return {"id": ship_id, "status": "ok", "quality": {}}
 
-    monkeypatch.setattr(run, "process", fake_process)
+    monkeypatch.setattr(run, "_process_phase_a", fake_phase_a)
     heroes = {"good_one": pathlib.Path("a.webp"), "bad_ship": pathlib.Path("b.webp"),
               "good_two": pathlib.Path("c.webp")}
 
-    results = run._run_batch(heroes, alpha=3.0, background="neutral")
+    alpha, results = run._run_all(heroes, "neutral", alpha=3.0)
+
+    by_id = {r["id"]: r for r in results}
+    assert alpha == 3.0
+    assert len(results) == 3, "the two good ships' results must survive the bad one"
+    assert by_id["good_one"]["status"] == "ok"
+    assert by_id["good_two"]["status"] == "ok"
+    assert by_id["bad_ship"]["status"] == "failed_exception"
+    assert "degenerate footprint" in by_id["bad_ship"]["reason"]
+
+
+def test_run_all_does_not_swallow_keyboard_interrupt_in_phase_a(monkeypatch):
+    def fake_phase_a(ship_id, path, background):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(run, "_process_phase_a", fake_phase_a)
+    with pytest.raises(KeyboardInterrupt):
+        run._run_all({"any_ship": pathlib.Path("a.webp")}, "neutral", alpha=3.0)
+
+
+def test_run_all_raises_when_every_ship_fails_phase_a(monkeypatch):
+    def always_raises(ship_id, path, background):
+        raise ValueError("boom")
+
+    monkeypatch.setattr(run, "_process_phase_a", always_raises)
+    with pytest.raises(RuntimeError, match="every ship failed"):
+        run._run_all({"bad_one": pathlib.Path("a.webp")}, "neutral")
+
+
+def _tiny_stage4():
+    """A `_Stage4Result` cheap enough for real `mirror.complete`/
+    `ground.up_vector`/`ground.project`/`ground.subsample` to run on it
+    without crashing, for the Phase-A-side isolation test above's Phase-B
+    counterparts below -- 4 points is enough for the SVD inside
+    `ground.up_vector` to produce SOME vector; these tests assert on control
+    flow, not on the geometry being meaningful.
+    """
+    cloud = pointmap.Cloud(
+        points=np.array([[0.0, 0.0, 5.0], [1.0, 0.0, 5.0], [0.0, 1.0, 5.0], [1.0, 1.0, 5.0]]),
+        pixels=np.zeros((4, 2), np.float32), normals=None, intrinsics=np.eye(3))
+    sym = mirror.Symmetry(normal=np.array([1.0, 0.0, 0.0]), offset=0.0, scale=1.0, shift=0.0,
+                          residual=0.0, depth_separation=0.0, failure=None)
+    return run._Stage4Result(frac=0.5, fit=None, cloud=cloud, sym=sym,
+                             mask=np.ones((4, 4), np.uint8))
+
+
+def test_run_all_isolates_a_per_ship_exception_in_phase_b(monkeypatch):
+    """The Phase B counterpart of the Phase A isolation test above -- a
+    property `_run_batch`/`process()`'s single un-splittable call never had
+    to distinguish, since a Phase A vs. Phase B failure looked identical to
+    it. `_run_all` catches them in two separate try/except blocks, so each
+    needs its own regression test.
+    """
+    stage4 = _tiny_stage4()
+    monkeypatch.setattr(run, "_process_phase_a", lambda ship_id, path, background: stage4)
+
+    def fake_reload(ship_id, fit):
+        if ship_id == "bad_ship":
+            raise ValueError("degenerate footprint: zero length along the hull axis")
+        return stage4
+
+    monkeypatch.setattr(run, "_reload_for_phase_b", fake_reload)
+    monkeypatch.setattr(run, "_process_phase_b",
+                        lambda ship_id, s4, alpha: {"id": ship_id, "status": "ok", "quality": {}})
+
+    heroes = {"good_one": pathlib.Path("a.webp"), "bad_ship": pathlib.Path("b.webp"),
+              "good_two": pathlib.Path("c.webp")}
+    alpha, results = run._run_all(heroes, "neutral", alpha=3.0)
 
     by_id = {r["id"]: r for r in results}
     assert len(results) == 3, "the two good ships' results must survive the bad one"
@@ -192,40 +270,16 @@ def test_batch_isolates_a_per_ship_exception(monkeypatch):
     assert "degenerate footprint" in by_id["bad_ship"]["reason"]
 
 
-def test_batch_does_not_swallow_keyboard_interrupt(monkeypatch):
-    def fake_process(ship_id, image_path, alpha, background):
+def test_run_all_does_not_swallow_keyboard_interrupt_in_phase_b(monkeypatch):
+    stage4 = _tiny_stage4()
+    monkeypatch.setattr(run, "_process_phase_a", lambda ship_id, path, background: stage4)
+
+    def fake_reload(ship_id, fit):
         raise KeyboardInterrupt
 
-    monkeypatch.setattr(run, "process", fake_process)
+    monkeypatch.setattr(run, "_reload_for_phase_b", fake_reload)
     with pytest.raises(KeyboardInterrupt):
-        run._run_batch({"any_ship": pathlib.Path("a.webp")}, alpha=3.0, background="neutral")
-
-
-def test_pick_alpha_skips_a_ship_whose_stages_raise(monkeypatch):
-    def fake_ground_xy(ship_id, path, background):
-        if ship_id == "bad_ship":
-            raise ValueError("boom")
-        return np.zeros((10, 2))
-
-    seen = []
-    monkeypatch.setattr(run, "_ship_ground_xy", fake_ground_xy)
-    monkeypatch.setattr(run.ground, "sweep_alpha", lambda clouds: seen.append(len(clouds)) or 7.0)
-
-    heroes = {"good_one": pathlib.Path("a.webp"), "bad_ship": pathlib.Path("b.webp"),
-              "good_two": pathlib.Path("c.webp")}
-    alpha = run._pick_alpha(heroes, "neutral")
-
-    assert alpha == 7.0
-    assert seen == [2], "sweep_alpha must only see the two ships that didn't raise"
-
-
-def test_pick_alpha_raises_when_every_ship_fails(monkeypatch):
-    def always_raises(ship_id, path, background):
-        raise ValueError("boom")
-
-    monkeypatch.setattr(run, "_ship_ground_xy", always_raises)
-    with pytest.raises(RuntimeError, match="every ship failed"):
-        run._pick_alpha({"bad_one": pathlib.Path("a.webp")}, "neutral")
+        run._run_all({"any_ship": pathlib.Path("a.webp")}, "neutral", alpha=3.0)
 
 
 # --- Task 9 final review I1: run._depth_extent was untested -------------

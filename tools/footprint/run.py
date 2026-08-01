@@ -318,111 +318,6 @@ def process(ship_id: str, image_path, alpha: float, background: str) -> dict:
     return _process_phase_b(ship_id, stage4, alpha)
 
 
-def _ship_ground_xy(ship_id, path, background):
-    """One ship's contribution to the alpha sweep: its completed cloud, ground-projected.
-
-    SUPERSEDED for the batch path by `_run_all`, which computes the same
-    ground xy inline in its own Phase A loop instead of calling this a second
-    time after `process()` already ran stages 1-4 once (Item 2's brief: the
-    `_pick_alpha`/`_run_batch` composition below ran stages 1-4 TWICE per
-    ship -- once here, once inside `process()`). Kept, unchanged, because
-    `test_pick_alpha_skips_a_ship_whose_stages_raise` and
-    `test_pick_alpha_raises_when_every_ship_fails` monkeypatch it directly.
-
-    Factored out of `_pick_alpha` so the per-ship isolation below has a single
-    seam to catch around, and so a test can monkeypatch this one function
-    instead of faking a whole Cloud/Symmetry/Fit chain.
-
-    Subsampled before returning (task-9 final review C4): `ground.sweep_alpha`
-    is documented to require ALREADY-SUBSAMPLED clouds ("Pass ALREADY-
-    SUBSAMPLED clouds", ground.py's `sweep_alpha` docstring) because
-    `alphashape`'s cost is superlinear -- a real MoGe cloud completed to both
-    halves is ~800k points, and a single un-subsampled `hull()` call on one
-    did not finish in 5 minutes. Passing raw density also silently invalidates
-    the chosen alpha itself: a value that keeps 90% of an 800k-point cloud is
-    not the same value that keeps 90% of a 20k-point subsample of it, since
-    retention is density-dependent -- so this was picking an alpha on one
-    density and applying it (in `ground.run`, via its own `subsample` call) to
-    another.
-    """
-    img, mask, _, _, _, _ = _stage_1(ship_id, path)
-    fit, cloud, sym = _stage_2_to_4(ship_id, img, mask, background)
-    full = mirror.complete(cloud.points, sym)
-    up = ground.up_vector(sym, full, cloud.normals, fit=fit)
-    return ground.subsample(ground.project(full, up))
-
-
-def _pick_alpha(heroes, background):
-    """One alpha for the batch, from the clouds themselves.
-
-    SUPERSEDED for the batch path by `_run_all` (see `_ship_ground_xy`'s
-    docstring); kept for `test_pick_alpha_skips_a_ship_whose_stages_raise`
-    and `test_pick_alpha_raises_when_every_ship_fails`, which call it
-    directly.
-
-    A ship whose stages 1-4 raise (e.g. a hero image that fails to load, or a
-    degenerate reconstruction) is skipped here rather than aborting the whole
-    sweep -- see task-9 fix round 1: the batch is meant to scale from 19 to
-    335 ships, and one bad image must not cost every other ship its alpha.
-    `process()` (called separately, per ship, below) is what records that
-    ship as a failure; this function only needs SOME clouds to pick a batch
-    alpha from.
-
-    If EVERY ship fails, `clouds` is empty and `ground.sweep_alpha` would
-    silently return `min(ALPHA_CANDIDATES)` -- a real-looking number with no
-    evidence behind it -- so that case raises instead of returning one.
-    """
-    clouds = []
-    for ship_id, path in heroes.items():
-        try:
-            clouds.append(_ship_ground_xy(ship_id, path, background))
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception as e:
-            logger.warning("ship %s raised during the alpha sweep, skipping it: %s: %s",
-                           ship_id, type(e).__name__, e)
-    if not clouds:
-        raise RuntimeError(
-            "every ship failed stages 1-4; cannot pick a batch alpha from zero clouds")
-    return ground.sweep_alpha(clouds)
-
-
-def _run_batch(heroes, alpha, background):
-    """Process every ship, isolating a per-ship exception from the rest of the batch.
-
-    SUPERSEDED for the batch path by `_run_all` (see `_ship_ground_xy`'s
-    docstring: calling `process()` per ship here always re-runs stages 1-4,
-    which is exactly what Item 2 removes from the production path). Kept for
-    `test_batch_isolates_a_per_ship_exception` and
-    `test_batch_does_not_swallow_keyboard_interrupt`, which call it directly.
-
-    `process()` can raise -- e.g. `profile.canonicalise`'s
-    ValueError("degenerate footprint...") on a real reconstruction whose hull
-    axis collapses -- and an uncaught exception on ship N would previously
-    lose ships 1..N-1's already-computed results too (report.json is written
-    once, at the end, from the full `results` list). See task-9 fix round 1.
-    A per-ship exception is recorded as `failed_exception` and the batch
-    continues; only KeyboardInterrupt/SystemExit propagate.
-    """
-    results = []
-    for ship_id, path in heroes.items():
-        try:
-            results.append(process(ship_id, path, alpha, background))
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except Exception as e:
-            logger.warning("ship %s raised during processing: %s: %s",
-                           ship_id, type(e).__name__, e)
-            # Same stale-file rule as _fail() (task-9 final review I3): an
-            # UNEXPECTED exception can still leave a previous run's
-            # profile.json on disk for a ship this run never actually
-            # reached stage 7 for.
-            (paths.artifact_dir(ship_id) / "profile.json").unlink(missing_ok=True)
-            results.append({"id": ship_id, "status": "failed_exception", "quality": {},
-                            "reason": f"{type(e).__name__}: {e}"})
-    return results
-
-
 def _reload_for_phase_b(ship_id: str, fit: camera.Fit) -> _Stage4Result:
     """Reconstruct one ship's Phase A result from its artifacts, for Phase B.
 
@@ -459,19 +354,31 @@ def _run_all(heroes: dict, background: str, alpha: float | None = None):
     that fails one of its gates (or raises) gets its final result right here
     and never reaches Phase B. A ship that clears them contributes its
     subsampled ground xy to the alpha sweep (task-9 final review C4's
-    subsampling requirement, same as `_ship_ground_xy`) -- computed inline,
-    once, right after Phase A returns, rather than by calling `_ship_ground_xy`
-    (which would mean running `_stage_1`/`_stage_2_to_4` a second time). Only
-    that small array and the ship's tiny `camera.Fit` are kept past this loop
-    -- not the cloud, the mask, or the completed points -- so memory stays
-    bounded across a batch of hundreds of ships (see `_reload_for_phase_b`).
+    subsampling requirement) -- computed inline, once, right after Phase A
+    returns. Only that small array and the ship's tiny `camera.Fit` are kept
+    past this loop -- not the cloud, the mask, or the completed points -- so
+    memory stays bounded across a batch of hundreds of ships (see
+    `_reload_for_phase_b`).
 
     Alpha is picked once from every surviving ship's xy, unless the caller
     already pins one (`--alpha` on the command line). Phase B then reloads
     each surviving ship's stage 1-4 artifacts from disk and runs stages 5-7 --
-    so stages 1-4 never run twice for any ship, unlike the
-    `_pick_alpha` + `_run_batch` composition those functions are kept for
-    (see their docstrings).
+    so stages 1-4 never run twice for any ship. This replaces an earlier
+    `_pick_alpha` (alpha sweep, via a `_ship_ground_xy` helper) composed with
+    `_run_batch` (calling `process()` per ship) that ran stages 1-4 TWICE per
+    ship -- once in each half of that composition -- for the same heroes
+    dict (Item 2's brief). Those three functions and the isolation tests that
+    exercised them directly were retired once their properties -- per-ship
+    exception isolation in both phases, KeyboardInterrupt/SystemExit
+    propagation, and the all-ships-failed RuntimeError -- were ported onto
+    `_run_all` itself below (fix round 1: dead code protected by tests of
+    dead code protects nothing).
+
+    Per-ship isolation: an exception from `_process_phase_a` (Phase A) or
+    from `_reload_for_phase_b`/`_process_phase_b` (Phase B) is caught,
+    recorded as `failed_exception`, and does not stop the rest of the batch
+    -- see task-9 fix round 1's original rationale, which still applies
+    here. Only `KeyboardInterrupt`/`SystemExit` propagate.
 
     Returns `(alpha, results)`, with `results` in the same order as `heroes`
     regardless of which ships dropped out in Phase A vs. Phase B.
@@ -539,10 +446,8 @@ def main():
         print("no hero images matched a catalog ship", file=sys.stderr)
         return 1
 
-    # `_run_all`, not `_pick_alpha` + `_run_batch`: that composition ran
-    # stages 1-4 twice per ship (task-9-followup Item 2). `args.alpha`, when
-    # given, is passed straight through and skips the sweep entirely, same as
-    # before.
+    # `args.alpha`, when given, is passed straight through and skips the
+    # sweep entirely -- see `_run_all`'s own docstring for what this replaced.
     alpha, results = _run_all(heroes, args.background, alpha=args.alpha)
     print(f"batch alpha = {alpha}")
 
