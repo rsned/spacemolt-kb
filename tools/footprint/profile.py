@@ -97,7 +97,13 @@ def aspect(w: np.ndarray) -> float:
 #
 # So these bounds are not defensive boilerplate — they are the pipeline's only
 # check on the dimension it exists to publish.
-ASPECT_BOUNDS = (1.2, 12.0)      # derived from the catalog's own ship dimensions
+# Floor lowered 1.2 -> 0.8 (2026-08-01): the full drop proved genuinely squat
+# hulls exist — user-confirmed ground truth for four_on_the_floor (1.04, "fat
+# X-wing"), datum (1.06, Snowspeeder delta), last_warning (0.94, mid-mounted
+# oversized engines), all with high-confidence solves (silhouette IoU >= 0.99,
+# mirrored_fraction >= 0.997). The prayer family measures ~0.5 and stays
+# rejected pending its own ruling.
+ASPECT_BOUNDS = (0.8, 12.0)      # derived from the catalog's own ship dimensions
 MIN_DEPTH_TO_BEAM = 0.15         # below this the reconstruction is a pancake
 
 

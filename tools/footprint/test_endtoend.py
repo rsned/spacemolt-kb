@@ -341,7 +341,7 @@ def test_depth_extent_bridges_to_profile_implausible_on_a_flat_card():
 def test_process_skips_moge_for_an_unkeyable_image(monkeypatch, tmp_path):
     monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
     monkeypatch.setattr(run, "_stage_1",
-                        lambda ship_id, image_path: ("img", "mask", 0.3, False, 50.9, 67.2))
+                        lambda ship_id, image_path: ("img", "mask", 0.3, False, 50.9, 67.2, 0.83))
 
     def fail_if_called(*a, **k):
         raise AssertionError("_stage_2_to_4 (camera/MoGe/mirror) must not run "
@@ -357,7 +357,7 @@ def test_process_skips_moge_for_an_unkeyable_image(monkeypatch, tmp_path):
 def test_process_reports_failed_symmetry_solve_when_sym_failure_is_set(monkeypatch, tmp_path):
     monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
     monkeypatch.setattr(run, "_stage_1",
-                        lambda ship_id, image_path: ("img", "mask", 0.3, True, 1.0, 1.0))
+                        lambda ship_id, image_path: ("img", "mask", 0.3, True, 1.0, 1.0, 1.0))
     fit = types.SimpleNamespace(confidence=0.02, source="auto")
     sym = mirror.Symmetry(normal=np.array([0.0, 0.0, 1.0]), offset=0.0, scale=1.0, shift=0.0,
                           residual=0.05, depth_separation=0.1,
@@ -373,7 +373,7 @@ def test_process_reports_failed_symmetry_solve_when_sym_failure_is_set(monkeypat
 def test_process_reports_failed_low_obliquity(monkeypatch, tmp_path):
     monkeypatch.setattr(run.paths, "FOOTPRINT_ROOT", tmp_path)
     monkeypatch.setattr(run, "_stage_1",
-                        lambda ship_id, image_path: ("img", "mask", 0.3, True, 1.0, 1.0))
+                        lambda ship_id, image_path: ("img", "mask", 0.3, True, 1.0, 1.0, 1.0))
     fit = types.SimpleNamespace(confidence=0.02, source="auto")
     # normal mostly in-plane (x), tiny z component -> low obliquity (near bow-on).
     sym = mirror.Symmetry(normal=np.array([1.0, 0.0, 0.05]), offset=0.0, scale=1.0, shift=0.0,
@@ -549,7 +549,7 @@ def test_run_all_runs_stages_1_4_exactly_once_per_ship(monkeypatch, tmp_path):
 
     def fake_stage_1(ship_id, image_path):
         calls["stage_1"] += 1
-        return s.image, mask, float(mask.mean()), True, 0.0, 0.0
+        return s.image, mask, float(mask.mean()), True, 0.0, 0.0, 1.0
 
     def fake_stage_2_to_4(ship_id, img, m, background):
         calls["stage_2_to_4"] += 1

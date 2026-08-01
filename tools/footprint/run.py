@@ -96,9 +96,9 @@ def _stage_1(ship_id, image_path):
     """
     img = cv2.cvtColor(cv2.imread(str(image_path)), cv2.COLOR_BGR2RGB)
     mask, frac = matte.extract(img)
-    is_keyable, corner_spread, border_std = matte.keyability(img)
+    is_keyable, corner_spread, border_std, border_key_fraction = matte.keyability(img)
     matte.run(ship_id, img)
-    return img, mask, frac, is_keyable, corner_spread, border_std
+    return img, mask, frac, is_keyable, corner_spread, border_std, border_key_fraction
 
 
 def _stage_2_to_4(ship_id, img, mask, background):
@@ -190,7 +190,8 @@ def _process_phase_a(ship_id: str, image_path, background: str):
     pass share one copy of these gates instead of each re-implementing them --
     see this module's docstring on the stages-1-4-once restructure.
     """
-    img, mask, frac, is_keyable, corner_spread, border_std = _stage_1(ship_id, image_path)
+    img, mask, frac, is_keyable, corner_spread, border_std, border_key_fraction = \
+        _stage_1(ship_id, image_path)
     if not is_keyable:
         # Environmental scene renders (a ship in a hall, a cavern, a hangar)
         # still yield a plausible-looking foreground fraction from a colour-
@@ -200,11 +201,15 @@ def _process_phase_a(ship_id: str, image_path, background: str):
         # indirect (task-9 final review C1).
         return _fail(ship_id, "failed_unkeyable",
                      {"foreground_fraction": frac, "corner_spread": corner_spread,
-                      "border_std": border_std},
+                      "border_std": border_std,
+                      "border_key_fraction": border_key_fraction},
                      f"corner_spread={corner_spread:.2f} (floor "
                      f"{matte.CORNER_SPREAD_THRESHOLD}) / border_std={border_std:.2f} "
-                     f"(floor {matte.BORDER_STD_THRESHOLD}): background is not a flat "
-                     "chroma key, this looks like an environmental scene render")
+                     f"(floor {matte.BORDER_STD_THRESHOLD}) / border_key_fraction="
+                     f"{border_key_fraction:.3f} (floor "
+                     f"{matte.BORDER_KEY_FRACTION_THRESHOLD}): background is neither a "
+                     "flat chroma key nor a shadowed magenta key, this looks like an "
+                     "environmental scene render")
 
     fit, cloud, sym = _stage_2_to_4(ship_id, img, mask, background)
 

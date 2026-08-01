@@ -1,40 +1,51 @@
 {
- "_meta": "User art-vs-method eyeball labels, 2026-08-01, TripoSR bake-off vs pipeline (old webp art for pipeline; keyed PNGs for TripoSR). Notes verbatim from user.",
- "both_fail": {
-  "premiere": "moge captures back-half widening, misses front parts",
-  "smelter": "tripo less wrong; moge hourglass not close",
-  "superposition": "tripo less wrong; ship narrower than both, large rear-quarter nacelles w/ narrow connections",
-  "crowbar": "hard to read off image+background",
-  "last_warning": "",
-  "prayer": "not even close on either"
- },
- "tripo_wins": {
-  "ledger": "",
-  "magnate": "shape good, needs ~1.5x lengthwise stretch",
-  "war_wagon": "shape good, needs 2x length at existing width",
-  "yard_sale": "",
-  "bonanza": "great guess despite background distractions",
-  "paradox": "great guess despite background distractions",
-  "principia": "great guess despite background distractions"
- },
- "moge_wins": {
-  "comet": "captures forward canards, wing curve and widening",
-  "excessive_force": "footprint even better: engines extend past rear",
-  "liquidity_event": "both did well, moge edges out",
-  "rapid_smelter": "",
-  "reliquary": "long skinny rectangle is right; tripo much thicker",
-  "thermodynamic_end": "not bad (tricky tentacle trailing off back third)"
- },
- "view_anomalies": {
-  "_meta": "User full-sheet observation 2026-08-01: ~15% of hero shots point AWAY from camera (stern view); some are shot from BELOW the ground plane. Pipeline elevation is unsigned (up is resolved toward-viewer), so below-plane reads as above. Examples:",
-  "stern_toward_camera": [
-   "free_radical",
-   "five_finger_discount",
-   "finish_line",
-   "finders_keepers"
-  ],
-  "shot_from_below": {
-   "cryogenic_survey": "~-45 deg, camera below the 0 plane"
-  }
- }
+  "_meta": "User art-vs-method eyeball labels, 2026-08-01, TripoSR bake-off vs pipeline (old webp art for pipeline; keyed PNGs for TripoSR). Notes verbatim from user.",
+  "both_fail": {
+    "premiere": "moge captures back-half widening, misses front parts",
+    "smelter": "tripo less wrong; moge hourglass not close",
+    "superposition": "tripo less wrong; ship narrower than both, large rear-quarter nacelles w/ narrow connections",
+    "crowbar": "hard to read off image+background",
+    "last_warning": "",
+    "prayer": "not even close on either"
+  },
+  "tripo_wins": {
+    "ledger": "",
+    "magnate": "shape good, needs ~1.5x lengthwise stretch",
+    "war_wagon": "shape good, needs 2x length at existing width",
+    "yard_sale": "",
+    "bonanza": "great guess despite background distractions",
+    "paradox": "great guess despite background distractions",
+    "principia": "great guess despite background distractions"
+  },
+  "moge_wins": {
+    "comet": "captures forward canards, wing curve and widening",
+    "excessive_force": "footprint even better: engines extend past rear",
+    "liquidity_event": "both did well, moge edges out",
+    "rapid_smelter": "",
+    "reliquary": "long skinny rectangle is right; tripo much thicker",
+    "thermodynamic_end": "not bad (tricky tentacle trailing off back third)"
+  },
+  "view_anomalies": {
+    "_meta": "User full-sheet observation 2026-08-01: ~15% of hero shots point AWAY from camera (stern view); some are shot from BELOW the ground plane. Pipeline elevation is unsigned (up is resolved toward-viewer), so below-plane reads as above. Examples:",
+    "stern_toward_camera": [
+      "free_radical",
+      "five_finger_discount",
+      "finish_line",
+      "finders_keepers"
+    ],
+    "shot_from_below": {
+      "cryogenic_survey": "~-45 deg, camera below the 0 plane"
+    }
+  },
+  "ground_truth_shapes": {
+    "four_on_the_floor": "fat X-wing; squarish overall (user, 2026-08-01)",
+    "last_warning": "engines huge relative to the ship, mounted at the middle; almost squarish (user, 2026-08-01)",
+    "datum": "shaped like a Star Wars Snowspeeder: flat and wide, wide-angle wings starting at the front, widening to max at midpoint, tapering to the back (user, 2026-08-01)",
+    "start_praying": "variant of prayer: cargo container with an ellipsoid engine cone welded to the back (user, 2026-08-01)",
+    "omniscience": "like a cross between an octopus and a jellyfish (user, 2026-08-01) \u2014 radial/organic, no strong bilateral symmetry plane; explains the failed_symmetry_solve (inside_fraction 0.9513 vs MIR_FLOOR 0.96) | catalog lore: \"The Omniscience-class does not study phenomena from a distance. Its organic sensor arrays extend into the fabric of whatever it is observing, becoming temporarily entangled with the subject of study.\" \u2014 the extended sensor arrays are the tentacles; asymmetry is canonical."
+  },
+  "notes": [
+    "2026-08-01: the 4 remaining dimensional-check failures after the shadow-key fix (four_on_the_floor 1.04, last_warning 0.94, datum 1.06, start_praying 0.45; prayer 0.56) all have user-confirmed squat/wide ground-truth shapes and high-confidence solves (silhouette IoU >=0.99, mirrored_fraction >=0.997) \u2014 the ASPECT_BOUNDS floor of 1.2 rejects real ship shapes in this population, not bad reconstructions.",
+    "2026-08-01 (user lore): Voidborn ships are 'grown' \u2014 omniscience's hero image is genuinely asymmetric (octopus/jellyfish). BUT many Voidborn ships ARE symmetric (user): 38/50 recover ok, median mirror_residual 0.085 vs 0.063-0.075 other factions. Voidborn over-represents in failures (12/36, incl. 8 of the 14 aspect<0.8 suspects). Selection rule: per-ship metrics govern; Voidborn is only a weak prior that a weird solve may be a real grown shape, not a solver error."
+  ]
 }

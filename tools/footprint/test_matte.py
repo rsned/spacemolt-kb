@@ -104,7 +104,7 @@ def test_matte_is_not_fooled_by_a_magenta_subject_pixel():
 
 def test_keyability_true_for_a_flat_background_hero_image():
     img = _load_hero("outerrim_prayer")
-    is_keyable, corner_spread, border_std = matte.keyability(img)
+    is_keyable, corner_spread, border_std, border_key_fraction = matte.keyability(img)
     assert is_keyable
     assert abs(corner_spread - 7.8) < 0.5, corner_spread
     assert abs(border_std - 3.6) < 0.5, border_std
@@ -117,10 +117,13 @@ def test_keyability_false_for_a_scene_render_that_passes_the_corner_test():
     # term is load-bearing: delete it from keyability() and this reddens,
     # since corner_spread alone would call paradox keyable.
     img = _load_hero("paradox")
-    is_keyable, corner_spread, border_std = matte.keyability(img)
+    is_keyable, corner_spread, border_std, border_key_fraction = matte.keyability(img)
     assert not is_keyable
     assert corner_spread < matte.CORNER_SPREAD_THRESHOLD, corner_spread
     assert border_std > matte.BORDER_STD_THRESHOLD, border_std
+    # The cavern is lit blue-ish (median border hue ~103 half-degrees), so the
+    # shadowed-magenta route must not rescue it either.
+    assert border_key_fraction < matte.BORDER_KEY_FRACTION_THRESHOLD, border_key_fraction
 
 
 def test_keyability_false_for_a_scene_render_that_fails_the_corner_test():
@@ -138,9 +141,41 @@ def test_keyability_false_for_a_scene_render_that_fails_the_corner_test():
     # neither of these 19 happens to instantiate — a flat border with
     # mismatched corners — but no current fixture proves it's load-bearing.
     img = _load_hero("principia")
-    is_keyable, corner_spread, border_std = matte.keyability(img)
+    is_keyable, corner_spread, border_std, border_key_fraction = matte.keyability(img)
     assert not is_keyable
     assert corner_spread > matte.CORNER_SPREAD_THRESHOLD, corner_spread
+    assert border_key_fraction < matte.BORDER_KEY_FRACTION_THRESHOLD, border_key_fraction
+
+
+def test_shadowed_magenta_key_is_keyable_and_shadow_is_background():
+    # A soft ground shadow keeps the key's hue and saturation but drops its
+    # value, pushing corner_spread/border_std past the flat thresholds while
+    # remaining background. All 35 "unkeyable" images in the 2026-08-01 full
+    # drop were this case (shadowed/vignetted magenta), not scene renders —
+    # this is the test that proves the border_key_fraction route is
+    # load-bearing: delete it from keyability() and this reddens.
+    s = synth.box_scene(4.0, 2.0, 1.5, azimuth_deg=35, elevation_deg=30)
+    base_mask, _ = matte.extract(s.image)
+    img = s.image.copy()
+    h, w = img.shape[:2]
+    shadow = np.zeros((h, w), dtype=bool)
+    shadow[h - h // 3:, : w // 3] = True  # covers the bottom-left corner patch
+    shadow &= base_mask == 0              # darken background only
+    img[shadow] = (img[shadow] * 0.45).astype(np.uint8)
+
+    is_keyable, corner_spread, border_std, border_key_fraction = matte.keyability(img)
+    assert is_keyable
+    # The flat rule alone would reject this image — the hue route carries it.
+    assert corner_spread > matte.CORNER_SPREAD_THRESHOLD, corner_spread
+    assert border_key_fraction >= matte.BORDER_KEY_FRACTION_THRESHOLD, border_key_fraction
+
+    mask, _ = matte.extract(img)
+    # The shadow must not weld itself onto the silhouette...
+    assert mask[shadow].mean() < 0.001, mask[shadow].mean()
+    # ...and the subject itself must be unaffected by the darkened background.
+    inter = float((mask & base_mask).sum())
+    union = float((mask | base_mask).sum())
+    assert inter / union > 0.99, inter / union
 
 
 def test_keyability_matches_the_hero_art_catalog():
@@ -149,13 +184,13 @@ def test_keyability_matches_the_hero_art_catalog():
     mismatches = []
     for stem in KEYABLE_HERO_IDS:
         img = _load_hero(stem)
-        is_keyable, corner_spread, border_std = matte.keyability(img)
+        is_keyable, corner_spread, border_std, border_key_fraction = matte.keyability(img)
         if not is_keyable:
             mismatches.append(f"{stem}: expected keyable, got not-keyable "
                                f"(corner_spread={corner_spread:.1f}, border_std={border_std:.1f})")
     for stem in NOT_KEYABLE_HERO_IDS:
         img = _load_hero(stem)
-        is_keyable, corner_spread, border_std = matte.keyability(img)
+        is_keyable, corner_spread, border_std, border_key_fraction = matte.keyability(img)
         if is_keyable:
             mismatches.append(f"{stem}: expected not-keyable, got keyable "
                                f"(corner_spread={corner_spread:.1f}, border_std={border_std:.1f})")

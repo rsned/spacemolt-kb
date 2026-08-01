@@ -135,7 +135,10 @@ def test_an_implausible_aspect_is_rejected_and_says_why():
     The batch report names why each ship was excluded, so an empty or generic
     reason would make a failure unactionable.
     """
-    stubby = Polygon([(0, -0.6), (1, -0.6), (1, 0.6), (0, 0.6)])     # aspect 0.83
+    # Aspect 0.67 — under the 0.8 floor. (The floor was 1.2 until 2026-08-01;
+    # a 0.83-aspect fixture became a real, publishable shape when the full
+    # drop proved squat hulls exist — see ASPECT_BOUNDS' comment.)
+    stubby = Polygon([(0, -0.75), (1, -0.75), (1, 0.75), (0, 0.75)])
     w, _ = profile.sample(stubby)
     r = profile.implausible(w, depth_extent=1.0)
     assert r is not None and "stubby" in r, r
