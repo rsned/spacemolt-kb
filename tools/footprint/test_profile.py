@@ -147,3 +147,39 @@ def test_an_implausible_aspect_is_rejected_and_says_why():
     w, _ = profile.sample(sliver)
     r = profile.implausible(w, depth_extent=1.0)
     assert r is not None and "sliver" in r, r
+
+
+def test_snap_plateaus_flattens_a_rounded_wide_bump_into_a_block():
+    """TripoSR rounds blocky engine sections; the user-approved squaring
+    transform (2026-08-06 verdict on the before/after demo) snaps stations
+    near a wide run's max UP to that max, turning the rounded bump into a
+    flat-topped block. Narrow sections must pass through untouched.
+    """
+    t = np.linspace(0.0, 1.0, profile.STATIONS)
+    w = np.full(profile.STATIONS, 0.2)
+    stern = t >= 0.6                      # wide rear section, rounded top
+    w[stern] = 0.9 + 0.1 * np.sin(np.pi * (t[stern] - 0.6) / 0.4)
+    sq = profile.snap_plateaus(w)
+    # every station in the wide run that reached 85% of the run max is now AT it
+    run_max = w[stern].max()
+    snapped = stern & (w >= 0.85 * run_max)
+    assert np.all(sq[snapped] == run_max), "rounded bump must become a plateau"
+    # the narrow forward hull is untouched
+    assert np.array_equal(sq[~stern], w[~stern])
+    # squaring never shrinks a station, and never exceeds the run max
+    assert np.all(sq >= w) and sq.max() == run_max
+
+
+def test_snap_plateaus_treats_separate_wide_runs_independently():
+    """Two wide runs with different maxima (say a wide bow block and a wider
+    stern block) must each snap to their OWN max — snapping the bow up to the
+    stern's beam would invent hull that is in neither the art nor the mesh.
+    """
+    w = np.full(profile.STATIONS, 0.1)
+    w[10:25] = 0.85          # bow block, flat at 0.85 (wide: >= 0.8 * max)
+    w[60:90] = 1.0           # stern block
+    w[70] = 0.9              # dent inside the stern run, above the 0.85 snap line
+    sq = profile.snap_plateaus(w)
+    assert np.all(sq[10:25] == 0.85), "bow run must keep its own max"
+    assert sq[70] == 1.0, "dent inside the stern run must snap to the stern max"
+    assert np.array_equal(sq[:10], w[:10]) and np.array_equal(sq[25:60], w[25:60])

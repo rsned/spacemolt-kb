@@ -86,6 +86,41 @@ def aspect(w: np.ndarray) -> float:
     return float("inf") if m <= 0 else 1.0 / (2.0 * m)
 
 
+# Mesh-derived profiles (TripoSR, data/mesh_bakeoff) round off blocky engine
+# sections that the hero art draws as rectangular blocks. Snapping near-max
+# stations inside a wide run up to the run's max restores the flat-topped
+# read; the thresholds are the user-approved demo values (2026-08-06 verdict).
+SNAP_WIDE_FRAC = 0.80   # a station is "wide" if within 80% of the global max beam
+SNAP_FRAC = 0.85        # inside a wide run, snap anything >= 85% of run max up to it
+
+
+def snap_plateaus(w: np.ndarray, wide_frac: float = SNAP_WIDE_FRAC,
+                  snap_frac: float = SNAP_FRAC) -> np.ndarray:
+    """Flatten rounded wide bumps toward their plateau max.
+
+    Each contiguous run of wide stations (>= wide_frac of the global max)
+    snaps its near-max stations (>= snap_frac of the RUN max) up to that run's
+    own max, so separate wide sections keep their own beam. Narrow stations
+    pass through untouched; the result never shrinks a station.
+    """
+    w = np.asarray(w, dtype=float).copy()
+    wide = w >= wide_frac * w.max()
+    i = 0
+    while i < len(w):
+        if not wide[i]:
+            i += 1
+            continue
+        j = i
+        while j < len(w) and wide[j]:
+            j += 1
+        run_max = w[i:j].max()
+        seg = w[i:j]
+        seg[seg >= snap_frac * run_max] = run_max
+        w[i:j] = seg
+        i = j
+    return w
+
+
 # Stage 7 is the ONLY place a scale or depth error can be caught. The stage 5
 # silhouette gate is provably blind to both: `uv = K.p / p_z` is exactly
 # invariant under `p -> lambda(p) . p` for any positive per-point lambda, so a
