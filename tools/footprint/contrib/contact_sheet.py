@@ -287,6 +287,7 @@ for r in order:
 
     mesh_svg = "<div class='missing'>no mesh</div>"
     slim_svg = "<div class='missing'>no mesh</div>"
+    sq_svg = "<div class='missing'>no mesh</div>"
     if sid in MESH:
         mw, masp = MESH[sid]
         mesh_svg = (f"<svg viewBox='0 0 {BOX} {BOX}' class='shape mesh'>"
@@ -294,10 +295,15 @@ for r in order:
                     f"fill-opacity='0.25' stroke='currentColor' stroke-width='1.2'/></svg>")
         # Foreshortening correction candidate: TripoSR systematically over-widens
         # (user-measured "needs 1.5-2x stretch"); 33% beam narrowing = aspect x1.49.
-        # Plateau-snap squares TripoSR's rounded engine blocks (user-approved).
         slim_svg = (f"<svg viewBox='0 0 {BOX} {BOX}' class='shape mesh'>"
-                    f"<path d='{profile_path(fpp.snap_plateaus(mw * 0.67))}' fill='currentColor' "
+                    f"<path d='{profile_path(mw * 0.67)}' fill='currentColor' "
                     f"fill-opacity='0.25' stroke='currentColor' stroke-width='1.2'/></svg>")
+        # Plateau-snap squares TripoSR's rounded engine blocks — a PER-SHIP call
+        # (good on blocky sterns, harmful on e.g. postulate), so both variants
+        # are separate pickable panels and the user's click decides.
+        sq_svg = (f"<svg viewBox='0 0 {BOX} {BOX}' class='shape mesh'>"
+                  f"<path d='{profile_path(fpp.snap_plateaus(mw * 0.67))}' fill='currentColor' "
+                  f"fill-opacity='0.25' stroke='currentColor' stroke-width='1.2'/></svg>")
         if masp is not None:
             meta.append(f"mesh aspect {masp:.2f} (adj {masp / 0.67:.2f})")
         if reached_stage6 and prj.exists():
@@ -316,7 +322,7 @@ for r in order:
     tier_mesh_svg = "<div class='missing'>no mesh</div>"
     if sid in MESH:
         tier_mesh_svg = (f"<svg viewBox='0 0 {D} {D}' class='tierbox mesh' style='width:{D}px;height:{D}px'>"
-                         f"<path d='{profile_path(fpp.snap_plateaus(MESH[sid][0] * 0.67), size=mult)}' "
+                         f"<path d='{profile_path(MESH[sid][0] * 0.67, size=mult)}' "
                          f"fill='currentColor' fill-opacity='0.25' stroke='currentColor' stroke-width='1.1'/></svg>")
     tier_badge = f"<span class='tier'>T{tier} &times;{mult:g}</span>" if tier is not None else ""
 
@@ -348,7 +354,8 @@ for r in order:
     <figure class="sel" data-panel="footprint">{fp_svg}<figcaption>recovered footprint</figcaption></figure>
     <figure class="sel" data-panel="moge">{pr_svg}<figcaption>profile w(t){' · nose ▲' if oriented else ''}</figcaption></figure>
     <figure class="sel" data-panel="mesh">{mesh_svg}<figcaption>mesh w(t) (TripoSR)</figcaption></figure>
-    <figure class="sel" data-panel="mesh067">{slim_svg}<figcaption>mesh &times;0.67 squared</figcaption></figure>
+    <figure class="sel" data-panel="mesh067">{slim_svg}<figcaption>mesh &times;0.67 beam</figcaption></figure>
+    <figure class="sel" data-panel="mesh067sq">{sq_svg}<figcaption>mesh &times;0.67 squared</figcaption></figure>
     <figure>{tier_pipe_svg}<figcaption>moge &times; tier</figcaption></figure>
     <figure>{tier_mesh_svg}<figcaption>mesh 0.67 &times; tier</figcaption></figure>
   </div>
@@ -362,7 +369,7 @@ OUT.write_text(f"""<!doctype html><meta charset="utf-8">
 <style>
  body {{ font: 14px/1.4 system-ui, sans-serif; margin: 24px; background: #14161a; color: #dde3ea; }}
  h1 {{ font-size: 20px; }} .sub {{ color: #8b96a5; margin-bottom: 20px; }}
- .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(1860px, 1fr)); gap: 16px; }}
+ .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(2060px, 1fr)); gap: 16px; }}
  .card {{ border: 1px solid #2a2f38; border-radius: 10px; padding: 12px 16px; background: #1a1e24; }}
  .card.fail {{ border-color: #5a3038; background: #201a1d; }}
  .card h3 {{ margin: 0 0 8px; font-size: 15px; }}
