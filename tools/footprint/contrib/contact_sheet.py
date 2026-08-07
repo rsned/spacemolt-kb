@@ -407,6 +407,7 @@ OUT.write_text(f"""<!doctype html><meta charset="utf-8">
  .bowbtn.chosen {{ background: #63d68b; border-color: #63d68b; }}
 </style>
 <div id="seltools"><span id="selcount">0 picked</span>
+  <button id="selsort">Show unpicked first</button>
   <button id="selexport">Export picks</button></div>
 <h1>Footprint recovery — contact sheet</h1>
 <p class="sub">alpha {report['alpha']} · background {report['background']} · {n_ok}/19 recovered ·
@@ -461,6 +462,31 @@ document.querySelectorAll('.bowbtn').forEach(b => b.addEventListener('click', ()
     if (b) b.classList.add('chosen');
   }}
   updateCount();
+}}
+
+// Sort toggle: float ships with no best-pick to the top (stable within each
+// group). Re-click to restore original order; picks made while sorted keep
+// their place until the sort is re-applied.
+{{
+  const grid = document.querySelector('.grid');
+  const origOrder = Array.from(grid.children);
+  const btn = document.getElementById('selsort');
+  let sorted = false;
+  btn.addEventListener('click', () => {{
+    sorted = !sorted;
+    if (sorted) {{
+      const store = load();
+      const byShip = (a, b) => a.dataset.ship.localeCompare(b.dataset.ship);
+      const unpicked = origOrder.filter(c => !(c.dataset.ship in store)).sort(byShip);
+      const picked = origOrder.filter(c => c.dataset.ship in store).sort(byShip);
+      unpicked.concat(picked).forEach(c => grid.appendChild(c));
+      btn.textContent = `Original order (${{unpicked.length}} unpicked on top)`;
+      window.scrollTo(0, 0);
+    }} else {{
+      origOrder.forEach(c => grid.appendChild(c));
+      btn.textContent = 'Show unpicked first';
+    }}
+  }});
 }}
 
 document.getElementById('selexport').addEventListener('click', () => {{

@@ -69,7 +69,8 @@
   "probable_cause": "(2026-08-06) Long boxy body, slight taper toward the nose; rear third is six large engines \u2014 three per side in a triangle arrangement (two stacked, third jutting at the apex), so the plan view is widest at the rear where the pods stick out laterally. Elongated: pipeline 0.49 is a wrecked solve; mesh (outerrim_probable_cause, aspect 1.88 / adj 2.81) matches when reversed \u2014 thirds 0.45/0.75/0.78, max beam at t~0.74. Floor correct. Pod ship: w(t) blobs the hull-to-engine gaps, polygon authoritative; blocky stern makes it a squaring candidate.",
   "qualia": "(2026-08-06) Voidborn batwing-style crescent with outrigger engines \u2014 same family as apeiron (filled-wing Batwing) / voidborn_singularity (Cylon Raider crescent). A REAL wide ship: the pipeline's 0.67 is plausibly correct and the floor wrongly rejects it \u2014 second confirmed apeiron-class case. Mesh 2.55 (adj 3.80) is the WING INVERSION artifact (TripoSR's long axis = span, not flight direction), so mesh disagreement is NOT bad-solve evidence for wings. Crescent outriggers -> concave footprint, polygon authoritative.",
   "vigil": "(2026-08-06) A taller, fatter qualia \u2014 same voidborn batwing/crescent family (apeiron, qualia, voidborn_singularity). Real wide ship: pipeline 0.65 is plausibly a correct squat measurement, floor WRONGLY rejects it \u2014 third apeiron-class case, all three voidborn wings. Mesh 2.23 (adj 3.32) is the wing-inversion artifact again ('taller' = more vertical bulk, which also inflates TripoSR's frame confusion).",
-  "no_refunds": "(2026-08-06) Galactica Colonial Viper shape WITHOUT the tail \u2014 elongated fighter, real aspect ~2+ (family: manifest_destiny, the with-tail Viper, solved cleanly at 2.19). Pipeline 0.59 is a wrecked solve with a NAMED CAUSE: the hero image points the ship BACKWARDS, receding from camera (user), so the length axis is foreshortened stern-on and an elongated hull measures squat. Mesh 4.43 (adj 6.61) agrees elongated (likely over). Floor correct."
+  "no_refunds": "(2026-08-06) Galactica Colonial Viper shape WITHOUT the tail \u2014 elongated fighter, real aspect ~2+ (family: manifest_destiny, the with-tail Viper, solved cleanly at 2.19). Pipeline 0.59 is a wrecked solve with a NAMED CAUSE: the hero image points the ship BACKWARDS, receding from camera (user), so the length axis is foreshortened stern-on and an elongated hull measures squat. Mesh 4.43 (adj 6.61) agrees elongated (likely over). Floor correct.",
+  "convoy": "(2026-08-06) Long flat rectangle \u2014 elongated slab (distinct ship from junk_convoy). Pipeline measured aspect 1.89."
  },
  "notes": [
   "2026-08-01: the 4 remaining dimensional-check failures after the shadow-key fix (four_on_the_floor 1.04, last_warning 0.94, datum 1.06, start_praying 0.45; prayer 0.56) all have user-confirmed squat/wide ground-truth shapes and high-confidence solves (silhouette IoU >=0.99, mirrored_fraction >=0.997) \u2014 the ASPECT_BOUNDS floor of 1.2 rejects real ship shapes in this population, not bad reconstructions.",
@@ -80,7 +81,9 @@
   "2026-08-01 (user, mesh-improvement insight): many tripo wins would improve by SQUARING the out-jutting wide sections at the rear \u2014 TripoSR rounds off blocky engine housings; the wide bottom-third parts should be more rectangular. Candidate fusion post-process: flatten w(t) bumps to their local max (plateau snapping) within the wide rear region.",
   "ASPECT-FLOOR RULING (2026-08-06): all 12 sub-0.8 rejections ruled via user eyeball + mesh/family cross-checks. Floor CORRECT on 9: syndicate, cogito, atmospheric_sampler, postulate, ice_dividend, aether, probable_cause, no_refunds (wrecked solves of elongated hulls \u2014 recurring causes: degenerate round/square cross-sections, stern-on receding poses) + close_enough (shape solved correctly, only beam scale disputed, 0.72 vs mesh-adj 1.85). Floor WRONG on 3: apeiron, qualia, vigil \u2014 ALL voidborn batwing/crescent wings, where the squat measurement is real and TripoSR's aspect is span-inverted. RULING: keep ASPECT_BOUNDS floor at 0.8 as the MoGe gate (9-for-12); fusion adds a voidborn-wing exception \u2014 trust pipeline aspect + polygon for crescents, never mesh aspect. Squaring (snap_plateaus) is a PER-SHIP choice: helps ice_dividend, hurts postulate \u2014 arbitrated by mesh067/mesh067sq picks.",
   "RECEDING-POSE MARKER (2026-08-06, user): most ships clicked at 2 o'clock have the bow pointing back and AWAY from the camera \u2014 the mirror composition that points up-right also points into depth. Verified: of the 15 two-o'clock ships, the only 2 failures are no_refunds + probable_cause, exactly the stern-on foreshortening wrecks from the floor ruling, both at the cohort-low 0.81 alignment; cohort median alignment 0.93 vs 1.00 for the 8/4-o'clock groups. A 2-o'clock bow click is a cheap prior for 'length axis foreshortened, treat the pipeline aspect with suspicion' \u2014 useful fusion signal.",
-  "FOOTPRINT-PICK SEMANTICS (2026-08-06, user): every 'recovered footprint' best-pick (26 ships: analysis, brain_freeze, chop_shop, consensus, deep_resonance, dialectic, dimensional_fold, dissolution, four_on_the_floor, gas_tanker, good_enough, interstice, liability, maul, midlife_crisis, need_to_know, permafrost, portfolio, premiere, prospectus, repo, siege_breaker, substrate, thermodynamic_end, treasury, warranty) was chosen because the polygon captured some smaller detail that the profile w(t) smoothed or flattened \u2014 the envelope's station-averaging erases fine features beyond just pod gaps. Fusion rule: a footprint pick means publish from the POLYGON; more generally, high-frequency boundary content in the polygon that w(t) lacks is a detail-loss signal, not noise. Canonical example of the lost detail (user): wingtips with large protruding blasters, X-wing style \u2014 the polygon keeps the tip cannons, the station-averaged envelope flattens them."
+  "FOOTPRINT-PICK SEMANTICS (2026-08-06, user): every 'recovered footprint' best-pick (26 ships: analysis, brain_freeze, chop_shop, consensus, deep_resonance, dialectic, dimensional_fold, dissolution, four_on_the_floor, gas_tanker, good_enough, interstice, liability, maul, midlife_crisis, need_to_know, permafrost, portfolio, premiere, prospectus, repo, siege_breaker, substrate, thermodynamic_end, treasury, warranty) was chosen because the polygon captured some smaller detail that the profile w(t) smoothed or flattened \u2014 the envelope's station-averaging erases fine features beyond just pod gaps. Fusion rule: a footprint pick means publish from the POLYGON; more generally, high-frequency boundary content in the polygon that w(t) lacks is a detail-loss signal, not noise. Canonical example of the lost detail (user): wingtips with large protruding blasters, X-wing style \u2014 the polygon keeps the tip cannons, the station-averaged envelope flattens them.",
+  "UNPICKED = TOUGH SHAPES (2026-08-06, user hypothesis, verified): the 95 ships with no best-pick skew toward shapes no method got right (user-named examples: interstice, omniscience, paradox). By faction unpicked rate: voidborn 56% (28/50, worst \u2014 organic curves/protrusions: omniscience, fugue, nebulous, rift_siphon, the wing/crescent family), outerrim 44% (greebled junkers), crimson 35%, nebula 31%, solarian 23%, pirate 15% (easiest). Unpicked voidborn also have the worst median mirror residual (0.077 vs 0.065 for picked voidborn). Fusion implication: absence of a pick is itself a signal \u2014 low confidence in ALL candidates, flag for mesh-first or manual handling rather than silently publishing the least-bad one.",
+  "FRONT-PRONG FAILURE MODE (2026-08-06, user): another common reason for no best-pick \u2014 ships with two protrusions/prongs at the BOW. No candidate captures them: w(t) welds the gap shut (split cross-sections), the mesh smooths them, and the alpha shape may bridge the fork. Detectable from data: nose-first profiles whose concave flags concentrate in the front third (candidates: manifest_destiny, yard_sale, ice_dividend, no_refunds, last_call, reclaim, junk_convoy, insurance_fraud, repo, losers_weepers, bedrock, aether, theorem, finders_keepers, ordinance, noumenon, appraisal, glows_in_the_dark, warhammer, paradox, vigil, baling_wire, entropy). Same structural root as pod-blobbing \u2014 the envelope cannot represent disjoint cross-sections \u2014 so the fix is the same: publish the POLYGON for prong ships, and the glyph/footprint consumer must respect concave[] stations at the bow. USER-CONFIRMED prong ships (2026-08-06): crucible, annihilator, encyclopedia, apeiron (little prongs), frankenhauler \u2014 NONE were in the concave-flag candidate list, so small prongs get bridged by the alpha shape before the envelope sees a split; the detector only catches big forks. frankenhauler: the recovered footprint polygon gets closest of any candidate \u2014 consistent with polygon-for-prongs."
  ],
  "plane_swap_suspects_2026-08-01": {
   "heuristic": "solved up-vector tilted >50deg from screen-vertical while shot elevation <55deg (assumes hero art keeps ships visually upright, which the user's triad eyeball supports); symposium is the user-confirmed instance",
@@ -109,5 +112,36 @@
    "prospect"
   ],
   "note": "prayer + start_praying BOTH flag: their 0.45-0.56 aspects may be side-profile artifacts of a swapped plane (container cross-section is near-square, both planes score alike), NOT ground-truth squatness. cryogenic_survey flags consistently with its known from-below shot."
+ },
+ "receding_pose_ships_2026-08-06": {
+  "_desc": "User-identified (2026-08-06): hero art points these ships AWAY from camera away from camera \u2014 one batch toward 2-3 o'clock (bow up-right into depth), a mirror batch toward 9-10 o'clock (bow up-left into depth; see ships_away_left). Same idiom-name family, likely one art batch's shared composition templates. Consequence: the length axis is foreshortened, so pipeline aspect is systematically UNDER-measured for the whole cohort \u2014 outright wrecking no_refunds (0.59), probable_cause (0.49), and running_tab (low-obliquity withdrawal), and shading the rest low even where the solve passed. Treat pipeline aspect as a lower bound here; prefer mesh/family aspect for scale.",
+  "ships_away_right_2_3": [
+   "probable_cause",
+   "running_tab",
+   "no_refunds",
+   "spit_and_prayer",
+   "plausible_deniability",
+   "off_the_books",
+   "manifest_destiny",
+   "losers_weepers",
+   "insurance_fraud",
+   "hold_my_beer",
+   "hells_bells",
+   "glows_in_the_dark",
+   "free_radical",
+   "finish_line",
+   "finders_keepers",
+   "dead_reckoning",
+   "baling_wire",
+   "bad_idea"
+  ],
+  "ships_away_left_9_10": [
+   "claim_jumper",
+   "dust_devil",
+   "five_finger_discount",
+   "junk_convoy",
+   "last_call",
+   "long_haul"
+  ]
  }
 }
