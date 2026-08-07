@@ -115,9 +115,11 @@ Scale decoupling applies within rules 2–5: `aspect_source` may differ from
   - profile winner: `w[96]` + `concave[96]`
   - polygon winner: `polygon` (rings, canonicalised nose-up), plus the
     envelope `w[96]` as a convenience marked `envelope_lossy: true`
-- `orientation`: `bow_t0` carried from the pipeline where known; mesh-only
-  winners derive it from the user bow click via the same image-projection
-  sign logic as `apply_bow_orientations`; else `unknown`
+- `orientation`: `bow_t0` carried from the pipeline where known; mesh
+  winners derive it by correlating the mesh w(t) against the ship's oriented
+  pipeline profile (both directions; adopt the better direction only if
+  r ≥ 0.5 with ≥ 0.1 margin) — the user bow click cannot be projected into
+  the mesh's frame, which has no image registration; else `unknown`
 - `provenance`: candidate aspects from every source, pipeline quality
   metrics, roster memberships, the user pick (if any), and `rulings` —
   pointers to the label notes justifying the applied rule
