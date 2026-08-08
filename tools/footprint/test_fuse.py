@@ -184,6 +184,17 @@ def test_rule3_prong_ships_take_the_polygon():
     assert d2.rule == "prong_or_pod"
 
 
+def test_rule3_detector_routes_are_gated_on_ok_solve_status():
+    # a wrecked solve's concave flags are artifacts of the same wreck — the
+    # bow-concave/pod-blob detectors must not trust them and must fall
+    # through to rule 4 (wrecked_solve), not claim rule 3 (prong_or_pod)
+    concave = [True] * 30 + [False] * 66
+    d = fuse.apply_rules("s", _cand(status="failed_dimensional_check",
+                                    concave=concave), _rosters(), None, {})
+    assert d.rule == "wrecked_solve"
+    assert d.shape_source == "mesh"
+
+
 def test_rule4_wrecked_solves_take_corrected_mesh():
     d = fuse.apply_rules("s", _cand(status="failed_dimensional_check",
                                     aspect=0.5), _rosters(), None, {})

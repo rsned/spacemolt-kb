@@ -281,8 +281,9 @@ def apply_rules(sid, cand, rosters, pick, picks):
                             "pipeline_profile", notes=notes)
         notes.append("wing: no pipeline shape at all")
 
-    if (sid in rosters.prong_confirmed or _bow_concave(cand)
-            or _pod_blob(cand)) and _has(cand, "pipeline_polygon"):
+    if (sid in rosters.prong_confirmed
+            or (ok and (_bow_concave(cand) or _pod_blob(cand)))) \
+            and _has(cand, "pipeline_polygon"):
         return Decision("prong_or_pod", "rules", "pipeline_polygon",
                         "pipeline_profile", notes=notes)
 

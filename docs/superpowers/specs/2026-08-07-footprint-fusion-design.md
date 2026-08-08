@@ -91,7 +91,9 @@ First match wins; the rule name is recorded in the entry.
    encyclopedia, apeiron, frankenhauler) plus ships matching the bow-concave
    detector (≥4 concave stations in the front third AND ≥60% of all concave
    stations there — the 2026-08-06 criterion) or with ≥25% of all stations
-   concave (pod-blob): pipeline **polygon**.
+   concave (pod-blob): pipeline **polygon** — detector routes require an ok
+   solve status (concave flags from a wrecked solve are artifacts of the same
+   wreck); the confirmed roster is ungated.
 4. **`wrecked_solve`** — status `failed_dimensional_check` plus the
    receding-cohort casualties: mesh shape ×0.67, mesh-adjusted aspect
    (÷0.67). Squaring applied only if `mesh067sq` was picked for a same-family
@@ -133,6 +135,12 @@ Scale decoupling applies within rules 2–5: `aspect_source` may differ from
    (prayer/start_praying, overdue/overhead, crowbar/crucible,
    aether/close_enough ~2:1 narrow-to-wide, no_refunds/manifest_destiny)
    checked against the eyeballed relationships; mismatches flagged.
+
+The 2026-08-07 first run of this validation caught exactly this class of
+error: the aether/close_enough family check failed because 7 wrecked ships
+(including aether) had published wrecked-mesh-flavored polygons through the
+ungated `prong_or_pod` detectors — fixed by gating the detectors on solve
+status (user-approved fix).
 
 ## Error handling
 
