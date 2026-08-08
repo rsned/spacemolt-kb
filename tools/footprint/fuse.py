@@ -12,6 +12,7 @@ import pathlib
 import re
 
 import numpy as np
+import shapely.geometry as _sg
 
 from tools.footprint import profile as _profile
 
@@ -106,6 +107,115 @@ def mesh_shape(mesh_w, squared: bool):
 
 def mesh_adjusted_aspect(mesh_aspect: float) -> float:
     return mesh_aspect / MESH_BEAM
+
+
+def _envelope(rings, stations=96):
+    """Max |y| per x-station over all ring segments — cheap w(t) of a
+    canonical polygon, for direction matching only."""
+    pts = np.concatenate([np.asarray(r) for r in rings])
+    env = np.zeros(stations)
+    idx = np.clip((pts[:, 0] * (stations - 1)).round().astype(int),
+                  0, stations - 1)
+    for i, y in zip(idx, np.abs(pts[:, 1])):
+        env[i] = max(env[i], y)
+    return env
+
+
+def canonical_polygon(polygon_geojson, stored_w):
+    poly = _sg.shape(polygon_geojson)
+    rings = [np.asarray(poly.exterior.coords)] + \
+            [np.asarray(i.coords) for i in poly.interiors] \
+        if poly.geom_type == "Polygon" else \
+        [np.asarray(r.coords) for g in poly.geoms
+         for r in [g.exterior, *g.interiors]]
+    pts = np.concatenate(rings)
+    ctr = pts.mean(axis=0)
+    _, _, vt = np.linalg.svd(pts - ctr, full_matrices=False)
+    R = np.array([vt[0], vt[1]])                 # major axis -> x
+    rings = [(r - ctr) @ R.T for r in rings]
+    xs = np.concatenate(rings)[:, 0]
+    lo, span = xs.min(), xs.max() - xs.min()
+    rings = [np.column_stack(((r[:, 0] - lo) / span, r[:, 1] / span))
+             for r in rings]
+    if stored_w is not None:
+        env = _envelope(rings)
+        w = np.asarray(stored_w, dtype=float)
+        if np.corrcoef(env[::-1], w)[0, 1] > np.corrcoef(env, w)[0, 1]:
+            rings = [np.column_stack((1.0 - r[:, 0], r[:, 1]))
+                     for r in rings]
+    return [r.tolist() for r in rings]
+
+
+def mesh_orientation(mesh_w, pipe_rec):
+    w = np.asarray(mesh_w, dtype=float)
+    if not pipe_rec or pipe_rec.get("orientation") != "bow_t0":
+        return w, "unknown"
+    pw = np.asarray(pipe_rec["w"], dtype=float)
+    if np.std(w) < 1e-9 or np.std(pw) < 1e-9:
+        return w, "unknown"
+    fwd = float(np.corrcoef(w, pw)[0, 1])
+    rev = float(np.corrcoef(w[::-1], pw)[0, 1])
+    best, other = max(fwd, rev), min(fwd, rev)
+    if best >= 0.5 and best - other >= 0.1:
+        return (w if fwd >= rev else w[::-1]), "bow_t0"
+    return w, "unknown"
+
+
+def _roster_memberships(sid, rosters):
+    return [name for name, s in [
+        ("wing_filled", rosters.wing_filled),
+        ("wing_crescent", rosters.wing_crescent),
+        ("prong_confirmed", rosters.prong_confirmed),
+        ("receding", rosters.receding)] if sid in s]
+
+
+def build_entry(sid, cand, dec, rosters, pick=None):
+    pipe = cand.pipe or {}
+    cand_aspects = {
+        "pipeline": pipe.get("aspect"),
+        "mesh_raw": cand.mesh_aspect,
+        "mesh_adjusted": (mesh_adjusted_aspect(cand.mesh_aspect)
+                          if cand.mesh_aspect else None),
+    }
+    entry = {
+        "schema": SCHEMA, "id": sid, "rule": dec.rule,
+        "confidence": dec.confidence,
+        "shape_source": dec.shape_source, "aspect_source": dec.aspect_source,
+        "provenance": {
+            "candidate_aspects": cand_aspects,
+            "quality": pipe.get("quality"),
+            "rosters": _roster_memberships(sid, rosters),
+            "pick": pick,
+            "notes": dec.notes,
+        },
+    }
+    if dec.aspect_source == "mesh":
+        entry["aspect"] = cand_aspects["mesh_adjusted"]
+    elif dec.aspect_source == "pipeline_profile":
+        entry["aspect"] = cand_aspects["pipeline"]
+    else:
+        entry["aspect"] = None
+
+    if dec.shape_source == "pipeline_profile":
+        entry["w"] = list(pipe["w"])
+        entry["concave"] = list(pipe["concave"])
+        entry["orientation"] = pipe.get("orientation", "unknown")
+    elif dec.shape_source == "pipeline_polygon":
+        entry["polygon"] = canonical_polygon(cand.polygon["polygon"],
+                                             pipe.get("w"))
+        entry["w"] = list(pipe["w"])
+        entry["concave"] = list(pipe["concave"])
+        entry["envelope_lossy"] = True
+        entry["orientation"] = pipe.get("orientation", "unknown")
+    elif dec.shape_source in ("mesh", "mesh_squared"):
+        oriented, orient = mesh_orientation(cand.mesh_w, pipe)
+        entry["w"] = [float(v) for v in mesh_shape(oriented, dec.squared)]
+        entry["concave"] = [False] * len(entry["w"])
+        entry["orientation"] = orient
+        if orient == "bow_t0":
+            entry["provenance"]["orientation_method"] = \
+                "correlated_to_pipeline"
+    return entry
 
 
 @dataclasses.dataclass

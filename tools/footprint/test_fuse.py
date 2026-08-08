@@ -218,3 +218,73 @@ def test_rule4_without_mesh_falls_through_to_unresolved():
                          _rosters(), None, {})
     assert d.rule == "unresolved"
     assert any("no mesh" in n for n in d.notes)
+
+
+# --- Entry builder tests ---
+
+def test_canonical_polygon_normalises_and_matches_profile_direction():
+    gj = {"type": "Polygon", "coordinates":
+          [[[0, -1], [10, -1], [10, 1], [0, 1], [0, -1]]]}
+    # stored profile is wide at t=0, narrow at t=1 -> a wedge polygon must flip
+    wedge = {"type": "Polygon", "coordinates":
+             [[[0, 0], [10, -3], [10, 3], [0, 0]]]}
+    stored = list(np.linspace(0.5, 0.05, 96))     # wide nose, narrow tail
+    rings = fuse.canonical_polygon(wedge, stored)
+    xs = np.array(rings[0])[:, 0]
+    assert 0.0 <= xs.min() < 0.01 and 0.99 < xs.max() <= 1.0
+    ring = np.array(rings[0])
+    # widest section must sit near x=0 to match the stored profile
+    wide_x = ring[np.argmax(np.abs(ring[:, 1])), 0]
+    assert wide_x < 0.3
+    # plain rectangle: no crash without a stored profile
+    assert fuse.canonical_polygon(gj, None)
+
+
+def test_mesh_orientation_correlates_against_an_oriented_pipeline_profile():
+    t = np.linspace(0, 1, 96)
+    pipe_w = 0.5 - 0.4 * t                        # wide bow, narrow stern
+    rec = {"orientation": "bow_t0", "w": list(pipe_w)}
+    mesh = pipe_w[::-1] + np.random.default_rng(0).normal(0, 0.01, 96)
+    out, orient = fuse.mesh_orientation(mesh, rec)
+    assert orient == "bow_t0"
+    assert np.corrcoef(out, pipe_w)[0, 1] > 0.9   # got reversed to match
+    out2, orient2 = fuse.mesh_orientation(np.full(96, 0.3), rec)
+    assert orient2 == "unknown"                   # flat: no margin
+
+
+def test_build_entry_profile_winner():
+    c = _cand()
+    d = fuse.Decision("clean_pipeline", "rules", "pipeline_profile",
+                      "pipeline_profile")
+    e = fuse.build_entry("s", c, d, _rosters())
+    assert e["schema"] == 1 and e["rule"] == "clean_pipeline"
+    assert e["shape_source"] == "pipeline_profile"
+    assert len(e["w"]) == 96 and "polygon" not in e
+    assert e["aspect"] == 2.0
+    assert e["provenance"]["candidate_aspects"]["mesh_adjusted"] == 1.7 / 0.67
+
+
+def test_build_entry_polygon_winner_carries_lossy_envelope():
+    c = _cand()
+    d = fuse.Decision("prong_or_pod", "rules", "pipeline_polygon",
+                      "pipeline_profile")
+    e = fuse.build_entry("s", c, d, _rosters())
+    assert e["polygon"] and e["envelope_lossy"] is True
+    assert len(e["w"]) == 96
+
+
+def test_build_entry_mesh_winner_scales_shape_and_aspect():
+    c = _cand(status="failed_dimensional_check")
+    d = fuse.Decision("wrecked_solve", "rules", "mesh", "mesh")
+    e = fuse.build_entry("s", c, d, _rosters())
+    assert np.isclose(e["w"][0], 0.3 * 0.67)
+    assert np.isclose(e["aspect"], 1.7 / 0.67)
+    assert e["concave"] == [False] * 96           # mesh has no concave flags
+
+
+def test_build_entry_unresolved_lists_candidates_only():
+    c = _cand(status="failed_symmetry_solve", polygon=False, mesh=False)
+    d = fuse.Decision("unresolved", "unresolved", None, None)
+    e = fuse.build_entry("s", c, d, _rosters())
+    assert e["shape_source"] is None and "w" not in e
+    assert "candidate_aspects" in e["provenance"]
