@@ -288,3 +288,29 @@ def test_build_entry_unresolved_lists_candidates_only():
     e = fuse.build_entry("s", c, d, _rosters())
     assert e["shape_source"] is None and "w" not in e
     assert "candidate_aspects" in e["provenance"]
+
+
+def test_validate_reports_rule_vs_pick_disagreements():
+    cands = {"s": _cand()}
+    rosters = _rosters()
+    picks = {"s": "footprint"}      # user says polygon; rules say profile
+    entries = {"s": fuse.build_entry(
+        "s", cands["s"],
+        fuse.apply_rules("s", cands["s"], rosters, "footprint", picks),
+        rosters, pick="footprint")}
+    v = fuse.validate(entries, cands, rosters, picks)
+    assert v["rules_vs_picks"] == [{
+        "id": "s", "rule_answer": "pipeline_profile",
+        "pick_answer": "pipeline_polygon"}]
+
+
+def test_validate_checks_family_aspect_ratios():
+    rosters = _rosters(family_pairs=(("a", "b", 1.5, 3.0),))
+    ea = {"id": "a", "aspect": 2.0}
+    eb = {"id": "b", "aspect": 1.0}
+    v = fuse.validate({"a": ea, "b": eb}, {}, rosters, {})
+    fc = v["family_consistency"][0]
+    assert fc["ok"] and np.isclose(fc["ratio"], 2.0)
+    v2 = fuse.validate({"a": {"id": "a", "aspect": 10.0}, "b": eb},
+                       {}, rosters, {})
+    assert not v2["family_consistency"][0]["ok"]

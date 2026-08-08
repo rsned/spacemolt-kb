@@ -302,3 +302,29 @@ def apply_rules(sid, cand, rosters, pick, picks):
                         "pipeline_profile", notes=notes)
 
     return Decision("unresolved", "unresolved", None, None, notes=notes)
+
+
+def validate(entries, cands, rosters, picks):
+    disagreements = []
+    for sid, pick in sorted(picks.items()):
+        if sid not in cands or pick not in PICK_SOURCES:
+            continue
+        rule_dec = apply_rules(sid, cands[sid], rosters, None, picks)
+        pick_shape = PICK_SOURCES[pick][0]
+        if rule_dec.shape_source != pick_shape:
+            disagreements.append({"id": sid,
+                                  "rule_answer": rule_dec.shape_source,
+                                  "pick_answer": pick_shape})
+    family = []
+    for a, b, lo, hi in rosters.family_pairs:
+        ea, eb = entries.get(a), entries.get(b)
+        ra = ea.get("aspect") if ea else None
+        rb = eb.get("aspect") if eb else None
+        if ra and rb:
+            ratio = ra / rb
+            family.append({"pair": [a, b], "ratio": ratio,
+                           "expected": [lo, hi], "ok": lo <= ratio <= hi})
+        else:
+            family.append({"pair": [a, b], "ratio": None,
+                           "expected": [lo, hi], "ok": False})
+    return {"rules_vs_picks": disagreements, "family_consistency": family}
