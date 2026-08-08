@@ -34,22 +34,23 @@
 <h1>Facility Build Costs</h1>
 <p class="legend">Cost to <strong>construct</strong> each facility, two ways: <strong>BoM (ore)</strong> flattens the build to raw materials; <strong>Recipe (components)</strong> uses the direct build components. Each is priced by <strong>MKT-AVG</strong> (sell-side volume-weighted average) and <strong>Galaxy</strong> (cheapest sourcing, walking pooled sell-order depth across every station). Production facilities are grouped by what they produce; others by facility type.</p>
 <div class="cards">
-<a class="card" href="ammo/"><div class="n">184</div><div class="g">ammo</div></a>
-<a class="card" href="component/"><div class="n">582</div><div class="g">component</div></a>
-<a class="card" href="consumable/"><div class="n">203</div><div class="g">consumable</div></a>
+<a class="card" href="ammo/"><div class="n">188</div><div class="g">ammo</div></a>
+<a class="card" href="component/"><div class="n">602</div><div class="g">component</div></a>
+<a class="card" href="consumable/"><div class="n">218</div><div class="g">consumable</div></a>
 <a class="card" href="contraband/"><div class="n">40</div><div class="g">contraband</div></a>
-<a class="card" href="defense/"><div class="n">167</div><div class="g">defense</div></a>
+<a class="card" href="defense/"><div class="n">168</div><div class="g">defense</div></a>
 <a class="card" href="drone/"><div class="n">20</div><div class="g">drone</div></a>
 <a class="card" href="faction/"><div class="n">47</div><div class="g">faction</div></a>
-<a class="card" href="infrastructure/"><div class="n">93</div><div class="g">infrastructure</div></a>
+<a class="card" href="infrastructure/"><div class="n">97</div><div class="g">infrastructure</div></a>
 <a class="card" href="material/"><div class="n">8</div><div class="g">material</div></a>
 <a class="card" href="mining/"><div class="n">32</div><div class="g">mining</div></a>
 <a class="card" href="ore/"><div class="n">8</div><div class="g">ore</div></a>
-<a class="card" href="other/"><div class="n">51</div><div class="g">other</div></a>
+<a class="card" href="other/"><div class="n">35</div><div class="g">other</div></a>
 <a class="card" href="personal/"><div class="n">13</div><div class="g">personal</div></a>
-<a class="card" href="refined/"><div class="n">515</div><div class="g">refined</div></a>
+<a class="card" href="ranch/"><div class="n">3</div><div class="g">ranch</div></a>
+<a class="card" href="refined/"><div class="n">540</div><div class="g">refined</div></a>
 <a class="card" href="service/"><div class="n">79</div><div class="g">service</div></a>
-<a class="card" href="utility/"><div class="n">352</div><div class="g">utility</div></a>
+<a class="card" href="utility/"><div class="n">368</div><div class="g">utility</div></a>
 <a class="card" href="weapon/"><div class="n">261</div><div class="g">weapon</div></a>
 </div>
 
@@ -64,39 +65,39 @@
 <p class="legend"><strong>Median</strong> MKT-AVG build cost by facility level, with the full <strong>(min–max)</strong> range in parentheses, and how many facilities are <strong>currently buildable</strong> (inputs fully sourceable from live galaxy depth via BoM or Recipe). The median with a min–max range is shown rather than mean ± sd because costs within a level are strongly right-skewed — most facilities cluster low, with a thin tail of far pricier end-game variants — so a mean would sit well above the typical facility. Cost stats cover facilities with a fully-priced bill, so a level's count may exceed the number priced; <code>—</code> means none at that level are fully priced.</p>
 <div class="statblocks">
 <div class="statblock">
-<h3><span class="g">ammo</span> <small>184</small></h3>
+<h3><span class="g">ammo</span> <small>188</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>46</td><td>952K (864K–15.6M)</td><td>1.0M (970K–9.6M)</td><td>0</td></tr>
-<tr><td>L2</td><td>46</td><td>4.6M (4.0M–60.7M)</td><td>2.8M (2.5M–36.3M)</td><td>0</td></tr>
-<tr><td>L3</td><td>46</td><td>6.5M (5.4M–115.2M)</td><td>4.2M (3.4M–77.5M)</td><td>0</td></tr>
-<tr><td>L4</td><td>46</td><td>19.9M (18.2M–339.9M)</td><td>12.6M (11.3M–218.9M)</td><td>0</td></tr>
+<tr><td>L1</td><td>50</td><td>1.3M (1.2M–230.2M)</td><td>1.2M (1.1M–12.0M)</td><td>29</td></tr>
+<tr><td>L2</td><td>46</td><td>48.4M (7.4M–653.7M)</td><td>3.9M (3.5M–50.1M)</td><td>0</td></tr>
+<tr><td>L3</td><td>46</td><td>60.5M (50.5M–787.3M)</td><td>6.3M (5.2M–89.8M)</td><td>0</td></tr>
+<tr><td>L4</td><td>46</td><td>192.5M (173.0M–2.5B)</td><td>18.8M (17.0M–255.6M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
 <div class="statblock">
-<h3><span class="g">component</span> <small>582</small></h3>
+<h3><span class="g">component</span> <small>602</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>146</td><td>956K (439K–8.8M)</td><td>1.0M (305K–6.4M)</td><td>13</td></tr>
-<tr><td>L2</td><td>151</td><td>3.8M (596K–30.8M)</td><td>2.5M (839K–21.0M)</td><td>17</td></tr>
-<tr><td>L3</td><td>141</td><td>10.4M (3.7M–91.1M)</td><td>5.5M (2.8M–47.2M)</td><td>1</td></tr>
-<tr><td>L4</td><td>140</td><td>30.3M (11.0M–269.1M)</td><td>16.0M (8.6M–142.2M)</td><td>0</td></tr>
-<tr><td>L5</td><td>4</td><td>859K</td><td>972K</td><td>0</td></tr>
+<tr><td>L1</td><td>151</td><td>1.4M (169K–151.6M)</td><td>1.2M (155K–10.7M)</td><td>66</td></tr>
+<tr><td>L2</td><td>156</td><td>9.4M (975K–458.3M)</td><td>3.8M (896K–38.0M)</td><td>8</td></tr>
+<tr><td>L3</td><td>146</td><td>57.7M (7.9M–492.3M)</td><td>8.9M (3.3M–85.3M)</td><td>2</td></tr>
+<tr><td>L4</td><td>145</td><td>177.7M (43.0M–1.3B)</td><td>25.5M (7.7M–251.3M)</td><td>0</td></tr>
+<tr><td>L5</td><td>4</td><td>1.2M</td><td>1.1M</td><td>1</td></tr>
 </tbody>
 </table>
 </div>
 <div class="statblock">
-<h3><span class="g">consumable</span> <small>203</small></h3>
+<h3><span class="g">consumable</span> <small>218</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>88</td><td>918K (414K–8.2M)</td><td>994K (383K–5.8M)</td><td>32</td></tr>
-<tr><td>L2</td><td>37</td><td>4.2M (963K–32.7M)</td><td>3.2M (910K–21.3M)</td><td>6</td></tr>
-<tr><td>L3</td><td>35</td><td>12.0M (4.0M–57.2M)</td><td>7.8M (2.9M–41.4M)</td><td>1</td></tr>
-<tr><td>L4</td><td>35</td><td>35.3M (11.2M–156.8M)</td><td>22.0M (9.0M–127.6M)</td><td>0</td></tr>
+<tr><td>L1</td><td>100</td><td>1.2M (497K–118.8M)</td><td>1.1M (439K–7.8M)</td><td>75</td></tr>
+<tr><td>L2</td><td>38</td><td>8.1M (1.9M–331.9M)</td><td>4.2M (1.2M–29.8M)</td><td>3</td></tr>
+<tr><td>L3</td><td>36</td><td>66.6M (15.9M–470.4M)</td><td>9.1M (5.0M–59.0M)</td><td>0</td></tr>
+<tr><td>L4</td><td>36</td><td>198.2M (43.1M–1.3B)</td><td>25.7M (13.7M–186.0M)</td><td>0</td></tr>
 <tr><td>L5</td><td>8</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
 </tbody>
 </table>
@@ -106,22 +107,22 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>16</td><td>1.2M (893K–3.1M)</td><td>888K (415K–1.0M)</td><td>3</td></tr>
-<tr><td>L2</td><td>8</td><td>3.5M (3.2M–5.8M)</td><td>1.9M (1.6M–2.6M)</td><td>1</td></tr>
-<tr><td>L3</td><td>8</td><td>8.7M (6.5M–13.5M)</td><td>4.5M (3.1M–5.4M)</td><td>0</td></tr>
-<tr><td>L4</td><td>8</td><td>26.2M (15.5M–39.9M)</td><td>13.0M (7.3M–15.5M)</td><td>0</td></tr>
+<tr><td>L1</td><td>16</td><td>1.3M (1.1M–34.7M)</td><td>1.1M (733K–1.9M)</td><td>9</td></tr>
+<tr><td>L2</td><td>8</td><td>5.4M (4.6M–55.2M)</td><td>2.9M (2.2M–4.2M)</td><td>1</td></tr>
+<tr><td>L3</td><td>8</td><td>35.1M (28.9M–132.9M)</td><td>5.8M (4.2M–8.3M)</td><td>0</td></tr>
+<tr><td>L4</td><td>8</td><td>109.0M (91.9M–371.3M)</td><td>17.4M (10.3M–23.6M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
 <div class="statblock">
-<h3><span class="g">defense</span> <small>167</small></h3>
+<h3><span class="g">defense</span> <small>168</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>43</td><td>982K (123K–4.5M)</td><td>1.8M (93K–8.3M)</td><td>2</td></tr>
-<tr><td>L2</td><td>43</td><td>4.2M (121K–19.2M)</td><td>5.9M (78K–26.7M)</td><td>1</td></tr>
-<tr><td>L3</td><td>42</td><td>13.5M (207K–57.4M)</td><td>16.4M (127K–66.0M)</td><td>1</td></tr>
-<tr><td>L4</td><td>39</td><td>43.7M (10.5M–158.9M)</td><td>55.2M (13.2M–203.1M)</td><td>0</td></tr>
+<tr><td>L1</td><td>44</td><td>1.9M (258K–8.2M)</td><td>2.7M (250K–12.9M)</td><td>17</td></tr>
+<tr><td>L2</td><td>43</td><td>9.7M (176K–137.9M)</td><td>9.1M (187K–41.2M)</td><td>1</td></tr>
+<tr><td>L3</td><td>42</td><td>54.4M (264K–473.5M)</td><td>25.2M (302K–101.5M)</td><td>0</td></tr>
+<tr><td>L4</td><td>39</td><td>173.9M (41.8M–1.2B)</td><td>84.7M (20.2M–309.8M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
@@ -130,10 +131,10 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>5</td><td>2.8M (1.4M–6.1M)</td><td>824K (411K–2.0M)</td><td>4</td></tr>
-<tr><td>L2</td><td>5</td><td>11.6M (5.7M–22.0M)</td><td>3.8M (2.1M–7.6M)</td><td>1</td></tr>
-<tr><td>L3</td><td>5</td><td>28.2M (14.6M–58.1M)</td><td>9.7M (5.0M–20.4M)</td><td>0</td></tr>
-<tr><td>L4</td><td>5</td><td>81.6M (47.8M–177.1M)</td><td>27.3M (15.3M–58.0M)</td><td>0</td></tr>
+<tr><td>L1</td><td>5</td><td>29.5M (14.8M–62.6M)</td><td>1.4M (688K–3.3M)</td><td>0</td></tr>
+<tr><td>L2</td><td>5</td><td>112.5M (52.5M–208.1M)</td><td>6.0M (3.3M–11.8M)</td><td>0</td></tr>
+<tr><td>L3</td><td>5</td><td>278.2M (143.8M–568.2M)</td><td>15.2M (8.1M–32.7M)</td><td>0</td></tr>
+<tr><td>L4</td><td>5</td><td>811.4M (486.2M–1.8B)</td><td>44.8M (24.7M–96.2M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
@@ -142,23 +143,23 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>17</td><td>131K (19K–454K)</td><td>75K (12K–197K)</td><td>14</td></tr>
-<tr><td>L2</td><td>14</td><td>439K (87K–1.2M)</td><td>216K (47K–564K)</td><td>9</td></tr>
-<tr><td>L3</td><td>11</td><td>1.6M (643K–8.2M)</td><td>691K (210K–1.6M)</td><td>2</td></tr>
-<tr><td>L4</td><td>3</td><td>3.9M (2.1M–6.9M)</td><td>1.9M (1.1M–3.6M)</td><td>0</td></tr>
-<tr><td>L5</td><td>2</td><td>21.5M (6.9M–36.0M)</td><td>6.6M (3.4M–9.8M)</td><td>0</td></tr>
+<tr><td>L1</td><td>17</td><td>315K (27K–4.0M)</td><td>365K (18K–796K)</td><td>16</td></tr>
+<tr><td>L2</td><td>14</td><td>807K (221K–10.3M)</td><td>936K (61K–2.2M)</td><td>9</td></tr>
+<tr><td>L3</td><td>11</td><td>16.0M (1.2M–230.6M)</td><td>2.7M (639K–5.6M)</td><td>2</td></tr>
+<tr><td>L4</td><td>3</td><td>47.0M (25.3M–78.6M)</td><td>7.0M (4.0M–11.8M)</td><td>0</td></tr>
+<tr><td>L5</td><td>2</td><td>461.5M (79.9M–843.2M)</td><td>20.3M (13.5M–27.1M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
 <div class="statblock">
-<h3><span class="g">infrastructure</span> <small>93</small></h3>
+<h3><span class="g">infrastructure</span> <small>97</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>30</td><td>31K (2K–75.3M)</td><td>8K (2K–26.2M)</td><td>15</td></tr>
-<tr><td>L2</td><td>14</td><td>89K (27K–546.3M)</td><td>47K (8K–194.3M)</td><td>8</td></tr>
-<tr><td>L3</td><td>18</td><td>129K (48K–3.7B)</td><td>52K (15K–1.3B)</td><td>7</td></tr>
-<tr><td>L4</td><td>10</td><td>248K (100K–26.4M)</td><td>96K (32K–15.3M)</td><td>4</td></tr>
+<tr><td>L1</td><td>33</td><td>17K (3K–1.2B)</td><td>14K (3K–16.6M)</td><td>20</td></tr>
+<tr><td>L2</td><td>15</td><td>188K (66K–8.2B)</td><td>104K (17K–193.5M)</td><td>7</td></tr>
+<tr><td>L3</td><td>18</td><td>496K (105K–59.4B)</td><td>185K (31K–1.2B)</td><td>4</td></tr>
+<tr><td>L4</td><td>10</td><td>706K (198K–13.2M)</td><td>358K (66K–62.5M)</td><td>3</td></tr>
 <tr><td>L5</td><td>21</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
 </tbody>
 </table>
@@ -168,10 +169,10 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>2</td><td>2.7M (1.4M–3.9M)</td><td>1.8M (1.6M–2.0M)</td><td>1</td></tr>
-<tr><td>L2</td><td>2</td><td>10.5M (6.6M–14.4M)</td><td>7.2M (7.0M–7.3M)</td><td>0</td></tr>
-<tr><td>L3</td><td>2</td><td>30.2M (19.1M–41.3M)</td><td>16.5M (13.5M–19.5M)</td><td>0</td></tr>
-<tr><td>L4</td><td>2</td><td>84.5M (52.8M–116.2M)</td><td>47.7M (44.0M–51.3M)</td><td>0</td></tr>
+<tr><td>L1</td><td>2</td><td>19.1M (2.4M–35.8M)</td><td>2.1M (1.7M–2.6M)</td><td>0</td></tr>
+<tr><td>L2</td><td>2</td><td>48.0M (13.1M–82.9M)</td><td>9.4M (8.7M–10.2M)</td><td>0</td></tr>
+<tr><td>L3</td><td>2</td><td>220.1M (164.4M–275.9M)</td><td>20.6M (19.3M–21.8M)</td><td>0</td></tr>
+<tr><td>L4</td><td>2</td><td>636.3M (427.6M–845.0M)</td><td>60.5M (57.0M–64.0M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
@@ -180,10 +181,10 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>8</td><td>7.2M (1.6M–16.7M)</td><td>5.1M (897K–9.8M)</td><td>0</td></tr>
-<tr><td>L2</td><td>8</td><td>27.5M (6.3M–60.1M)</td><td>18.2M (3.6M–35.1M)</td><td>0</td></tr>
-<tr><td>L3</td><td>8</td><td>59.0M (8.0M–82.5M)</td><td>34.7M (4.9M–53.4M)</td><td>0</td></tr>
-<tr><td>L4</td><td>8</td><td>174.3M (26.0M–266.9M)</td><td>102.8M (16.4M–170.6M)</td><td>0</td></tr>
+<tr><td>L1</td><td>8</td><td>75.6M (7.6M–252.4M)</td><td>8.2M (1.1M–12.1M)</td><td>0</td></tr>
+<tr><td>L2</td><td>8</td><td>203.0M (31.5M–674.2M)</td><td>30.5M (5.1M–48.8M)</td><td>0</td></tr>
+<tr><td>L3</td><td>8</td><td>360.7M (77.9M–762.3M)</td><td>59.1M (7.4M–81.5M)</td><td>0</td></tr>
+<tr><td>L4</td><td>8</td><td>1.1B (252.8M–2.6B)</td><td>179.2M (24.5M–253.5M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
@@ -192,22 +193,22 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>2</td><td>910K (885K–935K)</td><td>995K (978K–1.0M)</td><td>0</td></tr>
-<tr><td>L2</td><td>2</td><td>3.7M (3.6M–3.7M)</td><td>1.9M (1.9M–1.9M)</td><td>0</td></tr>
-<tr><td>L3</td><td>2</td><td>10.1M (10.1M–10.2M)</td><td>4.8M (4.6M–4.9M)</td><td>0</td></tr>
-<tr><td>L4</td><td>2</td><td>29.9M (28.7M–31.2M)</td><td>13.1M (12.7M–13.5M)</td><td>0</td></tr>
+<tr><td>L1</td><td>2</td><td>1.2M (1.2M–1.3M)</td><td>1.1M (1.1M–1.2M)</td><td>2</td></tr>
+<tr><td>L2</td><td>2</td><td>21.1M (21.1M–21.1M)</td><td>2.3M (2.3M–2.3M)</td><td>0</td></tr>
+<tr><td>L3</td><td>2</td><td>69.4M (68.3M–70.5M)</td><td>5.3M (5.2M–5.5M)</td><td>0</td></tr>
+<tr><td>L4</td><td>2</td><td>207.8M (195.7M–219.9M)</td><td>14.6M (14.1M–15.0M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
 <div class="statblock">
-<h3><span class="g">other</span> <small>51</small></h3>
+<h3><span class="g">other</span> <small>35</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>16</td><td>924K (455K–7.8M)</td><td>999K (276K–4.7M)</td><td>2</td></tr>
-<tr><td>L2</td><td>12</td><td>3.7M (2.3M–20.4M)</td><td>1.9M (1.3M–12.4M)</td><td>0</td></tr>
-<tr><td>L3</td><td>12</td><td>10.3M (8.2M–48.9M)</td><td>5.0M (4.2M–26.1M)</td><td>0</td></tr>
-<tr><td>L4</td><td>11</td><td>30.2M (20.3M–149.5M)</td><td>13.5M (11.7M–80.7M)</td><td>0</td></tr>
+<tr><td>L1</td><td>9</td><td>1.2M (557K–1.3M)</td><td>1.1M (465K–1.4M)</td><td>9</td></tr>
+<tr><td>L2</td><td>9</td><td>21.1M (4.6M–21.1M)</td><td>2.4M (2.3M–7.5M)</td><td>0</td></tr>
+<tr><td>L3</td><td>9</td><td>68.4M (35.9M–74.0M)</td><td>5.5M (5.1M–18.2M)</td><td>0</td></tr>
+<tr><td>L4</td><td>8</td><td>203.8M (88.7M–219.9M)</td><td>15.0M (14.1M–21.1M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
@@ -216,22 +217,33 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>4</td><td>28K (3K–150K)</td><td>16K (2K–59K)</td><td>4</td></tr>
-<tr><td>L2</td><td>4</td><td>134K (27K–654K)</td><td>81K (17K–269K)</td><td>3</td></tr>
-<tr><td>L3</td><td>4</td><td>557K (172K–1.9M)</td><td>302K (88K–889K)</td><td>3</td></tr>
-<tr><td>L4</td><td>1</td><td>799K</td><td>439K</td><td>1</td></tr>
+<tr><td>L1</td><td>4</td><td>60K (3K–1.3M)</td><td>68K (3K–257K)</td><td>4</td></tr>
+<tr><td>L2</td><td>4</td><td>299K (54K–5.6M)</td><td>339K (61K–1.2M)</td><td>4</td></tr>
+<tr><td>L3</td><td>4</td><td>5.0M (281K–14.5M)</td><td>1.1M (305K–3.8M)</td><td>1</td></tr>
+<tr><td>L4</td><td>1</td><td>6.8M</td><td>1.5M</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
 <div class="statblock">
-<h3><span class="g">refined</span> <small>515</small></h3>
+<h3><span class="g">ranch</span> <small>3</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>157</td><td>943K (121K–12.7M)</td><td>1.0M (48K–12.2M)</td><td>29</td></tr>
-<tr><td>L2</td><td>126</td><td>3.7M (586K–47.0M)</td><td>1.9M (386K–31.7M)</td><td>15</td></tr>
-<tr><td>L3</td><td>114</td><td>10.6M (3.8M–137.8M)</td><td>5.0M (2.8M–80.9M)</td><td>3</td></tr>
-<tr><td>L4</td><td>113</td><td>31.7M (11.6M–391.5M)</td><td>14.1M (10.0M–212.1M)</td><td>0</td></tr>
+<tr><td>L1</td><td>1</td><td>45K</td><td>95K</td><td>1</td></tr>
+<tr><td>L2</td><td>1</td><td>184K</td><td>325K</td><td>0</td></tr>
+<tr><td>L3</td><td>1</td><td>533K</td><td>896K</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<div class="statblock">
+<h3><span class="g">refined</span> <small>540</small></h3>
+<table>
+<thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
+<tbody>
+<tr><td>L1</td><td>173</td><td>1.3M (241K–102.5M)</td><td>1.2M (264K–15.3M)</td><td>112</td></tr>
+<tr><td>L2</td><td>129</td><td>20.7M (864K–281.8M)</td><td>2.4M (792K–42.7M)</td><td>8</td></tr>
+<tr><td>L3</td><td>117</td><td>68.3M (7.9M–952.3M)</td><td>5.5M (4.0M–96.1M)</td><td>0</td></tr>
+<tr><td>L4</td><td>116</td><td>211.2M (66.8M–2.8B)</td><td>15.7M (13.6M–255.6M)</td><td>0</td></tr>
 <tr><td>L5</td><td>5</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
 </tbody>
 </table>
@@ -241,23 +253,23 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>17</td><td>395K (108K–1.1M)</td><td>200K (62K–688K)</td><td>14</td></tr>
-<tr><td>L2</td><td>9</td><td>1.3M (436K–3.8M)</td><td>744K (257K–2.4M)</td><td>4</td></tr>
-<tr><td>L3</td><td>9</td><td>6.6M (1.5M–12.5M)</td><td>2.2M (881K–7.6M)</td><td>1</td></tr>
-<tr><td>L4</td><td>9</td><td>14.4M (5.9M–30.7M)</td><td>6.7M (3.4M–29.9M)</td><td>0</td></tr>
+<tr><td>L1</td><td>17</td><td>730K (269K–2.2M)</td><td>828K (261K–7.4M)</td><td>10</td></tr>
+<tr><td>L2</td><td>9</td><td>2.7M (942K–7.6M)</td><td>3.2M (915K–20.8M)</td><td>3</td></tr>
+<tr><td>L3</td><td>9</td><td>7.1M (4.7M–8.0M)</td><td>8.4M (5.0M–46.2M)</td><td>0</td></tr>
+<tr><td>L4</td><td>9</td><td>18.2M (12.9M–49.7M)</td><td>32.1M (14.1M–94.4M)</td><td>0</td></tr>
 <tr><td>L5</td><td>35</td><td class="dash">—</td><td class="dash">—</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
 <div class="statblock">
-<h3><span class="g">utility</span> <small>352</small></h3>
+<h3><span class="g">utility</span> <small>368</small></h3>
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>88</td><td>1.8M (560K–12.5M)</td><td>1.7M (412K–11.8M)</td><td>5</td></tr>
-<tr><td>L2</td><td>88</td><td>7.7M (1.8M–48.7M)</td><td>6.5M (1.1M–42.2M)</td><td>2</td></tr>
-<tr><td>L3</td><td>88</td><td>22.6M (5.0M–139.6M)</td><td>13.8M (2.8M–100.1M)</td><td>0</td></tr>
-<tr><td>L4</td><td>88</td><td>68.3M (16.1M–430.2M)</td><td>41.1M (8.9M–299.4M)</td><td>0</td></tr>
+<tr><td>L1</td><td>92</td><td>3.7M (1.1M–29.5M)</td><td>3.2M (696K–14.9M)</td><td>14</td></tr>
+<tr><td>L2</td><td>92</td><td>21.1M (4.3M–127.8M)</td><td>11.7M (1.7M–56.5M)</td><td>0</td></tr>
+<tr><td>L3</td><td>92</td><td>99.4M (21.1M–460.3M)</td><td>26.3M (5.1M–118.5M)</td><td>0</td></tr>
+<tr><td>L4</td><td>92</td><td>316.3M (68.2M–1.3B)</td><td>79.2M (14.2M–359.1M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
@@ -266,15 +278,15 @@
 <table>
 <thead><tr><th>Lvl</th><th>#</th><th>BoM MKT median (min–max)</th><th>Recipe MKT median (min–max)</th><th>Buildable now</th></tr></thead>
 <tbody>
-<tr><td>L1</td><td>66</td><td>7.0M (799K–17.1M)</td><td>4.0M (872K–10.2M)</td><td>1</td></tr>
-<tr><td>L2</td><td>65</td><td>25.9M (4.1M–62.8M)</td><td>15.3M (2.4M–37.4M)</td><td>0</td></tr>
-<tr><td>L3</td><td>65</td><td>36.0M (5.8M–86.2M)</td><td>23.5M (3.8M–55.2M)</td><td>0</td></tr>
-<tr><td>L4</td><td>65</td><td>115.6M (18.9M–264.7M)</td><td>71.8M (11.9M–169.0M)</td><td>0</td></tr>
+<tr><td>L1</td><td>66</td><td>101.1M (1.1M–253.5M)</td><td>5.1M (998K–12.7M)</td><td>3</td></tr>
+<tr><td>L2</td><td>65</td><td>278.0M (45.2M–683.2M)</td><td>21.5M (3.4M–52.3M)</td><td>0</td></tr>
+<tr><td>L3</td><td>65</td><td>330.2M (54.2M–820.1M)</td><td>35.4M (5.6M–83.7M)</td><td>0</td></tr>
+<tr><td>L4</td><td>65</td><td>1.1B (184.0M–2.6B)</td><td>106.6M (17.7M–251.5M)</td><td>0</td></tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-07-17 01:25 UTC</footer>
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-08-08 17:18 UTC</footer>
 </body>
 </html>

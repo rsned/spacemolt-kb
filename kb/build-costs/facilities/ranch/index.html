@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ranch — Facility Build Costs — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+ body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+ a{color:var(--link)}
+ table{border-collapse:collapse;font-size:.85rem;margin-top:.3rem}
+ th,td{border:1px solid var(--border2);padding:.3rem .5rem;text-align:right}
+ th:first-child,td:first-child{text-align:left}
+ .toc{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 1rem;font-size:.8rem}
+ .toc a{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:.15rem .5rem;text-decoration:none;text-transform:capitalize}
+ .toc a.active{border-color:var(--accent);color:var(--accent)}
+ .fac{border-top:1px solid var(--border);margin-top:1.3rem;padding-top:.4rem;scroll-margin-top:.5rem}
+ .fac h2{margin:.2rem 0;font-size:1.05rem} .fac h2 small{color:var(--muted);font-weight:400}
+ .view h3{margin:.6rem 0 .1rem;font-size:.9rem;color:var(--text)}
+ .infeasible{color:var(--muted2)} .note{color:var(--muted);font-weight:400} .empty{color:var(--muted2);font-size:.85rem;margin:.2rem 0}
+ h1{margin:.2rem 0;text-transform:capitalize}
+</style>
+</head>
+<body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
+<p><a href="../">← Facility Build Costs</a></p>
+<div class="toc">
+<a href="../ammo/">ammo (188)</a>
+<a href="../component/">component (602)</a>
+<a href="../consumable/">consumable (218)</a>
+<a href="../contraband/">contraband (40)</a>
+<a href="../defense/">defense (168)</a>
+<a href="../drone/">drone (20)</a>
+<a href="../faction/">faction (47)</a>
+<a href="../infrastructure/">infrastructure (97)</a>
+<a href="../material/">material (8)</a>
+<a href="../mining/">mining (32)</a>
+<a href="../ore/">ore (8)</a>
+<a href="../other/">other (35)</a>
+<a href="../personal/">personal (13)</a>
+<a href="../ranch/" class="active">ranch (3)</a>
+<a href="../refined/">refined (540)</a>
+<a href="../service/">service (79)</a>
+<a href="../utility/">utility (368)</a>
+<a href="../weapon/">weapon (261)</a>
+</div>
+<h1>ranch</h1>
+
+<section class="fac" id="ranch_complex">
+ <h2><a href="../../../facilities/ranch/ranch_complex.html">Ranch Complex</a> <small>L3</small></h2>
+ 
+<div class="view">
+ <h3>BoM (ore)</h3>
+ 
+ <table>
+ <thead><tr><th>Component</th><th>Qty</th><th>MKT-AVG</th><th>MKT total</th><th>Galaxy</th><th>Galaxy total</th></tr></thead>
+ <tbody>
+ <tr>
+  <td><a href="../../../items/ore/chlorine_gas.html">Chlorine Gas</a></td>
+  <td>400</td><td>20.04</td><td>8,015.39</td>
+  <td class="">25.00</td>
+  <td class="">10,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
+  <td>150</td><td>43.33</td><td>6,498.87</td>
+  <td class="">42.04</td>
+  <td class="">6,306.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td>
+  <td>240</td><td>6.05</td><td>1,451.82</td>
+  <td class="infeasible">—</td>
+  <td class="infeasible">—</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
+  <td>1640</td><td>54.65</td><td>89,628.59</td>
+  <td class="">48.13</td>
+  <td class="">78,934.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td>
+  <td>400</td><td>6.91</td><td>2,763.17</td>
+  <td class="">1.00</td>
+  <td class="">400.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
+  <td>120</td><td>168.15</td><td>20,178.11</td>
+  <td class="">20.00</td>
+  <td class="">2,400.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
+  <td>520</td><td>120.40</td><td>62,607.38</td>
+  <td class="">4.00</td>
+  <td class="">2,080.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
+  <td>150</td><td>1,829.37</td><td>274,405.32</td>
+  <td class="">2,000.00</td>
+  <td class="">300,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/vanadium_ore.html">Vanadium Ore</a></td>
+  <td>820</td><td>58.96</td><td>48,346.30</td>
+  <td class="">3.10</td>
+  <td class="">2,542.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/water_ice.html">Water Ice</a></td>
+  <td>400</td><td>48.84</td><td>19,537.79</td>
+  <td class="">422.33</td>
+  <td class="">168,932.00</td>
+ </tr>
+ 
+ <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
+     <td><strong>533,432.75</strong></td>
+     <td colspan="2" class="infeasible"><strong>9/10 covered</strong></td></tr>
+ </tbody></table>
+ 
+</div>
+
+ 
+<div class="view">
+ <h3>Recipe (components)</h3>
+ 
+ <table>
+ <thead><tr><th>Component</th><th>Qty</th><th>MKT-AVG</th><th>MKT total</th><th>Galaxy</th><th>Galaxy total</th></tr></thead>
+ <tbody>
+ <tr>
+  <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
+  <td>700</td><td>163.43</td><td>114,400.69</td>
+  <td class="">100.00</td>
+  <td class="">70,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/refined/flex_polymer.html">Flex Polymer</a></td>
+  <td>400</td><td>32.06</td><td>12,824.31</td>
+  <td class="">69.86</td>
+  <td class="">27,946.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
+  <td>150</td><td>2,216.10</td><td>332,415.36</td>
+  <td class="infeasible">—</td>
+  <td class="infeasible">—</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/consumable/fuel_cell.html">Fuel Cell</a></td>
+  <td>120</td><td>3,639.65</td><td>436,757.76</td>
+  <td class="">2,687.00</td>
+  <td class="">322,440.00</td>
+ </tr>
+ 
+ <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
+     <td><strong>896,398.13</strong></td>
+     <td colspan="2" class="infeasible"><strong>3/4 covered</strong></td></tr>
+ </tbody></table>
+ 
+</div>
+
+</section>
+
+<section class="fac" id="range_station">
+ <h2><a href="../../../facilities/ranch/range_station.html">Range Station</a> <small>L2</small></h2>
+ 
+<div class="view">
+ <h3>BoM (ore)</h3>
+ 
+ <table>
+ <thead><tr><th>Component</th><th>Qty</th><th>MKT-AVG</th><th>MKT total</th><th>Galaxy</th><th>Galaxy total</th></tr></thead>
+ <tbody>
+ <tr>
+  <td><a href="../../../items/ore/chlorine_gas.html">Chlorine Gas</a></td>
+  <td>180</td><td>20.04</td><td>3,606.93</td>
+  <td class="">25.00</td>
+  <td class="">4,500.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/fluorine_gas.html">Fluorine Gas</a></td>
+  <td>40</td><td>43.33</td><td>1,733.03</td>
+  <td class="">34.50</td>
+  <td class="">1,380.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td>
+  <td>100</td><td>6.05</td><td>604.93</td>
+  <td class="infeasible">—</td>
+  <td class="infeasible">—</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
+  <td>700</td><td>54.65</td><td>38,256.10</td>
+  <td class="">43.14</td>
+  <td class="">30,199.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td>
+  <td>180</td><td>6.91</td><td>1,243.43</td>
+  <td class="">1.00</td>
+  <td class="">180.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
+  <td>50</td><td>168.15</td><td>8,407.54</td>
+  <td class="">20.00</td>
+  <td class="">1,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
+  <td>230</td><td>120.40</td><td>27,691.73</td>
+  <td class="">4.00</td>
+  <td class="">920.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/silicon_ore.html">Silicon Ore</a></td>
+  <td>40</td><td>1,829.37</td><td>73,174.75</td>
+  <td class="">2,000.00</td>
+  <td class="">80,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/vanadium_ore.html">Vanadium Ore</a></td>
+  <td>350</td><td>58.96</td><td>20,635.62</td>
+  <td class="">2.00</td>
+  <td class="">700.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/water_ice.html">Water Ice</a></td>
+  <td>180</td><td>48.84</td><td>8,792.01</td>
+  <td class="">400.00</td>
+  <td class="">72,000.00</td>
+ </tr>
+ 
+ <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
+     <td><strong>184,146.06</strong></td>
+     <td colspan="2" class="infeasible"><strong>9/10 covered</strong></td></tr>
+ </tbody></table>
+ 
+</div>
+
+ 
+<div class="view">
+ <h3>Recipe (components)</h3>
+ 
+ <table>
+ <thead><tr><th>Component</th><th>Qty</th><th>MKT-AVG</th><th>MKT total</th><th>Galaxy</th><th>Galaxy total</th></tr></thead>
+ <tbody>
+ <tr>
+  <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
+  <td>300</td><td>163.43</td><td>49,028.87</td>
+  <td class="">100.00</td>
+  <td class="">30,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/refined/flex_polymer.html">Flex Polymer</a></td>
+  <td>180</td><td>32.06</td><td>5,770.94</td>
+  <td class="">67.26</td>
+  <td class="">12,106.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/refined/circuit_board.html">Circuit Board</a></td>
+  <td>40</td><td>2,216.10</td><td>88,644.10</td>
+  <td class="infeasible">—</td>
+  <td class="infeasible">—</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/consumable/fuel_cell.html">Fuel Cell</a></td>
+  <td>50</td><td>3,639.65</td><td>181,982.40</td>
+  <td class="">2,687.00</td>
+  <td class="">134,350.00</td>
+ </tr>
+ 
+ <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
+     <td><strong>325,426.31</strong></td>
+     <td colspan="2" class="infeasible"><strong>3/4 covered</strong></td></tr>
+ </tbody></table>
+ 
+</div>
+
+</section>
+
+<section class="fac" id="wildlife_corral">
+ <h2><a href="../../../facilities/ranch/wildlife_corral.html">Wildlife Corral</a> <small>L1</small></h2>
+ 
+<div class="view">
+ <h3>BoM (ore)</h3>
+ 
+ <table>
+ <thead><tr><th>Component</th><th>Qty</th><th>MKT-AVG</th><th>MKT total</th><th>Galaxy</th><th>Galaxy total</th></tr></thead>
+ <tbody>
+ <tr>
+  <td><a href="../../../items/ore/chlorine_gas.html">Chlorine Gas</a></td>
+  <td>80</td><td>20.04</td><td>1,603.08</td>
+  <td class="">25.00</td>
+  <td class="">2,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/hydrogen_gas.html">Hydrogen Gas</a></td>
+  <td>40</td><td>6.05</td><td>241.97</td>
+  <td class="">67.80</td>
+  <td class="">2,712.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/iron_ore.html">Iron Ore</a></td>
+  <td>280</td><td>54.65</td><td>15,302.44</td>
+  <td class="">38.77</td>
+  <td class="">10,856.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td>
+  <td>80</td><td>6.91</td><td>552.63</td>
+  <td class="">1.00</td>
+  <td class="">80.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/palladium_ore.html">Palladium Ore</a></td>
+  <td>20</td><td>168.15</td><td>3,363.02</td>
+  <td class="">20.00</td>
+  <td class="">400.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/platinum_ore.html">Platinum Ore</a></td>
+  <td>100</td><td>120.40</td><td>12,039.88</td>
+  <td class="">4.00</td>
+  <td class="">400.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/vanadium_ore.html">Vanadium Ore</a></td>
+  <td>140</td><td>58.96</td><td>8,254.25</td>
+  <td class="">2.00</td>
+  <td class="">280.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/ore/water_ice.html">Water Ice</a></td>
+  <td>80</td><td>48.84</td><td>3,907.56</td>
+  <td class="">400.00</td>
+  <td class="">32,000.00</td>
+ </tr>
+ 
+ <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
+     <td><strong>45,264.83</strong></td>
+     <td colspan="2" class=""><strong>48,728.00</strong></td></tr>
+ </tbody></table>
+ 
+</div>
+
+ 
+<div class="view">
+ <h3>Recipe (components)</h3>
+ 
+ <table>
+ <thead><tr><th>Component</th><th>Qty</th><th>MKT-AVG</th><th>MKT total</th><th>Galaxy</th><th>Galaxy total</th></tr></thead>
+ <tbody>
+ <tr>
+  <td><a href="../../../items/refined/steel_plate.html">Steel Plate</a></td>
+  <td>120</td><td>163.43</td><td>19,611.55</td>
+  <td class="">100.00</td>
+  <td class="">12,000.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/refined/flex_polymer.html">Flex Polymer</a></td>
+  <td>80</td><td>32.06</td><td>2,564.86</td>
+  <td class="">61.33</td>
+  <td class="">4,906.00</td>
+ </tr>
+ <tr>
+  <td><a href="../../../items/consumable/fuel_cell.html">Fuel Cell</a></td>
+  <td>20</td><td>3,639.65</td><td>72,792.96</td>
+  <td class="">2,687.00</td>
+  <td class="">53,740.00</td>
+ </tr>
+ 
+ <tr><td colspan="3"><strong>build cost</strong> <span class="note"></span></td>
+     <td><strong>94,969.37</strong></td>
+     <td colspan="2" class=""><strong>70,646.00</strong></td></tr>
+ </tbody></table>
+ 
+</div>
+
+</section>
+
+
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-08-08 17:18 UTC</footer>
+</body>
+</html>
