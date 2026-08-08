@@ -140,7 +140,8 @@ def canonical_polygon(polygon_geojson, stored_w):
     if stored_w is not None:
         env = _envelope(rings)
         w = np.asarray(stored_w, dtype=float)
-        if np.corrcoef(env[::-1], w)[0, 1] > np.corrcoef(env, w)[0, 1]:
+        if np.std(env) > 1e-9 and np.std(w) > 1e-9 and \
+                np.corrcoef(env[::-1], w)[0, 1] > np.corrcoef(env, w)[0, 1]:
             rings = [np.column_stack((1.0 - r[:, 0], r[:, 1]))
                      for r in rings]
     return [r.tolist() for r in rings]

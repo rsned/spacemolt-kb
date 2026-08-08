@@ -6,6 +6,7 @@ real data tree and asserts headline invariants only.
 import json
 import pathlib
 import sys
+import warnings
 
 import numpy as np
 
@@ -261,6 +262,20 @@ def test_canonical_polygon_normalises_and_matches_profile_direction():
     assert wide_x < 0.3
     # plain rectangle: no crash without a stored profile
     assert fuse.canonical_polygon(gj, None)
+
+
+def test_canonical_polygon_tolerates_a_constant_profile():
+    # a stored profile with exactly-zero variance (e.g. 0.5 repeated, which
+    # sums without float rounding) makes np.corrcoef divide 0/0 -> NaN with
+    # a RuntimeWarning, silently skipping the direction flip. Guard it the
+    # same way mesh_orientation guards its own corrcoef calls.
+    wedge = {"type": "Polygon", "coordinates":
+             [[[0, 0], [10, -3], [10, 3], [0, 0]]]}
+    stored = [0.5] * 96
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        rings = fuse.canonical_polygon(wedge, stored)
+    assert rings
 
 
 def test_mesh_orientation_correlates_against_an_oriented_pipeline_profile():

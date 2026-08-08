@@ -123,8 +123,9 @@ Scale decoupling applies within rules 2–5: `aspect_source` may differ from
   r ≥ 0.5 with ≥ 0.1 margin) — the user bow click cannot be projected into
   the mesh's frame, which has no image registration; else `unknown`
 - `provenance`: candidate aspects from every source, pipeline quality
-  metrics, roster memberships, the user pick (if any), and `rulings` —
-  pointers to the label notes justifying the applied rule
+  metrics, roster memberships, the user pick (if any), and the decision
+  notes; rule justification is traceable via `rule` + roster memberships +
+  notes, not a separate pointer field
 
 ## Validation (built into every fuse run, reported in index.json)
 
@@ -136,11 +137,15 @@ Scale decoupling applies within rules 2–5: `aspect_source` may differ from
    aether/close_enough ~2:1 narrow-to-wide, no_refunds/manifest_destiny)
    checked against the eyeballed relationships; mismatches flagged.
 
-The 2026-08-07 first run of this validation caught exactly this class of
-error: the aether/close_enough family check failed because 7 wrecked ships
-(including aether) had published wrecked-mesh-flavored polygons through the
-ungated `prong_or_pod` detectors — fixed by gating the detectors on solve
-status (user-approved fix).
+The 2026-08-07 first run of this validation — family checks plus spot
+review — surfaced two distinct error classes. (a) 7 wrecked ships
+(syndicate, no_refunds, probable_cause, appraisal, paradox, reclaim,
+theorem) were captured by the then-ungated `prong_or_pod` detectors,
+publishing wrecked-mesh-flavored polygons and aspects. (b) aether, a
+separate stale-pick case: its pre-ruling `moge` pick published the wrecked
+pipeline aspect. The aether/close_enough family check failure was symptom
+of (b), not (a). Both were user-approved fixes: gating the detectors on
+solve status, and dropping aether's stale pick.
 
 ## Error handling
 
