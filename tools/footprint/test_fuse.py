@@ -106,3 +106,115 @@ def test_mesh_shape_applies_beam_correction_and_optional_squaring():
 
 def test_mesh_adjusted_aspect_inverts_the_beam_correction():
     assert np.isclose(fuse.mesh_adjusted_aspect(1.8), 1.8 / 0.67)
+
+
+# --- Helper fixtures for the rule ladder tests ---
+
+def _cand(status="ok_asymmetric", iou=0.99, aspect=2.0, mesh=True,
+          polygon=True, concave=None, orientation="bow_t0"):
+    w = [0.25] * 96
+    return fuse.Candidate(
+        pipe={"id": "x", "status": status, "aspect": aspect, "w": w,
+              "concave": concave or [False] * 96,
+              "orientation": orientation,
+              "orientation_source": {"flipped_from_stored": False},
+              "quality": {"silhouette_iou": iou}},
+        polygon={"alpha": 8.0, "polygon": {"type": "Polygon",
+                 "coordinates": [[[0, -0.25], [1, -0.25], [1, 0.25],
+                                  [0, 0.25], [0, -0.25]]]}} if polygon else None,
+        mesh_w=np.full(96, 0.3) if mesh else None,
+        mesh_aspect=1.7 if mesh else None)
+
+
+def _rosters(**kw):
+    base = dict(wing_filled=frozenset(), wing_crescent=frozenset(),
+                prong_confirmed=frozenset(), receding=frozenset(),
+                family_pairs=())
+    base.update(kw)
+    return fuse.Rosters(**base)
+
+
+# --- Rule ladder tests ---
+
+def test_rule1_user_pick_wins_and_maps_the_panel():
+    d = fuse.apply_rules("s", _cand(), _rosters(), "mesh067sq", {})
+    assert (d.rule, d.confidence) == ("user_pick", "user_pick")
+    assert d.shape_source == "mesh_squared" and d.squared
+    assert d.aspect_source == "mesh"
+
+
+def test_rule1_footprint_pick_takes_pipeline_scale():
+    d = fuse.apply_rules("s", _cand(), _rosters(), "footprint", {})
+    assert d.shape_source == "pipeline_polygon"
+    assert d.aspect_source == "pipeline_profile"
+
+
+def test_rule1_stale_pick_without_the_source_falls_through():
+    # a 'footprint' pick with no polygon on disk (withdrawn ship) must not
+    # produce a polygon winner out of thin air
+    d = fuse.apply_rules("s", _cand(polygon=False, status="failed_low_obliquity",
+                                    mesh=False),
+                         _rosters(), "footprint", {})
+    assert d.rule != "user_pick"
+    assert any("stale pick" in n for n in d.notes)
+
+
+def test_rule2_wings_take_pipeline_aspect_never_mesh():
+    r = _rosters(wing_filled=frozenset({"s"}))
+    d = fuse.apply_rules("s", _cand(status="failed_dimensional_check",
+                                    aspect=0.73), r, None, {})
+    assert d.rule == "wing_family"
+    assert d.shape_source == "pipeline_profile"      # filled wing -> profile
+    assert d.aspect_source == "pipeline_profile"
+    r2 = _rosters(wing_crescent=frozenset({"s"}))
+    d2 = fuse.apply_rules("s", _cand(), r2, None, {})
+    assert d2.shape_source == "pipeline_polygon"     # crescent -> polygon
+
+
+def test_rule3_prong_ships_take_the_polygon():
+    r = _rosters(prong_confirmed=frozenset({"s"}))
+    d = fuse.apply_rules("s", _cand(), r, None, {})
+    assert (d.rule, d.shape_source) == ("prong_or_pod", "pipeline_polygon")
+    # bow-concave detector route (no roster membership)
+    concave = [True] * 8 + [False] * 88
+    d2 = fuse.apply_rules("t", _cand(concave=concave), _rosters(), None, {})
+    assert d2.rule == "prong_or_pod"
+
+
+def test_rule4_wrecked_solves_take_corrected_mesh():
+    d = fuse.apply_rules("s", _cand(status="failed_dimensional_check",
+                                    aspect=0.5), _rosters(), None, {})
+    assert (d.rule, d.shape_source, d.aspect_source) == (
+        "wrecked_solve", "mesh", "mesh")
+    assert not d.squared
+
+
+def test_rule4_sibling_mesh067sq_pick_turns_on_squaring():
+    r = _rosters(family_pairs=(("s", "sib", 0.5, 2.0),))
+    d = fuse.apply_rules("s", _cand(status="failed_dimensional_check"),
+                         r, None, {"sib": "mesh067sq"})
+    assert d.rule == "wrecked_solve" and d.squared
+
+
+def test_rule5_clean_pipeline_and_receding_lower_bound_note():
+    d = fuse.apply_rules("s", _cand(), _rosters(), None, {})
+    assert (d.rule, d.shape_source) == ("clean_pipeline", "pipeline_profile")
+    r = _rosters(receding=frozenset({"s"}))
+    d2 = fuse.apply_rules("s", _cand(), r, None, {})
+    assert any("lower bound" in n for n in d2.notes)
+
+
+def test_rule6_no_candidates_is_unresolved():
+    d = fuse.apply_rules("s", _cand(status="failed_symmetry_solve",
+                                    polygon=False, mesh=False, aspect=None),
+                         _rosters(), None, {})
+    assert (d.rule, d.confidence) == ("unresolved", "unresolved")
+    assert d.shape_source is None
+
+
+def test_rule4_without_mesh_falls_through_to_unresolved():
+    d = fuse.apply_rules("s", _cand(status="failed_dimensional_check",
+                                    mesh=False, polygon=False),
+                         _rosters(), None, {})
+    assert d.rule == "unresolved"
+    assert any("no mesh" in n for n in d.notes)

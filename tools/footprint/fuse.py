@@ -106,3 +106,89 @@ def mesh_shape(mesh_w, squared: bool):
 
 def mesh_adjusted_aspect(mesh_aspect: float) -> float:
     return mesh_aspect / MESH_BEAM
+
+
+@dataclasses.dataclass
+class Decision:
+    rule: str
+    confidence: str
+    shape_source: "str | None"
+    aspect_source: "str | None"
+    squared: bool = False
+    notes: list = dataclasses.field(default_factory=list)
+
+
+def _sibling_squared(sid, picks, family_pairs):
+    for a, b, _, _ in family_pairs:
+        other = b if sid == a else a if sid == b else None
+        if other and picks.get(other) == "mesh067sq":
+            return True
+    return False
+
+
+def _has(cand, source):
+    return {"pipeline_profile": cand.pipe is not None and cand.pipe.get("w"),
+            "pipeline_polygon": cand.polygon is not None,
+            "mesh": cand.mesh_w is not None,
+            "mesh_squared": cand.mesh_w is not None}[source]
+
+
+def _bow_concave(cand):
+    pipe = cand.pipe or {}
+    if pipe.get("orientation") != "bow_t0" or not pipe.get("concave"):
+        return False
+    c = np.array(pipe["concave"], dtype=bool)
+    front, total = int(c[:32].sum()), int(c.sum())
+    return front >= 4 and total > 0 and front >= 0.6 * total
+
+
+def _pod_blob(cand):
+    pipe = cand.pipe or {}
+    return pipe.get("concave") and sum(pipe["concave"]) >= 24
+
+
+def apply_rules(sid, cand, rosters, pick, picks):
+    notes = []
+    ok = (cand.pipe or {}).get("status", "").startswith("ok")
+
+    if pick in PICK_SOURCES:
+        shape, squared = PICK_SOURCES[pick]
+        if _has(cand, shape):
+            aspect = "pipeline_profile" if shape == "pipeline_polygon" else \
+                     ("mesh" if shape.startswith("mesh") else shape)
+            return Decision("user_pick", "user_pick", shape, aspect, squared)
+        notes.append(f"stale pick {pick!r}: source unavailable, fell through")
+
+    if sid in rosters.wing_filled or sid in rosters.wing_crescent:
+        shape = ("pipeline_polygon" if sid in rosters.wing_crescent
+                 else "pipeline_profile")
+        if not _has(cand, shape):        # crescent without a polygon on disk
+            shape = "pipeline_profile"
+            notes.append("wing: polygon missing, used profile")
+        if _has(cand, shape):
+            return Decision("wing_family", "rules", shape,
+                            "pipeline_profile", notes=notes)
+        notes.append("wing: no pipeline shape at all")
+
+    if (sid in rosters.prong_confirmed or _bow_concave(cand)
+            or _pod_blob(cand)) and _has(cand, "pipeline_polygon"):
+        return Decision("prong_or_pod", "rules", "pipeline_polygon",
+                        "pipeline_profile", notes=notes)
+
+    wrecked = (cand.pipe or {}).get("status") == "failed_dimensional_check" \
+        or (not ok and sid in rosters.receding)
+    if wrecked:
+        if cand.mesh_w is not None:
+            squared = _sibling_squared(sid, picks, rosters.family_pairs)
+            return Decision("wrecked_solve", "rules", "mesh", "mesh",
+                            squared, notes)
+        notes.append("wrecked solve but no mesh available")
+
+    iou = ((cand.pipe or {}).get("quality") or {}).get("silhouette_iou", 0)
+    if ok and iou >= 0.97 and _has(cand, "pipeline_profile"):
+        if sid in rosters.receding:
+            notes.append("receding pose: pipeline aspect is a lower bound")
+        return Decision("clean_pipeline", "rules", "pipeline_profile",
+                        "pipeline_profile", notes=notes)
+
+    return Decision("unresolved", "unresolved", None, None, notes=notes)
