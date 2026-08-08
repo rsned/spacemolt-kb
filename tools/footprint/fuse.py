@@ -13,6 +13,8 @@ import re
 
 import numpy as np
 
+from tools.footprint import profile as _profile
+
 REPO = pathlib.Path(__file__).resolve().parents[2]
 FOOT = REPO / "data/footprints"
 BAKEOFF = REPO / "data/mesh_bakeoff/out-full"
@@ -83,3 +85,24 @@ def load_candidates(foot: pathlib.Path = FOOT,
             mesh_aspect=m.get("aspect") if m else None,
         )
     return out
+
+
+# contact-sheet panel id -> (shape_source, squared). mesh and mesh067 are the
+# same underlying source: the sheet's "mesh" panel is raw display, but a mesh
+# pick always publishes beam-corrected geometry.
+PICK_SOURCES = {
+    "moge": ("pipeline_profile", False),
+    "footprint": ("pipeline_polygon", False),
+    "mesh": ("mesh", False),
+    "mesh067": ("mesh", False),
+    "mesh067sq": ("mesh_squared", True),
+}
+
+
+def mesh_shape(mesh_w, squared: bool):
+    w = np.asarray(mesh_w, dtype=float) * MESH_BEAM
+    return _profile.snap_plateaus(w) if squared else w
+
+
+def mesh_adjusted_aspect(mesh_aspect: float) -> float:
+    return mesh_aspect / MESH_BEAM

@@ -81,3 +81,28 @@ def test_mesh_resolution_prefers_the_exact_stem(tmp_path):
         {"w": [0.5] * 96, "aspect": 9.9}))
     c = fuse.load_candidates(foot, bakeoff)["plain"]
     assert c.mesh_aspect == 9.9
+
+
+def test_pick_sources_cover_every_sheet_panel():
+    assert fuse.PICK_SOURCES == {
+        "moge": ("pipeline_profile", False),
+        "footprint": ("pipeline_polygon", False),
+        "mesh": ("mesh", False),
+        "mesh067": ("mesh", False),
+        "mesh067sq": ("mesh_squared", True),
+    }
+
+
+def test_mesh_shape_applies_beam_correction_and_optional_squaring():
+    w = np.full(96, 1.0)
+    w[60:90] = 2.0
+    w[70] = 1.8                       # dent inside the wide run
+    plain = fuse.mesh_shape(w, squared=False)
+    assert np.allclose(plain[0], 0.67) and np.allclose(plain[60], 1.34)
+    assert np.isclose(plain[70], 1.8 * 0.67)   # dent survives unsquared
+    sq = fuse.mesh_shape(w, squared=True)
+    assert np.isclose(sq[70], 1.34)            # dent snapped to the plateau
+
+
+def test_mesh_adjusted_aspect_inverts_the_beam_correction():
+    assert np.isclose(fuse.mesh_adjusted_aspect(1.8), 1.8 / 0.67)
