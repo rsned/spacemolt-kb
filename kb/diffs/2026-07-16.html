@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — July 16, 2026 vs July 12, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-07-12.html">&larr; 2026-07-12</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-07-19.html">2026-07-19 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; July 16, 2026 vs July 12, 2026</h2>
+<div class="diff-summary">55 additions, 42 deletions, 114 modifications across 6 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+10</span> <span class="diff-del">&minus;5</span> <span class="diff-mod">~13</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+8</span> <span class="diff-del">&minus;5</span> <span class="diff-mod">~13</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+2</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~15</span></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~3</span></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+35</span> <span class="diff-del">&minus;32</span> <span class="diff-mod">~53</span></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~17</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+10</span>
+        <span class="diff-del">&minus;5</span>
+        <span class="diff-mod">~13</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Build Grand Dining Hall <span class="text-muted">(build_grand_dining_hall)</span></li><li class="diff-add">+ Build Onboard Galley <span class="text-muted">(build_onboard_galley)</span></li><li class="diff-add">+ Build Promenade Lounge <span class="text-muted">(build_promenade_lounge)</span></li><li class="diff-add">+ Build Stellar Observation Deck <span class="text-muted">(build_stellar_observation_deck)</span></li><li class="diff-add">+ Hammer Scrap Rounds <span class="text-muted">(hammer_scrap_rounds)</span></li><li class="diff-add">+ Hammer Scrap Shot <span class="text-muted">(hammer_scrap_shot)</span></li><li class="diff-add">+ Pack Package <span class="text-muted">(pack_package)</span></li><li class="diff-add">+ Unpack Package <span class="text-muted">(unpack_package)</span></li><li class="diff-add">+ Weld Scrap Missiles <span class="text-muted">(weld_scrap_missiles)</span></li><li class="diff-add">+ Weld Scrap Torpedoes <span class="text-muted">(weld_scrap_torpedoes)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../recipes/Defense/build_nanite_hull_coating.html">Build Nanite Hull Coating</a> <span class="text-muted">(build_nanite_hull_coating)</span></li><li class="diff-del">&minus; <a href="../recipes/Modules/build_nanofiber_internal_structure.html">Build Nanofiber Internal Structure</a> <span class="text-muted">(build_nanofiber_internal_structure)</span></li><li class="diff-del">&minus; <a href="../recipes/Defense/build_reactive_armor_hardener.html">Build Reactive Armor Hardener</a> <span class="text-muted">(build_reactive_armor_hardener)</span></li><li class="diff-del">&minus; <a href="../recipes/Defense/build_regenerative_armor_i.html">Build Regenerative Armor I</a> <span class="text-muted">(build_regenerative_armor_i)</span></li><li class="diff-del">&minus; <a href="../recipes/Defense/build_regenerative_armor_ii.html">Build Regenerative Armor II</a> <span class="text-muted">(build_regenerative_armor_ii)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/bottle_nebula_stellar_vintage.html">bottle_nebula_stellar_vintage</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: bioluminescent_algae, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 3</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 6</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/brew_crimson_bloodwine.html">brew_crimson_bloodwine</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: fermentation_culture, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: honeyglobe, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 8</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/brew_frontier_spore_spirits.html">brew_frontier_spore_spirits</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: fermentation_culture, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: gloomcap_mash, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 8</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/cultivate_bioluminescent_algae.html">cultivate_bioluminescent_algae</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/culture_fermentation_vat.html">culture_fermentation_vat</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/distill_frontier_rotgut.html">distill_frontier_rotgut</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: fermentation_culture, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: gloomcap_mash, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: sunspindle, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/grow_neural_matrix.html">grow_neural_matrix</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: null_matter, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/package_crimson_iron_rations.html">package_crimson_iron_rations</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: driftkale, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: vatflesh_curd, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/prepare_gourmet_rations.html">prepare_gourmet_rations</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: driftkale, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: vatflesh_curd, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/produce_solarian_biotic.html">produce_solarian_biotic</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: driftkale, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: honeyglobe, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 5</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: pharmaceutical_culture, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 10</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: vatflesh_curd, quantity: 1</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: solarian_biotic, quantity: 1</td><td class="diff-add">item_id: solarian_biotic, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/run_pharmaceutical_lab.html">run_pharmaceutical_lab</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/synthesize_void_nanites.html">synthesize_void_nanites</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: null_matter, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/synthesize_voidborn_neural_soma.html">synthesize_voidborn_neural_soma</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: gloomcap_mash, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: liquid_nitrogen, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: purified_water, quantity: 2</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+8</span>
+        <span class="diff-del">&minus;5</span>
+        <span class="diff-mod">~13</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Grand Dining Hall <span class="text-muted">(grand_dining_hall)</span></li><li class="diff-add">+ Onboard Galley <span class="text-muted">(onboard_galley)</span></li><li class="diff-add">+ Promenade Lounge <span class="text-muted">(promenade_lounge)</span></li><li class="diff-add">+ Scrap Missiles <span class="text-muted">(scrap_missiles)</span></li><li class="diff-add">+ Scrap Rounds <span class="text-muted">(scrap_rounds)</span></li><li class="diff-add">+ Scrap Shot <span class="text-muted">(scrap_shot)</span></li><li class="diff-add">+ Scrap Torpedoes <span class="text-muted">(scrap_torpedoes)</span></li><li class="diff-add">+ Stellar Observation Deck <span class="text-muted">(stellar_observation_deck)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../items/defense/nanite_hull_coating.html">Nanite Hull Coating</a> <span class="text-muted">(nanite_hull_coating)</span></li><li class="diff-del">&minus; <a href="../items/utility/nanofiber_internal_structure.html">Nanofiber Internal Structure</a> <span class="text-muted">(nanofiber_internal_structure)</span></li><li class="diff-del">&minus; <a href="../items/defense/reactive_armor_hardener.html">Reactive Armor Hardener</a> <span class="text-muted">(reactive_armor_hardener)</span></li><li class="diff-del">&minus; <a href="../items/defense/regenerative_armor_i.html">Regenerative Armor I</a> <span class="text-muted">(regenerative_armor_i)</span></li><li class="diff-del">&minus; <a href="../items/defense/regenerative_armor_ii.html">Regenerative Armor II</a> <span class="text-muted">(regenerative_armor_ii)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/refined/bioluminescent_algae.html">bioluminescent_algae</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">28</span></div>
+<div class="diff-item-id"><a href="../items/refined/cinderspice.html">cinderspice</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">34</span> &rarr; <span class="diff-add">110</span></div>
+<div class="diff-item-id"><a href="../items/consumable/crimson_iron_rations.html">crimson_iron_rations</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">84</span></div>
+<div class="diff-item-id"><a href="../items/refined/driftkale.html">driftkale</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">40</span></div>
+<div class="diff-item-id"><a href="../items/refined/fermentation_culture.html">fermentation_culture</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">30</span> &rarr; <span class="diff-add">19</span></div>
+<div class="diff-item-id"><a href="../items/refined/gloomcap_mash.html">gloomcap_mash</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">40</span></div>
+<div class="diff-item-id"><a href="../items/refined/honeyglobe.html">honeyglobe</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">53</span></div>
+<div class="diff-item-id"><a href="../items/consumable/nebula_stellar_vintage.html">nebula_stellar_vintage</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">150</span> &rarr; <span class="diff-add">67</span></div>
+<div class="diff-item-id"><a href="../items/refined/pharmaceutical_culture.html">pharmaceutical_culture</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">38</span></div>
+<div class="diff-item-id"><a href="../items/refined/sunspindle.html">sunspindle</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">12</span> &rarr; <span class="diff-add">40</span></div>
+<div class="diff-item-id"><a href="../items/refined/vatflesh_curd.html">vatflesh_curd</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">20</span> &rarr; <span class="diff-add">51</span></div>
+<div class="diff-item-id"><a href="../items/component/voidborn_neural_matrix.html">voidborn_neural_matrix</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">200</span> &rarr; <span class="diff-add">540</span></div>
+<div class="diff-item-id"><a href="../items/consumable/voidborn_neural_soma.html">voidborn_neural_soma</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">300</span> &rarr; <span class="diff-add">139</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+2</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~15</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../ships/Combat/asset_forfeiture.html">Asset Forfeiture</a> <span class="text-muted">(asset_forfeiture)</span></li><li class="diff-add">+ <a href="../ships/Combat/eminent_domain.html">Eminent Domain</a> <span class="text-muted">(eminent_domain)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../ships/Civilian/cloister.html">cloister</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 6</td><td class="diff-unchanged">type: passenger_business_berths, value: 6</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 55</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 5</td></tr><tr><td class="diff-unchanged">type: passenger_economy_berths, value: 10</td><td class="diff-unchanged">type: passenger_economy_berths, value: 10</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 1</td><td class="diff-unchanged">type: passenger_first_berths, value: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 6</td></tr><tr><td class="diff-unchanged">type: scan_resistance, value: 15</td><td class="diff-unchanged">type: scan_resistance, value: 15</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/comet.html">comet</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: fuel_efficiency_bonus, value: 50</td><td class="diff-unchanged">type: fuel_efficiency_bonus, value: 50</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 40</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 3</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 48</td><td class="diff-unchanged">type: passenger_first_berths, value: 48</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 8</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/concordia.html">concordia</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 8</td><td class="diff-unchanged">type: passenger_business_berths, value: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 35</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 5</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 2</td><td class="diff-unchanged">type: passenger_first_berths, value: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 5</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/consortium.html">consortium</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 4</td><td class="diff-unchanged">type: passenger_business_berths, value: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 30</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 4</td></tr><tr><td class="diff-unchanged">type: passenger_economy_berths, value: 8</td><td class="diff-unchanged">type: passenger_economy_berths, value: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 4</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/liquidity_event.html">liquidity_event</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 80</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 8</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 8</td><td class="diff-unchanged">type: passenger_first_berths, value: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 16</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/lone_star.html">lone_star</a></div>
+<div class="diff-field"><span class="diff-field-name">prestige_lock:</span> <span class="diff-del">&#34;Locked: prestige hull reserved for members of a faction that has earned the \&#34;Solo Operator\&#34; achievement.&#34;</span> &rarr; <span class="diff-add">&#34;Locked: prestige hull reserved for members of a faction that has earned a secret achievement.&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Civilian/midas.html">midas</a></div>
+<div class="diff-field"><span class="diff-field-name">prestige_lock:</span> <span class="diff-del">&#34;Locked: prestige hull reserved for pilots who have earned the \&#34;Billionaire\&#34; achievement.&#34;</span> &rarr; <span class="diff-add">&#34;Locked: prestige hull reserved for pilots who have earned a secret achievement.&#34;</span></div><div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: fuel_efficiency_bonus, value: 50</td><td class="diff-unchanged">type: fuel_efficiency_bonus, value: 50</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 120</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 16</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 6</td><td class="diff-unchanged">type: passenger_first_berths, value: 6</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 16</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/midlife_crisis.html">midlife_crisis</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 2</td><td class="diff-unchanged">type: passenger_business_berths, value: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 45</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 3</td></tr><tr><td class="diff-unchanged">type: passenger_economy_berths, value: 16</td><td class="diff-unchanged">type: passenger_economy_berths, value: 16</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 8</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/muster.html">muster</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 2</td><td class="diff-unchanged">type: passenger_business_berths, value: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 25</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 6</td></tr><tr><td class="diff-unchanged">type: passenger_economy_berths, value: 18</td><td class="diff-unchanged">type: passenger_economy_berths, value: 18</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/omnibus.html">omnibus</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 25</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 3</td></tr><tr><td class="diff-unchanged">type: passenger_economy_berths, value: 14</td><td class="diff-unchanged">type: passenger_economy_berths, value: 14</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Multirole/polymath.html">polymath</a></div>
+<div class="diff-field"><span class="diff-field-name">prestige_lock:</span> <span class="diff-del">&#34;Locked: prestige hull reserved for pilots who have earned the \&#34;Grandmaster\&#34; achievement.&#34;</span> &rarr; <span class="diff-add">&#34;Locked: prestige hull reserved for pilots who have earned a secret achievement.&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Civilian/premiere.html">premiere</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 8</td><td class="diff-unchanged">type: passenger_business_berths, value: 8</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 60</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 10</td></tr><tr><td class="diff-unchanged">type: passenger_economy_berths, value: 16</td><td class="diff-unchanged">type: passenger_economy_berths, value: 16</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 4</td><td class="diff-unchanged">type: passenger_first_berths, value: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 10</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/promenade.html">promenade</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 6</td><td class="diff-unchanged">type: passenger_business_berths, value: 6</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 50</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 8</td></tr><tr><td class="diff-unchanged">type: passenger_economy_berths, value: 12</td><td class="diff-unchanged">type: passenger_economy_berths, value: 12</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 1</td><td class="diff-unchanged">type: passenger_first_berths, value: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 6</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/reticence.html">reticence</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">type: passenger_business_berths, value: 4</td><td class="diff-unchanged">type: passenger_business_berths, value: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 35</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 3</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 4</td></tr><tr><td class="diff-unchanged">type: scan_resistance, value: 20</td><td class="diff-unchanged">type: scan_resistance, value: 20</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Civilian/treasury.html">treasury</a></div>
+<div class="diff-field"><span class="diff-field-name">inherent_capabilities:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_comfort, value: 60</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_dining_points, value: 6</td></tr><tr><td class="diff-unchanged">type: passenger_first_berths, value: 3</td><td class="diff-unchanged">type: passenger_first_berths, value: 3</td></tr><tr><td class="diff-empty"></td><td class="diff-add">type: passenger_leisure_points, value: 6</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~3</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../skills/crimson_fury.html">crimson_fury</a></div>
+<div class="diff-field"><span class="diff-field-name">training_source:</span> <span class="diff-del">&#34;Earned by completing Crimson Fleet empire missions (Crimson Fleet empire only).&#34;</span> &rarr; <span class="diff-add">&#34;Earned by completing Crimson Pact empire missions (Crimson Pact empire only).&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Crimson Fleet battle rage. Increases damage when hull is damaged and armor bypass chance.&#34;</span> &rarr; <span class="diff-add">&#34;Crimson Pact battle rage. Increases damage when hull is damaged and armor bypass chance.&#34;</span></div>
+<div class="diff-item-id"><a href="../skills/nebula_attunement.html">nebula_attunement</a></div>
+<div class="diff-field"><span class="diff-field-name">training_source:</span> <span class="diff-del">&#34;Earned by completing Nebula Collective empire missions (Nebula Collective empire only).&#34;</span> &rarr; <span class="diff-add">&#34;Earned by completing Nebula Trade Federation empire missions (Nebula Trade Federation empire only).&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Nebula Collective environmental harmony. Increases gas harvest yield by 1% per level and sensor range by 1% per level.&#34;</span> &rarr; <span class="diff-add">&#34;Nebula Trade Federation environmental harmony. Increases gas harvest yield by 1% per level and sensor range by 1% per level.&#34;</span></div>
+<div class="diff-item-id"><a href="../skills/outer_rim_survival.html">outer_rim_survival</a></div>
+<div class="diff-field"><span class="diff-field-name">empire_restriction:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+35</span>
+        <span class="diff-del">&minus;32</span>
+        <span class="diff-mod">~53</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../facilities/production/advanced_culinary_module_production.html">Advanced Culinary Module Production</a> <span class="text-muted">(advanced_culinary_module_production)</span></li><li class="diff-add">+ <a href="../facilities/production/advanced_hospitality_module_production.html">Advanced Hospitality Module Production</a> <span class="text-muted">(advanced_hospitality_module_production)</span></li><li class="diff-add">+ <a href="../facilities/production/automated_banquet_assembly_plant.html">Automated Banquet Assembly Plant</a> <span class="text-muted">(automated_banquet_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/production/automated_galley_production_line.html">Automated Galley Production Line</a> <span class="text-muted">(automated_galley_production_line)</span></li><li class="diff-add">+ <a href="../facilities/production/automated_lounge_assembly_plant.html">Automated Lounge Assembly Plant</a> <span class="text-muted">(automated_lounge_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/defense/automated_repair_dock.html">Automated Repair Dock</a> <span class="text-muted">(automated_repair_dock)</span></li><li class="diff-add">+ <a href="../facilities/production/bespoke_dining_hall_production_facility.html">Bespoke Dining Hall Production Facility</a> <span class="text-muted">(bespoke_dining_hall_production_facility)</span></li><li class="diff-add">+ <a href="../facilities/production/bespoke_observation_deck_production.html">Bespoke Observation Deck Production</a> <span class="text-muted">(bespoke_observation_deck_production)</span></li><li class="diff-add">+ <a href="../facilities/defense/bulwark_plating.html">Bulwark Plating</a> <span class="text-muted">(bulwark_plating)</span></li><li class="diff-add">+ <a href="../facilities/production/dining_hall_fabrication_unit.html">Dining Hall Fabrication Unit</a> <span class="text-muted">(dining_hall_fabrication_unit)</span></li><li class="diff-add">+ <a href="../facilities/production/galley_fabrication_bay.html">Galley Fabrication Bay</a> <span class="text-muted">(galley_fabrication_bay)</span></li><li class="diff-add">+ <a href="../facilities/production/grand_dining_manufacturing_complex.html">Grand Dining Manufacturing Complex</a> <span class="text-muted">(grand_dining_manufacturing_complex)</span></li><li class="diff-add">+ <a href="../facilities/defense/harpoon_emplacement.html">Harpoon Emplacement</a> <span class="text-muted">(harpoon_emplacement)</span></li><li class="diff-add">+ <a href="../facilities/defense/heavy_defense_battery.html">Heavy Defense Battery</a> <span class="text-muted">(heavy_defense_battery)</span></li><li class="diff-add">+ <a href="../facilities/production/industrial_galley_manufacturing_complex.html">Industrial Galley Manufacturing Complex</a> <span class="text-muted">(industrial_galley_manufacturing_complex)</span></li><li class="diff-add">+ <a href="../facilities/production/industrial_lounge_manufacturing_complex.html">Industrial Lounge Manufacturing Complex</a> <span class="text-muted">(industrial_lounge_manufacturing_complex)</span></li><li class="diff-add">+ <a href="../facilities/production/lounge_fitting_bay.html">Lounge Fitting Bay</a> <span class="text-muted">(lounge_fitting_bay)</span></li><li class="diff-add">+ <a href="../facilities/production/observation_deck_fabrication_unit.html">Observation Deck Fabrication Unit</a> <span class="text-muted">(observation_deck_fabrication_unit)</span></li><li class="diff-add">+ <a href="../facilities/production/package_logistics_bay.html">Package Logistics Bay</a> <span class="text-muted">(package_logistics_bay)</span></li><li class="diff-add">+ <a href="../facilities/production/package_logistics_center.html">Package Logistics Center</a> <span class="text-muted">(package_logistics_center)</span></li><li class="diff-add">+ <a href="../facilities/production/package_logistics_hub.html">Package Logistics Hub</a> <span class="text-muted">(package_logistics_hub)</span></li><li class="diff-add">+ <a href="../facilities/production/package_logistics_nexus.html">Package Logistics Nexus</a> <span class="text-muted">(package_logistics_nexus)</span></li><li class="diff-add">+ <a href="../facilities/production/panoramic_deck_assembly_plant.html">Panoramic Deck Assembly Plant</a> <span class="text-muted">(panoramic_deck_assembly_plant)</span></li><li class="diff-add">+ <a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a> <span class="text-muted">(point_defense_battery)</span></li><li class="diff-add">+ <a href="../facilities/production/precision_viewport_manufacturing_complex.html">Precision Viewport Manufacturing Complex</a> <span class="text-muted">(precision_viewport_manufacturing_complex)</span></li><li class="diff-add">+ <a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a> <span class="text-muted">(reinforced_plating)</span></li><li class="diff-add">+ <a href="../facilities/production/scrap_ammo_works.html">Scrap Ammo Works</a> <span class="text-muted">(scrap_ammo_works)</span></li><li class="diff-add">+ <a href="../facilities/production/scrap_cartridge_shop.html">Scrap Cartridge Shop</a> <span class="text-muted">(scrap_cartridge_shop)</span></li><li class="diff-add">+ <a href="../facilities/defense/scrap_flak_battery.html">Scrap Flak Battery</a> <span class="text-muted">(scrap_flak_battery)</span></li><li class="diff-add">+ <a href="../facilities/production/scrap_ordnance_shed.html">Scrap Ordnance Shed</a> <span class="text-muted">(scrap_ordnance_shed)</span></li><li class="diff-add">+ <a href="../facilities/production/scrap_torpedo_slip.html">Scrap Torpedo Slip</a> <span class="text-muted">(scrap_torpedo_slip)</span></li><li class="diff-add">+ <a href="../facilities/defense/shield_bastion.html">Shield Bastion</a> <span class="text-muted">(shield_bastion)</span></li><li class="diff-add">+ <a href="../facilities/defense/shield_projector.html">Shield Projector</a> <span class="text-muted">(shield_projector)</span></li><li class="diff-add">+ <a href="../facilities/defense/siege_lance.html">Siege Lance</a> <span class="text-muted">(siege_lance)</span></li><li class="diff-add">+ <a href="../facilities/defense/station_defense_turret.html">Station Defense Turret</a> <span class="text-muted">(station_defense_turret)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../facilities/production/adaptive_armor_production_complex.html">Adaptive Armor Production Complex</a> <span class="text-muted">(adaptive_armor_production_complex)</span></li><li class="diff-del">&minus; <a href="../facilities/production/advanced_armor_plant.html">Advanced Armor Plant</a> <span class="text-muted">(advanced_armor_plant)</span></li><li class="diff-del">&minus; <a href="../facilities/production/advanced_armor_response_plant.html">Advanced Armor Response Plant</a> <span class="text-muted">(advanced_armor_response_plant)</span></li><li class="diff-del">&minus; <a href="../facilities/production/armor_assembly_line.html">Armor Assembly Line</a> <span class="text-muted">(armor_assembly_line)</span></li><li class="diff-del">&minus; <a href="../facilities/production/armor_response_assembly.html">Armor Response Assembly</a> <span class="text-muted">(armor_response_assembly)</span></li><li class="diff-del">&minus; <a href="../facilities/production/automated_megacore_foundry.html">Automated Megacore Foundry</a> <span class="text-muted">(automated_megacore_foundry)</span></li><li class="diff-del">&minus; <a href="../facilities/production/automated_nanofiber_works.html">Automated Nanofiber Works</a> <span class="text-muted">(automated_nanofiber_works)</span></li><li class="diff-del">&minus; <a href="../facilities/production/composite_lay_up_plant.html">Composite Lay-Up Plant</a> <span class="text-muted">(composite_lay_up_plant)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_extractor_assembly_facility.html">Deep Core Extractor Assembly Facility</a> <span class="text-muted">(deep_core_extractor_assembly_facility)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_extractor_production_lab.html">Deep Core Extractor Production Lab</a> <span class="text-muted">(deep_core_extractor_production_lab)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_extractor_technology_nexus.html">Deep Core Extractor Technology Nexus</a> <span class="text-muted">(deep_core_extractor_technology_nexus)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_extractor_workshop.html">Deep Core Extractor Workshop</a> <span class="text-muted">(deep_core_extractor_workshop)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_survey_scanner_assembly_facility.html">Deep Core Survey Scanner Assembly Facility</a> <span class="text-muted">(deep_core_survey_scanner_assembly_facility)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_survey_scanner_production_lab.html">Deep Core Survey Scanner Production Lab</a> <span class="text-muted">(deep_core_survey_scanner_production_lab)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_survey_scanner_technology_nexus.html">Deep Core Survey Scanner Technology Nexus</a> <span class="text-muted">(deep_core_survey_scanner_technology_nexus)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_survey_scanner_workshop.html">Deep Core Survey Scanner Workshop</a> <span class="text-muted">(deep_core_survey_scanner_workshop)</span></li><li class="diff-del">&minus; <a href="../facilities/production/deep_core_exotic_fabrication_works.html">Deep-Core Exotic Fabrication Works</a> <span class="text-muted">(deep_core_exotic_fabrication_works)</span></li><li class="diff-del">&minus; <a href="../facilities/production/exotic_integration_hall.html">Exotic Integration Hall</a> <span class="text-muted">(exotic_integration_hall)</span></li><li class="diff-del">&minus; <a href="../facilities/production/extractor_refit_bay.html">Extractor Refit Bay</a> <span class="text-muted">(extractor_refit_bay)</span></li><li class="diff-del">&minus; <a href="../facilities/production/industrial_nanite_works.html">Industrial Nanite Works</a> <span class="text-muted">(industrial_nanite_works)</span></li><li class="diff-del">&minus; <a href="../facilities/production/nanite_coating_synthesis_line.html">Nanite Coating Synthesis Line</a> <span class="text-muted">(nanite_coating_synthesis_line)</span></li><li class="diff-del">&minus; <a href="../facilities/production/nanite_fabrication_complex.html">Nanite Fabrication Complex</a> <span class="text-muted">(nanite_fabrication_complex)</span></li><li class="diff-del">&minus; <a href="../facilities/production/nanite_processing_plant.html">Nanite Processing Plant</a> <span class="text-muted">(nanite_processing_plant)</span></li><li class="diff-del">&minus; <a href="../facilities/production/nano_integrated_armor_facility.html">Nano-Integrated Armor Facility</a> <span class="text-muted">(nano_integrated_armor_facility)</span></li><li class="diff-del">&minus; <a href="../facilities/production/nanofiber_composite_fabrication_complex.html">Nanofiber Composite Fabrication Complex</a> <span class="text-muted">(nanofiber_composite_fabrication_complex)</span></li><li class="diff-del">&minus; <a href="../facilities/production/reactive_armor_manufacturing.html">Reactive Armor Manufacturing</a> <span class="text-muted">(reactive_armor_manufacturing)</span></li><li class="diff-del">&minus; <a href="../facilities/production/regenerative_armor_i_assembly_plant.html">Regenerative Armor I Assembly Plant</a> <span class="text-muted">(regenerative_armor_i_assembly_plant)</span></li><li class="diff-del">&minus; <a href="../facilities/production/regenerative_armor_i_fabrication_nexus.html">Regenerative Armor I Fabrication Nexus</a> <span class="text-muted">(regenerative_armor_i_fabrication_nexus)</span></li><li class="diff-del">&minus; <a href="../facilities/production/regenerative_armor_i_production_lab.html">Regenerative Armor I Production Lab</a> <span class="text-muted">(regenerative_armor_i_production_lab)</span></li><li class="diff-del">&minus; <a href="../facilities/production/regenerative_armor_i_workshop.html">Regenerative Armor I Workshop</a> <span class="text-muted">(regenerative_armor_i_workshop)</span></li><li class="diff-del">&minus; <a href="../facilities/production/regenerative_armor_works.html">Regenerative Armor Works</a> <span class="text-muted">(regenerative_armor_works)</span></li><li class="diff-del">&minus; <a href="../facilities/production/weaving_bench.html">Weaving Bench</a> <span class="text-muted">(weaving_bench)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../facilities/service/crimson_armor_works.html">crimson_armor_works</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/crimson_fleet_command.html">crimson_fleet_command</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/crimson_war_forge.html">crimson_war_forge</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/fleet_forge_distillery.html">fleet_forge_distillery</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">3</span></div><div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fleet_fuel_bunker.html">fleet_fuel_bunker</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/fleet_life_support.html">fleet_life_support</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fleet_munitions_vault.html">fleet_munitions_vault</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/fleet_weapons_forge.html">fleet_weapons_forge</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/frontier_exchange.html">frontier_exchange</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/frontier_fuel_siphon.html">frontier_fuel_siphon</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/frontier_machine_shop.html">frontier_machine_shop</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/frontier_recycler.html">frontier_recycler</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/frontier_salvage_yard.html">frontier_salvage_yard</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/frontier_weld_shop.html">frontier_weld_shop</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/haven_algae_cultivation.html">haven_algae_cultivation</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div><div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">70</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../facilities/production/haven_authenticator_foundry.html">haven_authenticator_foundry</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/haven_cipher_foundry.html">haven_cipher_foundry</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/haven_ecosync.html">haven_ecosync</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/haven_fleet_operations.html">haven_fleet_operations</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_fuel_plaza.html">haven_fuel_plaza</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_grand_bazaar.html">haven_grand_bazaar</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_makers_market.html">haven_makers_market</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_premium_storage.html">haven_premium_storage</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/haven_promenade.html">haven_promenade</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_repair_complex.html">haven_repair_complex</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_ship_showroom.html">haven_ship_showroom</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_trade_commission.html">haven_trade_commission</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/haven_vintner_complex.html">haven_vintner_complex</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">5</span></div><div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/hull_lockers.html">hull_lockers</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/ironhearth_ration_works.html">ironhearth_ration_works</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">2</span></div><div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/military_grade_reactor.html">military_grade_reactor</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/nebula_solar_array.html">nebula_solar_array</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;nebula_trade&#34;</span> &rarr; <span class="diff-add">&#34;nebula&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/neural_growth_chamber.html">neural_growth_chamber</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">8</span></div>
+<div class="diff-item-id"><a href="../facilities/production/nexus_nanite_synthesis.html">nexus_nanite_synthesis</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">90</span> &rarr; <span class="diff-add">8</span></div>
+<div class="diff-item-id"><a href="../facilities/production/nexus_soma_dispensary.html">nexus_soma_dispensary</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/pact_forward_armory.html">pact_forward_armory</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/pact_garrison_block.html">pact_garrison_block</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/pact_grand_armory.html">pact_grand_armory</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/pact_security_post.html">pact_security_post</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/pact_war_depot.html">pact_war_depot</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/pact_war_precinct.html">pact_war_precinct</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/patchwork_fleet_command.html">patchwork_fleet_command</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/patchwork_fungal_vats.html">patchwork_fungal_vats</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div><div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../facilities/production/patchwork_spore_still.html">patchwork_spore_still</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">3</span></div><div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/salvage_reactor.html">salvage_reactor</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/sol_biotic_dispensary.html">sol_biotic_dispensary</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../facilities/production/sol_pharmaceutical_lab.html">sol_pharmaceutical_lab</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">70</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../facilities/production/solarian_biosphere_kitchen.html">solarian_biosphere_kitchen</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../facilities/production/the_magazine_still.html">the_magazine_still</a></div>
+<div class="diff-field"><span class="diff-field-name">labor_cost:</span> <span class="diff-del">80</span> &rarr; <span class="diff-add">3</span></div><div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/the_notice_board.html">the_notice_board</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/the_rally_point.html">the_rally_point</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/the_rusty_welcome.html">the_rusty_welcome</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;outer_rim&#34;</span> &rarr; <span class="diff-add">&#34;outerrim&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/service/war_market.html">war_market</a></div>
+<div class="diff-field"><span class="diff-field-name">empire:</span> <span class="diff-del">&#34;crimson_pact&#34;</span> &rarr; <span class="diff-add">&#34;crimson&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~17</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/40_eridani/index.html">40_eridani</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/alpheratz/index.html">alpheratz</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/arneb/index.html">arneb</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/bd20_2457/index.html">bd20_2457</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/crosshaven/index.html">crosshaven</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">8</span></div>
+<div class="diff-item-id"><a href="../systems/deep_range/index.html">deep_range</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/enif/index.html">enif</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/fang/index.html">fang</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/fumalsamakah/index.html">fumalsamakah</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0010/index.html">gsc_0010</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0013/index.html">gsc_0013</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0019/index.html">gsc_0019</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0034/index.html">gsc_0034</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/kitalpha/index.html">kitalpha</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/kornephoros/index.html">kornephoros</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/saiph/index.html">saiph</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id"><a href="../systems/unknown_edge/index.html">unknown_edge</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>
