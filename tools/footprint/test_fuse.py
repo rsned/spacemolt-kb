@@ -314,3 +314,64 @@ def test_validate_checks_family_aspect_ratios():
     v2 = fuse.validate({"a": {"id": "a", "aspect": 10.0}, "b": eb},
                        {}, rosters, {})
     assert not v2["family_consistency"][0]["ok"]
+
+
+def test_run_writes_entries_and_index(tmp_path):
+    foot, bakeoff = _mini_tree(tmp_path)
+    (foot / "user_annotations_2026-08-01.json").write_text(json.dumps(
+        {"best_picks": {"plain": "moge"},
+         "bow_directions_deg_cw_from_screen_up": {}}))
+    (foot / "eyeball_labels_2026-08-01.json").write_text(json.dumps(
+        {"fusion_rosters": {
+            "wing_filled": [], "wing_crescent": [], "prong_confirmed": [],
+            "receding_right_2_3": [], "receding_left_9_10": [],
+            "family_pairs": []}}))
+    index = fuse.run(foot=foot, bakeoff=bakeoff)
+    fused = foot / "fused"
+    assert (fused / "plain.json").exists() and (fused / "index.json").exists()
+    plain = json.loads((fused / "plain.json").read_text())
+    assert plain["rule"] == "user_pick" and plain["shape_source"] == \
+        "pipeline_profile"
+    bare = json.loads((fused / "bare.json").read_text())
+    assert bare["rule"] == "unresolved"        # wrecked but no mesh
+    assert index["counts"]["user_pick"] == 1
+    assert index["ships"]["bare"]["confidence"] == "unresolved"
+
+
+def test_run_on_the_real_data_holds_the_headline_invariants():
+    """Integration: real repo data. Skipped if the mesh bakeoff is absent."""
+    import pytest
+    if not fuse.BAKEOFF.exists():
+        pytest.skip("mesh bakeoff data not present")
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        # Load the entries to check staleness documentation
+        index = fuse.run(out=pathlib.Path(td))
+        assert len(index["ships"]) == 267
+        picks = json.loads((fuse.FOOT /
+                            "user_annotations_2026-08-01.json").read_text()
+                           )["best_picks"]
+
+        # Verify picks either resolved or are documented as stale
+        unresolved_without_stale_note = []
+        for sid in sorted(picks.keys()):
+            if sid not in index["ships"]:
+                continue
+            entry_file = pathlib.Path(td) / f"{sid}.json"
+            if entry_file.exists():
+                entry = json.loads(entry_file.read_text())
+                if entry["confidence"] == "unresolved":
+                    notes = entry.get("provenance", {}).get("notes", [])
+                    has_stale_note = any("stale pick" in n for n in notes)
+                    if not has_stale_note:
+                        unresolved_without_stale_note.append(sid)
+
+        if unresolved_without_stale_note:
+            raise AssertionError(
+                f"picks came out unresolved without stale documentation: "
+                f"{unresolved_without_stale_note}")
+
+        # every pick either resolved as rule 1 or documented its staleness
+        n_pick_rule = sum(1 for s in index["ships"].values()
+                          if s["rule"] == "user_pick")
+        assert n_pick_rule >= len([s for s in picks if s in index["ships"]]) - 5

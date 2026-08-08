@@ -238,7 +238,7 @@ def _sibling_squared(sid, picks, family_pairs):
 
 def _has(cand, source):
     return {"pipeline_profile": cand.pipe is not None and cand.pipe.get("w"),
-            "pipeline_polygon": cand.polygon is not None,
+            "pipeline_polygon": cand.polygon is not None and cand.pipe is not None and cand.pipe.get("w"),
             "mesh": cand.mesh_w is not None,
             "mesh_squared": cand.mesh_w is not None}[source]
 
@@ -328,3 +328,51 @@ def validate(entries, cands, rosters, picks):
             family.append({"pair": [a, b], "ratio": None,
                            "expected": [lo, hi], "ok": False})
     return {"rules_vs_picks": disagreements, "family_consistency": family}
+
+
+def run(foot: pathlib.Path = FOOT, bakeoff: pathlib.Path = BAKEOFF,
+        out: "pathlib.Path | None" = None) -> dict:
+    out = out or (foot / "fused")
+    out.mkdir(parents=True, exist_ok=True)
+    labels = json.loads(
+        (foot / "eyeball_labels_2026-08-01.json").read_text())
+    ann = json.loads(
+        (foot / "user_annotations_2026-08-01.json").read_text())
+    picks = ann["best_picks"]
+    rosters = load_rosters(labels)
+    cands = load_candidates(foot, bakeoff)
+
+    entries = {}
+    for sid, cand in sorted(cands.items()):
+        dec = apply_rules(sid, cand, rosters, picks.get(sid), picks)
+        entries[sid] = build_entry(sid, cand, dec, rosters,
+                                   pick=picks.get(sid))
+        (out / f"{sid}.json").write_text(json.dumps(entries[sid], indent=1))
+
+    counts = {}
+    for e in entries.values():
+        counts[e["rule"]] = counts.get(e["rule"], 0) + 1
+    index = {
+        "schema": SCHEMA,
+        "counts": counts,
+        "ships": {sid: {k: e.get(k) for k in
+                        ("rule", "confidence", "shape_source",
+                         "aspect_source", "aspect")}
+                  for sid, e in entries.items()},
+        "validation": validate(entries, cands, rosters, picks),
+    }
+    (out / "index.json").write_text(json.dumps(index, indent=1))
+    return index
+
+
+def main():
+    index = run()
+    print(json.dumps(index["counts"], indent=1))
+    v = index["validation"]
+    print(f"rules-vs-picks disagreements: {len(v['rules_vs_picks'])}")
+    bad = [f for f in v["family_consistency"] if not f["ok"]]
+    print(f"family checks failing: {len(bad)}/{len(v['family_consistency'])}")
+
+
+if __name__ == "__main__":
+    main()
