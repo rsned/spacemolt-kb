@@ -1,0 +1,19 @@
+CORRECTION (2026-08-08): this message contains three inaccurate figures.
+
+- "new jump destinations across 685 systems" — the game has 505 systems.
+  685 was the changed-FILE count under kb/systems/ (505 jumps.html + 177
+  index.html + 2 others). Accurate: all 505 jump-route pages changed, 177
+  system index pages changed.
+- "Empire tags corrected on 10 systems ... first_step, ironhearth, starfall"
+  — exactly 7 systems changed empire, all pirate strongholds: algol, alhena,
+  barnard_44, bellatrix, sheratan (Nebula -> Neutral), gsc_0008 (Solarian ->
+  Neutral), xamidimura (Outerrim -> Neutral). The other three were false
+  positives from text-matching empire names in the diff: first_step (POI count
+  6 -> 5), ironhearth (gained a base), starfall (the roaming Mobile Capital
+  arrived). Verified by extracting the Empire stat span per system page across
+  both revisions.
+- "1212 total" missions — 1202 mission detail pages plus 10 category indexes.
+
+The substantive findings stand: the stronghold rule (is_stronghold=1 => blank
+empire, police_level 0, Lawless) explains the reclassification completely, and
+it agrees across the 07-24 scrape, the 08-07 scrape and the knowledge DB.
