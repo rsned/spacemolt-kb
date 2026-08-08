@@ -111,14 +111,17 @@ def test_mesh_adjusted_aspect_inverts_the_beam_correction():
 # --- Helper fixtures for the rule ladder tests ---
 
 def _cand(status="ok_asymmetric", iou=0.99, aspect=2.0, mesh=True,
-          polygon=True, concave=None, orientation="bow_t0"):
+          polygon=True, concave=None, orientation="bow_t0", no_w=False):
     w = [0.25] * 96
+    pipe = {"id": "x", "status": status, "aspect": aspect,
+            "concave": concave or [False] * 96,
+            "orientation": orientation,
+            "orientation_source": {"flipped_from_stored": False},
+            "quality": {"silhouette_iou": iou}}
+    if not no_w:
+        pipe["w"] = w
     return fuse.Candidate(
-        pipe={"id": "x", "status": status, "aspect": aspect, "w": w,
-              "concave": concave or [False] * 96,
-              "orientation": orientation,
-              "orientation_source": {"flipped_from_stored": False},
-              "quality": {"silhouette_iou": iou}},
+        pipe=pipe,
         polygon={"alpha": 8.0, "polygon": {"type": "Polygon",
                  "coordinates": [[[0, -0.25], [1, -0.25], [1, 0.25],
                                   [0, 0.25], [0, -0.25]]]}} if polygon else None,
@@ -194,6 +197,15 @@ def test_rule4_sibling_mesh067sq_pick_turns_on_squaring():
     d = fuse.apply_rules("s", _cand(status="failed_dimensional_check"),
                          r, None, {"sib": "mesh067sq"})
     assert d.rule == "wrecked_solve" and d.squared
+
+
+def test_rule1_polygon_pick_requires_pipe_w():
+    # Stale pick scenario: polygon on disk but no w in pipe (e.g., interstice)
+    # such a pick should fall through and be documented as stale
+    d = fuse.apply_rules("s", _cand(polygon=True, no_w=True), _rosters(),
+                         "footprint", {})
+    assert d.rule != "user_pick"
+    assert any("stale pick" in n for n in d.notes)
 
 
 def test_rule5_clean_pipeline_and_receding_lower_bound_note():

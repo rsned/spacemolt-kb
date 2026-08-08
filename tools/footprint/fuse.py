@@ -237,8 +237,9 @@ def _sibling_squared(sid, picks, family_pairs):
 
 
 def _has(cand, source):
-    return {"pipeline_profile": cand.pipe is not None and cand.pipe.get("w"),
-            "pipeline_polygon": cand.polygon is not None and cand.pipe is not None and cand.pipe.get("w"),
+    pipe_and_w = cand.pipe is not None and cand.pipe.get("w")
+    return {"pipeline_profile": pipe_and_w,
+            "pipeline_polygon": cand.polygon is not None and pipe_and_w,
             "mesh": cand.mesh_w is not None,
             "mesh_squared": cand.mesh_w is not None}[source]
 
