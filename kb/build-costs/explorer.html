@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bill of Materials Explorer — Spacemolt KB</title>
+<script>(function(){try{var t=localStorage.getItem('smkb-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--border:#30363d;--border2:#21262d;--text:#c9d1d9;--muted:#8b949e;--muted2:#6e7681;--dim:#adbac7;--link:#58a6ff;--link2:#1f6feb;--accent:#e3b341;--accent2:#d29922;--accent3:#9a6700;--up:#3fb950;--up2:#2ea043;--down:#f85149;--purple:#6c5ce7;--grid:#6e7681}
+:root[data-theme="light"]{--bg:#ffffff;--panel:#f6f8fa;--panel2:#eaeef2;--border:#d0d7de;--border2:#d8dee4;--text:#1f2328;--muted:#656d76;--muted2:#8c959f;--dim:#57606a;--link:#0969da;--link2:#0969da;--accent:#9a6700;--accent2:#9a6700;--accent3:#7d4e00;--up:#1a7f37;--up2:#1a7f37;--down:#cf222e;--purple:#6639ba;--grid:#afb8c1}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:10;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .55rem;font-size:1rem;cursor:pointer;line-height:1}
+.theme-toggle:hover{border-color:var(--link)}
+
+body{font-family:system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+a{color:var(--link)}
+table{border-collapse:collapse;font-size:.85rem;margin-top:.5rem}
+th,td{border:1px solid var(--border2);padding:.3rem .5rem;text-align:right}
+th:first-child,td:first-child{text-align:left}
+
+.controls{display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.8rem;margin:1rem 0;max-width:60rem}
+.controls label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.25rem}
+.controls input{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:.35rem .5rem;font-size:.9rem;font-family:inherit}
+#target-input{width:22rem}
+#qty-input{width:7rem}
+
+.combo{position:relative}
+.combo-list{position:absolute;z-index:20;top:100%;left:0;right:0;max-height:18rem;overflow-y:auto;background:var(--panel2);border:1px solid var(--border);border-radius:4px;margin:2px 0 0;padding:0;list-style:none;display:none}
+.combo-list.open{display:block}
+.combo-list li{padding:.3rem .5rem;cursor:pointer;display:flex;justify-content:space-between;gap:1rem;font-size:.85rem}
+.combo-list li.active,.combo-list li:hover{background:var(--panel)}
+.combo-list .type{color:var(--muted2);font-size:.75rem}
+
+.chart-head{margin:1rem 0 .25rem;font-size:.95rem}
+.chart-head .recipe{color:var(--accent)}
+.chart-head .meta{color:var(--muted);font-size:.85rem;margin-left:.5rem}
+#chart{overflow-x:auto;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.5rem;min-height:6rem}
+
+.tables{display:flex;flex-wrap:wrap;gap:2rem;margin-top:1rem}
+.tables section{min-width:18rem}
+.tables h2{font-size:1rem;margin:0}
+.tables h2 small{color:var(--muted);font-weight:normal}
+.leafkind{color:var(--muted2);font-size:.75rem;margin-left:.35rem}
+
+.note{font-size:.8rem;color:var(--muted);max-width:70ch;margin-top:1.5rem}
+.empty{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body>
+<button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
+
+<p><a href="./">← Build Cost Matrix</a></p>
+<h1>Bill of Materials Explorer</h1>
+
+<div class="controls">
+  <div class="combo">
+    <label for="target-input">Output</label>
+    <input type="text" id="target-input" autocomplete="off" spellcheck="false"
+           placeholder="Type an item, ship or facility name…"
+           role="combobox" aria-expanded="false" aria-controls="target-list" aria-autocomplete="list">
+    <ul class="combo-list" id="target-list" role="listbox"></ul>
+  </div>
+  <div>
+    <label for="qty-input">Quantity</label>
+    <input type="number" id="qty-input" min="1" max="99999" step="1" value="1">
+  </div>
+</div>
+
+<div id="status" class="empty">Pick an output to see its bill of materials.</div>
+
+<div id="result" hidden>
+  <div class="chart-head">
+    <span class="recipe" id="chart-recipe"></span><span class="meta" id="chart-meta"></span>
+  </div>
+  <div id="chart"></div>
+
+  <div class="tables">
+    <section>
+      <h2>Base materials <small>(flattened)</small></h2>
+      <div id="table-base"></div>
+    </section>
+    <section>
+      <h2>Direct inputs <small id="direct-sub"></small></h2>
+      <div id="table-direct"></div>
+    </section>
+    <section id="surplus-section" hidden>
+      <h2>Surplus from batching</h2>
+      <div id="table-surplus"></div>
+    </section>
+  </div>
+
+  <p class="note">
+    Quantities round up to whole batches at every tier, so totals can exceed the
+    per-unit figures on the static build-cost pages — you cannot craft a partial
+    batch. Surplus shows what the rounding over-produces. This page carries no
+    prices; follow an item's link for its build cost by station.
+  </p>
+</div>
+
+<script src="bom-explorer.js"></script>
+</body>
+</html>

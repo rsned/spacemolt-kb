@@ -403,7 +403,10 @@ function decodeState(data, producers, query) {
   const params = new URLSearchParams(query || '');
 
   let target = params.get('target');
-  if (target && !hasOwn(data.targets, target) && !producers.has(target)) target = null;
+  if (target && !hasOwn(data.targets, target) && !hasOwn(data.items, target) &&
+      !producers.has(target)) {
+    target = null;
+  }
 
   const qty = params.has('qty') ? clampQty(params.get('qty')) : QTY_MIN;
 
@@ -422,10 +425,275 @@ function decodeState(data, producers, query) {
   return {target: target || null, qty, choices};
 }
 
+// ---------------------------------------------------------------------------
+// DOM layer
+// ---------------------------------------------------------------------------
+// Everything below touches the document. It is skipped entirely under Node,
+// which loads this file to test the pure functions above.
+
+const MAX_SUGGESTIONS = 50;
+
+// itemHref returns an item's KB catalog page, or '' when it has no category.
+function itemHref(data, id) {
+  const item = data.items[id];
+  if (!item || !item.c) return '';
+  return '../items/' + item.c + '/' + id + '.html';
+}
+
+// targetHref returns the catalog page for a graph node of any kind.
+function targetHref(data, id) {
+  const target = data.targets[id];
+  if (target) return target.t === 'ship' ? '../ships/all.html' : '';
+  return itemHref(data, id);
+}
+
+// displayName falls back to the raw id so an unknown item never renders blank.
+function displayName(data, id) {
+  if (data.targets[id]) return data.targets[id].n;
+  return (data.items[id] && data.items[id].n) || id;
+}
+
+// leafKind labels a leaf: ores are mined, anything else with no recipe is a
+// drop. Keeping them visually distinct stops a drop reading as mineable.
+function leafKind(data, id) {
+  const item = data.items[id];
+  if (!item) return 'unknown';
+  return item.c === 'ore' || item.c === 'material' ? 'ore' : 'drop';
+}
+
+function initExplorer() {
+  const els = {
+    target: document.getElementById('target-input'),
+    list: document.getElementById('target-list'),
+    qty: document.getElementById('qty-input'),
+    status: document.getElementById('status'),
+    result: document.getElementById('result'),
+    recipe: document.getElementById('chart-recipe'),
+    meta: document.getElementById('chart-meta'),
+    chart: document.getElementById('chart'),
+    base: document.getElementById('table-base'),
+    direct: document.getElementById('table-direct'),
+    directSub: document.getElementById('direct-sub'),
+    surplus: document.getElementById('table-surplus'),
+    surplusSection: document.getElementById('surplus-section'),
+  };
+
+  let data = null;
+  let producers = null;
+  let outputs = [];
+  let state = {target: null, qty: QTY_MIN, choices: {}};
+  let suggestions = [];
+  let activeIndex = -1;
+
+  fetch('recipe-graph.json')
+    .then((r) => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then((doc) => {
+      data = doc;
+      producers = producersOf(data);
+      outputs = selectableOutputs(data, producers);
+      state = decodeState(data, producers, window.location.search.slice(1));
+      if (state.target) els.target.value = displayName(data, state.target);
+      els.qty.value = state.qty;
+      render();
+    })
+    .catch((err) => {
+      els.status.textContent = 'Could not load recipe-graph.json: ' + err.message;
+    });
+
+  // -- autocomplete ---------------------------------------------------------
+
+  function matches(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return outputs.slice(0, MAX_SUGGESTIONS);
+    const hits = [];
+    for (const o of outputs) {
+      if (o.name.toLowerCase().includes(q) || o.id.includes(q)) {
+        hits.push(o);
+        if (hits.length >= MAX_SUGGESTIONS) break;
+      }
+    }
+    return hits;
+  }
+
+  function closeList() {
+    els.list.classList.remove('open');
+    els.target.setAttribute('aria-expanded', 'false');
+    activeIndex = -1;
+  }
+
+  function openList(query) {
+    suggestions = matches(query);
+    els.list.innerHTML = '';
+    for (const [i, o] of suggestions.entries()) {
+      const li = document.createElement('li');
+      li.setAttribute('role', 'option');
+      const name = document.createElement('span');
+      name.textContent = o.name;
+      const type = document.createElement('span');
+      type.className = 'type';
+      type.textContent = o.type;
+      li.append(name, type);
+      li.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        choose(i);
+      });
+      els.list.append(li);
+    }
+    els.list.classList.toggle('open', suggestions.length > 0);
+    els.target.setAttribute('aria-expanded', String(suggestions.length > 0));
+    activeIndex = -1;
+  }
+
+  function highlight(delta) {
+    if (!suggestions.length) return;
+    activeIndex = (activeIndex + delta + suggestions.length) % suggestions.length;
+    [...els.list.children].forEach((li, i) => li.classList.toggle('active', i === activeIndex));
+    els.list.children[activeIndex].scrollIntoView({block: 'nearest'});
+  }
+
+  function choose(index) {
+    const picked = suggestions[index];
+    if (!picked) return;
+    els.target.value = picked.name;
+    // A new output invalidates the old choice map: its items may not appear.
+    state = {target: picked.id, qty: state.qty, choices: {}};
+    closeList();
+    render();
+  }
+
+  els.target.addEventListener('input', () => openList(els.target.value));
+  els.target.addEventListener('focus', () => openList(els.target.value));
+  els.target.addEventListener('blur', closeList);
+  els.target.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); highlight(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); highlight(-1); }
+    else if (e.key === 'Enter') { e.preventDefault(); choose(activeIndex >= 0 ? activeIndex : 0); }
+    else if (e.key === 'Escape') closeList();
+  });
+
+  els.qty.addEventListener('change', () => {
+    state.qty = clampQty(els.qty.value);
+    els.qty.value = state.qty;
+    render();
+  });
+
+  // -- rendering ------------------------------------------------------------
+
+  function table(rows, headers) {
+    if (!rows.length) return '<p class="empty">None.</p>';
+    const head = '<thead><tr><th>' + headers.join('</th><th>') + '</th></tr></thead>';
+    const body = rows.map((r) => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>').join('');
+    return '<table>' + head + '<tbody>' + body + '</tbody></table>';
+  }
+
+  function nameCell(id, suffix) {
+    const href = targetHref(data, id);
+    const name = escapeHTML(displayName(data, id));
+    const label = href ? '<a href="' + href + '">' + name + '</a>' : name;
+    return suffix ? label + '<span class="leafkind">' + suffix + '</span>' : label;
+  }
+
+  function byName(a, b) {
+    return displayName(data, a) < displayName(data, b) ? -1
+      : displayName(data, a) > displayName(data, b) ? 1 : 0;
+  }
+
+  function render() {
+    if (!data) return;
+
+    const url = encodeState(data, producers, state);
+    window.history.replaceState(null, '', url ? '?' + url : window.location.pathname);
+
+    if (!state.target) {
+      els.status.hidden = false;
+      els.status.textContent = 'Pick an output to see its bill of materials.';
+      els.result.hidden = true;
+      return;
+    }
+
+    const isTarget = hasOwn(data.targets, state.target);
+    if (!isTarget && isTerminalItem(data, producers, state.target)) {
+      els.status.hidden = false;
+      els.status.textContent = leafKind(data, state.target) === 'ore'
+        ? displayName(data, state.target) +
+          ' is a raw material — the explorer stops at ores and raw materials, ' +
+          'the same place the static build-cost pages stop, so there is nothing to expand.'
+        : displayName(data, state.target) +
+          ' — no recipe produces this; it is a drop.';
+      els.result.hidden = true;
+      return;
+    }
+
+    els.status.hidden = true;
+    els.result.hidden = false;
+
+    const graph = buildGraph(data, producers, state.target, state.choices);
+    const ranks = rankNodes(graph);
+    const columns = orderColumns(graph, ranks);
+    const totals = rollUp(graph, ranks, state.qty);
+    const node = graph.nodes.get(state.target);
+
+    els.recipe.textContent = node.recipeId
+      ? node.recipeId
+      : displayName(data, state.target) + ' (' + node.kind + ' build materials)';
+    els.meta.textContent = columns.length + ' tiers, ' + graph.nodes.size + ' items';
+
+    // Base materials: every leaf, by total demand.
+    const leaves = [...graph.nodes.values()].filter((n) => n.leaf).map((n) => n.id).sort(byName);
+    els.base.innerHTML = table(
+      leaves.map((id) => [
+        nameCell(id, leafKind(data, id) === 'drop' ? 'drop' : ''),
+        (totals.demand.get(id) || 0).toLocaleString(),
+      ]),
+      ['Material', 'Qty']);
+
+    // Direct inputs: the target's own inputs, scaled by its batch count.
+    const runs = totals.batches.get(state.target) || 1;
+    const direct = [...node.inputs].sort((a, b) => byName(a.id, b.id));
+    els.directSub.textContent = node.recipeId ? '(' + node.recipeId + ')' : '';
+    els.direct.innerHTML = table(
+      direct.map((i) => [nameCell(i.id, ''), (i.qty * runs).toLocaleString()]),
+      ['Input', 'Qty']);
+
+    // Surplus: only when the batch rounding over-produced something.
+    const spare = [...totals.surplus.keys()].sort(byName);
+    els.surplusSection.hidden = spare.length === 0;
+    els.surplus.innerHTML = table(
+      spare.map((id) => [nameCell(id, ''), totals.surplus.get(id).toLocaleString()]),
+      ['Item', 'Qty']);
+
+    renderChart(els.chart, data, producers, graph, ranks, columns, totals, onChoice);
+  }
+
+  function onChoice(itemId, recipeId) {
+    state.choices = Object.assign({}, state.choices, {[itemId]: recipeId});
+    render();
+  }
+}
+
+// escapeHTML makes a value safe to interpolate into innerHTML. Item names come
+// from game data, not user input, but the tables build markup as strings.
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+}
+
+// renderChart is defined in the SVG section (Task 8). Until then it draws
+// nothing so the page works with tables alone.
+function renderChart() {}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', initExplorer);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
     orderColumns, layout, selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
+    itemHref, leafKind, escapeHTML,
     QTY_MIN, QTY_MAX,
   };
 }

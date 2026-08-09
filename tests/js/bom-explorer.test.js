@@ -458,3 +458,30 @@ test('decodeState discards unknown targets and bogus choices', () => {
   assert.deepStrictEqual(
     bx.decodeState(data, producers, 'target=widget&r=garbage').choices, {});
 });
+
+test('itemHref points at the catalog page and is empty without a category', () => {
+  const data = fixture();
+  assert.strictEqual(bx.itemHref(data, 'steel_plate'), '../items/refined/steel_plate.html');
+  data.items.mystery = {n: 'Mystery', c: ''};
+  assert.strictEqual(bx.itemHref(data, 'mystery'), '');
+  assert.strictEqual(bx.itemHref(data, 'nonesuch'), '');
+});
+
+test('leafKind separates mined ores from no-recipe drops', () => {
+  const data = fixture();
+  assert.strictEqual(bx.leafKind(data, 'iron_ore'), 'ore');
+  assert.strictEqual(bx.leafKind(data, 'drop_core'), 'drop');
+});
+
+test('escapeHTML neutralises markup', () => {
+  assert.strictEqual(bx.escapeHTML('<a href="x">&</a>'),
+    '&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;');
+});
+
+test('decodeState admits a terminal item so render can explain it', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  assert.strictEqual(bx.decodeState(data, producers, 'target=iron_ore').target, 'iron_ore');
+  assert.strictEqual(bx.decodeState(data, producers, 'target=drop_core').target, 'drop_core');
+  assert.strictEqual(bx.decodeState(data, producers, 'target=nonesuch').target, null);
+});
