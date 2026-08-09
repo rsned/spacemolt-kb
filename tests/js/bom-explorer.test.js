@@ -883,3 +883,105 @@ test('no craft step depends on one in its own or a later wave', () => {
     }
   }
 });
+
+// script builds the rendered craft script for a target, the argument shape
+// every craftScriptText test needs.
+function script(data, producers, target, choices, qty, kind) {
+  const g = bx.buildGraph(data, producers, target, choices);
+  const ranks = bx.rankNodes(g);
+  const totals = bx.rollUp(g, ranks, qty);
+  const waves = bx.craftWaves(g, ranks, totals);
+  return bx.craftScriptText(data, waves, {
+    target, kind, qty, baseMaterials: bx.baseMaterialsMap(g, totals),
+  });
+}
+
+test('craftScriptText heads the script with the build and its constraints', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'hauler', {}, 2, 'ship');
+
+  assert.match(text, /^# Build: Hauler x2$/m);
+  // The two ways a reader's first attempt actually fails. Both come from the
+  // server's own /craft docs.
+  assert.match(text, /1 mutation per tick/);
+  assert.match(text, /STATION STORAGE, not cargo/);
+});
+
+test('craftScriptText lists the raw materials before the first wave', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'hauler', {}, 1, 'ship');
+
+  assert.match(text, /# Raw materials required first \(3\):/);
+  assert.match(text, /^#   iron_ore 70$/m);
+  assert.match(text, /^#   energy_crystal 2$/m);
+  assert.match(text, /^#   drop_core 4$/m);
+  // The preamble must come before any command.
+  assert.ok(text.indexOf('#   iron_ore 70') < text.indexOf('craft '));
+});
+
+test('craftScriptText emits one craft line per step, grouped by wave', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'hauler', {}, 1, 'ship');
+
+  assert.match(text, /^# wave 1 - 1 craft$/m);
+  assert.match(text, /^craft smelt_steel 28/m);
+  assert.match(text, /^# wave 2 - 1 craft$/m);
+  assert.match(text, /^craft weld_frame 8/m);
+  assert.match(text, /^# wave 3 - 1 craft$/m);
+  assert.match(text, /^craft assemble_widget 4/m);
+  // Order matters: waves must appear in ascending order.
+  assert.ok(text.indexOf('# wave 1') < text.indexOf('# wave 2'));
+  assert.ok(text.indexOf('# wave 2') < text.indexOf('# wave 3'));
+});
+
+test('craftScriptText discloses the surplus only where rounding overproduces', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+
+  // smelt_steel yields 2. Asking for 3 runs 2 batches and makes 4.
+  const odd = script(data, producers, 'steel_plate', {}, 3, 'item');
+  assert.match(odd, /^craft smelt_steel 3\s+# yield 2 -> 2 runs makes 4, 1 spare$/m);
+
+  // Asking for 4 divides evenly, so there is nothing to disclose.
+  const even = script(data, producers, 'steel_plate', {}, 4, 'item');
+  assert.match(even, /^craft smelt_steel 4$/m);
+  assert.ok(!even.includes('spare'));
+});
+
+test('craftScriptText comments out a cycle-cut step instead of emitting it', () => {
+  const data = fixture();
+  data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'widget', {steel_plate: 'cycle_steel'}, 1, 'item');
+
+  // A command here would be doomed: the input it needs was dropped to break a
+  // cycle, so nothing upstream ever produces it.
+  assert.ok(!/^craft cycle_steel/m.test(text), 'must not emit a doomed command');
+  assert.match(text, /cannot be scheduled/i);
+  assert.match(text, /frame/, 'names the input that was dropped');
+});
+
+test('craftScriptText round-trips: every emitted line matches a wave entry', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const totals = bx.rollUp(g, ranks, 3);
+  const waves = bx.craftWaves(g, ranks, totals);
+  const text = bx.craftScriptText(data, waves, {
+    target: 'hauler', kind: 'ship', qty: 3, baseMaterials: bx.baseMaterialsMap(g, totals),
+  });
+
+  const emitted = text.split('\n')
+    .filter((l) => l.startsWith('craft ') && !l.startsWith('craft jobs='))
+    .map((l) => l.split('#')[0].trim().split(/\s+/).slice(1))
+    .map(([recipe, qty]) => recipe + ' ' + qty);
+  const expected = waves.flat().filter((j) => !j.cycle)
+    .map((j) => j.recipeId + ' ' + j.qty);
+
+  assert.deepStrictEqual(emitted.sort(), expected.sort(),
+    'nothing dropped, nothing invented');
+});
