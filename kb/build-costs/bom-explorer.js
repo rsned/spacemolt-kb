@@ -705,9 +705,13 @@ function renderChart(container, data, producers, graph, ranks, columns, totals, 
   container.innerHTML = '';
   const {width, height, boxes, edges} = layout(graph, ranks, columns, producers);
 
+  // role="group", NOT role="img": this SVG contains the feature's only
+  // interactive controls (the recipe <select> inside each foreignObject), and
+  // role="img" tells assistive tech to treat the whole subtree as one flat
+  // image, which can make those selects unreachable.
   const svg = svgEl('svg', {
     width, height, viewBox: '0 0 ' + width + ' ' + height,
-    xmlns: SVG_NS, role: 'img', 'aria-label': 'Production chain',
+    xmlns: SVG_NS, role: 'group', 'aria-label': 'Production chain',
   });
 
   const defs = svgEl('defs');
@@ -774,6 +778,9 @@ function renderChart(container, data, producers, graph, ranks, columns, totals, 
     const recipeIds = producers.get(id);
     if (recipeIds && recipeIds.length > 1) {
       const select = document.createElementNS(XHTML_NS, 'select');
+      // Sighted users infer this control's purpose from the item name above
+      // it; nothing ties the two together programmatically, so name it.
+      select.setAttribute('aria-label', 'Recipe for ' + displayName(data, id));
       select.setAttribute('style',
         'width:100%;font:11px system-ui,sans-serif;background:var(--panel);color:var(--text);' +
         'border:1px solid var(--border);border-radius:3px;padding:1px 2px');
