@@ -513,3 +513,109 @@ test('decodeState admits a terminal item so render can explain it', () => {
   assert.strictEqual(bx.decodeState(data, producers, 'target=drop_core').target, 'drop_core');
   assert.strictEqual(bx.decodeState(data, producers, 'target=nonesuch').target, null);
 });
+
+test('withRoutingNodes leaves the original graph untouched', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const before = g.nodes.size;
+
+  bx.withRoutingNodes(g, ranks);
+
+  assert.strictEqual(g.nodes.size, before, 'the original graph must not be mutated');
+  for (const id of g.nodes.keys()) {
+    assert.ok(!bx.isRoutingNode(id), 'no waypoint may leak into the original graph');
+  }
+});
+
+test('withRoutingNodes inserts one waypoint per column a long edge crosses', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // hauler consumes energy_crystal (an ore, rank 0) directly, and hauler is the
+  // target at the maximum rank, so that edge spans several columns.
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const span = ranks.get('hauler') - ranks.get('energy_crystal');
+  assert.ok(span > 1, 'fixture must actually contain a long edge');
+
+  const routed = bx.withRoutingNodes(g, ranks);
+  // Scoped to the energy_crystal -> hauler chain specifically: the fixture's
+  // widget subgraph independently contains two more long edges of its own
+  // (steel_plate -> widget, drop_core -> widget), so counting every waypoint
+  // in the whole graph would not equal this one edge's span - 1.
+  const chainWaypoints = [...routed.graph.nodes.keys()]
+    .filter((id) => bx.isRoutingNode(id) && id.startsWith('__route:energy_crystal>hauler:'));
+  assert.strictEqual(chainWaypoints.length, span - 1,
+    'one waypoint per intervening column');
+
+  // The direct edge is gone, replaced by a chain.
+  const hauler = routed.graph.nodes.get('hauler');
+  assert.ok(!hauler.inputs.some((i) => i.id === 'energy_crystal'),
+    'the long edge must be replaced by its chain, not left alongside it');
+});
+
+test('after routing, every edge connects adjacent columns only', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  for (const target of ['hauler', 'widget', 'frame']) {
+    const g = bx.buildGraph(data, producers, target, {});
+    const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+    for (const node of routed.graph.nodes.values()) {
+      for (const input of node.inputs) {
+        assert.strictEqual(routed.ranks.get(node.id) - routed.ranks.get(input.id), 1,
+          `${target}: ${input.id} -> ${node.id} must span exactly one column after routing`);
+      }
+    }
+  }
+});
+
+test('routed edges carry the original quantity, not a per-segment one', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+  // Walk the chain that replaced energy_crystal -> hauler and confirm every
+  // segment reports the original quantity of 2.
+  const chain = [...routed.graph.nodes.values()]
+    .filter((n) => n.inputs.some((i) => i.id === 'energy_crystal' || bx.isRoutingNode(i.id)));
+  const qtys = new Set();
+  for (const n of chain) {
+    for (const i of n.inputs) {
+      if (i.id === 'energy_crystal' || bx.isRoutingNode(i.id)) qtys.add(i.qty);
+    }
+  }
+  assert.ok(qtys.has(2), 'the original quantity must survive routing');
+});
+
+test('no laid-out edge passes through an unrelated box', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+  const columns = bx.orderColumns(routed.graph, routed.ranks);
+  const {boxes, edges} = bx.layout(routed.graph, columns, producers, routed.dummies);
+
+  for (const e of edges) {
+    for (const [id, b] of boxes) {
+      if (id === e.from || id === e.to || bx.isRoutingNode(id)) continue;
+      for (const [x, y] of e.points) {
+        const inside = x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h;
+        assert.ok(!inside, `edge ${e.from} -> ${e.to} has a point inside box ${id}`);
+      }
+    }
+  }
+});
+
+test('curvePath emits a smooth path that starts and ends at the given points', () => {
+  const d = bx.curvePath([[0, 0], [50, 20], [100, 20]]);
+  assert.match(d, /^M0,0/, 'must start with a moveto at the first point');
+  assert.match(d, /C/, 'must use cubic segments');
+  assert.ok(d.trim().endsWith('100,20'), 'must end at the last point');
+});
+
+test('curvePath degenerates safely for a two-point path', () => {
+  const d = bx.curvePath([[0, 0], [10, 10]]);
+  assert.match(d, /^M0,0/);
+  assert.ok(d.includes('10,10'));
+});

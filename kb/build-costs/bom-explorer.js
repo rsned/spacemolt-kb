@@ -266,10 +266,116 @@ function orderColumns(graph, ranks) {
   return columns;
 }
 
-// boxHeight returns a node's height: taller when it carries a recipe selector.
-function boxHeight(producers, id) {
+const ROUTE_PREFIX = '__route:';
+const ROUTE_SLOT_H = 8;
+const ROUTE_GAP = 4; // waypoints pack tighter than boxes — see gapBetween.
+
+// isRoutingNode reports whether an id is an invisible edge waypoint rather
+// than a real item. Real item ids are [a-z0-9_] throughout the crafting
+// data, so the '__route:' prefix cannot collide with one.
+function isRoutingNode(id) {
+  return typeof id === 'string' && id.startsWith(ROUTE_PREFIX);
+}
+
+// isDummyId is the check layout uses to decide whether an id is a waypoint.
+// dummies (from withRoutingNodes) is the primary source of truth; isRoutingNode
+// is the fallback, so a call site that only has a graph and no dummies Set
+// (every pre-routing call, including the existing tests) still behaves
+// correctly on a graph that happens to contain no waypoints at all.
+function isDummyId(id, dummies) {
+  return (dummies && dummies.has(id)) || isRoutingNode(id);
+}
+
+// withRoutingNodes returns an augmented COPY of the graph in which every edge
+// spanning more than one column is replaced by a chain through one invisible
+// waypoint per intervening column.
+//
+// Without this, a long edge runs flat at its source's height until the
+// gutter just before its consumer, passing through any box in between — and
+// since edges paint before boxes, it renders behind them. Giving the edge a
+// slot in each column it crosses lets the packer route it between boxes
+// instead.
+//
+// The original graph is never mutated: rollUp runs on it and must not see a
+// waypoint, so this always builds a fresh Map of nodes.
+function withRoutingNodes(graph, ranks) {
+  const nodes = new Map();
+  const outRanks = new Map(ranks);
+  const dummies = new Set();
+
+  for (const [id, node] of graph.nodes) {
+    nodes.set(id, Object.assign({}, node, {inputs: []}));
+  }
+
+  for (const [id, node] of graph.nodes) {
+    for (const input of node.inputs) {
+      const from = ranks.get(input.id);
+      const to = ranks.get(id);
+      if (to - from <= 1) {
+        nodes.get(id).inputs.push({id: input.id, qty: input.qty});
+        continue;
+      }
+      // Chain: input.id -> w(from+1) -> ... -> w(to-1) -> id, one waypoint
+      // per intervening column, each carrying the original quantity forward.
+      let prev = input.id;
+      for (let col = from + 1; col < to; col++) {
+        const wid = ROUTE_PREFIX + input.id + '>' + id + ':' + col;
+        if (!nodes.has(wid)) {
+          nodes.set(wid, {
+            id: wid, kind: 'route', recipeId: null, yield: 1,
+            inputs: [], leaf: false, cycle: false,
+          });
+          outRanks.set(wid, col);
+          dummies.add(wid);
+        }
+        nodes.get(wid).inputs.push({id: prev, qty: input.qty});
+        prev = wid;
+      }
+      nodes.get(id).inputs.push({id: prev, qty: input.qty});
+    }
+  }
+
+  return {graph: {targetId: graph.targetId, nodes}, ranks: outRanks, dummies};
+}
+
+// curvePath renders a polyline as a smooth cubic path. Control handles are
+// horizontal, so every segment leaves and enters its endpoints going
+// left-to-right, which preserves the reading direction the layout encodes.
+function curvePath(points) {
+  if (!points.length) return '';
+  let d = 'M' + points[0][0] + ',' + points[0][1];
+  for (let i = 1; i < points.length; i++) {
+    const [x0, y0] = points[i - 1];
+    const [x1, y1] = points[i];
+    const dx = (x1 - x0) / 2;
+    d += ' C' + (x0 + dx) + ',' + y0 + ' ' + (x1 - dx) + ',' + y1 + ' ' + x1 + ',' + y1;
+  }
+  return d;
+}
+
+// boxHeight returns a node's height: a routing waypoint gets a slim slot,
+// otherwise taller when it carries a recipe selector.
+function boxHeight(producers, id, dummies) {
+  if (isDummyId(id, dummies)) return ROUTE_SLOT_H;
   const ids = producers ? producers.get(id) : null;
   return ids && ids.length > 1 ? BOX_H_SEL : BOX_H;
+}
+
+// gapBetween returns the vertical gap to leave below `aId` before `bId` in the
+// same column. Waypoints pack tighter than real boxes — see ROUTE_GAP — so
+// the gap shrinks whenever either neighbour is a routing node.
+function gapBetween(aId, bId, dummies) {
+  return (isDummyId(aId, dummies) || isDummyId(bId, dummies)) ? ROUTE_GAP : ROW_GAP;
+}
+
+// columnHeight sums a column's box heights plus the gaps between them.
+function columnHeight(column, producers, dummies) {
+  let h = 0;
+  column.forEach((id, i) => {
+    if (i > 0) h += gapBetween(column[i - 1], id, dummies);
+    h += boxHeight(producers, id, dummies);
+  });
+  return h;
 }
 
 // layout converts ordered columns into drawable geometry. Columns are placed
@@ -278,42 +384,55 @@ function boxHeight(producers, id) {
 // against the tallest so short columns do not hug the top.
 //
 // producers is optional; pass it to size boxes that carry a recipe selector.
-function layout(graph, columns, producers) {
-  const heights = columns.map((column) =>
-    column.reduce((sum, id) => sum + boxHeight(producers, id) + ROW_GAP, -ROW_GAP));
+// dummies is the Set returned by withRoutingNodes; pass it when graph has
+// been routed so waypoints get their slim slot instead of a full box height.
+function layout(graph, columns, producers, dummies) {
+  const heights = columns.map((column) => columnHeight(column, producers, dummies));
   const tallest = Math.max(0, ...heights);
 
   const boxes = new Map();
   columns.forEach((column, col) => {
     let y = MARGIN + (tallest - heights[col]) / 2;
     column.forEach((id, row) => {
-      const h = boxHeight(producers, id);
+      const h = boxHeight(producers, id, dummies);
       boxes.set(id, {x: MARGIN + col * (BOX_W + COL_GAP), y, w: BOX_W, h, col, row});
-      y += h + ROW_GAP;
+      const next = column[row + 1];
+      y += h + (next ? gapBetween(id, next, dummies) : 0);
     });
   });
 
   const width = MARGIN * 2 + columns.length * BOX_W + Math.max(0, columns.length - 1) * COL_GAP;
   const height = MARGIN * 2 + tallest;
 
-  // Elbow polylines: out of the input's right edge, across to the midpoint of
-  // the gutter immediately left of the consumer, vertically, then in.
+  // One edge per ORIGINAL source -> consumer pair, even when routing broke it
+  // into a chain of adjacent-column hops: walk each real consumer's inputs,
+  // and whenever an input is a waypoint, follow the chain back to the real
+  // source, collecting each waypoint's slot centre as a point on the path.
+  // This is what keeps a single label per edge (see renderChart) instead of
+  // one per segment.
   const edges = [];
   for (const node of graph.nodes.values()) {
+    if (isDummyId(node.id, dummies)) continue;
     const to = boxes.get(node.id);
     if (!to) continue;
     for (const input of node.inputs) {
-      const from = boxes.get(input.id);
+      const waypoints = [];
+      let fromId = input.id;
+      while (isDummyId(fromId, dummies)) {
+        waypoints.unshift(fromId);
+        fromId = graph.nodes.get(fromId).inputs[0].id;
+      }
+      const from = boxes.get(fromId);
       if (!from) continue;
-      const x1 = from.x + from.w;
-      const y1 = from.y + from.h / 2;
-      const x2 = to.x;
-      const y2 = to.y + to.h / 2;
-      const mid = x2 - COL_GAP / 2;
-      const points = y1 === y2
-        ? [[x1, y1], [x2, y2]]
-        : [[x1, y1], [mid, y1], [mid, y2], [x2, y2]];
-      edges.push({from: input.id, to: node.id, qty: input.qty, points});
+
+      const points = [[from.x + from.w, from.y + from.h / 2]];
+      for (const wid of waypoints) {
+        const wbox = boxes.get(wid);
+        points.push([wbox.x + wbox.w / 2, wbox.y + wbox.h / 2]);
+      }
+      points.push([to.x, to.y + to.h / 2]);
+
+      edges.push({from: fromId, to: node.id, qty: input.qty, points});
     }
   }
 
@@ -646,8 +765,11 @@ function initExplorer() {
 
     const graph = buildGraph(data, producers, state.target, state.choices);
     const ranks = rankNodes(graph);
-    const columns = orderColumns(graph, ranks);
+    // rollUp runs on the ORIGINAL graph, before routing, so demand and batch
+    // counts are never computed against an invisible waypoint.
     const totals = rollUp(graph, ranks, state.qty);
+    const routed = withRoutingNodes(graph, ranks);
+    const columns = orderColumns(routed.graph, routed.ranks);
     const node = graph.nodes.get(state.target);
 
     els.recipe.textContent = node.recipeId
@@ -682,7 +804,7 @@ function initExplorer() {
       spare.map((id) => [nameCell(id, ''), totals.surplus.get(id).toLocaleString()]),
       ['Item', 'Qty']);
 
-    renderChart(els.chart, data, producers, graph, columns, totals, onChoice);
+    renderChart(els.chart, data, producers, routed.graph, columns, totals, onChoice, routed.dummies);
   }
 
   function onChoice(itemId, recipeId) {
@@ -707,12 +829,28 @@ function svgEl(name, attrs) {
   return el;
 }
 
+// edgeHue maps a source item id to a stable hue. Deterministic, so the same
+// item keeps its colour across re-renders and between page loads, and needs
+// no fixed palette that could run out as the item list grows.
+function edgeHue(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+  return h;
+}
+
+// LABEL_LEAD is how far along an edge's first segment the quantity label
+// sits: just clear of the source box, not at the arrowhead. Every edge
+// converging on one box would otherwise stack its label in the same spot at
+// the arrowhead end; sources spread labels out naturally because each has
+// few outgoing edges.
+const LABEL_LEAD = 18;
+
 // renderChart draws the layered graph. Columns run left to right by rank, so
 // every arrow points rightwards and a base ore feeding the output directly
 // spans the full width.
-function renderChart(container, data, producers, graph, columns, totals, onChoice) {
+function renderChart(container, data, producers, graph, columns, totals, onChoice, dummies) {
   container.innerHTML = '';
-  const {width, height, boxes, edges} = layout(graph, columns, producers);
+  const {width, height, boxes, edges} = layout(graph, columns, producers, dummies);
 
   // role="group", NOT role="img": this SVG contains the feature's only
   // interactive controls (the recipe <select> inside each foreignObject), and
@@ -724,24 +862,42 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
   });
 
   const defs = svgEl('defs');
-  const marker = svgEl('marker', {
-    id: 'bx-arrow', viewBox: '0 0 10 10', refX: 9, refY: 5,
-    markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse',
-  });
-  marker.append(svgEl('path', {d: 'M 0 0 L 10 5 L 0 10 z', fill: 'var(--muted)'}));
-  defs.append(marker);
+  // One arrowhead marker per distinct hue actually used this render — a
+  // single shared marker cannot take two fills, and the arrowhead must match
+  // the line it caps. renderChart clears the container every render, so no
+  // marker from a previous chart outlives this one.
+  const hues = new Set(edges.map((e) => edgeHue(e.from)));
+  for (const hue of hues) {
+    const marker = svgEl('marker', {
+      id: 'bx-arrow-' + hue, viewBox: '0 0 10 10', refX: 9, refY: 5,
+      markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse',
+    });
+    marker.append(svgEl('path', {d: 'M 0 0 L 10 5 L 0 10 z', fill: 'hsl(' + hue + ' var(--edge-s) var(--edge-l))'}));
+    defs.append(marker);
+  }
   svg.append(defs);
 
   // Edges first so boxes paint over them.
   for (const edge of edges) {
-    svg.append(svgEl('polyline', {
-      points: edge.points.map((p) => p.join(',')).join(' '),
-      fill: 'none', stroke: 'var(--muted)', 'stroke-width': 1.5,
-      'marker-end': 'url(#bx-arrow)',
+    const hue = edgeHue(edge.from);
+    svg.append(svgEl('path', {
+      d: curvePath(edge.points),
+      fill: 'none', stroke: 'hsl(' + hue + ' var(--edge-s) var(--edge-l))', 'stroke-width': 1.5,
+      'marker-end': 'url(#bx-arrow-' + hue + ')',
     }));
-    const [ex, ey] = edge.points[edge.points.length - 1];
+
+    // Label sits a fixed distance along the FIRST segment rather than at the
+    // arrowhead: several edges leaving the same source diverge in direction
+    // immediately, so their labels spread apart naturally here, whereas
+    // every edge converging on one consumer would stack at the same point.
+    const [x0, y0] = edge.points[0];
+    const [x1, y1] = edge.points[1];
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+    const len = Math.hypot(dx, dy) || 1;
+    const t = Math.min(LABEL_LEAD, len - 2) / len;
     const label = svgEl('text', {
-      x: ex - 8, y: ey - 5, 'text-anchor': 'end',
+      x: x0 + dx * t, y: y0 + dy * t - 5, 'text-anchor': 'start',
       fill: 'var(--dim)', 'font-size': 11, 'font-family': 'system-ui,sans-serif',
     });
     // edge.qty is the PER-BATCH recipe input quantity; scale by the consuming
@@ -754,6 +910,7 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
   }
 
   for (const [id, box] of boxes) {
+    if (isRoutingNode(id)) continue; // waypoints occupy a slot but draw nothing.
     const node = graph.nodes.get(id);
     const stroke = id === graph.targetId ? 'var(--accent)'
       : node.leaf ? 'var(--muted2)' : 'var(--border)';
@@ -823,7 +980,8 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
-    orderColumns, layout, selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
+    orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout,
+    selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
     itemHref, leafKind, escapeHTML,
     QTY_MIN, QTY_MAX,
   };
