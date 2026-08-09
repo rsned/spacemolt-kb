@@ -1043,3 +1043,35 @@ test('craftScriptText numbers bulk blocks when a wave exceeds the cap', () => {
     all.map((j) => j.recipe_id + ' ' + j.quantity).sort(),
     plain.map(([, r, q]) => r + ' ' + q).sort());
 });
+
+test('a ship target closes by pointing at the commission, not a craft', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'hauler', {}, 1, 'ship');
+
+  // No recipe in the game produces a ship, so the script must not pretend
+  // otherwise - it hands off to the shipyard.
+  assert.match(text, /is a ship - no craft recipe produces it/);
+  assert.match(text, /^#   commission_ship hauler provide_materials=true$/m);
+  assert.match(text, /supply_commission/, 'sourcing is fed per item type');
+});
+
+test('a facility target closes with the facility build action', () => {
+  const data = fixture();
+  data.targets.refinery = {n: 'Refinery', t: 'facility', bm: [['widget', 2]]};
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'refinery', {}, 1, 'facility');
+
+  assert.match(text, /is a facility - no craft recipe produces it/);
+  assert.match(text, /^#   facility build refinery$/m);
+  assert.match(text, /facility faction_build refinery/);
+});
+
+test('an item target just ends at its own craft line', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'widget', {}, 1, 'item');
+
+  assert.ok(!text.includes('# Final:'), 'an item needs no out-of-band step');
+  assert.match(text, /^craft assemble_widget 1$/m);
+});

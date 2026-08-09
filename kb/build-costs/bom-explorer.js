@@ -343,6 +343,25 @@ function craftScriptText(data, waves, meta) {
     });
   }
 
+  // No recipe in the game produces a ship or a facility - 0 of 335 ships and 0
+  // of 2650 facilities appear as a recipe output - so the final assembly is
+  // always out of band. Naming the actual command keeps the script honest
+  // about where it stops.
+  if (meta.kind === 'ship') {
+    out.push('');
+    out.push('# Final: ' + name + ' is a ship - no craft recipe produces it.');
+    out.push('# Dock at a shipyard and:');
+    out.push('#   commission_ship ' + meta.target + ' provide_materials=true');
+    out.push('# That commission enters a sourcing state; feed it one item type at a');
+    out.push('# time with supply_commission <commission_id> <item_id> <quantity>.');
+  } else if (meta.kind === 'facility') {
+    out.push('');
+    out.push('# Final: ' + name + ' is a facility - no craft recipe produces it.');
+    out.push('# With the materials above in station storage:');
+    out.push('#   facility build ' + meta.target);
+    out.push('#   (or: facility faction_build ' + meta.target + ' to build it for your faction)');
+  }
+
   return out.join('\n') + '\n';
 }
 
