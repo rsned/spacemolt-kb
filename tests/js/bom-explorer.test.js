@@ -985,3 +985,61 @@ test('craftScriptText round-trips: every emitted line matches a wave entry', () 
   assert.deepStrictEqual(emitted.sort(), expected.sort(),
     'nothing dropped, nothing invented');
 });
+
+// wideFixture builds a world whose target consumes `n` distinct craftable
+// components, so wave 1 has exactly n entries. Needed to exercise the 50-job
+// bulk cap, which the small fixture cannot reach.
+function wideFixture(n) {
+  const data = {items: {ore: {n: 'Ore', c: 'ore'}}, recipes: {}, targets: {}, defaults: {}};
+  const inputs = [];
+  for (let i = 0; i < n; i++) {
+    const id = 'part_' + String(i).padStart(3, '0');
+    data.items[id] = {n: 'Part ' + i, c: 'component'};
+    data.recipes['make_' + id] = {n: 'Make ' + id, c: 'C', i: [['ore', 2]], o: [[id, 1]]};
+    inputs.push([id, 1]);
+  }
+  data.items.assembly = {n: 'Assembly', c: 'component'};
+  data.recipes.assemble = {n: 'Assemble', c: 'C', i: inputs, o: [['assembly', 1]]};
+  return data;
+}
+
+test('bulkChunks splits a wave at the 50-job cap', () => {
+  const wave = Array.from({length: 51}, (_, i) => ({id: 'x' + i, recipeId: 'r' + i, qty: 1}));
+  const chunks = bx.bulkChunks(wave);
+  assert.strictEqual(chunks.length, 2);
+  assert.strictEqual(chunks[0].length, 50, 'the server accepts at most 50 jobs per action');
+  assert.strictEqual(chunks[1].length, 1);
+  assert.strictEqual(bx.bulkChunks(wave.slice(0, 50)).length, 1, 'exactly 50 is one chunk');
+});
+
+test('craftScriptText emits a parseable bulk payload matching its plain lines', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'hauler', {}, 1, 'ship');
+
+  const bulk = text.split('\n').find((l) => l.startsWith('craft jobs='));
+  const jobs = JSON.parse(bulk.slice('craft jobs='.length));
+  assert.deepStrictEqual(jobs, [{recipe_id: 'smelt_steel', quantity: 28}]);
+  assert.match(text, /^# bulk:$/m, 'a single chunk is unnumbered');
+});
+
+test('craftScriptText numbers bulk blocks when a wave exceeds the cap', () => {
+  const data = wideFixture(51);
+  const producers = bx.producersOf(data);
+  const text = script(data, producers, 'assembly', {}, 1, 'item');
+
+  assert.match(text, /^# bulk 1\/2:$/m);
+  assert.match(text, /^# bulk 2\/2:$/m);
+
+  const bulks = text.split('\n').filter((l) => l.startsWith('craft jobs='));
+  assert.strictEqual(bulks.length, 3, 'wave 1 splits into two, wave 2 needs one');
+  const all = bulks.flatMap((l) => JSON.parse(l.slice('craft jobs='.length)));
+  assert.strictEqual(all.length, 52, '51 parts plus the assembly, each exactly once');
+  // The bulk form and the plain lines must agree, or one of them is wrong.
+  const plain = text.split('\n')
+    .filter((l) => l.startsWith('craft ') && !l.startsWith('craft jobs='))
+    .map((l) => l.split('#')[0].trim().split(/\s+/));
+  assert.deepStrictEqual(
+    all.map((j) => j.recipe_id + ' ' + j.quantity).sort(),
+    plain.map(([, r, q]) => r + ' ' + q).sort());
+});

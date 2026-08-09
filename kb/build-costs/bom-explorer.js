@@ -331,9 +331,33 @@ function craftScriptText(data, waves, meta) {
     out.push('');
     out.push('# wave ' + w + ' - ' + wave.length + (wave.length === 1 ? ' craft' : ' crafts'));
     for (const job of wave) out.push(craftLine(job));
+
+    // The same wave again as bulk payloads. Both forms are emitted because
+    // consumers differ: several agents sharding a wave between them want the
+    // plain lines, a single agent queueing it all wants one action.
+    const chunks = bulkChunks(wave);
+    chunks.forEach((chunk, i) => {
+      out.push(chunks.length > 1 ? '# bulk ' + (i + 1) + '/' + chunks.length + ':' : '# bulk:');
+      out.push('craft jobs=' + JSON.stringify(
+        chunk.map((job) => ({recipe_id: job.recipeId, quantity: job.qty}))));
+    });
   }
 
   return out.join('\n') + '\n';
+}
+
+// MaxCraftBulkJobs in the game client (pkg/game/crafting.go): the server
+// accepts at most this many jobs in one bulk craft action.
+const BULK_MAX = 50;
+
+// bulkChunks splits a wave into payloads the server will accept. Bulk mode is
+// the whole point of grouping by wave: at 1 mutation per tick, issuing a
+// 29-craft wave as separate commands costs nearly five minutes, where one bulk
+// action costs one tick.
+function bulkChunks(wave) {
+  const chunks = [];
+  for (let i = 0; i < wave.length; i += BULK_MAX) chunks.push(wave.slice(i, i + BULK_MAX));
+  return chunks;
 }
 
 // craftLine renders one command, with the surplus disclosed inline when whole
@@ -1243,7 +1267,7 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
-    baseMaterialsMap, baseMaterialsJSON, craftWaves, craftScriptText,
+    baseMaterialsMap, baseMaterialsJSON, craftWaves, craftScriptText, bulkChunks,
     orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout, labelLayout, edgesByNode,
     selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
     itemHref, leafKind, escapeHTML, displayName,
