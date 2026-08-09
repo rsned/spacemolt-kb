@@ -689,9 +689,111 @@ function escapeHTML(s) {
     ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 }
 
-// renderChart is defined in the SVG section (Task 8). Until then it draws
-// nothing so the page works with tables alone.
-function renderChart() {}
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const XHTML_NS = 'http://www.w3.org/1999/xhtml';
+
+function svgEl(name, attrs) {
+  const el = document.createElementNS(SVG_NS, name);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, String(v));
+  return el;
+}
+
+// renderChart draws the layered graph. Columns run left to right by rank, so
+// every arrow points rightwards and a base ore feeding the output directly
+// spans the full width.
+function renderChart(container, data, producers, graph, ranks, columns, totals, onChoice) {
+  container.innerHTML = '';
+  const {width, height, boxes, edges} = layout(graph, ranks, columns, producers);
+
+  const svg = svgEl('svg', {
+    width, height, viewBox: '0 0 ' + width + ' ' + height,
+    xmlns: SVG_NS, role: 'img', 'aria-label': 'Production chain',
+  });
+
+  const defs = svgEl('defs');
+  const marker = svgEl('marker', {
+    id: 'bx-arrow', viewBox: '0 0 10 10', refX: 9, refY: 5,
+    markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse',
+  });
+  marker.append(svgEl('path', {d: 'M 0 0 L 10 5 L 0 10 z', fill: 'var(--muted)'}));
+  defs.append(marker);
+  svg.append(defs);
+
+  // Edges first so boxes paint over them.
+  for (const edge of edges) {
+    svg.append(svgEl('polyline', {
+      points: edge.points.map((p) => p.join(',')).join(' '),
+      fill: 'none', stroke: 'var(--muted)', 'stroke-width': 1.5,
+      'marker-end': 'url(#bx-arrow)',
+    }));
+    const [ex, ey] = edge.points[edge.points.length - 1];
+    const label = svgEl('text', {
+      x: ex - 8, y: ey - 5, 'text-anchor': 'end',
+      fill: 'var(--dim)', 'font-size': 11, 'font-family': 'system-ui,sans-serif',
+    });
+    label.textContent = edge.qty.toLocaleString();
+    svg.append(label);
+  }
+
+  for (const [id, box] of boxes) {
+    const node = graph.nodes.get(id);
+    const stroke = id === graph.targetId ? 'var(--accent)'
+      : node.leaf ? 'var(--muted2)' : 'var(--border)';
+    svg.append(svgEl('rect', {
+      x: box.x, y: box.y, width: box.w, height: box.h, rx: 5,
+      fill: 'var(--panel2)', stroke, 'stroke-width': id === graph.targetId ? 2 : 1,
+    }));
+
+    const fo = svgEl('foreignObject', {x: box.x, y: box.y, width: box.w, height: box.h});
+    const div = document.createElementNS(XHTML_NS, 'div');
+    div.setAttribute('style',
+      'height:100%;box-sizing:border-box;padding:4px 6px;font:12px system-ui,sans-serif;' +
+      'color:var(--text);display:flex;flex-direction:column;gap:2px;overflow:hidden');
+
+    const nameEl = document.createElementNS(XHTML_NS, 'div');
+    const href = targetHref(data, id);
+    if (href) {
+      const a = document.createElementNS(XHTML_NS, 'a');
+      a.setAttribute('href', href);
+      a.setAttribute('style', 'color:var(--link);text-decoration:none');
+      a.textContent = displayName(data, id);
+      nameEl.append(a);
+    } else {
+      nameEl.textContent = displayName(data, id);
+    }
+    nameEl.setAttribute('style', 'font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis');
+    div.append(nameEl);
+
+    const qtyEl = document.createElementNS(XHTML_NS, 'div');
+    qtyEl.setAttribute('style', 'color:var(--muted);font-size:11px');
+    qtyEl.textContent = node.cycle
+      ? 'cycle — not expanded'
+      : '×' + (totals.demand.get(id) || 0).toLocaleString();
+    div.append(qtyEl);
+
+    const recipeIds = producers.get(id);
+    if (recipeIds && recipeIds.length > 1) {
+      const select = document.createElementNS(XHTML_NS, 'select');
+      select.setAttribute('style',
+        'width:100%;font:11px system-ui,sans-serif;background:var(--panel);color:var(--text);' +
+        'border:1px solid var(--border);border-radius:3px;padding:1px 2px');
+      for (const rid of recipeIds) {
+        const option = document.createElementNS(XHTML_NS, 'option');
+        option.setAttribute('value', rid);
+        if (rid === node.recipeId) option.setAttribute('selected', 'selected');
+        option.textContent = rid;
+        select.append(option);
+      }
+      select.addEventListener('change', (e) => onChoice(id, e.target.value));
+      div.append(select);
+    }
+
+    fo.append(div);
+    svg.append(fo);
+  }
+
+  container.append(svg);
+}
 
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', initExplorer);
