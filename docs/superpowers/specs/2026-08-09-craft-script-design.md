@@ -150,9 +150,11 @@ craft purify_argon 320          # yield 3 -> 107 runs makes 321, 1 spare
 # wave 2 - 14 crafts
 ...
 
-# Final: Overmind is a facility - no craft recipe produces it.
-# With the materials above in station storage:
-#   facility build overmind        (or: facility faction_build overmind)
+# Final: Overmind is a ship - no craft recipe produces it.
+# Dock at a shipyard and:
+#   commission_ship overmind provide_materials=true
+# That commission enters a sourcing state; feed it one item type at a
+# time with supply_commission <commission_id> <item_id> <quantity>.
 ```
 
 A wave over 50 jobs emits several bulk blocks, labelled `# bulk 1/2:` and
