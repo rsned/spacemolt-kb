@@ -1520,7 +1520,9 @@ Turn ranks into drawable coordinates.
   - `orderColumns(graph, ranks)` → `string[][]`, index = rank, each entry the ordered node ids of that column.
   - `layout(graph, ranks, columns, producers)` → `{width, height, boxes: Map<id, {x, y, w, h, col, row}>, edges: [{from, to, qty, points: [[x,y],...]}]}`. `producers` is optional: pass it so boxes carrying a recipe selector get the taller height, omit it (as the tests do) for plain geometry.
 
-**Background — barycentre ordering.** Within a column, order nodes by the mean vertical position of their already-placed neighbours in the column to the right (consumers). Two passes is enough at this scale and is the difference between readable and unreadable on the largest targets (`overmind` is 10 tiers, 135 nodes). Start from the rightmost column (the target, a single node) and work leftwards.
+**Background — barycentre ordering.** Within a column, order nodes by the mean vertical position of their already-placed neighbours in the column to the right (consumers). Start from the rightmost column (the target, a single node) and work leftwards, so every column is ordered against one that is already final.
+
+**One sweep, not two.** A second right-to-left pass cannot change anything — each column depends only on the finalised column to its right — and an alternating right-left-right sweep was measured to give byte-identical orderings and identical crossing counts on the largest real graphs (`overmind`, 135 nodes: 161 crossings under every scheme tried). Write the single sweep and say why in the comment.
 
 **Layout constants** (define at the top of the layout section so they are tunable in one place):
 
@@ -1553,7 +1555,10 @@ test('orderColumns indexes columns by rank with the target alone on the right', 
   assert.deepStrictEqual(columns[3], ['widget']);
   assert.deepStrictEqual(columns[2], ['frame']);
   assert.deepStrictEqual(columns[1], ['steel_plate']);
-  assert.deepStrictEqual([...columns[0]].sort(), ['drop_core', 'iron_ore']);
+  // Assert exact order, not just membership: both share one consumer, so the
+  // barycentre ties and the id tie-break decides. A membership-only assertion
+  // could not catch an ordering regression.
+  assert.deepStrictEqual(columns[0], ['drop_core', 'iron_ore']);
 });
 
 test('orderColumns places every node exactly once', () => {
@@ -1656,10 +1661,19 @@ const ROW_GAP = 14;
 const MARGIN = 20;
 
 // orderColumns groups nodes by rank and orders each column to reduce edge
-// crossings, using two barycentre passes: a node sorts to the mean vertical
-// position of its consumers in the column to its right. Working right-to-left
-// from the target (a single node) gives each pass something to anchor on.
-// Ties break by id so repeated calls agree.
+// crossings: a node sorts to the mean vertical position of its consumers in
+// the column to its right. The sweep runs right-to-left from the target (a
+// single node), so each column is ordered against a column that is already
+// final. Ties break by id, so repeated calls agree and determinism does not
+// rely on Array.prototype.sort being stable.
+//
+// ONE sweep, deliberately. A second right-to-left pass is provably a no-op —
+// each column depends only on the already-finalised column to its right, so
+// nothing can change on a repeat — and measurement showed an alternating
+// right-left-right sweep produces byte-identical orderings and identical
+// crossing counts on the largest real graphs (overmind 135 nodes: 161
+// crossings under every scheme tried). Extra passes would be cost without
+// effect.
 function orderColumns(graph, ranks) {
   const maxRank = Math.max(...ranks.values());
   const columns = [];
@@ -1675,31 +1689,35 @@ function orderColumns(graph, ranks) {
     }
   }
 
-  for (let pass = 0; pass < 2; pass++) {
-    for (let col = columns.length - 2; col >= 0; col--) {
-      const rightPos = new Map();
-      columns[col + 1].forEach((id, i) => rightPos.set(id, i));
-      const bary = new Map();
-      for (const id of columns[col]) {
-        const positions = (consumers.get(id) || [])
-          .map((c) => rightPos.get(c))
-          .filter((p) => p !== undefined);
-        bary.set(id, positions.length
-          ? positions.reduce((a, b) => a + b, 0) / positions.length
-          : Number.MAX_SAFE_INTEGER);
-      }
-      columns[col].sort((a, b) => {
-        const d = bary.get(a) - bary.get(b);
-        return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
-      });
+  for (let col = columns.length - 2; col >= 0; col--) {
+    const rightPos = new Map();
+    columns[col + 1].forEach((id, i) => rightPos.set(id, i));
+    const bary = new Map();
+    for (const id of columns[col]) {
+      // Only consumers in the immediately adjacent column have a position
+      // here, so a node whose only consumer is several columns away (a base
+      // ore feeding the output directly) has no barycentre and sorts to the
+      // bottom. That is the accepted cost of a barycentre pass with no dummy
+      // nodes; adding them would be a larger change than the readability
+      // gain justifies.
+      const positions = (consumers.get(id) || [])
+        .map((c) => rightPos.get(c))
+        .filter((p) => p !== undefined);
+      bary.set(id, positions.length
+        ? positions.reduce((a, b) => a + b, 0) / positions.length
+        : Number.MAX_SAFE_INTEGER);
     }
+    columns[col].sort((a, b) => {
+      const d = bary.get(a) - bary.get(b);
+      return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
+    });
   }
 
   return columns;
 }
 
 // boxHeight returns a node's height: taller when it carries a recipe selector.
-function boxHeight(graph, producers, id) {
+function boxHeight(producers, id) {
   const ids = producers ? producers.get(id) : null;
   return ids && ids.length > 1 ? BOX_H_SEL : BOX_H;
 }
@@ -1712,14 +1730,14 @@ function boxHeight(graph, producers, id) {
 // producers is optional; pass it to size boxes that carry a recipe selector.
 function layout(graph, ranks, columns, producers) {
   const heights = columns.map((column) =>
-    column.reduce((sum, id) => sum + boxHeight(graph, producers, id) + ROW_GAP, -ROW_GAP));
+    column.reduce((sum, id) => sum + boxHeight(producers, id) + ROW_GAP, -ROW_GAP));
   const tallest = Math.max(0, ...heights);
 
   const boxes = new Map();
   columns.forEach((column, col) => {
     let y = MARGIN + (tallest - heights[col]) / 2;
     column.forEach((id, row) => {
-      const h = boxHeight(graph, producers, id);
+      const h = boxHeight(producers, id);
       boxes.set(id, {x: MARGIN + col * (BOX_W + COL_GAP), y, w: BOX_W, h, col, row});
       y += h + ROW_GAP;
     });
