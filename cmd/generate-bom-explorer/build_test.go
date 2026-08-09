@@ -156,6 +156,16 @@ func TestBuildDocSerialisesShortKeys(t *testing.T) {
 	}
 }
 
+func TestMultiYieldItems(t *testing.T) {
+	items, recipes := fixture()
+	doc := BuildDoc(items, recipes, nil, nil)
+	// smelt_steel and cast_steel both yield 2 steel_plate.
+	got := MultiYieldItems(doc)
+	if len(got) != 1 || got[0] != "steel_plate" {
+		t.Errorf("MultiYieldItems = %v, want [steel_plate]", got)
+	}
+}
+
 // TestBuildDocEmptyInputsOutputsSerialiseAsEmptyArrays covers recipes such as
 // pack_package/unpack_package (zero rows in recipe_inputs and
 // recipe_outputs) and onboard_*_fuel_synthesis (zero rows in

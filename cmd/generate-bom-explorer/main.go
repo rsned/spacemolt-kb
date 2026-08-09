@@ -45,8 +45,46 @@ func main() {
 	must(err, "marshal")
 	must(os.WriteFile(*out, blob, 0o644), "write")
 
+	multi := MultiYieldItems(doc)
+	log.Printf("bom-explorer: %d items have a multi-yield default recipe; chains through them "+
+		"total differently than the static bill_of_materials table (whole batches vs per-unit)", len(multi))
+
+	if committed, cerr := loadCommittedBoM(craftDB); cerr == nil {
+		log.Printf("bom-explorer: %d targets reach a different base-item set than the committed "+
+			"bill_of_materials table — structural obtainability preferred over the table's "+
+			"market-driven picks, see docs/USAGE.md", RecipeChoiceDivergence(doc, committed))
+	} else {
+		log.Printf("bom-explorer: skipping recipe-choice divergence report: %v", cerr)
+	}
+
 	log.Printf("bom-explorer: %d items, %d recipes, %d targets, %d defaults, %d bytes → %s",
 		len(doc.Items), len(doc.Recipes), len(doc.Targets), len(doc.Defaults), len(blob), *out)
+}
+
+// loadCommittedBoM reads the item rows of the bill_of_materials table, used
+// only for the informational recipe-choice divergence report above — absence
+// of the table (a bare checkout, or a crafting.db that predates the table) is
+// not fatal to regeneration.
+func loadCommittedBoM(db *sql.DB) (map[string]map[string]int, error) {
+	rows, err := db.Query(`SELECT target_id, base_item_id, quantity
+	                       FROM bill_of_materials WHERE target_type='item'`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	out := map[string]map[string]int{}
+	for rows.Next() {
+		var target, base string
+		var qty int
+		if err := rows.Scan(&target, &base, &qty); err != nil {
+			return nil, err
+		}
+		if out[target] == nil {
+			out[target] = map[string]int{}
+		}
+		out[target][base] = qty
+	}
+	return out, rows.Err()
 }
 
 // loadItems reads every row of the items table.

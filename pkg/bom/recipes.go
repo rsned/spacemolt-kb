@@ -44,6 +44,17 @@ func SelectRecipe(itemToRecipes map[string][]*Recipe, itemID string) *Recipe {
 	return selectRecipe(itemToRecipes, itemID, nil)
 }
 
+// SelectRecipeSourceable chooses the optimal recipe for an item like
+// SelectRecipe, but additionally prefers candidates whose inputs are all in
+// sourceable (falling back to the full candidate set when none qualify — see
+// selectRecipe's layer 3). Callers that have no market data can still use
+// this by passing a structurally-computed set, e.g. the least fixed point
+// from ComputeSourceable seeded with ore/material items, to avoid choosing a
+// recipe that routes through an item nothing produces and nothing sells.
+func SelectRecipeSourceable(itemToRecipes map[string][]*Recipe, itemID string, sourceable map[string]bool) *Recipe {
+	return selectRecipe(itemToRecipes, itemID, sourceable)
+}
+
 // selectRecipe chooses the optimal recipe for an item.
 //
 // Filtering layers, applied in order so that each falls back to the next when
