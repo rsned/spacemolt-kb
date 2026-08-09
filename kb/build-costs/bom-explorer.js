@@ -993,7 +993,7 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
     if (isRoutingNode(id)) continue; // waypoints occupy a slot but draw nothing.
     const node = graph.nodes.get(id);
     const stroke = id === graph.targetId ? 'var(--accent)'
-      : node.leaf ? 'var(--muted2)' : 'var(--border)';
+      : node.leaf ? 'var(--muted2)' : 'var(--node-border)';
 
     // Wrapped in a <g>: the foreignObject below covers the rect entirely, so
     // a hover/focus listener on the rect alone would not fire reliably.
