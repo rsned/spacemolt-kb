@@ -63,6 +63,17 @@ func BuildDoc(items map[string]ItemRec, recipes map[string]RecipeRec, ships []ca
 		if isPackaging(id) {
 			continue
 		}
+		// A recipe with zero DB rows in recipe_inputs or recipe_outputs (e.g.
+		// pack_package/unpack_package, or onboard_*_fuel_synthesis which
+		// produces fuel via a separate column rather than an item output)
+		// leaves these nil. A nil [][]any marshals as JSON null; the page
+		// expects an iterable array for every recipe's i/o.
+		if r.Inputs == nil {
+			r.Inputs = [][]any{}
+		}
+		if r.Outputs == nil {
+			r.Outputs = [][]any{}
+		}
 		doc.Recipes[id] = r
 	}
 

@@ -155,3 +155,25 @@ func TestBuildDocSerialisesShortKeys(t *testing.T) {
 		t.Errorf("recipe JSON = %s, want %s", raw, want)
 	}
 }
+
+// TestBuildDocEmptyInputsOutputsSerialiseAsEmptyArrays covers recipes such as
+// pack_package/unpack_package (zero rows in recipe_inputs and
+// recipe_outputs) and onboard_*_fuel_synthesis (zero rows in
+// recipe_outputs — they produce ship fuel via a separate column, not an
+// item). loadRecipes leaves RecipeRec.Inputs/Outputs as their nil zero value
+// when attachPairs never appends to them; a nil [][]any marshals as JSON
+// null, not []. The page expects an iterable array for every recipe's i/o.
+func TestBuildDocEmptyInputsOutputsSerialiseAsEmptyArrays(t *testing.T) {
+	items, recipes := fixture()
+	recipes["pack_package"] = RecipeRec{Name: "Pack Package", Category: "Logistics"}
+	doc := BuildDoc(items, recipes, nil, nil)
+
+	raw, err := json.Marshal(doc.Recipes["pack_package"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{"n":"Pack Package","c":"Logistics","i":[],"o":[]}`
+	if string(raw) != want {
+		t.Errorf("recipe JSON = %s, want %s", raw, want)
+	}
+}
