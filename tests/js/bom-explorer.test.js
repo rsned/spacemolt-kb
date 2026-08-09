@@ -850,16 +850,38 @@ test('craftWaves puts a cycle-cut node in wave 0 flagged, not silently at rank 0
 });
 
 test('craftWaves sorts each wave by id so regeneration is byte-identical', () => {
-  const data = fixture();
+  // The fixture world cannot test this: every one of its waves holds a single
+  // item, and a one-element array is sorted whatever the code does. This world
+  // instead lists the assembly's inputs in DELIBERATELY unsorted order, so
+  // buildGraph inserts zeta before alpha and the nodes arrive in the wrong
+  // order — the assertion below fails if the sort is ever dropped.
+  const data = {
+    items: {
+      ore: {n: 'Ore', c: 'ore'},
+      zeta_part: {n: 'Zeta', c: 'component'},
+      alpha_part: {n: 'Alpha', c: 'component'},
+      mid_part: {n: 'Mid', c: 'component'},
+      rig: {n: 'Rig', c: 'component'},
+    },
+    recipes: {
+      make_zeta: {n: 'Z', c: 'C', i: [['ore', 1]], o: [['zeta_part', 1]]},
+      make_alpha: {n: 'A', c: 'C', i: [['ore', 1]], o: [['alpha_part', 1]]},
+      make_mid: {n: 'M', c: 'C', i: [['ore', 1]], o: [['mid_part', 1]]},
+      assemble_rig: {
+        n: 'R', c: 'C',
+        i: [['zeta_part', 1], ['alpha_part', 1], ['mid_part', 1]], o: [['rig', 1]],
+      },
+    },
+    targets: {}, defaults: {},
+  };
   const producers = bx.producersOf(data);
-  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const g = bx.buildGraph(data, producers, 'rig', {});
   const ranks = bx.rankNodes(g);
   const waves = bx.craftWaves(g, ranks, bx.rollUp(g, ranks, 1));
 
-  for (const wave of waves) {
-    const ids = wave.map((j) => j.id);
-    assert.deepStrictEqual(ids, [...ids].sort());
-  }
+  assert.strictEqual(waves[1].length, 3, 'precondition: a wave with enough items to misorder');
+  assert.deepStrictEqual(waves[1].map((j) => j.id),
+    ['alpha_part', 'mid_part', 'zeta_part'], 'sorted by id, not insertion order');
 });
 
 test('no craft step depends on one in its own or a later wave', () => {
