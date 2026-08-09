@@ -1905,6 +1905,18 @@ test('decodeState clamps quantity into range', () => {
   assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=abc').qty, 1);
 });
 
+test('decodeState discards prototype-chain property names as targets', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // A bare bracket lookup is truthy for every Object.prototype member, so
+  // these would pass validation and then throw in buildGraph. The page must
+  // degrade, not break, on any hand-edited URL.
+  for (const name of ['__proto__', 'constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
+    const state = bx.decodeState(data, producers, 'target=' + name);
+    assert.strictEqual(state.target, null, `${name} must not validate as a target`);
+  }
+});
+
 test('decodeState discards unknown targets and bogus choices', () => {
   const data = fixture();
   const producers = bx.producersOf(data);
@@ -1934,6 +1946,17 @@ Add to `kb/build-costs/bom-explorer.js`, after `layout`:
 
 const QTY_MIN = 1;
 const QTY_MAX = 99999;
+
+// hasOwn tests real membership of a plain object parsed from JSON.
+//
+// A bare `data.targets[key]` lookup is truthy for every Object.prototype
+// member — `__proto__`, `constructor`, `toString`, `hasOwnProperty` — so a
+// hand-edited `?target=__proto__` would pass validation and then throw in
+// buildGraph. The URL is the one place untrusted keys enter, so this is
+// where it gets checked.
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
 
 // selectableOutputs is everything the user may pick as an output: every ship
 // and facility, plus every non-terminal item some recipe produces. Terminal
@@ -2000,7 +2023,7 @@ function decodeState(data, producers, query) {
   const params = new URLSearchParams(query || '');
 
   let target = params.get('target');
-  if (target && !data.targets[target] && !producers.has(target)) target = null;
+  if (target && !hasOwn(data.targets, target) && !producers.has(target)) target = null;
 
   const qty = params.has('qty') ? clampQty(params.get('qty')) : QTY_MIN;
 
@@ -2024,14 +2047,14 @@ Extend the export line to:
 
 ```js
   module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
-    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty,
+    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty, hasOwn,
     encodeState, decodeState, QTY_MIN, QTY_MAX};
 ```
 
 - [ ] **Step 4: Run the test to verify it passes**
 
-Run: `node --test tests/js/`
-Expected: PASS, all thirty tests.
+Run: `node --test tests/js/*.test.js`
+Expected: PASS, all thirty-three tests.
 
 - [ ] **Step 5: Verify the real selectable count**
 
