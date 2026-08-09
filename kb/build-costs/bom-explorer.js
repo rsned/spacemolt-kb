@@ -258,6 +258,9 @@ function craftWaves(graph, ranks, totals) {
     if (node.leaf || !node.recipeId) continue;
     const rank = ranks.get(id);
     while (waves.length <= rank) waves.push([]);
+    // The || 0 is load-bearing, not defensive: rollUp skips any node with no
+    // inputs, so a cycle-cut node has no batches entry at all, and made would
+    // be NaN without it. Removing it silently corrupts that one case.
     const runs = totals.batches.get(id) || 0;
     waves[rank].push({
       id,

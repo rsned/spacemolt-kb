@@ -1075,3 +1075,22 @@ test('an item target just ends at its own craft line', () => {
   assert.ok(!text.includes('# Final:'), 'an item needs no out-of-band step');
   assert.match(text, /^craft assemble_widget 1$/m);
 });
+
+test('a cycle-cut step reports numeric runs and made, never NaN', () => {
+  // rollUp skips nodes with no inputs, so a cycle-cut node has no batches
+  // entry. craftWaves must still produce numbers: NaN here would reach the
+  // rendered script as "makes NaN" and, worse, silently disable the
+  // made > qty surplus test for that step.
+  const data = fixture();
+  data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
+  const ranks = bx.rankNodes(g);
+  const totals = bx.rollUp(g, ranks, 1);
+
+  assert.strictEqual(totals.batches.has('steel_plate'), false, 'precondition: no batches entry');
+  const job = bx.craftWaves(g, ranks, totals)[0].find((j) => j.id === 'steel_plate');
+  assert.strictEqual(job.runs, 0);
+  assert.strictEqual(job.made, 0);
+  assert.ok(!Number.isNaN(job.made));
+});
