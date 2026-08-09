@@ -3423,3 +3423,52 @@ inside its container without the page scrolling sideways.
 git add kb/build-costs/bom-explorer.js tests/js/bom-explorer.test.js
 git commit -m "feat(bom-explorer): route long edges around boxes and draw them as curves"
 ```
+
+- [ ] **Step 9: Colour each edge by its source item**
+
+Routing stops lines from hiding behind boxes; colour tells them apart where
+several run parallel or converge on one box. Colour by the **source item**, so
+every edge carrying the same material shares a hue and you can trace where a
+given ore ends up.
+
+Derive the hue deterministically from the source id so it is stable across
+re-renders and needs no palette that could run out:
+
+```js
+// edgeHue maps a source item id to a stable hue. Deterministic, so the same
+// item keeps its colour across re-renders and between page loads.
+function edgeHue(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+  return h;
+}
+```
+
+Saturation and lightness must come from CSS custom properties, not literals,
+or the palette will be unreadable in one of the two themes. Add to
+`explorer.html`'s `:root` and its `[data-theme="light"]` block:
+
+```css
+:root{--edge-s:55%;--edge-l:62%}
+:root[data-theme="light"]{--edge-s:60%;--edge-l:38%}
+```
+
+and build the stroke as `hsl(<hue> var(--edge-s) var(--edge-l))`.
+
+The arrowhead must match its line, and a single shared marker cannot take two
+fills. Create one `<marker>` per distinct hue actually used in this render,
+with `id="bx-arrow-<hue>"`, and reference the matching one from each path.
+`renderChart` already clears the container before every render, so no marker
+outlives its chart.
+
+Keep the quantity label in `var(--dim)` rather than the edge colour — it must
+stay legible against the panel background at every hue.
+
+- [ ] **Step 10: Verify the colouring**
+
+- Every edge from the same source shares a colour; edges from different sources
+  in the same converging bundle differ.
+- Check both themes with the page's toggle: no line should wash out against the
+  panel background in either.
+- Confirm one marker exists per distinct hue and that arrowheads match their
+  lines, on `?target=shield_recharger_ii` and `?target=overmind`.
