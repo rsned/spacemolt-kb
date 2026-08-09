@@ -105,9 +105,30 @@ keeps its existing behaviour and its existing tests must still pass.
   (77 of 2727) are omitted.
 - `defaults` — an entry for each of the 62 items with more than one
   producing recipe, computed **in Go by the existing `bom.SelectRecipe`**,
-  which is called on the *full* recipe set (it applies its own `wrap_*` /
-  `unwrap_*` exclusion as filtering layer 1, so the result matches the static
-  pages exactly).
+  called on the *full* recipe set (it applies its own `wrap_*` / `unwrap_*`
+  exclusion as filtering layer 1), with a **structural obtainability filter**
+  in place of the market-aware one the static pages use: a recipe is preferred
+  when every input is raw (`ore`/`material`) or is itself craftable from raw
+  inputs.
+
+  **This deliberately does NOT match the static build-cost pages, and that is
+  the better answer.** Those pages resolve ties using live market
+  availability, which systematically steers them into mob-drop inputs that
+  nothing produces: `gold_bar` via `gilded_chitin_smelting` (2 ×
+  `gilded_chitin`, a drop) rather than `mint_gold_bar` (10 × `gold_ore`,
+  mineable); likewise `adamantite_bar` via `adamant_tooth`, `armor_plate` via
+  `creature_carapace`, `tungsten_rod` via `tungsten_nugget`, `graphene_sheet`
+  via `graphene_thread`. For a page whose job is "what do I gather", the
+  mineable path is the right default. Six items differ from the static pages
+  for this reason.
+
+  The structural filter also fixes the converse defect — a default routing
+  into a dead end when an alternative avoids it. It takes such defaults from
+  131 to 111. The residual 111 are unavoidable: 72 craftable items have no
+  fully-obtainable recipe at all, because the game genuinely requires drops
+  (cooking recipes needing `raw_xeno_meat`, `mantis_claw`, and similar).
+  Requiring no market data also keeps the generator sub-second and immune to
+  market drift.
   Items with exactly one recipe are omitted; the page falls back to that
   single recipe. This is what makes the explorer open on the same recipe path
   the static per-target pages already display.
@@ -370,14 +391,26 @@ skip it, the test runner picks it up.
 
 ### Cross-check against the existing tables
 
-For targets whose active recipes all yield exactly 1, batching and per-unit
-arithmetic are provably identical. A test asserts the flattened base totals
-equal `Q ×` the committed `bill_of_materials` rows for a sample of such
-targets.
+Equality with the committed `bill_of_materials` table is NOT asserted, because
+the two views deliberately choose different recipes (see `defaults` above) and
+the explorer's choices are the better ones. Asserting equality would lock the
+explorer to the static pages' market-driven mob-drop paths.
 
-Targets containing a multi-yield recipe are expected to differ — that is the
-deliberate change above — so rather than a test, the generator logs a
-one-line count of affected targets on each run.
+Two things are checked instead:
+
+1. **Obtainability preference (assertable, no market data).** For every item
+   with more than one recipe: if any candidate has all-obtainable inputs, the
+   chosen default must too. This is the property that actually protects users
+   from being told to gather something nothing produces, and it holds without
+   any market dependency.
+2. **Divergence report (informational).** The generator logs how many targets
+   differ from the committed table and why — multi-yield batching, or a
+   recipe-choice difference — so the divergence is visible on every run rather
+   than silent.
+
+Targets containing a multi-yield recipe are also expected to differ, for the
+separate batching reason described above; the generator logs a count of those
+on each run too.
 
 ### Visual verification
 
