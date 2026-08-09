@@ -49,6 +49,12 @@ th:first-child,td:first-child{text-align:left}
 .note{font-size:.8rem;color:var(--muted);max-width:70ch;margin-top:1.5rem}
 .empty{color:var(--muted);font-style:italic}
 
+.json-out{margin-top:1.5rem;max-width:60rem}
+.json-out h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.6rem}
+.copy-btn{background:var(--panel2);color:var(--link);border:1px solid var(--border);border-radius:4px;padding:.1rem .5rem;font-size:.8rem;font-family:inherit;cursor:pointer}
+.copy-btn:hover{border-color:var(--link)}
+#json-blob{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.6rem .8rem;margin:0;max-height:22rem;overflow:auto;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text)}
+
 .recipe-note{font-size:.8rem;color:var(--muted);max-width:70ch;margin-top:.75rem}
 .recipe-note summary{cursor:pointer;color:var(--text);font-weight:600}
 .recipe-note summary:hover{color:var(--link)}
@@ -108,6 +114,13 @@ th:first-child,td:first-child{text-align:left}
     prices; the build cost by station for the selected output is its own page
     in this same directory, not the catalog page an item's node here links to.
   </p>
+
+  <section class="json-out">
+    <h2>Base materials as JSON
+      <button type="button" id="copy-json" class="copy-btn">copy</button>
+    </h2>
+    <pre id="json-blob"></pre>
+  </section>
 
   <details class="recipe-note">
     <summary>How is the starting recipe chosen?</summary>

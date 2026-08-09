@@ -203,6 +203,29 @@ function rollUp(graph, ranks, quantity) {
   return {demand, batches, surplus};
 }
 
+// baseMaterialsMap returns the flattened base materials as a plain
+// {itemId: qty} object — the same rows the base-materials table renders, in
+// machine-readable form.
+//
+// Keys are item ids, not display names: ids are what the rest of the toolchain
+// (crafting.db, the build-cost pages, the game's own commands) takes, and they
+// are stable where names are free-text game data. Insertion is sorted because
+// JSON.stringify emits string keys in insertion order, so a re-render of the
+// same build produces a byte-identical blob and two builds diff cleanly.
+function baseMaterialsMap(graph, totals) {
+  const out = {};
+  const leaves = [...graph.nodes.values()].filter((n) => n.leaf).map((n) => n.id).sort();
+  for (const id of leaves) out[id] = totals.demand.get(id) || 0;
+  return out;
+}
+
+// baseMaterialsJSON renders the map as the pretty-printed blob shown at the
+// bottom of the page. Wrapped in a "materials" key so the document has room to
+// grow another field without breaking anything already parsing it.
+function baseMaterialsJSON(graph, totals) {
+  return JSON.stringify({materials: baseMaterialsMap(graph, totals)}, null, 2);
+}
+
 // ---------------------------------------------------------------------------
 // Layout
 // ---------------------------------------------------------------------------
@@ -614,6 +637,7 @@ function decodeState(data, producers, query) {
 // which loads this file to test the pure functions above.
 
 const MAX_SUGGESTIONS = 50;
+const COPY_LABEL_MS = 1500; // how long the copy button shows its outcome
 
 // itemHref returns an item's KB catalog page, or '' when it has no category.
 function itemHref(data, id) {
@@ -659,6 +683,8 @@ function initExplorer() {
     directSub: document.getElementById('direct-sub'),
     surplus: document.getElementById('table-surplus'),
     surplusSection: document.getElementById('surplus-section'),
+    json: document.getElementById('json-blob'),
+    copy: document.getElementById('copy-json'),
   };
 
   let data = null;
@@ -772,6 +798,23 @@ function initExplorer() {
     render();
   });
 
+  // The blob is selectable text, so copying is a convenience, not the only
+  // route to it: clipboard access is permission-gated and absent on insecure
+  // origins, so a failure says so rather than pretending it worked.
+  els.copy.addEventListener('click', () => {
+    const done = (msg) => {
+      els.copy.textContent = msg;
+      setTimeout(() => { els.copy.textContent = 'copy'; }, COPY_LABEL_MS);
+    };
+    if (!navigator.clipboard) {
+      done('select and copy');
+      return;
+    }
+    navigator.clipboard.writeText(els.json.textContent)
+      .then(() => done('copied'))
+      .catch(() => done('copy failed'));
+  });
+
   // -- rendering ------------------------------------------------------------
 
   function table(rows, headers) {
@@ -851,6 +894,11 @@ function initExplorer() {
         (totals.demand.get(id) || 0).toLocaleString(),
       ]),
       ['Material', 'Qty']);
+
+    // The same leaf totals as the table above, machine-readable. textContent,
+    // never innerHTML: this is a <pre> and the blob must render as literal
+    // JSON.
+    els.json.textContent = baseMaterialsJSON(graph, totals);
 
     // Direct inputs: the target's own inputs, scaled by its batch count.
     const runs = totals.batches.get(state.target) || 1;
@@ -1075,6 +1123,7 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
+    baseMaterialsMap, baseMaterialsJSON,
     orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout, labelLayout, edgesByNode,
     selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
     itemHref, leafKind, escapeHTML,

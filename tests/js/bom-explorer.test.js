@@ -717,3 +717,74 @@ test('edgesByNode maps each node to every edge touching it, as source or consume
     for (const e of touching) assert.ok(e.from === id || e.to === id);
   }
 });
+
+test('baseMaterialsMap totals only the leaves, keyed by item id', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const totals = bx.rollUp(g, ranks, 1);
+
+  const map = bx.baseMaterialsMap(g, totals);
+  // Leaves only: no steel_plate, frame or widget, all of which are craftable.
+  assert.deepStrictEqual(Object.keys(map).sort(), ['drop_core', 'energy_crystal', 'iron_ore']);
+  assert.strictEqual(map.energy_crystal, totals.demand.get('energy_crystal'));
+  assert.strictEqual(map.iron_ore, totals.demand.get('iron_ore'));
+  assert.strictEqual(map.drop_core, totals.demand.get('drop_core'));
+});
+
+test('baseMaterialsMap agrees with the base-materials table it sits under', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const totals = bx.rollUp(g, bx.rankNodes(g), 7);
+
+  // The table renders demand for every leaf; the blob must show the same
+  // numbers, or the copyable output silently disagrees with what is on screen.
+  const map = bx.baseMaterialsMap(g, totals);
+  for (const node of g.nodes.values()) {
+    if (!node.leaf) continue;
+    assert.strictEqual(map[node.id], totals.demand.get(node.id), node.id);
+  }
+});
+
+test('baseMaterialsMap emits keys in sorted order for a stable diff', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const map = bx.baseMaterialsMap(g, bx.rollUp(g, bx.rankNodes(g), 1));
+  const keys = Object.keys(map);
+  assert.deepStrictEqual(keys, [...keys].sort(), 'insertion order is key order in JSON');
+});
+
+test('baseMaterialsJSON is parseable and round-trips the map', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const totals = bx.rollUp(g, bx.rankNodes(g), 2);
+
+  const text = bx.baseMaterialsJSON(g, totals);
+  const parsed = JSON.parse(text);
+  assert.deepStrictEqual(parsed, {materials: bx.baseMaterialsMap(g, totals)});
+  assert.ok(text.includes('\n'), 'pretty-printed so a long list stays readable');
+});
+
+test('baseMaterialsJSON follows a recipe choice', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // cast_steel needs 6 iron_ore per batch where smelt_steel needs 5, so the
+  // blob must change when the choice does.
+  const def = JSON.parse(bx.baseMaterialsJSON(
+    ...withTotals(data, producers, 'steel_plate', {}, 10)));
+  const alt = JSON.parse(bx.baseMaterialsJSON(
+    ...withTotals(data, producers, 'steel_plate', {steel_plate: 'cast_steel'}, 10)));
+  assert.strictEqual(def.materials.iron_ore, 25, '5 batches x 5 ore');
+  assert.strictEqual(alt.materials.iron_ore, 30, '5 batches x 6 ore');
+});
+
+// withTotals builds [graph, totals] for a target, the pair every blob helper
+// takes.
+function withTotals(data, producers, target, choices, qty) {
+  const g = bx.buildGraph(data, producers, target, choices);
+  return [g, bx.rollUp(g, bx.rankNodes(g), qty)];
+}
