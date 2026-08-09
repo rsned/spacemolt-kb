@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
+	"github.com/rsned/spacemolt-kb/pkg/catalog"
 	_ "modernc.org/sqlite"
 )
 
@@ -391,7 +392,7 @@ INSERT INTO recipe_outputs VALUES ('forge_ghost_rounds','ghost_rounds',2);
 
 func TestLoadTargets_ItemsAndShips(t *testing.T) {
 	db := newCraftTestDB(t)
-	ships := []Ship{{ID: "scout", Name: "Scout Ship", Class: "frigate", Price: 12000}}
+	ships := []catalog.Ship{{ID: "scout", Name: "Scout Ship", Class: "frigate", Price: 12000}}
 	itemNames := map[string]string{"widget": "Widget"}
 
 	targets, names, err := loadTargets(db, ships, itemNames)
