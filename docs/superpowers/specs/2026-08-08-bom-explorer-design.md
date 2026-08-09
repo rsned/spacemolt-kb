@@ -211,7 +211,9 @@ quantities are ignored in favour of the defaults rather than erroring.
 These are the common cases and must look deliberate:
 
 - A Refining recipe renders as exactly two boxes and one arrow:
-  `[Iron Ore] ──5──▶ [Steel Plate]`, recipe name above the chart.
+  `[Uranium Ore] ──▶ [Uranium Concentrate]`, recipe name above the chart.
+  44 real targets have this shape. (`steel_plate` is not one of them — its
+  default recipe takes two inputs.)
 - Reaching a terminal item by hand-editing the URL shows a message instead
   of a graph. Ores and materials are described as raw materials the explorer
   deliberately stops at — which stays accurate for the four ores that do have
