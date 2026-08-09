@@ -2745,7 +2745,7 @@ Append to `cmd/generate-build-costs/render_test.go`. Model the setup on the exis
 ```go
 func TestRenderDetailLinksToExplorer(t *testing.T) {
 	dir := t.TempDir()
-	row := MatrixRow{ID: "power_core", Name: "Power Core", Kind: "item", Cells: map[string]Cell{}}
+	row := MatrixRow{ID: "power_core", Name: "Power Core", Kind: "item", Cells: map[string]RowCell{}}
 	tgt := buildcost.Target{
 		ID:   "power_core",
 		BoM:  []buildcost.Requirement{{ItemID: "iron_bar", Qty: 2}},
