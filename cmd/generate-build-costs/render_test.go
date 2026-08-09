@@ -207,3 +207,32 @@ func TestRenderDetail_ShipNoRecipe(t *testing.T) {
 		t.Errorf("ship detail should have no recipe (<h3>) tables")
 	}
 }
+
+func TestRenderDetailLinksToExplorer(t *testing.T) {
+	dir := t.TempDir()
+	row := MatrixRow{ID: "power_core", Name: "Power Core", Kind: "item", Cells: map[string]RowCell{}}
+	tgt := buildcost.Target{
+		ID:   "power_core",
+		BoM:  []buildcost.Requirement{{ItemID: "iron_bar", Qty: 2}},
+		Recipes: []buildcost.Recipe{{ID: "assemble_power_core", OutputQty: 1,
+			Inputs: []buildcost.Requirement{{ItemID: "iron_bar", Qty: 2}}}},
+	}
+	names := map[string]string{"iron_bar": "Iron Bar", "power_core": "Power Core"}
+	categories := map[string]string{"iron_bar": "refined", "power_core": "component"}
+
+	if err := renderDetail(dir, row, nil, tgt, names, categories, [4]MatrixRow{}, galaxyCover{}); err != nil {
+		t.Fatalf("renderDetail: %v", err)
+	}
+
+	raw, err := os.ReadFile(filepath.Join(dir, "power_core.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `href="explorer.html?target=power_core"`
+	if !strings.Contains(string(raw), want) {
+		t.Errorf("detail page missing explorer link %s", want)
+	}
+	if !strings.Contains(string(raw), "Explore this BoM interactively") {
+		t.Error("detail page missing the explorer link text")
+	}
+}
