@@ -268,3 +268,94 @@ test('rollUp leaves have demand but no batches', () => {
   assert.strictEqual(demand.get('iron_ore'), 5);
   assert.strictEqual(batches.has('iron_ore'), false);
 });
+
+test('orderColumns indexes columns by rank with the target alone on the right', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {});
+  const ranks = bx.rankNodes(g);
+  const columns = bx.orderColumns(g, ranks);
+
+  assert.strictEqual(columns.length, 4, 'ranks 0..3');
+  assert.deepStrictEqual(columns[3], ['widget']);
+  assert.deepStrictEqual(columns[2], ['frame']);
+  assert.deepStrictEqual(columns[1], ['steel_plate']);
+  assert.deepStrictEqual([...columns[0]].sort(), ['drop_core', 'iron_ore']);
+});
+
+test('orderColumns places every node exactly once', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const columns = bx.orderColumns(g, ranks);
+
+  const placed = columns.flat();
+  assert.strictEqual(placed.length, g.nodes.size);
+  assert.strictEqual(new Set(placed).size, g.nodes.size, 'no duplicates');
+  for (const id of g.nodes.keys()) assert.ok(placed.includes(id), `${id} missing`);
+});
+
+test('orderColumns is deterministic across repeated calls', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  assert.deepStrictEqual(bx.orderColumns(g, ranks), bx.orderColumns(g, ranks));
+});
+
+test('layout puts lower columns to the left and never overlaps boxes', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {});
+  const ranks = bx.rankNodes(g);
+  const columns = bx.orderColumns(g, ranks);
+  const {boxes, width, height} = bx.layout(g, ranks, columns);
+
+  assert.ok(boxes.get('iron_ore').x < boxes.get('steel_plate').x);
+  assert.ok(boxes.get('steel_plate').x < boxes.get('frame').x);
+  assert.ok(boxes.get('frame').x < boxes.get('widget').x);
+
+  // No two boxes in the same column overlap vertically.
+  for (const column of columns) {
+    const sorted = column.map((id) => boxes.get(id)).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < sorted.length; i++) {
+      assert.ok(sorted[i].y >= sorted[i - 1].y + sorted[i - 1].h,
+        'boxes in a column must not overlap');
+    }
+  }
+
+  // Canvas contains every box.
+  for (const b of boxes.values()) {
+    assert.ok(b.x >= 0 && b.y >= 0 && b.x + b.w <= width && b.y + b.h <= height);
+  }
+});
+
+test('layout emits one edge per input with its quantity', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {});
+  const ranks = bx.rankNodes(g);
+  const {edges} = bx.layout(g, ranks, bx.orderColumns(g, ranks));
+
+  let total = 0;
+  for (const n of g.nodes.values()) total += n.inputs.length;
+  assert.strictEqual(edges.length, total);
+
+  const direct = edges.find((e) => e.from === 'steel_plate' && e.to === 'widget');
+  assert.ok(direct, 'expected the direct steel_plate -> widget edge');
+  assert.strictEqual(direct.qty, 1);
+  assert.ok(direct.points.length >= 2, 'edge must have a polyline');
+});
+
+test('layout handles the two-box refining degenerate case', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'steel_plate', {});
+  const ranks = bx.rankNodes(g);
+  const {boxes, edges} = bx.layout(g, ranks, bx.orderColumns(g, ranks));
+
+  assert.strictEqual(boxes.size, 2);
+  assert.strictEqual(edges.length, 1);
+  assert.strictEqual(edges[0].qty, 5);
+});

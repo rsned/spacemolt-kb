@@ -203,8 +203,117 @@ function rollUp(graph, ranks, quantity) {
   return {demand, batches, surplus};
 }
 
+// ---------------------------------------------------------------------------
+// Layout
+// ---------------------------------------------------------------------------
+
+const BOX_W = 150;
+const BOX_H = 46;
+const BOX_H_SEL = 66;
+const COL_GAP = 90;
+const ROW_GAP = 14;
+const MARGIN = 20;
+
+// orderColumns groups nodes by rank and orders each column to reduce edge
+// crossings, using two barycentre passes: a node sorts to the mean vertical
+// position of its consumers in the column to its right. Working right-to-left
+// from the target (a single node) gives each pass something to anchor on.
+// Ties break by id so repeated calls agree.
+function orderColumns(graph, ranks) {
+  const maxRank = Math.max(...ranks.values());
+  const columns = [];
+  for (let i = 0; i <= maxRank; i++) columns.push([]);
+  for (const id of [...graph.nodes.keys()].sort()) columns[ranks.get(id)].push(id);
+
+  // consumers[id] = ids of nodes that take id as an input.
+  const consumers = new Map();
+  for (const node of graph.nodes.values()) {
+    for (const input of node.inputs) {
+      if (!consumers.has(input.id)) consumers.set(input.id, []);
+      consumers.get(input.id).push(node.id);
+    }
+  }
+
+  for (let pass = 0; pass < 2; pass++) {
+    for (let col = columns.length - 2; col >= 0; col--) {
+      const rightPos = new Map();
+      columns[col + 1].forEach((id, i) => rightPos.set(id, i));
+      const bary = new Map();
+      for (const id of columns[col]) {
+        const positions = (consumers.get(id) || [])
+          .map((c) => rightPos.get(c))
+          .filter((p) => p !== undefined);
+        bary.set(id, positions.length
+          ? positions.reduce((a, b) => a + b, 0) / positions.length
+          : Number.MAX_SAFE_INTEGER);
+      }
+      columns[col].sort((a, b) => {
+        const d = bary.get(a) - bary.get(b);
+        return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
+      });
+    }
+  }
+
+  return columns;
+}
+
+// boxHeight returns a node's height: taller when it carries a recipe selector.
+function boxHeight(graph, producers, id) {
+  const ids = producers ? producers.get(id) : null;
+  return ids && ids.length > 1 ? BOX_H_SEL : BOX_H;
+}
+
+// layout converts ordered columns into drawable geometry. Columns are placed
+// left to right by rank, so a base ore consumed directly by the output spans
+// the full width — expected, not a defect. Each column is vertically centred
+// against the tallest so short columns do not hug the top.
+//
+// producers is optional; pass it to size boxes that carry a recipe selector.
+function layout(graph, ranks, columns, producers) {
+  const heights = columns.map((column) =>
+    column.reduce((sum, id) => sum + boxHeight(graph, producers, id) + ROW_GAP, -ROW_GAP));
+  const tallest = Math.max(0, ...heights);
+
+  const boxes = new Map();
+  columns.forEach((column, col) => {
+    let y = MARGIN + (tallest - heights[col]) / 2;
+    column.forEach((id, row) => {
+      const h = boxHeight(graph, producers, id);
+      boxes.set(id, {x: MARGIN + col * (BOX_W + COL_GAP), y, w: BOX_W, h, col, row});
+      y += h + ROW_GAP;
+    });
+  });
+
+  const width = MARGIN * 2 + columns.length * BOX_W + Math.max(0, columns.length - 1) * COL_GAP;
+  const height = MARGIN * 2 + tallest;
+
+  // Elbow polylines: out of the input's right edge, across to the midpoint of
+  // the gutter immediately left of the consumer, vertically, then in.
+  const edges = [];
+  for (const node of graph.nodes.values()) {
+    const to = boxes.get(node.id);
+    if (!to) continue;
+    for (const input of node.inputs) {
+      const from = boxes.get(input.id);
+      if (!from) continue;
+      const x1 = from.x + from.w;
+      const y1 = from.y + from.h / 2;
+      const x2 = to.x;
+      const y2 = to.y + to.h / 2;
+      const mid = x2 - COL_GAP / 2;
+      const points = y1 === y2
+        ? [[x1, y1], [x2, y2]]
+        : [[x1, y1], [mid, y1], [mid, y2], [x2, y2]];
+      edges.push({from: input.id, to: node.id, qty: input.qty, points});
+    }
+  }
+
+  return {width, height, boxes, edges};
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
+    orderColumns, layout,
   };
 }
