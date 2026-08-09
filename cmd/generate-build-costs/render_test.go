@@ -208,6 +208,57 @@ func TestRenderDetail_ShipNoRecipe(t *testing.T) {
 	}
 }
 
+func TestExplorerLinkable(t *testing.T) {
+	tests := []struct {
+		name       string
+		kind       string
+		id         string
+		categories map[string]string
+		recipes    []buildcost.Recipe
+		want       bool
+	}{
+		{
+			name:       "terminal ore item is not linkable",
+			kind:       "item",
+			id:         "iron_ore",
+			categories: map[string]string{"iron_ore": "ore"},
+			want:       false,
+		},
+		{
+			// contained_* items are produced only by wrap_* packaging recipes,
+			// which the explorer deliberately drops — so despite having a
+			// producing recipe here, the explorer treats this as a drop.
+			name:       "contained_* item made only by a wrap_ recipe is not linkable",
+			kind:       "item",
+			id:         "contained_liquid_tritium",
+			categories: map[string]string{"contained_liquid_tritium": "refined"},
+			recipes:    []buildcost.Recipe{{ID: "wrap_liquid_tritium", OutputQty: 1}},
+			want:       false,
+		},
+		{
+			name:       "normal item with a non-packaging recipe is linkable",
+			kind:       "item",
+			id:         "power_core",
+			categories: map[string]string{"power_core": "component"},
+			recipes:    []buildcost.Recipe{{ID: "assemble_power_core", OutputQty: 1}},
+			want:       true,
+		},
+		{
+			name: "ship is always linkable",
+			kind: "ship",
+			id:   "cobble",
+			want: true,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := explorerLinkable(tc.kind, tc.id, tc.categories, tc.recipes); got != tc.want {
+				t.Errorf("explorerLinkable(%q, %q) = %v, want %v", tc.kind, tc.id, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestRenderDetailLinksToExplorer(t *testing.T) {
 	dir := t.TempDir()
 	row := MatrixRow{ID: "power_core", Name: "Power Core", Kind: "item", Cells: map[string]RowCell{}}

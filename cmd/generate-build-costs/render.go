@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 )
@@ -219,6 +220,38 @@ func qtyStr(v float64) string {
 	return strconv.FormatFloat(v, 'f', -1, 64)
 }
 
+// isPackagingRecipe reports whether recipeID is a wrap_/unwrap_ container
+// recipe. Mirrors cmd/generate-bom-explorer's isPackaging: those recipes are
+// dropped from the explorer's data at generation time, so a target produced
+// only by one of them has no producing recipe as far as the explorer is
+// concerned, even though it appears here in tgt.Recipes.
+func isPackagingRecipe(recipeID string) bool {
+	return strings.HasPrefix(recipeID, "wrap_") || strings.HasPrefix(recipeID, "unwrap_")
+}
+
+// explorerLinkable reports whether the interactive BoM explorer can render id
+// as an output, matching bom-explorer.js's selectableOutputs exactly: a ship
+// or facility target is always linkable; an item is linkable only when its
+// category is not ore/material AND at least one non-packaging recipe produces
+// it. Emitting the "Explore this BoM interactively" link when this is false
+// sends the reader to the explorer's "no recipe produces this" message — and
+// for a terminal ore, or a contained_* item whose only producer is a wrap_*
+// recipe, that message reads as wrong rather than merely unhelpful.
+func explorerLinkable(kind, id string, categories map[string]string, recipes []buildcost.Recipe) bool {
+	if kind != "item" {
+		return true
+	}
+	if cat := categories[id]; cat == "ore" || cat == "material" {
+		return false
+	}
+	for _, r := range recipes {
+		if !isPackagingRecipe(r.ID) {
+			return true
+		}
+	}
+	return false
+}
+
 // renderDetail writes the per-target station breakdown page.
 func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buildcost.Target, names, categories map[string]string, hopRows [4]MatrixRow, cover galaxyCover) error {
 	t, err := template.ParseFS(tmplFS, "templates/detail.html.tmpl")
@@ -251,6 +284,7 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 	if row.Kind == "ship" {
 		selfHref = "../ships/all.html"
 	}
+	explorable := explorerLinkable(row.Kind, tgt.ID, categories, tgt.Recipes)
 
 	var lines []detailLine
 	localAnyFeasible := false
@@ -302,5 +336,6 @@ func renderDetail(outDir string, row MatrixRow, stations []StationMeta, tgt buil
 		"ID": row.ID, "Name": row.Name, "Kind": row.Kind, "Lines": lines,
 		"SelfHref": selfHref, "BoM": bom, "Recipes": recipes, "RecipeNA": tgt.RecipeNA,
 		"ShowBanner": !localAnyFeasible, "Cover": cover, "LastUpdated": lastMarketUpdate,
+		"Explorable": explorable,
 	})
 }
