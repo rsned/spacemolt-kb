@@ -41,17 +41,18 @@ Use these exact numbers in assertions about the real database:
 | facilities in `catalog_facilities.json` | 2727 (2650 have `build_materials`) |
 | craftable items that are NOT terminal (selectable) | 611 (615 minus 4 craftable ores) |
 | selectable outputs | 611 + 335 + 2650 = 3596 |
-| deepest target | `all_mine`, 12 tiers, 86 distinct items |
-| widest target | `overmind`, 12 tiers, 135 distinct items |
-| `station_core` (the sample target used in checks) | 11 tiers, 78 distinct items |
+| deepest target | `annihilator`, 10 tiers, 92 distinct items |
+| widest target | `overmind`, 10 tiers, 135 distinct items |
+| `station_core` (the sample target used in checks) | 10 tiers, 74 distinct items |
 | median target | 4 tiers, 11 distinct items |
 
 **Correction (2026-08-08, verified):** an earlier draft of this table listed
 `station_core` as 10 tiers / 75 items. That figure came from a probe that
 picked each item's lexicographically-first recipe; the implemented code uses
 the generated `defaults` (from `bom.SelectRecipe`), and 18 multi-recipe items
-resolve differently under the two rules. The figures above are measured
-against the real data through the shipped code.
+resolve differently under the two rules. A second draft then measured them before the terminal-item rule
+(craftable ores were still being expanded). The figures above are measured
+against the real data through the shipped code as it now stands.
 
 ## File Structure
 
@@ -1328,7 +1329,7 @@ console.log("layering invariant holds");
 '
 ```
 
-Expected: `nodes: 78 tiers: 11` followed by `layering invariant holds`.
+Expected: `nodes: 74 tiers: 10` followed by `layering invariant holds`.
 
 - [ ] **Step 6: Commit**
 
@@ -1519,7 +1520,7 @@ Turn ranks into drawable coordinates.
   - `orderColumns(graph, ranks)` → `string[][]`, index = rank, each entry the ordered node ids of that column.
   - `layout(graph, ranks, columns, producers)` → `{width, height, boxes: Map<id, {x, y, w, h, col, row}>, edges: [{from, to, qty, points: [[x,y],...]}]}`. `producers` is optional: pass it so boxes carrying a recipe selector get the taller height, omit it (as the tests do) for plain geometry.
 
-**Background — barycentre ordering.** Within a column, order nodes by the mean vertical position of their already-placed neighbours in the column to the right (consumers). Two passes is enough at this scale and is the difference between readable and unreadable on the largest targets (`overmind` is 12 tiers, 135 nodes). Start from the rightmost column (the target, a single node) and work leftwards.
+**Background — barycentre ordering.** Within a column, order nodes by the mean vertical position of their already-placed neighbours in the column to the right (consumers). Two passes is enough at this scale and is the difference between readable and unreadable on the largest targets (`overmind` is 10 tiers, 135 nodes). Start from the rightmost column (the target, a single node) and work leftwards.
 
 **Layout constants** (define at the top of the layout section so they are tunable in one place):
 
@@ -1781,7 +1782,7 @@ console.log("canvas", l.width + "x" + l.height, "columns", cols.map(c => c.lengt
 '
 ```
 
-Expected: 11 columns, every node placed (78 for `station_core`), a canvas roughly 2600 px wide. Nothing should be zero or `NaN`.
+Expected: 10 columns, every node placed (74 for `station_core`), a canvas roughly 2350 px wide. Nothing should be zero or `NaN`.
 
 - [ ] **Step 6: Commit**
 
@@ -2634,7 +2635,7 @@ Serve the site (`python3 -m http.server 8765 --directory . > /dev/null 2>&1 &`) 
 
 1. `explorer.html?target=steel_plate` — the degenerate refining case. Expect exactly two boxes and one labelled arrow, with the recipe id above the chart.
 2. `explorer.html?target=power_core` — a median case. Expect roughly 4 tiers and 12 boxes, arrows all pointing right, quantity labels legible.
-3. `explorer.html?target=overmind` — the worst case (12 tiers, 135 boxes). Expect the chart to scroll horizontally inside its container while the page itself does not scroll sideways.
+3. `explorer.html?target=overmind` — the worst case (10 tiers, 135 boxes). Expect the chart to scroll horizontally inside its container while the page itself does not scroll sideways.
 
 Then exercise the interaction: on `?target=power_core`, change a `▾` selector inside a node box and confirm the graph and all three tables update, and that the URL gains an `r=` parameter. Reload that URL and confirm the choice is restored. Stop the server (`kill %1`).
 
