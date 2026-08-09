@@ -39,8 +39,8 @@ Use these exact numbers in assertions about the real database:
 | items with >1 recipe (after exclusion) | 62 |
 | ships in `catalog_ships.json` | 335 (all have `build_materials`) |
 | facilities in `catalog_facilities.json` | 2727 (2650 have `build_materials`) |
-| craftable items that are NOT terminal (selectable) | 611 (615 minus 4 craftable ores) |
-| selectable outputs | 611 + 335 + 2650 = 3596 |
+| craftable items that are NOT terminal (selectable) | 610 (615 distinct recipe outputs, minus 4 craftable ores, minus `fuel_reserve` which has no `items` row) |
+| selectable outputs | 610 + 335 + 2650 = 3595 |
 | deepest target | `annihilator`, 10 tiers, 92 distinct items |
 | widest target | `overmind`, 10 tiers, 135 distinct items |
 | `station_core` (the sample target used in checks) | 10 tiers, 74 distinct items |
@@ -2048,7 +2048,7 @@ console.log(out.length, JSON.stringify(by));
 '
 ```
 
-Expected: `3596 {"facility":2650,"item":611,"ship":335}` — matching the Reference Data table. The item count is 611, not 615: `energy_crystal`, `exotic_crystal`, `void_crystal` and `hydrogen_gas` have recipes but are ores, so they are terminal and not selectable.
+Expected: `3595 {"facility":2650,"item":610,"ship":335}` — matching the Reference Data table. The item count is 610, not 615, for two reasons: `energy_crystal`, `exotic_crystal`, `void_crystal` and `hydrogen_gas` have recipes but are ores, so they are terminal; and `fuel_reserve` is produced by 7 recipes but has no row in the `items` table, so it has no display name or category and is skipped by the `if (!item) continue;` guard. It is the only such gap in the catalog, and it never appears as a recipe input, so it is inert everywhere else.
 
 - [ ] **Step 6: Commit**
 

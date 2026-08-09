@@ -18,7 +18,7 @@ and deliberately carries no prices.
 ## Scope
 
 **In scope:** output selection by autocomplete over every craftable target
-(611 items, 335 ships, 2650 facilities = 3596 entries); a quantity spinner
+(610 items, 335 ships, 2650 facilities = 3595 entries); a quantity spinner
 from 1 to 99,999; per-item recipe selection; a multi-tier horizontal graph;
 a flattened base-materials table; a direct-inputs table; a surplus table.
 
@@ -153,13 +153,15 @@ Bill of Materials Explorer
 
 ### Controls
 
-**Output autocomplete.** A text input filtering the 3596 selectable outputs
+**Output autocomplete.** A text input filtering the 3595 selectable outputs
 on both display name and id, showing a keyboard-navigable result list with
 each row's type (item / ship / facility). No dependency.
 
 The selectable set is derived on load, not shipped as a fourth list: every
 key of `targets` (335 ships + 2650 facilities), plus every non-terminal item
-in `items` that at least one recipe in `recipes` produces (611). Items that
+in `items` that at least one recipe in `recipes` produces (610 — `fuel_reserve`
+is produced by 7 recipes but has no `items` row, so it has no name or
+category and is skipped). Items that
 the explorer treats as terminal — every ore and material, plus anything no
 recipe produces — are not selectable as outputs; picking one is only
 reachable by hand-editing the URL, which falls through to the "no recipe
