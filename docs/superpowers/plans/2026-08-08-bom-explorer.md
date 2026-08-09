@@ -2328,6 +2328,10 @@ function initExplorer() {
     els.list.classList.remove('open');
     els.target.setAttribute('aria-expanded', 'false');
     activeIndex = -1;
+    // Clear the backing array too, not just the visible state. Leaving it
+    // populated lets Escape-then-ArrowDown-then-Enter silently pick an option
+    // the user can no longer see and believes they dismissed.
+    suggestions = [];
   }
 
   function openList(query) {
@@ -2395,6 +2399,10 @@ function initExplorer() {
     return '<table>' + head + '<tbody>' + body + '</tbody></table>';
   }
 
+  // nameCell interpolates href unescaped. That is safe by data invariant, not
+  // by accident: item and recipe ids are [a-z0-9_] throughout the crafting
+  // data and item categories are a closed set, so no value can break out of
+  // the attribute. The display name IS escaped, because names are free text.
   function nameCell(id, suffix) {
     const href = targetHref(data, id);
     const name = escapeHTML(displayName(data, id));
