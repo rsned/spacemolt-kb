@@ -315,7 +315,7 @@ test('layout puts lower columns to the left and never overlaps boxes', () => {
   const g = bx.buildGraph(data, producers, 'widget', {});
   const ranks = bx.rankNodes(g);
   const columns = bx.orderColumns(g, ranks);
-  const {boxes, width, height} = bx.layout(g, ranks, columns);
+  const {boxes, width, height} = bx.layout(g, columns);
 
   assert.ok(boxes.get('iron_ore').x < boxes.get('steel_plate').x);
   assert.ok(boxes.get('steel_plate').x < boxes.get('frame').x);
@@ -341,7 +341,7 @@ test('layout emits one edge per input with its quantity', () => {
   const producers = bx.producersOf(data);
   const g = bx.buildGraph(data, producers, 'widget', {});
   const ranks = bx.rankNodes(g);
-  const {edges} = bx.layout(g, ranks, bx.orderColumns(g, ranks));
+  const {edges} = bx.layout(g, bx.orderColumns(g, ranks));
 
   let total = 0;
   for (const n of g.nodes.values()) total += n.inputs.length;
@@ -358,11 +358,39 @@ test('layout handles the two-box refining degenerate case', () => {
   const producers = bx.producersOf(data);
   const g = bx.buildGraph(data, producers, 'steel_plate', {});
   const ranks = bx.rankNodes(g);
-  const {boxes, edges} = bx.layout(g, ranks, bx.orderColumns(g, ranks));
+  const {boxes, edges} = bx.layout(g, bx.orderColumns(g, ranks));
 
   assert.strictEqual(boxes.size, 2);
   assert.strictEqual(edges.length, 1);
   assert.strictEqual(edges[0].qty, 5);
+});
+
+test('scaling an edge by its consumer\'s batch count sums to the source\'s demand', () => {
+  // edge.qty is the per-batch recipe input quantity, not the total consumed —
+  // the renderer must multiply by totals.batches.get(edge.to) before display
+  // (renderChart does this; it has no DOM-free seam to test directly, so this
+  // pins the underlying arithmetic through the exported pure functions).
+  // steel_plate feeds TWO different consumers here (frame and widget), each
+  // via its own edge, so this also exercises multiple edges from one source.
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {});
+  const ranks = bx.rankNodes(g);
+  const columns = bx.orderColumns(g, ranks);
+  const totals = bx.rollUp(g, ranks, 5);
+  const {edges} = bx.layout(g, columns);
+
+  const scaledLabel = (edge) => edge.qty * (totals.batches.get(edge.to) || 1);
+
+  const toFrame = edges.find((e) => e.from === 'steel_plate' && e.to === 'frame');
+  const toWidget = edges.find((e) => e.from === 'steel_plate' && e.to === 'widget');
+  assert.strictEqual(scaledLabel(toFrame), toFrame.qty * totals.batches.get('frame'));
+  assert.strictEqual(scaledLabel(toWidget), toWidget.qty * totals.batches.get('widget'));
+
+  const outgoing = edges.filter((e) => e.from === 'steel_plate');
+  const sum = outgoing.reduce((acc, e) => acc + scaledLabel(e), 0);
+  assert.strictEqual(sum, totals.demand.get('steel_plate'),
+    'a source item\'s scaled outgoing edges must sum to its total demand');
 });
 
 test('selectableOutputs spans craftable items, ships and facilities', () => {

@@ -32,6 +32,8 @@ th:first-child,td:first-child{text-align:left}
 .chart-head{margin:1rem 0 .25rem;font-size:.95rem}
 .chart-head .recipe{color:var(--accent)}
 .chart-head .meta{color:var(--muted);font-size:.85rem;margin-left:.5rem}
+.chart-head .reset-btn{margin-left:.75rem;background:var(--panel2);color:var(--link);border:1px solid var(--border);border-radius:4px;padding:.1rem .5rem;font-size:.8rem;font-family:inherit;cursor:pointer}
+.chart-head .reset-btn:hover{border-color:var(--link)}
 #chart{overflow-x:auto;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.5rem;min-height:6rem}
 
 .tables{display:flex;flex-wrap:wrap;gap:2rem;margin-top:1rem}
@@ -69,6 +71,7 @@ th:first-child,td:first-child{text-align:left}
 <div id="result" hidden>
   <div class="chart-head">
     <span class="recipe" id="chart-recipe"></span><span class="meta" id="chart-meta"></span>
+    <button type="button" id="reset-choices" class="reset-btn" hidden>reset choices</button>
   </div>
   <div id="chart"></div>
 
@@ -91,7 +94,8 @@ th:first-child,td:first-child{text-align:left}
     Quantities round up to whole batches at every tier, so totals can exceed the
     per-unit figures on the static build-cost pages — you cannot craft a partial
     batch. Surplus shows what the rounding over-produces. This page carries no
-    prices; follow an item's link for its build cost by station.
+    prices; the build cost by station for the selected output is its own page
+    in this same directory, not the catalog page an item's node here links to.
   </p>
 </div>
 

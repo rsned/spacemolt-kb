@@ -278,7 +278,7 @@ function boxHeight(producers, id) {
 // against the tallest so short columns do not hug the top.
 //
 // producers is optional; pass it to size boxes that carry a recipe selector.
-function layout(graph, ranks, columns, producers) {
+function layout(graph, columns, producers) {
   const heights = columns.map((column) =>
     column.reduce((sum, id) => sum + boxHeight(producers, id) + ROW_GAP, -ROW_GAP));
   const tallest = Math.max(0, ...heights);
@@ -470,6 +470,7 @@ function initExplorer() {
     result: document.getElementById('result'),
     recipe: document.getElementById('chart-recipe'),
     meta: document.getElementById('chart-meta'),
+    reset: document.getElementById('reset-choices'),
     chart: document.getElementById('chart'),
     base: document.getElementById('table-base'),
     direct: document.getElementById('table-direct'),
@@ -584,6 +585,11 @@ function initExplorer() {
     render();
   });
 
+  els.reset.addEventListener('click', () => {
+    state.choices = {};
+    render();
+  });
+
   // -- rendering ------------------------------------------------------------
 
   function table(rows, headers) {
@@ -648,6 +654,9 @@ function initExplorer() {
       ? node.recipeId
       : displayName(data, state.target) + ' (' + node.kind + ' build materials)';
     els.meta.textContent = columns.length + ' tiers, ' + graph.nodes.size + ' items';
+    // Hidden rather than merely disabled when there is nothing to reset, so
+    // it does not invite a no-op click.
+    els.reset.hidden = Object.keys(state.choices).length === 0;
 
     // Base materials: every leaf, by total demand.
     const leaves = [...graph.nodes.values()].filter((n) => n.leaf).map((n) => n.id).sort(byName);
@@ -673,7 +682,7 @@ function initExplorer() {
       spare.map((id) => [nameCell(id, ''), totals.surplus.get(id).toLocaleString()]),
       ['Item', 'Qty']);
 
-    renderChart(els.chart, data, producers, graph, ranks, columns, totals, onChoice);
+    renderChart(els.chart, data, producers, graph, columns, totals, onChoice);
   }
 
   function onChoice(itemId, recipeId) {
@@ -701,9 +710,9 @@ function svgEl(name, attrs) {
 // renderChart draws the layered graph. Columns run left to right by rank, so
 // every arrow points rightwards and a base ore feeding the output directly
 // spans the full width.
-function renderChart(container, data, producers, graph, ranks, columns, totals, onChoice) {
+function renderChart(container, data, producers, graph, columns, totals, onChoice) {
   container.innerHTML = '';
-  const {width, height, boxes, edges} = layout(graph, ranks, columns, producers);
+  const {width, height, boxes, edges} = layout(graph, columns, producers);
 
   // role="group", NOT role="img": this SVG contains the feature's only
   // interactive controls (the recipe <select> inside each foreignObject), and
@@ -735,7 +744,12 @@ function renderChart(container, data, producers, graph, ranks, columns, totals, 
       x: ex - 8, y: ey - 5, 'text-anchor': 'end',
       fill: 'var(--dim)', 'font-size': 11, 'font-family': 'system-ui,sans-serif',
     });
-    label.textContent = edge.qty.toLocaleString();
+    // edge.qty is the PER-BATCH recipe input quantity; scale by the consuming
+    // node's batch count so this label shows the actual total consumed,
+    // matching the demand-scaled totals shown in the boxes rather than the
+    // bare recipe stoichiometry.
+    const labelQty = edge.qty * (totals.batches.get(edge.to) || 1);
+    label.textContent = labelQty.toLocaleString();
     svg.append(label);
   }
 
