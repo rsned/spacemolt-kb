@@ -327,6 +327,17 @@ function layout(graph, ranks, columns, producers) {
 const QTY_MIN = 1;
 const QTY_MAX = 99999;
 
+// hasOwn tests real membership of a plain object parsed from JSON.
+//
+// A bare `data.targets[key]` lookup is truthy for every Object.prototype
+// member — `__proto__`, `constructor`, `toString`, `hasOwnProperty` — so a
+// hand-edited `?target=__proto__` would pass validation and then throw in
+// buildGraph. The URL is the one place untrusted keys enter, so this is
+// where it gets checked.
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
 // selectableOutputs is everything the user may pick as an output: every ship
 // and facility, plus every non-terminal item some recipe produces. Terminal
 // items are excluded — the explorer treats them as raw inputs, so offering one
@@ -392,7 +403,7 @@ function decodeState(data, producers, query) {
   const params = new URLSearchParams(query || '');
 
   let target = params.get('target');
-  if (target && !data.targets[target] && !producers.has(target)) target = null;
+  if (target && !hasOwn(data.targets, target) && !producers.has(target)) target = null;
 
   const qty = params.has('qty') ? clampQty(params.get('qty')) : QTY_MIN;
 
@@ -414,6 +425,7 @@ function decodeState(data, producers, query) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
-    orderColumns, layout, selectableOutputs, clampQty, encodeState, decodeState, QTY_MIN, QTY_MAX,
+    orderColumns, layout, selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
+    QTY_MIN, QTY_MAX,
   };
 }

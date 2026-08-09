@@ -435,6 +435,18 @@ test('decodeState clamps quantity into range', () => {
   assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=abc').qty, 1);
 });
 
+test('decodeState discards prototype-chain property names as targets', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // A bare bracket lookup is truthy for every Object.prototype member, so
+  // these would pass validation and then throw in buildGraph. The page must
+  // degrade, not break, on any hand-edited URL.
+  for (const name of ['__proto__', 'constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
+    const state = bx.decodeState(data, producers, 'target=' + name);
+    assert.strictEqual(state.target, null, `${name} must not validate as a target`);
+  }
+});
+
 test('decodeState discards unknown targets and bogus choices', () => {
   const data = fixture();
   const producers = bx.producersOf(data);
