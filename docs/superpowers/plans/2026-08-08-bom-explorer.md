@@ -2022,8 +2022,17 @@ function encodeState(data, producers, state) {
 function decodeState(data, producers, query) {
   const params = new URLSearchParams(query || '');
 
+  // Admit any id that EXISTS — a target, a catalogued item, or something a
+  // recipe produces. Whether it is a sensible output is a render-time
+  // question, not a parsing one: the spec wants a hand-edited
+  // ?target=iron_ore to reach the "this is a raw material" message rather
+  // than be silently discarded. hasOwn (not a bare lookup) still keeps
+  // Object.prototype names out.
   let target = params.get('target');
-  if (target && !hasOwn(data.targets, target) && !producers.has(target)) target = null;
+  if (target && !hasOwn(data.targets, target) && !hasOwn(data.items, target) &&
+      !producers.has(target)) {
+    target = null;
+  }
 
   const qty = params.has('qty') ? clampQty(params.get('qty')) : QTY_MIN;
 
@@ -2108,7 +2117,7 @@ The page fetches `recipe-graph.json` from the same directory. That is the establ
 
 **Degenerate cases to handle explicitly:**
 - No target selected: show a short prompt, no tables.
-- Target is an ore or a no-recipe drop (only reachable by a hand-edited URL): render one box's worth of message — "no recipe produces this — it is mined" — and no tables.
+- Target is a terminal item (only reachable by a hand-edited URL, since the autocomplete never offers one): render a message and no tables. Ores and materials say they are a raw material the explorer deliberately stops at — accurate even for the four ores that DO have recipes; a non-ore item no recipe produces says it is a drop.
 
 - [ ] **Step 1: Write `explorer.html`**
 
@@ -2411,11 +2420,20 @@ function initExplorer() {
       return;
     }
 
-    const isTarget = Boolean(data.targets[state.target]);
-    if (!isTarget && !producers.has(state.target)) {
+    // Terminal items are raw inputs to this page, so there is nothing to
+    // expand. Say which kind, accurately: four ores DO have recipes
+    // (energy_crystal, exotic_crystal, void_crystal, hydrogen_gas) and are
+    // terminal by category, so "no recipe produces this" would be false for
+    // them. Only a non-ore terminal item is genuinely recipe-less.
+    const isTarget = hasOwn(data.targets, state.target);
+    if (!isTarget && isTerminalItem(data, producers, state.target)) {
       els.status.hidden = false;
-      els.status.textContent = displayName(data, state.target) +
-        ' — no recipe produces this; it is mined or dropped.';
+      els.status.textContent = leafKind(data, state.target) === 'ore'
+        ? displayName(data, state.target) +
+          ' is a raw material — the explorer stops at ores and raw materials, ' +
+          'the same place the static build-cost pages stop, so there is nothing to expand.'
+        : displayName(data, state.target) +
+          ' — no recipe produces this; it is a drop.';
       els.result.hidden = true;
       return;
     }

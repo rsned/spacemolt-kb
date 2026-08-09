@@ -212,8 +212,12 @@ These are the common cases and must look deliberate:
 
 - A Refining recipe renders as exactly two boxes and one arrow:
   `[Iron Ore] ──5──▶ [Steel Plate]`, recipe name above the chart.
-- Selecting a raw ore as the output shows a single box and the message
-  "no recipe produces this — it is mined".
+- Reaching a terminal item by hand-editing the URL shows a message instead
+  of a graph. Ores and materials are described as raw materials the explorer
+  deliberately stops at — which stays accurate for the four ores that do have
+  recipes; a non-ore item that no recipe produces is described as a drop.
+  `decodeState` therefore admits any id that exists, leaving selectability to
+  render time, rather than discarding unselectable ids while parsing.
 - Selecting a ship or facility shows its `build_materials` expanded normally;
   the target box sits alone in the rightmost column.
 
