@@ -18,7 +18,7 @@ and deliberately carries no prices.
 ## Scope
 
 **In scope:** output selection by autocomplete over every craftable target
-(615 items, 335 ships, 2650 facilities = 3600 entries); a quantity spinner
+(611 items, 335 ships, 2650 facilities = 3596 entries); a quantity spinner
 from 1 to 99,999; per-item recipe selection; a multi-tier horizontal graph;
 a flattened base-materials table; a direct-inputs table; a surplus table.
 
@@ -153,17 +153,17 @@ Bill of Materials Explorer
 
 ### Controls
 
-**Output autocomplete.** A text input filtering the 3600 selectable outputs
+**Output autocomplete.** A text input filtering the 3596 selectable outputs
 on both display name and id, showing a keyboard-navigable result list with
 each row's type (item / ship / facility). No dependency.
 
 The selectable set is derived on load, not shipped as a fourth list: every
-key of `targets` (335 ships + 2650 facilities), plus every item in `items`
-that at least one recipe in `recipes` produces (615 — packaging recipes are
-already absent from that map). Items that
-no recipe produces — ores and drops — are not selectable as outputs; picking
-one is only reachable by hand-editing the URL, which falls through to the
-"no recipe produces this" message.
+key of `targets` (335 ships + 2650 facilities), plus every non-terminal item
+in `items` that at least one recipe in `recipes` produces (611). Items that
+the explorer treats as terminal — every ore and material, plus anything no
+recipe produces — are not selectable as outputs; picking one is only
+reachable by hand-editing the URL, which falls through to the "no recipe
+produces this" message.
 
 **Quantity.** `<input type="number" min="1" max="99999" step="1">`, default
 1. Non-integer, out-of-range, and empty values clamp to the nearest valid
@@ -291,6 +291,17 @@ An item is a leaf when its category is `ore` or `material`, **or** when no
 recipe produces it. This is exactly the terminal rule in
 `pkg/bom/calculator.go`'s `isTerminal`, so this page and the static tables
 agree on where a chain stops.
+
+Both halves of that rule are load-bearing. Four items are ores that also have
+a crafting recipe — `energy_crystal`, `exotic_crystal`, `void_crystal`,
+`hydrogen_gas` — so "has no recipe" alone would expand them, and the base
+material totals would stop matching the static pages. It would also make
+`circuit_board → power_cell → energy_crystal → circuit_board` a cycle
+reachable by ordinary recipe picks. With the category test applied, a
+strongly-connected-component analysis over all 615 craftable items finds
+**zero** reachable cycles, which is what keeps the cycle backstop below
+genuinely unreachable. Terminal items are therefore also excluded from the
+selectable-output list: the explorer treats them as raw inputs.
 
 The second kind of leaf is not mineable — `hoarfrost_heartcore` and similar
 drops have no recipe and no ore category. The base-materials table labels

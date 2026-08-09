@@ -39,7 +39,8 @@ Use these exact numbers in assertions about the real database:
 | items with >1 recipe (after exclusion) | 62 |
 | ships in `catalog_ships.json` | 335 (all have `build_materials`) |
 | facilities in `catalog_facilities.json` | 2727 (2650 have `build_materials`) |
-| selectable outputs | 615 + 335 + 2650 = 3600 |
+| craftable items that are NOT terminal (selectable) | 611 (615 minus 4 craftable ores) |
+| selectable outputs | 611 + 335 + 2650 = 3596 |
 | deepest target | `all_mine`, 12 tiers, 86 distinct items |
 | widest target | `overmind`, 12 tiers, 135 distinct items |
 | `station_core` (the sample target used in checks) | 11 tiers, 78 distinct items |
@@ -916,7 +917,8 @@ The first half of the client model: turn a target plus a choice map into a DAG, 
 
 **Node semantics:**
 - `kind` is `"item"`, `"ship"`, or `"facility"`. Ships and facilities are sinks: they have `inputs` from their `bm` list, `recipeId: null`, and `yield: 1`.
-- `leaf` is true when no recipe in `data.recipes` produces the item. That covers both ores and no-recipe drops; the two are told apart later by `data.items[id].c`.
+- `leaf` is true when the item is **terminal**: its category is `ore` or `material`, **or** no recipe in `data.recipes` produces it. Both halves are required. Four items are ores that also have a recipe — `energy_crystal`, `exotic_crystal`, `void_crystal`, `hydrogen_gas` — and the category test is the only thing that stops them being expanded. This mirrors `isTerminal` in `pkg/bom/calculator.go` exactly, which is what makes the explorer's base-materials totals agree with the static build-cost pages. Ores and no-recipe drops are told apart later by `data.items[id].c`.
+- Getting this wrong has a second consequence: expanding `energy_crystal` makes `circuit_board → power_cell → energy_crystal → circuit_board` a reachable cycle. With the category test in place there are **zero** reachable cycles anywhere in the graph (verified by strongly-connected-component analysis over all 615 craftable items), which is what keeps the cycle backstop genuinely dead code.
 - `cycle` is true when expansion re-encountered an item already on the stack. Packaging recipes are already absent from the data, so this is a backstop, not a routine path — but the page must never hang.
 
 - [ ] **Step 1: Write the failing test**
@@ -989,6 +991,44 @@ test('activeRecipeId returns null for leaves', () => {
   const producers = bx.producersOf(data);
   assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'iron_ore'), null);
   assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'drop_core'), null);
+});
+
+test('an ore stays terminal even when a recipe produces it', () => {
+  const data = fixture();
+  // Real data has four of these: energy_crystal, exotic_crystal, void_crystal,
+  // hydrogen_gas. The Go flattener stops at them because of their category, and
+  // this page must stop in the same place or its totals stop matching the
+  // static build-cost pages.
+  data.recipes.synthesise_crystal = {
+    n: 'Synthesise Crystal', c: 'Refining',
+    i: [['iron_ore', 4]], o: [['energy_crystal', 1]],
+  };
+  const producers = bx.producersOf(data);
+
+  assert.strictEqual(bx.isTerminalItem(data, producers, 'energy_crystal'), true);
+  assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'energy_crystal'), null);
+
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  assert.strictEqual(g.nodes.get('energy_crystal').leaf, true, 'craftable ore must stay a leaf');
+  assert.deepStrictEqual(g.nodes.get('energy_crystal').inputs, [], 'and must not be expanded');
+});
+
+test('rankNodes caches the cycle backstop so no edge points backwards', () => {
+  const data = fixture();
+  data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
+  const ranks = bx.rankNodes(g);
+
+  // Even in the forced-cycle case the layering invariant must hold: an
+  // uncached backstop lets a node be recomputed above a consumer that already
+  // used its placeholder rank of 0.
+  for (const node of g.nodes.values()) {
+    for (const input of node.inputs) {
+      assert.ok(ranks.get(input.id) < ranks.get(node.id) || node.cycle || g.nodes.get(input.id).cycle,
+        `rank(${input.id})=${ranks.get(input.id)} must be < rank(${node.id})=${ranks.get(node.id)}`);
+    }
+  }
 });
 
 test('activeRecipeId ignores a choice naming a recipe that does not make the item', () => {
@@ -1114,11 +1154,28 @@ function producersOf(data) {
   return producers;
 }
 
+// isTerminalItem reports whether expansion stops at itemId: ores and raw
+// materials always do, as does anything no recipe produces.
+//
+// The category test is load-bearing, not belt-and-braces. Four items are ores
+// that ALSO have a recipe (energy_crystal, exotic_crystal, void_crystal,
+// hydrogen_gas); without it they would be expanded, the base-material totals
+// would stop agreeing with the static build-cost pages, and
+// circuit_board -> power_cell -> energy_crystal -> circuit_board would become
+// a reachable cycle. This mirrors isTerminal in pkg/bom/calculator.go.
+function isTerminalItem(data, producers, itemId) {
+  const item = data.items[itemId];
+  if (item && (item.c === 'ore' || item.c === 'material')) return true;
+  const ids = producers.get(itemId);
+  return !ids || ids.length === 0;
+}
+
 // activeRecipeId resolves which recipe makes itemId under the current choices:
 // an explicit choice, else the generated default, else the item's only recipe.
-// Returns null for leaves. A choice naming a recipe that does not produce the
-// item is ignored rather than trusted — URLs are user-editable.
+// Returns null for terminal items. A choice naming a recipe that does not
+// produce the item is ignored rather than trusted — URLs are user-editable.
 function activeRecipeId(data, producers, choices, itemId) {
+  if (isTerminalItem(data, producers, itemId)) return null;
   const ids = producers.get(itemId);
   if (!ids || ids.length === 0) return null;
   const chosen = choices[itemId];
@@ -1202,7 +1259,16 @@ function rankNodes(graph) {
 
   function rank(id, stack) {
     if (ranks.has(id)) return ranks.get(id);
-    if (stack.has(id)) return 0; // cycle backstop; expansion already flagged it
+    if (stack.has(id)) {
+      // Cycle backstop. Cache the 0 so the node cannot later be recomputed to a
+      // higher rank than a consumer that already used this value — that would
+      // leave a right-to-left edge, breaking the invariant this function exists
+      // to establish. Unreachable with real data (no cycles survive the
+      // terminal-item rule); correct rather than merely non-hanging if it ever
+      // is reached.
+      ranks.set(id, 0);
+      return 0;
+    }
     const node = graph.nodes.get(id);
     if (!node || node.inputs.length === 0) {
       ranks.set(id, 0);
@@ -1222,7 +1288,7 @@ function rankNodes(graph) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes};
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes};
 }
 ```
 
@@ -1405,7 +1471,7 @@ function rollUp(graph, ranks, quantity) {
 Extend the export line at the bottom of the file to:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp};
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp};
 ```
 
 - [ ] **Step 4: Run the test to verify it passes**
@@ -1672,7 +1738,7 @@ function layout(graph, ranks, columns, producers) {
 Extend the export line to:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes,
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
     topoOrder, rollUp, orderColumns, layout};
 ```
 
@@ -1742,6 +1808,15 @@ test('selectableOutputs spans craftable items, ships and facilities', () => {
   assert.ok(ids.includes('hauler'), 'ship must be selectable');
   assert.ok(!ids.includes('iron_ore'), 'ores are not selectable outputs');
   assert.ok(!ids.includes('drop_core'), 'no-recipe drops are not selectable outputs');
+
+  // A craftable ore is still terminal, so it is still not a selectable output.
+  data.recipes.synthesise_crystal = {
+    n: 'Synthesise Crystal', c: 'Refining',
+    i: [['iron_ore', 4]], o: [['energy_crystal', 1]],
+  };
+  const withCraftableOre = bx.selectableOutputs(data, bx.producersOf(data)).map((o) => o.id);
+  assert.ok(!withCraftableOre.includes('energy_crystal'),
+    'an ore with a recipe is still terminal, so still not selectable');
 
   assert.strictEqual(out.find((o) => o.id === 'hauler').type, 'ship');
   assert.strictEqual(out.find((o) => o.id === 'steel_plate').type, 'item');
@@ -1823,9 +1898,12 @@ const QTY_MIN = 1;
 const QTY_MAX = 99999;
 
 // selectableOutputs is everything the user may pick as an output: every ship
-// and facility, plus every item some recipe produces. Ores and no-recipe drops
-// are excluded — nothing builds them. Derived rather than shipped as a fourth
-// list in the data file.
+// and facility, plus every non-terminal item some recipe produces. Terminal
+// items are excluded — the explorer treats them as raw inputs, so offering one
+// as an output would render a single leaf box and no tables. That exclusion
+// must use isTerminalItem, not merely "has no recipe": four ores DO have
+// recipes (energy_crystal, exotic_crystal, void_crystal, hydrogen_gas) and
+// still must not be selectable. Derived rather than shipped as a fourth list.
 function selectableOutputs(data, producers) {
   const out = [];
   for (const [id, target] of Object.entries(data.targets)) {
@@ -1834,6 +1912,7 @@ function selectableOutputs(data, producers) {
   for (const id of producers.keys()) {
     const item = data.items[id];
     if (!item) continue;
+    if (isTerminalItem(data, producers, id)) continue;
     out.push({id, name: item.n, type: 'item'});
   }
   out.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1
@@ -1906,7 +1985,7 @@ function decodeState(data, producers, query) {
 Extend the export line to:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes,
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
     topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty,
     encodeState, decodeState, QTY_MIN, QTY_MAX};
 ```
@@ -1931,7 +2010,7 @@ console.log(out.length, JSON.stringify(by));
 '
 ```
 
-Expected: `3600 {"facility":2650,"item":615,"ship":335}` — matching the Reference Data table.
+Expected: `3596 {"facility":2650,"item":611,"ship":335}` — matching the Reference Data table. The item count is 611, not 615: `energy_crystal`, `exotic_crystal`, `void_crystal` and `hydrogen_gas` have recipes but are ores, so they are terminal and not selectable.
 
 - [ ] **Step 6: Commit**
 
@@ -2346,7 +2425,7 @@ if (typeof document !== 'undefined') {
 Extend the export line to add the new pure helpers:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes,
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
     topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty,
     encodeState, decodeState, itemHref, leafKind, escapeHTML, QTY_MIN, QTY_MAX};
 ```
