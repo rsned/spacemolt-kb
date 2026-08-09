@@ -1347,7 +1347,7 @@ git commit -m "feat(bom-explorer): graph expansion and longest-path layering"
 
 **Interfaces:**
 - Consumes: `buildGraph` and `rankNodes` from Task 3.
-- Produces: `rollUp(graph, ranks, quantity)` → `{demand: Map<id, number>, batches: Map<id, number>, surplus: Map<id, number>}`. `demand` is how many units are needed, `batches` how many recipe batches are run (absent for leaves and sinks), `surplus` the over-production from rounding (only non-zero entries).
+- Produces: `rollUp(graph, ranks, quantity)` → `{demand: Map<id, number>, batches: Map<id, number>, surplus: Map<id, number>}`. `demand` is how many units are needed; `batches` how many recipe batches are run, **absent only for leaves** — a ship or facility sink DOES get a `batches` entry (equal to its demand, since its yield is 1), because Task 7 scales the direct-inputs table by `batches.get(target)` and would otherwise show a ship's inputs at quantity 1 no matter what the user asked for; `surplus` holds the over-production from rounding (only non-zero entries).
 
 **Background — why the order matters.** You cannot craft a partial batch, so every tier rounds up to whole batches. Because items are shared between parents, batch counts cannot be decided top-down: an item's batch count depends on its *total* demand across every parent. Computing `ceil` per parent and summing over-counts. Processing nodes in topological order — output first — means an item's demand is final before its batches are computed.
 
@@ -1400,11 +1400,16 @@ test('rollUp scales a ship target by quantity', () => {
   const producers = bx.producersOf(data);
   const g = bx.buildGraph(data, producers, 'hauler', {});
   const ranks = bx.rankNodes(g);
-  const {demand} = bx.rollUp(g, ranks, 3);
+  const {demand, batches} = bx.rollUp(g, ranks, 3);
 
   assert.strictEqual(demand.get('hauler'), 3);
   assert.strictEqual(demand.get('widget'), 12, '3 haulers x 4 widgets');
   assert.strictEqual(demand.get('energy_crystal'), 6, '3 haulers x 2 crystals');
+
+  // A sink must carry a batches entry equal to its demand. Task 7 scales the
+  // direct-inputs table by batches.get(target), so an absent entry would fall
+  // back to 1 and show a ship's inputs at quantity 1 whatever was asked for.
+  assert.strictEqual(batches.get('hauler'), 3, 'sinks get a batches entry');
 });
 
 test('rollUp reports no surplus when every yield divides evenly', () => {
