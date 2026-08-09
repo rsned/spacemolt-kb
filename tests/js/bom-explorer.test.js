@@ -196,3 +196,75 @@ test('every edge runs strictly left to right', () => {
     }
   }
 });
+
+test('rollUp rounds up to whole batches and reports surplus', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // smelt_steel: 5 iron_ore -> 2 steel_plate. Need 3 plates.
+  const g = bx.buildGraph(data, producers, 'steel_plate', {});
+  const ranks = bx.rankNodes(g);
+  const {demand, batches, surplus} = bx.rollUp(g, ranks, 3);
+
+  assert.strictEqual(demand.get('steel_plate'), 3);
+  assert.strictEqual(batches.get('steel_plate'), 2, 'ceil(3/2) = 2 batches');
+  assert.strictEqual(demand.get('iron_ore'), 10, '2 batches x 5 ore');
+  assert.strictEqual(surplus.get('steel_plate'), 1, '2 batches x 2 = 4 made, 3 needed');
+});
+
+test('rollUp batches a shared item once against summed demand', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // This is the case that separates the correct algorithm from the naive one,
+  // so the numbers must actually diverge. Shrink both plate requirements to 1:
+  //   1 widget  -> 1 frame + 1 steel_plate + 1 drop_core
+  //   1 frame   -> 1 steel_plate
+  //   total steel_plate demand = 1 (direct) + 1 (via frame) = 2
+  //   batched ONCE against 2:  ceil(2/2) = 1 batch  -> 5 iron_ore
+  //   batched PER PARENT:      ceil(1/2) + ceil(1/2) = 2 batches -> 10 iron_ore
+  data.recipes.weld_frame.i = [['steel_plate', 1]];
+  data.recipes.assemble_widget.i = [['frame', 1], ['steel_plate', 1], ['drop_core', 1]];
+
+  const g = bx.buildGraph(data, producers, 'widget', {});
+  const ranks = bx.rankNodes(g);
+  const {demand, batches} = bx.rollUp(g, ranks, 1);
+
+  assert.strictEqual(demand.get('frame'), 1);
+  assert.strictEqual(demand.get('steel_plate'), 2, 'summed across both parents');
+  assert.strictEqual(batches.get('steel_plate'), 1, 'ceil(2/2)=1, not ceil(1/2)+ceil(1/2)=2');
+  assert.strictEqual(demand.get('iron_ore'), 5, '1 batch x 5 ore, not 10');
+});
+
+test('rollUp scales a ship target by quantity', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const {demand, batches} = bx.rollUp(g, ranks, 3);
+
+  assert.strictEqual(demand.get('hauler'), 3);
+  assert.strictEqual(demand.get('widget'), 12, '3 haulers x 4 widgets');
+  assert.strictEqual(demand.get('energy_crystal'), 6, '3 haulers x 2 crystals');
+  // A sink must carry a batches entry equal to its demand. Task 7 scales the
+  // direct-inputs table by batches.get(target), so an absent entry would fall
+  // back to 1 and show a ship's inputs at quantity 1 whatever was asked for.
+  assert.strictEqual(batches.get('hauler'), 3, 'sinks get a batches entry');
+});
+
+test('rollUp reports no surplus when every yield divides evenly', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'steel_plate', {});
+  const ranks = bx.rankNodes(g);
+  const {surplus} = bx.rollUp(g, ranks, 4); // 2 batches x 2 = exactly 4
+  assert.strictEqual(surplus.size, 0);
+});
+
+test('rollUp leaves have demand but no batches', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'steel_plate', {});
+  const ranks = bx.rankNodes(g);
+  const {demand, batches} = bx.rollUp(g, ranks, 1);
+  assert.strictEqual(demand.get('iron_ore'), 5);
+  assert.strictEqual(batches.has('iron_ore'), false);
+});

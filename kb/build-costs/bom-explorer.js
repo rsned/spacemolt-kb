@@ -161,6 +161,50 @@ function rankNodes(graph) {
   return ranks;
 }
 
+// topoOrder returns node ids ordered output-first. Every edge runs from a
+// higher rank to a strictly lower one, so descending rank is a valid
+// topological order; ties break by id so the result is deterministic.
+function topoOrder(graph, ranks) {
+  return [...graph.nodes.keys()].sort((a, b) => {
+    const d = ranks.get(b) - ranks.get(a);
+    return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
+  });
+}
+
+// rollUp computes how much of each item the build needs, in whole batches.
+//
+// Batch counts cannot be decided top-down, because a shared item's batch count
+// depends on its TOTAL demand across every parent: ceil-ing per parent and
+// summing over-counts. Walking output-first in topological order means an
+// item's demand is final by the time its batches are computed.
+function rollUp(graph, ranks, quantity) {
+  const demand = new Map();
+  const batches = new Map();
+  const surplus = new Map();
+
+  demand.set(graph.targetId, quantity);
+
+  for (const id of topoOrder(graph, ranks)) {
+    const node = graph.nodes.get(id);
+    const need = demand.get(id) || 0;
+    if (need === 0 || node.inputs.length === 0) continue;
+
+    const perBatch = node.yield || 1;
+    const runs = Math.ceil(need / perBatch);
+    batches.set(id, runs);
+    const made = runs * perBatch;
+    if (made > need) surplus.set(id, made - need);
+
+    for (const input of node.inputs) {
+      demand.set(input.id, (demand.get(input.id) || 0) + runs * input.qty);
+    }
+  }
+
+  return {demand, batches, surplus};
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes};
+  module.exports = {
+    producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
+  };
 }
