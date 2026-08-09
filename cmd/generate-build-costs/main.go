@@ -4,14 +4,12 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
+	"github.com/rsned/spacemolt-kb/pkg/catalog"
 	"github.com/rsned/spacemolt-kb/pkg/marketmeta"
 	_ "modernc.org/sqlite"
 )
@@ -47,8 +45,12 @@ func main() {
 	must(err, "open knowledge")
 	defer func() { _ = knowledgeDB.Close() }()
 
-	ships, catalogPrice, err := loadShipCatalog(*catalogRoot)
+	ships, err := catalog.LoadShips(*catalogRoot)
 	must(err, "load ships")
+	catalogPrice := make(map[string]int, len(ships))
+	for _, s := range ships {
+		catalogPrice[s.ID] = s.Price
+	}
 	itemNames, categories, err := loadItemMeta(craftDB)
 	must(err, "load item meta")
 
@@ -197,52 +199,3 @@ func loadItemMeta(craftDB *sql.DB) (names, categories map[string]string, err err
 	return names, categories, rows.Err()
 }
 
-// loadShipCatalog reads the latest catalog_ships.json, returning the trimmed ship
-// list and an id->price map.
-func loadShipCatalog(root string) ([]Ship, map[string]int, error) {
-	dir, err := findLatestCatalogDir(root)
-	if err != nil {
-		return nil, nil, err
-	}
-	raw, err := os.ReadFile(filepath.Join(dir, "catalog_ships.json"))
-	if err != nil {
-		return nil, nil, err
-	}
-	var doc struct {
-		Items []Ship `json:"items"`
-	}
-	if err := json.Unmarshal(raw, &doc); err != nil {
-		return nil, nil, err
-	}
-	price := map[string]int{}
-	for _, s := range doc.Items {
-		price[s.ID] = s.Price
-	}
-	return doc.Items, price, nil
-}
-
-// findLatestCatalogDir returns the most recently modified subdirectory of root.
-func findLatestCatalogDir(root string) (string, error) {
-	entries, err := os.ReadDir(root)
-	if err != nil {
-		return "", err
-	}
-	var best string
-	var bestMod int64
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-		info, err := e.Info()
-		if err != nil {
-			continue
-		}
-		if mt := info.ModTime().UnixNano(); mt > bestMod {
-			bestMod, best = mt, filepath.Join(root, e.Name())
-		}
-	}
-	if best == "" {
-		return "", os.ErrNotExist
-	}
-	return best, nil
-}

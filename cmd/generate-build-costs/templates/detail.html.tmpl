@@ -26,6 +26,7 @@
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
 
 {{if .SelfHref}}<p><a href="{{.SelfHref}}">View {{.Name}} in the catalog →</a></p>{{end}}
+{{if .Explorable}}<p><a href="explorer.html?target={{.ID}}">Explore this BoM interactively →</a></p>{{end}}
 
 <h2>Bill of Materials <small>(raw inputs)</small></h2>
 {{if .BoM}}

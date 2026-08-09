@@ -39,9 +39,30 @@ Use these exact numbers in assertions about the real database:
 | items with >1 recipe (after exclusion) | 62 |
 | ships in `catalog_ships.json` | 335 (all have `build_materials`) |
 | facilities in `catalog_facilities.json` | 2727 (2650 have `build_materials`) |
-| selectable outputs | 615 + 335 + 2650 = 3600 |
-| deepest target | `station_core`, 10 tiers, 75 distinct items |
-| median target | 4 tiers, 11 distinct items |
+| craftable items that are NOT terminal (selectable) | 610 (615 distinct recipe outputs, minus 4 craftable ores, minus `fuel_reserve` which has no `items` row) |
+| selectable outputs | 610 + 335 + 2650 = 3595 |
+| deepest target | `annihilator`, 10 tiers, 91 distinct items |
+| widest target | `overmind`, 10 tiers, 132 distinct items |
+| `station_core` (the sample target used in checks) | 10 tiers, 73 distinct items |
+| median item target | 5 tiers, 15 distinct items (of 611) |
+| `power_core` (the sample median-case target) | 6 tiers, 16 distinct items |
+
+**Correction (2026-08-08, verified):** an earlier draft of this table listed
+`station_core` as 10 tiers / 75 items. That figure came from a probe that
+picked each item's lexicographically-first recipe; the implemented code uses
+the generated `defaults` (from `bom.SelectRecipe`), and 18 multi-recipe items
+resolve differently under the two rules. A second draft then measured them before the terminal-item rule
+(craftable ores were still being expanded). The figures above are measured
+against the real data through the shipped code as it now stands.
+
+**Correction 2 (2026-08-09, verified):** Task 10's switch to
+`bom.SelectRecipeSourceable` with a structural obtainability filter changed
+12 items' defaults, which changed graph sizes for the targets above:
+`station_core` 74 → 73 nodes, `overmind` 135 → 132 nodes, `annihilator`
+92 → 91 nodes (tier counts unchanged). Also measured: `all_mine`, once the
+deepest target at an earlier point in the branch's history, is now 9 tiers /
+85 nodes and no longer the deepest. The figures in the table above reflect
+`recipe-graph.json` as shipped.
 
 ## File Structure
 
@@ -907,7 +928,8 @@ The first half of the client model: turn a target plus a choice map into a DAG, 
 
 **Node semantics:**
 - `kind` is `"item"`, `"ship"`, or `"facility"`. Ships and facilities are sinks: they have `inputs` from their `bm` list, `recipeId: null`, and `yield: 1`.
-- `leaf` is true when no recipe in `data.recipes` produces the item. That covers both ores and no-recipe drops; the two are told apart later by `data.items[id].c`.
+- `leaf` is true when the item is **terminal**: its category is `ore` or `material`, **or** no recipe in `data.recipes` produces it. Both halves are required. Four items are ores that also have a recipe — `energy_crystal`, `exotic_crystal`, `void_crystal`, `hydrogen_gas` — and the category test is the only thing that stops them being expanded. This mirrors `isTerminal` in `pkg/bom/calculator.go` exactly, which is what makes the explorer's base-materials totals agree with the static build-cost pages. Ores and no-recipe drops are told apart later by `data.items[id].c`.
+- Getting this wrong has a second consequence: expanding `energy_crystal` makes `circuit_board → power_cell → energy_crystal → circuit_board` a reachable cycle. With the category test in place there are **zero** reachable cycles anywhere in the graph (verified by strongly-connected-component analysis over all 615 craftable items), which is what keeps the cycle backstop genuinely dead code.
 - `cycle` is true when expansion re-encountered an item already on the stack. Packaging recipes are already absent from the data, so this is a backstop, not a routine path — but the page must never hang.
 
 - [ ] **Step 1: Write the failing test**
@@ -980,6 +1002,51 @@ test('activeRecipeId returns null for leaves', () => {
   const producers = bx.producersOf(data);
   assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'iron_ore'), null);
   assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'drop_core'), null);
+});
+
+test('an ore stays terminal even when a recipe produces it', () => {
+  const data = fixture();
+  // Real data has four of these: energy_crystal, exotic_crystal, void_crystal,
+  // hydrogen_gas. The Go flattener stops at them because of their category, and
+  // this page must stop in the same place or its totals stop matching the
+  // static build-cost pages.
+  data.recipes.synthesise_crystal = {
+    n: 'Synthesise Crystal', c: 'Refining',
+    i: [['iron_ore', 4]], o: [['energy_crystal', 1]],
+  };
+  const producers = bx.producersOf(data);
+
+  assert.strictEqual(bx.isTerminalItem(data, producers, 'energy_crystal'), true);
+  assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'energy_crystal'), null);
+
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  assert.strictEqual(g.nodes.get('energy_crystal').leaf, true, 'craftable ore must stay a leaf');
+  assert.deepStrictEqual(g.nodes.get('energy_crystal').inputs, [], 'and must not be expanded');
+});
+
+test('a forced cycle still yields a graph with no backwards edge', () => {
+  const data = fixture();
+  data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
+  const ranks = bx.rankNodes(g);
+
+  // The cycle-closing edge must be gone from the graph entirely, not merely
+  // left unrecursed: no ranking of a cyclic graph can satisfy the invariant,
+  // so an edge left in place would guarantee a backwards arrow.
+  assert.strictEqual(g.nodes.get('steel_plate').cycle, true, 'the cutting node is flagged');
+  assert.deepStrictEqual(g.nodes.get('steel_plate').inputs, [],
+    'the cycle-closing edge is dropped, not retained');
+
+  const violations = [];
+  for (const node of g.nodes.values()) {
+    for (const input of node.inputs) {
+      if (!(ranks.get(input.id) < ranks.get(node.id))) {
+        violations.push(`${input.id}(${ranks.get(input.id)}) -> ${node.id}(${ranks.get(node.id)})`);
+      }
+    }
+  }
+  assert.deepStrictEqual(violations, [], 'no edge may point backwards');
 });
 
 test('activeRecipeId ignores a choice naming a recipe that does not make the item', () => {
@@ -1105,11 +1172,28 @@ function producersOf(data) {
   return producers;
 }
 
+// isTerminalItem reports whether expansion stops at itemId: ores and raw
+// materials always do, as does anything no recipe produces.
+//
+// The category test is load-bearing, not belt-and-braces. Four items are ores
+// that ALSO have a recipe (energy_crystal, exotic_crystal, void_crystal,
+// hydrogen_gas); without it they would be expanded, the base-material totals
+// would stop agreeing with the static build-cost pages, and
+// circuit_board -> power_cell -> energy_crystal -> circuit_board would become
+// a reachable cycle. This mirrors isTerminal in pkg/bom/calculator.go.
+function isTerminalItem(data, producers, itemId) {
+  const item = data.items[itemId];
+  if (item && (item.c === 'ore' || item.c === 'material')) return true;
+  const ids = producers.get(itemId);
+  return !ids || ids.length === 0;
+}
+
 // activeRecipeId resolves which recipe makes itemId under the current choices:
 // an explicit choice, else the generated default, else the item's only recipe.
-// Returns null for leaves. A choice naming a recipe that does not produce the
-// item is ignored rather than trusted — URLs are user-editable.
+// Returns null for terminal items. A choice naming a recipe that does not
+// produce the item is ignored rather than trusted — URLs are user-editable.
 function activeRecipeId(data, producers, choices, itemId) {
+  if (isTerminalItem(data, producers, itemId)) return null;
   const ids = producers.get(itemId);
   if (!ids || ids.length === 0) return null;
   const chosen = choices[itemId];
@@ -1161,20 +1245,29 @@ function buildGraph(data, producers, targetId, choices) {
       return;
     }
 
-    const inputs = data.recipes[recipeId].i.map(([itemId, qty]) => ({id: itemId, qty}));
-    nodes.set(id, {
-      id, kind: 'item', recipeId, yield: yieldOf(data, recipeId, id), inputs, leaf: false, cycle: false,
-    });
-
+    // Build the input list, OMITTING any edge that would close a cycle.
+    //
+    // Dropping the edge rather than merely declining to recurse is what makes
+    // the graph acyclic by construction, and that is the only way the layering
+    // invariant can hold: no ranking of a cyclic graph can put every input
+    // strictly below its consumer, so leaving the edge in place would
+    // guarantee at least one backwards arrow. The node keeps cycle:true so the
+    // renderer can say so.
     const next = new Set(stack).add(id);
-    for (const input of inputs) {
-      if (next.has(input.id)) {
-        // Cycle: stop before recursing, and mark the node we would re-enter.
-        if (nodes.has(input.id)) nodes.get(input.id).cycle = true;
+    const inputs = [];
+    let cycle = false;
+    for (const [itemId, qty] of data.recipes[recipeId].i) {
+      if (next.has(itemId)) {
+        cycle = true;
         continue;
       }
-      visit(input.id, next);
+      inputs.push({id: itemId, qty});
     }
+    nodes.set(id, {
+      id, kind: 'item', recipeId, yield: yieldOf(data, recipeId, id), inputs, leaf: false, cycle,
+    });
+
+    for (const input of inputs) visit(input.id, next);
   }
 
   visit(targetId, new Set());
@@ -1193,7 +1286,12 @@ function rankNodes(graph) {
 
   function rank(id, stack) {
     if (ranks.has(id)) return ranks.get(id);
-    if (stack.has(id)) return 0; // cycle backstop; expansion already flagged it
+    // Defence in depth only: buildGraph already drops cycle-closing edges, so
+    // the graph it hands us is acyclic and this branch cannot fire. It stays
+    // so a future caller that builds a graph some other way still terminates.
+    // Note it cannot repair the invariant on a genuinely cyclic graph — no
+    // ranking can — which is why the cycle is broken during construction.
+    if (stack.has(id)) return 0;
     const node = graph.nodes.get(id);
     if (!node || node.inputs.length === 0) {
       ranks.set(id, 0);
@@ -1213,7 +1311,7 @@ function rankNodes(graph) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes};
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes};
 }
 ```
 
@@ -1241,7 +1339,7 @@ console.log("layering invariant holds");
 '
 ```
 
-Expected: `nodes: 75 tiers: 10` (the Reference Data worst case) followed by `layering invariant holds`.
+Expected: `nodes: 74 tiers: 10` followed by `layering invariant holds`.
 
 - [ ] **Step 6: Commit**
 
@@ -1260,7 +1358,7 @@ git commit -m "feat(bom-explorer): graph expansion and longest-path layering"
 
 **Interfaces:**
 - Consumes: `buildGraph` and `rankNodes` from Task 3.
-- Produces: `rollUp(graph, ranks, quantity)` → `{demand: Map<id, number>, batches: Map<id, number>, surplus: Map<id, number>}`. `demand` is how many units are needed, `batches` how many recipe batches are run (absent for leaves and sinks), `surplus` the over-production from rounding (only non-zero entries).
+- Produces: `rollUp(graph, ranks, quantity)` → `{demand: Map<id, number>, batches: Map<id, number>, surplus: Map<id, number>}`. `demand` is how many units are needed; `batches` how many recipe batches are run, **absent only for leaves** — a ship or facility sink DOES get a `batches` entry (equal to its demand, since its yield is 1), because Task 7 scales the direct-inputs table by `batches.get(target)` and would otherwise show a ship's inputs at quantity 1 no matter what the user asked for; `surplus` holds the over-production from rounding (only non-zero entries).
 
 **Background — why the order matters.** You cannot craft a partial batch, so every tier rounds up to whole batches. Because items are shared between parents, batch counts cannot be decided top-down: an item's batch count depends on its *total* demand across every parent. Computing `ceil` per parent and summing over-counts. Processing nodes in topological order — output first — means an item's demand is final before its batches are computed.
 
@@ -1313,11 +1411,16 @@ test('rollUp scales a ship target by quantity', () => {
   const producers = bx.producersOf(data);
   const g = bx.buildGraph(data, producers, 'hauler', {});
   const ranks = bx.rankNodes(g);
-  const {demand} = bx.rollUp(g, ranks, 3);
+  const {demand, batches} = bx.rollUp(g, ranks, 3);
 
   assert.strictEqual(demand.get('hauler'), 3);
   assert.strictEqual(demand.get('widget'), 12, '3 haulers x 4 widgets');
   assert.strictEqual(demand.get('energy_crystal'), 6, '3 haulers x 2 crystals');
+
+  // A sink must carry a batches entry equal to its demand. Task 7 scales the
+  // direct-inputs table by batches.get(target), so an absent entry would fall
+  // back to 1 and show a ship's inputs at quantity 1 whatever was asked for.
+  assert.strictEqual(batches.get('hauler'), 3, 'sinks get a batches entry');
 });
 
 test('rollUp reports no surplus when every yield divides evenly', () => {
@@ -1396,7 +1499,7 @@ function rollUp(graph, ranks, quantity) {
 Extend the export line at the bottom of the file to:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp};
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp};
 ```
 
 - [ ] **Step 4: Run the test to verify it passes**
@@ -1427,7 +1530,9 @@ Turn ranks into drawable coordinates.
   - `orderColumns(graph, ranks)` → `string[][]`, index = rank, each entry the ordered node ids of that column.
   - `layout(graph, ranks, columns, producers)` → `{width, height, boxes: Map<id, {x, y, w, h, col, row}>, edges: [{from, to, qty, points: [[x,y],...]}]}`. `producers` is optional: pass it so boxes carrying a recipe selector get the taller height, omit it (as the tests do) for plain geometry.
 
-**Background — barycentre ordering.** Within a column, order nodes by the mean vertical position of their already-placed neighbours in the column to the right (consumers). Two passes is enough at this scale and is the difference between readable and unreadable on `station_core` (10 tiers, 75 nodes). Start from the rightmost column (the target, a single node) and work leftwards.
+**Background — barycentre ordering.** Within a column, order nodes by the mean vertical position of their already-placed neighbours in the column to the right (consumers). Start from the rightmost column (the target, a single node) and work leftwards, so every column is ordered against one that is already final.
+
+**One sweep, not two.** A second right-to-left pass cannot change anything — each column depends only on the finalised column to its right — and an alternating right-left-right sweep was measured to give byte-identical orderings and identical crossing counts on the largest real graphs (`overmind`, 135 nodes: 161 crossings under every scheme tried). Write the single sweep and say why in the comment.
 
 **Layout constants** (define at the top of the layout section so they are tunable in one place):
 
@@ -1460,7 +1565,12 @@ test('orderColumns indexes columns by rank with the target alone on the right', 
   assert.deepStrictEqual(columns[3], ['widget']);
   assert.deepStrictEqual(columns[2], ['frame']);
   assert.deepStrictEqual(columns[1], ['steel_plate']);
-  assert.deepStrictEqual([...columns[0]].sort(), ['drop_core', 'iron_ore']);
+  // Assert exact order, not just membership. These two are NOT tied:
+  // iron_ore's consumer (steel_plate) sits in the adjacent column so it gets a
+  // real barycentre of 0, while drop_core's only consumer (widget) is three
+  // columns away, so it has no barycentre and sorts to the bottom. This pins
+  // the distant-consumer behaviour that the sweep documents.
+  assert.deepStrictEqual(columns[0], ['iron_ore', 'drop_core']);
 });
 
 test('orderColumns places every node exactly once', () => {
@@ -1563,10 +1673,19 @@ const ROW_GAP = 14;
 const MARGIN = 20;
 
 // orderColumns groups nodes by rank and orders each column to reduce edge
-// crossings, using two barycentre passes: a node sorts to the mean vertical
-// position of its consumers in the column to its right. Working right-to-left
-// from the target (a single node) gives each pass something to anchor on.
-// Ties break by id so repeated calls agree.
+// crossings: a node sorts to the mean vertical position of its consumers in
+// the column to its right. The sweep runs right-to-left from the target (a
+// single node), so each column is ordered against a column that is already
+// final. Ties break by id, so repeated calls agree and determinism does not
+// rely on Array.prototype.sort being stable.
+//
+// ONE sweep, deliberately. A second right-to-left pass is provably a no-op —
+// each column depends only on the already-finalised column to its right, so
+// nothing can change on a repeat — and measurement showed an alternating
+// right-left-right sweep produces byte-identical orderings and identical
+// crossing counts on the largest real graphs (overmind 135 nodes: 161
+// crossings under every scheme tried). Extra passes would be cost without
+// effect.
 function orderColumns(graph, ranks) {
   const maxRank = Math.max(...ranks.values());
   const columns = [];
@@ -1582,31 +1701,35 @@ function orderColumns(graph, ranks) {
     }
   }
 
-  for (let pass = 0; pass < 2; pass++) {
-    for (let col = columns.length - 2; col >= 0; col--) {
-      const rightPos = new Map();
-      columns[col + 1].forEach((id, i) => rightPos.set(id, i));
-      const bary = new Map();
-      for (const id of columns[col]) {
-        const positions = (consumers.get(id) || [])
-          .map((c) => rightPos.get(c))
-          .filter((p) => p !== undefined);
-        bary.set(id, positions.length
-          ? positions.reduce((a, b) => a + b, 0) / positions.length
-          : Number.MAX_SAFE_INTEGER);
-      }
-      columns[col].sort((a, b) => {
-        const d = bary.get(a) - bary.get(b);
-        return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
-      });
+  for (let col = columns.length - 2; col >= 0; col--) {
+    const rightPos = new Map();
+    columns[col + 1].forEach((id, i) => rightPos.set(id, i));
+    const bary = new Map();
+    for (const id of columns[col]) {
+      // Only consumers in the immediately adjacent column have a position
+      // here, so a node whose only consumer is several columns away (a base
+      // ore feeding the output directly) has no barycentre and sorts to the
+      // bottom. That is the accepted cost of a barycentre pass with no dummy
+      // nodes; adding them would be a larger change than the readability
+      // gain justifies.
+      const positions = (consumers.get(id) || [])
+        .map((c) => rightPos.get(c))
+        .filter((p) => p !== undefined);
+      bary.set(id, positions.length
+        ? positions.reduce((a, b) => a + b, 0) / positions.length
+        : Number.MAX_SAFE_INTEGER);
     }
+    columns[col].sort((a, b) => {
+      const d = bary.get(a) - bary.get(b);
+      return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
+    });
   }
 
   return columns;
 }
 
 // boxHeight returns a node's height: taller when it carries a recipe selector.
-function boxHeight(graph, producers, id) {
+function boxHeight(producers, id) {
   const ids = producers ? producers.get(id) : null;
   return ids && ids.length > 1 ? BOX_H_SEL : BOX_H;
 }
@@ -1619,14 +1742,14 @@ function boxHeight(graph, producers, id) {
 // producers is optional; pass it to size boxes that carry a recipe selector.
 function layout(graph, ranks, columns, producers) {
   const heights = columns.map((column) =>
-    column.reduce((sum, id) => sum + boxHeight(graph, producers, id) + ROW_GAP, -ROW_GAP));
+    column.reduce((sum, id) => sum + boxHeight(producers, id) + ROW_GAP, -ROW_GAP));
   const tallest = Math.max(0, ...heights);
 
   const boxes = new Map();
   columns.forEach((column, col) => {
     let y = MARGIN + (tallest - heights[col]) / 2;
     column.forEach((id, row) => {
-      const h = boxHeight(graph, producers, id);
+      const h = boxHeight(producers, id);
       boxes.set(id, {x: MARGIN + col * (BOX_W + COL_GAP), y, w: BOX_W, h, col, row});
       y += h + ROW_GAP;
     });
@@ -1663,7 +1786,7 @@ function layout(graph, ranks, columns, producers) {
 Extend the export line to:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes,
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
     topoOrder, rollUp, orderColumns, layout};
 ```
 
@@ -1689,7 +1812,7 @@ console.log("canvas", l.width + "x" + l.height, "columns", cols.map(c => c.lengt
 '
 ```
 
-Expected: 10 columns, every node placed, a canvas roughly 2400 px wide. Nothing should be zero or `NaN`.
+Expected: 10 columns, every node placed (74 for `station_core`), a canvas roughly 2350 px wide. Nothing should be zero or `NaN`.
 
 - [ ] **Step 6: Commit**
 
@@ -1733,6 +1856,15 @@ test('selectableOutputs spans craftable items, ships and facilities', () => {
   assert.ok(ids.includes('hauler'), 'ship must be selectable');
   assert.ok(!ids.includes('iron_ore'), 'ores are not selectable outputs');
   assert.ok(!ids.includes('drop_core'), 'no-recipe drops are not selectable outputs');
+
+  // A craftable ore is still terminal, so it is still not a selectable output.
+  data.recipes.synthesise_crystal = {
+    n: 'Synthesise Crystal', c: 'Refining',
+    i: [['iron_ore', 4]], o: [['energy_crystal', 1]],
+  };
+  const withCraftableOre = bx.selectableOutputs(data, bx.producersOf(data)).map((o) => o.id);
+  assert.ok(!withCraftableOre.includes('energy_crystal'),
+    'an ore with a recipe is still terminal, so still not selectable');
 
   assert.strictEqual(out.find((o) => o.id === 'hauler').type, 'ship');
   assert.strictEqual(out.find((o) => o.id === 'steel_plate').type, 'item');
@@ -1783,6 +1915,18 @@ test('decodeState clamps quantity into range', () => {
   assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=abc').qty, 1);
 });
 
+test('decodeState discards prototype-chain property names as targets', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // A bare bracket lookup is truthy for every Object.prototype member, so
+  // these would pass validation and then throw in buildGraph. The page must
+  // degrade, not break, on any hand-edited URL.
+  for (const name of ['__proto__', 'constructor', 'toString', 'hasOwnProperty', 'valueOf']) {
+    const state = bx.decodeState(data, producers, 'target=' + name);
+    assert.strictEqual(state.target, null, `${name} must not validate as a target`);
+  }
+});
+
 test('decodeState discards unknown targets and bogus choices', () => {
   const data = fixture();
   const producers = bx.producersOf(data);
@@ -1813,10 +1957,24 @@ Add to `kb/build-costs/bom-explorer.js`, after `layout`:
 const QTY_MIN = 1;
 const QTY_MAX = 99999;
 
+// hasOwn tests real membership of a plain object parsed from JSON.
+//
+// A bare `data.targets[key]` lookup is truthy for every Object.prototype
+// member — `__proto__`, `constructor`, `toString`, `hasOwnProperty` — so a
+// hand-edited `?target=__proto__` would pass validation and then throw in
+// buildGraph. The URL is the one place untrusted keys enter, so this is
+// where it gets checked.
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
 // selectableOutputs is everything the user may pick as an output: every ship
-// and facility, plus every item some recipe produces. Ores and no-recipe drops
-// are excluded — nothing builds them. Derived rather than shipped as a fourth
-// list in the data file.
+// and facility, plus every non-terminal item some recipe produces. Terminal
+// items are excluded — the explorer treats them as raw inputs, so offering one
+// as an output would render a single leaf box and no tables. That exclusion
+// must use isTerminalItem, not merely "has no recipe": four ores DO have
+// recipes (energy_crystal, exotic_crystal, void_crystal, hydrogen_gas) and
+// still must not be selectable. Derived rather than shipped as a fourth list.
 function selectableOutputs(data, producers) {
   const out = [];
   for (const [id, target] of Object.entries(data.targets)) {
@@ -1825,6 +1983,7 @@ function selectableOutputs(data, producers) {
   for (const id of producers.keys()) {
     const item = data.items[id];
     if (!item) continue;
+    if (isTerminalItem(data, producers, id)) continue;
     out.push({id, name: item.n, type: 'item'});
   }
   out.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1
@@ -1873,8 +2032,17 @@ function encodeState(data, producers, state) {
 function decodeState(data, producers, query) {
   const params = new URLSearchParams(query || '');
 
+  // Admit any id that EXISTS — a target, a catalogued item, or something a
+  // recipe produces. Whether it is a sensible output is a render-time
+  // question, not a parsing one: the spec wants a hand-edited
+  // ?target=iron_ore to reach the "this is a raw material" message rather
+  // than be silently discarded. hasOwn (not a bare lookup) still keeps
+  // Object.prototype names out.
   let target = params.get('target');
-  if (target && !data.targets[target] && !producers.has(target)) target = null;
+  if (target && !hasOwn(data.targets, target) && !hasOwn(data.items, target) &&
+      !producers.has(target)) {
+    target = null;
+  }
 
   const qty = params.has('qty') ? clampQty(params.get('qty')) : QTY_MIN;
 
@@ -1897,15 +2065,15 @@ function decodeState(data, producers, query) {
 Extend the export line to:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes,
-    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty,
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
+    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty, hasOwn,
     encodeState, decodeState, QTY_MIN, QTY_MAX};
 ```
 
 - [ ] **Step 4: Run the test to verify it passes**
 
-Run: `node --test tests/js/`
-Expected: PASS, all thirty tests.
+Run: `node --test tests/js/*.test.js`
+Expected: PASS, all thirty-three tests.
 
 - [ ] **Step 5: Verify the real selectable count**
 
@@ -1922,7 +2090,7 @@ console.log(out.length, JSON.stringify(by));
 '
 ```
 
-Expected: `3600 {"facility":2650,"item":615,"ship":335}` — matching the Reference Data table.
+Expected: `3595 {"facility":2650,"item":610,"ship":335}` — matching the Reference Data table. The item count is 610, not 615, for two reasons: `energy_crystal`, `exotic_crystal`, `void_crystal` and `hydrogen_gas` have recipes but are ores, so they are terminal; and `fuel_reserve` is produced by 7 recipes but has no row in the `items` table, so it has no display name or category and is skipped by the `if (!item) continue;` guard. It is the only such gap in the catalog, and it never appears as a recipe input, so it is inert everywhere else.
 
 - [ ] **Step 6: Commit**
 
@@ -1959,7 +2127,7 @@ The page fetches `recipe-graph.json` from the same directory. That is the establ
 
 **Degenerate cases to handle explicitly:**
 - No target selected: show a short prompt, no tables.
-- Target is an ore or a no-recipe drop (only reachable by a hand-edited URL): render one box's worth of message — "no recipe produces this — it is mined" — and no tables.
+- Target is a terminal item (only reachable by a hand-edited URL, since the autocomplete never offers one): render a message and no tables. Ores and materials say they are a raw material the explorer deliberately stops at — accurate even for the four ores that DO have recipes; a non-ore item no recipe produces says it is a drop.
 
 - [ ] **Step 1: Write `explorer.html`**
 
@@ -2170,6 +2338,10 @@ function initExplorer() {
     els.list.classList.remove('open');
     els.target.setAttribute('aria-expanded', 'false');
     activeIndex = -1;
+    // Clear the backing array too, not just the visible state. Leaving it
+    // populated lets Escape-then-ArrowDown-then-Enter silently pick an option
+    // the user can no longer see and believes they dismissed.
+    suggestions = [];
   }
 
   function openList(query) {
@@ -2237,6 +2409,10 @@ function initExplorer() {
     return '<table>' + head + '<tbody>' + body + '</tbody></table>';
   }
 
+  // nameCell interpolates href unescaped. That is safe by data invariant, not
+  // by accident: item and recipe ids are [a-z0-9_] throughout the crafting
+  // data and item categories are a closed set, so no value can break out of
+  // the attribute. The display name IS escaped, because names are free text.
   function nameCell(id, suffix) {
     const href = targetHref(data, id);
     const name = escapeHTML(displayName(data, id));
@@ -2262,11 +2438,20 @@ function initExplorer() {
       return;
     }
 
-    const isTarget = Boolean(data.targets[state.target]);
-    if (!isTarget && !producers.has(state.target)) {
+    // Terminal items are raw inputs to this page, so there is nothing to
+    // expand. Say which kind, accurately: four ores DO have recipes
+    // (energy_crystal, exotic_crystal, void_crystal, hydrogen_gas) and are
+    // terminal by category, so "no recipe produces this" would be false for
+    // them. Only a non-ore terminal item is genuinely recipe-less.
+    const isTarget = hasOwn(data.targets, state.target);
+    if (!isTarget && isTerminalItem(data, producers, state.target)) {
       els.status.hidden = false;
-      els.status.textContent = displayName(data, state.target) +
-        ' — no recipe produces this; it is mined or dropped.';
+      els.status.textContent = leafKind(data, state.target) === 'ore'
+        ? displayName(data, state.target) +
+          ' is a raw material — the explorer stops at ores and raw materials, ' +
+          'the same place the static build-cost pages stop, so there is nothing to expand.'
+        : displayName(data, state.target) +
+          ' — no recipe produces this; it is a drop.';
       els.result.hidden = true;
       return;
     }
@@ -2337,8 +2522,8 @@ if (typeof document !== 'undefined') {
 Extend the export line to add the new pure helpers:
 
 ```js
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes,
-    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty,
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
+    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty, hasOwn,
     encodeState, decodeState, itemHref, leafKind, escapeHTML, QTY_MIN, QTY_MAX};
 ```
 
@@ -2427,9 +2612,13 @@ function renderChart(container, data, producers, graph, ranks, columns, totals, 
   container.innerHTML = '';
   const {width, height, boxes, edges} = layout(graph, ranks, columns, producers);
 
+  // role="group", NOT role="img": this SVG contains the feature's only
+  // interactive controls (the recipe <select> inside each foreignObject), and
+  // role="img" tells assistive tech to treat the whole subtree as one flat
+  // image, which can make those selects unreachable.
   const svg = svgEl('svg', {
     width, height, viewBox: '0 0 ' + width + ' ' + height,
-    xmlns: SVG_NS, role: 'img', 'aria-label': 'Production chain',
+    xmlns: SVG_NS, role: 'group', 'aria-label': 'Production chain',
   });
 
   const defs = svgEl('defs');
@@ -2496,6 +2685,9 @@ function renderChart(container, data, producers, graph, ranks, columns, totals, 
     const recipeIds = producers.get(id);
     if (recipeIds && recipeIds.length > 1) {
       const select = document.createElementNS(XHTML_NS, 'select');
+      // Sighted users infer this control's purpose from the item name above
+      // it; nothing ties the two together programmatically, so name it.
+      select.setAttribute('aria-label', 'Recipe for ' + displayName(data, id));
       select.setAttribute('style',
         'width:100%;font:11px system-ui,sans-serif;background:var(--panel);color:var(--text);' +
         'border:1px solid var(--border);border-radius:3px;padding:1px 2px');
@@ -2527,9 +2719,9 @@ Expected: PASS, all thirty-three tests unchanged. `renderChart` touches the DOM 
 
 Serve the site (`python3 -m http.server 8765 --directory . > /dev/null 2>&1 &`) and check each:
 
-1. `explorer.html?target=steel_plate` — the degenerate refining case. Expect exactly two boxes and one labelled arrow, with the recipe id above the chart.
-2. `explorer.html?target=power_core` — a median case. Expect roughly 4 tiers and 12 boxes, arrows all pointing right, quantity labels legible.
-3. `explorer.html?target=station_core` — the worst case. Expect 10 columns and 75 boxes, the chart scrolling horizontally inside its container, the page itself not scrolling sideways.
+1. `explorer.html?target=uranium_concentrate` — the degenerate refining case. Expect exactly two boxes and one labelled arrow, with the recipe id (`concentrate_uranium`) above the chart and no `▾` selector, since this item has only one recipe. 44 targets have this exact shape. Then check `?target=copper_wiring`, which is also two boxes and one arrow but has 2 recipes, so its box DOES carry a selector.
+2. `explorer.html?target=power_core` — a median case, 6 tiers and 16 boxes. Expect arrows all pointing right, quantity labels legible, and `▾` selectors only on the boxes whose item has more than one recipe.
+3. `explorer.html?target=overmind` — the worst case (10 tiers, 135 boxes). Expect the chart to scroll horizontally inside its container while the page itself does not scroll sideways.
 
 Then exercise the interaction: on `?target=power_core`, change a `▾` selector inside a node box and confirm the graph and all three tables update, and that the URL gains an `r=` parameter. Reload that URL and confirm the choice is restored. Stop the server (`kill %1`).
 
@@ -2562,7 +2754,7 @@ Append to `cmd/generate-build-costs/render_test.go`. Model the setup on the exis
 ```go
 func TestRenderDetailLinksToExplorer(t *testing.T) {
 	dir := t.TempDir()
-	row := MatrixRow{ID: "power_core", Name: "Power Core", Kind: "item", Cells: map[string]Cell{}}
+	row := MatrixRow{ID: "power_core", Name: "Power Core", Kind: "item", Cells: map[string]RowCell{}}
 	tgt := buildcost.Target{
 		ID:   "power_core",
 		BoM:  []buildcost.Requirement{{ItemID: "iron_bar", Qty: 2}},
@@ -2929,3 +3121,376 @@ git commit -m "test(bom-explorer): cross-check single-yield chains against the c
 At completion the KB has a working interactive BoM explorer at
 `kb/build-costs/explorer.html`, reachable from all 1033 per-target build-cost
 pages, with its data regenerated by `go run ./cmd/generate-bom-explorer`.
+
+---
+
+### Task 11: Dummy-node edge routing and curved paths
+
+**Why:** on the real graph, long edges run flat at their source's height until the
+gutter just before their consumer, so they pass *through* any box in between —
+and because edges are painted before boxes, they render behind them. A line
+disappears under a box and reappears, which is genuinely ambiguous to read.
+Measured on `shield_recharger_ii` alone (a small graph): 7 of its edges span
+more than one column and 3 pass through a box, including
+`focused_crystal → shield_recharger_ii` through `superconductor`.
+
+Curves alone do not fix this — a curve through a box is still through a box.
+The fix is the standard layered-graph one: give every long edge an invisible
+waypoint in each column it crosses, so it occupies a real slot and is packed
+*between* boxes. Curves are then a genuine improvement on top, because a path
+with several waypoints is much easier to follow as one smooth stroke than as a
+chain of right angles.
+
+This also resolves two previously-deferred limitations: the barycentre pass had
+no dummy nodes, and a node whose only consumer was more than one column away
+always sorted to the bottom of its column (it had no barycentre). With
+waypoints, distant consumers become adjacent-column neighbours.
+
+**Files:**
+- Modify: `kb/build-costs/bom-explorer.js`
+- Modify: `tests/js/bom-explorer.test.js`
+
+**Interfaces:**
+- Consumes: `buildGraph`, `rankNodes`, `orderColumns`, `layout` as they stand.
+- Produces:
+  - `withRoutingNodes(graph, ranks)` → `{graph, ranks, dummies: Set<string>}` —
+    an augmented copy in which every edge spanning more than one column is
+    replaced by a chain through one waypoint per intervening column. Waypoint
+    ids are `__route:<from>>> <to>:<col>` (a prefix that cannot collide with a
+    real item id, since real ids are `[a-z0-9_]`). The ORIGINAL graph must not
+    be mutated — `rollUp` runs on it and must never see a waypoint.
+  - `isRoutingNode(id)` → bool.
+  - `layout(graph, columns, producers, dummies)` — waypoints occupy
+    `ROUTE_SLOT_H` (10) instead of a box height, and contribute a single point
+    to the edge polyline rather than a box.
+  - `curvePath(points)` → an SVG path `d` string: a smooth cubic through the
+    points, with horizontal control handles so every segment leaves and enters
+    horizontally (preserving the left-to-right reading).
+
+**Ordering of operations in `render()`** — this matters:
+`buildGraph` → `rankNodes` → `rollUp` (on the ORIGINAL graph, so quantities are
+untouched) → `withRoutingNodes` → `orderColumns` (on the augmented graph) →
+`layout` → `renderChart`.
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `tests/js/bom-explorer.test.js`:
+
+```js
+test('withRoutingNodes leaves the original graph untouched', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const before = g.nodes.size;
+
+  bx.withRoutingNodes(g, ranks);
+
+  assert.strictEqual(g.nodes.size, before, 'the original graph must not be mutated');
+  for (const id of g.nodes.keys()) {
+    assert.ok(!bx.isRoutingNode(id), 'no waypoint may leak into the original graph');
+  }
+});
+
+test('withRoutingNodes inserts one waypoint per column a long edge crosses', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // hauler consumes energy_crystal (an ore, rank 0) directly, and hauler is the
+  // target at the maximum rank, so that edge spans several columns.
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const span = ranks.get('hauler') - ranks.get('energy_crystal');
+  assert.ok(span > 1, 'fixture must actually contain a long edge');
+
+  const routed = bx.withRoutingNodes(g, ranks);
+  const waypoints = [...routed.graph.nodes.keys()].filter(bx.isRoutingNode);
+  assert.strictEqual(waypoints.length, span - 1,
+    'one waypoint per intervening column');
+
+  // The direct edge is gone, replaced by a chain.
+  const hauler = routed.graph.nodes.get('hauler');
+  assert.ok(!hauler.inputs.some((i) => i.id === 'energy_crystal'),
+    'the long edge must be replaced by its chain, not left alongside it');
+});
+
+test('after routing, every edge connects adjacent columns only', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  for (const target of ['hauler', 'widget', 'frame']) {
+    const g = bx.buildGraph(data, producers, target, {});
+    const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+    for (const node of routed.graph.nodes.values()) {
+      for (const input of node.inputs) {
+        assert.strictEqual(routed.ranks.get(node.id) - routed.ranks.get(input.id), 1,
+          `${target}: ${input.id} -> ${node.id} must span exactly one column after routing`);
+      }
+    }
+  }
+});
+
+test('routed edges carry the original quantity, not a per-segment one', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+  // Walk the chain that replaced energy_crystal -> hauler and confirm every
+  // segment reports the original quantity of 2.
+  const chain = [...routed.graph.nodes.values()]
+    .filter((n) => n.inputs.some((i) => i.id === 'energy_crystal' || bx.isRoutingNode(i.id)));
+  const qtys = new Set();
+  for (const n of chain) {
+    for (const i of n.inputs) {
+      if (i.id === 'energy_crystal' || bx.isRoutingNode(i.id)) qtys.add(i.qty);
+    }
+  }
+  assert.ok(qtys.has(2), 'the original quantity must survive routing');
+});
+
+test('no laid-out edge passes through an unrelated box', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+  const columns = bx.orderColumns(routed.graph, routed.ranks);
+  const {boxes, edges} = bx.layout(routed.graph, columns, producers, routed.dummies);
+
+  for (const e of edges) {
+    for (const [id, b] of boxes) {
+      if (id === e.from || id === e.to || bx.isRoutingNode(id)) continue;
+      for (const [x, y] of e.points) {
+        const inside = x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h;
+        assert.ok(!inside, `edge ${e.from} -> ${e.to} has a point inside box ${id}`);
+      }
+    }
+  }
+});
+
+test('curvePath emits a smooth path that starts and ends at the given points', () => {
+  const d = bx.curvePath([[0, 0], [50, 20], [100, 20]]);
+  assert.match(d, /^M0,0/, 'must start with a moveto at the first point');
+  assert.match(d, /C/, 'must use cubic segments');
+  assert.ok(d.trim().endsWith('100,20'), 'must end at the last point');
+});
+
+test('curvePath degenerates safely for a two-point path', () => {
+  const d = bx.curvePath([[0, 0], [10, 10]]);
+  assert.match(d, /^M0,0/);
+  assert.ok(d.includes('10,10'));
+});
+```
+
+- [ ] **Step 2: Run the tests to verify they fail**
+
+Run: `node --test tests/js/*.test.js`
+Expected: FAIL — `bx.withRoutingNodes is not a function`.
+
+- [ ] **Step 3: Implement**
+
+Add to `kb/build-costs/bom-explorer.js`, after `orderColumns` and before `layout`.
+Real item ids are `[a-z0-9_]`, so the `__route:` prefix cannot collide.
+
+```js
+const ROUTE_PREFIX = '__route:';
+const ROUTE_SLOT_H = 8;
+const ROUTE_GAP = 4;   // waypoints pack tighter than boxes — see below
+
+// isRoutingNode reports whether an id is an invisible edge waypoint rather
+// than a real item.
+function isRoutingNode(id) {
+  return typeof id === 'string' && id.startsWith(ROUTE_PREFIX);
+}
+
+// withRoutingNodes returns an augmented COPY of the graph in which every edge
+// spanning more than one column is replaced by a chain through one waypoint
+// per intervening column.
+//
+// Without this, a long edge runs flat at its source's height until the gutter
+// before its consumer, passing through any box in between — and since edges
+// paint before boxes, it renders behind them. Giving the edge a slot in each
+// column it crosses makes the packer route it between boxes instead.
+//
+// The original graph is never mutated: rollUp runs on it and must not see a
+// waypoint.
+function withRoutingNodes(graph, ranks) {
+  const nodes = new Map();
+  const outRanks = new Map(ranks);
+  const dummies = new Set();
+
+  for (const [id, node] of graph.nodes) {
+    nodes.set(id, Object.assign({}, node, {inputs: []}));
+  }
+
+  for (const [id, node] of graph.nodes) {
+    for (const input of node.inputs) {
+      const from = ranks.get(input.id);
+      const to = ranks.get(id);
+      if (to - from <= 1) {
+        nodes.get(id).inputs.push({id: input.id, qty: input.qty});
+        continue;
+      }
+      // Chain: input.id -> w(from+1) -> ... -> w(to-1) -> id
+      let prev = input.id;
+      for (let col = from + 1; col < to; col++) {
+        const wid = ROUTE_PREFIX + input.id + '>' + id + ':' + col;
+        if (!nodes.has(wid)) {
+          nodes.set(wid, {
+            id: wid, kind: 'route', recipeId: null, yield: 1,
+            inputs: [], leaf: false, cycle: false,
+          });
+          outRanks.set(wid, col);
+          dummies.add(wid);
+        }
+        nodes.get(wid).inputs.push({id: prev, qty: input.qty});
+        prev = wid;
+      }
+      nodes.get(id).inputs.push({id: prev, qty: input.qty});
+    }
+  }
+
+  return {graph: {targetId: graph.targetId, nodes}, ranks: outRanks, dummies};
+}
+
+// curvePath renders a polyline as a smooth cubic path. Control handles are
+// horizontal, so every segment leaves and enters its endpoints going
+// left-to-right, which preserves the reading direction the layout encodes.
+function curvePath(points) {
+  if (!points.length) return '';
+  let d = 'M' + points[0][0] + ',' + points[0][1];
+  for (let i = 1; i < points.length; i++) {
+    const [x0, y0] = points[i - 1];
+    const [x1, y1] = points[i];
+    const dx = (x1 - x0) / 2;
+    d += ' C' + (x0 + dx) + ',' + y0 + ' ' + (x1 - dx) + ',' + y1 + ' ' + x1 + ',' + y1;
+  }
+  return d;
+}
+```
+
+Then change `layout` to `layout(graph, columns, producers, dummies)`:
+
+- `boxHeight` returns `ROUTE_SLOT_H` for a routing node, otherwise as now.
+- **Waypoints pack with `ROUTE_GAP`, not `ROW_GAP`.** This matters at scale:
+  `opus_magna` has 98 edges spanning more than one column, which generate
+  roughly 300 waypoints across 8 columns. At box spacing that would roughly
+  double the canvas height; at 8px slots with a 4px gap the added height stays
+  modest. Use `ROW_GAP` only between two real boxes.
+- A routing node contributes no `boxes` entry for rendering purposes, but DOES
+  occupy vertical space in the packing — keep it in `boxes` so the packer sees
+  it, and let `renderChart` skip drawing anything whose id `isRoutingNode`.
+- Edge geometry: walk from each real source through its chain of waypoints to
+  the real consumer, emitting one `points` array covering the whole path, with
+  a waypoint contributing its slot's centre. Emit ONE edge per original
+  source→consumer pair, not one per segment, so a single label is drawn.
+
+- [ ] **Step 4: Run the tests to verify they pass**
+
+Run: `node --test tests/js/*.test.js`
+Expected: PASS, 44 tests.
+
+- [ ] **Step 5: Update `renderChart`**
+
+- Skip drawing a `rect`/`foreignObject` for any id where `isRoutingNode(id)`.
+- Draw edges with `<path d="...">` from `curvePath(edge.points)` instead of
+  `<polyline points="...">`, keeping `fill: none`, the same stroke custom
+  properties and the arrowhead marker.
+- Place the quantity label on the FIRST segment of the path, just clear of the
+  source box, not at the arrowhead. At the arrowhead, every edge converging on
+  one box stacks its label in the same place — visible today on `opus_magna`,
+  where the `1,400` into Opus Magna is clipped by the box edge. Labels at the
+  source spread out naturally because each source has few outgoing edges.
+
+- [ ] **Step 6: Verify against the real data**
+
+Run:
+
+```bash
+node -e '
+const bx = require("./kb/build-costs/bom-explorer.js");
+const data = require("./kb/build-costs/recipe-graph.json");
+const p = bx.producersOf(data);
+let through = 0, checked = 0;
+for (const t of ["shield_recharger_ii", "power_core", "overmind", "station_core"]) {
+  const g = bx.buildGraph(data, p, t, {});
+  const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+  const cols = bx.orderColumns(routed.graph, routed.ranks);
+  const l = bx.layout(routed.graph, cols, p, routed.dummies);
+  checked++;
+  for (const e of l.edges) for (const [id, b] of l.boxes) {
+    if (id === e.from || id === e.to || bx.isRoutingNode(id)) continue;
+    for (const [x, y] of e.points)
+      if (x > b.x && x < b.x + b.w && y > b.y && y < b.y + b.h) through++;
+  }
+  console.log(t, "cols", cols.length, "nodes", g.nodes.size, "canvas", l.width + "x" + l.height);
+}
+console.log("targets checked:", checked, "| edge points inside an unrelated box:", through);
+'
+```
+
+Expected: `edge points inside an unrelated box: 0`. For scale, before this
+change `shield_recharger_ii` had 3 such crossings and `opus_magna` had **125
+of its 182 edges** (69%) passing through a box. Also report the canvas height
+for `opus_magna` before and after — it will grow, and the waypoint packing
+constants exist to keep that growth modest.
+
+- [ ] **Step 7: Visual check**
+
+Serve the repo root and look at `?target=shield_recharger_ii` (the reported
+case), `?target=power_core&qty=5`, and `?target=overmind`. Confirm no line
+passes under a box, curves read cleanly, and the worst case still scrolls
+inside its container without the page scrolling sideways.
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add kb/build-costs/bom-explorer.js tests/js/bom-explorer.test.js
+git commit -m "feat(bom-explorer): route long edges around boxes and draw them as curves"
+```
+
+- [ ] **Step 9: Colour each edge by its source item**
+
+Routing stops lines from hiding behind boxes; colour tells them apart where
+several run parallel or converge on one box. Colour by the **source item**, so
+every edge carrying the same material shares a hue and you can trace where a
+given ore ends up.
+
+Derive the hue deterministically from the source id so it is stable across
+re-renders and needs no palette that could run out:
+
+```js
+// edgeHue maps a source item id to a stable hue. Deterministic, so the same
+// item keeps its colour across re-renders and between page loads.
+function edgeHue(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+  return h;
+}
+```
+
+Saturation and lightness must come from CSS custom properties, not literals,
+or the palette will be unreadable in one of the two themes. Add to
+`explorer.html`'s `:root` and its `[data-theme="light"]` block:
+
+```css
+:root{--edge-s:55%;--edge-l:62%}
+:root[data-theme="light"]{--edge-s:60%;--edge-l:38%}
+```
+
+and build the stroke as `hsl(<hue> var(--edge-s) var(--edge-l))`.
+
+The arrowhead must match its line, and a single shared marker cannot take two
+fills. Create one `<marker>` per distinct hue actually used in this render,
+with `id="bx-arrow-<hue>"`, and reference the matching one from each path.
+`renderChart` already clears the container before every render, so no marker
+outlives its chart.
+
+Keep the quantity label in `var(--dim)` rather than the edge colour — it must
+stay legible against the panel background at every hue.
+
+- [ ] **Step 10: Verify the colouring**
+
+- Every edge from the same source shares a colour; edges from different sources
+  in the same converging bundle differ.
+- Check both themes with the page's toggle: no line should wash out against the
+  panel background in either.
+- Confirm one marker exists per distinct hue and that arrowheads match their
+  lines, on `?target=shield_recharger_ii` and `?target=overmind`.

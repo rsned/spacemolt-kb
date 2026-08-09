@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
+	"github.com/rsned/spacemolt-kb/pkg/catalog"
 )
 
 // StationMeta is a station column: its id, display name, system, and empire.
@@ -319,18 +320,10 @@ func shipMargin(listings map[string]map[string]float64, catalogPrice map[string]
 	return m
 }
 
-// Ship is the minimal ship-catalog shape this generator needs.
-type Ship struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Class string `json:"class"`
-	Price int    `json:"price"`
-}
-
 // loadTargets builds the row set: every item and ship in bill_of_materials, with
 // BoM requirements from that table and (items only) candidate recipes from
 // recipe_inputs/recipe_outputs. The second return maps target id -> display name.
-func loadTargets(craftDB *sql.DB, ships []Ship, itemNames map[string]string) ([]buildcost.Target, map[string]string, error) {
+func loadTargets(craftDB *sql.DB, ships []catalog.Ship, itemNames map[string]string) ([]buildcost.Target, map[string]string, error) {
 	// 1. BoM rows: target -> requirements, split by kind.
 	type key struct{ id, kind string }
 	bom := map[key][]buildcost.Requirement{}

@@ -18,7 +18,7 @@ and deliberately carries no prices.
 ## Scope
 
 **In scope:** output selection by autocomplete over every craftable target
-(615 items, 335 ships, 2650 facilities = 3600 entries); a quantity spinner
+(610 items, 335 ships, 2650 facilities = 3595 entries); a quantity spinner
 from 1 to 99,999; per-item recipe selection; a multi-tier horizontal graph;
 a flattened base-materials table; a direct-inputs table; a surplus table.
 
@@ -104,13 +104,36 @@ keeps its existing behaviour and its existing tests must still pass.
   converted to `int` on write. Facility entries without `build_materials`
   (77 of 2727) are omitted.
 - `defaults` — an entry for each of the 62 items with more than one
-  producing recipe, computed **in Go by the existing `bom.SelectRecipe`**,
-  which is called on the *full* recipe set (it applies its own `wrap_*` /
-  `unwrap_*` exclusion as filtering layer 1, so the result matches the static
-  pages exactly).
+  producing recipe, computed **in Go by `bom.SelectRecipeSourceable`**,
+  called on the *full* recipe set (it applies its own `wrap_*` / `unwrap_*`
+  exclusion as filtering layer 1), with a **structural obtainability filter**
+  in place of the market-aware one the static pages use: a recipe is preferred
+  when every input is raw (`ore`/`material`) or is itself craftable from raw
+  inputs.
+
+  **This deliberately does NOT match the static build-cost pages, and that is
+  the better answer.** Those pages resolve ties using live market
+  availability, which systematically steers them into mob-drop inputs that
+  nothing produces: `gold_bar` via `gilded_chitin_smelting` (2 ×
+  `gilded_chitin`, a drop) rather than `mint_gold_bar` (10 × `gold_ore`,
+  mineable); likewise `adamantite_bar` via `adamant_tooth`, `armor_plate` via
+  `creature_carapace`, `tungsten_rod` via `tungsten_nugget`, `graphene_sheet`
+  via `graphene_thread`. For a page whose job is "what do I gather", the
+  mineable path is the right default. Six items differ from the static pages
+  for this reason.
+
+  The structural filter also fixes the converse defect — a default routing
+  into a dead end when an alternative avoids it. It takes such defaults from
+  131 to 111. The residual 111 are unavoidable: 72 craftable items have no
+  fully-obtainable recipe at all, because the game genuinely requires drops
+  (cooking recipes needing `raw_xeno_meat`, `mantis_claw`, and similar).
+  Requiring no market data also keeps the generator sub-second and immune to
+  market drift.
   Items with exactly one recipe are omitted; the page falls back to that
-  single recipe. This is what makes the explorer open on the same recipe path
-  the static per-target pages already display.
+  single recipe. The explorer's defaults deliberately diverge from the static
+  per-target pages' recipe choices for the items described above — see the
+  paragraph above on why the structurally-obtainable path is the better
+  default, not a parity target.
 
 The generator opens only `crafting.db` and the newest snapshot directory. It
 requires no `market.db`, so the page cannot go stale against market data and
@@ -153,17 +176,19 @@ Bill of Materials Explorer
 
 ### Controls
 
-**Output autocomplete.** A text input filtering the 3600 selectable outputs
+**Output autocomplete.** A text input filtering the 3595 selectable outputs
 on both display name and id, showing a keyboard-navigable result list with
 each row's type (item / ship / facility). No dependency.
 
 The selectable set is derived on load, not shipped as a fourth list: every
-key of `targets` (335 ships + 2650 facilities), plus every item in `items`
-that at least one recipe in `recipes` produces (615 — packaging recipes are
-already absent from that map). Items that
-no recipe produces — ores and drops — are not selectable as outputs; picking
-one is only reachable by hand-editing the URL, which falls through to the
-"no recipe produces this" message.
+key of `targets` (335 ships + 2650 facilities), plus every non-terminal item
+in `items` that at least one recipe in `recipes` produces (610 — `fuel_reserve`
+is produced by 7 recipes but has no `items` row, so it has no name or
+category and is skipped). Items that
+the explorer treats as terminal — every ore and material, plus anything no
+recipe produces — are not selectable as outputs; picking one is only
+reachable by hand-editing the URL, which falls through to the "no recipe
+produces this" message.
 
 **Quantity.** `<input type="number" min="1" max="99999" step="1">`, default
 1. Non-integer, out-of-range, and empty values clamp to the nearest valid
@@ -209,9 +234,15 @@ quantities are ignored in favour of the defaults rather than erroring.
 These are the common cases and must look deliberate:
 
 - A Refining recipe renders as exactly two boxes and one arrow:
-  `[Iron Ore] ──5──▶ [Steel Plate]`, recipe name above the chart.
-- Selecting a raw ore as the output shows a single box and the message
-  "no recipe produces this — it is mined".
+  `[Uranium Ore] ──▶ [Uranium Concentrate]`, recipe name above the chart.
+  44 real targets have this shape. (`steel_plate` is not one of them — its
+  default recipe takes two inputs.)
+- Reaching a terminal item by hand-editing the URL shows a message instead
+  of a graph. Ores and materials are described as raw materials the explorer
+  deliberately stops at — which stays accurate for the four ores that do have
+  recipes; a non-ore item that no recipe produces is described as a drop.
+  `decodeState` therefore admits any id that exists, leaving selectability to
+  render time, rather than discarding unselectable ids while parsing.
 - Selecting a ship or facility shows its `build_materials` expanded normally;
   the target box sits alone in the rightmost column.
 
@@ -274,10 +305,14 @@ That is expected, not a defect.
 
 ### 4. Order within columns
 
-Two barycentre passes: each node sorts to the mean vertical position of its
-neighbours in the adjacent column. Standard, roughly twenty lines, and the
-difference between readable and unreadable at the `station_core` worst case
-(10 tiers, 75 nodes).
+One barycentre pass, right-to-left from the target: each node sorts to the
+mean vertical position of its neighbours in the adjacent column. A second
+right-to-left pass is a provable no-op — each column depends only on the
+column to its right, which the single sweep already finalised — and an
+alternating right-left-right sweep was measured to give byte-identical
+orderings and identical edge-crossing counts on the largest real graphs. One
+pass is standard, roughly twenty lines, and the difference between readable
+and unreadable at the `station_core` worst case (10 tiers, 73 nodes).
 
 ### 5. Edges
 
@@ -292,6 +327,17 @@ recipe produces it. This is exactly the terminal rule in
 `pkg/bom/calculator.go`'s `isTerminal`, so this page and the static tables
 agree on where a chain stops.
 
+Both halves of that rule are load-bearing. Four items are ores that also have
+a crafting recipe — `energy_crystal`, `exotic_crystal`, `void_crystal`,
+`hydrogen_gas` — so "has no recipe" alone would expand them, and the base
+material totals would stop matching the static pages. It would also make
+`circuit_board → power_cell → energy_crystal → circuit_board` a cycle
+reachable by ordinary recipe picks. With the category test applied, a
+strongly-connected-component analysis over all 615 craftable items finds
+**zero** reachable cycles, which is what keeps the cycle backstop below
+genuinely unreachable. Terminal items are therefore also excluded from the
+selectable-output list: the explorer treats them as raw inputs.
+
 The second kind of leaf is not mineable — `hoarfrost_heartcore` and similar
 drops have no recipe and no ore category. The base-materials table labels
 these distinctly so they are not read as ores.
@@ -303,14 +349,20 @@ data. All 20 are omitted from the generated `recipes` map, so they reach
 neither `defaults` nor any selector list — the same exclusion layer 1 of the
 existing `bom.selectRecipe` applies.
 
-As a backstop, if expansion re-encounters an item already on the current DFS
-stack, that node renders as "cycle — not expanded" and expansion stops there.
-The page must never hang, whatever combination of choices a user makes.
+As a backstop, `buildGraph` DROPS an input edge that would close a cycle —
+i.e. one that would re-add an item already on the current DFS stack — rather
+than merely declining to recurse into it. This makes the graph acyclic by
+construction, which is the only way the layering invariant in step 3 can
+hold: no ranking of a cyclic graph can put every input strictly below its
+consumer, so leaving the edge in place would guarantee at least one backwards
+arrow. The node whose edge was dropped still renders as "cycle — not
+expanded". The page must never hang, whatever combination of choices a user
+makes.
 
 ### Scale
 
-Median target: 4 tiers, 11 distinct items. Worst case `station_core`: 10
-tiers, 75 items. Layout is O(V+E) and completes imperceptibly.
+Median item target: 5 tiers, 15 distinct items. Worst case `station_core`: 10
+tiers, 73 items. Layout is O(V+E) and completes imperceptibly.
 
 ## Testing
 
@@ -321,7 +373,10 @@ a temp snapshot directory plus an in-memory SQLite database.
 
 - Every craftable item, recipe, ship, and facility with `build_materials`
   reaches the JSON; counts asserted.
-- `defaults` agrees with `bom.SelectRecipe` for all multi-recipe items.
+- `defaults` prefers a structurally-obtainable recipe for every multi-recipe
+  item where one exists (see "Cross-check against the existing tables" below
+  — equality with the committed `bill_of_materials` table's recipe choices is
+  explicitly NOT asserted).
 - `wrap_*` / `unwrap_*` recipes appear in neither `defaults` nor any item's
   selectable recipe list.
 - Facilities lacking `build_materials` are omitted; float quantities convert
@@ -351,20 +406,32 @@ skip it, the test runner picks it up.
 
 ### Cross-check against the existing tables
 
-For targets whose active recipes all yield exactly 1, batching and per-unit
-arithmetic are provably identical. A test asserts the flattened base totals
-equal `Q ×` the committed `bill_of_materials` rows for a sample of such
-targets.
+Equality with the committed `bill_of_materials` table is NOT asserted, because
+the two views deliberately choose different recipes (see `defaults` above) and
+the explorer's choices are the better ones. Asserting equality would lock the
+explorer to the static pages' market-driven mob-drop paths.
 
-Targets containing a multi-yield recipe are expected to differ — that is the
-deliberate change above — so rather than a test, the generator logs a
-one-line count of affected targets on each run.
+Two things are checked instead:
+
+1. **Obtainability preference (assertable, no market data).** For every item
+   with more than one recipe: if any candidate has all-obtainable inputs, the
+   chosen default must too. This is the property that actually protects users
+   from being told to gather something nothing produces, and it holds without
+   any market dependency.
+2. **Divergence report (informational).** The generator logs how many targets
+   differ from the committed table and why — multi-yield batching, or a
+   recipe-choice difference — so the divergence is visible on every run rather
+   than silent.
+
+Targets containing a multi-yield recipe are also expected to differ, for the
+separate batching reason described above; the generator logs a count of those
+on each run too.
 
 ### Visual verification
 
 Before the work is called done, render and eyeball three cases: the two-box
-refining degenerate, a median 4-tier / 11-node target, and `station_core`
-at 10 tiers / 75 nodes.
+refining degenerate, a median-sized target, and the largest graph
+(`overmind`, 10 tiers / 135 nodes).
 
 ### Gates
 

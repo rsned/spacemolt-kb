@@ -3,15 +3,13 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"math"
-	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
+	"github.com/rsned/spacemolt-kb/pkg/catalog"
 )
 
 // galaxyBook pools every station's sell ladder into a single ascending order
@@ -58,43 +56,17 @@ type FacilityRec struct {
 	Build    []buildcost.Requirement
 }
 
-// facilityCatDoc / facilityCatItem mirror the fields of catalog_facilities.json
-// that the build-cost pages consume.
-type facilityCatDoc struct {
-	Items []facilityCatItem `json:"items"`
-}
-
-type facilityCatItem struct {
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	Category       string `json:"category"`
-	Level          int    `json:"level"`
-	RecipeID       string `json:"recipe_id"`
-	BuildMaterials []struct {
-		ItemID   string  `json:"item_id"`
-		Quantity float64 `json:"quantity"`
-	} `json:"build_materials"`
-}
-
-// loadFacilityCatalog reads catalog_facilities.json from the newest snapshot dir
-// under root and returns the trimmed facility records.
+// loadFacilityCatalog reads the newest facility catalog and returns the
+// trimmed records the build-cost pages consume.
 func loadFacilityCatalog(root string) ([]FacilityRec, error) {
-	dir, err := findLatestCatalogDir(root)
+	facs, err := catalog.LoadFacilities(root)
 	if err != nil {
 		return nil, err
 	}
-	raw, err := os.ReadFile(filepath.Join(dir, "catalog_facilities.json"))
-	if err != nil {
-		return nil, err
-	}
-	var doc facilityCatDoc
-	if err := json.Unmarshal(raw, &doc); err != nil {
-		return nil, err
-	}
-	out := make([]FacilityRec, 0, len(doc.Items))
-	for _, it := range doc.Items {
-		rec := FacilityRec{ID: it.ID, Name: it.Name, Category: it.Category, Level: it.Level, RecipeID: it.RecipeID}
-		for _, m := range it.BuildMaterials {
+	out := make([]FacilityRec, 0, len(facs))
+	for _, f := range facs {
+		rec := FacilityRec{ID: f.ID, Name: f.Name, Category: f.Category, Level: f.Level, RecipeID: f.RecipeID}
+		for _, m := range f.BuildMaterials {
 			rec.Build = append(rec.Build, buildcost.Requirement{ItemID: m.ItemID, Qty: m.Quantity})
 		}
 		out = append(out, rec)
