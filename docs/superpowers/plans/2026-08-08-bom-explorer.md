@@ -1013,22 +1013,29 @@ test('an ore stays terminal even when a recipe produces it', () => {
   assert.deepStrictEqual(g.nodes.get('energy_crystal').inputs, [], 'and must not be expanded');
 });
 
-test('rankNodes caches the cycle backstop so no edge points backwards', () => {
+test('a forced cycle still yields a graph with no backwards edge', () => {
   const data = fixture();
   data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
   const producers = bx.producersOf(data);
   const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
   const ranks = bx.rankNodes(g);
 
-  // Even in the forced-cycle case the layering invariant must hold: an
-  // uncached backstop lets a node be recomputed above a consumer that already
-  // used its placeholder rank of 0.
+  // The cycle-closing edge must be gone from the graph entirely, not merely
+  // left unrecursed: no ranking of a cyclic graph can satisfy the invariant,
+  // so an edge left in place would guarantee a backwards arrow.
+  assert.strictEqual(g.nodes.get('steel_plate').cycle, true, 'the cutting node is flagged');
+  assert.deepStrictEqual(g.nodes.get('steel_plate').inputs, [],
+    'the cycle-closing edge is dropped, not retained');
+
+  const violations = [];
   for (const node of g.nodes.values()) {
     for (const input of node.inputs) {
-      assert.ok(ranks.get(input.id) < ranks.get(node.id) || node.cycle || g.nodes.get(input.id).cycle,
-        `rank(${input.id})=${ranks.get(input.id)} must be < rank(${node.id})=${ranks.get(node.id)}`);
+      if (!(ranks.get(input.id) < ranks.get(node.id))) {
+        violations.push(`${input.id}(${ranks.get(input.id)}) -> ${node.id}(${ranks.get(node.id)})`);
+      }
     }
   }
+  assert.deepStrictEqual(violations, [], 'no edge may point backwards');
 });
 
 test('activeRecipeId ignores a choice naming a recipe that does not make the item', () => {
@@ -1227,20 +1234,29 @@ function buildGraph(data, producers, targetId, choices) {
       return;
     }
 
-    const inputs = data.recipes[recipeId].i.map(([itemId, qty]) => ({id: itemId, qty}));
-    nodes.set(id, {
-      id, kind: 'item', recipeId, yield: yieldOf(data, recipeId, id), inputs, leaf: false, cycle: false,
-    });
-
+    // Build the input list, OMITTING any edge that would close a cycle.
+    //
+    // Dropping the edge rather than merely declining to recurse is what makes
+    // the graph acyclic by construction, and that is the only way the layering
+    // invariant can hold: no ranking of a cyclic graph can put every input
+    // strictly below its consumer, so leaving the edge in place would
+    // guarantee at least one backwards arrow. The node keeps cycle:true so the
+    // renderer can say so.
     const next = new Set(stack).add(id);
-    for (const input of inputs) {
-      if (next.has(input.id)) {
-        // Cycle: stop before recursing, and mark the node we would re-enter.
-        if (nodes.has(input.id)) nodes.get(input.id).cycle = true;
+    const inputs = [];
+    let cycle = false;
+    for (const [itemId, qty] of data.recipes[recipeId].i) {
+      if (next.has(itemId)) {
+        cycle = true;
         continue;
       }
-      visit(input.id, next);
+      inputs.push({id: itemId, qty});
     }
+    nodes.set(id, {
+      id, kind: 'item', recipeId, yield: yieldOf(data, recipeId, id), inputs, leaf: false, cycle,
+    });
+
+    for (const input of inputs) visit(input.id, next);
   }
 
   visit(targetId, new Set());
@@ -1259,16 +1275,12 @@ function rankNodes(graph) {
 
   function rank(id, stack) {
     if (ranks.has(id)) return ranks.get(id);
-    if (stack.has(id)) {
-      // Cycle backstop. Cache the 0 so the node cannot later be recomputed to a
-      // higher rank than a consumer that already used this value — that would
-      // leave a right-to-left edge, breaking the invariant this function exists
-      // to establish. Unreachable with real data (no cycles survive the
-      // terminal-item rule); correct rather than merely non-hanging if it ever
-      // is reached.
-      ranks.set(id, 0);
-      return 0;
-    }
+    // Defence in depth only: buildGraph already drops cycle-closing edges, so
+    // the graph it hands us is acyclic and this branch cannot fire. It stays
+    // so a future caller that builds a graph some other way still terminates.
+    // Note it cannot repair the invariant on a genuinely cyclic graph — no
+    // ranking can — which is why the cycle is broken during construction.
+    if (stack.has(id)) return 0;
     const node = graph.nodes.get(id);
     if (!node || node.inputs.length === 0) {
       ranks.set(id, 0);
