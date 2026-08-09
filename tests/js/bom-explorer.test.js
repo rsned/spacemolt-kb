@@ -85,22 +85,29 @@ test('an ore stays terminal even when a recipe produces it', () => {
   assert.deepStrictEqual(g.nodes.get('energy_crystal').inputs, [], 'and must not be expanded');
 });
 
-test('rankNodes caches the cycle backstop so no edge points backwards', () => {
+test('a forced cycle still yields a graph with no backwards edge', () => {
   const data = fixture();
   data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
   const producers = bx.producersOf(data);
   const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
   const ranks = bx.rankNodes(g);
 
-  // Even in the forced-cycle case the layering invariant must hold: an
-  // uncached backstop lets a node be recomputed above a consumer that already
-  // used its placeholder rank of 0.
+  // The cycle-closing edge must be gone from the graph entirely, not merely
+  // left unrecursed: no ranking of a cyclic graph can satisfy the invariant,
+  // so an edge left in place would guarantee a backwards arrow.
+  assert.strictEqual(g.nodes.get('steel_plate').cycle, true, 'the cutting node is flagged');
+  assert.deepStrictEqual(g.nodes.get('steel_plate').inputs, [],
+    'the cycle-closing edge is dropped, not retained');
+
+  const violations = [];
   for (const node of g.nodes.values()) {
     for (const input of node.inputs) {
-      assert.ok(ranks.get(input.id) < ranks.get(node.id) || node.cycle || g.nodes.get(input.id).cycle,
-        `rank(${input.id})=${ranks.get(input.id)} must be < rank(${node.id})=${ranks.get(node.id)}`);
+      if (!(ranks.get(input.id) < ranks.get(node.id))) {
+        violations.push(`${input.id}(${ranks.get(input.id)}) -> ${node.id}(${ranks.get(node.id)})`);
+      }
     }
   }
+  assert.deepStrictEqual(violations, [], 'no edge may point backwards');
 });
 
 test('activeRecipeId ignores a choice naming a recipe that does not make the item', () => {
