@@ -32,7 +32,7 @@ consumer).
 ## Architecture
 
 One static page, all computation client-side. Nothing is precomputed per
-target: with 71 multi-recipe items (`power_cell` alone has 15 recipes) the
+target: with 62 multi-recipe items (`power_cell` alone has 15 recipes) the
 combinations cannot be enumerated server-side.
 
 Go owns data generation; hand-maintained page assets own presentation. This
@@ -92,16 +92,22 @@ keeps its existing behaviour and its existing tests must still pass.
 ```
 
 - `items` — all 752 rows of `crafting.db.items`: id → display name, category.
-- `recipes` — all 761 rows with inputs (`i`) and outputs (`o`) as
-  `[item_id, quantity]` pairs.
+- `recipes` — the 741 rows remaining after `wrap_*` / `unwrap_*` packaging
+  recipes are dropped (20 of 761), with inputs (`i`) and outputs (`o`) as
+  `[item_id, quantity]` pairs. Dropping them at generation time means the page
+  can never surface or select one, so the `X ↔ contained_X` cycles they form
+  are structurally unreachable rather than filtered client-side.
 - `targets` — ships and facilities only. These are pure *sinks*: they carry a
   `build_materials` list but no recipe id, so they can only ever occupy the
   rightmost column and never appear as an input to anything. Facility
   `build_materials` quantities are `float64` in the catalog JSON and are
   converted to `int` on write. Facility entries without `build_materials`
   (77 of 2727) are omitted.
-- `defaults` — an entry for each of the 71 items with more than one
-  producing recipe, computed **in Go by the existing `bom.SelectRecipe`**.
+- `defaults` — an entry for each of the 62 items with more than one
+  producing recipe, computed **in Go by the existing `bom.SelectRecipe`**,
+  which is called on the *full* recipe set (it applies its own `wrap_*` /
+  `unwrap_*` exclusion as filtering layer 1, so the result matches the static
+  pages exactly).
   Items with exactly one recipe are omitted; the page falls back to that
   single recipe. This is what makes the explorer open on the same recipe path
   the static per-target pages already display.
@@ -153,7 +159,8 @@ each row's type (item / ship / facility). No dependency.
 
 The selectable set is derived on load, not shipped as a fourth list: every
 key of `targets` (335 ships + 2650 facilities), plus every item in `items`
-that at least one non-`wrap_*`/`unwrap_*` recipe produces (615). Items that
+that at least one recipe in `recipes` produces (615 — packaging recipes are
+already absent from that map). Items that
 no recipe produces — ores and drops — are not selectable as outputs; picking
 one is only reachable by hand-editing the URL, which falls through to the
 "no recipe produces this" message.
@@ -292,8 +299,9 @@ these distinctly so they are not read as ores.
 ### Cycles
 
 `wrap_*` / `unwrap_*` recipes form `X ↔ contained_X` cycles in the source
-data. They are excluded from `defaults` and from every selector list,
-mirroring layer 1 of the existing `bom.selectRecipe`.
+data. All 20 are omitted from the generated `recipes` map, so they reach
+neither `defaults` nor any selector list — the same exclusion layer 1 of the
+existing `bom.selectRecipe` applies.
 
 As a backstop, if expansion re-encounters an item already on the current DFS
 stack, that node renders as "cycle — not expanded" and expansion stops there.
