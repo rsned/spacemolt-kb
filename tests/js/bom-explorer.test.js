@@ -364,3 +364,85 @@ test('layout handles the two-box refining degenerate case', () => {
   assert.strictEqual(edges.length, 1);
   assert.strictEqual(edges[0].qty, 5);
 });
+
+test('selectableOutputs spans craftable items, ships and facilities', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const out = bx.selectableOutputs(data, producers);
+  const ids = out.map((o) => o.id);
+
+  assert.ok(ids.includes('steel_plate'), 'craftable item must be selectable');
+  assert.ok(ids.includes('widget'));
+  assert.ok(ids.includes('hauler'), 'ship must be selectable');
+  assert.ok(!ids.includes('iron_ore'), 'ores are not selectable outputs');
+  assert.ok(!ids.includes('drop_core'), 'no-recipe drops are not selectable outputs');
+
+  // A craftable ore is still terminal, so it is still not a selectable output.
+  data.recipes.synthesise_crystal = {
+    n: 'Synthesise Crystal', c: 'Refining',
+    i: [['iron_ore', 4]], o: [['energy_crystal', 1]],
+  };
+  const withCraftableOre = bx.selectableOutputs(data, bx.producersOf(data)).map((o) => o.id);
+  assert.ok(!withCraftableOre.includes('energy_crystal'),
+    'an ore with a recipe is still terminal, so still not selectable');
+
+  assert.strictEqual(out.find((o) => o.id === 'hauler').type, 'ship');
+  assert.strictEqual(out.find((o) => o.id === 'steel_plate').type, 'item');
+});
+
+test('selectableOutputs sorts by display name', () => {
+  const data = fixture();
+  const out = bx.selectableOutputs(data, bx.producersOf(data));
+  const names = out.map((o) => o.name);
+  assert.deepStrictEqual(names, [...names].sort());
+});
+
+test('encodeState omits defaults and the default quantity', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  assert.strictEqual(
+    bx.encodeState(data, producers, {target: 'widget', qty: 1, choices: {}}),
+    'target=widget');
+  assert.strictEqual(
+    bx.encodeState(data, producers, {target: 'widget', qty: 5, choices: {steel_plate: 'smelt_steel'}}),
+    'target=widget&qty=5',
+    'smelt_steel is the default and must not be serialised');
+});
+
+test('encodeState serialises non-default choices sorted by item', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const got = bx.encodeState(data, producers,
+    {target: 'widget', qty: 1, choices: {steel_plate: 'cast_steel'}});
+  assert.strictEqual(got, 'target=widget&r=steel_plate:cast_steel');
+});
+
+test('decodeState round-trips an encoded state', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const state = {target: 'widget', qty: 42, choices: {steel_plate: 'cast_steel'}};
+  const decoded = bx.decodeState(data, producers, bx.encodeState(data, producers, state));
+  assert.deepStrictEqual(decoded, state);
+});
+
+test('decodeState clamps quantity into range', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=0').qty, 1);
+  assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=-7').qty, 1);
+  assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=999999').qty, 99999);
+  assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=3.7').qty, 3);
+  assert.strictEqual(bx.decodeState(data, producers, 'target=widget&qty=abc').qty, 1);
+});
+
+test('decodeState discards unknown targets and bogus choices', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  assert.strictEqual(bx.decodeState(data, producers, 'target=nonesuch').target, null);
+  assert.strictEqual(bx.decodeState(data, producers, '').target, null);
+  // weld_frame does not produce steel_plate, so the choice is dropped.
+  assert.deepStrictEqual(
+    bx.decodeState(data, producers, 'target=widget&r=steel_plate:weld_frame').choices, {});
+  assert.deepStrictEqual(
+    bx.decodeState(data, producers, 'target=widget&r=garbage').choices, {});
+});

@@ -320,9 +320,100 @@ function layout(graph, ranks, columns, producers) {
   return {width, height, boxes, edges};
 }
 
+// ---------------------------------------------------------------------------
+// Selectable outputs and URL state
+// ---------------------------------------------------------------------------
+
+const QTY_MIN = 1;
+const QTY_MAX = 99999;
+
+// selectableOutputs is everything the user may pick as an output: every ship
+// and facility, plus every non-terminal item some recipe produces. Terminal
+// items are excluded — the explorer treats them as raw inputs, so offering one
+// as an output would render a single leaf box and no tables. That exclusion
+// must use isTerminalItem, not merely "has no recipe": four ores DO have
+// recipes (energy_crystal, exotic_crystal, void_crystal, hydrogen_gas) and
+// still must not be selectable. Derived rather than shipped as a fourth list.
+function selectableOutputs(data, producers) {
+  const out = [];
+  for (const [id, target] of Object.entries(data.targets)) {
+    out.push({id, name: target.n, type: target.t});
+  }
+  for (const id of producers.keys()) {
+    const item = data.items[id];
+    if (!item) continue;
+    if (isTerminalItem(data, producers, id)) continue;
+    out.push({id, name: item.n, type: 'item'});
+  }
+  out.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1
+    : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  return out;
+}
+
+// clampQty truncates to an integer inside [QTY_MIN, QTY_MAX]. Anything
+// unparseable becomes QTY_MIN rather than blanking the page.
+function clampQty(value) {
+  const n = Math.trunc(Number(value));
+  if (!Number.isFinite(n)) return QTY_MIN;
+  return Math.min(QTY_MAX, Math.max(QTY_MIN, n));
+}
+
+// encodeState renders state as a query string with no leading '?'. Choices
+// equal to the generated default and the default quantity are omitted, so the
+// common URL is just target=<id>. Choice keys are sorted for stability.
+function encodeState(data, producers, state) {
+  const parts = [];
+  if (state.target) parts.push('target=' + encodeURIComponent(state.target));
+  const qty = clampQty(state.qty);
+  if (qty !== QTY_MIN) parts.push('qty=' + qty);
+
+  const pairs = [];
+  for (const item of Object.keys(state.choices || {}).sort()) {
+    const recipe = state.choices[item];
+    const ids = producers.get(item);
+    if (!ids || !ids.includes(recipe)) continue;
+    if (recipe === data.defaults[item]) continue;
+    if (!data.defaults[item] && ids.length < 2) continue;
+    pairs.push(item + ':' + recipe);
+  }
+  // Item and recipe ids are [a-z0-9_] throughout the crafting data, so the
+  // pairs need no escaping. Do NOT run them through encodeURIComponent: it
+  // escapes the ':' separator to %3A and makes the URL unreadable.
+  if (pairs.length) parts.push('r=' + pairs.join(','));
+
+  return parts.join('&');
+}
+
+// decodeState parses a query string back into state. Unknown targets, unknown
+// recipe ids, recipes that do not produce their item, and out-of-range
+// quantities are all discarded in favour of the defaults — URLs are
+// user-editable and a bad one must degrade, not break the page.
+function decodeState(data, producers, query) {
+  const params = new URLSearchParams(query || '');
+
+  let target = params.get('target');
+  if (target && !data.targets[target] && !producers.has(target)) target = null;
+
+  const qty = params.has('qty') ? clampQty(params.get('qty')) : QTY_MIN;
+
+  const choices = {};
+  for (const pair of (params.get('r') || '').split(',')) {
+    if (!pair) continue;
+    const idx = pair.indexOf(':');
+    if (idx < 1) continue;
+    const item = pair.slice(0, idx);
+    const recipe = pair.slice(idx + 1);
+    const ids = producers.get(item);
+    if (!ids || !ids.includes(recipe)) continue;
+    choices[item] = recipe;
+  }
+
+  return {target: target || null, qty, choices};
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
-    orderColumns, layout,
+    orderColumns, layout, selectableOutputs, clampQty, encodeState, decodeState, QTY_MIN, QTY_MAX,
   };
 }
