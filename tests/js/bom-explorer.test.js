@@ -280,7 +280,12 @@ test('orderColumns indexes columns by rank with the target alone on the right', 
   assert.deepStrictEqual(columns[3], ['widget']);
   assert.deepStrictEqual(columns[2], ['frame']);
   assert.deepStrictEqual(columns[1], ['steel_plate']);
-  assert.deepStrictEqual([...columns[0]].sort(), ['drop_core', 'iron_ore']);
+  // Assert exact order, not just membership. These two are NOT tied:
+  // iron_ore's consumer (steel_plate) sits in the adjacent column so it gets a
+  // real barycentre of 0, while drop_core's only consumer (widget) is three
+  // columns away, so it has no barycentre and sorts to the bottom. This pins
+  // the distant-consumer behaviour that the sweep documents.
+  assert.deepStrictEqual(columns[0], ['iron_ore', 'drop_core']);
 });
 
 test('orderColumns places every node exactly once', () => {

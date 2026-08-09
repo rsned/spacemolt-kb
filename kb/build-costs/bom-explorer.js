@@ -215,10 +215,21 @@ const ROW_GAP = 14;
 const MARGIN = 20;
 
 // orderColumns groups nodes by rank and orders each column to reduce edge
-// crossings, using two barycentre passes: a node sorts to the mean vertical
+// crossings, using a barycentre sweep: a node sorts to the mean vertical
 // position of its consumers in the column to its right. Working right-to-left
-// from the target (a single node) gives each pass something to anchor on.
+// from the target (a single node) gives the sweep something to anchor on.
+// A node with no consumer in the column to its right (nothing there takes it
+// as an input, e.g. a leaf shared only with a farther-right column that has
+// already been placed by an earlier iteration) has no barycentre to sort by
+// and falls to the bottom, ordered by id among its fellow orphans.
 // Ties break by id so repeated calls agree.
+//
+// One sweep only: a second right-to-left pass reorders each column against
+// columns[col+1], which the same sweep already finalised, so it is provably
+// a no-op — verified on overmind (135 nodes) by parametrising the pass count
+// and diffing output. An alternating right-left-right sweep was also
+// measured and produced identical orderings and identical edge-crossing
+// counts on every large target tried, so it buys nothing either.
 function orderColumns(graph, ranks) {
   const maxRank = Math.max(...ranks.values());
   const columns = [];
@@ -234,31 +245,29 @@ function orderColumns(graph, ranks) {
     }
   }
 
-  for (let pass = 0; pass < 2; pass++) {
-    for (let col = columns.length - 2; col >= 0; col--) {
-      const rightPos = new Map();
-      columns[col + 1].forEach((id, i) => rightPos.set(id, i));
-      const bary = new Map();
-      for (const id of columns[col]) {
-        const positions = (consumers.get(id) || [])
-          .map((c) => rightPos.get(c))
-          .filter((p) => p !== undefined);
-        bary.set(id, positions.length
-          ? positions.reduce((a, b) => a + b, 0) / positions.length
-          : Number.MAX_SAFE_INTEGER);
-      }
-      columns[col].sort((a, b) => {
-        const d = bary.get(a) - bary.get(b);
-        return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
-      });
+  for (let col = columns.length - 2; col >= 0; col--) {
+    const rightPos = new Map();
+    columns[col + 1].forEach((id, i) => rightPos.set(id, i));
+    const bary = new Map();
+    for (const id of columns[col]) {
+      const positions = (consumers.get(id) || [])
+        .map((c) => rightPos.get(c))
+        .filter((p) => p !== undefined);
+      bary.set(id, positions.length
+        ? positions.reduce((a, b) => a + b, 0) / positions.length
+        : Number.MAX_SAFE_INTEGER);
     }
+    columns[col].sort((a, b) => {
+      const d = bary.get(a) - bary.get(b);
+      return d !== 0 ? d : (a < b ? -1 : a > b ? 1 : 0);
+    });
   }
 
   return columns;
 }
 
 // boxHeight returns a node's height: taller when it carries a recipe selector.
-function boxHeight(graph, producers, id) {
+function boxHeight(producers, id) {
   const ids = producers ? producers.get(id) : null;
   return ids && ids.length > 1 ? BOX_H_SEL : BOX_H;
 }
@@ -271,14 +280,14 @@ function boxHeight(graph, producers, id) {
 // producers is optional; pass it to size boxes that carry a recipe selector.
 function layout(graph, ranks, columns, producers) {
   const heights = columns.map((column) =>
-    column.reduce((sum, id) => sum + boxHeight(graph, producers, id) + ROW_GAP, -ROW_GAP));
+    column.reduce((sum, id) => sum + boxHeight(producers, id) + ROW_GAP, -ROW_GAP));
   const tallest = Math.max(0, ...heights);
 
   const boxes = new Map();
   columns.forEach((column, col) => {
     let y = MARGIN + (tallest - heights[col]) / 2;
     column.forEach((id, row) => {
-      const h = boxHeight(graph, producers, id);
+      const h = boxHeight(producers, id);
       boxes.set(id, {x: MARGIN + col * (BOX_W + COL_GAP), y, w: BOX_W, h, col, row});
       y += h + ROW_GAP;
     });
