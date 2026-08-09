@@ -328,7 +328,7 @@ The page must never hang, whatever combination of choices a user makes.
 
 ### Scale
 
-Median target: 4 tiers, 11 distinct items. Worst case `station_core`: 10
+Median item target: 5 tiers, 15 distinct items. Worst case `station_core`: 10
 tiers, 75 items. Layout is O(V+E) and completes imperceptibly.
 
 ## Testing

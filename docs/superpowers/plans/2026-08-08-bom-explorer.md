@@ -44,7 +44,8 @@ Use these exact numbers in assertions about the real database:
 | deepest target | `annihilator`, 10 tiers, 92 distinct items |
 | widest target | `overmind`, 10 tiers, 135 distinct items |
 | `station_core` (the sample target used in checks) | 10 tiers, 74 distinct items |
-| median target | 4 tiers, 11 distinct items |
+| median item target | 5 tiers, 15 distinct items (of 611) |
+| `power_core` (the sample median-case target) | 6 tiers, 16 distinct items |
 
 **Correction (2026-08-08, verified):** an earlier draft of this table listed
 `station_core` as 10 tiers / 75 items. That figure came from a probe that
@@ -2703,7 +2704,7 @@ Expected: PASS, all thirty-three tests unchanged. `renderChart` touches the DOM 
 Serve the site (`python3 -m http.server 8765 --directory . > /dev/null 2>&1 &`) and check each:
 
 1. `explorer.html?target=uranium_concentrate` — the degenerate refining case. Expect exactly two boxes and one labelled arrow, with the recipe id (`concentrate_uranium`) above the chart and no `▾` selector, since this item has only one recipe. 44 targets have this exact shape. Then check `?target=copper_wiring`, which is also two boxes and one arrow but has 2 recipes, so its box DOES carry a selector.
-2. `explorer.html?target=power_core` — a median case. Expect roughly 4 tiers and 12 boxes, arrows all pointing right, quantity labels legible.
+2. `explorer.html?target=power_core` — a median case, 6 tiers and 16 boxes. Expect arrows all pointing right, quantity labels legible, and `▾` selectors only on the boxes whose item has more than one recipe.
 3. `explorer.html?target=overmind` — the worst case (10 tiers, 135 boxes). Expect the chart to scroll horizontally inside its container while the page itself does not scroll sideways.
 
 Then exercise the interaction: on `?target=power_core`, change a `▾` selector inside a node box and confirm the graph and all three tables update, and that the URL gains an `r=` parameter. Reload that URL and confirm the choice is restored. Stop the server (`kill %1`).
