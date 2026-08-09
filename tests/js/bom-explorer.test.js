@@ -788,3 +788,98 @@ function withTotals(data, producers, target, choices, qty) {
   const g = bx.buildGraph(data, producers, target, choices);
   return [g, bx.rollUp(g, bx.rankNodes(g), qty)];
 }
+
+test('buildGraph records which inputs it dropped to break a cycle', () => {
+  const data = fixture();
+  data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
+
+  // Naming the dropped input is what lets the craft script explain why this
+  // item cannot be scheduled, instead of emitting a command that would fail.
+  assert.deepStrictEqual(g.nodes.get('steel_plate').dropped, ['frame']);
+  assert.deepStrictEqual(g.nodes.get('widget').dropped, [], 'normal nodes drop nothing');
+});
+
+test('craftWaves indexes craft steps by rank and excludes leaves', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const waves = bx.craftWaves(g, ranks, bx.rollUp(g, ranks, 1));
+
+  assert.deepStrictEqual(waves[0], [], 'wave 0 is raw materials, which carry no command');
+  assert.deepStrictEqual(waves[1].map((j) => j.id), ['steel_plate']);
+  assert.deepStrictEqual(waves[2].map((j) => j.id), ['frame']);
+  assert.deepStrictEqual(waves[3].map((j) => j.id), ['widget']);
+  // hauler is a ship sink at rank 4: it has no recipe, so it gets no command
+  // and no trailing empty wave.
+  assert.strictEqual(waves.length, 4);
+});
+
+test('craftWaves carries the exact demand, not the batched amount', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  // smelt_steel yields 2; asking for 3 runs 2 batches and makes 4.
+  const g = bx.buildGraph(data, producers, 'steel_plate', {});
+  const ranks = bx.rankNodes(g);
+  const waves = bx.craftWaves(g, ranks, bx.rollUp(g, ranks, 3));
+
+  const job = waves[1][0];
+  assert.strictEqual(job.recipeId, 'smelt_steel');
+  assert.strictEqual(job.qty, 3, 'the command asks for what is needed');
+  assert.strictEqual(job.yield, 2);
+  assert.strictEqual(job.runs, 2);
+  assert.strictEqual(job.made, 4, 'the server rounds up to whole runs');
+});
+
+test('craftWaves puts a cycle-cut node in wave 0 flagged, not silently at rank 0', () => {
+  const data = fixture();
+  data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
+  const ranks = bx.rankNodes(g);
+  const waves = bx.craftWaves(g, ranks, bx.rollUp(g, ranks, 1));
+
+  // It lost its only input, so it ranks 0 alongside the ores while still
+  // needing a recipe. It must be visible, not dropped on the floor.
+  const job = waves[0].find((j) => j.id === 'steel_plate');
+  assert.ok(job, 'the unschedulable node still appears');
+  assert.strictEqual(job.cycle, true);
+  assert.deepStrictEqual(job.dropped, ['frame']);
+});
+
+test('craftWaves sorts each wave by id so regeneration is byte-identical', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const waves = bx.craftWaves(g, ranks, bx.rollUp(g, ranks, 1));
+
+  for (const wave of waves) {
+    const ids = wave.map((j) => j.id);
+    assert.deepStrictEqual(ids, [...ids].sort());
+  }
+});
+
+test('no craft step depends on one in its own or a later wave', () => {
+  // The load-bearing invariant: this is what makes "launch a wave in
+  // parallel" safe. Asserted against the graph's own edges, not against a
+  // re-derivation of the ranks that produced the waves.
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  const ranks = bx.rankNodes(g);
+  const waves = bx.craftWaves(g, ranks, bx.rollUp(g, ranks, 1));
+
+  const waveOf = new Map();
+  waves.forEach((wave, w) => wave.forEach((job) => waveOf.set(job.id, w)));
+
+  for (const [id, w] of waveOf) {
+    for (const input of g.nodes.get(id).inputs) {
+      const iw = waveOf.get(input.id);
+      if (iw === undefined) continue; // a raw material, available from the start
+      assert.ok(iw < w, `${input.id} (wave ${iw}) must precede ${id} (wave ${w})`);
+    }
+  }
+});

@@ -81,7 +81,7 @@ function buildGraph(data, producers, targetId, choices) {
     if (target) {
       const inputs = target.bm.map(([itemId, qty]) => ({id: itemId, qty}));
       nodes.set(id, {
-        id, kind: target.t, recipeId: null, yield: 1, inputs, leaf: false, cycle: false,
+        id, kind: target.t, recipeId: null, yield: 1, inputs, dropped: [], leaf: false, cycle: false,
       });
       const next = new Set(stack).add(id);
       for (const input of inputs) visit(input.id, next);
@@ -91,7 +91,8 @@ function buildGraph(data, producers, targetId, choices) {
     const recipeId = activeRecipeId(data, producers, choices, id);
     if (recipeId === null) {
       nodes.set(id, {
-        id, kind: 'item', recipeId: null, yield: 1, inputs: [], leaf: true, cycle: false,
+        id, kind: 'item', recipeId: null, yield: 1, inputs: [], dropped: [],
+        leaf: true, cycle: false,
       });
       return;
     }
@@ -104,18 +105,23 @@ function buildGraph(data, producers, targetId, choices) {
     // strictly below its consumer, so leaving the edge in place would
     // guarantee at least one backwards arrow. The node keeps cycle:true so the
     // renderer can say so.
+    // dropped names the omitted inputs: the craft script needs them to explain
+    // why the item cannot be scheduled rather than emitting a doomed command.
     const next = new Set(stack).add(id);
     const inputs = [];
+    const dropped = [];
     let cycle = false;
     for (const [itemId, qty] of data.recipes[recipeId].i) {
       if (next.has(itemId)) {
         cycle = true;
+        dropped.push(itemId);
         continue;
       }
       inputs.push({id: itemId, qty});
     }
     nodes.set(id, {
-      id, kind: 'item', recipeId, yield: yieldOf(data, recipeId, id), inputs, leaf: false, cycle,
+      id, kind: 'item', recipeId, yield: yieldOf(data, recipeId, id), inputs, dropped,
+      leaf: false, cycle,
     });
 
     for (const input of inputs) visit(input.id, next);
@@ -224,6 +230,54 @@ function baseMaterialsMap(graph, totals) {
 // grow another field without breaking anything already parsing it.
 function baseMaterialsJSON(graph, totals) {
   return JSON.stringify({materials: baseMaterialsMap(graph, totals)}, null, 2);
+}
+
+// craftWaves groups the build's craft steps into waves that can be launched
+// together, indexed by wave number.
+//
+// The wave IS the node's rank, with no further analysis: rankNodes computes
+// rank(x) = max(rank(input) + 1) over the inputs, so the greatest input rank is
+// exactly rank(x) - 1. Every item therefore has an input in the immediately
+// preceding wave (it can never start earlier) and none in its own or a later
+// one (a wave is safe to launch all at once). That is an identity of the
+// ranking, not a property of any particular recipe data.
+//
+// Leaves carry no command — they are the raw materials you must already hold.
+// Neither does a ship or facility target: no recipe in the game produces one,
+// so its final assembly is out of band (see craftScriptText).
+//
+// qty is the exact demand, NOT runs * yield. The server takes an output
+// quantity and rounds it up to whole production runs itself, so asking for 320
+// and asking for 321 both run 107 batches of a yield-3 recipe. Printing the
+// need is honest about what the build requires; made records what the rounding
+// will actually produce so the renderer can disclose the surplus.
+function craftWaves(graph, ranks, totals) {
+  const waves = [[]];
+
+  for (const [id, node] of graph.nodes) {
+    if (node.leaf || !node.recipeId) continue;
+    const rank = ranks.get(id);
+    while (waves.length <= rank) waves.push([]);
+    const runs = totals.batches.get(id) || 0;
+    waves[rank].push({
+      id,
+      recipeId: node.recipeId,
+      qty: totals.demand.get(id) || 0,
+      yield: node.yield,
+      runs,
+      made: runs * node.yield,
+      cycle: node.cycle,
+      dropped: node.dropped || [],
+    });
+  }
+
+  // Sorted by id, not by name: ids are stable where free-text names are not,
+  // so the same build renders byte-identically run to run and two builds diff
+  // cleanly.
+  for (const wave of waves) {
+    wave.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  }
+  return waves;
 }
 
 // ---------------------------------------------------------------------------
@@ -346,7 +400,7 @@ function withRoutingNodes(graph, ranks) {
         if (!nodes.has(wid)) {
           nodes.set(wid, {
             id: wid, kind: 'route', recipeId: null, yield: 1,
-            inputs: [], leaf: false, cycle: false,
+            inputs: [], dropped: [], leaf: false, cycle: false,
           });
           outRanks.set(wid, col);
           dummies.add(wid);
@@ -1123,7 +1177,7 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
-    baseMaterialsMap, baseMaterialsJSON,
+    baseMaterialsMap, baseMaterialsJSON, craftWaves,
     orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout, labelLayout, edgesByNode,
     selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
     itemHref, leafKind, escapeHTML,
