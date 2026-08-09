@@ -522,6 +522,10 @@ function initExplorer() {
     els.list.classList.remove('open');
     els.target.setAttribute('aria-expanded', 'false');
     activeIndex = -1;
+    // Clear the backing array too, not just the visible state. Leaving it
+    // populated lets Escape-then-ArrowDown-then-Enter silently pick an option
+    // the user can no longer see and believes they dismissed.
+    suggestions = [];
   }
 
   function openList(query) {
@@ -589,6 +593,10 @@ function initExplorer() {
     return '<table>' + head + '<tbody>' + body + '</tbody></table>';
   }
 
+  // href is interpolated unescaped: item/recipe ids are always [a-z0-9_] and
+  // categories come from a closed set (see itemHref), so neither can ever
+  // contain a quote or angle bracket. Only the display name, which comes
+  // from free-text game data, needs escaping.
   function nameCell(id, suffix) {
     const href = targetHref(data, id);
     const name = escapeHTML(displayName(data, id));
