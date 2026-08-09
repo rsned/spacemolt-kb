@@ -38,8 +38,13 @@ Two consequences, both verified rather than assumed:
    rank to a higher one (already enforced and tested — `buildGraph` drops
    cycle-closing edges precisely so this holds).
 2. **A wave can never start early.** A rank-*k* node has at least one input at
-   rank exactly *k−1*. Measured across `overmind` (132 nodes),
-   `void_shield_matrix` (12) and `steel_plate` (3): zero violations.
+   rank exactly *k−1*. This is definitional, not empirical: `rankNodes`
+   computes `rank(x) = max(rank(input) + 1)` over the inputs, so the greatest
+   input rank *is* `k−1`. No recipe shape can break it. The only escape is a
+   node with no inputs, which is the cycle-cut case handled below.
+   Independently measured across `overmind` (132 nodes),
+   `void_shield_matrix` (12) and `steel_plate` (3) as a check on the reading
+   of the code: zero violations.
 
 So the answer to "what can run in parallel" is "each column of the chart, left
 to right" — no new analysis, and the schedule is already on screen. A user
