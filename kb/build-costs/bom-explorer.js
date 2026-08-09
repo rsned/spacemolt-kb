@@ -23,11 +23,28 @@ function producersOf(data) {
   return producers;
 }
 
+// isTerminalItem reports whether expansion stops at itemId: ores and raw
+// materials always do, as does anything no recipe produces.
+//
+// The category test is load-bearing, not belt-and-braces. Four items are ores
+// that ALSO have a recipe (energy_crystal, exotic_crystal, void_crystal,
+// hydrogen_gas); without it they would be expanded, the base-material totals
+// would stop agreeing with the static build-cost pages, and
+// circuit_board -> power_cell -> energy_crystal -> circuit_board would become
+// a reachable cycle. This mirrors isTerminal in pkg/bom/calculator.go.
+function isTerminalItem(data, producers, itemId) {
+  const item = data.items[itemId];
+  if (item && (item.c === 'ore' || item.c === 'material')) return true;
+  const ids = producers.get(itemId);
+  return !ids || ids.length === 0;
+}
+
 // activeRecipeId resolves which recipe makes itemId under the current choices:
 // an explicit choice, else the generated default, else the item's only recipe.
-// Returns null for leaves. A choice naming a recipe that does not produce the
-// item is ignored rather than trusted — URLs are user-editable.
+// Returns null for terminal items. A choice naming a recipe that does not
+// produce the item is ignored rather than trusted — URLs are user-editable.
 function activeRecipeId(data, producers, choices, itemId) {
+  if (isTerminalItem(data, producers, itemId)) return null;
   const ids = producers.get(itemId);
   if (!ids || ids.length === 0) return null;
   const chosen = choices[itemId];
@@ -111,7 +128,16 @@ function rankNodes(graph) {
 
   function rank(id, stack) {
     if (ranks.has(id)) return ranks.get(id);
-    if (stack.has(id)) return 0; // cycle backstop; expansion already flagged it
+    if (stack.has(id)) {
+      // Cycle backstop. Cache the 0 so the node cannot later be recomputed to a
+      // higher rank than a consumer that already used this value — that would
+      // leave a right-to-left edge, breaking the invariant this function exists
+      // to establish. Unreachable with real data (no cycles survive the
+      // terminal-item rule); correct rather than merely non-hanging if it ever
+      // is reached.
+      ranks.set(id, 0);
+      return 0;
+    }
     const node = graph.nodes.get(id);
     if (!node || node.inputs.length === 0) {
       ranks.set(id, 0);
@@ -131,5 +157,5 @@ function rankNodes(graph) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {producersOf, activeRecipeId, yieldOf, buildGraph, rankNodes};
+  module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes};
 }

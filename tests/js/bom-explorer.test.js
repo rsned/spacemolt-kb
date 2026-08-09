@@ -65,6 +65,44 @@ test('activeRecipeId returns null for leaves', () => {
   assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'drop_core'), null);
 });
 
+test('an ore stays terminal even when a recipe produces it', () => {
+  const data = fixture();
+  // Real data has four of these: energy_crystal, exotic_crystal, void_crystal,
+  // hydrogen_gas. The Go flattener stops at them because of their category, and
+  // this page must stop in the same place or its totals stop matching the
+  // static build-cost pages.
+  data.recipes.synthesise_crystal = {
+    n: 'Synthesise Crystal', c: 'Refining',
+    i: [['iron_ore', 4]], o: [['energy_crystal', 1]],
+  };
+  const producers = bx.producersOf(data);
+
+  assert.strictEqual(bx.isTerminalItem(data, producers, 'energy_crystal'), true);
+  assert.strictEqual(bx.activeRecipeId(data, producers, {}, 'energy_crystal'), null);
+
+  const g = bx.buildGraph(data, producers, 'hauler', {});
+  assert.strictEqual(g.nodes.get('energy_crystal').leaf, true, 'craftable ore must stay a leaf');
+  assert.deepStrictEqual(g.nodes.get('energy_crystal').inputs, [], 'and must not be expanded');
+});
+
+test('rankNodes caches the cycle backstop so no edge points backwards', () => {
+  const data = fixture();
+  data.recipes.cycle_steel = {n: 'Cycle Steel', c: 'X', i: [['frame', 1]], o: [['steel_plate', 1]]};
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {steel_plate: 'cycle_steel'});
+  const ranks = bx.rankNodes(g);
+
+  // Even in the forced-cycle case the layering invariant must hold: an
+  // uncached backstop lets a node be recomputed above a consumer that already
+  // used its placeholder rank of 0.
+  for (const node of g.nodes.values()) {
+    for (const input of node.inputs) {
+      assert.ok(ranks.get(input.id) < ranks.get(node.id) || node.cycle || g.nodes.get(input.id).cycle,
+        `rank(${input.id})=${ranks.get(input.id)} must be < rank(${node.id})=${ranks.get(node.id)}`);
+    }
+  }
+});
+
 test('activeRecipeId ignores a choice naming a recipe that does not make the item', () => {
   const data = fixture();
   const producers = bx.producersOf(data);
