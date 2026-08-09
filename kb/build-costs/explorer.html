@@ -44,6 +44,13 @@ th:first-child,td:first-child{text-align:left}
 
 .note{font-size:.8rem;color:var(--muted);max-width:70ch;margin-top:1.5rem}
 .empty{color:var(--muted);font-style:italic}
+
+.recipe-note{font-size:.8rem;color:var(--muted);max-width:70ch;margin-top:.75rem}
+.recipe-note summary{cursor:pointer;color:var(--text);font-weight:600}
+.recipe-note summary:hover{color:var(--link)}
+.recipe-note ol{margin:.5rem 0;padding-left:1.25rem}
+.recipe-note li{margin:.3rem 0}
+.recipe-note code{background:var(--panel2);border:1px solid var(--border2);border-radius:3px;padding:0 .25rem;font-size:.85em}
 </style>
 </head>
 <body>
@@ -97,6 +104,36 @@ th:first-child,td:first-child{text-align:left}
     prices; the build cost by station for the selected output is its own page
     in this same directory, not the catalog page an item's node here links to.
   </p>
+
+  <details class="recipe-note">
+    <summary>How is the starting recipe chosen?</summary>
+    <p>
+      When several recipes make the same item, one is preselected. Each rule
+      below is skipped if it would rule out every remaining option:
+    </p>
+    <ol>
+      <li>Packaging recipes (<code>wrap_…</code> / <code>unwrap_…</code>) are
+        never used — they only put an item in a container and take it out
+        again.</li>
+      <li>Recipes calling for salvage are set aside.</li>
+      <li>Recipes are preferred whose ingredients are all mined, or craftable
+        from mined ingredients. This avoids starting you on a path that
+        depends on wildlife drops, mission rewards, or anything else no
+        recipe produces.</li>
+      <li>Of what remains, the recipe producing the most per batch wins.</li>
+      <li>An exact tie is broken by recipe name, alphabetically.</li>
+    </ol>
+    <p>
+      Ingredient cost is not considered — only batch size. And where every
+      recipe needs a drop, one is picked anyway: some items genuinely cannot
+      be made from mined materials alone.
+    </p>
+    <p>
+      These are only starting points. Use the dropdown on any box to choose a
+      different recipe; your choices are kept in the page address, so you can
+      share or bookmark a particular breakdown.
+    </p>
+  </details>
 </div>
 
 <script src="bom-explorer.js"></script>
