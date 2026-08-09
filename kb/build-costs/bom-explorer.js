@@ -439,6 +439,54 @@ function layout(graph, columns, producers, dummies) {
   return {width, height, boxes, edges};
 }
 
+const LABEL_LEAD = 18;    // distance in from the source along the first segment
+const LABEL_STAGGER = 10; // extra lead per edge when 3+ share a source
+const LABEL_GAP = 5;      // vertical clearance between the line and its label
+
+// labelLayout computes each edge's label anchor point.
+//
+// Every edge leaving a box starts at the same point — the box's right-edge
+// midpoint — so a fixed offset stacks every label from a shared source in
+// nearly the same place (the reported bug: two edges out of one ore box, two
+// labels landing on top of each other). A source with a single outgoing
+// edge keeps today's placement exactly as it was: a fixed distance in, just
+// above the line. A source with several instead keeps each edge's label on
+// the side its line actually departs toward — above one that departs upward
+// (dy < 0), below one that departs downward (dy > 0) — and, since the
+// above/below split alone cannot separate three or more edges, also
+// staggers how far each label sits along its segment.
+//
+// dy comes from points[1] - points[0], the edge's ACTUAL departure
+// direction: after routing, points[1] is the nearest waypoint rather than
+// the final consumer, which is exactly the direction the line leaves the
+// box, not the direction it eventually arrives from.
+function labelLayout(edges) {
+  const bySource = new Map();
+  edges.forEach((edge, i) => {
+    if (!bySource.has(edge.from)) bySource.set(edge.from, []);
+    bySource.get(edge.from).push(i);
+  });
+
+  return edges.map((edge, i) => {
+    const [x0, y0] = edge.points[0];
+    const [x1, y1] = edge.points[1];
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+    const len = Math.hypot(dx, dy) || 1;
+
+    const group = bySource.get(edge.from);
+    const shared = group.length > 1;
+    const idx = group.indexOf(i);
+
+    // Clamped so the label never runs past its own segment.
+    const lead = shared ? LABEL_LEAD + idx * LABEL_STAGGER : LABEL_LEAD;
+    const t = Math.min(lead, len - 2) / len;
+    const side = shared && dy > 0 ? 1 : -1;
+
+    return {from: edge.from, to: edge.to, x: x0 + dx * t, y: y0 + dy * t + side * LABEL_GAP};
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Selectable outputs and URL state
 // ---------------------------------------------------------------------------
@@ -838,13 +886,6 @@ function edgeHue(id) {
   return h;
 }
 
-// LABEL_LEAD is how far along an edge's first segment the quantity label
-// sits: just clear of the source box, not at the arrowhead. Every edge
-// converging on one box would otherwise stack its label in the same spot at
-// the arrowhead end; sources spread labels out naturally because each has
-// few outgoing edges.
-const LABEL_LEAD = 18;
-
 // renderChart draws the layered graph. Columns run left to right by rank, so
 // every arrow points rightwards and a base ore feeding the output directly
 // spans the full width.
@@ -878,7 +919,13 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
   svg.append(defs);
 
   // Edges first so boxes paint over them.
-  for (const edge of edges) {
+  //
+  // Label position comes from labelLayout, not a fixed offset per edge: a
+  // fixed offset stacks every label from a shared source in nearly the same
+  // spot, since every edge leaving a box starts at the same point. See
+  // labelLayout's own comment for the above/below/staggered rule.
+  const labelPositions = labelLayout(edges);
+  edges.forEach((edge, i) => {
     const hue = edgeHue(edge.from);
     svg.append(svgEl('path', {
       d: curvePath(edge.points),
@@ -886,18 +933,9 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
       'marker-end': 'url(#bx-arrow-' + hue + ')',
     }));
 
-    // Label sits a fixed distance along the FIRST segment rather than at the
-    // arrowhead: several edges leaving the same source diverge in direction
-    // immediately, so their labels spread apart naturally here, whereas
-    // every edge converging on one consumer would stack at the same point.
-    const [x0, y0] = edge.points[0];
-    const [x1, y1] = edge.points[1];
-    const dx = x1 - x0;
-    const dy = y1 - y0;
-    const len = Math.hypot(dx, dy) || 1;
-    const t = Math.min(LABEL_LEAD, len - 2) / len;
+    const pos = labelPositions[i];
     const label = svgEl('text', {
-      x: x0 + dx * t, y: y0 + dy * t - 5, 'text-anchor': 'start',
+      x: pos.x, y: pos.y, 'text-anchor': 'start',
       fill: 'var(--dim)', 'font-size': 11, 'font-family': 'system-ui,sans-serif',
     });
     // edge.qty is the PER-BATCH recipe input quantity; scale by the consuming
@@ -907,7 +945,7 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
     const labelQty = edge.qty * (totals.batches.get(edge.to) || 1);
     label.textContent = labelQty.toLocaleString();
     svg.append(label);
-  }
+  });
 
   for (const [id, box] of boxes) {
     if (isRoutingNode(id)) continue; // waypoints occupy a slot but draw nothing.
@@ -980,7 +1018,7 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
-    orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout,
+    orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout, labelLayout,
     selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
     itemHref, leafKind, escapeHTML,
     QTY_MIN, QTY_MAX,

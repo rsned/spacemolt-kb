@@ -619,3 +619,77 @@ test('curvePath degenerates safely for a two-point path', () => {
   assert.match(d, /^M0,0/);
   assert.ok(d.includes('10,10'));
 });
+
+// boxOf approximates a rendered label's bounding box the same way the
+// project owner measured the real page: width = text.length * 6,
+// height = 12, anchored at the label's (x, y) baseline (renderChart draws
+// the <text> with that baseline, text-anchor "start", no dominant-baseline,
+// so the glyphs sit above y and run rightward from x).
+function boxOf(pos, text) {
+  return {x: pos.x, y: pos.y - 12, w: text.length * 6, h: 12};
+}
+
+function boxesOverlap(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+test('labelLayout separates two labels from a source that departs both up and down', () => {
+  // ore feeds two siblings in the same column: part_a sorts above ore's row,
+  // part_b below, so ore's two outgoing edges depart in opposite directions
+  // — the exact shape of the reported bug (one source, two consumers, labels
+  // landing on top of each other).
+  const data = {
+    items: {
+      ore: {n: 'Ore', c: 'ore'},
+      part_a: {n: 'Part A', c: 'component'},
+      part_b: {n: 'Part B', c: 'component'},
+    },
+    recipes: {
+      make_a: {n: 'A', c: 'C', i: [['ore', 1]], o: [['part_a', 1]]},
+      make_b: {n: 'B', c: 'C', i: [['ore', 4]], o: [['part_b', 1]]},
+      assemble: {n: 'Asm', c: 'C', i: [['part_a', 1], ['part_b', 1]], o: [['final', 1]]},
+    },
+    targets: {},
+    defaults: {},
+  };
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'final', {});
+  const ranks = bx.rankNodes(g);
+  const routed = bx.withRoutingNodes(g, ranks);
+  const columns = bx.orderColumns(routed.graph, routed.ranks);
+  const {edges} = bx.layout(routed.graph, columns, producers, routed.dummies);
+
+  const fromOre = edges.filter((e) => e.from === 'ore');
+  assert.strictEqual(fromOre.length, 2, 'fixture must give ore two outgoing edges');
+
+  const positions = bx.labelLayout(edges);
+  const boxes = fromOre.map((e) => {
+    const pos = positions[edges.indexOf(e)];
+    return boxOf(pos, String(e.qty));
+  });
+  assert.ok(!boxesOverlap(boxes[0], boxes[1]),
+    `ore's two edge labels overlap: ${JSON.stringify(boxes)}`);
+});
+
+test('labelLayout leaves a source with one outgoing edge unchanged', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'frame', {});
+  const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+  const columns = bx.orderColumns(routed.graph, routed.ranks);
+  const {edges} = bx.layout(routed.graph, columns, producers, routed.dummies);
+
+  // frame has exactly one input (steel_plate), so this is the single-edge
+  // case: the label must sit at the original fixed lead/offset, not the
+  // grouped stagger.
+  const positions = bx.labelLayout(edges);
+  const edge = edges.find((e) => e.to === 'frame');
+  const pos = positions[edges.indexOf(edge)];
+  const [x0, y0] = edge.points[0];
+  const [x1, y1] = edge.points[1];
+  const dx = x1 - x0, dy = y1 - y0;
+  const len = Math.hypot(dx, dy) || 1;
+  const t = Math.min(18, len - 2) / len;
+  assert.strictEqual(pos.x, x0 + dx * t);
+  assert.strictEqual(pos.y, y0 + dy * t - 5);
+});
