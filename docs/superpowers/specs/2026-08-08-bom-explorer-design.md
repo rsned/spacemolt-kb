@@ -382,8 +382,8 @@ one-line count of affected targets on each run.
 ### Visual verification
 
 Before the work is called done, render and eyeball three cases: the two-box
-refining degenerate, a median 4-tier / 11-node target, and `station_core`
-at 10 tiers / 75 nodes.
+refining degenerate, a median-sized target, and the largest graph
+(`overmind`, 10 tiers / 135 nodes).
 
 ### Gates
 
