@@ -41,9 +41,9 @@ Use these exact numbers in assertions about the real database:
 | facilities in `catalog_facilities.json` | 2727 (2650 have `build_materials`) |
 | craftable items that are NOT terminal (selectable) | 610 (615 distinct recipe outputs, minus 4 craftable ores, minus `fuel_reserve` which has no `items` row) |
 | selectable outputs | 610 + 335 + 2650 = 3595 |
-| deepest target | `annihilator`, 10 tiers, 92 distinct items |
-| widest target | `overmind`, 10 tiers, 135 distinct items |
-| `station_core` (the sample target used in checks) | 10 tiers, 74 distinct items |
+| deepest target | `annihilator`, 10 tiers, 91 distinct items |
+| widest target | `overmind`, 10 tiers, 132 distinct items |
+| `station_core` (the sample target used in checks) | 10 tiers, 73 distinct items |
 | median item target | 5 tiers, 15 distinct items (of 611) |
 | `power_core` (the sample median-case target) | 6 tiers, 16 distinct items |
 
@@ -54,6 +54,15 @@ the generated `defaults` (from `bom.SelectRecipe`), and 18 multi-recipe items
 resolve differently under the two rules. A second draft then measured them before the terminal-item rule
 (craftable ores were still being expanded). The figures above are measured
 against the real data through the shipped code as it now stands.
+
+**Correction 2 (2026-08-09, verified):** Task 10's switch to
+`bom.SelectRecipeSourceable` with a structural obtainability filter changed
+12 items' defaults, which changed graph sizes for the targets above:
+`station_core` 74 → 73 nodes, `overmind` 135 → 132 nodes, `annihilator`
+92 → 91 nodes (tier counts unchanged). Also measured: `all_mine`, once the
+deepest target at an earlier point in the branch's history, is now 9 tiers /
+85 nodes and no longer the deepest. The figures in the table above reflect
+`recipe-graph.json` as shipped.
 
 ## File Structure
 

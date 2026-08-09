@@ -45,6 +45,7 @@ The two `*.db` files are symlinks to their authoritative sources; the KB is read
 | `system-map` | Standalone SVG renderer for a single star system, from game API JSON or the knowledge DB. | `-json`, `-map`, `-db`, `-system`, `-o` |
 | `test-system-map` | Generates 60+ HTML test pages exercising every rendering path (all spectral types O–Y, luminosity classes Ia–VII, white-dwarf variants, planet classes, POI subtypes, black holes, multi-star systems, animated traffic). | _(hardcoded)_ |
 | `planet-land-ratio-test` | Test grid of planet types across a range of land/liquid ratios, plus an HTML preview. | _(hardcoded, writes to `/tmp/land-ratio-test`)_ |
+| `generate-bom-explorer` | Builds `kb/build-costs/recipe-graph.json`, the data file for the interactive Bill of Materials explorer (`kb/build-costs/explorer.html`). Reads only `crafting.db` and the newest snapshot catalogs — no market DB, so it never goes stale against market data. | `-crafting`, `-catalog`, `-out` |
 
 ### Example: regenerate the core item/recipe/system site
 
@@ -76,6 +77,7 @@ go run ./cmd/system-map -db spacemolt-knowledge.db -system sol [-o output.svg]
 | `pkg/jumpmap` | SVG visualizations of hyper-jump analysis: destination starbursts and a 360° coverage dial. | `RenderArrows`, `RenderCoverageDial`, `DisplayBlockedPct` |
 | `pkg/tierchart` | Groups tiered module families (e.g. `pulse_laser I–III`) and selects the relevant stat columns for comparison tables. | `TierStats`, `TierFamily`, `BuildFamilies`, `ColumnLabel` |
 | `pkg/kbdb` | Manages KB-specific metadata tables in the knowledge DB so derived data persists across regenerations. | `Schema`, `Migrate` |
+| `pkg/catalog` | Ship and facility catalog loaders, plus latest-snapshot-directory discovery, shared by `generate-build-costs` and `generate-bom-explorer`. | `FindLatestDir`, `LoadShips`, `LoadFacilities` |
 | `internal/kbnav` | Single source of truth for the site header and top navigation bar, shared by all generators. | `Items`, `Header` |
 
 ## Overlays — manual content enrichment

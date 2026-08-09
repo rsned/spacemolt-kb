@@ -104,7 +104,7 @@ keeps its existing behaviour and its existing tests must still pass.
   converted to `int` on write. Facility entries without `build_materials`
   (77 of 2727) are omitted.
 - `defaults` — an entry for each of the 62 items with more than one
-  producing recipe, computed **in Go by the existing `bom.SelectRecipe`**,
+  producing recipe, computed **in Go by `bom.SelectRecipeSourceable`**,
   called on the *full* recipe set (it applies its own `wrap_*` / `unwrap_*`
   exclusion as filtering layer 1), with a **structural obtainability filter**
   in place of the market-aware one the static pages use: a recipe is preferred
@@ -130,8 +130,10 @@ keeps its existing behaviour and its existing tests must still pass.
   Requiring no market data also keeps the generator sub-second and immune to
   market drift.
   Items with exactly one recipe are omitted; the page falls back to that
-  single recipe. This is what makes the explorer open on the same recipe path
-  the static per-target pages already display.
+  single recipe. The explorer's defaults deliberately diverge from the static
+  per-target pages' recipe choices for the items described above — see the
+  paragraph above on why the structurally-obtainable path is the better
+  default, not a parity target.
 
 The generator opens only `crafting.db` and the newest snapshot directory. It
 requires no `market.db`, so the page cannot go stale against market data and
@@ -303,10 +305,14 @@ That is expected, not a defect.
 
 ### 4. Order within columns
 
-Two barycentre passes: each node sorts to the mean vertical position of its
-neighbours in the adjacent column. Standard, roughly twenty lines, and the
-difference between readable and unreadable at the `station_core` worst case
-(10 tiers, 75 nodes).
+One barycentre pass, right-to-left from the target: each node sorts to the
+mean vertical position of its neighbours in the adjacent column. A second
+right-to-left pass is a provable no-op — each column depends only on the
+column to its right, which the single sweep already finalised — and an
+alternating right-left-right sweep was measured to give byte-identical
+orderings and identical edge-crossing counts on the largest real graphs. One
+pass is standard, roughly twenty lines, and the difference between readable
+and unreadable at the `station_core` worst case (10 tiers, 73 nodes).
 
 ### 5. Edges
 
@@ -343,14 +349,20 @@ data. All 20 are omitted from the generated `recipes` map, so they reach
 neither `defaults` nor any selector list — the same exclusion layer 1 of the
 existing `bom.selectRecipe` applies.
 
-As a backstop, if expansion re-encounters an item already on the current DFS
-stack, that node renders as "cycle — not expanded" and expansion stops there.
-The page must never hang, whatever combination of choices a user makes.
+As a backstop, `buildGraph` DROPS an input edge that would close a cycle —
+i.e. one that would re-add an item already on the current DFS stack — rather
+than merely declining to recurse into it. This makes the graph acyclic by
+construction, which is the only way the layering invariant in step 3 can
+hold: no ranking of a cyclic graph can put every input strictly below its
+consumer, so leaving the edge in place would guarantee at least one backwards
+arrow. The node whose edge was dropped still renders as "cycle — not
+expanded". The page must never hang, whatever combination of choices a user
+makes.
 
 ### Scale
 
 Median item target: 5 tiers, 15 distinct items. Worst case `station_core`: 10
-tiers, 75 items. Layout is O(V+E) and completes imperceptibly.
+tiers, 73 items. Layout is O(V+E) and completes imperceptibly.
 
 ## Testing
 
@@ -361,7 +373,10 @@ a temp snapshot directory plus an in-memory SQLite database.
 
 - Every craftable item, recipe, ship, and facility with `build_materials`
   reaches the JSON; counts asserted.
-- `defaults` agrees with `bom.SelectRecipe` for all multi-recipe items.
+- `defaults` prefers a structurally-obtainable recipe for every multi-recipe
+  item where one exists (see "Cross-check against the existing tables" below
+  — equality with the committed `bill_of_materials` table's recipe choices is
+  explicitly NOT asserted).
 - `wrap_*` / `unwrap_*` recipes appear in neither `defaults` nor any item's
   selectable recipe list.
 - Facilities lacking `build_materials` are omitted; float quantities convert

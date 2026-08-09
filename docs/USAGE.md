@@ -32,3 +32,17 @@ per-unit arithmetic — see `cmd/generate-bom-explorer/build.go`'s
 `computeDefaults` doc comment and
 `docs/superpowers/specs/2026-08-08-bom-explorer-design.md` for the full
 reasoning.
+
+### BoM Explorer link on the build-cost pages
+
+The "Explore this BoM interactively →" link is emitted by
+`generate-build-costs`, not by `generate-bom-explorer`, so it only appears on
+the per-target build-cost pages after `generate-build-costs` is next run —
+and that needs `market.db`. This is a recorded decision, not an oversight:
+the two generators regenerate on different cadences (the explorer's data
+needs only `crafting.db` and a snapshot, so it can be refreshed far more
+often than the market-dependent build-cost pages), and linking them at
+generation time rather than at request time keeps both generators
+independent. Until `generate-build-costs` is next run, `explorer.html` is
+still reachable directly by URL (`explorer.html?target=<id>`); it just has no
+inbound link from the build-cost pages yet.
