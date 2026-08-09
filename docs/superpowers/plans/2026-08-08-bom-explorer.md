@@ -2487,7 +2487,7 @@ Extend the export line to add the new pure helpers:
 
 ```js
   module.exports = {producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes,
-    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty,
+    topoOrder, rollUp, orderColumns, layout, selectableOutputs, clampQty, hasOwn,
     encodeState, decodeState, itemHref, leafKind, escapeHTML, QTY_MIN, QTY_MAX};
 ```
 
