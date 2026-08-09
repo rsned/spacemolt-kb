@@ -53,7 +53,7 @@ th:first-child,td:first-child{text-align:left}
 .json-out h2{font-size:1rem;margin:0 0 .4rem;display:flex;align-items:center;gap:.6rem}
 .copy-btn{background:var(--panel2);color:var(--link);border:1px solid var(--border);border-radius:4px;padding:.1rem .5rem;font-size:.8rem;font-family:inherit;cursor:pointer}
 .copy-btn:hover{border-color:var(--link)}
-#json-blob{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.6rem .8rem;margin:0;max-height:22rem;overflow:auto;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text)}
+#json-blob,#craft-script{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.6rem .8rem;margin:0;max-height:22rem;overflow:auto;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text)}
 
 .recipe-note{font-size:.8rem;color:var(--muted);max-width:70ch;margin-top:.75rem}
 .recipe-note summary{cursor:pointer;color:var(--text);font-weight:600}
@@ -120,6 +120,13 @@ th:first-child,td:first-child{text-align:left}
       <button type="button" id="copy-json" class="copy-btn">copy</button>
     </h2>
     <pre id="json-blob"></pre>
+  </section>
+
+  <section class="json-out">
+    <h2>Craft script
+      <button type="button" id="copy-script" class="copy-btn">copy</button>
+    </h2>
+    <pre id="craft-script"></pre>
   </section>
 
   <details class="recipe-note">

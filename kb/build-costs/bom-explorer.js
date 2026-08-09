@@ -848,6 +848,8 @@ function initExplorer() {
     surplusSection: document.getElementById('surplus-section'),
     json: document.getElementById('json-blob'),
     copy: document.getElementById('copy-json'),
+    script: document.getElementById('craft-script'),
+    copyScript: document.getElementById('copy-script'),
   };
 
   let data = null;
@@ -961,22 +963,26 @@ function initExplorer() {
     render();
   });
 
-  // The blob is selectable text, so copying is a convenience, not the only
-  // route to it: clipboard access is permission-gated and absent on insecure
+  // The blobs are selectable text, so copying is a convenience, not the only
+  // route to them: clipboard access is permission-gated and absent on insecure
   // origins, so a failure says so rather than pretending it worked.
-  els.copy.addEventListener('click', () => {
-    const done = (msg) => {
-      els.copy.textContent = msg;
-      setTimeout(() => { els.copy.textContent = 'copy'; }, COPY_LABEL_MS);
-    };
-    if (!navigator.clipboard) {
-      done('select and copy');
-      return;
-    }
-    navigator.clipboard.writeText(els.json.textContent)
-      .then(() => done('copied'))
-      .catch(() => done('copy failed'));
-  });
+  function wireCopy(button, source) {
+    button.addEventListener('click', () => {
+      const done = (msg) => {
+        button.textContent = msg;
+        setTimeout(() => { button.textContent = 'copy'; }, COPY_LABEL_MS);
+      };
+      if (!navigator.clipboard) {
+        done('select and copy');
+        return;
+      }
+      navigator.clipboard.writeText(source.textContent)
+        .then(() => done('copied'))
+        .catch(() => done('copy failed'));
+    });
+  }
+  wireCopy(els.copy, els.json);
+  wireCopy(els.copyScript, els.script);
 
   // -- rendering ------------------------------------------------------------
 
@@ -1062,6 +1068,17 @@ function initExplorer() {
     // never innerHTML: this is a <pre> and the blob must render as literal
     // JSON.
     els.json.textContent = baseMaterialsJSON(graph, totals);
+
+    // The same build as commands. kind decides how the script closes: a ship
+    // or facility has no recipe of its own, so it hands off to the shipyard or
+    // the facility build action instead of ending on a craft line.
+    const kind = isTarget ? data.targets[state.target].t : 'item';
+    els.script.textContent = craftScriptText(data, craftWaves(graph, ranks, totals), {
+      target: state.target,
+      kind,
+      qty: state.qty,
+      baseMaterials: baseMaterialsMap(graph, totals),
+    });
 
     // Direct inputs: the target's own inputs, scaled by its batch count.
     const runs = totals.batches.get(state.target) || 1;
