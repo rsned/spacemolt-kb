@@ -693,3 +693,27 @@ test('labelLayout leaves a source with one outgoing edge unchanged', () => {
   assert.strictEqual(pos.x, x0 + dx * t);
   assert.strictEqual(pos.y, y0 + dy * t - 5);
 });
+
+test('edgesByNode maps each node to every edge touching it, as source or consumer', () => {
+  const data = fixture();
+  const producers = bx.producersOf(data);
+  const g = bx.buildGraph(data, producers, 'widget', {});
+  const routed = bx.withRoutingNodes(g, bx.rankNodes(g));
+  const columns = bx.orderColumns(routed.graph, routed.ranks);
+  const {edges} = bx.layout(routed.graph, columns, producers, routed.dummies);
+
+  const byNode = bx.edgesByNode(edges);
+  // steel_plate: iron_ore->steel_plate (in), steel_plate->frame (out),
+  // steel_plate->widget (out).
+  assert.strictEqual(byNode.get('steel_plate').length, 3);
+  // frame: steel_plate->frame (in), frame->widget (out).
+  assert.strictEqual(byNode.get('frame').length, 2);
+  // widget: three inputs, no outputs (it's the target).
+  assert.strictEqual(byNode.get('widget').length, 3);
+  assert.ok(!byNode.has('nonexistent_node'));
+
+  // Every returned edge must actually touch the node it's filed under.
+  for (const [id, touching] of byNode) {
+    for (const e of touching) assert.ok(e.from === id || e.to === id);
+  }
+});

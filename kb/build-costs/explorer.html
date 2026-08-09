@@ -35,6 +35,10 @@ th:first-child,td:first-child{text-align:left}
 .chart-head .reset-btn{margin-left:.75rem;background:var(--panel2);color:var(--link);border:1px solid var(--border);border-radius:4px;padding:.1rem .5rem;font-size:.8rem;font-family:inherit;cursor:pointer}
 .chart-head .reset-btn:hover{border-color:var(--link)}
 #chart{overflow-x:auto;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:.5rem;min-height:6rem}
+#chart svg path{transition:opacity .12s}
+#chart svg .bx-node{transition:opacity .12s}
+#chart svg .bx-dim{opacity:.12}
+#chart svg .bx-box-dim{opacity:.55}
 
 .tables{display:flex;flex-wrap:wrap;gap:2rem;margin-top:1rem}
 .tables section{min-width:18rem}

@@ -487,6 +487,21 @@ function labelLayout(edges) {
   });
 }
 
+// edgesByNode maps each node id that appears as an edge endpoint to every
+// edge touching it, whether as source or consumer. Pure, so the hover/focus
+// highlight (renderChart, DOM-only) can be built and tested as "which edges
+// touch this node" — a property of the edge list alone — without any DOM.
+function edgesByNode(edges) {
+  const map = new Map();
+  for (const edge of edges) {
+    if (!map.has(edge.from)) map.set(edge.from, []);
+    map.get(edge.from).push(edge);
+    if (!map.has(edge.to)) map.set(edge.to, []);
+    map.get(edge.to).push(edge);
+  }
+  return map;
+}
+
 // ---------------------------------------------------------------------------
 // Selectable outputs and URL state
 // ---------------------------------------------------------------------------
@@ -924,14 +939,22 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
   // fixed offset stacks every label from a shared source in nearly the same
   // spot, since every edge leaving a box starts at the same point. See
   // labelLayout's own comment for the above/below/staggered rule.
+  //
+  // Each edge's <path> is also filed under edgesByNode so hovering or
+  // focusing a node box (below) can find exactly the paths touching it,
+  // without a DOM query on every hover.
   const labelPositions = labelLayout(edges);
+  const touchingByNode = edgesByNode(edges); // node id -> the edges touching it
+  const edgePathEls = new Map(); // edge -> its <path> element
   edges.forEach((edge, i) => {
     const hue = edgeHue(edge.from);
-    svg.append(svgEl('path', {
+    const edgePath = svgEl('path', {
       d: curvePath(edge.points),
       fill: 'none', stroke: 'hsl(' + hue + ' var(--edge-s) var(--edge-l))', 'stroke-width': 1.5,
       'marker-end': 'url(#bx-arrow-' + hue + ')',
-    }));
+    });
+    svg.append(edgePath);
+    edgePathEls.set(edge, edgePath);
 
     const pos = labelPositions[i];
     const label = svgEl('text', {
@@ -947,12 +970,46 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
     svg.append(label);
   });
 
+  // Hovering or focusing a node box highlights the edges touching it (as
+  // either source or consumer — direct edges only, not the whole upstream
+  // chain) and dims the rest, plus dims unrelated boxes a little more
+  // gently. Dimming is opacity-only, via a class, never a stroke-colour
+  // change: edges are hsl() built from theme custom properties and must
+  // stay theme-correct in both.
+  const boxGroups = new Map(); // node id -> its <g>
+  function highlight(nodeId) {
+    const touching = new Set(touchingByNode.get(nodeId) || []);
+    const related = new Set([nodeId]);
+    for (const edge of touching) { related.add(edge.from); related.add(edge.to); }
+    for (const [edge, el] of edgePathEls) el.classList.toggle('bx-dim', !touching.has(edge));
+    for (const [id, g] of boxGroups) g.classList.toggle('bx-box-dim', !related.has(id));
+  }
+  function clearHighlight() {
+    for (const el of edgePathEls.values()) el.classList.remove('bx-dim');
+    for (const g of boxGroups.values()) g.classList.remove('bx-box-dim');
+  }
+
   for (const [id, box] of boxes) {
     if (isRoutingNode(id)) continue; // waypoints occupy a slot but draw nothing.
     const node = graph.nodes.get(id);
     const stroke = id === graph.targetId ? 'var(--accent)'
       : node.leaf ? 'var(--muted2)' : 'var(--border)';
-    svg.append(svgEl('rect', {
+
+    // Wrapped in a <g>: the foreignObject below covers the rect entirely, so
+    // a hover/focus listener on the rect alone would not fire reliably.
+    const nodeGroup = svgEl('g', {class: 'bx-node'});
+    nodeGroup.addEventListener('mouseenter', () => highlight(id));
+    nodeGroup.addEventListener('mouseleave', clearHighlight);
+    // focusin/focusout (not focus/blur) because they bubble: the actually
+    // focusable elements are the name link and, on multi-recipe items, the
+    // recipe <select>, both descendants of this <g> rather than the <g>
+    // itself.
+    nodeGroup.addEventListener('focusin', () => highlight(id));
+    nodeGroup.addEventListener('focusout', clearHighlight);
+    boxGroups.set(id, nodeGroup);
+    svg.append(nodeGroup);
+
+    nodeGroup.append(svgEl('rect', {
       x: box.x, y: box.y, width: box.w, height: box.h, rx: 5,
       fill: 'var(--panel2)', stroke, 'stroke-width': id === graph.targetId ? 2 : 1,
     }));
@@ -1005,7 +1062,7 @@ function renderChart(container, data, producers, graph, columns, totals, onChoic
     }
 
     fo.append(div);
-    svg.append(fo);
+    nodeGroup.append(fo);
   }
 
   container.append(svg);
@@ -1018,7 +1075,7 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     producersOf, isTerminalItem, activeRecipeId, yieldOf, buildGraph, rankNodes, topoOrder, rollUp,
-    orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout, labelLayout,
+    orderColumns, isRoutingNode, withRoutingNodes, curvePath, layout, labelLayout, edgesByNode,
     selectableOutputs, clampQty, hasOwn, encodeState, decodeState,
     itemHref, leafKind, escapeHTML,
     QTY_MIN, QTY_MAX,
