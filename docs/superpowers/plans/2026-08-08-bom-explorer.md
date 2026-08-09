@@ -3282,7 +3282,8 @@ Real item ids are `[a-z0-9_]`, so the `__route:` prefix cannot collide.
 
 ```js
 const ROUTE_PREFIX = '__route:';
-const ROUTE_SLOT_H = 10;
+const ROUTE_SLOT_H = 8;
+const ROUTE_GAP = 4;   // waypoints pack tighter than boxes — see below
 
 // isRoutingNode reports whether an id is an invisible edge waypoint rather
 // than a real item.
@@ -3359,6 +3360,11 @@ function curvePath(points) {
 Then change `layout` to `layout(graph, columns, producers, dummies)`:
 
 - `boxHeight` returns `ROUTE_SLOT_H` for a routing node, otherwise as now.
+- **Waypoints pack with `ROUTE_GAP`, not `ROW_GAP`.** This matters at scale:
+  `opus_magna` has 98 edges spanning more than one column, which generate
+  roughly 300 waypoints across 8 columns. At box spacing that would roughly
+  double the canvas height; at 8px slots with a 4px gap the added height stays
+  modest. Use `ROW_GAP` only between two real boxes.
 - A routing node contributes no `boxes` entry for rendering purposes, but DOES
   occupy vertical space in the packing — keep it in `boxes` so the packer sees
   it, and let `renderChart` skip drawing anything whose id `isRoutingNode`.
@@ -3378,7 +3384,11 @@ Expected: PASS, 44 tests.
 - Draw edges with `<path d="...">` from `curvePath(edge.points)` instead of
   `<polyline points="...">`, keeping `fill: none`, the same stroke custom
   properties and the arrowhead marker.
-- Keep the quantity label near the arrowhead, at the LAST point of the path.
+- Place the quantity label on the FIRST segment of the path, just clear of the
+  source box, not at the arrowhead. At the arrowhead, every edge converging on
+  one box stacks its label in the same place — visible today on `opus_magna`,
+  where the `1,400` into Opus Magna is clipped by the box edge. Labels at the
+  source spread out naturally because each source has few outgoing edges.
 
 - [ ] **Step 6: Verify against the real data**
 
@@ -3407,8 +3417,11 @@ console.log("targets checked:", checked, "| edge points inside an unrelated box:
 '
 ```
 
-Expected: `edge points inside an unrelated box: 0`. `shield_recharger_ii`
-previously had 3 such crossings.
+Expected: `edge points inside an unrelated box: 0`. For scale, before this
+change `shield_recharger_ii` had 3 such crossings and `opus_magna` had **125
+of its 182 edges** (69%) passing through a box. Also report the canvas height
+for `opus_magna` before and after — it will grow, and the waypoint packing
+constants exist to keep that growth modest.
 
 - [ ] **Step 7: Visual check**
 
