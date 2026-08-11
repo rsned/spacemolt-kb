@@ -2372,7 +2372,7 @@ func renderEmpireMap(empire EmpireGroup, sysLookup map[string]*System) string {
 		if s.IsStronghold {
 			dotColor = "#FF0000"
 		}
-		b.WriteString(fmt.Sprintf(`<a href="%s.html"><circle cx="%.1f" cy="%.1f" r="3.5" fill="%s" stroke="#000" stroke-width="0.5" class="empire-sys-dot"><title>%s</title></circle>`,
+		b.WriteString(fmt.Sprintf(`<a href="%s/"><circle cx="%.1f" cy="%.1f" r="3.5" fill="%s" stroke="#000" stroke-width="0.5" class="empire-sys-dot"><title>%s</title></circle>`,
 			s.ID, sx, sy, dotColor, s.Name))
 
 		// Capital star overlay.
