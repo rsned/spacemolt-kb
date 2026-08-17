@@ -73,6 +73,46 @@ battle: 840 snapshots, 840 autopilot decisions, 405 zone moves, 371 attacks,
 `npc_dry_retreat_retarget`, `npc_close_braced_stance`, `station_fire`, …). This
 is the AI's own decision trace and appears nowhere on the public site.
 
+### 1b. Scale: battles reach hundreds of participants and hundreds of ticks
+
+The 30-tick reference battle is small. Measured against the operator's extreme
+cases:
+
+| battle | ticks | participants | notes |
+|---|---|---|---|
+| `a2619bbe…` Node Beta | 30 | 42 | the reference |
+| `b131fd5a…` Kitalpha | 158 | 5 | four sides |
+| `de4452d5…` Zaniah | **620** | 3 | player vs station, 2,808 shots |
+| `c79f7810…` GSC-0008 | 264 | **373** | 85 kills |
+
+Two hard consequences.
+
+**The WebSocket transport caps a page at 10 MB** (`SetReadLimit` in
+`pkg/game/client.go`). At ~370 participants a tick is roughly 90 KB of
+snapshot, so a 200-tick page is far over the limit: the connection dies
+mid-read, the command times out, and — because each oversized frame costs a
+reconnect — two attempts inside 30 s trip the client's own session-contention
+guard and abort the run. `battle-export` therefore takes `--limit` (the huge
+battle needs about 10 ticks per page, 27 requests, ~85 s) and halves the page on
+failure with a 35 s backoff. Raising the global read limit was rejected: it
+would inflate buffers for all ~160 fleet workers to suit one tool.
+
+**A big replay is 24 MB of JSON, 3.2 MB gzipped.** The breakdown for
+`c79f7810…`: ship states 19.0 MB across 86,985 rows (218 B each), chatter
+4.6 MB, and everything else — shots, moves, participants — under 0.7 MB
+combined. Two mitigations are in: coordinates are rounded to 3 decimals (the
+server sends full float64 like `2.5294108071995476` for a field spanning three
+units), and `--gzip` writes a compressed model, which a browser fetching over
+HTTP decompresses transparently.
+
+**If a browser still struggles, the lever is ship states, not everything else.**
+They are dense by deliberate choice — every ship appears in every frame so the
+renderer never has to reconstruct carry-forward — but most ships do not change
+between ticks, so a sparse wire format (emit only changed ships, rehydrate in
+the loader) would preserve those semantics at a fraction of the size. Chatter is
+the second lever: 4.6 MB of short repeated reason strings, ripe for interning or
+for dropping on large battles.
+
 ### 2. The API is CORS-open to any origin, but battle reads require a login
 
 - Endpoint `https://game.spacemolt.com/api/v1/get_battle_log`, header
@@ -363,8 +403,11 @@ ground rings, scan-line pulse, idle rotation. Additions specific to the table:
 - **One spoke per side**, anchored at the side's mean bearing, since advance and
   retreat run along it. Side rosters and labels hang off the outer end of their
   own spoke, which is what keeps a four-way battle legible.
-- **Side identity by colour**, `kind` by outline treatment (station gets a
-  fixed emplacement glyph rather than a hull; drones/creatures read distinctly).
+- **Side identity by colour**, `kind` by outline treatment. **Stations have no
+  SVG and get a fixed glyph**, which the official viewer draws as a filled
+  hexagon with a small circle at each corner, wrapped in two concentric rings
+  (see `Mera Sanctum Station`). Reproducing that keeps the two viewers legible
+  to the same reader. Drones and creatures likewise need to read distinctly.
 - **Per-ship state ring**: shield as an outer arc, hull as an inner arc, both
   as fractions of max. This is the record sheet's armour diagram, reduced.
 - **Targeting lines** from `targetId`, drawn faint and continuously — the
