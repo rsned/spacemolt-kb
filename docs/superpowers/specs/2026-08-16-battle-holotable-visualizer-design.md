@@ -254,21 +254,61 @@ guesses were wrong; the assets are the source of truth.
   rather than silently trusting.
 - No fills, strokes, or colours baked in — the renderer themes them.
 
-**Join key is the one open gap.** The battle log's `ship_class` matches the
-ships catalog exactly (`paradox`, `silent_tide`, `vigil` unprefixed;
-`voidborn_singularity` is genuinely one of only 7 faction-prefixed catalog ids).
-The SVG filenames, however, are mostly faction-prefixed: `voidborn_anamnesis.svg`
-for catalog id `anamnesis`. Measured across the 338 catalog ships: **59 resolve
-by direct filename, 212 more via `<faction>_<id>`, and 67 have no SVG at all**
-(including `silent_tide`, which appears in the reference battle). A further 124
-SVGs match no catalog ship — most likely legacy hulls the catalog refresh
-erases ([[reference_legacy_ship_classes_erased_by_refresh]]), which makes the
-SVG set in places MORE complete than the catalog.
+**Coordinate convention** (operator, ratified against the shipped assets):
 
-Resolution is therefore two-step — try `<ship_class>.svg`, then
-`<faction>_<ship_class>.svg` using the catalog's faction — unless the pipeline
-emits catalog-keyed filenames or an alias map, which would be cheaper and is
-the operator's call.
+- **Origin (0,0) is the top-left of the viewBox** — in ship terms the
+  stern-side / starboard-side corner.
+- **x increases stern → bow**, so the bow is at the right edge.
+- **y increases starboard → port** (standard SVG y-down).
+- The hull is **inset by a 10-unit margin on all sides**, so its own bbox spans
+  `(10,10) → (W−10, H−10)`, with **W = 1020 always** (1000 units of hull length
+  plus margins) and **H varying by ship width**.
+
+Verified across all 395 files: W is 1020 on every one, and `data-aspect` equals
+`1000/(H−20)` on 391 of them — i.e. aspect is hull length over hull width, with
+the margins removed.
+
+The renderer's transform follows directly: hull centre is `(510, H/2)`, hull
+length is 1000, so drawing a ship of table-length `L` at table position
+`(x, y)` is translate `−(510, H/2)`, scale `L/1000`, place at `(x, y)`. **No
+rotation is needed for a side-1 ship** — bow-right already points along the
+engagement axis — and a side-2 ship is a mirror (`scaleX(−1)`), not a 180°
+rotation, which keeps its dorsal detail facing the viewer.
+
+**The join key is settled: the filename IS `data-ship`.** All 395 files satisfy
+`filename == data-ship`, and `data-ship` is the ships-catalog id, which is also
+exactly what the battle log's `ship_class` emits. An earlier draft of this spec
+described a two-step faction-prefix resolver; the pipeline's rename made it
+unnecessary. Index by filename (or equivalently by `data-ship`) and stop there.
+
+Provenance is recorded per file in `data-kb-match`, and the 395 files split
+**275 catalog-named / 120 art-only**:
+
+- **verbatim** 59 — the art stem already was the catalog id, including the six
+  genuinely faction-prefixed ids such as `crimson_devastator`.
+- **stripped** 212 — a faction prefix removed to reach the catalog id
+  (`outerrim_rapid_smelter` → `rapid_smelter.svg`).
+- **fuzzy** 4 — name variants reconciled by hand: `huffenpuff`→`huffnpuff`,
+  `first_step`→`first_step_dreadnought`, `meridian`→`meridian_freighter`,
+  `survey`→`survey_vessel`. These are the only joins that were inferred rather
+  than derived, so they are the ones to re-check if a hull ever looks wrong.
+- **none** 120 — real art with no catalog row, keeping its stem name and
+  flagged with a red "no KB ship" badge in the gallery. Likely unreleased or
+  removed ships; note that several are hulls our own fleet still flies
+  ([[reference_legacy_ship_classes_erased_by_refresh]]), so art-only does not
+  mean unused.
+
+Seven duplicate art files were skipped — the old two-view anomaly pairs, where
+the verbatim-named art won (`precept` kept over `solarian_precept`).
+`data-art-stem` preserves the original asset name for tracing.
+
+**Coverage, measured 2026-08-17:** 275 of 338 catalog ships (81%) have art, and
+63 do not. Against what actually matters for a replay — the hulls our fleet
+flies — coverage is **433 of 435 ships, 99.5%**, with only `rubble` and
+`scrutiny` missing at one ship each. For the reference battle, 14 of 16 classes
+resolve; `anamnesis` and `silent_tide` do not, and the station has no
+`ship_class` at all. The fallback therefore still has to exist, but it is a rare
+path rather than the common one.
 
 **Phase 2 — low-poly mesh** (`kb/data/ship_mesh/<ship_class>.json` or `.glb`):
 
