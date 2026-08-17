@@ -350,7 +350,18 @@ Mostly KB, with one item in `spacemolt`:
    anchor a side's baseline is a presentation call best made from a first render.
 3. **Tick cadence for playback.** Game ticks are ~10 s; replay wants to be much
    faster, but interpolation between two snapshots needs a chosen easing.
-4. **Sequencing of P0/P1 against the KB evals.** The SVG set is a KB acceptance
+4. **`hull` reads 0 for some participants, including on the first tick.** In
+   the reference export 802 of 840 ship-states carry `hull > 0`, but 38 do not,
+   and 4 participants never report a positive hull at all — including a police
+   ship on tick 1 with `max_hull: 75`, full shields, and no damage taken. Some
+   of those zeros are genuine (a destroyed ship's last state), but not the
+   tick-1 ones. Until this is understood the renderer should treat a 0/max hull
+   as "unknown" rather than drawing an empty hull bar, or a third of the police
+   wing will look derelict from the opening frame.
+5. **The station has no `ship_class`** (empty string), so it is the first real
+   consumer of the asset fallback and needs its own emplacement glyph rather
+   than a hull.
+6. **Sequencing of P0/P1 against the KB evals.** The SVG set is a KB acceptance
    criterion, so P1 draws against it directly — but P0 (fetch helper, adapter,
    golden tests) depends on nothing and can be built now. Whether P1 waits for
    the full set or starts against the subset already passing eval is a
