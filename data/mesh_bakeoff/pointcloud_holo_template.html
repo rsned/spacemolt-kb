@@ -1,0 +1,201 @@
+<!doctype html><meta charset="utf-8"><title>KB holo viewer prototype</title>
+<style>
+  body { background:#0c0e12; color:#9aa1ab; font:13px system-ui,sans-serif;
+         display:flex; flex-direction:column; align-items:center; margin:24px; }
+  canvas { touch-action:none; cursor:grab; max-width:100%; }
+  .hint { margin-top:10px; color:#5f6a78; }
+  #ships button { background:#1c2028; color:#9aa1ab; border:1px solid #333a46;
+                  border-radius:4px; padding:5px 10px; cursor:pointer; font-size:12px; }
+  #ships button.sel { background:#22384c; color:#9fd9ff; border-color:#3d6d94; }
+</style>
+<h3 id="title" style="color:#cfd3da">holographic display prototype</h3>
+<div id="ships" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+<canvas id="c" width="640" height="640"></canvas>
+<div class="hint" style="display:flex;gap:10px;align-items:center">
+  detail <input id="detail" type="range" min="1" max="6" step="1" value="5">
+  <span id="detail-label"></span>
+</div>
+<div class="hint">drag to orbit — idles back into the showroom spin</div>
+<script>
+__CLOUD_DATA__
+// SHIPS = { stem: {n, cam:{elev,azim}, b64} }; blob layout per ship:
+// int16 xyz ×3N, int8 normal ×3N, uint8 rgb ×3N
+let pts, nrm, rgb, N_PTS = 0;
+
+// detail slider: points are stored in random order, so drawing the first
+// N_DRAW is a uniform subsample; the two sparsest steps splat bigger so
+// the hull stays readable instead of dissolving
+// clouds hold 50k points; steps land at ~2k/4.5k/9.5k/16k/25k/50k
+const DETAIL_STEPS = [0.04, 0.09, 0.19, 0.33, 0.5, 1.0];
+let N_DRAW = 0, SPLAT3 = false;
+const slider = document.getElementById("detail"),
+      dlabel = document.getElementById("detail-label");
+function setDetail() {
+  const s = +slider.value;
+  N_DRAW = (N_PTS * DETAIL_STEPS[s - 1]) | 0;
+  SPLAT3 = s <= 2;
+  dlabel.textContent = (N_DRAW / 1000).toFixed(1) + "k points";
+}
+slider.addEventListener("input", setDetail);
+
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const W = cv.width, H = cv.height;
+const img = ctx.createImageData(W, H);
+const px32 = new Uint32Array(img.data.buffer);
+const zbuf = new Float32Array(W * H);
+const SCALE = (W * 0.36) / 32767;
+const CY = H * 0.44;                       // ship centre sits above the base
+
+let minY = 0, maxY = 0;
+
+// view state -----------------------------------------------------------
+const ISO = { elev: 18 * Math.PI / 180 };
+let elev = ISO.elev, azim = 0;
+let mode = "showroom", lastTouch = 0;
+const IDLE_MS = 3500, SPIN = 0.004;
+
+function frame(t) {
+  if (mode === "showroom") azim += SPIN;
+  else if (mode === "user" && performance.now() - lastTouch > IDLE_MS) mode = "return";
+  else if (mode === "return") {
+    elev += (ISO.elev - elev) * 0.06; azim += SPIN;
+    if (Math.abs(elev - ISO.elev) < 0.005) { elev = ISO.elev; mode = "showroom"; }
+  }
+  render(t || 0);
+  requestAnimationFrame(frame);
+}
+
+function render(t) {
+  px32.fill(0); zbuf.fill(-1e9);
+  const ca = Math.cos(azim), sa = Math.sin(azim);
+  const ce = Math.cos(elev), se = Math.sin(elev);
+  const fx = ce * sa, fy = se, fz = ce * ca;
+  let rx = fz, ry = 0, rz = -fx;
+  const rl = Math.hypot(rx, rz) || 1; rx /= rl; rz /= rl;
+  const ux = fy * rz - fz * ry, uy = fz * rx - fx * rz, uz = fx * ry - fy * rx;
+  const lx = 0.35, ly = 0.55, lz = -0.75, ll = Math.hypot(lx, ly, lz);
+  // holo scan band sweeps bottom-to-top every ~4s
+  const scanY = minY + ((t * 0.00025) % 1) * (maxY - minY), scanW = (maxY - minY) * 0.04;
+
+  for (let i = 0; i < N_DRAW; i++) {
+    const j = i * 3;
+    const x = pts[j], y = pts[j + 1], z = pts[j + 2];
+    const cx = (x * rx + y * ry + z * rz) * SCALE + W / 2;
+    const cyy = CY - (x * ux + y * uy + z * uz) * SCALE;
+    const cz = x * fx + y * fy + z * fz;
+    const xi = cx | 0, yi = cyy | 0;
+    if (xi < 1 || yi < 1 || xi >= W - 2 || yi >= H - 1) continue;
+    const p = yi * W + xi;
+    if (cz <= zbuf[p]) continue;
+    const nx = nrm[j], ny = nrm[j + 1], nz = nrm[j + 2];
+    const ncx = nx * rx + ny * ry + nz * rz;
+    const ncy = nx * ux + ny * uy + nz * uz;
+    const ncz = nx * fx + ny * fy + nz * fz;
+    const nl = Math.hypot(ncx, ncy, ncz) || 1;
+    let lam = (ncx * lx + ncy * ly + ncz * lz) / (nl * ll);
+    if (lam < 0) lam = 0;
+    let sh = 0.45 + 0.75 * lam;                       // lifted vs. plain Lambert
+    if (Math.abs(y - scanY) < scanW) sh *= 1.9;       // scan shimmer
+    // hero colour with a faint holo-cyan cast
+    let r = rgb[j] * sh * 0.9 + 14, g = rgb[j+1] * sh + 22, b = rgb[j+2] * sh * 1.12 + 30;
+    if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255;
+    const col = 0xff000000 | (b << 16) | (g << 8) | r;
+    if (cz > zbuf[p])         { zbuf[p] = cz;         px32[p] = col; }
+    if (cz > zbuf[p + 1])     { zbuf[p + 1] = cz;     px32[p + 1] = col; }
+    if (cz > zbuf[p + W])     { zbuf[p + W] = cz;     px32[p + W] = col; }
+    if (cz > zbuf[p + W + 1]) { zbuf[p + W + 1] = cz; px32[p + W + 1] = col; }
+    if (SPLAT3) {
+      if (cz > zbuf[p - 1])     { zbuf[p - 1] = cz;     px32[p - 1] = col; }
+      if (cz > zbuf[p - W])     { zbuf[p - W] = cz;     px32[p - W] = col; }
+      if (cz > zbuf[p + W - 1]) { zbuf[p + W - 1] = cz; px32[p + W - 1] = col; }
+      if (cz > zbuf[p - W + 1]) { zbuf[p - W + 1] = cz; px32[p - W + 1] = col; }
+      if (cz > zbuf[p + 2])     { zbuf[p + 2] = cz;     px32[p + 2] = col; }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  // pedestal painted BEHIND the points
+  ctx.globalCompositeOperation = "destination-over";
+  const bx = W / 2, by = H * 0.80, bw = W * 0.34, bh = W * 0.085;
+  let grad = ctx.createRadialGradient(bx, by, 0, bx, by, bw);
+  grad.addColorStop(0, "rgba(70,190,255,0.35)");
+  grad.addColorStop(0.55, "rgba(40,120,200,0.12)");
+  grad.addColorStop(1, "rgba(20,60,120,0)");
+  ctx.save(); ctx.translate(bx, by); ctx.scale(1, bh / bw); ctx.translate(-bx, -by);
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(bx, by, bw, 0, 7); ctx.fill();
+  for (const [rr, aa] of [[0.98, 0.5], [0.72, 0.25], [0.5, 0.15]]) {
+    ctx.strokeStyle = `rgba(90,200,255,${aa})`; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(bx, by, bw * rr, 0, 7); ctx.stroke();
+  }
+  // rotating sweep tick on the outer ring
+  const swa = (t * 0.0012) % (Math.PI * 2);
+  ctx.strokeStyle = "rgba(160,230,255,0.8)"; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(bx, by, bw * 0.98, swa, swa + 0.5); ctx.stroke();
+  ctx.restore();
+  // faint light cone from base toward the ship
+  grad = ctx.createLinearGradient(0, by, 0, H * 0.16);
+  grad.addColorStop(0, "rgba(70,190,255,0.10)");
+  grad.addColorStop(1, "rgba(70,190,255,0)");
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(bx - bw * 0.9, by); ctx.lineTo(bx - bw * 0.55, H * 0.16);
+  ctx.lineTo(bx + bw * 0.55, H * 0.16); ctx.lineTo(bx + bw * 0.9, by);
+  ctx.fill();
+  // room backdrop
+  grad = ctx.createRadialGradient(W/2, H*0.45, 0, W/2, H*0.45, W*0.75);
+  grad.addColorStop(0, "#181c24"); grad.addColorStop(1, "#0c0e12");
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = "source-over";
+}
+
+// interaction ----------------------------------------------------------
+let dragging = false, lastX = 0, lastY = 0;
+cv.addEventListener("pointerdown", e => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  mode = "user"; lastTouch = performance.now();
+  cv.setPointerCapture(e.pointerId); cv.style.cursor = "grabbing";
+});
+cv.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  azim += (e.clientX - lastX) * 0.008;
+  elev += (e.clientY - lastY) * 0.008;
+  const lim = Math.PI / 2 - 0.02;
+  if (elev > lim) elev = lim; else if (elev < -lim) elev = -lim;
+  lastX = e.clientX; lastY = e.clientY; lastTouch = performance.now();
+});
+["pointerup", "pointercancel"].forEach(ev => cv.addEventListener(ev, () => {
+  dragging = false; lastTouch = performance.now(); cv.style.cursor = "grab";
+}));
+
+// ship switcher --------------------------------------------------------
+function loadShip(stem) {
+  const s = SHIPS[stem];
+  N_PTS = s.n;
+  const raw = Uint8Array.from(atob(s.b64), ch => ch.charCodeAt(0));
+  pts = new Int16Array(raw.buffer, 0, N_PTS * 3);
+  nrm = new Int8Array(raw.buffer, N_PTS * 6, N_PTS * 3);
+  rgb = new Uint8Array(raw.buffer, N_PTS * 9, N_PTS * 3);
+  minY = 32767; maxY = -32767;
+  for (let i = 0; i < N_PTS; i++) { const y = pts[i * 3 + 1];
+    if (y < minY) minY = y; if (y > maxY) maxY = y; }
+  elev = (s.cam.elev > 0 ? s.cam.elev : 18) * Math.PI / 180;
+  azim = s.cam.azim * Math.PI / 180;       // open on the hero's own angle
+  mode = "showroom";
+  setDetail();
+  document.getElementById("title").textContent = stem + " — holographic display";
+  document.querySelectorAll("#ships button").forEach(b =>
+    b.classList.toggle("sel", b.dataset.stem === stem));
+}
+const bar = document.getElementById("ships");
+for (const stem of Object.keys(SHIPS)) {
+  const b = document.createElement("button");
+  b.textContent = stem.replace(/^[a-z]+_/, "");
+  b.dataset.stem = stem;
+  b.onclick = () => loadShip(stem);
+  bar.appendChild(b);
+}
+loadShip(Object.keys(SHIPS)[0]);
+
+requestAnimationFrame(frame);
+</script>

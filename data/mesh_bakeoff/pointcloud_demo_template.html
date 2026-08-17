@@ -1,0 +1,109 @@
+<!doctype html><meta charset="utf-8"><title>KB point-cloud viewer prototype</title>
+<style>
+  body { background:#14161a; color:#9aa1ab; font:13px system-ui,sans-serif;
+         display:flex; flex-direction:column; align-items:center; margin:24px; }
+  canvas { touch-action:none; cursor:grab; max-width:100%; }
+  .hint { margin-top:10px; }
+</style>
+<h3 style="color:#cfd3da">crimson_devastator — KB detail-page viewer prototype</h3>
+<canvas id="c" width="640" height="640"></canvas>
+<div class="hint">drag to orbit — goes back to showroom spin when idle</div>
+<script>
+__CLOUD_DATA__
+// decode: N int16 xyz triplets, then N int8 normal triplets
+const raw = Uint8Array.from(atob(CLOUD_B64), ch => ch.charCodeAt(0));
+const pts = new Int16Array(raw.buffer, 0, N_PTS * 3);
+const nrm = new Int8Array(raw.buffer, N_PTS * 6, N_PTS * 3);
+
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const W = cv.width, H = cv.height;
+const img = ctx.createImageData(W, H);
+const px32 = new Uint32Array(img.data.buffer);
+const zbuf = new Float32Array(W * H);
+const BG = 0xff1a1c20;              // ABGR little-endian
+const SCALE = (W * 0.42) / 32767;   // fit quantized coords
+
+// view state -----------------------------------------------------------
+const ISO = { elev: 18 * Math.PI / 180, azim: 35 * Math.PI / 180 };
+let elev = ISO.elev, azim = ISO.azim;
+let mode = "showroom";              // "showroom" | "user" | "return"
+let lastTouch = 0;
+const IDLE_MS = 3500, SPIN = 0.005;
+
+function frame() {
+  if (mode === "showroom") {
+    azim += SPIN;
+  } else if (mode === "user" && performance.now() - lastTouch > IDLE_MS) {
+    mode = "return";
+  } else if (mode === "return") {
+    // ease elevation home; azimuth just resumes spinning from wherever it is
+    elev += (ISO.elev - elev) * 0.06;
+    azim += SPIN;
+    if (Math.abs(elev - ISO.elev) < 0.005) { elev = ISO.elev; mode = "showroom"; }
+  }
+  render();
+  requestAnimationFrame(frame);
+}
+
+function render() {
+  px32.fill(BG); zbuf.fill(-1e9);
+  const ca = Math.cos(azim), sa = Math.sin(azim);
+  const ce = Math.cos(elev), se = Math.sin(elev);
+  // camera basis (matches the triage renderer's look_at)
+  const fx = ce * sa,        fy = se,       fz = ce * ca;
+  let rx = fz, ry = 0, rz = -fx;                     // up_world x fwd
+  const rl = Math.hypot(rx, rz) || 1; rx /= rl; rz /= rl;
+  const ux = fy * rz - fz * ry, uy = fz * rx - fx * rz, uz = fx * ry - fy * rx;
+  // light fixed in camera space
+  const lx = 0.35, ly = 0.55, lz = -0.75, ll = Math.hypot(lx, ly, lz);
+
+  for (let i = 0; i < N_PTS; i++) {
+    const j = i * 3;
+    const x = pts[j], y = pts[j + 1], z = pts[j + 2];
+    const cx = (x * rx + y * ry + z * rz) * SCALE + W / 2;
+    const cyy = H / 2 - (x * ux + y * uy + z * uz) * SCALE;
+    const cz = x * fx + y * fy + z * fz;
+    const xi = cx | 0, yi = cyy | 0;
+    if (xi < 0 || yi < 0 || xi >= W - 1 || yi >= H - 1) continue;
+    const p = yi * W + xi;
+    if (cz <= zbuf[p]) continue;
+    // normal -> camera space, Lambert against the fixed light
+    const nx = nrm[j], ny = nrm[j + 1], nz = nrm[j + 2];
+    const ncx = nx * rx + ny * ry + nz * rz;
+    const ncy = nx * ux + ny * uy + nz * uz;
+    const ncz = nx * fx + ny * fy + nz * fz;
+    const nl = Math.hypot(ncx, ncy, ncz) || 1;
+    let lam = (ncx * lx + ncy * ly + ncz * lz) / (nl * ll);
+    if (lam < 0) lam = 0;
+    const s = (40 + 205 * (0.25 + 0.75 * lam)) | 0;
+    const col = 0xff000000 | (s << 16) | (s << 8) | s;
+    // 2x2 splat, each pixel z-tested
+    if (cz > zbuf[p])         { zbuf[p] = cz;         px32[p] = col; }
+    if (cz > zbuf[p + 1])     { zbuf[p + 1] = cz;     px32[p + 1] = col; }
+    if (cz > zbuf[p + W])     { zbuf[p + W] = cz;     px32[p + W] = col; }
+    if (cz > zbuf[p + W + 1]) { zbuf[p + W + 1] = cz; px32[p + W + 1] = col; }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+// interaction ----------------------------------------------------------
+let dragging = false, lastX = 0, lastY = 0;
+cv.addEventListener("pointerdown", e => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  mode = "user"; lastTouch = performance.now();
+  cv.setPointerCapture(e.pointerId); cv.style.cursor = "grabbing";
+});
+cv.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  azim += (e.clientX - lastX) * 0.008;
+  elev += (e.clientY - lastY) * 0.008;
+  const lim = Math.PI / 2 - 0.02;
+  if (elev > lim) elev = lim; else if (elev < -lim) elev = -lim;
+  lastX = e.clientX; lastY = e.clientY; lastTouch = performance.now();
+});
+["pointerup", "pointercancel"].forEach(ev => cv.addEventListener(ev, () => {
+  dragging = false; lastTouch = performance.now(); cv.style.cursor = "grab";
+}));
+
+frame();
+</script>
