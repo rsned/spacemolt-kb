@@ -20,8 +20,9 @@ Consumer contract (attributes on <svg>):
     data-frame-ambiguous  extraction confidence flag
     data-adjustments      JSON of the applied human corrections ({} if none)
 Geometry: single <path> with fill-rule="evenodd" (holes are real: lattice
-hulls, tendril gaps). Coordinates: origin (0,0) is the HULL BBOX CENTRE
-(viewBox is centred, not corner-origin); hull length normalised to 1000
+hulls, tendril gaps). Coordinates: corner-origin -- viewBox is
+"0 0 W H" with the hull inset by a 10-unit margin on all sides, so the
+hull bbox spans (10,10)..(W-10,H-10); hull length normalised to 1000
 units; bow at +x; y grows downward (SVG convention), starboard up.
 Scale is RELATIVE -- absolute ship size is not known to this pipeline.
 
@@ -72,14 +73,15 @@ def svg_for(ship_id: str, stem: str, match: str,
     arrs, holes = orient(rings_of(fp["polygon"]), bool(adj.get("flip")))
     allp = np.vstack(arrs)
     lo, hi = allp.min(axis=0), allp.max(axis=0)
-    mid = (lo + hi) / 2
     s = LENGTH / (hi - lo)[0]
     w = LENGTH + 2 * MARGIN
     h = (hi - lo)[1] * s + 2 * MARGIN
 
     parts = []
     for r in arrs:
-        px = (r - mid) * s  # origin = hull bbox centre
+        # corner origin: (0,0) is the TOP-LEFT of the viewBox = the
+        # stern-side/starboard-side corner (x stern->bow, y starboard->port)
+        px = (r - lo) * s + MARGIN
         d = "M" + "L".join(f"{p[0]:.1f} {p[1]:.1f}" for p in px) + "Z"
         parts.append(d)
     path = "".join(parts)
@@ -87,7 +89,7 @@ def svg_for(ship_id: str, stem: str, match: str,
     meta = {k: v for k, v in adj.items()}
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" '
-        f'viewBox="{-w / 2:.0f} {-h / 2:.0f} {w:.0f} {h:.0f}"\n'
+        f'viewBox="0 0 {w:.0f} {h:.0f}"\n'
         f'  data-ship="{ship_id}" data-art-stem="{stem}" data-kb-match="{match}"\n'
         f'  data-aspect="{prof["aspect"]:.4f}"\n'
         f'  data-frame-ambiguous="{str(prof["frame_ambiguous"]).lower()}"\n'
