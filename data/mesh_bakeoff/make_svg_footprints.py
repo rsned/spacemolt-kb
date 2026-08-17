@@ -7,14 +7,22 @@ bow to the RIGHT via the wedge heuristic, then the user's recorded `flip`
 verdicts from adjustments-final.json applied on top -- so the SVGs are the
 human-approved orientation, not just the heuristic's.
 
+Files are named by KB ship id (ship_id_map.json maps art stems -> catalog
+ids; built against spacemolt-knowledge.db `ships`). Art with no catalog
+ship keeps its stem name and is flagged unmatched; duplicate art for an
+already-claimed id is skipped.
+
 Consumer contract (attributes on <svg>):
-    data-ship             sweep stem (faction_shipid, anomalies as-is)
+    data-ship             KB catalog ship id (or art stem when unmatched)
+    data-art-stem         source art filename stem (provenance)
+    data-kb-match         verbatim | stripped | fuzzy | none
     data-aspect           length/width from the stage-7 profile sampler
     data-frame-ambiguous  extraction confidence flag
     data-adjustments      JSON of the applied human corrections ({} if none)
 Geometry: single <path> with fill-rule="evenodd" (holes are real: lattice
-hulls, tendril gaps). Coordinates: hull length normalised to 1000 units,
-centred; bow at +x; y grows downward (SVG convention), starboard up.
+hulls, tendril gaps). Coordinates: origin (0,0) is the HULL BBOX CENTRE
+(viewBox is centred, not corner-origin); hull length normalised to 1000
+units; bow at +x; y grows downward (SVG convention), starboard up.
 Scale is RELATIVE -- absolute ship size is not known to this pipeline.
 
     ~/hy3d-venv/bin/python make_svg_footprints.py [--dir out-hy3d-full] [--out ../footprints/hy3d-svg]
@@ -59,29 +67,32 @@ def orient(rings, user_flip: bool):
     return arrs, [h for _, h in rings]
 
 
-def svg_for(stem: str, fp: dict, prof: dict, adj: dict) -> str:
+def svg_for(ship_id: str, stem: str, match: str,
+            fp: dict, prof: dict, adj: dict) -> str:
     arrs, holes = orient(rings_of(fp["polygon"]), bool(adj.get("flip")))
     allp = np.vstack(arrs)
-    span = allp.max(axis=0) - allp.min(axis=0)
-    s = LENGTH / span[0]
+    lo, hi = allp.min(axis=0), allp.max(axis=0)
+    mid = (lo + hi) / 2
+    s = LENGTH / (hi - lo)[0]
     w = LENGTH + 2 * MARGIN
-    h = span[1] * s + 2 * MARGIN
-    off = np.array([w / 2, h / 2])
+    h = (hi - lo)[1] * s + 2 * MARGIN
 
     parts = []
     for r in arrs:
-        px = r * s + off
+        px = (r - mid) * s  # origin = hull bbox centre
         d = "M" + "L".join(f"{p[0]:.1f} {p[1]:.1f}" for p in px) + "Z"
         parts.append(d)
     path = "".join(parts)
 
     meta = {k: v for k, v in adj.items()}
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w:.0f} {h:.0f}"\n'
-        f'  data-ship="{stem}" data-aspect="{prof["aspect"]:.4f}"\n'
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'viewBox="{-w / 2:.0f} {-h / 2:.0f} {w:.0f} {h:.0f}"\n'
+        f'  data-ship="{ship_id}" data-art-stem="{stem}" data-kb-match="{match}"\n'
+        f'  data-aspect="{prof["aspect"]:.4f}"\n'
         f'  data-frame-ambiguous="{str(prof["frame_ambiguous"]).lower()}"\n'
         f"  data-adjustments='{json.dumps(meta)}'>\n"
-        f'<title>{stem}</title>\n'
+        f'<title>{ship_id}</title>\n'
         f'<path d="{path}" fill-rule="evenodd" fill="#d5d8dd"/>\n'
         f'</svg>\n'
     )
@@ -124,30 +135,43 @@ def main() -> int:
     args = ap.parse_args()
 
     adjustments = json.loads((HERE / "adjustments-final.json").read_text())
+    idmap = json.loads((HERE / "ship_id_map.json").read_text())
+    dup_stems = {d["stem"] for d in idmap["duplicates"]}
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    for old in out.glob("*.svg"):
+        old.unlink()  # names change with the mapping; never leave stale files
 
     cards = []
-    n = 0
+    n = n_unmatched = 0
     for d in sorted((HERE / args.dir).iterdir()):
         fp_f, prof_f = d / "footprint.json", d / "profile.json"
         if not (fp_f.exists() and prof_f.exists()):
             continue
         stem = d.name
+        if stem in dup_stems:
+            continue  # second art file for an already-claimed catalog ship
+        mapped = idmap["mapping"].get(stem)
+        ship_id = mapped["id"] if mapped else stem
+        match = mapped["match"] if mapped else "none"
         fp = json.loads(fp_f.read_text())
         prof = json.loads(prof_f.read_text())
         adj = adjustments.get(stem, {})
         try:
-            (out / f"{stem}.svg").write_text(svg_for(stem, fp, prof, adj))
+            (out / f"{ship_id}.svg").write_text(
+                svg_for(ship_id, stem, match, fp, prof, adj))
         except Exception as exc:
             print(f"{stem:32} FAILED {type(exc).__name__}: {exc}")
             continue
         n += 1
+        n_unmatched += match == "none"
         adj_txt = " ".join(f"{k}={v}" for k, v in adj.items()) or "—"
+        badge = "" if mapped else ' <span style="color:#c07070">no KB ship</span>'
         cards.append(
-            f'<div class="card" data-name="{stem}"><img loading="lazy" src="{stem}.svg">'
-            f'<div class="name">{stem}</div>'
-            f'<div class="meta">aspect {prof["aspect"]:.2f} · {adj_txt}</div></div>')
+            f'<div class="card" data-name="{ship_id} {stem}"><img loading="lazy" src="{ship_id}.svg">'
+            f'<div class="name">{ship_id}{badge}</div>'
+            f'<div class="meta">art {stem} · aspect {prof["aspect"]:.2f} · {adj_txt}</div></div>')
+    print(f"{n_unmatched} art-only (no KB ship), {len(dup_stems)} duplicate art skipped")
 
     (out / "gallery.html").write_text(
         GALLERY_HEAD.replace("%COUNT%", str(n)) + "\n".join(cards) + GALLERY_TAIL)
