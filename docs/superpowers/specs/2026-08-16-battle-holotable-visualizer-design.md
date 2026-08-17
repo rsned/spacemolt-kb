@@ -232,17 +232,43 @@ Owned by the KB pipeline; the renderer only consumes. **Keyed by
 `ship_class`** exactly as `ParticipantSnapshot.ship_class` emits it (lowercase,
 e.g. `vigil`) — that is the only join key the battle log provides.
 
-**Phase 1 — top-down SVG** (`kb/data/ship_svg/<ship_class>.svg`):
+**Phase 1 — top-down SVG.** These now EXIST at
+`kb/data/footprints/hy3d-svg/<name>.svg` (402 files as of 2026-08-16), and the
+contract below is the operator's, ratified against the shipped assets — it
+replaces an earlier draft here that guessed nose-up and centroid-origin. Both
+guesses were wrong; the assets are the source of truth.
 
-- One **closed, water-tight** path per ship; holes as opposite-winding
-  subpaths with `fill-rule="evenodd"`, so a single fill yields the silhouette
-  and a single stroke yields the outline glow.
-- **Canonical orientation: nose toward −Y (up).** One rotation at draw time, no
-  per-ship correction table.
-- **Normalized viewBox, centroid at the origin.** Ships are scaled at draw time
-  by hull scale/tier, so a scale-1 `cobble` and a scale-4 `junk_convoy` share a
-  table correctly.
+- **Bow-right.** The hull points toward +X. On a table whose engagement axis is
+  also X this is the convenient convention, not an inconvenient one: a side-1
+  ship draws unrotated and a side-2 ship mirrors.
+- **Length-normalized to 1000 units.** The viewBox is `0 0 1020 <h>` — 1000
+  units of hull along X plus a 10-unit margin each side — with height varying
+  by aspect. Scale by hull scale/tier at draw time so a scale-1 `cobble` and a
+  scale-4 `junk_convoy` share a table correctly.
+- **One closed path, `fill-rule="evenodd"`** for holes, so a single fill yields
+  the silhouette and a single stroke yields the outline glow. Confirmed on the
+  shipped assets.
+- **`data-ship`, `data-aspect`, `data-frame-ambiguous`, `data-adjustments`** on
+  every root element. `data-frame-ambiguous="true"` is the pipeline telling the
+  renderer it is unsure of the hull's frame — worth surfacing in a debug view
+  rather than silently trusting.
 - No fills, strokes, or colours baked in — the renderer themes them.
+
+**Join key is the one open gap.** The battle log's `ship_class` matches the
+ships catalog exactly (`paradox`, `silent_tide`, `vigil` unprefixed;
+`voidborn_singularity` is genuinely one of only 7 faction-prefixed catalog ids).
+The SVG filenames, however, are mostly faction-prefixed: `voidborn_anamnesis.svg`
+for catalog id `anamnesis`. Measured across the 338 catalog ships: **59 resolve
+by direct filename, 212 more via `<faction>_<id>`, and 67 have no SVG at all**
+(including `silent_tide`, which appears in the reference battle). A further 124
+SVGs match no catalog ship — most likely legacy hulls the catalog refresh
+erases ([[reference_legacy_ship_classes_erased_by_refresh]]), which makes the
+SVG set in places MORE complete than the catalog.
+
+Resolution is therefore two-step — try `<ship_class>.svg`, then
+`<faction>_<ship_class>.svg` using the catalog's faction — unless the pipeline
+emits catalog-keyed filenames or an alias map, which would be cheaper and is
+the operator's call.
 
 **Phase 2 — low-poly mesh** (`kb/data/ship_mesh/<ship_class>.json` or `.glb`):
 
