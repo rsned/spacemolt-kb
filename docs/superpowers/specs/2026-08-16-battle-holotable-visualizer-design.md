@@ -114,26 +114,44 @@ safety net — an unknown `ship_class` (a new hull shipped by the devs before th
 pipeline has run, say) renders as a procedural glyph rather than a placeholder
 box or an error. It is the exception, not the expected path.
 
-### 4. The battlefield is a 1-D range axis with lateral spread
+### 4. The battlefield is RADIAL: concentric rings and one spoke per side
 
-Derived from the sample battle's snapshots:
+An earlier draft of this section read the reference battle as a 1-D engagement
+axis, because with two sides the fleets sit on opposite arcs and x alone appears
+to separate them. **That was wrong.** The official viewer draws concentric rings
+labelled OUTER / MID / INNER / ENGAGED around a centre point, with each side
+holding an angular sector, and the operator confirms the mechanic:
 
-- **`x` is the engagement axis.** Side 1 occupies x 0.50–1.61; side 2 occupies
-  x 1.29–2.66. The sides face each other along x and overlap only in the
-  contact band.
-- **`zone` is a band of that axis.** `engaged` spans x 1.29–1.79 — the contact
-  band. `outer` spans both extremes (0.50 and 2.66), i.e. each side's own rear.
-  `mid` and `inner` sit between.
-- **`y` is lateral formation spread**, observed −1.07 to 1.87.
-- Advancing moves x toward the enemy: an observed `outer → mid` transition moved
-  x from 0.62 to 0.91.
-- `zone_distance` on attacks is discrete, observed 0–5, and is the authoritative
-  range for "could this weapon reach".
+> each axis of advance/retreat is along the direction they are assigned, towards
+> and away from center
 
-So the table is naturally drawn as two facing fleets along x, with zone bands as
-parallel (or concentric, for the round-table look) rings, and y as the spread
-across the front. **`zone` + `zone_distance` are the authoritative tactical
-space; x/y are the presentation layout.** Where they disagree, trust `zone`.
+So:
+
+- **`zone` is a radial band measured from the table centre**, not a slice of an
+  axis. Verified on the reference battle using the midpoint of the position
+  bounds as centre — mean radius comes out monotonic and correctly ordered:
+  engaged 0.58, inner 0.65, mid 0.80, outer 1.08. (Using the centroid of
+  positions instead scrambles it, because the larger side drags the mean; the
+  bounds midpoint is the right centre.)
+- **Each side is assigned a bearing** — a spoke from the centre — and its ships
+  advance inward and retreat outward along it. Bearings must be averaged as unit
+  vectors, not as degrees: a side straddling 0°/360° would otherwise average to
+  180°, the exact opposite of where it is.
+- `x`/`y` are ordinary table coordinates; radius and bearing are derived from
+  them relative to the centre.
+- `zone_distance` on attacks is discrete, observed 0–5, and remains the
+  authoritative range for "could this weapon reach".
+
+**There is no fixed limit of two sides.** Three- and four-sided battles occur
+and render as triangular/quadrilateral arrangements around the rings. Validated
+end to end against `b131fd5aae68420107dd20e93d15d3ba` (Kitalpha, 158 ticks, 5
+participants): four sides at bearings 82°, 121°, 152° and 271°, side 4 winning
+with 2 of the 5. There may be an upper bound on sides, but it is unknown — so
+nothing in the model or renderer may assume a count. In particular, "side 2
+mirrors" is not a valid facing rule; facing follows the side's own spoke.
+
+**`zone` + `zone_distance` are the authoritative tactical space; x/y are the
+presentation layout.** Where they disagree, trust `zone`.
 
 ### 5. The existing holo demo is dependency-free canvas 2D
 
@@ -238,9 +256,11 @@ contract below is the operator's, ratified against the shipped assets — it
 replaces an earlier draft here that guessed nose-up and centroid-origin. Both
 guesses were wrong; the assets are the source of truth.
 
-- **Bow-right.** The hull points toward +X. On a table whose engagement axis is
-  also X this is the convenient convention, not an inconvenient one: a side-1
-  ship draws unrotated and a side-2 ship mirrors.
+- **Bow-right.** The hull points toward +X in its own space, so drawing a ship
+  is a rotation to its heading — bow toward the centre, along its side's spoke,
+  or toward `target_id`. It is never a mirror: mirroring was an artifact of the
+  mistaken linear reading, and on a radial table it would flip hulls that should
+  simply be rotated.
 - **Length-normalized to 1000 units.** The viewBox is `0 0 1020 <h>` — 1000
   units of hull along X plus a 10-unit margin each side — with height varying
   by aspect. Scale by hull scale/tier at draw time so a scale-1 `cobble` and a
@@ -268,12 +288,16 @@ Verified across all 395 files: W is 1020 on every one, and `data-aspect` equals
 `1000/(H−20)` on 391 of them — i.e. aspect is hull length over hull width, with
 the margins removed.
 
-The renderer's transform follows directly: hull centre is `(510, H/2)`, hull
-length is 1000, so drawing a ship of table-length `L` at table position
-`(x, y)` is translate `−(510, H/2)`, scale `L/1000`, place at `(x, y)`. **No
-rotation is needed for a side-1 ship** — bow-right already points along the
-engagement axis — and a side-2 ship is a mirror (`scaleX(−1)`), not a 180°
-rotation, which keeps its dorsal detail facing the viewer.
+The renderer's transform follows directly: hull centre is `(510, H/2)` and hull
+length is 1000, so drawing a ship of table-length `L` at table position `(x, y)`
+with heading `θ` is translate `−(510, H/2)`, scale `L/1000`, rotate `θ`,
+translate to `(x, y)`.
+
+`θ` comes from the radial layout, in order of preference: toward `target_id` if
+the ship has one, else inward along its own bearing from `Centre`
+(`atan2(centre.y − y, centre.x − x)`), which is the axis its advance and retreat
+run along. Bow-toward-centre is the sensible default because that is the
+direction a ship closes and withdraws on.
 
 **The join key is settled: the filename IS `data-ship`.** All 395 files satisfy
 `filename == data-ship`, and `data-ship` is the ships-catalog id, which is also
@@ -333,8 +357,12 @@ appears in production rather than in development.
 Adopted from `pointcloud_holo.html`: dark field, projection cone, concentric
 ground rings, scan-line pulse, idle rotation. Additions specific to the table:
 
-- **Zone bands** as rings/lanes on the table, labelled outer/mid/inner/engaged,
-  with each side's own bands mirrored about the contact line.
+- **Zone bands as concentric rings** around `Centre`, labelled
+  outer/mid/inner/engaged from the outside in — matching the official viewer, so
+  a reader who has seen one can read the other.
+- **One spoke per side**, anchored at the side's mean bearing, since advance and
+  retreat run along it. Side rosters and labels hang off the outer end of their
+  own spoke, which is what keeps a four-way battle legible.
 - **Side identity by colour**, `kind` by outline treatment (station gets a
   fixed emplacement glyph rather than a hull; drones/creatures read distinctly).
 - **Per-ship state ring**: shield as an outer arc, hull as an inner arc, both
