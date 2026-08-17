@@ -1,0 +1,150 @@
+<!doctype html><meta charset="utf-8"><title>KB solid-mesh viewer prototype</title>
+<style>
+  body { background:#0c0e12; color:#9aa1ab; font:13px system-ui,sans-serif;
+         display:flex; flex-direction:column; align-items:center; margin:24px; }
+  #stage { width:640px; height:640px; max-width:100%; touch-action:none; cursor:grab;
+           background:radial-gradient(circle at 50% 45%, #181c24 0%, #0c0e12 75%); }
+  .hint { margin-top:10px; color:#5f6a78; }
+  #ships button, #modes button {
+    background:#1c2028; color:#9aa1ab; border:1px solid #333a46;
+    border-radius:4px; padding:5px 10px; cursor:pointer; font-size:12px; }
+  #ships button.sel, #modes button.sel {
+    background:#22384c; color:#9fd9ff; border-color:#3d6d94; }
+</style>
+<h3 id="title" style="color:#cfd3da">solid mesh viewer prototype</h3>
+<div id="ships" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
+<div id="modes" style="display:flex;gap:6px;margin-bottom:10px"></div>
+<div id="stage"></div>
+<div class="hint" id="stats"></div>
+<div class="hint">drag to orbit — idles back into the showroom spin —
+companion to the point-cloud holo page (same meshes, same starting cameras)</div>
+<script>__THREE_JS__</script>
+<script>
+__MESH_DATA__
+// MESHES = { stem: {nv, nf, idx16, cam:{elev,azim}, b64} }
+// blob layout: int16 xyz ×3nv, then (uint16|uint32) index ×3nf
+
+const W = 640, H = 640;
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W, H);
+stage.appendChild(renderer.domElement);
+
+// orthographic to match the holo page's projection; ship spans the same
+// fraction of the frame, centre sits a little above the pedestal line
+const ORTHO = 32767 / 0.72, YSHIFT = -0.12 * ORTHO;
+const camera = new THREE.OrthographicCamera(
+  -ORTHO, ORTHO, ORTHO + YSHIFT, -ORTHO + YSHIFT, -200000, 200000);
+
+const scene = new THREE.Scene();
+scene.add(camera);
+const key = new THREE.DirectionalLight(0xffffff, 0.95);
+key.position.set(0.35, 0.55, 0.75);           // camera-space: up-right-front
+camera.add(key);
+const fill = new THREE.DirectionalLight(0x8899bb, 0.25);
+fill.position.set(-0.6, -0.2, 0.4);
+camera.add(fill);
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+
+const matSolid = new THREE.MeshStandardMaterial(
+  { color: 0xd5d8dd, metalness: 0.05, roughness: 0.85 });
+const matWire = new THREE.MeshBasicMaterial(
+  { color: 0x6f8fa8, wireframe: true, transparent: true, opacity: 0.85 });
+let meshObj = null, shading = "smooth";
+
+// view state (mirrors the holo page) -----------------------------------
+const ISO = { elev: 18 * Math.PI / 180 };
+let elev = ISO.elev, azim = 0;
+let mode = "showroom", lastTouch = 0;
+const IDLE_MS = 3500, SPIN = 0.004;
+
+function applyShading() {
+  if (!meshObj) return;
+  matSolid.flatShading = shading === "flat";
+  matSolid.needsUpdate = true;
+  meshObj.material = shading === "wire" ? matWire : matSolid;
+  document.querySelectorAll("#modes button").forEach(b =>
+    b.classList.toggle("sel", b.dataset.mode === shading));
+}
+
+function loadShip(stem) {
+  const s = MESHES[stem];
+  const raw = Uint8Array.from(atob(s.b64), ch => ch.charCodeAt(0));
+  const pos16 = new Int16Array(raw.buffer, 0, s.nv * 3);
+  const idx = s.idx16 ? new Uint16Array(raw.buffer, s.nv * 6, s.nf * 3)
+                      : new Uint32Array(raw.buffer, s.nv * 6, s.nf * 3);
+  const pos = new Float32Array(pos16);        // widen; stays in int16 units
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  geo.computeVertexNormals();
+  if (meshObj) { scene.remove(meshObj); meshObj.geometry.dispose(); }
+  meshObj = new THREE.Mesh(geo, matSolid);
+  scene.add(meshObj);
+  applyShading();
+  elev = (s.cam.elev > 0 ? s.cam.elev : 18) * Math.PI / 180;
+  azim = s.cam.azim * Math.PI / 180;          // open on the hero's own angle
+  mode = "showroom";
+  document.getElementById("title").textContent = stem + " — solid mesh";
+  document.getElementById("stats").textContent =
+    (s.nv / 1000).toFixed(1) + "k vertices · " + (s.nf / 1000).toFixed(1) + "k faces";
+  document.querySelectorAll("#ships button").forEach(b =>
+    b.classList.toggle("sel", b.dataset.stem === stem));
+}
+
+function frame() {
+  if (mode === "showroom") azim += SPIN;
+  else if (mode === "user" && performance.now() - lastTouch > IDLE_MS) mode = "return";
+  else if (mode === "return") {
+    elev += (ISO.elev - elev) * 0.06; azim += SPIN;
+    if (Math.abs(elev - ISO.elev) < 0.005) { elev = ISO.elev; mode = "showroom"; }
+  }
+  const ce = Math.cos(elev), se = Math.sin(elev);
+  camera.position.set(ce * Math.sin(azim), se, ce * Math.cos(azim))
+    .multiplyScalar(100000);
+  camera.lookAt(0, 0, 0);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+// interaction (same feel as the holo page) ------------------------------
+const cv = renderer.domElement;
+let dragging = false, lastX = 0, lastY = 0;
+cv.addEventListener("pointerdown", e => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  mode = "user"; lastTouch = performance.now();
+  cv.setPointerCapture(e.pointerId); stage.style.cursor = "grabbing";
+});
+cv.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  azim += (e.clientX - lastX) * 0.008;
+  elev += (e.clientY - lastY) * 0.008;
+  const lim = Math.PI / 2 - 0.02;
+  if (elev > lim) elev = lim; else if (elev < -lim) elev = -lim;
+  lastX = e.clientX; lastY = e.clientY; lastTouch = performance.now();
+});
+["pointerup", "pointercancel"].forEach(ev => cv.addEventListener(ev, () => {
+  dragging = false; lastTouch = performance.now(); stage.style.cursor = "grab";
+}));
+
+// switchers -------------------------------------------------------------
+const bar = document.getElementById("ships");
+for (const stem of Object.keys(MESHES)) {
+  const b = document.createElement("button");
+  b.textContent = stem.replace(/^[a-z]+_/, "");
+  b.dataset.stem = stem;
+  b.onclick = () => loadShip(stem);
+  bar.appendChild(b);
+}
+const modesBar = document.getElementById("modes");
+for (const [m, label] of [["smooth", "smooth"], ["flat", "flat-shaded"], ["wire", "wireframe"]]) {
+  const b = document.createElement("button");
+  b.textContent = label;
+  b.dataset.mode = m;
+  b.onclick = () => { shading = m; applyShading(); };
+  modesBar.appendChild(b);
+}
+loadShip(Object.keys(MESHES)[0]);
+requestAnimationFrame(frame);
+</script>
