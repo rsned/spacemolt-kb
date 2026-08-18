@@ -2,18 +2,22 @@
 <style>
   body { background:#0c0e12; color:#9aa1ab; font:13px system-ui,sans-serif;
          display:flex; flex-direction:column; align-items:center; margin:24px; }
-  #stage { width:640px; height:640px; max-width:100%; touch-action:none; cursor:grab;
+  #stage { width:1280px; height:1280px; max-width:100%; touch-action:none; cursor:grab;
            background:radial-gradient(circle at 50% 45%, #181c24 0%, #0c0e12 75%); }
   .hint { margin-top:10px; color:#5f6a78; }
-  #ships button, #modes button {
+  #ships button, #modes button, #lods button {
     background:#1c2028; color:#9aa1ab; border:1px solid #333a46;
     border-radius:4px; padding:5px 10px; cursor:pointer; font-size:12px; }
-  #ships button.sel, #modes button.sel {
+  #ships button.sel, #modes button.sel, #lods button.sel {
     background:#22384c; color:#9fd9ff; border-color:#3d6d94; }
+  #lods button:disabled { opacity:0.35; cursor:default; }
 </style>
 <h3 id="title" style="color:#cfd3da">solid mesh viewer prototype</h3>
 <div id="ships" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
-<div id="modes" style="display:flex;gap:6px;margin-bottom:10px"></div>
+<div style="display:flex;gap:18px;margin-bottom:10px">
+  <div id="modes" style="display:flex;gap:6px"></div>
+  <div id="lods" style="display:flex;gap:6px"></div>
+</div>
 <div id="stage"></div>
 <div class="hint" id="stats"></div>
 <div class="hint">drag to orbit — idles back into the showroom spin —
@@ -21,10 +25,11 @@ companion to the point-cloud holo page (same meshes, same starting cameras)</div
 <script>__THREE_JS__</script>
 <script>
 __MESH_DATA__
-// MESHES = { stem: {nv, nf, idx16, cam:{elev,azim}, b64} }
-// blob layout: int16 xyz ×3nv, then (uint16|uint32) index ×3nf
+// MESHES = { stem: {cam:{elev,azim}, lods:{"20k"|"40k"|"80k": {nv, nf, idx16, b64}}} }
+// blob layout: int16 xyz ×3nv, (uint16|uint32) index ×3nf, uint8 rgb ×3nv
+// (rgb = hero-image projection at the fitted camera, as on the holo page)
 
-const W = 640, H = 640;
+const W = 1280, H = 1280;
 const stage = document.getElementById("stage");
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -48,10 +53,12 @@ camera.add(fill);
 scene.add(new THREE.AmbientLight(0xffffff, 0.35));
 
 const matSolid = new THREE.MeshStandardMaterial(
-  { color: 0xd5d8dd, metalness: 0.05, roughness: 0.85 });
+  { color: 0x8f959d, metalness: 0.05, roughness: 0.85 });
+const matColor = new THREE.MeshStandardMaterial(
+  { color: 0xffffff, vertexColors: true, metalness: 0.05, roughness: 0.85 });
 const matWire = new THREE.MeshBasicMaterial(
   { color: 0x6f8fa8, wireframe: true, transparent: true, opacity: 0.85 });
-let meshObj = null, shading = "smooth";
+let meshObj = null, shading = "flat";
 
 // view state (mirrors the holo page) -----------------------------------
 const ISO = { elev: 18 * Math.PI / 180 };
@@ -63,34 +70,50 @@ function applyShading() {
   if (!meshObj) return;
   matSolid.flatShading = shading === "flat";
   matSolid.needsUpdate = true;
-  meshObj.material = shading === "wire" ? matWire : matSolid;
+  meshObj.material = shading === "wire" ? matWire
+                   : shading === "color" ? matColor : matSolid;
   document.querySelectorAll("#modes button").forEach(b =>
     b.classList.toggle("sel", b.dataset.mode === shading));
 }
 
-function loadShip(stem) {
+let curStem = null, lod = "40k";
+
+function loadShip(stem, keepView) {
   const s = MESHES[stem];
-  const raw = Uint8Array.from(atob(s.b64), ch => ch.charCodeAt(0));
-  const pos16 = new Int16Array(raw.buffer, 0, s.nv * 3);
-  const idx = s.idx16 ? new Uint16Array(raw.buffer, s.nv * 6, s.nf * 3)
-                      : new Uint32Array(raw.buffer, s.nv * 6, s.nf * 3);
+  if (!s.lods[lod]) lod = "40k";              // ship missing this LOD
+  const L = s.lods[lod];
+  const raw = Uint8Array.from(atob(L.b64), ch => ch.charCodeAt(0));
+  const pos16 = new Int16Array(raw.buffer, 0, L.nv * 3);
+  const off = L.nv * 6, ib = L.nf * 3 * (L.idx16 ? 2 : 4);
+  // slice-copy the index so uint32 views never hit buffer misalignment
+  const idx = L.idx16 ? new Uint16Array(raw.buffer.slice(off, off + ib))
+                      : new Uint32Array(raw.buffer.slice(off, off + ib));
+  const rgb = new Uint8Array(raw.buffer, off + ib, L.nv * 3);
   const pos = new Float32Array(pos16);        // widen; stays in int16 units
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(rgb, 3, true));
   geo.setIndex(new THREE.BufferAttribute(idx, 1));
   geo.computeVertexNormals();
   if (meshObj) { scene.remove(meshObj); meshObj.geometry.dispose(); }
   meshObj = new THREE.Mesh(geo, matSolid);
   scene.add(meshObj);
   applyShading();
-  elev = (s.cam.elev > 0 ? s.cam.elev : 18) * Math.PI / 180;
-  azim = s.cam.azim * Math.PI / 180;          // open on the hero's own angle
-  mode = "showroom";
+  if (!keepView) {                            // LOD flips hold the same view
+    elev = (s.cam.elev > 0 ? s.cam.elev : 18) * Math.PI / 180;
+    azim = s.cam.azim * Math.PI / 180;        // open on the hero's own angle
+    mode = "showroom";
+  }
+  curStem = stem;
   document.getElementById("title").textContent = stem + " — solid mesh";
   document.getElementById("stats").textContent =
-    (s.nv / 1000).toFixed(1) + "k vertices · " + (s.nf / 1000).toFixed(1) + "k faces";
+    (L.nv / 1000).toFixed(1) + "k vertices · " + (L.nf / 1000).toFixed(1) + "k faces";
   document.querySelectorAll("#ships button").forEach(b =>
     b.classList.toggle("sel", b.dataset.stem === stem));
+  document.querySelectorAll("#lods button").forEach(b => {
+    b.classList.toggle("sel", b.dataset.lod === lod);
+    b.disabled = !s.lods[b.dataset.lod];
+  });
 }
 
 function frame() {
@@ -132,19 +155,35 @@ cv.addEventListener("pointermove", e => {
 const bar = document.getElementById("ships");
 for (const stem of Object.keys(MESHES)) {
   const b = document.createElement("button");
-  b.textContent = stem.replace(/^[a-z]+_/, "");
+  b.textContent = stem.replace(/^(outerrim|crimson|nebula|solarian|voidborn)_/, "");
   b.dataset.stem = stem;
   b.onclick = () => loadShip(stem);
   bar.appendChild(b);
 }
 const modesBar = document.getElementById("modes");
-for (const [m, label] of [["smooth", "smooth"], ["flat", "flat-shaded"], ["wire", "wireframe"]]) {
+for (const [m, label] of [["smooth", "smooth"], ["flat", "flat-shaded"],
+                          ["wire", "wireframe"], ["color", "hero colors"]]) {
   const b = document.createElement("button");
   b.textContent = label;
   b.dataset.mode = m;
   b.onclick = () => { shading = m; applyShading(); };
   modesBar.appendChild(b);
 }
-loadShip(Object.keys(MESHES)[0]);
+const lodsBar = document.getElementById("lods");
+for (const l of ["20k", "40k", "80k"]) {
+  const b = document.createElement("button");
+  b.textContent = l;
+  b.dataset.lod = l;
+  b.onclick = () => { lod = l; loadShip(curStem, true); };
+  lodsBar.appendChild(b);
+}
+// deep-link: #color, #80k, #voidborn_membrane, or #voidborn_membrane.color.80k
+let startShip = Object.keys(MESHES)[0];
+for (const tok of location.hash.slice(1).split(".")) {
+  if (["smooth", "flat", "wire", "color"].includes(tok)) shading = tok;
+  else if (["20k", "40k", "80k"].includes(tok)) lod = tok;
+  else if (MESHES[tok]) startShip = tok;
+}
+loadShip(startShip);
 requestAnimationFrame(frame);
 </script>

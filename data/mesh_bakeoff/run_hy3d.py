@@ -156,6 +156,9 @@ def main() -> int:
     ap.add_argument("--guidance", type=float, default=5.5)
     ap.add_argument("--seed", type=int, default=1234,
                     help="fixed so both views of a pair face identical sampling noise")
+    ap.add_argument("--max-faces", type=int, default=40000,
+                    help="FaceReducer target; generation is seeded, so re-running "
+                         "with a higher target reproduces the same shape denser")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -223,7 +226,7 @@ def main() -> int:
             t1 = time.time()
             mesh = FloaterRemover()(mesh)
             mesh = DegenerateFaceRemover()(mesh)
-            mesh = FaceReducer()(mesh)
+            mesh = FaceReducer()(mesh, max_facenum=args.max_faces)
             rec["postprocess_seconds"] = time.time() - t1
 
             mesh.export(out_dir / "mesh.obj")
