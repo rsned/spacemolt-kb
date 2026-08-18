@@ -123,10 +123,10 @@ def chroma_key(img: Image.Image) -> Image.Image:
     return Image.fromarray(rgba, mode="RGBA")
 
 
-def build_plan(stems: list[str], out: Path) -> list[dict]:
+def build_plan(stems: list[str], out: Path, src_dir: Path) -> list[dict]:
     plan = []
     for stem in stems:
-        src = CHROMAKEYS / f"{stem}.png"
+        src = src_dir / f"{stem}.png"
         plan.append({
             "stem": stem,
             "source_image": str(src),
@@ -144,6 +144,9 @@ def main() -> int:
     ap.add_argument("--out", default=str(OUT),
                     help="output directory (use a fresh one for new sweeps; "
                          "out-hy3d holds the round-2 bake-off record)")
+    ap.add_argument("--src", default=str(CHROMAKEYS),
+                    help="source image directory (default: the ship "
+                         "chromakeys drop; wildlife heroes live elsewhere)")
     ap.add_argument("--resume", action="store_true",
                     help="skip stems whose mesh.obj already exists in --out")
     ap.add_argument("--dry-run", action="store_true")
@@ -156,11 +159,12 @@ def main() -> int:
     args = ap.parse_args()
 
     out = Path(args.out)
+    src_dir = Path(args.src)
     if args.all:
-        stems = sorted(p.stem for p in CHROMAKEYS.glob("*.png"))
+        stems = sorted(p.stem for p in src_dir.glob("*.png"))
     else:
         stems = args.stems or DEFAULT_STEMS
-    plan = build_plan(stems, out)
+    plan = build_plan(stems, out, src_dir)
 
     missing = [p["stem"] for p in plan if not p["exists"]]
     if missing:

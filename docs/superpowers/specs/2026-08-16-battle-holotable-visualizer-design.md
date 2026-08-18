@@ -408,6 +408,14 @@ ground rings, scan-line pulse, idle rotation. Additions specific to the table:
   hexagon with a small circle at each corner, wrapped in two concentric rings
   (see `Mera Sanctum Station`). Reproducing that keeps the two viewers legible
   to the same reader. Drones and creatures likewise need to read distinctly.
+- **Unique bosses render station-style, not ship-style.** Gorgonia (The Maw,
+  Alzirr) is the model case: it sits fixed at centre screen the way stations
+  do, and its glyph is the creature's broadside silhouette, not a top-down
+  footprint — a sessile fan seen from above is a meaningless sliver. The
+  silhouette SVG comes from the Meshy boss mesh
+  (`data/mesh_bakeoff/out-wildlife/gorgonia_meshy/`, `top_view: "front"`
+  extraction). Scale is part of the read: draw it large enough that tier-5
+  hulls look small beside it and tier-1/2 ships read as drones.
 - **Per-ship state ring**: shield as an outer arc, hull as an inner arc, both
   as fractions of max. This is the record sheet's armour diagram, reduced.
 - **Targeting lines** from `targetId`, drawn faint and continuously — the
