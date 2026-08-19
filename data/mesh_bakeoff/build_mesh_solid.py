@@ -89,6 +89,7 @@ def cameras() -> dict[str, dict]:
 
 
 VIS_RES = 512
+RADIAL_FILL = False
 
 
 def colorize(v: np.ndarray, stem: str, cam: dict) -> np.ndarray:
@@ -129,7 +130,17 @@ def colorize(v: np.ndarray, stem: str, cam: dict) -> np.ndarray:
     rgb = np.zeros((len(v), 3))
     rgb[visible] = img[pxi[visible, 1], pxi[visible, 0], :3]
     if visible.any() and (~visible).any():
-        _, nn = cKDTree(v[visible]).query(v[~visible])
+        radial = RADIAL_FILL == "all" or (
+            RADIAL_FILL and any(s in stem for s in RADIAL_FILL.split(",")))
+        if radial:
+            # radially symmetric bodies (stations): fill occluded vertices
+            # from the nearest painted vertex at the same (radius, height) —
+            # spins the visible band's paint around the axis, so each ring
+            # keeps its own true colour instead of smearing across the seam
+            feat = np.column_stack([np.hypot(v[:, 0], v[:, 2]), v[:, 1]])
+        else:
+            feat = v
+        _, nn = cKDTree(feat[visible]).query(feat[~visible])
         rgb[~visible] = rgb[visible][nn]
     print(f"    colour: visible {visible.mean() * 100:.0f}%, "
           f"borrowed {(~visible).mean() * 100:.0f}%")
@@ -157,8 +168,39 @@ def main() -> int:
                     help="comma-separated LOD subset (e.g. '40k' for the "
                          "lean deployed build; default: all)")
     ap.add_argument("--out", default=str(HERE / "mesh_solid.html"))
+    ap.add_argument("--sweep", default=None,
+                    help="alternate sweep dir (e.g. out-stations); implies "
+                         "--lods 40k and cameras fitted on demand")
+    ap.add_argument("--ships", default=None,
+                    help="comma-separated stems overriding the built-in roster")
+    ap.add_argument("--radial-fill", nargs="?", const="all", default=None,
+                    help="fill occluded vertex colours by (radius, height) "
+                         "instead of 3D nearness — for radially symmetric "
+                         "stations, spins the hero paint around the axis. "
+                         "Bare flag: every ship; or a comma list of stem "
+                         "substrings (e.g. 'saucer,ring,pagoda')")
+    ap.add_argument("--lodmap", default=None,
+                    help="explicit label=dir LOD mapping, e.g. "
+                         "'40k=out-stations,250k=out-stations-hr250k,1m=out-stations-hr1m'; "
+                         "overrides --lods/--sweep LOD selection (missing dirs skip)")
     args = ap.parse_args()
-    lod_dirs = {k: LODS[k] for k in args.lods.split(",")}
+    global SWEEP, SHIPS, RADIAL_FILL
+    RADIAL_FILL = args.radial_fill
+    if args.sweep:
+        SWEEP = HERE / args.sweep
+        LODS.clear()
+        LODS["40k"] = SWEEP
+        args.lods = "40k"
+    if args.ships:
+        SHIPS = args.ships.split(",")
+    if args.lodmap:
+        lod_dirs = {}
+        for pair in args.lodmap.split(","):
+            label, d = pair.split("=", 1)
+            lod_dirs[label] = HERE / d
+        SWEEP = next(iter(lod_dirs.values()))  # keyed.png/cam-fit source
+    else:
+        lod_dirs = {k: LODS[k] for k in args.lods.split(",")}
     if not VENDOR.exists():
         VENDOR.parent.mkdir(exist_ok=True)
         print(f"downloading {THREE_URL}")

@@ -80,7 +80,7 @@ let curStem = null, lod = "40k";
 
 function loadShip(stem, keepView) {
   const s = MESHES[stem];
-  if (!s.lods[lod]) lod = "40k";              // ship missing this LOD
+  if (!s.lods[lod]) lod = Object.keys(s.lods)[0];   // ship missing this LOD
   const L = s.lods[lod];
   const raw = Uint8Array.from(atob(L.b64), ch => ch.charCodeAt(0));
   const pos16 = new Int16Array(raw.buffer, 0, L.nv * 3);
@@ -169,8 +169,9 @@ for (const [m, label] of [["smooth", "smooth"], ["flat", "flat-shaded"],
   b.onclick = () => { shading = m; applyShading(); };
   modesBar.appendChild(b);
 }
+const LOD_LABELS = [...new Set(Object.values(MESHES).flatMap(s => Object.keys(s.lods)))];
 const lodsBar = document.getElementById("lods");
-for (const l of ["20k", "40k", "80k"]) {
+for (const l of LOD_LABELS) {
   const b = document.createElement("button");
   b.textContent = l;
   b.dataset.lod = l;
@@ -181,7 +182,7 @@ for (const l of ["20k", "40k", "80k"]) {
 let startShip = Object.keys(MESHES)[0];
 for (const tok of location.hash.slice(1).split(".")) {
   if (["smooth", "flat", "wire", "color"].includes(tok)) shading = tok;
-  else if (["20k", "40k", "80k"].includes(tok)) lod = tok;
+  else if (LOD_LABELS.includes(tok)) lod = tok;
   else if (MESHES[tok]) startShip = tok;
 }
 loadShip(startShip);

@@ -1,0 +1,201 @@
+<!doctype html><meta charset="utf-8"><title>Station viewer — fetch on demand</title>
+<style>
+  body { background:#0c0e12; color:#9aa1ab; font:13px system-ui,sans-serif;
+         display:flex; flex-direction:column; align-items:center; margin:24px; }
+  #stage { width:1280px; height:1280px; max-width:100%; touch-action:none; cursor:grab;
+           background:radial-gradient(circle at 50% 45%, #181c24 0%, #0c0e12 75%); }
+  .hint { margin-top:10px; color:#5f6a78; }
+  select, #modes button, .nav {
+    background:#1c2028; color:#9aa1ab; border:1px solid #333a46;
+    border-radius:4px; padding:5px 10px; cursor:pointer; font-size:12px; }
+  #modes button.sel { background:#22384c; color:#9fd9ff; border-color:#3d6d94; }
+  #status { color:#5f6a78; min-width:120px; display:inline-block; }
+</style>
+<h3 id="title" style="color:#cfd3da">station viewer</h3>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+  <button class="nav" id="prev">&larr;</button>
+  <select id="picker"></select>
+  <button class="nav" id="next">&rarr;</button>
+  <span id="status"></span>
+</div>
+<div id="modes" style="display:flex;gap:6px;margin-bottom:10px"></div>
+<div id="stage"></div>
+<div class="hint" id="stats"></div>
+<div class="hint">models fetched on demand (~200KB gz each, browser-cached) —
+drag to orbit — idles back into the showroom spin</div>
+<script>__THREE_JS__</script>
+<script>
+const ASSETS = "out-stations-web";
+
+const W = 1280, H = 1280;
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W, H);
+stage.appendChild(renderer.domElement);
+
+const ORTHO = 32767 / 0.72, YSHIFT = -0.12 * ORTHO;
+const camera = new THREE.OrthographicCamera(
+  -ORTHO, ORTHO, ORTHO + YSHIFT, -ORTHO + YSHIFT, -200000, 200000);
+
+const scene = new THREE.Scene();
+scene.add(camera);
+const key = new THREE.DirectionalLight(0xffffff, 0.95);
+key.position.set(0.35, 0.55, 0.75);
+camera.add(key);
+const fill = new THREE.DirectionalLight(0x8899bb, 0.25);
+fill.position.set(-0.6, -0.2, 0.4);
+camera.add(fill);
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+
+const matSolid = new THREE.MeshStandardMaterial(
+  { color: 0x8f959d, metalness: 0.05, roughness: 0.85 });
+const matWire = new THREE.MeshBasicMaterial(
+  { color: 0x6f8fa8, wireframe: true, transparent: true, opacity: 0.85 });
+let meshObj = null, shading = "flat", curStem = null;
+
+// view state -----------------------------------------------------------
+const ISO = { elev: 18 * Math.PI / 180 };
+let elev = ISO.elev, azim = 0;
+let mode = "showroom", lastTouch = 0;
+const IDLE_MS = 3500, SPIN = 0.004;
+
+function applyShading() {
+  if (!meshObj) return;
+  matSolid.flatShading = shading === "flat";
+  matSolid.needsUpdate = true;
+  meshObj.material = shading === "wire" ? matWire : matSolid;
+  document.querySelectorAll("#modes button").forEach(b =>
+    b.classList.toggle("sel", b.dataset.mode === shading));
+}
+
+// fetch-on-demand loader ------------------------------------------------
+let MANIFEST = null, ctrl = null;
+const statusEl = document.getElementById("status");
+
+async function loadModel(stem, keepView) {
+  const m = MANIFEST[stem];
+  if (!m) return;
+  if (ctrl) ctrl.abort();
+  ctrl = new AbortController();
+  statusEl.textContent = "loading…";
+  let buf;
+  try {
+    buf = await (await fetch(`${ASSETS}/${stem}.bin`, { signal: ctrl.signal })).arrayBuffer();
+  } catch (e) {
+    if (e.name !== "AbortError") statusEl.textContent = "load failed";
+    return;                      // aborted by a newer selection: do nothing
+  }
+  statusEl.textContent = "";
+  const pos = new Float32Array(new Int16Array(buf, 0, m.nv * 3));
+  const off = m.nv * 6, ib = m.nf * 3 * (m.idx16 ? 2 : 4);
+  const idx = m.idx16 ? new Uint16Array(buf.slice(off, off + ib))
+                      : new Uint32Array(buf.slice(off, off + ib));
+  const rgb = new Uint8Array(buf, off + ib, m.nv * 3);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(rgb, 3, true));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  geo.computeVertexNormals();
+  if (meshObj) { scene.remove(meshObj); meshObj.geometry.dispose(); }
+  meshObj = new THREE.Mesh(geo, matSolid);
+  scene.add(meshObj);
+  applyShading();
+  if (!keepView) {
+    elev = (m.cam.elev > 0 ? m.cam.elev : 18) * Math.PI / 180;
+    azim = m.cam.azim * Math.PI / 180;
+    mode = "showroom";
+  }
+  curStem = stem;
+  history.replaceState(null, "", "#" + stem + "." + shading);
+  document.getElementById("title").textContent = stem;
+  document.getElementById("stats").textContent =
+    (m.nv / 1000).toFixed(1) + "k vertices · " + (m.nf / 1000).toFixed(1) + "k faces";
+  document.getElementById("picker").value = stem;
+}
+
+function frame() {
+  if (mode === "showroom") azim += SPIN;
+  else if (mode === "user" && performance.now() - lastTouch > IDLE_MS) mode = "return";
+  else if (mode === "return") {
+    elev += (ISO.elev - elev) * 0.06; azim += SPIN;
+    if (Math.abs(elev - ISO.elev) < 0.005) { elev = ISO.elev; mode = "showroom"; }
+  }
+  const ce = Math.cos(elev), se = Math.sin(elev);
+  camera.position.set(ce * Math.sin(azim), se, ce * Math.cos(azim))
+    .multiplyScalar(100000);
+  camera.lookAt(0, 0, 0);
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+// interaction -----------------------------------------------------------
+const cv = renderer.domElement;
+let dragging = false, lastX = 0, lastY = 0;
+cv.addEventListener("pointerdown", e => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  mode = "user"; lastTouch = performance.now();
+  cv.setPointerCapture(e.pointerId); stage.style.cursor = "grabbing";
+});
+cv.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  azim += (e.clientX - lastX) * 0.008;
+  elev += (e.clientY - lastY) * 0.008;
+  const lim = Math.PI / 2 - 0.02;
+  if (elev > lim) elev = lim; else if (elev < -lim) elev = -lim;
+  lastX = e.clientX; lastY = e.clientY; lastTouch = performance.now();
+});
+["pointerup", "pointercancel"].forEach(ev => cv.addEventListener(ev, () => {
+  dragging = false; lastTouch = performance.now(); stage.style.cursor = "grab";
+}));
+
+// controls --------------------------------------------------------------
+const modesBar = document.getElementById("modes");
+for (const [m, label] of [["smooth", "smooth"], ["flat", "flat-shaded"],
+                          ["wire", "wireframe"]]) {
+  const b = document.createElement("button");
+  b.textContent = label;
+  b.dataset.mode = m;
+  b.onclick = () => { shading = m; applyShading();
+    if (curStem) history.replaceState(null, "", "#" + curStem + "." + shading); };
+  modesBar.appendChild(b);
+}
+
+function groupOf(stem) {
+  if (stem.startsWith("pirate_")) return "pirate factions";
+  if (stem.startsWith("stronghold_")) return "strongholds";
+  return stem.split("__")[0];
+}
+
+async function init() {
+  MANIFEST = await (await fetch(`${ASSETS}/manifest.json`)).json();
+  const stems = Object.keys(MANIFEST).sort();
+  const picker = document.getElementById("picker");
+  let lastGroup = null, og = null;
+  for (const s of stems) {
+    const g = groupOf(s);
+    if (g !== lastGroup) {
+      og = document.createElement("optgroup"); og.label = g;
+      picker.appendChild(og); lastGroup = g;
+    }
+    const o = document.createElement("option");
+    o.value = s;
+    o.textContent = s.replace(/^(pirate|stronghold)_/, "").replace(/__/g, " · ").replace(/_s\d+$/, "");
+    og.appendChild(o);
+  }
+  picker.onchange = () => loadModel(picker.value);
+  document.getElementById("prev").onclick = () =>
+    loadModel(stems[(stems.indexOf(curStem) - 1 + stems.length) % stems.length]);
+  document.getElementById("next").onclick = () =>
+    loadModel(stems[(stems.indexOf(curStem) + 1) % stems.length]);
+
+  let start = stems[0];
+  for (const tok of location.hash.slice(1).split(".")) {
+    if (["smooth", "flat", "wire"].includes(tok)) shading = tok;
+    else if (MANIFEST[tok]) start = tok;
+  }
+  loadModel(start);
+  requestAnimationFrame(frame);
+}
+init();
+</script>

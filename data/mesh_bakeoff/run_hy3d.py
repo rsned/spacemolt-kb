@@ -159,6 +159,11 @@ def main() -> int:
     ap.add_argument("--max-faces", type=int, default=40000,
                     help="FaceReducer target; generation is seeded, so re-running "
                          "with a higher target reproduces the same shape denser")
+    ap.add_argument("--mc-algo", default="mc",
+                    help="surface extractor: 'mc' (skimage, CPU, always works) "
+                         "or 'dmc' (diso differentiable marching cubes — "
+                         "sharper vertex placement; needs the CUDA toolkit "
+                         "and 'pip install diso' in hy3d-venv)")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -207,7 +212,8 @@ def main() -> int:
         out_dir.mkdir(parents=True, exist_ok=True)
         rec = {"stem": stem, "source_image": p["source_image"], "model": MODEL_PATH,
                "steps": args.steps, "octree_resolution": args.octree,
-               "guidance_scale": args.guidance, "seed": args.seed}
+               "guidance_scale": args.guidance, "seed": args.seed,
+               "mc_algo": args.mc_algo, "max_faces": args.max_faces}
         try:
             img = chroma_key(Image.open(p["source_image"]))
             img.save(out_dir / "keyed.png")
@@ -219,7 +225,7 @@ def main() -> int:
                 octree_resolution=args.octree,
                 guidance_scale=args.guidance,
                 generator=torch.manual_seed(args.seed),
-                mc_algo="mc",  # skimage marching cubes: no nvcc on this box for diso/dmc
+                mc_algo=args.mc_algo,
             )[0]
             rec["generate_seconds"] = time.time() - t0
 
