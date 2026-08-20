@@ -504,8 +504,157 @@ count" is proven by render rather than by assertion.
 **Fallbacks in P1a** are drawn in JS, since `pkg/shipglyph` is Go and cannot run
 in the browser: the station gets the official viewer's hexagon-plus-corner-circles
 glyph, and an unresolved hull gets a distinct chevron. Pre-baking `shipglyph`
-output into real SVG assets is deferred to P1b. The P1a bar is only that it must
+output into real SVG assets was deferred to P1b and has since moved out of P1
+entirely — see "Moved out of P1b" below. The P1a bar is only that it must
 never draw a placeholder box and never throw.
+
+### P1b — motion (ratified 2026-08-20)
+
+P1a's frame passed the taste gate, so P1b builds playback on top of it:
+transport, inter-tick interpolation, and the chatter rail. Everything in this
+section is settled — the implementation plan argues from it rather than
+re-deciding it.
+
+**What P1a settled, and P1b must not re-open.** Radius is not a function of
+zone, so positions interpolate **linearly** — no easing between ring radii
+(closes open question 1, and answers 3's easing half). The station renders as a
+participant on the table rather than anchoring a side's baseline (closes 2). A
+`0`/max hull draws as the dashed-grey UNKNOWN arc, which reads as "no data" and
+not as damage (closes 4 and 5).
+
+#### File seams
+
+`holotable.js` is 784 lines and would land near 1300 with motion folded in, so
+the work splits on the seam between *drawing a frame* and *deciding which frame,
+and when*:
+
+| File | Owns |
+|---|---|
+| `kb/battles/holotable.js` | Geometry and drawing. Unchanged except: `initHolotable` moves out, `zoneRings` hoists into the static-layer bake, and `drawShip` honours a new `alpha`. |
+| `kb/battles/holotable-player.js` | *New.* The clock, `interpolateFrame`, `groupChatter`, transport wiring, and page init. |
+
+#### Interpolation
+
+`interpolateFrame(prev, next, t)` is pure and returns a frame the existing draw
+path already accepts.
+
+| Case | Treatment |
+|---|---|
+| Present in both frames | `x`, `y` lerp linearly |
+| Discrete fields — `zone`, `stance`, `target_id` | Hold `prev`'s value across the whole interval. A target acquired in `next` must not draw its line until the ship arrives. |
+| `hull`, `shield` | Lerp, **unless** either endpoint is `null` under `fractionOf`, in which case hold `prev`. You cannot interpolate between "unknown" and a number, and the UNKNOWN arc must never fade into a real reading. |
+| Arriving — present in `next` only | Alpha 0→1 across the interval, held at `next`'s position |
+| Leaving or destroyed — present in `prev` only | Alpha 1→0, held at `prev`'s position. Nothing remains. |
+
+Arrival and death are **declared, not inferred**: participants carry
+`first_tick`, `last_tick`, `destroyed_at_tick`, and `killed_by`. This matters
+because frames are not a fixed roster — Node Beta runs 15, 15, 15, 15, 14, 17,
+16 ships and then **40**, with 27 appearances and 13 disappearances across 30
+ticks. Standing still that is invisible; in motion it is the most violent thing
+on screen, which is what the fades exist to absorb.
+
+`alpha` is a new field `drawShip` honours. There is no explosion, no kill flash,
+and no persistent wreck — destruction FX belong to P4, and a wreck glyph is
+P2's or P4's to define.
+
+#### Clock
+
+The testable core is a pure `advance(state, dtMs)` returning the new
+`{frameIndex, t}` plus the ordered list of tick boundaries crossed. No
+`requestAnimationFrame` inside tests; the rAF loop only feeds it deltas.
+
+- **1 tick = 500 ms** at 1×, with speeds 0.25 / 0.5 / 1 / 2 / 4.
+- Deltas come from `performance.now()`. **Any delta over 250 ms clamps to one
+  frame's worth** — a backgrounded tab must not leap forty ticks on return.
+- Crossing a boundary emits a tick event, which is the rail's only input.
+  Multiple boundaries inside one delta emit in order, so nothing is skipped
+  at 4×.
+- Reaching the last frame stops and parks there.
+
+#### Transport
+
+A bar below the canvas: step-back, play/pause, step-forward, a range slider over
+frame indices, a speed select, and a `tick 1615393 · 8 / 30` readout. Dragging
+the slider pauses and seeks. Keys: space for play/pause, ←/→ to step,
+shift+←/→ for ten, Home/End for the ends.
+
+**Start behaviour changes from P1a:** the page starts **paused at frame 0**,
+because a player should begin at the beginning. `?tick=N` still seeks, and
+`?tick=busiest` retains P1a's busiest-frame default so the screenshot commands
+in `docs/holotable-p1a-findings.md` stay reproducible.
+
+#### Chatter rail
+
+The presentation section's earlier sentence — "a scrolling column of `autopilot`
+reasons and `zone_moves`" — does not survive contact with the data. Measured
+across both fixtures:
+
+| | Raw | Grouped by reason |
+|---|---|---|
+| Node Beta (42 ships, 30 ticks) | 840 — **28/tick** | 201 — 6.7/tick |
+| Kitalpha (5 ships, 158 ticks) | 360 — 2.3/tick | 268 — 1.7/tick |
+
+Twenty-eight lines a tick is a blur at any speed worth watching, and there are
+only 18 distinct reasons in the entire battle — one ship repeats
+`npc_hold_range` for ten ticks straight.
+
+**The rail groups identical reasons per tick with a count** (`×7
+npc_hold_range`), and prints zone moves and kills verbatim on their own lines,
+naming ships by `username` rather than by player hash. There is no per-ship
+selection mode in P1b.
+
+`groupChatter(frame, participants)` is pure and returns
+`{tick, counts:[{reason, n}], moves, kills}`, so the shaping is tested without a
+DOM; a separate function turns that into elements. The rail keeps a **rolling
+window of the last 40 ticks**, and a scrub clears and rebuilds that window —
+bounded work whether the battle is 30 ticks or 620. It sticks to the bottom
+unless the reader has scrolled up.
+
+**Layout.** The flex column becomes header / a row of `[canvas ⋮ rail 300px]` /
+transport bar, with `#status` keeping its `order: -1` so a fetch failure still
+lands above everything else. Under 900 px the rail stacks below the canvas.
+
+#### Performance
+
+The static layer — rings, spokes, band and side labels — bakes once into an
+offscreen canvas and blits per frame, rebuilt only on resize. That dissolves
+`TODO(P1b)` #1 by construction: `zoneRings` stops being called from the
+per-frame path. `TODO(P1b)` #2 gets its `try/finally`, since the context now
+survives across frames instead of being discarded with the canvas on error.
+`pathCache` already parses each hull's `Path2D` once.
+
+Proof comes in two stages:
+
+1. **A synthetic stress fixture** — a generator fanning Node Beta out to ~400
+   hulls × 600 ticks, plus a bench that prints ms/frame. **No wall-clock
+   assertion in `node --test`**: a timing gate in unit tests is flaky by
+   construction. The measurement lands in the findings doc instead.
+2. **A one-off real acceptance export** of `c79f7810a5…` (373 participants, 264
+   ticks, 24.3 MB / 3.2 MB gzipped), under the documented export cautions —
+   pick the export agent from `ps aux`, since a login collides with that agent's
+   running worker and dies `session_replaced`, and two such deaths inside 30 s
+   trip the client's session-contention guard; use `--limit 10` against the
+   10 MB WebSocket read cap.
+
+#### Testing
+
+- `advance()` — including the 250 ms clamp and multi-boundary crossings.
+- `interpolateFrame` — all five cases in the table above.
+- `groupChatter` — shaping, without a DOM.
+- **Repair the parked `deriveZoneOrder` / 5-band `zoneRings` tests.** They pass
+  by fixture coincidence today and would not catch a regression that drops the
+  `opts.zoneOrder` threading.
+
+The gate is `node --test tests/js/*.test.js` — **never** the directory form. On
+Node 22.16 a directory argument makes the runner `require` the directory and
+report a failure on a clean tree.
+
+#### Moved out of P1b
+
+Pre-baking `pkg/shipglyph` output into real SVG assets — which the P1a section
+above defers to P1b — moves to its own phase. It is asset-pipeline work
+unrelated to motion, it affects four hulls, and P1a's chevron already meets the
+stated bar of never drawing a placeholder box and never throwing.
 
 ## Cross-repo work
 
@@ -527,13 +676,21 @@ Mostly KB, with one item in `spacemolt`:
   count, and that `destroyedAtTick` is set for exactly the 14 victims.
 - **Sparsity**: assert a participant absent from early snapshots is not drawn
   before `firstTick`, and that a destroyed one stops updating.
-- **Asset fallback**: assert an unknown `ship_class` resolves to a shipglyph and
-  renders, rather than throwing or drawing a box.
-- **Contract**: assert every shipped SVG is closed, nose-up, and centroid-origin
+- **Asset fallback**: assert an unknown `ship_class` renders its fallback glyph
+  rather than throwing or drawing a box. P1a draws that fallback in JS (a
+  chevron for a hull, the hexagon for a station), not via `pkg/shipglyph`.
+- **Contract**: assert every shipped SVG matches the asset contract above — one
+  `evenodd` path, `viewBox 0 0 1020 H`, bow at +X, hull normalized to 1000 units
   — a lint over the asset directory, so a pipeline regression fails loudly.
+  Implemented as `pkg/footprint.Check`, run by the generator over all 395 files.
 - **Visual**: the sample battle replayed end to end is the acceptance artifact.
 
 ## Open questions
+
+**Resolved.** P1a's render closed 1, 2, 4, and 5, and the P1b section closes the
+easing half of 3 (linear, 500 ms per tick). 6 is moot: P1 shipped against the
+complete 395-asset set. They are kept below as the record of what was open when
+the design was written.
 
 1. **Does `x`/`y` drift within a zone, or is it quantised per zone?** The sample
    shows continuous values and a clean advance, but one battle is not proof. If
