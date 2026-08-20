@@ -167,3 +167,74 @@ test('advance survives a one-frame replay', () => {
   assert.strictEqual(out.frameIndex, 0);
   assert.strictEqual(out.playing, false);
 });
+
+const parts = new Map([
+  ['a', {player_id: 'a', username: 'Ashen Assault', side_id: 1}],
+  ['b', {player_id: 'b', username: 'Kestrel', side_id: 2}],
+  ['c', {player_id: 'c', username: 'Harrow', side_id: 2}],
+]);
+
+test('groupChatter collapses identical reasons into one counted line', () => {
+  const frame = {
+    tick: 1615393,
+    chatter: [
+      {player_id: 'a', reason: 'npc_hold_range', chosen_target: 'b'},
+      {player_id: 'b', reason: 'npc_hold_range', chosen_target: 'a'},
+      {player_id: 'c', reason: 'npc_retreat', chosen_target: null},
+    ],
+    moves: [], kills: [],
+  };
+  const g = hp.groupChatter(frame, parts);
+  assert.strictEqual(g.tick, 1615393);
+  assert.deepStrictEqual(g.counts, [
+    {reason: 'npc_hold_range', n: 2},
+    {reason: 'npc_retreat', n: 1},
+  ]);
+});
+
+test('groupChatter orders counts by frequency, then alphabetically, so the rail is deterministic', () => {
+  const frame = {
+    tick: 5,
+    chatter: [
+      {player_id: 'a', reason: 'zulu'},
+      {player_id: 'b', reason: 'alpha'},
+      {player_id: 'c', reason: 'mike'},
+      {player_id: 'a', reason: 'mike'},
+    ],
+    moves: [], kills: [],
+  };
+  const g = hp.groupChatter(frame, parts);
+  assert.deepStrictEqual(g.counts.map(c => c.reason), ['mike', 'alpha', 'zulu'],
+    'mike leads on count 2; alpha and zulu tie at 1 and break alphabetically');
+});
+
+test('groupChatter names ships by username, not by player hash', () => {
+  const frame = {
+    tick: 5,
+    chatter: [],
+    moves: [{player_id: 'b', from: 'outer', to: 'mid', reason: 'advance'}],
+    kills: [{killer_id: 'a', victim_id: 'c'}],
+  };
+  const g = hp.groupChatter(frame, parts);
+  assert.deepStrictEqual(g.moves, [{name: 'Kestrel', from: 'outer', to: 'mid', reason: 'advance'}]);
+  assert.deepStrictEqual(g.kills, [{victim: 'Harrow', killer: 'Ashen Assault'}]);
+});
+
+test('groupChatter falls back to a short id for a participant it has never heard of', () => {
+  // Defensive: a chatter or kill entry can name a player_id that is not in the
+  // participant roster. Printing "undefined" in the bridge log would be worse
+  // than printing a stub.
+  const frame = {
+    tick: 5, chatter: [],
+    moves: [],
+    kills: [{killer_id: 'deadbeefcafe0000', victim_id: 'a'}],
+  };
+  const g = hp.groupChatter(frame, parts);
+  assert.strictEqual(g.kills[0].killer, 'deadbe');
+  assert.strictEqual(g.kills[0].victim, 'Ashen Assault');
+});
+
+test('groupChatter tolerates a frame missing any of its event arrays', () => {
+  const g = hp.groupChatter({tick: 7}, parts);
+  assert.deepStrictEqual(g, {tick: 7, counts: [], moves: [], kills: []});
+});

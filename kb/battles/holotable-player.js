@@ -137,9 +137,60 @@ function advance(state, dtMs, opts) {
   return out;
 }
 
+// nameOf resolves a player_id for the chatter rail. The roster is the only
+// place a readable name exists; an id that is not in it still gets something
+// printable, because "undefined destroyed Kestrel" is worse than a stub.
+function nameOf(id, participantsById) {
+  const p = participantsById.get(id);
+  if (p && p.username) return p.username;
+  return String(id || '?').slice(0, 6);
+}
+
+// groupChatter shapes one tick for the rail.
+//
+// The spec's original description — a scrolling column of autopilot reasons —
+// does not survive the data: Node Beta emits 840 chatter entries across 30
+// ticks (28 a tick) drawn from just 18 distinct reasons, with single ships
+// repeating npc_hold_range for ten ticks running. Printed literally that is a
+// blur. Identical reasons collapse to one counted line, which cuts it to 6.7
+// lines a tick and leaves Kitalpha (2.3 raw) essentially untouched.
+//
+// Moves and kills are never collapsed — they are the events a reader is
+// actually watching for, and there are few of them (405 moves and 14 kills
+// across all of Node Beta).
+function groupChatter(frame, participantsById) {
+  const counts = new Map();
+  for (const c of frame.chatter || []) {
+    counts.set(c.reason, (counts.get(c.reason) || 0) + 1);
+  }
+
+  // Sorted by frequency, then by name. The secondary key is not decoration:
+  // Map iteration order is insertion order, so without it two ticks with the
+  // same reasons in a different arrival order would print in a different order
+  // and the rail would shimmer.
+  const ordered = Array.from(counts, ([reason, n]) => ({reason, n}))
+    .sort((a, b) => (b.n - a.n) || (a.reason < b.reason ? -1 : a.reason > b.reason ? 1 : 0));
+
+  return {
+    tick: frame.tick,
+    counts: ordered,
+    moves: (frame.moves || []).map(m => ({
+      name: nameOf(m.player_id, participantsById),
+      from: m.from,
+      to: m.to,
+      reason: m.reason,
+    })),
+    kills: (frame.kills || []).map(k => ({
+      victim: nameOf(k.victim_id, participantsById),
+      killer: nameOf(k.killer_id, participantsById),
+    })),
+  };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     interpolateFrame, lerp, lerpGuarded, clamp01,
     advance, MS_PER_TICK, MAX_DELTA_MS, SPEEDS,
+    groupChatter, nameOf,
   };
 }
