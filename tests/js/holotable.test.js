@@ -285,3 +285,27 @@ test('hullTransform tolerates a footprint with no height', () => {
   const t = ht.hullTransform({}, 40);
   assert.ok(Number.isFinite(t.cy), 'a missing height must not produce NaN');
 });
+
+test('busiestTick finds the frame with the most ships actively targeting', () => {
+  const replay = {frames: [
+    {tick: 1, ships: [{player_id: 'a'}, {player_id: 'b'}]},
+    {tick: 2, ships: [{player_id: 'a', target_id: 'b'}, {player_id: 'b', target_id: 'a'}]},
+    {tick: 3, ships: [{player_id: 'a', target_id: 'b'}]},
+  ]};
+  assert.strictEqual(ht.busiestTick(replay), 2);
+});
+
+test('busiestTick falls back to the first frame when nobody ever targets', () => {
+  const replay = {frames: [{tick: 7, ships: [{player_id: 'a'}]}]};
+  assert.strictEqual(ht.busiestTick(replay), 7);
+});
+
+test('pickFrame returns the requested tick, else the busiest', () => {
+  const replay = {frames: [
+    {tick: 1, ships: [{player_id: 'a'}]},
+    {tick: 2, ships: [{player_id: 'a', target_id: 'b'}]},
+  ]};
+  assert.strictEqual(ht.pickFrame(replay, 1).tick, 1);
+  assert.strictEqual(ht.pickFrame(replay, null).tick, 2, 'no request means the busiest frame');
+  assert.strictEqual(ht.pickFrame(replay, 999).tick, 2, 'an out-of-range tick falls back');
+});

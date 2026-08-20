@@ -490,11 +490,130 @@ function drawShip(ctx, view, ship, participant, hull, opts) {
   drawStateArcs(ctx, p.px, p.py, lengthPx * 0.5, opts.state, theme);
 }
 
+// busiestTick picks the most informative single frame: the one where the most
+// ships are actively targeting something. P1a draws one frame, so it should be
+// a frame where the fleet is visibly doing something rather than tick 1, where
+// half the participants have not joined yet.
+function busiestTick(replay) {
+  let best = null;
+  let bestCount = -1;
+  for (const frame of replay.frames) {
+    let count = 0;
+    for (const ship of frame.ships) {
+      if (ship.target_id) count++;
+    }
+    if (count > bestCount) {
+      bestCount = count;
+      best = frame.tick;
+    }
+  }
+  return best;
+}
+
+// pickFrame resolves the frame to draw: an explicitly requested tick if it
+// exists, else the busiest.
+function pickFrame(replay, want) {
+  if (want !== null && want !== undefined) {
+    const found = replay.frames.find(f => f.tick === want);
+    if (found) return found;
+  }
+  const tick = busiestTick(replay);
+  return replay.frames.find(f => f.tick === tick) || replay.frames[0];
+}
+
+// TABLE_MARGIN keeps the outermost ring and its labels off the canvas edge.
+const TABLE_MARGIN = 60;
+
+// drawFrame renders one tick of the battle onto ctx.
+function drawFrame(ctx, replay, hulls, frame, width, height) {
+  ctx.save();
+  const view = fitView(replay.bounds, width, height, TABLE_MARGIN);
+  const rings = zoneRings(replay.frames, replay.centre, {});
+
+  ctx.fillStyle = THEME.bg;
+  ctx.fillRect(0, 0, width, height);
+
+  drawGround(ctx, view, replay.centre, rings, replay.sides, THEME);
+
+  const shipsById = new Map(frame.ships.map(s => [s.player_id, s]));
+  const partById = new Map(replay.participants.map(p => [p.player_id, p]));
+
+  // Targeting lines first, so hulls draw over them.
+  ctx.save();
+  ctx.strokeStyle = THEME.targetLine;
+  ctx.lineWidth = 1;
+  for (const ship of frame.ships) {
+    const target = ship.target_id ? shipsById.get(ship.target_id) : null;
+    if (!target) continue;
+    const a = project(ship.x, ship.y, view);
+    const b = project(target.x, target.y, view);
+    ctx.beginPath();
+    ctx.moveTo(a.px, a.py);
+    ctx.lineTo(b.px, b.py);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  for (const ship of frame.ships) {
+    const participant = partById.get(ship.player_id);
+    if (!participant) continue;
+    const hull = hulls[participant.ship_class] || {kind: 'missing', scale: 1};
+    const state = hullState(ship, participant, frame.tick);
+    drawShip(ctx, view, ship, participant, hull, {
+      theme: THEME,
+      heading: headingOf(ship, shipsById, replay.centre),
+      state,
+      dead: state.dead,
+    });
+  }
+  ctx.restore();
+}
+
+// initHolotable wires the page: fetch both data files, size the canvas to the
+// device, draw one frame.
+async function initHolotable() {
+  const cfg = window.HOLOTABLE;
+  const status = document.getElementById('status');
+  const canvas = document.getElementById('table');
+
+  try {
+    const [replay, hulls] = await Promise.all([
+      fetch(cfg.replayURL).then(r => r.json()),
+      fetch(cfg.hullsURL).then(r => r.json()),
+    ]);
+
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.has('tick') ? Number(params.get('tick')) : null;
+    const frame = pickFrame(replay, wanted);
+
+    drawFrame(ctx, replay, hulls, frame, width, height);
+
+    document.getElementById('tick').textContent = String(frame.tick);
+    status.textContent = '';
+  } catch (err) {
+    status.textContent = 'Could not draw the battle: ' + err.message;
+  }
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', initHolotable);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     fitView, project, zoneRings, headingOf, hullPixels, hullState,
     spokeEnd, sideColour, outerRadius, drawGround, THEME,
     HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER,
     hullTransform, drawShip, drawStationGlyph, drawMissingGlyph, drawStateArcs,
+    busiestTick, pickFrame, drawFrame,
   };
 }
