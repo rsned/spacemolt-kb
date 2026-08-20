@@ -1831,7 +1831,7 @@ Create `kb/battles/.gitignore`:
 ```gitignore
 # Generated page for the synthetic stress fixture. Regenerate with
 # `go run ./cmd/generate-battle-holotable --replay data/battles/ffffffffffffffffffffffffffffffff.json`.
-ffffffffffffffffffffffffffffffff.*
+ffffffffffffffffffffffffffffffff*
 ```
 
 Verify: `git status --porcelain data/battles/ kb/battles/` lists the two new
@@ -1982,7 +1982,7 @@ c79f7810a59437b029a6168526782fe4.json
 
 `kb/battles/.gitignore`:
 ```gitignore
-c79f7810a59437b029a6168526782fe4.*
+c79f7810a59437b029a6168526782fe4*
 ```
 
 Then:
