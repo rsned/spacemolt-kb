@@ -88,6 +88,58 @@ function interpolateFrame(prev, next, t) {
   return {tick: prev.tick, t: f, ships};
 }
 
+// MS_PER_TICK is one game tick's screen time at 1x. Game ticks are ~10s of
+// world time; playback is not a simulation and picks a watchable cadence.
+const MS_PER_TICK = 500;
+
+// MAX_DELTA_MS caps one animation delta. A backgrounded tab, a blocked main
+// thread, or a laptop waking from sleep hands rAF a delta measured in seconds
+// or minutes; without this the player leaps a hundred ticks and the chatter
+// rail floods with the whole battle at once.
+const MAX_DELTA_MS = 250;
+
+const SPEEDS = [0.25, 0.5, 1, 2, 4];
+
+// advance steps the playback clock and reports which tick boundaries it
+// crossed. Pure: it returns a new state rather than mutating the one it is
+// given, so the rAF loop is a two-line wrapper and tests can step it freely.
+//
+// `crossed` is the ordered list of frame indices newly entered. It is the
+// chatter rail's only input, so ordering and completeness matter: at 4x a
+// single clamped delta covers two whole ticks, and skipping one would silently
+// drop a tick of the battle log.
+function advance(state, dtMs, opts) {
+  const frameCount = opts.frameCount;
+  const msPerTick = opts.msPerTick || MS_PER_TICK;
+  const out = {
+    frameIndex: state.frameIndex,
+    t: state.t,
+    playing: state.playing,
+    speed: state.speed,
+    crossed: [],
+  };
+  if (!state.playing) return out;
+
+  const dt = Math.min(dtMs > 0 ? dtMs : 0, MAX_DELTA_MS);
+  out.t += (dt * state.speed) / msPerTick;
+
+  while (out.t >= 1 && out.frameIndex < frameCount - 1) {
+    out.frameIndex += 1;
+    out.t -= 1;
+    out.crossed.push(out.frameIndex);
+  }
+
+  if (out.frameIndex >= frameCount - 1) {
+    out.frameIndex = frameCount - 1;
+    out.t = 0;
+    out.playing = false;
+  }
+  return out;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {interpolateFrame, lerp, lerpGuarded, clamp01};
+  module.exports = {
+    interpolateFrame, lerp, lerpGuarded, clamp01,
+    advance, MS_PER_TICK, MAX_DELTA_MS, SPEEDS,
+  };
 }

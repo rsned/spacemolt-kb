@@ -16,6 +16,13 @@ test('interpolateFrame lerps position linearly for a ship present in both frames
   assert.strictEqual(mid.ships[0].y, 2);
   assert.strictEqual(mid.ships[0].alpha, 1);
   assert.strictEqual(mid.tick, 10, 'the interpolated frame stays on the departing tick');
+
+  // t=0.5 is the fixed point of any symmetric easing curve, so the midpoint
+  // alone cannot tell linear interpolation from ease-in-out. A quarter point
+  // can: eased curves are below the line here, linear is exactly on it.
+  const quarter = hp.interpolateFrame(prev, next, 0.25);
+  assert.strictEqual(quarter.ships[0].x, 0.5);
+  assert.strictEqual(quarter.ships[0].y, 1);
 });
 
 test('interpolateFrame holds discrete fields at their previous value', () => {
@@ -90,4 +97,73 @@ test('interpolateFrame preserves fields the renderer reads but does not interpol
   const mid = hp.interpolateFrame(prev, next, 0.5);
   assert.strictEqual(mid.ships[0].stale, true, 'zoneRings filters on stale; dropping it changes ring radii');
   assert.strictEqual(mid.ships[0].auto_pilot, false);
+});
+
+const clock = (over) => Object.assign({frameIndex: 0, t: 0, playing: true, speed: 1}, over || {});
+const opts = {frameCount: 10, msPerTick: 500};
+
+test('advance does nothing at all while paused', () => {
+  const out = hp.advance(clock({playing: false}), 400, opts);
+  assert.strictEqual(out.frameIndex, 0);
+  assert.strictEqual(out.t, 0);
+  assert.deepStrictEqual(out.crossed, []);
+});
+
+test('advance moves t within a tick without crossing a boundary', () => {
+  const out = hp.advance(clock(), 200, opts);
+  assert.strictEqual(out.frameIndex, 0);
+  assert.ok(Math.abs(out.t - 0.4) < 1e-9, `t ${out.t}`);
+  assert.deepStrictEqual(out.crossed, []);
+});
+
+test('advance crosses one boundary and reports it', () => {
+  const out = hp.advance(clock({t: 0.8}), 100, opts);
+  assert.strictEqual(out.frameIndex, 1);
+  assert.ok(Math.abs(out.t - 0) < 1e-9, `t ${out.t}`);
+  assert.deepStrictEqual(out.crossed, [1]);
+});
+
+test('advance scales with speed', () => {
+  const out = hp.advance(clock({speed: 4}), 200, opts);
+  // 200ms at 4x is 800ms of tick time: one whole tick plus 0.6 of the next.
+  assert.strictEqual(out.frameIndex, 1);
+  assert.ok(Math.abs(out.t - 0.6) < 1e-9, `t ${out.t}`);
+  assert.deepStrictEqual(out.crossed, [1]);
+});
+
+test('advance reports every boundary in order when one delta spans several ticks', () => {
+  // At 4x, the 250ms clamp is 1000ms of tick time = exactly two ticks. Nothing
+  // may be skipped: the chatter rail appends from `crossed` and a dropped index
+  // is a tick of the battle log that never gets printed.
+  const out = hp.advance(clock({speed: 4}), 250, opts);
+  assert.deepStrictEqual(out.crossed, [1, 2]);
+  assert.strictEqual(out.frameIndex, 2);
+});
+
+test('advance clamps an enormous delta, so a backgrounded tab does not leap the battle', () => {
+  const out = hp.advance(clock(), 60000, opts);
+  // 60s would be 120 ticks unclamped. MAX_DELTA_MS caps it at 250ms = 0.5 tick.
+  assert.strictEqual(out.frameIndex, 0);
+  assert.ok(Math.abs(out.t - 0.5) < 1e-9, `t ${out.t}`);
+  assert.deepStrictEqual(out.crossed, []);
+});
+
+test('advance stops and parks on the last frame', () => {
+  const out = hp.advance(clock({frameIndex: 9, t: 0.9}), 250, opts);
+  assert.strictEqual(out.frameIndex, 9, 'must not run past the end');
+  assert.strictEqual(out.t, 0);
+  assert.strictEqual(out.playing, false);
+});
+
+test('advance does not mutate the state it is given', () => {
+  const before = clock({t: 0.8});
+  hp.advance(before, 200, opts);
+  assert.strictEqual(before.frameIndex, 0, 'advance must be pure');
+  assert.strictEqual(before.t, 0.8);
+});
+
+test('advance survives a one-frame replay', () => {
+  const out = hp.advance(clock(), 250, {frameCount: 1, msPerTick: 500});
+  assert.strictEqual(out.frameIndex, 0);
+  assert.strictEqual(out.playing, false);
 });
