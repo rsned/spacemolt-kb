@@ -783,55 +783,6 @@ function drawFrame(ctx, replay, hulls, frame, width, height) {
   drawShips(ctx, replay, hulls, frame, layout);
 }
 
-// fetchJSON fetches and parses one data file, naming the URL and HTTP status
-// on failure — without this, a missing file surfaces to initHolotable's catch
-// as "Unexpected end of JSON input" from the JSON parser, not as the 404 that
-// actually caused it.
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
-  return res.json();
-}
-
-// initHolotable wires the page: fetch both data files, size the canvas to the
-// device, draw one frame.
-async function initHolotable() {
-  const cfg = window.HOLOTABLE;
-  const status = document.getElementById('status');
-  const canvas = document.getElementById('table');
-
-  try {
-    const [replay, hulls] = await Promise.all([
-      fetchJSON(cfg.replayURL),
-      fetchJSON(cfg.hullsURL),
-    ]);
-
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-
-    const params = new URLSearchParams(window.location.search);
-    const wanted = params.has('tick') ? Number(params.get('tick')) : null;
-    const frame = pickFrame(replay, wanted);
-
-    drawFrame(ctx, replay, hulls, frame, width, height);
-
-    document.getElementById('tick').textContent = String(frame.tick);
-    status.textContent = '';
-  } catch (err) {
-    status.textContent = 'Could not draw the battle: ' + err.message;
-  }
-}
-
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initHolotable);
-}
-
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     fitView, project, zoneRings, headingOf, hullPixels, hullState,

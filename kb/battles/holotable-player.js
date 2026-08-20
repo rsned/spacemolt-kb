@@ -7,6 +7,19 @@
 // exists. Design:
 // docs/superpowers/specs/2026-08-16-battle-holotable-visualizer-design.md
 
+// The two files load as plain scripts in the browser — no module system — so
+// holotable.js's top-level function declarations are already globals here. In
+// Node they have to be required. One lookup, resolved once, rather than a
+// guard at every call site.
+const ht = (typeof require !== 'undefined' && typeof window === 'undefined')
+  ? require('./holotable.js')
+  : {
+      // Only what the player actually calls. holotable.js exports more, but an
+      // unused name here would be a browser ReferenceError waiting for someone
+      // to rename it in the other file.
+      layoutTable, drawStatic, drawShips, busiestTick,
+    };
+
 // clamp01 keeps an interpolation parameter inside the interval it names. A
 // caller that overshoots (a long animation delta, a scrub past the end) should
 // see the endpoint, never an extrapolated position off the table.
@@ -187,10 +200,283 @@ function groupChatter(frame, participantsById) {
   };
 }
 
+// RAIL_WINDOW_TICKS bounds the rail's DOM. A 620-tick battle would otherwise
+// build thousands of elements, and a scrub would rebuild all of them; keeping
+// the last 40 makes both the append path and the seek path cost the same
+// whether the battle is 30 ticks or 620.
+const RAIL_WINDOW_TICKS = 40;
+
+// railBlock builds one tick's entry. Grouped reasons first (the texture), then
+// the events a reader is actually watching for.
+function railBlock(doc, g) {
+  const li = doc.createElement('li');
+
+  const head = doc.createElement('div');
+  head.className = 'tickno';
+  head.textContent = 'TICK ' + g.tick;
+  li.appendChild(head);
+
+  for (const c of g.counts) {
+    const row = doc.createElement('div');
+    row.className = 'count';
+    row.textContent = '  ×' + c.n + '  ' + c.reason;
+    li.appendChild(row);
+  }
+  for (const m of g.moves) {
+    const row = doc.createElement('div');
+    row.className = 'move';
+    row.textContent = '  →  ' + m.name + '  ' + m.from + ' → ' + m.to + '  (' + m.reason + ')';
+    li.appendChild(row);
+  }
+  for (const k of g.kills) {
+    const row = doc.createElement('div');
+    row.className = 'kill';
+    row.textContent = '  †  ' + k.victim + ' destroyed by ' + k.killer;
+    li.appendChild(row);
+  }
+  return li;
+}
+
+// createPlayer wires one battle to one canvas. Everything stateful in P1b lives
+// in this closure: the clock, the cached layout, and the baked static layer.
+function createPlayer(cfg) {
+  const doc = cfg.doc;
+  const replay = cfg.replay;
+  const hulls = cfg.hulls;
+  const els = cfg.els;
+  const frames = replay.frames;
+  const participantsById = new Map(replay.participants.map(p => [p.player_id, p]));
+
+  const state = {frameIndex: cfg.startIndex || 0, t: 0, playing: false, speed: 1};
+
+  let ctx = null;
+  let layout = null;
+  let width = 0;
+  let height = 0;
+  // The static layer — field, rings, spokes, labels — is identical on every
+  // frame of a battle and is a substantial amount of stroking and text. Baking
+  // it once into an offscreen canvas turns it into a single drawImage per
+  // frame, and rebuilding it is tied to resize, the only thing that changes it.
+  let staticCanvas = doc.createElement('canvas');
+  let lastNow = 0;
+  let raf = 0;
+
+  function resize() {
+    const dpr = (cfg.win && cfg.win.devicePixelRatio) || 1;
+    width = els.canvas.clientWidth;
+    height = els.canvas.clientHeight;
+    if (!(width > 0) || !(height > 0)) return;
+
+    els.canvas.width = width * dpr;
+    els.canvas.height = height * dpr;
+    ctx = els.canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    layout = ht.layoutTable(replay, width, height);
+
+    staticCanvas.width = width * dpr;
+    staticCanvas.height = height * dpr;
+    const sctx = staticCanvas.getContext('2d');
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ht.drawStatic(sctx, replay, layout, width, height);
+
+    render();
+  }
+
+  function render() {
+    if (!ctx || !layout) return;
+    const frame = interpolateFrame(frames[state.frameIndex], frames[state.frameIndex + 1] || null, state.t);
+    ctx.drawImage(staticCanvas, 0, 0, width, height);
+    ht.drawShips(ctx, replay, hulls, frame, layout);
+  }
+
+  function syncControls() {
+    els.scrub.value = String(state.frameIndex);
+    els.playPause.textContent = state.playing ? '⏸' : '▶';
+    els.tick.textContent = String(frames[state.frameIndex].tick);
+    els.readout.textContent = (state.frameIndex + 1) + ' / ' + frames.length;
+  }
+
+  function appendRail(frame) {
+    // "Stuck to the bottom" is measured before the append, not after: appending
+    // changes scrollHeight, so checking afterwards always reads as scrolled up.
+    const stuck = els.rail.scrollTop + els.rail.clientHeight >= els.rail.scrollHeight - 4;
+    els.chatter.appendChild(railBlock(doc, groupChatter(frame, participantsById)));
+    while (els.chatter.childElementCount > RAIL_WINDOW_TICKS) {
+      els.chatter.removeChild(els.chatter.firstChild);
+    }
+    if (stuck) els.rail.scrollTop = els.rail.scrollHeight;
+  }
+
+  function rebuildRail() {
+    els.chatter.textContent = '';
+    const from = Math.max(0, state.frameIndex - RAIL_WINDOW_TICKS + 1);
+    for (let i = from; i <= state.frameIndex; i++) {
+      els.chatter.appendChild(railBlock(doc, groupChatter(frames[i], participantsById)));
+    }
+    els.rail.scrollTop = els.rail.scrollHeight;
+  }
+
+  function step(delta) {
+    setPlaying(false);
+    seek(state.frameIndex + delta);
+  }
+
+  function seek(index) {
+    const clamped = Math.max(0, Math.min(frames.length - 1, index));
+    if (clamped === state.frameIndex && state.t === 0) return;
+    state.frameIndex = clamped;
+    state.t = 0;
+    rebuildRail();
+    syncControls();
+    render();
+  }
+
+  function setPlaying(on) {
+    if (on && state.frameIndex >= frames.length - 1) {
+      // Pressing play on the parked last frame restarts, rather than doing
+      // nothing — the alternative is a button that silently ignores a click.
+      state.frameIndex = 0;
+      state.t = 0;
+      rebuildRail();
+    }
+    state.playing = !!on;
+    syncControls();
+    if (state.playing) {
+      lastNow = 0;
+      raf = cfg.win.requestAnimationFrame(loop);
+    } else if (raf) {
+      cfg.win.cancelAnimationFrame(raf);
+      raf = 0;
+    }
+  }
+
+  function loop(now) {
+    if (!state.playing) return;
+    const dt = lastNow ? now - lastNow : 0;
+    lastNow = now;
+
+    const out = advance(state, dt, {frameCount: frames.length, msPerTick: MS_PER_TICK});
+    for (const i of out.crossed) appendRail(frames[i]);
+    state.frameIndex = out.frameIndex;
+    state.t = out.t;
+    state.playing = out.playing;
+
+    syncControls();
+    render();
+    if (state.playing) raf = cfg.win.requestAnimationFrame(loop);
+  }
+
+  function onKey(e) {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
+    const jump = e.shiftKey ? 10 : 1;
+    if (e.key === ' ') { e.preventDefault(); setPlaying(!state.playing); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-jump); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); step(jump); }
+    else if (e.key === 'Home') { e.preventDefault(); step(-frames.length); }
+    else if (e.key === 'End') { e.preventDefault(); step(frames.length); }
+  }
+
+  function start() {
+    els.scrub.max = String(frames.length - 1);
+    for (const s of SPEEDS) {
+      const opt = doc.createElement('option');
+      opt.value = String(s);
+      opt.textContent = s + '×';
+      if (s === 1) opt.selected = true;
+      els.speed.appendChild(opt);
+    }
+
+    els.playPause.addEventListener('click', () => setPlaying(!state.playing));
+    els.stepBack.addEventListener('click', () => step(-1));
+    els.stepFwd.addEventListener('click', () => step(1));
+    els.scrub.addEventListener('input', () => { setPlaying(false); seek(Number(els.scrub.value)); });
+    els.speed.addEventListener('change', () => { state.speed = Number(els.speed.value); });
+    cfg.win.addEventListener('keydown', onKey);
+    cfg.win.addEventListener('resize', resize);
+
+    resize();
+    rebuildRail();
+    syncControls();
+  }
+
+  return {start, setPlaying, seek, render, resize, state};
+}
+
+// fetchJSON fetches and parses one data file, naming the URL and HTTP status on
+// failure — without this, a missing file surfaces to initHolotable's catch as
+// "Unexpected end of JSON input" from the JSON parser, not as the 404 that
+// actually caused it.
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+  return res.json();
+}
+
+// startIndex resolves where playback begins. P1b starts at the beginning,
+// because a player should; ?tick=N still seeks, and ?tick=busiest keeps P1a's
+// busiest-frame default reachable so the screenshot commands in
+// docs/holotable-p1a-findings.md stay reproducible.
+function startIndex(replay, params) {
+  const raw = params.get('tick');
+  if (raw === 'busiest') {
+    const i = replay.frames.indexOf(ht.busiestTick(replay));
+    return i < 0 ? 0 : i;
+  }
+  if (raw !== null && raw !== '') {
+    const i = replay.frames.findIndex(f => f.tick === Number(raw));
+    if (i >= 0) return i;
+  }
+  return 0;
+}
+
+// initHolotable wires the page: fetch both data files, build the player, and
+// draw the opening frame paused.
+async function initHolotable() {
+  const cfg = window.HOLOTABLE;
+  const status = document.getElementById('status');
+
+  try {
+    const [replay, hulls] = await Promise.all([
+      fetchJSON(cfg.replayURL),
+      fetchJSON(cfg.hullsURL),
+    ]);
+
+    const els = {
+      canvas: document.getElementById('table'),
+      rail: document.getElementById('rail'),
+      chatter: document.getElementById('chatter'),
+      playPause: document.getElementById('playPause'),
+      stepBack: document.getElementById('stepBack'),
+      stepFwd: document.getElementById('stepFwd'),
+      scrub: document.getElementById('scrub'),
+      speed: document.getElementById('speed'),
+      readout: document.getElementById('readout'),
+      tick: document.getElementById('tick'),
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const player = createPlayer({
+      doc: document, win: window, replay, hulls, els,
+      startIndex: startIndex(replay, params),
+    });
+    player.start();
+
+    if (params.get('play') === '1') player.setPlaying(true);
+    status.textContent = '';
+  } catch (err) {
+    status.textContent = 'Could not draw the battle: ' + err.message;
+  }
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', initHolotable);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     interpolateFrame, lerp, lerpGuarded, clamp01,
     advance, MS_PER_TICK, MAX_DELTA_MS, SPEEDS,
-    groupChatter, nameOf,
+    groupChatter, nameOf, railBlock, createPlayer, startIndex, RAIL_WINDOW_TICKS,
   };
 }
