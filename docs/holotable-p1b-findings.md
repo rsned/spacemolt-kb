@@ -250,6 +250,15 @@ tick's budget at 1×, and would be tight at 4× (125ms budget) the same way
 the 420-participant figure is, just slightly less so (70.8% vs 91.8% of
 budget consumed).
 
+Independent re-measurement note: a second `?bench=300` run, in a fresh
+Chrome session run by review rather than this task, read **94.54 ms/frame**
+against this section's 88.47 ms — about **7% apart**, same conclusion
+(under the 100ms line, same order of magnitude). `bench()` is not a
+zero-variance measurement; treat any single ms/frame figure in this doc as
+accurate to roughly ±5-10%, not as an exact constant, and expect a
+different machine or a different run to land a few ms either side of the
+number quoted.
+
 **Shape the synthetic fixture doesn't have.** The stress fixture is four
 deliberately balanced, evenly-spaced clusters. The real battle is nothing
 like that:
@@ -285,21 +294,68 @@ like that:
 console errors, confirming that entry point generalizes past the two
 fixtures it was built against, not just P1a's original screenshot target.
 
-No disappointments on this fixture beyond the load-time number above and
-the two documentation corrections made in the course of writing this
-section (the "fifth of a tick" → "quarter of a tick" wording, and "closer
-to 42 than to 420" → the numerically correct opposite, both above). The
-frame cost landed inside the predicted range, the export needed no retries,
-and the station and hull-art paths held up against data no synthetic
-fixture had modeled.
+**Live playback watch — could not be observed.** The bench figure above
+answers what one frame costs, not what the battle looks like in motion, so
+a genuine playback watch at 1× and 4× was attempted on
+`c79f7810a59437b029a6168526782fe4.html` (served the same way as
+`?bench=300`). It failed to produce an observation, and the failure mode
+is worth recording precisely rather than papered over:
+
+- `document.hidden` read `true` for this tab throughout, including after
+  clicking directly on the page (`hasFocus()` went `true`, `hidden` stayed
+  `true`) — the same Chrome background-tab-group policy Task 8 hit.
+- Clicking the play control (found via its accessible name, "Play / pause
+  (space)", after two coordinate-based clicks missed — the automation
+  viewport is 2177×1254 but screenshots render at ~1461×842, so
+  eyeballed pixel coordinates land wrong without a ref) did flip the button
+  to `⏸`, confirming the player's internal `playing` state was genuinely
+  `true`, not that the click itself failed.
+- With `playing === true` at 1×, a real 8-second wall-clock wait
+  (`computer` tool `wait`, not a scripted delay) produced **zero** tick
+  advancement: readout stayed `1 / 264`, tick stayed `1463765`.
+- Switching `speed` to `4` and waiting a further real 8 seconds (16s total
+  with the transport reporting "playing") still produced **zero**
+  advancement.
+
+This is a full stall, not a slowdown — `requestAnimationFrame` appears to
+be suspended entirely for a hidden tab in this environment, not merely
+throttled to a low rate the way some browsers throttle background tabs.
+Per this task's explicit instruction, no synthetic pacing loop (e.g. the
+`requestAnimationFrame`→`setTimeout` monkeypatch used elsewhere in this doc
+for the stress fixture) was substituted to manufacture a playback
+observation — that technique measures a proxy loop's timing, not whether
+the real page plays smoothly in a real foreground tab, and mislabeling it
+as "watched it play" would be worse than admitting the gap. **Net: whether
+hulls slide or jump, whether the rail keeps pace, and whether anything
+visibly stutters during real playback of the 373-participant battle remains
+unverified by this task.** It needs a human eyeballing a real foreground
+browser tab (or an automation environment that doesn't background its
+tabs), neither of which was available here.
+
+This limitation is not new to this fixture — it's the same one the
+existing methodology note above (under "How to see this yourself")
+already documents for the stress fixture, worked around there with the
+labeled synthetic-loop technique. What's new here is that, on this task's
+explicit instruction, no such workaround was used to paper over the gap
+for the real-battle fixture, so the gap is reported as a gap rather than
+closed with a proxy.
+
+No other disappointments on this fixture beyond the load-time number
+above, the live-playback gap just described, and the two documentation
+corrections made in the course of writing this section (the "fifth of a
+tick" → "quarter of a tick" wording, and "closer to 42 than to 420" → the
+numerically correct opposite, both above). The frame cost landed inside
+the predicted range, the export needed no retries, and the station and
+hull-art paths held up against data no synthetic fixture had modeled.
 
 ## Summary
 
 | check | result |
 |---|---|
 | ms/frame, 420 participants (synthetic) | 114.75 ms (9 fps ceiling) — over the 100ms reporting line |
-| ms/frame, 373 participants (real battle) | 88.47 ms (11 fps ceiling) — under the line, 2.04× naive linear extrapolation |
+| ms/frame, 373 participants (real battle) | 88.47 ms (11 fps ceiling) — under the line, 2.04× naive linear extrapolation; independent re-run read 94.54 ms (~7% apart, same conclusion) |
 | ms/frame, 42 participants (Node Beta) | 4.88 ms (205 fps ceiling) |
+| real-battle live playback (1× and 4×) | **not observed** — tab stayed `document.hidden` even focused; 0 tick advance over 8s real wait at each speed with `playing===true` — see "Live playback watch" above |
 | scaling factor | 23.5× time for 10× participants (42→420) — superlinear, likely overdraw |
 | real-battle export | craftsman-boss, first attempt, no retries; 22,180,165 bytes |
 | real-battle load time (22MB, localhost) | ~119ms network + ~254-258ms incl. JSON.parse ≈ 258ms total, not measured over a real network |
@@ -311,9 +367,22 @@ fixture had modeled.
 | scrub at stress scale | immediate (13.4ms), fix from Task 7 holds at 10× scale |
 | real-battle data shape | 30:1 side split, station-as-participant (120k hull), 91% one hull class, narrow angular clustering — none modeled by the synthetic fixture |
 
-The headline result is not unqualified good news: the renderer **works**
-at 420 participants and 600 ticks, but it does so with most of its margin
-already spent. 1× is comfortable. 4× is not comfortable, it's *currently
-adequate* — a distinction worth keeping in mind before anyone builds a
-higher-speed mode or a busier real battle on top of this without first
-profiling where the superlinear render cost actually goes.
+The headline result is not unqualified good news, and it now rests on two
+fixtures rather than one. At the synthetic stress scale (420 participants,
+600 ticks) the renderer **works** but with most of its margin already
+spent: 1× is comfortable, 4× is not comfortable, it's *currently adequate*.
+At the scale a real battle actually produced (373 participants), the
+number is better than the synthetic figure predicted worst-case — 88.47ms
+(±~7% by independent re-measurement), under the 100ms reporting line,
+versus the synthetic fixture's 114.75ms over it — so the real ceiling this
+renderer needs to survive is, on the one battle measured, less punishing
+than the stress test alone would suggest. But frame cost is only half of
+what "acceptance" was supposed to establish: this task could not verify
+that the real battle actually plays smoothly in a real browser tab (see
+"Live playback watch" above — the automation tab stayed backgrounded and
+`requestAnimationFrame` never fired, at either 1× or 4×, over 16 real
+seconds of "playing" state). The renderer's per-frame cost is measured and
+comfortable at real-battle scale; whether that cost translates into smooth
+motion, a keeping-pace rail, and a responsive transport during actual
+playback is still open, and closing it needs a human watching a real
+foreground tab — not something this task's environment could produce.
