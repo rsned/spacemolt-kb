@@ -52,6 +52,15 @@ are real wall-clock measurements, not synthetic ones. A normal foreground
 browser tab does not need this workaround — noted here so the numbers below
 are reproducible without it.
 
+The tick-pacing windows themselves (the "~4.0s" figures below) were bounded
+by a fixed-duration `wait` tool call followed by a separate state read, not
+by a single continuous instrumented timer — so they carry a few hundred
+milliseconds of unaccounted tool round-trip latency on top of the nominal
+wait duration. That slack is the most likely explanation for the 1× figure
+below reading faster than the 500ms nominal (the true elapsed window was
+probably closer to 4.3–4.5s, not exactly 4.0s) rather than any actual
+speed-up in playback.
+
 ## Findings
 
 **Q1 — ms/frame at 420 participants and at 42, and what that extrapolates to.**
@@ -92,21 +101,26 @@ removes essentially all headroom at higher speed multipliers (Q3 below).
 
 Already measured, reused here rather than re-derived: **840 raw chatter
 entries → 620 rail lines over 30 ticks = 20.7 lines/tick** (201 grouped
-reasons + 405 zone moves + 14 kills = 620). Grouping cut the chatter itself
-from 28/tick to 6.7/tick as designed, but zone moves — deliberately never
-grouped — now dominate the rail at 13.5/tick, more than double what
-grouping saved. This task did not re-measure it, but it bears repeating
-here rather than treated as settled: whether 20.7 lines a tick is actually
-readable during real-time playback is still an open judgment call, not a
-solved problem — grouping did its job on the chatter, not on the total rail
-volume.
+reasons + 405 zone moves + 14 kills = 620). Grouping cut the raw chatter
+from 28/tick to 6.7/tick as designed — a 21.3-line/tick reduction. Zone
+moves, deliberately never grouped, add 13.5/tick — about twice the 6.7/tick
+the grouped chatter itself now contributes, making zone moves the rail's
+largest single source. Grouping did its job on the chatter it targeted; it
+left the rail's total volume (20.7/tick) dominated by the moves it was
+never meant to touch. This task did not re-measure it, but it bears
+repeating here rather than treated as settled: whether 20.7 lines a tick is
+actually readable during real-time playback is still an open judgment call,
+not a solved problem.
 
 **Q3 — does interpolation read as motion or as sliding?**
 
 At 1× on the stress fixture, ticks advanced in step with real elapsed time:
 9 ticks in ~4.0s of wall clock (≈444 ms/tick against a 500 ms nominal — the
 render cost of 114.75 ms/frame fits comfortably inside a 500 ms tick, with
-roughly 4× headroom). Screenshots 12 ticks apart
+roughly 4× headroom). The 444ms figure reads faster than nominal, which is
+measurement slack rather than a real speed-up — see the methodology note
+above on why the "~4.0s" window is approximate, not an exact instrumented
+interval. Screenshots 12 ticks apart
 (`stress-tick3.jpg`/`stress-tick15.jpg`) show the four clusters visibly
 denser and more contracted at tick 15 than at tick 3, consistent with the
 fixture's designed 40-tick inward/outward cycle — the state is genuinely
@@ -114,7 +128,8 @@ advancing frame to frame, not stalled or repeating.
 
 At 4× (125 ms/tick nominal), the same measurement gave 32 ticks in ~4.0s
 (≈125 ms/tick — pacing held), but only because the render cost (114.75 ms)
-and the tick budget (125 ms) are now within about 9% of each other. On the
+leaves just 10.25 ms of slack against the 125 ms tick budget — about 8.2%
+headroom. On the
 actual hardware this was measured on, playback kept pace; on any slower
 machine, or under any other load on the render thread, 4× at 420
 participants is close enough to its own budget that a stutter — a visibly
@@ -170,7 +185,7 @@ Task 7's PASS on them.
 | scaling factor | 23.5× time for 10× participants — superlinear, likely overdraw |
 | rail lines/tick, Node Beta | 20.7 (from Task 4) — still an open readability question |
 | 1× pacing at 420 participants | holds, ~4× headroom |
-| 4× pacing at 420 participants | holds on this hardware, ~9% headroom — fragile |
+| 4× pacing at 420 participants | holds on this hardware, ~8.2% headroom — fragile |
 | interpolation quality (mechanism) | linear lerp, no popping — confirmed by Task 7's live check |
 | frame-8 arrival fade | confirmed again, unchanged |
 | scrub at stress scale | immediate (13.4ms), fix from Task 7 holds at 10× scale |
