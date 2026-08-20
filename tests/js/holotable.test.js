@@ -161,16 +161,27 @@ test('zoneRings orders zones exactly as given via opts.zoneOrder, including a ba
       {player_id: 'e', x: 1.2, y: 0, zone: 'flank'},
     ],
   }];
-  const zoneOrder = ['engaged', 'inner', 'mid', 'outer', 'flank'];
+  // 'flank' leads deliberately. zoneRings appends any zone its zoneOrder does
+  // not name, so a 'flank'-last expectation is satisfied by the
+  // CANONICAL_ZONE_ORDER fallback too — the test would keep passing if the
+  // opts.zoneOrder threading were deleted. Leading with it means only a
+  // genuinely honoured zoneOrder can produce this order.
+  const zoneOrder = ['flank', 'engaged', 'inner', 'mid', 'outer'];
   const rings = ht.zoneRings(frames, centre, {zoneOrder});
   assert.deepStrictEqual(rings.map(r => r.zone), zoneOrder,
-    'a fifth band named in zoneOrder must be placed deterministically, not by Map insertion order');
+    'a band named first in zoneOrder must lead, not be appended by the fallback');
 });
 
 test('deriveZoneOrder reverses replay.zones, since the adapter ships nearest-to-contact last', () => {
+  // Deliberately not the canonical band names: reversing
+  // ['outer','mid','inner','engaged'] yields exactly CANONICAL_ZONE_ORDER, so
+  // that fixture cannot tell "reversed the input" from "returned the constant".
   assert.deepStrictEqual(
-    ht.deriveZoneOrder({zones: ['outer', 'mid', 'inner', 'engaged']}),
-    ['engaged', 'inner', 'mid', 'outer']);
+    ht.deriveZoneOrder({zones: ['far', 'near', 'contact']}),
+    ['contact', 'near', 'far']);
+  assert.notDeepStrictEqual(
+    ht.deriveZoneOrder({zones: ['far', 'near', 'contact']}),
+    ht.CANONICAL_ZONE_ORDER);
 });
 
 test('deriveZoneOrder falls back to CANONICAL_ZONE_ORDER when replay carries no zones', () => {
@@ -425,4 +436,48 @@ test('tableBounds is centred on a non-origin centre', () => {
   assert.strictEqual(expanded.x_max, 8);
   assert.strictEqual(expanded.y_min, 7);
   assert.strictEqual(expanded.y_max, 13);
+});
+
+test('layoutTable threads the replay zone order through to the rings', () => {
+  // Non-canonical band names, so a dropped opts.zoneOrder cannot coincidentally
+  // produce the right order: the fallback would append all three in data order.
+  const replay = {
+    zones: ['far', 'near', 'contact'],
+    centre: {x: 0, y: 0},
+    bounds: {x_min: -1, x_max: 1, y_min: -1, y_max: 1},
+    frames: [{
+      tick: 1,
+      ships: [
+        {player_id: 'a', x: 0.9, y: 0, zone: 'far'},
+        {player_id: 'b', x: 0.5, y: 0, zone: 'near'},
+        {player_id: 'c', x: 0.2, y: 0, zone: 'contact'},
+      ],
+    }],
+  };
+  const layout = ht.layoutTable(replay, 800, 800);
+  assert.deepStrictEqual(layout.rings.map(r => r.zone), ['contact', 'near', 'far'],
+    'rings must run contact-outward, which only deriveZoneOrder(replay) produces');
+});
+
+test('layoutTable fits a view that contains the outer ring, not just the ships', () => {
+  // The ships span y in [-0.1, 0.1] but the rings reach far past them, so a
+  // view fitted to ship bounds alone would clip the outermost ring.
+  const replay = {
+    zones: ['outer', 'mid', 'inner', 'engaged'],
+    centre: {x: 0, y: 0},
+    bounds: {x_min: -2, x_max: 2, y_min: -0.1, y_max: 0.1},
+    frames: [{
+      tick: 1,
+      ships: [
+        {player_id: 'a', x: 2, y: 0, zone: 'outer'},
+        {player_id: 'b', x: 0.2, y: 0, zone: 'engaged'},
+      ],
+    }],
+  };
+  const layout = ht.layoutTable(replay, 800, 800);
+  const outer = ht.outerRadius(layout.rings);
+  const top = ht.project(0, -outer, layout.view);
+  const bottom = ht.project(0, outer, layout.view);
+  assert.ok(top.py >= 0, `outer ring escaped the top of the canvas at ${top.py}`);
+  assert.ok(bottom.py <= 800, `outer ring escaped the bottom of the canvas at ${bottom.py}`);
 });

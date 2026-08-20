@@ -665,24 +665,32 @@ function tableBounds(bounds, centre, outerR) {
   };
 }
 
+// layoutTable computes everything about a battle's table that does not change
+// from tick to tick: the zone rings, the bounds that contain both the ships and
+// the outermost ring, and the view that maps model space onto the canvas.
+//
+// It is pure and depends only on the replay and the canvas size, which is the
+// whole point: P1b bakes the static layer once from this, so the whole-battle
+// scan inside zoneRings stops happening per frame. It also puts the
+// deriveZoneOrder threading somewhere a test can reach without a canvas.
+function layoutTable(replay, width, height) {
+  const rings = zoneRings(replay.frames, replay.centre, {zoneOrder: deriveZoneOrder(replay)});
+  const bounds = tableBounds(replay.bounds, replay.centre, outerRadius(rings));
+  const view = fitView(bounds, width, height, TABLE_MARGIN);
+  return {rings, bounds, view};
+}
+
 // drawFrame renders one tick of the battle onto ctx.
 function drawFrame(ctx, replay, hulls, frame, width, height) {
-  // TODO(P1b): zoneRings scans every ship of every frame in the replay, and
-  // it's called here — from a per-frame draw function. Free today (P1a draws
-  // once), but a playback loop calling drawFrame sixty times a second would
-  // redo the whole-battle scan every frame. Deliberately not restructuring
-  // drawFrame's signature to hoist this out during a final fix wave — the
-  // risk outweighs a performance problem that doesn't exist until playback.
-  //
   // TODO(P1b): this save() (and the matching restore() below) isn't wrapped
   // in try/finally. Matches the rest of the file's convention, and today the
   // canvas is discarded on any error anyway — but P1b reuses the same
   // context every frame, and an unbalanced save from a mid-frame throw would
   // then survive into the next frame instead of vanishing with the canvas.
   ctx.save();
-  const rings = zoneRings(replay.frames, replay.centre, {zoneOrder: deriveZoneOrder(replay)});
-  const bounds = tableBounds(replay.bounds, replay.centre, outerRadius(rings));
-  const view = fitView(bounds, width, height, TABLE_MARGIN);
+  const layout = layoutTable(replay, width, height);
+  const rings = layout.rings;
+  const view = layout.view;
 
   ctx.fillStyle = THEME.bg;
   ctx.fillRect(0, 0, width, height);
@@ -779,6 +787,6 @@ if (typeof module !== 'undefined' && module.exports) {
     HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER, deriveZoneOrder,
     bandLabelAngleDeg, bandLabelOffset, spokeLabelOffset,
     hullTransform, drawShip, drawStationGlyph, drawMissingGlyph, drawStateArcs,
-    busiestTick, pickFrame, drawFrame, tableBounds,
+    busiestTick, pickFrame, drawFrame, tableBounds, layoutTable,
   };
 }
