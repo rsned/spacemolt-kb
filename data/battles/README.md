@@ -11,10 +11,20 @@ cannot fetch these for itself.
 
 Re-export with:
 
-    bin/battle-export --agent explorer-7 --battle <id> --out data/battles/<id>.json
+    bin/battle-export --agent craftsman-boss --battle <id> --out data/battles/<id>.json
 
-Use an idle agent (`explorer-7`, `databot`, `craftsman-boss`); a login from an
-agent with a running fleet worker collides with it. Leave 35 s between exports.
+Any logged-in agent can read a battle log — you do not need to have been in
+the battle — but a login collides with (and kills) an agent that is already
+connected elsewhere, failing with `session_replaced` and, on a second
+collision within 30s, the exporter's own contention guard. There is no fixed
+list of "idle" agents that stays true: `explorer-7`, `databot`, and
+`craftsman-boss` are commonly free, but on 2026-08-19 `explorer-7` had a live
+`mission-learn` fleet worker and `databot` had an interactive `play_as`
+session, and only `craftsman-boss` was actually free. Before picking an
+agent, check the process table for a `bin/worker --agent <name>` or a
+`play_as <name>` process; if one is running, pick a different agent. Leave
+35 s between exports — the exporter aborts if two connections die within
+30 s of each other.
 
 ## Measured: does x/y drift within a zone?
 
