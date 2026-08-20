@@ -3,6 +3,41 @@
 Rendered 2026-08-19 from `a2619bbe…` (Node Beta, 42 participants) and
 `b131fd5a…` (Kitalpha, four sides).
 
+## Screenshots
+
+Chrome's capture tooling was intermittently unreliable this session
+(occasional timeouts and one corrupted tiled capture, always fixed by a
+fresh navigate — never traced to the page itself; see the task report for
+detail). Enough clean captures came through to keep in the repo:
+
+- `img/holotable-p1a/node-beta-full.jpg` — Node Beta, full table, tick
+  1615393 (the busiest frame). Both sides, the station, the outer chevrons.
+- `img/holotable-p1a/node-beta-hull-scale-2x.jpg` — Node Beta at 2×
+  render scale, left/right split. Shows the scale-4/5 hulls next to the
+  scale-1 majority (constants judgement below).
+- `img/holotable-p1a/node-beta-missing-art-and-unknown-hull.jpg` — closeup
+  of two `anamnesis`/`silent_tide` dashed chevrons and, just below the
+  large green hull, the one hull-0-alive ship as a small dot (check 7).
+- `img/holotable-p1a/kitalpha-full.jpg` — Kitalpha, full table, tick
+  1417934 (its only frame with any targeting at all). Four sides, the
+  zone/measurement disagreement discussed below.
+
+### How to see this yourself
+
+```
+cd kb/.claude/worktrees/battle-holotable/kb && python3 -m http.server 8099
+```
+
+Then open, in a browser:
+
+- `http://localhost:8099/battles/a2619bbe328676445828b4e1007fe9aa.html?tick=1615393`
+- `http://localhost:8099/battles/b131fd5aae68420107dd20e93d15d3ba.html?tick=1417934`
+
+Both `?tick=` values are already the default (the busiest frame each page
+picks on its own) — they're spelled out here only so a reader lands on
+exactly the frame this document describes, not whatever frame a future
+`pickFrame` change might pick instead.
+
 ## Spec open questions this render answers
 
 **Q1 — does x/y drift within a zone, or is it quantised?**
@@ -103,11 +138,19 @@ render rather than just in the aggregate numbers. It does not look broken
 — the rings still read as four clean, correctly-ordered circles, and the
 ships still read as "somewhere on the table" — but a viewer who tries to
 use ring position to reason about a ship's tactical zone on Kitalpha will
-be misled for 3 of 4 ships. This is a **small-N artifact** (each zone here
-is a mean of one or two ships, so the "mean radius" is really just "that
-ship's radius," and it has no reason to sit near a boundary computed from
-different ships in different zones) rather than a rendering defect —
-Node Beta, with tens of ships per zone, does not show this.
+be misled for 3 of 4 ships. This is **consistent with a small-N artifact**
+— each zone here is a mean of one or two ships, so the "mean radius" is
+really just "that ship's radius," with no reason to sit near a boundary
+computed from different ships in different zones — but that explanation
+rests on a sample of two battles and is not confirmed. Node Beta, with
+tens of ships per zone, does not show the same ring/zone mismatch, but its
+`agreesWithMeasurement` is also `true`, so it doesn't isolate which factor
+matters: density or agreement. **Confirming the small-N story requires a
+battle with both high per-zone density *and* `agreesWithMeasurement:
+false`**, which has not yet been observed. The alternative hypothesis —
+that zone and x/y radius are only loosely coupled in general, and it is
+Node Beta's agreement that wants explaining rather than Kitalpha's
+disagreement — is not excluded by what's rendered here.
 
 ## Tuning needed
 
@@ -142,9 +185,11 @@ Node Beta, with tens of ships per zone, does not show this.
   unambiguous: zone is not a radius. Any tween that eases between "zone
   radii" will visibly fight the real per-ship x/y on every frame of every
   battle, not just Kitalpha.
-- **Do not use ring position as a zone indicator on small-N battles.**
-  Kitalpha shows this concretely: 3 of 4 ships plot outside their own
-  zone's ring band when each zone is a mean of 1–2 ships. If P1b adds any
+- **Do not use ring position as a zone indicator when
+  `agreesWithMeasurement` is false**, regardless of whether the eventual
+  cause turns out to be small-N noise or a looser zone/radius coupling
+  than Node Beta suggests. Kitalpha shows the consequence concretely: 3 of
+  4 ships plot outside their own zone's ring band. If P1b adds any
   UI affordance that implies "this ring = this zone, ships near it are in
   that zone," it will be actively misleading on exactly the battles where
   a viewer most needs to trust it (small skirmishes). Either surface

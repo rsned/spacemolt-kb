@@ -569,6 +569,16 @@ function drawFrame(ctx, replay, hulls, frame, width, height) {
   ctx.restore();
 }
 
+// fetchJSON fetches and parses one data file, naming the URL and HTTP status
+// on failure — without this, a missing file surfaces to initHolotable's catch
+// as "Unexpected end of JSON input" from the JSON parser, not as the 404 that
+// actually caused it.
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+  return res.json();
+}
+
 // initHolotable wires the page: fetch both data files, size the canvas to the
 // device, draw one frame.
 async function initHolotable() {
@@ -578,8 +588,8 @@ async function initHolotable() {
 
   try {
     const [replay, hulls] = await Promise.all([
-      fetch(cfg.replayURL).then(r => r.json()),
-      fetch(cfg.hullsURL).then(r => r.json()),
+      fetchJSON(cfg.replayURL),
+      fetchJSON(cfg.hullsURL),
     ]);
 
     const dpr = window.devicePixelRatio || 1;
