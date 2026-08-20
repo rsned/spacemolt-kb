@@ -390,7 +390,14 @@ function createPlayer(cfg) {
     els.playPause.addEventListener('click', () => setPlaying(!state.playing));
     els.stepBack.addEventListener('click', () => step(-1));
     els.stepFwd.addEventListener('click', () => step(1));
-    els.scrub.addEventListener('input', () => { setPlaying(false); seek(Number(els.scrub.value)); });
+    els.scrub.addEventListener('input', () => {
+      // Read the slider BEFORE pausing. setPlaying(false) calls syncControls(),
+      // which writes state.frameIndex back into els.scrub.value — so reading it
+      // afterwards returns the frame we were already on and the scrub is a no-op.
+      const want = Number(els.scrub.value);
+      setPlaying(false);
+      seek(want);
+    });
     els.speed.addEventListener('change', () => { state.speed = Number(els.speed.value); });
     cfg.win.addEventListener('keydown', onKey);
     cfg.win.addEventListener('resize', resize);
@@ -420,7 +427,9 @@ async function fetchJSON(url) {
 function startIndex(replay, params) {
   const raw = params.get('tick');
   if (raw === 'busiest') {
-    const i = replay.frames.indexOf(ht.busiestTick(replay));
+    // busiestTick returns a TICK NUMBER, not a frame object — pickFrame looks it
+    // up with find(f => f.tick === tick). indexOf against a number never matches.
+    const i = replay.frames.findIndex(f => f.tick === ht.busiestTick(replay));
     return i < 0 ? 0 : i;
   }
   if (raw !== null && raw !== '') {
