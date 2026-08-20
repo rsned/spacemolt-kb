@@ -39,7 +39,7 @@ test('project does not flip Y, so headings stay in the model convention', () => 
     'a larger model y must map to a larger canvas y; flipping would mirror every heading');
 });
 
-test('zoneRings orders bands by measured radius, not by array order', () => {
+test('zoneRings orders bands by canonical zone order, and clears the flag when measurement agrees', () => {
   const centre = {x: 0, y: 0};
   const frames = [{
     tick: 1,
@@ -52,11 +52,71 @@ test('zoneRings orders bands by measured radius, not by array order', () => {
   }];
   const rings = ht.zoneRings(frames, centre, {});
   assert.deepStrictEqual(rings.map(r => r.zone), ['engaged', 'inner', 'mid', 'outer']);
+  assert.strictEqual(rings.agreesWithMeasurement, true,
+    'measured means already increase in canonical order, so nothing disagrees');
   assert.ok(Math.abs(rings[0].meanRadius - 0.5) < 1e-9);
   // Boundaries sit at the midpoints between adjacent means.
   assert.ok(Math.abs(rings[0].rOuter - 0.6) < 1e-9, `rOuter ${rings[0].rOuter}`);
   assert.strictEqual(rings[0].rInner, 0, 'the innermost band starts at the centre');
   assert.ok(rings[3].rOuter > rings[3].meanRadius, 'the outer ring must enclose its ships');
+});
+
+test('zoneRings keeps canonical order even when measured radius disagrees entirely', () => {
+  const centre = {x: 0, y: 0};
+  // Radii are scrambled relative to canonical order: sorting by measurement
+  // alone would produce outer, inner, mid, engaged. zone is authoritative
+  // over x/y (design spec Finding 4), so the ring order must not move.
+  const frames = [{
+    tick: 1,
+    ships: [
+      {player_id: 'a', x: 1.5, y: 0, zone: 'engaged'},
+      {player_id: 'b', x: 0.5, y: 0, zone: 'inner'},
+      {player_id: 'c', x: 0.9, y: 0, zone: 'mid'},
+      {player_id: 'd', x: 0.2, y: 0, zone: 'outer'},
+    ],
+  }];
+  const rings = ht.zoneRings(frames, centre, {});
+  assert.deepStrictEqual(rings.map(r => r.zone), ['engaged', 'inner', 'mid', 'outer'],
+    'ring order must stay canonical regardless of what x/y measures');
+  assert.strictEqual(rings.agreesWithMeasurement, false,
+    'a fully scrambled measurement must be flagged as a disagreement');
+  assert.strictEqual(rings[0].rInner, 0);
+  for (let i = 1; i < rings.length; i++) {
+    assert.ok(rings[i].rOuter > rings[i - 1].rOuter,
+      `ring ${rings[i].zone}.rOuter (${rings[i].rOuter}) must exceed ${rings[i - 1].zone}.rOuter (${rings[i - 1].rOuter})`);
+    assert.ok(Number.isFinite(rings[i].rOuter) && Number.isFinite(rings[i].rInner));
+  }
+});
+
+test('zoneRings enforces monotonic boundaries when a single band is internally inverted', () => {
+  const centre = {x: 0, y: 0};
+  // Mirrors a real recorded four-side battle (Kitalpha): "mid" measured a
+  // SMALLER mean radius than "engaged", even though canonical order says mid
+  // sits farther out. mid 0.268 < engaged 0.344 < inner 0.456 < outer 0.798.
+  const frames = [{
+    tick: 1,
+    ships: [
+      {player_id: 'e', x: 0.344, y: 0, zone: 'engaged'},
+      {player_id: 'i', x: 0.456, y: 0, zone: 'inner'},
+      {player_id: 'm', x: 0.268, y: 0, zone: 'mid'},
+      {player_id: 'o', x: 0.798, y: 0, zone: 'outer'},
+    ],
+  }];
+  const rings = ht.zoneRings(frames, centre, {});
+  assert.deepStrictEqual(rings.map(r => r.zone), ['engaged', 'inner', 'mid', 'outer'],
+    'ring order must stay canonical even when one band is internally inverted');
+  assert.strictEqual(rings.agreesWithMeasurement, false,
+    'mid measuring smaller than engaged must be flagged as a disagreement');
+  assert.strictEqual(rings[0].rInner, 0);
+  for (let i = 1; i < rings.length; i++) {
+    assert.ok(rings[i].rOuter > rings[i - 1].rOuter,
+      `ring ${rings[i].zone}.rOuter (${rings[i].rOuter}) must exceed ${rings[i - 1].zone}.rOuter (${rings[i - 1].rOuter})`);
+    assert.ok(Number.isFinite(rings[i].rOuter) && Number.isFinite(rings[i].rInner));
+  }
+  // meanRadius itself is left untouched for diagnostics, even though the
+  // boundary derived from it is not.
+  assert.ok(Math.abs(rings[2].meanRadius - 0.268) < 1e-9,
+    'the raw measured mean must not be rewritten, only the boundary');
 });
 
 test('zoneRings ignores carried-forward states', () => {

@@ -24,6 +24,25 @@ const OUTER_RING_MARGIN = 1.12;
 // at effectively one point, which would otherwise divide by zero.
 const DEGENERATE_SPAN = 1;
 
+// CANONICAL_ZONE_ORDER is the game's own tactical band order, innermost to
+// outermost. zone is the authoritative tactical space; x/y is presentation
+// layout only (design spec Finding 4: "where they disagree, trust zone").
+// This is not theoretical: a real four-side battle (Kitalpha) measured "mid"
+// with a SMALLER mean x/y radius than "engaged" — sorting rings by measured
+// radius would draw "mid" inside "engaged", actively misleading. Order here
+// is fixed and never derived from measurement.
+const CANONICAL_ZONE_ORDER = ['engaged', 'inner', 'mid', 'outer'];
+
+// MIN_RING_GAP_RATIO / MIN_RING_GAP_FLOOR set the minimum growth enforced
+// between one ring's effective radius and the next when computing boundaries,
+// so a measured inversion (see CANONICAL_ZONE_ORDER) can never collapse a
+// ring to zero width or push a boundary back inside the previous band. The
+// ratio scales the gap with the battle's own size; the floor covers the
+// innermost ring, whose effective radius can be 0 (ships sitting on the
+// centre), where a purely multiplicative gap would also be 0.
+const MIN_RING_GAP_RATIO = 0.15;
+const MIN_RING_GAP_FLOOR = 0.01;
+
 // fitView maps model coordinates onto the canvas: uniform scale, model bounds
 // centred, the tighter axis winning so nothing is cropped.
 function fitView(bounds, width, height, margin) {
@@ -52,10 +71,20 @@ function project(x, y, view) {
   return {px: x * view.scale + view.ox, py: y * view.scale + view.oy};
 }
 
-// zoneRings measures each zone band's radius from the data rather than assuming
-// fixed radii, and orders the bands by what it measures rather than trusting
-// the order the zones arrived in. Boundaries sit at the midpoints between
-// adjacent means.
+// zoneRings measures each zone band's radius from the data, but orders the
+// bands by CANONICAL_ZONE_ORDER, never by what it measures: zone is the
+// game's authoritative tactical space, x/y is layout that can and does
+// invert (see CANONICAL_ZONE_ORDER). Boundaries sit at the midpoints between
+// adjacent EFFECTIVE means — a monotonic sequence derived from the measured
+// means — so a boundary can never land inside the previous band even when
+// the raw measurement disagrees with canonical order.
+//
+// The returned array carries an extra `agreesWithMeasurement` property (not
+// a per-ring field, so `rings` stays a plain array for callers that only
+// want `{zone, meanRadius, rInner, rOuter}`): false whenever the raw means
+// did not already increase in canonical order, so a battle where geometry
+// and zone semantics disagree stays visible instead of being silently
+// smoothed away by the enforcement below.
 function zoneRings(frames, centre, opts) {
   const options = opts || {};
   const outerMargin = options.outerMargin || OUTER_RING_MARGIN;
@@ -75,18 +104,46 @@ function zoneRings(frames, centre, opts) {
   }
 
   const rings = [];
-  for (const [zone, acc] of sums) {
-    rings.push({zone, meanRadius: acc.sum / acc.n});
+  for (const zone of CANONICAL_ZONE_ORDER) {
+    const acc = sums.get(zone);
+    if (acc) rings.push({zone, meanRadius: acc.sum / acc.n});
   }
-  rings.sort((a, b) => a.meanRadius - b.meanRadius);
+  // A zone name outside the four known bands (unexpected data) is appended
+  // rather than dropped, so it stays visible instead of vanishing silently.
+  for (const [zone, acc] of sums) {
+    if (!CANONICAL_ZONE_ORDER.includes(zone)) rings.push({zone, meanRadius: acc.sum / acc.n});
+  }
+
+  let agreesWithMeasurement = true;
+  for (let i = 1; i < rings.length; i++) {
+    if (rings[i].meanRadius < rings[i - 1].meanRadius) {
+      agreesWithMeasurement = false;
+      break;
+    }
+  }
+
+  // effective[i] is a running maximum of the measured means with an enforced
+  // minimum gap over effective[i-1], so it is always non-decreasing by at
+  // least that gap regardless of what the raw means do. meanRadius itself is
+  // left untouched for diagnostics; effective only feeds the boundaries.
+  const effective = [];
+  for (let i = 0; i < rings.length; i++) {
+    if (i === 0) {
+      effective.push(rings[i].meanRadius);
+      continue;
+    }
+    const gap = effective[i - 1] * MIN_RING_GAP_RATIO + MIN_RING_GAP_FLOOR;
+    effective.push(Math.max(rings[i].meanRadius, effective[i - 1] + gap));
+  }
 
   for (let i = 0; i < rings.length; i++) {
-    rings[i].rInner = i === 0 ? 0 : (rings[i - 1].meanRadius + rings[i].meanRadius) / 2;
+    rings[i].rInner = i === 0 ? 0 : (effective[i - 1] + effective[i]) / 2;
     rings[i].rOuter = i === rings.length - 1
-      ? rings[i].meanRadius * outerMargin
-      : (rings[i].meanRadius + rings[i + 1].meanRadius) / 2;
+      ? effective[i] * outerMargin
+      : (effective[i] + effective[i + 1]) / 2;
   }
 
+  rings.agreesWithMeasurement = agreesWithMeasurement;
   return rings;
 }
 
@@ -146,6 +203,6 @@ function fractionOf(value, max, dead) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     fitView, project, zoneRings, headingOf, hullPixels, hullState,
-    HULL_PX_PER_SCALE, OUTER_RING_MARGIN,
+    HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER,
   };
 }
