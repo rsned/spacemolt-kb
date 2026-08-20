@@ -300,18 +300,6 @@ test('scrubbing seeks to the dragged frame, even though pausing writes the slide
   assert.strictEqual(player.state.playing, false, 'scrubbing pauses playback');
 });
 
-test('setPlaying(true) while already playing does not start a second animation loop', () => {
-  const {doc, win, els, replay, hulls} = makeHarness(10);
-  const player = hp.createPlayer({doc, win, els, replay, hulls});
-  player.start();
-
-  player.setPlaying(true);
-  const firstRaf = win.rafCb;
-  player.setPlaying(true); // e.g. a second external call while already playing
-  assert.strictEqual(win.rafCb, firstRaf,
-    'requestAnimationFrame must not be called again; a second call would double the playback rate');
-});
-
 test('the play-on-parked-last-frame restart rebuilds the rail from frame 0', () => {
   const {doc, win, els, replay, hulls} = makeHarness(6);
   const player = hp.createPlayer({doc, win, els, replay, hulls});

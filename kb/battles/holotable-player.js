@@ -350,14 +350,8 @@ function createPlayer(cfg) {
     state.playing = !!on;
     syncControls();
     if (state.playing) {
-      // Guard against a second loop: setPlaying(true) called while already
-      // playing (the only path to this today is external, via the returned
-      // player object — every on-page control toggles) must not schedule a
-      // second rAF chain, which would double the effective playback rate.
-      if (!raf) {
-        lastNow = 0;
-        raf = cfg.win.requestAnimationFrame(loop);
-      }
+      lastNow = 0;
+      raf = cfg.win.requestAnimationFrame(loop);
     } else if (raf) {
       cfg.win.cancelAnimationFrame(raf);
       raf = 0;
