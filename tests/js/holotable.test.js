@@ -395,6 +395,14 @@ test('busiestTick breaks an all-zero-targeting tie by the frame with more live s
   assert.strictEqual(ht.busiestTick(replay), 2);
 });
 
+// pickFrame has no production caller as of P1b: holotable-player.js resolves
+// ?tick= through its own startIndex, whose fallback for an unknown tick is
+// frame 0, not the busiest frame. That was a deliberate, spec-ratified
+// change (see the P1b plan). pickFrame is kept in holotable.js as the
+// documented single-frame entry point from P1a and may still be used
+// directly (e.g. by future tooling outside the live player), so this test
+// pins pickFrame's own contract, not the shipped page's behaviour — do not
+// read it as describing what ?tick=999 does on the page today.
 test('pickFrame returns the requested tick, else the busiest', () => {
   const replay = {frames: [
     {tick: 1, ships: [{player_id: 'a'}]},

@@ -83,11 +83,18 @@ function interpolateFrame(prev, next, t) {
       y: lerp(a.y, b.y, f),
       hull: lerpGuarded(a.hull, b.hull, f),
       shield: lerpGuarded(a.shield, b.shield, f),
-      fuel: lerpGuarded(a.fuel, b.fuel, f),
       alpha: 1,
-      // zone, stance and target_id are NOT copied from b: Object.assign already
-      // took prev's, and they must hold for the whole interval. A target
-      // acquired next tick must not draw its line until the ship arrives.
+      // fuel is NOT interpolated: unlike hull/shield, a 0 reading is a real
+      // zero (a stranded ship), not "no data" — lerpGuarded's zero-means-
+      // unknown guard is the wrong semantics for it, and holotable.js does
+      // not render a fuel gauge yet. Object.assign already carries prev's
+      // fuel through above; when a fuel gauge exists, wire it with plain
+      // lerp, not lerpGuarded.
+      //
+      // zone, stance and target_id are NOT copied from b either: Object.assign
+      // already took prev's, and they must hold for the whole interval. A
+      // target acquired next tick must not draw its line until the ship
+      // arrives.
     }));
   }
 
@@ -343,8 +350,14 @@ function createPlayer(cfg) {
     state.playing = !!on;
     syncControls();
     if (state.playing) {
-      lastNow = 0;
-      raf = cfg.win.requestAnimationFrame(loop);
+      // Guard against a second loop: setPlaying(true) called while already
+      // playing (the only path to this today is external, via the returned
+      // player object — every on-page control toggles) must not schedule a
+      // second rAF chain, which would double the effective playback rate.
+      if (!raf) {
+        lastNow = 0;
+        raf = cfg.win.requestAnimationFrame(loop);
+      }
     } else if (raf) {
       cfg.win.cancelAnimationFrame(raf);
       raf = 0;

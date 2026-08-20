@@ -145,6 +145,13 @@ dropped or delayed frame — is a real possibility, not a hypothetical one.
 This is a genuine limit, not a comfortable one: **1× reads as motion at
 stress scale; 4× is riding the edge of its own frame budget and could read
 as a stutter under any less favorable conditions than this measurement's.**
+This paragraph's numbers are `bench()`-derived (render cost against tick
+budget) and predate a real measurement of what actually reaches the screen
+during playback; see "Live playback watch" below, where the real 373-
+participant battle was measured at **≈4 rendered frames per tick at 1× and
+≈1.1 at 4×** — the budget-percentage framing above answers whether
+`render()` fits in a tick, not whether interpolation is visibly delivered,
+and at 4× it is not.
 
 This task did not get a continuous, real-time, eye-watched confirmation of
 "smooth" at 420 participants — the tab-visibility workaround above
@@ -237,8 +244,9 @@ network path, which this task did not attempt to measure.
 bench: 300 frames, 88.47 ms/frame (11 fps ceiling), 373 participants
 ```
 
-**88.47 ms/frame**, between the two synthetic-fixture bookends (4.88ms at
-42 participants, 114.75ms at 420) and, notably, inside the 60–90ms range Q1
+**88.47 ms/frame**, between the two shipped-fixture bookends (4.88ms at 42
+participants on the real-but-small Node Beta fixture, 114.75ms at 420 on the
+synthetic stress fixture) and, notably, inside the 60–90ms range Q1
 predicted before any real large fixture existed — near the top of that
 range, not the middle. Naive linear extrapolation from the 42-participant
 figure predicts 373/42 × 4.88 = 43.3 ms; the real figure is **2.04× that**,
@@ -294,59 +302,82 @@ like that:
 console errors, confirming that entry point generalizes past the two
 fixtures it was built against, not just P1a's original screenshot target.
 
-**Live playback watch — could not be observed.** The bench figure above
-answers what one frame costs, not what the battle looks like in motion, so
-a genuine playback watch at 1× and 4× was attempted on
-`c79f7810a59437b029a6168526782fe4.html` (served the same way as
-`?bench=300`). It failed to produce an observation, and the failure mode
-is worth recording precisely rather than papered over:
+**Live playback watch — observed (final review, 2026-08-20).** The bench
+figure above answers what one frame costs, not what the battle looks like
+in motion. This task's own attempt to watch it play stalled completely:
+`document.hidden` read `true` for its automation tab throughout — even
+after a click confirmed `hasFocus() === true` — and Chrome suspends
+`requestAnimationFrame` entirely for a hidden tab rather than throttling
+it, so `playing === true` produced zero tick advancement over 16 real
+seconds split across 1× and 4×. Per this task's own instruction at the
+time, no synthetic pacing loop was substituted to manufacture an
+observation, so the gap was reported as a gap rather than closed with a
+proxy.
 
-- `document.hidden` read `true` for this tab throughout, including after
-  clicking directly on the page (`hasFocus()` went `true`, `hidden` stayed
-  `true`) — the same Chrome background-tab-group policy Task 8 hit.
-- Clicking the play control (found via its accessible name, "Play / pause
-  (space)", after two coordinate-based clicks missed — the automation
-  viewport is 2177×1254 but screenshots render at ~1461×842, so
-  eyeballed pixel coordinates land wrong without a ref) did flip the button
-  to `⏸`, confirming the player's internal `playing` state was genuinely
-  `true`, not that the click itself failed.
-- With `playing === true` at 1×, a real 8-second wall-clock wait
-  (`computer` tool `wait`, not a scripted delay) produced **zero** tick
-  advancement: readout stayed `1 / 264`, tick stayed `1463765`.
-- Switching `speed` to `4` and waiting a further real 8 seconds (16s total
-  with the transport reporting "playing") still produced **zero**
-  advancement.
+The final-review pass had a tab where `document.hidden === false`, so it
+ran the same watch and got a real reading. Measured directly on
+`c79f7810a59437b029a6168526782fe4…` (373 participants, 264 ticks),
+foreground tab, served the same way as `?bench=300`:
 
-This is a full stall, not a slowdown — `requestAnimationFrame` appears to
-be suspended entirely for a hidden tab in this environment, not merely
-throttled to a low rate the way some browsers throttle background tabs.
-Per this task's explicit instruction, no synthetic pacing loop (e.g. the
-`requestAnimationFrame`→`setTimeout` monkeypatch used elsewhere in this doc
-for the stress fixture) was substituted to manufacture a playback
-observation — that technique measures a proxy loop's timing, not whether
-the real page plays smoothly in a real foreground tab, and mislabeling it
-as "watched it play" would be worse than admitting the gap. **Net: whether
-hulls slide or jump, whether the rail keeps pace, and whether anything
-visibly stutters during real playback of the 373-participant battle remains
-unverified by this task.** It needs a human eyeballing a real foreground
-browser tab (or an automation environment that doesn't background its
-tabs), neither of which was available here.
+| speed | ticks advanced | elapsed | ms/tick (nominal) | rAF callbacks | fps | **rendered frames per tick** |
+|---|---|---|---|---|---|---|
+| 1× | 10 | 5178 ms | 518 (500) | 43 | 8.3 | **≈4** |
+| 4× | 39 | 5000 ms | 128 (125) | 46 | 9.2 | **≈1.1** |
 
-This limitation is not new to this fixture — it's the same one the
-existing methodology note above (under "How to see this yourself")
-already documents for the stress fixture, worked around there with the
-labeled synthetic-loop technique. What's new here is that, on this task's
-explicit instruction, no such workaround was used to paper over the gap
-for the real-battle fixture, so the gap is reported as a gap rather than
-closed with a proxy.
+The clock itself held at both speeds — no tick was dropped from the rail;
+after the 4× run the chatter list held exactly `RAIL_WINDOW_TICKS` (40)
+contiguous tick blocks. Transport, scrub (6 ms to jump to frame 201), the
+play-on-parked-last-frame restart, and spacebar all behaved correctly.
+
+**Confound, stated plainly:** the reviewing tab was itself throttled —
+with the player paused, bare `requestAnimationFrame` measured a **23.5
+fps** ceiling on that tab, well under the 60 fps a fully unthrottled tab
+would give. 8.3 and 9.2 fps are far below even that reduced ceiling, so
+they are work-bound and real, not an artifact of the ceiling. A 42-participant
+reading taken the same way (28.6 fps) landed essentially *at* that 23.5 fps
+ceiling and proves nothing about render cost at that scale — it is not
+evidence that Node Beta plays at a meaningfully different rate, only that
+it's cheap enough to be ceiling-limited on this tab.
+
+**What this means for Q3's 1×/4× conclusion.** The `bench()`-derived
+budget-percentage framing above ("1× has ~4× headroom, 4× has ~8.2%
+headroom") answers "does `render()` alone fit in the tick budget?" — and
+technically pacing does hold at both speeds, no tick is dropped. But that
+arithmetic doesn't say what actually reaches the screen. The measured
+answer does: **at 1×, about four frames get rendered per tick — enough for
+the linear interpolation P1b exists to draw to actually read as motion. At
+4×, about 1.1 frames get rendered per tick — meaning, on average, barely
+more than one frame per tick reaches the screen at all.** Interpolation
+requires multiple rendered frames between two ticks to be visible as
+sliding rather than jumping; at ≈1.1 frames/tick there usually isn't a
+second frame to draw before the next tick arrives. **At 4× on a real
+battle, P1b's motion is not being delivered** — pacing holding is not the
+same claim as motion being smooth, and the two should not be read as
+saying the same thing.
+
+**Cause, and the first thing to try (not done in this pass).** `bench()`
+times `render()` alone. The real playback loop does more than `render()`
+every animation frame: it also runs `syncControls()` (four DOM writes —
+readout, scrub value, tick span, status), `appendRail()` (build a chatter
+block, trim the rolling window, measure and possibly set `scrollTop`), and
+the browser's own paint/composite of a 1639×1022 canvas. None of that is
+captured by `bench()`'s render-only number, which is why the budget-percentage
+math above looked comfortable while the real frame rate was not.
+`syncControls()` in particular has no reason to run on every animation
+frame — the values it writes (frame index, tick number, readout text) only
+change on tick boundaries, not on every rendered frame between them. Moving
+it to run once per tick instead of once per frame is the leading candidate
+for closing most of this gap, but it is a change to the animation loop and
+is explicitly **not** made in this pass — reshaping the loop belongs to a
+follow-up, not a final fix wave.
 
 No other disappointments on this fixture beyond the load-time number
-above, the live-playback gap just described, and the two documentation
-corrections made in the course of writing this section (the "fifth of a
-tick" → "quarter of a tick" wording, and "closer to 42 than to 420" → the
-numerically correct opposite, both above). The frame cost landed inside
-the predicted range, the export needed no retries, and the station and
-hull-art paths held up against data no synthetic fixture had modeled.
+above, the two documentation corrections made in the course of writing
+this section (the "fifth of a tick" → "quarter of a tick" wording, and
+"closer to 42 than to 420" → the numerically correct opposite, both
+above), and the playback-fps ceiling just described. The frame cost landed
+inside the predicted range, the export needed no retries, and the station
+and hull-art paths held up against data no synthetic fixture had modeled.
 
 ## Summary
 
@@ -355,7 +386,7 @@ hull-art paths held up against data no synthetic fixture had modeled.
 | ms/frame, 420 participants (synthetic) | 114.75 ms (9 fps ceiling) — over the 100ms reporting line |
 | ms/frame, 373 participants (real battle) | 88.47 ms (11 fps ceiling) — under the line, 2.04× naive linear extrapolation; independent re-run read 94.54 ms (~7% apart, same conclusion) |
 | ms/frame, 42 participants (Node Beta) | 4.88 ms (205 fps ceiling) |
-| real-battle live playback (1× and 4×) | **not observed** — tab stayed `document.hidden` even focused; 0 tick advance over 8s real wait at each speed with `playing===true` — see "Live playback watch" above |
+| real-battle live playback (1× and 4×) | **observed** (final review, unthrottled tab) — 8.3 fps / ≈4 rendered frames per tick at 1×, 9.2 fps / ≈1.1 rendered frames per tick at 4×; tick pacing holds and no rail tick is dropped at either speed, but at 4× interpolation is effectively not delivered — see "Live playback watch" above |
 | scaling factor | 23.5× time for 10× participants (42→420) — superlinear, likely overdraw |
 | real-battle export | craftsman-boss, first attempt, no retries; 22,180,165 bytes |
 | real-battle load time (22MB, localhost) | ~119ms network + ~254-258ms incl. JSON.parse ≈ 258ms total, not measured over a real network |
@@ -377,12 +408,20 @@ number is better than the synthetic figure predicted worst-case — 88.47ms
 versus the synthetic fixture's 114.75ms over it — so the real ceiling this
 renderer needs to survive is, on the one battle measured, less punishing
 than the stress test alone would suggest. But frame cost is only half of
-what "acceptance" was supposed to establish: this task could not verify
-that the real battle actually plays smoothly in a real browser tab (see
-"Live playback watch" above — the automation tab stayed backgrounded and
-`requestAnimationFrame` never fired, at either 1× or 4×, over 16 real
-seconds of "playing" state). The renderer's per-frame cost is measured and
-comfortable at real-battle scale; whether that cost translates into smooth
-motion, a keeping-pace rail, and a responsive transport during actual
-playback is still open, and closing it needs a human watching a real
-foreground tab — not something this task's environment could produce.
+what "acceptance" was supposed to establish, and that half is no longer
+open: this task's own attempt to watch the real battle play stalled (the
+automation tab stayed backgrounded and `requestAnimationFrame` never
+fired), but the final review ran the same watch on an unthrottled tab and
+got a real reading — **8.3 fps (≈4 rendered frames per tick) at 1×, 9.2
+fps (≈1.1 rendered frames per tick) at 4×** (see "Live playback watch"
+above). Tick pacing holds and the rail keeps pace at both speeds; the
+transport, scrub, and restart behaviors all check out. But rendered-frames-
+per-tick is the number that actually answers whether interpolation is
+visible, and at 4× it is not — barely more than one frame per tick reaches
+the screen, which is not enough for the linear slide between ticks to read
+as motion rather than a jump. 1× genuinely delivers the motion P1b was
+built to draw; 4× on a real battle does not. This is recorded as a known,
+measured limitation rather than a blocker: no fps floor was ever set for
+P1b, and the likely fix (moving `syncControls()` off the per-frame path
+onto tick boundaries) is identified but deliberately left for a follow-up
+rather than reshaping the animation loop in this pass.

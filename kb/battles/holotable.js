@@ -472,9 +472,9 @@ function drawStationGlyph(ctx, px, py, r, colour, alpha) {
 
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI / 3;
-    const x = Math.cos(a) * r;
-    const y = Math.sin(a) * r;
+    const ang = i * Math.PI / 3;
+    const x = Math.cos(ang) * r;
+    const y = Math.sin(ang) * r;
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.closePath();
@@ -487,9 +487,9 @@ function drawStationGlyph(ctx, px, py, r, colour, alpha) {
   ctx.stroke();
 
   for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI / 3;
+    const ang = i * Math.PI / 3;
     ctx.beginPath();
-    ctx.arc(Math.cos(a) * r, Math.sin(a) * r, r * 0.18, 0, Math.PI * 2);
+    ctx.arc(Math.cos(ang) * r, Math.sin(ang) * r, r * 0.18, 0, Math.PI * 2);
     ctx.fillStyle = colour;
     ctx.fill();
   }

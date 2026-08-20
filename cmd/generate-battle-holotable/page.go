@@ -64,6 +64,7 @@ const pageTemplate = `<!DOCTYPE html>
   /* Narrow viewports put the rail under the table rather than squeezing both. */
   @media (max-width: 900px) {
     #stage { flex-direction: column; }
+    #table { min-height: 0; }
     #rail {
       width: auto; height: 180px;
       border-left: none; border-top: 1px solid #123;

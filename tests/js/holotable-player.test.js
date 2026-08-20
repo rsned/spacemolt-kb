@@ -2,6 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const hp = require('../../kb/battles/holotable-player.js');
+const {makeHarness} = require('./fake-dom.js');
 
 const shipA = (over) => Object.assign({
   player_id: 'a', x: 0, y: 0, zone: 'outer', hull: 100, shield: 50, fuel: 80,
@@ -237,4 +238,121 @@ test('groupChatter falls back to a short id for a participant it has never heard
 test('groupChatter tolerates a frame missing any of its event arrays', () => {
   const g = hp.groupChatter({tick: 7}, parts);
   assert.deepStrictEqual(g, {tick: 7, counts: [], moves: [], kills: []});
+});
+
+// startIndex — no fake DOM needed, but untested until now. busiestTick
+// returns a TICK NUMBER, not a frame index; a caller that used it as an
+// array offset directly (rather than looking up the frame whose .tick
+// matches) would silently resolve to the wrong frame, or an out-of-range
+// one, on any replay whose ticks don't happen to equal their index.
+
+test('startIndex resolves ?tick=busiest by the winning frame\'s tick VALUE, not its list position', () => {
+  const replay = {frames: [
+    {tick: 100, ships: [{player_id: 'a'}]},
+    {tick: 205, ships: [{player_id: 'a', target_id: 'b'}, {player_id: 'b'}]},
+    {tick: 310, ships: [{player_id: 'a'}]},
+  ]};
+  // busiestTick(replay) === 205 here (frame 1 has the only live targeting).
+  // Using that return value as an array index would look up frames[205]
+  // (undefined) rather than the frame whose .tick === 205 (index 1).
+  assert.strictEqual(hp.startIndex(replay, new URLSearchParams('tick=busiest')), 1);
+});
+
+test('startIndex resolves an explicit ?tick=N by matching tick value', () => {
+  const replay = {frames: [{tick: 100, ships: []}, {tick: 205, ships: []}, {tick: 310, ships: []}]};
+  assert.strictEqual(hp.startIndex(replay, new URLSearchParams('tick=310')), 2);
+});
+
+test('startIndex falls back to frame 0 for a tick not present in the replay', () => {
+  const replay = {frames: [{tick: 100, ships: []}, {tick: 205, ships: []}]};
+  assert.strictEqual(hp.startIndex(replay, new URLSearchParams('tick=999')), 0);
+});
+
+test('startIndex with no tick param starts at frame 0', () => {
+  const replay = {frames: [{tick: 100, ships: []}, {tick: 205, ships: []}]};
+  assert.strictEqual(hp.startIndex(replay, new URLSearchParams()), 0);
+});
+
+// createPlayer — driven through its doc/win/els injection seam with the
+// fakes in fake-dom.js. This is the seam Task 7 built and nothing tested:
+// the scrub bug fixed in 290c3560c (a complete no-op, only caught by a live
+// browser check) is exactly the class of regression these are meant to
+// catch without needing a browser.
+
+test('scrubbing seeks to the dragged frame, even though pausing writes the slider first (regression: 290c3560c)', () => {
+  // setPlaying(false) calls syncControls(), which writes state.frameIndex
+  // back into els.scrub.value. The scrub handler must read the dragged
+  // value BEFORE pausing, or the read sees the frame it was already on and
+  // the whole drag is silently a no-op — which is exactly what shipped
+  // until 290c3560c.
+  const {doc, win, els, replay, hulls} = makeHarness(6);
+  const player = hp.createPlayer({doc, win, els, replay, hulls});
+  player.start();
+
+  player.setPlaying(true);
+  assert.strictEqual(player.state.frameIndex, 0, 'sanity: playback has not moved yet');
+
+  els.scrub.value = '4'; // simulate the user dragging the slider to frame 4
+  els.scrub.dispatch('input');
+
+  assert.strictEqual(player.state.frameIndex, 4,
+    'the seek must land on the dragged frame; a read-after-pause bug would leave this at 0');
+  assert.strictEqual(player.state.playing, false, 'scrubbing pauses playback');
+});
+
+test('setPlaying(true) while already playing does not start a second animation loop', () => {
+  const {doc, win, els, replay, hulls} = makeHarness(10);
+  const player = hp.createPlayer({doc, win, els, replay, hulls});
+  player.start();
+
+  player.setPlaying(true);
+  const firstRaf = win.rafCb;
+  player.setPlaying(true); // e.g. a second external call while already playing
+  assert.strictEqual(win.rafCb, firstRaf,
+    'requestAnimationFrame must not be called again; a second call would double the playback rate');
+});
+
+test('the play-on-parked-last-frame restart rebuilds the rail from frame 0', () => {
+  const {doc, win, els, replay, hulls} = makeHarness(6);
+  const player = hp.createPlayer({doc, win, els, replay, hulls});
+  player.start();
+
+  player.seek(5); // the last frame
+  player.setPlaying(true);
+  assert.strictEqual(player.state.frameIndex, 0, 'pressing play parked on the end restarts, not no-ops');
+  assert.strictEqual(els.chatter.childElementCount, 1, 'the rail resets to just the opening frame');
+});
+
+test('the rail keeps only the last RAIL_WINDOW_TICKS entries as playback advances past it', () => {
+  // 50 ticks, MS_PER_TICK is 500ms fixed inside the loop. MAX_DELTA_MS caps
+  // any single delta at 250ms, so each rAF step below (250ms) advances
+  // exactly half a tick; two steps cross one tick. Advance well past
+  // RAIL_WINDOW_TICKS (40) and check the rail trimmed to the window rather
+  // than growing unbounded.
+  const {doc, win, els, replay, hulls} = makeHarness(50);
+  const player = hp.createPlayer({doc, win, els, replay, hulls});
+  player.start();
+  assert.strictEqual(els.chatter.childElementCount, 1, 'start() seeds the rail with just the opening frame');
+
+  player.setPlaying(true);
+  // Prime the clock with a non-zero `now`: the loop treats a falsy lastNow
+  // as "no previous frame", and 0 is falsy, so priming at now=0 would make
+  // the *next* call read a zero delta too and silently lose one step.
+  let now = 1000;
+  win.rafCb(now);
+  for (let i = 0; i < 90; i++) {
+    now += 250;
+    win.rafCb(now);
+  }
+
+  assert.strictEqual(player.state.frameIndex, 45, 'sanity: 90 half-tick steps landed on frame 45');
+  assert.strictEqual(els.chatter.childElementCount, hp.RAIL_WINDOW_TICKS,
+    'the rail must not grow past its window');
+  // 46 blocks were ever appended (frame 0 from start(), then crossings 1..45);
+  // the oldest RAIL_WINDOW_TICKS-1 of those were trimmed, so the window now
+  // runs from frame 6 (tick 1006) through frame 45 (tick 1045).
+  assert.strictEqual(els.chatter.firstChild.firstChild.textContent, 'TICK 1006',
+    'the oldest surviving block must be the one at the trailing edge of the window');
+  assert.strictEqual(els.chatter.children[els.chatter.children.length - 1].firstChild.textContent, 'TICK 1045',
+    'the newest block must be the most recently crossed tick');
 });
