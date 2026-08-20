@@ -321,10 +321,180 @@ function drawGround(ctx, view, centre, rings, sides, theme) {
   ctx.restore();
 }
 
+// FOOTPRINT_WIDTH is the viewBox width every footprint carries: 1000 units of
+// hull plus a 10-unit margin each side.
+const FOOTPRINT_WIDTH = 1020;
+// FOOTPRINT_HULL_LENGTH is the normalised hull length inside that viewBox.
+const FOOTPRINT_HULL_LENGTH = 1000;
+
+// hullTransform gives the numbers for drawing a footprint at a table length:
+// translate to the ship, rotate to its heading, scale, then shift the
+// footprint's own centre to the origin.
+function hullTransform(hull, lengthPx) {
+  const height = hull.height > 0 ? hull.height : FOOTPRINT_WIDTH;
+  return {
+    scale: lengthPx / FOOTPRINT_HULL_LENGTH,
+    cx: FOOTPRINT_WIDTH / 2,
+    cy: height / 2,
+  };
+}
+
+// pathCache avoids rebuilding a Path2D per ship per frame; a 373-participant
+// battle would otherwise parse the same handful of paths hundreds of times.
+const pathCache = new Map();
+
+function hullPath(hull) {
+  if (!hull.d) return null;
+  let p = pathCache.get(hull.ship);
+  if (!p) {
+    p = new Path2D(hull.d);
+    pathCache.set(hull.ship, p);
+  }
+  return p;
+}
+
+// drawStationGlyph reproduces the official viewer's station mark — a filled
+// hexagon with a circle at each corner inside two concentric rings — so a
+// reader who has seen one viewer can read the other.
+function drawStationGlyph(ctx, px, py, r, colour) {
+  ctx.save();
+  ctx.translate(px, py);
+
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3;
+    const x = Math.cos(a) * r;
+    const y = Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = colour;
+  ctx.globalAlpha = 0.35;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = colour;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * r, Math.sin(a) * r, r * 0.18, 0, Math.PI * 2);
+    ctx.fillStyle = colour;
+    ctx.fill();
+  }
+
+  for (const mult of [1.3, 1.55]) {
+    ctx.beginPath();
+    ctx.arc(0, 0, r * mult, 0, Math.PI * 2);
+    ctx.strokeStyle = colour;
+    ctx.globalAlpha = 0.4;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+}
+
+// drawMissingGlyph marks a ship class with no footprint art. It is deliberately
+// unlike a hull — a dashed chevron — so a coverage gap reads as a gap rather
+// than as a badly drawn ship.
+function drawMissingGlyph(ctx, px, py, r, colour) {
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(-r * 0.6, r * 0.6);
+  ctx.lineTo(-r * 0.25, 0);
+  ctx.lineTo(-r * 0.6, -r * 0.6);
+  ctx.closePath();
+  ctx.strokeStyle = colour;
+  ctx.setLineDash([3, 2]);
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// ARC_SWEEP is how much of a circle a full state bar covers, leaving a gap at
+// the bow so the arcs never look like a closed ring.
+const ARC_SWEEP = Math.PI * 1.6;
+const ARC_START = -Math.PI * 0.8;
+
+// drawStateArcs puts shield outside and hull inside, as fractions of maximum.
+// A null fraction is UNKNOWN and draws as a dashed grey ring rather than an
+// empty bar, so missing data does not read as a derelict ship.
+function drawStateArcs(ctx, px, py, r, state, theme) {
+  const bands = [
+    {frac: state.shield, radius: r * 1.35, colour: '#6fc8e8'},
+    {frac: state.hull, radius: r * 1.15, colour: '#e8b96f'},
+  ];
+
+  ctx.save();
+  for (const band of bands) {
+    ctx.beginPath();
+    if (band.frac === null) {
+      ctx.arc(px, py, band.radius, ARC_START, ARC_START + ARC_SWEEP);
+      ctx.strokeStyle = theme.hullUnknown;
+      ctx.setLineDash([2, 3]);
+    } else {
+      ctx.arc(px, py, band.radius, ARC_START, ARC_START + ARC_SWEEP * band.frac);
+      ctx.strokeStyle = band.colour;
+    }
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.restore();
+}
+
+// drawShip draws one combatant: its silhouette at its heading, then its state.
+function drawShip(ctx, view, ship, participant, hull, opts) {
+  const theme = opts.theme;
+  const p = project(ship.x, ship.y, view);
+  const lengthPx = hullPixels(hull.scale, opts);
+  const colour = opts.dead ? theme.wreck : sideColour(participant.side_id, theme);
+
+  if (hull.kind === 'station') {
+    drawStationGlyph(ctx, p.px, p.py, lengthPx * 0.6, colour);
+    return;
+  }
+
+  const path = hullPath(hull);
+  if (!path) {
+    drawMissingGlyph(ctx, p.px, p.py, lengthPx * 0.5, theme.missingArt);
+    drawStateArcs(ctx, p.px, p.py, lengthPx * 0.5, opts.state, theme);
+    return;
+  }
+
+  const t = hullTransform(hull, lengthPx);
+  ctx.save();
+  ctx.translate(p.px, p.py);
+  ctx.rotate(opts.heading);
+  ctx.scale(t.scale, t.scale);
+  ctx.translate(-t.cx, -t.cy);
+
+  ctx.fillStyle = colour;
+  ctx.globalAlpha = opts.dead ? 0.25 : 0.45;
+  ctx.fill(path, 'evenodd');
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = colour;
+  // Undo the scale so the outline is a constant pixel width whatever the hull.
+  // t.scale is lengthPx / FOOTPRINT_HULL_LENGTH with lengthPx guarded > 0 by
+  // hullPixels (Math.max(1, ...)), so this can never divide by zero.
+  ctx.lineWidth = 1.2 / t.scale;
+  ctx.stroke(path);
+  ctx.restore();
+
+  drawStateArcs(ctx, p.px, p.py, lengthPx * 0.5, opts.state, theme);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     fitView, project, zoneRings, headingOf, hullPixels, hullState,
     spokeEnd, sideColour, outerRadius, drawGround, THEME,
     HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER,
+    hullTransform, drawShip, drawStationGlyph, drawMissingGlyph, drawStateArcs,
   };
 }

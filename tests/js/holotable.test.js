@@ -271,3 +271,17 @@ test('sideColour is defensive against a non-numeric side id', () => {
   assert.strictEqual(typeof ht.sideColour(NaN, ht.THEME), 'string',
     `sideColour(NaN) was ${ht.sideColour(NaN, ht.THEME)}`);
 });
+
+test('hullTransform centres a footprint and scales it to the drawn length', () => {
+  // The contract: viewBox 1020 wide, 1000 units of hull, 10-unit margins, so
+  // the hull centre is (510, height/2) and hull length is 1000.
+  const t = ht.hullTransform({height: 628}, 40);
+  assert.ok(Math.abs(t.scale - 0.04) < 1e-12, `scale ${t.scale}, want 40/1000`);
+  assert.strictEqual(t.cx, 510, 'x centre is half the 1020 viewBox');
+  assert.strictEqual(t.cy, 314, 'y centre is half the height');
+});
+
+test('hullTransform tolerates a footprint with no height', () => {
+  const t = ht.hullTransform({}, 40);
+  assert.ok(Number.isFinite(t.cy), 'a missing height must not produce NaN');
+});
