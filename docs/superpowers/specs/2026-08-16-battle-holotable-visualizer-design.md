@@ -458,6 +458,55 @@ hull renders as a wreck or is removed.
 the whole visual language should be judgeable from one replay before any asset
 or FX work is committed to it.
 
+### P1 splits: P1a static frame, then P1b motion (operator, 2026-08-19)
+
+Because P1 is the taste gate, it is cut in two so the verdict arrives before
+playback is built on top of an unproven visual language.
+
+- **P1a — one frame, no controls.** Zone rings, one spoke per side, real SVG
+  hulls at correct scale and heading, shield/hull state arcs, targeting lines.
+  This is what gets judged.
+- **P1b — motion.** Transport (play/pause/scrub/step/speed), inter-tick
+  interpolation and easing, chatter rail. Built only after P1a's verdict.
+
+**Projection: P1a is true top-down, not the demo's 18° tilt** (operator,
+2026-08-19). The holo skin from `pointcloud_holo.html` is kept — dark field,
+glow, scan pulse, ring labels — but the ground plane is not foreshortened.
+The reasoning is that the shipped assets *are* top-down footprints, so plan view
+is the only projection that shows them honestly, and a taste gate on hull art
+must not judge the art through a distortion. Tilt also costs ellipse math and a
+depth sort for overlapping hulls. **P3's lazy-susan is where tilt belongs**, and
+deferring it there keeps the P1a renderer to a single `project()` seam that P3
+replaces.
+
+**The adapter already emits the radial layout.** `pkg/battlereplay/model.go`
+carries `centre`, `zones`, and per-side `bearing_mean` / `radius_mean`, so
+Finding 4's geometry is settled in Go and the renderer consumes numbers rather
+than deriving them. Ring radii are likewise measured from the frame (mean radius
+per zone, boundaries at the midpoints) rather than hard-coded — the same
+measurement that produced engaged 0.58 / inner 0.65 / mid 0.80 / outer 1.08.
+
+**Host shape.** `cmd/generate-battle-holotable/main.go` +
+`data/battle_holotable/holotable_template.html` → a self-contained
+`holotable_<id>.html`, following the existing
+`pointcloud_holo_template.html` → `pointcloud_holo.html` pattern. Inlining is
+required rather than stylistic: `file://` blocks `fetch`, so the generator
+inlines the replay JSON, **only the SVGs that battle actually uses** (~16, not
+all 395), and a `ship_class → scale` map read from `pkg/catalog`. The renderer
+therefore never reads a catalog and stays data-only.
+
+**Acceptance battles.** `a2619bbe…` (Node Beta, 42 participants) is primary — it
+exercises resolvable hulls, two unresolvable classes (`anamnesis`,
+`silent_tide`) and a station with an empty `ship_class` in a single frame.
+`b131fd5a…` (Kitalpha, four sides) is rendered alongside it so "no fixed side
+count" is proven by render rather than by assertion.
+
+**Fallbacks in P1a** are drawn in JS, since `pkg/shipglyph` is Go and cannot run
+in the browser: the station gets the official viewer's hexagon-plus-corner-circles
+glyph, and an unresolved hull gets a distinct chevron. Pre-baking `shipglyph`
+output into real SVG assets is deferred to P1b. The P1a bar is only that it must
+never draw a placeholder box and never throw.
+
 ## Cross-repo work
 
 Mostly KB, with one item in `spacemolt`:
