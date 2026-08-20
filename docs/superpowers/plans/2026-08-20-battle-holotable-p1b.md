@@ -1285,7 +1285,7 @@ The integration task: the rAF loop, the offscreen static layer, the transport wi
 - Modify: `kb/battles/holotable.js` (remove `fetchJSON`, `initHolotable`, and the `DOMContentLoaded` listener)
 
 **Interfaces:**
-- Consumes: `interpolateFrame`, `advance`, `groupChatter`, `nameOf`, `MS_PER_TICK`, `SPEEDS` (Tasks 2-4); `layoutTable`, `drawStatic`, `drawShips`, `busiestTick`, `pickFrame` (Tasks 1 and 5, reached through the browser global `window.holotable` — see Step 1).
+- Consumes: `interpolateFrame`, `advance`, `groupChatter`, `nameOf`, `MS_PER_TICK`, `SPEEDS` (Tasks 2-4); `layoutTable`, `drawStatic`, `drawShips`, `busiestTick` (Tasks 1 and 5, reached through the `ht` bridge — see Step 1). Deliberately NOT `pickFrame`: it returns a frame object, while the player needs an INDEX into `replay.frames`, so `startIndex` does its own `findIndex` by tick.
 - Produces: nothing later tasks consume.
 
 **The cross-file reference problem.** `holotable.js` exports through `module.exports` for tests, but in the browser there is no module system: both files load as plain scripts into the same global scope. `holotable.js`'s functions are top-level `function` declarations, so they are already globals in the browser and `holotable-player.js` can call them directly. In Node, `holotable-player.js` must `require` them. Handle it with one guarded lookup at the top rather than sprinkling checks.
