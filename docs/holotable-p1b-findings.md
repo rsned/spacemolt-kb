@@ -6,7 +6,10 @@ Beta, 42 participants, 30 ticks) and a synthetic stress fixture,
 from Node Beta: **420 hulls, 600 ticks, 44.7MB**. Neither shipped fixture
 reaches the scale a real battle can (373 participants, 264 ticks); the
 synthetic fixture goes past that on both axes so the render loop is measured
-somewhere real battles can't quite reach either.
+somewhere real battles can't quite reach either. A third fixture, exported
+later the same day directly from the live game
+(`c79f7810a59437b029a6168526782fe4…`, 373 participants, 264 ticks, 22MB),
+closes that gap — see "Real large battle" below.
 
 ## Screenshots
 
@@ -84,18 +87,23 @@ do. This is a plausible explanation, not a confirmed one — profiling which
 specific draw call dominates is follow-up work, not something this task
 measured.
 
-At the real ceiling (373 participants, closer to 42 than to 420), naive
-linear extrapolation from the 42-participant figure would suggest ~43
-ms/frame; the observed superlinear trend means the real number is probably
-higher than that, plausibly closer to 60–90 ms/frame, though this wasn't
-measured directly (no real 373-participant fixture was exported for this
-task — see the brief's own note on why: 24MB and a live run to get one).
+At the real ceiling (373 participants — numerically closer to 420 than to
+42, off by 47 rather than 331; an earlier draft of this line had that
+backwards), naive linear extrapolation from the 42-participant figure would
+suggest ~43 ms/frame; the observed superlinear trend means the real number
+is probably higher than that, plausibly closer to 60–90 ms/frame, though
+this wasn't measured directly (no real 373-participant fixture had been
+exported yet at the time this paragraph was written — see the brief's own
+note on why: 24MB and a live run to get one). **It has since been measured;
+see "Real large battle" below — 88.47 ms/frame, inside the predicted range
+and near its top.**
 
 Per the brief's guidance (comfortable under 33ms, needs reporting over
 100ms): **114.75 ms/frame is over the 100ms line and is being reported, not
 silently accepted.** At `MS_PER_TICK = 500` (1×), this still doesn't cost a
-dropped tick — one render fits in a fifth of a tick's screen time — but it
-removes essentially all headroom at higher speed multipliers (Q3 below).
+dropped tick — one render fits in about a quarter of a tick's screen time
+(114.75 / 500 = 23%) — but it removes essentially all headroom at higher
+speed multipliers (Q3 below).
 
 **Q2 — the real rail-line-per-tick count on Node Beta (Task 4 Step 5).**
 
@@ -176,19 +184,132 @@ No other item on that list failed in this task's testing. Items 1, 3, 6 and
 resize concerns already covered by Task 7) and nothing here contradicts
 Task 7's PASS on them.
 
+## Real large battle
+
+Everything above used the two shipped fixtures — Node Beta (real but small,
+42 participants) and the synthetic stress fixture (large but fabricated,
+420 participants). Neither is what a busy real battle actually produces.
+This section exports and measures one: `c79f7810a59437b029a6168526782fe4`,
+a 373-participant, 264-tick battle in system GSC-0008.
+
+**Export.** `craftsman-boss` was picked as the export agent: cross-checking
+`ps aux | grep -E 'bin/worker|play_as'` against `data/agents/` found it
+absent from the 160 running `--agent` processes, i.e. idle. The export
+succeeded on the **first attempt**, no retries, no `session_replaced`:
+
+```
+bin/battle-export --agent craftsman-boss --battle c79f7810a59437b029a6168526782fe4 --limit 10 \
+  --out data/battles/c79f7810a59437b029a6168526782fe4.json
+```
+
+86.8s wall clock, 27 ticks-of-10 fetch batches over the WebSocket. Output:
+**22,180,165 bytes** (21.2 MiB / "22MB", in the ballpark of the brief's
+~24MB estimate). `generate-battle-holotable` reported **373 participants,
+10 ship classes, 0 without art, 0 frame-ambiguous, 0 with contract
+problems** — every hull in a real 373-way battle resolved to known art on
+the first pass, which the 42- and 420-participant fixtures already implied
+but didn't prove at this scale.
+
+**Load time (separate from frame cost, as the brief asked).** Measured two
+ways on the local `python3 -m http.server 8099`, both from a fresh
+`fetch()` with `cache: 'no-store'` and a cache-busting query string so
+neither result is a disk-cache hit:
+
+| stage | time |
+|---|---|
+| network transfer, body only (`PerformanceResourceTiming.duration`) | ~119 ms |
+| `fetch()` header round-trip only | ~4 ms |
+| `res.json()` — body download + `JSON.parse` of 22MB combined | ~254–258 ms |
+
+The page's own `fetchJSON` calls `res.json()` directly, so **~258ms is the
+realistic total** from request to a parsed, usable replay object on this
+hardware. That's over half a tick (`MS_PER_TICK = 500`) spent just getting
+the data in, before a single frame is drawn — on a page that otherwise
+targets sub-tick render times, a quarter-second blocking load is a real cost,
+just a one-time one rather than a per-frame one. **This number is
+loopback-only** (client and `http.server` on the same machine, zero network
+latency) — it says nothing about how a 22MB fetch behaves over a real
+network path, which this task did not attempt to measure.
+
+**ms/frame.** `?bench=300` reported:
+
+```
+bench: 300 frames, 88.47 ms/frame (11 fps ceiling), 373 participants
+```
+
+**88.47 ms/frame**, between the two synthetic-fixture bookends (4.88ms at
+42 participants, 114.75ms at 420) and, notably, inside the 60–90ms range Q1
+predicted before any real large fixture existed — near the top of that
+range, not the middle. Naive linear extrapolation from the 42-participant
+figure predicts 373/42 × 4.88 = 43.3 ms; the real figure is **2.04× that**,
+consistent with the superlinear (overdraw-driven) scaling already
+documented, not a new mechanism. Unlike the synthetic figure, 88.47 ms/frame
+stays **under** the brief's 100ms reporting line, though not by a
+comfortable margin — at `MS_PER_TICK = 500` it consumes about 18% of a
+tick's budget at 1×, and would be tight at 4× (125ms budget) the same way
+the 420-participant figure is, just slightly less so (70.8% vs 91.8% of
+budget consumed).
+
+**Shape the synthetic fixture doesn't have.** The stress fixture is four
+deliberately balanced, evenly-spaced clusters. The real battle is nothing
+like that:
+
+- **Wildly asymmetric sides**: side 1 has 12 participants, side 2 has 361
+  (a 30:1 ratio) — not the synthetic fixture's even split. Side 1 won
+  anyway (`outcome: "victory"`, `winning_side: 1`).
+- **A station is a combat participant.** `Nyx Nexus Station` (kind:
+  `"station"`) appears in `participants` with `max_hull: 120000`,
+  `max_shield: 30000` — two orders of magnitude past any ship's hull pool
+  — and an empty `ship_class` string. The generator's "0 without art" means
+  the pipeline already special-cases stations rather than needing hull art
+  for it; nothing here caught it unhandled, but it's the first real
+  confirmation that the station-as-participant path the P1a spec called
+  out is exercised by an actual station, not just a synthetic stand-in.
+- **One hull class dominates**: 340 of 373 participants (91%) share a
+  single `ship_class` ("shard"); the other 9 classes cover the remaining
+  33. The synthetic fixture's four clusters don't model this kind of
+  skew.
+- **Narrow angular clustering, not spread quadrants.** The two sides'
+  `bearing_mean` values (199.3° and 11.2°) sit roughly opposite each other
+  but both are tight, not spread across a quadrant each — on the table this
+  reads as a thin diagonal wedge of overlapping hulls rather than the
+  stress fixture's four separated rings (visible directly at
+  `?tick=busiest`, frame 22/264, tick 1463786 — screenshot not saved for
+  this task, but reproducible with the command above).
+- **Per-participant death detail** (`destroyed_at_tick`, `killed_by`) is
+  populated throughout — 85 kills recorded in this battle alone — giving
+  the rail genuinely varied chatter rather than the synthetic fixture's
+  scripted 40-tick cycle.
+
+`?tick=busiest` reached a valid frame (22/264) on this fixture with no
+console errors, confirming that entry point generalizes past the two
+fixtures it was built against, not just P1a's original screenshot target.
+
+No disappointments on this fixture beyond the load-time number above and
+the two documentation corrections made in the course of writing this
+section (the "fifth of a tick" → "quarter of a tick" wording, and "closer
+to 42 than to 420" → the numerically correct opposite, both above). The
+frame cost landed inside the predicted range, the export needed no retries,
+and the station and hull-art paths held up against data no synthetic
+fixture had modeled.
+
 ## Summary
 
 | check | result |
 |---|---|
-| ms/frame, 420 participants | 114.75 ms (9 fps ceiling) — over the 100ms reporting line |
-| ms/frame, 42 participants | 4.88 ms (205 fps ceiling) |
-| scaling factor | 23.5× time for 10× participants — superlinear, likely overdraw |
+| ms/frame, 420 participants (synthetic) | 114.75 ms (9 fps ceiling) — over the 100ms reporting line |
+| ms/frame, 373 participants (real battle) | 88.47 ms (11 fps ceiling) — under the line, 2.04× naive linear extrapolation |
+| ms/frame, 42 participants (Node Beta) | 4.88 ms (205 fps ceiling) |
+| scaling factor | 23.5× time for 10× participants (42→420) — superlinear, likely overdraw |
+| real-battle export | craftsman-boss, first attempt, no retries; 22,180,165 bytes |
+| real-battle load time (22MB, localhost) | ~119ms network + ~254-258ms incl. JSON.parse ≈ 258ms total, not measured over a real network |
 | rail lines/tick, Node Beta | 20.7 (from Task 4) — still an open readability question |
 | 1× pacing at 420 participants | holds, ~4× headroom |
 | 4× pacing at 420 participants | holds on this hardware, ~8.2% headroom — fragile |
 | interpolation quality (mechanism) | linear lerp, no popping — confirmed by Task 7's live check |
 | frame-8 arrival fade | confirmed again, unchanged |
 | scrub at stress scale | immediate (13.4ms), fix from Task 7 holds at 10× scale |
+| real-battle data shape | 30:1 side split, station-as-participant (120k hull), 91% one hull class, narrow angular clustering — none modeled by the synthetic fixture |
 
 The headline result is not unqualified good news: the renderer **works**
 at 420 participants and 600 ticks, but it does so with most of its margin
