@@ -309,3 +309,36 @@ test('pickFrame returns the requested tick, else the busiest', () => {
   assert.strictEqual(ht.pickFrame(replay, null).tick, 2, 'no request means the busiest frame');
   assert.strictEqual(ht.pickFrame(replay, 999).tick, 2, 'an out-of-range tick falls back');
 });
+
+test('tableBounds expands ship-position bounds to encompass the outer zone ring', () => {
+  // Mirrors Kitalpha: a four-side skirmish with few ships per zone can
+  // measure an outer ring radius bigger than the ships' own spread. If
+  // fitView only sees the ship bounds, the ring — and the side spokes and
+  // labels that extend to it — draw off-canvas.
+  const bounds = {x_min: -0.3, x_max: 0.3, y_min: -0.4, y_max: 0.4};
+  const centre = {x: 0, y: 0};
+  const expanded = ht.tableBounds(bounds, centre, 0.9);
+  assert.strictEqual(expanded.x_min, -0.9);
+  assert.strictEqual(expanded.x_max, 0.9);
+  assert.strictEqual(expanded.y_min, -0.9);
+  assert.strictEqual(expanded.y_max, 0.9);
+});
+
+test('tableBounds leaves ship bounds untouched when they already exceed the ring', () => {
+  // Node Beta's shape: the ships themselves spread wider than the rings.
+  // The rings must never shrink the fitted view below what the ships need.
+  const bounds = {x_min: -2, x_max: 2, y_min: -1.5, y_max: 1.5};
+  const centre = {x: 0, y: 0};
+  const expanded = ht.tableBounds(bounds, centre, 0.5);
+  assert.deepStrictEqual(expanded, bounds);
+});
+
+test('tableBounds is centred on a non-origin centre', () => {
+  const bounds = {x_min: 4, x_max: 6, y_min: 9, y_max: 11};
+  const centre = {x: 5, y: 10};
+  const expanded = ht.tableBounds(bounds, centre, 3);
+  assert.strictEqual(expanded.x_min, 2);
+  assert.strictEqual(expanded.x_max, 8);
+  assert.strictEqual(expanded.y_min, 7);
+  assert.strictEqual(expanded.y_max, 13);
+});

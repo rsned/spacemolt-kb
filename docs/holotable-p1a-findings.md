@@ -12,9 +12,11 @@ detail). Enough clean captures came through to keep in the repo:
 
 - `img/holotable-p1a/node-beta-full.jpg` — Node Beta, full table, tick
   1615393 (the busiest frame). Both sides, the station, the outer chevrons.
-- `img/holotable-p1a/node-beta-hull-scale-2x.jpg` — Node Beta at 2×
-  render scale, left/right split. Shows the scale-4/5 hulls next to the
-  scale-1 majority (constants judgement below).
+- `img/holotable-p1a/node-beta-hull-scale-2x.jpg` — Node Beta rendered at
+  2× canvas resolution (scrolled right, hence the visible scrollbar — a
+  debugging aid for this capture, not a rendering defect). Shows the
+  scale-4/5 hulls next to the scale-1 majority (constants judgement
+  below).
 - `img/holotable-p1a/node-beta-missing-art-and-unknown-hull.jpg` — closeup
   of two `anamnesis`/`silent_tide` dashed chevrons and, just below the
   large green hull, the one hull-0-alive ship as a small dot (check 7).
@@ -165,11 +167,35 @@ disagreement — is not excluded by what's rendered here.
   met), but worth a P1b look: either a slightly larger minimum radius for
   the state-arc bands specifically, or accept it as a "hover for detail"
   problem once P1b adds interaction.
-- `OUTER_RING_MARGIN` (currently 1.12): does not clip. On Node Beta the
+- `OUTER_RING_MARGIN` (currently 1.12): does not clip *on Node Beta* — the
   outermost ships (the station at the top, the missing-art chevrons in the
   bottom band) sit comfortably inside the canvas with room for their
-  labels; nothing touches the frame edge. `TABLE_MARGIN=60` (Task 8's own
-  constant, layered on top) does the same job for the canvas edge itself.
+  labels; nothing touches the frame edge, and `TABLE_MARGIN=60` (Task 8's
+  own constant, layered on top) does the same job for the canvas edge
+  itself. **This is a corrected claim** — the first draft of this doc
+  stated it as general, but Kitalpha's first render clipped: rings ran off
+  the canvas top and bottom, the page grew scrollbars, and 3 of the 4 side
+  labels (each anchored at its spoke's outer end) were pushed off-screen
+  entirely. The cause was not `OUTER_RING_MARGIN` itself — it was that
+  `fitView` was only ever handed the ships' own position bounds
+  (`replay.bounds`), and Kitalpha's outer ring radius (0.894) is 42%
+  larger than the ships' vertical half-extent (0.628), so however
+  `OUTER_RING_MARGIN` scaled it, no view fit to ship positions alone could
+  have contained it. Fixed in `drawFrame` by computing the rings first and
+  unioning `centre ± outerRadius` into the fitted bounds
+  (`tableBounds`, covered by three new unit tests) before calling
+  `fitView` — verified on the re-render: all four Kitalpha side labels are
+  now on-canvas, no scrollbars, and the outer ring's projected edge lands
+  exactly on `TABLE_MARGIN` from the canvas edge (60px, computed
+  numerically, not just eyeballed). See
+  `img/holotable-p1a/kitalpha-full.jpg` for the corrected render.
+  (Separately, the page-level scrollbars in the original Kitalpha capture
+  were also fixed: `#table`'s CSS width was `100vw`, which counts the
+  scrollbar's own width and can trigger a second, horizontal one once a
+  vertical scrollbar appears from any cause — changed to `width: 100%`
+  plus `overflow: hidden` on `body` in `cmd/generate-battle-holotable/page.go`,
+  and both committed battle pages regenerated through the actual
+  generator, not hand-edited.)
 - Side palette legibility: yes, distinguishable. Node Beta's two sides
   (cyan-ish red `#e8734f` vs the base `#4fd0e8`... actually rendered as a
   clear red/orange vs. green split — see screenshot) read instantly apart

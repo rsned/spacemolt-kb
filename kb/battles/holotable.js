@@ -524,11 +524,34 @@ function pickFrame(replay, want) {
 // TABLE_MARGIN keeps the outermost ring and its labels off the canvas edge.
 const TABLE_MARGIN = 60;
 
+// tableBounds expands a battle's ship-position bounds to also encompass the
+// outermost zone ring, so the ring — and the side spokes and labels that
+// extend to its edge — never draw past what fitView fits on canvas.
+//
+// fitView only ever sees the bounds it's handed; by default that was
+// replay.bounds, which covers where the ships actually are. Ring radius is
+// a separate measurement (zoneRings, from mean distance per zone) and can
+// exceed the ships' own spread on a small battle: Kitalpha's outer ring
+// radius (0.894) is 42% bigger than the ships' vertical half-extent (0.628),
+// so with ship-only bounds the ring — and everything anchored to its edge —
+// clips off the fitted view. The union with the ship bounds is deliberate:
+// on a battle where the ships spread wider than the rings (Node Beta), the
+// rings must never shrink the fitted view below what the ships need.
+function tableBounds(bounds, centre, outerR) {
+  return {
+    x_min: Math.min(bounds.x_min, centre.x - outerR),
+    x_max: Math.max(bounds.x_max, centre.x + outerR),
+    y_min: Math.min(bounds.y_min, centre.y - outerR),
+    y_max: Math.max(bounds.y_max, centre.y + outerR),
+  };
+}
+
 // drawFrame renders one tick of the battle onto ctx.
 function drawFrame(ctx, replay, hulls, frame, width, height) {
   ctx.save();
-  const view = fitView(replay.bounds, width, height, TABLE_MARGIN);
   const rings = zoneRings(replay.frames, replay.centre, {});
+  const bounds = tableBounds(replay.bounds, replay.centre, outerRadius(rings));
+  const view = fitView(bounds, width, height, TABLE_MARGIN);
 
   ctx.fillStyle = THEME.bg;
   ctx.fillRect(0, 0, width, height);
@@ -624,6 +647,6 @@ if (typeof module !== 'undefined' && module.exports) {
     spokeEnd, sideColour, outerRadius, drawGround, THEME,
     HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER,
     hullTransform, drawShip, drawStationGlyph, drawMissingGlyph, drawStateArcs,
-    busiestTick, pickFrame, drawFrame,
+    busiestTick, pickFrame, drawFrame, tableBounds,
   };
 }

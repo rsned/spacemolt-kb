@@ -20,11 +20,12 @@ const pageTemplate = `<!DOCTYPE html>
   body {
     margin: 0; background: #05080d; color: #9fd4e8;
     font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow: hidden;
   }
   header { padding: 10px 16px; border-bottom: 1px solid #123; }
   h1 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .04em; }
   .meta { color: #4d7a8c; }
-  #table { display: block; width: 100vw; height: calc(100vh - 46px); }
+  #table { display: block; width: 100%; height: calc(100vh - 46px); }
   #status { padding: 16px; color: #c86; }
 </style>
 </head>
