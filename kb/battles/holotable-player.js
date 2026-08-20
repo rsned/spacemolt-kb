@@ -407,7 +407,24 @@ function createPlayer(cfg) {
     syncControls();
   }
 
-  return {start, setPlaying, seek, render, resize, state};
+  // bench times the per-frame cost with the clock taken out of the loop: n
+  // renders spread across the battle and across the interval between ticks, so
+  // interpolation, the static blit and the ship layer are all exercised.
+  // Deliberately not a test assertion — a wall-clock gate in `node --test`
+  // fails on a loaded box and passes on a fast laptop, which teaches everyone
+  // to re-run it rather than to read it.
+  function bench(n) {
+    const t0 = cfg.win.performance.now();
+    for (let i = 0; i < n; i++) {
+      state.frameIndex = i % Math.max(1, frames.length - 1);
+      state.t = (i % 10) / 10;
+      render();
+    }
+    const total = cfg.win.performance.now() - t0;
+    return {frames: n, totalMs: total, msPerFrame: total / n};
+  }
+
+  return {start, setPlaying, seek, render, resize, bench, state};
 }
 
 // fetchJSON fetches and parses one data file, naming the URL and HTTP status on
@@ -470,6 +487,16 @@ async function initHolotable() {
       startIndex: startIndex(replay, params),
     });
     player.start();
+
+    const benchN = Number(params.get('bench') || 0);
+    if (benchN > 0) {
+      const r = player.bench(benchN);
+      const line = `bench: ${r.frames} frames, ${r.msPerFrame.toFixed(2)} ms/frame ` +
+        `(${(1000 / r.msPerFrame).toFixed(0)} fps ceiling), ${replay.participants.length} participants`;
+      console.log(line);
+      status.textContent = line;
+      return;
+    }
 
     if (params.get('play') === '1') player.setPlaying(true);
     status.textContent = '';
