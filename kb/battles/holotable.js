@@ -110,6 +110,9 @@ function zoneRings(frames, centre, opts) {
   }
   // A zone name outside the four known bands (unexpected data) is appended
   // rather than dropped, so it stays visible instead of vanishing silently.
+  // Their relative order among themselves follows Map insertion order, which
+  // is not deterministic across differently-ordered input; harmless today
+  // since no real zone name falls outside CANONICAL_ZONE_ORDER.
   for (const [zone, acc] of sums) {
     if (!CANONICAL_ZONE_ORDER.includes(zone)) rings.push({zone, meanRadius: acc.sum / acc.n});
   }
@@ -142,6 +145,15 @@ function zoneRings(frames, centre, opts) {
       ? effective[i] * outerMargin
       : (effective[i] + effective[i + 1]) / 2;
   }
+
+  // A single zone whose ships sit exactly on the centre (meanRadius 0) — a
+  // one-participant frame, or every ship stacked at one point — makes the
+  // only ring's rOuter equal its rInner (both 0, since outerMargin scales a
+  // zero). centre is the position bounds' midpoint, so a one-ship frame lands
+  // exactly there, not merely close to it: this is reachable, not academic.
+  // Same treatment fitView already gives zero-span bounds via DEGENERATE_SPAN.
+  const last = rings[rings.length - 1];
+  if (last && !(last.rOuter > last.rInner)) last.rOuter = last.rInner + MIN_RING_GAP_FLOOR;
 
   rings.agreesWithMeasurement = agreesWithMeasurement;
   return rings;

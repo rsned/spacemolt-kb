@@ -119,6 +119,23 @@ test('zoneRings enforces monotonic boundaries when a single band is internally i
     'the raw measured mean must not be rewritten, only the boundary');
 });
 
+test('zoneRings clamps a single ring whose ships sit exactly on the centre', () => {
+  // centre is the position bounds' midpoint, so a one-ship frame (or every
+  // ship stacked at one point) lands exactly there: meanRadius is 0.0, not
+  // merely close to it, and the only ring must still get a real width.
+  const centre = {x: 0, y: 0};
+  const frames = [{
+    tick: 1,
+    ships: [{player_id: 'a', x: 0, y: 0, zone: 'engaged'}],
+  }];
+  const rings = ht.zoneRings(frames, centre, {});
+  assert.strictEqual(rings.length, 1);
+  assert.strictEqual(rings[0].meanRadius, 0);
+  assert.ok(Number.isFinite(rings[0].rInner) && Number.isFinite(rings[0].rOuter));
+  assert.ok(rings[0].rOuter > rings[0].rInner,
+    `rOuter (${rings[0].rOuter}) must exceed rInner (${rings[0].rInner}); a zero-width ring cannot be drawn`);
+});
+
 test('zoneRings ignores carried-forward states', () => {
   const frames = [{
     tick: 1,
