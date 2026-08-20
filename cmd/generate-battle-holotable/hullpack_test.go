@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -96,5 +97,46 @@ func TestBuildHullPackDefaultsScaleToOneWhenTheCatalogIsSilent(t *testing.T) {
 	}
 	if got := pack["dirk"].Scale; got != 1 {
 		t.Errorf("Scale = %d, want 1 — an unknown scale must not render a zero-size hull", got)
+	}
+}
+
+func TestRenderPageWiresTheDataFilesAndRenderer(t *testing.T) {
+	rep := Replay{
+		BattleID:   "a2619bbe328676445828b4e1007fe9aa",
+		SystemName: "Node Beta",
+		TickCount:  30,
+	}
+	got, err := RenderPage(rep)
+	if err != nil {
+		t.Fatalf("RenderPage: %v", err)
+	}
+	page := string(got)
+
+	for _, want := range []string{
+		"a2619bbe328676445828b4e1007fe9aa.json",       // the replay
+		"a2619bbe328676445828b4e1007fe9aa-hulls.json", // the hull pack
+		"holotable.js",                                // the renderer
+		"Node Beta",                                   // the heading
+		"<canvas",                                     // something to draw on
+	} {
+		if !strings.Contains(page, want) {
+			t.Errorf("page does not mention %q", want)
+		}
+	}
+
+	// The renderer is data-only: the page must not inline ship data.
+	if strings.Contains(page, "data-ship") {
+		t.Error("page inlines SVG attributes; hull data belongs in the hull pack")
+	}
+}
+
+func TestRenderPageEscapesTheBattleID(t *testing.T) {
+	rep := Replay{BattleID: `"><script>alert(1)</script>`, SystemName: "x"}
+	got, err := RenderPage(rep)
+	if err != nil {
+		t.Fatalf("RenderPage: %v", err)
+	}
+	if strings.Contains(string(got), "<script>alert(1)</script>") {
+		t.Error("battle id was interpolated unescaped")
 	}
 }

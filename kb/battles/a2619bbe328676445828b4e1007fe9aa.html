@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holotable — Node Beta (a2619bbe328676445828b4e1007fe9aa)</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; background: #05080d; color: #9fd4e8;
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  header { padding: 10px 16px; border-bottom: 1px solid #123; }
+  h1 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .04em; }
+  .meta { color: #4d7a8c; }
+  #table { display: block; width: 100vw; height: calc(100vh - 46px); }
+  #status { padding: 16px; color: #c86; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Node Beta</h1>
+  <div class="meta">battle a2619bbe328676445828b4e1007fe9aa &middot; 30 ticks &middot; tick <span id="tick">—</span></div>
+</header>
+<canvas id="table"></canvas>
+<div id="status"></div>
+<script>
+  window.HOLOTABLE = {
+    replayURL: "a2619bbe328676445828b4e1007fe9aa.json",
+    hullsURL: "a2619bbe328676445828b4e1007fe9aa-hulls.json",
+  };
+</script>
+<script src="holotable.js"></script>
+</body>
+</html>
