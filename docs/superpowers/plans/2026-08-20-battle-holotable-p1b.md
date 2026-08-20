@@ -215,7 +215,7 @@ Expected: PASS, **115 tests** — the 113 baseline plus the two new `layoutTable
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/generate-battle-holotable --replay data/battles/a2619bbe328676445828b4e1007fe9aa.json
 git diff --stat kb/battles/
 ```
@@ -865,7 +865,7 @@ Expected: PASS, 5 tests.
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 node -e '
 const hp = require("./kb/battles/holotable-player.js");
 const r = JSON.parse(require("fs").readFileSync("data/battles/a2619bbe328676445828b4e1007fe9aa.json"));
@@ -1100,7 +1100,7 @@ Expected: 0 failures, count unchanged from Task 4.
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/generate-battle-holotable --replay data/battles/a2619bbe328676445828b4e1007fe9aa.json
 go run ./cmd/generate-battle-holotable --replay data/battles/b131fd5aae68420107dd20e93d15d3ba.json
 git status --porcelain kb/battles/
@@ -1231,7 +1231,7 @@ The `speed` select is populated by the player from `SPEEDS`, so the option list 
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 go build ./... && go test ./cmd/generate-battle-holotable/ && golangci-lint run ./cmd/generate-battle-holotable/
 ```
 Expected: build OK, tests pass, 0 lint issues.
@@ -1240,7 +1240,7 @@ Expected: build OK, tests pass, 0 lint issues.
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/generate-battle-holotable --replay data/battles/a2619bbe328676445828b4e1007fe9aa.json
 go run ./cmd/generate-battle-holotable --replay data/battles/b131fd5aae68420107dd20e93d15d3ba.json
 git diff --stat kb/battles/
@@ -1251,7 +1251,7 @@ Expected: both `.html` files changed; the `.json` and `-hulls.json` files unchan
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb/kb && python3 -m http.server 8099 &
+cd "$(git rev-parse --show-toplevel)/kb" && python3 -m http.server 8099 &
 sleep 2
 curl -s http://localhost:8099/battles/a2619bbe328676445828b4e1007fe9aa.html | grep -c 'holotable-player.js'
 kill %1
@@ -1622,7 +1622,7 @@ Expected: 0 failures. Requiring `holotable-player.js` in Node must not throw —
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb/kb && python3 -m http.server 8099
+cd "$(git rev-parse --show-toplevel)/kb" && python3 -m http.server 8099
 ```
 Then open `http://localhost:8099/battles/a2619bbe328676445828b4e1007fe9aa.html` and confirm, by eye:
 
@@ -1805,7 +1805,7 @@ console.log(`wrote ${OUT}: ${participants.length} participants, ${frames.length}
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 node scripts/make-stress-replay.js
 go run ./cmd/generate-battle-holotable --replay data/battles/ffffffffffffffffffffffffffffffff.json
 ```
@@ -1886,7 +1886,7 @@ The early `return` skips the `status.textContent = ''` below it, which is what l
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb/kb && python3 -m http.server 8099
+cd "$(git rev-parse --show-toplevel)/kb" && python3 -m http.server 8099
 ```
 Open each and read the line at the top of the page:
 
@@ -1915,7 +1915,7 @@ Add screenshots to `docs/img/holotable-p1b/` and reference them.
 
 Run:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 go build ./... && go test ./... && golangci-lint run && node --test tests/js/*.test.js
 ```
 Expected: all clean, 0 JS failures.
@@ -1962,7 +1962,7 @@ Run:
 ```bash
 cd /home/robert/spacemolt/spacemolt
 bin/battle-export --agent <idle-agent> --battle c79f7810a59437b029a6168526782fe4 --limit 10 \
-  --out /home/robert/spacemolt/kb/data/battles/c79f7810a59437b029a6168526782fe4.json
+  --out /home/robert/spacemolt/kb-p1b/data/battles/c79f7810a59437b029a6168526782fe4.json
 ```
 
 If `bin/battle-export` is missing, build it first: `go build -o bin/battle-export ./cmd/tools/battle-export` — binaries go in `bin/`, never the repo root.
@@ -1987,7 +1987,7 @@ c79f7810a59437b029a6168526782fe4.*
 
 Then:
 ```bash
-cd /home/robert/spacemolt/kb
+cd "$(git rev-parse --show-toplevel)"
 go run ./cmd/generate-battle-holotable --replay data/battles/c79f7810a59437b029a6168526782fe4.json
 ```
 Record the generator's summary line — participants, ship classes, how many without art.
