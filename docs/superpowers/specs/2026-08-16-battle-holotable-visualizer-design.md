@@ -546,9 +546,14 @@ path already accepts.
 | Arriving — present in `next` only | Alpha 0→1 across the interval, held at `next`'s position |
 | Leaving or destroyed — present in `prev` only | Alpha 1→0, held at `prev`'s position. Nothing remains. |
 
-Arrival and death are **declared, not inferred**: participants carry
-`first_tick`, `last_tick`, `destroyed_at_tick`, and `killed_by`. This matters
-because frames are not a fixed roster — Node Beta runs 15, 15, 15, 15, 14, 17,
+**The fade is driven by presence in the two frames**, not by the participant's
+`first_tick` / `destroyed_at_tick`. The adapter emits dense frames on purpose,
+so presence is the reliable signal and the one that stays right when the two
+disagree. The declared fields keep the jobs they already have: `hullState`
+reads `destroyed_at_tick` against `frame.tick` to decide whether a hull draws
+as a wreck, and `killed_by` names the killer in the rail.
+
+This matters because frames are not a fixed roster — Node Beta runs 15, 15, 15, 15, 14, 17,
 16 ships and then **40**, with 27 appearances and 13 disappearances across 30
 ticks. Standing still that is invisible; in motion it is the most violent thing
 on screen, which is what the fades exist to absorb.
