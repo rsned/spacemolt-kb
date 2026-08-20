@@ -25,13 +25,31 @@ const OUTER_RING_MARGIN = 1.12;
 const DEGENERATE_SPAN = 1;
 
 // CANONICAL_ZONE_ORDER is the game's own tactical band order, innermost to
-// outermost. zone is the authoritative tactical space; x/y is presentation
-// layout only (design spec Finding 4: "where they disagree, trust zone").
-// This is not theoretical: a real four-side battle (Kitalpha) measured "mid"
-// with a SMALLER mean x/y radius than "engaged" — sorting rings by measured
-// radius would draw "mid" inside "engaged", actively misleading. Order here
-// is fixed and never derived from measurement.
+// outermost, used as the fallback when a replay carries no `zones` field of
+// its own (see deriveZoneOrder). zone is the authoritative tactical space;
+// x/y is presentation layout only (design spec Finding 4: "where they
+// disagree, trust zone"). This is not theoretical: a real four-side battle
+// (Kitalpha) measured "mid" with a SMALLER mean x/y radius than "engaged" —
+// sorting rings by measured radius would draw "mid" inside "engaged",
+// actively misleading. Order here is fixed and never derived from
+// measurement.
 const CANONICAL_ZONE_ORDER = ['engaged', 'inner', 'mid', 'outer'];
+
+// deriveZoneOrder resolves the innermost-to-outermost ring order to draw:
+// replay.zones when the replay carries one, or CANONICAL_ZONE_ORDER as a
+// fallback. replay.zones is not a measurement — it is the adapter's own
+// declared ordering (pkg/battlereplay/adapt.go), the same authority
+// CANONICAL_ZONE_ORDER exists to reproduce by hand, and both shipped
+// fixtures carry it as `["outer","mid","inner","engaged"]` — nearest-to-
+// contact last — so it is reversed here to innermost-first. Deriving from it
+// means a renamed or added band shows up in the right place automatically,
+// instead of falling into the Map-insertion-order path in zoneRings.
+function deriveZoneOrder(replay) {
+  if (Array.isArray(replay.zones) && replay.zones.length) {
+    return replay.zones.slice().reverse();
+  }
+  return CANONICAL_ZONE_ORDER;
+}
 
 // MIN_RING_GAP_RATIO / MIN_RING_GAP_FLOOR set the minimum growth enforced
 // between one ring's effective radius and the next when computing boundaries,
@@ -88,6 +106,7 @@ function project(x, y, view) {
 function zoneRings(frames, centre, opts) {
   const options = opts || {};
   const outerMargin = options.outerMargin || OUTER_RING_MARGIN;
+  const zoneOrder = options.zoneOrder || CANONICAL_ZONE_ORDER;
 
   const sums = new Map();
   for (const frame of frames) {
@@ -104,17 +123,19 @@ function zoneRings(frames, centre, opts) {
   }
 
   const rings = [];
-  for (const zone of CANONICAL_ZONE_ORDER) {
+  for (const zone of zoneOrder) {
     const acc = sums.get(zone);
     if (acc) rings.push({zone, meanRadius: acc.sum / acc.n});
   }
-  // A zone name outside the four known bands (unexpected data) is appended
-  // rather than dropped, so it stays visible instead of vanishing silently.
-  // Their relative order among themselves follows Map insertion order, which
-  // is not deterministic across differently-ordered input; harmless today
-  // since no real zone name falls outside CANONICAL_ZONE_ORDER.
+  // A zone name outside zoneOrder entirely (unexpected data — not even named
+  // by the replay's own `zones` field) is appended rather than dropped, so
+  // it stays visible instead of vanishing silently. Their relative order
+  // among themselves follows Map insertion order, which is not deterministic
+  // across differently-ordered input; this is now a second safety net, not
+  // the normal path — deriveZoneOrder means any band the replay actually
+  // names is already in zoneOrder and placed deterministically above.
   for (const [zone, acc] of sums) {
-    if (!CANONICAL_ZONE_ORDER.includes(zone)) rings.push({zone, meanRadius: acc.sum / acc.n});
+    if (!zoneOrder.includes(zone)) rings.push({zone, meanRadius: acc.sum / acc.n});
   }
 
   let agreesWithMeasurement = true;
@@ -221,7 +242,6 @@ const THEME = {
   ring: 'rgba(90, 190, 220, 0.20)',
   ringLabel: 'rgba(120, 200, 225, 0.55)',
   spoke: 'rgba(90, 190, 220, 0.14)',
-  grid: 'rgba(60, 130, 160, 0.10)',
   hullUnknown: 'rgba(160, 160, 170, 0.5)',
   targetLine: 'rgba(120, 210, 235, 0.16)',
   wreck: 'rgba(140, 90, 80, 0.55)',
@@ -248,6 +268,71 @@ function sideColour(sideId, theme) {
   const palette = theme.sides;
   const id = Number.isFinite(sideId) ? sideId : 0;
   return palette[Math.abs(id) % palette.length];
+}
+
+// BAND_LABEL_STAGGER perpendicular-offsets alternating band labels, in
+// canvas pixels, so two adjacent rings whose radii differ by only a few
+// pixels — always true near the centre, where ring gaps are smallest —
+// don't end up sharing a baseline. See bandLabelAngleDeg for why the axis
+// itself also moves.
+const BAND_LABEL_STAGGER = 7;
+
+// RING_LABEL_NUDGE is a small radial push so a band label clears the ring's
+// own stroke instead of sitting directly on top of it.
+const RING_LABEL_NUDGE = 4;
+
+// SPOKE_LABEL_OFFSET pushes a side's label further out along its own spoke.
+const SPOKE_LABEL_OFFSET = 10;
+
+// bandLabelAngleDeg picks the direction band labels are drawn along. The
+// earlier approach fixed this at +X ("least likely to sit on top of a spoke
+// for a two-side battle") — falsified by the primary fixture, Node Beta,
+// whose side 2 sits at bearing_mean 4.7 degrees, essentially +X itself. This
+// instead measures the widest angular gap between the battle's own side
+// bearings and returns its midpoint, so the axis is pushed as far as
+// possible from every spoke label regardless of how many sides there are or
+// where they sit. Falls back to +X when there are no bearings to avoid.
+function bandLabelAngleDeg(sides) {
+  const bearings = (sides || [])
+    .map(s => s.bearing_mean)
+    .filter(Number.isFinite)
+    .map(b => ((b % 360) + 360) % 360)
+    .sort((a, b) => a - b);
+  if (bearings.length === 0) return 0;
+
+  let bestGap = -1;
+  let bestStart = 0;
+  for (let i = 0; i < bearings.length; i++) {
+    const start = bearings[i];
+    const next = i + 1 < bearings.length ? bearings[i + 1] : bearings[0] + 360;
+    const gap = next - start;
+    if (gap > bestGap) {
+      bestGap = gap;
+      bestStart = start;
+    }
+  }
+  return (bestStart + bestGap / 2) % 360;
+}
+
+// bandLabelOffset perpendicular-staggers alternating band labels (by ring
+// index) along an axis at angleDeg, so two labels whose ring radii place
+// them close together along that axis don't collide. Pure so the placement
+// rule can be tested without a canvas.
+function bandLabelOffset(index, angleDeg) {
+  const perpRad = (angleDeg + 90) * Math.PI / 180;
+  const sign = index % 2 === 0 ? 1 : -1;
+  return {
+    dx: Math.cos(perpRad) * BAND_LABEL_STAGGER * sign,
+    dy: Math.sin(perpRad) * BAND_LABEL_STAGGER * sign,
+  };
+}
+
+// spokeLabelOffset pushes a side's label further out along its own spoke
+// direction, rather than a flat "6px up" that only reads correctly for a
+// spoke pointing straight up and drifts sideways for every other bearing.
+function spokeLabelOffset(bearingDeg, distance) {
+  const rad = bearingDeg * Math.PI / 180;
+  return {dx: Math.cos(rad) * distance, dy: Math.sin(rad) * distance};
 }
 
 // outerRadius is the spoke length: the outermost ring's rOuter. Pulled out of
@@ -300,22 +385,34 @@ function drawGround(ctx, view, centre, rings, sides, theme) {
     ctx.fillStyle = sideColour(side.side_id, theme);
     ctx.font = '11px ui-monospace, monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(`SIDE ${side.side_id} (${side.count})`, p.px, p.py - 6);
+    const spokeOff = spokeLabelOffset(side.bearing_mean, SPOKE_LABEL_OFFSET);
+    ctx.fillText(`SIDE ${side.side_id} (${side.count})`, p.px + spokeOff.dx, p.py + spokeOff.dy);
   }
 
-  // Band labels along the +X axis, where a spoke is least likely to sit on top
-  // of them for a two-side battle.
+  // Band labels are drawn along whichever axis sits farthest from every
+  // side's spoke (bandLabelAngleDeg), with alternating labels staggered
+  // perpendicular to that axis (bandLabelOffset) — the axis choice alone
+  // keeps a spoke label from landing on top of the band labels, but doesn't
+  // separate adjacent band labels from each other, since ring radii near the
+  // centre are close together regardless of angle.
+  const labelAngle = bandLabelAngleDeg(sides);
   ctx.fillStyle = theme.ringLabel;
   ctx.font = '10px ui-monospace, monospace';
-  ctx.textAlign = 'left';
-  for (const ring of rings) {
-    const at = project(centre.x + ring.rOuter, centre.y, view);
-    // at.py, not c.py: they coincide today only because project() is
-    // axis-aligned. P3 replaces project() with a tilted 2.5D projection —
-    // that seam is the whole reason it's isolated — and once it does, a
-    // label positioned at the centre's y instead of its own ring's y would
-    // silently drift off the band it names.
-    ctx.fillText(ring.zone.toUpperCase(), at.px + 4, at.py - 4);
+  ctx.textAlign = 'center';
+  for (let i = 0; i < rings.length; i++) {
+    const ring = rings[i];
+    const end = spokeEnd(labelAngle, ring.rOuter, centre);
+    // at, not c: they'd coincide only because project() is axis-aligned. P3
+    // replaces project() with a tilted 2.5D projection — that seam is the
+    // whole reason it's isolated — and once it does, a label positioned at
+    // the centre instead of its own ring's point would silently drift off
+    // the band it names.
+    const at = project(end.x, end.y, view);
+    const nudgeRad = labelAngle * Math.PI / 180;
+    const stagger = bandLabelOffset(i, labelAngle);
+    const px = at.px + Math.cos(nudgeRad) * RING_LABEL_NUDGE + stagger.dx;
+    const py = at.py + Math.sin(nudgeRad) * RING_LABEL_NUDGE + stagger.dy;
+    ctx.fillText(ring.zone.toUpperCase(), px, py);
   }
 
   ctx.restore();
@@ -327,11 +424,20 @@ const FOOTPRINT_WIDTH = 1020;
 // FOOTPRINT_HULL_LENGTH is the normalised hull length inside that viewBox.
 const FOOTPRINT_HULL_LENGTH = 1000;
 
+// FALLBACK_FOOTPRINT_HEIGHT is a can't-happen guard, not a real height: every
+// hull that reaches hullTransform either carries a real footprint height
+// (pkg/footprint.Check enforces height > the 20-unit margin) or is the
+// synthetic {kind:'missing'} stand-in in drawFrame, which never reaches
+// hullTransform. If a height is ever missing anyway, this only needs to be
+// finite, not meaningful — it previously reused FOOTPRINT_WIDTH (1020, a
+// *width*) for this, which happened to be finite but read as a copy-paste.
+const FALLBACK_FOOTPRINT_HEIGHT = 1020;
+
 // hullTransform gives the numbers for drawing a footprint at a table length:
 // translate to the ship, rotate to its heading, scale, then shift the
 // footprint's own centre to the origin.
 function hullTransform(hull, lengthPx) {
-  const height = hull.height > 0 ? hull.height : FOOTPRINT_WIDTH;
+  const height = hull.height > 0 ? hull.height : FALLBACK_FOOTPRINT_HEIGHT;
   return {
     scale: lengthPx / FOOTPRINT_HULL_LENGTH,
     cx: FOOTPRINT_WIDTH / 2,
@@ -461,6 +567,12 @@ function drawShip(ctx, view, ship, participant, hull, opts) {
     return;
   }
 
+  // Unlike the station branch above, this doesn't check hull.kind ===
+  // 'missing' directly: it's inferred from the absence of path geometry.
+  // kind is authoritative for "station" (BuildHullPack sets it explicitly,
+  // with no art to check), but a hull class can lack art for reasons kind
+  // alone doesn't capture, so checking what actually got parsed is the more
+  // direct test of "is there anything to draw here."
   const path = hullPath(hull);
   if (!path) {
     drawMissingGlyph(ctx, p.px, p.py, lengthPx * 0.5, theme.missingArt);
@@ -493,17 +605,24 @@ function drawShip(ctx, view, ship, participant, hull, opts) {
 // busiestTick picks the most informative single frame: the one where the most
 // ships are actively targeting something. P1a draws one frame, so it should be
 // a frame where the fleet is visibly doing something rather than tick 1, where
-// half the participants have not joined yet.
+// half the participants have not joined yet. When no ship in the replay ever
+// targets anything, every frame ties at a target count of 0; the secondary
+// key (most live ships present) still picks a frame where the fleet has
+// actually assembled, rather than degenerating to frame 0 — the exact tick
+// this function exists to avoid — on the very first `count > bestCount`.
 function busiestTick(replay) {
   let best = null;
   let bestCount = -1;
+  let bestShipCount = -1;
   for (const frame of replay.frames) {
     let count = 0;
     for (const ship of frame.ships) {
       if (ship.target_id) count++;
     }
-    if (count > bestCount) {
+    const shipCount = frame.ships.length;
+    if (count > bestCount || (count === bestCount && shipCount > bestShipCount)) {
       bestCount = count;
+      bestShipCount = shipCount;
       best = frame.tick;
     }
   }
@@ -548,8 +667,20 @@ function tableBounds(bounds, centre, outerR) {
 
 // drawFrame renders one tick of the battle onto ctx.
 function drawFrame(ctx, replay, hulls, frame, width, height) {
+  // TODO(P1b): zoneRings scans every ship of every frame in the replay, and
+  // it's called here — from a per-frame draw function. Free today (P1a draws
+  // once), but a playback loop calling drawFrame sixty times a second would
+  // redo the whole-battle scan every frame. Deliberately not restructuring
+  // drawFrame's signature to hoist this out during a final fix wave — the
+  // risk outweighs a performance problem that doesn't exist until playback.
+  //
+  // TODO(P1b): this save() (and the matching restore() below) isn't wrapped
+  // in try/finally. Matches the rest of the file's convention, and today the
+  // canvas is discarded on any error anyway — but P1b reuses the same
+  // context every frame, and an unbalanced save from a mid-frame throw would
+  // then survive into the next frame instead of vanishing with the canvas.
   ctx.save();
-  const rings = zoneRings(replay.frames, replay.centre, {});
+  const rings = zoneRings(replay.frames, replay.centre, {zoneOrder: deriveZoneOrder(replay)});
   const bounds = tableBounds(replay.bounds, replay.centre, outerRadius(rings));
   const view = fitView(bounds, width, height, TABLE_MARGIN);
 
@@ -645,7 +776,8 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     fitView, project, zoneRings, headingOf, hullPixels, hullState,
     spokeEnd, sideColour, outerRadius, drawGround, THEME,
-    HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER,
+    HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER, deriveZoneOrder,
+    bandLabelAngleDeg, bandLabelOffset, spokeLabelOffset,
     hullTransform, drawShip, drawStationGlyph, drawMissingGlyph, drawStateArcs,
     busiestTick, pickFrame, drawFrame, tableBounds,
   };

@@ -149,6 +149,35 @@ test('zoneRings ignores carried-forward states', () => {
     'a stale state must not drag the measured radius');
 });
 
+test('zoneRings orders zones exactly as given via opts.zoneOrder, including a band CANONICAL_ZONE_ORDER does not name', () => {
+  const centre = {x: 0, y: 0};
+  const frames = [{
+    tick: 1,
+    ships: [
+      {player_id: 'a', x: 0.4, y: 0, zone: 'engaged'},
+      {player_id: 'b', x: 0.6, y: 0, zone: 'inner'},
+      {player_id: 'c', x: 0.8, y: 0, zone: 'mid'},
+      {player_id: 'd', x: 1.0, y: 0, zone: 'outer'},
+      {player_id: 'e', x: 1.2, y: 0, zone: 'flank'},
+    ],
+  }];
+  const zoneOrder = ['engaged', 'inner', 'mid', 'outer', 'flank'];
+  const rings = ht.zoneRings(frames, centre, {zoneOrder});
+  assert.deepStrictEqual(rings.map(r => r.zone), zoneOrder,
+    'a fifth band named in zoneOrder must be placed deterministically, not by Map insertion order');
+});
+
+test('deriveZoneOrder reverses replay.zones, since the adapter ships nearest-to-contact last', () => {
+  assert.deepStrictEqual(
+    ht.deriveZoneOrder({zones: ['outer', 'mid', 'inner', 'engaged']}),
+    ['engaged', 'inner', 'mid', 'outer']);
+});
+
+test('deriveZoneOrder falls back to CANONICAL_ZONE_ORDER when replay carries no zones', () => {
+  assert.deepStrictEqual(ht.deriveZoneOrder({}), ht.CANONICAL_ZONE_ORDER);
+  assert.deepStrictEqual(ht.deriveZoneOrder({zones: []}), ht.CANONICAL_ZONE_ORDER);
+});
+
 test('headingOf points at the target when there is one', () => {
   const ships = new Map([
     ['a', {player_id: 'a', x: 0, y: 0, target_id: 'b'}],
@@ -237,7 +266,7 @@ test('spokeEnd handles a side straddling zero degrees', () => {
 });
 
 test('THEME defines every colour the ground layer draws with', () => {
-  for (const key of ['bg', 'ring', 'ringLabel', 'spoke', 'grid']) {
+  for (const key of ['bg', 'ring', 'ringLabel', 'spoke']) {
     assert.strictEqual(typeof ht.THEME[key], 'string', `THEME.${key} missing`);
   }
   assert.ok(Array.isArray(ht.THEME.sides) && ht.THEME.sides.length >= 4,
@@ -272,6 +301,48 @@ test('sideColour is defensive against a non-numeric side id', () => {
     `sideColour(NaN) was ${ht.sideColour(NaN, ht.THEME)}`);
 });
 
+test('bandLabelAngleDeg returns +X when there are no bearings to avoid', () => {
+  assert.strictEqual(ht.bandLabelAngleDeg([]), 0);
+  assert.strictEqual(ht.bandLabelAngleDeg([{bearing_mean: NaN}]), 0);
+});
+
+test('bandLabelAngleDeg avoids a bearing sitting on +X, unlike the old fixed-axis approach', () => {
+  // Mirrors Node Beta: side 2 sits at bearing_mean 4.7 -- essentially +X,
+  // the exact axis the earlier fixed-angle approach used for every battle.
+  const angle = ht.bandLabelAngleDeg([{bearing_mean: 4.7}, {bearing_mean: 211}]);
+  for (const b of [4.7, 211]) {
+    const diff = Math.min(Math.abs(angle - b), 360 - Math.abs(angle - b));
+    assert.ok(diff > 30, `angle ${angle} is only ${diff} degrees from bearing ${b}`);
+  }
+});
+
+test('bandLabelAngleDeg finds the widest gap across four real bearings (Kitalpha)', () => {
+  const angle = ht.bandLabelAngleDeg([
+    {bearing_mean: 81.9}, {bearing_mean: 120.7}, {bearing_mean: 152.3}, {bearing_mean: 271.7},
+  ]);
+  for (const b of [81.9, 120.7, 152.3, 271.7]) {
+    const diff = Math.min(Math.abs(angle - b), 360 - Math.abs(angle - b));
+    assert.ok(diff > 20, `angle ${angle} is only ${diff} degrees from bearing ${b}`);
+  }
+});
+
+test('bandLabelOffset alternates sign by ring index, perpendicular to the label axis', () => {
+  const even = ht.bandLabelOffset(0, 0); // axis along +X -> perpendicular is +/-Y
+  const odd = ht.bandLabelOffset(1, 0);
+  assert.ok(Math.abs(even.dx) < 1e-9, `dx ${even.dx} should be ~0 perpendicular to +X`);
+  assert.ok(Math.abs(even.dy + odd.dy) < 1e-9,
+    'even and odd ring indices must offset in opposite directions');
+  assert.notStrictEqual(even.dy, 0, 'the stagger must actually move the label');
+});
+
+test('spokeLabelOffset pushes the label outward along the bearing direction', () => {
+  const east = ht.spokeLabelOffset(0, 10);
+  assert.ok(Math.abs(east.dx - 10) < 1e-9 && Math.abs(east.dy) < 1e-9);
+  const south = ht.spokeLabelOffset(90, 10);
+  assert.ok(Math.abs(south.dx) < 1e-9 && Math.abs(south.dy - 10) < 1e-9,
+    `south ${JSON.stringify(south)} must point along +Y, this file's "south" per the model convention`);
+});
+
 test('hullTransform centres a footprint and scales it to the drawn length', () => {
   // The contract: viewBox 1020 wide, 1000 units of hull, 10-unit margins, so
   // the hull centre is (510, height/2) and hull length is 1000.
@@ -298,6 +369,19 @@ test('busiestTick finds the frame with the most ships actively targeting', () =>
 test('busiestTick falls back to the first frame when nobody ever targets', () => {
   const replay = {frames: [{tick: 7, ships: [{player_id: 'a'}]}]};
   assert.strictEqual(ht.busiestTick(replay), 7);
+});
+
+test('busiestTick breaks an all-zero-targeting tie by the frame with more live ships', () => {
+  // No ship in this replay ever targets anything, so every frame ties at a
+  // target count of 0. Without the secondary key, `count > bestCount` fires
+  // only on frame 0 and busiestTick returns tick 1 — the exact frame the
+  // docstring says it exists to avoid.
+  const replay = {frames: [
+    {tick: 1, ships: [{player_id: 'a'}]},
+    {tick: 2, ships: [{player_id: 'a'}, {player_id: 'b'}, {player_id: 'c'}]},
+    {tick: 3, ships: [{player_id: 'a'}, {player_id: 'b'}]},
+  ]};
+  assert.strictEqual(ht.busiestTick(replay), 2);
 });
 
 test('pickFrame returns the requested tick, else the busiest', () => {

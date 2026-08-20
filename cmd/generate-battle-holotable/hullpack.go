@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/rsned/spacemolt-kb/pkg/footprint"
 )
@@ -69,8 +68,16 @@ const defaultScale = 1
 // BuildHullPack resolves every distinct ship class in rep to a drawable Hull.
 // Classes with no art are included with Kind "missing" rather than omitted, so
 // the renderer can draw a marked chevron and the operator can see the gap.
-func BuildHullPack(rep Replay, dir string, scales map[string]int) (map[string]Hull, error) {
+//
+// The second return value is every footprint.Check problem found, keyed by
+// ship class. Parse deliberately does not validate the asset contract, so a
+// caller can still render a slightly off asset — but something has to do the
+// reporting, or a drifted footprint (say, a viewBox width off the renderer's
+// hardcoded FOOTPRINT_WIDTH) renders silently mis-centred forever. Check is
+// the thing that catches that; main.go logs whatever it finds.
+func BuildHullPack(rep Replay, dir string, scales map[string]int) (map[string]Hull, map[string][]string, error) {
 	pack := make(map[string]Hull)
+	problems := make(map[string][]string)
 
 	for _, p := range rep.Participants {
 		if _, seen := pack[p.ShipClass]; seen {
@@ -89,18 +96,23 @@ func BuildHullPack(rep Replay, dir string, scales map[string]int) (map[string]Hu
 			continue
 		}
 
-		data, err := os.ReadFile(filepath.Join(dir, p.ShipClass+".svg"))
+		path := filepath.Join(dir, p.ShipClass+".svg")
+		data, err := os.ReadFile(path)
 		if errors.Is(err, fs.ErrNotExist) {
 			pack[p.ShipClass] = Hull{Ship: p.ShipClass, Kind: kindMissing, Scale: scale}
 			continue
 		}
 		if err != nil {
-			return nil, fmt.Errorf("read footprint for %q: %w", p.ShipClass, err)
+			return nil, nil, fmt.Errorf("read footprint for %q: %w", p.ShipClass, err)
 		}
 
 		f, err := footprint.Parse(data)
 		if err != nil {
-			return nil, fmt.Errorf("parse footprint for %q: %w", p.ShipClass, err)
+			return nil, nil, fmt.Errorf("parse footprint for %q: %w", p.ShipClass, err)
+		}
+
+		if probs := footprint.Check(f, path); len(probs) > 0 {
+			problems[p.ShipClass] = probs
 		}
 
 		pack[p.ShipClass] = Hull{
@@ -115,10 +127,5 @@ func BuildHullPack(rep Replay, dir string, scales map[string]int) (map[string]Hu
 		}
 	}
 
-	return pack, nil
-}
-
-// ftoa formats a float compactly for generated SVG and test fixtures.
-func ftoa(v float64) string {
-	return strconv.FormatFloat(v, 'g', -1, 64)
+	return pack, problems, nil
 }

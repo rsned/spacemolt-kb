@@ -88,7 +88,7 @@ present show real hull/shield fractions.
 
 ## What the render actually shows
 
-**Node Beta** (`?tick=1615393`, the busiest frame — 8 ships targeting at
+**Node Beta** (`?tick=1615393`, the busiest frame — 39 ships targeting at
 once): two sides, red (`SIDE 1`, 11 ships) and green (`SIDE 2`, 31 ships,
 including the station). Four concentric rings labelled ENGAGED / INNER /
 MID / OUTER outward from centre, `agreesWithMeasurement: true` — the
@@ -196,14 +196,27 @@ disagreement — is not excluded by what's rendered here.
   plus `overflow: hidden` on `body` in `cmd/generate-battle-holotable/page.go`,
   and both committed battle pages regenerated through the actual
   generator, not hand-edited.)
-- Side palette legibility: yes, distinguishable. Node Beta's two sides
-  (cyan-ish red `#e8734f` vs the base `#4fd0e8`... actually rendered as a
-  clear red/orange vs. green split — see screenshot) read instantly apart
-  even before reading the `SIDE N` labels. Kitalpha's four sides (red,
-  cyan/white, green, and a fourth muted tone) are also each individually
-  identifiable, though with only 1–2 ships per side and a five-participant
-  battle this is a low bar; the palette has not yet been tested on a
-  four-plus-side battle with real per-side density.
+- Side palette legibility: yes, distinguishable. Node Beta's two sides —
+  side 1 `#e8734f` (orange-red) vs. side 2 `#7fe08a` (green) — read instantly
+  apart even before reading the `SIDE N` labels. Kitalpha's four sides map to
+  `#e8734f`, `#7fe08a`, `#d9a0e8`, `#e8d24f`: orange-red, green, violet,
+  yellow, with no cyan anywhere on either table except the ring and
+  targeting structure. Each is individually identifiable, though with only
+  1–2 ships per side and a five-participant battle this is a low bar; the
+  palette has not yet been tested on a four-plus-side battle with real
+  per-side density.
+- Zone band label placement (I2, post-review): the first render of both
+  fixtures had the four band labels (ENGAGED/INNER/MID/OUTER) overlapping
+  each other along a fixed +X axis, and on Node Beta a side label was
+  written straight through them — Node Beta's side 2 sits at bearing_mean
+  4.7°, essentially the same +X axis the labels used. Fixed by picking the
+  label axis dynamically (the widest angular gap between the battle's own
+  side bearings, via `bandLabelAngleDeg`) and staggering alternating labels
+  perpendicular to it (`bandLabelOffset`), both pure functions with unit
+  tests. Re-rendered and re-screenshotted on both fixtures: no overlap
+  between band labels, none between a band label and a side label. See
+  `img/holotable-p1a/node-beta-full.jpg` and `kitalpha-full.jpg`
+  (regenerated) for the corrected render.
 
 ## What P1b should change before adding playback
 

@@ -15,9 +15,17 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	_ "modernc.org/sqlite"
 )
+
+// battleIDPattern is every battle_id this generator has ever seen: 32 lowercase
+// hex characters. Enforced before the id reaches filepath.Join so a replay
+// carrying a path-traversal payload (e.g. "../../etc") can't write outside
+// --out. The inputs today are trusted local fixtures, so this is hygiene
+// rather than a live vulnerability — but it costs two lines.
+var battleIDPattern = regexp.MustCompile(`^[0-9a-f]{32}$`)
 
 func main() {
 	replayPath := flag.String("replay", "", "exported replay model JSON (required)")
@@ -43,6 +51,9 @@ func main() {
 	if rep.BattleID == "" {
 		log.Fatalf("replay %s has no battle_id", *replayPath)
 	}
+	if !battleIDPattern.MatchString(rep.BattleID) {
+		log.Fatalf("replay %s has battle_id %q, want 32 lowercase hex characters", *replayPath, rep.BattleID)
+	}
 
 	db, err := sql.Open("sqlite", *dbPath)
 	if err != nil {
@@ -55,7 +66,7 @@ func main() {
 		log.Fatalf("load ship scales: %v", err)
 	}
 
-	pack, err := BuildHullPack(rep, *footprints, scales)
+	pack, problems, err := BuildHullPack(rep, *footprints, scales)
 	if err != nil {
 		log.Fatalf("build hull pack: %v", err)
 	}
@@ -92,8 +103,13 @@ func main() {
 			log.Printf("footprint for %q is flagged frame-ambiguous", h.Ship)
 		}
 	}
-	log.Printf("%s: %d participants, %d ship classes, %d without art, %d frame-ambiguous",
-		rep.BattleID, len(rep.Participants), len(pack), missing, ambiguous)
+	for ship, probs := range problems {
+		for _, p := range probs {
+			log.Printf("footprint for %q fails the asset contract: %s", ship, p)
+		}
+	}
+	log.Printf("%s: %d participants, %d ship classes, %d without art, %d frame-ambiguous, %d with contract problems",
+		rep.BattleID, len(rep.Participants), len(pack), missing, ambiguous, len(problems))
 }
 
 // writeFile writes or dies; every caller here treats a write failure as fatal.
@@ -108,7 +124,11 @@ func writeFile(path string, data []byte) {
 // draw size, so a scale-1 cobble and a scale-4 junk_convoy share a table
 // correctly rather than rendering the same size.
 func LoadScales(db *sql.DB) (map[string]int, error) {
-	rows, err := db.Query(`SELECT id, scale FROM ships`)
+	// COALESCE(scale, 0): a NULL scale anywhere in the table would otherwise
+	// fail the int scan and abort the whole generator. 0 flows straight into
+	// BuildHullPack's existing `scale <= 0 -> defaultScale` fallback, so this
+	// is free — it just moves the "unknown scale" handling to one place.
+	rows, err := db.Query(`SELECT id, COALESCE(scale, 0) FROM ships`)
 	if err != nil {
 		return nil, fmt.Errorf("query ships: %w", err)
 	}
