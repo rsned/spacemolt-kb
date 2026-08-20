@@ -38,6 +38,11 @@ type Footprint struct {
 	// pathCount is how many <path> elements the file carried. The contract is
 	// exactly one; Check reports anything else.
 	pathCount int
+	// hasAspect is whether data-aspect was present at all. Aspect alone
+	// can't distinguish "absent" from "present and zero", so Check needs
+	// this to report a missing attribute instead of silently skipping the
+	// tolerance comparison.
+	hasAspect bool
 }
 
 // svgRoot mirrors only the attributes the contract cares about.
@@ -82,6 +87,7 @@ func Parse(data []byte) (Footprint, error) {
 		return Footprint{}, fmt.Errorf("viewBox height %q: %w", fields[3], err)
 	}
 	if root.Aspect != "" {
+		f.hasAspect = true
 		if f.Aspect, err = strconv.ParseFloat(root.Aspect, 64); err != nil {
 			return Footprint{}, fmt.Errorf("data-aspect %q: %w", root.Aspect, err)
 		}

@@ -90,6 +90,13 @@ func TestCheckRejectsContractViolations(t *testing.T) {
 			filename: "dirk.svg",
 			want:     "aspect",
 		},
+		{
+			name: "data-aspect attribute missing entirely",
+			svg: `<svg viewBox="0 0 1020 628" data-ship="dirk">` +
+				`<path d="M0 0Z"/></svg>`,
+			filename: "dirk.svg",
+			want:     "aspect",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

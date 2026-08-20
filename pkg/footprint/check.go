@@ -57,7 +57,9 @@ func Check(f Footprint, filename string) []string {
 		problems = append(problems, fmt.Sprintf("%d path elements, want exactly 1", f.pathCount))
 	}
 
-	if f.Aspect > 0 && f.Height > marginTotal {
+	if !f.hasAspect {
+		problems = append(problems, "data-aspect is missing; a pipeline regression that stops emitting it would go undetected")
+	} else if f.Height > marginTotal {
 		want := 1000 / (f.Height - marginTotal)
 		if math.Abs(f.Aspect-want) > aspectTolerance {
 			problems = append(problems, fmt.Sprintf(
