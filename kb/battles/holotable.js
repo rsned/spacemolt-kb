@@ -241,15 +241,31 @@ function spokeEnd(bearingDeg, radius, centre) {
 }
 
 // sideColour cycles the palette, because the number of sides has no known upper
-// bound and running off the end must not produce undefined.
+// bound and running off the end must not produce undefined. A non-finite id
+// (a malformed side_id from upstream) falls back to index 0 rather than
+// letting NaN reach ctx.fillStyle as undefined.
 function sideColour(sideId, theme) {
   const palette = theme.sides;
-  return palette[Math.abs(sideId) % palette.length];
+  const id = Number.isFinite(sideId) ? sideId : 0;
+  return palette[Math.abs(id) % palette.length];
+}
+
+// outerRadius is the spoke length: the outermost ring's rOuter. Pulled out of
+// drawGround because it is pure computation, not drawing, and the fallback of
+// 1 (a battle with no measured zones at all) needs its own test coverage
+// rather than living unverified inside an untestable canvas function.
+function outerRadius(rings) {
+  return rings.length ? rings[rings.length - 1].rOuter : 1;
 }
 
 // drawGround lays the table down: zone bands as true circles, one spoke per
 // side, and a label per band.
 function drawGround(ctx, view, centre, rings, sides, theme) {
+  // save/restore brackets every style mutation below (strokeStyle, lineWidth,
+  // fillStyle, font, textAlign) so the ship and targeting layers drawn right
+  // after this one inherit the canvas's own defaults, not whatever the ground
+  // layer left behind.
+  ctx.save();
   const c = project(centre.x, centre.y, view);
 
   // Bands, outermost first so inner rings draw over the fill.
@@ -263,8 +279,15 @@ function drawGround(ctx, view, centre, rings, sides, theme) {
   }
 
   // Spokes: each side's axis of advance and retreat.
-  const outer = rings.length ? rings[rings.length - 1].rOuter : 1;
+  const outer = outerRadius(rings);
   for (const side of sides) {
+    // Real data always carries a finite bearing_mean (the adapter's own
+    // unit-vector averaging guarantees it); this guards against adapter
+    // breakage, not normal operation. Canvas silently no-ops on NaN
+    // coordinates rather than throwing, so without this a bad bearing would
+    // just drop a spoke with no visible sign of why.
+    if (!Number.isFinite(side.bearing_mean)) continue;
+
     const end = spokeEnd(side.bearing_mean, outer, centre);
     const p = project(end.x, end.y, view);
     ctx.beginPath();
@@ -287,14 +310,21 @@ function drawGround(ctx, view, centre, rings, sides, theme) {
   ctx.textAlign = 'left';
   for (const ring of rings) {
     const at = project(centre.x + ring.rOuter, centre.y, view);
-    ctx.fillText(ring.zone.toUpperCase(), at.px + 4, c.py - 4);
+    // at.py, not c.py: they coincide today only because project() is
+    // axis-aligned. P3 replaces project() with a tilted 2.5D projection —
+    // that seam is the whole reason it's isolated — and once it does, a
+    // label positioned at the centre's y instead of its own ring's y would
+    // silently drift off the band it names.
+    ctx.fillText(ring.zone.toUpperCase(), at.px + 4, at.py - 4);
   }
+
+  ctx.restore();
 }
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     fitView, project, zoneRings, headingOf, hullPixels, hullState,
-    spokeEnd, sideColour, drawGround, THEME,
+    spokeEnd, sideColour, outerRadius, drawGround, THEME,
     HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER,
   };
 }

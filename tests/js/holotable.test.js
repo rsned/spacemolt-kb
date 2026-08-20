@@ -243,3 +243,31 @@ test('THEME defines every colour the ground layer draws with', () => {
   assert.ok(Array.isArray(ht.THEME.sides) && ht.THEME.sides.length >= 4,
     'side colours must cover at least four sides; three- and four-way battles occur');
 });
+
+test('outerRadius returns the outermost ring radius when rings exist', () => {
+  const rings = [{rOuter: 1}, {rOuter: 2}, {rOuter: 5}];
+  assert.strictEqual(ht.outerRadius(rings), 5);
+});
+
+test('outerRadius falls back to a unit radius when there are no rings', () => {
+  // A battle with no measured zones must still give drawGround a spoke
+  // length to draw, rather than a length of 0 or NaN.
+  assert.strictEqual(ht.outerRadius([]), 1);
+});
+
+test('sideColour cycles across many side ids without ever returning undefined', () => {
+  const theme = ht.THEME;
+  for (const id of [0, 6, 7, -1, 99]) {
+    const colour = ht.sideColour(id, theme);
+    assert.strictEqual(typeof colour, 'string', `sideColour(${id}) was ${colour}`);
+  }
+  assert.strictEqual(ht.sideColour(0, theme), ht.sideColour(6, theme),
+    'a six-colour palette must cycle back around at index 6');
+});
+
+test('sideColour is defensive against a non-numeric side id', () => {
+  // Outside the stated contract, but a malformed side_id from upstream must
+  // still yield a colour string, not undefined reaching ctx.fillStyle.
+  assert.strictEqual(typeof ht.sideColour(NaN, ht.THEME), 'string',
+    `sideColour(NaN) was ${ht.sideColour(NaN, ht.THEME)}`);
+});
