@@ -214,3 +214,32 @@ test('hullState reports unknown when the maximum is missing', () => {
   assert.strictEqual(s.hull, null, 'no max means no fraction to draw');
   assert.strictEqual(s.shield, null);
 });
+
+test('spokeEnd places a side at its own bearing', () => {
+  const centre = {x: 0, y: 0};
+  const east = ht.spokeEnd(0, 2, centre);
+  assert.ok(Math.abs(east.x - 2) < 1e-9, `x ${east.x}`);
+  assert.ok(Math.abs(east.y - 0) < 1e-9, `y ${east.y}`);
+
+  const south = ht.spokeEnd(90, 2, centre);
+  assert.ok(Math.abs(south.x - 0) < 1e-9, `x ${south.x}`);
+  assert.ok(Math.abs(south.y - 2) < 1e-9,
+    `y ${south.y} — bearing must use the same atan2 convention as the model`);
+});
+
+test('spokeEnd handles a side straddling zero degrees', () => {
+  // The adapter already averaged bearings as unit vectors; the renderer must
+  // not reintroduce the wrap bug by treating degrees as a plain number line.
+  const a = ht.spokeEnd(350, 1, {x: 0, y: 0});
+  const b = ht.spokeEnd(-10, 1, {x: 0, y: 0});
+  assert.ok(Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9,
+    '350 and -10 degrees are the same direction');
+});
+
+test('THEME defines every colour the ground layer draws with', () => {
+  for (const key of ['bg', 'ring', 'ringLabel', 'spoke', 'grid']) {
+    assert.strictEqual(typeof ht.THEME[key], 'string', `THEME.${key} missing`);
+  }
+  assert.ok(Array.isArray(ht.THEME.sides) && ht.THEME.sides.length >= 4,
+    'side colours must cover at least four sides; three- and four-way battles occur');
+});

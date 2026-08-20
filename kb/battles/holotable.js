@@ -212,9 +212,89 @@ function fractionOf(value, max, dead) {
   return Math.min(1, value / max);
 }
 
+// THEME is the holo palette, carried over from the point-cloud demo: a dark
+// field with cyan structure. Side colours must cover at least four sides —
+// three- and four-way battles occur and the upper bound is unknown, so the list
+// is cycled rather than indexed blindly.
+const THEME = {
+  bg: '#05080d',
+  ring: 'rgba(90, 190, 220, 0.20)',
+  ringLabel: 'rgba(120, 200, 225, 0.55)',
+  spoke: 'rgba(90, 190, 220, 0.14)',
+  grid: 'rgba(60, 130, 160, 0.10)',
+  hullUnknown: 'rgba(160, 160, 170, 0.5)',
+  targetLine: 'rgba(120, 210, 235, 0.16)',
+  wreck: 'rgba(140, 90, 80, 0.55)',
+  missingArt: 'rgba(230, 170, 90, 0.9)',
+  // Six colours: four-way battles are confirmed and the upper bound on
+  // sides is unknown, so the list is cycled rather than indexed blindly.
+  sides: ['#4fd0e8', '#e8734f', '#7fe08a', '#d9a0e8', '#e8d24f', '#8f9ae8'],
+};
+
+// spokeEnd converts a side's mean bearing into a model-space point at radius r.
+// The bearing is degrees in the same atan2 convention the adapter used, so this
+// is a plain polar conversion and inherits the unit-vector averaging the
+// adapter already did.
+function spokeEnd(bearingDeg, radius, centre) {
+  const rad = bearingDeg * Math.PI / 180;
+  return {x: centre.x + Math.cos(rad) * radius, y: centre.y + Math.sin(rad) * radius};
+}
+
+// sideColour cycles the palette, because the number of sides has no known upper
+// bound and running off the end must not produce undefined.
+function sideColour(sideId, theme) {
+  const palette = theme.sides;
+  return palette[Math.abs(sideId) % palette.length];
+}
+
+// drawGround lays the table down: zone bands as true circles, one spoke per
+// side, and a label per band.
+function drawGround(ctx, view, centre, rings, sides, theme) {
+  const c = project(centre.x, centre.y, view);
+
+  // Bands, outermost first so inner rings draw over the fill.
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i].rOuter * view.scale;
+    ctx.beginPath();
+    ctx.arc(c.px, c.py, r, 0, Math.PI * 2);
+    ctx.strokeStyle = theme.ring;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Spokes: each side's axis of advance and retreat.
+  const outer = rings.length ? rings[rings.length - 1].rOuter : 1;
+  for (const side of sides) {
+    const end = spokeEnd(side.bearing_mean, outer, centre);
+    const p = project(end.x, end.y, view);
+    ctx.beginPath();
+    ctx.moveTo(c.px, c.py);
+    ctx.lineTo(p.px, p.py);
+    ctx.strokeStyle = theme.spoke;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = sideColour(side.side_id, theme);
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`SIDE ${side.side_id} (${side.count})`, p.px, p.py - 6);
+  }
+
+  // Band labels along the +X axis, where a spoke is least likely to sit on top
+  // of them for a two-side battle.
+  ctx.fillStyle = theme.ringLabel;
+  ctx.font = '10px ui-monospace, monospace';
+  ctx.textAlign = 'left';
+  for (const ring of rings) {
+    const at = project(centre.x + ring.rOuter, centre.y, view);
+    ctx.fillText(ring.zone.toUpperCase(), at.px + 4, c.py - 4);
+  }
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     fitView, project, zoneRings, headingOf, hullPixels, hullState,
+    spokeEnd, sideColour, drawGround, THEME,
     HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER,
   };
 }
