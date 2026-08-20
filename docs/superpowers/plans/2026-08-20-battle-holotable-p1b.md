@@ -533,7 +533,8 @@ test('advance moves t within a tick without crossing a boundary', () => {
 });
 
 test('advance crosses one boundary and reports it', () => {
-  const out = hp.advance(clock({t: 0.8}), 200, opts);
+  // 0.8 + 100/500 = exactly 1.0, so this lands precisely on the boundary.
+  const out = hp.advance(clock({t: 0.8}), 100, opts);
   assert.strictEqual(out.frameIndex, 1);
   assert.ok(Math.abs(out.t - 0) < 1e-9, `t ${out.t}`);
   assert.deepStrictEqual(out.crossed, [1]);
