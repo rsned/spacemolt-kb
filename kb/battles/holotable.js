@@ -462,30 +462,34 @@ function hullPath(hull) {
 // drawStationGlyph reproduces the official viewer's station mark — a filled
 // hexagon with a circle at each corner inside two concentric rings — so a
 // reader who has seen one viewer can read the other.
-function drawStationGlyph(ctx, px, py, r, colour) {
+function drawStationGlyph(ctx, px, py, r, colour, alpha) {
+  // The station sets its own per-element opacity, so a caller's fade has to be
+  // multiplied in rather than inherited from ctx.globalAlpha — an absolute
+  // assignment here would make a fading station snap back to full opacity.
+  const a = alpha === undefined ? 1 : alpha;
   ctx.save();
   ctx.translate(px, py);
 
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI / 3;
-    const x = Math.cos(a) * r;
-    const y = Math.sin(a) * r;
+    const ang = i * Math.PI / 3;
+    const x = Math.cos(ang) * r;
+    const y = Math.sin(ang) * r;
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.closePath();
   ctx.fillStyle = colour;
-  ctx.globalAlpha = 0.35;
+  ctx.globalAlpha = 0.35 * a;
   ctx.fill();
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = a;
   ctx.strokeStyle = colour;
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
   for (let i = 0; i < 6; i++) {
-    const a = i * Math.PI / 3;
+    const ang = i * Math.PI / 3;
     ctx.beginPath();
-    ctx.arc(Math.cos(a) * r, Math.sin(a) * r, r * 0.18, 0, Math.PI * 2);
+    ctx.arc(Math.cos(ang) * r, Math.sin(ang) * r, r * 0.18, 0, Math.PI * 2);
     ctx.fillStyle = colour;
     ctx.fill();
   }
@@ -494,10 +498,10 @@ function drawStationGlyph(ctx, px, py, r, colour) {
     ctx.beginPath();
     ctx.arc(0, 0, r * mult, 0, Math.PI * 2);
     ctx.strokeStyle = colour;
-    ctx.globalAlpha = 0.4;
+    ctx.globalAlpha = 0.4 * a;
     ctx.lineWidth = 1;
     ctx.stroke();
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = a;
   }
 
   ctx.restore();
@@ -555,15 +559,28 @@ function drawStateArcs(ctx, px, py, r, state, theme) {
   ctx.restore();
 }
 
+// alphaOf reads a ship's fade. Real frames carry no alpha — only the frames
+// interpolateFrame builds do — so an absent value means fully opaque. This
+// keeps the P1a path (draw one real frame) working untouched.
+function alphaOf(ship) {
+  return ship.alpha === undefined ? 1 : ship.alpha;
+}
+
 // drawShip draws one combatant: its silhouette at its heading, then its state.
 function drawShip(ctx, view, ship, participant, hull, opts) {
   const theme = opts.theme;
+  const a = opts.alpha === undefined ? 1 : opts.alpha;
+  // Fully transparent is not "draw it with no ink" — it is "do not draw". A
+  // ship at alpha 0 still costs a Path2D fill, a stroke and two arcs, and at
+  // ~400 hulls the frames on either side of every arrival and death are
+  // entirely made of them.
+  if (!(a > 0)) return;
   const p = project(ship.x, ship.y, view);
   const lengthPx = hullPixels(hull.scale, opts);
   const colour = opts.dead ? theme.wreck : sideColour(participant.side_id, theme);
 
   if (hull.kind === 'station') {
-    drawStationGlyph(ctx, p.px, p.py, lengthPx * 0.6, colour);
+    drawStationGlyph(ctx, p.px, p.py, lengthPx * 0.6, colour, a);
     return;
   }
 
@@ -575,8 +592,11 @@ function drawShip(ctx, view, ship, participant, hull, opts) {
   // direct test of "is there anything to draw here."
   const path = hullPath(hull);
   if (!path) {
+    ctx.save();
+    ctx.globalAlpha = a;
     drawMissingGlyph(ctx, p.px, p.py, lengthPx * 0.5, theme.missingArt);
     drawStateArcs(ctx, p.px, p.py, lengthPx * 0.5, opts.state, theme);
+    ctx.restore();
     return;
   }
 
@@ -588,9 +608,9 @@ function drawShip(ctx, view, ship, participant, hull, opts) {
   ctx.translate(-t.cx, -t.cy);
 
   ctx.fillStyle = colour;
-  ctx.globalAlpha = opts.dead ? 0.25 : 0.45;
+  ctx.globalAlpha = a * (opts.dead ? 0.25 : 0.45);
   ctx.fill(path, 'evenodd');
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = a;
   ctx.strokeStyle = colour;
   // Undo the scale so the outline is a constant pixel width whatever the hull.
   // t.scale is lengthPx / FOOTPRINT_HULL_LENGTH with lengthPx guarded > 0 by
@@ -599,7 +619,10 @@ function drawShip(ctx, view, ship, participant, hull, opts) {
   ctx.stroke(path);
   ctx.restore();
 
+  ctx.save();
+  ctx.globalAlpha = a;
   drawStateArcs(ctx, p.px, p.py, lengthPx * 0.5, opts.state, theme);
+  ctx.restore();
 }
 
 // busiestTick picks the most informative single frame: the one where the most
@@ -665,111 +688,99 @@ function tableBounds(bounds, centre, outerR) {
   };
 }
 
-// drawFrame renders one tick of the battle onto ctx.
-function drawFrame(ctx, replay, hulls, frame, width, height) {
-  // TODO(P1b): zoneRings scans every ship of every frame in the replay, and
-  // it's called here — from a per-frame draw function. Free today (P1a draws
-  // once), but a playback loop calling drawFrame sixty times a second would
-  // redo the whole-battle scan every frame. Deliberately not restructuring
-  // drawFrame's signature to hoist this out during a final fix wave — the
-  // risk outweighs a performance problem that doesn't exist until playback.
-  //
-  // TODO(P1b): this save() (and the matching restore() below) isn't wrapped
-  // in try/finally. Matches the rest of the file's convention, and today the
-  // canvas is discarded on any error anyway — but P1b reuses the same
-  // context every frame, and an unbalanced save from a mid-frame throw would
-  // then survive into the next frame instead of vanishing with the canvas.
-  ctx.save();
+// layoutTable computes everything about a battle's table that does not change
+// from tick to tick: the zone rings, the bounds that contain both the ships and
+// the outermost ring, and the view that maps model space onto the canvas.
+//
+// It is pure and depends only on the replay and the canvas size, which is the
+// whole point: P1b bakes the static layer once from this, so the whole-battle
+// scan inside zoneRings stops happening per frame. It also puts the
+// deriveZoneOrder threading somewhere a test can reach without a canvas.
+function layoutTable(replay, width, height) {
   const rings = zoneRings(replay.frames, replay.centre, {zoneOrder: deriveZoneOrder(replay)});
   const bounds = tableBounds(replay.bounds, replay.centre, outerRadius(rings));
   const view = fitView(bounds, width, height, TABLE_MARGIN);
+  return {rings, bounds, view};
+}
 
-  ctx.fillStyle = THEME.bg;
-  ctx.fillRect(0, 0, width, height);
-
-  drawGround(ctx, view, replay.centre, rings, replay.sides, THEME);
-
-  const shipsById = new Map(frame.ships.map(s => [s.player_id, s]));
-  const partById = new Map(replay.participants.map(p => [p.player_id, p]));
-
-  // Targeting lines first, so hulls draw over them.
+// drawStatic paints everything that does not change from tick to tick: the
+// field, the zone rings, the side spokes and their labels.
+//
+// It is separate from the ships because P1b bakes it once into an offscreen
+// canvas and blits it every frame. drawGround measures nothing per-frame, but
+// it is a substantial amount of stroking and text at ~400 hulls' worth of
+// canvas, and none of it changes until the window resizes.
+function drawStatic(ctx, replay, layout, width, height) {
   ctx.save();
-  ctx.strokeStyle = THEME.targetLine;
-  ctx.lineWidth = 1;
-  for (const ship of frame.ships) {
-    const target = ship.target_id ? shipsById.get(ship.target_id) : null;
-    if (!target) continue;
-    const a = project(ship.x, ship.y, view);
-    const b = project(target.x, target.y, view);
-    ctx.beginPath();
-    ctx.moveTo(a.px, a.py);
-    ctx.lineTo(b.px, b.py);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  for (const ship of frame.ships) {
-    const participant = partById.get(ship.player_id);
-    if (!participant) continue;
-    const hull = hulls[participant.ship_class] || {kind: 'missing', scale: 1};
-    const state = hullState(ship, participant, frame.tick);
-    drawShip(ctx, view, ship, participant, hull, {
-      theme: THEME,
-      heading: headingOf(ship, shipsById, replay.centre),
-      state,
-      dead: state.dead,
-    });
-  }
-  ctx.restore();
-}
-
-// fetchJSON fetches and parses one data file, naming the URL and HTTP status
-// on failure — without this, a missing file surfaces to initHolotable's catch
-// as "Unexpected end of JSON input" from the JSON parser, not as the 404 that
-// actually caused it.
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
-  return res.json();
-}
-
-// initHolotable wires the page: fetch both data files, size the canvas to the
-// device, draw one frame.
-async function initHolotable() {
-  const cfg = window.HOLOTABLE;
-  const status = document.getElementById('status');
-  const canvas = document.getElementById('table');
-
   try {
-    const [replay, hulls] = await Promise.all([
-      fetchJSON(cfg.replayURL),
-      fetchJSON(cfg.hullsURL),
-    ]);
-
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-
-    const params = new URLSearchParams(window.location.search);
-    const wanted = params.has('tick') ? Number(params.get('tick')) : null;
-    const frame = pickFrame(replay, wanted);
-
-    drawFrame(ctx, replay, hulls, frame, width, height);
-
-    document.getElementById('tick').textContent = String(frame.tick);
-    status.textContent = '';
-  } catch (err) {
-    status.textContent = 'Could not draw the battle: ' + err.message;
+    ctx.fillStyle = THEME.bg;
+    ctx.fillRect(0, 0, width, height);
+    drawGround(ctx, layout.view, replay.centre, layout.rings, replay.sides, THEME);
+  } finally {
+    // try/finally, unlike the rest of this file's plain save/restore pairs:
+    // P1b reuses one context across every frame, so an unbalanced save from a
+    // mid-frame throw survives into the next frame instead of vanishing with
+    // a discarded canvas.
+    ctx.restore();
   }
 }
 
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initHolotable);
+// drawShips paints one tick's combatants over an already-painted static layer:
+// targeting lines first, then hulls on top of them.
+function drawShips(ctx, replay, hulls, frame, layout) {
+  ctx.save();
+  try {
+    const view = layout.view;
+    const shipsById = new Map(frame.ships.map(s => [s.player_id, s]));
+    const partById = new Map(replay.participants.map(p => [p.player_id, p]));
+
+    ctx.save();
+    ctx.strokeStyle = THEME.targetLine;
+    ctx.lineWidth = 1;
+    for (const ship of frame.ships) {
+      const target = ship.target_id ? shipsById.get(ship.target_id) : null;
+      if (!target) continue;
+      // A line is only as present as its faintest end: a line to a hull that
+      // is fading out must fade with it, or the targeting layer outlives the
+      // ships it describes.
+      const lineAlpha = Math.min(alphaOf(ship), alphaOf(target));
+      if (!(lineAlpha > 0)) continue;
+      ctx.globalAlpha = lineAlpha;
+      const a = project(ship.x, ship.y, view);
+      const b = project(target.x, target.y, view);
+      ctx.beginPath();
+      ctx.moveTo(a.px, a.py);
+      ctx.lineTo(b.px, b.py);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    for (const ship of frame.ships) {
+      const participant = partById.get(ship.player_id);
+      if (!participant) continue;
+      const hull = hulls[participant.ship_class] || {kind: 'missing', scale: 1};
+      const state = hullState(ship, participant, frame.tick);
+      drawShip(ctx, view, ship, participant, hull, {
+        theme: THEME,
+        heading: headingOf(ship, shipsById, replay.centre),
+        state,
+        dead: state.dead,
+        alpha: alphaOf(ship),
+      });
+    }
+  } finally {
+    ctx.restore();
+  }
+}
+
+// drawFrame renders one tick of the battle onto ctx, static layer and all.
+// P1a's entry point, kept for the single-frame path and for anything that just
+// wants a whole picture; the player calls drawStatic and drawShips separately
+// so it can bake the first and repeat only the second.
+function drawFrame(ctx, replay, hulls, frame, width, height) {
+  const layout = layoutTable(replay, width, height);
+  drawStatic(ctx, replay, layout, width, height);
+  drawShips(ctx, replay, hulls, frame, layout);
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -779,6 +790,7 @@ if (typeof module !== 'undefined' && module.exports) {
     HULL_PX_PER_SCALE, OUTER_RING_MARGIN, CANONICAL_ZONE_ORDER, deriveZoneOrder,
     bandLabelAngleDeg, bandLabelOffset, spokeLabelOffset,
     hullTransform, drawShip, drawStationGlyph, drawMissingGlyph, drawStateArcs,
-    busiestTick, pickFrame, drawFrame, tableBounds,
+    busiestTick, pickFrame, drawFrame, tableBounds, layoutTable,
+    drawStatic, drawShips, alphaOf,
   };
 }
