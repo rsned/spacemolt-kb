@@ -1,0 +1,316 @@
+#!/usr/bin/env python3
+"""Procedural deck-plan linework for the blueprint sheets.
+
+Everything is derived, deterministic, and data-driven — no RNG:
+  bridge     at the surveyed window's station along the hull
+             (window_t from compute_scale; default 0.72 when unsurveyed)
+  corridor   twin lines along the hull's column-wise midline
+  inner hull dashed offset of the outline (structural wall)
+  engines    bulkhead + thruster arcs in the stern lobes (stern = left,
+             matching the footprint bow-right convention)
+  tanks      near-circular arcs on the outline completed as dashed
+             full circles (Kasa least-squares fits over boundary windows)
+  cargo hold area fraction from the ship's cargo_capacity (log-normalized
+             over the fleet's 10..3000 range), hatched, aft of midships
+  cabins     partition walls off the corridor, spaced by an id-hash
+
+Needs skimage (run make_blueprints.py under ~/sf3d-venv); without it the
+sheet silently renders exterior-only.
+
+Coordinates are footprint viewBox units; the caller embeds the fragment
+inside the hull transform and passes its scale so strokes/text render at
+constant screen size.
+"""
+import hashlib
+import re
+
+import numpy as np
+
+CARGO_LO, CARGO_HI = 10.0, 3000.0
+
+
+def _h(seed: str, mod: int) -> int:
+    return int(hashlib.sha1(seed.encode()).hexdigest(), 16) % mod
+
+
+def parse_subpaths(d: str):
+    subs = []
+    for chunk in re.findall(r"M[^MZ]*Z?", d):
+        pts = np.array(re.findall(r"(-?[\d.]+)[ ,](-?[\d.]+)", chunk),
+                       dtype=np.float32)
+        if len(pts) >= 3:
+            subs.append(pts)
+    return subs
+
+
+def rasterize(subs, w, h):
+    """Even-odd fill = XOR of per-subpath fills."""
+    from PIL import Image, ImageDraw
+    mask = np.zeros((int(h), int(w)), bool)
+    for pts in subs:
+        im = Image.new("1", (int(w), int(h)))
+        ImageDraw.Draw(im).polygon([tuple(p) for p in pts], fill=1)
+        mask ^= np.array(im, bool)
+    return mask
+
+
+def _poly(pts, cls, closed=True):
+    d = "M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in pts) + ("Z" if closed else "")
+    return f'<path d="{d}" class="{cls}"/>'
+
+
+def _contour_paths(mask, cls, tol=1.5):
+    from skimage import measure
+    out = []
+    for c in measure.find_contours(mask.astype(float), 0.5):
+        if len(c) < 40:
+            continue
+        c = measure.approximate_polygon(c, tolerance=tol)
+        out.append(_poly(c[:, ::-1], cls))
+    return out
+
+
+def _kasa(pts):
+    """Least-squares circle fit -> (cx, cy, r, rms)."""
+    x, y = pts[:, 0], pts[:, 1]
+    A = np.column_stack([x, y, np.ones(len(x))])
+    b = x * x + y * y
+    try:
+        (a1, a2, a3), *_ = np.linalg.lstsq(A, b, rcond=None)
+    except np.linalg.LinAlgError:
+        return None
+    cx, cy = a1 / 2, a2 / 2
+    r = np.sqrt(a3 + cx * cx + cy * cy)
+    rms = np.sqrt(np.mean((np.hypot(x - cx, y - cy) - r) ** 2))
+    return cx, cy, r, rms
+
+
+def find_tanks(mask, w):
+    """Complete near-circular outline arcs as full circles."""
+    from skimage import measure
+    circles = []
+    for c in measure.find_contours(mask.astype(float), 0.5):
+        if len(c) < 60:
+            continue
+        pts = c[:: max(1, len(c) // 400), ::-1]      # (x, y), decimated
+        n = len(pts)
+        # several window sizes: a tank sphere's exposed arc can be much
+        # shorter than 1/14 of the perimeter (capacity's six side spheres)
+        for win in sorted({max(10, n // 30), max(12, n // 20), max(14, n // 14)}):
+            for i in range(0, n - win, max(3, win // 3)):
+                seg = pts[i:i + win]
+                fit = _kasa(seg)
+                if fit is None:
+                    continue
+                cx, cy, r, rms = fit
+                if not (0.025 * w < r < 0.30 * w) or rms > 0.036 * r:
+                    continue
+                # a tank bulge curves AROUND hull interior; a concave
+                # fillet's fitted center lands outside the hull — reject
+                iy, ix = int(round(cy)), int(round(cx))
+                if not (0 <= iy < mask.shape[0] and 0 <= ix < mask.shape[1]
+                        and mask[iy, ix]):
+                    continue
+                ang = np.unwrap(np.arctan2(seg[:, 1] - cy, seg[:, 0] - cx))
+                if abs(ang[-1] - ang[0]) < np.deg2rad(75):
+                    continue
+                for c2 in circles:                    # merge duplicates
+                    if np.hypot(c2[0] - cx, c2[1] - cy) < 0.7 * max(r, c2[2]):
+                        break
+                else:
+                    circles.append((cx, cy, r))
+    return circles
+
+
+def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
+              line_color="#eaf2ff"):
+    try:
+        from scipy.ndimage import binary_erosion, uniform_filter1d, label
+    except ImportError:
+        return ""
+    try:
+        import skimage  # noqa: F401
+    except ImportError:
+        return ""
+
+    subs = parse_subpaths(d)
+    if not subs:
+        return ""
+    W, H = int(vb_w), int(vb_h)
+    mask = rasterize(subs, W, H)
+    wt = max(3, int(0.011 * W))
+    inner = binary_erosion(mask, iterations=wt)
+    if inner.sum() < 400:
+        return ""
+
+    frags = list(_contour_paths(inner, "in-hull"))
+
+    # column profile of the main hull body ---------------------------------
+    # Runs are chosen for CONTINUITY, seeded at the tallest column and
+    # scanned outward both ways: picking the largest run per column
+    # independently made the centerline flip between stern lobes (the
+    # user's "weird zigzag").
+    cands = [None] * W
+    for x in range(W):
+        col = inner[:, x]
+        if not col.any():
+            continue
+        runs, n = label(col)
+        cc = []
+        for i in range(1, n + 1):
+            ys = np.nonzero(runs == i)[0]
+            cc.append(((ys[0] + ys[-1]) / 2, float(ys[-1] - ys[0])))
+        cands[x] = cc
+    cy = np.full(W, np.nan)
+    ch = np.zeros(W)
+    have = [x for x in range(W) if cands[x]]
+    if len(have) < 30:
+        return "".join(frags)
+    xseed = max(have, key=lambda x: max(c[1] for c in cands[x]))
+    for sweep in (range(xseed, W), range(xseed, -1, -1)):
+        prev = None
+        for x in sweep:
+            if not cands[x]:
+                continue
+            c = (max(cands[x], key=lambda c: c[1]) if prev is None
+                 else min(cands[x], key=lambda c: abs(c[0] - prev)))
+            cy[x], ch[x] = c
+            prev = c[0]
+    xs = np.nonzero(~np.isnan(cy))[0]
+    x0, x1 = int(xs[0]), int(xs[-1])
+    span = x1 - x0
+    cy[np.isnan(cy)] = np.interp(np.nonzero(np.isnan(cy))[0], xs, cy[xs])
+    cy = uniform_filter1d(cy, size=max(9, span // 20))
+
+    hw = float(np.clip(0.011 * W, 2.5, 8.0))    # corridor drawn after cargo
+
+    # bridge at the surveyed window station --------------------------------
+    t = window_t if window_t is not None else 0.72
+    xb = x0 + t * span
+    bl = 0.036 * span
+    xb = float(np.clip(xb, x0 + bl + 2, x1 - bl - 2))
+    ybc = float(cy[int(xb)])
+    bw = float(min(3.2 * hw, 0.42 * max(ch[int(xb)], 4 * hw)))
+    frags.append(f'<rect x="{xb - bl:.1f}" y="{ybc - bw:.1f}" width="{2 * bl:.1f}" '
+                 f'height="{2 * bw:.1f}" rx="{0.4 * bw:.1f}" class="deck-rm"/>')
+    xcon = xb + bl * 0.45                       # console arc, bow side
+    frags.append(f'<path d="M{xcon:.1f} {ybc - 0.55 * bw:.1f} '
+                 f'A{0.7 * bw:.1f} {0.7 * bw:.1f} 0 0 1 {xcon:.1f} {ybc + 0.55 * bw:.1f}" '
+                 f'class="deck-ln"/>')
+    frags.append(f'<text x="{xb:.1f}" y="{ybc - bw - 6 / s:.1f}" '
+                 f'text-anchor="middle" class="deck-lb">BRIDGE</text>')
+
+    # engineering: stern bulkhead + thruster arcs --------------------------
+    xe = x0 + 0.13 * span
+    col = inner[:, int(xe)]
+    runs, n = label(col)
+    for i in range(1, n + 1):
+        ys = np.nonzero(runs == i)[0]
+        if len(ys) < 3:
+            continue
+        frags.append(f'<line x1="{xe:.1f}" y1="{ys[0]}" x2="{xe:.1f}" '
+                     f'y2="{ys[-1]}" class="deck-ln"/>')
+        yc = (ys[0] + ys[-1]) / 2
+        rr = min((ys[-1] - ys[0]) / 2, 0.06 * span)   # pods, not hull-wide
+        for k in (0.55, 0.8):
+            frags.append(f'<path d="M{xe - 4:.1f} {yc - rr * k:.1f} '
+                         f'A{rr * k:.1f} {rr * k:.1f} 0 0 0 '
+                         f'{xe - 4:.1f} {yc + rr * k:.1f}" class="deck-ln"/>')
+    frags.append(f'<text x="{x0 + 0.065 * span:.1f}" y="{cy[int(x0 + 0.065 * span)] - 8 / s:.1f}" '
+                 f'text-anchor="middle" class="deck-lb">ENG</text>')
+
+    # cargo hold sized by capacity -----------------------------------------
+    xc0 = xc1 = None
+    if cargo_capacity and cargo_capacity > 0:
+        f = np.clip((np.log(cargo_capacity) - np.log(CARGO_LO))
+                    / (np.log(CARGO_HI) - np.log(CARGO_LO)), 0, 1)
+        target = (0.10 + 0.30 * f) * inner.sum()
+        xc0 = xe + 2
+        if xb - bl < xc0 + 0.1 * span:          # bridge sits aft: hold fwd
+            xc0 = xb + bl + 2
+        acc, xc1 = 0.0, xc0
+        while xc1 < x1 - 0.05 * span and acc < target:
+            acc += inner[:, int(xc1)].sum()
+            xc1 += 1
+        if xb - bl > xc0:                        # never swallow the bridge
+            xc1 = min(xc1, xb - bl - 2)
+        hold = (xc0, xc1) if xc1 - xc0 > 0.06 * span else None
+        if hold:
+            region = inner.copy()
+            region[:, :int(xc0)] = False
+            region[:, int(xc1):] = False
+            cps = _contour_paths(region, "deck-ln")
+            frags += cps
+            cid = f"cargo_{ship_id}"
+            clip = "".join(p.replace('class="deck-ln"', "") for p in cps)
+            frags.append(f'<clipPath id="{cid}">{clip}</clipPath>')
+            step = max(9, int(0.016 * W))
+            hatch = "".join(
+                f'<line x1="{hx - H:.0f}" y1="{H}" x2="{hx:.0f}" y2="0"/>'
+                for hx in range(int(xc0), int(xc1) + H, step))
+            frags.append(f'<g class="deck-ht" clip-path="url(#{cid})">{hatch}</g>')
+            xm = (xc0 + xc1) / 2
+            frags.append(f'<text x="{xm:.1f}" y="{cy[int(xm)] - 8 / s:.1f}" '
+                         f'text-anchor="middle" class="deck-lb">HOLD</text>')
+    else:
+        hold = None
+
+    # corridor: runs bow-ward of the engine bulkhead, skips the hold -------
+    allowed = np.zeros(W, bool)
+    allowed[int(xe) + 2:x1 - max(2, int(0.02 * span))] = True
+    if hold:
+        allowed[int(hold[0]):int(hold[1])] = False
+    ok = ch > 4 * hw
+    seg = []
+    for x in range(x0, x1 + 1):
+        good = ok[x] and allowed[x]
+        if good:
+            seg.append(x)
+        if (not good or x == x1) and len(seg) > 0.05 * span:
+            for off in (-hw, hw):
+                frags.append(_poly([(x_, cy[x_] + off) for x_ in seg[::3]],
+                                   "deck-ln", closed=False))
+            seg = []
+        elif not good:
+            seg = []
+
+    # cabins: partition walls off the corridor -----------------------------
+    lo = max(xe + 2, (xc1 or xe) + 2)
+    hi = xb - bl - 2 if xb > lo else x1 - 0.05 * span
+    if hi - lo > 0.12 * span:
+        dw = max(0.045 * span, 3 * hw)
+        i, xw = 0, lo + dw
+        while xw < hi:
+            jitter = (_h(f"{ship_id}:{i}", 1000) / 1000 - 0.5) * 0.4 * dw
+            xj = xw + jitter
+            colx = inner[:, int(xj)]
+            runs, n = label(colx)
+            if n:
+                best = max(range(1, n + 1), key=lambda k: (runs == k).sum())
+                ys = np.nonzero(runs == best)[0]
+                side = _h(f"{ship_id}~{i}", 2)
+                ya = cy[int(xj)] + (hw if side else -hw)
+                yb_ = ys[-1] if side else ys[0]
+                if abs(yb_ - ya) > 2 * hw:
+                    frags.append(f'<line x1="{xj:.1f}" y1="{ya:.1f}" '
+                                 f'x2="{xj:.1f}" y2="{yb_:.1f}" class="deck-ln"/>')
+            i, xw = i + 1, xw + dw
+
+    # tanks: completed circles ---------------------------------------------
+    for cx_, cy_, r in find_tanks(mask, W):
+        frags.append(f'<circle cx="{cx_:.1f}" cy="{cy_:.1f}" r="{r:.1f}" class="deck-ck"/>')
+        frags.append(f'<line x1="{cx_ - 5:.1f}" y1="{cy_:.1f}" x2="{cx_ + 5:.1f}" '
+                     f'y2="{cy_:.1f}" class="deck-ln"/>')
+        frags.append(f'<line x1="{cx_:.1f}" y1="{cy_ - 5:.1f}" x2="{cx_:.1f}" '
+                     f'y2="{cy_ + 5:.1f}" class="deck-ln"/>')
+
+    style = (f'<style>'
+             f'.in-hull{{fill:none;stroke-width:{1.0 / s:.2f};stroke-dasharray:{7 / s:.1f} {4 / s:.1f}}}'
+             f'.deck-ln{{fill:none;stroke-width:{0.9 / s:.2f}}}'
+             f'.deck-rm{{fill:none;stroke-width:{1.3 / s:.2f}}}'
+             f'.deck-ck{{fill:none;stroke-width:{1.0 / s:.2f};stroke-dasharray:{5 / s:.1f} {4 / s:.1f}}}'
+             f'.deck-ht line{{stroke-width:{0.6 / s:.2f};stroke-opacity:.45}}'
+             f'.deck-lb{{font-size:{10.5 / s:.1f}px;letter-spacing:.18em}}'
+             f'</style>')
+    return (f'<g class="deck" stroke="{line_color}" opacity="0.62">'
+            f'{style}{"".join(frags)}</g>')

@@ -47,9 +47,11 @@ def rings_of(geo) -> list[tuple[np.ndarray, bool]]:
             for poly in polys for i, r in enumerate(poly)]
 
 
-def orient(rings, user_flip: bool):
+def orient(rings, user_flip: bool, user_mirror: bool = False):
     """Extraction frame (x=lat, y=long) -> presentation frame: bow right,
-    wedge heuristic first, then the human flip verdict."""
+    wedge heuristic first, then the human flip verdict. `mirror` is a
+    port/starboard swap (y-flip) for hulls reconstructed with an
+    asymmetric feature on the wrong side (start_praying's blaster)."""
     arrs = [r[:, ::-1] for r, _ in rings]          # swap -> x = bow-stern
     allp = np.vstack(arrs)
     ctr = (allp.min(axis=0) + allp.max(axis=0)) / 2
@@ -65,12 +67,15 @@ def orient(rings, user_flip: bool):
         flip = not flip
     if flip:
         arrs = [r * np.array([-1.0, 1.0]) for r in arrs]
+    if user_mirror:
+        arrs = [r * np.array([1.0, -1.0]) for r in arrs]
     return arrs, [h for _, h in rings]
 
 
 def svg_for(ship_id: str, stem: str, match: str,
             fp: dict, prof: dict, adj: dict) -> str:
-    arrs, holes = orient(rings_of(fp["polygon"]), bool(adj.get("flip")))
+    arrs, holes = orient(rings_of(fp["polygon"]), bool(adj.get("flip")),
+                         bool(adj.get("mirror")))
     allp = np.vstack(arrs)
     lo, hi = allp.min(axis=0), allp.max(axis=0)
     s = LENGTH / (hi - lo)[0]

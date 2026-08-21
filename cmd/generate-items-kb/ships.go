@@ -102,6 +102,16 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		return err
 	}
 
+	// Registry blueprint sheets are generated separately (SVG text, see
+	// data/footprints/blueprints/make_blueprints.py); embed one on each
+	// detail page whose ship has a sheet on disk.
+	blueprints := make(map[string]bool)
+	if matches, err := filepath.Glob(filepath.Join(outDir, "blueprints", "*.svg")); err == nil {
+		for _, m := range matches {
+			blueprints[strings.TrimSuffix(filepath.Base(m), ".svg")] = true
+		}
+	}
+
 	// Populate item categories for build materials.
 	for _, ship := range ships {
 		for i := range ship.BuildMaterials {
@@ -234,6 +244,7 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		},
 		"factionBadge": factionBadgeClass,
 		"factionDisplayName": factionDisplayName,
+		"hasBlueprint": func(id string) bool { return blueprints[id] },
 	}
 
 	type pageData struct {
@@ -501,6 +512,16 @@ var shipDetailTemplate = `<!DOCTYPE html>
 
 {{- if hasDescription .}}
         <blockquote class="item-desc">{{.Description}}</blockquote>
+{{- end}}
+
+{{- if hasBlueprint .ID}}
+        <div class="card mt-2 blueprint-card">
+          <div class="section-label">Registry Blueprint <a class="blueprint-open" href="../blueprints/{{.ID}}.svg" title="Open full-size blueprint">&#x2197; full size</a></div>
+          {{/* object, not img: the sheet references its perspective-view
+               raster (blueprints/art/) and img contexts block external
+               loads inside SVG */}}
+          <object class="blueprint" data="../blueprints/{{.ID}}.svg" type="image/svg+xml" aria-label="{{.Name}} registry blueprint"></object>
+        </div>
 {{- end}}
 
         <div class="card mt-2" style="padding:0">
