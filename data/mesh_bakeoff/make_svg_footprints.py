@@ -47,16 +47,15 @@ def rings_of(geo) -> list[tuple[np.ndarray, bool]]:
             for poly in polys for i, r in enumerate(poly)]
 
 
-def orient(rings, user_flip: bool, user_mirror: bool = False):
-    """Extraction frame (x=lat, y=long) -> presentation frame: bow right,
-    wedge heuristic first, then the human flip verdict. `mirror` is a
-    port/starboard swap (y-flip) for hulls reconstructed with an
-    asymmetric feature on the wrong side (start_praying's blaster)."""
+def bow_flip(rings, user_flip: bool) -> bool:
+    """The final bow-right verdict for a footprint's LONGITUDINAL axis:
+    wedge heuristic (narrow end = bow, should sit right) toggled by the
+    human flip. Shared with make_views.py so the side elevation's bow
+    points the same way as the shipped top view."""
     arrs = [r[:, ::-1] for r, _ in rings]          # swap -> x = bow-stern
     allp = np.vstack(arrs)
     ctr = (allp.min(axis=0) + allp.max(axis=0)) / 2
-    arrs = [r - ctr for r in arrs]
-    allp = np.vstack(arrs)
+    allp = allp - ctr
     x, y = allp[:, 0], allp[:, 1]
     lo, hi = x.min(), x.max()
     end = 0.2 * (hi - lo)
@@ -65,6 +64,19 @@ def orient(rings, user_flip: bool, user_mirror: bool = False):
     flip = left_w < right_w                        # narrow end left -> flip
     if user_flip:
         flip = not flip
+    return flip
+
+
+def orient(rings, user_flip: bool, user_mirror: bool = False):
+    """Extraction frame (x=lat, y=long) -> presentation frame: bow right,
+    wedge heuristic first, then the human flip verdict. `mirror` is a
+    port/starboard swap (y-flip) for hulls reconstructed with an
+    asymmetric feature on the wrong side (start_praying's blaster)."""
+    flip = bow_flip(rings, user_flip)
+    arrs = [r[:, ::-1] for r, _ in rings]          # swap -> x = bow-stern
+    allp = np.vstack(arrs)
+    ctr = (allp.min(axis=0) + allp.max(axis=0)) / 2
+    arrs = [r - ctr for r in arrs]
     if flip:
         arrs = [r * np.array([-1.0, 1.0]) for r in arrs]
     if user_mirror:

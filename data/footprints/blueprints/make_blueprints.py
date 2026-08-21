@@ -10,12 +10,18 @@ yet render with "DIMENSIONS PENDING SURVEY".
 
 Outputs:
   kb/ships/blueprints/<id>.svg      committed (pure text)
+  kb/ships/blueprints/index.html    committed gallery of every sheet
+                                    (lazy-loaded, name/class filter)
   kb/ships/blueprints/art/<id>.png  gitignored raster vignette, regenerated
                                     from the chromakeys hero drop; the sheet
                                     degrades gracefully when it is absent
 
-Stage 2 hook: if ../views/<id>.json exists (side/front silhouette paths
-from the Hy3D mesh), the sheet becomes a full three-view. Not built yet.
+Three-view: if ../views/<id>.json exists (side/front silhouettes
+projected from the Hy3D mesh by data/mesh_bakeoff/make_views.py), the
+sheet becomes a full three-view -- side elevation above the plan sharing
+its x-scale (stations line up vertically), front elevation in a middle
+column sharing the side view's height rows, height dimension callout.
+Ships without a views file keep the single-view layout.
 
     python3 make_blueprints.py [ship_id ...]
 """
@@ -43,7 +49,10 @@ OUT = REPO / "kb" / "ships" / "blueprints"
 BLUE, LINE = "#123d75", "#eaf2ff"   # classic cyanotype (user pick, variant A)
 GRID_A = 0.16
 
-SW = 1200                            # sheet width; height depends on hull
+
+def load_views(ship_id):
+    p = FOOT / "views" / f"{ship_id}.json"
+    return json.loads(p.read_text()) if p.exists() else None
 
 
 def load_footprint(ship_id):
@@ -59,13 +68,23 @@ def load_footprint(ship_id):
 
 
 def duotone_hero(stem, ship_id):
-    """Keyed hero -> cyanotype duotone PNG vignette (gitignored raster)."""
-    src = HEROES / f"{stem}.png"
-    if not src.exists():
-        return False
-    rgb = np.asarray(Image.open(src).convert("RGB"), np.float32)
-    key = np.array([255, 0, 255], np.float32)
-    alpha = np.clip((np.sqrt(((rgb - key) ** 2).sum(2)) - 60) / 60, 0, 1)
+    """Keyed hero -> cyanotype duotone PNG vignette (gitignored raster).
+
+    Prefer the bake's keyed.png: run_hy3d's chroma_key removes the
+    flood-connected drop shadows that a plain distance key keeps (they are
+    darkened magenta -- far from the key by distance, magenta by hue), which
+    otherwise show up as a light haze under the ship on the sheet."""
+    keyed = REPO / "data" / "mesh_bakeoff" / "out-hy3d-full" / stem / "keyed.png"
+    if keyed.exists():
+        rgba = np.asarray(Image.open(keyed).convert("RGBA"), np.float32)
+        rgb, alpha = rgba[..., :3], rgba[..., 3] / 255.0
+    else:
+        src = HEROES / f"{stem}.png"
+        if not src.exists():
+            return False
+        rgb = np.asarray(Image.open(src).convert("RGB"), np.float32)
+        key = np.array([255, 0, 255], np.float32)
+        alpha = np.clip((np.sqrt(((rgb - key) ** 2).sum(2)) - 60) / 60, 0, 1)
     lum = (rgb @ [0.299, 0.587, 0.114]) / 255.0
     t = (lum ** 0.75)[..., None] * alpha[..., None]
     blue = np.array([int(BLUE[i:i + 2], 16) for i in (1, 3, 5)], np.float32)
@@ -116,22 +135,79 @@ def sheet(ship_id, ship, est):
     has_art = duotone_hero(stem, ship_id)
     deck = ""
 
-    # geometry: hull box on the left, vignette + title block column right
-    col_x, col_w = 830, 330
+    vw = load_views(ship_id)
+
+    # geometry: ortho views on the left, vignette + title block column right
     pad_l, pad_t = 96, 90
-    cw = col_x - 40 - pad_l          # hull content width
+    cw = 830 - 40 - pad_l            # hull content width
     s = cw / w
+    deck_meta = {}
     if interiors is not None:
-        deck = interiors.deck_plan(
+        deck, deck_meta = interiors.deck_plan(
             ship_id, d, w, h, ship.get("cargo", 0),
             (est or {}).get("window_t"), s, LINE)
     ch = h * s
-    hull_ch = max(ch, 300)
-    SH = max(hull_ch + pad_t + 150, 690)   # floor fits art+stats+title column
-    y0 = pad_t + (SH - 150 - pad_t - ch) / 2   # vertically center the hull
-    x0, x1, y1 = pad_l, pad_l + cw, None
-    y1 = y0 + ch
-    gy, gx = y1 + 40, x0 - 42
+    x0, x1 = pad_l, pad_l + cw
+    gx = x0 - 42
+
+    views = ""
+    if vw:
+        # side elevation above the plan at the SAME scale, x-aligned so
+        # stations line up vertically; front elevation in a middle column
+        # sharing the side view's height rows (fit-scaled only when a very
+        # wide beam would blow the column)
+        side_ch = vw["height_units"] * s
+        y_s0 = pad_t
+        y0 = y_s0 + side_ch + 80
+        y1 = y0 + ch
+        gy = y1 + 40
+        SH = max(gy + 72, 690)
+        mid_x = 830
+        # place the front view so its true CENTERLINE (the hull's bilateral
+        # symmetry axis from make_views' de-roll fit, not the bbox middle)
+        # sits at the column center
+        fc = vw.get("front_center_units", vw["beam_units"] / 2)
+        halfw = max(fc, vw["beam_units"] - fc)
+        mid_w = min(max(2 * halfw * s + 24, 170), 340)
+        sf = min(s, (mid_w - 24) / (2 * halfw))
+        fcx = mid_x + mid_w / 2
+        fx = fcx - fc * sf
+        fy = y_s0 + (side_ch - vw["height_units"] * sf) / 2
+        col_x = round(mid_x + mid_w + 30)
+        # side-view interiors: the plan's hold interval (plan x minus the
+        # 10-unit footprint margin = side x) and ~5 m deck spacing
+        side_extra = front_extra = ""
+        if interiors is not None:
+            hold = deck_meta.get("hold")
+            hold_side = (max(hold[0] - 10, 0),
+                         min(hold[1] - 10, vw["len_units"])) if hold else None
+            step = (3.0 / est["loa_m"] * 1000) if est else None
+            side_extra = interiors.side_overlay(
+                vw["side"], vw["len_units"], vw["height_units"],
+                hold_side, step, s, ship_id, LINE)
+            front_extra = interiors.side_overlay(
+                vw["front"], vw["beam_units"], vw["height_units"],
+                None, None, sf, f"{ship_id}_front", LINE)
+        views = f'''<text x="{x0}" y="{pad_t - 26}">SIDE ELEVATION</text>
+<text x="{mid_x:.0f}" y="{pad_t - 26}">FRONT ELEVATION</text>
+<g transform="translate({x0 + 10 * s:.1f} {y_s0:.1f}) scale({s:.5f})">
+  <path d="{vw["side"]}" fill-rule="evenodd" class="hull" style="stroke-width:{2.4 / s:.2f}"/>
+  {side_extra}
+</g>
+<line x1="{fcx:.0f}" y1="{y_s0 - 14:.0f}" x2="{fcx:.0f}" y2="{y_s0 + side_ch + 14:.0f}" class="cl"/>
+<g transform="translate({fx:.1f} {fy:.1f}) scale({sf:.5f})">
+  <path d="{vw["front"]}" fill-rule="evenodd" class="hull" style="stroke-width:{2.4 / sf:.2f}"/>
+  {front_extra}
+</g>'''
+    else:
+        col_x = 830
+        hull_ch = max(ch, 300)
+        SH = max(hull_ch + pad_t + 150, 690)   # floor fits art+stats+title
+        y0 = pad_t + (SH - 150 - pad_t - ch) / 2   # vertically center
+        y1 = y0 + ch
+        gy = y1 + 40
+    col_w = 330
+    SW = col_x + col_w + 40
 
     grid = "".join(
         f'<line x1="{gx0}" y1="16" x2="{gx0}" y2="{SH - 16:.0f}" class="g{1 if i % 5 else 0}"/>'
@@ -144,6 +220,9 @@ def sheet(ship_id, ship, est):
         tag = source_label(est.get("source"), est.get("ref"))
         dims = dim_h(x0, x1, gy, f"L.O.A. {loa:.0f} m") + \
             dim_v(gx, y0, y1, f"{beam:.0f} m")
+        if vw:
+            dims += dim_v(gx, y_s0, y_s0 + side_ch,
+                          f"{loa * vw['height_units'] / 1000:.0f} m")
         dim_line = f"L.O.A. {loa:.0f} m · BEAM {beam:.0f} m · {tag}"
     else:
         dims = ""
@@ -204,7 +283,8 @@ def sheet(ship_id, ship, est):
   <path d="{d}" fill-rule="evenodd" class="hull" style="stroke-width:{2.4 / s:.2f}"/>
   {deck}
 </g>
-<text x="{x0}" y="{pad_t - 26}">TOP VIEW</text>
+<text x="{x0}" y="{(y0 - 26) if vw else (pad_t - 26):.0f}">TOP VIEW</text>
+{views}
 {dims}
 {art}
 <g class="tb">{stats_box}</g>
@@ -219,6 +299,74 @@ def sheet(ship_id, ship, est):
 </svg>'''
 
 
+GAL_HEAD = """<!doctype html><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registry Blueprints</title>
+<style>
+body { background:#0c0e12; color:#9aa1ab; font:14px system-ui; margin:0 }
+header { padding:18px 24px 6px } h1 { color:#e8ecf2; font-size:20px; margin:0 }
+.sub { color:#5f6a78; margin:6px 0 10px }
+#q { background:#111; color:#cfd3da; border:1px solid #333a46; border-radius:4px;
+     padding:6px 12px; width:300px; margin:0 0 6px }
+main { max-width:1180px; margin:0 auto; padding:0 24px 40px }
+.card { margin:26px 0 }
+.hd { display:flex; gap:14px; align-items:baseline; margin-bottom:6px }
+.hd b { color:#e8ecf2; font-size:15px } .hd .m { color:#5f6a78; font-size:12px }
+.hd a { color:#7aa7d8; margin-left:auto; font-size:12px; text-decoration:none }
+.hd a:hover { text-decoration:underline }
+.ph { width:100%; background:#123d75; border-radius:4px }
+.ph object { display:block; width:100%; height:auto }
+</style>
+<header><h1>Registry Blueprints</h1>
+<div class="sub">%COUNT% sheets · three-view registry drawings from the hull
+survey · window convention: 1 pane = 1 m</div>
+<input id="q" placeholder="filter by name / class / category..."></header>
+<main>
+"""
+
+GAL_TAIL = """</main>
+<script>
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const o = document.createElement('object');
+  o.type = 'image/svg+xml'; o.data = e.target.dataset.src;
+  e.target.replaceChildren(o); io.unobserve(e.target);
+}), { rootMargin: '900px' });
+document.querySelectorAll('.ph').forEach(p => io.observe(p));
+document.getElementById('q').addEventListener('input', e => {
+  const v = e.target.value.toLowerCase();
+  document.querySelectorAll('.card').forEach(c =>
+    c.style.display = c.dataset.name.includes(v) ? '' : 'none');
+});
+</script>
+"""
+
+
+def gallery(ships, est):
+    """index.html over every sheet present in OUT (lazy-loaded)."""
+    from urllib.parse import quote
+    cards = []
+    for sid, ship in sorted(ships.items(), key=lambda kv: kv[1]["name"]):
+        p = OUT / f"{sid}.svg"
+        if not p.exists():
+            continue
+        head = p.read_text()[:400]
+        m = re.search(r'viewBox="0 0 (\d+) (\d+)', head)
+        e = est.get(sid)
+        meta = f'{ship["cls"]} · {ship["category"]} · TIER {ship["tier"]}'
+        if e:
+            meta += f' · L.O.A. {e["loa_m"]:.0f} m'
+        page = f'../{quote(ship["category"])}/{sid}.html'
+        cards.append(f'''<div class="card" data-name="{sid} {ship["name"].lower()} {ship["cls"].lower()} {ship["category"].lower()}">
+<div class="hd"><b>{ship["name"].upper()}</b><span class="m">{meta.upper()}</span>
+<a href="{page}">ship page ↗</a></div>
+<div class="ph" data-src="{sid}.svg" style="aspect-ratio:{m.group(1)}/{m.group(2)}"></div>
+</div>''')
+    (OUT / "index.html").write_text(
+        GAL_HEAD.replace("%COUNT%", str(len(cards))) + "\n".join(cards) + GAL_TAIL)
+    return len(cards)
+
+
 def main() -> int:
     import sqlite3
     db = sqlite3.connect(REPO / "spacemolt-knowledge.db")
@@ -226,11 +374,12 @@ def main() -> int:
                     "tier": r[4], "cargo": r[5] or 0,
                     "shield": r[6] or 0, "armor": r[7] or 0,
                     "hull": r[8] or 0, "fuel": r[9] or 0, "speed": r[10] or 0,
-                    "slots": (r[11] or 0, r[12] or 0, r[13] or 0)}
+                    "slots": (r[11] or 0, r[12] or 0, r[13] or 0),
+                    "category": r[14] or "Uncategorized"}
              for r in db.execute(
                  "select id,name,class,scale,tier,cargo_capacity,"
                  "base_shield,base_armor,base_hull,base_fuel,base_speed,"
-                 "weapon_slots,defense_slots,utility_slots from ships")}
+                 "weapon_slots,defense_slots,utility_slots,category from ships")}
     est = json.loads(SCALE.read_text())["ships"] if SCALE.exists() else {}
 
     only = set(sys.argv[1:])
@@ -244,7 +393,8 @@ def main() -> int:
             continue
         (OUT / f"{sid}.svg").write_text(svg)
         n += 1
-    print(f"{n} blueprint sheets -> {OUT}")
+    g = gallery(ships, est)
+    print(f"{n} blueprint sheets + gallery ({g} cards) -> {OUT}")
     return 0
 
 

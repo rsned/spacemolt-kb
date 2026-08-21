@@ -53,25 +53,29 @@ def forced_frame(verts: np.ndarray, up_idx: int):
     return basis[:, lat_i], basis[:, long_i], basis[:, up_idx]
 
 
+def solo_hull(mesh):
+    """Keep only the main hull: companion objects in the hero (swarm's
+    launching drones) are faithfully reconstructed as separate bodies,
+    but they are not hull and must not count toward the footprint.
+    (Hand-rolled components: this venv's old trimesh calls the
+    numpy-2.x-removed ndarray.ptp() inside mesh.split().)"""
+    import scipy.sparse as sp
+    from scipy.sparse.csgraph import connected_components
+    v = np.asarray(mesh.vertices)
+    f = np.asarray(mesh.faces)
+    e = np.vstack([f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]]])
+    g = sp.coo_matrix((np.ones(len(e)), (e[:, 0], e[:, 1])),
+                      shape=(len(v), len(v)))
+    _, lab = connected_components(g, directed=False)
+    flab = lab[f[:, 0]]
+    keep = flab == np.bincount(flab).argmax()
+    return trimesh.Trimesh(vertices=v, faces=f[keep], process=False)
+
+
 def apply_one(d: Path, adj: dict) -> dict:
     mesh = trimesh.load(d / "mesh.obj", force="mesh", process=False)
     if adj.get("solo"):
-        # keep only the main hull: companion objects in the hero (swarm's
-        # launching drones) are faithfully reconstructed as separate bodies,
-        # but they are not hull and must not count toward the footprint.
-        # (Hand-rolled components: this venv's old trimesh calls the
-        # numpy-2.x-removed ndarray.ptp() inside mesh.split().)
-        import scipy.sparse as sp
-        from scipy.sparse.csgraph import connected_components
-        v = np.asarray(mesh.vertices)
-        f = np.asarray(mesh.faces)
-        e = np.vstack([f[:, [0, 1]], f[:, [1, 2]], f[:, [2, 0]]])
-        g = sp.coo_matrix((np.ones(len(e)), (e[:, 0], e[:, 1])),
-                          shape=(len(v), len(v)))
-        _, lab = connected_components(g, directed=False)
-        flab = lab[f[:, 0]]
-        keep = flab == np.bincount(flab).argmax()
-        mesh = trimesh.Trimesh(vertices=v, faces=f[keep], process=False)
+        mesh = solo_hull(mesh)
     verts = np.asarray(mesh.vertices, dtype=float)
     faces = np.asarray(mesh.faces, dtype=int)
     centroid = verts.mean(axis=0)

@@ -304,13 +304,121 @@ def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
         frags.append(f'<line x1="{cx_:.1f}" y1="{cy_ - 5:.1f}" x2="{cx_:.1f}" '
                      f'y2="{cy_ + 5:.1f}" class="deck-ln"/>')
 
-    style = (f'<style>'
-             f'.in-hull{{fill:none;stroke-width:{1.0 / s:.2f};stroke-dasharray:{7 / s:.1f} {4 / s:.1f}}}'
-             f'.deck-ln{{fill:none;stroke-width:{0.9 / s:.2f}}}'
-             f'.deck-rm{{fill:none;stroke-width:{1.3 / s:.2f}}}'
-             f'.deck-ck{{fill:none;stroke-width:{1.0 / s:.2f};stroke-dasharray:{5 / s:.1f} {4 / s:.1f}}}'
-             f'.deck-ht line{{stroke-width:{0.6 / s:.2f};stroke-opacity:.45}}'
-             f'.deck-lb{{font-size:{10.5 / s:.1f}px;letter-spacing:.18em}}'
-             f'</style>')
     return (f'<g class="deck" stroke="{line_color}" opacity="0.62">'
-            f'{style}{"".join(frags)}</g>')
+            f'{_style(s)}{"".join(frags)}</g>'), {"hold": hold}
+
+
+def _style(s: float) -> str:
+    return (f'<style>'
+            f'.in-hull{{fill:none;stroke-width:{1.0 / s:.2f};stroke-dasharray:{7 / s:.1f} {4 / s:.1f}}}'
+            f'.deck-ln{{fill:none;stroke-width:{0.9 / s:.2f}}}'
+            f'.deck-rm{{fill:none;stroke-width:{1.3 / s:.2f}}}'
+            f'.deck-ck{{fill:none;stroke-width:{1.0 / s:.2f};stroke-dasharray:{5 / s:.1f} {4 / s:.1f}}}'
+            f'.deck-ht line{{stroke-width:{0.6 / s:.2f};stroke-opacity:.45}}'
+            f'.deck-lb{{font-size:{10.5 / s:.1f}px;letter-spacing:.18em}}'
+            f'</style>')
+
+
+def side_overlay(side_d, sw, sh, hold, deck_step, s, ship_id,
+                 line_color="#eaf2ff"):
+    """Interior linework for an ELEVATION view: the dashed inner-hull
+    offset (structural wall, matching the plan's), and for the side view
+    the cargo hold band at the same stations as the plan's hold (floor to
+    ceiling, hatched) plus deck lines every ~3 m fore of it with
+    staircases. Coordinates are the view's own corner-origin units; the
+    caller embeds this in the view's transform. `hold` is the (x0, x1)
+    interval in those units or None; the front elevation passes
+    hold=None, deck_step=None and gets just the inner hull."""
+    try:
+        from scipy.ndimage import binary_erosion
+    except ImportError:
+        return ""
+    try:
+        import skimage  # noqa: F401
+    except ImportError:
+        return ""
+    subs = parse_subpaths(side_d)
+    if not subs:
+        return ""
+    W, H = int(np.ceil(sw)), int(np.ceil(sh))
+    if W < 40 or H < 12:
+        return ""
+    mask = rasterize(subs, W, H)
+    # same wall thickness as the plan (its viewbox is always ~1020 units,
+    # so 0.011*W there is ~11) for a consistent read across the views
+    inner = binary_erosion(mask, iterations=11)
+    if inner.sum() < 200:
+        return ""
+
+    frags = list(_contour_paths(inner, "in-hull"))
+    hx1 = None
+    if hold:
+        hx0, hx1 = max(0, int(hold[0])), min(W, int(hold[1]))
+        if hx1 - hx0 > 8:
+            region = inner.copy()
+            region[:, :hx0] = False
+            region[:, hx1:] = False
+            if region.sum() > 100:
+                cps = _contour_paths(region, "deck-ln")
+                frags += cps
+                cid = f"cargo_side_{ship_id}"
+                clip = "".join(p.replace('class="deck-ln"', "") for p in cps)
+                frags.append(f'<clipPath id="{cid}">{clip}</clipPath>')
+                step = max(9, int(0.016 * W))
+                hatch = "".join(
+                    f'<line x1="{hx - H:.0f}" y1="{H}" x2="{hx:.0f}" y2="0"/>'
+                    for hx in range(hx0, hx1 + H, step))
+                frags.append(
+                    f'<g class="deck-ht" clip-path="url(#{cid})">{hatch}</g>')
+                ys = np.nonzero(region.any(axis=1))[0]
+                frags.append(
+                    f'<text x="{(hx0 + hx1) / 2:.1f}" '
+                    f'y="{(ys[0] + ys[-1]) / 2 + 3.5 / s:.1f}" '
+                    f'text-anchor="middle" class="deck-lb">HOLD</text>')
+
+    if deck_step and deck_step > 6:
+        fore = inner.copy()
+        fore[:, :int(hx1 if hx1 is not None else 0.15 * W)] = False
+        if fore.sum() > 100:
+            cps = _contour_paths(fore, "x")
+            cid = f"decks_{ship_id}"
+            clip = "".join(p.replace('class="x"', "") for p in cps)
+            frags.append(f'<clipPath id="{cid}">{clip}</clipPath>')
+            decks = list(np.arange(H - deck_step, 0, -deck_step))
+            lines = "".join(
+                f'<line x1="0" y1="{y:.1f}" x2="{W}" y2="{y:.1f}" '
+                f'class="deck-ln"/>' for y in decks)
+            frags.append(f'<g clip-path="url(#{cid})">{lines}</g>')
+
+            # staircases: step-profiles between adjacent decks, id-hash
+            # placed among the columns whose interior spans both levels
+            # (never poking through the hull) — one set per deck for every
+            # 30 m of non-hold span (deck_step units = 3 m)
+            levels = [float(H)] + [float(y) for y in decks]
+            n_steps = 4
+            for i in range(len(levels) - 1):
+                y_lo, y_hi = levels[i], levels[i + 1]
+                run_w = 1.1 * (y_lo - y_hi)
+                ok = fore[int(y_hi):int(min(y_lo, H - 1)) + 1, :].all(axis=0)
+                starts = [x for x in range(W - int(run_w) - 2)
+                          if ok[x:x + int(run_w) + 2].all()]
+                if not starts:
+                    continue
+                span_m = (starts[-1] - starts[0] + run_w) * 3.0 / deck_step
+                n_stairs = max(1, int(span_m // 30))
+                tw, rh = run_w / n_steps, (y_lo - y_hi) / n_steps
+                for k in range(n_stairs):
+                    lo_i = k * len(starts) // n_stairs
+                    hi_i = (k + 1) * len(starts) // n_stairs
+                    bucket = starts[lo_i:hi_i]
+                    if not bucket:
+                        continue
+                    sx = bucket[_h(f"{ship_id}/stair{i}.{k}", len(bucket))]
+                    dpath = f"M{sx:.1f} {y_lo:.1f}" + "".join(
+                        f"h{tw:.1f}v{-rh:.1f}" for _ in range(n_steps))
+                    frags.append(f'<path d="{dpath}" class="deck-ln"/>')
+
+    if not frags:
+        return ""
+    return (f'<g class="deck" stroke="{line_color}" opacity="0.62">'
+            f'{_style(s)}{"".join(frags)}</g>')
