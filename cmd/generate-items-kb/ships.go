@@ -252,14 +252,19 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		TotalShips    int
 		TotalCats     int
 		TotalFactions int
+		// TotalBlueprints counts the sheets actually on disk, so the gallery
+		// link advertises real coverage rather than the fleet size (not every
+		// ship has a hull survey).
+		TotalBlueprints int
 	}
 
 	tmpl := htmltpl.Must(htmltpl.New("ships").Funcs(funcs).Parse(shipPageTemplate))
 	if err := writeTemplate(filepath.Join(outDir, "index.html"), tmpl, pageData{
-		Categories:    categories,
-		TotalShips:    totalShips,
-		TotalCats:     totalCats,
-		TotalFactions: totalFactions,
+		Categories:      categories,
+		TotalShips:      totalShips,
+		TotalCats:       totalCats,
+		TotalFactions:   totalFactions,
+		TotalBlueprints: len(blueprints),
 	}); err != nil {
 		return err
 	}
@@ -356,6 +361,9 @@ var shipPageTemplate = `<!DOCTYPE html>
       <h2>Ships</h2>
       <p class="text-muted mt-1">{{.TotalShips}} ship classes across {{.TotalCats}} categories and {{.TotalFactions}} factions.</p>
       <p class="mt-2"><a href="all.html">&#x25A4; All Ships &mdash; sortable comparison table &rarr;</a></p>
+{{- if .TotalBlueprints}}
+      <p class="mt-1"><a href="blueprints/index.html">&#x25F1; Registry Blueprints &mdash; three-view drawings for {{.TotalBlueprints}} ships &rarr;</a></p>
+{{- end}}
 
       <nav class="card mt-3" id="toc">
         <div class="card-header"><span class="label">Categories</span></div>
