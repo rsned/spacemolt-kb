@@ -37,6 +37,10 @@ try:
     import interiors            # deck-plan linework; needs skimage
 except ImportError:             # pragma: no cover
     interiors = None
+try:
+    import emblems              # empire marks for the title-block square
+except ImportError:             # pragma: no cover
+    emblems = None
 
 HERE = Path(__file__).resolve().parent
 FOOT = HERE.parent
@@ -67,7 +71,7 @@ def load_footprint(ship_id):
             stem.group(1) if stem else ship_id)
 
 
-def duotone_hero(stem, ship_id):
+def duotone_hero(stem, ship_id, mirror=True):
     """Keyed hero -> cyanotype duotone PNG vignette (gitignored raster).
 
     Prefer the bake's keyed.png: run_hy3d's chroma_key removes the
@@ -91,8 +95,16 @@ def duotone_hero(stem, ship_id):
     white = np.array([int(LINE[i:i + 2], 16) for i in (1, 3, 5)], np.float32)
     out = blue + (white - blue) * t
     img = Image.fromarray(out.clip(0, 255).astype(np.uint8))
+    if mirror:
+        # heroes are near-universally composed bow-left; mirror so the
+        # vignette's bow points right like the ortho views. The rare
+        # bow-right hero opts out via "hero_bow_right" in adjustments.
+        img = img.transpose(Image.FLIP_LEFT_RIGHT)
     img.thumbnail((640, 640))
     (OUT / "art").mkdir(parents=True, exist_ok=True)
+    # 128-color palette: the duotone gradient quantizes invisibly and
+    # halves the size -- these ARE committed so the live site shows them
+    img = img.convert("P", palette=Image.ADAPTIVE, colors=128)
     img.save(OUT / "art" / f"{ship_id}.png", optimize=True)
     return True
 
@@ -127,12 +139,14 @@ def source_label(src, ref=""):
     return ""
 
 
-def sheet(ship_id, ship, est):
+def sheet(ship_id, ship, est, adj_map=None, bridge_pos=None):
     fp = load_footprint(ship_id)
     if fp is None:
         return None
     w, h, d, stem = fp
-    has_art = duotone_hero(stem, ship_id)
+    flags = (adj_map or {}).get(stem, {})
+    has_art = duotone_hero(stem, ship_id,
+                           mirror=not flags.get("hero_bow_right"))
     deck = ""
 
     vw = load_views(ship_id)
@@ -145,7 +159,8 @@ def sheet(ship_id, ship, est):
     if interiors is not None:
         deck, deck_meta = interiors.deck_plan(
             ship_id, d, w, h, ship.get("cargo", 0),
-            (est or {}).get("window_t"), s, LINE)
+            (est or {}).get("window_t"), s, LINE,
+            ext_pilot=bool(flags.get("ext_pilot")), bridge_pos=bridge_pos)
     ch = h * s
     x0, x1 = pad_l, pad_l + cw
     gx = x0 - 42
@@ -161,19 +176,24 @@ def sheet(ship_id, ship, est):
         y0 = y_s0 + side_ch + 80
         y1 = y0 + ch
         gy = y1 + 40
-        SH = max(gy + 72, 690)
         mid_x = 830
         # place the front view so its true CENTERLINE (the hull's bilateral
         # symmetry axis from make_views' de-roll fit, not the bbox middle)
-        # sits at the column center
+        # sits at the column center. ALL views share the same scale s — a
+        # wide beam widens the sheet rather than shrinking the front view.
         fc = vw.get("front_center_units", vw["beam_units"] / 2)
         halfw = max(fc, vw["beam_units"] - fc)
-        mid_w = min(max(2 * halfw * s + 24, 170), 340)
-        sf = min(s, (mid_w - 24) / (2 * halfw))
+        # column floor guarantees room for the perspective vignette frame
+        mid_w = max(2 * halfw * s + 24, 474)
+        sf = s
         fcx = mid_x + mid_w / 2
         fx = fcx - fc * sf
         fy = y_s0 + (side_ch - vw["height_units"] * sf) / 2
         col_x = round(mid_x + mid_w + 30)
+        # sheet height also fits a full-size vignette frame in the middle
+        # bay (short slim hulls would otherwise letterbox the hero)
+        art_need = 0.75 * max(450.0, min(mid_w - 24, 690.0))
+        SH = max(gy + 72, y_s0 + side_ch + 26 + art_need + 16 + 196, 690)
         # side-view interiors: the plan's hold interval (plan x minus the
         # 10-unit footprint margin = side x) and ~5 m deck spacing
         side_extra = front_extra = ""
@@ -187,7 +207,8 @@ def sheet(ship_id, ship, est):
                 hold_side, step, s, ship_id, LINE)
             front_extra = interiors.side_overlay(
                 vw["front"], vw["beam_units"], vw["height_units"],
-                None, None, sf, f"{ship_id}_front", LINE)
+                None, None, sf, f"{ship_id}_front", LINE,
+                front_core=bool(hold))
         views = f'''<text x="{x0}" y="{pad_t - 26}">SIDE ELEVATION</text>
 <text x="{mid_x:.0f}" y="{pad_t - 26}">FRONT ELEVATION</text>
 <g transform="translate({x0 + 10 * s:.1f} {y_s0:.1f}) scale({s:.5f})">
@@ -228,35 +249,74 @@ def sheet(ship_id, ship, est):
         dims = ""
         dim_line = "DIMENSIONS PENDING SURVEY"
 
-    # perspective vignette panel
-    art_y, art_h = 60, 300
-    if has_art:
+    # perspective vignette panel: three-view sheets tuck it into the
+    # empty middle bay between the front elevation and the plan; the
+    # single-view layout keeps it at the top of the right column
+    tb_h = 160
+    tb_y = SH - tb_h - 36
+    if has_art and vw:
+        # frameless: the duotone hero floats on the field with a plain
+        # rule underneath (user mock), half again the old panel size
+        aw = max(450.0, min(mid_w - 24, 690.0))
+        ah = 0.75 * aw
+        ay = max(y0 + (ch - ah) / 2, y_s0 + side_ch + 26)
+        if ay + ah + 16 > tb_y:                 # keep clear of the title row
+            ay = max(y_s0 + side_ch + 26, tb_y - 16 - ah)
+            ah = min(ah, tb_y - 16 - ay)
+        ax = mid_x + mid_w / 2 - aw / 2
+        art = (f'<rect x="{ax:.0f}" y="{ay:.0f}" width="{aw:.0f}" height="{ah:.0f}" '
+               f'class="frame" stroke-width="1.2"/>'
+               f'<image href="art/{ship_id}.png" x="{ax + 8:.0f}" y="{ay + 8:.0f}" '
+               f'width="{aw - 16:.0f}" height="{ah - 16:.0f}" preserveAspectRatio="xMidYMid meet"/>')
+    elif has_art:
+        art_y, art_h = 60, 300
         art = (f'<rect x="{col_x}" y="{art_y}" width="{col_w}" height="{art_h}" class="frame" stroke-width="1.2"/>'
                f'<image href="art/{ship_id}.png" x="{col_x + 8}" y="{art_y + 8}" '
-               f'width="{col_w - 16}" height="{art_h - 36}" preserveAspectRatio="xMidYMid meet"/>'
-               f'<text x="{col_x + 12}" y="{art_y + art_h - 12}">PERSPECTIVE VIEW — REGISTRY ARCHIVE</text>')
+               f'width="{col_w - 16}" height="{art_h - 16}" preserveAspectRatio="xMidYMid meet"/>')
     else:
         art = ""
 
-    # stats box between the vignette and the title block
-    st_y = art_y + art_h + 16
+    # stats panel: a narrow card pinned to the upper-right corner on
+    # three-view sheets; below the vignette on the single-view layout
     rows = [("SHIELDS", f'{ship["shield"]}'), ("ARMOR", f'{ship["armor"]}'),
             ("HULL", f'{ship["hull"]}'), ("FUEL", f'{ship["fuel"]}'),
             ("CARGO", f'{ship["cargo"]}'),
             ("SPEED", f'{ship["speed"]} AU/T'),
             ("SLOTS W/D/U", "{}/{}/{}".format(*ship["slots"]))]
     rh, st_h = 18, 26 + 18 * len(rows) + 8
-    stats = [f'<rect x="{col_x}" y="{st_y}" width="{col_w}" height="{st_h}" class="frame" stroke-width="1.2"/>',
-             f'<line x1="{col_x}" y1="{st_y + 22}" x2="{col_x + col_w}" y2="{st_y + 22}" stroke="{LINE}" stroke-width="1"/>',
-             f'<text x="{col_x + 12}" y="{st_y + 16}">REGISTRY STATS</text>']
+    if vw:
+        st_w = 250
+        st_x, st_y = SW - 40 - st_w, 60
+    else:
+        st_w = col_w
+        st_x, st_y = col_x, 60 + 300 + 16
+    stats = [f'<rect x="{st_x}" y="{st_y}" width="{st_w}" height="{st_h}" class="frame" stroke-width="1.2"/>',
+             f'<line x1="{st_x}" y1="{st_y + 22}" x2="{st_x + st_w}" y2="{st_y + 22}" stroke="{LINE}" stroke-width="1"/>',
+             f'<text x="{st_x + 12}" y="{st_y + 16}">REGISTRY STATS</text>']
     for i, (k, v) in enumerate(rows):
         ry = st_y + 38 + i * rh
-        stats.append(f'<text x="{col_x + 12}" y="{ry}">{k}</text>')
-        stats.append(f'<text x="{col_x + col_w - 12}" y="{ry}" text-anchor="end">{v}</text>')
+        stats.append(f'<text x="{st_x + 12}" y="{ry}">{k}</text>')
+        stats.append(f'<text x="{st_x + st_w - 12}" y="{ry}" text-anchor="end">{v}</text>')
     stats_box = "".join(stats)
 
-    tb_y = SH - 116
     name = ship["name"].upper()
+
+    def fit(txt, px):
+        # squeeze over-long lines into the title box (monospace estimate)
+        if len(txt) * px > col_w - 28:
+            return f' textLength="{col_w - 28}" lengthAdjust="spacingAndGlyphs"'
+        return ""
+
+    name_fit = fit(name, 17.4)
+    meta1 = (f'{(ship["cls"] or "").upper()} · TIER {ship["tier"]} · '
+             f'SCALE CLASS {ship["scale"]}')
+    m1_fit, m2_fit = fit(meta1, 9.4), fit(dim_line, 9.4)
+
+    # empire mark in the logo square left of the title block
+    mk = emblems.emblem(ship.get("faction") or "") if emblems else ""
+    logo = (f'<g transform="translate({col_x - tb_h - 16 + 14} {tb_y + 14:.0f}) '
+            f'scale({(tb_h - 28) / 100:.3f})" color="{LINE}" '
+            f'opacity="0.92">{mk}</g>') if mk else ""
     # explicit width/height: <object> embeds need the intrinsic size to
     # scale responsively (viewBox alone yields the 300x150 default)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {SW} {SH:.0f}" width="{SW}" height="{SH:.0f}" style="background:{BLUE}" role="img" aria-label="{name} blueprint">
@@ -272,6 +332,8 @@ def sheet(ship_id, ship, est):
          stroke-opacity: .7 }}
   .frame {{ fill: {BLUE}; stroke: {LINE}; }}
   .big {{ font-size: 16px; font-weight: bold; }}
+  .tt {{ font-size: 26px; font-weight: bold; }}
+  .tm {{ font-size: 14px; }}
   .tb text {{ letter-spacing: .05em }}
 </style>
 <rect x="0" y="0" width="{SW}" height="{SH:.0f}" fill="{BLUE}"/>
@@ -289,11 +351,13 @@ def sheet(ship_id, ship, est):
 {art}
 <g class="tb">{stats_box}</g>
 <g class="tb">
-  <rect x="{col_x}" y="{tb_y:.0f}" width="{col_w}" height="80" class="frame" stroke-width="1.4"/>
-  <line x1="{col_x}" y1="{tb_y + 28:.0f}" x2="{col_x + col_w}" y2="{tb_y + 28:.0f}" stroke="{LINE}" stroke-width="1"/>
-  <text x="{col_x + 12}" y="{tb_y + 20:.0f}" class="big">{name}</text>
-  <text x="{col_x + 12}" y="{tb_y + 46:.0f}">{(ship["cls"] or "").upper()} · TIER {ship["tier"]} · SCALE CLASS {ship["scale"]}</text>
-  <text x="{col_x + 12}" y="{tb_y + 64:.0f}">{dim_line}</text>
+  <rect x="{col_x - tb_h - 16}" y="{tb_y:.0f}" width="{tb_h}" height="{tb_h}" class="frame" stroke-width="1.4"/>
+  {logo}
+  <rect x="{col_x}" y="{tb_y:.0f}" width="{col_w}" height="{tb_h}" class="frame" stroke-width="1.4"/>
+  <line x1="{col_x}" y1="{tb_y + 56:.0f}" x2="{col_x + col_w}" y2="{tb_y + 56:.0f}" stroke="{LINE}" stroke-width="1"/>
+  <text x="{col_x + 14}" y="{tb_y + 38:.0f}" class="tt"{name_fit}>{name}</text>
+  <text x="{col_x + 14}" y="{tb_y + 96:.0f}" class="tm"{m1_fit}>{meta1}</text>
+  <text x="{col_x + 14}" y="{tb_y + 132:.0f}" class="tm"{m2_fit}>{dim_line}</text>
 </g>
 <text x="36" y="{SH - 30:.0f}">SPACEMOLT NAVAL REGISTRY — {ship_id.replace("_", "-").upper()} — WINDOW CONVENTION: 1 PANE = 1 m</text>
 </svg>'''
@@ -375,12 +439,19 @@ def main() -> int:
                     "shield": r[6] or 0, "armor": r[7] or 0,
                     "hull": r[8] or 0, "fuel": r[9] or 0, "speed": r[10] or 0,
                     "slots": (r[11] or 0, r[12] or 0, r[13] or 0),
-                    "category": r[14] or "Uncategorized"}
+                    "category": r[14] or "Uncategorized",
+                    "faction": r[15] or ""}
              for r in db.execute(
                  "select id,name,class,scale,tier,cargo_capacity,"
                  "base_shield,base_armor,base_hull,base_fuel,base_speed,"
-                 "weapon_slots,defense_slots,utility_slots,category from ships")}
+                 "weapon_slots,defense_slots,utility_slots,category,faction"
+                 " from ships")}
     est = json.loads(SCALE.read_text())["ships"] if SCALE.exists() else {}
+    adj_f = REPO / "data" / "mesh_bakeoff" / "adjustments-final.json"
+    adj_map = json.loads(adj_f.read_text()) if adj_f.exists() else {}
+    # curated bridge/cockpit stations from make_bridge_placer.py's export
+    bp_f = HERE / "bridge_positions.json"
+    bpos_map = json.loads(bp_f.read_text()) if bp_f.exists() else {}
 
     only = set(sys.argv[1:])
     OUT.mkdir(parents=True, exist_ok=True)
@@ -388,7 +459,7 @@ def main() -> int:
     for sid, ship in sorted(ships.items()):
         if only and sid not in only:
             continue
-        svg = sheet(sid, ship, est.get(sid))
+        svg = sheet(sid, ship, est.get(sid), adj_map, bpos_map.get(sid))
         if svg is None:
             continue
         (OUT / f"{sid}.svg").write_text(svg)

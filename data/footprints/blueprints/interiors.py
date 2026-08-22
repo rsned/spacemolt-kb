@@ -122,8 +122,50 @@ def find_tanks(mask, w):
     return circles
 
 
+def _core_band(tops, bots, inset=2.0, min_h=6.0):
+    """Vertical band of a 'mostly rectangular' bay inside per-column
+    interval samples: near-intersection percentiles, robust to a few
+    tapered columns. Returns (ylo, yhi) or None."""
+    if len(tops) < 5:
+        return None
+    ylo = float(np.percentile(tops, 85)) + inset
+    yhi = float(np.percentile(bots, 15)) - inset
+    if yhi - ylo < min_h:
+        return None
+    return ylo, yhi
+
+
+def _hold_rect(cid, x, y, w, h, step):
+    """Rounded-rect cargo bay outline + 45-degree hatch."""
+    r = min(0.35 * h, 0.25 * w, 18.0)
+    rect = (f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" '
+            f'height="{h:.1f}" rx="{r:.1f}"')
+    hatch = "".join(
+        f'<line x1="{hx - h:.0f}" y1="{y + h:.0f}" x2="{hx:.0f}" y2="{y:.0f}"/>'
+        for hx in range(int(x), int(x + w + h) + 1, step))
+    return (rect + ' class="deck-ln"/>'
+            f'<clipPath id="{cid}">{rect}/></clipPath>'
+            f'<g class="deck-ht" clip-path="url(#{cid})">{hatch}</g>')
+
+
+def _col_runs(inner, xa, xb_):
+    """Largest interior run per column over [xa, xb_): (tops, bots)."""
+    from scipy.ndimage import label
+    tops, bots = [], []
+    for x in range(int(xa), int(xb_)):
+        col = inner[:, x]
+        if not col.any():
+            continue
+        runs, n = label(col)
+        best = max(range(1, n + 1), key=lambda k: (runs == k).sum())
+        ys = np.nonzero(runs == best)[0]
+        tops.append(ys[0])
+        bots.append(ys[-1])
+    return np.array(tops, float), np.array(bots, float)
+
+
 def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
-              line_color="#eaf2ff"):
+              line_color="#eaf2ff", ext_pilot=False, bridge_pos=None):
     try:
         from scipy.ndimage import binary_erosion, uniform_filter1d, label
     except ImportError:
@@ -184,21 +226,48 @@ def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
 
     hw = float(np.clip(0.011 * W, 2.5, 8.0))    # corridor drawn after cargo
 
-    # bridge at the surveyed window station --------------------------------
-    t = window_t if window_t is not None else 0.72
-    xb = x0 + t * span
+    # bridge/cockpit station -----------------------------------------------
+    # a curated placement (bridge_positions.json, from the interactive
+    # placer: viewBox fractions, bow right) wins over the surveyed window
+    # station; the hero click fraction alone is direction-ambiguous
+    # (heroes come bow-left AND bow-right) so it is only a fallback.
+    kind = (bridge_pos or {}).get("kind", "bridge")
     bl = 0.036 * span
+    if bridge_pos and bridge_pos.get("tx") is not None:
+        xb = float(bridge_pos["tx"]) * W
+    else:
+        t = window_t if window_t is not None else 0.72
+        xb = x0 + t * span
     xb = float(np.clip(xb, x0 + bl + 2, x1 - bl - 2))
+    # always on the bow-stern axis: snap to the interior centerline at the
+    # chosen station (placer drags are horizontal-only by design)
     ybc = float(cy[int(xb)])
     bw = float(min(3.2 * hw, 0.42 * max(ch[int(xb)], 4 * hw)))
-    frags.append(f'<rect x="{xb - bl:.1f}" y="{ybc - bw:.1f}" width="{2 * bl:.1f}" '
-                 f'height="{2 * bw:.1f}" rx="{0.4 * bw:.1f}" class="deck-rm"/>')
-    xcon = xb + bl * 0.45                       # console arc, bow side
-    frags.append(f'<path d="M{xcon:.1f} {ybc - 0.55 * bw:.1f} '
-                 f'A{0.7 * bw:.1f} {0.7 * bw:.1f} 0 0 1 {xcon:.1f} {ybc + 0.55 * bw:.1f}" '
-                 f'class="deck-ln"/>')
-    frags.append(f'<text x="{xb:.1f}" y="{ybc - bw - 6 / s:.1f}" '
-                 f'text-anchor="middle" class="deck-lb">BRIDGE</text>')
+    if ext_pilot:
+        # prayer-class junkers: no bridge — the pilot is strapped to the
+        # bow face. Mark the external seat instead; corridor and cabins
+        # are suppressed below (there is no walkable interior).
+        xp = x1 - 2
+        yp = float(cy[xp])
+        rp = float(min(1.6 * hw, 0.35 * max(ch[xp], 3 * hw)))
+        frags.append(f'<circle cx="{xp:.1f}" cy="{yp:.1f}" r="{rp:.1f}" '
+                     f'class="deck-rm"/>')
+        frags.append(f'<text x="{xp - rp:.1f}" y="{yp - rp - 6 / s:.1f}" '
+                     f'text-anchor="end" class="deck-lb">PILOT</text>')
+        xb, bl = float(x1 - 1), 0.0             # hold logic: bow is "bridge"
+    else:
+        if kind == "cockpit":                   # 1-2 seat canopy: rounder,
+            bl = min(bl, 1.4 * bw)              # stubbier than a bridge room
+        rx = (0.9 if kind == "cockpit" else 0.4) * bw
+        frags.append(f'<rect x="{xb - bl:.1f}" y="{ybc - bw:.1f}" width="{2 * bl:.1f}" '
+                     f'height="{2 * bw:.1f}" rx="{rx:.1f}" class="deck-rm"/>')
+        xcon = xb + bl * 0.45                   # console arc, bow side
+        frags.append(f'<path d="M{xcon:.1f} {ybc - 0.55 * bw:.1f} '
+                     f'A{0.7 * bw:.1f} {0.7 * bw:.1f} 0 0 1 {xcon:.1f} {ybc + 0.55 * bw:.1f}" '
+                     f'class="deck-ln"/>')
+        lb_txt = "COCKPIT" if kind == "cockpit" else "BRIDGE"
+        frags.append(f'<text x="{xb:.1f}" y="{ybc - bw - 6 / s:.1f}" '
+                     f'text-anchor="middle" class="deck-lb">{lb_txt}</text>')
 
     # engineering: stern bulkhead + thruster arcs --------------------------
     xe = x0 + 0.13 * span
@@ -219,47 +288,46 @@ def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
     frags.append(f'<text x="{x0 + 0.065 * span:.1f}" y="{cy[int(x0 + 0.065 * span)] - 8 / s:.1f}" '
                  f'text-anchor="middle" class="deck-lb">ENG</text>')
 
-    # cargo hold sized by capacity -----------------------------------------
+    # cargo hold sized by capacity: a mostly-rectangular bay confined to
+    # the MAIN BODY run (never spanning wings or engine nacelles -- the
+    # per-column continuity run cy/ch is exactly the central core)
     xc0 = xc1 = None
+    hold = None
     if cargo_capacity and cargo_capacity > 0:
         f = np.clip((np.log(cargo_capacity) - np.log(CARGO_LO))
                     / (np.log(CARGO_HI) - np.log(CARGO_LO)), 0, 1)
-        target = (0.10 + 0.30 * f) * inner.sum()
+        target = (0.10 + 0.30 * f) * float(ch[x0:x1 + 1].sum())
         xc0 = xe + 2
         if xb - bl < xc0 + 0.1 * span:          # bridge sits aft: hold fwd
             xc0 = xb + bl + 2
         acc, xc1 = 0.0, xc0
         while xc1 < x1 - 0.05 * span and acc < target:
-            acc += inner[:, int(xc1)].sum()
+            acc += ch[int(xc1)]
             xc1 += 1
         if xb - bl > xc0:                        # never swallow the bridge
             xc1 = min(xc1, xb - bl - 2)
-        hold = (xc0, xc1) if xc1 - xc0 > 0.06 * span else None
-        if hold:
-            region = inner.copy()
-            region[:, :int(xc0)] = False
-            region[:, int(xc1):] = False
-            cps = _contour_paths(region, "deck-ln")
-            frags += cps
-            cid = f"cargo_{ship_id}"
-            clip = "".join(p.replace('class="deck-ln"', "") for p in cps)
-            frags.append(f'<clipPath id="{cid}">{clip}</clipPath>')
-            step = max(9, int(0.016 * W))
-            hatch = "".join(
-                f'<line x1="{hx - H:.0f}" y1="{H}" x2="{hx:.0f}" y2="0"/>'
-                for hx in range(int(xc0), int(xc1) + H, step))
-            frags.append(f'<g class="deck-ht" clip-path="url(#{cid})">{hatch}</g>')
-            xm = (xc0 + xc1) / 2
-            frags.append(f'<text x="{xm:.1f}" y="{cy[int(xm)] - 8 / s:.1f}" '
-                         f'text-anchor="middle" class="deck-lb">HOLD</text>')
-    else:
-        hold = None
+        if xc1 - xc0 > 0.06 * span:
+            sel = ch[int(xc0):int(xc1)] > 0
+            band = _core_band((cy - ch / 2)[int(xc0):int(xc1)][sel],
+                              (cy + ch / 2)[int(xc0):int(xc1)][sel],
+                              min_h=3 * hw)
+            if band:
+                hold = (xc0, xc1)
+                ylo, yhi = band
+                step = max(9, int(0.016 * W))
+                frags.append(_hold_rect(f"cargo_{ship_id}", xc0, ylo,
+                                        xc1 - xc0, yhi - ylo, step))
+                frags.append(f'<text x="{(xc0 + xc1) / 2:.1f}" '
+                             f'y="{(ylo + yhi) / 2 + 3.5 / s:.1f}" '
+                             f'text-anchor="middle" class="deck-lb">HOLD</text>')
 
     # corridor: runs bow-ward of the engine bulkhead, skips the hold -------
     allowed = np.zeros(W, bool)
     allowed[int(xe) + 2:x1 - max(2, int(0.02 * span))] = True
     if hold:
         allowed[int(hold[0]):int(hold[1])] = False
+    if ext_pilot:
+        allowed[:] = False                       # no walkable interior
     ok = ch > 4 * hw
     seg = []
     for x in range(x0, x1 + 1):
@@ -277,7 +345,7 @@ def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
     # cabins: partition walls off the corridor -----------------------------
     lo = max(xe + 2, (xc1 or xe) + 2)
     hi = xb - bl - 2 if xb > lo else x1 - 0.05 * span
-    if hi - lo > 0.12 * span:
+    if hi - lo > 0.12 * span and not ext_pilot and kind != "cockpit":
         dw = max(0.045 * span, 3 * hw)
         i, xw = 0, lo + dw
         while xw < hi:
@@ -320,7 +388,7 @@ def _style(s: float) -> str:
 
 
 def side_overlay(side_d, sw, sh, hold, deck_step, s, ship_id,
-                 line_color="#eaf2ff"):
+                 line_color="#eaf2ff", front_core=False):
     """Interior linework for an ELEVATION view: the dashed inner-hull
     offset (structural wall, matching the plan's), and for the side view
     the cargo hold band at the same stations as the plan's hold (floor to
@@ -351,30 +419,52 @@ def side_overlay(side_d, sw, sh, hold, deck_step, s, ship_id,
         return ""
 
     frags = list(_contour_paths(inner, "in-hull"))
+    step = max(9, int(0.016 * W))
     hx1 = None
     if hold:
         hx0, hx1 = max(0, int(hold[0])), min(W, int(hold[1]))
         if hx1 - hx0 > 8:
-            region = inner.copy()
-            region[:, :hx0] = False
-            region[:, hx1:] = False
-            if region.sum() > 100:
-                cps = _contour_paths(region, "deck-ln")
-                frags += cps
-                cid = f"cargo_side_{ship_id}"
-                clip = "".join(p.replace('class="deck-ln"', "") for p in cps)
-                frags.append(f'<clipPath id="{cid}">{clip}</clipPath>')
-                step = max(9, int(0.016 * W))
-                hatch = "".join(
-                    f'<line x1="{hx - H:.0f}" y1="{H}" x2="{hx:.0f}" y2="0"/>'
-                    for hx in range(hx0, hx1 + H, step))
-                frags.append(
-                    f'<g class="deck-ht" clip-path="url(#{cid})">{hatch}</g>')
-                ys = np.nonzero(region.any(axis=1))[0]
+            # bay confined to the hull's core: the per-column main run's
+            # near-intersection band keeps it out of masts / dishes /
+            # ventral gear that the full profile would sweep in
+            band = _core_band(*_col_runs(inner, hx0, hx1), min_h=6.0)
+            if band:
+                ylo, yhi = band
+                frags.append(_hold_rect(f"cargo_side_{ship_id}", hx0, ylo,
+                                        hx1 - hx0, yhi - ylo, step))
                 frags.append(
                     f'<text x="{(hx0 + hx1) / 2:.1f}" '
-                    f'y="{(ys[0] + ys[-1]) / 2 + 3.5 / s:.1f}" '
+                    f'y="{(ylo + yhi) / 2 + 3.5 / s:.1f}" '
                     f'text-anchor="middle" class="deck-lb">HOLD</text>')
+
+    if front_core:
+        # front elevation: the hold in cross-section -- the contiguous
+        # central column region around the tallest station, cut off where
+        # the profile drops toward wings/nacelles
+        from scipy.ndimage import uniform_filter1d
+        tops = np.full(W, np.nan)
+        bots = np.full(W, np.nan)
+        for x in range(W):
+            t, b = _col_runs(inner, x, x + 1)
+            if len(t):
+                tops[x], bots[x] = t[0], b[0]
+        h_x = np.where(np.isnan(tops), 0.0, bots - tops)
+        hs = uniform_filter1d(h_x, size=max(5, W // 30))
+        xpk = int(np.argmax(hs))
+        thr = 0.55 * hs[xpk]
+        a = xpk
+        while a > 0 and hs[a - 1] >= thr:
+            a -= 1
+        b = xpk
+        while b < W - 1 and hs[b + 1] >= thr:
+            b += 1
+        if b - a > 10:
+            sel = h_x[a:b] > 0
+            band = _core_band(tops[a:b][sel], bots[a:b][sel], min_h=6.0)
+            if band:
+                ylo, yhi = band
+                frags.append(_hold_rect(f"cargo_front_{ship_id}", a + 2, ylo,
+                                        b - a - 4, yhi - ylo, step))
 
     if deck_step and deck_step > 6:
         fore = inner.copy()
@@ -385,8 +475,12 @@ def side_overlay(side_d, sw, sh, hold, deck_step, s, ship_id,
             clip = "".join(p.replace('class="x"', "") for p in cps)
             frags.append(f'<clipPath id="{cid}">{clip}</clipPath>')
             decks = list(np.arange(H - deck_step, 0, -deck_step))
+            # double lines: the deck slab has thickness (~2.5px on screen)
+            gap = 2.5 / s
             lines = "".join(
                 f'<line x1="0" y1="{y:.1f}" x2="{W}" y2="{y:.1f}" '
+                f'class="deck-ln"/>'
+                f'<line x1="0" y1="{y - gap:.1f}" x2="{W}" y2="{y - gap:.1f}" '
                 f'class="deck-ln"/>' for y in decks)
             frags.append(f'<g clip-path="url(#{cid})">{lines}</g>')
 

@@ -109,6 +109,7 @@ TEMPLATE = r"""<!doctype html><meta charset="utf-8">
   <label class="t"><input type="checkbox" id="vflip"> vflip — dorsal/ventral swap (side view upside down)</label>
   <label class="t"><input type="checkbox" id="sym"> sym — mirror-union a lopsided reconstruction</label>
   <label class="t"><input type="checkbox" id="solo"> solo — keep main hull only (drop companion bodies)</label>
+  <label class="t"><input type="checkbox" id="ext_pilot"> ext_pilot — pilot strapped to the bow; no bridge/corridor/cabins on the deck plan</label>
   <label class="t">stretch <input type="number" id="stretch" value="1.00"
     min="0.5" max="2.0" step="0.05"> bow-stern proportion fix</label>
   <label class="t">roll <input type="number" id="roll" value="0"
@@ -146,7 +147,7 @@ img.onload=()=>{ const f=Math.min(view.clientWidth/img.naturalWidth,
 function ui(){
   const a=st.adj||{};
   document.querySelector(`input[name=top][value=${a.top_view||"td"}]`).checked=true;
-  for (const k of ["rot90","flip","mirror","vflip","sym","solo"])
+  for (const k of ["rot90","flip","mirror","vflip","sym","solo","ext_pilot"])
     document.getElementById(k).checked=!!a[k];
   document.getElementById("stretch").value=(a.stretch||1).toFixed(2);
   document.getElementById("roll").value=a.roll||0;
@@ -165,7 +166,7 @@ function readAdj(){
   const a={};
   const top=document.querySelector("input[name=top]:checked").value;
   if (top!=="td") a.top_view=top;
-  for (const k of ["rot90","flip","mirror","vflip","sym","solo"])
+  for (const k of ["rot90","flip","mirror","vflip","sym","solo","ext_pilot"])
     if (document.getElementById(k).checked) a[k]=true;
   const s=parseFloat(document.getElementById("stretch").value);
   if (s && Math.abs(s-1)>0.001) a.stretch=s;
