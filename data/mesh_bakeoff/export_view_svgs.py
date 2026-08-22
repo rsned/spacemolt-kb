@@ -21,6 +21,11 @@ export applies no mirror or rotation (make_blueprints.py flips the hero
 vignette TO match these, not the other way round).
 
     python3 export_view_svgs.py [--no-zip] [ship_id ...]
+    python3 export_view_svgs.py --zip-only --zip-out PATH
+
+The SVGs are committed; the zip is not (see .gitignore). The deploy workflow
+rebuilds it from them into kb/ via scripts/build-footprint-zip.sh, the same
+way inject-overlay-images.sh restores the gitignored portrait copies.
 """
 import argparse
 import json
@@ -108,9 +113,10 @@ def prune(keep):
     return gone
 
 
-def write_zip(names):
+def write_zip(names, out=None):
     """Deterministic archive: sorted entries, fixed timestamps."""
-    out = FOOT / ZIP_NAME
+    out = Path(out) if out else FOOT / ZIP_NAME
+    out.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for name in sorted(names):
             info = zipfile.ZipInfo(name, date_time=ZIP_EPOCH)
@@ -125,7 +131,22 @@ def main(argv=None):
     ap.add_argument("ships", nargs="*", help="ship ids (default: all)")
     ap.add_argument("--no-zip", action="store_true",
                     help="skip building " + ZIP_NAME)
+    ap.add_argument("--zip-only", action="store_true",
+                    help="zip the SVGs already on disk, exporting none")
+    ap.add_argument("--zip-out", metavar="PATH",
+                    help=f"write the archive here instead of {ZIP_NAME}")
     args = ap.parse_args(argv)
+
+    if args.zip_only:
+        names = sorted(p.name for p in FOOT.glob("*.svg")
+                       if p.name.endswith(SUFFIXES))
+        if not names:
+            print("error: no view SVGs found to zip", file=sys.stderr)
+            return 1
+        out = write_zip(names, args.zip_out)
+        print(f"{len(names)} entries -> {out} "
+              f"({out.stat().st_size / 1e6:.1f} MB)")
+        return 0
 
     ids = args.ships or sorted(p.stem for p in VIEWS.glob("*.json"))
 
@@ -153,7 +174,7 @@ def main(argv=None):
         # ships it rewrote.
         allnames = sorted(p.name for p in FOOT.glob("*.svg")
                           if p.name.endswith(SUFFIXES))
-        out = write_zip(allnames)
+        out = write_zip(allnames, args.zip_out)
         print(f"{len(allnames)} entries -> {out} "
               f"({out.stat().st_size / 1e6:.1f} MB)")
     return 0

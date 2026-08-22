@@ -98,6 +98,13 @@ data/footprints/*/quality.json
 data/footprints/*/footprint.json
 data/footprints/*/keyability.json
 
+# The footprint SVG bundle is derived from the committed
+# data/footprints/<id>_{top,side,front}.svg files, so it is not stored. The
+# deploy workflow rebuilds it into kb/ via scripts/build-footprint-zip.sh,
+# the same pattern as the gitignored kb/ portrait copies under overlays/.
+data/footprints/ship_footprint_svg.zip
+kb/ships/blueprints/ship_footprint_svg.zip
+
 # Blueprint hero vignettes (kb/ships/blueprints/art/) are COMMITTED as
 # 128-color palette PNGs so they show on the live site; they regenerate
 # byte-stable from the chromakeys drop via make_blueprints.py.

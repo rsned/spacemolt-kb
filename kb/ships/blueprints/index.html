@@ -15,11 +15,18 @@ main { max-width:1180px; margin:0 auto; padding:0 24px 40px }
 .hd a:hover { text-decoration:underline }
 .ph { width:100%; background:#123d75; border-radius:4px }
 .ph object { display:block; width:100%; height:auto }
+.dl { color:#7aa7d8; text-decoration:none; border:1px solid #333a46;
+      border-radius:4px; padding:6px 12px; margin-left:10px; font-size:12px }
+.dl:hover { border-color:#7aa7d8; text-decoration:none }
 </style>
 <header><h1>Registry Blueprints</h1>
 <div class="sub">275 sheets · three-view registry drawings from the hull
 survey · window convention: 1 pane = 1 m</div>
-<input id="q" placeholder="filter by name / class / category..."></header>
+<input id="q" placeholder="filter by name / class / category...">
+<!-- Built into kb/ at deploy time by scripts/build-footprint-zip.sh; the
+     .zip is gitignored, so this link 404s on a local checkout. -->
+<a class="dl" href="ship_footprint_svg.zip" download>&#x2193; all footprint
+SVGs (top / side / front, 275 ships)</a></header>
 <main>
 <div class="card" data-name="absence absence shuttle civilian">
 <div class="hd"><b>ABSENCE</b><span class="m">SHUTTLE · CIVILIAN · TIER 1 · L.O.A. 15 M</span>
