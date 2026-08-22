@@ -24,6 +24,7 @@
             <a href="../../factions/index.html">Factions</a>
             <a href="../../players/index.html">Players</a>
             <a href="../../passengers/index.html">Passengers</a>
+            <a href="../../battles/index.html">Battles</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -154,22 +155,22 @@
                         <tr>
                           <td>Argon Gas</td>
                           <td><span class="richness-bar" style="--r: 50%">50</span></td>
-                          <td>5</td>
+                          <td>depleted</td>
                         </tr>
                         <tr>
                           <td>Chlorine Gas</td>
                           <td><span class="richness-bar" style="--r: 16%">16</span></td>
-                          <td>1</td>
+                          <td>depleted</td>
                         </tr>
                         <tr>
                           <td>Neon Gas</td>
                           <td><span class="richness-bar" style="--r: 34%">34</span></td>
-                          <td>5</td>
+                          <td>depleted</td>
                         </tr>
                         <tr>
                           <td>Plasma Gas</td>
                           <td><span class="richness-bar" style="--r: 21%">21</span></td>
-                          <td>1</td>
+                          <td>depleted</td>
                         </tr>
                     </tbody>
                 </table>
@@ -188,10 +189,10 @@
                     </div>
                     <div class="base-stats">
                         <span class="badge badge-green">Public</span>
-                        <span class="badge badge-red">Critical</span>
+                        <span class="badge badge-yellow">Struggling</span>
                     </div>
                 </div>
-                <p class="base-desc" style="font-style:italic; opacity:0.85">Critical infrastructure failure. Emergency lighting only. Station barely functional.</p>
+                <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
                 <p class="base-desc">Where warriors are forged. Every Crimson captain passes through the Crucible — weapons certification, ship qualification, and the combat trials that separate officers from the rest. The station doubles as a chokepoint checkpoint with its sister station at The Rampart. Nothing enters Krynn space without passing both.</p>
                 <details class="base-story"><summary>Station Log</summary><p>You dock at The Crucible Garrison. Where warriors are forged. Every Crimson captain passes through the Crucible — weapons certification, ship qualification, and the combat trials that separate officers from the rest. The station doubles as a chokepoint checkpoint with its sister station at The Rampart. Nothing enters Krynn space without passing both.
 
@@ -204,7 +205,7 @@ The station has the following facilities:
 ...and 18 more facilities.
 </p></details>
                 <div class="base-meta">
-                    <span class="label">Satisfaction: 13% (2/15 infrastructure)</span>
+                    <span class="label">Satisfaction: 26% (4/15 infrastructure)</span>
                 </div>
                 <div class="base-sections">
                     <div>
@@ -252,6 +253,21 @@ The station has the following facilities:
                                 <tr>
                                   <td>Station defense turret <span class="badge badge-muted">x2</span></td>
                                   <td><span class="badge ">defense</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Faction fuel bunker</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Faction lockbox</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Market runner</td>
+                                  <td><span class="badge ">faction</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
@@ -380,6 +396,11 @@ The station has the following facilities:
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Plasma fuel combustor</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Power cell assembler</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
@@ -446,7 +467,7 @@ The station has the following facilities:
             </div>
         </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1557920</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1683912</p>
     </main>
     <script>
     (function() {

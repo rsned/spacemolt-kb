@@ -24,6 +24,7 @@
             <a href="../../factions/index.html">Factions</a>
             <a href="../../players/index.html">Players</a>
             <a href="../../passengers/index.html">Passengers</a>
+            <a href="../../battles/index.html">Battles</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -241,7 +242,7 @@
                         <tr>
                           <td>Iron Ore</td>
                           <td><span class="richness-bar" style="--r: 85%">85</span></td>
-                          <td>22</td>
+                          <td>depleted</td>
                         </tr>
                     </tbody>
                 </table>
@@ -266,7 +267,7 @@
                 <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
                 <p class="base-desc">The hearth the war machine comes home to. Behind the military docking protocols and weapons inspections, Ironhearth is the Pact&#39;s most human place — families live here, children are born here, and veterans retire here. The market stocks food and clothing alongside ammunition, and the cantina pours something that isn&#39;t technically regulation but nobody&#39;s been court-martialed for it yet.</p>
                 <div class="base-meta">
-                    <span class="label">Satisfaction: 33% (5/15 infrastructure)</span>
+                    <span class="label">Satisfaction: 37% (6/16 infrastructure)</span>
                 </div>
                 <div class="base-sections">
                     <div>
@@ -317,6 +318,11 @@
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Faction lockbox</td>
+                                  <td><span class="badge ">faction</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Fuel bunker</td>
                                   <td><span class="badge ">infrastructure</span></td>
                                   <td>0</td>
@@ -327,7 +333,7 @@
                                   <td>0</td>
                                 </tr>
                                 <tr>
-                                  <td>Life support expansion</td>
+                                  <td>Life support expansion <span class="badge badge-muted">x2</span></td>
                                   <td><span class="badge ">infrastructure</span></td>
                                   <td>0</td>
                                 </tr>
@@ -403,6 +409,11 @@
                                 </tr>
                                 <tr>
                                   <td>Heavy ice melter</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Honeyglobe orchard</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -498,7 +509,7 @@
             </div>
         </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1557582</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1683909</p>
     </main>
     <script>
     (function() {

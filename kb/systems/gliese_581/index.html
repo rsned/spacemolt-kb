@@ -24,6 +24,7 @@
             <a href="../../factions/index.html">Factions</a>
             <a href="../../players/index.html">Players</a>
             <a href="../../passengers/index.html">Passengers</a>
+            <a href="../../battles/index.html">Battles</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -180,8 +181,229 @@
                 </table>
             </div>
         </section>
+        <section class="sys-section">
+            <div class="section-head">
+                <h3>Bases &amp; Stations</h3>
+                <span class="badge badge-frost">1</span>
+            </div>
+            <div class="base-card">
+                <div class="base-header">
+                    <div>
+                        <h4>Korr Fortress Station</h4>
+                        <span class="label">Pirates</span>
+                    </div>
+                    <div class="base-stats">
+                        <span class="badge badge-red">Private</span>
+                        <span class="badge badge-yellow">Struggling</span>
+                    </div>
+                </div>
+                <p class="base-desc" style="font-style:italic; opacity:0.85">Multiple systems running on emergency reserves. Lights flicker in the corridors.</p>
+                <p class="base-desc">Grand Marshal Korr&#39;s seat of power. The biggest, the oldest, and the one everyone else copies.</p>
+                <div class="base-meta">
+                    <span class="label">Satisfaction: 42% (8/19 infrastructure)</span>
+                </div>
+                <div class="base-sections">
+                    <div>
+                        <span class="label">Services</span>
+                        <div class="service-list">
+                            <span class="service-tag available">Crafting</span>
+                            <span class="service-tag available">Market</span>
+                            <span class="service-tag available">Missions</span>
+                            <span class="service-tag available">Refuel</span>
+                            <span class="service-tag available">Repair</span>
+                            <span class="service-tag available">Salvage yard</span>
+                            <span class="service-tag available">Shipyard</span>
+                            <span class="service-tag available">Storage</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Facilities</span>
+                        <table class="facility-table">
+                            <thead><tr><th>Facility</th><th>Category</th><th>Level</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                  <td>Harpoon emplacement <span class="badge badge-muted">x2</span></td>
+                                  <td><span class="badge ">defense</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Reinforced plating</td>
+                                  <td><span class="badge ">defense</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scrap flak battery <span class="badge badge-muted">x4</span></td>
+                                  <td><span class="badge ">defense</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Fuel bunker</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Pirate bar</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Pirate life support rig</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Salvaged life support module <span class="badge badge-muted">x4</span></td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scavenged battery rig</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Stolen generator module</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Stolen reactor core</td>
+                                  <td><span class="badge ">infrastructure</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Alloy foundry</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Copper wire mill</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Driftkale bay</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Fuel reclamation still</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>H2 fuel combustor</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Hydrogen compression cylinder</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Iron refinery</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Plate press</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scrap ammo works</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scrap armor forge</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scrap cartridge shop</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scrap ordnance shed</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Scrap torpedo slip</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Sunspindle bay</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>The crystal cellar</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Weapon housing fabrication line</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Weapons salvage bench</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Commerce hub</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Contract office</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Crafting workshop</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Fuel depot</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Maintenance deck</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Naval yard</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Salvage dock</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Storage bay</td>
+                                  <td><span class="badge badge-frost">service</span></td>
+                                  <td>0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 603620</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1683648</p>
     </main>
     <script>
     (function() {

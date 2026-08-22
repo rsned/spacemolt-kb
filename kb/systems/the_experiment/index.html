@@ -24,6 +24,7 @@
             <a href="../../factions/index.html">Factions</a>
             <a href="../../players/index.html">Players</a>
             <a href="../../passengers/index.html">Passengers</a>
+            <a href="../../battles/index.html">Battles</a>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -172,17 +173,17 @@
                         <tr>
                           <td>Carbon Ore</td>
                           <td><span class="richness-bar" style="--r: 66%">66</span></td>
-                          <td>3</td>
+                          <td>depleted</td>
                         </tr>
                         <tr>
                           <td>Lithium Ore</td>
                           <td><span class="richness-bar" style="--r: 45%">45</span></td>
-                          <td>2</td>
+                          <td>depleted</td>
                         </tr>
                         <tr>
                           <td>Palladium Ore</td>
                           <td><span class="richness-bar" style="--r: 28%">28</span></td>
-                          <td>1</td>
+                          <td>depleted</td>
                         </tr>
                         <tr>
                           <td>Void Essence</td>
@@ -200,12 +201,12 @@
                         <tr>
                           <td>Hydrogen Gas</td>
                           <td><span class="richness-bar" style="--r: 44%">44</span></td>
-                          <td>7</td>
+                          <td>2,906</td>
                         </tr>
                         <tr>
                           <td>Neon Gas</td>
                           <td><span class="richness-bar" style="--r: 40%">40</span></td>
-                          <td>7</td>
+                          <td>2,891</td>
                         </tr>
                     </tbody>
                 </table>
@@ -230,7 +231,7 @@
                 <p class="base-desc" style="font-style:italic; opacity:0.85">Most systems operational, but some facilities show signs of deferred maintenance.</p>
                 <p class="base-desc">The Collective&#39;s most remote and most classified facility. Positioned three jumps from Nexus Prime in a system with a pre-existing anomaly the Voidborn have never explained, the Research Station processes data that arrives encrypted and leaves the same way. Organic visitors are permitted but monitored. The station&#39;s purpose is officially &#39;fundamental research.&#39; Nobody believes that&#39;s the whole story.</p>
                 <div class="base-meta">
-                    <span class="label">Satisfaction: 76% (16/21 infrastructure)</span>
+                    <span class="label">Satisfaction: 80% (17/21 infrastructure)</span>
                 </div>
                 <div class="base-sections">
                     <div>
@@ -278,6 +279,11 @@
                                 <tr>
                                   <td>Station defense turret <span class="badge badge-muted">x2</span></td>
                                   <td><span class="badge ">defense</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Faction lockbox</td>
+                                  <td><span class="badge ">faction</span></td>
                                   <td>0</td>
                                 </tr>
                                 <tr>
@@ -386,6 +392,11 @@
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Lithium cell foundry</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Lithium processing line</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
@@ -401,6 +412,11 @@
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Nuclear cell foundry</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Package logistics bay</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
@@ -411,7 +427,17 @@
                                   <td>0</td>
                                 </tr>
                                 <tr>
+                                  <td>Scrubber cartridge assembly line</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
                                   <td>Shielded cell plant</td>
+                                  <td><span class="badge badge-orange">production</span></td>
+                                  <td>0</td>
+                                </tr>
+                                <tr>
+                                  <td>Sunspindle bay</td>
                                   <td><span class="badge badge-orange">production</span></td>
                                   <td>0</td>
                                 </tr>
@@ -467,7 +493,7 @@
             </div>
         </section>
 
-        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1557745</p>
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: 1683839</p>
     </main>
     <script>
     (function() {

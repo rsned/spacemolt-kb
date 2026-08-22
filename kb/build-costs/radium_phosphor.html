@@ -26,6 +26,7 @@
 <p>Build cost by station. BoM = from raw ore; Recipe = buy sub-assemblies.</p>
 
 <p><a href="../items/component/radium_phosphor.html">View Radium Phosphor in the catalog →</a></p>
+<p><a href="explorer.html?target=radium_phosphor">Explore this BoM interactively →</a></p>
 
 <h2>Bill of Materials <small>(raw inputs)</small></h2>
 
@@ -50,9 +51,7 @@
 
 
 
-<div class="banner">
-⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing input with no depth: <code>Radium Ore</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
-</div>
+
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
@@ -65,9 +64,9 @@
 <tr>
  <td>Iron Reach Mining Colony</td><td>crimson</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -109,9 +108,9 @@
 <tr>
  <td>The Core</td><td>voidborn</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -140,11 +139,22 @@
 </tr>
 
 <tr>
+ <td>Kael Arsenal</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
  <td>The Rampart Checkpoint</td><td>crimson</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>0/1</td><td>1,000</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>0/1</td><td>1,000</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -163,12 +173,12 @@
 
 <tr>
  <td>War Citadel</td><td>crimson</td>
- <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
- <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="">1,000</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
+ <td class="">1,000</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
  <td>process_radium</td>
- <td class="">—</td>
+ <td class="neg">-100</td>
  <td class="">—</td>
 </tr>
 
@@ -186,9 +196,9 @@
 <tr>
  <td>Blood Forge Smelting Works</td><td>crimson</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -252,9 +262,9 @@
 <tr>
  <td>Node Alpha Processing Station</td><td>voidborn</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -263,9 +273,9 @@
 <tr>
  <td>Node Gamma Relay Station</td><td>voidborn</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -307,9 +317,9 @@
 <tr>
  <td>Synchrony Hub</td><td>voidborn</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>1,250</td><td>1,250</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>1,250</td><td>1,250</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -318,9 +328,9 @@
 <tr>
  <td>The Anvil Arsenal</td><td>crimson</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>1,000</td><td>1,000</td><td>1,000</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -329,9 +339,9 @@
 <tr>
  <td>The Crucible Garrison</td><td>crimson</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>1,000</td><td>1,000</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>1,000</td><td>1,000</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -340,9 +350,9 @@
 <tr>
  <td>The Experiment Research Station</td><td>voidborn</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>0/1</td><td>1,250</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>0/1</td><td>1,250</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -393,11 +403,88 @@
 </tr>
 
 <tr>
+ <td>Crix Stronghold</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Sable Port</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Thane Keep</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Dross Citadel</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Nyx Nexus</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Voss Redoubt</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Mera Sanctum</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
  <td>Ironhearth Station</td><td>crimson</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>1,000</td><td>1,000</td>
  <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>0/1</td><td>1,000</td><td>1,000</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -427,10 +514,10 @@
 
 <tr>
  <td>Node Beta Industrial Station</td><td>voidborn</td>
- <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
- <td class="infeasible">0/1</td>
- <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="">1,250</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
+ <td class="">1,250</td>
+ <td>1,250</td><td>1,250</td><td>1,250</td>
  <td>process_radium</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -447,9 +534,119 @@
  <td class="">—</td>
 </tr>
 
+<tr>
+ <td>The Veil Anchor</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Korr Fortress</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Ironlight Crossroads</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Zero Point Nexus</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Starlight Cartographer</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Cryo Zenith</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Private Rain</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Second Ledger</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Ghost Runner Terminal</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Deep Current</td><td>Independent</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td class="infeasible">0/1</td>
+ <td>0/1</td><td>0/1</td><td>0/1</td>
+ <td>process_radium</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
 </tbody>
 </table>
 </div>
-<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-08-08 17:18 UTC</footer>
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-08-22 17:50 UTC</footer>
 </body>
 </html>
