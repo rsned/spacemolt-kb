@@ -2717,6 +2717,9 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 		"dirName":        dirName,
 		"resourceAnchor": resourceAnchor,
 		"isResourceItem": isResourceItem,
+		// hasComparison gates the "all modules" link to the two categories
+		// that have a cross-family comparison table.
+		"hasComparison": func(cat string) bool { return cat == "weapon" || cat == "defense" },
 		"statsHTML":      itemStatsHTML,
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
@@ -2806,6 +2809,16 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 		if err := f.Close(); err != nil {
 			return err
 		}
+	}
+
+	// Cross-family module comparison tables (weapon/all.html,
+	// defense/all.html) for fitting decisions.
+	modItems := make([]*Item, 0, len(items))
+	for _, it := range items {
+		modItems = append(modItems, it)
+	}
+	if err := writeModuleComparisons(outDir, modItems); err != nil {
+		return err
 	}
 	return nil
 }
@@ -2905,6 +2918,9 @@ var htmlCatTemplate = `<!DOCTYPE html>
         <div class="breadcrumb"><a href="../">Items</a> / {{titleCase .Name}}</div>
         <h2>{{titleCase .Name}}</h2>
         <p class="text-muted mt-1">{{.Description}}</p>
+{{- if hasComparison .Name}}
+        <p class="mt-2"><a href="all.html">&#x25A4; All {{titleCase .Name}} Modules &mdash; full stat comparison for fitting &rarr;</a></p>
+{{- end}}
         <div class="card mt-3" style="padding:0">
         <table class="sortable">
         <thead>

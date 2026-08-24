@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Defense Modules - Items - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../items/items.css">
+    <style>
+       
+      .module-filters { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;
+        margin:14px 0 10px; padding:12px 14px;
+        background:hsl(var(--card)); border:1px solid hsl(var(--border)); }
+      .module-filters .fgroup { display:flex; flex-direction:column; gap:6px; }
+      .module-filters label { font-size:var(--text-label,12px); text-transform:uppercase;
+        letter-spacing:.06em; color:hsl(var(--muted-foreground)); }
+      .module-filters input, .module-filters select {
+        background:hsl(var(--background)); color:hsl(var(--foreground));
+        border:1px solid hsl(var(--border)); padding:5px 8px;
+        font-family:var(--font-sans); font-size:var(--text-ui,13px); }
+      .module-filters .filter-search { min-width:210px; }
+      .module-filters .filter-cpu, .module-filters .filter-power { width:88px; }
+      .filter-reset { cursor:pointer; background:hsl(var(--secondary));
+        color:hsl(var(--secondary-foreground)); border:1px solid hsl(var(--border));
+        padding:6px 12px; font-family:var(--font-sans); font-size:var(--text-ui,13px); }
+      .filter-reset:hover { border-color:hsl(var(--smui-border-hover)); }
+      .chips { display:flex; flex-wrap:wrap; gap:6px; }
+      .chip { cursor:pointer; user-select:none; font-size:var(--text-label,12px);
+        padding:4px 10px; border:1px solid hsl(var(--border));
+        background:hsl(var(--background)); color:hsl(var(--muted-foreground)); }
+      .chip:hover { border-color:hsl(var(--smui-border-hover)); color:hsl(var(--foreground)); }
+      .chip.on { background:hsl(var(--primary)); border-color:hsl(var(--primary));
+        color:hsl(var(--primary-foreground)); }
+      .filter-count { font-size:var(--text-label,12px);
+        color:hsl(var(--muted-foreground)); margin-left:auto; align-self:center; }
+       
+      .dt { font-size:11px; padding:2px 8px; white-space:nowrap; display:inline-block; }
+      .dt-kinetic   { background:#4b5563; color:#f3f4f6; }
+      .dt-thermal   { background:#9a3412; color:#ffedd5; }
+      .dt-energy    { background:#1d4ed8; color:#dbeafe; }
+      .dt-em        { background:#6d28d9; color:#ede9fe; }
+      .dt-explosive { background:#b91c1c; color:#fee2e2; }
+      .dt-void      { background:#1f2937; color:#c7d2fe; border:1px solid #4f46e5; }
+      .specials { font-size:var(--text-label,12px);
+        color:hsl(var(--muted-foreground)); max-width:280px; }
+      .mod-table { font-size:var(--text-ui,13px); }
+      .mod-table td.num, .mod-table th.num { text-align:right; }
+      .mod-table .res0 { color:hsl(var(--muted-foreground)); opacity:.45; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+      <div class="breadcrumb"><a href="../">Items</a> / <a href="./">Defense</a> / All Defense</div>
+      <h2>All Defense Modules</h2>
+      <p class="text-muted mt-1">All 41 defense modules in one table.
+        The resistance columns use the same damage types as the weapons page, so the two read against each other.
+        <a href="../weapon/all.html">Weapons &rarr;</a></p>
+
+      <div class="module-filters">
+        <div class="fgroup"><label>Search</label>
+          <input type="text" class="filter-search" placeholder="name or special&hellip;"></div>
+        <div class="fgroup"><label>Resists</label>
+          <div class="chips">
+            <span class="chip" data-group="dtype" data-value="kinetic">Kinetic</span>
+            <span class="chip" data-group="dtype" data-value="thermal">Thermal</span>
+            <span class="chip" data-group="dtype" data-value="energy">Energy</span>
+            <span class="chip" data-group="dtype" data-value="em">EM</span>
+            <span class="chip" data-group="dtype" data-value="explosive">Explosive</span>
+            <span class="chip" data-group="dtype" data-value="void">Void</span>
+          </div></div>
+        <div class="fgroup"><label>Max CPU</label>
+          <input type="number" class="filter-cpu" min="0" placeholder="free"></div>
+        <div class="fgroup"><label>Max power</label>
+          <input type="number" class="filter-power" min="0" placeholder="free"></div>
+        <div class="fgroup"><label>&nbsp;</label>
+          <button class="filter-reset">Reset</button></div>
+        <span class="filter-count"></span>
+      </div>
+
+      <div class="card" style="padding:0; overflow-x:auto">
+        <table class="sortable mod-table">
+          <thead>
+            <tr>
+              <th class="sortable">Name</th>
+              <th class="sortable num">CPU</th>
+              <th class="sortable num">Power</th>
+              <th class="sortable num">Shield</th>
+              <th class="sortable num" title="Shield recharge per tick">Shd regen</th>
+              <th class="sortable num">Armor</th>
+              <th class="sortable num" title="Armor repaired per tick">Arm repair</th>
+              <th class="sortable num">Hull</th>
+              <th class="sortable num" title="Flat damage reduction">Dmg red</th>
+              <th class="sortable num" title="Resistance to kinetic damage">Kinetic</th>
+              <th class="sortable num" title="Resistance to thermal damage">Thermal</th>
+              <th class="sortable num" title="Resistance to energy damage">Energy</th>
+              <th class="sortable num" title="Resistance to em damage">EM</th>
+              <th class="sortable num" title="Resistance to explosive damage">Explosive</th>
+              <th class="sortable num" title="Resistance to void damage">Void</th>
+              <th class="sortable">Penalties</th>
+              <th class="sortable">Skill req</th>
+              <th class="sortable num">Value</th>
+              <th>Special</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-search="adaptive shield i adaptive resistance 10"
+                data-dtype=""
+                data-cpu="5" data-power="10">
+              <td><a href="adaptive_shield_i.html">Adaptive Shield I</a></td>
+              <td class="num">5</td>
+              <td class="num">10</td>
+              <td class="num">60</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 4</td>
+              <td class="num value" data-sort="21000">21,000 cr</td>
+              <td class="specials">Adaptive resistance 10</td>
+            </tr>
+            <tr data-search="adaptive shield ii adaptive resistance 20"
+                data-dtype=""
+                data-cpu="8" data-power="15">
+              <td><a href="adaptive_shield_ii.html">Adaptive Shield II</a></td>
+              <td class="num">8</td>
+              <td class="num">15</td>
+              <td class="num">120</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 3</td>
+              <td class="num value" data-sort="44000">44,000 cr</td>
+              <td class="specials">Adaptive resistance 20</td>
+            </tr>
+            <tr data-search="adaptive shield iii adaptive resistance 35"
+                data-dtype=""
+                data-cpu="12" data-power="22">
+              <td><a href="adaptive_shield_iii.html">Adaptive Shield III</a></td>
+              <td class="num">12</td>
+              <td class="num">22</td>
+              <td class="num">200</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 5</td>
+              <td class="num value" data-sort="53000">53,000 cr</td>
+              <td class="specials">Adaptive resistance 35</td>
+            </tr>
+            <tr data-search="armor plate i "
+                data-dtype=""
+                data-cpu="1" data-power="0">
+              <td><a href="armor_plate_i.html">Armor Plate I</a></td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">5</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>Speed -1</td>
+              <td>—</td>
+              <td class="num value" data-sort="490">490 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="armor plate ii "
+                data-dtype=""
+                data-cpu="2" data-power="0">
+              <td><a href="armor_plate_ii.html">Armor Plate II</a></td>
+              <td class="num">2</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">10</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>Speed -1</td>
+              <td>Armor 2</td>
+              <td class="num value" data-sort="1200">1,200 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="armor plate iii "
+                data-dtype=""
+                data-cpu="3" data-power="0">
+              <td><a href="armor_plate_iii.html">Armor Plate III</a></td>
+              <td class="num">3</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">18</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>Speed -2</td>
+              <td>Armor 4</td>
+              <td class="num value" data-sort="1700">1,700 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="armor repairer i "
+                data-dtype=""
+                data-cpu="3" data-power="8">
+              <td><a href="armor_repairer_i.html">Armor Repairer I</a></td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">5</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 2</td>
+              <td class="num value" data-sort="3700">3,700 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="armor repairer ii "
+                data-dtype=""
+                data-cpu="5" data-power="14">
+              <td><a href="armor_repairer_ii.html">Armor Repairer II</a></td>
+              <td class="num">5</td>
+              <td class="num">14</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">12</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 4</td>
+              <td class="num value" data-sort="7500">7,500 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="armor repairer iii "
+                data-dtype=""
+                data-cpu="8" data-power="22">
+              <td><a href="armor_repairer_iii.html">Armor Repairer III</a></td>
+              <td class="num">8</td>
+              <td class="num">22</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">25</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 5</td>
+              <td class="num value" data-sort="7000">7,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="crimson berserker plating damage boost on hit"
+                data-dtype=""
+                data-cpu="6" data-power="8">
+              <td><a href="crimson_berserker_plating.html">Crimson Berserker Plating</a></td>
+              <td class="num">6</td>
+              <td class="num">8</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">25</td>
+              <td class="num">—</td>
+              <td class="num">60</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 4</td>
+              <td class="num value" data-sort="16000">16,000 cr</td>
+              <td class="specials">Damage boost on hit</td>
+            </tr>
+            <tr data-search="damage control system "
+                data-dtype=""
+                data-cpu="4" data-power="5">
+              <td><a href="damage_control_system.html">Damage Control System</a></td>
+              <td class="num">4</td>
+              <td class="num">5</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="10">10%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 3</td>
+              <td class="num value" data-sort="5600">5,600 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="darksteel armor "
+                data-dtype=""
+                data-cpu="5" data-power="0">
+              <td><a href="darksteel_armor.html">Darksteel Armor</a></td>
+              <td class="num">5</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">35</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>Speed -2</td>
+              <td>Armor 5</td>
+              <td class="num value" data-sort="8000">8,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="em hull hardener "
+                data-dtype="em"
+                data-cpu="2" data-power="4">
+              <td><a href="em_hull_hardener.html">EM Hull Hardener</a></td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="30">30%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 2</td>
+              <td class="num value" data-sort="1600">1,600 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="em shield hardener "
+                data-dtype="em"
+                data-cpu="3" data-power="6">
+              <td><a href="em_shield_hardener.html">EM Shield Hardener</a></td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="25">25%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 2</td>
+              <td class="num value" data-sort="4300">4,300 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="emergency warp stabilizer emergency warp at 20% hull"
+                data-dtype=""
+                data-cpu="6" data-power="8">
+              <td><a href="emergency_warp_stabilizer.html">Emergency Warp Stabilizer</a></td>
+              <td class="num">6</td>
+              <td class="num">8</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Navigation 4</td>
+              <td class="num value" data-sort="19000">19,000 cr</td>
+              <td class="specials">Emergency warp at 20% hull</td>
+            </tr>
+            <tr data-search="event horizon plating "
+                data-dtype=""
+                data-cpu="8" data-power="6">
+              <td><a href="event_horizon_plating.html">Event Horizon Plating</a></td>
+              <td class="num">8</td>
+              <td class="num">6</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">48</td>
+              <td class="num">—</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 6</td>
+              <td class="num value" data-sort="40000">40,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="explosive hull hardener "
+                data-dtype="explosive"
+                data-cpu="2" data-power="4">
+              <td><a href="explosive_hull_hardener.html">Explosive Hull Hardener</a></td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="30">30%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 2</td>
+              <td class="num value" data-sort="640">640 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="explosive shield hardener "
+                data-dtype="explosive"
+                data-cpu="3" data-power="6">
+              <td><a href="explosive_shield_hardener.html">Explosive Shield Hardener</a></td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="25">25%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 2</td>
+              <td class="num value" data-sort="3700">3,700 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="hull integrity field "
+                data-dtype=""
+                data-cpu="7" data-power="14">
+              <td><a href="hull_integrity_field.html">Hull Integrity Field</a></td>
+              <td class="num">7</td>
+              <td class="num">14</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">10</td>
+              <td class="num">—</td>
+              <td class="num">80</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 4, Shields 3</td>
+              <td class="num value" data-sort="5500">5,500 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="hull reinforcement i "
+                data-dtype=""
+                data-cpu="1" data-power="0">
+              <td><a href="hull_reinforcement_i.html">Hull Reinforcement I</a></td>
+              <td class="num">1</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">25</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>—</td>
+              <td class="num value" data-sort="880">880 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="hull reinforcement ii "
+                data-dtype=""
+                data-cpu="2" data-power="0">
+              <td><a href="hull_reinforcement_ii.html">Hull Reinforcement II</a></td>
+              <td class="num">2</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">60</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 2</td>
+              <td class="num value" data-sort="1100">1,100 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="hull reinforcement iii "
+                data-dtype=""
+                data-cpu="3" data-power="0">
+              <td><a href="hull_reinforcement_iii.html">Hull Reinforcement III</a></td>
+              <td class="num">3</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">120</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 4</td>
+              <td class="num value" data-sort="2100">2,100 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="kinetic hull hardener "
+                data-dtype="kinetic"
+                data-cpu="2" data-power="4">
+              <td><a href="kinetic_hull_hardener.html">Kinetic Hull Hardener</a></td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num" data-sort="30">30%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 2</td>
+              <td class="num value" data-sort="740">740 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="kinetic shield hardener "
+                data-dtype="kinetic"
+                data-cpu="3" data-power="6">
+              <td><a href="kinetic_shield_hardener.html">Kinetic Shield Hardener</a></td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num" data-sort="25">25%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 2</td>
+              <td class="num value" data-sort="3800">3,800 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="nanocarbon hull lattice "
+                data-dtype=""
+                data-cpu="5" data-power="0">
+              <td><a href="nanocarbon_hull_lattice.html">Nanocarbon Hull Lattice</a></td>
+              <td class="num">5</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">250</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 5</td>
+              <td class="num value" data-sort="2800">2,800 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="nebula storm barrier shock attackers 15"
+                data-dtype=""
+                data-cpu="8" data-power="14">
+              <td><a href="nebula_storm_barrier.html">Nebula Storm Barrier</a></td>
+              <td class="num">8</td>
+              <td class="num">14</td>
+              <td class="num">80</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 4</td>
+              <td class="num value" data-sort="18000">18,000 cr</td>
+              <td class="specials">Shock attackers 15</td>
+            </tr>
+            <tr data-search="outer rim scrap armor repairs from salvage"
+                data-dtype=""
+                data-cpu="2" data-power="0">
+              <td><a href="outer_rim_scrap_armor.html">Outer Rim Scrap Armor</a></td>
+              <td class="num">2</td>
+              <td class="num">0</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">15</td>
+              <td class="num">—</td>
+              <td class="num">50</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>Speed -1</td>
+              <td>Armor 3</td>
+              <td class="num value" data-sort="3300">3,300 cr</td>
+              <td class="specials">Repairs from salvage</td>
+            </tr>
+            <tr data-search="quantum entanglement shield "
+                data-dtype=""
+                data-cpu="12" data-power="22">
+              <td><a href="quantum_entanglement_shield.html">Quantum Entanglement Shield</a></td>
+              <td class="num">12</td>
+              <td class="num">22</td>
+              <td class="num">250</td>
+              <td class="num">6</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 5</td>
+              <td class="num value" data-sort="83000">83,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="quantum shield iv adaptive resistance 35"
+                data-dtype=""
+                data-cpu="12" data-power="25">
+              <td><a href="quantum_shield_iv.html">Quantum Shield IV</a></td>
+              <td class="num">12</td>
+              <td class="num">25</td>
+              <td class="num">250</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Crafting 4, Shields 5</td>
+              <td class="num value" data-sort="21000">21,000 cr</td>
+              <td class="specials">Adaptive resistance 35</td>
+            </tr>
+            <tr data-search="shield booster i "
+                data-dtype=""
+                data-cpu="2" data-power="4">
+              <td><a href="shield_booster_i.html">Shield Booster I</a></td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">25</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>—</td>
+              <td class="num value" data-sort="1700">1,700 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="shield booster ii "
+                data-dtype=""
+                data-cpu="3" data-power="6">
+              <td><a href="shield_booster_ii.html">Shield Booster II</a></td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">50</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 2</td>
+              <td class="num value" data-sort="7200">7,200 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="shield booster iii "
+                data-dtype=""
+                data-cpu="5" data-power="10">
+              <td><a href="shield_booster_iii.html">Shield Booster III</a></td>
+              <td class="num">5</td>
+              <td class="num">10</td>
+              <td class="num">100</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 4</td>
+              <td class="num value" data-sort="13000">13,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="shield booster iv "
+                data-dtype=""
+                data-cpu="8" data-power="15">
+              <td><a href="shield_booster_iv.html">Shield Booster IV</a></td>
+              <td class="num">8</td>
+              <td class="num">15</td>
+              <td class="num">200</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 4</td>
+              <td class="num value" data-sort="18000">18,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="shield recharger i "
+                data-dtype=""
+                data-cpu="2" data-power="5">
+              <td><a href="shield_recharger_i.html">Shield Recharger I</a></td>
+              <td class="num">2</td>
+              <td class="num">5</td>
+              <td class="num">—</td>
+              <td class="num">2</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>—</td>
+              <td class="num value" data-sort="1300">1,300 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="shield recharger ii "
+                data-dtype=""
+                data-cpu="3" data-power="8">
+              <td><a href="shield_recharger_ii.html">Shield Recharger II</a></td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num">—</td>
+              <td class="num">5</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 3</td>
+              <td class="num value" data-sort="7500">7,500 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="solarian aegis reflect energy 20"
+                data-dtype=""
+                data-cpu="8" data-power="15">
+              <td><a href="solarian_aegis.html">Solarian Aegis</a></td>
+              <td class="num">8</td>
+              <td class="num">15</td>
+              <td class="num">100</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 4</td>
+              <td class="num value" data-sort="23000">23,000 cr</td>
+              <td class="specials">Reflect energy 20</td>
+            </tr>
+            <tr data-search="thermal hull hardener "
+                data-dtype="thermal"
+                data-cpu="2" data-power="4">
+              <td><a href="thermal_hull_hardener.html">Thermal Hull Hardener</a></td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="30">30%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 2</td>
+              <td class="num value" data-sort="580">580 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="thermal shield hardener "
+                data-dtype="thermal"
+                data-cpu="3" data-power="6">
+              <td><a href="thermal_shield_hardener.html">Thermal Shield Hardener</a></td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="25">25%</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Shields 2</td>
+              <td class="num value" data-sort="3600">3,600 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="void hull hardener "
+                data-dtype="void"
+                data-cpu="4" data-power="6">
+              <td><a href="void_hull_hardener.html">Void Hull Hardener</a></td>
+              <td class="num">4</td>
+              <td class="num">6</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="20">20%</td>
+              <td>—</td>
+              <td>Armor 4</td>
+              <td class="num value" data-sort="4900">4,900 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="void shield hardener "
+                data-dtype="void"
+                data-cpu="5" data-power="8">
+              <td><a href="void_shield_hardener.html">Void Shield Hardener</a></td>
+              <td class="num">5</td>
+              <td class="num">8</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num" data-sort="20">20%</td>
+              <td>—</td>
+              <td>Shields 2</td>
+              <td class="num value" data-sort="8200">8,200 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="voidborn phase armor phase dodge 25"
+                data-dtype=""
+                data-cpu="9" data-power="12">
+              <td><a href="voidborn_phase_armor.html">Voidborn Phase Armor</a></td>
+              <td class="num">9</td>
+              <td class="num">12</td>
+              <td class="num">—</td>
+              <td class="num">—</td>
+              <td class="num">30</td>
+              <td class="num">—</td>
+              <td class="num">80</td>
+              <td class="num" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td class="num res0" data-sort="0">—</td>
+              <td>—</td>
+              <td>Armor 5</td>
+              <td class="num value" data-sort="26000">26,000 cr</td>
+              <td class="specials">Phase dodge 25</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-muted mt-2" style="font-size:12px">
+        Resistance columns are per damage type &mdash; match them against the damage type
+        that is actually killing you on the <a href="../weapon/all.html">weapons page</a>.
+        Penalties are real: several high-bulk modules cost speed, which is why
+        they are a first-class column rather than buried in the description.
+      </p>
+    </main>
+    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+    </script>    <script>
+    (function () {
+      var bar = document.querySelector(".module-filters");
+      if (!bar) return;
+      var table = document.querySelector("table.sortable");
+      var rows = Array.from(table.querySelectorAll("tbody tr"));
+      var count = document.querySelector(".filter-count");
+
+      function activeChips(group) {
+        return Array.from(bar.querySelectorAll('.chip[data-group="' + group + '"].on'))
+                    .map(function (c) { return c.dataset.value; });
+      }
+
+      function apply() {
+        var q = (bar.querySelector(".filter-search").value || "").toLowerCase().trim();
+        var dts = activeChips("dtype");
+        var ammo = bar.querySelector(".filter-ammo");
+        var ammoVal = ammo ? ammo.value : "";
+        var maxCPU = parseFloat(bar.querySelector(".filter-cpu").value);
+        var maxPwr = parseFloat(bar.querySelector(".filter-power").value);
+        var shown = 0;
+        rows.forEach(function (tr) {
+          var ok = true;
+          if (q && tr.dataset.search.indexOf(q) === -1) ok = false;
+          if (ok && dts.length) {
+            
+            
+            var have = (tr.dataset.dtype || "").split(" ").filter(Boolean);
+            ok = dts.some(function (d) { return have.indexOf(d) !== -1; });
+          }
+          if (ok && ammoVal && tr.dataset.ammo !== ammoVal) ok = false;
+          if (ok && !isNaN(maxCPU) && parseFloat(tr.dataset.cpu) > maxCPU) ok = false;
+          if (ok && !isNaN(maxPwr) && parseFloat(tr.dataset.power) > maxPwr) ok = false;
+          tr.style.display = ok ? "" : "none";
+          if (ok) shown++;
+        });
+        if (count) count.textContent = shown + " of " + rows.length + " shown";
+      }
+
+      bar.querySelectorAll(".chip").forEach(function (c) {
+        c.addEventListener("click", function () { c.classList.toggle("on"); apply(); });
+      });
+      bar.querySelectorAll("input, select").forEach(function (el) {
+        el.addEventListener("input", apply);
+        el.addEventListener("change", apply);
+      });
+      var reset = bar.querySelector(".filter-reset");
+      if (reset) {
+        reset.addEventListener("click", function () {
+          bar.querySelectorAll(".chip.on").forEach(function (c) { c.classList.remove("on"); });
+          bar.querySelectorAll("input").forEach(function (el) { el.value = ""; });
+          bar.querySelectorAll("select").forEach(function (el) { el.selectedIndex = 0; });
+          apply();
+        });
+      }
+      apply();
+    })();
+    </script>    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

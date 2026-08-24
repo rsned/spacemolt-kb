@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Weapons - Items - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../items/items.css">
+    <style>
+       
+      .module-filters { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;
+        margin:14px 0 10px; padding:12px 14px;
+        background:hsl(var(--card)); border:1px solid hsl(var(--border)); }
+      .module-filters .fgroup { display:flex; flex-direction:column; gap:6px; }
+      .module-filters label { font-size:var(--text-label,12px); text-transform:uppercase;
+        letter-spacing:.06em; color:hsl(var(--muted-foreground)); }
+      .module-filters input, .module-filters select {
+        background:hsl(var(--background)); color:hsl(var(--foreground));
+        border:1px solid hsl(var(--border)); padding:5px 8px;
+        font-family:var(--font-sans); font-size:var(--text-ui,13px); }
+      .module-filters .filter-search { min-width:210px; }
+      .module-filters .filter-cpu, .module-filters .filter-power { width:88px; }
+      .filter-reset { cursor:pointer; background:hsl(var(--secondary));
+        color:hsl(var(--secondary-foreground)); border:1px solid hsl(var(--border));
+        padding:6px 12px; font-family:var(--font-sans); font-size:var(--text-ui,13px); }
+      .filter-reset:hover { border-color:hsl(var(--smui-border-hover)); }
+      .chips { display:flex; flex-wrap:wrap; gap:6px; }
+      .chip { cursor:pointer; user-select:none; font-size:var(--text-label,12px);
+        padding:4px 10px; border:1px solid hsl(var(--border));
+        background:hsl(var(--background)); color:hsl(var(--muted-foreground)); }
+      .chip:hover { border-color:hsl(var(--smui-border-hover)); color:hsl(var(--foreground)); }
+      .chip.on { background:hsl(var(--primary)); border-color:hsl(var(--primary));
+        color:hsl(var(--primary-foreground)); }
+      .filter-count { font-size:var(--text-label,12px);
+        color:hsl(var(--muted-foreground)); margin-left:auto; align-self:center; }
+       
+      .dt { font-size:11px; padding:2px 8px; white-space:nowrap; display:inline-block; }
+      .dt-kinetic   { background:#4b5563; color:#f3f4f6; }
+      .dt-thermal   { background:#9a3412; color:#ffedd5; }
+      .dt-energy    { background:#1d4ed8; color:#dbeafe; }
+      .dt-em        { background:#6d28d9; color:#ede9fe; }
+      .dt-explosive { background:#b91c1c; color:#fee2e2; }
+      .dt-void      { background:#1f2937; color:#c7d2fe; border:1px solid #4f46e5; }
+      .specials { font-size:var(--text-label,12px);
+        color:hsl(var(--muted-foreground)); max-width:280px; }
+      .mod-table { font-size:var(--text-ui,13px); }
+      .mod-table td.num, .mod-table th.num { text-align:right; }
+      .mod-table .res0 { color:hsl(var(--muted-foreground)); opacity:.45; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+      <div class="breadcrumb"><a href="../">Items</a> / <a href="./">Weapon</a> / All Weapons</div>
+      <h2>All Weapons</h2>
+      <p class="text-muted mt-1">All 68 weapon modules in one table, for fitting comparison across families.
+        Click any column header to sort &mdash; click again to reverse.
+        <a href="../defense/all.html">Defense modules &rarr;</a></p>
+
+      <div class="module-filters">
+        <div class="fgroup"><label>Search</label>
+          <input type="text" class="filter-search" placeholder="name or special&hellip;"></div>
+        <div class="fgroup"><label>Damage type</label>
+          <div class="chips">
+            <span class="chip" data-group="dtype" data-value="kinetic">Kinetic</span>
+            <span class="chip" data-group="dtype" data-value="thermal">Thermal</span>
+            <span class="chip" data-group="dtype" data-value="energy">Energy</span>
+            <span class="chip" data-group="dtype" data-value="em">EM</span>
+            <span class="chip" data-group="dtype" data-value="explosive">Explosive</span>
+            <span class="chip" data-group="dtype" data-value="void">Void</span>
+          </div></div>
+        <div class="fgroup"><label>Ammo</label>
+          <select class="filter-ammo">
+            <option value="">any</option>
+            <option value="autocannon">Autocannon</option>
+            <option value="em_charge">Em Charge</option>
+            <option value="junk">Junk</option>
+            <option value="mine">Mine</option>
+            <option value="missile">Missile</option>
+            <option value="plasma">Plasma</option>
+            <option value="railgun">Railgun</option>
+            <option value="torpedo">Torpedo</option>
+            <option value="void_core">Void Core</option>
+          </select></div>
+        <div class="fgroup"><label>Max CPU</label>
+          <input type="number" class="filter-cpu" min="0" placeholder="free"></div>
+        <div class="fgroup"><label>Max power</label>
+          <input type="number" class="filter-power" min="0" placeholder="free"></div>
+        <div class="fgroup"><label>&nbsp;</label>
+          <button class="filter-reset">Reset</button></div>
+        <span class="filter-count"></span>
+      </div>
+
+      <div class="card" style="padding:0; overflow-x:auto">
+        <table class="sortable mod-table">
+          <thead>
+            <tr>
+              <th class="sortable">Name</th>
+              <th class="sortable">Dmg type</th>
+              <th class="sortable num" title="Base damage per shot">Dmg</th>
+              <th class="sortable num" title="Cooldown in ticks between shots">CD</th>
+              <th class="sortable num" title="Damage per tick: damage divided by cooldown">DPT</th>
+              <th class="sortable num" title="Effective DPT range across every round that fits this weapon">Eff DPT</th>
+              <th class="sortable num" title="How far it can attack from">Reach</th>
+              <th class="sortable num">CPU</th>
+              <th class="sortable num">Power</th>
+              <th class="sortable num" title="Damage per tick per point of CPU">DPT/CPU</th>
+              <th class="sortable num" title="Damage per tick per point of power">DPT/Pwr</th>
+              <th class="sortable">Ammo</th>
+              <th class="sortable num" title="Magazine size">Mag</th>
+              <th class="sortable num" title="Total damage in one magazine: damage x magazine size">Volley</th>
+              <th class="sortable">Skill req</th>
+              <th class="sortable num">Value</th>
+              <th>Special</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-search="autocannon i "
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="3" data-power="4">
+              <td><a href="autocannon_i.html">Autocannon I</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">8</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="8"><b>8.0</b></td>
+              <td class="num" data-sort="12">4.8–12.0</td>
+              <td class="num">2</td>
+              <td class="num">3</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="2.6666666666666665">2.67</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td>Autocannon</td>
+              <td class="num">500</td>
+              <td class="num" data-sort="4000">4000</td>
+              <td>—</td>
+              <td class="num value" data-sort="710">710 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="autocannon ii "
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="4" data-power="6">
+              <td><a href="autocannon_ii.html">Autocannon II</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">14</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="14"><b>14.0</b></td>
+              <td class="num" data-sort="21">8.4–21.0</td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="3.5">3.50</td>
+              <td class="num" data-sort="2.3333333333333335">2.33</td>
+              <td>Autocannon</td>
+              <td class="num">650</td>
+              <td class="num" data-sort="9100">9100</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="1800">1,800 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="blood reaver lifesteal 20"
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="9" data-power="20">
+              <td><a href="blood_reaver.html">Blood Reaver</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">45</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="22.5"><b>22.5</b></td>
+              <td class="num" data-sort="33.75">13.5–33.8</td>
+              <td class="num">3</td>
+              <td class="num">9</td>
+              <td class="num">20</td>
+              <td class="num" data-sort="2.5">2.50</td>
+              <td class="num" data-sort="1.125">1.12</td>
+              <td>Autocannon</td>
+              <td class="num">1000</td>
+              <td class="num" data-sort="45000">45000</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="8700">8,700 cr</td>
+              <td class="specials">Lifesteal 20</td>
+            </tr>
+            <tr data-search="dark matter projector ignores resistance 100 shield phase"
+                data-dtype="void" data-ammo="void_core"
+                data-cpu="18" data-power="40">
+              <td><a href="dark_matter_projector.html">Dark Matter Projector</a></td>
+              <td data-sort="void"><span class="dt dt-void">Void</span></td>
+              <td class="num">150</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="25"><b>25.0</b></td>
+              <td class="num" data-sort="25">25.0</td>
+              <td class="num">3</td>
+              <td class="num">18</td>
+              <td class="num">40</td>
+              <td class="num" data-sort="1.3888888888888888">1.39</td>
+              <td class="num" data-sort="0.625">0.62</td>
+              <td>Void Core</td>
+              <td class="num">25</td>
+              <td class="num" data-sort="3750">3750</td>
+              <td>Gunnery 5, Weapons 5</td>
+              <td class="num value" data-sort="52000">52,000 cr</td>
+              <td class="specials">Ignores resistance 100 · Shield phase</td>
+            </tr>
+            <tr data-search="em disruptor i cpu damage 10"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="5" data-power="8">
+              <td><a href="em_disruptor_i.html">EM Disruptor I</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">5</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="2.5"><b>2.5</b></td>
+              <td class="num" data-sort="2.5">2.5</td>
+              <td class="num">2</td>
+              <td class="num">5</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="0.5">0.50</td>
+              <td class="num" data-sort="0.3125">0.31</td>
+              <td>EM Charge</td>
+              <td class="num">40</td>
+              <td class="num" data-sort="200">200</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="3900">3,900 cr</td>
+              <td class="specials">CPU damage 10</td>
+            </tr>
+            <tr data-search="em smartbomb aoe radius 5"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="6" data-power="15">
+              <td><a href="em_smartbomb.html">EM Smartbomb</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">30</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="7.5"><b>7.5</b></td>
+              <td class="num" data-sort="7.5">7.5</td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">15</td>
+              <td class="num" data-sort="1.25">1.25</td>
+              <td class="num" data-sort="0.5">0.50</td>
+              <td>EM Charge</td>
+              <td class="num">25</td>
+              <td class="num" data-sort="750">750</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="6400">6,400 cr</td>
+              <td class="specials">AoE radius 5</td>
+            </tr>
+            <tr data-search="emp cannon i system disable 2"
+                data-dtype="energy" data-ammo=""
+                data-cpu="5" data-power="10">
+              <td><a href="emp_cannon_i.html">EMP Cannon I</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">8</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="2.6666666666666665"><b>2.7</b></td>
+              <td class="num" data-sort="2.6666666666666665">2.7</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num">10</td>
+              <td class="num" data-sort="0.5333333333333333">0.53</td>
+              <td class="num" data-sort="0.26666666666666666">0.27</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Tactics 2, Weapons 3</td>
+              <td class="num value" data-sort="3000">3,000 cr</td>
+              <td class="specials">System disable 2</td>
+            </tr>
+            <tr data-search="emp missile launcher system disable 3"
+                data-dtype="explosive" data-ammo="missile"
+                data-cpu="8" data-power="12">
+              <td><a href="emp_missile_launcher.html">EMP Missile Launcher</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">15</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="3.75"><b>3.8</b></td>
+              <td class="num" data-sort="6.5625">1.9–6.6</td>
+              <td class="num">6</td>
+              <td class="num">8</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="0.46875">0.47</td>
+              <td class="num" data-sort="0.3125">0.31</td>
+              <td>Missile</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="90">90</td>
+              <td>Tactics 3, Weapons 3</td>
+              <td class="num value" data-sort="5600">5,600 cr</td>
+              <td class="specials">System disable 3</td>
+            </tr>
+            <tr data-search="emp pulse i system disable 1"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="5" data-power="12">
+              <td><a href="emp_pulse_i.html">EMP Pulse I</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">5</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="1.25"><b>1.2</b></td>
+              <td class="num" data-sort="1.25">1.2</td>
+              <td class="num">2</td>
+              <td class="num">5</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="0.25">0.25</td>
+              <td class="num" data-sort="0.10416666666666667">0.10</td>
+              <td>EM Charge</td>
+              <td class="num">40</td>
+              <td class="num" data-sort="200">200</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="3800">3,800 cr</td>
+              <td class="specials">System disable 1</td>
+            </tr>
+            <tr data-search="emp pulse ii system disable 2"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="7" data-power="18">
+              <td><a href="emp_pulse_ii.html">EMP Pulse II</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">10</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="2.5"><b>2.5</b></td>
+              <td class="num" data-sort="2.5">2.5</td>
+              <td class="num">2</td>
+              <td class="num">7</td>
+              <td class="num">18</td>
+              <td class="num" data-sort="0.35714285714285715">0.36</td>
+              <td class="num" data-sort="0.1388888888888889">0.14</td>
+              <td>EM Charge</td>
+              <td class="num">60</td>
+              <td class="num" data-sort="600">600</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="6800">6,800 cr</td>
+              <td class="specials">System disable 2</td>
+            </tr>
+            <tr data-search="emp pulse iii system disable 3"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="10" data-power="25">
+              <td><a href="emp_pulse_iii.html">EMP Pulse III</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">18</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="3.6"><b>3.6</b></td>
+              <td class="num" data-sort="3.6">3.6</td>
+              <td class="num">2</td>
+              <td class="num">10</td>
+              <td class="num">25</td>
+              <td class="num" data-sort="0.36">0.36</td>
+              <td class="num" data-sort="0.14400000000000002">0.14</td>
+              <td>EM Charge</td>
+              <td class="num">80</td>
+              <td class="num" data-sort="1440">1440</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="41000">41,000 cr</td>
+              <td class="specials">System disable 3</td>
+            </tr>
+            <tr data-search="energy siphon capacitor drain 30 capacitor transfer 50"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="12" data-power="15">
+              <td><a href="energy_siphon.html">Energy Siphon</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">25</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="12.5"><b>12.5</b></td>
+              <td class="num" data-sort="12.5">12.5</td>
+              <td class="num">3</td>
+              <td class="num">12</td>
+              <td class="num">15</td>
+              <td class="num" data-sort="1.0416666666666667">1.04</td>
+              <td class="num" data-sort="0.8333333333333334">0.83</td>
+              <td>EM Charge</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="2500">2500</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="33000">33,000 cr</td>
+              <td class="specials">Capacitor drain 30 · Capacitor transfer 50</td>
+            </tr>
+            <tr data-search="explosive smartbomb aoe radius 4"
+                data-dtype="explosive" data-ammo="missile"
+                data-cpu="7" data-power="14">
+              <td><a href="explosive_smartbomb.html">Explosive Smartbomb</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">40</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="8"><b>8.0</b></td>
+              <td class="num" data-sort="14">4.0–14.0</td>
+              <td class="num">3</td>
+              <td class="num">7</td>
+              <td class="num">14</td>
+              <td class="num" data-sort="1.1428571428571428">1.14</td>
+              <td class="num" data-sort="0.5714285714285714">0.57</td>
+              <td>Missile</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="240">240</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="4200">4,200 cr</td>
+              <td class="specials">AoE radius 4</td>
+            </tr>
+            <tr data-search="flak cannon i anti-drone 100 anti-missile 100"
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="3" data-power="5">
+              <td><a href="flak_cannon_i.html">Flak Cannon I</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">15</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="15"><b>15.0</b></td>
+              <td class="num" data-sort="22.5">9.0–22.5</td>
+              <td class="num">3</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="5">5.00</td>
+              <td class="num" data-sort="3">3.00</td>
+              <td>Autocannon</td>
+              <td class="num">650</td>
+              <td class="num" data-sort="9750">9750</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="4200">4,200 cr</td>
+              <td class="specials">Anti-drone 100 · Anti-missile 100</td>
+            </tr>
+            <tr data-search="flak cannon ii anti-drone 150 anti-missile 150"
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="5" data-power="8">
+              <td><a href="flak_cannon_ii.html">Flak Cannon II</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">28</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="28"><b>28.0</b></td>
+              <td class="num" data-sort="42">16.8–42.0</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="5.6">5.60</td>
+              <td class="num" data-sort="3.5">3.50</td>
+              <td>Autocannon</td>
+              <td class="num">800</td>
+              <td class="num" data-sort="22400">22400</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="5300">5,300 cr</td>
+              <td class="specials">Anti-drone 150 · Anti-missile 150</td>
+            </tr>
+            <tr data-search="flak cannon iii anti-drone 200 anti-missile 200"
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="8" data-power="12">
+              <td><a href="flak_cannon_iii.html">Flak Cannon III</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">25</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="25"><b>25.0</b></td>
+              <td class="num" data-sort="37.5">15.0–37.5</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="3.125">3.12</td>
+              <td class="num" data-sort="2.0833333333333335">2.08</td>
+              <td>Autocannon</td>
+              <td class="num">1000</td>
+              <td class="num" data-sort="25000">25000</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="26000">26,000 cr</td>
+              <td class="specials">Anti-drone 200 · Anti-missile 200</td>
+            </tr>
+            <tr data-search="focused beam i shield bypass 25"
+                data-dtype="energy" data-ammo=""
+                data-cpu="4" data-power="10">
+              <td><a href="focused_beam_i.html">Focused Beam I</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">15</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="7.5"><b>7.5</b></td>
+              <td class="num" data-sort="7.5">7.5</td>
+              <td class="num">4</td>
+              <td class="num">4</td>
+              <td class="num">10</td>
+              <td class="num" data-sort="1.875">1.88</td>
+              <td class="num" data-sort="0.75">0.75</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="8700">8,700 cr</td>
+              <td class="specials">Shield bypass 25</td>
+            </tr>
+            <tr data-search="focused beam ii shield bypass 40"
+                data-dtype="energy" data-ammo=""
+                data-cpu="6" data-power="15">
+              <td><a href="focused_beam_ii.html">Focused Beam II</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">25</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="12.5"><b>12.5</b></td>
+              <td class="num" data-sort="12.5">12.5</td>
+              <td class="num">4</td>
+              <td class="num">6</td>
+              <td class="num">15</td>
+              <td class="num" data-sort="2.0833333333333335">2.08</td>
+              <td class="num" data-sort="0.8333333333333334">0.83</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="17000">17,000 cr</td>
+              <td class="specials">Shield bypass 40</td>
+            </tr>
+            <tr data-search="focused beam iii shield bypass 60"
+                data-dtype="energy" data-ammo=""
+                data-cpu="10" data-power="22">
+              <td><a href="focused_beam_iii.html">Focused Beam III</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">40</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="20"><b>20.0</b></td>
+              <td class="num" data-sort="20">20.0</td>
+              <td class="num">4</td>
+              <td class="num">10</td>
+              <td class="num">22</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td class="num" data-sort="0.9090909090909091">0.91</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="27000">27,000 cr</td>
+              <td class="specials">Shield bypass 60</td>
+            </tr>
+            <tr data-search="fury cannon rage damage scaling"
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="14" data-power="32">
+              <td><a href="fury_cannon.html">Fury Cannon</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">70</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="23.333333333333332"><b>23.3</b></td>
+              <td class="num" data-sort="35">14.0–35.0</td>
+              <td class="num">5</td>
+              <td class="num">14</td>
+              <td class="num">32</td>
+              <td class="num" data-sort="1.6666666666666665">1.67</td>
+              <td class="num" data-sort="0.7291666666666666">0.73</td>
+              <td>Autocannon</td>
+              <td class="num">1000</td>
+              <td class="num" data-sort="70000">70000</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="37000">37,000 cr</td>
+              <td class="specials">Rage damage scaling</td>
+            </tr>
+            <tr data-search="heavy mass driver armor bypass 80 hull damage 50"
+                data-dtype="kinetic" data-ammo="railgun"
+                data-cpu="15" data-power="35">
+              <td><a href="heavy_mass_driver.html">Heavy Mass Driver</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">120</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="24"><b>24.0</b></td>
+              <td class="num" data-sort="28.799999999999997">16.8–28.8</td>
+              <td class="num">5</td>
+              <td class="num">15</td>
+              <td class="num">35</td>
+              <td class="num" data-sort="1.6">1.60</td>
+              <td class="num" data-sort="0.6857142857142857">0.69</td>
+              <td>Railgun</td>
+              <td class="num">10</td>
+              <td class="num" data-sort="1200">1200</td>
+              <td>Gunnery 4, Weapons 4</td>
+              <td class="num value" data-sort="25000">25,000 cr</td>
+              <td class="specials">Armor bypass 80 · Hull damage 50</td>
+            </tr>
+            <tr data-search="heavy pulse laser "
+                data-dtype="energy" data-ammo=""
+                data-cpu="8" data-power="20">
+              <td><a href="heavy_pulse_laser.html">Heavy Pulse Laser</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">45</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="22.5"><b>22.5</b></td>
+              <td class="num" data-sort="22.5">22.5</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num">20</td>
+              <td class="num" data-sort="2.8125">2.81</td>
+              <td class="num" data-sort="1.125">1.12</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 5</td>
+              <td class="num value" data-sort="27000">27,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="heavy torpedo "
+                data-dtype="explosive" data-ammo="torpedo"
+                data-cpu="8" data-power="8">
+              <td><a href="heavy_torpedo.html">Heavy Torpedo</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">80</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="16"><b>16.0</b></td>
+              <td class="num" data-sort="32">9.6–32.0</td>
+              <td class="num">6</td>
+              <td class="num">8</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td>Torpedo</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="160">160</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="4000">4,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="ion beam array capacitor drain 20"
+                data-dtype="energy" data-ammo=""
+                data-cpu="8" data-power="18">
+              <td><a href="ion_beam_array.html">Ion Beam Array</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">30</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="15"><b>15.0</b></td>
+              <td class="num" data-sort="15">15.0</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num">18</td>
+              <td class="num" data-sort="1.875">1.88</td>
+              <td class="num" data-sort="0.8333333333333334">0.83</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Tactics 4, Weapons 3</td>
+              <td class="num value" data-sort="11000">11,000 cr</td>
+              <td class="specials">Capacitor drain 20</td>
+            </tr>
+            <tr data-search="ion blaster i shield damage 50 capacitor drain 5"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="4" data-power="8">
+              <td><a href="ion_blaster_i.html">Ion Blaster I</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">8</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="8"><b>8.0</b></td>
+              <td class="num" data-sort="8">8.0</td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td class="num" data-sort="1">1.00</td>
+              <td>EM Charge</td>
+              <td class="num">60</td>
+              <td class="num" data-sort="480">480</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="3900">3,900 cr</td>
+              <td class="specials">Shield damage 50 · Capacitor drain 5</td>
+            </tr>
+            <tr data-search="ion blaster ii shield damage 75 capacitor drain 10"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="6" data-power="12">
+              <td><a href="ion_blaster_ii.html">Ion Blaster II</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">14</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="14"><b>14.0</b></td>
+              <td class="num" data-sort="14">14.0</td>
+              <td class="num">2</td>
+              <td class="num">6</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="2.3333333333333335">2.33</td>
+              <td class="num" data-sort="1.1666666666666667">1.17</td>
+              <td>EM Charge</td>
+              <td class="num">80</td>
+              <td class="num" data-sort="1120">1120</td>
+              <td>Gunnery 2, Weapons 4</td>
+              <td class="num value" data-sort="7200">7,200 cr</td>
+              <td class="specials">Shield damage 75 · Capacitor drain 10</td>
+            </tr>
+            <tr data-search="ion blaster iii shield damage 100 capacitor drain 20"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="9" data-power="18">
+              <td><a href="ion_blaster_iii.html">Ion Blaster III</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">22</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="22"><b>22.0</b></td>
+              <td class="num" data-sort="22">22.0</td>
+              <td class="num">2</td>
+              <td class="num">9</td>
+              <td class="num">18</td>
+              <td class="num" data-sort="2.4444444444444446">2.44</td>
+              <td class="num" data-sort="1.2222222222222223">1.22</td>
+              <td>EM Charge</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="2200">2200</td>
+              <td>Gunnery 3, Weapons 3</td>
+              <td class="num value" data-sort="11000">11,000 cr</td>
+              <td class="specials">Shield damage 100 · Capacitor drain 20</td>
+            </tr>
+            <tr data-search="ion cannon i capacitor drain 5"
+                data-dtype="energy" data-ammo=""
+                data-cpu="3" data-power="8">
+              <td><a href="ion_cannon_i.html">Ion Cannon I</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">12</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="6"><b>6.0</b></td>
+              <td class="num" data-sort="6">6.0</td>
+              <td class="num">5</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td class="num" data-sort="0.75">0.75</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="2600">2,600 cr</td>
+              <td class="specials">Capacitor drain 5</td>
+            </tr>
+            <tr data-search="ion cannon ii capacitor drain 12"
+                data-dtype="energy" data-ammo=""
+                data-cpu="5" data-power="12">
+              <td><a href="ion_cannon_ii.html">Ion Cannon II</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">20</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="10"><b>10.0</b></td>
+              <td class="num" data-sort="10">10.0</td>
+              <td class="num">5</td>
+              <td class="num">5</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td class="num" data-sort="0.8333333333333334">0.83</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Tactics 2, Weapons 4</td>
+              <td class="num value" data-sort="5400">5,400 cr</td>
+              <td class="specials">Capacitor drain 12</td>
+            </tr>
+            <tr data-search="judgment beam energy damage 50 shield bypass 50"
+                data-dtype="energy" data-ammo=""
+                data-cpu="16" data-power="35">
+              <td><a href="judgment_beam.html">Judgment Beam</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">100</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="25"><b>25.0</b></td>
+              <td class="num" data-sort="25">25.0</td>
+              <td class="num">4</td>
+              <td class="num">16</td>
+              <td class="num">35</td>
+              <td class="num" data-sort="1.5625">1.56</td>
+              <td class="num" data-sort="0.7142857142857143">0.71</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="40000">40,000 cr</td>
+              <td class="specials">Energy damage 50 · Shield bypass 50</td>
+            </tr>
+            <tr data-search="jury-rigged cannon damage variance 30 low cpu requirement"
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="7" data-power="14">
+              <td><a href="jury_rigged_cannon.html">Jury-Rigged Cannon</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">60</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="30"><b>30.0</b></td>
+              <td class="num" data-sort="45">18.0–45.0</td>
+              <td class="num">3</td>
+              <td class="num">7</td>
+              <td class="num">14</td>
+              <td class="num" data-sort="4.285714285714286">4.29</td>
+              <td class="num" data-sort="2.142857142857143">2.14</td>
+              <td>Autocannon</td>
+              <td class="num">500</td>
+              <td class="num" data-sort="30000">30000</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="2500">2,500 cr</td>
+              <td class="specials">Damage variance 30 · Low CPU requirement</td>
+            </tr>
+            <tr data-search="kinetic smartbomb aoe radius 4"
+                data-dtype="kinetic" data-ammo="autocannon"
+                data-cpu="6" data-power="12">
+              <td><a href="kinetic_smartbomb.html">Kinetic Smartbomb</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">35</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="8.75"><b>8.8</b></td>
+              <td class="num" data-sort="13.125">5.2–13.1</td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="1.4583333333333333">1.46</td>
+              <td class="num" data-sort="0.7291666666666666">0.73</td>
+              <td>Autocannon</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="3500">3500</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="3800">3,800 cr</td>
+              <td class="specials">AoE radius 4</td>
+            </tr>
+            <tr data-search="mass driver armor bypass 75"
+                data-dtype="kinetic" data-ammo="railgun"
+                data-cpu="12" data-power="28">
+              <td><a href="mass_driver.html">Mass Driver</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">90</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="22.5"><b>22.5</b></td>
+              <td class="num" data-sort="27">15.7–27.0</td>
+              <td class="num">5</td>
+              <td class="num">12</td>
+              <td class="num">28</td>
+              <td class="num" data-sort="1.875">1.88</td>
+              <td class="num" data-sort="0.8035714285714286">0.80</td>
+              <td>Railgun</td>
+              <td class="num">10</td>
+              <td class="num" data-sort="900">900</td>
+              <td>Weapons 5</td>
+              <td class="num value" data-sort="12000">12,000 cr</td>
+              <td class="specials">Armor bypass 75</td>
+            </tr>
+            <tr data-search="mine launcher i mine capacity 5 mine duration 60"
+                data-dtype="explosive" data-ammo="mine"
+                data-cpu="5" data-power="4">
+              <td><a href="mine_launcher_i.html">Mine Launcher I</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">50</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="10"><b>10.0</b></td>
+              <td class="num" data-sort="14">7.0–14.0</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td class="num" data-sort="2.5">2.50</td>
+              <td>Mine</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="200">200</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="1800">1,800 cr</td>
+              <td class="specials">Mine capacity 5 · Mine duration 60</td>
+            </tr>
+            <tr data-search="mine launcher ii mine capacity 10 mine duration 120"
+                data-dtype="explosive" data-ammo="mine"
+                data-cpu="7" data-power="6">
+              <td><a href="mine_launcher_ii.html">Mine Launcher II</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">80</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="20"><b>20.0</b></td>
+              <td class="num" data-sort="28">14.0–28.0</td>
+              <td class="num">3</td>
+              <td class="num">7</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="2.857142857142857">2.86</td>
+              <td class="num" data-sort="3.3333333333333335">3.33</td>
+              <td>Mine</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="640">640</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="4000">4,000 cr</td>
+              <td class="specials">Mine capacity 10 · Mine duration 120</td>
+            </tr>
+            <tr data-search="missile launcher i "
+                data-dtype="explosive" data-ammo="missile"
+                data-cpu="4" data-power="3">
+              <td><a href="missile_launcher_i.html">Missile Launcher I</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">20</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="6.666666666666667"><b>6.7</b></td>
+              <td class="num" data-sort="11.666666666666668">3.3–11.7</td>
+              <td class="num">6</td>
+              <td class="num">4</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="1.6666666666666667">1.67</td>
+              <td class="num" data-sort="2.2222222222222223">2.22</td>
+              <td>Missile</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="80">80</td>
+              <td>—</td>
+              <td class="num value" data-sort="1800">1,800 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="missile launcher ii "
+                data-dtype="explosive" data-ammo="missile"
+                data-cpu="6" data-power="5">
+              <td><a href="missile_launcher_ii.html">Missile Launcher II</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">35</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="11.666666666666666"><b>11.7</b></td>
+              <td class="num" data-sort="20.416666666666664">5.8–20.4</td>
+              <td class="num">6</td>
+              <td class="num">6</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="1.9444444444444444">1.94</td>
+              <td class="num" data-sort="2.333333333333333">2.33</td>
+              <td>Missile</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="210">210</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="6500">6,500 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="neural disruptor cpu damage 25"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="8" data-power="14">
+              <td><a href="neural_disruptor.html">Neural Disruptor</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">12</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="6"><b>6.0</b></td>
+              <td class="num" data-sort="6">6.0</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num">14</td>
+              <td class="num" data-sort="0.75">0.75</td>
+              <td class="num" data-sort="0.42857142857142855">0.43</td>
+              <td>EM Charge</td>
+              <td class="num">80</td>
+              <td class="num" data-sort="960">960</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="10000">10,000 cr</td>
+              <td class="specials">CPU damage 25</td>
+            </tr>
+            <tr data-search="null cannon ignores all defense aoe radius 2"
+                data-dtype="void" data-ammo="void_core"
+                data-cpu="15" data-power="38">
+              <td><a href="null_cannon.html">Null Cannon</a></td>
+              <td data-sort="void"><span class="dt dt-void">Void</span></td>
+              <td class="num">110</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="27.5"><b>27.5</b></td>
+              <td class="num" data-sort="27.5">27.5</td>
+              <td class="num">3</td>
+              <td class="num">15</td>
+              <td class="num">38</td>
+              <td class="num" data-sort="1.8333333333333333">1.83</td>
+              <td class="num" data-sort="0.7236842105263158">0.72</td>
+              <td>Void Core</td>
+              <td class="num">25</td>
+              <td class="num" data-sort="2750">2750</td>
+              <td>Weapons 5</td>
+              <td class="num value" data-sort="46000">46,000 cr</td>
+              <td class="specials">Ignores all defense · AoE radius 2</td>
+            </tr>
+            <tr data-search="phase disruptor phase strike 30"
+                data-dtype="void" data-ammo="void_core"
+                data-cpu="10" data-power="22">
+              <td><a href="phase_disruptor.html">Phase Disruptor</a></td>
+              <td data-sort="void"><span class="dt dt-void">Void</span></td>
+              <td class="num">48</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="24"><b>24.0</b></td>
+              <td class="num" data-sort="24">24.0</td>
+              <td class="num">3</td>
+              <td class="num">10</td>
+              <td class="num">22</td>
+              <td class="num" data-sort="2.4">2.40</td>
+              <td class="num" data-sort="1.0909090909090908">1.09</td>
+              <td>Void Core</td>
+              <td class="num">15</td>
+              <td class="num" data-sort="720">720</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="21000">21,000 cr</td>
+              <td class="specials">Phase strike 30</td>
+            </tr>
+            <tr data-search="piercing railgun i armor bypass 50"
+                data-dtype="kinetic" data-ammo="railgun"
+                data-cpu="5" data-power="12">
+              <td><a href="piercing_railgun_i.html">Piercing Railgun I</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">35</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="11.666666666666666"><b>11.7</b></td>
+              <td class="num" data-sort="13.999999999999998">8.2–14.0</td>
+              <td class="num">5</td>
+              <td class="num">5</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="2.333333333333333">2.33</td>
+              <td class="num" data-sort="0.9722222222222222">0.97</td>
+              <td>Railgun</td>
+              <td class="num">7</td>
+              <td class="num" data-sort="245">245</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="5000">5,000 cr</td>
+              <td class="specials">Armor bypass 50</td>
+            </tr>
+            <tr data-search="piercing railgun ii armor bypass 65"
+                data-dtype="kinetic" data-ammo="railgun"
+                data-cpu="8" data-power="20">
+              <td><a href="piercing_railgun_ii.html">Piercing Railgun II</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">65</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="21.666666666666668"><b>21.7</b></td>
+              <td class="num" data-sort="26">15.2–26.0</td>
+              <td class="num">5</td>
+              <td class="num">8</td>
+              <td class="num">20</td>
+              <td class="num" data-sort="2.7083333333333335">2.71</td>
+              <td class="num" data-sort="1.0833333333333335">1.08</td>
+              <td>Railgun</td>
+              <td class="num">10</td>
+              <td class="num" data-sort="650">650</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="15000">15,000 cr</td>
+              <td class="specials">Armor bypass 65</td>
+            </tr>
+            <tr data-search="plasma cannon i "
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="4" data-power="10">
+              <td><a href="plasma_cannon_i.html">Plasma Cannon I</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">22</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="11"><b>11.0</b></td>
+              <td class="num" data-sort="14.850000000000001">9.3–14.9</td>
+              <td class="num">3</td>
+              <td class="num">4</td>
+              <td class="num">10</td>
+              <td class="num" data-sort="2.75">2.75</td>
+              <td class="num" data-sort="1.1">1.10</td>
+              <td>Plasma</td>
+              <td class="num">50</td>
+              <td class="num" data-sort="1100">1100</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="2200">2,200 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="plasma cannon ii "
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="6" data-power="14">
+              <td><a href="plasma_cannon_ii.html">Plasma Cannon II</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">38</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="19"><b>19.0</b></td>
+              <td class="num" data-sort="25.650000000000002">16.1–25.7</td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">14</td>
+              <td class="num" data-sort="3.1666666666666665">3.17</td>
+              <td class="num" data-sort="1.3571428571428572">1.36</td>
+              <td>Plasma</td>
+              <td class="num">80</td>
+              <td class="num" data-sort="3040">3040</td>
+              <td>Gunnery 1, Weapons 4</td>
+              <td class="num value" data-sort="3800">3,800 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="plasma cannon iii armor melt 15"
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="9" data-power="20">
+              <td><a href="plasma_cannon_iii.html">Plasma Cannon III</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">58</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="29"><b>29.0</b></td>
+              <td class="num" data-sort="39.150000000000006">24.6–39.2</td>
+              <td class="num">3</td>
+              <td class="num">9</td>
+              <td class="num">20</td>
+              <td class="num" data-sort="3.2222222222222223">3.22</td>
+              <td class="num" data-sort="1.45">1.45</td>
+              <td>Plasma</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="5800">5800</td>
+              <td>Gunnery 2, Weapons 3</td>
+              <td class="num value" data-sort="8100">8,100 cr</td>
+              <td class="specials">Armor melt 15</td>
+            </tr>
+            <tr data-search="plasma cannon iv armor melt 30"
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="14" data-power="30">
+              <td><a href="plasma_cannon_iv.html">Plasma Cannon IV</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">85</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="42.5"><b>42.5</b></td>
+              <td class="num" data-sort="57.37500000000001">36.1–57.4</td>
+              <td class="num">3</td>
+              <td class="num">14</td>
+              <td class="num">30</td>
+              <td class="num" data-sort="3.0357142857142856">3.04</td>
+              <td class="num" data-sort="1.4166666666666667">1.42</td>
+              <td>Plasma</td>
+              <td class="num">150</td>
+              <td class="num" data-sort="12750">12750</td>
+              <td>Gunnery 4, Weapons 3</td>
+              <td class="num value" data-sort="9500">9,500 cr</td>
+              <td class="specials">Armor melt 30</td>
+            </tr>
+            <tr data-search="plasma repeater i "
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="5" data-power="8">
+              <td><a href="plasma_repeater_i.html">Plasma Repeater I</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">12</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="12"><b>12.0</b></td>
+              <td class="num" data-sort="16.200000000000003">10.2–16.2</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="2.4">2.40</td>
+              <td class="num" data-sort="1.5">1.50</td>
+              <td>Plasma</td>
+              <td class="num">200</td>
+              <td class="num" data-sort="2400">2400</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="2400">2,400 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="plasma repeater ii "
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="7" data-power="12">
+              <td><a href="plasma_repeater_ii.html">Plasma Repeater II</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">20</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="20"><b>20.0</b></td>
+              <td class="num" data-sort="27">17.0–27.0</td>
+              <td class="num">3</td>
+              <td class="num">7</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="2.857142857142857">2.86</td>
+              <td class="num" data-sort="1.6666666666666667">1.67</td>
+              <td>Plasma</td>
+              <td class="num">300</td>
+              <td class="num" data-sort="6000">6000</td>
+              <td>Gunnery 2, Weapons 4</td>
+              <td class="num value" data-sort="4900">4,900 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="plasma torpedo launcher armor melt 20"
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="8" data-power="14">
+              <td><a href="plasma_torpedo_launcher.html">Plasma Torpedo Launcher</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">60</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="12"><b>12.0</b></td>
+              <td class="num" data-sort="16.200000000000003">10.2–16.2</td>
+              <td class="num">6</td>
+              <td class="num">8</td>
+              <td class="num">14</td>
+              <td class="num" data-sort="1.5">1.50</td>
+              <td class="num" data-sort="0.8571428571428571">0.86</td>
+              <td>Plasma</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="300">300</td>
+              <td>Gunnery 2, Weapons 3</td>
+              <td class="num value" data-sort="7500">7,500 cr</td>
+              <td class="specials">Armor melt 20</td>
+            </tr>
+            <tr data-search="proximity mine launcher mine capacity 8 mine detection 10 mine duration 90"
+                data-dtype="explosive" data-ammo="mine"
+                data-cpu="6" data-power="5">
+              <td><a href="proximity_mine_launcher.html">Proximity Mine Launcher</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">65</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="16.25"><b>16.2</b></td>
+              <td class="num" data-sort="22.75">11.4–22.8</td>
+              <td class="num">3</td>
+              <td class="num">6</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="2.7083333333333335">2.71</td>
+              <td class="num" data-sort="3.25">3.25</td>
+              <td>Mine</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="520">520</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="3500">3,500 cr</td>
+              <td class="specials">Mine capacity 8 · Mine detection 10 · Mine duration 90</td>
+            </tr>
+            <tr data-search="pulse laser i "
+                data-dtype="energy" data-ammo=""
+                data-cpu="2" data-power="5">
+              <td><a href="pulse_laser_i.html">Pulse Laser I</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">10</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="10"><b>10.0</b></td>
+              <td class="num" data-sort="10">10.0</td>
+              <td class="num">3</td>
+              <td class="num">2</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="5">5.00</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>—</td>
+              <td class="num value" data-sort="2500">2,500 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="pulse laser ii "
+                data-dtype="energy" data-ammo=""
+                data-cpu="3" data-power="8">
+              <td><a href="pulse_laser_ii.html">Pulse Laser II</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">18</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="18"><b>18.0</b></td>
+              <td class="num" data-sort="18">18.0</td>
+              <td class="num">3</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="6">6.00</td>
+              <td class="num" data-sort="2.25">2.25</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="6900">6,900 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="pulse laser iii "
+                data-dtype="energy" data-ammo=""
+                data-cpu="5" data-power="12">
+              <td><a href="pulse_laser_iii.html">Pulse Laser III</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">28</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="28"><b>28.0</b></td>
+              <td class="num" data-sort="28">28.0</td>
+              <td class="num">3</td>
+              <td class="num">5</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="5.6">5.60</td>
+              <td class="num" data-sort="2.3333333333333335">2.33</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="13000">13,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="railgun i "
+                data-dtype="kinetic" data-ammo="railgun"
+                data-cpu="5" data-power="12">
+              <td><a href="railgun_i.html">Railgun I</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">35</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="11.666666666666666"><b>11.7</b></td>
+              <td class="num" data-sort="13.999999999999998">8.2–14.0</td>
+              <td class="num">5</td>
+              <td class="num">5</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="2.333333333333333">2.33</td>
+              <td class="num" data-sort="0.9722222222222222">0.97</td>
+              <td>Railgun</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="175">175</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="5000">5,000 cr</td>
+              <td class="specials"></td>
+            </tr>
+            <tr data-search="railgun ii armor bypass 50"
+                data-dtype="kinetic" data-ammo="railgun"
+                data-cpu="7" data-power="18">
+              <td><a href="railgun_ii.html">Railgun II</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">55</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="18.333333333333332"><b>18.3</b></td>
+              <td class="num" data-sort="21.999999999999996">12.8–22.0</td>
+              <td class="num">5</td>
+              <td class="num">7</td>
+              <td class="num">18</td>
+              <td class="num" data-sort="2.619047619047619">2.62</td>
+              <td class="num" data-sort="1.0185185185185184">1.02</td>
+              <td>Railgun</td>
+              <td class="num">7</td>
+              <td class="num" data-sort="385">385</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="9500">9,500 cr</td>
+              <td class="specials">Armor bypass 50</td>
+            </tr>
+            <tr data-search="scrap harpoon armor bypass 30"
+                data-dtype="kinetic" data-ammo=""
+                data-cpu="4" data-power="7">
+              <td><a href="scrap_harpoon.html">Scrap Harpoon</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">44</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="14.666666666666666"><b>14.7</b></td>
+              <td class="num" data-sort="14.666666666666666">14.7</td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">7</td>
+              <td class="num" data-sort="3.6666666666666665">3.67</td>
+              <td class="num" data-sort="2.0952380952380953">2.10</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 2</td>
+              <td class="num value" data-sort="1500">1,500 cr</td>
+              <td class="specials">Armor bypass 30</td>
+            </tr>
+            <tr data-search="scrapgun feeds from cargo"
+                data-dtype="kinetic" data-ammo="junk"
+                data-cpu="4" data-power="6">
+              <td><a href="scrapgun.html">Scrapgun</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">30</td>
+              <td class="num">1</td>
+              <td class="num" data-sort="30"><b>30.0</b></td>
+              <td class="num" data-sort="30">30.0</td>
+              <td class="num">2</td>
+              <td class="num">4</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="7.5">7.50</td>
+              <td class="num" data-sort="5">5.00</td>
+              <td>Junk</td>
+              <td class="num">500</td>
+              <td class="num" data-sort="15000">15000</td>
+              <td>Weapons 3</td>
+              <td class="num value" data-sort="1100">1,100 cr</td>
+              <td class="specials">Feeds from cargo</td>
+            </tr>
+            <tr data-search="siege railgun armor bypass 80"
+                data-dtype="kinetic" data-ammo="railgun"
+                data-cpu="16" data-power="35">
+              <td><a href="siege_railgun.html">Siege Railgun</a></td>
+              <td data-sort="kinetic"><span class="dt dt-kinetic">Kinetic</span></td>
+              <td class="num">120</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="30"><b>30.0</b></td>
+              <td class="num" data-sort="36">21.0–36.0</td>
+              <td class="num">5</td>
+              <td class="num">16</td>
+              <td class="num">35</td>
+              <td class="num" data-sort="1.875">1.88</td>
+              <td class="num" data-sort="0.8571428571428571">0.86</td>
+              <td>Railgun</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="360">360</td>
+              <td>Gunnery 3, Weapons 4</td>
+              <td class="num value" data-sort="30000">30,000 cr</td>
+              <td class="specials">Armor bypass 80</td>
+            </tr>
+            <tr data-search="solar lance energy damage 25"
+                data-dtype="energy" data-ammo=""
+                data-cpu="11" data-power="24">
+              <td><a href="solar_lance.html">Solar Lance</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">65</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="21.666666666666668"><b>21.7</b></td>
+              <td class="num" data-sort="21.666666666666668">21.7</td>
+              <td class="num">4</td>
+              <td class="num">11</td>
+              <td class="num">24</td>
+              <td class="num" data-sort="1.9696969696969697">1.97</td>
+              <td class="num" data-sort="0.9027777777777778">0.90</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="27000">27,000 cr</td>
+              <td class="specials">Energy damage 25</td>
+            </tr>
+            <tr data-search="storm lance chain lightning 2"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="10" data-power="18">
+              <td><a href="storm_lance.html">Storm Lance</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">40</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="20"><b>20.0</b></td>
+              <td class="num" data-sort="20">20.0</td>
+              <td class="num">3</td>
+              <td class="num">10</td>
+              <td class="num">18</td>
+              <td class="num" data-sort="2">2.00</td>
+              <td class="num" data-sort="1.1111111111111112">1.11</td>
+              <td>EM Charge</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="4000">4000</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="15000">15,000 cr</td>
+              <td class="specials">Chain lightning 2</td>
+            </tr>
+            <tr data-search="system disabler module disable 1 target specific"
+                data-dtype="em" data-ammo="em_charge"
+                data-cpu="8" data-power="15">
+              <td><a href="system_disabler.html">System Disabler</a></td>
+              <td data-sort="em"><span class="dt dt-em">EM</span></td>
+              <td class="num">2</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="0.6666666666666666"><b>0.7</b></td>
+              <td class="num" data-sort="0.6666666666666666">0.7</td>
+              <td class="num">3</td>
+              <td class="num">8</td>
+              <td class="num">15</td>
+              <td class="num" data-sort="0.08333333333333333">0.08</td>
+              <td class="num" data-sort="0.04444444444444444">0.04</td>
+              <td>EM Charge</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="200">200</td>
+              <td>Scanning 3, Weapons 3</td>
+              <td class="num value" data-sort="8800">8,800 cr</td>
+              <td class="specials">Module disable 1 · Target specific</td>
+            </tr>
+            <tr data-search="thermal smartbomb aoe radius 5"
+                data-dtype="thermal" data-ammo="plasma"
+                data-cpu="7" data-power="16">
+              <td><a href="thermal_smartbomb.html">Thermal Smartbomb</a></td>
+              <td data-sort="thermal"><span class="dt dt-thermal">Thermal</span></td>
+              <td class="num">38</td>
+              <td class="num">4</td>
+              <td class="num" data-sort="9.5"><b>9.5</b></td>
+              <td class="num" data-sort="12.825000000000001">8.1–12.8</td>
+              <td class="num">3</td>
+              <td class="num">7</td>
+              <td class="num">16</td>
+              <td class="num" data-sort="1.3571428571428572">1.36</td>
+              <td class="num" data-sort="0.59375">0.59</td>
+              <td>Plasma</td>
+              <td class="num">100</td>
+              <td class="num" data-sort="3800">3800</td>
+              <td>Gunnery 1, Weapons 4</td>
+              <td class="num value" data-sort="4800">4,800 cr</td>
+              <td class="specials">AoE radius 5</td>
+            </tr>
+            <tr data-search="tracking mine launcher mine capacity 5 mine tracking 3 mine duration 60"
+                data-dtype="explosive" data-ammo="mine"
+                data-cpu="10" data-power="8">
+              <td><a href="tracking_mine_launcher.html">Tracking Mine Launcher</a></td>
+              <td data-sort="explosive"><span class="dt dt-explosive">Explosive</span></td>
+              <td class="num">100</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="16.666666666666668"><b>16.7</b></td>
+              <td class="num" data-sort="23.333333333333332">11.7–23.3</td>
+              <td class="num">3</td>
+              <td class="num">10</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="1.6666666666666667">1.67</td>
+              <td class="num" data-sort="2.0833333333333335">2.08</td>
+              <td>Mine</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="600">600</td>
+              <td>Weapons 4</td>
+              <td class="num value" data-sort="8000">8,000 cr</td>
+              <td class="specials">Mine capacity 5 · Mine tracking 3 · Mine duration 60</td>
+            </tr>
+            <tr data-search="void cannon ignores resistance 50"
+                data-dtype="void" data-ammo="void_core"
+                data-cpu="14" data-power="28">
+              <td><a href="void_cannon.html">Void Cannon</a></td>
+              <td data-sort="void"><span class="dt dt-void">Void</span></td>
+              <td class="num">75</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="25"><b>25.0</b></td>
+              <td class="num" data-sort="25">25.0</td>
+              <td class="num">3</td>
+              <td class="num">14</td>
+              <td class="num">28</td>
+              <td class="num" data-sort="1.7857142857142858">1.79</td>
+              <td class="num" data-sort="0.8928571428571429">0.89</td>
+              <td>Void Core</td>
+              <td class="num">20</td>
+              <td class="num" data-sort="1500">1500</td>
+              <td>Weapons 5</td>
+              <td class="num value" data-sort="25000">25,000 cr</td>
+              <td class="specials">Ignores resistance 50</td>
+            </tr>
+            <tr data-search="void lance ii ignores resistance 75"
+                data-dtype="void" data-ammo="void_core"
+                data-cpu="14" data-power="30">
+              <td><a href="void_lance_ii.html">Void Lance II</a></td>
+              <td data-sort="void"><span class="dt dt-void">Void</span></td>
+              <td class="num">85</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="28.333333333333332"><b>28.3</b></td>
+              <td class="num" data-sort="28.333333333333332">28.3</td>
+              <td class="num">4</td>
+              <td class="num">14</td>
+              <td class="num">30</td>
+              <td class="num" data-sort="2.0238095238095237">2.02</td>
+              <td class="num" data-sort="0.9444444444444444">0.94</td>
+              <td>Void Core</td>
+              <td class="num">20</td>
+              <td class="num" data-sort="1700">1700</td>
+              <td>Gunnery 4, Weapons 3</td>
+              <td class="num value" data-sort="40000">40,000 cr</td>
+              <td class="specials">Ignores resistance 75</td>
+            </tr>
+            <tr data-search="void laser shield bypass 50"
+                data-dtype="energy" data-ammo=""
+                data-cpu="14" data-power="26">
+              <td><a href="void_laser.html">Void Laser</a></td>
+              <td data-sort="energy"><span class="dt dt-energy">Energy</span></td>
+              <td class="num">65</td>
+              <td class="num">2</td>
+              <td class="num" data-sort="32.5"><b>32.5</b></td>
+              <td class="num" data-sort="32.5">32.5</td>
+              <td class="num">5</td>
+              <td class="num">14</td>
+              <td class="num">26</td>
+              <td class="num" data-sort="2.3214285714285716">2.32</td>
+              <td class="num" data-sort="1.25">1.25</td>
+              <td>—</td>
+              <td class="num">—</td>
+              <td class="num" data-sort="0">—</td>
+              <td>Weapons 5</td>
+              <td class="num value" data-sort="143000">143,000 cr</td>
+              <td class="specials">Shield bypass 50</td>
+            </tr>
+            <tr data-search="void mine launcher mine capacity 4 mine duration 90 ignores resistance 50"
+                data-dtype="void" data-ammo="mine"
+                data-cpu="14" data-power="12">
+              <td><a href="void_mine_launcher.html">Void Mine Launcher</a></td>
+              <td data-sort="void"><span class="dt dt-void">Void</span></td>
+              <td class="num">120</td>
+              <td class="num">8</td>
+              <td class="num" data-sort="15"><b>15.0</b></td>
+              <td class="num" data-sort="21">10.5–21.0</td>
+              <td class="num">3</td>
+              <td class="num">14</td>
+              <td class="num">12</td>
+              <td class="num" data-sort="1.0714285714285714">1.07</td>
+              <td class="num" data-sort="1.25">1.25</td>
+              <td>Mine</td>
+              <td class="num">6</td>
+              <td class="num" data-sort="720">720</td>
+              <td>Weapons 5</td>
+              <td class="num value" data-sort="56000">56,000 cr</td>
+              <td class="specials">Mine capacity 4 · Mine duration 90 · Ignores resistance 50</td>
+            </tr>
+            <tr data-search="void torpedo launcher ignores resistance 75"
+                data-dtype="void" data-ammo="void_core"
+                data-cpu="16" data-power="32">
+              <td><a href="void_torpedo_launcher.html">Void Torpedo Launcher</a></td>
+              <td data-sort="void"><span class="dt dt-void">Void</span></td>
+              <td class="num">100</td>
+              <td class="num">5</td>
+              <td class="num" data-sort="20"><b>20.0</b></td>
+              <td class="num" data-sort="20">20.0</td>
+              <td class="num">6</td>
+              <td class="num">16</td>
+              <td class="num">32</td>
+              <td class="num" data-sort="1.25">1.25</td>
+              <td class="num" data-sort="0.625">0.62</td>
+              <td>Void Core</td>
+              <td class="num">3</td>
+              <td class="num" data-sort="300">300</td>
+              <td>Gunnery 2, Weapons 5</td>
+              <td class="num value" data-sort="108000">108,000 cr</td>
+              <td class="specials">Ignores resistance 75</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-muted mt-2" style="font-size:12px">
+        <b>DPT</b> is damage &divide; cooldown ticks. <b>Eff DPT</b> spans the
+        weakest to strongest round that fits the weapon's ammo type (ammo
+        <code>damage_mod</code> runs &minus;50% to +100%), so a low-DPT launcher
+        with good ammo can out-damage a high-DPT one with none.
+        <b>DPT/CPU</b> and <b>DPT/Pwr</b> are what matter once the hull's
+        budget, not the slot count, is the binding constraint.
+      </p>
+    </main>
+    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+    </script>    <script>
+    (function () {
+      var bar = document.querySelector(".module-filters");
+      if (!bar) return;
+      var table = document.querySelector("table.sortable");
+      var rows = Array.from(table.querySelectorAll("tbody tr"));
+      var count = document.querySelector(".filter-count");
+
+      function activeChips(group) {
+        return Array.from(bar.querySelectorAll('.chip[data-group="' + group + '"].on'))
+                    .map(function (c) { return c.dataset.value; });
+      }
+
+      function apply() {
+        var q = (bar.querySelector(".filter-search").value || "").toLowerCase().trim();
+        var dts = activeChips("dtype");
+        var ammo = bar.querySelector(".filter-ammo");
+        var ammoVal = ammo ? ammo.value : "";
+        var maxCPU = parseFloat(bar.querySelector(".filter-cpu").value);
+        var maxPwr = parseFloat(bar.querySelector(".filter-power").value);
+        var shown = 0;
+        rows.forEach(function (tr) {
+          var ok = true;
+          if (q && tr.dataset.search.indexOf(q) === -1) ok = false;
+          if (ok && dts.length) {
+            
+            
+            var have = (tr.dataset.dtype || "").split(" ").filter(Boolean);
+            ok = dts.some(function (d) { return have.indexOf(d) !== -1; });
+          }
+          if (ok && ammoVal && tr.dataset.ammo !== ammoVal) ok = false;
+          if (ok && !isNaN(maxCPU) && parseFloat(tr.dataset.cpu) > maxCPU) ok = false;
+          if (ok && !isNaN(maxPwr) && parseFloat(tr.dataset.power) > maxPwr) ok = false;
+          tr.style.display = ok ? "" : "none";
+          if (ok) shown++;
+        });
+        if (count) count.textContent = shown + " of " + rows.length + " shown";
+      }
+
+      bar.querySelectorAll(".chip").forEach(function (c) {
+        c.addEventListener("click", function () { c.classList.toggle("on"); apply(); });
+      });
+      bar.querySelectorAll("input, select").forEach(function (el) {
+        el.addEventListener("input", apply);
+        el.addEventListener("change", apply);
+      });
+      var reset = bar.querySelector(".filter-reset");
+      if (reset) {
+        reset.addEventListener("click", function () {
+          bar.querySelectorAll(".chip.on").forEach(function (c) { c.classList.remove("on"); });
+          bar.querySelectorAll("input").forEach(function (el) { el.value = ""; });
+          bar.querySelectorAll("select").forEach(function (el) { el.selectedIndex = 0; });
+          apply();
+        });
+      }
+      apply();
+    })();
+    </script>    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
