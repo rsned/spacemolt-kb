@@ -14,6 +14,7 @@ on:
       - data/mesh_bakeoff/export_view_svgs.py
       - scripts/inject-overlay-images.sh
       - scripts/build-footprint-zip.sh
+      - scripts/build-fitting-plans.sh
 
 jobs:
   deploy:
@@ -30,6 +31,8 @@ jobs:
         run: ./scripts/inject-overlay-images.sh
       - name: Build footprint SVG bundle into kb/
         run: ./scripts/build-footprint-zip.sh
+      - name: Stage fitting plan views into kb/
+        run: ./scripts/build-fitting-plans.sh
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

@@ -303,7 +303,17 @@ const DTYPES = /*__DAMAGE_TYPES__*/null;
    the ship-fit scale, so a fixed stroke-width there draws fat on small hulls
    and thin on large ones. */
 const RING_GAP_PX = 5, RING_W_PX = 1.6, HULL_W_PX = 2.2;
-const PANEL_W = 800, PANEL_H = 1080;
+/* Share of the panel the drawing may occupy -- hull plus its shield envelope,
+   whichever axis binds first. */
+const PLAN_FILL = 0.90;
+/* The panel's height follows the hull rather than being fixed. Rotated upright
+   a median ship is 2.05 tall per unit wide, but a fixed 800x1080 box is only
+   1.35, so height bound the fit first and the drawing used barely half the
+   width. Capped so the few very elongated hulls (up to 3.98) cannot produce an
+   absurd panel; those fit by height instead. Either way the envelope is
+   budgeted on BOTH axes first, so shield traces never clip. */
+const PLAN_MAX_ASPECT = 2.9;
+const PANEL_W = 800;
 
 const BY_SLOT = {weapon:[], defense:[], utility:[]};
 for (const m of MODULES) (BY_SLOT[m.slot] ||= []).push(m);
@@ -327,7 +337,7 @@ function stockFit(s) {
 }
 
 const state = {
-  ship: SHIPS.recursion ? "recursion" : Object.keys(SHIPS)[0],
+  ship: SHIPS.annihilator ? "annihilator" : Object.keys(SHIPS)[0],
   eng: 0,
   fit: {weapon:[], defense:[], utility:[]},
   stock: {missing:[], overflow:[]},
@@ -544,6 +554,18 @@ function ringPlan(r) {
           base, nominal, effective, pct};
 }
 
+/* Stand-in silhouette for the hulls with no surveyed plan, in the same
+   landscape, nose-at-+x convention as the real ones so it scales identically. */
+function placeholderPlan() {
+  const W = 1000, H = 420, c = H / 2;
+  return {w: W, h: H, placeholder: true, d:
+    `M ${W} ${c}`
+    + ` C ${W*.88} ${c-H*.26} ${W*.60} ${c-H*.46} ${W*.30} ${c-H*.48}`
+    + ` L ${W*.07} ${c-H*.40} L 0 ${c-H*.22} L 0 ${c+H*.22}`
+    + ` L ${W*.07} ${c+H*.40} L ${W*.30} ${c+H*.48}`
+    + ` C ${W*.60} ${c+H*.46} ${W*.88} ${c+H*.26} ${W} ${c} Z`};
+}
+
 /* ------------------------------------------------------------ plan drawing */
 async function loadPlan(id) {
   if (id in planCache) return planCache[id];
@@ -563,43 +585,49 @@ function drawPlan(plan, rp) {
   const u = PANEL_W / (el("planWrap").clientWidth || 520);
   const gap = RING_GAP_PX * u, ringW = RING_W_PX * u, hullW = HULL_W_PX * u;
 
-  const pad = 40 + rings * gap;                // keep the outermost trace inside
-  const availW = PANEL_W - pad*2, availH = PANEL_H - pad*2 - 46;
+  // The envelope grows outward from the hull, so the traces claim their width
+  // first and the hull is fitted into what is left of the 90% budget.
+  const surveyed = !!plan;
+  plan = plan || placeholderPlan();
+  const capH = 46, topM = 26, ringOut = rings * gap;
 
-  let body, cap;
-  if (plan) {
-    // Source silhouettes are landscape with the nose at +x, so rotate(-90)
-    // stands the ship up nose-to-top; translate(0,w) brings it back on-canvas.
-    const S = Math.min(availW / plan.h, availH / plan.w);
-    const tx = PANEL_W/2 - plan.h*S/2, ty = pad + (availH - plan.w*S)/2;
-    const g = inner =>
-      `<g transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${S.toFixed(5)}) translate(0 ${plan.w}) rotate(-90)">${inner}</g>`;
-    body = {shape: g(`<path d="${plan.d}" fill="#fff"/>`),
-            // stroke-width is divided by the fit scale so it lands on HULL_W_PX
-            hull:  g(`<path d="${plan.d}" class="hull" stroke-width="${(hullW/S).toFixed(3)}"/>`)};
-    const sh = SHIPS[state.ship];
-    cap = sh.loa ? `L.O.A. ${sh.loa} M × BEAM ${sh.beam} M`
-                 : `DIMENSIONS PENDING SURVEY · ${plan.w}×${plan.h} UNITS`;
-  } else {
-    // No surveyed plan on file: a neutral hull stands in so the envelope, the
-    // stats and the slot side of the sheet all stay usable.
-    const rx = availW*0.17, ry = availH*0.42;
-    const cx = PANEL_W/2, cy = pad + availH/2;
-    const d = `M ${cx} ${cy-ry} C ${cx+rx} ${cy-ry*0.35} ${cx+rx} ${cy+ry*0.55} ${cx+rx*0.55} ${cy+ry}`
-            + ` L ${cx-rx*0.55} ${cy+ry} C ${cx-rx} ${cy+ry*0.55} ${cx-rx} ${cy-ry*0.35} ${cx} ${cy-ry} Z`;
-    body = {shape:`<path d="${d}" fill="#fff"/>`,
-            hull:`<path d="${d}" class="hull" stroke-width="${hullW.toFixed(3)}"
-                    stroke-dasharray="${(hullW*3).toFixed(1)} ${(hullW*2.6).toFixed(1)}"/>`};
-    cap = "PLAN VIEW PENDING SURVEY";
+  // Claim the width budget for hull-plus-envelope, then let the panel grow as
+  // tall as that scale needs. The envelope is subtracted on both axes, so the
+  // outermost trace is always inside the panel however skinny the hull is.
+  const availW = PLAN_FILL * PANEL_W - ringOut*2;
+
+  // Source silhouettes are landscape with the nose at +x, so rotate(-90) stands
+  // the ship up nose-to-top; translate(0,w) brings it back on-canvas. Rotated,
+  // the plan's beam runs across x and its length down y.
+  let S = Math.max(0.0001, availW / plan.h);
+  let H = plan.w * S + ringOut*2 + capH + topM;
+  const maxH = PANEL_W * PLAN_MAX_ASPECT;
+  if (H > maxH) {                    // too long to draw at the full width
+    H = maxH;
+    S = Math.max(0.0001, (H - ringOut*2 - capH - topM) / plan.w);
   }
+  const tx = PANEL_W/2 - plan.h*S/2, ty = (H - capH)/2 - plan.w*S/2;
+  const g = inner =>
+    `<g transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${S.toFixed(5)}) translate(0 ${plan.w}) rotate(-90)">${inner}</g>`;
+  // stroke-width is divided by the fit scale so it lands on HULL_W_PX
+  const dash = surveyed ? ""
+    : ` stroke-dasharray="${(hullW*3/S).toFixed(2)} ${(hullW*2.6/S).toFixed(2)}"`;
+  const body = {
+    shape: g(`<path d="${plan.d}" fill="#fff"/>`),
+    hull:  g(`<path d="${plan.d}" class="hull" stroke-width="${(hullW/S).toFixed(3)}"${dash}/>`)};
+
+  const sh = SHIPS[state.ship];
+  const cap = !surveyed ? "PLAN VIEW PENDING SURVEY"
+    : sh.loa ? `L.O.A. ${sh.loa} M × BEAM ${sh.beam} M`
+             : `DIMENSIONS PENDING SURVEY · ${plan.w}×${plan.h} UNITS`;
 
   // One offset outline per trace. feMorphology dilates the filled silhouette
   // twice and subtracts, which follows the hull shape instead of scaling it.
   const dp = (7 * u).toFixed(2), dl = (4 * u).toFixed(2);
   let defs = `<pattern id="dashpat" width="${dp}" height="${dp}" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
       <rect width="${dp}" height="${dp}" fill="#000"/><rect width="${dl}" height="${dp}" fill="#fff"/></pattern>
-    <mask id="dashmask" maskUnits="userSpaceOnUse" x="0" y="0" width="${PANEL_W}" height="${PANEL_H}">
-      <rect width="${PANEL_W}" height="${PANEL_H}" fill="url(#dashpat)"/></mask>`;
+    <mask id="dashmask" maskUnits="userSpaceOnUse" x="0" y="0" width="${PANEL_W}" height="${H}">
+      <rect width="${PANEL_W}" height="${H}" fill="url(#dashpat)"/></mask>`;
   let layers = "";
   for (let i = 1; i <= rings; i++) {
     const lost = i > rp.eff;                   // trimmed by a shield penalty
@@ -615,7 +643,7 @@ function drawPlan(plan, rp) {
     layers += `<g filter="url(#rg${i})"${lost ? ' mask="url(#dashmask)"' : ''}>${body.shape}</g>`;
   }
 
-  return `<svg viewBox="0 0 ${PANEL_W} ${PANEL_H}" preserveAspectRatio="xMidYMid meet"
+  return `<svg viewBox="0 0 ${PANEL_W} ${H.toFixed(0)}" preserveAspectRatio="xMidYMid meet"
       role="img" aria-label="Plan view with shield envelope">
     <defs>${defs}</defs>
     <style>
@@ -623,10 +651,10 @@ function drawPlan(plan, rp) {
       .cl{stroke:#eaf2ff;stroke-width:.8;stroke-dasharray:22 5 3 5;stroke-opacity:.55}
       .plabel{font:11.5px 'Courier New',monospace;fill:#eaf2ff;letter-spacing:.18em;opacity:.8}
     </style>
-    <line x1="${PANEL_W/2}" y1="18" x2="${PANEL_W/2}" y2="${PANEL_H-30}" class="cl"/>
+    <line x1="${PANEL_W/2}" y1="18" x2="${PANEL_W/2}" y2="${(H-capH+8).toFixed(0)}" class="cl"/>
     ${layers}
     ${body.hull}
-    <text class="plabel" x="${PANEL_W/2}" y="${PANEL_H-10}" text-anchor="middle">${esc(cap)}</text>
+    <text class="plabel" x="${PANEL_W/2}" y="${(H-14).toFixed(0)}" text-anchor="middle">${esc(cap)}</text>
     <text class="plabel" x="${PANEL_W/2}" y="16" text-anchor="middle">FWD &#9650;</text>
   </svg>`;
 }
@@ -861,13 +889,21 @@ async function render() {
     : "NO REDUCTION";
 
   el("footnote").innerHTML =
-    `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to every module, per the skill's `
+    `<b>ENGINEERING IS THE ONLY SKILL APPLIED.</b> Every figure here is the hull plus its `
+    + `fitted modules; no combat skill is folded in, so a trained pilot reads better than `
+    + `this sheet on every line. Not applied: `
+    + `<b>Armor</b> (+1%/level armor and hull), <b>Shields</b> (+1%/level capacity, recharge `
+    + `and shield resistance), <b>Gunnery</b> and <b>Weapons</b> (+1%/level damage each, `
+    + `Weapons also +0.2%/level crit), <b>Tactics</b> (+1%/level accuracy, evasion and combat `
+    + `speed), plus <b>Bounty Hunting</b>, <b>Piracy</b> and <b>Leadership</b>, which affect `
+    + `payouts, loot and scan evasion rather than these stats. `
+    + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to every module, per its `
     + `"1% per level" text — at level 100 modules cost nothing. `
     + `<b>RESISTANCES</b> stack additively; an <i>a</i> marker means the value comes from an `
     + `adaptive module, which covers every damage type. `
     + `<b>CLOAK</b> takes the strongest fitted rating rather than summing. `
     + `<b>SHIELD TRACES</b> = (2 + tier &minus; 1) × total/base shields, `
-    + `${RING_GAP}px apart; trimmed traces show dashed grey.`;
+    + `${RING_GAP_PX}px apart; trimmed traces show dashed grey.`;
 }
 
 /* -------------------------------------------------------------------- init */
