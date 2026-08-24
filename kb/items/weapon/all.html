@@ -46,6 +46,10 @@
       .mod-table { font-size:var(--text-ui,13px); }
       .mod-table td.num, .mod-table th.num { text-align:right; }
       .mod-table .res0 { color:hsl(var(--muted-foreground)); opacity:.45; }
+       
+      .mod-table td.adaptive, .adaptive-key { font-style:italic; opacity:.92; }
+      .mod-table td.adaptive::after, .adaptive-key::after { content:"\00a0a"; font-size:9px;
+        vertical-align:super; font-style:normal; opacity:.7; }
     </style>
 </head>
 <body>

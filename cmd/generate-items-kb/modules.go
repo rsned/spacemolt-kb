@@ -36,21 +36,37 @@ type ammoVariant struct {
 // weaponRow is a single row of the all-weapons comparison table.
 type weaponRow struct {
 	*Item
-	DPT        float64 // damage per tick: damage / cooldown
-	DPTPerCPU  float64
-	DPTPerPwr  float64
-	Volley     int // damage * magazine_size, 0 when the weapon takes no ammo
-	EffMinDPT  float64
-	EffMaxDPT  float64
-	AmmoCount  int
-	SkillReq   string
-	Specials   []string
+	DPT       float64 // damage per tick: damage / cooldown
+	DPTPerCPU float64
+	DPTPerPwr float64
+	Volley    int // damage * magazine_size, 0 when the weapon takes no ammo
+	EffMinDPT float64
+	EffMaxDPT float64
+	AmmoCount int
+	SkillReq  string
+	Specials  []string
+}
+
+// resistCell is one damage-type resistance cell on the defense table.
+//
+// Adaptive modules carry no resistance_bonus map at all — their coverage is
+// encoded only in the `adaptive_resistance_N` special. Rendering that as six
+// empty cells made an Adaptive Shield III (35% against everything) look
+// strictly worse on resistance than a 30% single-type hardener, which is
+// backwards for the decision this page exists to support. So adaptive values
+// fill every column, flagged so they still read as different in kind: a
+// hardener is a fixed number, an adaptive shield ramps into whatever is
+// hitting it.
+type resistCell struct {
+	Value    string // "" when the module has no resistance of this type
+	Adaptive bool
 }
 
 // defenseRow is a single row of the all-defense comparison table.
 type defenseRow struct {
 	*Item
-	Resists   []string // per damageTypes order; "" when the module has none
+	Resists   []resistCell // per damageTypes order
+	Adaptive  int          // percent from adaptive_resistance_N; 0 when not adaptive
 	Penalties []string
 	SkillReq  string
 	Specials  []string
@@ -99,47 +115,47 @@ func toFloat(v any) (float64, bool) {
 // Tokens are comma-separated and usually carry a trailing magnitude
 // (armor_bypass_50), which decodeSpecials splits off and re-appends.
 var specialLabels = map[string]string{
-	"adaptive_resistance":   "Adaptive resistance",
-	"aoe_radius":            "AoE radius",
-	"anti_drone_bonus":      "Anti-drone",
-	"anti_missile_bonus":    "Anti-missile",
-	"armor_bypass":          "Armor bypass",
-	"armor_melt":            "Armor melt",
-	"capacitor_drain":       "Capacitor drain",
-	"capacitor_transfer":    "Capacitor transfer",
-	"chain_lightning":       "Chain lightning",
-	"cpu_damage":            "CPU damage",
-	"energy_damage_bonus":   "Energy damage",
-	"hull_damage_bonus":     "Hull damage",
-	"ignores_resistance":    "Ignores resistance",
-	"lifesteal":             "Lifesteal",
-	"mine_capacity":         "Mine capacity",
-	"mine_detection":        "Mine detection",
-	"mine_duration":         "Mine duration",
-	"mine_tracking_speed":   "Mine tracking",
-	"module_disable":        "Module disable",
-	"phase_dodge":           "Phase dodge",
-	"phase_strike":          "Phase strike",
+	"adaptive_resistance":    "Adaptive resistance",
+	"aoe_radius":             "AoE radius",
+	"anti_drone_bonus":       "Anti-drone",
+	"anti_missile_bonus":     "Anti-missile",
+	"armor_bypass":           "Armor bypass",
+	"armor_melt":             "Armor melt",
+	"capacitor_drain":        "Capacitor drain",
+	"capacitor_transfer":     "Capacitor transfer",
+	"chain_lightning":        "Chain lightning",
+	"cpu_damage":             "CPU damage",
+	"energy_damage_bonus":    "Energy damage",
+	"hull_damage_bonus":      "Hull damage",
+	"ignores_resistance":     "Ignores resistance",
+	"lifesteal":              "Lifesteal",
+	"mine_capacity":          "Mine capacity",
+	"mine_detection":         "Mine detection",
+	"mine_duration":          "Mine duration",
+	"mine_tracking_speed":    "Mine tracking",
+	"module_disable":         "Module disable",
+	"phase_dodge":            "Phase dodge",
+	"phase_strike":           "Phase strike",
 	"random_damage_variance": "Damage variance",
-	"reflect_energy":        "Reflect energy",
-	"shield_bypass":         "Shield bypass",
-	"shield_damage_bonus":   "Shield damage",
-	"shock_attackers":       "Shock attackers",
-	"system_disable":        "System disable",
+	"reflect_energy":         "Reflect energy",
+	"shield_bypass":          "Shield bypass",
+	"shield_damage_bonus":    "Shield damage",
+	"shock_attackers":        "Shock attackers",
+	"system_disable":         "System disable",
 }
 
 // specialFlags are the valueless special tokens.
 var specialFlags = map[string]string{
-	"ammo_from_cargo":          "Feeds from cargo",
-	"damage_boost_on_hit":      "Damage boost on hit",
+	"ammo_from_cargo":           "Feeds from cargo",
+	"damage_boost_on_hit":       "Damage boost on hit",
 	"emergency_warp_at_20_hull": "Emergency warp at 20% hull",
-	"ignores_all_defense":      "Ignores all defense",
-	"low_cpu_requirement":      "Low CPU requirement",
-	"rage_damage_scaling":      "Rage damage scaling",
-	"repair_from_salvage":      "Repairs from salvage",
-	"shield_phase":             "Shield phase",
-	"target_specific":          "Target specific",
-	"common_only":              "Common ammo only",
+	"ignores_all_defense":       "Ignores all defense",
+	"low_cpu_requirement":       "Low CPU requirement",
+	"rage_damage_scaling":       "Rage damage scaling",
+	"repair_from_salvage":       "Repairs from salvage",
+	"shield_phase":              "Shield phase",
+	"target_specific":           "Target specific",
+	"common_only":               "Common ammo only",
 }
 
 // decodeSpecials turns "armor_bypass_80,hull_damage_bonus_50" into
@@ -244,10 +260,16 @@ func buildDefenseRows(items []*Item) []defenseRow {
 			continue
 		}
 		r := defenseRow{Item: it}
-		r.Resists = make([]string, len(damageTypes))
+		r.Adaptive = adaptiveResistance(it.Special)
+		r.Resists = make([]resistCell, len(damageTypes))
 		for i, dt := range damageTypes {
 			if v, ok := it.ResistanceBonus[dt]; ok && v != 0 {
-				r.Resists[i] = fmtPct(v)
+				r.Resists[i] = resistCell{Value: fmtPct(v)}
+				continue
+			}
+			// An explicit hardener value wins; adaptive fills the rest.
+			if r.Adaptive > 0 {
+				r.Resists[i] = resistCell{Value: strconv.Itoa(r.Adaptive) + "%", Adaptive: true}
 			}
 		}
 		if it.SpeedPenalty != 0 {
@@ -265,6 +287,23 @@ func buildDefenseRows(items []*Item) []defenseRow {
 	}
 	slices.SortFunc(rows, func(a, b defenseRow) int { return cmp.Compare(a.Name, b.Name) })
 	return rows
+}
+
+// adaptiveResistance extracts N from an `adaptive_resistance_N` special token,
+// returning 0 when the module is not adaptive. The token means N% against every
+// damage type, not against one.
+func adaptiveResistance(special string) int {
+	for _, tok := range strings.Split(special, ",") {
+		tok = strings.TrimSpace(tok)
+		rest, ok := strings.CutPrefix(tok, "adaptive_resistance_")
+		if !ok {
+			continue
+		}
+		if n, err := strconv.Atoi(rest); err == nil {
+			return n
+		}
+	}
+	return 0
 }
 
 func abs(n int) int {
@@ -330,7 +369,7 @@ func writeModuleComparisons(outDir string, items []*Item) error {
 			}
 			return strconv.FormatFloat(r.EffMinDPT, 'f', 1, 64) + "–" + strconv.FormatFloat(r.EffMaxDPT, 'f', 1, 64)
 		},
-		"dtClass":     func(dt string) string { return "dt-" + dt },
+		"dtClass": func(dt string) string { return "dt-" + dt },
 		// dtLabel title-cases a damage type, keeping EM as an initialism
 		// rather than the "Em" titleCase would produce.
 		"dtLabel": func(dt string) string {
@@ -348,13 +387,13 @@ func writeModuleComparisons(outDir string, items []*Item) error {
 			}
 			return strings.ReplaceAll(titleCase(a), "Em ", "EM ")
 		},
-		"join":        func(v []string, sep string) string { return strings.Join(v, sep) },
+		"join": func(v []string, sep string) string { return strings.Join(v, sep) },
 		// resistedTypes lists the damage types a defense module actually
 		// resists, space-joined, so the filter chips can match any of them.
 		"resistedTypes": func(r defenseRow) string {
 			var out []string
-			for i, v := range r.Resists {
-				if v != "" {
+			for i, c := range r.Resists {
+				if c.Value != "" {
 					out = append(out, damageTypes[i])
 				}
 			}
@@ -362,11 +401,11 @@ func writeModuleComparisons(outDir string, items []*Item) error {
 		},
 		// pctSort turns "25%" into a sortable number, and an absent
 		// resistance into 0 so blanks sort below real values.
-		"pctSort": func(s string) string {
-			if s == "" {
+		"pctSort": func(c resistCell) string {
+			if c.Value == "" {
 				return "0"
 			}
-			return strings.TrimSuffix(s, "%")
+			return strings.TrimSuffix(c.Value, "%")
 		},
 	}
 

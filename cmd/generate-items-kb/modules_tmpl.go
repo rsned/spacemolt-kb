@@ -111,6 +111,12 @@ const moduleFilterCSS = `    <style>
       .mod-table { font-size:var(--text-ui,13px); }
       .mod-table td.num, .mod-table th.num { text-align:right; }
       .mod-table .res0 { color:hsl(var(--muted-foreground)); opacity:.45; }
+      /* Adaptive resistance is real coverage but different in kind from a fixed
+         hardener, so it reads as a number you can sort on while still being
+         visually distinguishable at a glance. */
+      .mod-table td.adaptive, .adaptive-key { font-style:italic; opacity:.92; }
+      .mod-table td.adaptive::after, .adaptive-key::after { content:"\00a0a"; font-size:9px;
+        vertical-align:super; font-style:normal; opacity:.7; }
     </style>`
 
 var weaponAllTemplate = `<!DOCTYPE html>
@@ -295,7 +301,9 @@ var defenseAllTemplate = `<!DOCTYPE html>
               <td class="num">{{intOrDash .HullBonus}}</td>
               <td class="num" data-sort="{{.DamageReduction}}">{{pctOrDash .DamageReduction}}</td>
 {{- range .Resists}}
-              <td class="num{{if not .}} res0{{end}}" data-sort="{{pctSort .}}">{{strOrDash .}}</td>
+              <td class="num{{if not .Value}} res0{{end}}{{if .Adaptive}} adaptive{{end}}"
+                  data-sort="{{pctSort .}}"
+                  {{if .Adaptive}}title="Adaptive: applies to every damage type, ramping as it learns what is hitting you"{{end}}>{{strOrDash .Value}}</td>
 {{- end}}
               <td>{{strOrDash (join .Penalties ", ")}}</td>
               <td>{{strOrDash .SkillReq}}</td>
@@ -309,6 +317,11 @@ var defenseAllTemplate = `<!DOCTYPE html>
       <p class="text-muted mt-2" style="font-size:12px">
         Resistance columns are per damage type &mdash; match them against the damage type
         that is actually killing you on the <a href="../weapon/all.html">weapons page</a>.
+        Values in <span class="adaptive-key">this style</span> come from an
+        <b>adaptive</b> module: it carries no fixed per-type resistance, but applies
+        that percentage against <i>every</i> damage type, ramping as it learns what is
+        hitting you. So an Adaptive Shield III (35% across the board) trades raw
+        per-type depth for coverage against a hardener&rsquo;s 30% in one.
         Penalties are real: several high-bulk modules cost speed, which is why
         they are a first-class column rather than buried in the description.
       </p>
