@@ -1,6 +1,7 @@
 // Tectonic plate seed types, Fibonacci-spiral seeding, random
 // flood-fill across cube faces, boundary classification, and three
 // boundary distance fields (convergent / divergent / transform).
+
 package field
 
 import (

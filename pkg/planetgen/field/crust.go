@@ -1,6 +1,7 @@
 // Crust-raft stage (Phase 12): cratons of continental crust riding on
 // tectonic plates produce a ContinentalMask and BaseHeight that decide
 // land vs ocean, replacing noise-threshold continents on the crust path.
+
 package field
 
 import (

@@ -1,3 +1,5 @@
+// Package bom computes bills of materials: it flattens a recipe tree into the
+// base materials a build actually consumes, choosing among alternative recipes.
 package bom
 
 import (

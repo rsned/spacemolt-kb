@@ -9,6 +9,7 @@
 // The discontinuity at cell boundaries is small (≤ JitterOffsetMax in
 // sample-space, ≤ JitterRotMax around the cell center) and reads as
 // natural variation given the underlying fbm continuity.
+
 package noise
 
 import (

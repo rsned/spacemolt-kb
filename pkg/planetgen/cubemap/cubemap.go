@@ -66,29 +66,29 @@ func NewF(size int) *CubeMapF {
 }
 
 // Set writes a single float on a face.
-func (cm *CubeMapF) Set(face Face, px, py int, v float64) {
-	cm.Faces[face][py*cm.Size+px] = v
+func (cmf *CubeMapF) Set(face Face, px, py int, v float64) {
+	cmf.Faces[face][py*cmf.Size+px] = v
 }
 
 // Get reads a single float on a face.
-func (cm *CubeMapF) Get(face Face, px, py int) float64 {
-	return cm.Faces[face][py*cm.Size+px]
+func (cmf *CubeMapF) Get(face Face, px, py int) float64 {
+	return cmf.Faces[face][py*cmf.Size+px]
 }
 
-// Clone returns a deep copy of c.
-func (c *CubeMapF) Clone() *CubeMapF {
-	out := NewF(c.Size)
+// Clone returns a deep copy of cmf.
+func (cmf *CubeMapF) Clone() *CubeMapF {
+	out := NewF(cmf.Size)
 	for face := range Face(NumFaces) {
-		copy(out.Faces[face], c.Faces[face])
+		copy(out.Faces[face], cmf.Faces[face])
 	}
 	return out
 }
 
-// Clone returns a deep copy of c.
-func (c *CubeMap) Clone() *CubeMap {
-	out := New(c.Size)
+// Clone returns a deep copy of cm.
+func (cm *CubeMap) Clone() *CubeMap {
+	out := New(cm.Size)
 	for face := range Face(NumFaces) {
-		copy(out.Faces[face], c.Faces[face])
+		copy(out.Faces[face], cm.Faces[face])
 	}
 	return out
 }

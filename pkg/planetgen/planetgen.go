@@ -1,3 +1,5 @@
+// Package planetgen generates procedural planet surfaces — elevation, climate,
+// biomes and the rendered map layers derived from them.
 package planetgen
 
 import (

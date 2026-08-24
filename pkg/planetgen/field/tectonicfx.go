@@ -1,6 +1,7 @@
 // Crust-aware boundary effects (Phase 12): classify each plate-boundary
 // pixel by the continental crust on its two sides, then JFA-propagate
 // per-class distance + magnitude fields consumed by ApplyTectonicFX.
+
 package field
 
 import (

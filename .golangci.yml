@@ -10,6 +10,17 @@ linters:
     - depguard
 
   settings:
+    staticcheck:
+      checks:
+        - all
+        # QF1012 (prefer fmt.Fprintf over WriteString(fmt.Sprintf(...))) arrived
+        # in staticcheck via golangci-lint v2.13.1 and immediately flagged 366
+        # pre-existing sites across 11 files in the HTML generators. It is a
+        # style quickfix, not a correctness check — Fprintf to a strings.Builder
+        # cannot fail — so it is not worth a repo-wide mechanical edit. Drop this
+        # line if that cleanup ever happens.
+        - "-QF1012"
+
     depguard:
       rules:
         main:

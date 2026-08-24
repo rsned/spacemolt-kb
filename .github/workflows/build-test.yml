@@ -21,7 +21,11 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: latest
+          # Pinned, not `latest`: an unpinned linter turns every upstream
+          # release into a red build with no code change. QF1012 arriving in
+          # v2.13.1 did exactly that — main was red for 5 consecutive runs on
+          # pre-existing code. Bump this deliberately.
+          version: v2.13.1
 
   wasm-build:
     runs-on: ubuntu-latest
