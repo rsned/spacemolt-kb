@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ship Fitting Sheet - Spacemolt KB</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Cyanotype. Same palette and line-work as the blueprint sheets in
+   data/footprints/blueprints/make_blueprints.py, extended to a whole page.
+   --------------------------------------------------------------------------- */
+:root{
+  --blue:#123d75;          /* classic cyanotype field */
+  --blue-deep:#0b2a52;     /* page ground behind the sheet */
+  --line:#eaf2ff;          /* white line-work */
+  --dim:rgba(234,242,255,.80);     /* table + section labels */
+  --faint:rgba(234,242,255,.55);   /* breakdowns, hints, placeholders */
+  --rule:rgba(234,242,255,.34);
+  --shield:#9fe4ff;        /* vibrant blue-white shield trace */
+  --pen:#ff9d8a;           /* penalties, over-capacity */
+  --ok:#8ee6b8;
+  --gap:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--blue-deep);
+  color:var(--line);
+  font:14px/1.45 'Courier New',ui-monospace,monospace;
+  letter-spacing:.09em;
+  padding:18px;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--line)}
+
+/* The sheet: drafting grid + the blueprints' heavy double border. */
+.sheet{
+  position:relative;
+  max-width:1680px;margin:0 auto;
+  background:var(--blue);
+  background-image:
+    repeating-linear-gradient(to right,rgba(234,242,255,.072) 0 1px,transparent 1px 24px),
+    repeating-linear-gradient(to bottom,rgba(234,242,255,.072) 0 1px,transparent 1px 24px),
+    repeating-linear-gradient(to right,rgba(234,242,255,.16) 0 1px,transparent 1px 120px),
+    repeating-linear-gradient(to bottom,rgba(234,242,255,.16) 0 1px,transparent 1px 120px);
+  border:2.5px solid var(--line);
+  padding:10px;
+}
+.sheet::before{
+  content:"";position:absolute;inset:5px;border:1px solid var(--line);
+  opacity:.75;pointer-events:none;
+}
+.inner{position:relative;padding:16px 20px 12px}
+
+/* --- header ------------------------------------------------------------- */
+.sheet-head{
+  display:flex;flex-wrap:wrap;gap:20px 28px;align-items:flex-end;
+  justify-content:space-between;
+  border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:16px;
+}
+.brand{font-size:19.5px;font-weight:bold;letter-spacing:.26em;white-space:nowrap}
+.brand .back{display:block;font-size:11px;font-weight:normal;letter-spacing:.22em;
+  color:var(--dim);text-decoration:none;margin-bottom:7px}
+.brand .back:hover{color:var(--line)}
+.brand small{display:block;font-size:11.5px;font-weight:normal;letter-spacing:.2em;
+  color:var(--dim);margin-top:5px}
+.controls{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl>span{font-size:11px;letter-spacing:.22em;color:var(--dim)}
+select,input[type=number]{
+  background:transparent;color:var(--line);
+  border:0;border-bottom:1px solid var(--line);
+  font:inherit;letter-spacing:.1em;padding:4px 2px;
+  border-radius:0;outline:none;
+}
+select:focus,input:focus{border-bottom-color:var(--shield);
+  box-shadow:0 1px 0 0 var(--shield)}
+select option,select optgroup{background:var(--blue);color:var(--line)}
+#ship{width:clamp(280px,55vw,600px);font-size:clamp(13px,1.4vw,16px);flex:none}
+.engwrap{display:flex;align-items:center;gap:12px}
+#engNum{width:58px;text-align:right;font-size:16px}
+#engRange{width:150px;accent-color:var(--shield);background:transparent}
+.engnote{font-size:11px;color:var(--dim);letter-spacing:.16em;
+  width:150px;flex:none;white-space:nowrap}
+
+/* --- body grid ---------------------------------------------------------- */
+.body{display:grid;grid-template-columns:minmax(380px,42fr) 58fr;gap:22px;align-items:start}
+@media (max-width:1200px){
+  .body{grid-template-columns:1fr}
+  #planWrap{max-width:520px;margin:0 auto}
+}
+
+.panel{border:1px solid var(--rule);padding:14px 16px 12px;position:relative}
+.panel>h2{
+  margin:0 0 10px;font-size:11.5px;font-weight:bold;letter-spacing:.26em;
+  color:var(--dim);display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+}
+.panel>h2 em{font-style:normal;color:var(--faint);letter-spacing:.16em;font-weight:normal}
+
+/* --- plan view ---------------------------------------------------------- */
+.plan svg{display:block;width:100%;height:auto}
+.plan-legend{
+  margin-top:10px;padding-top:9px;border-top:1px solid var(--rule);
+  display:flex;flex-wrap:wrap;gap:6px 18px;font-size:11px;
+  color:var(--dim);letter-spacing:.16em;align-items:center;
+}
+.plan-legend b{color:var(--line);font-weight:bold}
+.swatch{display:inline-block;width:16px;height:0;border-top:2px solid var(--shield);
+  vertical-align:middle;margin-right:5px}
+.swatch.dash{border-top-style:dashed;border-top-color:var(--faint)}
+.plan-legend .why{margin-left:18px;color:var(--faint)}
+.plan-legend .none{color:var(--faint);letter-spacing:.18em}
+
+/* --- slots -------------------------------------------------------------- */
+.slotgrid{display:grid;gap:16px}
+.slotgroup{}
+.slotgroup h3{
+  margin:0 0 7px;font-size:11.5px;letter-spacing:.24em;color:var(--line);
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:1px solid var(--rule);padding-bottom:5px;font-weight:bold;
+}
+.slotgroup h3 em{font-style:normal;font-weight:normal;color:var(--faint);
+  font-size:10.5px;letter-spacing:.14em}
+.slotrow{display:flex;align-items:center;gap:9px;margin:5px 0}
+.slotrow .n{width:20px;color:var(--faint);font-size:11.5px;flex:none;text-align:right}
+.slotrow select{flex:1;min-width:0;font-size:13px;padding:3px 2px}
+.slotrow.filled select{color:var(--line)}
+.slotrow .cost{width:96px;flex:none;text-align:right;font-size:11.5px;color:var(--dim);
+  letter-spacing:.08em;white-space:nowrap}
+.slotrow select.empty{color:var(--faint)}
+.noslots{color:var(--faint);font-size:12px;letter-spacing:.16em;padding:2px 0}
+.panel>h2 .acts{display:flex;gap:8px;margin-left:14px;flex:none}
+.panel>h2 button{background:transparent;color:var(--faint);font:inherit;
+  font-size:10.5px;letter-spacing:.18em;border:1px solid var(--rule);
+  padding:2px 9px;cursor:pointer;border-radius:0}
+.panel>h2 button:hover{color:var(--line);border-color:var(--line)}
+.stocknote{margin-top:10px;font-size:10.5px;letter-spacing:.14em;color:var(--pen);
+  opacity:.85;line-height:1.6}
+
+/* --- meters ------------------------------------------------------------- */
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;
+  border-top:1px solid var(--rule);padding-top:13px}
+.meter .lab{display:flex;justify-content:space-between;font-size:11.5px;
+  letter-spacing:.2em;color:var(--dim);margin-bottom:5px}
+.meter .lab b{color:var(--line);letter-spacing:.1em;font-size:14px}
+.meter .bar{height:9px;border:1px solid var(--rule);position:relative;overflow:hidden}
+.meter .fill{position:absolute;inset:0 auto 0 0;background:var(--shield);opacity:.75}
+.meter.over .fill{background:var(--pen);opacity:.9}
+.meter.over .lab b{color:var(--pen)}
+.meter .free{font-size:10.5px;color:var(--faint);letter-spacing:.14em;margin-top:4px;
+  display:block}
+
+/* --- stats sheet -------------------------------------------------------- */
+.stats{margin-top:22px}
+.statsec{margin-bottom:16px}
+.statsec>h3{
+  margin:0 0 6px;font-size:11px;letter-spacing:.28em;color:var(--dim);
+  font-weight:bold;border-bottom:1px solid var(--rule);padding-bottom:4px;
+}
+table.st{width:100%;border-collapse:collapse}
+table.st td{padding:3px 0;vertical-align:baseline}
+table.st td.k{color:var(--dim);font-size:12px;letter-spacing:.16em;
+  white-space:nowrap;width:186px;padding-right:14px}
+table.st td.v{font-size:14.5px;letter-spacing:.06em}
+.v b{font-weight:bold;color:var(--line)}
+.brk{color:var(--faint);font-size:12px;letter-spacing:.06em;margin-left:7px}
+.pen{color:var(--pen)}
+.plus{color:var(--shield)}
+.nil{color:var(--faint)}
+
+/* resistance strip */
+.resgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+  border:1px solid var(--rule);background:var(--rule);margin-top:2px}
+.rescell{background:var(--blue);padding:6px 4px;text-align:center}
+.rescell .rt{font-size:10px;letter-spacing:.14em;color:var(--dim);display:block}
+.rescell .rv{font-size:15px;font-weight:bold;display:block;margin-top:3px}
+.rescell .rv.z{color:var(--faint);font-weight:normal}
+.rescell.over .rv{color:var(--pen)}
+.resnote{margin-top:5px;font-size:10.5px;letter-spacing:.16em;color:var(--pen);opacity:.85}
+.rescell.adaptive .rv{font-style:italic}
+.rescell.adaptive .rv::after{content:"a";font-size:9px;vertical-align:super;
+  font-style:normal;opacity:.7;margin-left:1px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:5px;padding:2px 0}
+.chip{border:1px solid var(--rule);padding:2.5px 8px;font-size:11.5px;
+  letter-spacing:.12em;color:var(--line)}
+.chip.src{color:var(--dim)}
+.dt{padding:1.5px 7px;font-size:11.5px;letter-spacing:.1em;border:1px solid}
+.dt-kinetic{color:#dfe5ee;border-color:#8c98a8}
+.dt-thermal{color:#ffc9a3;border-color:#c2703c}
+.dt-energy{color:#a8c9ff;border-color:#5b83d6}
+.dt-em{color:#d3bcff;border-color:#8a6ad2}
+.dt-explosive{color:#ffb3ac;border-color:#c9584f}
+.dt-void{color:#c9c9ff;border-color:#7a72c9}
+
+.wlist{width:100%;border-collapse:collapse;margin-top:3px}
+.wlist th{font-size:10px;letter-spacing:.18em;color:var(--faint);text-align:right;
+  font-weight:normal;padding:0 0 4px 10px;border-bottom:1px solid var(--rule)}
+.wlist th:first-child{text-align:left;padding-left:0}
+.wlist td{font-size:12.5px;padding:3px 0 3px 10px;text-align:right;
+  border-bottom:1px dotted var(--rule)}
+.wlist td:first-child{text-align:left;padding-left:0;letter-spacing:.06em}
+.wlist tr:last-child td{border-bottom:0}
+
+/* --- title block -------------------------------------------------------- */
+.titleblock{
+  margin-top:16px;border:1px solid var(--line);display:grid;
+  grid-template-columns:2.2fr 1fr 1fr 1fr 1.1fr;   /* replaced per render */
+}
+.tb{padding:8px 12px;border-right:1px solid var(--rule);min-width:0}
+.tb:last-child{border-right:0}
+.tb .tk{font-size:10px;letter-spacing:.2em;color:var(--dim);display:block}
+.tb .tv{font-size:15px;letter-spacing:.1em;margin-top:3px;display:block;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb.big .tv{font-size:19.5px;font-weight:bold;letter-spacing:.18em}
+.note{margin-top:10px;font-size:11px;color:var(--faint);letter-spacing:.14em;
+  line-height:1.7}
+.note b{color:var(--dim)}
+
+@media print{
+  body{padding:0;background:var(--blue)}
+  .sheet{max-width:none;border-width:2px}
+  .brand .back{display:none}
+  .body{grid-template-columns:42fr 58fr}
+  select,input{border-bottom-color:var(--faint)}
+}
+</style>
+</head>
+<body>
+<div class="sheet"><div class="inner">
+
+  <header class="sheet-head">
+    <div class="brand"><a href="./" class="back">&lsaquo; SHIPS</a>SHIP FITTING SHEET
+      <small>SPACEMOLT FLEET REGISTRY &middot; OUTFITTING &amp; STATUS</small></div>
+    <div class="controls">
+      <label class="ctl"><span>SHIP</span><select id="ship"></select></label>
+      <label class="ctl"><span>ENGINEERING LEVEL</span>
+        <div class="engwrap">
+          <input type="range" id="engRange" min="0" max="100" step="1" value="0">
+          <input type="number" id="engNum" min="0" max="100" step="1" value="0">
+          <span class="engnote" id="engNote"></span>
+        </div>
+      </label>
+    </div>
+  </header>
+
+  <main class="body">
+    <section class="panel plan">
+      <h2><span>PLAN VIEW &middot; SHIELD ENVELOPE</span><em id="planScale"></em></h2>
+      <div id="planWrap"></div>
+      <div class="plan-legend">
+        <span id="ringLegend"></span>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel">
+        <h2><span>MODULE SLOTS</span>
+          <em id="slotSummary"></em>
+          <span class="acts"><button id="btnStock" type="button">STOCK</button
+            ><button id="btnStrip" type="button">STRIP</button></span></h2>
+        <div class="slotgrid" id="slots"></div>
+        <div class="stocknote" id="stockNote"></div>
+        <div class="meters">
+          <div class="meter" id="mCpu">
+            <div class="lab"><span>CPU</span><b></b></div>
+            <div class="bar"><div class="fill"></div></div>
+            <span class="free"></span>
+          </div>
+          <div class="meter" id="mPwr">
+            <div class="lab"><span>POWER</span><b></b></div>
+            <div class="bar"><div class="fill"></div></div>
+            <span class="free"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel stats">
+        <h2><span>COMBINED STATUS</span><em>BASE + FITTED MODULES</em></h2>
+        <div id="stats"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="titleblock" id="titleblock"></footer>
+  <div class="note" id="footnote"></div>
+
+</div></div>
+
+<script>
+"use strict";
+const SHIPS = /*__SHIPS__*/null;
+const MODULES = /*__MODULES__*/null;
+const DTYPES = /*__DAMAGE_TYPES__*/null;
+
+/* Trace geometry in CSS pixels, converted to panel units at draw time. The
+   panel viewBox is a fixed 800 wide but renders at whatever width the column
+   gives it (~500px), so a constant expressed in user units renders at an
+   arbitrary size -- at 500px a 1.3-unit stroke lands on 0.8 CSS px, thinner
+   than a pixel, and the traces smear into the hull outline. Pixel constants
+   render the same everywhere. HULL_W_PX likewise: the hull path lives inside
+   the ship-fit scale, so a fixed stroke-width there draws fat on small hulls
+   and thin on large ones. */
+const RING_GAP_PX = 5, RING_W_PX = 1.6, HULL_W_PX = 2.2;
+const PANEL_W = 800, PANEL_H = 1080;
+
+const BY_SLOT = {weapon:[], defense:[], utility:[]};
+for (const m of MODULES) (BY_SLOT[m.slot] ||= []).push(m);
+const MOD = Object.fromEntries(MODULES.map(m => [m.id, m]));
+
+/* The catalog ships most hulls with modules already in them, so the sheet opens
+   on the stock loadout rather than a stripped hull. Each id claims the next free
+   slot of its own type; ids the module catalog does not carry are reported
+   rather than dropped. Nothing in the fleet ships more stock than it has slots. */
+function stockFit(s) {
+  const fit = {weapon:[], defense:[], utility:[]};
+  const cap = {weapon:s.w||0, defense:s.d||0, utility:s.u||0};
+  const missing = [], overflow = [];
+  for (const id of s.dm || []) {
+    const m = MOD[id];
+    if (!m) { missing.push(id); continue; }
+    if (fit[m.slot].length < cap[m.slot]) fit[m.slot].push(id);
+    else overflow.push(m.name);
+  }
+  return {fit, missing, overflow};
+}
+
+const state = {
+  ship: SHIPS.recursion ? "recursion" : Object.keys(SHIPS)[0],
+  eng: 0,
+  fit: {weapon:[], defense:[], utility:[]},
+  stock: {missing:[], overflow:[]},
+};
+
+function loadStock() {
+  const r = stockFit(SHIPS[state.ship]);
+  state.fit = r.fit;
+  state.stock = {missing:r.missing, overflow:r.overflow};
+}
+
+/* Ship record keys for the three slot counts, and the URL's slot prefixes. */
+const SLOT_KEY = {weapon:"w", defense:"d", utility:"u"};
+const SLOT_PREFIX = {weapon:"w", defense:"d", utility:"u"};
+const PREFIX_SLOT = {w:"weapon", d:"defense", u:"utility"};
+
+/* ------------------------------------------------------------- URL state */
+/* Shareable links, same contract as the BoM explorer: slot params are
+   `<type><1-based index>=<item id>`, e.g. w1=autocannon_ii&u1=cargo_expander_iii.
+   Ship and module ids are [a-z0-9_] throughout the catalog, so nothing is run
+   through encodeURIComponent -- it would only make the URL unreadable.
+
+   Slot params are authoritative: any slot the URL does not name is empty. A
+   fit that is exactly the stock loadout emits no slot params at all, so the
+   common link stays just ?ship=<id>; `stock=0` marks a hand-built fit on a
+   hull that ships with modules, which a bare ?ship= would otherwise restore. */
+function encodeState() {
+  const s = SHIPS[state.ship], parts = ["ship=" + state.ship];
+  if (state.eng) parts.push("eng=" + state.eng);
+  if (!isStock()) {
+    if ((s.dm || []).length) parts.push("stock=0");
+    for (const [slot, pre] of Object.entries(SLOT_PREFIX))
+      for (let i = 0; i < (s[SLOT_KEY[slot]] || 0); i++)
+        if (state.fit[slot][i]) parts.push(`${pre}${i+1}=${state.fit[slot][i]}`);
+  }
+  return parts.join("&");
+}
+
+/* URLs are user-editable, so a bad one must degrade rather than break the
+   page: unknown ships, out-of-range slots, unknown module ids and modules of
+   the wrong type for their slot are all dropped in favour of the defaults. */
+function decodeState(query) {
+  const p = new URLSearchParams(query || "");
+
+  const ship = p.get("ship");
+  if (ship && SHIPS[ship]) state.ship = ship;
+  const s = SHIPS[state.ship];
+
+  if (p.has("eng")) {
+    const n = Math.round(+p.get("eng"));
+    state.eng = Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0;
+  }
+
+  const fit = {weapon:[], defense:[], utility:[]};
+  let explicit = p.get("stock") === "0";
+  for (const [k, v] of p) {
+    const m = /^([wdu])([0-9]{1,2})$/.exec(k);
+    if (!m) continue;
+    const slot = PREFIX_SLOT[m[1]], i = +m[2] - 1;
+    if (i < 0 || i >= (s[SLOT_KEY[slot]] || 0)) continue;   // hull has no such slot
+    explicit = true;                 // a named slot means the link is hand-built,
+    const mod = MOD[v];              // even if this particular id turns out bad
+    if (!mod || mod.slot !== slot) continue;
+    fit[slot][i] = v;
+  }
+  if (explicit) { state.fit = fit; state.stock = {missing:[], overflow:[]}; }
+  else loadStock();
+}
+
+/* True while every slot still holds exactly what the catalog put there. */
+function isStock() {
+  const s = SHIPS[state.ship], r = stockFit(s);
+  return Object.entries(SLOT_KEY).every(([slot, key]) => {
+    for (let i = 0; i < (s[key]||0); i++)
+      if ((state.fit[slot][i]||"") !== (r.fit[slot][i]||"")) return false;
+    return true;
+  });
+}
+let planCache = {};   // ship id -> {vb:[w,h], d:path} | null when no plan on file
+
+/* ----------------------------------------------------------------- helpers */
+const el = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = n => {
+  const r = Math.round(n * 100) / 100;
+  return (Math.abs(r) >= 1000 ? r.toLocaleString("en-US") : String(r));
+};
+const titleCase = s => s.replace(/_/g," ").replace(/^./, c => c.toUpperCase());
+
+/* An accumulator per stat: base value plus everything modules added or took
+   away, kept apart so the sheet can show `550 (450+100)` rather than just 550. */
+const acc = base => ({base: base||0, add: 0, sub: 0});
+const total = a => a.base + a.add - a.sub;
+
+/* Render one value: bold total when modified, breakdown after it, penalty red. */
+function val(a, unit, opts={}) {
+  const u = unit ? `<span class="brk">${esc(unit)}</span>` : "";
+  const t = total(a);
+  if (!a.add && !a.sub)
+    return `<span class="${t?'':'nil'}">${num(t)}</span>${u}`;
+  let brk = num(a.base);
+  if (a.add) brk += ` <span class="plus">+${num(a.add)}</span>`;
+  if (a.sub) brk += ` <span class="pen">&minus;${num(a.sub)}</span>`;
+  return `<b>${num(t)}</b>${u}<span class="brk">(${brk})</span>`;
+}
+
+/* ------------------------------------------------------------- computation */
+/* Engineering is documented as "1% per level" CPU and power efficiency, so
+   level 100 zeroes every module. Implemented literally; flagged in the footer. */
+const engMul = () => 1 - state.eng / 100;
+const modCpu = m => Math.round(m.cpu * engMul());
+const modPwr = m => Math.round(m.pwr * engMul());
+
+function fittedModules() {
+  const out = [];
+  for (const slot of ["weapon","defense","utility"])
+    for (const id of state.fit[slot]) if (id && MOD[id]) out.push(MOD[id]);
+  return out;
+}
+
+function compute() {
+  const s = SHIPS[state.ship], fitted = fittedModules();
+  const r = {
+    ship: s, fitted,
+    cpuCap: acc(s.cpu), pwrCap: acc(s.pwr), cpuUsed: 0, pwrUsed: 0,
+    hull: acc(s.hull), armor: acc(s.armor), shield: acc(s.shield),
+    srec: acc(s.srec), arep: acc(0), dred: acc(0),
+    speed: acc(s.speed), fuel: acc(s.fuel), cargo: acc(s.cargo),
+    feff: acc(0), tow: acc(s.tow),
+    cloak: acc(0), scan: acc(0), acc_: acc(0), track: acc(0), sig: acc(0),
+    dbw: acc(0), dcap: acc(0), hpow: acc(0), hrng: acc(0),
+    spow: acc(0), srng: acc(0),
+    res: Object.fromEntries(DTYPES.map(d => [d, {v:0, adaptive:false}])),
+    dpt: 0, edptLo: 0, edptHi: 0, reach: 0, volley: 0,
+    byType: {}, weapons: [],
+    features: new Map(), reqs: {},
+  };
+
+  // Ship-inherent capabilities (berths, scan resistance, ...) ride along as
+  // named rows rather than being folded into a numeric stat.
+  r.inherent = (s.caps || []).map(([t, v]) => [titleCase(t), v]);
+
+  for (const m of fitted) {
+    r.cpuUsed += modCpu(m);
+    r.pwrUsed += modPwr(m);
+    for (const sp of m.sp || []) r.features.set(sp, (r.features.get(sp)||new Set()).add(m.name));
+    for (const [k, lv] of Object.entries(m.req || {}))
+      r.reqs[k] = Math.max(r.reqs[k] || 0, lv);
+
+    const d = m.d;
+    if (d) {
+      r.shield.add += d.shield||0;  r.srec.add += d.srec||0;
+      r.armor.add  += d.armor||0;   r.arep.add += d.arep||0;
+      r.hull.add   += d.hull||0;
+      const dr = d.dred || 0;
+      r.dred.add += dr * (dr <= 1 ? 100 : 1);
+      r.cloak.add = Math.max(r.cloak.add, d.cloak||0);   // a rating, not a pool
+      for (const dt of DTYPES) {
+        const explicit = (d.res||{})[dt] || 0;
+        if (explicit) r.res[dt].v += explicit * (explicit <= 1 ? 100 : 1);
+        else if (m.adapt) { r.res[dt].v += m.adapt; r.res[dt].adaptive = true; }
+      }
+    }
+    const u = m.u;
+    if (u) {
+      r.speed.add += u.speed||0;   r.speed.sub += u.speedpen||0;
+      r.cargo.add += u.cargo||0;   r.hull.sub  += u.hullpen||0;
+      r.cpuCap.add += u.cpub||0;   r.fuel.add  += u.mfuel||0;
+      r.feff.add += Math.max(0, u.feff||0);
+      r.feff.sub += Math.max(0, -(u.feff||0));
+      r.tow.sub += u.towpen||0;
+      r.cloak.add = Math.max(r.cloak.add, u.cloak||0);
+      r.scan.add += u.scan||0;   r.acc_.add += u.acc||0;
+      r.track.add += u.track||0; r.sig.add += u.sig||0;
+      r.dbw.add += u.dbw||0;     r.dcap.add += u.dcap||0;
+      r.hpow.add += u.hpow||0;   r.hrng.add = Math.max(r.hrng.add, u.hrng||0);
+      r.spow.add += u.spow||0;   r.srng.add = Math.max(r.srng.add, u.srng||0);
+    }
+    const w = m.w;
+    if (w) {
+      r.dpt += w.dpt||0;
+      r.edptLo += (w.edpt||[w.dpt||0,w.dpt||0])[0];
+      r.edptHi += (w.edpt||[w.dpt||0,w.dpt||0])[1];
+      r.reach = Math.max(r.reach, w.reach||w.rng||0);
+      r.volley += (w.dmg||0) * (w.mag||1);
+      r.byType[w.dt] = (r.byType[w.dt]||0) + (w.dpt||0);
+      r.weapons.push(m);
+    }
+  }
+  return r;
+}
+
+/* --------------------------------------------------------------- ring math */
+/* Multiplier a fit applies to shield capacity. No module in the catalog reduces
+   shields by a percentage, so this is always 1 today; the trimmed-trace path it
+   feeds is kept for when one appears. */
+function shieldPenalty(r) {
+  return 1;
+}
+
+/* Traces = 2 baseline + 1 per tier above 1, scaled by how far the fit moves
+   shields off the hull's own number. Doubling shields doubles the traces. */
+function ringPlan(r) {
+  const s = r.ship;
+  const baseRings = 2 + Math.max(0, (s.tier || 0) - 1);
+  const base = s.shield || 0, nominal = total(r.shield);
+  const pct = shieldPenalty(r);
+  const effective = nominal * pct;
+  const ringsFor = v => base > 0 ? Math.max(0, Math.round(baseRings * v / base))
+                                 : (v > 0 ? baseRings : 0);
+  const nom = ringsFor(nominal), eff = ringsFor(effective);
+  return {baseRings, nom, eff, shown: Math.max(nom, eff), lost: Math.max(0, nom - eff),
+          base, nominal, effective, pct};
+}
+
+/* ------------------------------------------------------------ plan drawing */
+async function loadPlan(id) {
+  if (id in planCache) return planCache[id];
+  if (!SHIPS[id].plan) return (planCache[id] = null);
+  try {
+    const txt = await (await fetch(`plans/${id}.svg`)).text();
+    const vb = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(txt);
+    const d = /<path d="([^"]+)"/.exec(txt);
+    planCache[id] = (vb && d) ? {w:+vb[1], h:+vb[2], d:d[1]} : null;
+  } catch { planCache[id] = null; }
+  return planCache[id];
+}
+
+function drawPlan(plan, rp) {
+  const rings = rp.shown;
+  // Panel units per CSS pixel, from the width the column actually gave us.
+  const u = PANEL_W / (el("planWrap").clientWidth || 520);
+  const gap = RING_GAP_PX * u, ringW = RING_W_PX * u, hullW = HULL_W_PX * u;
+
+  const pad = 40 + rings * gap;                // keep the outermost trace inside
+  const availW = PANEL_W - pad*2, availH = PANEL_H - pad*2 - 46;
+
+  let body, cap;
+  if (plan) {
+    // Source silhouettes are landscape with the nose at +x, so rotate(-90)
+    // stands the ship up nose-to-top; translate(0,w) brings it back on-canvas.
+    const S = Math.min(availW / plan.h, availH / plan.w);
+    const tx = PANEL_W/2 - plan.h*S/2, ty = pad + (availH - plan.w*S)/2;
+    const g = inner =>
+      `<g transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${S.toFixed(5)}) translate(0 ${plan.w}) rotate(-90)">${inner}</g>`;
+    body = {shape: g(`<path d="${plan.d}" fill="#fff"/>`),
+            // stroke-width is divided by the fit scale so it lands on HULL_W_PX
+            hull:  g(`<path d="${plan.d}" class="hull" stroke-width="${(hullW/S).toFixed(3)}"/>`)};
+    const sh = SHIPS[state.ship];
+    cap = sh.loa ? `L.O.A. ${sh.loa} M × BEAM ${sh.beam} M`
+                 : `DIMENSIONS PENDING SURVEY · ${plan.w}×${plan.h} UNITS`;
+  } else {
+    // No surveyed plan on file: a neutral hull stands in so the envelope, the
+    // stats and the slot side of the sheet all stay usable.
+    const rx = availW*0.17, ry = availH*0.42;
+    const cx = PANEL_W/2, cy = pad + availH/2;
+    const d = `M ${cx} ${cy-ry} C ${cx+rx} ${cy-ry*0.35} ${cx+rx} ${cy+ry*0.55} ${cx+rx*0.55} ${cy+ry}`
+            + ` L ${cx-rx*0.55} ${cy+ry} C ${cx-rx} ${cy+ry*0.55} ${cx-rx} ${cy-ry*0.35} ${cx} ${cy-ry} Z`;
+    body = {shape:`<path d="${d}" fill="#fff"/>`,
+            hull:`<path d="${d}" class="hull" stroke-width="${hullW.toFixed(3)}"
+                    stroke-dasharray="${(hullW*3).toFixed(1)} ${(hullW*2.6).toFixed(1)}"/>`};
+    cap = "PLAN VIEW PENDING SURVEY";
+  }
+
+  // One offset outline per trace. feMorphology dilates the filled silhouette
+  // twice and subtracts, which follows the hull shape instead of scaling it.
+  const dp = (7 * u).toFixed(2), dl = (4 * u).toFixed(2);
+  let defs = `<pattern id="dashpat" width="${dp}" height="${dp}" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+      <rect width="${dp}" height="${dp}" fill="#000"/><rect width="${dl}" height="${dp}" fill="#fff"/></pattern>
+    <mask id="dashmask" maskUnits="userSpaceOnUse" x="0" y="0" width="${PANEL_W}" height="${PANEL_H}">
+      <rect width="${PANEL_W}" height="${PANEL_H}" fill="url(#dashpat)"/></mask>`;
+  let layers = "";
+  for (let i = 1; i <= rings; i++) {
+    const lost = i > rp.eff;                   // trimmed by a shield penalty
+    const R = gap*i + ringW/2, Ri = Math.max(0.01, gap*i - ringW/2);
+    const col = lost ? "#b9c7dc" : "#9fe4ff";
+    const op  = lost ? 0.5 : (0.95 - (i-1)/Math.max(rings,1)*0.45).toFixed(3);
+    defs += `<filter id="rg${i}" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+        <feMorphology in="SourceAlpha" operator="dilate" radius="${R.toFixed(2)}" result="o"/>
+        <feMorphology in="SourceAlpha" operator="dilate" radius="${Ri.toFixed(2)}" result="n"/>
+        <feComposite in="o" in2="n" operator="out" result="ring"/>
+        <feFlood flood-color="${col}" flood-opacity="${op}"/>
+        <feComposite in2="ring" operator="in"/></filter>`;
+    layers += `<g filter="url(#rg${i})"${lost ? ' mask="url(#dashmask)"' : ''}>${body.shape}</g>`;
+  }
+
+  return `<svg viewBox="0 0 ${PANEL_W} ${PANEL_H}" preserveAspectRatio="xMidYMid meet"
+      role="img" aria-label="Plan view with shield envelope">
+    <defs>${defs}</defs>
+    <style>
+      .hull{fill:#eaf2ff;fill-opacity:.10;stroke:#eaf2ff;stroke-linejoin:round}
+      .cl{stroke:#eaf2ff;stroke-width:.8;stroke-dasharray:22 5 3 5;stroke-opacity:.55}
+      .plabel{font:11.5px 'Courier New',monospace;fill:#eaf2ff;letter-spacing:.18em;opacity:.8}
+    </style>
+    <line x1="${PANEL_W/2}" y1="18" x2="${PANEL_W/2}" y2="${PANEL_H-30}" class="cl"/>
+    ${layers}
+    ${body.hull}
+    <text class="plabel" x="${PANEL_W/2}" y="${PANEL_H-10}" text-anchor="middle">${esc(cap)}</text>
+    <text class="plabel" x="${PANEL_W/2}" y="16" text-anchor="middle">FWD &#9650;</text>
+  </svg>`;
+}
+
+/* ---------------------------------------------------------------- rendering */
+function optionsFor(slot) {
+  return `<option value="">&mdash; empty &mdash;</option>` + BY_SLOT[slot].map(m => {
+    let tail = `${m.cpu}c/${m.pwr}p`;
+    if (m.w) tail += ` · ${num(m.w.dpt)} DPT`;
+    else if (m.d && m.d.shield) tail += ` · +${m.d.shield} shd`;
+    else if (m.d && m.d.armor) tail += ` · +${m.d.armor} arm`;
+    else if (m.u && m.u.cargo) tail += ` · +${m.u.cargo} cargo`;
+    return `<option value="${esc(m.id)}">${esc(m.name)} — ${tail}</option>`;
+  }).join("");
+}
+
+function renderSlots() {
+  const s = SHIPS[state.ship];
+  const groups = [["weapon","WEAPON",s.w||0],["defense","DEFENSE",s.d||0],
+                  ["utility","UTILITY",s.u||0]];
+  const fitted = ["weapon","defense","utility"]
+    .reduce((n, sl) => n + state.fit[sl].filter(Boolean).length, 0);
+  el("slotSummary").textContent =
+    `${s.w||0}W / ${s.d||0}D / ${s.u||0}U` +
+    (!(s.dm||[]).length ? " · NO STOCK LOADOUT"
+      : isStock() ? " · STOCK" : " · MODIFIED");
+
+  const notes = [];
+  if (state.stock.missing.length)
+    notes.push(`STOCK LOADOUT NAMES ${state.stock.missing.length} MODULE` +
+      `${state.stock.missing.length>1?"S":""} THE CATALOG DOES NOT CARRY: ` +
+      state.stock.missing.map(id => esc(titleCase(id))).join(", "));
+  if (state.stock.overflow.length)
+    notes.push(`MORE STOCK MODULES THAN SLOTS — NOT FITTED: ` +
+      state.stock.overflow.map(esc).join(", "));
+  el("stockNote").innerHTML = notes.join("<br>");
+  el("slots").innerHTML = groups.map(([slot,label,n]) => {
+    if (!n) return `<div class="slotgroup"><h3>${label}<em>none</em></h3>
+      <div class="noslots">NO ${label} SLOTS ON THIS HULL</div></div>`;
+    const rows = Array.from({length:n}, (_,i) => {
+      const cur = state.fit[slot][i] || "";
+      const m = cur ? MOD[cur] : null;
+      const cost = m ? `${modCpu(m)}c &middot; ${modPwr(m)}p` : "&mdash;";
+      return `<div class="slotrow${m?' filled':''}">
+        <span class="n">${i+1}</span>
+        <select class="${m?'':'empty'}" data-slot="${slot}" data-i="${i}">${optionsFor(slot)}</select>
+        <span class="cost">${cost}</span></div>`;
+    }).join("");
+    return `<div class="slotgroup"><h3>${label}<em>${n} slot${n>1?"s":""} · ${BY_SLOT[slot].length} fittable</em></h3>${rows}</div>`;
+  }).join("");
+  // Set values after injection so long option lists stay in the DOM once.
+  el("slots").querySelectorAll("select").forEach(sel => {
+    sel.value = state.fit[sel.dataset.slot][+sel.dataset.i] || "";
+    sel.onchange = () => {
+      state.fit[sel.dataset.slot][+sel.dataset.i] = sel.value;
+      render();
+    };
+  });
+}
+
+function meter(id, used, cap) {
+  const box = el(id), over = used > cap;
+  box.classList.toggle("over", over);
+  box.querySelector("b").textContent = `${num(used)} / ${num(cap)}`;
+  box.querySelector(".fill").style.width =
+    `${cap > 0 ? Math.min(100, used/cap*100) : (used?100:0)}%`;
+  box.querySelector(".free").textContent = over
+    ? `OVER BY ${num(used-cap)}`
+    : `${num(cap-used)} FREE`;
+}
+
+function row(k, v) { return `<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`; }
+function section(title, body) {
+  return body ? `<div class="statsec"><h3>${title}</h3>${body}</div>` : "";
+}
+function tbl(rows) { return rows ? `<table class="st">${rows}</table>` : ""; }
+
+function renderStats(r) {
+  const s = r.ship;
+  const out = [];
+
+  // -- defense ------------------------------------------------------------
+  const ehp = total(r.hull) + total(r.armor) + total(r.shield);
+  let def = row("SHIELD", val(r.shield))
+          + row("SHIELD RECHARGE", val(r.srec, " /tick"))
+          + row("ARMOR", val(r.armor))
+          + row("ARMOR REPAIR", val(r.arep, " /tick"))
+          + row("HULL", val(r.hull))
+          + row("EFFECTIVE HP", `<b>${num(ehp)}</b><span class="brk">shield + armor + hull</span>`);
+  if (total(r.dred)) def += row("DAMAGE REDUCTION", val(r.dred, "%"));
+  let resOver = false;
+  const resCells = DTYPES.map(dt => {
+    const c = r.res[dt];
+    const over = c.v >= 100;
+    if (over) resOver = true;
+    return `<div class="rescell${c.adaptive?" adaptive":""}${over?" over":""}"${
+        over ? ' title="Additive stacking runs past total immunity here — the server\'s real stacking rule is unconfirmed."' : ""}>
+      <span class="rt">${dt.toUpperCase()}</span>
+      <span class="rv${c.v?"":" z"}">${c.v ? num(c.v)+"%" : "—"}</span></div>`;
+  }).join("");
+  const resNote = resOver
+    ? `<div class="resnote">STACKED ADDITIVELY PAST 100% — REAL STACKING RULE UNCONFIRMED</div>`
+    : "";
+  out.push(section("DEFENSE", tbl(def) +
+    `<div class="resgrid" style="margin-top:8px">${resCells}</div>${resNote}`));
+
+  // -- offense ------------------------------------------------------------
+  if (r.weapons.length) {
+    const chips = Object.entries(r.byType).sort((a,b)=>b[1]-a[1]).map(([dt,v]) =>
+      `<span class="dt dt-${dt}">${dt.toUpperCase()} ${num(v)}</span>`).join("");
+    const wrows = r.weapons.map(m => `<tr>
+        <td>${esc(m.name)}</td><td>${num(m.w.dmg||0)}</td><td>${num(m.w.cd||0)}</td>
+        <td>${num(m.w.dpt||0)}</td>
+        <td>${num((m.w.edpt||[0,0])[0])}–${num((m.w.edpt||[0,0])[1])}</td>
+        <td>${num(m.w.reach||m.w.rng||0)}</td>
+        <td><span class="dt dt-${m.w.dt}">${(m.w.dt||"").toUpperCase()}</span></td>
+      </tr>`).join("");
+    out.push(section("OFFENSE",
+      tbl(row("DAMAGE / TICK", `<b>${num(r.dpt)}</b>`)
+        + row("EFFECTIVE DPT", `<b>${num(r.edptLo)} – ${num(r.edptHi)}</b><span class="brk">across every round that fits</span>`)
+        + row("REACH", `${num(r.reach)}`)
+        + row("VOLLEY", `${num(r.volley)}<span class="brk">one full magazine</span>`)
+        + row("DAMAGE TYPES", `<div class="chips">${chips}</div>`))
+      + `<table class="wlist"><thead><tr><th>WEAPON</th><th>DMG</th><th>CD</th>
+         <th>DPT</th><th>EFF DPT</th><th>REACH</th><th>TYPE</th></tr></thead>
+         <tbody>${wrows}</tbody></table>`));
+  } else {
+    out.push(section("OFFENSE",
+      `<div class="noslots">NO WEAPONS FITTED</div>`));
+  }
+
+  // -- mobility & capacity ------------------------------------------------
+  let mob = row("SPEED", val(r.speed))
+          + row("FUEL CAPACITY", val(r.fuel));
+  if (total(r.feff)) mob += row("FUEL EFFICIENCY", val(r.feff, "%"));
+  if (total(r.tow)) mob += row("TOW SPEED", val(r.tow));
+  out.push(section("MOBILITY", tbl(mob)));
+
+  let cap = row("CARGO", val(r.cargo));
+  if (total(r.dcap) || total(r.dbw))
+    cap += row("DRONE BAY", `${val(r.dcap)}<span class="brk">bandwidth ${num(total(r.dbw))}</span>`);
+  for (const [k, v] of r.inherent) cap += row(k.toUpperCase(), `${num(v)}`);
+  out.push(section("CAPACITY", tbl(cap)));
+
+  // -- sensors, covert, industry (only what the fit actually has) ---------
+  let sens = "";
+  const opt = (k, a, u) => { if (total(a)) sens += row(k, val(a, u)); };
+  opt("SCANNER POWER", r.scan); opt("CLOAK STRENGTH", r.cloak);
+  opt("ACCURACY", r.acc_, "%"); opt("TRACKING", r.track, "%");
+  opt("SIGNATURE", r.sig); opt("SURVEY POWER", r.spow);
+  opt("SURVEY RANGE", r.srng); opt("HARVEST POWER", r.hpow);
+  opt("HARVEST RANGE", r.hrng);
+  out.push(section("SENSORS &amp; INDUSTRY", tbl(sens)));
+
+  // -- features and requirements -----------------------------------------
+  if (r.features.size) {
+    const chips = [...r.features.entries()].sort().map(([f, srcs]) =>
+      `<span class="chip" title="${esc([...srcs].join(", "))}">${esc(f)}</span>`).join("");
+    out.push(section("MODULE FEATURES", `<div class="chips">${chips}</div>`));
+  }
+  if (s.special) {
+    out.push(section("HULL SPECIAL",
+      `<div class="chips"><span class="chip">${esc(titleCase(s.special))}</span></div>`));
+  }
+  const reqs = Object.entries(r.reqs).sort();
+  if (reqs.length) {
+    out.push(section("SKILL REQUIREMENTS", `<div class="chips">` +
+      reqs.map(([k,v]) => `<span class="chip src">${esc(titleCase(k))} ${v}</span>`).join("") +
+      `</div>`));
+  }
+  el("stats").innerHTML = out.join("");
+}
+
+function renderTitleBlock(r) {
+  const s = r.ship, fitted = r.fitted.length;
+  const cells = [
+    ["VESSEL", s.name, true],
+    ["CLASS", s.cls || "—"],
+    ["TIER", `T${s.tier || 0}`],
+  ];
+  // The six starter hulls carry the same label the ship pages badge them with.
+  if (s.starter) cells.push(["TYPE", "STARTER SHIP"]);
+  cells.push(["ROLE", s.cat || "—"],
+             ["MODULES", `${fitted} / ${(s.w||0)+(s.d||0)+(s.u||0)}`]);
+
+  const tb = el("titleblock");
+  // Column count varies with the optional cell, so the track list is built to
+  // match: a wide vessel field, even middle fields, a slightly wider tail.
+  tb.style.gridTemplateColumns = `2.2fr ${"1fr ".repeat(cells.length - 2)}1.1fr`;
+  tb.innerHTML = cells.map(([k,v,big]) =>
+    `<div class="tb${big?" big":""}"><span class="tk">${k}</span>
+      <span class="tv" title="${esc(v)}">${esc(v)}</span></div>`).join("");
+}
+
+async function render() {
+  const url = encodeState();
+  history.replaceState(null, "", url ? "?" + url : location.pathname);
+
+  const r = compute();
+  const s = r.ship;
+
+  renderSlots();
+  meter("mCpu", r.cpuUsed, total(r.cpuCap));
+  meter("mPwr", r.pwrUsed, total(r.pwrCap));
+  renderStats(r);
+  renderTitleBlock(r);
+
+  const rp = ringPlan(r);
+  const legend = el("ringLegend");
+  if (!rp.shown) {
+    legend.classList.add("none");
+    legend.innerHTML = total(r.shield) > 0
+      ? `SHIELDS TOO LOW TO PLOT`
+      : `NO SHIELD ENVELOPE &middot; THIS HULL CARRIES NO SHIELDS`;
+  } else {
+    legend.classList.remove("none");
+    legend.innerHTML =
+      `<i class="swatch"></i><b>${rp.shown}</b> SHIELD TRACES` +
+      `<span class="why">${rp.baseRings} BASE (T${s.tier || 0})` +
+      (rp.nominal !== rp.base ? ` × ${num(rp.nominal)}/${num(rp.base||0)} SHIELD` : "") +
+      (rp.lost ? ` · <i class="swatch dash"></i>${rp.lost} TRIMMED` : "") +
+      `</span>`;
+  }
+
+  const plan = await loadPlan(state.ship);
+  el("planWrap").innerHTML = drawPlan(plan, rp);
+  el("planScale").textContent = plan ? "SURVEYED" : "NO PLAN ON FILE";
+
+  const engPct = state.eng;
+  el("engNote").innerHTML = engPct
+    ? `&minus;${engPct}% CPU &amp; POWER`
+    : "NO REDUCTION";
+
+  el("footnote").innerHTML =
+    `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to every module, per the skill's `
+    + `"1% per level" text — at level 100 modules cost nothing. `
+    + `<b>RESISTANCES</b> stack additively; an <i>a</i> marker means the value comes from an `
+    + `adaptive module, which covers every damage type. `
+    + `<b>CLOAK</b> takes the strongest fitted rating rather than summing. `
+    + `<b>SHIELD TRACES</b> = (2 + tier &minus; 1) × total/base shields, `
+    + `${RING_GAP}px apart; trimmed traces show dashed grey.`;
+}
+
+/* -------------------------------------------------------------------- init */
+function init() {
+  // Ship picker, grouped by role so 338 hulls stay navigable.
+  const byCat = {};
+  for (const s of Object.values(SHIPS)) (byCat[s.cat || "Other"] ||= []).push(s);
+  el("ship").innerHTML = Object.keys(byCat).sort().map(cat =>
+    `<optgroup label="${esc(cat)}">` + byCat[cat]
+      .sort((a,b) => a.name.localeCompare(b.name))
+      .map(s => `<option value="${esc(s.id)}">${esc(s.name)} — ${esc(s.cls||"")} T${s.tier || 0} · ${s.w||0}/${s.d||0}/${s.u||0}</option>`)
+      .join("") + `</optgroup>`).join("");
+  el("ship").value = state.ship;
+
+  el("ship").onchange = e => {
+    state.ship = e.target.value;
+    loadStock();                    // slots differ per hull; open on stock
+    render();
+  };
+  el("btnStock").onclick = () => { loadStock(); render(); };
+  el("btnStrip").onclick = () => {
+    state.fit = {weapon:[], defense:[], utility:[]};
+    state.stock = {missing:[], overflow:[]};
+    render();
+  };
+  const setEng = v => {
+    state.eng = Math.max(0, Math.min(100, Math.round(+v || 0)));
+    el("engRange").value = el("engNum").value = state.eng;
+    render();
+  };
+  el("engRange").oninput = e => setEng(e.target.value);
+  el("engNum").oninput = e => setEng(e.target.value);
+  // The unit conversion depends on the rendered panel width, so redraw on resize.
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+
+  decodeState(location.search.slice(1));
+  el("ship").value = state.ship;
+  el("engRange").value = el("engNum").value = state.eng;
+  render();
+}
+init();
+</script>
+</body>
+</html>
