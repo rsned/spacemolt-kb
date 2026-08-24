@@ -194,7 +194,8 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
 .dt-explosive{color:#ffb3ac;border-color:#c9584f}
 .dt-void{color:#c9c9ff;border-color:#7a72c9}
 
-.wlist{width:100%;border-collapse:collapse;margin-top:3px}
+.wscroll{overflow-x:auto;margin-top:3px}
+.wlist{width:100%;border-collapse:collapse;min-width:620px}
 .wlist th{font-size:10px;letter-spacing:.18em;color:var(--faint);text-align:right;
   font-weight:normal;padding:0 0 4px 10px;border-bottom:1px solid var(--rule)}
 .wlist th:first-child{text-align:left;padding-left:0}
@@ -472,7 +473,7 @@ function compute() {
     dbw: acc(0), dcap: acc(0), hpow: acc(0), hrng: acc(0),
     spow: acc(0), srng: acc(0),
     res: Object.fromEntries(DTYPES.map(d => [d, {v:0, adaptive:false}])),
-    dpt: 0, edptLo: 0, edptHi: 0, reach: 0, volley: 0,
+    dpt: 0, edptLo: 0, edptHi: 0, reach: 0, alpha: 0,
     byType: {}, weapons: [],
     features: new Map(), reqs: {},
   };
@@ -523,7 +524,7 @@ function compute() {
       r.edptLo += (w.edpt||[w.dpt||0,w.dpt||0])[0];
       r.edptHi += (w.edpt||[w.dpt||0,w.dpt||0])[1];
       r.reach = Math.max(r.reach, w.reach||w.rng||0);
-      r.volley += (w.dmg||0) * (w.mag||1);
+      r.alpha += w.dmg||0;
       r.byType[w.dt] = (r.byType[w.dt]||0) + (w.dpt||0);
       r.weapons.push(m);
     }
@@ -765,22 +766,32 @@ function renderStats(r) {
   if (r.weapons.length) {
     const chips = Object.entries(r.byType).sort((a,b)=>b[1]-a[1]).map(([dt,v]) =>
       `<span class="dt dt-${dt}">${dt.toUpperCase()} ${num(v)}</span>`).join("");
-    const wrows = r.weapons.map(m => `<tr>
-        <td>${esc(m.name)}</td><td>${num(m.w.dmg||0)}</td><td>${num(m.w.cd||0)}</td>
+    const wrows = r.weapons.map(m => {
+      const mag = m.w.mag || 0, cd = m.w.cd || 0;
+      return `<tr>
+        <td>${esc(m.name)}</td><td>${num(m.w.dmg||0)}</td><td>${num(cd)}</td>
         <td>${num(m.w.dpt||0)}</td>
         <td>${num((m.w.edpt||[0,0])[0])}–${num((m.w.edpt||[0,0])[1])}</td>
+        <td>${mag ? num(mag) : "—"}</td>
+        <td>${mag ? num((m.w.dmg||0)*mag) : "—"}</td>
+        <td>${mag && cd ? num(mag*cd) : "—"}</td>
         <td>${num(m.w.reach||m.w.rng||0)}</td>
         <td><span class="dt dt-${m.w.dt}">${(m.w.dt||"").toUpperCase()}</span></td>
-      </tr>`).join("");
+      </tr>`;}).join("");
     out.push(section("OFFENSE",
       tbl(row("DAMAGE / TICK", `<b>${num(r.dpt)}</b>`)
         + row("EFFECTIVE DPT", `<b>${num(r.edptLo)} – ${num(r.edptHi)}</b><span class="brk">across every round that fits</span>`)
         + row("REACH", `${num(r.reach)}`)
-        + row("VOLLEY", `${num(r.volley)}<span class="brk">one full magazine</span>`)
+        + row("ALPHA STRIKE", `<b>${num(r.alpha)}</b><span class="brk">one shot from every weapon</span>`)
         + row("DAMAGE TYPES", `<div class="chips">${chips}</div>`))
-      + `<table class="wlist"><thead><tr><th>WEAPON</th><th>DMG</th><th>CD</th>
-         <th>DPT</th><th>EFF DPT</th><th>REACH</th><th>TYPE</th></tr></thead>
-         <tbody>${wrows}</tbody></table>`));
+      + `<div class="wscroll"><table class="wlist"><thead><tr><th>WEAPON</th><th>DMG</th>
+         <th title="Ticks between shots">CD</th><th title="Damage per tick">DPT</th>
+         <th title="Effective DPT range across every round that fits">EFF DPT</th>
+         <th title="Rounds per magazine">MAG</th>
+         <th title="Damage from one full magazine: damage x magazine size">MAG DMG</th>
+         <th title="Ticks to fire the magazine dry: magazine size x cooldown">EMPTY IN</th>
+         <th>REACH</th><th>TYPE</th></tr></thead>
+         <tbody>${wrows}</tbody></table></div>`));
   } else {
     out.push(section("OFFENSE",
       `<div class="noslots">NO WEAPONS FITTED</div>`));
@@ -899,6 +910,9 @@ async function render() {
     + `payouts, loot and scan evasion rather than these stats. `
     + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to every module, per its `
     + `"1% per level" text — at level 100 modules cost nothing. `
+    + `<b>DAMAGE / TICK</b> assumes continuous fire: the catalog carries no reload time, so `
+    + `each weapon holds its rate only until EMPTY IN, and magazine figures are per-weapon `
+    + `because a 1000-round autocannon and a 7-round railgun do not empty together. `
     + `<b>RESISTANCES</b> stack additively; an <i>a</i> marker means the value comes from an `
     + `adaptive module, which covers every damage type. `
     + `<b>CLOAK</b> takes the strongest fitted rating rather than summing. `
