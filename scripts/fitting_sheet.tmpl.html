@@ -759,8 +759,8 @@ function renderStats(r) {
   const resNote = resOver
     ? `<div class="resnote">STACKED ADDITIVELY PAST 100% — REAL STACKING RULE UNCONFIRMED</div>`
     : "";
-  out.push(section("DEFENSE", tbl(def) +
-    `<div class="resgrid" style="margin-top:8px">${resCells}</div>${resNote}`));
+  const defenseSection = section("DEFENSE", tbl(def) +
+    `<div class="resgrid" style="margin-top:8px">${resCells}</div>${resNote}`);
 
   // -- offense ------------------------------------------------------------
   if (r.weapons.length) {
@@ -796,6 +796,7 @@ function renderStats(r) {
     out.push(section("OFFENSE",
       `<div class="noslots">NO WEAPONS FITTED</div>`));
   }
+  out.push(defenseSection);
 
   // -- mobility & capacity ------------------------------------------------
   let mob = row("SPEED", val(r.speed))
