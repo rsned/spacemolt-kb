@@ -166,6 +166,7 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
 .brk{color:var(--faint);font-size:12px;letter-spacing:.06em;margin-left:7px}
 .pen{color:var(--pen)}
 .plus{color:var(--shield)}
+.cap{margin-left:10px;font-size:10.5px;letter-spacing:.14em;color:var(--pen);opacity:.9}
 .nil{color:var(--faint)}
 
 /* resistance strip */
@@ -314,6 +315,11 @@ const PLAN_FILL = 0.90;
    absurd panel; those fit by height instead. Either way the envelope is
    budgeted on BOTH axes first, so shield traces never clip. */
 const PLAN_MAX_ASPECT = 2.9;
+/* Speed stops at 6 however many afterburners are bolted on. Worth showing
+   rather than silently clamping: a Plasma Afterburner alone is +4 and 316 of
+   the 338 hulls can reach the cap, so the sheet would otherwise promise speed
+   that does not exist and hide the wasted slots. */
+const SPEED_CAP = 6;
 const PANEL_W = 800;
 
 const BY_SLOT = {weapon:[], defense:[], utility:[]};
@@ -799,7 +805,18 @@ function renderStats(r) {
   out.push(defenseSection);
 
   // -- mobility & capacity ------------------------------------------------
-  let mob = row("SPEED", val(r.speed))
+  const rawSpeed = total(r.speed), speed = Math.min(rawSpeed, SPEED_CAP);
+  let speedCell;
+  if (rawSpeed > SPEED_CAP) {
+    let brk = num(r.speed.base);
+    if (r.speed.add) brk += ` <span class="plus">+${num(r.speed.add)}</span>`;
+    if (r.speed.sub) brk += ` <span class="pen">&minus;${num(r.speed.sub)}</span>`;
+    speedCell = `<b>${num(speed)}</b><span class="brk">(${brk} = ${num(rawSpeed)})</span>`
+      + `<span class="cap">CAPPED AT ${SPEED_CAP} · ${num(rawSpeed - SPEED_CAP)} WASTED</span>`;
+  } else {
+    speedCell = val(r.speed);
+  }
+  let mob = row("SPEED", speedCell)
           + row("FUEL CAPACITY", val(r.fuel));
   if (total(r.feff)) mob += row("FUEL EFFICIENCY", val(r.feff, "%"));
   if (total(r.tow)) mob += row("TOW SPEED", val(r.tow));
@@ -911,6 +928,8 @@ async function render() {
     + `payouts, loot and scan evasion rather than these stats. `
     + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to every module, per its `
     + `"1% per level" text — at level 100 modules cost nothing. `
+    + `<b>SPEED</b> stops at ${SPEED_CAP} however many modules are fitted; anything past it `
+    + `is shown as wasted rather than added. `
     + `<b>DAMAGE / TICK</b> assumes continuous fire: the catalog carries no reload time, so `
     + `each weapon holds its rate only until EMPTY IN, and magazine figures are per-weapon `
     + `because a 1000-round autocannon and a 7-round railgun do not empty together. `
