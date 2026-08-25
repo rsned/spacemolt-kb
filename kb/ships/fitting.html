@@ -471,6 +471,7 @@ function compute() {
   const r = {
     ship: s, fitted,
     cpuCap: acc(s.cpu), pwrCap: acc(s.pwr), cpuUsed: 0, pwrUsed: 0,
+    cpuRaw: 0, pwrRaw: 0,
     hull: acc(s.hull), armor: acc(s.armor), shield: acc(s.shield),
     srec: acc(s.srec), arep: acc(0), dred: acc(0),
     speed: acc(s.speed), fuel: acc(s.fuel), cargo: acc(s.cargo),
@@ -489,8 +490,8 @@ function compute() {
   r.inherent = (s.caps || []).map(([t, v]) => [titleCase(t), v]);
 
   for (const m of fitted) {
-    r.cpuUsed += modCpu(m);
-    r.pwrUsed += modPwr(m);
+    r.cpuRaw += m.cpu;
+    r.pwrRaw += m.pwr;
     for (const sp of m.sp || []) r.features.set(sp, (r.features.get(sp)||new Set()).add(m.name));
     for (const [k, lv] of Object.entries(m.req || {}))
       r.reqs[k] = Math.max(r.reqs[k] || 0, lv);
@@ -535,6 +536,8 @@ function compute() {
       r.weapons.push(m);
     }
   }
+  r.cpuUsed = Math.round(r.cpuRaw * engMul());
+  r.pwrUsed = Math.round(r.pwrRaw * engMul());
   return r;
 }
 
@@ -926,8 +929,9 @@ async function render() {
     + `Weapons also +0.2%/level crit), <b>Tactics</b> (+1%/level accuracy, evasion and combat `
     + `speed), plus <b>Bounty Hunting</b>, <b>Piracy</b> and <b>Leadership</b>, which affect `
     + `payouts, loot and scan evasion rather than these stats. `
-    + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to every module, per its `
-    + `"1% per level" text — at level 100 modules cost nothing. `
+    + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to the fitted total, `
+    + `matching the server: per-slot figures are each rounded for display, so they can `
+    + `sum a point above the total. At level 100 modules cost nothing. `
     + `<b>SPEED</b> stops at ${SPEED_CAP} however many modules are fitted; anything past it `
     + `is shown as wasted rather than added. `
     + `<b>DAMAGE / TICK</b> assumes continuous fire: the catalog carries no reload time, so `
