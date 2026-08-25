@@ -8,6 +8,7 @@ cannot fetch these for itself.
 |---|---|---|---|---|
 | `a2619bbe….json` | Node Beta | 30 | 42 | Primary acceptance artifact. Two sides, 14 kills, a station with an empty `ship_class`, and two classes with no art (`anamnesis`, `silent_tide`) — every draw path in one frame. |
 | `b131fd5a….json` | Kitalpha | 158 | 5 | Four sides at bearings 82/121/152/271°. Proves the radial layout generalises past two sides. |
+| `2a76e1a1….json` | Haven | 4430 | 13 | A player (AetherWraith, Opus Magna) solo-destroys the Grand Exchange Station: 17,146 shots, 14 kills, 1.48M damage. Kept as the mechanics-analysis corpus — the volley count is what makes the damage multiplier and crit rate measurable. |
 
 Re-export with:
 
@@ -41,3 +42,19 @@ zones overlap heavily (e.g. `engaged` reaches 1.479 while `outer` starts as
 low as 0.778), so x/y drifts continuously within a zone rather than sitting
 on a fixed ring — P1b should interpolate positions linearly, not ease
 between discrete zone radii.
+
+## Reading the shot records
+
+Three things that will produce wrong numbers if assumed otherwise, measured on
+the 2a76e1a1 battle:
+
+- `shots[].damage` is the **volley total for the tick**, duplicated onto every
+  shot record in that volley. Summing the column overcounts by the number of
+  weapons that fired — 8x on an Opus Magna.
+- `hit` is per-volley, not per-weapon: one roll, shared by every shot.
+- `weapon_damage` is that shot's damage **including its critical-hit roll**
+  (a Void Laser reads 65 or 97 = floor(65 x 1.5)). Crits are rolled before the
+  hit check, so they appear on misses too.
+
+`damage` is pre-mitigation; `shield_damage + hull_damage` is what landed.
+Resolution is `floor(sum(weapon_damage) x multiplier)`.
