@@ -202,11 +202,112 @@ def main():
     (OVERLAY / "legacy_ships.json").write_text(
         json.dumps(records, indent=1, sort_keys=True) + "\n")
 
+    # Same treatment for retired items. generate-items-kb builds its item map
+    # from the crafting DB and then overlays module stats from catalog_items.json;
+    # a retired item is in neither, so it is skipped entirely. This emits one
+    # catalog_items-shaped record per retired item, carrying both the base fields
+    # (so the generator can create the item) and the module stats (so the overlay
+    # can dress it), rebuilt from the knowledge DB.
+    ITEM_BASE = """select id, name, coalesce(description,''), coalesce(category,''),
+             coalesce(rarity,''), size, base_value, stackable, tradeable,
+             coalesce(power_bonus,0), hazardous, quest_item,
+             coalesce(extracted_by,''), coalesce(required_skills,''),
+             coalesce(region_lock,''), passenger_economy_berths,
+             passenger_business_berths, passenger_first_berths
+             from items where id = ?"""
+    BASE_KEYS = ["id", "name", "description", "category", "rarity", "size",
+                 "base_value", "stackable", "tradeable", "power_bonus",
+                 "hazardous", "quest_item", "extracted_by", "required_skills",
+                 "region_lock", "passenger_economy_berths",
+                 "passenger_business_berths", "passenger_first_berths"]
+    SUB = [
+        ("item_modules", {"type": "type", "type_id": "type_id", "slot": "slot",
+                          "special": "special", "cpu_usage": "cpu_usage",
+                          "power_usage": "power_usage", "hidden": "hidden"}),
+        ("item_weapons", {"damage": "damage", "damage_type": "damage_type",
+                          "range": "range", "reach": "reach", "cooldown": "cooldown",
+                          "ammo_type": "ammo_type", "magazine_size": "magazine_size",
+                          "armor_bypass_bonus": "armor_bypass_bonus",
+                          "shield_bypass_bonus": "shield_bypass_bonus"}),
+        ("item_defenses", {"armor_bonus": "armor_bonus", "hull_bonus": "hull_bonus",
+                           "shield_bonus": "shield_bonus",
+                           "shield_recharge_bonus": "shield_recharge_bonus",
+                           "armor_repair_rate": "armor_repair_rate",
+                           "resistance_bonus": "resistance_bonus",
+                           "damage_reduction": "damage_reduction",
+                           "cloak_strength": "cloak_strength"}),
+        ("item_utilities", {"speed_bonus": "speed_bonus", "cargo_bonus": "cargo_bonus",
+                            "cloak_strength": "cloak_strength",
+                            "scanner_power": "scanner_power",
+                            "accuracy_bonus": "accuracy_bonus",
+                            "tracking_bonus": "tracking_bonus",
+                            "signature_bonus": "signature_bonus",
+                            "fuel_efficiency": "fuel_efficiency",
+                            "drone_bandwidth": "drone_bandwidth",
+                            "drone_capacity": "drone_capacity",
+                            "harvest_power": "mining_power",
+                            "survey_power": "survey_power",
+                            "survey_range": "survey_range",
+                            "tow_speed_penalty": "tow_speed_penalty",
+                            "cpu_bonus": "cpu_bonus", "max_fuel_bonus": "max_fuel_bonus",
+                            "hull_penalty": "hull_penalty",
+                            "speed_penalty": "speed_penalty"}),
+    ]
+
+    def table_cols(name):
+        return {r[1] for r in con.execute(f"pragma table_info({name})")}
+
+    item_records = []
+    for iid in sorted(item_legacy):
+        row = con.execute(ITEM_BASE, (iid,)).fetchone()
+        if not row:
+            continue
+        rec = dict(zip(BASE_KEYS, row))
+        rec["stackable"] = bool(rec["stackable"])
+        rec["tradeable"] = bool(rec["tradeable"])
+        rec["hazardous"] = bool(rec["hazardous"])
+        rec["quest_item"] = bool(rec["quest_item"])
+        for key in ("required_skills", "region_lock"):
+            try:
+                rec[key] = json.loads(rec[key]) if rec[key] else None
+            except (ValueError, TypeError):
+                rec[key] = None
+        for table, mapping in SUB:
+            have = table_cols(table)
+            cols = [c for c in mapping if c in have]
+            if not cols:
+                continue
+            r = con.execute(
+                f"select {', '.join(cols)} from {table} where item_id = ?", (iid,)
+            ).fetchone()
+            if not r:
+                continue
+            for col, val in zip(cols, r):
+                if val in (None, ""):
+                    continue
+                key = mapping[col]
+                if key == "resistance_bonus":
+                    try:
+                        val = json.loads(val)
+                    except (ValueError, TypeError):
+                        continue
+                if key == "hidden":
+                    val = bool(val)
+                rec[key] = val
+        if not rec.get("category") and rec.get("slot"):
+            rec["category"] = rec["slot"]
+        rec["legacy"] = True
+        item_records.append(rec)
+
+    (OVERLAY / "legacy_items.json").write_text(
+        json.dumps({"items": item_records}, indent=1, sort_keys=True) + "\n")
+
     fit = sum(1 for r in item_legacy.values() if r["fittable"])
     print(f"build-legacy: {len(snaps)} snapshots; catalog {n_ships} ships / {n_items} items")
     print(f"  legacy ships: {len(ship_legacy)}")
     print(f"  legacy items: {len(item_legacy)}  ({fit} fittable modules)")
     print(f"  -> {out.relative_to(REPO)}")
+    print(f"  -> overlays/generated/legacy_items.json ({len(item_records)} catalog-shaped items)")
     print(f"  -> overlays/generated/legacy_ships.json ({len(records)} catalog-shaped hulls"
           + (f"; {len(dropped)} renamed ids folded in as aliases: {', '.join(dropped)}" if dropped else "")
           + ")")

@@ -639,10 +639,21 @@ func main() {
 		log.Fatalf("load items: %v", err)
 	}
 
+	// Retired items are in neither the crafting DB nor the catalog, so seed them
+	// into the map first; the overlay pass below then dresses them exactly like
+	// any other module.
+	if n := seedLegacyItems(items); n > 0 {
+		log.Printf("legacy items: seeded %d entries the catalog no longer carries", n)
+	}
+
 	// Overlay additional fields from catalog JSON (power_bonus, hazardous, hidden).
 	itemCatalogPath := filepath.Join(catalogDir, "catalog_items.json")
 	if err := loadItemOverlay(itemCatalogPath, items); err != nil {
 		log.Printf("warning: load item overlay: %v (extra fields will be omitted)", err)
+	}
+	// Same overlay shape, applied to the retired entries.
+	if err := loadItemOverlay(legacyItemsOverlay, items); err != nil && !os.IsNotExist(err) {
+		log.Printf("warning: load legacy item overlay: %v", err)
 	}
 
 	if err := loadProducedBy(db, items); err != nil {
@@ -1078,6 +1089,55 @@ func generateOneSystem(systemID string) {
 	if err := writePlanetPages(knowledgeDB, systemOutDir, []*System{target}); err != nil {
 		log.Fatalf("write planet pages: %v", err)
 	}
+}
+
+// legacyItemsOverlay holds items the game still lets players use but no longer
+// sells. It is written by scripts/build_legacy.py in catalog_items.json shape,
+// so loadItemOverlay can apply the module stats; seedLegacyItems handles the
+// base fields, which that overlay does not carry for normal items because they
+// already exist by then.
+const legacyItemsOverlay = "overlays/generated/legacy_items.json"
+
+// seedLegacyItems inserts retired items that no other source provides. Items
+// already present win — a live item is never overwritten by the sidecar.
+func seedLegacyItems(items map[string]*Item) int {
+	data, err := os.ReadFile(legacyItemsOverlay)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Printf("legacy items overlay: %v", err)
+		}
+		return 0
+	}
+	var doc struct {
+		Items []struct {
+			ID          string `json:"id"`
+			Name        string `json:"name"`
+			Description string `json:"description"`
+			Category    string `json:"category"`
+			Rarity      string `json:"rarity"`
+			Size        int    `json:"size"`
+			BaseValue   int    `json:"base_value"`
+			Stackable   bool   `json:"stackable"`
+			Tradeable   bool   `json:"tradeable"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		log.Printf("legacy items overlay: %v", err)
+		return 0
+	}
+	var n int
+	for _, li := range doc.Items {
+		if _, exists := items[li.ID]; exists {
+			continue
+		}
+		items[li.ID] = &Item{
+			ID: li.ID, Name: li.Name, Description: li.Description,
+			Category: li.Category, Rarity: li.Rarity, Size: li.Size,
+			BaseValue: li.BaseValue, Stackable: li.Stackable, Tradeable: li.Tradeable,
+		}
+		n++
+	}
+	return n
 }
 
 func loadItems(db *sql.DB) (map[string]*Item, error) {
@@ -2728,6 +2788,13 @@ func writeHTMLPages(outDir string, categories []CategoryInfo, items map[string]*
 		// hasComparison gates the "all modules" link to the two categories
 		// that have a cross-family comparison table.
 		"hasComparison": func(cat string) bool { return cat == "weapon" || cat == "defense" },
+		// Retired items keep their pages, loudly marked — people still use them.
+		"legacyItem": func(id string) *kblegacy.Entry {
+			if e, ok := legacySet.Item(id); ok {
+				return &e
+			}
+			return nil
+		},
 		"statsHTML":      itemStatsHTML,
 		"hasBoM": func(b *bom.BoMResult) bool {
 			return b != nil && len(b.BaseMaterials) > 0
@@ -2969,6 +3036,13 @@ var htmlItemTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Items</a> / <a href="./">{{titleCase .Category}}</a> / {{.Name}}</div>
         <h2>{{.Name}}{{if .Hazardous}} <span class="badge badge-hazardous" title="Hazardous Material">&#x2622; Hazardous</span>{{end}}{{if .Hidden}} <span class="badge badge-hidden" title="Hidden Item">Hidden</span>{{end}}</h2>
+{{- with legacyItem .ID}}
+        <div class="legacy-note">
+          <span class="badge badge-legacy">Discontinued</span>
+          This item is no longer sold{{if .Date}} — last listed in the catalog on {{.Date}}{{end}}.
+          Existing ones still work{{if .Fittable}} and can still be fitted{{end}}.
+        </div>
+{{- end}}
 
         <div class="card mt-2" style="padding:0">
 {{- if .HasImage}}
@@ -2980,7 +3054,9 @@ var htmlItemTemplate = `<!DOCTYPE html>
           <div class="section-label">General</div>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{titleCase .Category}}</a></td></tr>
+{{- if .Rarity}}
             <tr><td class="kv-label">Rarity</td><td><span class="{{rarityClass .Rarity}}">{{.Rarity}}</span></td></tr>
+{{- end}}
             <tr><td class="kv-label">Size</td><td>{{.Size}}</td></tr>
             <tr><td class="kv-label">Stackable</td><td>{{yesno .Stackable}}</td></tr>
             <tr><td class="kv-label">Tradeable</td><td>{{yesno .Tradeable}}</td></tr>
