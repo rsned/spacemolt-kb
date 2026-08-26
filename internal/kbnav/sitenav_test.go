@@ -187,4 +187,20 @@ func TestHomePageCoversNav(t *testing.T) {
 				homePage, it.Label, want)
 		}
 	}
+
+	// The search box reaches every generated page through Header, but the home
+	// page renders its own nav and so silently missed it when search shipped —
+	// the same failure mode as a forgotten nav entry, one layer down.
+	for _, want := range []string{`id="kb-search"`, `id="kb-search-results"`, `src="search.js"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("kb/%s is missing %s: the site search box is in kbnav.Header for "+
+				"generated pages, but this page is hand-maintained and needs it copied in",
+				homePage, want)
+		}
+	}
+	// A root-level page addresses the index and its results without a prefix.
+	if strings.Contains(body, `data-kb-root="`) && !strings.Contains(body, `data-kb-root=""`) {
+		t.Errorf("kb/%s: data-kb-root must be empty on a root-level page, "+
+			"or search fetches the index from the wrong path", homePage)
+	}
 }
