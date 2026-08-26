@@ -23,6 +23,14 @@
             <a href="../../factions/index.html">Factions</a>
             <a href="../../players/index.html">Players</a>
             <a href="../../passengers/index.html">Passengers</a>
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -31,7 +39,7 @@
     </header>
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Missions</a> / Delivery</div>
-        <h2>Delivery <span class="text-muted">549 missions</span></h2>
+        <h2>Delivery <span class="text-muted">560 missions</span></h2>
         <p class="text-muted mt-1">Ferry goods across the galaxy on behalf of stations, factions, and researchers.</p>
         <div class="table-container">
             <table class="sortable">
@@ -129,6 +137,15 @@
                         <td><span class="text-muted" title="Not yet discovered">powering_through</span></td>
                     </tr>
                     <tr>
+                        <td><a href="procurement_dcd9a324cadeb0ad6e4604f8526df5d9_aluminum_sheet.html">Shipyard Supply: Aluminum Sheet</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="15525" class="value">15,525 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="procurement_ca21eaa706ffb0bf79e556f2d4882c6e_ammo_fabricator.html">Shipyard Supply: Ammo Fabricator</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -138,11 +155,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_armor_plate.html">Shipyard Supply: Armor Plate</a></td>
+                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_armor_plate.html">Shipyard Supply: Armor Plate</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="5428" class="value">5,428 cr</td>
+                        <td data-sort="61336" class="value">61,336 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -219,15 +236,6 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_armor_plate.html">Shipyard Supply: Armor Plate</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="61336" class="value">61,336 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_armor_plate.html">Shipyard Supply: Armor Plate</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -237,11 +245,29 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_armor_plate.html">Shipyard Supply: Armor Plate</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="5428" class="value">5,428 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_armor_plate.html">Shipyard Supply: Armor Plate</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="166980" class="value">166,980 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_97d1c453a44f3f79121a52e85e56232d_armor_plate.html">Shipyard Supply: Armor Plate</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="386" class="value">386 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -264,20 +290,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7899ca3beed0caca639545bc49383907_capital_ship_frame.html">Shipyard Supply: Capital Ship Frame</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="89138" class="value">89,138 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_cd6fc45967dd7f49c962f1b4db4963e9_capital_ship_frame.html">Shipyard Supply: Capital Ship Frame</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="133708" class="value">133,708 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_7899ca3beed0caca639545bc49383907_capital_ship_frame.html">Shipyard Supply: Capital Ship Frame</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="89138" class="value">89,138 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -300,7 +326,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_4010984476e26be6c3a579e6888d0749_communications_array.html">Shipyard Supply: Communications Array</a></td>
+                        <td><a href="procurement_bb39cedcf4d743349607e4c815e2d3e3_communications_array.html">Shipyard Supply: Communications Array</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -327,7 +353,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_bb39cedcf4d743349607e4c815e2d3e3_communications_array.html">Shipyard Supply: Communications Array</a></td>
+                        <td><a href="procurement_4010984476e26be6c3a579e6888d0749_communications_array.html">Shipyard Supply: Communications Array</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -408,15 +434,6 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_darksteel_plating.html">Shipyard Supply: Darksteel Plating</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="115920" class="value">115,920 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_darksteel_plating.html">Shipyard Supply: Darksteel Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -426,11 +443,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_e42f41d495e0106127a8bc7b5aa77a76_dimensional_anchor.html">Shipyard Supply: Dimensional Anchor</a></td>
+                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_darksteel_plating.html">Shipyard Supply: Darksteel Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="34916" class="value">34,916 cr</td>
+                        <td data-sort="115920" class="value">115,920 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -440,6 +457,15 @@
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="48710" class="value">48,710 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_e42f41d495e0106127a8bc7b5aa77a76_dimensional_anchor.html">Shipyard Supply: Dimensional Anchor</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="34916" class="value">34,916 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -637,7 +663,7 @@
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="70207" class="value">70,207 cr</td>
+                        <td data-sort="45868" class="value">45,868 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -723,11 +749,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_192c10cb82496b75496a4d9380db43f3_fury_alloy.html">Shipyard Supply: Fury Alloy</a></td>
+                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_fury_alloy.html">Shipyard Supply: Fury Alloy</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="25056" class="value">25,056 cr</td>
+                        <td data-sort="138276" class="value">138,276 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -737,6 +763,15 @@
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="86733" class="value">86,733 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_192c10cb82496b75496a4d9380db43f3_fury_alloy.html">Shipyard Supply: Fury Alloy</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="25056" class="value">25,056 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -831,15 +866,6 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_fury_alloy.html">Shipyard Supply: Fury Alloy</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="138276" class="value">138,276 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_0f65cb001b0a4a8e58312db8043fcfde_fury_tempered_plating.html">Shipyard Supply: Fury-Tempered Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -858,20 +884,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_f68cf5f921eccee32e37e824cf8f8bd4_fury_tempered_plating.html">Shipyard Supply: Fury-Tempered Plating</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="200652" class="value">200,652 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_f3af1db9cdf9ad394e4d6d99afd79477_fury_tempered_plating.html">Shipyard Supply: Fury-Tempered Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="38898" class="value">38,898 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_f68cf5f921eccee32e37e824cf8f8bd4_fury_tempered_plating.html">Shipyard Supply: Fury-Tempered Plating</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="200652" class="value">200,652 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1011,20 +1037,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_01e1cea269fa4da93f8fc1dd33990c69_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
+                        <td><a href="procurement_46af6fa3a8a5af27f0c6a2a9a66fe262_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="71208" class="value">71,208 cr</td>
+                        <td data-sort="16615" class="value">16,615 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
+                        <td><a href="procurement_cd6fc45967dd7f49c962f1b4db4963e9_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="3429" class="value">3,429 cr</td>
+                        <td data-sort="26454" class="value">26,454 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1047,11 +1073,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_cd6fc45967dd7f49c962f1b4db4963e9_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
+                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="26454" class="value">26,454 cr</td>
+                        <td data-sort="3429" class="value">3,429 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1083,11 +1109,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_46af6fa3a8a5af27f0c6a2a9a66fe262_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
+                        <td><a href="procurement_e7fb88bae6a5f7193d71c8568e1dc273_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="16615" class="value">16,615 cr</td>
+                        <td data-sort="583" class="value">583 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_97d1c453a44f3f79121a52e85e56232d_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="1186" class="value">1,186 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1101,11 +1136,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_jump_coil.html">Shipyard Supply: Jump Coil</a></td>
+                        <td><a href="procurement_01e1cea269fa4da93f8fc1dd33990c69_hull_plating.html">Shipyard Supply: Hull Plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="234296" class="value">234,296 cr</td>
+                        <td data-sort="71208" class="value">71,208 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1128,11 +1163,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_ec3c641edaecc638ad9f407025ac3af9_navigation_core.html">Shipyard Supply: Navigation Core</a></td>
+                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_jump_coil.html">Shipyard Supply: Jump Coil</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="495714" class="value">495,714 cr</td>
+                        <td data-sort="234296" class="value">234,296 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1146,11 +1181,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_f63ccb5d3e452b2c92bf1f5757050019_navigation_core.html">Shipyard Supply: Navigation Core</a></td>
+                        <td><a href="procurement_ec3c641edaecc638ad9f407025ac3af9_navigation_core.html">Shipyard Supply: Navigation Core</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="1424930" class="value">1,424,930 cr</td>
+                        <td data-sort="495714" class="value">495,714 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_db5576618a5c66be4d2730e487ec80f3_navigation_core.html">Shipyard Supply: Navigation Core</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="593739" class="value">593,739 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1173,11 +1217,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_db5576618a5c66be4d2730e487ec80f3_navigation_core.html">Shipyard Supply: Navigation Core</a></td>
+                        <td><a href="procurement_f63ccb5d3e452b2c92bf1f5757050019_navigation_core.html">Shipyard Supply: Navigation Core</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="593739" class="value">593,739 cr</td>
+                        <td data-sort="1424930" class="value">1,424,930 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1187,33 +1231,6 @@
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="512808" class="value">512,808 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_5ef078978ebd11f0d586bb3b39703897_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="215073" class="value">215,073 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_b56a94308c721528f69b5b6a82a8f4fa_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="238970" class="value">238,970 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_78e837dd5f9f71cc4151322200bc2a63_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="144900" class="value">144,900 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1236,11 +1253,38 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="procurement_5ef078978ebd11f0d586bb3b39703897_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="215073" class="value">215,073 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_75cd12143e2ac437c2d00400967645c1_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="1024650" class="value">1,024,650 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="procurement_b787bdfc33e34e6e3e4fab8833b37d03_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="181125" class="value">181,125 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_78e837dd5f9f71cc4151322200bc2a63_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="144900" class="value">144,900 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1272,38 +1316,29 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_75cd12143e2ac437c2d00400967645c1_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
+                        <td><a href="procurement_b56a94308c721528f69b5b6a82a8f4fa_neural_interface_gel.html">Shipyard Supply: Neural Interface Gel</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="1024650" class="value">1,024,650 cr</td>
+                        <td data-sort="238970" class="value">238,970 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_ca21eaa706ffb0bf79e556f2d4882c6e_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
+                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="215625" class="value">215,625 cr</td>
+                        <td data-sort="69000" class="value">69,000 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_4010984476e26be6c3a579e6888d0749_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
+                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="34500" class="value">34,500 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_46af6fa3a8a5af27f0c6a2a9a66fe262_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="34500" class="value">34,500 cr</td>
+                        <td data-sort="189750" class="value">189,750 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1344,11 +1379,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
+                        <td><a href="procurement_ca21eaa706ffb0bf79e556f2d4882c6e_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="189750" class="value">189,750 cr</td>
+                        <td data-sort="215625" class="value">215,625 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1362,20 +1397,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
+                        <td><a href="procurement_4010984476e26be6c3a579e6888d0749_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="189750" class="value">189,750 cr</td>
+                        <td data-sort="34500" class="value">34,500 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_192c10cb82496b75496a4d9380db43f3_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
+                        <td><a href="procurement_46af6fa3a8a5af27f0c6a2a9a66fe262_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="69000" class="value">69,000 cr</td>
+                        <td data-sort="34500" class="value">34,500 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1398,20 +1433,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
+                        <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="69000" class="value">69,000 cr</td>
+                        <td data-sort="189750" class="value">189,750 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_f68cf5f921eccee32e37e824cf8f8bd4_power_core.html">Shipyard Supply: Power Core</a></td>
+                        <td><a href="procurement_192c10cb82496b75496a4d9380db43f3_neutronium_ingot.html">Shipyard Supply: Neutronium Ingot</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="59790" class="value">59,790 cr</td>
+                        <td data-sort="69000" class="value">69,000 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1421,6 +1456,15 @@
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="165600" class="value">165,600 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_f68cf5f921eccee32e37e824cf8f8bd4_power_core.html">Shipyard Supply: Power Core</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="59790" class="value">59,790 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1461,20 +1505,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f76df445a5b6ebf7e05b53f9860a1d1_processing_core.html">Shipyard Supply: Processing Core</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="137367" class="value">137,367 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_4010984476e26be6c3a579e6888d0749_processing_core.html">Shipyard Supply: Processing Core</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="20658" class="value">20,658 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_7f76df445a5b6ebf7e05b53f9860a1d1_processing_core.html">Shipyard Supply: Processing Core</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="137367" class="value">137,367 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1839,11 +1883,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_75cd12143e2ac437c2d00400967645c1_shield_emitter.html">Shipyard Supply: Shield Emitter</a></td>
+                        <td><a href="procurement_072bbaa3ee650c91e9ce4201446b4b68_shield_emitter.html">Shipyard Supply: Shield Emitter</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="2864362" class="value">2,864,362 cr</td>
+                        <td data-sort="1145745" class="value">1,145,745 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_b56a94308c721528f69b5b6a82a8f4fa_shield_emitter.html">Shipyard Supply: Shield Emitter</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="2846767" class="value">2,846,767 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1893,15 +1946,6 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_b56a94308c721528f69b5b6a82a8f4fa_shield_emitter.html">Shipyard Supply: Shield Emitter</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="2846767" class="value">2,846,767 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_5ef078978ebd11f0d586bb3b39703897_shield_emitter.html">Shipyard Supply: Shield Emitter</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -1911,11 +1955,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_072bbaa3ee650c91e9ce4201446b4b68_shield_emitter.html">Shipyard Supply: Shield Emitter</a></td>
+                        <td><a href="procurement_75cd12143e2ac437c2d00400967645c1_shield_emitter.html">Shipyard Supply: Shield Emitter</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="1145745" class="value">1,145,745 cr</td>
+                        <td data-sort="2864362" class="value">2,864,362 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2127,6 +2171,24 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="procurement_01e1cea269fa4da93f8fc1dd33990c69_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="110400" class="value">110,400 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_ca21eaa706ffb0bf79e556f2d4882c6e_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="138000" class="value">138,000 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -2154,11 +2216,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_ca21eaa706ffb0bf79e556f2d4882c6e_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
+                        <td><a href="procurement_39b3bd2aaf322fa31a998f1fb20504c7_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="138000" class="value">138,000 cr</td>
+                        <td data-sort="55200" class="value">55,200 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2226,24 +2288,6 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_01e1cea269fa4da93f8fc1dd33990c69_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="110400" class="value">110,400 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_39b3bd2aaf322fa31a998f1fb20504c7_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="55200" class="value">55,200 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_46d43c0c61190db2fe6cf8308c0888b3_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -2280,20 +2324,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_steel_plate.html">Shipyard Supply: Steel Plate</a></td>
+                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_station_reactor_core.html">Shipyard Supply: Station Reactor Core</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="41400" class="value">41,400 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_90121ae93e6ed13bb267925a6a23afe0_steel_plate.html">Shipyard Supply: Steel Plate</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="745" class="value">745 cr</td>
+                        <td data-sort="441600" class="value">441,600 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2307,11 +2342,29 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="procurement_90121ae93e6ed13bb267925a6a23afe0_steel_plate.html">Shipyard Supply: Steel Plate</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="745" class="value">745 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="procurement_db5576618a5c66be4d2730e487ec80f3_steel_plate.html">Shipyard Supply: Steel Plate</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="43470" class="value">43,470 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_steel_plate.html">Shipyard Supply: Steel Plate</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="41400" class="value">41,400 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2343,7 +2396,16 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_75cd12143e2ac437c2d00400967645c1_targeting_computer.html">Shipyard Supply: Targeting Computer</a></td>
+                        <td><a href="procurement_97d1c453a44f3f79121a52e85e56232d_steel_plate.html">Shipyard Supply: Steel Plate</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="248" class="value">248 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_targeting_computer.html">Shipyard Supply: Targeting Computer</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -2370,20 +2432,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f9614c4385f0408a47b3bcdbbf1137a_targeting_computer.html">Shipyard Supply: Targeting Computer</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="491855" class="value">491,855 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_targeting_computer.html">Shipyard Supply: Targeting Computer</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="589950" class="value">589,950 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_75cd12143e2ac437c2d00400967645c1_targeting_computer.html">Shipyard Supply: Targeting Computer</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="491855" class="value">491,855 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2487,11 +2549,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_ec3c641edaecc638ad9f407025ac3af9_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
+                        <td><a href="procurement_bb39cedcf4d743349607e4c815e2d3e3_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="147710" class="value">147,710 cr</td>
+                        <td data-sort="38410" class="value">38,410 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2501,6 +2563,15 @@
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="37064" class="value">37,064 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="42633" class="value">42,633 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2519,15 +2590,6 @@
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="269100" class="value">269,100 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_3d86d534f4af7e9c950f747b9d0cbdfb_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="113907" class="value">113,907 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2658,11 +2720,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
+                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="42633" class="value">42,633 cr</td>
+                        <td data-sort="33741" class="value">33,741 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2793,6 +2855,15 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="procurement_3d86d534f4af7e9c950f747b9d0cbdfb_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="113907" class="value">113,907 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="procurement_46af6fa3a8a5af27f0c6a2a9a66fe262_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -2802,20 +2873,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_bb39cedcf4d743349607e4c815e2d3e3_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
+                        <td><a href="procurement_ec3c641edaecc638ad9f407025ac3af9_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="38410" class="value">38,410 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_titanium_alloy.html">Shipyard Supply: Titanium Alloy</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="33741" class="value">33,741 cr</td>
+                        <td data-sort="147710" class="value">147,710 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -2829,20 +2891,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_db5576618a5c66be4d2730e487ec80f3_trade_cipher.html">Shipyard Supply: Trade Cipher</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="68080" class="value">68,080 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_9efa7968dda68be221e0b671fa18c7fc_trade_cipher.html">Shipyard Supply: Trade Cipher</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="10212" class="value">10,212 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_db5576618a5c66be4d2730e487ec80f3_trade_cipher.html">Shipyard Supply: Trade Cipher</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="68080" class="value">68,080 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3117,20 +3179,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_weapon_battery.html">Shipyard Supply: Weapon Battery</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="352130" class="value">352,130 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_75cd12143e2ac437c2d00400967645c1_weapon_battery.html">Shipyard Supply: Weapon Battery</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="28170" class="value">28,170 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_weapon_battery.html">Shipyard Supply: Weapon Battery</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="352130" class="value">352,130 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3171,11 +3233,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_ec137e02bd778fcfebc956ea3f48c3c3_weapon_housing.html">Shipyard Supply: Weapon Housing</a></td>
+                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_weapon_housing.html">Shipyard Supply: Weapon Housing</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="3215" class="value">3,215 cr</td>
+                        <td data-sort="187565" class="value">187,565 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3189,11 +3251,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_weapon_housing.html">Shipyard Supply: Weapon Housing</a></td>
+                        <td><a href="procurement_ec137e02bd778fcfebc956ea3f48c3c3_weapon_housing.html">Shipyard Supply: Weapon Housing</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="187565" class="value">187,565 cr</td>
+                        <td data-sort="3215" class="value">3,215 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3203,6 +3265,24 @@
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="187565" class="value">187,565 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_bb39cedcf4d743349607e4c815e2d3e3_adaptive_shield_ii.html">Shipyard Supply: adaptive_shield_ii</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="73301" class="value">73,301 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_1257fcc0619a660002c7c7f79b2a99cf_adaptive_shield_ii.html">Shipyard Supply: adaptive_shield_ii</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="72210" class="value">72,210 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3225,15 +3305,6 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_1257fcc0619a660002c7c7f79b2a99cf_adaptive_shield_ii.html">Shipyard Supply: adaptive_shield_ii</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="72210" class="value">72,210 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_d142754e82d85a15861bc8a86603bc98_adaptive_shield_ii.html">Shipyard Supply: adaptive_shield_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -3252,20 +3323,20 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_bb39cedcf4d743349607e4c815e2d3e3_adaptive_shield_ii.html">Shipyard Supply: adaptive_shield_ii</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="73301" class="value">73,301 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_db5576618a5c66be4d2730e487ec80f3_adaptive_shield_iii.html">Shipyard Supply: adaptive_shield_iii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="81224" class="value">81,224 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_d9fc1a7edabb7f801cb25735260b813c_afterburner_i.html">Shipyard Supply: afterburner_i</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="3009" class="value">3,009 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3297,15 +3368,6 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_d9fc1a7edabb7f801cb25735260b813c_afterburner_i.html">Shipyard Supply: afterburner_i</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="3009" class="value">3,009 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_6b314dda4222ddc783e85f4db784029e_armor_plate_ii.html">Shipyard Supply: armor_plate_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -3324,11 +3386,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_d780d04f6211ebba702711ed65b025bd_cargo_expander_iii.html">Shipyard Supply: cargo_expander_iii</a></td>
+                        <td><a href="procurement_b787bdfc33e34e6e3e4fab8833b37d03_cargo_expander_iii.html">Shipyard Supply: cargo_expander_iii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="6101" class="value">6,101 cr</td>
+                        <td data-sort="6090" class="value">6,090 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3342,11 +3404,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_b787bdfc33e34e6e3e4fab8833b37d03_cargo_expander_iii.html">Shipyard Supply: cargo_expander_iii</a></td>
+                        <td><a href="procurement_d780d04f6211ebba702711ed65b025bd_cargo_expander_iii.html">Shipyard Supply: cargo_expander_iii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="6090" class="value">6,090 cr</td>
+                        <td data-sort="6101" class="value">6,101 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3360,11 +3422,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_crimson_berserker_plating.html">Shipyard Supply: crimson_berserker_plating</a></td>
+                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_crimson_berserker_plating.html">Shipyard Supply: crimson_berserker_plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="9200" class="value">9,200 cr</td>
+                        <td data-sort="22173" class="value">22,173 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3423,11 +3485,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_crimson_berserker_plating.html">Shipyard Supply: crimson_berserker_plating</a></td>
+                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_crimson_berserker_plating.html">Shipyard Supply: crimson_berserker_plating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="22173" class="value">22,173 cr</td>
+                        <td data-sort="9200" class="value">9,200 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3486,20 +3548,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_cab2689d87d976199a6ca4f3062f233b_fury_cannon.html">Shipyard Supply: fury_cannon</a></td>
+                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_fury_cannon.html">Shipyard Supply: fury_cannon</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="58130" class="value">58,130 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_fury_cannon.html">Shipyard Supply: fury_cannon</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="133234" class="value">133,234 cr</td>
+                        <td data-sort="73674" class="value">73,674 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3513,11 +3566,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_fury_cannon.html">Shipyard Supply: fury_cannon</a></td>
+                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_fury_cannon.html">Shipyard Supply: fury_cannon</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="73674" class="value">73,674 cr</td>
+                        <td data-sort="133234" class="value">133,234 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3531,6 +3584,15 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="procurement_cab2689d87d976199a6ca4f3062f233b_fury_cannon.html">Shipyard Supply: fury_cannon</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="58130" class="value">58,130 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="procurement_67dcb6cf6d0b6bde50867423face270b_gas_harvester_iv.html">Shipyard Supply: gas_harvester_iv</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -3540,7 +3602,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_heavy_mass_driver.html">Shipyard Supply: heavy_mass_driver</a></td>
+                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_heavy_mass_driver.html">Shipyard Supply: heavy_mass_driver</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -3549,7 +3611,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_00341cb4e6b365d8f4747432e6583af9_heavy_mass_driver.html">Shipyard Supply: heavy_mass_driver</a></td>
+                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_heavy_mass_driver.html">Shipyard Supply: heavy_mass_driver</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -3657,29 +3719,29 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="47444" class="value">47,444 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="51032" class="value">51,032 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
                         <td><a href="procurement_c689e28e09df6126fcb0ffc0d18f7dd6_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="48049" class="value">48,049 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_ed976bfb423547e63ab146aa54784bb6_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="46671" class="value">46,671 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_465d4eec5abcba9b361bb5274b7f11c9_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="47444" class="value">47,444 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3756,11 +3818,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_ed976bfb423547e63ab146aa54784bb6_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
+                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="46671" class="value">46,671 cr</td>
+                        <td data-sort="47458" class="value">47,458 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3769,7 +3831,25 @@
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="51032" class="value">51,032 cr</td>
+                        <td data-sort="47458" class="value">47,458 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_53ed8c4bfb9e8c64b7c2bfc783542604_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="50970" class="value">50,970 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_8668bd3b172234a48047dac541bb808c_nanite_hull_coating.html">Shipyard Supply: nanite_hull_coating</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="48044" class="value">48,044 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3873,11 +3953,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7899ca3beed0caca639545bc49383907_railgun_ii.html">Shipyard Supply: railgun_ii</a></td>
+                        <td><a href="procurement_cd2466cd7637d2d737c7401588496ad5_railgun_ii.html">Shipyard Supply: railgun_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="27616" class="value">27,616 cr</td>
+                        <td data-sort="27054" class="value">27,054 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3891,38 +3971,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_cd2466cd7637d2d737c7401588496ad5_railgun_ii.html">Shipyard Supply: railgun_ii</a></td>
+                        <td><a href="procurement_7899ca3beed0caca639545bc49383907_railgun_ii.html">Shipyard Supply: railgun_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="27054" class="value">27,054 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_cab2689d87d976199a6ca4f3062f233b_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="15557" class="value">15,557 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="15269" class="value">15,269 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="procurement_ac3556c2f5c78d8ce1c6b399146a92c5_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="12072" class="value">12,072 cr</td>
+                        <td data-sort="27616" class="value">27,616 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3936,11 +3989,47 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_5bbbe2f9d85b4880556a42d416bbec7a_shield_booster_ii.html">Shipyard Supply: shield_booster_ii</a></td>
+                        <td><a href="procurement_8668bd3b172234a48047dac541bb808c_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="21528" class="value">21,528 cr</td>
+                        <td data-sort="15305" class="value">15,305 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_cab2689d87d976199a6ca4f3062f233b_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="15557" class="value">15,557 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_ac3556c2f5c78d8ce1c6b399146a92c5_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="12072" class="value">12,072 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_49075d345becfe2884336c0ee045db1d_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="12545" class="value">12,545 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_53ed8c4bfb9e8c64b7c2bfc783542604_reactive_armor_hardener.html">Shipyard Supply: reactive_armor_hardener</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="15305" class="value">15,305 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -3963,7 +4052,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_46d43c0c61190db2fe6cf8308c0888b3_shield_booster_ii.html">Shipyard Supply: shield_booster_ii</a></td>
+                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_shield_booster_ii.html">Shipyard Supply: shield_booster_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -3972,7 +4061,16 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_shield_booster_ii.html">Shipyard Supply: shield_booster_ii</a></td>
+                        <td><a href="procurement_5bbbe2f9d85b4880556a42d416bbec7a_shield_booster_ii.html">Shipyard Supply: shield_booster_ii</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="21528" class="value">21,528 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="procurement_46d43c0c61190db2fe6cf8308c0888b3_shield_booster_ii.html">Shipyard Supply: shield_booster_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -4017,7 +4115,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_46af6fa3a8a5af27f0c6a2a9a66fe262_ship_scanner_ii.html">Shipyard Supply: ship_scanner_ii</a></td>
+                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_ship_scanner_ii.html">Shipyard Supply: ship_scanner_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -4044,7 +4142,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_ship_scanner_ii.html">Shipyard Supply: ship_scanner_ii</a></td>
+                        <td><a href="procurement_46af6fa3a8a5af27f0c6a2a9a66fe262_ship_scanner_ii.html">Shipyard Supply: ship_scanner_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -4053,7 +4151,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="procurement_01d65a831136f78d5a3c0253cbf70f1b_ship_scanner_ii.html">Shipyard Supply: ship_scanner_ii</a></td>
+                        <td><a href="procurement_7f2f27d6f6064b72e7ea303d0af41b26_ship_scanner_ii.html">Shipyard Supply: ship_scanner_ii</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -4201,7 +4299,7 @@
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td><span class="text-muted">—</span></td>
-                        <td data-sort="66320" class="value">66,320 cr</td>
+                        <td data-sort="68521" class="value">68,521 cr</td>
                         <td data-sort="1">1</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -4404,6 +4502,15 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="faction_d54fec98e887cd5702817200825dd2b6.html">Copper Ore Stockpile</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td>Hex Collective</td>
+                        <td data-sort="18000" class="value">18,000 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="expedition_supply_run.html">Expedition Supply Run</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>Expeditionary Coordinator Saal</td>
@@ -4422,6 +4529,15 @@
                         <td><a href="closing_the_circuit.html" title="Chains into Closing the Circuit">Closing the Circuit</a></td>
                     </tr>
                     <tr>
+                        <td><a href="faction_1ddbfd6d4b1e83a0c3266eaab00c331e.html">Fuel Cell Starter Pack</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td><span class="text-muted">—</span></td>
+                        <td>Hex Collective</td>
+                        <td data-sort="25000" class="value">25,000 cr</td>
+                        <td data-sort="1">1</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="faction_888b45d330e51caf2e9ca36fcabe980b.html">Fuel Cell Starter Pack</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
@@ -4432,15 +4548,6 @@
                     </tr>
                     <tr>
                         <td><a href="faction_b86be342453bec2a781aca357d06aed2.html">Fuel Cell Starter Pack</a></td>
-                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
-                        <td><span class="text-muted">—</span></td>
-                        <td>Hex Collective</td>
-                        <td data-sort="25000" class="value">25,000 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="faction_1ddbfd6d4b1e83a0c3266eaab00c331e.html">Fuel Cell Starter Pack</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td>Hex Collective</td>
@@ -4701,7 +4808,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_3d1330178e92173d6c53dc7024a1f5b7.html">HEXC supply: Salvage Metal</a></td>
+                        <td><a href="faction_3de744d8dd0495a1803ef7bbb3a96148.html">HEXC supply: Salvage Metal</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td>Hex Collective</td>
@@ -4710,7 +4817,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_3de744d8dd0495a1803ef7bbb3a96148.html">HEXC supply: Salvage Metal</a></td>
+                        <td><a href="faction_3d1330178e92173d6c53dc7024a1f5b7.html">HEXC supply: Salvage Metal</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td>Hex Collective</td>
@@ -4773,7 +4880,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_dd9cdca21bb0657c4943a292363a7ba0.html">Iron Ore — Pilot&#39;s Trial</a></td>
+                        <td><a href="faction_b3ddebb245df950b4d816d6b6f51e5f6.html">Iron Ore — Pilot&#39;s Trial</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td>Hex Collective</td>
@@ -4782,7 +4889,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_b3ddebb245df950b4d816d6b6f51e5f6.html">Iron Ore — Pilot&#39;s Trial</a></td>
+                        <td><a href="faction_dd9cdca21bb0657c4943a292363a7ba0.html">Iron Ore — Pilot&#39;s Trial</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td>Hex Collective</td>
@@ -4863,7 +4970,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_8d3b37105cd01ed01bf5381c0c8747a9.html">Scrap Armor Bulk Buy</a></td>
+                        <td><a href="faction_461e7c4ce0ee63c7db3185e540163380.html">Scrap Armor Bulk Buy</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td>Hex Collective</td>
@@ -4881,7 +4988,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_461e7c4ce0ee63c7db3185e540163380.html">Scrap Armor Bulk Buy</a></td>
+                        <td><a href="faction_8d3b37105cd01ed01bf5381c0c8747a9.html">Scrap Armor Bulk Buy</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td><span class="text-muted">—</span></td>
                         <td>Hex Collective</td>

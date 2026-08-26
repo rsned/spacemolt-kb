@@ -462,3 +462,53 @@ tr:hover td {
     opacity: .55;
     word-break: break-all;
 }
+
+/* --- site search (kb/search.js) ------------------------------------------ */
+.kbs { position: relative; margin-left: auto; }
+.kbs input {
+    background: hsl(var(--background)); color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border)); border-radius: 4px;
+    padding: 5px 9px; font-family: inherit; font-size: var(--text-ui, 13px);
+    width: 190px; outline: none;
+}
+.kbs input:focus { border-color: hsl(var(--smui-border-hover, var(--border))); width: 260px; }
+.kbs input::placeholder { color: hsl(var(--muted-foreground)); }
+.kbs-results {
+    position: absolute; right: 0; top: calc(100% + 5px); z-index: 60;
+    width: min(460px, 78vw); max-height: 62vh; overflow-y: auto;
+    background: hsl(var(--card)); border: 1px solid hsl(var(--border));
+    border-radius: 5px; box-shadow: 0 8px 26px rgba(0, 0, 0, .30);
+}
+.kbs-row {
+    display: flex; align-items: baseline; gap: 10px; padding: 7px 11px;
+    text-decoration: none; color: hsl(var(--foreground));
+    border-bottom: 1px solid hsl(var(--border));
+}
+.kbs-row:last-child { border-bottom: 0; }
+.kbs-row:hover, .kbs-row.on { background: hsl(var(--secondary)); }
+.kbs-row .kbs-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; font-size: var(--text-ui, 13px); }
+.kbs-row .kbs-t b { font-weight: 700; }
+.kbs-row .kbs-s { flex: none; font-size: var(--text-label, 11px); text-transform: uppercase;
+    letter-spacing: .05em; color: hsl(var(--muted-foreground)); }
+.kbs-all { justify-content: center; font-size: var(--text-label, 12px);
+    color: hsl(var(--muted-foreground)); }
+.kbs-empty { padding: 10px 12px; font-size: var(--text-ui, 13px);
+    color: hsl(var(--muted-foreground)); }
+
+/* dedicated results page */
+.kbs-hit {
+    display: flex; align-items: baseline; gap: 12px; padding: 8px 2px;
+    text-decoration: none; color: hsl(var(--foreground));
+    border-bottom: 1px solid hsl(var(--border));
+}
+.kbs-hit:hover { background: hsl(var(--secondary)); }
+.kbs-hit .kbs-t { flex: 1; min-width: 0; }
+.kbs-hit .kbs-s { flex: none; font-size: var(--text-label, 11px); text-transform: uppercase;
+    letter-spacing: .05em; color: hsl(var(--muted-foreground)); }
+
+@media (max-width: 760px) {
+    .kbs { margin-left: 0; width: 100%; }
+    .kbs input, .kbs input:focus { width: 100%; }
+    .kbs-results { width: 100%; }
+}

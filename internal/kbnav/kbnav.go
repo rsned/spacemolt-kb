@@ -33,6 +33,24 @@ const themeBtn = `
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>`
 
+// searchBox renders the site-search input and its results dropdown.
+//
+// data-kb-root carries the page's relative path to the kb root: search.js needs
+// it for both the index fetch and every result href, and pages sit at varying
+// depths. search-index.json is fetched lazily on first focus, so a page that is
+// never searched from never downloads it.
+func searchBox(prefix string) string {
+	return `
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="` + prefix + `">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="` + prefix + `search.js" defer></script>`
+}
+
 // Header renders the full <header> bar. prefix is the relative path from the
 // page to the kb root — "../" for section index pages (e.g. kb/items/index.html)
 // and "../../" for category/detail pages (e.g. kb/items/<cat>/index.html).
@@ -47,7 +65,7 @@ func Header(prefix string) string {
 	}
 	return `    <header class="site-header">
         <h1><a href="` + prefix + `" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
-        <nav>` + nav.String() + themeBtn + `
+        <nav>` + nav.String() + searchBox(prefix) + themeBtn + `
         </nav>
     </header>`
 }

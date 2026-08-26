@@ -23,6 +23,14 @@
             <a href="../../factions/index.html">Factions</a>
             <a href="../../players/index.html">Players</a>
             <a href="../../passengers/index.html">Passengers</a>
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
             <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                 <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                 <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -31,7 +39,7 @@
     </header>
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Missions</a> / Exploration</div>
-        <h2>Exploration <span class="text-muted">134 missions</span></h2>
+        <h2>Exploration <span class="text-muted">161 missions</span></h2>
         <p class="text-muted mt-1">Survey unknown systems, calibrate beacons, and chart the outer rim.</p>
         <div class="table-container">
             <table class="sortable">
@@ -93,9 +101,9 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="wh_intro_voidborn_850d4ddb.html">Anomalous Readings</a></td>
+                        <td><a href="wh_intro_crimson_d2ca62fb.html">Anomalous Readings</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td>Researcher Null-Seven</td>
+                        <td>Strategos Vira Kade</td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="500" class="value">500 cr</td>
                         <td data-sort="3">3</td>
@@ -147,9 +155,9 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="wh_intro_crimson_d2ca62fb.html">Anomalous Readings</a></td>
+                        <td><a href="wh_intro_solarian_ab18736f.html">Anomalous Readings</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td>Strategos Vira Kade</td>
+                        <td>Dr. Amara Chen</td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="500" class="value">500 cr</td>
                         <td data-sort="3">3</td>
@@ -192,9 +200,9 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="wh_intro_nebula_ab18736f.html">Anomalous Readings</a></td>
+                        <td><a href="wh_intro_voidborn_850d4ddb.html">Anomalous Readings</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td>Director Orin Voss</td>
+                        <td>Researcher Null-Seven</td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="500" class="value">500 cr</td>
                         <td data-sort="3">3</td>
@@ -300,6 +308,24 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
+                        <td><a href="wh_intro_solarian_c8a8fd0c.html">Anomalous Readings</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td>Dr. Amara Chen</td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="500" class="value">500 cr</td>
+                        <td data-sort="3">3</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="wh_intro_nebula_eaab8ea9.html">Anomalous Readings</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td>Director Orin Voss</td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="500" class="value">500 cr</td>
+                        <td data-sort="3">3</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
                         <td><a href="wh_intro_nebula_74993066.html">Anomalous Readings</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td>Director Orin Voss</td>
@@ -318,27 +344,9 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="wh_intro_solarian_c8a8fd0c.html">Anomalous Readings</a></td>
+                        <td><a href="wh_intro_nebula_ab18736f.html">Anomalous Readings</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td>Dr. Amara Chen</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="500" class="value">500 cr</td>
-                        <td data-sort="3">3</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="wh_intro_voidborn_ab18736f.html">Anomalous Readings</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td>Researcher Null-Seven</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="500" class="value">500 cr</td>
-                        <td data-sort="3">3</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="wh_intro_solarian_ab18736f.html">Anomalous Readings</a></td>
-                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                        <td>Dr. Amara Chen</td>
+                        <td>Director Orin Voss</td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="500" class="value">500 cr</td>
                         <td data-sort="3">3</td>
@@ -426,9 +434,36 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="wh_intro_nebula_eaab8ea9.html">Anomalous Readings</a></td>
+                        <td><a href="wh_intro_nebula_50cd5b15.html">Anomalous Readings</a></td>
                         <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
                         <td>Director Orin Voss</td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="500" class="value">500 cr</td>
+                        <td data-sort="3">3</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="wh_intro_solarian_1aba5c83.html">Anomalous Readings</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td>Dr. Amara Chen</td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="500" class="value">500 cr</td>
+                        <td data-sort="3">3</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="wh_intro_voidborn_1aba5c83.html">Anomalous Readings</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td>Researcher Null-Seven</td>
+                        <td><span class="text-muted">—</span></td>
+                        <td data-sort="500" class="value">500 cr</td>
+                        <td data-sort="3">3</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="wh_intro_voidborn_ab18736f.html">Anomalous Readings</a></td>
+                        <td data-sort="3"><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                        <td>Researcher Null-Seven</td>
                         <td><span class="text-muted">—</span></td>
                         <td data-sort="500" class="value">500 cr</td>
                         <td data-sort="3">3</td>
@@ -552,7 +587,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_a37dc5f43f00f29fccc3298abe997243.html">HEXC recon: Hex Star</a></td>
+                        <td><a href="faction_1f5d2ab3a29a5c74b05567cad3f71119.html">HEXC recon: Hex Star</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>HEX Collective Outreach</td>
                         <td>Hex Collective</td>
@@ -561,11 +596,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_11202111bb434606673450f657d729cb.html">HEXC recon: Hex Star</a></td>
+                        <td><a href="faction_4a18f756d56534b7d4b327488e10000f.html">HEXC recon: Hex Star</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>HEX Collective Outreach</td>
                         <td>Hex Collective</td>
-                        <td data-sort="5000" class="value">5,000 cr</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
                         <td data-sort="2">2</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -642,7 +677,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_145c71810bb96aa4405a84112fd9a3e9.html">HEXC recon: Hex Star</a></td>
+                        <td><a href="faction_a37dc5f43f00f29fccc3298abe997243.html">HEXC recon: Hex Star</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>HEX Collective Outreach</td>
                         <td>Hex Collective</td>
@@ -741,7 +776,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_1f5d2ab3a29a5c74b05567cad3f71119.html">HEXC recon: Hex Star</a></td>
+                        <td><a href="faction_145c71810bb96aa4405a84112fd9a3e9.html">HEXC recon: Hex Star</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>HEX Collective Outreach</td>
                         <td>Hex Collective</td>
@@ -903,7 +938,7 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_6b36a5ea2dba0734b0c669e8f3be6746.html">HEXC recon: Hex Star</a></td>
+                        <td><a href="faction_11202111bb434606673450f657d729cb.html">HEXC recon: Hex Star</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>HEX Collective Outreach</td>
                         <td>Hex Collective</td>
@@ -1011,11 +1046,11 @@
                         <td><span class="text-muted">—</span></td>
                     </tr>
                     <tr>
-                        <td><a href="faction_4a18f756d56534b7d4b327488e10000f.html">HEXC recon: Hex Star</a></td>
+                        <td><a href="faction_6b36a5ea2dba0734b0c669e8f3be6746.html">HEXC recon: Hex Star</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>HEX Collective Outreach</td>
                         <td>Hex Collective</td>
-                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="5000" class="value">5,000 cr</td>
                         <td data-sort="2">2</td>
                         <td><span class="text-muted">—</span></td>
                     </tr>
@@ -1048,6 +1083,222 @@
                     </tr>
                     <tr>
                         <td><a href="faction_d43a2456a4a9b32f36d6b193d453d884.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_35978a4cd6bf2815c9e440ea63aa42da.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_64a0564f7e0966c61f925cf4ef00442a.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_effc6deb8770bf5cf33b823684bc6415.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_a8f2ebdba250f3ecab7a20103d8e638c.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_846abb33d52c2b0a8250022ab481ab7f.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_d2fb4aa3c05ebbdad55ce9c0c491f954.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_756eefd553cd54aee8e3b74801432179.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_094d0a46a5bbbfa4fba54a0d108468d6.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_0d143e0623c87c9d34e4b738035d96f5.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_4798290bde3e9953a1b443d79d5915dc.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_1870a8a9ccf96d300796d3a65f82fb5f.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_e25a9320d4ca9c11caa3cd49e42c0fa8.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_d7253fa039ded853c1edaf5c8d072d54.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_6517a3716d7b6c2311633d6a33b64d47.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_1bdff514f258d70e294a0d73a4581a5f.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_79725f79cca88b60e3dd823a4e99beb6.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_6bfb37cf0f2225f5642e66ce96e5fd90.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="5000" class="value">5,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_03287c04f81b8de1b75bac2a34e68a69.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="5000" class="value">5,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_a3cc61a6fecb0abcf918ef09a9106b01.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_a5d5d836bf97204bc764e4f330bcaa8d.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_19465eeb6758261ac6e9e80ea5e7edf0.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_e54fe116fabf7b4c5343bf5a1dd01655.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_a5d3be14e0604762e394996a8992072e.html">HEXC recon: Hex Star</a></td>
+                        <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
+                        <td>HEX Collective Outreach</td>
+                        <td>Hex Collective</td>
+                        <td data-sort="1000" class="value">1,000 cr</td>
+                        <td data-sort="2">2</td>
+                        <td><span class="text-muted">—</span></td>
+                    </tr>
+                    <tr>
+                        <td><a href="faction_899dc404770364b156677bc82c33a3d3.html">HEXC recon: Hex Star</a></td>
                         <td data-sort="5"><span class="difficulty" title="Difficulty 5">★★★★★</span></td>
                         <td>HEX Collective Outreach</td>
                         <td>Hex Collective</td>
