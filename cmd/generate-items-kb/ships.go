@@ -100,7 +100,31 @@ func loadShipCatalog(catalogPath string) ([]*Ship, error) {
 	if err := json.Unmarshal(data, &catalog); err != nil {
 		return nil, err
 	}
-	return catalog.Items, nil
+	return append(catalog.Items, loadLegacyShips()...), nil
+}
+
+// legacyShipsOverlay holds hulls the game still flies but no longer sells. The
+// catalog is the generator's only ship source, so a retired hull would simply
+// have no page — the same reason Nanofiber Internal Structure had none. The
+// overlay carries catalog-shaped records rebuilt from the knowledge DB by
+// scripts/build_legacy.py, filed under a Discontinued category (their real one
+// is blank, since that field only ever came from the catalog they have left).
+const legacyShipsOverlay = "overlays/generated/legacy_ships.json"
+
+func loadLegacyShips() []*Ship {
+	data, err := os.ReadFile(legacyShipsOverlay)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "legacy ships overlay: %v\n", err)
+		}
+		return nil
+	}
+	var ships []*Ship
+	if err := json.Unmarshal(data, &ships); err != nil {
+		fmt.Fprintf(os.Stderr, "legacy ships overlay: %v\n", err)
+		return nil
+	}
+	return ships
 }
 
 func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string, items map[string]*Item) error {
@@ -559,7 +583,9 @@ var shipDetailTemplate = `<!DOCTYPE html>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
             <tr><td class="kv-label">Class</td><td><a href="../index.html#{{slugify .Category}}--{{slugify .Class}}">{{.Class}}</a></td></tr>
+{{- if .Faction}}
             <tr><td class="kv-label">Faction</td><td><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td></tr>
+{{- end}}
             <tr><td class="kv-label">Tier</td><td>{{.Tier}}</td></tr>
 {{- if .Special}}
             <tr><td class="kv-label">Special</td><td>{{titleCase .Special}}</td></tr>

@@ -39,6 +39,24 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 DB = REPO / "spacemolt-knowledge.db"
 DEFAULT_API = Path("/home/robert/spacemolt/spacemolt/data/game-api")
+OVERLAY = REPO / "overlays" / "generated"
+
+# Retired hulls have no category in the DB (that field is only set from the
+# catalog they have left), and the ship pages are filed by category. Giving them
+# their own bucket both files them and labels them.
+LEGACY_CATEGORY = "Discontinued"
+
+# Ship columns that map 1:1 onto the catalog_ships.json field names the KB's
+# Ship struct unmarshals, so a DB row can stand in for a catalog entry.
+SHIP_COLS = [
+    "id", "name", "class", "category", "faction", "tier", "base_hull",
+    "base_armor", "base_shield", "base_shield_recharge", "base_speed",
+    "base_fuel", "cargo_capacity", "weapon_slots", "defense_slots",
+    "utility_slots", "power_capacity", "cpu_capacity", "scale", "build_time",
+    "price", "shipyard_tier", "starter_ship", "description", "lore",
+    "based_on", "npc_role", "special", "piloting_required",
+]
+JSON_COLS = {"flavor_tags", "default_modules", "passive_recipes"}
 SNAP_RE = re.compile(r"\d{8}")
 
 
@@ -141,11 +159,57 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(doc, indent=1, sort_keys=True) + "\n")
 
+    # Catalog-shaped records for the retired hulls, so generate-items-kb can
+    # render pages for entries the catalog no longer carries. Same idea as the
+    # other overlays/generated files: derived data a generator merges in.
+    cols = ", ".join(SHIP_COLS + sorted(JSON_COLS))
+    q = f"select {cols} from ships where id in ({','.join('?' * len(ship_legacy))})"
+    names = SHIP_COLS + sorted(JSON_COLS)
+    records = []
+    for row in con.execute(q, tuple(sorted(ship_legacy))):
+        rec = dict(zip(names, row))
+        for k in JSON_COLS:
+            try:
+                rec[k] = json.loads(rec[k]) if rec[k] else []
+            except (ValueError, TypeError):
+                rec[k] = []
+        rec["starter_ship"] = bool(rec["starter_ship"])
+        # Every emitted hull is retired, so they all file under one bucket —
+        # otherwise a renamed pair lands in two different category directories.
+        rec["category"] = LEGACY_CATEGORY
+        rec["legacy"] = True
+        rec["aliases"] = ship_legacy[rec["id"]].get("aliases", [])
+        records.append(rec)
+
+    # A rename leaves two ids for one ship. Emitting both would publish the same
+    # hull twice, so keep one page per name and fold the other ids into it as
+    # aliases. The surviving id is the one that never appeared in the ship
+    # catalog on its own: the catalog entry is what the rename retired, and the
+    # replacement id was never separately listed for sale.
+    chosen, dropped = {}, []
+    for rec in sorted(records, key=lambda r: r["id"]):
+        prev = chosen.get(rec["name"])
+        if prev is None:
+            chosen[rec["name"]] = rec
+            continue
+        keep, drop = (rec, prev) if not ship_legacy[rec["id"]].get("last_in_catalog") else (prev, rec)
+        merged = set(keep["aliases"]) | {drop["id"]} | set(drop["aliases"])
+        keep["aliases"] = sorted(merged - {keep["id"]})   # never alias to itself
+        chosen[rec["name"]] = keep
+        dropped.append(drop["id"])
+    records = sorted(chosen.values(), key=lambda r: r["name"])
+    OVERLAY.mkdir(parents=True, exist_ok=True)
+    (OVERLAY / "legacy_ships.json").write_text(
+        json.dumps(records, indent=1, sort_keys=True) + "\n")
+
     fit = sum(1 for r in item_legacy.values() if r["fittable"])
     print(f"build-legacy: {len(snaps)} snapshots; catalog {n_ships} ships / {n_items} items")
     print(f"  legacy ships: {len(ship_legacy)}")
     print(f"  legacy items: {len(item_legacy)}  ({fit} fittable modules)")
     print(f"  -> {out.relative_to(REPO)}")
+    print(f"  -> overlays/generated/legacy_ships.json ({len(records)} catalog-shaped hulls"
+          + (f"; {len(dropped)} renamed ids folded in as aliases: {', '.join(dropped)}" if dropped else "")
+          + ")")
 
 
 if __name__ == "__main__":
