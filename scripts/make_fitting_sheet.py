@@ -29,6 +29,7 @@ REPO = HERE.parent
 DB = REPO / "spacemolt-knowledge.db"
 FOOT = REPO / "data" / "footprints"
 SCALE = FOOT / "scale" / "ship_scale_est.json"
+LEGACY = REPO / "data" / "legacy.json"
 OUT = REPO / "kb" / "ships" / "fitting.html"
 
 DAMAGE_TYPES = ["kinetic", "thermal", "energy", "em", "explosive", "void"]
@@ -245,6 +246,12 @@ def load_modules(con, ammo):
     return mods
 
 
+def load_legacy():
+    """Ids the game no longer sells. Still fittable — the sheet marks them."""
+    doc = jload(LEGACY.read_text() if LEGACY.exists() else "", {})
+    return doc.get("ships", {}), doc.get("items", {})
+
+
 def main():
     if not DB.exists():
         sys.exit(f"missing {DB}")
@@ -254,6 +261,14 @@ def main():
     mods = load_modules(con, ammo)
     con.close()
 
+    legacy_ships, legacy_items = load_legacy()
+    for sid, rec in ships.items():
+        if sid in legacy_ships:
+            rec["legacy"] = legacy_ships[sid].get("last_in_catalog") or 1
+    for m in mods:
+        if m["id"] in legacy_items:
+            m["legacy"] = legacy_items[m["id"]].get("last_in_catalog") or 1
+
     tmpl = (HERE / "fitting_sheet.tmpl.html").read_text()
     html = (tmpl
             .replace("/*__SHIPS__*/null", json.dumps(ships, separators=(",", ":")))
@@ -261,6 +276,9 @@ def main():
             .replace("/*__DAMAGE_TYPES__*/null", json.dumps(DAMAGE_TYPES)))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html)
+    nl_s = sum(1 for s in ships.values() if s.get("legacy"))
+    nl_m = sum(1 for m in mods if m.get("legacy"))
+    print(f"  legacy marked: {nl_s} ships, {nl_m} modules")
     planned = sum(1 for s in ships.values() if s.get("plan"))
     print(f"wrote {OUT.relative_to(REPO)}  "
           f"{len(ships)} ships ({planned} with plan views), {len(mods)} modules, "

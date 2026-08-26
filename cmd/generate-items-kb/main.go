@@ -19,6 +19,7 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/rsned/spacemolt-kb/internal/kbnav"
+	"github.com/rsned/spacemolt-kb/internal/kblegacy"
 	"github.com/rsned/spacemolt-kb/pkg/bom"
 	"github.com/rsned/spacemolt-kb/pkg/hyperjump"
 	"github.com/rsned/spacemolt-kb/pkg/kbdb"
@@ -583,6 +584,13 @@ func main() {
 	whereOnly := flag.Bool("where-only", false, "regenerate only the where-to-craft page (kb/recipes/where.html)")
 	marketDBPath := flag.String("market-db", "../spacemolt/data/market.db", "market DB for market-aware BoM recipe selection (empty to disable)")
 	flag.Parse()
+
+	// Retired catalog entries, so pages and pickers can mark them. A missing
+	// sidecar is not fatal — the KB just renders without legacy marking.
+	var err error
+	if legacySet, err = kblegacy.Load("data/legacy.json"); err != nil {
+		log.Printf("legacy sidecar: %v (continuing without legacy marking)", err)
+	}
 
 	dbPath := "../../spacemolt-crafting-server/database/crafting.db"
 	catalogDir := findLatestCatalogDir("../spacemolt/data/game-api")

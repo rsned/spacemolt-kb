@@ -512,3 +512,23 @@ tr:hover td {
     .kbs input, .kbs input:focus { width: 100%; }
     .kbs-results { width: 100%; }
 }
+
+/* --- discontinued catalog entries ---------------------------------------- */
+/* Legacy means "no longer sold", not "no longer usable": players still fly and
+   fit these, so the pages stay visible and are marked instead of hidden. */
+.badge-legacy {
+    color: hsl(var(--smui-red)); border-color: hsl(var(--smui-red));
+    font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}
+.legacy-note {
+    margin: 10px 0 4px; padding: 9px 13px;
+    border: 1px solid hsl(var(--smui-red));
+    border-left-width: 4px; border-radius: 4px;
+    background: hsl(var(--smui-red) / .07);
+    font-size: var(--text-ui, 13px); line-height: 1.55;
+}
+.legacy-note .badge { margin-right: 8px; vertical-align: baseline; }
+.legacy-note code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .92em; opacity: .85;
+}

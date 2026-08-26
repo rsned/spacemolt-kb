@@ -10,8 +10,14 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/rsned/spacemolt-kb/internal/kblegacy"
 	"github.com/rsned/spacemolt-kb/pkg/bom"
 )
+
+// legacySet lists catalog entries the game no longer sells. Loaded once in
+// main; an absent sidecar simply yields empty maps, so generation still works
+// on a checkout that has not run scripts/build_legacy.py.
+var legacySet kblegacy.Set
 
 // Ship holds a ship class from the catalog JSON.
 type Ship struct {
@@ -245,6 +251,13 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		"factionBadge": factionBadgeClass,
 		"factionDisplayName": factionDisplayName,
 		"hasBlueprint": func(id string) bool { return blueprints[id] },
+		// Retired hulls stay on the site, loudly marked — people still fly them.
+		"legacyShip": func(id string) *kblegacy.Entry {
+			if e, ok := legacySet.Ship(id); ok {
+				return &e
+			}
+			return nil
+		},
 	}
 
 	type pageData struct {
@@ -518,6 +531,14 @@ var shipDetailTemplate = `<!DOCTYPE html>
 {{- with .Ship}}
         <div class="breadcrumb"><a href="../">Ships</a> / <a href="./">{{.Category}}</a> / {{.Name}}</div>
         <h2>{{.Name}}</h2>
+{{- with legacyShip .ID}}
+        <div class="legacy-note">
+          <span class="badge badge-legacy">Discontinued</span>
+          This ship is no longer sold{{if .Date}} — last listed in the catalog on {{.Date}}{{end}}.
+          Existing hulls still fly and can still be fitted.
+{{- if .Aliases}} Also known as {{range $i, $a := .Aliases}}{{if $i}}, {{end}}<code>{{$a}}</code>{{end}}.{{end}}
+        </div>
+{{- end}}
 
 {{- if hasDescription .}}
         <blockquote class="item-desc">{{.Description}}</blockquote>

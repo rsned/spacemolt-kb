@@ -219,6 +219,11 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
 .note{margin-top:10px;font-size:11px;color:var(--faint);letter-spacing:.14em;
   line-height:1.7}
 .note b{color:var(--dim)}
+.legacy-banner{margin:0 0 14px;padding:8px 14px;border:1px solid var(--pen);
+  color:var(--pen);font-size:11.5px;letter-spacing:.18em;background:rgba(255,157,138,.07)}
+.legacy-banner b{color:var(--line);font-weight:bold}
+i.legacy{font-style:normal;color:var(--pen);font-size:9.5px;letter-spacing:.14em;
+  margin-right:6px}
 
 @media print{
   body{padding:0;background:var(--blue)}
@@ -246,6 +251,8 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
       </label>
     </div>
   </header>
+
+  <div class="legacy-banner" id="legacyBanner" hidden></div>
 
   <main class="body">
     <section class="panel plan">
@@ -434,6 +441,8 @@ const num = n => {
   return (Math.abs(r) >= 1000 ? r.toLocaleString("en-US") : String(r));
 };
 const titleCase = s => s.replace(/_/g," ").replace(/^./, c => c.toUpperCase());
+/* "20260712" -> "2026-07-12"; the sidecar stores snapshot directory names. */
+const fmtSnap = d => /^\d{8}$/.test(d) ? d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6) : d;
 
 /* An accumulator per stat: base value plus everything modules added or took
    away, kept apart so the sheet can show `550 (450+100)` rather than just 550. */
@@ -677,6 +686,7 @@ function optionsFor(slot) {
     else if (m.d && m.d.shield) tail += ` · +${m.d.shield} shd`;
     else if (m.d && m.d.armor) tail += ` · +${m.d.armor} arm`;
     else if (m.u && m.u.cargo) tail += ` · +${m.u.cargo} cargo`;
+    if (m.legacy) tail += " · LEGACY";
     return `<option value="${esc(m.id)}">${esc(m.name)} — ${tail}</option>`;
   }).join("");
 }
@@ -707,7 +717,8 @@ function renderSlots() {
     const rows = Array.from({length:n}, (_,i) => {
       const cur = state.fit[slot][i] || "";
       const m = cur ? MOD[cur] : null;
-      const cost = m ? `${modCpu(m)}c &middot; ${modPwr(m)}p` : "&mdash;";
+      const cost = m ? (m.legacy ? '<i class="legacy">LEGACY</i> ' : "") +
+                       `${modCpu(m)}c &middot; ${modPwr(m)}p` : "&mdash;";
       return `<div class="slotrow${m?' filled':''}">
         <span class="n">${i+1}</span>
         <select class="${m?'':'empty'}" data-slot="${slot}" data-i="${i}">${optionsFor(slot)}</select>
@@ -894,6 +905,24 @@ async function render() {
   renderStats(r);
   renderTitleBlock(r);
 
+  var legacyMods = r.fitted.filter(function (m) { return m.legacy; });
+  var lb = el("legacyBanner");
+  if (s.legacy || legacyMods.length) {
+    var bits = [];
+    if (s.legacy) bits.push("<b>" + esc(s.name) + "</b> is DISCONTINUED" +
+      (typeof s.legacy === "string" ? " — last sold " + esc(fmtSnap(s.legacy)) : ""));
+    if (legacyMods.length) {
+      var names = [...new Set(legacyMods.map(function (m) { return m.name; }))];
+      bits.push(names.length + " fitted module" + (names.length > 1 ? "s are" : " is") +
+        " DISCONTINUED: <b>" + names.map(esc).join(", ") + "</b>");
+    }
+    lb.innerHTML = "LEGACY &middot; " + bits.join(" &middot; ") +
+      " &middot; still flyable, no longer sold";
+    lb.hidden = false;
+  } else {
+    lb.hidden = true;
+  }
+
   const rp = ringPlan(r);
   const legend = el("ringLegend");
   if (!rp.shown) {
@@ -952,7 +981,7 @@ function init() {
   el("ship").innerHTML = Object.keys(byCat).sort().map(cat =>
     `<optgroup label="${esc(cat)}">` + byCat[cat]
       .sort((a,b) => a.name.localeCompare(b.name))
-      .map(s => `<option value="${esc(s.id)}">${esc(s.name)} — ${esc(s.cls||"")} T${s.tier || 0} · ${s.w||0}/${s.d||0}/${s.u||0}</option>`)
+      .map(s => `<option value="${esc(s.id)}">${esc(s.name)} — ${esc(s.cls||"")} T${s.tier || 0} · ${s.w||0}/${s.d||0}/${s.u||0}${s.legacy ? " · LEGACY" : ""}</option>`)
       .join("") + `</optgroup>`).join("");
   el("ship").value = state.ship;
 
