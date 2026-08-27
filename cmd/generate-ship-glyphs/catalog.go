@@ -24,6 +24,9 @@ type catalogShip struct {
 	UtilitySlots  int    `json:"utility_slots"`
 	CargoCapacity int    `json:"cargo_capacity"`
 	Lore          string `json:"lore"`
+	// Legacy marks a hull the game no longer sells but players still fly. It
+	// is set only by the overlay below; the live catalog has no such field.
+	Legacy bool `json:"legacy"`
 }
 
 // loadShipCatalog reads the {"items": [...]} catalog produced by the game API.
@@ -39,6 +42,32 @@ func loadShipCatalog(path string) ([]catalogShip, error) {
 		return nil, fmt.Errorf("parse ship catalog: %w", err)
 	}
 	return catalog.Items, nil
+}
+
+// legacyShipsOverlay holds hulls the game still flies but no longer sells.
+// Same overlay the items generator merges (cmd/generate-items-kb/ships.go): the
+// live catalog is the only ship source, so without it a retired hull gets no
+// glyph and quietly vanishes from the contact sheet while its detail page and
+// blueprint still exist.
+const legacyShipsOverlay = "overlays/generated/legacy_ships.json"
+
+// appendLegacyShips adds the discontinued hulls to a catalog. A missing overlay
+// is not an error -- a checkout that has not run scripts/build_legacy.py yet
+// still renders every current ship rather than failing the whole build.
+func appendLegacyShips(ships []catalogShip, path string) []catalogShip {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "legacy ships overlay: %v\n", err)
+		}
+		return ships
+	}
+	var legacy []catalogShip
+	if err := json.Unmarshal(data, &legacy); err != nil {
+		fmt.Fprintf(os.Stderr, "legacy ships overlay: %v\n", err)
+		return ships
+	}
+	return append(ships, legacy...)
 }
 
 // validateCatalog checks the catalog for problems that would produce broken

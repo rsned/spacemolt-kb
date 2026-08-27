@@ -125,3 +125,22 @@
   font-size: var(--text-label);
   color: hsl(var(--muted-foreground));
 }
+
+/* Discontinued hulls: still flown, no longer sold, so they stay on the sheet
+   but must not read as something you can still buy. Same red as .badge-legacy
+   in smui.css, which marks them everywhere else on the site. */
+.glyph-legacy .ship-glyph {
+  opacity: 0.72;
+}
+
+.glyph-badge {
+  align-self: start;
+  margin-top: 0.15rem;
+  padding: 0 0.3rem;
+  border: 1px solid hsl(var(--smui-red));
+  border-radius: 3px;
+  color: hsl(var(--smui-red));
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}

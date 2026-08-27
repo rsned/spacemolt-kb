@@ -95,3 +95,32 @@ func TestWriteContactSheetEscapesNames(t *testing.T) {
 		t.Errorf("ship class was not HTML-escaped")
 	}
 }
+
+// Discontinued hulls are still flown, so they belong on the sheet -- but a
+// reader must be able to tell them apart from what is still for sale.
+func TestContactSheetMarksLegacyGlyphs(t *testing.T) {
+	dir := t.TempDir()
+	glyphs := append(fixtureGlyphs(), renderedGlyph{
+		Stats:  shipglyph.Stats{ID: "excavator", Name: "Excavator", Class: "Mining", Faction: ""},
+		Legacy: true,
+		SVG:    `<svg class="ship-glyph"><title>Excavator</title></svg>`,
+	})
+	if err := writeContactSheet(dir, glyphs); err != nil {
+		t.Fatalf("writeContactSheet: %v", err)
+	}
+	data, err := os.ReadFile(filepath.Join(dir, "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := string(data)
+	if !strings.Contains(page, "Excavator") {
+		t.Error("legacy ship is missing from the contact sheet entirely")
+	}
+	if !strings.Contains(page, "glyph-legacy") {
+		t.Error("legacy ship carries no marker class, so it reads as still for sale")
+	}
+	// The marker must be on the legacy cell only, not every cell.
+	if n := strings.Count(page, "glyph-legacy"); n != 1 {
+		t.Errorf("glyph-legacy appears %d times, want 1 (only the legacy cell)", n)
+	}
+}

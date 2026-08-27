@@ -16,8 +16,9 @@ import (
 // renderedGlyph pairs a ship's stats with its finished SVG markup. Task 10's
 // contact sheet consumes these.
 type renderedGlyph struct {
-	Stats shipglyph.Stats
-	SVG   string
+	Stats  shipglyph.Stats
+	SVG    string
+	Legacy bool
 }
 
 func main() {
@@ -25,6 +26,8 @@ func main() {
 		"path to catalog_ships.json")
 	overlayDir := flag.String("overlays", "overlays/shipshapes",
 		"directory of hand-authored shape overlays (empty to disable)")
+	legacyPath := flag.String("legacy", legacyShipsOverlay,
+		"discontinued-hull overlay to merge into the catalog (empty to disable)")
 	outDir := flag.String("out", "kb/ships/glyphs", "output directory for glyph SVGs")
 	size := flag.Float64("size", 200, "glyph viewBox edge length")
 	flag.Parse()
@@ -32,6 +35,9 @@ func main() {
 	ships, err := loadShipCatalog(*catalogPath)
 	if err != nil {
 		log.Fatalf("load catalog: %v", err)
+	}
+	if *legacyPath != "" {
+		ships = appendLegacyShips(ships, *legacyPath)
 	}
 	if err := validateCatalog(ships); err != nil {
 		log.Fatalf("validate catalog: %v", err)
@@ -80,7 +86,7 @@ func main() {
 			Title:          c.Name,
 			IDPrefix:       c.ID + "-",
 		})
-		rendered = append(rendered, renderedGlyph{Stats: s, SVG: sheetSVG})
+		rendered = append(rendered, renderedGlyph{Stats: s, SVG: sheetSVG, Legacy: c.Legacy})
 	}
 
 	if err := writeContactSheet(*outDir, rendered); err != nil {

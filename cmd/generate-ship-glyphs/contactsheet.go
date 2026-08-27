@@ -103,9 +103,9 @@ var contactSheetTmpl = htmltpl.Must(htmltpl.New("contactsheet").Funcs(htmltpl.Fu
   <h2>{{.Name}} <span class="glyph-count">{{len .Glyphs}}</span></h2>
   <div class="glyph-grid">
   {{range .Glyphs}}
-    <figure class="glyph-cell">
+    <figure class="glyph-cell{{if .Legacy}} glyph-legacy{{end}}">
       {{svg .SVG}}
-      <figcaption><span class="glyph-name">{{.Stats.Name}}</span><span class="glyph-class">{{.Stats.Class}}</span></figcaption>
+      <figcaption><span class="glyph-name">{{.Stats.Name}}</span><span class="glyph-class">{{.Stats.Class}}</span>{{if .Legacy}}<span class="glyph-badge">DISCONTINUED</span>{{end}}</figcaption>
     </figure>
   {{end}}
   </div>

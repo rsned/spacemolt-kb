@@ -96,3 +96,39 @@ func TestValidateCatalogAcceptsCleanCatalog(t *testing.T) {
 		t.Errorf("unexpected error for a clean catalog: %v", err)
 	}
 }
+
+func TestAppendLegacyShipsMergesOverlay(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "legacy_ships.json")
+	body := `[
+	  {"id":"deeprock_harvester","name":"Deeprock Harvester","class":"Mining",
+	   "category":"Discontinued","faction":"","tier":3,"scale":3,"weapon_slots":2,
+	   "defense_slots":3,"utility_slots":6,"cargo_capacity":400,"legacy":true}
+	]`
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	base := []catalogShip{{ID: "comet", Name: "Comet"}}
+	ships := appendLegacyShips(base, path)
+	if len(ships) != 2 {
+		t.Fatalf("len = %d, want 2 (catalog + overlay)", len(ships))
+	}
+	got := ships[1]
+	if got.ID != "deeprock_harvester" || got.UtilitySlots != 6 || got.Class != "Mining" {
+		t.Errorf("merged ship = %+v", got)
+	}
+	if !got.Legacy {
+		t.Error("merged ship is not marked Legacy, so the contact sheet cannot flag it")
+	}
+}
+
+// A checkout that has not run scripts/build_legacy.py must still render glyphs,
+// the same tolerance kblegacy.Load and the items generator apply.
+func TestAppendLegacyShipsMissingFileIsNotFatal(t *testing.T) {
+	base := []catalogShip{{ID: "comet", Name: "Comet"}}
+	ships := appendLegacyShips(base, filepath.Join(t.TempDir(), "absent.json"))
+	if len(ships) != 1 || ships[0].ID != "comet" {
+		t.Fatalf("ships = %+v, want the catalog unchanged", ships)
+	}
+}
