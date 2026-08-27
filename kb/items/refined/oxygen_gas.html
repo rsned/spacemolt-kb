@@ -42,7 +42,7 @@
         <h2>Oxygen Gas</h2>
 
         <div class="card mt-2" style="padding:0">
-          <blockquote class="item-desc">Pure oxygen gas produced by electrolyzing purified water. Not found in nature in usable form — must be split out of water with an electrolysis facility. Combines with liquid hydrogen as a high-efficiency propellant.</blockquote>
+          <blockquote class="item-desc">Pure oxygen gas produced by electrolyzing water or processing oxygen ice. Combines with liquid hydrogen as a high-efficiency propellant.</blockquote>
           <div class="section-label">General</div>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">Refined</a></td></tr>
@@ -68,6 +68,11 @@
               <td>2</td>
               <td>0.78s</td>
             </tr>
+            <tr>
+              <td><a href="../../recipes/Ice_Refining/process_oxygen_ice.html">Process Oxygen Ice</a></td>
+              <td>10</td>
+              <td>1.2s</td>
+            </tr>
             </tbody>
           </table>
           <div class="section-label">Built by Facility</div>
@@ -80,6 +85,13 @@
               <td><a href="../../recipes/Ice_Refining/electrolyze_water.html">Electrolyze Water</a></td>
               <td>2</td>
               <td>0.78s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/oxygen_ice_sublimator.html">Oxygen Ice Sublimator</a></td>
+              <td>1</td>
+              <td><a href="../../recipes/Ice_Refining/process_oxygen_ice.html">Process Oxygen Ice</a></td>
+              <td>10</td>
+              <td>1.2s</td>
             </tr>
             <tr>
               <td><a href="../../facilities/production/electrolysis_plant.html">Electrolysis Plant</a></td>
@@ -109,9 +121,19 @@
             <thead><tr><th>Recipe</th><th>Qty</th><th>Produces</th></tr></thead>
             <tbody>
             <tr>
+              <td><a href="../../recipes/Components/assemble_zinc_oxygen_power_cells.html">Assemble Zinc-Oxygen Power Cells</a></td>
+              <td>3</td>
+              <td><a href="../component/power_cell.html">Power Cell</a></td>
+            </tr>
+            <tr>
               <td><a href="../../recipes/Gas_Processing/liquefy_oxygen.html">Liquefy Oxygen</a></td>
               <td>8</td>
               <td><a href="../refined/liquid_oxygen.html">Liquid Oxygen</a></td>
+            </tr>
+            <tr>
+              <td><a href="../../recipes/Ice_Refining/synthesize_purified_water.html">Synthesize Purified Water</a></td>
+              <td>2</td>
+              <td><a href="../refined/purified_water.html">Purified Water</a></td>
             </tr>
             </tbody>
           </table>

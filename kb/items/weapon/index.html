@@ -70,7 +70,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="8700">8,700 cr</td>
-          <td>Crimson Fleet weapon that converts damage dealt into repairs.</td>
+          <td>Deals 45 kinetic damage and repairs its user for 20% of damage dealt. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="dark_matter_projector.html">Dark Matter Projector</a></td>
@@ -78,7 +78,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="52000">52,000 cr</td>
-          <td>Projects concentrated dark matter that annihilates conventional matter.</td>
+          <td>Deals 150 void damage, ignores 100% of typed resistance, and bypasses 100% of shields. Fires every 6 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="em_disruptor_i.html">EM Disruptor I</a></td>
@@ -86,7 +86,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="3900">3,900 cr</td>
-          <td>Disrupts enemy systems, reducing their effectiveness.</td>
+          <td>Deals 5 EM damage and applies a 10% outgoing-damage penalty for 2 ticks. Fires every 2 ticks at reach 2.</td>
         </tr>
         <tr>
           <td><a href="em_smartbomb.html">EM Smartbomb</a></td>
@@ -94,7 +94,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="6400">6,400 cr</td>
-          <td>Area-effect EMP device that damages all nearby ships.</td>
+          <td>Deals 30 EM damage. AOE radius 5 sends the primary hit&#39;s full post-defense damage as a new hit to every other enemy within ZoneDistance 5 of the target; each applies its own defenses.</td>
         </tr>
         <tr>
           <td><a href="emp_cannon_i.html">EMP Cannon I</a></td>
@@ -102,7 +102,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="3000">3,000 cr</td>
-          <td>Electromagnetic pulse weapon that disrupts ship electronics.</td>
+          <td>Deals 8 energy damage and disrupts the target for 2 ticks, imposing 100% speed and outgoing-damage penalties. Fires every 3 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="emp_missile_launcher.html">EMP Missile Launcher</a></td>
@@ -110,7 +110,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="5600">5,600 cr</td>
-          <td>Fires guided EMP warheads that disable target modules on impact.</td>
+          <td>Deals 15 explosive damage and disrupts the target for 3 ticks, imposing 100% speed and outgoing-damage penalties. Fires every 4 ticks at reach 6.</td>
         </tr>
         <tr>
           <td><a href="emp_pulse_i.html">EMP Pulse I</a></td>
@@ -118,7 +118,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="3800">3,800 cr</td>
-          <td>Electromagnetic pulse that temporarily disables ship systems.</td>
+          <td>Deals 5 EM damage and disrupts the target for 1 tick, imposing 100% speed and outgoing-damage penalties. Fires every 4 ticks at reach 2.</td>
         </tr>
         <tr>
           <td><a href="emp_pulse_ii.html">EMP Pulse II</a></td>
@@ -126,7 +126,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="6800">6,800 cr</td>
-          <td>Enhanced EMP device with longer disruption duration.</td>
+          <td>Deals 10 EM damage and disrupts the target for 2 ticks, imposing 100% speed and outgoing-damage penalties. Fires every 4 ticks at reach 2.</td>
         </tr>
         <tr>
           <td><a href="emp_pulse_iii.html">EMP Pulse III</a></td>
@@ -134,7 +134,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="41000">41,000 cr</td>
-          <td>Military-grade EMP that can cripple capital ships.</td>
+          <td>Deals 18 EM damage and disrupts the target for 3 ticks, imposing 100% speed and outgoing-damage penalties. Fires every 5 ticks at reach 2.</td>
         </tr>
         <tr>
           <td><a href="energy_siphon.html">Energy Siphon</a></td>
@@ -142,7 +142,15 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="33000">33,000 cr</td>
-          <td>Drains enemy capacitor and transfers it to your ship.</td>
+          <td>Drains enemy shields and transfers half of the stolen energy to your ship.</td>
+        </tr>
+        <tr>
+          <td><a href="entropy_beam.html">Entropy Beam</a></td>
+          <td class="thumb"></td>
+          <td><span class="badge"></span></td>
+          <td class="size" data-sort="10">10</td>
+          <td class="value" data-sort="12000">12,000 cr</td>
+          <td>Deals 15 void damage, then immediately burns the target&#39;s hull for 10 damage on the hit tick and each of the next 4 ticks, bypassing shields and armor. Burns do not stack: active burns keep the higher per-tick damage and longer remaining duration. Fires every 2 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="explosive_smartbomb.html">Explosive Smartbomb</a></td>
@@ -150,7 +158,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="4200">4,200 cr</td>
-          <td>Detonates a shaped charge affecting all nearby ships.</td>
+          <td>Deals 40 explosive damage. AOE radius 4 sends the primary hit&#39;s full post-defense damage as a new hit to every other enemy within ZoneDistance 4 of the target; each applies its own defenses.</td>
         </tr>
         <tr>
           <td><a href="flak_cannon_i.html">Flak Cannon I</a></td>
@@ -158,7 +166,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="4200">4,200 cr</td>
-          <td>Anti-munition weapon that intercepts drones and missiles.</td>
+          <td>Deals 15 kinetic damage with &#43;100% damage to drones. Fitted anti-missile ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.</td>
         </tr>
         <tr>
           <td><a href="flak_cannon_ii.html">Flak Cannon II</a></td>
@@ -166,7 +174,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="5300">5,300 cr</td>
-          <td>Improved flak system with wider coverage arc.</td>
+          <td>Deals 28 kinetic damage with &#43;150% damage to drones. Fitted anti-missile ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.</td>
         </tr>
         <tr>
           <td><a href="flak_cannon_iii.html">Flak Cannon III</a></td>
@@ -174,7 +182,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="26000">26,000 cr</td>
-          <td>Advanced flak battery that creates a defensive perimeter.</td>
+          <td>Deals 25 kinetic damage with &#43;200% damage to drones. Fitted anti-missile ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.</td>
         </tr>
         <tr>
           <td><a href="focused_beam_i.html">Focused Beam I</a></td>
@@ -182,7 +190,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="8700">8,700 cr</td>
-          <td>Continuous beam weapon that bypasses shields.</td>
+          <td>Deals 15 energy damage; 25% bypasses shields. Fires every 2 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="focused_beam_ii.html">Focused Beam II</a></td>
@@ -190,7 +198,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="17000">17,000 cr</td>
-          <td>Advanced beam weapon with improved shield penetration.</td>
+          <td>Deals 25 energy damage; 40% bypasses shields. Fires every 2 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="focused_beam_iii.html">Focused Beam III</a></td>
@@ -198,7 +206,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="27000">27,000 cr</td>
-          <td>Elite beam weapon with 60% shield penetration.</td>
+          <td>Deals 40 energy damage; 60% bypasses shields. Fires every 2 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="fury_cannon.html">Fury Cannon</a></td>
@@ -206,7 +214,23 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="37000">37,000 cr</td>
-          <td>Crimson Fleet capital siege cannon that deals more damage as your hull decreases — long-range bombardment built into the dreadnought line.</td>
+          <td>Deals 70 kinetic damage, increased by the user&#39;s missing-hull percentage. At 40% hull it deals &#43;60%. Fires every 3 ticks at reach 5.</td>
+        </tr>
+        <tr>
+          <td><a href="graviton_beam_i.html">Graviton Beam I</a></td>
+          <td class="thumb"></td>
+          <td><span class="badge"></span></td>
+          <td class="size" data-sort="10">10</td>
+          <td class="value" data-sort="4200">4,200 cr</td>
+          <td>Deals 32 kinetic damage and deals 25% more while the target&#39;s shields are down. Fires every 3 ticks at reach 4.</td>
+        </tr>
+        <tr>
+          <td><a href="graviton_beam_ii.html">Graviton Beam II</a></td>
+          <td class="thumb"></td>
+          <td><span class="badge"></span></td>
+          <td class="size" data-sort="10">10</td>
+          <td class="value" data-sort="37000">37,000 cr</td>
+          <td>Deals 50 kinetic damage and deals 50% more while the target&#39;s shields are down. Within reach 4, gives its selected target a 30% escape-speed penalty; penalties add and cap at 75%. Fires every 3 ticks.</td>
         </tr>
         <tr>
           <td><a href="heavy_mass_driver.html">Heavy Mass Driver</a></td>
@@ -214,7 +238,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="25000">25,000 cr</td>
-          <td>Accelerates massive projectiles using gravity manipulation.</td>
+          <td>Deals 120 kinetic damage; 80% bypasses armor and damage gains 50% while the target has no shields. Fires every 5 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="heavy_pulse_laser.html">Heavy Pulse Laser</a></td>
@@ -238,7 +262,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="11000">11,000 cr</td>
-          <td>Multi-emitter ion array that systematically disables enemy ship systems.</td>
+          <td>Deals 30 energy damage and drains up to 20 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="ion_blaster_i.html">Ion Blaster I</a></td>
@@ -246,7 +270,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="3900">3,900 cr</td>
-          <td>Ionized particles that disrupt shield generators and drain capacitors.</td>
+          <td>Deals 8 EM damage, &#43;50% while shields remain, and drains up to 5 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every tick at reach 2.</td>
         </tr>
         <tr>
           <td><a href="ion_blaster_ii.html">Ion Blaster II</a></td>
@@ -254,7 +278,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="7200">7,200 cr</td>
-          <td>Enhanced ion weapon that cripples enemy shield regeneration.</td>
+          <td>Deals 14 EM damage, &#43;75% while shields remain, and drains up to 10 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every tick at reach 2.</td>
         </tr>
         <tr>
           <td><a href="ion_blaster_iii.html">Ion Blaster III</a></td>
@@ -262,7 +286,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="11000">11,000 cr</td>
-          <td>Military ion weapon that completely neutralizes shield systems.</td>
+          <td>Deals 22 EM damage, &#43;100% while shields remain, and drains up to 20 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every tick at reach 2.</td>
         </tr>
         <tr>
           <td><a href="ion_cannon_i.html">Ion Cannon I</a></td>
@@ -270,7 +294,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="2600">2,600 cr</td>
-          <td>Ionized particle weapon that drains enemy capacitor systems.</td>
+          <td>Deals 12 energy damage and drains up to 5 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every 2 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="ion_cannon_ii.html">Ion Cannon II</a></td>
@@ -278,7 +302,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="5400">5,400 cr</td>
-          <td>Improved ion weapon with stronger capacitor disruption.</td>
+          <td>Deals 20 energy damage and drains up to 12 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every 2 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="judgment_beam.html">Judgment Beam</a></td>
@@ -286,7 +310,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="40000">40,000 cr</td>
-          <td>The ultimate Solarian weapon of righteous destruction.</td>
+          <td>Deals 100 energy damage with a 50% energy-damage bonus; 50% bypasses shields. Fires every 4 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="jury_rigged_cannon.html">Jury-Rigged Cannon</a></td>
@@ -294,7 +318,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="2500">2,500 cr</td>
-          <td>Outer Rim heavy weapon cobbled together from salvage.</td>
+          <td>Deals 60 kinetic damage with ±30% random variance and reduced CPU requirements. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="kinetic_smartbomb.html">Kinetic Smartbomb</a></td>
@@ -302,7 +326,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="3800">3,800 cr</td>
-          <td>Releases a shrapnel burst damaging all nearby ships.</td>
+          <td>Deals 35 kinetic damage. AOE radius 4 sends the primary hit&#39;s full post-defense damage as a new hit to every other enemy within ZoneDistance 4 of the target; each applies its own defenses.</td>
         </tr>
         <tr>
           <td><a href="mass_driver.html">Mass Driver</a></td>
@@ -310,7 +334,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="12000">12,000 cr</td>
-          <td>Capital-class railgun with extreme range and damage.</td>
+          <td>Deals 90 kinetic damage; 75% bypasses armor. Fires every 4 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="mine_launcher_i.html">Mine Launcher I</a></td>
@@ -318,7 +342,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="1800">1,800 cr</td>
-          <td>Deploys proximity mines that detonate when ships approach.</td>
+          <td>Deals 50 explosive damage from a 5-mine magazine. On hit, also burns hull through shields and armor for 60 ticks at max(1, final hit damage / 60) per tick. Fires every 5 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="mine_launcher_ii.html">Mine Launcher II</a></td>
@@ -326,7 +350,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="4000">4,000 cr</td>
-          <td>Advanced mine deployment system with larger payload capacity.</td>
+          <td>Deals 80 explosive damage from a 10-mine magazine. On hit, also burns hull through shields and armor for 120 ticks at max(1, final hit damage / 120) per tick. Fires every 4 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="missile_launcher_i.html">Missile Launcher I</a></td>
@@ -350,7 +374,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="10000">10,000 cr</td>
-          <td>Advanced EM weapon that disrupts ship systems.</td>
+          <td>Deals 12 EM damage and applies a 25% outgoing-damage penalty for 2 ticks. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="null_cannon.html">Null Cannon</a></td>
@@ -358,7 +382,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="46000">46,000 cr</td>
-          <td>Creates localized areas of null-space that erase matter.</td>
+          <td>Deals 110 void damage, bypassing shields, armor, and defensive reductions. AOE radius 2 sends that full post-defense damage as a new hit to every other enemy within ZoneDistance 2 of the target; each applies its own defenses.</td>
         </tr>
         <tr>
           <td><a href="phase_disruptor.html">Phase Disruptor</a></td>
@@ -366,7 +390,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="21000">21,000 cr</td>
-          <td>Voidborn weapon that shifts between dimensions to strike.</td>
+          <td>Deals 48 void damage and ignores 30% of typed resistance. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="piercing_railgun_i.html">Piercing Railgun I</a></td>
@@ -374,7 +398,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="5000">5,000 cr</td>
-          <td>Electromagnetic accelerator that fires dense metal slugs at extreme velocity. Bypasses 50% of armor.</td>
+          <td>Deals 35 kinetic damage; 50% bypasses armor. Fires every 3 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="piercing_railgun_ii.html">Piercing Railgun II</a></td>
@@ -382,7 +406,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="15000">15,000 cr</td>
-          <td>High-velocity railgun with improved magnetic coils and penetrating power. Bypasses 65% of armor.</td>
+          <td>Deals 65 kinetic damage; 65% bypasses armor. Fires every 3 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="plasma_cannon_i.html">Plasma Cannon I</a></td>
@@ -406,7 +430,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="8100">8,100 cr</td>
-          <td>Military-grade plasma weapon with devastating thermal output.</td>
+          <td>Deals 58 thermal damage and reduces armor effectiveness by 15% for 3 ticks on hit. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="plasma_cannon_iv.html">Plasma Cannon IV</a></td>
@@ -414,7 +438,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="9500">9,500 cr</td>
-          <td>Capital-class plasma weapon that liquefies enemy hulls.</td>
+          <td>Deals 85 thermal damage and reduces armor effectiveness by 30% for 3 ticks on hit. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="plasma_repeater_i.html">Plasma Repeater I</a></td>
@@ -438,7 +462,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="7500">7,500 cr</td>
-          <td>Fires slow but devastating plasma-charged torpedoes.</td>
+          <td>Deals 60 thermal damage and reduces armor effectiveness by 20% for 3 ticks on hit. Fires every 5 ticks at reach 6.</td>
         </tr>
         <tr>
           <td><a href="proximity_mine_launcher.html">Proximity Mine Launcher</a></td>
@@ -446,7 +470,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="3500">3,500 cr</td>
-          <td>Deploys smart mines with enhanced detection radius.</td>
+          <td>Deals 65 explosive damage from an 8-mine magazine; detection adds 10 hit-chance points, capped at 95% total. On hit, also burns hull through shields and armor for 90 ticks at max(1, final hit damage / 90) per tick.</td>
         </tr>
         <tr>
           <td><a href="pulse_laser_i.html">Pulse Laser I</a></td>
@@ -486,7 +510,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="9500">9,500 cr</td>
-          <td>Advanced railgun with armor-piercing rounds.</td>
+          <td>Deals 55 kinetic damage; 50% bypasses armor. Fires every 3 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="scrap_harpoon.html">Scrap Harpoon</a></td>
@@ -494,7 +518,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="1500">1,500 cr</td>
-          <td>Outer Rim whaling harpoon: a barbed scrap-iron spike on a winch cable, fired heavy and slow to punch through hide and stick. The barb means it bites past armor, and the winch reels it back for the next throw, so it never runs dry. Built to bring down cloud-whales — too slow and too short-ranged to be much use against anything that shoots back.</td>
+          <td>Deals 44 kinetic damage; 30% bypasses armor. Uses no ammunition and fires every 3 ticks at reach 2.</td>
         </tr>
         <tr>
           <td><a href="scrapgun.html">Scrapgun</a></td>
@@ -502,7 +526,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="1100">1,100 cr</td>
-          <td>Outer Rim improvised weapon that fires salvaged debris.</td>
+          <td>Deals 30 kinetic damage. Reloading consumes any 1 cargo item to fill its 500-round magazine; omitting the item selects low-value cargo. Fires every tick at reach 2.</td>
         </tr>
         <tr>
           <td><a href="siege_railgun.html">Siege Railgun</a></td>
@@ -510,7 +534,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="30000">30,000 cr</td>
-          <td>Capital-class electromagnetic cannon designed for station bombardment.</td>
+          <td>Deals 120 kinetic damage; 80% bypasses armor. Fires every 4 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="solar_lance.html">Solar Lance</a></td>
@@ -518,7 +542,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="27000">27,000 cr</td>
-          <td>Solarian weapon that harnesses the power of stars.</td>
+          <td>Deals 65 energy damage with a 25% energy-damage bonus. Fires every 3 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="storm_lance.html">Storm Lance</a></td>
@@ -526,7 +550,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="15000">15,000 cr</td>
-          <td>Nebula Trade Federation weapon that channels ionic storm energy.</td>
+          <td>Deals 40 EM damage, then repeats its full final damage against up to 2 other enemies in the target&#39;s zone. Fires every 2 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="system_disabler.html">System Disabler</a></td>
@@ -534,7 +558,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="8800">8,800 cr</td>
-          <td>Targeted EMP that disables specific enemy modules.</td>
+          <td>Deals 2 EM damage and automatically disables the target&#39;s fitted weapon with the highest base damage for 1 tick. Fires every 3 ticks at reach 3.</td>
         </tr>
         <tr>
           <td><a href="thermal_smartbomb.html">Thermal Smartbomb</a></td>
@@ -542,7 +566,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="4800">4,800 cr</td>
-          <td>Releases superheated plasma in all directions.</td>
+          <td>Deals 38 thermal damage. AOE radius 5 sends the primary hit&#39;s full post-defense damage as a new hit to every other enemy within ZoneDistance 5 of the target; each applies its own defenses.</td>
         </tr>
         <tr>
           <td><a href="tracking_mine_launcher.html">Tracking Mine Launcher</a></td>
@@ -550,7 +574,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="8000">8,000 cr</td>
-          <td>Deploys mines that actively pursue nearby targets.</td>
+          <td>Deals 100 explosive damage from a 5-mine magazine; tracking adds 3 hit-chance points, capped at 95% total. On hit, also burns hull through shields and armor for 60 ticks at max(1, final hit damage / 60) per tick.</td>
         </tr>
         <tr>
           <td><a href="void_cannon.html">Void Cannon</a></td>
@@ -558,7 +582,15 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="25000">25,000 cr</td>
-          <td>Fires concentrated void energy that ignores conventional defenses.</td>
+          <td>Deals 75 void damage and ignores 50% of typed resistance. Fires every 3 ticks at reach 3.</td>
+        </tr>
+        <tr>
+          <td><a href="void_lance_i.html">Void Lance I</a></td>
+          <td class="thumb"></td>
+          <td><span class="badge"></span></td>
+          <td class="size" data-sort="10">10</td>
+          <td class="value" data-sort="17000">17,000 cr</td>
+          <td>Deals 55 void damage and ignores 50% of typed resistance. Fires every 3 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="void_lance_ii.html">Void Lance II</a></td>
@@ -566,7 +598,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="40000">40,000 cr</td>
-          <td>Advanced void weapon that tears through any defense.</td>
+          <td>Deals 85 void damage and ignores 75% of typed resistance. Fires every 3 ticks at reach 4.</td>
         </tr>
         <tr>
           <td><a href="void_laser.html">Void Laser</a></td>
@@ -574,7 +606,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="143000">143,000 cr</td>
-          <td>Legendary weapon that tears holes in the fabric of space-time.</td>
+          <td>Deals 65 energy damage; 50% bypasses shields. Fires every 2 ticks at reach 5.</td>
         </tr>
         <tr>
           <td><a href="void_mine_launcher.html">Void Mine Launcher</a></td>
@@ -582,7 +614,15 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="56000">56,000 cr</td>
-          <td>Deploys dimensional rift mines that bypass conventional shields entirely.</td>
+          <td>Deals 120 void damage from a 4-mine magazine and ignores 50% of typed resistance. On hit, also burns hull through shields and armor for 90 ticks at max(1, final hit damage / 90) per tick.</td>
+        </tr>
+        <tr>
+          <td><a href="void_torpedo.html">Void Torpedo</a></td>
+          <td class="thumb"></td>
+          <td><span class="badge"></span></td>
+          <td class="size" data-sort="10">10</td>
+          <td class="value" data-sort="20000">20,000 cr</td>
+          <td>Quantum warhead that phases through shields.</td>
         </tr>
         <tr>
           <td><a href="void_torpedo_launcher.html">Void Torpedo Launcher</a></td>
@@ -590,7 +630,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="108000">108,000 cr</td>
-          <td>Phase-shifted warheads that bypass shields entirely.</td>
+          <td>Deals 100 void damage and ignores 75% of typed resistance. Fires every 5 ticks at reach 6.</td>
         </tr>
         </tbody>
         </table>

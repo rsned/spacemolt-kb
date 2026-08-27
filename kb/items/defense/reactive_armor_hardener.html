@@ -40,32 +40,74 @@
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Items</a> / <a href="./">Defense</a> / Reactive Armor Hardener</div>
         <h2>Reactive Armor Hardener</h2>
-        <div class="legacy-note">
-          <span class="badge badge-legacy">Discontinued</span>
-          This item is no longer sold — last listed in the catalog on 2026-07-12.
-          Existing ones still work and can still be fitted.
-        </div>
 
         <div class="card mt-2" style="padding:0">
-          <blockquote class="item-desc">Automatically shifts resistances based on incoming damage.</blockquote>
+          <blockquote class="item-desc">Adds 60% resistance to the incoming damage type. Typed and reactive module resistances add and cap at 75%; resistance bypass reduces that total.</blockquote>
           <div class="section-label">General</div>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">Defense</a></td></tr>
             <tr><td class="kv-label">Size</td><td>10</td></tr>
             <tr><td class="kv-label">Stackable</td><td>No</td></tr>
-            <tr><td class="kv-label">Tradeable</td><td>Yes</td></tr>
+            <tr><td class="kv-label">Tradeable</td><td>No</td></tr>
           </table>
           <div class="section-label">Market</div>
           <table>
-            <tr><td class="kv-label">Base Value</td><td>8,600 cr</td></tr>
+            <tr><td class="kv-label">Base Value</td><td>8,400 cr</td></tr>
           </table>
         </div>
 
 <div class="card mt-2" style="padding:0"><div class="section-label">Module</div><table><tr><td class="kv-label">Type</td><td>Defense</td></tr><tr><td class="kv-label">Slot</td><td>Defense</td></tr><tr><td class="kv-label">Special</td><td>Reactive Resistance</td></tr><tr><td class="kv-label">CPU Usage</td><td>6</td></tr><tr><td class="kv-label">Power Usage</td><td>10</td></tr></table><div class="section-label">Requirements</div><table><tr><td class="kv-label">Required Skills</td><td>Armor 5</td></tr></table></div>
-        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../defense/reactive_armor_hardener.html">Reactive Armor Hardener</a></td><td>1</td></tr></tbody></table></div></div>
+        <div class="card" style="padding:0">
+          <div class="section-label">Produced By</div>
+          <table>
+            <thead><tr><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../../recipes/Defense/build_reactive_armor_hardener.html">Build Reactive Armor Hardener</a></td>
+              <td>1</td>
+              <td>129s</td>
+            </tr>
+            </tbody>
+          </table>
+          <div class="section-label">Built by Facility</div>
+          <table>
+            <thead><tr><th>Facility</th><th>Level</th><th>Recipe</th><th>Qty</th><th>Crafting Time</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../../facilities/production/armor_response_assembly.html">Armor Response Assembly</a></td>
+              <td>1</td>
+              <td><a href="../../recipes/Defense/build_reactive_armor_hardener.html">Build Reactive Armor Hardener</a></td>
+              <td>1</td>
+              <td>129s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/reactive_armor_manufacturing.html">Reactive Armor Manufacturing</a></td>
+              <td>2</td>
+              <td><a href="../../recipes/Defense/build_reactive_armor_hardener.html">Build Reactive Armor Hardener</a></td>
+              <td>1</td>
+              <td>129s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/advanced_armor_response_plant.html">Advanced Armor Response Plant</a></td>
+              <td>3</td>
+              <td><a href="../../recipes/Defense/build_reactive_armor_hardener.html">Build Reactive Armor Hardener</a></td>
+              <td>1</td>
+              <td>129s</td>
+            </tr>
+            <tr>
+              <td><a href="../../facilities/production/adaptive_armor_production_complex.html">Adaptive Armor Production Complex</a></td>
+              <td>4</td>
+              <td><a href="../../recipes/Defense/build_reactive_armor_hardener.html">Build Reactive Armor Hardener</a></td>
+              <td>1</td>
+              <td>129s</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card" style="padding:0"><div class="section-label">Construction</div><div class="bom-summary-table"><table><thead><tr><th>Base Material</th><th>Quantity</th></tr></thead><tbody><tr><td><a href="../ore/copper_ore.html">Copper Ore</a></td><td>4</td></tr><tr><td><a href="../ore/darksteel_ore.html">Darksteel Ore</a></td><td>8</td></tr><tr><td><a href="../ore/fluorine_gas.html">Fluorine Gas</a></td><td>7</td></tr><tr><td><a href="../ore/gold_ore.html">Gold Ore</a></td><td>5</td></tr><tr><td><a href="../ore/iron_ore.html">Iron Ore</a></td><td>76</td></tr><tr><td><a href="../ore/krypton_gas.html">Krypton Gas</a></td><td>4</td></tr><tr><td><a href="../ore/neon_gas.html">Neon Gas</a></td><td>4</td></tr><tr><td><a href="../ore/platinum_ore.html">Platinum Ore</a></td><td>2</td></tr><tr><td><a href="../ore/silicon_ore.html">Silicon Ore</a></td><td>7</td></tr><tr><td><a href="../ore/titanium_ore.html">Titanium Ore</a></td><td>18</td></tr><tr><td><a href="../ore/trade_crystal.html">Trade Crystal</a></td><td>4</td></tr><tr><td><a href="../ore/tungsten_ore.html">Tungsten Ore</a></td><td>4</td></tr><tr><td><a href="../ore/vanadium_ore.html">Vanadium Ore</a></td><td>42</td></tr></tbody></table></div></div>
         <details class="bom-json-details">
           <summary>View JSON Data</summary>
-          <pre class="bom-json">[{&#34;item_id&#34;:&#34;reactive_armor_hardener&#34;,&#34;quantity&#34;:1}]</pre>
+          <pre class="bom-json">[{&#34;item_id&#34;:&#34;copper_ore&#34;,&#34;quantity&#34;:4},{&#34;item_id&#34;:&#34;darksteel_ore&#34;,&#34;quantity&#34;:8},{&#34;item_id&#34;:&#34;fluorine_gas&#34;,&#34;quantity&#34;:7},{&#34;item_id&#34;:&#34;gold_ore&#34;,&#34;quantity&#34;:5},{&#34;item_id&#34;:&#34;iron_ore&#34;,&#34;quantity&#34;:76},{&#34;item_id&#34;:&#34;krypton_gas&#34;,&#34;quantity&#34;:4},{&#34;item_id&#34;:&#34;neon_gas&#34;,&#34;quantity&#34;:4},{&#34;item_id&#34;:&#34;platinum_ore&#34;,&#34;quantity&#34;:2},{&#34;item_id&#34;:&#34;silicon_ore&#34;,&#34;quantity&#34;:7},{&#34;item_id&#34;:&#34;titanium_ore&#34;,&#34;quantity&#34;:18},{&#34;item_id&#34;:&#34;trade_crystal&#34;,&#34;quantity&#34;:4},{&#34;item_id&#34;:&#34;tungsten_ore&#34;,&#34;quantity&#34;:4},{&#34;item_id&#34;:&#34;vanadium_ore&#34;,&#34;quantity&#34;:42}]</pre>
         </details>
 
     </main>
