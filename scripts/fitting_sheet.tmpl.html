@@ -197,7 +197,9 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
 .rescell .rt{font-size:10px;letter-spacing:.14em;color:var(--dim);display:block}
 .rescell .rv{font-size:15px;font-weight:bold;display:block;margin-top:3px}
 .rescell .rv.z{color:var(--faint);font-weight:normal}
-.rescell.over .rv{color:var(--pen)}
+.rescell.capped .rv{color:var(--pen)}
+.rescell .rsub{display:block;margin-top:2px;font-size:9.5px;letter-spacing:.08em;
+  color:var(--dim)}
 .resnote{margin-top:5px;font-size:10.5px;letter-spacing:.16em;color:var(--pen);opacity:.85}
 .rescell.adaptive .rv{font-style:italic}
 .rescell.adaptive .rv::after{content:"a";font-size:9px;vertical-align:super;
@@ -365,6 +367,8 @@ const MOD = Object.fromEntries(MODULES.map(m => [m.id, m]));
    modifier a round carries is conditional (only against armour, only over time)
    and shows as a labelled effect instead. */
 const AMMO_TYPES = Object.keys(AMMO).sort();
+/* Names of modules the devs deleted outright rather than merely withdrew. */
+const GONE = new Set(MODULES.filter(m => m.gone).map(m => m.name));
 const ROUND = {};
 for (const [t, list] of Object.entries(AMMO))
   for (const a of list) ROUND[a.id] = Object.assign({type: t}, a);
@@ -583,7 +587,8 @@ function compute() {
     cloak: acc(0), scan: acc(0), acc_: acc(0), track: acc(0), sig: acc(0),
     dbw: acc(0), dcap: acc(0), hpow: acc(0), hrng: acc(0),
     spow: acc(0), srng: acc(0),
-    res: Object.fromEntries(DTYPES.map(d => [d, {v:0, adaptive:false}])),
+    res: Object.fromEntries(DTYPES.map(d => [d, {typed:0}])),
+    adapt: 0, adaptive: false,
     dpt: 0, edptLo: 0, edptHi: 0, reach: 0, alpha: 0,
     byType: {}, weapons: [],
     rounds: new Map(),   // round id -> round, for the loaded-ammo effects row
@@ -610,11 +615,14 @@ function compute() {
       const dr = d.dred || 0;
       r.dred.add += dr * (dr <= 1 ? 100 : 1);
       r.cloak.add = Math.max(r.cloak.add, d.cloak||0);   // a rating, not a pool
+      // Typed and flat/adaptive are SEPARATE buckets (v0.564.1), so an adaptive
+      // module is no longer shadowed by a hardener covering the same type -- the
+      // two multiply. See resStages().
       for (const dt of DTYPES) {
         const explicit = (d.res||{})[dt] || 0;
-        if (explicit) r.res[dt].v += explicit * (explicit <= 1 ? 100 : 1);
-        else if (m.adapt) { r.res[dt].v += m.adapt; r.res[dt].adaptive = true; }
+        if (explicit) r.res[dt].typed += explicit * (explicit <= 1 ? 100 : 1);
       }
+      if (m.adapt) { r.adapt += m.adapt; r.adaptive = true; }
     }
     const u = m.u;
     if (u) {
@@ -654,6 +662,33 @@ function compute() {
 }
 
 /* --------------------------------------------------------------- ring math */
+/* Damage resistance, per the stacking rule the devs documented in v0.564.1: the
+   server applies shield skill, then TYPED resistance, then FLAT/ADAPTIVE
+   resistance, truncating to an integer at each stage. Bonuses ADD inside a
+   bucket and each bucket stops at 75%, so the two buckets compose
+   multiplicatively -- a fit can read past 75% overall yet never reaches
+   immunity. Shield skill is a pilot skill and is left out here like every other
+   skill on this sheet. Truncation is per-stage on the damage integer, so the
+   percentages below are exact for the buckets and a hair optimistic for the
+   final figure. */
+const RES_CAP = 75;
+function resStages(r) {
+  const flatRaw = total(r.dred) + r.adapt;
+  const flat = Math.min(RES_CAP, flatRaw);
+  return DTYPES.map(dt => {
+    const typedRaw = r.res[dt].typed, typed = Math.min(RES_CAP, typedRaw);
+    return {dt, typedRaw, typed, flatRaw, flat,
+            eff: 100 - (100 - typed) * (100 - flat) / 100};
+  });
+}
+
+/* Resistances land on quarter-percents once two buckets multiply, so show a
+   decimal only when there is one. */
+function pct(v) {
+  return (Math.abs(v - Math.round(v)) < 0.05 ? String(Math.round(v))
+                                             : v.toFixed(2).replace(/0$/, "")) + "%";
+}
+
 /* Multiplier a fit applies to shield capacity. No module in the catalog reduces
    shields by a percentage, so this is always 1 today; the trimmed-trace path it
    feeds is kept for when one appears. */
@@ -789,7 +824,8 @@ function optionsFor(slot) {
     else if (m.d && m.d.shield) tail += ` · +${m.d.shield} shd`;
     else if (m.d && m.d.armor) tail += ` · +${m.d.armor} arm`;
     else if (m.u && m.u.cargo) tail += ` · +${m.u.cargo} cargo`;
-    if (m.legacy) tail += " · DISCONTINUED";
+    if (m.gone) tail += " · REMOVED FROM GAME";
+    else if (m.legacy) tail += " · DISCONTINUED";
     // v0.561.0 unfitted these and blocked refitting: they stay listed so the
     // module and its numbers remain visible, but they cannot be installed.
     return `<option value="${esc(m.id)}"${m.legacy ? " disabled" : ""}>` +
@@ -842,9 +878,19 @@ function renderSlots() {
   if (state.stock.overflow.length)
     notes.push(`MORE STOCK MODULES THAN SLOTS — NOT FITTED: ` +
       state.stock.overflow.map(esc).join(", "));
-  if ((state.stock.retired || []).length)
-    notes.push(`DISCONTINUED — UNFITTED IN v0.561.0 AND NOT REFITTABLE: ` +
-      [...new Set(state.stock.retired)].map(esc).join(", "));
+  // Two different fates share the dropdown: withdrawn from sale but still
+  // fittable-in-principle, versus deleted from the game outright.
+  const retired = [...new Set(state.stock.retired || [])];
+  if (retired.length) {
+    const gone = retired.filter(n => GONE.has(n));
+    const held = retired.filter(n => !GONE.has(n));
+    if (held.length)
+      notes.push(`DISCONTINUED — NOT IN THE CATALOG AND NOT FITTABLE: ` +
+        held.map(esc).join(", "));
+    if (gone.length)
+      notes.push(`REMOVED FROM THE GAME — HOLDINGS REFUNDED: ` +
+        gone.map(esc).join(", "));
+  }
   el("stockNote").innerHTML = notes.join("<br>");
   el("slots").innerHTML = groups.map(([slot,label,n]) => {
     if (!n) return `<div class="slotgroup"><h3>${label}<em>none</em></h3>
@@ -899,20 +945,29 @@ function renderStats(r) {
           + row("ARMOR REPAIR", val(r.arep, " /tick"))
           + row("HULL", val(r.hull))
           + row("EFFECTIVE HP", `<b>${num(ehp)}</b><span class="brk">shield + armor + hull</span>`);
-  if (total(r.dred)) def += row("DAMAGE REDUCTION", val(r.dred, "%"));
-  let resOver = false;
-  const resCells = DTYPES.map(dt => {
-    const c = r.res[dt];
-    const over = c.v >= 100;
-    if (over) resOver = true;
-    return `<div class="rescell${c.adaptive?" adaptive":""}${over?" over":""}"${
-        over ? ' title="Additive stacking runs past total immunity here — the server\'s real stacking rule is unconfirmed."' : ""}>
-      <span class="rt">${dt.toUpperCase()}</span>
-      <span class="rv${c.v?"":" z"}">${c.v ? num(c.v)+"%" : "—"}</span></div>`;
+  if (total(r.dred))
+    def += row("DAMAGE REDUCTION",
+               val(r.dred, "%") + `<span class="brk">flat — folds into the strip below</span>`);
+  const stages = resStages(r);
+  const resCells = stages.map(c => {
+    const capped = c.typedRaw > c.typed || c.flatRaw > c.flat;
+    const both = c.typed && c.flat;
+    return `<div class="rescell${r.adaptive && c.flat ? " adaptive" : ""}${capped ? " capped" : ""}">
+      <span class="rt">${c.dt.toUpperCase()}</span>
+      <span class="rv${c.eff ? "" : " z"}">${c.eff ? pct(c.eff) : "—"}</span>
+      ${both ? `<span class="rsub">${num(c.typed)} × ${num(c.flat)}</span>` : ""}</div>`;
   }).join("");
-  const resNote = resOver
-    ? `<div class="resnote">STACKED ADDITIVELY PAST 100% — REAL STACKING RULE UNCONFIRMED</div>`
-    : "";
+  // Wasted resistance is reported the way wasted speed is: name the bucket that
+  // overflowed rather than silently clipping it.
+  const capMsgs = [];
+  if (stages[0].flatRaw > stages[0].flat)
+    capMsgs.push(`FLAT/ADAPTIVE ${num(stages[0].flatRaw)}% CAPPED AT ${RES_CAP}%`);
+  const overTyped = stages.filter(c => c.typedRaw > c.typed);
+  if (overTyped.length)
+    capMsgs.push(overTyped.map(c => `${c.dt.toUpperCase()} ${num(c.typedRaw)}%`).join(", ")
+                 + ` CAPPED AT ${RES_CAP}%`);
+  const resNote = capMsgs.length
+    ? `<div class="resnote">${capMsgs.join(" · ")}</div>` : "";
   const defenseSection = section("DEFENSE", tbl(def) +
     `<div class="resgrid" style="margin-top:8px">${resCells}</div>${resNote}`);
 
@@ -1123,8 +1178,12 @@ async function render() {
     + `<b>DAMAGE / TICK</b> assumes continuous fire: the catalog carries no reload time, so `
     + `each weapon holds its rate only until EMPTY IN, and magazine figures are per-weapon `
     + `because a 1000-round autocannon and a 7-round railgun do not empty together. `
-    + `<b>RESISTANCES</b> stack additively; an <i>a</i> marker means the value comes from an `
-    + `adaptive module, which covers every damage type. `
+    + `<b>RESISTANCES</b> follow the order the devs published in v0.564.1: shield skill, `
+    + `then <b>typed</b> resistance, then <b>flat/adaptive</b>. Bonuses add inside a bucket, `
+    + `each bucket stops at ${RES_CAP}%, and the two buckets then multiply — so a fit can read `
+    + `past ${RES_CAP}% overall but never reaches immunity. A cell showing two figures reads `
+    + `typed × flat; an <i>a</i> marker means an adaptive module supplies the flat bucket, `
+    + `which covers every damage type. `
     + `<b>CLOAK</b> takes the strongest fitted rating rather than summing. `
     + `<b>SHIELD TRACES</b> = (2 + tier &minus; 1) × total/base shields, `
     + `${RING_GAP_PX}px apart; trimmed traces show dashed grey.`;

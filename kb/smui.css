@@ -527,6 +527,15 @@ tr:hover td {
     background: hsl(var(--smui-red) / .07);
     font-size: var(--text-ui, 13px); line-height: 1.55;
 }
+/* Stronger than a plain discontinued note: this one is gone from holdings too,
+   not merely off the shelf. */
+.legacy-note.legacy-removed {
+    background: hsl(var(--smui-red) / .16);
+    border-left-width: 6px;
+}
+.legacy-note.legacy-removed .badge {
+    background: hsl(var(--smui-red)); color: hsl(var(--background));
+}
 .legacy-note .badge { margin-right: 8px; vertical-align: baseline; }
 .legacy-note code {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

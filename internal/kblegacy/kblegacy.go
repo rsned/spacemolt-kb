@@ -6,11 +6,16 @@
 // scripts/build_legacy.py derives that by diffing the DB against the newest
 // dated API snapshot, and dates each removal by walking the snapshots back.
 //
-// Legacy means *not purchasable*. For ships it does not mean unusable: players
-// still fly a Deeprock Harvester. For modules it now does -- game v0.561.0
-// (2026-08-26) unfitted every discontinued module and blocked both fitting and
-// production, because their mechanics were never finished. Either way the pages
-// must stay visible and clearly marked, never hidden.
+// Legacy means *not purchasable*, and usually not unusable: players still fly a
+// Deeprock Harvester, and v0.566.0 (2026-08-27) returned four of the modules
+// v0.561.0 had blocked once their mechanics were finished.
+//
+// A few entries went further and were deleted outright, with holdings refunded.
+// Those cannot be derived from a catalog diff -- an id absent from the catalog
+// looks identical either way -- so they are curated from the published patch
+// notes in data/legacy_removed.json and surface here as Entry.Removed.
+//
+// Either way the pages must stay visible and clearly marked, never hidden.
 package kblegacy
 
 import (
@@ -30,7 +35,23 @@ type Entry struct {
 	Aliases []string `json:"aliases,omitempty"`
 	// Fittable marks items that occupy a module slot.
 	Fittable bool `json:"fittable,omitempty"`
+	// Removed is set only for entries the devs deleted outright, named in a
+	// published patch note. Nil for the ordinary case, where the entry merely
+	// left the buyable catalog and existing ones keep working.
+	Removed *Removal `json:"removed,omitempty"`
 }
+
+// Removal records a deliberate deletion announced in a patch note: the entry is
+// gone from player holdings, not just from the shop.
+type Removal struct {
+	Patch  string `json:"patch"`
+	Date   string `json:"date"`
+	Refund string `json:"refund,omitempty"`
+}
+
+// WasRemoved reports whether the entry was deleted from the game outright,
+// rather than only withdrawn from sale.
+func (e Entry) WasRemoved() bool { return e.Removed != nil }
 
 // Date renders LastInCatalog as YYYY-MM-DD for display, or "" if unknown.
 func (e Entry) Date() string {

@@ -1,0 +1,29 @@
+{
+ "v": 1,
+ "note": "Entries the devs deleted outright, transcribed from published patch notes. A catalog diff cannot tell these apart from an ordinary withdrawal — an absent id looks the same either way — so this list is curated by hand and merged into data/legacy.json by scripts/build_legacy.py. Add a block per patch that announces removals.",
+ "removals": [
+  {
+   "patch": "v0.566.0",
+   "date": "2026-08-27",
+   "refund": "10x former base value in credits",
+   "summary": "Broken or unbalanced property found in live player or faction holdings, removed with no plans for restoring.",
+   "items": [
+    "ecm_drone",
+    "force_field_generator_ii",
+    "heavy_combat_drone",
+    "logistics_drone",
+    "nanofiber_internal_structure",
+    "ore_compressor",
+    "point_defense_turret",
+    "probe_launcher_i",
+    "probe_launcher_ii",
+    "solarian_solar_collector",
+    "voidborn_phase_cloak"
+   ],
+   "facilities": [
+    "weaving_bench"
+   ],
+   "facilities_note": "One live Weaving Bench was removed with its full cumulative construction cost refunded, plus any queued-job escrow. legacy.json carries no facilities section yet, so this id is recorded here only."
+  }
+ ]
+}

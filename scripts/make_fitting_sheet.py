@@ -30,6 +30,7 @@ DB = REPO / "spacemolt-knowledge.db"
 FOOT = REPO / "data" / "footprints"
 SCALE = FOOT / "scale" / "ship_scale_est.json"
 LEGACY = REPO / "data" / "legacy.json"
+CATALOG = REPO.parent / "spacemolt" / "data" / "game-api" / "latest"
 OUT = REPO / "kb" / "ships" / "fitting.html"
 
 DAMAGE_TYPES = ["kinetic", "thermal", "energy", "em", "explosive", "void"]
@@ -317,6 +318,106 @@ def load_modules(con, ammo):
     return mods
 
 
+# catalog_items.json field -> the compact key the sheet uses. The names line up
+# with the DB columns almost everywhere, which is why this fallback is a mapping
+# table rather than a second loader.
+MODULE_SLOTS = {"weapon", "defense", "utility", "mining"}
+
+CAT_WEAPON = {"damage": "dmg", "damage_type": "dt", "range": "rng",
+              "reach": "reach", "cooldown": "cd", "ammo_type": "ammo",
+              "magazine_size": "mag", "armor_bypass_bonus": "abyp",
+              "shield_bypass_bonus": "sbyp"}
+CAT_DEFENSE = {"armor_bonus": "armor", "hull_bonus": "hull",
+               "shield_bonus": "shield", "shield_recharge_bonus": "srec",
+               "armor_repair_rate": "arep", "passive_repair": "arep",
+               "resistance_bonus": "res", "damage_reduction": "dred",
+               "cloak_strength": "cloak", "cooldown": "cd", "damage": "dmg",
+               "damage_type": "dt", "range": "rng"}
+CAT_UTILITY = {"speed_bonus": "speed", "cargo_bonus": "cargo",
+               "cloak_strength": "cloak", "scanner_power": "scan",
+               "accuracy_bonus": "acc", "tracking_bonus": "track",
+               "signature_bonus": "sig", "fuel_efficiency": "feff",
+               "drone_bandwidth": "dbw", "drone_capacity": "dcap",
+               "mining_power": "hpow", "mining_range": "hrng",
+               "survey_power": "spow", "survey_range": "srng",
+               "tow_speed_penalty": "towpen", "cpu_bonus": "cpub",
+               "max_fuel_bonus": "mfuel", "hull_penalty": "hullpen",
+               "speed_penalty": "speedpen"}
+
+
+def catalog_module(rec, ammo):
+    """One fittable module built from a catalog_items.json record.
+
+    Same output shape as the DB path in load_modules(); used only for modules the
+    knowledge DB has not met yet, which after v0.566.0 is most of the newly
+    unhidden ones.
+    """
+    slot = rec.get("slot") or rec.get("type") or ""
+    special = rec.get("special") or ""
+    m = {
+        "id": rec["id"], "name": rec.get("name") or rec["id"],
+        # Mining modules occupy a utility slot; they share the dropdown.
+        "slot": "utility" if slot == "mining" else slot,
+        "kind": rec.get("type") or "",
+        "cpu": rec.get("cpu_usage") or 0, "pwr": rec.get("power_usage") or 0,
+        "sp": decode_specials(special),
+        "adapt": adaptive_resistance(special),
+        "req": rec.get("required_skills") or {},
+        "val": rec.get("base_value") or 0,
+        "desc": (rec.get("description") or "")[:200],
+    }
+
+    def group(mapping):
+        return nz({dst: rec[src] for src, dst in mapping.items() if src in rec})
+
+    # damage, cooldown and range appear on both weapons and defenses. The DB
+    # splits them across item_weapons and item_defenses, so the slot is what
+    # decides here -- otherwise every beam grows a phantom defense block.
+    if m["slot"] == "weapon":
+        w = group(CAT_WEAPON)
+        cd, dmg = w.get("cd") or 0, w.get("dmg") or 0
+        dpt = dmg / cd if cd else 0
+        lo, hi = ammo_span(ammo, w.get("ammo")) if w.get("ammo") else [0.0, 0.0]
+        w["dpt"] = round(dpt, 3)
+        w["edpt"] = [round(dpt * (1 + lo), 3), round(dpt * (1 + hi), 3)]
+        m["w"] = w
+    elif m["slot"] == "defense":
+        if d := group(CAT_DEFENSE):
+            m["d"] = d
+    elif m["slot"] == "utility":
+        if u := group(CAT_UTILITY):
+            m["u"] = u
+    return m
+
+
+def catalog_only_modules(known, ammo):
+    """Fittable modules in the newest catalog that the knowledge DB lacks.
+
+    item_modules only fills in once an agent has actually seen one, so it lags
+    the catalog badly right after a patch — v0.566.0 unhid 19 modules in a
+    single go. A missing catalog is not fatal; the sheet just falls back to
+    whatever the DB knows.
+    """
+    src = CATALOG / "catalog_items.json"
+    try:
+        doc = json.loads(src.read_text())
+    except (OSError, ValueError):
+        print(f"  note: no catalog at {src}; modules come from the DB alone")
+        return []
+    rows = doc.get("items") if isinstance(doc, dict) else doc
+    out = []
+    for rec in rows or []:
+        if rec.get("id") in known or not rec.get("id"):
+            continue
+        if (rec.get("slot") or rec.get("type")) not in MODULE_SLOTS:
+            continue
+        out.append(catalog_module(rec, ammo))
+    if out:
+        print(f"  catalog-only modules: {len(out)} "
+              f"({', '.join(sorted(m['id'] for m in out)[:4])}...)")
+    return out
+
+
 def load_legacy():
     """Ids the game no longer sells.
 
@@ -337,6 +438,8 @@ def main():
     ships = load_ships(con)
     mods = load_modules(con, ammo)
     con.close()
+    mods += catalog_only_modules({m["id"] for m in mods}, ammo)
+    mods.sort(key=lambda m: m["name"])
 
     legacy_ships, legacy_items = load_legacy()
     for sid, rec in ships.items():
@@ -344,7 +447,13 @@ def main():
             rec["legacy"] = legacy_ships[sid].get("last_in_catalog") or 1
     for m in mods:
         if m["id"] in legacy_items:
-            m["legacy"] = legacy_items[m["id"]].get("last_in_catalog") or 1
+            entry = legacy_items[m["id"]]
+            m["legacy"] = entry.get("last_in_catalog") or 1
+            # Withdrawn from sale and deleted outright are different states, and
+            # v0.566.0 produced both at once — four modules came back, one went
+            # away for good. The sheet has to say which.
+            if entry.get("removed"):
+                m["gone"] = entry["removed"].get("patch") or True
 
     tmpl = (HERE / "fitting_sheet.tmpl.html").read_text()
     html = (tmpl

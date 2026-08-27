@@ -198,9 +198,30 @@ def main():
     ship_history = catalog_history(api, snaps, "catalog_ships.json")
     ship_legacy, ship_snap, n_ships = build(
         "ships", ships, api, snaps, "catalog_ships.json", history=ship_history)
-    item_legacy, item_snap, n_items = build("items", items, api, snaps, "catalog_items.json")
+    item_history = catalog_history(api, snaps, "catalog_items.json")
+    item_legacy, item_snap, n_items = build(
+        "items", items, api, snaps, "catalog_items.json", history=item_history)
     for i, rec in item_legacy.items():
         rec["fittable"] = i in modules
+
+    # Outright deletions are announced, not derivable: an id the catalog dropped
+    # looks the same whether existing copies still work or were confiscated. The
+    # curated list carries the patch that did it.
+    removed_path = REPO / "data" / "legacy_removed.json"
+    if removed_path.exists():
+        for block in json.loads(removed_path.read_text()).get("removals", []):
+            stamp = {k: block[k] for k in ("patch", "date") if k in block}
+            if block.get("refund"):
+                stamp["refund"] = block["refund"]
+            for iid in block.get("items", []):
+                if iid in item_legacy:
+                    item_legacy[iid]["removed"] = stamp
+                else:
+                    print(f"  note: {iid} is listed as removed but is not legacy "
+                          f"(still in the catalog?)", file=sys.stderr)
+            for sid in block.get("ships", []):
+                if sid in ship_legacy:
+                    ship_legacy[sid]["removed"] = stamp
 
     doc = {
         "v": 1,
@@ -336,11 +357,12 @@ def main():
     def table_cols(name):
         return {r[1] for r in con.execute(f"pragma table_info({name})")}
 
-    item_records = []
+    item_records, item_from_db = [], set()
     for iid in sorted(item_legacy):
         row = con.execute(ITEM_BASE, (iid,)).fetchone()
         if not row:
             continue
+        item_from_db.add(iid)
         rec = dict(zip(BASE_KEYS, row))
         rec["stackable"] = bool(rec["stackable"])
         rec["tradeable"] = bool(rec["tradeable"])
@@ -375,8 +397,56 @@ def main():
                 rec[key] = val
         if not rec.get("category") and rec.get("slot"):
             rec["category"] = rec["slot"]
-        rec["legacy"] = True
         item_records.append(rec)
+
+    # Items the DB never met come straight from the last snapshot that carried
+    # them -- the same fallback the hulls get, and the only way the eleven
+    # modules and drones retired in v0.566.0 reach the site, since no agent ever
+    # held one. catalog_items.json already uses the field names the module
+    # overlay emits (cpu_usage, power_usage, special, damage, ...), so only the
+    # DB-shaped base columns need defaults.
+    ITEM_DEFAULTS = {
+        "category": "", "rarity": "", "size": 1, "base_value": 0,
+        "stackable": True, "tradeable": True, "power_bonus": 0,
+        "hazardous": False, "quest_item": False, "extracted_by": "",
+        "required_skills": None, "region_lock": None,
+        "passenger_economy_berths": 0, "passenger_business_berths": 0,
+        "passenger_first_berths": 0,
+    }
+    for iid in sorted(item_legacy):
+        if iid in item_from_db or iid not in item_history:
+            continue
+        src = item_history[iid][1]
+        rec = dict(ITEM_DEFAULTS)
+        rec.update({k: v for k, v in src.items() if v is not None})
+        if not rec.get("category"):
+            rec["category"] = src.get("type") or src.get("slot") or ""
+        item_records.append(rec)
+
+    # A rename leaves two ids for one item (ore_americium -> americium_ore) and
+    # both sides are retired, so the name dedup that saves the hulls from being
+    # published twice is needed here too. Unlike hulls, retired items keep their
+    # own category rather than moving to one bucket -- they are published
+    # alongside their peers.
+    def item_survives(iid):
+        lic = item_legacy[iid].get("last_in_catalog")
+        return (1, "") if not lic else (0, lic)
+
+    chosen_items = {}
+    for rec in sorted(item_records, key=lambda r: r["id"]):
+        rec["legacy"] = True
+        rec.setdefault("aliases", item_legacy[rec["id"]].get("aliases", []))
+        prev = chosen_items.get(rec["name"])
+        if prev is None:
+            chosen_items[rec["name"]] = rec
+            continue
+        keep, drop = ((rec, prev)
+                      if item_survives(rec["id"]) > item_survives(prev["id"])
+                      else (prev, rec))
+        keep["aliases"] = sorted(
+            (set(keep["aliases"]) | {drop["id"]} | set(drop["aliases"])) - {keep["id"]})
+        chosen_items[rec["name"]] = keep
+    item_records = sorted(chosen_items.values(), key=lambda r: r["name"])
 
     (OVERLAY / "legacy_items.json").write_text(
         json.dumps({"items": item_records}, indent=1, sort_keys=True) + "\n")
@@ -384,7 +454,8 @@ def main():
     fit = sum(1 for r in item_legacy.values() if r["fittable"])
     print(f"build-legacy: {len(snaps)} snapshots; catalog {n_ships} ships / {n_items} items")
     print(f"  legacy ships: {len(ship_legacy)}")
-    print(f"  legacy items: {len(item_legacy)}  ({fit} fittable modules)")
+    print(f"  legacy items: {len(item_legacy)} ids -> {len(item_records)} pages"
+          f"  ({fit} fittable modules)")
     print(f"  -> {out.relative_to(REPO)}")
     print(f"  -> overlays/generated/legacy_items.json ({len(item_records)} catalog-shaped items)")
     print(f"  -> overlays/generated/legacy_ships.json ({len(records)} catalog-shaped hulls"

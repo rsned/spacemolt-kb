@@ -3037,11 +3037,20 @@ var htmlItemTemplate = `<!DOCTYPE html>
         <div class="breadcrumb"><a href="../">Items</a> / <a href="./">{{titleCase .Category}}</a> / {{.Name}}</div>
         <h2>{{.Name}}{{if .Hazardous}} <span class="badge badge-hazardous" title="Hazardous Material">&#x2622; Hazardous</span>{{end}}{{if .Hidden}} <span class="badge badge-hidden" title="Hidden Item">Hidden</span>{{end}}</h2>
 {{- with legacyItem .ID}}
+{{- if .WasRemoved}}
+        <div class="legacy-note legacy-removed">
+          <span class="badge badge-legacy">Removed</span>
+          Deleted from the game in {{.Removed.Patch}} on {{.Removed.Date}}{{if .Date}}; last listed in the catalog on {{.Date}}{{end}}.
+          Copies held by players and factions were taken back{{if .Removed.Refund}}, refunded at {{.Removed.Refund}}{{end}}.
+          This page is kept as a record — the item no longer exists.
+        </div>
+{{- else}}
         <div class="legacy-note">
           <span class="badge badge-legacy">Discontinued</span>
           This item is no longer sold{{if .Date}} — last listed in the catalog on {{.Date}}{{end}}.
           Existing ones still work{{if .Fittable}} and can still be fitted{{end}}.
         </div>
+{{- end}}
 {{- end}}
 
         <div class="card mt-2" style="padding:0">
