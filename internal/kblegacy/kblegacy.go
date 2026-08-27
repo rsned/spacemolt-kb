@@ -6,9 +6,11 @@
 // scripts/build_legacy.py derives that by diffing the DB against the newest
 // dated API snapshot, and dates each removal by walking the snapshots back.
 //
-// Legacy means *not purchasable*, NOT *not usable*: players still fly a Deeprock
-// Harvester and still fit Nanofiber Internal Structure. Pages for these must
-// stay visible and clearly marked, never hidden.
+// Legacy means *not purchasable*. For ships it does not mean unusable: players
+// still fly a Deeprock Harvester. For modules it now does -- game v0.561.0
+// (2026-08-26) unfitted every discontinued module and blocked both fitting and
+// production, because their mechanics were never finished. Either way the pages
+// must stay visible and clearly marked, never hidden.
 package kblegacy
 
 import (

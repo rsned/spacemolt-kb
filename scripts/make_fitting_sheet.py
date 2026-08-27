@@ -247,7 +247,13 @@ def load_modules(con, ammo):
 
 
 def load_legacy():
-    """Ids the game no longer sells. Still fittable — the sheet marks them."""
+    """Ids the game no longer sells.
+
+    Ships stay fully usable — players still fly a Deeprock Harvester — so the
+    sheet fits them normally and only marks them. Modules do NOT: v0.561.0
+    unfitted every discontinued module and blocked refitting, so the sheet
+    lists them without letting them be installed.
+    """
     doc = jload(LEGACY.read_text() if LEGACY.exists() else "", {})
     return doc.get("ships", {}), doc.get("items", {})
 

@@ -222,8 +222,11 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
 .legacy-banner{margin:0 0 14px;padding:8px 14px;border:1px solid var(--pen);
   color:var(--pen);font-size:11.5px;letter-spacing:.18em;background:rgba(255,157,138,.07)}
 .legacy-banner b{color:var(--line);font-weight:bold}
-i.legacy{font-style:normal;color:var(--pen);font-size:9.5px;letter-spacing:.14em;
-  margin-right:6px}
+/* Discontinued modules stay in the dropdown so their numbers remain findable,
+   but the game no longer lets them be installed, so the option is disabled.
+   Native disabled options are already dimmed; this only keeps that legible
+   against the cyanotype field, where the browser default is nearly invisible. */
+.slotrow select option:disabled{color:var(--pen);opacity:.75}
 
 @media print{
   body{padding:0;background:var(--blue)}
@@ -340,27 +343,31 @@ const MOD = Object.fromEntries(MODULES.map(m => [m.id, m]));
 function stockFit(s) {
   const fit = {weapon:[], defense:[], utility:[]};
   const cap = {weapon:s.w||0, defense:s.d||0, utility:s.u||0};
-  const missing = [], overflow = [];
+  const missing = [], overflow = [], retired = [];
   for (const id of s.dm || []) {
     const m = MOD[id];
     if (!m) { missing.push(id); continue; }
+    // 21 hulls still name a discontinued module in their catalog loadout.
+    // v0.561.0 unfitted those in-game, so the stock fit here drops them too --
+    // otherwise the sheet would quote stats no live ship can actually reach.
+    if (m.legacy) { retired.push(m.name); continue; }
     if (fit[m.slot].length < cap[m.slot]) fit[m.slot].push(id);
     else overflow.push(m.name);
   }
-  return {fit, missing, overflow};
+  return {fit, missing, overflow, retired};
 }
 
 const state = {
   ship: SHIPS.annihilator ? "annihilator" : Object.keys(SHIPS)[0],
   eng: 0,
   fit: {weapon:[], defense:[], utility:[]},
-  stock: {missing:[], overflow:[]},
+  stock: {missing:[], overflow:[], retired:[]},
 };
 
 function loadStock() {
   const r = stockFit(SHIPS[state.ship]);
   state.fit = r.fit;
-  state.stock = {missing:r.missing, overflow:r.overflow};
+  state.stock = {missing:r.missing, overflow:r.overflow, retired:r.retired};
 }
 
 /* Ship record keys for the three slot counts, and the URL's slot prefixes. */
@@ -406,6 +413,7 @@ function decodeState(query) {
   }
 
   const fit = {weapon:[], defense:[], utility:[]};
+  const retired = [];
   let explicit = p.get("stock") === "0";
   for (const [k, v] of p) {
     const m = /^([wdu])([0-9]{1,2})$/.exec(k);
@@ -415,9 +423,13 @@ function decodeState(query) {
     explicit = true;                 // a named slot means the link is hand-built,
     const mod = MOD[v];              // even if this particular id turns out bad
     if (!mod || mod.slot !== slot) continue;
+    // Links shared before v0.561.0 can name modules that can no longer be
+    // installed. Drop them rather than quoting a fit the game will not allow,
+    // and name them so the link still explains itself.
+    if (mod.legacy) { retired.push(mod.name); continue; }
     fit[slot][i] = v;
   }
-  if (explicit) { state.fit = fit; state.stock = {missing:[], overflow:[]}; }
+  if (explicit) { state.fit = fit; state.stock = {missing:[], overflow:[], retired}; }
   else loadStock();
 }
 
@@ -686,8 +698,11 @@ function optionsFor(slot) {
     else if (m.d && m.d.shield) tail += ` · +${m.d.shield} shd`;
     else if (m.d && m.d.armor) tail += ` · +${m.d.armor} arm`;
     else if (m.u && m.u.cargo) tail += ` · +${m.u.cargo} cargo`;
-    if (m.legacy) tail += " · LEGACY";
-    return `<option value="${esc(m.id)}">${esc(m.name)} — ${tail}</option>`;
+    if (m.legacy) tail += " · DISCONTINUED";
+    // v0.561.0 unfitted these and blocked refitting: they stay listed so the
+    // module and its numbers remain visible, but they cannot be installed.
+    return `<option value="${esc(m.id)}"${m.legacy ? " disabled" : ""}>` +
+           `${esc(m.name)} — ${tail}</option>`;
   }).join("");
 }
 
@@ -710,6 +725,9 @@ function renderSlots() {
   if (state.stock.overflow.length)
     notes.push(`MORE STOCK MODULES THAN SLOTS — NOT FITTED: ` +
       state.stock.overflow.map(esc).join(", "));
+  if ((state.stock.retired || []).length)
+    notes.push(`DISCONTINUED — UNFITTED IN v0.561.0 AND NOT REFITTABLE: ` +
+      [...new Set(state.stock.retired)].map(esc).join(", "));
   el("stockNote").innerHTML = notes.join("<br>");
   el("slots").innerHTML = groups.map(([slot,label,n]) => {
     if (!n) return `<div class="slotgroup"><h3>${label}<em>none</em></h3>
@@ -717,8 +735,7 @@ function renderSlots() {
     const rows = Array.from({length:n}, (_,i) => {
       const cur = state.fit[slot][i] || "";
       const m = cur ? MOD[cur] : null;
-      const cost = m ? (m.legacy ? '<i class="legacy">LEGACY</i> ' : "") +
-                       `${modCpu(m)}c &middot; ${modPwr(m)}p` : "&mdash;";
+      const cost = m ? `${modCpu(m)}c &middot; ${modPwr(m)}p` : "&mdash;";
       return `<div class="slotrow${m?' filled':''}">
         <span class="n">${i+1}</span>
         <select class="${m?'':'empty'}" data-slot="${slot}" data-i="${i}">${optionsFor(slot)}</select>
@@ -905,18 +922,10 @@ async function render() {
   renderStats(r);
   renderTitleBlock(r);
 
-  var legacyMods = r.fitted.filter(function (m) { return m.legacy; });
   var lb = el("legacyBanner");
-  if (s.legacy || legacyMods.length) {
-    var bits = [];
-    if (s.legacy) bits.push("<b>" + esc(s.name) + "</b> is DISCONTINUED" +
-      (typeof s.legacy === "string" ? " — last sold " + esc(fmtSnap(s.legacy)) : ""));
-    if (legacyMods.length) {
-      var names = [...new Set(legacyMods.map(function (m) { return m.name; }))];
-      bits.push(names.length + " fitted module" + (names.length > 1 ? "s are" : " is") +
-        " DISCONTINUED: <b>" + names.map(esc).join(", ") + "</b>");
-    }
-    lb.innerHTML = "LEGACY &middot; " + bits.join(" &middot; ") +
+  if (s.legacy) {
+    lb.innerHTML = "LEGACY &middot; <b>" + esc(s.name) + "</b> is DISCONTINUED" +
+      (typeof s.legacy === "string" ? " &mdash; last sold " + esc(fmtSnap(s.legacy)) : "") +
       " &middot; still flyable, no longer sold";
     lb.hidden = false;
   } else {
