@@ -217,8 +217,18 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 					}
 					return cmp.Compare(a.Name, b.Name)
 				})
+				// Not every hull belongs to an empire: 6 current ships and 4
+				// discontinued ones carry no faction, because before the
+				// 2026-03-30 catalog many designs were generic rather than
+				// empire-specific. An empty display name rendered as an empty
+				// badge above the table, so name the group for what it is.
+				// (The glyph contact sheet calls the same set "Unaligned".)
+				name := factionDisplayName(factionName)
+				if name == "" {
+					name = "Generic"
+				}
 				cls.Factions = append(cls.Factions, shipFaction{
-					Name:  factionDisplayName(factionName),
+					Name:  name,
 					Badge: factionBadgeClass(factionName),
 					Ships: factionShips,
 				})
@@ -549,7 +559,7 @@ var shipAllTemplate = `<!DOCTYPE html>
               <td><a href="{{.Category}}/{{.ID}}.html">{{.Name}}</a>{{if hasPassive .}} <span class="badge badge-green" title="Passive Recipes: {{range $i, $r := .PassiveRecipes}}{{if $i}}, {{end}}{{recipeName $r}}{{end}}">&#x2692;</span>{{end}}</td>
               <td{{if legacyShip .ID}} class="cat-legacy" title="Removed from the buyable catalog{{with legacyShip .ID}}{{if .Date}}, last listed {{.Date}}{{end}}{{end}}"{{end}}>{{.Category}}</td>
               <td>{{.Class}}</td>
-              <td data-sort="{{factionDisplayName .Faction}}"><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td>
+              <td data-sort="{{factionDisplayName .Faction}}">{{if .Faction}}<span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span>{{else}}<span class="text-muted">&mdash;</span>{{end}}</td>
               <td class="num">{{.Tier}}</td>
               <td class="num">{{.BaseHull}}</td>
               <td class="num">{{.BaseArmor}}</td>
@@ -591,7 +601,7 @@ var shipDetailTemplate = `<!DOCTYPE html>
 ` + siteHeaderSub + `
     <main class="container page-content">
 {{- with .Ship}}
-        <div class="breadcrumb"><a href="../">Ships</a> / <a href="./">{{.Category}}</a> / {{.Name}}</div>
+        <div class="breadcrumb"><a href="../">Ships</a> / <a href="../index.html#{{slugify .Category}}">{{.Category}}</a> / {{.Name}}</div>
         <h2>{{.Name}}</h2>
 {{- with legacyShip .ID}}
         <div class="legacy-note">
@@ -630,7 +640,7 @@ var shipDetailTemplate = `<!DOCTYPE html>
         <div class="card mt-2" style="padding:0">
           <div class="section-label">General</div>
           <table>
-            <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
+            <tr><td class="kv-label">Category</td><td><a href="../index.html#{{slugify .Category}}">{{.Category}}</a></td></tr>
             <tr><td class="kv-label">Class</td><td><a href="../index.html#{{slugify .Category}}--{{slugify .Class}}">{{.Class}}</a></td></tr>
 {{- if .Faction}}
             <tr><td class="kv-label">Faction</td><td><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td></tr>
