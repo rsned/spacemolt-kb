@@ -21,6 +21,8 @@
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -60,6 +62,7 @@
 <li><a href="#items">Items</a> <span class="diff-add">+9</span> <span class="diff-del">&minus;10</span> <span class="diff-mod">~1</span></li>
 <li><a href="#ships">Ships</a></li>
 <li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~1</span></li>
+<li><a href="#facilities">Facilities</a></li>
 <li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
 </ul>
 
@@ -77,27 +80,27 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Bottle Nebula Stellar Vintage <span class="text-muted">(bottle_nebula_stellar_vintage)</span></li><li class="diff-add">+ Brew Frontier Spore Spirits <span class="text-muted">(brew_frontier_spore_spirits)</span></li><li class="diff-add">+ Cultivate Bioluminescent Algae <span class="text-muted">(cultivate_bioluminescent_algae)</span></li><li class="diff-add">+ Culture Fermentation Vat <span class="text-muted">(culture_fermentation_vat)</span></li><li class="diff-add">+ Extract Bioactive Compounds <span class="text-muted">(extract_bioactive_compounds)</span></li><li class="diff-add">+ Ferment Organic Compounds <span class="text-muted">(ferment_organic_compounds)</span></li><li class="diff-add">+ Package Crimson Iron Rations <span class="text-muted">(package_crimson_iron_rations)</span></li><li class="diff-add">+ Produce Solarian Biotic <span class="text-muted">(produce_solarian_biotic)</span></li><li class="diff-add">+ Run Pharmaceutical Lab <span class="text-muted">(run_pharmaceutical_lab)</span></li><li class="diff-add">+ Synthesize Bio-Polymer <span class="text-muted">(synthesize_bio_polymer)</span></li><li class="diff-add">+ Synthesize Neural Extract (Biological) <span class="text-muted">(synthesize_neural_extract_biological)</span></li><li class="diff-add">+ Synthesize Void Nanites <span class="text-muted">(synthesize_void_nanites)</span></li><li class="diff-add">+ Synthesize Voidborn Neural Soma <span class="text-muted">(synthesize_voidborn_neural_soma)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../recipes/Facility_Only/bottle_nebula_stellar_vintage.html">Bottle Nebula Stellar Vintage</a> <span class="text-muted">(bottle_nebula_stellar_vintage)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/brew_frontier_spore_spirits.html">Brew Frontier Spore Spirits</a> <span class="text-muted">(brew_frontier_spore_spirits)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/cultivate_bioluminescent_algae.html">Cultivate Bioluminescent Algae</a> <span class="text-muted">(cultivate_bioluminescent_algae)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/culture_fermentation_vat.html">Culture Fermentation Vat</a> <span class="text-muted">(culture_fermentation_vat)</span></li><li class="diff-add">+ <a href="../recipes/Biological_Refining/extract_bioactive_compounds.html">Extract Bioactive Compounds</a> <span class="text-muted">(extract_bioactive_compounds)</span></li><li class="diff-add">+ <a href="../recipes/Biological_Refining/ferment_organic_compounds.html">Ferment Organic Compounds</a> <span class="text-muted">(ferment_organic_compounds)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/package_crimson_iron_rations.html">Package Crimson Iron Rations</a> <span class="text-muted">(package_crimson_iron_rations)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/produce_solarian_biotic.html">Produce Solarian Biotic</a> <span class="text-muted">(produce_solarian_biotic)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/run_pharmaceutical_lab.html">Run Pharmaceutical Lab</a> <span class="text-muted">(run_pharmaceutical_lab)</span></li><li class="diff-add">+ <a href="../recipes/Biological_Refining/synthesize_bio_polymer.html">Synthesize Bio-Polymer</a> <span class="text-muted">(synthesize_bio_polymer)</span></li><li class="diff-add">+ <a href="../recipes/Biological_Refining/synthesize_neural_extract_biological.html">Synthesize Neural Extract (Biological)</a> <span class="text-muted">(synthesize_neural_extract_biological)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/synthesize_void_nanites.html">Synthesize Void Nanites</a> <span class="text-muted">(synthesize_void_nanites)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/synthesize_voidborn_neural_soma.html">Synthesize Voidborn Neural Soma</a> <span class="text-muted">(synthesize_voidborn_neural_soma)</span></li></ul>
 <h4>Deletions</h4>
 <ul class="diff-list"><li class="diff-del">&minus; Cultivate Alien Spores <span class="text-muted">(cultivate_alien_spores)</span></li><li class="diff-del">&minus; Synthesize Organic Compound <span class="text-muted">(synthesize_organic_compound)</span></li></ul>
 <h4>Modified</h4>
-<div class="diff-item-id">breed_plutonium</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/breed_plutonium.html">breed_plutonium</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Refining&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">brew_crimson_bloodwine</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/brew_crimson_bloodwine.html">brew_crimson_bloodwine</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Production&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">culture_bioluminescent_cells</div>
-<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Grow light-producing organisms for sensor arrays.&#34;</span> &rarr; <span class="diff-add">&#34;Grow light-producing organisms from algae cultures for sensor arrays.&#34;</span></div><div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: bioluminescent_algae, quantity: 3</td></tr><tr><td class="diff-del">item_id: bioluminescent_polyps, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: purified_water, quantity: 2</td><td class="diff-unchanged">item_id: purified_water, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: synthetic_compound, quantity: 1</td><td class="diff-unchanged">item_id: synthetic_compound, quantity: 1</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Refining&#34;</span> &rarr; <span class="diff-add">&#34;Biological Refining&#34;</span></div>
-<div class="diff-item-id">distill_frontier_rotgut</div>
+<div class="diff-item-id"><a href="../recipes/Biological_Refining/culture_bioluminescent_cells.html">culture_bioluminescent_cells</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: bioluminescent_algae, quantity: 3</td></tr><tr><td class="diff-del">item_id: bioluminescent_polyps, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: purified_water, quantity: 2</td><td class="diff-unchanged">item_id: purified_water, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: synthetic_compound, quantity: 1</td><td class="diff-unchanged">item_id: synthetic_compound, quantity: 1</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Refining&#34;</span> &rarr; <span class="diff-add">&#34;Biological Refining&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Grow light-producing organisms for sensor arrays.&#34;</span> &rarr; <span class="diff-add">&#34;Grow light-producing organisms from algae cultures for sensor arrays.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/distill_frontier_rotgut.html">distill_frontier_rotgut</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Production&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">encode_trade_cipher</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/encode_trade_cipher.html">encode_trade_cipher</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Refining&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">grow_neural_matrix</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/grow_neural_matrix.html">grow_neural_matrix</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Production&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">prepare_gourmet_rations</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/prepare_gourmet_rations.html">prepare_gourmet_rations</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Production&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">weave_biofiber</div>
+<div class="diff-item-id"><a href="../recipes/Biological_Refining/weave_biofiber.html">weave_biofiber</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Refining&#34;</span> &rarr; <span class="diff-add">&#34;Biological Refining&#34;</span></div>
-<div class="diff-item-id">wire_trade_authenticator</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/wire_trade_authenticator.html">wire_trade_authenticator</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Refining&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
 
 
@@ -118,11 +121,11 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Bioluminescent Algae <span class="text-muted">(bioluminescent_algae)</span></li><li class="diff-add">+ Crimson Iron Rations <span class="text-muted">(crimson_iron_rations)</span></li><li class="diff-add">+ Fermentation Culture <span class="text-muted">(fermentation_culture)</span></li><li class="diff-add">+ Frontier Spore Spirits <span class="text-muted">(frontier_spore_spirits)</span></li><li class="diff-add">+ Nebula Stellar Vintage <span class="text-muted">(nebula_stellar_vintage)</span></li><li class="diff-add">+ Pharmaceutical Culture <span class="text-muted">(pharmaceutical_culture)</span></li><li class="diff-add">+ Solarian Biotic <span class="text-muted">(solarian_biotic)</span></li><li class="diff-add">+ Void Nanite Suspension <span class="text-muted">(void_nanite_suspension)</span></li><li class="diff-add">+ Voidborn Neural Soma <span class="text-muted">(voidborn_neural_soma)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../items/refined/bioluminescent_algae.html">Bioluminescent Algae</a> <span class="text-muted">(bioluminescent_algae)</span></li><li class="diff-add">+ <a href="../items/consumable/crimson_iron_rations.html">Crimson Iron Rations</a> <span class="text-muted">(crimson_iron_rations)</span></li><li class="diff-add">+ <a href="../items/refined/fermentation_culture.html">Fermentation Culture</a> <span class="text-muted">(fermentation_culture)</span></li><li class="diff-add">+ <a href="../items/consumable/frontier_spore_spirits.html">Frontier Spore Spirits</a> <span class="text-muted">(frontier_spore_spirits)</span></li><li class="diff-add">+ <a href="../items/consumable/nebula_stellar_vintage.html">Nebula Stellar Vintage</a> <span class="text-muted">(nebula_stellar_vintage)</span></li><li class="diff-add">+ <a href="../items/refined/pharmaceutical_culture.html">Pharmaceutical Culture</a> <span class="text-muted">(pharmaceutical_culture)</span></li><li class="diff-add">+ <a href="../items/consumable/solarian_biotic.html">Solarian Biotic</a> <span class="text-muted">(solarian_biotic)</span></li><li class="diff-add">+ <a href="../items/refined/void_nanite_suspension.html">Void Nanite Suspension</a> <span class="text-muted">(void_nanite_suspension)</span></li><li class="diff-add">+ <a href="../items/consumable/voidborn_neural_soma.html">Voidborn Neural Soma</a> <span class="text-muted">(voidborn_neural_soma)</span></li></ul>
 <h4>Deletions</h4>
-<ul class="diff-list"><li class="diff-del">&minus; Alien DNA Sample <span class="text-muted">(alien_dna_sample)</span></li><li class="diff-del">&minus; Alien Spores <span class="text-muted">(alien_spores)</span></li><li class="diff-del">&minus; Bacterial Culture <span class="text-muted">(bacterial_culture)</span></li><li class="diff-del">&minus; Bioluminescent Polyps <span class="text-muted">(bioluminescent_polyps)</span></li><li class="diff-del">&minus; Enzyme Cluster <span class="text-muted">(enzyme_cluster)</span></li><li class="diff-del">&minus; Fungal Extract <span class="text-muted">(fungal_extract)</span></li><li class="diff-del">&minus; Neural Tissue Sample <span class="text-muted">(neural_tissue_sample)</span></li><li class="diff-del">&minus; Raw Organic Compound <span class="text-muted">(raw_organic_compound)</span></li><li class="diff-del">&minus; Space Coral <span class="text-muted">(space_coral)</span></li><li class="diff-del">&minus; Symbiont Organism <span class="text-muted">(symbiont_organism)</span></li></ul>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../items/ore/alien_dna_sample.html">Alien DNA Sample</a> <span class="text-muted">(alien_dna_sample)</span></li><li class="diff-del">&minus; <a href="../items/ore/alien_spores.html">Alien Spores</a> <span class="text-muted">(alien_spores)</span></li><li class="diff-del">&minus; <a href="../items/ore/bacterial_culture.html">Bacterial Culture</a> <span class="text-muted">(bacterial_culture)</span></li><li class="diff-del">&minus; <a href="../items/ore/bioluminescent_polyps.html">Bioluminescent Polyps</a> <span class="text-muted">(bioluminescent_polyps)</span></li><li class="diff-del">&minus; <a href="../items/ore/enzyme_cluster.html">Enzyme Cluster</a> <span class="text-muted">(enzyme_cluster)</span></li><li class="diff-del">&minus; <a href="../items/ore/fungal_extract.html">Fungal Extract</a> <span class="text-muted">(fungal_extract)</span></li><li class="diff-del">&minus; <a href="../items/ore/neural_tissue_sample.html">Neural Tissue Sample</a> <span class="text-muted">(neural_tissue_sample)</span></li><li class="diff-del">&minus; <a href="../items/ore/raw_organic_compound.html">Raw Organic Compound</a> <span class="text-muted">(raw_organic_compound)</span></li><li class="diff-del">&minus; <a href="../items/ore/space_coral.html">Space Coral</a> <span class="text-muted">(space_coral)</span></li><li class="diff-del">&minus; <a href="../items/ore/symbiont_organism.html">Symbiont Organism</a> <span class="text-muted">(symbiont_organism)</span></li></ul>
 <h4>Modified</h4>
-<div class="diff-item-id">reflex_enhancer</div>
+<div class="diff-item-id"><a href="../items/consumable/reflex_enhancer.html">reflex_enhancer</a></div>
 <div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">amount: 15</td><td class="diff-unchanged">amount: 15</td></tr><tr><td class="diff-unchanged">duration: 10</td><td class="diff-unchanged">duration: 10</td></tr><tr><td class="diff-del">stat: evasive_maneuvers</td><td class="diff-add">stat: evasion</td></tr><tr><td class="diff-unchanged">type: buff</td><td class="diff-unchanged">type: buff</td></tr></tbody></table></div>
 
 
@@ -161,8 +164,23 @@
 
 <h4>Modified</h4>
 <div class="diff-item-id">biological_processing</div>
-<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Handle organic compounds and biological samples safely.&#34;</span> &rarr; <span class="diff-add">&#34;Culture and process biological materials for industrial and pharmaceutical use.&#34;</span></div><div class="diff-field"><span class="diff-field-name">required_skills:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">basic_crafting: 3</td></tr><tr><td class="diff-del">ore_refinement: 5</td><td class="diff-empty"></td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">training_source:</span> <span class="diff-del">&#34;Craft recipes that require this skill (e.g., biological compound processing).&#34;</span> &rarr; <span class="diff-add">&#34;Craft Biological Refining category recipes.&#34;</span></div><div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Crafting&#34;</span></div>
+<div class="diff-field"><span class="diff-field-name">required_skills:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">basic_crafting: 3</td></tr><tr><td class="diff-del">ore_refinement: 5</td><td class="diff-empty"></td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">training_source:</span> <span class="diff-del">&#34;Craft recipes that require this skill (e.g., biological compound processing).&#34;</span> &rarr; <span class="diff-add">&#34;Craft Biological Refining category recipes.&#34;</span></div><div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Crafting&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Handle organic compounds and biological samples safely.&#34;</span> &rarr; <span class="diff-add">&#34;Culture and process biological materials for industrial and pharmaceutical use.&#34;</span></div>
 
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
 
 </div>
 </div>
@@ -183,9 +201,9 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">hd_10647</div>
+<div class="diff-item-id"><a href="../systems/hd_10647/index.html">hd_10647</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
-<div class="diff-item-id">peacock</div>
+<div class="diff-item-id"><a href="../systems/peacock/index.html">peacock</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">1</span></div>
 
 

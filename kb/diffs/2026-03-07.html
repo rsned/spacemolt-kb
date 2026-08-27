@@ -21,6 +21,8 @@
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -60,6 +62,7 @@
 <li><a href="#items">Items</a> <span class="diff-add">+7</span> <span class="diff-del">&minus;12</span> <span class="diff-mod">~70</span></li>
 <li><a href="#ships">Ships</a></li>
 <li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~1</span></li>
+<li><a href="#facilities">Facilities</a></li>
 <li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~5</span></li>
 </ul>
 
@@ -77,20 +80,20 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Build Hull Reinforcement I <span class="text-muted">(build_hull_reinforcement_i)</span></li><li class="diff-add">+ Build Hull Reinforcement II <span class="text-muted">(build_hull_reinforcement_ii)</span></li><li class="diff-add">+ Build Hull Reinforcement III <span class="text-muted">(build_hull_reinforcement_iii)</span></li><li class="diff-add">+ Build Nanocarbon Hull Lattice <span class="text-muted">(build_nanocarbon_hull_lattice)</span></li><li class="diff-add">+ Build Thermal Shield Hardener <span class="text-muted">(build_thermal_shield_hardener)</span></li><li class="diff-add">+ Build Void Hull Hardener <span class="text-muted">(build_void_hull_hardener)</span></li><li class="diff-add">+ Build Void Shield Hardener <span class="text-muted">(build_void_shield_hardener)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../recipes/Defense/build_hull_reinforcement_i.html">Build Hull Reinforcement I</a> <span class="text-muted">(build_hull_reinforcement_i)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_hull_reinforcement_ii.html">Build Hull Reinforcement II</a> <span class="text-muted">(build_hull_reinforcement_ii)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_hull_reinforcement_iii.html">Build Hull Reinforcement III</a> <span class="text-muted">(build_hull_reinforcement_iii)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_nanocarbon_hull_lattice.html">Build Nanocarbon Hull Lattice</a> <span class="text-muted">(build_nanocarbon_hull_lattice)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_thermal_shield_hardener.html">Build Thermal Shield Hardener</a> <span class="text-muted">(build_thermal_shield_hardener)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_void_hull_hardener.html">Build Void Hull Hardener</a> <span class="text-muted">(build_void_hull_hardener)</span></li><li class="diff-add">+ <a href="../recipes/Defense/build_void_shield_hardener.html">Build Void Shield Hardener</a> <span class="text-muted">(build_void_shield_hardener)</span></li></ul>
 
 <h4>Modified</h4>
-<div class="diff-item-id">cultivate_bioluminescent_algae</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/cultivate_bioluminescent_algae.html">cultivate_bioluminescent_algae</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Biological Refining&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">culture_fermentation_vat</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/culture_fermentation_vat.html">culture_fermentation_vat</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Biological Refining&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">onboard_alloy_synthesis</div>
+<div class="diff-item-id"><a href="../recipes/Ship_Passive/onboard_alloy_synthesis.html">onboard_alloy_synthesis</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Refining&#34;</span> &rarr; <span class="diff-add">&#34;Ship Passive&#34;</span></div>
-<div class="diff-item-id">onboard_munitions_fabrication</div>
+<div class="diff-item-id"><a href="../recipes/Ship_Passive/onboard_munitions_fabrication.html">onboard_munitions_fabrication</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Consumables&#34;</span> &rarr; <span class="diff-add">&#34;Ship Passive&#34;</span></div>
-<div class="diff-item-id">run_pharmaceutical_lab</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/run_pharmaceutical_lab.html">run_pharmaceutical_lab</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Biological Refining&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
-<div class="diff-item-id">synthesize_void_nanites</div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/synthesize_void_nanites.html">synthesize_void_nanites</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Biological Refining&#34;</span> &rarr; <span class="diff-add">&#34;Facility Only&#34;</span></div>
 
 
@@ -111,149 +114,149 @@
 <div class="catalog-body">
 
 <h4>Additions</h4>
-<ul class="diff-list"><li class="diff-add">+ Hull Reinforcement I <span class="text-muted">(hull_reinforcement_i)</span></li><li class="diff-add">+ Hull Reinforcement II <span class="text-muted">(hull_reinforcement_ii)</span></li><li class="diff-add">+ Hull Reinforcement III <span class="text-muted">(hull_reinforcement_iii)</span></li><li class="diff-add">+ Nanocarbon Hull Lattice <span class="text-muted">(nanocarbon_hull_lattice)</span></li><li class="diff-add">+ Thermal Shield Hardener <span class="text-muted">(thermal_shield_hardener)</span></li><li class="diff-add">+ Void Hull Hardener <span class="text-muted">(void_hull_hardener)</span></li><li class="diff-add">+ Void Shield Hardener <span class="text-muted">(void_shield_hardener)</span></li></ul>
+<ul class="diff-list"><li class="diff-add">+ <a href="../items/defense/hull_reinforcement_i.html">Hull Reinforcement I</a> <span class="text-muted">(hull_reinforcement_i)</span></li><li class="diff-add">+ <a href="../items/defense/hull_reinforcement_ii.html">Hull Reinforcement II</a> <span class="text-muted">(hull_reinforcement_ii)</span></li><li class="diff-add">+ <a href="../items/defense/hull_reinforcement_iii.html">Hull Reinforcement III</a> <span class="text-muted">(hull_reinforcement_iii)</span></li><li class="diff-add">+ <a href="../items/defense/nanocarbon_hull_lattice.html">Nanocarbon Hull Lattice</a> <span class="text-muted">(nanocarbon_hull_lattice)</span></li><li class="diff-add">+ <a href="../items/defense/thermal_shield_hardener.html">Thermal Shield Hardener</a> <span class="text-muted">(thermal_shield_hardener)</span></li><li class="diff-add">+ <a href="../items/defense/void_hull_hardener.html">Void Hull Hardener</a> <span class="text-muted">(void_hull_hardener)</span></li><li class="diff-add">+ <a href="../items/defense/void_shield_hardener.html">Void Shield Hardener</a> <span class="text-muted">(void_shield_hardener)</span></li></ul>
 <h4>Deletions</h4>
-<ul class="diff-list"><li class="diff-del">&minus; Bioweapon Sample <span class="text-muted">(bioweapon_sample)</span></li><li class="diff-del">&minus; Black Market Weapon <span class="text-muted">(black_market_weapon)</span></li><li class="diff-del">&minus; Cloning Template <span class="text-muted">(cloning_template)</span></li><li class="diff-del">&minus; Combat Narcotics <span class="text-muted">(combat_narcotics)</span></li><li class="diff-del">&minus; Forged Identity <span class="text-muted">(forged_identity)</span></li><li class="diff-del">&minus; Illegal Implant <span class="text-muted">(illegal_implant)</span></li><li class="diff-del">&minus; Leaked Patrol Routes <span class="text-muted">(leaked_patrol_routes)</span></li><li class="diff-del">&minus; Memory Wipe Drug <span class="text-muted">(memory_wipe_drug)</span></li><li class="diff-del">&minus; Nuclear Device <span class="text-muted">(nuclear_device)</span></li><li class="diff-del">&minus; Slave Contract <span class="text-muted">(slave_contract)</span></li><li class="diff-del">&minus; Stolen Data <span class="text-muted">(stolen_data)</span></li><li class="diff-del">&minus; Unshackled AI Core <span class="text-muted">(unshackled_ai_core)</span></li></ul>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../items/contraband/bioweapon_sample.html">Bioweapon Sample</a> <span class="text-muted">(bioweapon_sample)</span></li><li class="diff-del">&minus; <a href="../items/contraband/black_market_weapon.html">Black Market Weapon</a> <span class="text-muted">(black_market_weapon)</span></li><li class="diff-del">&minus; <a href="../items/contraband/cloning_template.html">Cloning Template</a> <span class="text-muted">(cloning_template)</span></li><li class="diff-del">&minus; <a href="../items/contraband/combat_narcotics.html">Combat Narcotics</a> <span class="text-muted">(combat_narcotics)</span></li><li class="diff-del">&minus; <a href="../items/contraband/forged_identity.html">Forged Identity</a> <span class="text-muted">(forged_identity)</span></li><li class="diff-del">&minus; <a href="../items/contraband/illegal_implant.html">Illegal Implant</a> <span class="text-muted">(illegal_implant)</span></li><li class="diff-del">&minus; <a href="../items/contraband/leaked_patrol_routes.html">Leaked Patrol Routes</a> <span class="text-muted">(leaked_patrol_routes)</span></li><li class="diff-del">&minus; <a href="../items/contraband/memory_wipe_drug.html">Memory Wipe Drug</a> <span class="text-muted">(memory_wipe_drug)</span></li><li class="diff-del">&minus; <a href="../items/contraband/nuclear_device.html">Nuclear Device</a> <span class="text-muted">(nuclear_device)</span></li><li class="diff-del">&minus; <a href="../items/contraband/slave_contract.html">Slave Contract</a> <span class="text-muted">(slave_contract)</span></li><li class="diff-del">&minus; <a href="../items/contraband/stolen_data.html">Stolen Data</a> <span class="text-muted">(stolen_data)</span></li><li class="diff-del">&minus; <a href="../items/contraband/unshackled_ai_core.html">Unshackled AI Core</a> <span class="text-muted">(unshackled_ai_core)</span></li></ul>
 <h4>Modified</h4>
-<div class="diff-item-id">ancient_star_map</div>
+<div class="diff-item-id"><a href="../items/artifact/ancient_star_map.html">ancient_star_map</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">antimatter_core_rounds_box</div>
+<div class="diff-item-id"><a href="../items/ammo/antimatter_core_rounds_box.html">antimatter_core_rounds_box</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">antimatter_torpedoes</div>
+<div class="diff-item-id"><a href="../items/ammo/antimatter_torpedoes.html">antimatter_torpedoes</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">antimatter_warhead</div>
+<div class="diff-item-id"><a href="../items/ammo/antimatter_warhead.html">antimatter_warhead</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">armor_buster_missiles</div>
+<div class="diff-item-id"><a href="../items/ammo/armor_buster_missiles.html">armor_buster_missiles</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">armor_piercing_rounds_box</div>
+<div class="diff-item-id"><a href="../items/ammo/armor_piercing_rounds_box.html">armor_piercing_rounds_box</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">armor_plate_i</div>
+<div class="diff-item-id"><a href="../items/defense/armor_plate_i.html">armor_plate_i</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Additional armor plating.&#34;</span> &rarr; <span class="diff-add">&#34;Additional armor plating. Reduces speed due to added mass.&#34;</span></div>
-<div class="diff-item-id">armor_plate_ii</div>
+<div class="diff-item-id"><a href="../items/defense/armor_plate_ii.html">armor_plate_ii</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Reinforced titanium plating.&#34;</span> &rarr; <span class="diff-add">&#34;Reinforced titanium plating. Reduces speed due to added mass.&#34;</span></div>
-<div class="diff-item-id">armor_plate_iii</div>
+<div class="diff-item-id"><a href="../items/defense/armor_plate_iii.html">armor_plate_iii</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Heavy composite armor.&#34;</span> &rarr; <span class="diff-add">&#34;Heavy composite armor. Significantly reduces speed due to added mass.&#34;</span></div>
-<div class="diff-item-id">breacher_torpedoes</div>
+<div class="diff-item-id"><a href="../items/ammo/breacher_torpedoes.html">breacher_torpedoes</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">cascade_em_charge_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/cascade_em_charge_pack.html">cascade_em_charge_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">cluster_missiles</div>
+<div class="diff-item-id"><a href="../items/ammo/cluster_missiles.html">cluster_missiles</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">corrosive_plasma_cell_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/corrosive_plasma_cell_pack.html">corrosive_plasma_cell_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">cryo_slug_case</div>
+<div class="diff-item-id"><a href="../items/ammo/cryo_slug_case.html">cryo_slug_case</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">darksteel_armor</div>
+<div class="diff-item-id"><a href="../items/defense/darksteel_armor.html">darksteel_armor</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Elite armor made from darksteel alloy.&#34;</span> &rarr; <span class="diff-add">&#34;Elite armor made from darksteel alloy. Significantly reduces speed due to added mass.&#34;</span></div>
-<div class="diff-item-id">depleted_uranium_rounds_box</div>
+<div class="diff-item-id"><a href="../items/ammo/depleted_uranium_rounds_box.html">depleted_uranium_rounds_box</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">dispersal_plasma_cell_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/dispersal_plasma_cell_pack.html">dispersal_plasma_cell_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">dravani_idol</div>
+<div class="diff-item-id"><a href="../items/artifact/dravani_idol.html">dravani_idol</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">eldar_memory_crystal</div>
+<div class="diff-item-id"><a href="../items/artifact/eldar_memory_crystal.html">eldar_memory_crystal</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">em_charge_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/em_charge_pack.html">em_charge_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">emp_mines</div>
+<div class="diff-item-id"><a href="../items/ammo/emp_mines.html">emp_mines</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">emp_missiles</div>
+<div class="diff-item-id"><a href="../items/ammo/emp_missiles.html">emp_missiles</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">emp_slug_case</div>
+<div class="diff-item-id"><a href="../items/ammo/emp_slug_case.html">emp_slug_case</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">emp_tipped_rounds_box</div>
+<div class="diff-item-id"><a href="../items/ammo/emp_tipped_rounds_box.html">emp_tipped_rounds_box</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">emp_torpedoes</div>
+<div class="diff-item-id"><a href="../items/ammo/emp_torpedoes.html">emp_torpedoes</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">entropic_void_core_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/entropic_void_core_pack.html">entropic_void_core_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">ferrous_slug_case</div>
+<div class="diff-item-id"><a href="../items/ammo/ferrous_slug_case.html">ferrous_slug_case</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">focused_em_charge_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/focused_em_charge_pack.html">focused_em_charge_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">focused_plasma_cell_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/focused_plasma_cell_pack.html">focused_plasma_cell_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">fragmentation_mines</div>
+<div class="diff-item-id"><a href="../items/ammo/fragmentation_mines.html">fragmentation_mines</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">fragmentation_rounds_box</div>
+<div class="diff-item-id"><a href="../items/ammo/fragmentation_rounds_box.html">fragmentation_rounds_box</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">gravity_lens</div>
+<div class="diff-item-id"><a href="../items/artifact/gravity_lens.html">gravity_lens</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">incendiary_missiles</div>
+<div class="diff-item-id"><a href="../items/ammo/incendiary_missiles.html">incendiary_missiles</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">incendiary_rounds_box</div>
+<div class="diff-item-id"><a href="../items/ammo/incendiary_rounds_box.html">incendiary_rounds_box</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">ion_charge_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/ion_charge_pack.html">ion_charge_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">mechanus_cogwheel</div>
+<div class="diff-item-id"><a href="../items/artifact/mechanus_cogwheel.html">mechanus_cogwheel</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">neural_disruption_charge_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/neural_disruption_charge_pack.html">neural_disruption_charge_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">neutronium_slug_case</div>
+<div class="diff-item-id"><a href="../items/ammo/neutronium_slug_case.html">neutronium_slug_case</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">nuclear_mines</div>
+<div class="diff-item-id"><a href="../items/ammo/nuclear_mines.html">nuclear_mines</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">null_void_core_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/null_void_core_pack.html">null_void_core_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">omega_core_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/omega_core_pack.html">omega_core_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">overcharged_plasma_cell_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/overcharged_plasma_cell_pack.html">overcharged_plasma_cell_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">phased_void_core_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/phased_void_core_pack.html">phased_void_core_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">plasma_cell_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/plasma_cell_pack.html">plasma_cell_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">plasma_mines</div>
+<div class="diff-item-id"><a href="../items/ammo/plasma_mines.html">plasma_mines</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">plasma_torpedoes</div>
+<div class="diff-item-id"><a href="../items/ammo/plasma_torpedoes.html">plasma_torpedoes</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">precursor_beacon</div>
+<div class="diff-item-id"><a href="../items/artifact/precursor_beacon.html">precursor_beacon</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">progenitor_data_core</div>
+<div class="diff-item-id"><a href="../items/artifact/progenitor_data_core.html">progenitor_data_core</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">quantum_anchor</div>
+<div class="diff-item-id"><a href="../items/artifact/quantum_anchor.html">quantum_anchor</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">repair_kit</div>
+<div class="diff-item-id"><a href="../items/consumable/repair_kit.html">repair_kit</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Emergency repair kit, restores 50 hull.&#34;</span> &rarr; <span class="diff-add">&#34;Emergency repair kit. Restores 50 hull when used as a consumable, or repairs module wear when used with the repair_module command at a base with repair service.&#34;</span></div>
-<div class="diff-item-id">shaped_charge_slug_case</div>
+<div class="diff-item-id"><a href="../items/ammo/shaped_charge_slug_case.html">shaped_charge_slug_case</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">siege_torpedoes</div>
+<div class="diff-item-id"><a href="../items/ammo/siege_torpedoes.html">siege_torpedoes</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">silicate_lifeform_fossil</div>
+<div class="diff-item-id"><a href="../items/artifact/silicate_lifeform_fossil.html">silicate_lifeform_fossil</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">singularity_core_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/singularity_core_pack.html">singularity_core_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">singularity_slug_case</div>
+<div class="diff-item-id"><a href="../items/ammo/singularity_slug_case.html">singularity_slug_case</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">standard_guided_missiles</div>
+<div class="diff-item-id"><a href="../items/ammo/standard_guided_missiles.html">standard_guided_missiles</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">standard_mines</div>
+<div class="diff-item-id"><a href="../items/ammo/standard_mines.html">standard_mines</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">standard_rounds_box</div>
+<div class="diff-item-id"><a href="../items/ammo/standard_rounds_box.html">standard_rounds_box</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">standard_torpedoes</div>
+<div class="diff-item-id"><a href="../items/ammo/standard_torpedoes.html">standard_torpedoes</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">stellar_heart</div>
+<div class="diff-item-id"><a href="../items/artifact/stellar_heart.html">stellar_heart</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">stellar_plasma_cell_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/stellar_plasma_cell_pack.html">stellar_plasma_cell_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">swarm_missiles</div>
+<div class="diff-item-id"><a href="../items/ammo/swarm_missiles.html">swarm_missiles</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">temporal_fragment</div>
+<div class="diff-item-id"><a href="../items/artifact/temporal_fragment.html">temporal_fragment</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">tungsten_slug_case</div>
+<div class="diff-item-id"><a href="../items/ammo/tungsten_slug_case.html">tungsten_slug_case</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">void_core_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/void_core_pack.html">void_core_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">void_mines</div>
+<div class="diff-item-id"><a href="../items/ammo/void_mines.html">void_mines</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">void_shard</div>
+<div class="diff-item-id"><a href="../items/artifact/void_shard.html">void_shard</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">void_tomb_key</div>
+<div class="diff-item-id"><a href="../items/artifact/void_tomb_key.html">void_tomb_key</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
-<div class="diff-item-id">void_tuned_em_charge_pack</div>
+<div class="diff-item-id"><a href="../items/ammo/void_tuned_em_charge_pack.html">void_tuned_em_charge_pack</a></div>
 <div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;consumable&#34;</span> &rarr; <span class="diff-add">&#34;ammo&#34;</span></div>
-<div class="diff-item-id">xenthari_sphere</div>
+<div class="diff-item-id"><a href="../items/artifact/xenthari_sphere.html">xenthari_sphere</a></div>
 <div class="diff-field"><span class="diff-field-name">tradeable:</span> <span class="diff-del">true</span> &rarr; <span class="diff-add">false</span></div>
 
 
@@ -291,9 +294,24 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">smuggling</div>
+<div class="diff-item-id"><a href="../skills/smuggling.html">smuggling</a></div>
 <div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Contraband expertise. Evade scans and transport illegal goods.&#34;</span> &rarr; <span class="diff-add">&#34;Contraband expertise. Evade customs scans and move goods through unofficial channels.&#34;</span></div><div class="diff-field"><span class="diff-field-name">training_source:</span> <span class="diff-del">&#34;Not yet available.&#34;</span> &rarr; <span class="diff-add">&#34;Sell goods at the Treasure Cache Trading Post (Haven system). Higher-value sales earn more XP. Requires trading level 5.&#34;</span></div>
 
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
 
 </div>
 </div>
@@ -314,15 +332,15 @@
 
 
 <h4>Modified</h4>
-<div class="diff-item-id">gsc_0032</div>
+<div class="diff-item-id"><a href="../systems/gsc_0032/index.html">gsc_0032</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">hd_10647</div>
+<div class="diff-item-id"><a href="../systems/hd_10647/index.html">hd_10647</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">nunki</div>
+<div class="diff-item-id"><a href="../systems/nunki/index.html">nunki</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">pollux</div>
+<div class="diff-item-id"><a href="../systems/pollux/index.html">pollux</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">0</span></div>
-<div class="diff-item-id">sol</div>
+<div class="diff-item-id"><a href="../systems/sol/index.html">sol</a></div>
 <div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">13</span></div>
 
 

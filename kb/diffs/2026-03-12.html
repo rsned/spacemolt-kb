@@ -21,6 +21,8 @@
 .diff-mod { color: hsl(var(--smui-yellow)); }
 .diff-list { list-style: none; padding: 0; }
 .diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
 .diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
 .diff-field-name { color: hsl(var(--muted-foreground)); }
 .diff-item-id { font-weight: 600; margin-top: 0.5rem; }
@@ -53,14 +55,15 @@
     <span><a href="2026-03-15.html">2026-03-15 &rarr;</a></span>
 </div>
 <h2>Game Data Changes &mdash; March 12, 2026 vs March 9, 2026</h2>
-<div class="diff-summary">No changes detected across any catalog.
+<div class="diff-summary">76 additions, 21 deletions, 163 modifications across 4 catalogs.
 </div>
 <ul class="diff-toc">
-<li><a href="#recipes">Recipes</a></li>
-<li><a href="#items">Items</a></li>
-<li><a href="#ships">Ships</a></li>
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+13</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~10</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+13</span> <span class="diff-del">&minus;2</span> <span class="diff-mod">~2</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+50</span> <span class="diff-del">&minus;19</span> <span class="diff-mod">~91</span></li>
 <li><a href="#skills">Skills</a></li>
-<li><a href="#map">Map</a></li>
+<li><a href="#facilities">Facilities</a></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~60</span></li>
 </ul>
 
 <div class="catalog-section" id="recipes">
@@ -68,12 +71,39 @@
     <h3>Recipes</h3>
     <div class="catalog-counts">
         
-        <span class="no-changes">unchanged</span>
+        <span class="diff-add">+13</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~10</span>
         
     </div>
 </div>
 <div class="catalog-body">
-<p class="no-changes">No changes</p>
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../recipes/Utility/build_pirate_radio_scanner.html">Build Pirate Radio Scanner</a> <span class="text-muted">(build_pirate_radio_scanner)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/cook_gutter_flux.html">Cook Gutter Flux</a> <span class="text-muted">(cook_gutter_flux)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/crack_hot_cells.html">Crack Hot Cells</a> <span class="text-muted">(crack_hot_cells)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/distill_moonshine.html">Distill Moonshine</a> <span class="text-muted">(distill_moonshine)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/forge_ghost_rounds.html">Forge Ghost Rounds</a> <span class="text-muted">(forge_ghost_rounds)</span></li><li class="diff-add">+ <a href="../recipes/Components/forge_scrap_armor.html">Forge Scrap Armor</a> <span class="text-muted">(forge_scrap_armor)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/forge_trade_cipher_pirate.html">Forge Trade Cipher (Pirate)</a> <span class="text-muted">(forge_trade_cipher_pirate)</span></li><li class="diff-add">+ <a href="../recipes/Components/forge_weapon_housings.html">Forge Weapon Housings</a> <span class="text-muted">(forge_weapon_housings)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/infuse_starshine.html">Infuse Starshine</a> <span class="text-muted">(infuse_starshine)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/load_red_mist.html">Load Red Mist</a> <span class="text-muted">(load_red_mist)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/refine_void_dust.html">Refine Void Dust</a> <span class="text-muted">(refine_void_dust)</span></li><li class="diff-add">+ <a href="../recipes/Components/scavenge_fuel_cells.html">Scavenge Fuel Cells</a> <span class="text-muted">(scavenge_fuel_cells)</span></li><li class="diff-add">+ <a href="../recipes/Facility_Only/synthesize_nerve_burn.html">Synthesize Nerve Burn</a> <span class="text-muted">(synthesize_nerve_burn)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/bottle_nebula_stellar_vintage.html">bottle_nebula_stellar_vintage</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: nebula_stellar_vintage, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: nebula_stellar_vintage, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/brew_crimson_bloodwine.html">brew_crimson_bloodwine</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: crimson_bloodwine, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: crimson_bloodwine, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/brew_frontier_spore_spirits.html">brew_frontier_spore_spirits</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: frontier_spore_spirits, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: frontier_spore_spirits, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/distill_frontier_rotgut.html">distill_frontier_rotgut</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: frontier_rotgut, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: frontier_rotgut, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/encode_trade_cipher.html">encode_trade_cipher</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: trade_cipher, quality_mod: false, quantity: 5</td><td class="diff-add">item_id: trade_cipher, quality_mod: false, quantity: 10</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/grow_neural_matrix.html">grow_neural_matrix</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: voidborn_neural_matrix, quality_mod: false, quantity: 2</td><td class="diff-add">item_id: voidborn_neural_matrix, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/package_crimson_iron_rations.html">package_crimson_iron_rations</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: crimson_iron_rations, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: crimson_iron_rations, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/prepare_gourmet_rations.html">prepare_gourmet_rations</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: solarian_gourmet_rations, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: solarian_gourmet_rations, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/produce_solarian_biotic.html">produce_solarian_biotic</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: solarian_biotic, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: solarian_biotic, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/synthesize_voidborn_neural_soma.html">synthesize_voidborn_neural_soma</a></div>
+<div class="diff-field"><span class="diff-field-name">outputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: voidborn_neural_soma, quality_mod: false, quantity: 3</td><td class="diff-add">item_id: voidborn_neural_soma, quality_mod: false, quantity: 1</td></tr></tbody></table></div>
+
 
 </div>
 </div>
@@ -83,12 +113,24 @@
     <h3>Items</h3>
     <div class="catalog-counts">
         
-        <span class="no-changes">unchanged</span>
+        <span class="diff-add">+13</span>
+        <span class="diff-del">&minus;2</span>
+        <span class="diff-mod">~2</span>
         
     </div>
 </div>
 <div class="catalog-body">
-<p class="no-changes">No changes</p>
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../items/consumable/adrenaline_surge.html">Adrenaline Surge</a> <span class="text-muted">(adrenaline_surge)</span></li><li class="diff-add">+ <a href="../items/consumable/clarity_stim.html">Clarity Stim</a> <span class="text-muted">(clarity_stim)</span></li><li class="diff-add">+ <a href="../items/contraband/ghost_rounds.html">Ghost Rounds</a> <span class="text-muted">(ghost_rounds)</span></li><li class="diff-add">+ <a href="../items/contraband/gutter_flux.html">Gutter Flux</a> <span class="text-muted">(gutter_flux)</span></li><li class="diff-add">+ <a href="../items/contraband/hot_cell.html">Hot Cell</a> <span class="text-muted">(hot_cell)</span></li><li class="diff-add">+ <a href="../items/contraband/nerve_burn.html">Nerve Burn</a> <span class="text-muted">(nerve_burn)</span></li><li class="diff-add">+ <a href="../items/consumable/neural_accelerator.html">Neural Accelerator</a> <span class="text-muted">(neural_accelerator)</span></li><li class="diff-add">+ <a href="../items/contraband/pirate_moonshine.html">Pirate Moonshine</a> <span class="text-muted">(pirate_moonshine)</span></li><li class="diff-add">+ <a href="../items/utility/pirate_radio_scanner.html">Pirate Radio Scanner</a> <span class="text-muted">(pirate_radio_scanner)</span></li><li class="diff-add">+ <a href="../items/contraband/red_mist.html">Red Mist</a> <span class="text-muted">(red_mist)</span></li><li class="diff-add">+ <a href="../items/consumable/speed_stim.html">Speed Stim</a> <span class="text-muted">(speed_stim)</span></li><li class="diff-add">+ <a href="../items/contraband/starshine.html">Starshine</a> <span class="text-muted">(starshine)</span></li><li class="diff-add">+ <a href="../items/contraband/void_dust.html">Void Dust</a> <span class="text-muted">(void_dust)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../items/misc/pirate_bounty_chip.html">Pirate Bounty Chip</a> <span class="text-muted">(pirate_bounty_chip)</span></li><li class="diff-del">&minus; <a href="../items/component/quantum_processor.html">Quantum Processor</a> <span class="text-muted">(quantum_processor)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/component/salvage_components.html">salvage_components</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">80</span></div>
+<div class="diff-item-id"><a href="../items/component/salvage_metal.html">salvage_metal</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">20</span></div>
+
 
 </div>
 </div>
@@ -98,12 +140,202 @@
     <h3>Ships</h3>
     <div class="catalog-counts">
         
-        <span class="no-changes">unchanged</span>
+        <span class="diff-add">+50</span>
+        <span class="diff-del">&minus;19</span>
+        <span class="diff-mod">~91</span>
         
     </div>
 </div>
 <div class="catalog-body">
-<p class="no-changes">No changes</p>
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ <a href="../ships/Industrial/accumulator.html">Accumulator</a> <span class="text-muted">(accumulator)</span></li><li class="diff-add">+ <a href="../ships/Industrial/all_mine.html">All Mine</a> <span class="text-muted">(all_mine)</span></li><li class="diff-add">+ <a href="../ships/Combat%20Support/blind_spot.html">Blind Spot</a> <span class="text-muted">(blind_spot)</span></li><li class="diff-add">+ <a href="../ships/Combat/casting_vote.html">Casting Vote</a> <span class="text-muted">(casting_vote)</span></li><li class="diff-add">+ <a href="../ships/Combat/close_enough.html">Close Enough</a> <span class="text-muted">(close_enough)</span></li><li class="diff-add">+ <a href="../ships/Industrial/cold_comfort.html">Cold Comfort</a> <span class="text-muted">(cold_comfort)</span></li><li class="diff-add">+ <a href="../ships/Support/convoy.html">Convoy</a> <span class="text-muted">(convoy)</span></li><li class="diff-add">+ <a href="../ships/Industrial/cryoclast.html">Cryoclast</a> <span class="text-muted">(cryoclast)</span></li><li class="diff-add">+ <a href="../ships/Combat/dead_reckoning.html">Dead Reckoning</a> <span class="text-muted">(dead_reckoning)</span></li><li class="diff-add">+ <a href="../ships/Industrial/eldorado.html">Eldorado</a> <span class="text-muted">(eldorado)</span></li><li class="diff-add">+ <a href="../ships/Combat/eviction_notice.html">Eviction Notice</a> <span class="text-muted">(eviction_notice)</span></li><li class="diff-add">+ <a href="../ships/Industrial/exosphere.html">Exosphere</a> <span class="text-muted">(exosphere)</span></li><li class="diff-add">+ <a href="../ships/Combat/fait_accompli.html">Fait Accompli</a> <span class="text-muted">(fait_accompli)</span></li><li class="diff-add">+ <a href="../ships/Combat/foreclosure.html">Foreclosure</a> <span class="text-muted">(foreclosure)</span></li><li class="diff-add">+ <a href="../ships/Combat/four_on_the_floor.html">Four on the Floor</a> <span class="text-muted">(four_on_the_floor)</span></li><li class="diff-add">+ <a href="../ships/Industrial/frost_venture.html">Frost Venture</a> <span class="text-muted">(frost_venture)</span></li><li class="diff-add">+ <a href="../ships/Industrial/glacialis.html">Glacialis</a> <span class="text-muted">(glacialis)</span></li><li class="diff-add">+ <a href="../ships/Commercial/grand_transit.html">Grand Transit</a> <span class="text-muted">(grand_transit)</span></li><li class="diff-add">+ <a href="../ships/Industrial/harmonic.html">Harmonic</a> <span class="text-muted">(harmonic)</span></li><li class="diff-add">+ <a href="../ships/Combat/hostile_takeover.html">Hostile Takeover</a> <span class="text-muted">(hostile_takeover)</span></li><li class="diff-add">+ <a href="../ships/Industrial/influx.html">Influx</a> <span class="text-muted">(influx)</span></li><li class="diff-add">+ <a href="../ships/Combat/known_quantity.html">Known Quantity</a> <span class="text-muted">(known_quantity)</span></li><li class="diff-add">+ <a href="../ships/Commercial/last_call.html">Last Call</a> <span class="text-muted">(last_call)</span></li><li class="diff-add">+ <a href="../ships/Combat/lawn_dart.html">Lawn Dart</a> <span class="text-muted">(lawn_dart)</span></li><li class="diff-add">+ <a href="../ships/Exploration/lemming.html">Lemming</a> <span class="text-muted">(lemming)</span></li><li class="diff-add">+ <a href="../ships/Commercial/liquidation.html">Liquidation</a> <span class="text-muted">(liquidation)</span></li><li class="diff-add">+ <a href="../ships/Industrial/lithosphere.html">Lithosphere</a> <span class="text-muted">(lithosphere)</span></li><li class="diff-add">+ <a href="../ships/Industrial/losers_weepers.html">Losers Weepers</a> <span class="text-muted">(losers_weepers)</span></li><li class="diff-add">+ <a href="../ships/Industrial/lungful.html">Lungful</a> <span class="text-muted">(lungful)</span></li><li class="diff-add">+ <a href="../ships/Industrial/manifold.html">Manifold</a> <span class="text-muted">(manifold)</span></li><li class="diff-add">+ <a href="../ships/Industrial/marauder.html">Marauder</a> <span class="text-muted">(marauder)</span></li><li class="diff-add">+ <a href="../ships/Combat/margin_call.html">Margin Call</a> <span class="text-muted">(margin_call)</span></li><li class="diff-add">+ <a href="../ships/Industrial/mineral_rights.html">Mineral Rights</a> <span class="text-muted">(mineral_rights)</span></li><li class="diff-add">+ <a href="../ships/Combat/no_appeal.html">No Appeal</a> <span class="text-muted">(no_appeal)</span></li><li class="diff-add">+ <a href="../ships/Combat%20Support/no_exit.html">No Exit</a> <span class="text-muted">(no_exit)</span></li><li class="diff-add">+ <a href="../ships/Commercial/nomad.html">Nomad</a> <span class="text-muted">(nomad)</span></li><li class="diff-add">+ <a href="../ships/Combat%20Support/off_the_books.html">Off the Books</a> <span class="text-muted">(off_the_books)</span></li><li class="diff-add">+ <a href="../ships/Exploration/overdue.html">Overdue</a> <span class="text-muted">(overdue)</span></li><li class="diff-add">+ <a href="../ships/Industrial/paydirt.html">Paydirt</a> <span class="text-muted">(paydirt)</span></li><li class="diff-add">+ <a href="../ships/Industrial/pithead.html">Pithead</a> <span class="text-muted">(pithead)</span></li><li class="diff-add">+ <a href="../ships/Industrial/ravager.html">Ravager</a> <span class="text-muted">(ravager)</span></li><li class="diff-add">+ <a href="../ships/Exploration/red_herring.html">Red Herring</a> <span class="text-muted">(red_herring)</span></li><li class="diff-add">+ <a href="../ships/Industrial/repo.html">Repo</a> <span class="text-muted">(repo)</span></li><li class="diff-add">+ <a href="../ships/Combat/running_tab.html">Running Tab</a> <span class="text-muted">(running_tab)</span></li><li class="diff-add">+ <a href="../ships/Industrial/severance_package.html">Severance Package</a> <span class="text-muted">(severance_package)</span></li><li class="diff-add">+ <a href="../ships/Combat%20Support/standing_order.html">Standing Order</a> <span class="text-muted">(standing_order)</span></li><li class="diff-add">+ <a href="../ships/Commercial/start_praying.html">Start Praying</a> <span class="text-muted">(start_praying)</span></li><li class="diff-add">+ <a href="../ships/Industrial/tellurian.html">Tellurian</a> <span class="text-muted">(tellurian)</span></li><li class="diff-add">+ <a href="../ships/Industrial/verglas.html">Verglas</a> <span class="text-muted">(verglas)</span></li><li class="diff-add">+ <a href="../ships/Commercial/waystation.html">Waystation</a> <span class="text-muted">(waystation)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../ships/Discontinued/automated_extraction_complex.html">Automated Extraction Complex</a> <span class="text-muted">(automated_extraction_complex)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/crimson_gas_cracker.html">Crimson Gas Cracker</a> <span class="text-muted">(crimson_gas_cracker)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/cryo_laboratory.html">Cryo Laboratory</a> <span class="text-muted">(cryo_laboratory)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/cryo_phaser.html">Cryo Phaser</a> <span class="text-muted">(cryo_phaser)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/deep_core_platform.html">Deep Core Platform</a> <span class="text-muted">(deep_core_platform)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/dimensional_harvester.html">Dimensional Harvester</a> <span class="text-muted">(dimensional_harvester)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/fractional_distillery.html">Fractional Distillery</a> <span class="text-muted">(fractional_distillery)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/gas_compressor.html">Gas Compressor</a> <span class="text-muted">(gas_compressor)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/ice_fortress.html">Ice Fortress</a> <span class="text-muted">(ice_fortress)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/ice_logistics.html">Ice Logistics</a> <span class="text-muted">(ice_logistics)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/ice_rig.html">Ice Rig</a> <span class="text-muted">(ice_rig)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/mega_hauler.html">Mega Hauler</a> <span class="text-muted">(mega_hauler)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/mobile_mining_base.html">Mobile Mining Base</a> <span class="text-muted">(mobile_mining_base)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/outer_rim_gas_cracker.html">Outer Rim Gas Cracker</a> <span class="text-muted">(outer_rim_gas_cracker)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/phase_condenser.html">Phase Condenser</a> <span class="text-muted">(phase_condenser)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/resonance_array.html">Resonance Array</a> <span class="text-muted">(resonance_array)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/rock_crusher.html">Rock Crusher</a> <span class="text-muted">(rock_crusher)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/strip_mine.html">Strip Mine</a> <span class="text-muted">(strip_mine)</span></li><li class="diff-del">&minus; <a href="../ships/Discontinued/strip_miner.html">Strip Miner</a> <span class="text-muted">(strip_miner)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../ships/Civilian/absence.html">absence</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Covert&#34;</span> &rarr; <span class="diff-add">&#34;Civilian&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/alloy_synthesizer.html">alloy_synthesizer</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Alloy Synthesizer&#34;</span> &rarr; <span class="diff-add">&#34;Refinery&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/anamnesis.html">anamnesis</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Consciousness Vessel&#34;</span> &rarr; <span class="diff-add">&#34;Medical&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/annihilation.html">annihilation</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Void Assault&#34;</span> &rarr; <span class="diff-add">&#34;Heavy Fighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Support/anvil.html">anvil</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Field Repair&#34;</span> &rarr; <span class="diff-add">&#34;Repair&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Covert/arbitrage.html">arbitrage</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Commercial&#34;</span> &rarr; <span class="diff-add">&#34;Covert&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/archimedes.html">archimedes</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr><tr><td class="diff-empty"></td><td class="diff-add">pulse_laser_i</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Support/arsenal.html">arsenal</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Fleet Logistics&#34;</span> &rarr; <span class="diff-add">&#34;Logistics&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/atmospheric_sampler.html">atmospheric_sampler</a></div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 70</td><td class="diff-unchanged">item_id: circuit_board, quantity: 70</td></tr><tr><td class="diff-unchanged">item_id: engine_core, quantity: 8</td><td class="diff-unchanged">item_id: engine_core, quantity: 8</td></tr><tr><td class="diff-unchanged">item_id: hull_plating, quantity: 14</td><td class="diff-unchanged">item_id: hull_plating, quantity: 14</td></tr><tr><td class="diff-unchanged">item_id: navigation_core, quantity: 10</td><td class="diff-unchanged">item_id: navigation_core, quantity: 10</td></tr><tr><td class="diff-del">item_id: processing_core, quantity: 8</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: sensor_array, quantity: 35</td><td class="diff-unchanged">item_id: sensor_array, quantity: 35</td></tr><tr><td class="diff-unchanged">item_id: solarian_composite, quantity: 3</td><td class="diff-unchanged">item_id: solarian_composite, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: titanium_alloy, quantity: 95</td><td class="diff-unchanged">item_id: titanium_alloy, quantity: 95</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Commercial/attenuation.html">attenuation</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Industrial&#34;</span> &rarr; <span class="diff-add">&#34;Commercial&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/bedrock.html">bedrock</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">mining_laser_ii</td><td class="diff-unchanged">mining_laser_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/benefit.html">benefit</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Support Vessel&#34;</span> &rarr; <span class="diff-add">&#34;Logistics&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/bonanza.html">bonanza</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/bonanza_king.html">bonanza_king</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/buckler.html">buckler</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Escort&#34;</span> &rarr; <span class="diff-add">&#34;Raider&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Covert/catharsis.html">catharsis</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Signal Ship&#34;</span> &rarr; <span class="diff-add">&#34;Intelligence&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/cauterizer.html">cauterizer</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Combat Hospital&#34;</span> &rarr; <span class="diff-add">&#34;Medical&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/claim_jumper.html">claim_jumper</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/cobble.html">cobble</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/corollary.html">corollary</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Interceptor&#34;</span> &rarr; <span class="diff-add">&#34;Fighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/crimson_colossus.html">crimson_colossus</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Assault Titan&#34;</span> &rarr; <span class="diff-add">&#34;Dreadnought&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/crimson_oblivion.html">crimson_oblivion</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Siege Titan&#34;</span> &rarr; <span class="diff-add">&#34;Dreadnought&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/cryo_industrial.html">cryo_industrial</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Ice Processing Capital&#34;</span> &rarr; <span class="diff-add">&#34;Ice Harvester&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/cryogenic_survey.html">cryogenic_survey</a></div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 70</td><td class="diff-unchanged">item_id: circuit_board, quantity: 70</td></tr><tr><td class="diff-unchanged">item_id: engine_core, quantity: 8</td><td class="diff-unchanged">item_id: engine_core, quantity: 8</td></tr><tr><td class="diff-unchanged">item_id: hull_plating, quantity: 14</td><td class="diff-unchanged">item_id: hull_plating, quantity: 14</td></tr><tr><td class="diff-unchanged">item_id: navigation_core, quantity: 10</td><td class="diff-unchanged">item_id: navigation_core, quantity: 10</td></tr><tr><td class="diff-del">item_id: processing_core, quantity: 8</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: sensor_array, quantity: 35</td><td class="diff-unchanged">item_id: sensor_array, quantity: 35</td></tr><tr><td class="diff-unchanged">item_id: solarian_composite, quantity: 3</td><td class="diff-unchanged">item_id: solarian_composite, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: titanium_alloy, quantity: 95</td><td class="diff-unchanged">item_id: titanium_alloy, quantity: 95</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/deep_resonance.html">deep_resonance</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/deep_survey.html">deep_survey</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">mining_laser_iii</td><td class="diff-unchanged">mining_laser_iii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">pulse_laser_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Covert/dirk.html">dirk</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Commercial&#34;</span> &rarr; <span class="diff-add">&#34;Covert&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/dosimetry.html">dosimetry</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Industrial&#34;</span> &rarr; <span class="diff-add">&#34;Commercial&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/empirica.html">empirica</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Research Corvette&#34;</span> &rarr; <span class="diff-add">&#34;Research&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/escort.html">escort</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Convoy Escort&#34;</span> &rarr; <span class="diff-add">&#34;Raider&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/excavation.html">excavation</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">mining_laser_ii</td><td class="diff-unchanged">mining_laser_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">pulse_laser_ii</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Civilian/finish_line.html">finish_line</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Specialty&#34;</span> &rarr; <span class="diff-add">&#34;Civilian&#34;</span></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Racing&#34;</span> &rarr; <span class="diff-add">&#34;Shuttle&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/futures.html">futures</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Market Runner&#34;</span> &rarr; <span class="diff-add">&#34;Courier&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/gauntlet.html">gauntlet</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Duelist&#34;</span> &rarr; <span class="diff-add">&#34;Fighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/get_off_my_lawn.html">get_off_my_lawn</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Interceptor&#34;</span> &rarr; <span class="diff-add">&#34;Fighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/glows_in_the_dark.html">glows_in_the_dark</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Industrial&#34;</span> &rarr; <span class="diff-add">&#34;Commercial&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/hysteresis.html">hysteresis</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Research Corvette&#34;</span> &rarr; <span class="diff-add">&#34;Research&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Covert/interstice.html">interstice</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Stealth Recon&#34;</span> &rarr; <span class="diff-add">&#34;Recon&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/juggernaut.html">juggernaut</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Bombardment&#34;</span> &rarr; <span class="diff-add">&#34;Assault&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/leverage.html">leverage</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Armed Trader&#34;</span> &rarr; <span class="diff-add">&#34;Courier&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/liability.html">liability</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Industrial&#34;</span> &rarr; <span class="diff-add">&#34;Commercial&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/liminal.html">liminal</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">em_disruptor_i</td></tr><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/mace.html">mace</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Assault Cruiser&#34;</span> &rarr; <span class="diff-add">&#34;Battlecruiser&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/manifest_destiny.html">manifest_destiny</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Expedition&#34;</span> &rarr; <span class="diff-add">&#34;Explorer&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/maul.html">maul</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;Crimson Fleet miners don&#39;t call for help. The Maul embodies this\nprinciple with two weapon mounts on a mining frame — one for the\nlaser, one for whatever you need to point at whoever interrupted\nyour shift. The reinforced hull inherits from the Shard&#39;s combat\ndrone lineage. Some pilots mount two mining lasers and double their\nyield. Others mount a mining laser and a cannon and dare anyone to\ncontest their asteroid claim. The Crimson Fleet considers both\napproaches equally valid resource extraction strategies.\n&#34;</span> &rarr; <span class="diff-add">&#34;Crimson Fleet miners don&#39;t call for help. The Maul embodies this\nprinciple: two weapon mounts ready for whatever interrupts a shift,\nwhile the mining laser does its work through dedicated utility\nhardpoints. The reinforced hull inherits from the Shard&#39;s combat\ndrone lineage. The fifteen percent ore yield bonus comes from\nrefinements to the extraction system, not the guns — though Crimson\npilots are happy to let the confusion stand. The Fleet considers a\nminer that can hold its ground as valuable as one that just digs.\n&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/membrane.html">membrane</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Phase Cruiser&#34;</span> &rarr; <span class="diff-add">&#34;Cruiser&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/monopoly.html">monopoly</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Combat Support&#34;</span> &rarr; <span class="diff-add">&#34;Commercial&#34;</span></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Trade Cruiser&#34;</span> &rarr; <span class="diff-add">&#34;Courier&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/motherlode.html">motherlode</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">mining_laser_ii</td><td class="diff-unchanged">mining_laser_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">pulse_laser_i</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/munitions_foundry.html">munitions_foundry</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Munitions Foundry&#34;</span> &rarr; <span class="diff-add">&#34;Construction&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/noumenon.html">noumenon</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Expedition&#34;</span> &rarr; <span class="diff-add">&#34;Explorer&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/observatorium.html">observatorium</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Research Cruiser&#34;</span> &rarr; <span class="diff-add">&#34;Research&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/overlord.html">overlord</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Command Dreadnought&#34;</span> &rarr; <span class="diff-add">&#34;Command&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Covert/parallax.html">parallax</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Phase Scout&#34;</span> &rarr; <span class="diff-add">&#34;Recon&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/partisan.html">partisan</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Armed Explorer&#34;</span> &rarr; <span class="diff-add">&#34;Scout&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/peer_review.html">peer_review</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Industrial&#34;</span> &rarr; <span class="diff-add">&#34;Exploration&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/perigee.html">perigee</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Expedition&#34;</span> &rarr; <span class="diff-add">&#34;Explorer&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/pike.html">pike</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Interceptor&#34;</span> &rarr; <span class="diff-add">&#34;Fighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/pleroma.html">pleroma</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Consciousness Nexus&#34;</span> &rarr; <span class="diff-add">&#34;Medical&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/polearm.html">polearm</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Expedition Raider&#34;</span> &rarr; <span class="diff-add">&#34;Explorer&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/portcullis.html">portcullis</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Heavy Interdictor&#34;</span> &rarr; <span class="diff-add">&#34;Interdictor&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/precept.html">precept</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Patrol Craft&#34;</span> &rarr; <span class="diff-add">&#34;Patrol&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Civilian/promenade.html">promenade</a></div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 95</td><td class="diff-unchanged">item_id: circuit_board, quantity: 95</td></tr><tr><td class="diff-unchanged">item_id: life_support_unit, quantity: 30</td><td class="diff-unchanged">item_id: life_support_unit, quantity: 30</td></tr><tr><td class="diff-unchanged">item_id: navigation_array, quantity: 1</td><td class="diff-unchanged">item_id: navigation_array, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: navigation_core, quantity: 15</td><td class="diff-unchanged">item_id: navigation_core, quantity: 15</td></tr><tr><td class="diff-del">item_id: processing_core, quantity: 8</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: sensor_array, quantity: 50</td><td class="diff-unchanged">item_id: sensor_array, quantity: 50</td></tr><tr><td class="diff-unchanged">item_id: shield_emitter, quantity: 25</td><td class="diff-unchanged">item_id: shield_emitter, quantity: 25</td></tr><tr><td class="diff-unchanged">item_id: solarian_composite, quantity: 5</td><td class="diff-unchanged">item_id: solarian_composite, quantity: 5</td></tr><tr><td class="diff-unchanged">item_id: titanium_alloy, quantity: 130</td><td class="diff-unchanged">item_id: titanium_alloy, quantity: 130</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/prospect.html">prospect</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr><tr><td class="diff-empty"></td><td class="diff-add">pulse_laser_i</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/qualia.html">qualia</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Probe Tender&#34;</span> &rarr; <span class="diff-add">&#34;Explorer&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/ransack.html">ransack</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Armed Freighter&#34;</span> &rarr; <span class="diff-add">&#34;Freighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/rapid_smelter.html">rapid_smelter</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Rapid Smelter&#34;</span> &rarr; <span class="diff-add">&#34;Refinery&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/recursion.html">recursion</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Interceptor&#34;</span> &rarr; <span class="diff-add">&#34;Fighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/repo_man.html">repo_man</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">mining_laser_ii</td><td class="diff-unchanged">mining_laser_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/resonance_miner.html">resonance_miner</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">em_disruptor_i</td></tr><tr><td class="diff-unchanged">mining_laser_ii</td><td class="diff-unchanged">mining_laser_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/rift_siphon.html">rift_siphon</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Gas Extraction Capital&#34;</span> &rarr; <span class="diff-add">&#34;Gas Harvester&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/rock_eater.html">rock_eater</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_ii</td></tr><tr><td class="diff-unchanged">mining_laser_iii</td><td class="diff-unchanged">mining_laser_iii</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/rubble.html">rubble</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/scrapheap.html">scrapheap</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/shard.html">shard</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Crimson starter vessel. Repurposed combat drone. Mining laser doubles as weapon.&#34;</span> &rarr; <span class="diff-add">&#34;Crimson starter vessel. Repurposed combat drone. Mines with the utility slot, fights with the weapon slots.&#34;</span></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;The Shard was never designed as a mining vessel. It was a combat drone —\nautonomous, disposable, built to absorb fire while delivering ordnance.\nWhen the Crimson Fleet needed a starter ship, their engineers did what\nCrimson engineers always do: they bolted a mining laser where the torpedo\ntube used to be and called it done. The extra weapon slot is original\nequipment. The reduced cargo bay is a consequence of the armor plating\nthat no one bothered to remove. Crimson pilots wouldn&#39;t have it any other\nway — even ore hauling should be done from a position of strength.\n&#34;</span> &rarr; <span class="diff-add">&#34;The Shard was never designed as a mining vessel. It was a combat drone —\nautonomous, disposable, built to absorb fire while delivering ordnance.\nWhen the Crimson Fleet needed a starter ship, their engineers did what\nCrimson engineers always do: they added a mining laser to the utility\nhardpoint and called it done. The weapon slots are original equipment,\nuntouched. The armor plating no one bothered to remove is a bonus. Crimson\npilots wouldn&#39;t have it any other way — a ship that mines and fights\nsimultaneously isn&#39;t a compromise, it&#39;s a statement of values.\n&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/shiv.html">shiv</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Boarding Craft&#34;</span> &rarr; <span class="diff-add">&#34;Assault&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/siege_breaker.html">siege_breaker</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">autocannon_ii</td></tr><tr><td class="diff-unchanged">mining_laser_iii</td><td class="diff-unchanged">mining_laser_iii</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;The Siege Breaker approaches asteroid mining the way the Crimson Fleet approaches everything: as an act of war. Five hundred points of hull backed by thirty points of armor means this mining cruiser shrugs off debris fields that would shred lesser ships. Two weapon mounts — one for the mining laser, one for whatever you point at someone who tries to steal your claim. The cargo bay is designed to hold raw ore in bulk, not to organize it neatly. Crimson miners call the Siege Breaker \&#34;the Bludgeon\&#34; because it doesn&#39;t extract ore — it beats asteroids into submission. &#34;</span> &rarr; <span class="diff-add">&#34;The Siege Breaker approaches asteroid mining the way the Crimson Fleet approaches everything: as an act of war. Five hundred points of hull backed by thirty points of armor means this mining cruiser shrugs off debris fields that would shred lesser ships. Two weapon mounts keep the area clear while the mining laser works — the Crimson Fleet maintains a strict distinction between extraction hardware and armaments, even if their enemies don&#39;t live long enough to appreciate the difference. The cargo bay is designed to hold raw ore in bulk, not to organize it neatly. Crimson miners call the Siege Breaker \&#34;the Bludgeon\&#34; because it doesn&#39;t extract ore — it beats asteroids into submission. &#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/siege_drill.html">siege_drill</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">autocannon_ii</td></tr><tr><td class="diff-unchanged">mining_laser_ii</td><td class="diff-unchanged">mining_laser_ii</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;The Siege Drill approaches asteroid mining the way the Crimson Fleet\napproaches everything: as a military operation. Two weapon mounts —\none for the mining laser, one for discouraging claim-jumpers. Armor\nplating thick enough to shrug off debris impacts and return fire\nsimultaneously. The mining technique is less \&#34;precision extraction\&#34;\nand more \&#34;directed demolition.\&#34; Crimson miners don&#39;t find ore seams.\nThey find asteroids and take them apart. The hull can absorb enough\npunishment to keep mining through a firefight, which Fleet doctrine\nconsiders a core capability, not an edge case.\n&#34;</span> &rarr; <span class="diff-add">&#34;The Siege Drill approaches asteroid mining the way the Crimson Fleet\napproaches everything: as a military operation. Two weapon mounts\nstand ready while the mining laser works through dedicated utility\nhardpoints — the Fleet never confused extraction equipment for\narmament. Armor plating thick enough to shrug off debris impacts and\nreturn fire simultaneously. The mining technique is less \&#34;precision\nextraction\&#34; and more \&#34;directed demolition.\&#34; Crimson miners don&#39;t find\nore seams. They find asteroids and take them apart. The hull can absorb\nenough punishment to keep mining through a firefight, which Fleet\ndoctrine considers a core capability, not an edge case.\n&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/siege_foundry.html">siege_foundry</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Siege Foundry&#34;</span> &rarr; <span class="diff-add">&#34;Construction&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Covert/solipsism.html">solipsism</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Intelligence Platform&#34;</span> &rarr; <span class="diff-add">&#34;Intelligence&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/stockade.html">stockade</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Armored Transport&#34;</span> &rarr; <span class="diff-add">&#34;Logistics&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/substrate.html">substrate</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Dimensional Processor&#34;</span> &rarr; <span class="diff-add">&#34;Refinery&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/surplus.html">surplus</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Trade Depot&#34;</span> &rarr; <span class="diff-add">&#34;Freighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Exploration/survey_vessel.html">survey_vessel</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Expedition&#34;</span> &rarr; <span class="diff-add">&#34;Explorer&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/syndicate.html">syndicate</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Armed Freighter&#34;</span> &rarr; <span class="diff-add">&#34;Freighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/tariff.html">tariff</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Energy Cruiser&#34;</span> &rarr; <span class="diff-add">&#34;Cruiser&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Industrial/taxonomy.html">taxonomy</a></div>
+<div class="diff-field"><span class="diff-field-name">build_materials:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 80</td><td class="diff-unchanged">item_id: circuit_board, quantity: 80</td></tr><tr><td class="diff-unchanged">item_id: life_support_unit, quantity: 15</td><td class="diff-unchanged">item_id: life_support_unit, quantity: 15</td></tr><tr><td class="diff-unchanged">item_id: navigation_core, quantity: 4</td><td class="diff-unchanged">item_id: navigation_core, quantity: 4</td></tr><tr><td class="diff-del">item_id: processing_core, quantity: 8</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: reinforced_bulkhead, quantity: 1</td><td class="diff-unchanged">item_id: reinforced_bulkhead, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: sensor_array, quantity: 45</td><td class="diff-unchanged">item_id: sensor_array, quantity: 45</td></tr><tr><td class="diff-unchanged">item_id: shield_emitter, quantity: 25</td><td class="diff-unchanged">item_id: shield_emitter, quantity: 25</td></tr><tr><td class="diff-unchanged">item_id: solarian_composite, quantity: 5</td><td class="diff-unchanged">item_id: solarian_composite, quantity: 5</td></tr><tr><td class="diff-unchanged">item_id: titanium_alloy, quantity: 150</td><td class="diff-unchanged">item_id: titanium_alloy, quantity: 150</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/theoria.html">theoria</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr><tr><td class="diff-empty"></td><td class="diff-add">pulse_laser_i</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/threshold.html">threshold</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">em_disruptor_i</td></tr><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/war_wagon.html">war_wagon</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Armed Convoy&#34;</span> &rarr; <span class="diff-add">&#34;Freighter&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Commercial/warhead.html">warhead</a></div>
+<div class="diff-field"><span class="diff-field-name">category:</span> <span class="diff-del">&#34;Industrial&#34;</span> &rarr; <span class="diff-add">&#34;Commercial&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Discontinued/windfall.html">windfall</a></div>
+<div class="diff-field"><span class="diff-field-name">class:</span> <span class="diff-del">&#34;Mining&#34;</span> &rarr; <span class="diff-add">&#34;Miner&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">mining_laser_i</td><td class="diff-unchanged">mining_laser_i</td></tr><tr><td class="diff-empty"></td><td class="diff-add">pulse_laser_i</td></tr></tbody></table></div>
+
 
 </div>
 </div>
@@ -123,9 +355,9 @@
 </div>
 </div>
 
-<div class="catalog-section" id="map">
+<div class="catalog-section" id="facilities">
 <div class="catalog-header">
-    <h3>Map</h3>
+    <h3>Facilities</h3>
     <div class="catalog-counts">
         
         <span class="no-changes">unchanged</span>
@@ -134,6 +366,147 @@
 </div>
 <div class="catalog-body">
 <p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~60</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/36_ophiuchi/index.html">36_ophiuchi</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/55_cancri/index.html">55_cancri</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/ain/index.html">ain</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/alcor/index.html">alcor</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/algieba/index.html">algieba</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/algol/index.html">algol</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/alhena/index.html">alhena</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/alniyat/index.html">alniyat</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/alpheratz/index.html">alpheratz</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/altais/index.html">altais</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/alzirr/index.html">alzirr</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/ascella/index.html">ascella</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/ashenmoor/index.html">ashenmoor</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/azha/index.html">azha</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/barnard_44/index.html">barnard_44</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/barnards_star/index.html">barnards_star</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/bellatrix/index.html">bellatrix</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/bluerift/index.html">bluerift</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/caph/index.html">caph</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/clearwater/index.html">clearwater</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/cocibolca/index.html">cocibolca</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/edasich/index.html">edasich</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/gliese_581/index.html">gliese_581</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/gliese_876/index.html">gliese_876</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/greymist/index.html">greymist</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0008/index.html">gsc_0008</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0010/index.html">gsc_0010</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0011/index.html">gsc_0011</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0022/index.html">gsc_0022</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0032/index.html">gsc_0032</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0044/index.html">gsc_0044</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0047/index.html">gsc_0047</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/hassaleh/index.html">hassaleh</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/hd_10647/index.html">hd_10647</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/hd_147513/index.html">hd_147513</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/maia/index.html">maia</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/menkib/index.html">menkib</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/nashira/index.html">nashira</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/nightveil/index.html">nightveil</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/nunki/index.html">nunki</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">0</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/peacock/index.html">peacock</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/pipirima/index.html">pipirima</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/pollux/index.html">pollux</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/rastaban/index.html">rastaban</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/ravensbrook/index.html">ravensbrook</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/regor/index.html">regor</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/sheratan/index.html">sheratan</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/skat/index.html">skat</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/skyreach/index.html">skyreach</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/stonecrest/index.html">stonecrest</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/sualocin/index.html">sualocin</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/tarazed/index.html">tarazed</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/theemin/index.html">theemin</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/toi_1452/index.html">toi_1452</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/toi_2257/index.html">toi_2257</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/valor/index.html">valor</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/willowgate/index.html">willowgate</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">2</span></div>
+<div class="diff-item-id"><a href="../systems/xamidimura/index.html">xamidimura</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/yildun/index.html">yildun</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">1</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/zaniah/index.html">zaniah</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
+
 
 </div>
 </div>
