@@ -166,24 +166,31 @@ def _col_runs(inner, xa, xb_):
 
 def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
               line_color="#eaf2ff", ext_pilot=False, bridge_pos=None):
+    """Deck linework for a hull, as (svg, meta).
+
+    Every exit must return the pair. The caller unpacks it directly, so a bare
+    "" here raises "not enough values to unpack" rather than degrading -- which
+    is what happened the first time a hull small enough to erode away
+    (inner.sum() < 400) reached this function.
+    """
     try:
         from scipy.ndimage import binary_erosion, uniform_filter1d, label
     except ImportError:
-        return ""
+        return "", {}
     try:
         import skimage  # noqa: F401
     except ImportError:
-        return ""
+        return "", {}
 
     subs = parse_subpaths(d)
     if not subs:
-        return ""
+        return "", {}
     W, H = int(vb_w), int(vb_h)
     mask = rasterize(subs, W, H)
     wt = max(3, int(0.011 * W))
     inner = binary_erosion(mask, iterations=wt)
     if inner.sum() < 400:
-        return ""
+        return "", {}
 
     frags = list(_contour_paths(inner, "in-hull"))
 
@@ -207,7 +214,7 @@ def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
     ch = np.zeros(W)
     have = [x for x in range(W) if cands[x]]
     if len(have) < 30:
-        return "".join(frags)
+        return "".join(frags), {}
     xseed = max(have, key=lambda x: max(c[1] for c in cands[x]))
     for sweep in (range(xseed, W), range(xseed, -1, -1)):
         prev = None

@@ -59,10 +59,37 @@ def load_views(ship_id):
     return json.loads(p.read_text()) if p.exists() else None
 
 
-def load_footprint(ship_id):
-    p = SVGDIR / f"{ship_id}.svg"
+# Discontinued hulls whose outline is filed under a retired id. The hy3d sweep
+# ran before the 2026-03-03 faction-prefix rename, so Benefit's trace is
+# nebula_benefit.svg. Same resolution as shipFootprint() in
+# cmd/generate-items-kb/ships.go, from the same source of truth.
+def _alias_map():
+    p = REPO / "data" / "legacy.json"
     if not p.exists():
+        return {}
+    doc = json.loads(p.read_text())
+    return {i: rec.get("aliases") or []
+            for i, rec in (doc.get("ships") or {}).items()}
+
+
+ALIASES = _alias_map()
+
+
+def footprint_stem(ship_id):
+    """The hy3d-svg stem for a ship, or None when nothing was ever traced."""
+    if (SVGDIR / f"{ship_id}.svg").exists():
+        return ship_id
+    for alias in ALIASES.get(ship_id, []):
+        if (SVGDIR / f"{alias}.svg").exists():
+            return alias
+    return None
+
+
+def load_footprint(ship_id):
+    stem = footprint_stem(ship_id)
+    if stem is None:
         return None
+    p = SVGDIR / f"{stem}.svg"
     txt = p.read_text()
     vb = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', txt)
     d = re.search(r'<path d="([^"]+)"', txt).group(1)
@@ -462,6 +489,29 @@ def main() -> int:
                  "base_shield,base_armor,base_hull,base_fuel,base_speed,"
                  "weapon_slots,defense_slots,utility_slots,category,faction"
                  " from ships")}
+
+    # Retired hulls are not in the DB -- 45 of the 49 never got there, since the
+    # DB only holds what agents met. Their catalog-shaped records come from the
+    # same overlay the KB generators merge, so a discontinued ship with a traced
+    # outline gets a real registry sheet instead of a bare silhouette.
+    ov = REPO / "overlays" / "generated" / "legacy_ships.json"
+    if ov.exists():
+        for r in json.loads(ov.read_text()):
+            ships.setdefault(r["id"], {
+                "name": r.get("name") or r["id"], "cls": r.get("class") or "",
+                "scale": r.get("scale"), "tier": r.get("tier") or 0,
+                "cargo": r.get("cargo_capacity") or 0,
+                "shield": r.get("base_shield") or 0,
+                "armor": r.get("base_armor") or 0,
+                "hull": r.get("base_hull") or 0,
+                "fuel": r.get("base_fuel") or 0,
+                "speed": r.get("base_speed") or 0,
+                "slots": (r.get("weapon_slots") or 0, r.get("defense_slots") or 0,
+                          r.get("utility_slots") or 0),
+                "category": r.get("category") or "Uncategorized",
+                "faction": r.get("faction") or "",
+            })
+
     est = json.loads(SCALE.read_text())["ships"] if SCALE.exists() else {}
     adj_f = REPO / "data" / "mesh_bakeoff" / "adjustments-final.json"
     adj_map = json.loads(adj_f.read_text()) if adj_f.exists() else {}

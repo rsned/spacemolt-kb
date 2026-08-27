@@ -472,7 +472,7 @@ var shipPageTemplate = `<!DOCTYPE html>
               <tbody>
 {{- range .Ships}}
             <tr>
-              <td><a href="{{.Category}}/{{.ID}}.html">{{.Name}}</a>{{if hasPassive .}} <span class="badge badge-green" title="Passive Recipes: {{range $i, $r := .PassiveRecipes}}{{if $i}}, {{end}}{{recipeName $r}}{{end}}">&#x2692; Passive</span>{{end}}</td>
+              <td><a href="{{.Category}}/{{.ID}}.html">{{.Name}}</a>{{if legacyShip .ID}} <span class="badge badge-legacy" title="Discontinued — removed from the buyable catalog{{with legacyShip .ID}}{{if .Date}}, last listed {{.Date}}{{end}}{{end}}">Discontinued</span>{{end}}{{if hasPassive .}} <span class="badge badge-green" title="Passive Recipes: {{range $i, $r := .PassiveRecipes}}{{if $i}}, {{end}}{{recipeName $r}}{{end}}">&#x2692; Passive</span>{{end}}</td>
               <td class="num">{{.Tier}}</td>
               <td class="num">{{.BaseHull}}</td>
               <td class="num">{{.BaseArmor}}</td>
@@ -547,7 +547,7 @@ var shipAllTemplate = `<!DOCTYPE html>
 {{- range .Ships}}
             <tr>
               <td><a href="{{.Category}}/{{.ID}}.html">{{.Name}}</a>{{if hasPassive .}} <span class="badge badge-green" title="Passive Recipes: {{range $i, $r := .PassiveRecipes}}{{if $i}}, {{end}}{{recipeName $r}}{{end}}">&#x2692;</span>{{end}}</td>
-              <td>{{.Category}}</td>
+              <td{{if legacyShip .ID}} class="cat-legacy" title="Removed from the buyable catalog{{with legacyShip .ID}}{{if .Date}}, last listed {{.Date}}{{end}}{{end}}"{{end}}>{{.Category}}</td>
               <td>{{.Class}}</td>
               <td data-sort="{{factionDisplayName .Faction}}"><span class="badge {{factionBadge .Faction}}">{{factionDisplayName .Faction}}</span></td>
               <td class="num">{{.Tier}}</td>

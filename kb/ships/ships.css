@@ -196,3 +196,11 @@ th.sortable:hover {
   box-sizing: border-box;
   background: hsl(220 26% 16%);
 }
+
+/* all.html sorts by name, so a discontinued hull sits between two live ones
+   with only its Category cell to say so. Colour that cell rather than adding a
+   badge: the column is already there and the table is dense. */
+.cat-legacy {
+  color: hsl(var(--smui-red));
+  font-weight: 600;
+}
