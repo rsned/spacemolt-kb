@@ -127,6 +127,31 @@ func loadLegacyShips() []*Ship {
 	return ships
 }
 
+// footprintSrc holds one top-down outline per ship, named by the id the hy3d
+// sweep ran under.
+const footprintSrc = "data/footprints/hy3d-svg"
+
+// shipFootprint returns the footprint stem to embed for a ship, or "" if it has
+// none. The sweep ran before the 2026-03-03 faction-prefix rename, so 32 of the
+// discontinued hulls have their outline filed under a retired id -- Benefit's is
+// nebula_benefit.svg. Aliases are the only way to find those, which is why the
+// pages reference a footprint by source stem rather than by page id: this is
+// then the single place that mapping exists, and the staging script stays a
+// plain copy.
+func shipFootprint(id string, have map[string]bool, legacy kblegacy.Set) string {
+	if have[id] {
+		return id
+	}
+	if e, ok := legacy.Ship(id); ok {
+		for _, alias := range e.Aliases {
+			if have[alias] {
+				return alias
+			}
+		}
+	}
+	return ""
+}
+
 func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string, items map[string]*Item) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
@@ -139,6 +164,16 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 	if matches, err := filepath.Glob(filepath.Join(outDir, "blueprints", "*.svg")); err == nil {
 		for _, m := range matches {
 			blueprints[strings.TrimSuffix(filepath.Base(m), ".svg")] = true
+		}
+	}
+
+	// Hy3d footprint outlines, the fallback for the 109 hulls with no registry
+	// blueprint. Read from the committed source rather than the staged copy so
+	// generation does not depend on scripts/build-ship-footprints.sh having run.
+	footprints := make(map[string]bool)
+	if matches, err := filepath.Glob(filepath.Join(footprintSrc, "*.svg")); err == nil {
+		for _, m := range matches {
+			footprints[strings.TrimSuffix(filepath.Base(m), ".svg")] = true
 		}
 	}
 
@@ -275,6 +310,9 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		"factionBadge": factionBadgeClass,
 		"factionDisplayName": factionDisplayName,
 		"hasBlueprint": func(id string) bool { return blueprints[id] },
+		"shipFootprint": func(id string) string {
+			return shipFootprint(id, footprints, legacySet)
+		},
 		// Retired hulls stay on the site, loudly marked — people still fly them.
 		"legacyShip": func(id string) *kblegacy.Entry {
 			if e, ok := legacySet.Ship(id); ok {
@@ -576,6 +614,16 @@ var shipDetailTemplate = `<!DOCTYPE html>
                raster (blueprints/art/) and img contexts block external
                loads inside SVG */}}
           <object class="blueprint" data="../blueprints/{{.ID}}.svg" type="image/svg+xml" aria-label="{{.Name}} registry blueprint"></object>
+        </div>
+{{- else if shipFootprint .ID}}
+        {{/* No registry blueprint drawn for this hull, but the hy3d sweep
+             traced its outline. For 32 discontinued hulls that outline is
+             filed under a retired id, which is why the href is the resolved
+             stem rather than .ID. */}}
+        <div class="card mt-2 blueprint-card">
+          <div class="section-label">Footprint <a class="blueprint-open" href="../footprints/{{shipFootprint .ID}}.svg" title="Open full-size footprint">&#x2197; full size</a></div>
+          <object class="blueprint footprint" data="../footprints/{{shipFootprint .ID}}.svg" type="image/svg+xml" aria-label="{{.Name}} top-down hull outline"></object>
+          <p class="text-muted mt-1">Top-down hull outline traced from the ship model. No registry blueprint has been drawn for this hull.</p>
         </div>
 {{- end}}
 

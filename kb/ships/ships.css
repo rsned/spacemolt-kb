@@ -182,3 +182,17 @@ th.sortable:hover {
   font-size: var(--text-ui);
   text-decoration: none;
 }
+
+/* Hy3d footprint outline, shown when no registry blueprint exists.
+   Two things differ from a blueprint sheet. The traced SVG hardcodes a pale
+   fill (#d5d8dd) and is embedded, so no page CSS can reach inside it to recolor
+   the path -- it needs a dark plate under it to be visible at all, in either
+   theme. And it is a bare silhouette with no frame or title block, so it needs
+   a fixed box to letterbox into; left to size itself an <object> grows to fill
+   the page. preserveAspectRatio centres it, so hulls of any aspect fit. */
+.blueprint-card .blueprint.footprint {
+  height: 340px;
+  padding: 16px;
+  box-sizing: border-box;
+  background: hsl(220 26% 16%);
+}
