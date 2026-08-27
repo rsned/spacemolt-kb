@@ -581,14 +581,16 @@ function compute() {
     cpuCap: acc(s.cpu), pwrCap: acc(s.pwr), cpuUsed: 0, pwrUsed: 0,
     cpuRaw: 0, pwrRaw: 0,
     hull: acc(s.hull), armor: acc(s.armor), shield: acc(s.shield),
-    srec: acc(s.srec), arep: acc(0), dred: acc(0),
+    srec: acc(s.srec), arep: acc(0),
     speed: acc(s.speed), fuel: acc(s.fuel), cargo: acc(s.cargo),
     feff: acc(0), tow: acc(s.tow),
     cloak: acc(0), scan: acc(0), acc_: acc(0), track: acc(0), sig: acc(0),
     dbw: acc(0), dcap: acc(0), hpow: acc(0), hrng: acc(0),
     spow: acc(0), srng: acc(0),
     res: Object.fromEntries(DTYPES.map(d => [d, {typed:0}])),
-    adapt: 0, adaptive: false,
+    adaptive: false,
+    // Pools the module text describes as "add and cap at 75%".
+    flat: 0, react: 0, dodge: 0, reflect: 0, amis: 0, web: 0,
     dpt: 0, edptLo: 0, edptHi: 0, reach: 0, alpha: 0,
     byType: {}, weapons: [],
     rounds: new Map(),   // round id -> round, for the loaded-ammo effects row
@@ -612,8 +614,12 @@ function compute() {
       r.shield.add += d.shield||0;  r.srec.add += d.srec||0;
       r.armor.add  += d.armor||0;   r.arep.add += d.arep||0;
       r.hull.add   += d.hull||0;
+      // An adaptive module states its reduction TWICE -- once as the
+      // adaptive_resistance_N token and again as damage_reduction -- and the
+      // catalog text confirms they are one number ("35% flat/adaptive damage
+      // reduction"). Take the larger of the two, never the sum.
       const dr = d.dred || 0;
-      r.dred.add += dr * (dr <= 1 ? 100 : 1);
+      r.flat += Math.max(dr * (dr <= 1 ? 100 : 1), m.adapt || 0);
       r.cloak.add = Math.max(r.cloak.add, d.cloak||0);   // a rating, not a pool
       // Typed and flat/adaptive are SEPARATE buckets (v0.564.1), so an adaptive
       // module is no longer shadowed by a hardener covering the same type -- the
@@ -622,7 +628,14 @@ function compute() {
         const explicit = (d.res||{})[dt] || 0;
         if (explicit) r.res[dt].typed += explicit * (explicit <= 1 ? 100 : 1);
       }
-      if (m.adapt) { r.adapt += m.adapt; r.adaptive = true; }
+      if (m.adapt) r.adaptive = true;
+      // "Typed and reactive module resistances add and cap at 75%" -- reactive
+      // answers whichever type is incoming, so it joins the typed bucket on
+      // every one of them rather than forming a pool of its own.
+      r.react += d.react || 0;
+      r.dodge += d.dodge || 0;
+      r.reflect += d.reflect || 0;
+      r.amis += d.amis || 0;
     }
     const u = m.u;
     if (u) {
@@ -638,6 +651,7 @@ function compute() {
       r.dbw.add += u.dbw||0;     r.dcap.add += u.dcap||0;
       r.hpow.add += u.hpow||0;   r.hrng.add = Math.max(r.hrng.add, u.hrng||0);
       r.spow.add += u.spow||0;   r.srng.add = Math.max(r.srng.add, u.srng||0);
+      r.web += u.web||0;
     }
     const w = m.w;
     if (w) {
@@ -672,11 +686,20 @@ function compute() {
    percentages below are exact for the buckets and a hair optimistic for the
    final figure. */
 const RES_CAP = 75;
+
+/* Every pool the module descriptions call "add and cap at 75%" reads the same
+   way, so they all render through one shape: the raw sum, the capped value, and
+   whether the cap threw anything away. */
+function pool(raw) {
+  return {raw, val: Math.min(RES_CAP, raw), capped: raw > RES_CAP};
+}
+
 function resStages(r) {
-  const flatRaw = total(r.dred) + r.adapt;
+  const flatRaw = r.flat;
   const flat = Math.min(RES_CAP, flatRaw);
   return DTYPES.map(dt => {
-    const typedRaw = r.res[dt].typed, typed = Math.min(RES_CAP, typedRaw);
+    const typedRaw = r.res[dt].typed + r.react,
+          typed = Math.min(RES_CAP, typedRaw);
     return {dt, typedRaw, typed, flatRaw, flat,
             eff: 100 - (100 - typed) * (100 - flat) / 100};
   });
@@ -937,6 +960,16 @@ function renderStats(r) {
   const s = r.ship;
   const out = [];
 
+  // One row per "add and cap at 75%" pool, reporting what the cap threw away the
+  // same way the speed cap does.
+  const capRow = (label, raw, unit, gloss) => {
+    if (!raw) return "";
+    const p = pool(raw);
+    return row(label, `${num(p.val)}${unit}`
+      + `<span class="brk">${gloss}</span>`
+      + (p.capped ? `<span class="cap">${num(raw)}${unit} CAPPED AT ${RES_CAP}${unit}</span>` : ""));
+  };
+
   // -- defense ------------------------------------------------------------
   const ehp = total(r.hull) + total(r.armor) + total(r.shield);
   let def = row("SHIELD", val(r.shield))
@@ -945,9 +978,6 @@ function renderStats(r) {
           + row("ARMOR REPAIR", val(r.arep, " /tick"))
           + row("HULL", val(r.hull))
           + row("EFFECTIVE HP", `<b>${num(ehp)}</b><span class="brk">shield + armor + hull</span>`);
-  if (total(r.dred))
-    def += row("DAMAGE REDUCTION",
-               val(r.dred, "%") + `<span class="brk">flat — folds into the strip below</span>`);
   const stages = resStages(r);
   const resCells = stages.map(c => {
     const capped = c.typedRaw > c.typed || c.flatRaw > c.flat;
@@ -968,7 +998,21 @@ function renderStats(r) {
                  + ` CAPPED AT ${RES_CAP}%`);
   const resNote = capMsgs.length
     ? `<div class="resnote">${capMsgs.join(" · ")}</div>` : "";
-  const defenseSection = section("DEFENSE", tbl(def) +
+
+  // The other pools the module text caps at 75%. Each is its own damage stage,
+  // so they are listed rather than folded into the resistance figures.
+  const pools = capRow("FLAT / ADAPTIVE", r.flat, "%",
+                       "second damage stage, after typed resistance")
+              + capRow("PHASE DODGE", r.dodge, "%", "enemy hit chance")
+              + capRow("ENERGY REFLECT", r.reflect, "%", "returned to the attacker as EM");
+  // Anti-missile is a rating, not a percentage -- the text says the ratings add
+  // and the resulting damage reduction caps at 75%, without giving the curve, so
+  // the sheet shows the sum and stops there rather than inventing one.
+  const amisRow = r.amis
+    ? row("ANTI-MISSILE", `${num(r.amis)}`
+        + `<span class="brk">pooled rating — incoming missile damage reduction caps at ${RES_CAP}%</span>`)
+    : "";
+  const defenseSection = section("DEFENSE", tbl(def + pools + amisRow) +
     `<div class="resgrid" style="margin-top:8px">${resCells}</div>${resNote}`);
 
   // -- offense ------------------------------------------------------------
@@ -997,6 +1041,7 @@ function renderStats(r) {
         <td>${mag ? num(mag) : "—"}</td>
         <td>${mag ? num((w.dmg||0)*mag) : "—"}</td>
         <td>${mag && cd ? num(mag*cd) : "—"}</td>
+        <td>${w.ignres ? num(w.ignres)+"%" : "—"}</td>
         <td>${num(w.reach||w.rng||0)}</td>
         <td><span class="dt dt-${w.dt}">${(w.dt||"").toUpperCase()}</span></td>
       </tr>`;}).join("");
@@ -1018,6 +1063,7 @@ function renderStats(r) {
         + row("REACH", `${num(r.reach)}`)
         + row("ALPHA STRIKE", `<b>${num(r.alpha)}</b><span class="brk">one shot from every weapon</span>`)
         + row("DAMAGE TYPES", `<div class="chips">${chips}</div>`)
+        + capRow("ESCAPE-SPEED PENALTY", r.web, "%", "applied to the selected target")
         + (fxRows ? row("AMMO EFFECTS", fxRows + `<span class="brk">not folded into the damage figures — each applies only in some matchups</span>`) : ""))
       + `<div class="wscroll"><table class="wlist"><thead><tr><th>WEAPON</th><th>DMG</th>
          <th title="Ticks between shots">CD</th><th title="Damage per tick">DPT</th>
@@ -1026,6 +1072,7 @@ function renderStats(r) {
          <th title="Rounds per magazine">MAG</th>
          <th title="Damage from one full magazine: damage x magazine size">MAG DMG</th>
          <th title="Ticks to fire the magazine dry: magazine size x cooldown">EMPTY IN</th>
+         <th title="Share of the target's typed resistance this weapon ignores">BYPASS</th>
          <th>REACH</th><th>TYPE</th></tr></thead>
          <tbody>${wrows}</tbody></table></div>`));
   } else {
@@ -1178,12 +1225,20 @@ async function render() {
     + `<b>DAMAGE / TICK</b> assumes continuous fire: the catalog carries no reload time, so `
     + `each weapon holds its rate only until EMPTY IN, and magazine figures are per-weapon `
     + `because a 1000-round autocannon and a 7-round railgun do not empty together. `
-    + `<b>RESISTANCES</b> follow the order the devs published in v0.564.1: shield skill, `
-    + `then <b>typed</b> resistance, then <b>flat/adaptive</b>. Bonuses add inside a bucket, `
-    + `each bucket stops at ${RES_CAP}%, and the two buckets then multiply — so a fit can read `
-    + `past ${RES_CAP}% overall but never reaches immunity. A cell showing two figures reads `
-    + `typed × flat; an <i>a</i> marker means an adaptive module supplies the flat bucket, `
-    + `which covers every damage type. `
+    + `<b>RESISTANCES</b> follow the order the devs published in v0.564.1 and repeat in the `
+    + `module text: shield skill, then <b>typed</b> resistance, then <b>flat/adaptive</b>. `
+    + `Bonuses add inside a bucket, each bucket stops at ${RES_CAP}%, and the two buckets then `
+    + `multiply — so a fit can read past ${RES_CAP}% overall but never reaches immunity. A cell `
+    + `showing two figures reads typed × flat; an <i>a</i> marker means an adaptive module `
+    + `supplies the flat bucket, which covers every damage type. A <b>reactive</b> hardener `
+    + `answers whichever type is incoming, so it joins the typed bucket on all six. `
+    + `<b>POOLED EFFECTS</b> — flat/adaptive, phase dodge, energy reflect and the `
+    + `escape-speed penalty — each add across copies and stop at ${RES_CAP}%, as their own `
+    + `descriptions state; anything past the cap is shown as wasted, the way speed is. `
+    + `<b>ANTI-MISSILE</b> is the one exception: the ratings pool, but the catalog does not `
+    + `give the curve from rating to damage reduction, so the sheet shows the sum and the `
+    + `documented ${RES_CAP}% ceiling rather than inventing a percentage. `
+    + `<b>BYPASS</b> is the share of the target's typed resistance a weapon ignores. `
     + `<b>CLOAK</b> takes the strongest fitted rating rather than summing. `
     + `<b>SHIELD TRACES</b> = (2 + tier &minus; 1) × total/base shields, `
     + `${RING_GAP_PX}px apart; trimmed traces show dashed grey.`;

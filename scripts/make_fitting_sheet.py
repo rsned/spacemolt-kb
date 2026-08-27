@@ -390,6 +390,52 @@ def catalog_module(rec, ammo):
     return m
 
 
+# Stats the knowledge DB schema simply has no column for: item_defenses has no
+# reactive_resistance, and combat_effects has no table at all. A DB-loaded module
+# arrives without them however fresh the DB is, so these are overlaid onto EVERY
+# module from the catalog, not only the ones the DB has never met.
+#
+# Each entry is catalog field -> (stat group, key). The pooled ones all follow
+# the "add and cap at 75%" rule the module descriptions spell out.
+CAT_EXTRA = {
+    "reactive_resistance": ("d", "react"),   # adds into the typed bucket
+    "webify_strength": ("u", "web"),         # escape-speed penalty, own pool
+}
+CAT_EXTRA_EFFECTS = {
+    "phase_dodge_pct": ("d", "dodge"),       # enemy hit chance, own pool
+    "reflect_energy_pct": ("d", "reflect"),  # returned as EM, own pool
+    "anti_missile_pct": ("d", "amis"),       # a rating, not a percentage
+    "ignore_resistance_pct": ("w", "ignres"),  # cuts the target's typed total
+}
+
+
+def enrich_from_catalog(mods, catalog):
+    """Overlay catalog-only stats onto already-loaded modules, in place."""
+    for m in mods:
+        rec = catalog.get(m["id"])
+        if not rec:
+            continue
+        effects = rec.get("combat_effects") or {}
+        for src, (grp, key) in CAT_EXTRA.items():
+            if rec.get(src):
+                m.setdefault(grp, {})[key] = rec[src]
+        for src, (grp, key) in CAT_EXTRA_EFFECTS.items():
+            if effects.get(src):
+                m.setdefault(grp, {})[key] = effects[src]
+
+
+def load_catalog():
+    """The newest catalog_items.json, keyed by id. Empty if it is not there."""
+    src = CATALOG / "catalog_items.json"
+    try:
+        doc = json.loads(src.read_text())
+    except (OSError, ValueError):
+        print(f"  note: no catalog at {src}; modules come from the DB alone")
+        return {}
+    rows = doc.get("items") if isinstance(doc, dict) else doc
+    return {r["id"]: r for r in rows or [] if r.get("id")}
+
+
 def catalog_only_modules(known, ammo):
     """Fittable modules in the newest catalog that the knowledge DB lacks.
 
@@ -398,16 +444,9 @@ def catalog_only_modules(known, ammo):
     single go. A missing catalog is not fatal; the sheet just falls back to
     whatever the DB knows.
     """
-    src = CATALOG / "catalog_items.json"
-    try:
-        doc = json.loads(src.read_text())
-    except (OSError, ValueError):
-        print(f"  note: no catalog at {src}; modules come from the DB alone")
-        return []
-    rows = doc.get("items") if isinstance(doc, dict) else doc
     out = []
-    for rec in rows or []:
-        if rec.get("id") in known or not rec.get("id"):
+    for rec in load_catalog().values():
+        if rec["id"] in known:
             continue
         if (rec.get("slot") or rec.get("type")) not in MODULE_SLOTS:
             continue
@@ -439,6 +478,7 @@ def main():
     mods = load_modules(con, ammo)
     con.close()
     mods += catalog_only_modules({m["id"] for m in mods}, ammo)
+    enrich_from_catalog(mods, load_catalog())
     mods.sort(key=lambda m: m["name"])
 
     legacy_ships, legacy_items = load_legacy()

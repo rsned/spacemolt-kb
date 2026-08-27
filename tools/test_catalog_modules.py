@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-from make_fitting_sheet import catalog_module  # noqa: E402
+from make_fitting_sheet import catalog_module, enrich_from_catalog  # noqa: E402
 
 
 class TestCatalogModule(unittest.TestCase):
@@ -105,6 +105,67 @@ class TestCatalogModule(unittest.TestCase):
         self.assertNotIn("u", m)
         self.assertNotIn("d", m)
         self.assertNotIn("w", m)
+
+
+class TestEnrichFromCatalog(unittest.TestCase):
+    """Fields the knowledge DB schema has no column for.
+
+    item_defenses has no reactive_resistance column and the combat_effects blob
+    has no table at all, so a DB-loaded module arrives without them however
+    fresh the DB is. They have to be overlaid from the catalog onto every
+    module, not just the ones the DB has never met.
+    """
+
+    def enrich(self, mods, catalog):
+        enrich_from_catalog(mods, {c["id"]: c for c in catalog})
+        return {m["id"]: m for m in mods}
+
+    def test_reactive_resistance_reaches_a_db_module(self):
+        mods = [{"id": "reactive_armor_hardener", "slot": "defense", "d": {}}]
+        got = self.enrich(mods, [{"id": "reactive_armor_hardener",
+                                  "reactive_resistance": 60}])
+        self.assertEqual(got["reactive_armor_hardener"]["d"]["react"], 60)
+
+    def test_combat_effects_pools_are_lifted(self):
+        mods = [
+            {"id": "voidborn_phase_armor", "slot": "defense", "d": {"armor": 30}},
+            {"id": "solarian_aegis", "slot": "defense", "d": {"shield": 100}},
+            {"id": "flak_cannon_ii", "slot": "weapon", "w": {"dmg": 28}},
+        ]
+        got = self.enrich(mods, [
+            {"id": "voidborn_phase_armor", "combat_effects": {"phase_dodge_pct": 25}},
+            {"id": "solarian_aegis", "combat_effects": {"reflect_energy_pct": 20}},
+            {"id": "flak_cannon_ii", "combat_effects": {"anti_missile_pct": 150}},
+        ])
+        self.assertEqual(got["voidborn_phase_armor"]["d"]["dodge"], 25)
+        self.assertEqual(got["voidborn_phase_armor"]["d"]["armor"], 30)
+        self.assertEqual(got["solarian_aegis"]["d"]["reflect"], 20)
+        self.assertEqual(got["flak_cannon_ii"]["d"]["amis"], 150)
+
+    def test_weapon_resistance_bypass(self):
+        mods = [{"id": "void_lance_ii", "slot": "weapon", "w": {"dmg": 55}}]
+        got = self.enrich(mods, [{"id": "void_lance_ii",
+                                  "combat_effects": {"ignore_resistance_pct": 50}}])
+        self.assertEqual(got["void_lance_ii"]["w"]["ignres"], 50)
+
+    def test_a_stat_group_is_created_when_absent(self):
+        mods = [{"id": "x", "slot": "defense"}]
+        got = self.enrich(mods, [{"id": "x", "reactive_resistance": 60}])
+        self.assertEqual(got["x"]["d"], {"react": 60})
+
+    def test_missing_and_zero_values_add_nothing(self):
+        mods = [{"id": "a", "slot": "defense", "d": {"armor": 5}},
+                {"id": "b", "slot": "defense", "d": {"armor": 5}}]
+        got = self.enrich(mods, [{"id": "a"},
+                                 {"id": "b", "reactive_resistance": 0,
+                                  "combat_effects": {"phase_dodge_pct": 0}}])
+        self.assertEqual(got["a"]["d"], {"armor": 5})
+        self.assertEqual(got["b"]["d"], {"armor": 5})
+
+    def test_a_module_absent_from_the_catalog_is_left_alone(self):
+        mods = [{"id": "ghost", "slot": "defense", "d": {"armor": 5}}]
+        got = self.enrich(mods, [])
+        self.assertEqual(got["ghost"]["d"], {"armor": 5})
 
 
 if __name__ == "__main__":
