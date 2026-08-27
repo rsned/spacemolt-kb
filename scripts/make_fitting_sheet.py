@@ -116,14 +116,85 @@ def nz(d):
     return {k: v for k, v in d.items() if v not in (0, None, "", [], {})}
 
 
+# Ammo modifier keys folded straight into the damage numbers. Everything else a
+# round carries is conditional (only against armour, only against drones, only
+# over time) and is surfaced as a labelled effect instead, so the headline DPT
+# never claims damage the sheet cannot stand behind.
+AMMO_DAMAGE_KEY = "damage_mod"
+
+AMMO_EFFECT_LABELS = {
+    "anti_drone_mod": "vs drones",
+    "anti_large_mod": "vs large",
+    "anti_small_mod": "vs small",
+    "armor_bypass": "armor bypass",
+    "armor_melt_pct": "armor melt",
+    "armor_melt_ticks": "armor melt ticks",
+    "disrupt_bonus_speed": "disrupt speed bonus",
+    "disrupt_bonus_ticks": "disrupt ticks bonus",
+    "disrupt_damage": "disrupt damage",
+    "disrupt_speed": "disrupt speed",
+    "disrupt_ticks": "disrupt ticks",
+    "dot_pct": "damage over time",
+    "dot_ticks": "DoT ticks",
+    "hit_chance_mod": "hit chance",
+    "hull_damage_mod": "vs hull",
+    "shield_bypass": "shield bypass",
+    "shield_damage_mod": "vs shields",
+    "splash_pct": "splash",
+    "untraceable": "untraceable",
+    "wear_per_shot": "wear per shot",
+}
+
+# Whole numbers, not fractions of 1 -- these read as counts or points, so
+# rendering them as percentages would be wrong.
+AMMO_COUNT_KEYS = {"armor_melt_ticks", "disrupt_bonus_ticks", "disrupt_ticks",
+                   "dot_ticks", "hit_chance_mod"}
+
+
+def ammo_effects(mods):
+    """Labelled non-damage effects of one round, for display."""
+    out = []
+    for k, v in sorted((mods or {}).items()):
+        if k == AMMO_DAMAGE_KEY or not v:
+            continue
+        label = AMMO_EFFECT_LABELS.get(k) or title_case(k)
+        if v is True:
+            out.append(label)
+        elif k in AMMO_COUNT_KEYS:
+            out.append(f"{label} {v:g}")
+        else:
+            out.append(f"{label} {v * 100:+g}%")
+    return out
+
+
 def load_ammo(con):
-    """Damage modifier range per ammo type, so a weapon can show effective DPT."""
+    """Every round grouped by ammo type, alphabetical by name.
+
+    The sheet carries one chosen round per type and folds its damage_mod into
+    the offense numbers. Ordering matters: the first entry of a type is what a
+    newly fitted weapon of that type loads by default.
+    """
     by_type = {}
-    for item_id, ammo_type, mods in con.execute(
-            "select item_id, ammo_type, modifiers from item_ammo"):
-        m = jload(mods, {})
-        by_type.setdefault(ammo_type, []).append(float(m.get("damage_mod", 0)))
-    return {k: [min(v), max(v)] for k, v in by_type.items()}
+    for item_id, ammo_type, name, mods in con.execute(
+            """select a.item_id, a.ammo_type, i.name, a.modifiers
+               from item_ammo a join items i on i.id = a.item_id
+               order by i.name"""):
+        m = jload(mods, {}) or {}
+        by_type.setdefault(ammo_type, []).append({
+            "id": item_id, "name": name,
+            "dm": float(m.get(AMMO_DAMAGE_KEY, 0) or 0),
+            "fx": ammo_effects(m),
+        })
+    return by_type
+
+
+def ammo_span(by_type, atype):
+    """damage_mod low/high across a type -- the fallback while none is chosen."""
+    rounds = by_type.get(atype) or []
+    if not rounds:
+        return [0.0, 0.0]
+    dm = [a["dm"] for a in rounds]
+    return [min(dm), max(dm)]
 
 
 def load_ships(con):
@@ -211,7 +282,7 @@ def load_modules(con, ammo):
         if mid in weapons:
             (dmg, dtype, rng, reach, cd, atype, mag, abyp, sbyp) = weapons[mid]
             dpt = (dmg or 0) / cd if cd else 0
-            lo, hi = ammo.get(atype, [0.0, 0.0]) if atype else [0.0, 0.0]
+            lo, hi = ammo_span(ammo, atype) if atype else [0.0, 0.0]
             m["w"] = nz({
                 "dmg": dmg or 0, "dt": dtype or "", "rng": rng or 0,
                 "reach": reach or 0, "cd": cd or 0, "ammo": atype or "",
@@ -279,12 +350,15 @@ def main():
     html = (tmpl
             .replace("/*__SHIPS__*/null", json.dumps(ships, separators=(",", ":")))
             .replace("/*__MODULES__*/null", json.dumps(mods, separators=(",", ":")))
-            .replace("/*__DAMAGE_TYPES__*/null", json.dumps(DAMAGE_TYPES)))
+            .replace("/*__DAMAGE_TYPES__*/null", json.dumps(DAMAGE_TYPES))
+            .replace("/*__AMMO__*/null", json.dumps(ammo, separators=(",", ":"))))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html)
     nl_s = sum(1 for s in ships.values() if s.get("legacy"))
     nl_m = sum(1 for m in mods if m.get("legacy"))
     print(f"  legacy marked: {nl_s} ships, {nl_m} modules")
+    print(f"  ammo: {sum(len(v) for v in ammo.values())} rounds "
+          f"across {len(ammo)} types")
     planned = sum(1 for s in ships.values() if s.get("plan"))
     print(f"wrote {OUT.relative_to(REPO)}  "
           f"{len(ships)} ships ({planned} with plan views), {len(mods)} modules, "
