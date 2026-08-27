@@ -23,6 +23,7 @@ constant screen size.
 """
 import hashlib
 import re
+import sys
 
 import numpy as np
 
@@ -164,23 +165,40 @@ def _col_runs(inner, xa, xb_):
     return np.array(tops, float), np.array(bots, float)
 
 
+_warned = set()
+
+
+def _warn_once(mod):
+    """Say it loudly, once. A missing dep here costs deck linework on every
+    sheet in the run and is invisible in the output."""
+    if mod in _warned:
+        return
+    _warned.add(mod)
+    print(f"make_blueprints: {mod} is not importable -- sheets in this run will "
+          f"have NO deck linework. Use /home/robert/hy3d-venv/bin/python3.",
+          file=sys.stderr)
+
+
 def deck_plan(ship_id, d, vb_w, vb_h, cargo_capacity, window_t, s,
               line_color="#eaf2ff", ext_pilot=False, bridge_pos=None):
     """Deck linework for a hull, as (svg, meta).
 
     Every exit must return the pair. The caller unpacks it directly, so a bare
-    "" here raises "not enough values to unpack" rather than degrading -- which
-    is what happened the first time a hull small enough to erode away
-    (inner.sum() < 400) reached this function.
+    "" raises "not enough values to unpack" rather than degrading.
+
+    Run this with an interpreter that has scipy AND scikit-image. Without them
+    every sheet still renders, but with no deck linework at all -- a silent
+    quality regression that looks like a finished blueprint. Use
+    /home/robert/hy3d-venv/bin/python3, which is what the committed sheets were
+    generated with; the system python has scipy but not skimage.
     """
-    try:
-        from scipy.ndimage import binary_erosion, uniform_filter1d, label
-    except ImportError:
-        return "", {}
-    try:
-        import skimage  # noqa: F401
-    except ImportError:
-        return "", {}
+    for mod in ("scipy.ndimage", "skimage"):
+        try:
+            __import__(mod)
+        except ImportError:
+            _warn_once(mod)
+            return "", {}
+    from scipy.ndimage import binary_erosion, uniform_filter1d, label
 
     subs = parse_subpaths(d)
     if not subs:

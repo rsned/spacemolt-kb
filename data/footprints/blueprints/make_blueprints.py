@@ -178,6 +178,18 @@ def sheet(ship_id, ship, est, adj_map=None, bridge_pos=None):
 
     vw = load_views(ship_id)
 
+    # Right-column stack, hoisted above the layout branch because the
+    # single-view sheet has to be tall enough to hold it. Top to bottom:
+    # vignette, gap, stats card, gap, title block, bottom margin.
+    ART_Y, ART_H, TB_H, COL_GAP, BOT_M = 60, 300, 160, 16, 36
+    stat_rows = [("SHIELDS", f'{ship["shield"]}'), ("ARMOR", f'{ship["armor"]}'),
+                 ("HULL", f'{ship["hull"]}'), ("FUEL", f'{ship["fuel"]}'),
+                 ("CARGO", f'{ship["cargo"]}'),
+                 ("SPEED", f'{ship["speed"]} AU/T'),
+                 ("SLOTS W/D/U", "{}/{}/{}".format(*ship["slots"]))]
+    st_h = 26 + 18 * len(stat_rows) + 8
+    col_stack = ART_Y + ART_H + COL_GAP + st_h + COL_GAP + TB_H + BOT_M
+
     # geometry: ortho views on the left, vignette + title block column right
     pad_l, pad_t = 96, 90
     cw = 830 - 40 - pad_l            # hull content width
@@ -250,7 +262,7 @@ def sheet(ship_id, ship, est, adj_map=None, bridge_pos=None):
     else:
         col_x = 830
         hull_ch = max(ch, 300)
-        SH = max(hull_ch + pad_t + 150, 690)   # floor fits art+stats+title
+        SH = max(hull_ch + pad_t + 150, col_stack)
         y0 = pad_t + (SH - 150 - pad_t - ch) / 2   # vertically center
         y1 = y0 + ch
         gy = y1 + 40
@@ -279,8 +291,8 @@ def sheet(ship_id, ship, est, adj_map=None, bridge_pos=None):
     # perspective vignette panel: three-view sheets tuck it into the
     # empty middle bay between the front elevation and the plan; the
     # single-view layout keeps it at the top of the right column
-    tb_h = 160
-    tb_y = SH - tb_h - 36
+    tb_h = TB_H
+    tb_y = SH - tb_h - BOT_M
     if has_art and vw:
         # frameless: the duotone hero floats on the field with a plain
         # rule underneath (user mock), half again the old panel size
@@ -296,7 +308,7 @@ def sheet(ship_id, ship, est, adj_map=None, bridge_pos=None):
                f'<image href="art/{ship_id}.png" x="{ax + 8:.0f}" y="{ay + 8:.0f}" '
                f'width="{aw - 16:.0f}" height="{ah - 16:.0f}" preserveAspectRatio="xMidYMid meet"/>')
     elif has_art:
-        art_y, art_h = 60, 300
+        art_y, art_h = ART_Y, ART_H
         art = (f'<rect x="{col_x}" y="{art_y}" width="{col_w}" height="{art_h}" class="frame" stroke-width="1.2"/>'
                f'<image href="art/{ship_id}.png" x="{col_x + 8}" y="{art_y + 8}" '
                f'width="{col_w - 16}" height="{art_h - 16}" preserveAspectRatio="xMidYMid meet"/>')
@@ -305,18 +317,13 @@ def sheet(ship_id, ship, est, adj_map=None, bridge_pos=None):
 
     # stats panel: a narrow card pinned to the upper-right corner on
     # three-view sheets; below the vignette on the single-view layout
-    rows = [("SHIELDS", f'{ship["shield"]}'), ("ARMOR", f'{ship["armor"]}'),
-            ("HULL", f'{ship["hull"]}'), ("FUEL", f'{ship["fuel"]}'),
-            ("CARGO", f'{ship["cargo"]}'),
-            ("SPEED", f'{ship["speed"]} AU/T'),
-            ("SLOTS W/D/U", "{}/{}/{}".format(*ship["slots"]))]
-    rh, st_h = 18, 26 + 18 * len(rows) + 8
+    rows, rh = stat_rows, 18
     if vw:
         st_w = 250
         st_x, st_y = SW - 40 - st_w, 60
     else:
         st_w = col_w
-        st_x, st_y = col_x, 60 + 300 + 16
+        st_x, st_y = col_x, ART_Y + ART_H + COL_GAP
     stats = [f'<rect x="{st_x}" y="{st_y}" width="{st_w}" height="{st_h}" class="frame" stroke-width="1.2"/>',
              f'<line x1="{st_x}" y1="{st_y + 22}" x2="{st_x + st_w}" y2="{st_y + 22}" stroke="{LINE}" stroke-width="1"/>',
              f'<text x="{st_x + 12}" y="{st_y + 16}">REGISTRY STATS</text>']
