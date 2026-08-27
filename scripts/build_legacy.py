@@ -86,6 +86,30 @@ def newest_with_data(api: Path, snaps, filename):
     return None, None
 
 
+def catalog_history(api, snaps, filename):
+    """id -> (newest snapshot carrying it, its record there).
+
+    The knowledge DB only holds what agents have actually met, so a hull retired
+    before the DB ever saw it is invisible to a DB-vs-catalog diff -- Benefit
+    left the catalog on 2026-03-30 and has no DB row at all. The dated snapshots
+    are the real history and this reads all of them. snaps is newest-first, so
+    the first sighting of an id is the last catalog that carried it.
+    """
+    hist = {}
+    for s in snaps:
+        try:
+            doc = json.loads((api / s / filename).read_text())
+        except (OSError, ValueError):
+            continue
+        rows = doc.get("items") if isinstance(doc, dict) else doc
+        if not rows:
+            continue
+        for r in rows:
+            if isinstance(r, dict) and r.get("id") and r["id"] not in hist:
+                hist[r["id"]] = (s, r)
+    return hist
+
+
 def last_seen(api, snaps, filename, wanted):
     """Map id -> newest snapshot containing it, for the ids we care about."""
     out, remaining = {}, set(wanted)
@@ -102,23 +126,51 @@ def last_seen(api, snaps, filename, wanted):
     return out
 
 
-def build(kind, db_rows, api, snaps, filename):
+def build(kind, db_rows, api, snaps, filename, history=None):
+    """Retired ids for one catalog, from the DB and optionally the snapshots.
+
+    The two sources are complementary, not redundant. The DB knows ids the live
+    game uses that no catalog ever listed (deeprock_harvester, and prospector
+    which predates every snapshot); the snapshots know ids retired before the DB
+    met them (benefit, and 45 more). Neither alone is the answer.
+    """
     snap, current = newest_with_data(api, snaps, filename)
     if not current:
         sys.exit(f"no usable {filename} in any snapshot")
-    legacy = {i: n for i, n in db_rows.items() if i not in current}
+
+    names = dict(db_rows)
+    if history:
+        for i, (_, rec) in history.items():
+            names.setdefault(i, (rec.get("name") or "").strip())
+
+    legacy = {i: n for i, n in names.items() if i not in current}
+
+    # Most vanished ids are renames, not retirements: the 2026-03-03 faction
+    # prefix drop alone moved 225 hulls (crimson_billhook -> billhook). If the
+    # display name still ships under a current id the ship was never retired,
+    # so it needs no legacy page -- it already has a live one.
+    if history:
+        live = {(history[i][1].get("name") or "").strip().lower()
+                for i in current if i in history}
+        legacy = {i: n for i, n in legacy.items()
+                  if (n or "").strip().lower() not in live}
+
     seen = last_seen(api, snaps, filename, legacy)
+    if history:
+        for i in legacy:
+            if i in history:
+                seen[i] = history[i][0]
 
     # Same display name on two ids means a rename; link them both ways so a
     # lookup on the retired id finds the one people actually use.
     by_name = {}
-    for i, n in db_rows.items():
+    for i, n in names.items():
         by_name.setdefault(n, []).append(i)
 
     out = {}
     for i, n in sorted(legacy.items()):
         rec = {"name": n, "last_in_catalog": seen.get(i)}
-        alias = [o for o in by_name.get(n, []) if o != i]
+        alias = [o for o in by_name.get(n, []) if o != i and o in legacy]
         if alias:
             rec["aliases"] = sorted(alias)
         out[i] = rec
@@ -143,7 +195,9 @@ def main():
     items = {r[0]: r[1] for r in con.execute("select id, name from items")}
     modules = {r[0] for r in con.execute("select item_id from item_modules")}
 
-    ship_legacy, ship_snap, n_ships = build("ships", ships, api, snaps, "catalog_ships.json")
+    ship_history = catalog_history(api, snaps, "catalog_ships.json")
+    ship_legacy, ship_snap, n_ships = build(
+        "ships", ships, api, snaps, "catalog_ships.json", history=ship_history)
     item_legacy, item_snap, n_items = build("items", items, api, snaps, "catalog_items.json")
     for i, rec in item_legacy.items():
         rec["fittable"] = i in modules
@@ -165,7 +219,7 @@ def main():
     cols = ", ".join(SHIP_COLS + sorted(JSON_COLS))
     q = f"select {cols} from ships where id in ({','.join('?' * len(ship_legacy))})"
     names = SHIP_COLS + sorted(JSON_COLS)
-    records = []
+    records, from_db = [], set()
     for row in con.execute(q, tuple(sorted(ship_legacy))):
         rec = dict(zip(names, row))
         for k in JSON_COLS:
@@ -174,25 +228,50 @@ def main():
             except (ValueError, TypeError):
                 rec[k] = []
         rec["starter_ship"] = bool(rec["starter_ship"])
+        from_db.add(rec["id"])
+        records.append(rec)
+
+    # Hulls the DB never met come straight from the last snapshot that carried
+    # them. That file IS catalog_ships.json, so the record already has exactly
+    # the shape the KB's Ship struct unmarshals -- no column mapping needed.
+    for sid in sorted(ship_legacy):
+        if sid in from_db or sid not in ship_history:
+            continue
+        records.append(dict(ship_history[sid][1]))
+
+    for rec in records:
         # Every emitted hull is retired, so they all file under one bucket —
         # otherwise a renamed pair lands in two different category directories.
         rec["category"] = LEGACY_CATEGORY
         rec["legacy"] = True
         rec["aliases"] = ship_legacy[rec["id"]].get("aliases", [])
-        records.append(rec)
 
     # A rename leaves two ids for one ship. Emitting both would publish the same
     # hull twice, so keep one page per name and fold the other ids into it as
     # aliases. The surviving id is the one that never appeared in the ship
     # catalog on its own: the catalog entry is what the rename retired, and the
     # replacement id was never separately listed for sale.
+    def survives(sid):
+        """Sort key for which id of a renamed pair keeps the page.
+
+        Highest wins. An id with no catalog history at all is the newest thing
+        we know: the catalog entry is what the rename retired, and the
+        replacement was never separately listed (mining_cruiser ->
+        deeprock_harvester). Otherwise the one the catalog carried most recently
+        wins -- nebula_benefit last shipped 2026-02-27, benefit 2026-03-27, and
+        Benefit is the name on the hull players are buying today.
+        """
+        lic = ship_legacy[sid].get("last_in_catalog")
+        return (1, "") if not lic else (0, lic)
+
     chosen, dropped = {}, []
     for rec in sorted(records, key=lambda r: r["id"]):
         prev = chosen.get(rec["name"])
         if prev is None:
             chosen[rec["name"]] = rec
             continue
-        keep, drop = (rec, prev) if not ship_legacy[rec["id"]].get("last_in_catalog") else (prev, rec)
+        keep, drop = ((rec, prev) if survives(rec["id"]) > survives(prev["id"])
+                      else (prev, rec))
         merged = set(keep["aliases"]) | {drop["id"]} | set(drop["aliases"])
         keep["aliases"] = sorted(merged - {keep["id"]})   # never alias to itself
         chosen[rec["name"]] = keep

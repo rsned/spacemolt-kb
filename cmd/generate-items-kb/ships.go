@@ -558,8 +558,9 @@ var shipDetailTemplate = `<!DOCTYPE html>
 {{- with legacyShip .ID}}
         <div class="legacy-note">
           <span class="badge badge-legacy">Discontinued</span>
-          This ship is no longer sold{{if .Date}} — last listed in the catalog on {{.Date}}{{end}}.
-          Existing hulls still fly and can still be fitted.
+          Removed from the buyable catalog{{if .Date}} — last listed on {{.Date}}{{end}}.
+          It cannot be ordered, but shipyards can still build and list these,
+          so one may still turn up for sale. Existing hulls fly and fit normally.
 {{- if .Aliases}} Also known as {{range $i, $a := .Aliases}}{{if $i}}, {{end}}<code>{{$a}}</code>{{end}}.{{end}}
         </div>
 {{- end}}
