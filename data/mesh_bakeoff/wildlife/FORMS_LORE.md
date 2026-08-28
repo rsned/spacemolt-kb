@@ -12,6 +12,15 @@ Part 1 covers the live roster (scraped `wildlife_species` + the
 gas-cloud POI species). Part 2 covers the "beyond earth-equivalents"
 exotic form hypotheses (`gen_forms.sh`).
 
+Habitat and role tags in Part 1 are the scanned values, so they win over
+the prose where the two ever drift apart. Where combat is described it
+comes from `wildlife_attacks`, which is thin — five species have ever
+been recorded swinging at anything. Two gaps worth knowing about:
+**Tempest-Eel** is here on the strength of the gas-cloud POI listing
+alone and has never appeared in `wildlife_species`; and eight scanned
+species still have no entry — ash-scarab, carrion-moth, crusher-mantis,
+frost-moth, hollow pilgrim, pressblister, prism-drifter and rime-grazer.
+
 ---
 
 ## Part 1 — the known roster
@@ -102,7 +111,7 @@ The belt's answer to keeping warm: stop trying, become the furnace.
   melt for crucible flux from the SIDE, living — the pool scabs to
   worthless rock a day after death.
 
-**Coronid** *(plasma fields · grazer)*
+**Coronid** *(asteroid_belt · grazer)*
 Scans as weather, not wildlife.
 - **Changed:** everything — no tissue at all. A ring of arcing golden
   plasma around a fist of degenerate matter; the erupting, rejoining
@@ -170,21 +179,29 @@ The glider of the cloud margins, all wing and no hurry.
   drops like a dead leaf, which in a cloud is functionally
   vanishing.
 
-**Rainbow Leviathan** *(nebula margins · apex predator)*
+**Rainbow Leviathan** *(asteroid_belt · predator)*
 The grandest of the void-leviathans, and the single rarest plate in
-the galaxy.
+the galaxy. The scan files it as "predator" like any other, which
+undersells it: 2,200 hull against 320 for the next largest thing in
+the belts, and the only apex the roster has.
 - **Changed:** the lobster plan scaled to cruiser size because nothing
   says it can't: molt-armor became the prismatic carapace, light-
   fracturing lattice laced with the exotic metals of a lifetime of
   hunting exotic-fed fauna.
-- **Feeds:** hunts the exotic grazers of the nebulae — prism-drifters,
-  frost-moths, anything that concentrates rare compounds — and prys,
-  crushes, and shears with serrated claws that work like hydraulic
-  cutters. The shimmer in its flesh is its diet.
-- **Defends:** attacks. It is the apex; its molted shell
-  (`prismatic_carapace`) is the defense it no longer needs, shed and
-  sold. The claws answer everything else, and "attack on sight" in
-  the survey notes is written from experience.
+- **Feeds:** ranges off its own belts after whatever concentrates rare
+  compounds — prism-drifters in the gas clouds, frost-moths out on the
+  ice fields — and prys, crushes and shears with serrated claws that
+  work like hydraulic cutters. The shimmer in its flesh is its diet.
+- **Defends:** attacks — but not with the claws, which are cutlery.
+  It fires the carapace. The one engagement on record is two energy
+  beams, both on target, 130 apiece: the same trick its prey uses,
+  since a prism-drifter beams too, only feebly, run back through a
+  cruiser's worth of light-fracturing lattice. The shimmer is the
+  diet and the diet is the weapon. It carries no shields whatever, so
+  it simply takes the hit and answers out of that enormous hull; the
+  molted shell (`prismatic_carapace`) is the armour it no longer
+  needs, shed and sold. "Attack on sight" in the survey notes is
+  written from experience — six sightings, no kills.
 
 ---
 
