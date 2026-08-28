@@ -1213,8 +1213,10 @@ async function render() {
     + `fitted modules; no combat skill is folded in, so a trained pilot reads better than `
     + `this sheet on every line. Not applied: `
     + `<b>Armor</b> (+1%/level armor and hull), <b>Shields</b> (+1%/level capacity, recharge `
-    + `and shield resistance), <b>Gunnery</b> and <b>Weapons</b> (+1%/level damage each, `
-    + `Weapons also +0.2%/level crit), <b>Tactics</b> (+1%/level accuracy, evasion and combat `
+    + `and shield resistance — that resistance is the first mitigation stage and applies only `
+    + `while shields are up), <b>Gunnery</b> and <b>Weapons</b> (+1%/level damage each; on a `
+    + `capital hull Gunnery is understood to pay twice, once for the damage type and again `
+    + `for the capital bonus), <b>Tactics</b> (+1%/level accuracy, evasion and combat `
     + `speed), plus <b>Bounty Hunting</b>, <b>Piracy</b> and <b>Leadership</b>, which affect `
     + `payouts, loot and scan evasion rather than these stats. `
     + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to the fitted total, `
@@ -1222,9 +1224,13 @@ async function render() {
     + `sum a point above the total. At level 100 modules cost nothing. `
     + `<b>SPEED</b> stops at ${SPEED_CAP} however many modules are fitted; anything past it `
     + `is shown as wasted rather than added. `
-    + `<b>DAMAGE / TICK</b> assumes continuous fire: the catalog carries no reload time, so `
-    + `each weapon holds its rate only until EMPTY IN, and magazine figures are per-weapon `
-    + `because a 1000-round autocannon and a 7-round railgun do not empty together. `
+    + `<b>DAMAGE / TICK</b> assumes continuous fire and every shot landing: the catalog `
+    + `carries no reload time, so each weapon holds its rate only until EMPTY IN, and `
+    + `magazine figures are per-weapon because a 1000-round autocannon and a 7-round railgun `
+    + `do not empty together. Note that <b>one attack is one volley</b> — every weapon in `
+    + `range and off cooldown fires together and the whole volley takes a single to-hit roll, `
+    + `so a wide weapon rack does not average its misses away the way separate rolls would. `
+    + `Accuracy is not modelled here, but it costs a heavy fit more per miss than a light one. `
     + `<b>RESISTANCES</b> follow the order the devs published in v0.564.1 and repeat in the `
     + `module text: shield skill, then <b>typed</b> resistance, then <b>flat/adaptive</b>. `
     + `Bonuses add inside a bucket, each bucket stops at ${RES_CAP}%, and the two buckets then `
