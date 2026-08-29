@@ -6,33 +6,39 @@ import (
 	"fmt"
 	htmltpl "html/template"
 	"log"
+	"maps"
 	"math"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	humanize "github.com/dustin/go-humanize"
 
 	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
+	"github.com/rsned/spacemolt-kb/pkg/resourcediff"
 )
 
 // ResourceEntry is a single resource occurrence at a POI.
 type ResourceEntry struct {
-	SystemName      string
-	SystemID        string
-	POIName         string
-	POIID           string
-	ResourceName    string
-	ResourceID      string
+	SystemName       string
+	SystemID         string
+	POIName          string
+	POIID            string
+	ResourceName     string
+	ResourceID       string
 	ResourceCategory string
-	Richness        float64
-	MaxAmount       float64
-	Remaining       float64
-	DepletionPct    float64 // 0–100, how much has been consumed
-	LastUpdatedTick int
-	Hidden          bool
-	StationInSystem bool
+	Richness         float64
+	MaxAmount        float64 // capacity when MaxKnown, else the highest remaining seen for this resource
+	MaxKnown         bool    // capacity reported by the server (get_poi) rather than estimated
+	Remaining        float64
+	SupportedPower   int     // mining power the deposit accepts now: floor(remaining/20)
+	MaxPower         int     // ceiling at full capacity; 0 when the capacity is unknown
+	DepletionPct     float64 // 0–100, how much has been consumed
+	LastUpdatedTick  int
+	Hidden           bool
+	StationInSystem  bool
 }
 
 // ResourceGroup groups all occurrences of a single resource.
@@ -50,7 +56,7 @@ func loadResourceEntries(db *sql.DB) ([]ResourceEntry, error) {
 			p.name, p.id,
 			COALESCE(i.name, pr.resource_id), pr.resource_id,
 			COALESCE(i.category, ''),
-			pr.richness, pr.remaining, pr.last_updated_tick,
+			pr.richness, pr.remaining, pr.max_remaining, pr.last_updated_tick,
 			p.hidden,
 			EXISTS(SELECT 1 FROM pois sp WHERE sp.system_id = s.id AND sp.type = 'station')
 		FROM poi_resources pr
@@ -64,42 +70,59 @@ func loadResourceEntries(db *sql.DB) ([]ResourceEntry, error) {
 	}
 	defer func() { _ = rows.Close() }()
 
-	// First pass: collect entries and track max remaining per (poi, resource).
 	var entries []ResourceEntry
+	var capacities []float64
 	for rows.Next() {
 		var e ResourceEntry
+		var capacity float64
 		if err := rows.Scan(
 			&e.SystemName, &e.SystemID,
 			&e.POIName, &e.POIID,
 			&e.ResourceName, &e.ResourceID, &e.ResourceCategory,
-			&e.Richness, &e.Remaining, &e.LastUpdatedTick, &e.Hidden, &e.StationInSystem,
+			&e.Richness, &e.Remaining, &capacity, &e.LastUpdatedTick, &e.Hidden, &e.StationInSystem,
 		); err != nil {
 			return nil, err
 		}
 		entries = append(entries, e)
+		capacities = append(capacities, capacity)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-
-	// Compute max amount per resource across all POIs (highest observed remaining).
-	maxByResource := make(map[string]float64)
-	for _, e := range entries {
-		if e.Remaining > maxByResource[e.ResourceID] {
-			maxByResource[e.ResourceID] = e.Remaining
-		}
-	}
-
-	// Set max amount and depletion percent.
+	estimates := highestRemaining(entries)
 	for i := range entries {
-		e := &entries[i]
-		e.MaxAmount = maxByResource[e.ResourceID]
-		if e.MaxAmount > 0 {
-			e.DepletionPct = math.Round((1 - e.Remaining/e.MaxAmount) * 100)
+		resolveCapacity(&entries[i], capacities[i], estimates)
+	}
+	return entries, nil
+}
+
+// highestRemaining is the largest remaining amount seen per resource, the
+// page's stand-in for capacity when the server has not reported one.
+func highestRemaining(entries []ResourceEntry) map[string]float64 {
+	m := make(map[string]float64)
+	for _, e := range entries {
+		if e.Remaining > m[e.ResourceID] {
+			m[e.ResourceID] = e.Remaining
 		}
 	}
+	return m
+}
 
-	return entries, nil
+// resolveCapacity fills the capacity-derived fields of an entry. capacity is
+// the server-reported max_remaining (0 = unknown); estimates is the fallback
+// per resource.
+func resolveCapacity(e *ResourceEntry, capacity float64, estimates map[string]float64) {
+	if capacity > 0 {
+		e.MaxAmount = capacity
+		e.MaxKnown = true
+		e.MaxPower = resourcediff.SupportedPower(int(capacity))
+	} else {
+		e.MaxAmount = estimates[e.ResourceID]
+	}
+	e.SupportedPower = resourcediff.SupportedPower(int(e.Remaining))
+	if e.MaxAmount > 0 {
+		e.DepletionPct = math.Round((1 - e.Remaining/e.MaxAmount) * 100)
+	}
 }
 
 // loadSystemsForStats loads minimal system data for exploration statistics.
@@ -277,6 +300,13 @@ func loadSystemsForMap(db *sql.DB) ([]*galaxymap.System, map[string]*galaxymap.S
 }
 
 func writeResourcePages(outDir string, db *sql.DB) error {
+	return writeResourcePagesWithDeltas(outDir, db, resourceDeltasOrNil(db, resourceSnapshotDir, time.Now().Format("2006-01-02")))
+}
+
+// writeResourcePagesWithDeltas renders the Resources index, annotated with
+// movement since the previous regen and the content-patch baseline when
+// deltas are available.
+func writeResourcePagesWithDeltas(outDir string, db *sql.DB, deltas *resourceDeltas) error {
 	entries, err := loadResourceEntries(db)
 	if err != nil {
 		return fmt.Errorf("load resource entries: %w", err)
@@ -367,7 +397,7 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 			}
 			return fmt.Sprintf("%d", t)
 		},
-		"anchorID": resourceSlug,
+		"anchorID":     resourceSlug,
 		"sanitizeName": sanitizeName,
 		"itemPageURL": func(category, resourceID string) string {
 			if category == "" {
@@ -377,6 +407,7 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 		},
 	}
 
+	maps.Copy(funcs, resourceDeltaFuncs(deltas))
 	tmpl := htmltpl.Must(htmltpl.New("resources").Funcs(funcs).Parse(resourceIndexTemplate))
 
 	// Load systems to calculate exploration statistics.
@@ -436,6 +467,7 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 		MapSVG          htmltpl.HTML
 		HighlightCSS    htmltpl.CSS
 		FirstSlug       string
+		Deltas          *resourceDeltas
 	}{
 		Groups:          groups,
 		TotalPOIs:       len(entries),
@@ -443,9 +475,10 @@ func writeResourcePages(outDir string, db *sql.DB) error {
 		TotalSystems:    totalSystems,
 		ExploredSystems: exploredSystems,
 		ExplorationPct:  explorationPct,
-		MapSVG:          htmltpl.HTML(mapSVG),         //nolint:gosec // generated internally from trusted DB data
+		MapSVG:          htmltpl.HTML(mapSVG),                      //nolint:gosec // generated internally from trusted DB data
 		HighlightCSS:    htmltpl.CSS(resourceHighlightCSS(groups)), //nolint:gosec // generated internally from trusted DB data
 		FirstSlug:       firstSlug,
+		Deltas:          deltas,
 	}
 
 	outPath := filepath.Join(outDir, "index.html")
@@ -495,6 +528,14 @@ var resourceIndexTemplate = `<!DOCTYPE html>
         .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
         .summary-card .num { font-size: 1.8em; font-weight: 700; }
         .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+        .delta { font-weight: 600; font-size: 0.85em; white-space: nowrap; }
+        .delta.up { color: #50a050; }
+        .delta.down { color: #d04040; }
+        .delta.new { color: #c0a030; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.5px; border: 1px solid #c0a030; border-radius: 3px; padding: 0 3px; vertical-align: middle; }
+        td.cap { font-weight: 600; }
+        .est { color: var(--text-muted); }
+        .card-delta { font-size: 0.55em; vertical-align: middle; margin-left: 4px; }
+        .delta-sep { color: var(--text-muted); font-weight: normal; }
         .undiscovered { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid #999; padding: 16px; margin-top: 16px; border-radius: 4px; }
         .undiscovered h4 { margin: 0 0 8px 0; color: #666; font-size: 0.95em; }
         .undiscovered p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
@@ -522,13 +563,13 @@ var resourceIndexTemplate = `<!DOCTYPE html>
 ` + siteHeader + `
     <main class="container page-content">
         <h2>Resources</h2>
-        <p>All known mineable resources across surveyed systems, grouped by type.</p>
+        <p>All known mineable resources across surveyed systems, grouped by type. <span class="text-muted"><b>Supported Power</b> is the mining power a deposit accepts right now &mdash; a ship&#39;s summed mining-module power must stay below it (floor of remaining &divide; 20), so it falls as the deposit is worked. <b>Max Amount</b> is the deposit&#39;s capacity when the server has reported it; <span class="est">~</span> marks an estimate (the highest remaining seen for that resource).</span></p>
 
         <div id="res-map-wrap">
             <select id="res-map-select" aria-label="Highlight resource on map">
 {{- range .Groups}}
 {{- if gt (len .Entries) 0}}
-                <option value="{{anchorID .ResourceName}}">{{.ResourceName}} ({{len .Entries}})</option>
+                <option value="{{anchorID .ResourceName}}">{{.ResourceName}} ({{len .Entries}}{{deltaText .ResourceID}})</option>
 {{- end}}
 {{- end}}
             </select>
@@ -538,11 +579,11 @@ var resourceIndexTemplate = `<!DOCTYPE html>
 
         <div class="summary-cards">
             <div class="summary-card">
-                <div class="num">{{.TotalTypes}}</div>
+                <div class="num">{{.TotalTypes}}{{deltaTypes}}</div>
                 <div class="label">Resource Types</div>
             </div>
             <div class="summary-card">
-                <div class="num">{{.TotalPOIs}}</div>
+                <div class="num">{{.TotalPOIs}}{{deltaDeposits}}</div>
                 <div class="label">Total Deposits</div>
             </div>
         </div>
@@ -553,7 +594,7 @@ var resourceIndexTemplate = `<!DOCTYPE html>
                 <div class="label">Star Systems</div>
             </div>
             <div class="summary-card">
-                <div class="num">{{.ExploredSystems}}</div>
+                <div class="num">{{.ExploredSystems}}{{deltaExplored}}</div>
                 <div class="label">Systems Explored</div>
             </div>
             <div class="summary-card">
@@ -562,18 +603,20 @@ var resourceIndexTemplate = `<!DOCTYPE html>
             </div>
         </div>
 
+        <p class="res-changes"><a href="changes/index.html">What&#39;s changed &rarr;</a> <span class="text-muted">Newly discovered resources, new deposits, and new POIs since the last regen and since the last server content update.{{with .Deltas}} Changes below are <span class="delta up">+n</span>/<span class="delta down">&minus;n</span> deposits since the {{.PrevDate}} regen{{if .HasBase}}, then since patch v{{.BaseVersion}} (baseline {{.BaseDate}}){{end}}.{{end}}</span></p>
+
         <div class="card" style="padding: 12px 16px">
             <div class="section-label">Jump To Resource</div>
             <div class="toc">
 {{- range .Groups}}
-                <a href="#{{anchorID .ResourceName}}">{{.ResourceName}} ({{if eq (len .Entries) 0}}Undiscovered{{else}}{{len .Entries}}{{end}})</a>
+                <a href="#{{anchorID .ResourceName}}">{{.ResourceName}} ({{if eq (len .Entries) 0}}Undiscovered{{else}}{{len .Entries}}{{end}}{{deltaTOC .ResourceID}})</a>
 {{- end}}
             </div>
         </div>
 
 {{- range .Groups}}
         <div id="{{anchorID .ResourceName}}" class="resource-section"{{if ne (anchorID .ResourceName) $.FirstSlug}} hidden{{end}}>
-            <h3>{{.ResourceName}} <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{if eq (len .Entries) 0}}Undiscovered{{else}}{{len .Entries}} deposits{{end}}</span>{{if .ResourceCategory}} <small style="font-size:0.8em; font-weight:normal;"><a href="{{itemPageURL .ResourceCategory .ResourceID}}">Details</a></small>{{end}} <a href="#" class="back-top">[top]</a></h3>
+            <h3>{{.ResourceName}} <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{if eq (len .Entries) 0}}Undiscovered{{else}}{{len .Entries}} deposits{{end}}</span>{{deltaBadge .ResourceID}}{{if .ResourceCategory}} <small style="font-size:0.8em; font-weight:normal;"><a href="{{itemPageURL .ResourceCategory .ResourceID}}">Details</a></small>{{end}} <a href="#" class="back-top">[top]</a></h3>
 {{- if eq (len .Entries) 0}}
             <div class="undiscovered">
                 <h4>Not Yet Discovered</h4>
@@ -591,9 +634,10 @@ var resourceIndexTemplate = `<!DOCTYPE html>
                         <th>Hidden</th>
                         <th>Resource ID</th>
                         <th>Richness</th>
-                        <th>Max Amount</th>
+                        <th title="Deposit capacity; ~ marks an estimate">Max Amount</th>
                         <th>Remaining</th>
                         <th>Depletion</th>
+                        <th title="Mining power the deposit accepts now: floor(remaining / 20)">Supported Power</th>
                         <th>Last Updated</th>
                     </tr>
                 </thead>
@@ -608,9 +652,10 @@ var resourceIndexTemplate = `<!DOCTYPE html>
                         <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
                         <td><code>{{.ResourceID}}</code></td>
                         <td>{{fmtRichness .Richness}}</td>
-                        <td>{{fmtNum .MaxAmount}}</td>
+                        <td{{if .MaxKnown}} class="cap"{{end}}>{{if not .MaxKnown}}<span class="est">~</span>{{end}}{{fmtNum .MaxAmount}}</td>
                         <td>{{fmtNum .Remaining}}</td>
                         <td><span class="depletion {{depletionClass .DepletionPct}}">{{fmtDepletion .DepletionPct}}</span></td>
+                        <td{{if .MaxPower}} title="up to {{.MaxPower}} at full capacity"{{end}}>{{.SupportedPower}}</td>
                         <td>{{fmtTick .LastUpdatedTick}}</td>
                     </tr>
 {{- end}}

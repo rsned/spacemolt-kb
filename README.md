@@ -22,6 +22,7 @@ The live site is published at [https://rsned.github.io/spacemolt-kb/](https://rs
 | Crafting DB | `crafting.db` | SQLite database of recipes, bill-of-materials, and market price tables (symlink to the crafting server's DB). |
 | Knowledge DB | `spacemolt-knowledge.db` | SQLite database of systems, POIs, catalogs, market intelligence, players, and passengers (symlink to the game data DB). |
 | Snapshots | `data/snapshots/YYYYMMDD/` | Daily caches of the game API catalogs (`catalog_items.json`, `catalog_ships.json`, `catalog_skills.json`, `catalog_recipes.json`, `get_map.json`). `latest/` and `previous/` symlinks drive diff reporting. |
+| Resource snapshots | `data/resource-snapshots/` | Committed per-regen captures of the Resources page (`YYYY-MM-DD.json`) plus `manifest.json`, which records each snapshot's server version and which snapshot is the baseline for the current resource-content patch. Written by `generate-resource-diffs`; unlike `data/snapshots/` these cannot be rebuilt from a scrape. |
 | Explorer notes | `data/explorer-notes.json` | LLM-generated discovery prose attached to POIs. |
 | Planet textures | `data/planet-textures/` | Real Sol-system planet textures used by the planet renderer. |
 | Overlays | `overlays/` | Hand-authored and machine-generated enrichment for factions, players, and passengers (see below). |
@@ -37,6 +38,7 @@ The two `*.db` files are symlinks to their authoritative sources; the KB is read
 | `generate-galaxy-map` | Renders the full galaxy map page: every explored system as an empire-colored node with connection links. | _(hardcoded paths)_ |
 | `generate-stronghold-reach` | Renders the "Reach of the Nine Strongholds" Did-You-Know page: multi-source BFS from the nine pirate strongholds, drawn as radius-layered territory blobs with a slider. | `-db`, `-out` |
 | `generate-diffs` | Compares fresh catalogs against the previous snapshot, writes per-day HTML change reports, and rotates the snapshot symlinks. | `-input`, `-snapshots`, `-output`, `-date` |
+| `generate-resource-diffs` | Snapshots the Resources page (from the knowledge DB, or `-from-html` a committed copy) into `data/resource-snapshots/`, then renders `kb/resources/changes/`: what the survey agents found since the previous regen and since the baseline snapshot for the last server patch that changed resource content. Run right after `generate-items-kb`. | `-from-html`, `-date`, `-baseline`, `-content-version`, `-server-version`, `-game-api` |
 | `generate-explorer-notes` | Generates per-POI discovery journal prose using the Claude API; supports incremental and dry-run modes. | `-db`, `-out`, `-type`, `-poi`, `-limit`, `-model`, `-dry-run` |
 | `generate-planet-maps` | Renders procedural planet surface PNGs from the DB, with configurable size and parallel workers. | `-type`, `-seed`, `-out`, `-db`, `-outdir`, `-width`, `-height`, `-workers` |
 | `analyze-empire-economy` | Produces a Markdown report on component popularity, per-empire self-sufficiency, and resource scarcity. | `-crafting-db`, `-knowledge-db`, `-catalog`, `-out` |
@@ -53,6 +55,7 @@ The two `*.db` files are symlinks to their authoritative sources; the KB is read
 go run ./cmd/generate-items-kb              # full rebuild
 go run ./cmd/generate-items-kb -systems-only
 go run ./cmd/generate-items-kb -system sol
+go run ./cmd/generate-resource-diffs        # then snapshot the Resources page + render kb/resources/changes/
 ```
 
 ### Example: render a single system map
@@ -73,6 +76,7 @@ go run ./cmd/system-map -db spacemolt-knowledge.db -system sol [-o output.svg]
 | `pkg/planetgen` | Deterministic procedural planet surfaces (rocky and gas giant) from seeded simplex noise + crater algorithms. | `Generate`, `RenderRocky`, `RenderGasGiant`, `PlanetProfile`, `GetProfile` |
 | `pkg/bom` | Bill-of-materials computation: resolves a target item to its base material requirements through the recipe chain. | `Calculator`, `BoMResult`, `NewCalculator`, `WriteBoM` |
 | `pkg/gamediff` | Diffs two game-API catalog snapshots and reports structural changes. | `CatalogDiff`, `DayReport`, `DiffCatalog`, `DiffMap` |
+| `pkg/resourcediff` | Snapshots the Resources page values (DB or parsed HTML), diffs snapshots (new/discovered types, new deposits, new and hidden POIs, re-surveys), and reads the server version feed to find resource-content patches. | `Snapshot`, `FromDB`, `FromHTML`, `Diff`, `RenderDayReport`, `LoadVersionFeed` |
 | `pkg/hyperjump` | Pathfinder Drive jump geometry: reachable destinations, angular margins, interrupting systems, and coverage gaps. | `System`, `AngularMargin`, `Clearance`, `Interrupters`, `Coverage`, `Summarize` |
 | `pkg/jumpmap` | SVG visualizations of hyper-jump analysis: destination starbursts and a 360° coverage dial. | `RenderArrows`, `RenderCoverageDial`, `DisplayBlockedPct` |
 | `pkg/tierchart` | Groups tiered module families (e.g. `pulse_laser I–III`) and selects the relevant stat columns for comparison tables. | `TierStats`, `TierFamily`, `BuildFamilies`, `ColumnLabel` |
@@ -119,6 +123,7 @@ kb/
 ├── facilities/                 # Station/base facilities and services
 ├── missions/                   # Mission templates and objectives
 ├── resources/                  # Resource POI index
+│   └── changes/                # Resource survey change reports (per regen, vs previous + vs content-patch baseline)
 ├── factions/                   # Faction profiles (overlay logos/biographies)
 ├── players/                    # Player profiles (overlay biographies, affiliations)
 ├── passengers/                 # NPC profiles with portraits and archetype badges

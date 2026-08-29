@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resource Survey Change Log</title>
+<link rel="stylesheet" href="../../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 0.5rem 0 1rem; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.cmp-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.cmp-header { padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.cmp-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.cmp-header p { margin: 0.25rem 0 0; font-size: var(--text-label); color: hsl(var(--muted-foreground)); }
+.cmp-body { padding: 1rem; }
+.cmp-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1.25rem 0 0.5rem; }
+.cmp-body h4:first-child { margin-top: 0; }
+.cmp-body h5 { font-size: var(--text-ui); font-weight: 600; margin: 0.75rem 0 0.25rem; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; margin: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .cmp-body table a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .cmp-body table a:hover { color: hsl(var(--primary)); }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.cmp-body table { width: 100%; border-collapse: collapse; font-size: var(--text-ui); margin: 0.25rem 0 0.5rem; }
+.cmp-body th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.cmp-body td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.cmp-body td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.stat-row { display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.stat-row span b { font-weight: 600; }
+.badge-hidden { font-size: var(--text-label); color: hsl(var(--smui-yellow)); border: 1px solid hsl(var(--smui-yellow)); border-radius: 3px; padding: 0 0.3rem; }
+.baseline-tag { font-size: var(--text-label); color: hsl(var(--primary)); border: 1px solid hsl(var(--primary)); border-radius: 3px; padding: 0 0.3rem; }
+details.resurvey summary { cursor: pointer; font-size: var(--text-ui); color: hsl(var(--muted-foreground)); }
+</style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../../">Home</a>
+            <a href="../../systems/index.html">Systems</a>
+            <a href="../../items/index.html">Items</a>
+            <a href="../../recipes/index.html">Recipes</a>
+            <a href="../../skills/index.html">Skills</a>
+            <a href="../../ships/index.html">Ships</a>
+            <a href="../../facilities/index.html">Facilities</a>
+            <a href="../../resources/index.html">Resources</a>
+            <a href="../../missions/index.html">Missions</a>
+            <a href="../../factions/index.html">Factions</a>
+            <a href="../../players/index.html">Players</a>
+            <a href="../../passengers/index.html">Passengers</a>
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+<main class="container page-content">
+<h2>Resource Survey Change Log</h2>
+<p class="text-muted mt-1">Each KB regeneration snapshots the <a href="../index.html">Resources</a> page. Reports show what the survey agents found since the previous regen, and since the <span class="baseline-tag">baseline</span> snapshot taken after the last server content update. Catalog changes (items, ships, recipes) are tracked separately in the <a href="../../diffs/index.html">game data change log</a>.</p>
+<table class="mt-2">
+<thead><tr><th>Date</th><th>Server</th><th>Since last regen</th><th>Since server update</th></tr></thead>
+<tbody>
+<tr><td><a href="2026-08-27.html">2026-08-27</a></td><td>v0.566.2 <span class="baseline-tag">baseline for v0.566.0</span></td><td>First snapshot</td><td><span class="text-muted">&mdash;</span></td></tr>
+</tbody>
+</table>
+</main>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+    if (toggle) toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
+</script>
+</body>
+</html>
