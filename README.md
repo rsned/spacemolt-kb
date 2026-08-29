@@ -38,6 +38,7 @@ The two `*.db` files are symlinks to their authoritative sources; the KB is read
 | `generate-galaxy-map` | Renders the full galaxy map page: every explored system as an empire-colored node with connection links. | _(hardcoded paths)_ |
 | `generate-stronghold-reach` | Renders the "Reach of the Nine Strongholds" Did-You-Know page: multi-source BFS from the nine pirate strongholds, drawn as radius-layered territory blobs with a slider. | `-db`, `-out` |
 | `generate-diffs` | Compares fresh catalogs against the previous snapshot, writes per-day HTML change reports, and rotates the snapshot symlinks. | `-input`, `-snapshots`, `-output`, `-date` |
+| `generate-wildlife-kb` | Renders the Wildlife section (`kb/wildlife/`) from the scanned field guide in the knowledge DB: an index of species with estimated populations by system and a galaxy map, plus a detail page per species (class, hull, attacks, where found, kills & drops, field notes from `FORMS_LORE.md`). Hero art is picked up from `kb/wildlife/images/<species>.png` when present. | `-db`, `-lore`, `-out` |
 | `generate-resource-diffs` | Snapshots the Resources page (from the knowledge DB, or `-from-html` a committed copy) into `data/resource-snapshots/`, then renders `kb/resources/changes/`: what the survey agents found since the previous regen and since the baseline snapshot for the last server patch that changed resource content. Run right after `generate-items-kb`. | `-from-html`, `-date`, `-baseline`, `-content-version`, `-server-version`, `-game-api` |
 | `generate-explorer-notes` | Generates per-POI discovery journal prose using the Claude API; supports incremental and dry-run modes. | `-db`, `-out`, `-type`, `-poi`, `-limit`, `-model`, `-dry-run` |
 | `generate-planet-maps` | Renders procedural planet surface PNGs from the DB, with configurable size and parallel workers. | `-type`, `-seed`, `-out`, `-db`, `-outdir`, `-width`, `-height`, `-workers` |
@@ -56,6 +57,7 @@ go run ./cmd/generate-items-kb              # full rebuild
 go run ./cmd/generate-items-kb -systems-only
 go run ./cmd/generate-items-kb -system sol
 go run ./cmd/generate-resource-diffs        # then snapshot the Resources page + render kb/resources/changes/
+go run ./cmd/generate-wildlife-kb           # wildlife index + species pages from the survey ledger
 ```
 
 ### Example: render a single system map
@@ -76,6 +78,7 @@ go run ./cmd/system-map -db spacemolt-knowledge.db -system sol [-o output.svg]
 | `pkg/planetgen` | Deterministic procedural planet surfaces (rocky and gas giant) from seeded simplex noise + crater algorithms. | `Generate`, `RenderRocky`, `RenderGasGiant`, `PlanetProfile`, `GetProfile` |
 | `pkg/bom` | Bill-of-materials computation: resolves a target item to its base material requirements through the recipe chain. | `Calculator`, `BoMResult`, `NewCalculator`, `WriteBoM` |
 | `pkg/gamediff` | Diffs two game-API catalog snapshots and reports structural changes. | `CatalogDiff`, `DayReport`, `DiffCatalog`, `DiffMap` |
+| `pkg/wildlife` | Loads the wildlife field guide (species, sightings folded into per-system estimates, attacks, kills/drops, survey coverage) and parses the lore document. | `Load`, `Guide`, `Species`, `ParseLore` |
 | `pkg/resourcediff` | Snapshots the Resources page values (DB or parsed HTML), diffs snapshots (new/discovered types, new deposits, new and hidden POIs, re-surveys), and reads the server version feed to find resource-content patches. | `Snapshot`, `FromDB`, `FromHTML`, `Diff`, `RenderDayReport`, `LoadVersionFeed` |
 | `pkg/hyperjump` | Pathfinder Drive jump geometry: reachable destinations, angular margins, interrupting systems, and coverage gaps. | `System`, `AngularMargin`, `Clearance`, `Interrupters`, `Coverage`, `Summarize` |
 | `pkg/jumpmap` | SVG visualizations of hyper-jump analysis: destination starbursts and a 360° coverage dial. | `RenderArrows`, `RenderCoverageDial`, `DisplayBlockedPct` |
@@ -124,6 +127,7 @@ kb/
 ├── missions/                   # Mission templates and objectives
 ├── resources/                  # Resource POI index
 │   └── changes/                # Resource survey change reports (per regen, vs previous + vs content-patch baseline)
+├── wildlife/                   # Species index with populations by system + per-species detail pages (images/ for hero art)
 ├── factions/                   # Faction profiles (overlay logos/biographies)
 ├── players/                    # Player profiles (overlay biographies, affiliations)
 ├── passengers/                 # NPC profiles with portraits and archetype badges

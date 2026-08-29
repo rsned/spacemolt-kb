@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chlorophage - Wildlife - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+<style>
+        .summary-cards { display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
+        .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; text-align: center; }
+        .summary-card .num { font-size: 1.8em; font-weight: 700; }
+        .summary-card .label { font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; }
+        .toc { columns: 3; column-gap: 24px; margin: 8px 0 16px; }
+        .toc a { display: block; padding: 2px 0; color: var(--link); text-decoration: none; font-size: 0.95em; }
+        .toc a:hover { text-decoration: underline; }
+        .toc-role { break-inside: avoid; margin-bottom: 12px; }
+        .toc-role h4 { margin: 0 0 4px; font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .species-section { margin-top: 32px; scroll-margin-top: 16px; }
+        .species-section h3 { margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+        .species-section table, .wl-table { width: 100%; font-size: 0.9em; }
+        .species-section th, .wl-table th { text-align: left; white-space: nowrap; }
+        .species-section td, .wl-table td { padding: 4px 8px; vertical-align: top; }
+        .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .back-top { font-size: 0.8em; margin-left: 8px; color: var(--text-muted); }
+        .unsighted { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid #999; padding: 16px; margin-top: 16px; border-radius: 4px; color: var(--text-muted); font-size: 0.9em; }
+        #wl-map-wrap { width: 100%; margin: 16px 0 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        #wl-map-wrap svg { width: 100%; height: auto; display: block; border-radius: 4px; }
+        #wl-map-wrap select { width: 100%; margin-bottom: 10px; padding: 6px; }
+        .wl-map-empty { display: none; font-size: 0.85em; color: var(--text-muted); margin-top: 8px; }
+        #wl-map[data-empty="1"] + .wl-map-empty { display: block; }
+        #wl-map line { stroke: #8593ad; stroke-width: 1.4; opacity: 0.62; }
+        #wl-map .galaxy-sys-dot { fill: #e6ecf5; r: 5; stroke: #0a0e1a; stroke-width: 0.6; transition: none; }
+        #wl-map .galaxy-sys-label { fill: #e8eef7; font-size: 24px; }
+        .abund-scarce { color: #c0a030; } .abund-moderate { color: #50a050; } .abund-abundant { color: #2e9ad0; font-weight: 600; }
+        .bloom { font-size: 0.8em; border: 1px solid #c0a030; color: #c0a030; border-radius: 3px; padding: 0 4px; }
+        .hero { position: relative; width: 100%; aspect-ratio: 16 / 7; border-radius: 8px; overflow: hidden; background: #0a0e1a; border: 1px solid var(--border); margin: 12px 0 20px; }
+        .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hero.placeholder { display: flex; align-items: center; justify-content: center; flex-direction: column; color: #8593ad; background: repeating-linear-gradient(135deg, #0a0e1a 0 18px, #10162a 18px 36px); }
+        .hero.placeholder .glyph { font-size: 3em; opacity: 0.6; }
+        .hero.placeholder .note { font-size: 0.85em; letter-spacing: 1px; text-transform: uppercase; margin-top: 6px; }
+        .hero.placeholder .path { font-size: 0.75em; opacity: 0.6; margin-top: 4px; font-family: monospace; }
+        .lore { margin-top: 12px; }
+        .lore p { margin: 6px 0; }
+        .lore .lore-intro { font-style: italic; color: var(--text-muted); }
+        .lore dt { font-weight: 600; margin-top: 10px; }
+        .lore dd { margin: 2px 0 0 0; }
+        .empty { color: var(--text-muted); font-style: italic; }
+</style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="../factions/index.html">Factions</a>
+            <a href="../players/index.html">Players</a>
+            <a href="../passengers/index.html">Passengers</a>
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <p class="text-muted" style="font-size:0.85em"><a href="index.html">Wildlife</a> &rsaquo; Grazers</p>
+        <h2>Chlorophage <span class="badge badge-green" style="font-size:0.6em; vertical-align:middle;">grazer</span></h2>
+        <code>chlorophage</code>
+        <div class="hero placeholder" title="Hero image not yet available">
+            <div class="glyph">&#x1F41A;</div>
+            <div class="note">Hero image pending</div>
+            <div class="path">wildlife/images/chlorophage.png</div>
+        </div>
+
+        <div class="card" style="padding:0">
+            <div class="section-label">General</div>
+            <table>
+                <tr><td class="kv-label">Class</td><td><span class="badge badge-green">grazer</span></td></tr>
+                <tr><td class="kv-label">Hull (HP)</td><td>55</td></tr>
+                <tr><td class="kv-label">Shield</td><td><span class="text-muted">none</span></td></tr>
+                <tr><td class="kv-label">Danger</td><td>harmless prey</td></tr>
+                <tr><td class="kv-label">Habitats</td><td>gas cloud</td></tr>
+                <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
+                <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~8 across 6 systems</td></tr>
+                <tr><td class="kv-label">First seen</td><td>2026-08-29 00:19 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-08-29 09:11 UTC</td></tr>
+            </table>
+        </div>
+
+        <div class="card mt-2" style="padding:0">
+            <div class="section-label">Attacks</div>
+            <p class="empty" style="padding:12px 16px">No attacks recorded; scanned as &ldquo;harmless prey&rdquo;.</p>
+        </div>
+
+        <div class="card mt-2" style="padding:0">
+            <div class="section-label">Where found</div>
+
+            <table class="wl-table sortable">
+                <thead>
+                    <tr>
+                        <th>System</th>
+                        <th class="num" title="Latest system survey count, or the sum of the latest counts at each POI">Est. count</th>
+                        <th>Abundance</th>
+                        <th>Bloom</th>
+                        <th>POIs (latest count)</th>
+                        <th>Ranched</th>
+                        <th>Branded</th>
+                        <th class="num">Sightings</th>
+                        <th>Last seen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="../systems/alrescha/index.html">Alrescha</a> <code style="font-size:0.85em">alrescha</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Alrescha Emission Nebula (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">7</td>
+                        <td title="tick 1738089">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/glenhaven/index.html">Glenhaven</a> <code style="font-size:0.85em">glenhaven</code></td>
+                        <td class="num">2</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Glenhaven Gas Cloud (2)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">2</td>
+                        <td title="tick 1740983">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/inquill/index.html">Inquill</a> <code style="font-size:0.85em">inquill</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Inquill Gas Pocket (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">6</td>
+                        <td title="tick 1740781">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/longshore/index.html">Longshore</a> <code style="font-size:0.85em">longshore</code></td>
+                        <td class="num">2</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Longshore Gas Cloud (2)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 1741183">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/netherwick/index.html">Netherwick</a> <code style="font-size:0.85em">netherwick</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Netherwick Gas Pocket (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">8</td>
+                        <td title="tick 1740737">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/yarrowfield/index.html">Yarrowfield</a> <code style="font-size:0.85em">yarrowfield</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Yarrowfield Vapor Fields (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 1741122">2026-08-29</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="card mt-2" style="padding:0">
+            <div class="section-label">Kills &amp; drops</div>
+            <p class="empty" style="padding:12px 16px">No kills recorded yet. Carcass drops will be listed here once a kill is logged.</p>
+        </div>
+        <p style="margin-top:24px"><a href="index.html#chlorophage">&larr; All wildlife</a></p>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        if (toggle) toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
