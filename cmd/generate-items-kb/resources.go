@@ -563,7 +563,7 @@ var resourceIndexTemplate = `<!DOCTYPE html>
 ` + siteHeader + `
     <main class="container page-content">
         <h2>Resources</h2>
-        <p>All known mineable resources across surveyed systems, grouped by type. <span class="text-muted"><b>Supported Power</b> is the mining power a deposit accepts right now &mdash; a ship&#39;s summed mining-module power must stay below it (floor of remaining &divide; 20), so it falls as the deposit is worked. <b>Max Amount</b> is the deposit&#39;s capacity when the server has reported it; <span class="est">~</span> marks an estimate (the highest remaining seen for that resource).</span></p>
+        <p>All known mineable resources across surveyed systems, grouped by type. <span class="text-muted"><b>Supported Power</b> is the mining power a deposit accepts right now &mdash; a ship&#39;s summed mining-module power must stay below it (floor of remaining &divide; 20), so it falls as the deposit is worked. <b>Max Amount</b> is the deposit&#39;s capacity when the server has reported it; <span class="est">~</span> marks an estimate (the highest remaining seen for that resource). Fauna sighted on the same surveys is on the <a href="../wildlife/index.html">Wildlife</a> page.</span></p>
 
         <div id="res-map-wrap">
             <select id="res-map-select" aria-label="Highlight resource on map">
