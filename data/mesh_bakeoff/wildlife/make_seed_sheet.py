@@ -33,13 +33,20 @@ h1 { font-size:18px; } h2 { font-size:15px; margin:22px 0 8px; }
 .cell.pick { outline:2px solid #ffc832; }
 .pick .tag { color:#ffc832; }
 .round { color:#8a919c; font-weight:normal; font-size:12px; margin-left:8px; }
+.cell img { cursor: zoom-in; }
+.pickbtn { float:right; font-size:11px; padding:1px 6px; margin-top:2px; cursor:pointer; }
+#lb { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; align-items:center; justify-content:center; gap:16px; z-index:10; cursor:zoom-out; }
+#lb.on { display:flex; }
+#lb img { max-height:92vh; max-width:46vw; object-fit:contain; background:#181a1f; border-radius:6px; }
+#lb .cap { position:absolute; bottom:12px; left:0; right:0; text-align:center; color:#cfd3da; font-size:13px; }
 </style>
 <h1>Wildlife hero seed sweep</h1>
 <p style="color:#8a919c">Top image = raw FLUX render, bottom = chroma-keyed matte
 (what Hy3D would actually see, on checker = transparent). Newest round first
 within each species; the current pick (picks-round4.json) is outlined.
-<b>Click a cell to pick it</b> (one per species; picks live in this browser
-until you export), then <button id="copy">copy picks JSON</button>
+<b>Click an image to see it large</b>; press <b>pick</b> on a cell to make it
+the species' pick (one per species; picks live in this browser until you
+export), then <button id="copy">copy picks JSON</button>
 <button id="reset">reset to committed picks</button>
 <span id="status"></span></p>
 """
@@ -47,8 +54,23 @@ until you export), then <button id="copy">copy picks JSON</button>
 # Click-to-pick: the outline moves, choices persist in localStorage, and the
 # copy button puts a picks-round4.json-shaped document on the clipboard.
 SCRIPT = """
+<div id="lb"><img id="lb-raw" alt=""><img id="lb-key" alt=""><div class="cap" id="lb-cap"></div></div>
 <script>
 (function () {
+  var lb = document.getElementById('lb');
+  function show(cell) {
+    var imgs = cell.querySelectorAll('img');
+    document.getElementById('lb-raw').src = imgs[0].src;
+    document.getElementById('lb-key').src = imgs[1].src;
+    document.getElementById('lb-cap').textContent = cell.dataset.species + ' \u00b7 ' + cell.dataset.base + ' (raw | keyed)';
+    lb.classList.add('on');
+  }
+  lb.addEventListener('click', function () { lb.classList.remove('on'); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lb.classList.remove('on'); });
+  document.querySelectorAll('.cell img').forEach(function (img) {
+    img.addEventListener('click', function (e) { e.stopPropagation(); show(img.closest('.cell')); });
+  });
+
   var KEY = 'wildlife-seed-picks';
   var committed = %s;
   var picks;
@@ -65,8 +87,9 @@ SCRIPT = """
     document.getElementById('status').textContent = changed ? changed + ' pick(s) differ from the committed set' : 'matches the committed picks';
   }
   document.querySelectorAll('.cell').forEach(function (c) {
-    c.style.cursor = 'pointer';
-    c.addEventListener('click', function () { picks[c.dataset.species] = +c.dataset.seed; localStorage.setItem(KEY, JSON.stringify(picks)); paint(); });
+    var b = document.createElement('button'); b.className = 'pickbtn'; b.textContent = 'pick';
+    c.querySelector('.tag').before(b);
+    b.addEventListener('click', function (e) { e.stopPropagation(); picks[c.dataset.species] = +c.dataset.seed; localStorage.setItem(KEY, JSON.stringify(picks)); paint(); });
   });
   document.getElementById('reset').addEventListener('click', function () { picks = {}; localStorage.removeItem(KEY); paint(); });
   document.getElementById('copy').addEventListener('click', function () {
