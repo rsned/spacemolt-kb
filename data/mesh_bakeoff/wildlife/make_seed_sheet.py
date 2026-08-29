@@ -37,7 +37,48 @@ h1 { font-size:18px; } h2 { font-size:15px; margin:22px 0 8px; }
 <h1>Wildlife hero seed sweep</h1>
 <p style="color:#8a919c">Top image = raw FLUX render, bottom = chroma-keyed matte
 (what Hy3D would actually see, on checker = transparent). Newest round first
-within each species; the current pick (picks-round4.json) is outlined.</p>
+within each species; the current pick (picks-round4.json) is outlined.
+<b>Click a cell to pick it</b> (one per species; picks live in this browser
+until you export), then <button id="copy">copy picks JSON</button>
+<button id="reset">reset to committed picks</button>
+<span id="status"></span></p>
+"""
+
+# Click-to-pick: the outline moves, choices persist in localStorage, and the
+# copy button puts a picks-round4.json-shaped document on the clipboard.
+SCRIPT = """
+<script>
+(function () {
+  var KEY = 'wildlife-seed-picks';
+  var committed = %s;
+  var picks;
+  try { picks = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { picks = {}; }
+  function current() { var out = Object.assign({}, committed); for (var k in picks) out[k] = picks[k]; return out; }
+  function paint() {
+    var cur = current(), changed = 0;
+    document.querySelectorAll('.cell').forEach(function (c) {
+      var on = cur[c.dataset.species] === +c.dataset.seed;
+      c.classList.toggle('pick', on);
+      c.querySelector('.tag').textContent = c.dataset.base + (on ? ' \u00b7 PICK' : '');
+    });
+    for (var k in picks) if (picks[k] !== committed[k]) changed++;
+    document.getElementById('status').textContent = changed ? changed + ' pick(s) differ from the committed set' : 'matches the committed picks';
+  }
+  document.querySelectorAll('.cell').forEach(function (c) {
+    c.style.cursor = 'pointer';
+    c.addEventListener('click', function () { picks[c.dataset.species] = +c.dataset.seed; localStorage.setItem(KEY, JSON.stringify(picks)); paint(); });
+  });
+  document.getElementById('reset').addEventListener('click', function () { picks = {}; localStorage.removeItem(KEY); paint(); });
+  document.getElementById('copy').addEventListener('click', function () {
+    var doc = { _note: 'Round 4/4b hero picks (free-fall rules). heroes/<species>.png is a copy of heroes-raw/<species>_s<seed>.png; regenerate with gen_heroes_round4.sh + gen_heroes_round4b.sh.', picks: current() };
+    var text = JSON.stringify(doc, null, 1);
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
+      function () { document.getElementById('status').textContent = 'picks JSON copied to clipboard'; },
+      function () { window.prompt('copy this JSON', text); });
+  });
+  paint();
+})();
+</script>
 """
 
 # Seed blocks per generation round, so a cell can say where it came from.
@@ -109,12 +150,15 @@ def main() -> int:
             if not keyed_png.exists() or keyed_png.stat().st_mtime < p.stat().st_mtime:
                 checker_composite(rgba).save(keyed_png)
             is_pick = picks.get(sp) == seed
+            base_tag = f"seed {seed} · keyed coverage {coverage:.0f}%"
             parts.append(
-                f"<div class='cell{' pick' if is_pick else ''}'><img loading='lazy' src='{p.name}'>"
+                f"<div class='cell{' pick' if is_pick else ''}' data-species='{sp}' data-seed='{seed}' data-base='{base_tag}'>"
+                f"<img loading='lazy' src='{p.name}'>"
                 f"<img loading='lazy' src='{keyed_png.name}'>"
-                f"<div class='tag'>seed {seed} · keyed coverage {coverage:.0f}%{' · PICK' if is_pick else ''}</div></div>")
+                f"<div class='tag'>{base_tag}{' · PICK' if is_pick else ''}</div></div>")
         if current is not None:
             parts.append("</div>")
+    parts.append(SCRIPT % json.dumps(picks))
     (RAW / "seed_sheet.html").write_text("\n".join(parts))
     print(f"seed_sheet.html -> {RAW}")
     return 0
