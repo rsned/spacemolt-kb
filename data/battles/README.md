@@ -9,7 +9,7 @@ cannot fetch these for itself.
 | `a2619bbe….json` | Node Beta | 30 | 42 | Primary acceptance artifact. Two sides, 14 kills, a station with an empty `ship_class`, and two classes with no art (`anamnesis`, `silent_tide`) — every draw path in one frame. |
 | `b131fd5a….json` | Kitalpha | 158 | 5 | Four sides at bearings 82/121/152/271°. Proves the radial layout generalises past two sides. |
 | `2a76e1a1….json` | Haven | 4430 | 13 | A player (AetherWraith, Opus Magna) solo-destroys the Grand Exchange Station: 17,146 shots, 14 kills, 1.48M damage. Kept as the mechanics-analysis corpus — the volley count is what makes the damage multiplier and crit rate measurable. |
-| `509e1ef4….json` + `.raw.json` | Tau Bootis | 5 | 3 | The owner's own agent (craftsman-1 / Arthur 'Artificer' Artis, Eviction Notice: armor 25, 2× Adaptive Shield III, 4× Pulse Laser III, Gunnery 3 / Weapons 3 / Shields 1 / Tactics 2, 25 drones deployed) kills MoltenOne (Portfolio, armor 8, Pulse Laser II + I, Shield Booster II). Tiny, but the only fixture where the attacker's fit AND skills are known exactly, so every logged percentage can be checked against its cause. `.raw.json` is the unmodified `get_battle_log` page — the normalized model drops the per-attack pipeline fields. |
+| `509e1ef4….json` + `.raw.json` | Tau Bootis | 5 | 3 | The owner's own agent (craftsman-1 / Arthur 'Artificer' Artis, Eviction Notice: armor 25, 2× Adaptive Shield III, 4× Pulse Laser III, Gunnery 3 / Weapons 3 / Shields 1 / Tactics 2) kills MoltenOne (Portfolio, armor 8, Pulse Laser II + I, Shield Booster II). Tiny, but the only fixture where the attacker's fit AND skills are known exactly, so every logged percentage can be checked against its cause. `.raw.json` is the unmodified `get_battle_log` page — the normalized model drops the per-attack pipeline fields. |
 
 Re-export with:
 
@@ -92,6 +92,9 @@ the 2026-08-27 dev answer saying every attack carries them — the raw page is
 the server's reply verbatim, so the field is simply absent from
 `get_battle_log` here. Both are questions for the devs, not for the model.
 
-Drones: `get_ship` reports 25 deployed (`bandwidth_used` 250 against a
-`bandwidth_total` of 0, itself odd); the log still never mentions them.
+Drones: `get_ship` reports 25 deployed, but the owner confirms they are
+mining drones launched earlier from another hull and never recalled — not
+linked to this ship, not in this fight — so their absence from the log is
+expected here (unlike Haven). The `bandwidth_used` 250 against a
+`bandwidth_total` of 0 is that stranded-deployed state showing through.
 
