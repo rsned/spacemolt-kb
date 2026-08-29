@@ -23,12 +23,48 @@ frost-moth, hollow pilgrim, pressblister, prism-drifter and rime-grazer.
 
 ---
 
+## Design rules — bodies in free fall
+
+Everything on this roster lives, feeds and moves in open space. There is no
+ground and no down: almost nothing here keeps a gravity orientation, and a
+form should show how the animal gets around and what it holds onto.
+
+- **Space is thin, not empty.** Broad membranes still propel, because they
+  shove enough of the sparse medium past them — the rays fly, on wide slow
+  strokes. Serpentine bodies work the same way and just as slowly: with
+  little to push against, an eel's S-wave is a cruise, never a sprint.
+- **Lift is pointless.** Nothing needs to fight gravity, so moth and
+  butterfly planforms are unlikely. Where a species carries big flat
+  surfaces they are collectors, radiators, sails or sensor vanes, not
+  aerofoils.
+- **Rock and ice are solid.** Belt and ice-field species have limbs that
+  grasp, clamp and hold the boulder or berg they are eating; they travel by
+  pushing off it or hauling hand-over-hand, and rest by clinging. Hooves
+  and walking gaits are the wrong picture — a stock grazer is a beast
+  latched onto a rock, not standing on one.
+- **Gas clouds have no surface.** Cloud-only species have nothing to push
+  against and nothing to hold, so limbs, where they exist at all, are for
+  capturing prey. Feeding is filtering, inhaling, ingesting or straining the
+  gas itself; travel is venting, jetting or undulating through the medium.
+- **Think aquatic.** Any body plan that moves through water works in space
+  at some scale — fish, rays, eels, jellies, squid, crabs, mantis shrimp,
+  sea cows. Four-legged land forms do not: no cows, no hooves, no gaits.
+  The stock grazers are manatees at heart — rotund, bulbous base forms
+  with paddle tails and grasping fore-flippers.
+- **Habitat makes the body.** A species scanned in `asteroid_belt`,
+  `ice_field`, `gas_cloud` or `nebula` got its shape from eating what is
+  there and moving how that place allows.
+
+---
+
 ## Part 1 — the known roster
 
 **Belt-Grazer** *(asteroid_belt · grazer · ranchable)*
 The baseline stock animal of the belts, and the reason "grazer" means
-anything out here: a placid, cow-sized armored quadruped that walks
-asteroid surfaces on magnetized hooves.
+anything out here: a placid, cow-sized armored grazer built like a
+manatee — rotund, bulbous, blunt-headed, a broad paddle tail for slow strokes
+and two grasping magnetized fore-flippers that latch onto asteroid
+surfaces and hold the rock it eats.
 - **Changed:** lungs traded for sealed fermentation stomachs; skin for
   a molting pressure-carapace (the shed plates are the familiar
   UV-hardened `creature_carapace` drop); eyes lidded down to
@@ -102,7 +138,8 @@ holes long before you meet the animal.
 **Cauldronback** *(asteroid_belt · grazer)*
 The belt's answer to keeping warm: stop trying, become the furnace.
 - **Changed:** back became a basin of fused slag holding a permanent
-  melt-pool; legs became basalt pillars that don't feel the spill.
+  melt-pool; legs became basalt-hard grasping pillars that clamp the rock
+  and don't feel the spill.
   The caldera glow is digestion, visible for kilometers.
 - **Feeds:** swallows thorium-rich gravel whole and lets the pool do
   the work — the animal is a walking crucible with a commute.
