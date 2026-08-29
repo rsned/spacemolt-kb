@@ -50,7 +50,9 @@ form should show how the animal gets around and what it holds onto.
   at some scale — fish, rays, eels, jellies, squid, crabs, mantis shrimp,
   sea cows. Four-legged land forms do not: no cows, no hooves, no gaits.
   The stock grazers are manatees at heart — rotund, bulbous base forms
-  with paddle tails and grasping fore-flippers.
+  with paddle tails and grasping fore-flippers. That is also the ranch
+  roster: the scan flags the four manatee grazers (belt, patina, soot,
+  rime), the two rays (drift, sift) and the facet-druse as ranchable stock.
 - **Habitat makes the body.** A species scanned in `asteroid_belt`,
   `ice_field`, `gas_cloud` or `nebula` got its shape from eating what is
   there and moving how that place allows.
