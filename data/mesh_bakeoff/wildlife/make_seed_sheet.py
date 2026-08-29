@@ -7,6 +7,7 @@ anything reaches Hy3D.
     python3 make_seed_sheet.py            # -> heroes-raw/seed_sheet.html
 """
 
+import json
 import re
 import sys
 from collections import defaultdict
@@ -29,11 +30,38 @@ h1 { font-size:18px; } h2 { font-size:15px; margin:22px 0 8px; }
 .cell img { width:100%; border-radius:4px; background:#181a1f; display:block; }
 .cell img + img { margin-top:4px; }
 .tag { color:#8a919c; font-size:11px; margin-top:4px; }
+.cell.pick { outline:2px solid #ffc832; }
+.pick .tag { color:#ffc832; }
+.round { color:#8a919c; font-weight:normal; font-size:12px; margin-left:8px; }
 </style>
 <h1>Wildlife hero seed sweep</h1>
 <p style="color:#8a919c">Top image = raw FLUX render, bottom = chroma-keyed matte
-(what Hy3D would actually see, on checker = transparent).</p>
+(what Hy3D would actually see, on checker = transparent). Newest round first
+within each species; the current pick (picks-round4.json) is outlined.</p>
 """
+
+# Seed blocks per generation round, so a cell can say where it came from.
+ROUNDS = [
+    (10100, 10499, "round 4/4b — free-fall rules"),
+    (9700, 10099, "round 3/3b — first full roster"),
+    (9500, 9699, "forms — exotic hypotheses"),
+    (9200, 9299, "rounds 1-2 — prototypes"),
+]
+
+
+def round_of(seed: int) -> str:
+    for lo, hi, name in ROUNDS:
+        if lo <= seed <= hi:
+            return name
+    return "other"
+
+
+def load_picks() -> dict:
+    """species -> picked seed, from every picks-*.json beside this script."""
+    picks = {}
+    for f in sorted(HERE.glob("picks-*.json")):
+        picks.update(json.loads(f.read_text()).get("picks", {}))
+    return picks
 
 
 def checker_composite(rgba: Image.Image) -> Image.Image:
@@ -59,22 +87,34 @@ def main() -> int:
         if m:
             by_species[m.group(1)].append((int(m.group(2)), p))
 
+    picks = load_picks()
     parts = [HEAD]
+    parts.append("<p>" + " · ".join(f"<a href='#{sp}' style='color:#cfd3da'>{sp}</a>" for sp in sorted(by_species)) + "</p>")
     for sp, entries in sorted(by_species.items()):
-        parts.append(f"<h2>{sp}</h2><div class='row'>")
-        for seed, p in sorted(entries):
+        parts.append(f"<h2 id='{sp}'>{sp}</h2>")
+        current = None
+        for seed, p in sorted(entries, reverse=True):
+            rnd = round_of(seed)
+            if rnd != current:
+                if current is not None:
+                    parts.append("</div>")
+                parts.append(f"<div class='round'>{rnd}</div><div class='row'>")
+                current = rnd
             keyed_png = RAW / f"{p.stem}_keyed.png"
             rgba = chroma_key(Image.open(p))
             cov = (rgba.split()[-1].getextrema(), )
             import numpy as np
             a = np.asarray(rgba)[..., 3]
             coverage = (a > 25).mean() * 100
-            checker_composite(rgba).save(keyed_png)
+            if not keyed_png.exists() or keyed_png.stat().st_mtime < p.stat().st_mtime:
+                checker_composite(rgba).save(keyed_png)
+            is_pick = picks.get(sp) == seed
             parts.append(
-                f"<div class='cell'><img loading='lazy' src='{p.name}'>"
+                f"<div class='cell{' pick' if is_pick else ''}'><img loading='lazy' src='{p.name}'>"
                 f"<img loading='lazy' src='{keyed_png.name}'>"
-                f"<div class='tag'>seed {seed} · keyed coverage {coverage:.0f}%</div></div>")
-        parts.append("</div>")
+                f"<div class='tag'>seed {seed} · keyed coverage {coverage:.0f}%{' · PICK' if is_pick else ''}</div></div>")
+        if current is not None:
+            parts.append("</div>")
     (RAW / "seed_sheet.html").write_text("\n".join(parts))
     print(f"seed_sheet.html -> {RAW}")
     return 0
