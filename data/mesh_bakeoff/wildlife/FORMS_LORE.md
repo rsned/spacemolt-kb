@@ -13,7 +13,10 @@ gas-cloud POI species). Part 2 covers the "beyond earth-equivalents"
 exotic form hypotheses (`gen_forms.sh`).
 
 Habitat and role tags in Part 1 are the scanned values, so they win over
-the prose where the two ever drift apart. Where combat is described it
+the prose where the two ever drift apart. Since server v0.571.0 a creature
+scan also returns the species' official codex entry (`description`); where
+one has been read it is quoted at the top of the entry, in italics, and the
+prose below follows it — the codex is canon, the field notes are ours. Where combat is described it
 comes from `wildlife_attacks`, which is thin — five species have ever
 been recorded swinging at anything. Two gaps worth knowing about:
 **Tempest-Eel** is here on the strength of the gas-cloud POI listing
@@ -81,15 +84,25 @@ surfaces and hold the rock it eats.
   gets one, not five. Ranch brands don't change that math.
 
 **Patina-Grazer** *(asteroid_belt · grazer · ranchable)*
-A belt-grazer lineage gone verdigris: its carapace hosts a symbiotic
-copper-fixing lichen that plates the animal in blue-green.
-- **Changed:** the molt cycle slowed to let the lichen mature — an old
-  patina is more garden than animal.
-- **Feeds:** as the belt-grazer, but selects copper-bearing rock; the
-  lichen pre-digests it and pays rent in sugars.
-- **Defends:** the patina itself — the lichen sheds a corrosive dust
-  when bitten that etches predator mouthparts. Hunters gut them fast
-  before it etches the meat.
+*Codex (scanned, v0.571.0): "Green-crusted and unhurried, it combs copper
+dust from the rubble with its filter-plates spread wide, laying the metal it
+strains down over its own shell until the plating weathers to verdigris. The
+crust is not for fighting — it is simply what happens when a creature filters
+copper out of the rock for long enough. Where a belt's copper runs thin the
+herd drifts on, and a worked-out field loses its grazers for good."*
+A belt-grazer lineage gone verdigris: the same rotund manatee body, but its
+feeding plates comb copper dust out of the rubble and the strained metal is
+laid down over the shell, layer on layer, until the plating weathers green.
+- **Changed:** the rasp-plated muzzle became a fan of filter-plates that
+  spread wide to comb dust rather than grind rock; the shell became a
+  slow-growing copper deposit, the animal plating itself with what it eats.
+- **Feeds:** strains copper dust from worked rubble with the filter-plates
+  spread, clamped to the rock by its fore-flippers, and drifts on with the
+  herd when a belt's copper runs thin — a worked-out field loses its grazers
+  for good.
+- **Defends:** nothing on purpose. The verdigris crust is a by-product, not
+  armour, and the herd's answer to a predator is the belt-grazer's: clamp
+  down, seal, and be a rock.
 
 **Soot-Grazer** *(asteroid_belt · grazer · ranchable)*
 The carbon-lane cousin, matte black head to hoof.

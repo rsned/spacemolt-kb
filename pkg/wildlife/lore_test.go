@@ -20,6 +20,8 @@ anything out here.
 - **Defends:** nothing but armor and arithmetic.
 
 **Rainbow Leviathan** *(asteroid_belt · predator)*
+*Codex (scanned, v0.571.0): "The grandest of them all, it
+fires the carapace."*
 The grandest of the void-leviathans.
 - **Changed:** the lobster plan scaled to cruiser size; a light-
   fracturing lattice.
@@ -60,8 +62,18 @@ func TestParseLore(t *testing.T) {
 	if _, ok := entries.Lookup("rainbow leviathan"); !ok {
 		t.Error("case-insensitive lookup failed")
 	}
-	if rl, _ := entries.Lookup("Rainbow Leviathan"); rl.Changed != "the lobster plan scaled to cruiser size; a light-fracturing lattice." {
+	rl, _ := entries.Lookup("Rainbow Leviathan")
+	if rl.Changed != "the lobster plan scaled to cruiser size; a light-fracturing lattice." {
 		t.Errorf("hyphen rejoin: %q", rl.Changed)
+	}
+	if rl.Codex != "The grandest of them all, it fires the carapace." {
+		t.Errorf("codex quote = %q", rl.Codex)
+	}
+	if rl.Intro != "The grandest of the void-leviathans." {
+		t.Errorf("intro must exclude the codex block: %q", rl.Intro)
+	}
+	if e.Codex != "" {
+		t.Errorf("no codex block -> empty, got %q", e.Codex)
 	}
 	if _, ok := entries.Lookup("Not A Species"); ok {
 		t.Error("Part 2 entries must not be parsed")

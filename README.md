@@ -23,6 +23,7 @@ The live site is published at [https://rsned.github.io/spacemolt-kb/](https://rs
 | Knowledge DB | `spacemolt-knowledge.db` | SQLite database of systems, POIs, catalogs, market intelligence, players, and passengers (symlink to the game data DB). |
 | Snapshots | `data/snapshots/YYYYMMDD/` | Daily caches of the game API catalogs (`catalog_items.json`, `catalog_ships.json`, `catalog_skills.json`, `catalog_recipes.json`, `get_map.json`). `latest/` and `previous/` symlinks drive diff reporting. |
 | Resource snapshots | `data/resource-snapshots/` | Committed per-regen captures of the Resources page (`YYYY-MM-DD.json`) plus `manifest.json`, which records each snapshot's server version and which snapshot is the baseline for the current resource-content patch. Written by `generate-resource-diffs`; unlike `data/snapshots/` these cannot be rebuilt from a scrape. |
+| Wildlife codex | `data/wildlife/codex.json` | Official per-species lore returned by creature scans (server v0.571.0 `description`), recorded by hand until the knowledge DB carries the column; the DB wins when both exist. Read by `generate-wildlife-kb` (`-codex`). |
 | Explorer notes | `data/explorer-notes.json` | LLM-generated discovery prose attached to POIs. |
 | Planet textures | `data/planet-textures/` | Real Sol-system planet textures used by the planet renderer. |
 | Overlays | `overlays/` | Hand-authored and machine-generated enrichment for factions, players, and passengers (see below). |

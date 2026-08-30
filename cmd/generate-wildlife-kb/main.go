@@ -31,6 +31,7 @@ import (
 func main() {
 	dbPath := flag.String("db", "../spacemolt-knowledge.db", "knowledge database")
 	lorePath := flag.String("lore", "data/mesh_bakeoff/wildlife/FORMS_LORE.md", "wildlife lore document (Part 1 roster is used)")
+	codexPath := flag.String("codex", "data/wildlife/codex.json", "hand-recorded official scan descriptions, used when the DB has none")
 	outDir := flag.String("out", "kb/wildlife", "output directory")
 	flag.Parse()
 
@@ -44,6 +45,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("load wildlife: %v", err)
 	}
+	codex, err := wildlife.LoadCodex(*codexPath)
+	if err != nil {
+		log.Fatalf("load codex: %v", err)
+	}
+	codex.Apply(guide.Species)
+	withCodex := 0
+	for _, s := range guide.Species {
+		if s.Description != "" {
+			withCodex++
+		}
+	}
+	log.Printf("Codex: %d of %d species have an official description (%d hand-recorded in %s)", withCodex, len(guide.Species), len(codex), *codexPath)
+
 	lore := wildlife.Lore{}
 	if data, err := os.ReadFile(*lorePath); err != nil {
 		log.Printf("warning: lore unavailable (%v); species pages render without field notes", err)
@@ -85,6 +99,10 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, outDir string) error {
 			e := e
 			v.Lore = &e
 			matched++
+			if v.Description == "" && e.Codex != "" {
+				v.Description = e.Codex
+				v.CodexSource = "lore"
+			}
 		}
 		v.ImagePath = "images/" + s.ID + ".png"
 		if _, err := os.Stat(filepath.Join(outDir, v.ImagePath)); err == nil {

@@ -46,6 +46,8 @@
         .lore dt { font-weight: 600; margin-top: 10px; }
         .lore dd { margin: 2px 0 0 0; }
         .empty { color: var(--text-muted); font-style: italic; }
+        .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
+        .codex-src { font-size: 0.8em; color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -88,8 +90,12 @@
             <div class="note">Hero image pending</div>
             <div class="path">wildlife/images/pressblister.png</div>
         </div>
+        <div class="card" style="padding:12px 16px">
+            <div class="section-label">Codex entry</div>
+            <p class="empty">Not read yet. Since v0.571.0 scanning any creature of this species returns its entry (the <code>description</code> field); the server does not keep it, so record it in <code>data/wildlife/codex.json</code> or let the knowledge DB capture it.</p>
+        </div>
 
-        <div class="card" style="padding:0">
+        <div class="card mt-2" style="padding:0">
             <div class="section-label">General</div>
             <table>
                 <tr><td class="kv-label">Class</td><td><span class="badge badge-green">grazer</span></td></tr>

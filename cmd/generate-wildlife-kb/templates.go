@@ -41,6 +41,8 @@ const wildlifeStyle = `<style>
         .lore dt { font-weight: 600; margin-top: 10px; }
         .lore dd { margin: 2px 0 0 0; }
         .empty { color: var(--text-muted); font-style: italic; }
+        .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
+        .codex-src { font-size: 0.8em; color: var(--text-muted); }
 </style>`
 
 const themeScript = `    <script>
@@ -217,7 +219,20 @@ const speciesTemplate = placesTemplate + `<!DOCTYPE html>
         </div>
 {{- end}}
 
-        <div class="card" style="padding:0">
+{{- if .S.Description}}
+        <div class="card" style="padding:12px 16px">
+            <div class="section-label">Codex entry</div>
+            <p class="codex">{{.S.Description}}</p>
+            <div class="codex-src">Official species entry returned by scanning a creature{{if eq .S.CodexSource "codex"}} &mdash; recorded by hand{{with .S.CodexTick}} at tick {{.}}{{end}}{{else if eq .S.CodexSource "lore"}} &mdash; quoted from the lore document{{end}}.</div>
+        </div>
+{{- else}}
+        <div class="card" style="padding:12px 16px">
+            <div class="section-label">Codex entry</div>
+            <p class="empty">Not read yet. Since v0.571.0 scanning any creature of this species returns its entry (the <code>description</code> field); the server does not keep it, so record it in <code>data/wildlife/codex.json</code> or let the knowledge DB capture it.</p>
+        </div>
+{{- end}}
+
+        <div class="card mt-2" style="padding:0">
             <div class="section-label">General</div>
             <table>
                 <tr><td class="kv-label">Class</td><td><span class="badge {{roleClass .S.Role}}">{{.S.Role}}</span></td></tr>
@@ -297,7 +312,7 @@ const speciesTemplate = placesTemplate + `<!DOCTYPE html>
 
 {{- with .S.Lore}}
         <div class="card mt-2" style="padding:12px 16px">
-            <div class="section-label">Field notes</div>
+            <div class="section-label">Field notes <span class="codex-src" style="text-transform:none;letter-spacing:0">(KB lore, unofficial)</span></div>
             <div class="lore">
                 <p class="lore-intro">{{.Intro}}</p>
                 <dl>

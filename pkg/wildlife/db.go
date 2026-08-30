@@ -60,6 +60,28 @@ func Load(db *sql.DB) (*Guide, error) {
 	return g, nil
 }
 
+// hasColumn reports whether a table has a column, via PRAGMA table_info.
+func hasColumn(db *sql.DB, table, column string) bool {
+	rows, err := db.Query(`PRAGMA table_info(` + table + `)`)
+	if err != nil {
+		return false
+	}
+	defer func() { _ = rows.Close() }()
+	for rows.Next() {
+		var cid int
+		var name, ctype string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &ctype, &notnull, &dflt, &pk); err != nil {
+			return false
+		}
+		if name == column {
+			return true
+		}
+	}
+	return false
+}
+
 type poiInfo struct {
 	SystemID, Name, Type string
 }
@@ -83,9 +105,15 @@ func loadPOIs(db *sql.DB) (map[string]poiInfo, error) {
 }
 
 func loadSpecies(db *sql.DB) ([]Species, error) {
+	// The description column arrives with the server v0.571.0 client work;
+	// read it when present so older knowledge DBs still load.
+	descCol := "''"
+	if hasColumn(db, "wildlife_species", "description") {
+		descCol = "COALESCE(description, '')"
+	}
 	rows, err := db.Query(`
 		SELECT species, name, role, max_hull, max_shield, danger, habitats, ranchable,
-		       scan_traits, scan_revealed, first_seen_utc, last_seen_utc
+		       scan_traits, scan_revealed, first_seen_utc, last_seen_utc, ` + descCol + `
 		FROM wildlife_species`)
 	if err != nil {
 		return nil, err
@@ -96,7 +124,7 @@ func loadSpecies(db *sql.DB) ([]Species, error) {
 		var s Species
 		var habitats string
 		if err := rows.Scan(&s.ID, &s.Name, &s.Role, &s.MaxHull, &s.MaxShield, &s.Danger, &habitats, &s.Ranchable,
-			&s.ScanTraits, &s.ScanRevealed, &s.FirstSeen, &s.LastSeen); err != nil {
+			&s.ScanTraits, &s.ScanRevealed, &s.FirstSeen, &s.LastSeen, &s.Description); err != nil {
 			return nil, err
 		}
 		if s.Name == "" {

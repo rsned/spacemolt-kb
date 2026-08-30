@@ -25,6 +25,14 @@ type Species struct {
 	FirstSeen    string // RFC3339 UTC or ""
 	LastSeen     string
 
+	// Description is the species' official lore, returned only by scanning a
+	// creature (server v0.571.0). CodexSource says where it came from: "db"
+	// when the knowledge DB carries it, "codex" when it was hand-recorded in
+	// data/wildlife/codex.json, "" when unknown.
+	Description string
+	CodexSource string
+	CodexTick   int
+
 	Places  []Place  // systems where it has been sighted, sorted by name
 	Attacks []Attack // observed natural weapons, aggregated
 	Kills   []Kill   // recorded kills, newest first

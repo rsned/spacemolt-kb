@@ -122,3 +122,30 @@ func TestLoad(t *testing.T) {
 		t.Errorf("map systems = %d", len(g.MapSystems))
 	}
 }
+
+func TestLoad_DescriptionColumnOptional(t *testing.T) {
+	db := openTestDB(t)
+	// The test schema has no description column: Load must still work and
+	// leave Description empty.
+	g, err := Load(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if g.Species[0].Description != "" {
+		t.Errorf("no column -> description should be empty, got %q", g.Species[0].Description)
+	}
+	// Once the knowledge DB gains the column, it is read.
+	if _, err := db.Exec(`ALTER TABLE wildlife_species ADD COLUMN description TEXT NOT NULL DEFAULT ''`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Exec(`UPDATE wildlife_species SET description='Combs copper dust.' WHERE species='belt_grazer'`); err != nil {
+		t.Fatal(err)
+	}
+	g, err = Load(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if g.Species[0].Description != "Combs copper dust." {
+		t.Errorf("description = %q", g.Species[0].Description)
+	}
+}

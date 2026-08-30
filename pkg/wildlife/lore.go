@@ -11,6 +11,7 @@ type LoreEntry struct {
 	Name    string
 	Tags    []string // habitat · role · ranchable, as written in the doc
 	Intro   string
+	Codex   string // the official scan description quoted in the entry, if any
 	Changed string
 	Feeds   string
 	Defends string
@@ -44,7 +45,7 @@ func ParseLore(md []byte) Lore {
 	out := Lore{}
 	inPart1 := false
 	var cur *LoreEntry
-	field := "" // "intro", "Changed", "Feeds", "Defends"
+	field := "" // "intro", "codex", "Changed", "Feeds", "Defends"
 	flush := func() {
 		if cur != nil {
 			out[normName(cur.Name)] = *cur
@@ -74,6 +75,8 @@ func ParseLore(md []byte) Lore {
 		switch field {
 		case "intro":
 			join(&cur.Intro)
+		case "codex":
+			join(&cur.Codex)
 		case "Changed":
 			join(&cur.Changed)
 		case "Feeds":
@@ -113,6 +116,30 @@ func ParseLore(md []byte) Lore {
 		if m := reBullet.FindStringSubmatch(line); m != nil {
 			field = m[1]
 			appendText(m[2])
+			continue
+		}
+		// An italic "*Codex (…): "…"*" block quotes the official scan entry;
+		// it runs until the line that closes the quote and is kept apart from
+		// the field notes.
+		if strings.HasPrefix(strings.TrimSpace(line), "*Codex") {
+			field = "codex"
+			text := strings.TrimPrefix(strings.TrimSpace(line), "*")
+			if i := strings.Index(text, "\""); i >= 0 {
+				text = text[i:]
+			}
+			appendText(text)
+			if strings.HasSuffix(strings.TrimSpace(line), "\"*") {
+				cur.Codex = strings.Trim(strings.TrimSuffix(cur.Codex, "*"), "\" ")
+				field = "intro"
+			}
+			continue
+		}
+		if field == "codex" {
+			appendText(line)
+			if strings.HasSuffix(strings.TrimSpace(line), "\"*") {
+				cur.Codex = strings.Trim(strings.TrimSuffix(cur.Codex, "*"), "\" ")
+				field = "intro"
+			}
 			continue
 		}
 		if strings.TrimSpace(line) == "" {
