@@ -106,7 +106,8 @@ SCRIPT = """
 
 # Seed blocks per generation round, so a cell can say where it came from.
 ROUNDS = [
-    (10100, 10499, "round 4/4b — free-fall rules"),
+    (11000, 11499, "babies — infant versions of the accepted adults"),
+    (10100, 10499, "round 4/4b/4c/4d — free-fall rules"),
     (9700, 10099, "round 3/3b — first full roster"),
     (9500, 9699, "forms — exotic hypotheses"),
     (9200, 9299, "rounds 1-2 — prototypes"),
