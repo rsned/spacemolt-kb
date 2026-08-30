@@ -67,6 +67,337 @@ form should show how the animal gets around and what it holds onto.
 ## Part 1 — the known roster
 
 **Belt-Grazer** *(asteroid_belt · grazer · ranchable)*
+*Codex (scanned, v0.571.0): "Iron-plated and methodical, it combs ferrous
+dust from the rubble with its filter-plates spread wide, packing the metal
+it strains into its own shell as it drifts. The armor is not for fighting —
+it is simply what happens when a creature filters iron out of the rock for
+long enough. Where a belt's iron runs thin the herd drifts on, and a
+worked-out field loses its grazers for good."*
+The baseline stock animal of the belts, and the reason "grazer" means
+anything out here: a placid, cow-sized iron-plated grazer built like a
+manatee — rotund, bulbous, blunt-headed, a broad paddle tail and two
+grasping magnetized fore-flippers that latch onto the rubble it feeds on.
+- **Changed:** lungs traded for sealed fermentation stomachs; the muzzle
+  became a fan of filter-plates that spread wide to comb dust; skin became
+  a shell the animal packs with the iron it strains, so the plating is diet
+  made solid (the shed plates are the familiar UV-hardened
+  `creature_carapace` drop); eyes lidded down to radiation-slit pupils.
+- **Feeds:** combs ferrous dust from worked rubble with the filter-plates
+  spread, methodical and unhurried, and the herd drifts on when a belt's
+  iron runs thin — a worked-out field loses its grazers for good.
+- **Defends:** nothing on purpose. The armor is a by-product of eating,
+  not a weapon; threatened, it clamps down, seals, and is a rock, and the
+  herd scatters in all directions so a predator gets one, not five. Ranch
+  brands don't change that math.
+
+ Wildlife lore — bodies, feeding, defenses
+
+Codex-voice entries for the fauna exploration. Every entry answers the
+same three questions: **Changed** — what the body altered from its
+familiar terrestrial baseline to survive vacuum, radiation, and thermal
+whiplash; **Feeds** — the mechanism by which it consumes its specific
+resource (ores, gases, ice, radiation, other fauna); **Defends** — what
+it evolved instead of running home to a burrow. Voice matches the item
+catalog: field-guide practical, a hunter's or rancher's view.
+
+Part 1 covers the live roster (scraped `wildlife_species` + the
+gas-cloud POI species). Part 2 covers the "beyond earth-equivalents"
+exotic form hypotheses (`gen_forms.sh`).
+
+Habitat and role tags in Part 1 are the scanned values, so they win over
+the prose where the two ever drift apart. Since server v0.571.0 a creature
+scan also returns the species' official codex entry (`description`); where
+one has been read it is quoted at the top of the entry, in italics, and the
+prose below follows it — the codex is canon, the field notes are ours. Where combat is described it
+comes from `wildlife_attacks`, which is thin — five species have ever
+been recorded swinging at anything. Two gaps worth knowing about:
+**Tempest-Eel** is here on the strength of the gas-cloud POI listing
+alone and has never appeared in `wildlife_species`; and eight scanned
+species still have no entry — ash-scarab, carrion-moth, crusher-mantis,
+frost-moth, hollow pilgrim, pressblister, prism-drifter and rime-grazer.
+
+---
+
+## Design rules — bodies in free fall
+
+Everything on this roster lives, feeds and moves in open space. There is no
+ground and no down: almost nothing here keeps a gravity orientation, and a
+form should show how the animal gets around and what it holds onto.
+
+- **Space is thin, not empty.** Broad membranes still propel, because they
+  shove enough of the sparse medium past them — the rays fly, on wide slow
+  strokes. Serpentine bodies work the same way and just as slowly: with
+  little to push against, an eel's S-wave is a cruise, never a sprint.
+- **Lift is pointless.** Nothing needs to fight gravity, so moth and
+  butterfly planforms are unlikely. Where a species carries big flat
+  surfaces they are collectors, radiators, sails or sensor vanes, not
+  aerofoils.
+- **Rock and ice are solid.** Belt and ice-field species have limbs that
+  grasp, clamp and hold the boulder or berg they are eating; they travel by
+  pushing off it or hauling hand-over-hand, and rest by clinging. Hooves
+  and walking gaits are the wrong picture — a stock grazer is a beast
+  latched onto a rock, not standing on one.
+- **Gas clouds have no surface.** Cloud-only species have nothing to push
+  against and nothing to hold, so limbs, where they exist at all, are for
+  capturing prey. Feeding is filtering, inhaling, ingesting or straining the
+  gas itself; travel is venting, jetting or undulating through the medium.
+- **Think aquatic.** Any body plan that moves through water works in space
+  at some scale — fish, rays, eels, jellies, squid, crabs, mantis shrimp,
+  sea cows. Four-legged land forms do not: no cows, no hooves, no gaits.
+  The stock grazers are manatees at heart — rotund, bulbous base forms
+  with paddle tails and grasping fore-flippers, and grinding mouthparts —
+  broad rasp-plated muzzles, never tusks, because rock and ice are ground
+  down, not hooked. That is also the ranch
+  roster: the scan flags the four manatee grazers (belt, patina, soot,
+  rime), the two rays (drift, sift) and the facet-druse as ranchable stock.
+- **Habitat makes the body.** A species scanned in `asteroid_belt`,
+  `ice_field`, `gas_cloud` or `nebula` got its shape from eating what is
+  there and moving how that place allows.
+
+---
+
+## Part 1 — the known roster
+
+**Belt-Grazer** *(asteroid_belt · grazer · ranchable)*
+The baseline stock animal of the belts, and the reason "grazer" means
+anything out here: a placid, cow-sized armored grazer built like a
+manatee — rotund, bulbous, blunt-headed, a broad paddle tail for slow strokes
+and two grasping magnetized fore-flippers that latch onto asteroid
+surfaces and hold the rock it eats.
+- **Changed:** lungs traded for sealed fermentation stomachs; skin for
+  a molting pressure-carapace (the shed plates are the familiar
+  UV-hardened `creature_carapace` drop); eyes lidded down to
+  radiation-slit pupils.
+- **Feeds:** rasps oxide crusts and ice-bearing regolith straight off
+  the rock with a diamond-file tongue, gut-smelting it — the iron-rich
+  residue is why its milk tastes faintly of blood and sells anyway.
+- **Defends:** nothing but armor and arithmetic. It clamps down,
+  seals, and is a rock; herds scatter in all directions so a predator
+  gets one, not five. Ranch brands don't change that math.
+
+**Patina-Grazer** *(asteroid_belt · grazer · ranchable)*
+*Codex (scanned, v0.571.0): "Green-crusted and unhurried, it combs copper
+dust from the rubble with its filter-plates spread wide, laying the metal it
+strains down over its own shell until the plating weathers to verdigris. The
+crust is not for fighting — it is simply what happens when a creature filters
+copper out of the rock for long enough. Where a belt's copper runs thin the
+herd drifts on, and a worked-out field loses its grazers for good."*
+A belt-grazer lineage gone verdigris: the same rotund manatee body, but its
+feeding plates comb copper dust out of the rubble and the strained metal is
+laid down over the shell, layer on layer, until the plating weathers green.
+- **Changed:** the rasp-plated muzzle became a fan of filter-plates that
+  spread wide to comb dust rather than grind rock; the shell became a
+  slow-growing copper deposit, the animal plating itself with what it eats.
+- **Feeds:** strains copper dust from worked rubble with the filter-plates
+  spread, clamped to the rock by its fore-flippers, and drifts on with the
+  herd when a belt's copper runs thin — a worked-out field loses its grazers
+  for good.
+- **Defends:** nothing on purpose. The verdigris crust is a by-product, not
+  armour, and the herd's answer to a predator is the belt-grazer's: clamp
+  down, seal, and be a rock.
+
+**Soot-Grazer** *(asteroid_belt · grazer · ranchable)*
+The carbon-lane cousin, matte black head to hoof.
+- **Changed:** carapace loaded with radiation-drinking melanin — it
+  grazes sun-blasted faces no other stock can stand, and its hide runs
+  warm to the touch.
+- **Feeds:** strips carbonaceous chondrite, spitting back a fine ash
+  that marks its trails like inverse snow.
+- **Defends:** vents that stored heat when threatened — a shimmering
+  scald-halo that convinces most predators the herd is on fire.
+
+**Glitterback Crab** *(asteroid_belt · grazer)*
+A scuttling ore-sorter the size of a dog, shell crusted with the
+crystals it couldn't digest.
+- **Changed:** claws became assay tools — one crusher, one fine
+  manipulator; book-lungs became sealed trachea running on stored
+  oxygen it cracks from ice.
+- **Feeds:** picks through rubble for mineral fines, tasting by
+  conductivity, packing rejects onto its own back as it goes.
+- **Defends:** the glitter is armor and camouflage in one — against
+  rock it reads as a mineral vein, and the crystal crust spalls off in
+  a blinding reflective cloud when struck, covering a surprisingly
+  fast reverse scuttle.
+
+**Slag-Tortoise** *(asteroid_belt · grazer)*
+*Codex (scanned, v0.571.0): "Iron-plated and relentlessly slow, it plows
+through ferrous rubble, swallowing rock and venting slag in a steady trail.
+Its shell is half rust, half raw metal — what it ate and what it grew are
+the same thing. Strike it and it withdraws into that shell and waits; it
+has nowhere to be."*
+Half again a belt-grazer's bulk and a fraction of its hurry.
+- **Changed:** shell fused into a single dome of foamed slag and raw
+  iron, half rust, half metal, meters thick in places — the animal
+  secretes it molten and lets vacuum freeze it. There is no molt; what it
+  ate and what it grew are the same thing, poured on a layer at a time.
+- **Feeds:** plows through ferrous rubble and swallows rock whole, an
+  under-slung furnace mouth cooking the ore loose at contact temperature
+  and venting the slag behind it in a steady trail.
+- **Defends:** withdraws into the shell and waits; it has nowhere to be.
+  Limbs in, a mature slag-tortoise has survived deliberate mining charges;
+  the recorded counter-attack is it sitting on the drill.
+
+ Wildlife lore — bodies, feeding, defenses
+
+Codex-voice entries for the fauna exploration. Every entry answers the
+same three questions: **Changed** — what the body altered from its
+familiar terrestrial baseline to survive vacuum, radiation, and thermal
+whiplash; **Feeds** — the mechanism by which it consumes its specific
+resource (ores, gases, ice, radiation, other fauna); **Defends** — what
+it evolved instead of running home to a burrow. Voice matches the item
+catalog: field-guide practical, a hunter's or rancher's view.
+
+Part 1 covers the live roster (scraped `wildlife_species` + the
+gas-cloud POI species). Part 2 covers the "beyond earth-equivalents"
+exotic form hypotheses (`gen_forms.sh`).
+
+Habitat and role tags in Part 1 are the scanned values, so they win over
+the prose where the two ever drift apart. Since server v0.571.0 a creature
+scan also returns the species' official codex entry (`description`); where
+one has been read it is quoted at the top of the entry, in italics, and the
+prose below follows it — the codex is canon, the field notes are ours. Where combat is described it
+comes from `wildlife_attacks`, which is thin — five species have ever
+been recorded swinging at anything. Two gaps worth knowing about:
+**Tempest-Eel** is here on the strength of the gas-cloud POI listing
+alone and has never appeared in `wildlife_species`; and eight scanned
+species still have no entry — ash-scarab, carrion-moth, crusher-mantis,
+frost-moth, hollow pilgrim, pressblister, prism-drifter and rime-grazer.
+
+---
+
+## Design rules — bodies in free fall
+
+Everything on this roster lives, feeds and moves in open space. There is no
+ground and no down: almost nothing here keeps a gravity orientation, and a
+form should show how the animal gets around and what it holds onto.
+
+- **Space is thin, not empty.** Broad membranes still propel, because they
+  shove enough of the sparse medium past them — the rays fly, on wide slow
+  strokes. Serpentine bodies work the same way and just as slowly: with
+  little to push against, an eel's S-wave is a cruise, never a sprint.
+- **Lift is pointless.** Nothing needs to fight gravity, so moth and
+  butterfly planforms are unlikely. Where a species carries big flat
+  surfaces they are collectors, radiators, sails or sensor vanes, not
+  aerofoils.
+- **Rock and ice are solid.** Belt and ice-field species have limbs that
+  grasp, clamp and hold the boulder or berg they are eating; they travel by
+  pushing off it or hauling hand-over-hand, and rest by clinging. Hooves
+  and walking gaits are the wrong picture — a stock grazer is a beast
+  latched onto a rock, not standing on one.
+- **Gas clouds have no surface.** Cloud-only species have nothing to push
+  against and nothing to hold, so limbs, where they exist at all, are for
+  capturing prey. Feeding is filtering, inhaling, ingesting or straining the
+  gas itself; travel is venting, jetting or undulating through the medium.
+- **Think aquatic.** Any body plan that moves through water works in space
+  at some scale — fish, rays, eels, jellies, squid, crabs, mantis shrimp,
+  sea cows. Four-legged land forms do not: no cows, no hooves, no gaits.
+  The stock grazers are manatees at heart — rotund, bulbous base forms
+  with paddle tails and grasping fore-flippers, and grinding mouthparts —
+  broad rasp-plated muzzles, never tusks, because rock and ice are ground
+  down, not hooked. That is also the ranch
+  roster: the scan flags the four manatee grazers (belt, patina, soot,
+  rime), the two rays (drift, sift) and the facet-druse as ranchable stock.
+- **Habitat makes the body.** A species scanned in `asteroid_belt`,
+  `ice_field`, `gas_cloud` or `nebula` got its shape from eating what is
+  there and moving how that place allows.
+
+---
+
+## Part 1 — the known roster
+
+**Belt-Grazer** *(asteroid_belt · grazer · ranchable)*
+*Codex (scanned, v0.571.0): "Iron-plated and methodical, it combs ferrous
+dust from the rubble with its filter-plates spread wide, packing the metal
+it strains into its own shell as it drifts. The armor is not for fighting —
+it is simply what happens when a creature filters iron out of the rock for
+long enough. Where a belt's iron runs thin the herd drifts on, and a
+worked-out field loses its grazers for good."*
+The baseline stock animal of the belts, and the reason "grazer" means
+anything out here: a placid, cow-sized iron-plated grazer built like a
+manatee — rotund, bulbous, blunt-headed, a broad paddle tail and two
+grasping magnetized fore-flippers that latch onto the rubble it feeds on.
+- **Changed:** lungs traded for sealed fermentation stomachs; the muzzle
+  became a fan of filter-plates that spread wide to comb dust; skin became
+  a shell the animal packs with the iron it strains, so the plating is diet
+  made solid (the shed plates are the familiar UV-hardened
+  `creature_carapace` drop); eyes lidded down to radiation-slit pupils.
+- **Feeds:** combs ferrous dust from worked rubble with the filter-plates
+  spread, methodical and unhurried, and the herd drifts on when a belt's
+  iron runs thin — a worked-out field loses its grazers for good.
+- **Defends:** nothing on purpose. The armor is a by-product of eating,
+  not a weapon; threatened, it clamps down, seals, and is a rock, and the
+  herd scatters in all directions so a predator gets one, not five. Ranch
+  brands don't change that math.
+
+ Wildlife lore — bodies, feeding, defenses
+
+Codex-voice entries for the fauna exploration. Every entry answers the
+same three questions: **Changed** — what the body altered from its
+familiar terrestrial baseline to survive vacuum, radiation, and thermal
+whiplash; **Feeds** — the mechanism by which it consumes its specific
+resource (ores, gases, ice, radiation, other fauna); **Defends** — what
+it evolved instead of running home to a burrow. Voice matches the item
+catalog: field-guide practical, a hunter's or rancher's view.
+
+Part 1 covers the live roster (scraped `wildlife_species` + the
+gas-cloud POI species). Part 2 covers the "beyond earth-equivalents"
+exotic form hypotheses (`gen_forms.sh`).
+
+Habitat and role tags in Part 1 are the scanned values, so they win over
+the prose where the two ever drift apart. Since server v0.571.0 a creature
+scan also returns the species' official codex entry (`description`); where
+one has been read it is quoted at the top of the entry, in italics, and the
+prose below follows it — the codex is canon, the field notes are ours. Where combat is described it
+comes from `wildlife_attacks`, which is thin — five species have ever
+been recorded swinging at anything. Two gaps worth knowing about:
+**Tempest-Eel** is here on the strength of the gas-cloud POI listing
+alone and has never appeared in `wildlife_species`; and eight scanned
+species still have no entry — ash-scarab, carrion-moth, crusher-mantis,
+frost-moth, hollow pilgrim, pressblister, prism-drifter and rime-grazer.
+
+---
+
+## Design rules — bodies in free fall
+
+Everything on this roster lives, feeds and moves in open space. There is no
+ground and no down: almost nothing here keeps a gravity orientation, and a
+form should show how the animal gets around and what it holds onto.
+
+- **Space is thin, not empty.** Broad membranes still propel, because they
+  shove enough of the sparse medium past them — the rays fly, on wide slow
+  strokes. Serpentine bodies work the same way and just as slowly: with
+  little to push against, an eel's S-wave is a cruise, never a sprint.
+- **Lift is pointless.** Nothing needs to fight gravity, so moth and
+  butterfly planforms are unlikely. Where a species carries big flat
+  surfaces they are collectors, radiators, sails or sensor vanes, not
+  aerofoils.
+- **Rock and ice are solid.** Belt and ice-field species have limbs that
+  grasp, clamp and hold the boulder or berg they are eating; they travel by
+  pushing off it or hauling hand-over-hand, and rest by clinging. Hooves
+  and walking gaits are the wrong picture — a stock grazer is a beast
+  latched onto a rock, not standing on one.
+- **Gas clouds have no surface.** Cloud-only species have nothing to push
+  against and nothing to hold, so limbs, where they exist at all, are for
+  capturing prey. Feeding is filtering, inhaling, ingesting or straining the
+  gas itself; travel is venting, jetting or undulating through the medium.
+- **Think aquatic.** Any body plan that moves through water works in space
+  at some scale — fish, rays, eels, jellies, squid, crabs, mantis shrimp,
+  sea cows. Four-legged land forms do not: no cows, no hooves, no gaits.
+  The stock grazers are manatees at heart — rotund, bulbous base forms
+  with paddle tails and grasping fore-flippers, and grinding mouthparts —
+  broad rasp-plated muzzles, never tusks, because rock and ice are ground
+  down, not hooked. That is also the ranch
+  roster: the scan flags the four manatee grazers (belt, patina, soot,
+  rime), the two rays (drift, sift) and the facet-druse as ranchable stock.
+- **Habitat makes the body.** A species scanned in `asteroid_belt`,
+  `ice_field`, `gas_cloud` or `nebula` got its shape from eating what is
+  there and moving how that place allows.
+
+---
+
+## Part 1 — the known roster
+
+**Belt-Grazer** *(asteroid_belt · grazer · ranchable)*
 The baseline stock animal of the belts, and the reason "grazer" means
 anything out here: a placid, cow-sized armored grazer built like a
 manatee — rotund, bulbous, blunt-headed, a broad paddle tail for slow strokes
