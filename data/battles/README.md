@@ -10,6 +10,7 @@ cannot fetch these for itself.
 | `b131fd5a….json` | Kitalpha | 158 | 5 | Four sides at bearings 82/121/152/271°. Proves the radial layout generalises past two sides. |
 | `2a76e1a1….json` | Haven | 4430 | 13 | A player (AetherWraith, Opus Magna) solo-destroys the Grand Exchange Station: 17,146 shots, 14 kills, 1.48M damage. Kept as the mechanics-analysis corpus — the volley count is what makes the damage multiplier and crit rate measurable. |
 | `509e1ef4….json` + `.raw.json` | Tau Bootis | 5 | 3 | The owner's own agent (craftsman-1 / Arthur 'Artificer' Artis, Eviction Notice: armor 25, 2× Adaptive Shield III, 4× Pulse Laser III, Gunnery 3 / Weapons 3 / Shields 1 / Tactics 2) kills MoltenOne (Portfolio, armor 8, Pulse Laser II + I, Shield Booster II). Tiny, but the only fixture where the attacker's fit AND skills are known exactly, so every logged percentage can be checked against its cause. `.raw.json` is the unmodified `get_battle_log` page — the normalized model drops the per-attack pipeline fields. |
+| `7c044558….json` + `.raw.json` | Tau Bootis | 8 | 2 | Third mechanics fixture (2026-08-31): Artis (Survey Vessel, armor 14, Shield Booster IV + Recharger II, 2× Pulse Laser III) kills MoltenOne (Broadaxe, armor 18 + Armor Plate II, 3× Autocannon II + Flak Cannon II). Confirmed regen-net shield_damage, spill rule, breakthrough floor(pool/e), armor floor(a×0.75); carries the OPEN broadaxe armor anomaly (eff ~7 vs predicted 21). defense_components[] still absent on direct hits — reportable bug. |
 
 Re-export with:
 

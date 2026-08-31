@@ -106,6 +106,8 @@ SCRIPT = """
 
 # Seed blocks per generation round, so a cell can say where it came from.
 ROUNDS = [
+    (12000, 12499, "turnaround sheets — side-quest, one generation holding four views"),
+    (10500, 10999, "round 5 — leading three-quarter overhead view instruction"),
     (11000, 11499, "babies — infant versions of the accepted adults"),
     (10100, 10499, "round 4/4b/4c/4d — free-fall rules"),
     (9700, 10099, "round 3/3b — first full roster"),
