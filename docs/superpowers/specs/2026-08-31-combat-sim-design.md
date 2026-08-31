@@ -54,13 +54,11 @@ fields flattened at top level (`damage`, `damage_type`, `reach`, `cooldown`,
 actual field names in the JSON, do not assume.
 
 ### resolver.go — fit + skills → StatBlock
-- maxHull = hull.base_hull (× (1 + Armor skill × 1%/level hullHP) — Armor skill
-  grants hullHP 1%/lvl per catalog; include, floored)
-- maxShield = base_shield + Σ shield_bonus, × (1 + Shields×1%) (shieldCapacity
-  1%/lvl; measured fits had Shields ≤4 and matched catalog+modules exactly at
-  low levels — keep the multiplier, it is catalog-documented; flag `measured?no`)
-- recharge = base_shield_recharge + Σ shield_recharge_bonus (Shields×1%
-  shieldRecharge likewise applied)
+- maxHull = hull.base_hull; maxShield = base_shield + Σ shield_bonus;
+  recharge = base_shield_recharge + Σ shield_recharge_bonus. NO capacity
+  skill multipliers: measured across all fixtures, max_hull/max_shield equal
+  catalog + module bonuses EXACTLY (broadaxe 28 at Shields 4, survey 400 at
+  Shields 1) — capacity skills do not appear in the stat block.
 - armorTotal = base_armor + Σ armor_bonus, × (1 + Armor×1% armorEffectiveness)
 - flatPct = min(75, Σ damage_reduction) — flat/adaptive bucket, capped 75
   (dev-confirmed; a module's `adaptive_resistance_N` special and its
