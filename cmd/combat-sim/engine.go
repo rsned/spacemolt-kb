@@ -22,10 +22,7 @@ var armorMult = map[string]float64{
 	"explosive": 1.0, "em": 1.0, "thermal": 0.25,
 }
 
-const armorK = 150.0         // half-saturation constant = max bare hull armor
-const armorLawCrossover = 12 // counted-armor value splitting the two measured law ranges (OPEN)
-
-var armorLaw = "auto" // Task 4 moves this into Calibration
+const armorK = 150.0 // half-saturation constant = max bare hull armor
 
 type SideState struct {
 	Stats        *StatBlock
@@ -63,14 +60,14 @@ func stageFloor(v float64) (int, int) {
 	return int(f), 0
 }
 
-func armorReduce(hullIn int, armorTotal float64, dmgType string) int {
+func armorReduce(hullIn int, armorTotal float64, dmgType string, cal *Calibration) int {
 	if hullIn <= 0 {
 		return 0
 	}
 	counted := armorTotal * armorMult[dmgType]
 	var out int
-	usePct := counted >= armorLawCrossover
-	switch armorLaw {
+	usePct := counted >= cal.ArmorLawCrossover
+	switch cal.ArmorLaw {
 	case "pct150":
 		usePct = true
 	case "flat75":
@@ -85,7 +82,7 @@ func armorReduce(hullIn int, armorTotal float64, dmgType string) int {
 }
 
 // ResolveVolley applies one LANDED volley. Pure: mutates nothing.
-func ResolveVolley(att *StatBlock, tgt *SideState, fired []int, critFlags []bool, stanceInMult float64) VolleyOutcome {
+func ResolveVolley(att *StatBlock, tgt *SideState, fired []int, critFlags []bool, stanceInMult float64, cal *Calibration) VolleyOutcome {
 	raw := 0
 	dmgType := ""
 	for i, wi := range fired {
@@ -118,6 +115,6 @@ func ResolveVolley(att *StatBlock, tgt *SideState, fired []int, critFlags []bool
 	} else {
 		hullIn = pre // shields down, or void (skips shields entirely)
 	}
-	out.HullDmg = min(armorReduce(hullIn, tgt.Stats.ArmorTotal, dmgType), tgt.Hull)
+	out.HullDmg = min(armorReduce(hullIn, tgt.Stats.ArmorTotal, dmgType, cal), tgt.Hull)
 	return out
 }

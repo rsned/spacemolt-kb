@@ -94,7 +94,7 @@ func TestGoldenVolleys(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			got := ResolveVolley(c.att, c.tgt, all(len(c.att.Weapons)), c.crits, 1.0)
+			got := ResolveVolley(c.att, c.tgt, all(len(c.att.Weapons)), c.crits, 1.0, DefaultCalibration())
 			if got.ShieldDrain != c.wantSh {
 				t.Errorf("shield drain = %d, want %d", got.ShieldDrain, c.wantSh)
 			}
