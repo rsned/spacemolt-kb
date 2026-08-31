@@ -14,3 +14,7 @@ hardcoded from fixtures `509e1ef4`, `b7847bbc` (Nekkar), `7c044558`.
   rows exact, all within ±1; residual: the ±1 broadaxe alternation).
 
 Run with `python3 <script>`; no dependencies.
+- `verify6_percentage_armor.py` — dev-bot model: armor as saturating
+  percentage f = a_counted/(a_counted+150), type mult on armor counted
+  (kinetic ×1.5, energy ×0.75). Exact on kinetic rows, ±1 on broadaxe;
+  low-armor energy rows still prefer flat floor(a×0.75) — law open.
