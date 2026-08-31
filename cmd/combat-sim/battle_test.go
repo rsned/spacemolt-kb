@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand/v2"
+	"os"
 	"testing"
 )
 
@@ -88,5 +89,27 @@ func TestLoadCalibrationFile(t *testing.T) {
 	}
 	if c.BraceInMult != 0.25 || c.RegenHitDivisor != 3 || c.MaxTicks != 500 {
 		t.Errorf("calibration = %+v, want measured defaults", c)
+	}
+}
+
+func TestLoadCalibrationValidatesRegenHitDivisor(t *testing.T) {
+	// Reject invalid RegenHitDivisor (0 or negative) to prevent divide-by-zero panic
+	tmpdir := t.TempDir()
+	tmpfile, err := os.Create(tmpdir + "/bad_cal.json")
+	if err != nil {
+		t.Fatalf("create temp file: %v", err)
+	}
+	_, err = tmpfile.WriteString(`{"regen_hit_divisor": 0}`)
+	if err != nil {
+		_ = tmpfile.Close()
+		t.Fatalf("write temp file: %v", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatalf("close temp file: %v", err)
+	}
+
+	_, err = LoadCalibration(tmpfile.Name())
+	if err == nil {
+		t.Errorf("LoadCalibration with regen_hit_divisor=0, want error")
 	}
 }

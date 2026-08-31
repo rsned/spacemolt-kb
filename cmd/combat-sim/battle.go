@@ -37,6 +37,9 @@ func LoadCalibration(path string) (*Calibration, error) {
 	if err := json.Unmarshal(raw, c); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+	if c.RegenHitDivisor <= 0 {
+		return nil, fmt.Errorf("%s: regen_hit_divisor must be > 0, got %d", path, c.RegenHitDivisor)
+	}
 	return c, nil
 }
 
