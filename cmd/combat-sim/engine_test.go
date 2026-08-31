@@ -104,3 +104,15 @@ func TestGoldenVolleys(t *testing.T) {
 		})
 	}
 }
+
+// Void damage bypasses shields entirely (shieldEff["void"] == 0), so a
+// full-shield target still takes hull damage straight through with no drain.
+func TestVoidSkipsShields(t *testing.T) {
+	att := &StatBlock{Name: "voidAtt", WeaponSkillPct: 0, CritPct: 0,
+		Weapons: []Weapon{{Damage: 100, Type: "void"}}}
+	tgt := side(&StatBlock{Name: "tgt", MaxHull: 100000, MaxShield: 500, ArmorTotal: 0, FlatPct: 0, ShieldsSkill: 0}, 500, 100000)
+	got := ResolveVolley(att, tgt, all(1), noCrit(1), 1.0, DefaultCalibration())
+	if got.ShieldDrain != 0 || got.HullDmg != 100 {
+		t.Errorf("void volley = %+v, want shield drain 0 hull 100 (min-1/kill-cap not binding)", got)
+	}
+}

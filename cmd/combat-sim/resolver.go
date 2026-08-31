@@ -87,5 +87,13 @@ func Resolve(fit *FitSpec, cat *Catalog) (*StatBlock, error) {
 	}
 	sb.FlatPct = min(flat, 75)
 	sb.ArmorTotal = float64(armor) * (1 + float64(sk("armor"))*0.01)
+	for i, w := range sb.Weapons {
+		if _, ok := shieldEff[w.Type]; !ok {
+			return nil, fmt.Errorf("unknown damage type %q on %s", w.Type, w.Name)
+		}
+		if i > 0 && w.Type != sb.Weapons[0].Type {
+			return nil, fmt.Errorf("mixed-damage-type fits unsupported in v1 (got %s and %s)", sb.Weapons[0].Type, w.Type)
+		}
+	}
 	return sb, nil
 }

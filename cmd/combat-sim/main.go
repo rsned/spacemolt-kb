@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 )
 
@@ -12,7 +14,7 @@ func run() error {
 	fitB := flag.String("b", "", "fitting spec JSON for side B (required)")
 	runs := flag.Int("runs", 10000, "battles per stance-pair cell")
 	seed := flag.Uint64("seed", 42, "RNG seed (deterministic output per seed)")
-	catalog := flag.String("catalog", "data/snapshots/latest", "catalog snapshot dir")
+	catalog := flag.String("catalog", "data/combat-sim/catalog", "catalog snapshot dir")
 	calPath := flag.String("calibration", "data/combat-sim/calibration.json", "calibration file (missing = built-in defaults)")
 	maxTicks := flag.Int("max-ticks", 0, "override calibration max_ticks (0 = keep)")
 	jsonOut := flag.String("json", "", "write full per-cell outcome distributions to this file")
@@ -26,7 +28,7 @@ func run() error {
 		return err
 	}
 	cal, err := LoadCalibration(*calPath)
-	if os.IsNotExist(err) {
+	if errors.Is(err, fs.ErrNotExist) {
 		cal, err = DefaultCalibration(), nil
 	}
 	if err != nil {

@@ -7,8 +7,11 @@ Hermetic 1v1 combat Monte Carlo over the log-verified damage model
     bin/combat-sim --a data/combat-sim/fits/molten_broadaxe.json \
                    --b data/combat-sim/fits/artis_survey.json --runs 10000
 
-Inputs: committed catalog snapshots + two fitting-spec JSONs + calibration.json.
-No databases, no network, no credentials.
+Inputs: a vendored, pinned catalog snapshot (data/combat-sim/catalog/, copied
+from snapshot 20260827) + two fitting-spec JSONs + calibration.json. No
+databases, no network, no credentials. The spec's `data/snapshots/latest`
+default was changed to the vendored copy for hermeticity — `data/snapshots/`
+is gitignored, so a fresh clone has no catalog there and tests would fail.
 
 Measured vs ASSUMED: every uncalibrated constant lives in
 data/combat-sim/calibration.json with an `assumed` list; table cells that
@@ -18,5 +21,10 @@ per-pair hit chances.
 
 Not modeled in v1: drone repair (logs omit it — drone-fit survival is
 underestimated), boarding, zones/movement (fixed at engaged), ammo reload,
-armor-melt and EM debuffs, mixed-damage-type volleys, capital hulls,
-wildlife (phase C).
+armor-melt and EM debuffs, capital hulls, wildlife (phase C). Mixed-damage-type
+fits are refused outright by the resolver (not silently mis-resolved as a
+single type). Gunnery is applied to all damage types as a v1 approximation —
+the real per-type skill mapping is unknown. Typed hardener resists are
+omitted: no fixture or example fit carries one, so the model is unverified for
+them. The spec's `--hit-chance` sweep flag is deferred to phase B; edit
+hit_chance_a/hit_chance_b in calibration.json directly instead.

@@ -31,7 +31,6 @@ type SideState struct {
 	Cool         []int
 	Stance       Stance
 	HitThisTick  bool
-	Fled         bool
 }
 
 func NewSide(sb *StatBlock, stance Stance) *SideState {

@@ -126,6 +126,9 @@ func RunBattle(a, b *StatBlock, sa, sb Stance, cal *Calibration, rng *rand.Rand)
 			return OutBKill
 		}
 		if tick > 0 {
+			// Deliberate ordering artifact: A's escape roll is checked before
+			// B's, so under symmetric fleeing/pursuing parameters A escapes
+			// slightly more often than B — someone has to roll first.
 			if A.Stance == StanceFlee && rng.Float64() < cal.FleeEscapePerTick {
 				return OutAFled
 			}

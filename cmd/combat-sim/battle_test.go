@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"io/fs"
 	"math/rand/v2"
 	"os"
 	"testing"
@@ -33,7 +35,10 @@ func TestRunBattleTerminates(t *testing.T) {
 func TestFleeNeverFires(t *testing.T) {
 	glass := &StatBlock{Name: "glass", MaxHull: 10, MaxShield: 0,
 		Weapons: []Weapon{{Damage: 100, Type: "energy", Cooldown: 1}}}
-	tank := &StatBlock{Name: "tank", MaxHull: 10000, MaxShield: 0}
+	// tank hull sized so a firing fleer (100/tick × up to 50 ticks = 5000)
+	// would kill it well within the tick budget; 10000 was too tall to
+	// discriminate a bug where the fleeing side fires anyway.
+	tank := &StatBlock{Name: "tank", MaxHull: 1000, MaxShield: 0}
 	cal := calFixed()
 	cal.FleeEscapePerTick = 0 // can never escape, and never fires: must hit MaxTicks
 	cal.MaxTicks = 50
@@ -57,14 +62,32 @@ func TestFleeEscapes(t *testing.T) {
 func TestBraceReducesDamage(t *testing.T) {
 	att := &StatBlock{Name: "att", MaxHull: 100, MaxShield: 0,
 		Weapons: []Weapon{{Damage: 100, Type: "energy", Cooldown: 1}}}
-	def := &StatBlock{Name: "def", MaxHull: 1000, MaxShield: 0}
+	def := &StatBlock{Name: "def", MaxHull: 300, MaxShield: 0}
 	cal := calFixed()
 	cal.MaxTicks = 4
 	rng := rand.New(rand.NewPCG(4, 4))
-	// 3 landed 100-dmg volleys: fire eats 300, brace eats 75 (100×0.25 per volley).
-	// Use RunBattleState variant? Keep it simple: brace survives 4 ticks, fire doesn't need testing here.
+	// 4 landed 100-dmg volleys: unbraced fire (skill 0, armor 0, so pre=100
+	// lands unreduced) deals 100/tick and kills the 300-hull defender by
+	// tick 3 (cumulative 300); braced fire is cut to 25/tick (100×0.25
+	// brace_in_mult), landing 100 total over 4 ticks — defender survives.
 	if out := RunBattle(att, def, StanceFire, StanceBrace, cal, rng); out != OutStalemate {
-		t.Errorf("braced 1000-hull vs 25/tick over 4 ticks = %s, want stalemate", out)
+		t.Errorf("braced 300-hull vs 25/tick over 4 ticks = %s, want stalemate", out)
+	}
+}
+
+func TestEvadeReducesDamage(t *testing.T) {
+	att := &StatBlock{Name: "att", MaxHull: 100, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 100, Type: "energy", Cooldown: 1}}}
+	def := &StatBlock{Name: "def", MaxHull: 300, MaxShield: 0}
+	cal := calFixed()
+	cal.MaxTicks = 4
+	rng := rand.New(rand.NewPCG(5, 5))
+	// Same shape as TestBraceReducesDamage: 4 landed 100-dmg volleys.
+	// Unevaded fire deals 400 total, killing the 300-hull defender; evaded
+	// fire is cut to 50/tick (100×0.5 evade_in_mult, DefaultCalibration),
+	// landing 200 total over 4 ticks — defender survives.
+	if out := RunBattle(att, def, StanceFire, StanceEvade, cal, rng); out != OutStalemate {
+		t.Errorf("evading 300-hull vs 50/tick over 4 ticks = %s, want stalemate", out)
 	}
 }
 
@@ -111,5 +134,16 @@ func TestLoadCalibrationValidatesRegenHitDivisor(t *testing.T) {
 	_, err = LoadCalibration(tmpfile.Name())
 	if err == nil {
 		t.Errorf("LoadCalibration with regen_hit_divisor=0, want error")
+	}
+}
+
+// main.go's missing-calibration fallback checks errors.Is(err, fs.ErrNotExist)
+// on the LoadCalibration error to fall back to DefaultCalibration(); this
+// requires LoadCalibration to keep returning the unwrapped os.ReadFile error
+// (not a fmt.Errorf-wrapped one that loses the errors.Is match).
+func TestLoadCalibrationMissingFileIsNotExist(t *testing.T) {
+	_, err := LoadCalibration("/nonexistent/path/does-not-exist.json")
+	if !errors.Is(err, fs.ErrNotExist) {
+		t.Errorf("LoadCalibration missing file err = %v, want errors.Is(err, fs.ErrNotExist)", err)
 	}
 }

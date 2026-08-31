@@ -75,3 +75,35 @@ func TestResolveErrors(t *testing.T) {
 		t.Errorf("capital hull error = %v, want capital refusal", err)
 	}
 }
+
+// Mixed damage types on one fit are unsupported in v1 (ResolveVolley assumes
+// a single dmgType per volley) — the resolver must refuse them outright
+// rather than silently resolving as one type.
+func TestResolveMixedDamageTypeRefused(t *testing.T) {
+	cat, err := LoadCatalog(catalogDir(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// pulse_laser_iii is energy, autocannon_ii is kinetic; broadaxe has
+	// enough weapon slots for both in practice.
+	fit := &FitSpec{Hull: "broadaxe", Modules: []string{"pulse_laser_iii", "autocannon_ii"}}
+	if _, err := Resolve(fit, cat); err == nil || !strings.Contains(err.Error(), "mixed-damage-type") {
+		t.Errorf("mixed-damage-type error = %v, want mixed-damage-type refusal", err)
+	}
+}
+
+// A damage type outside the six known types must be refused, not silently
+// treated as void-like (shieldEff/armorMult are undefined for it, so it
+// would zero-value to shield-bypassing behavior).
+func TestResolveUnknownDamageTypeRefused(t *testing.T) {
+	cat := &Catalog{
+		Ships: map[string]*ShipDef{"testhull": {ID: "testhull", BaseHull: 100}},
+		Items: map[string]*ItemDef{
+			"mystery_gun": {ID: "mystery_gun", Slot: "weapon", Damage: 10, DamageType: "plasma"},
+		},
+	}
+	fit := &FitSpec{Hull: "testhull", Modules: []string{"mystery_gun"}}
+	if _, err := Resolve(fit, cat); err == nil || !strings.Contains(err.Error(), "unknown damage type") {
+		t.Errorf("unknown damage type error = %v, want unknown damage type refusal", err)
+	}
+}

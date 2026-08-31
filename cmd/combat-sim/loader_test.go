@@ -7,7 +7,7 @@ import (
 
 func catalogDir(t *testing.T) string {
 	t.Helper()
-	return filepath.Join("..", "..", "data", "snapshots", "latest")
+	return filepath.Join("..", "..", "data", "combat-sim", "catalog")
 }
 
 func TestLoadCatalog(t *testing.T) {
