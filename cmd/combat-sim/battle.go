@@ -67,7 +67,10 @@ func stanceInMult(s Stance, cal *Calibration) float64 {
 
 // volley rolls and resolves one side's attack; returns damage to apply.
 func volley(att, tgt *SideState, hitChance float64, cal *Calibration, rng *rand.Rand) VolleyOutcome {
-	if att.Stance == StanceFlee {
+	// Braced ships do not fire — measured: across the Haven fixture
+	// (2a76e1a1), seven ships spent 513 braced ticks and fired zero shots.
+	// Fleeing ships likewise (1763 flee ticks, zero shots).
+	if att.Stance == StanceFlee || att.Stance == StanceBrace {
 		return VolleyOutcome{}
 	}
 	var fired []int

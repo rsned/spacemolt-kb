@@ -13,6 +13,10 @@ databases, no network, no credentials. The spec's `data/snapshots/latest`
 default was changed to the vendored copy for hermeticity — `data/snapshots/`
 is gitignored, so a fresh clone has no catalog there and tests would fail.
 
+Stances: brace = 75% incoming reduction and weapons DOWN (measured: 513
+braced ticks across seven ships in the Haven fixture, zero shots fired);
+flee likewise never fires. Brace is a turtle, not a fighting stance.
+
 Measured vs ASSUMED: every uncalibrated constant lives in
 data/combat-sim/calibration.json with an `assumed` list; table cells that
 depend on one are marked `*`. Phase B (scripted stance-pair duels between

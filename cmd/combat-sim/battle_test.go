@@ -48,6 +48,21 @@ func TestFleeNeverFires(t *testing.T) {
 	}
 }
 
+// Braced ships turtle up: 75% damage reduction, weapons down. Measured in
+// the Haven fixture: 513 braced ticks across seven ships, zero shots fired.
+func TestBraceDoesNotFire(t *testing.T) {
+	glass := &StatBlock{Name: "glass", MaxHull: 10, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 100, Type: "energy", Cooldown: 1}}}
+	// Hull sized so a firing bracer (100/tick) would kill inside the budget.
+	tank := &StatBlock{Name: "tank", MaxHull: 1000, MaxShield: 0}
+	cal := calFixed()
+	cal.MaxTicks = 50
+	rng := rand.New(rand.NewPCG(21, 21))
+	if out := RunBattle(glass, tank, StanceBrace, StanceFire, cal, rng); out != OutStalemate {
+		t.Errorf("braced armed vs unarmed = %s, want stalemate (braced side must not fire)", out)
+	}
+}
+
 func TestFleeEscapes(t *testing.T) {
 	a := &StatBlock{Name: "a", MaxHull: 100000, MaxShield: 0}
 	b := &StatBlock{Name: "b", MaxHull: 100000, MaxShield: 0}
