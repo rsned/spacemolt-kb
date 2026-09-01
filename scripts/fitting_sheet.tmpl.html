@@ -19,7 +19,38 @@
   --shield:#9fe4ff;        /* vibrant blue-white shield trace */
   --pen:#ff9d8a;           /* penalties, over-capacity */
   --ok:#8ee6b8;
+  --shield-lost:#b9c7dc;   /* rings trimmed by a shield penalty */
+  --grid-a:rgba(234,242,255,.072); /* fine drafting grid */
+  --grid-b:rgba(234,242,255,.16);  /* major drafting grid */
   --gap:14px;
+}
+/* LIGHT: ink-on-paper drafting sheet. DARK: graphite. BLUEPRINT is the
+   bare :root default. The switcher (top right) cycles and persists. */
+html[data-theme="light"]{
+  --blue:#f4f1e8;
+  --blue-deep:#e7e2d4;
+  --line:#1b3a66;
+  --dim:rgba(27,58,102,.82);
+  --faint:rgba(27,58,102,.55);
+  --rule:rgba(27,58,102,.34);
+  --shield:#0e7fa8;
+  --shield-lost:#8fa3bc;
+  --pen:#b3362a;
+  --ok:#1e7a4e;
+  --grid-a:rgba(27,58,102,.07);
+  --grid-b:rgba(27,58,102,.16);
+}
+html[data-theme="dark"]{
+  --blue:#1b1d22;
+  --blue-deep:#101114;
+  --line:#d7dde6;
+  --dim:rgba(215,221,230,.82);
+  --faint:rgba(215,221,230,.55);
+  --rule:rgba(215,221,230,.30);
+  --shield:#7fd4f2;
+  --shield-lost:#7f8a99;
+  --grid-a:rgba(215,221,230,.06);
+  --grid-b:rgba(215,221,230,.13);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -39,10 +70,10 @@ a{color:var(--line)}
   max-width:1680px;margin:0 auto;
   background:var(--blue);
   background-image:
-    repeating-linear-gradient(to right,rgba(234,242,255,.072) 0 1px,transparent 1px 24px),
-    repeating-linear-gradient(to bottom,rgba(234,242,255,.072) 0 1px,transparent 1px 24px),
-    repeating-linear-gradient(to right,rgba(234,242,255,.16) 0 1px,transparent 1px 120px),
-    repeating-linear-gradient(to bottom,rgba(234,242,255,.16) 0 1px,transparent 1px 120px);
+    repeating-linear-gradient(to right,var(--grid-a) 0 1px,transparent 1px 24px),
+    repeating-linear-gradient(to bottom,var(--grid-a) 0 1px,transparent 1px 24px),
+    repeating-linear-gradient(to right,var(--grid-b) 0 1px,transparent 1px 120px),
+    repeating-linear-gradient(to bottom,var(--grid-b) 0 1px,transparent 1px 120px);
   border:2.5px solid var(--line);
   padding:10px;
 }
@@ -217,6 +248,12 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
 .dt-em{color:#d3bcff;border-color:#8a6ad2}
 .dt-explosive{color:#ffb3ac;border-color:#c9584f}
 .dt-void{color:#c9c9ff;border-color:#7a72c9}
+html[data-theme="light"] .dt-kinetic{color:#45526a;border-color:#8c98a8}
+html[data-theme="light"] .dt-thermal{color:#a05018;border-color:#c2703c}
+html[data-theme="light"] .dt-energy{color:#2f5fc0;border-color:#5b83d6}
+html[data-theme="light"] .dt-em{color:#6a48b8;border-color:#8a6ad2}
+html[data-theme="light"] .dt-explosive{color:#b03a31;border-color:#c9584f}
+html[data-theme="light"] .dt-void{color:#5850b0;border-color:#7a72c9}
 
 .wscroll{overflow-x:auto;margin-top:3px}
 .wlist{width:100%;border-collapse:collapse;min-width:620px}
@@ -251,7 +288,15 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
    against the cyanotype field, where the browser default is nearly invisible. */
 .slotrow select option:disabled{color:var(--pen);opacity:.75}
 
+.themebtn{
+  position:absolute;top:12px;right:14px;z-index:3;
+  background:transparent;color:var(--dim);font:inherit;font-size:11px;
+  letter-spacing:.2em;border:1px solid var(--rule);padding:4px 10px;cursor:pointer;
+}
+.themebtn:hover{color:var(--line);border-color:var(--line)}
+
 @media print{
+  .themebtn{display:none}
   body{padding:0;background:var(--blue)}
   .sheet{max-width:none;border-width:2px}
   .brand .back{display:none}
@@ -261,7 +306,8 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
 </style>
 </head>
 <body>
-<div class="sheet"><div class="inner">
+<div class="sheet"><button id="themeBtn" class="themebtn" type="button"
+  title="Cycle sheet style — blueprint / light / dark (remembered on this browser)">&#9681; BLUEPRINT</button><div class="inner">
 
   <header class="sheet-head">
     <div class="brand"><a href="./" class="back">&lsaquo; SHIPS</a>SHIP FITTING SHEET
@@ -566,6 +612,23 @@ function val(a, unit, opts={}) {
 /* Engineering is documented as "1% per level" CPU and power efficiency, so
    level 100 zeroes every module. Implemented literally; flagged in the footer. */
 const engMul = () => 1 - state.eng / 100;
+
+/* ------------------------------------------------------------ sheet themes */
+const THEMES = ["blueprint", "light", "dark"];
+let theme = "blueprint";
+function applyTheme(t) {
+  theme = THEMES.includes(t) ? t : "blueprint";
+  if (theme === "blueprint") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
+  const b = document.getElementById("themeBtn");
+  if (b) b.innerHTML = "&#9681; " + theme.toUpperCase();
+  try { localStorage.setItem("fitting-theme", theme); } catch (e) {}
+}
+try { applyTheme(localStorage.getItem("fitting-theme") || "blueprint"); }
+catch (e) { applyTheme("blueprint"); }
+/* flood-color in the shield-ring filters cannot use var(); resolve live. */
+const themeToken = name =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const modCpu = m => Math.round(m.cpu * engMul());
 const modPwr = m => Math.round(m.pwr * engMul());
 
@@ -814,7 +877,7 @@ function drawPlan(plan, rp) {
   for (let i = 1; i <= rings; i++) {
     const lost = i > rp.eff;                   // trimmed by a shield penalty
     const R = gap*i + ringW/2, Ri = Math.max(0.01, gap*i - ringW/2);
-    const col = lost ? "#b9c7dc" : "#9fe4ff";
+    const col = lost ? themeToken("--shield-lost") : themeToken("--shield");
     const op  = lost ? 0.5 : (0.95 - (i-1)/Math.max(rings,1)*0.45).toFixed(3);
     defs += `<filter id="rg${i}" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
         <feMorphology in="SourceAlpha" operator="dilate" radius="${R.toFixed(2)}" result="o"/>
@@ -829,9 +892,9 @@ function drawPlan(plan, rp) {
       role="img" aria-label="Plan view with shield envelope">
     <defs>${defs}</defs>
     <style>
-      .hull{fill:#eaf2ff;fill-opacity:.10;stroke:#eaf2ff;stroke-linejoin:round}
-      .cl{stroke:#eaf2ff;stroke-width:.8;stroke-dasharray:22 5 3 5;stroke-opacity:.55}
-      .plabel{font:11.5px 'Courier New',monospace;fill:#eaf2ff;letter-spacing:.18em;opacity:.8}
+      .hull{fill:var(--line);fill-opacity:.10;stroke:var(--line);stroke-linejoin:round}
+      .cl{stroke:var(--line);stroke-width:.8;stroke-dasharray:22 5 3 5;stroke-opacity:.55}
+      .plabel{font:11.5px 'Courier New',monospace;fill:var(--line);letter-spacing:.18em;opacity:.8}
     </style>
     <line x1="${PANEL_W/2}" y1="18" x2="${PANEL_W/2}" y2="${(H-capH+8).toFixed(0)}" class="cl"/>
     ${layers}
@@ -1270,6 +1333,11 @@ function init() {
     render();
   };
   el("btnStock").onclick = () => { loadStock(); render(); };
+  el("themeBtn").onclick = () => {
+    const cur = THEMES.indexOf(theme);
+    applyTheme(THEMES[(cur + 1) % THEMES.length]);
+    render();               // shield-ring flood colors are resolved per render
+  };
   el("btnExport").onclick = () => {
     // combat-sim fitting spec (data/combat-sim/README.md). The sheet does not
     // model pilot skills, so they export as a zero scaffold to edit by hand.
