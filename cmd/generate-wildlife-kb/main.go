@@ -32,6 +32,7 @@ func main() {
 	dbPath := flag.String("db", "../spacemolt-knowledge.db", "knowledge database")
 	lorePath := flag.String("lore", "data/mesh_bakeoff/wildlife/FORMS_LORE.md", "wildlife lore document (Part 1 roster is used)")
 	codexPath := flag.String("codex", "data/wildlife/codex.json", "hand-recorded official scan descriptions, used when the DB has none")
+	statsPath := flag.String("battle-stats", "data/wildlife/battle_stats.json", "per-species battle records from the bulk data feed (scripts/wildlife_battle_stats.py)")
 	outDir := flag.String("out", "kb/wildlife", "output directory")
 	flag.Parse()
 
@@ -65,7 +66,15 @@ func main() {
 		lore = wildlife.ParseLore(data)
 	}
 
-	if err := render(guide, lore, *outDir); err != nil {
+	var stats *wildlife.BattleStats
+	if bs, err := wildlife.LoadBattleStats(*statsPath); err != nil {
+		log.Printf("warning: battle stats unavailable (%v); pages render without danger ratings", err)
+	} else {
+		stats = bs
+		log.Printf("Battle records: %d species from feed months %v", len(bs.Species), bs.Months)
+	}
+
+	if err := render(guide, lore, stats, *outDir); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -74,12 +83,13 @@ func main() {
 type speciesView struct {
 	wildlife.Species
 	Slug      string
+	Record    *wildlife.BattleRecord
 	Lore      *wildlife.LoreEntry
 	HasImage  bool
 	ImagePath string // relative to the section directory
 }
 
-func render(guide *wildlife.Guide, lore wildlife.Lore, outDir string) error {
+func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleStats, outDir string) error {
 	if err := os.MkdirAll(filepath.Join(outDir, "images"), 0o755); err != nil {
 		return err
 	}
@@ -102,6 +112,11 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, outDir string) error {
 			if v.Description == "" && e.Codex != "" {
 				v.Description = e.Codex
 				v.CodexSource = "lore"
+			}
+		}
+		if stats != nil {
+			if r, ok := stats.Species[s.Name]; ok {
+				v.Record = &r
 			}
 		}
 		v.ImagePath = "images/" + s.ID + ".png"
@@ -176,6 +191,14 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, outDir string) error {
 		}
 	}
 
+	statsMonths := ""
+	if stats != nil && len(stats.Months) > 0 {
+		statsMonths = stats.Months[0]
+		if n := len(stats.Months); n > 1 {
+			statsMonths += " to " + stats.Months[n-1]
+		}
+	}
+
 	funcs := templateFuncs()
 	idx := htmltpl.Must(htmltpl.New("index").Funcs(funcs).Parse(indexTemplate))
 	f, err := os.Create(filepath.Join(outDir, "index.html"))
@@ -192,6 +215,7 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, outDir string) error {
 		"MapSVG":       htmltpl.HTML(mapSVG),      //nolint:gosec // generated internally from trusted DB data
 		"HighlightCSS": htmltpl.CSS(css.String()), //nolint:gosec // generated internally from trusted DB data
 		"FirstSlug":    firstSlug,
+		"StatsMonths":  statsMonths,
 		"Generated":    time.Now().UTC().Format("2006-01-02"),
 	})
 	_ = f.Close()
@@ -206,8 +230,9 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, outDir string) error {
 			return err
 		}
 		err = page.Execute(f, map[string]any{
-			"Header": htmltpl.HTML(kbnav.Header("../")), //nolint:gosec // site header, generated internally
-			"S":      v,
+			"Header":      htmltpl.HTML(kbnav.Header("../")), //nolint:gosec // site header, generated internally
+			"S":           v,
+			"StatsMonths": statsMonths,
 		})
 		_ = f.Close()
 		if err != nil {
@@ -235,6 +260,17 @@ func templateFuncs() htmltpl.FuncMap {
 				return "badge-orange"
 			case "grazer":
 				return "badge-green"
+			}
+			return ""
+		},
+		"ratingClass": func(rating string) string {
+			switch rating {
+			case "extreme":
+				return "badge-red"
+			case "high":
+				return "badge-orange"
+			case "moderate":
+				return "badge-yellow"
 			}
 			return ""
 		},

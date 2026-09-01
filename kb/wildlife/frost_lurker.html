@@ -92,7 +92,8 @@
         </div>
         <div class="card" style="padding:12px 16px">
             <div class="section-label">Codex entry</div>
-            <p class="empty">Not read yet. Since v0.571.0 scanning any creature of this species returns its entry (the <code>description</code> field); the server does not keep it, so record it in <code>data/wildlife/codex.json</code> or let the knowledge DB capture it.</p>
+            <p class="codex">Lies motionless in the ice until a deuteron-slug strays close, then strikes with fangs cold enough to burn. It lets ships drift past — but strike it and it lunges, and a creature that hunts by ambush is very good at close range.</p>
+            <div class="codex-src">Official species entry returned by scanning a creature.</div>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -101,18 +102,36 @@
                 <tr><td class="kv-label">Class</td><td><span class="badge badge-red">predator</span></td></tr>
                 <tr><td class="kv-label">Hull (HP)</td><td>400</td></tr>
                 <tr><td class="kv-label">Shield</td><td><span class="text-muted">none</span></td></tr>
-                <tr><td class="kv-label">Danger</td><td><span class="text-muted">not yet scanned</span></td></tr>
+                <tr><td class="kv-label">Danger</td><td>hunts ships</td></tr>
+                <tr><td class="kv-label">Battle record</td><td>226 battles, wildlife won 63 (27.9%) &mdash; <span class="badge badge-yellow">moderate danger</span> <span class="text-muted">(public battle feed, 2026-07 to 2026-09)</span></td></tr>
                 <tr><td class="kv-label">Habitats</td><td>ice field</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~2 across 3 systems</td></tr>
+                <tr><td class="kv-label">Scan traits</td><td>hunts ships</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~7 across 11 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 00:38 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-08-29 08:01 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-09-01 07:01 UTC</td></tr>
             </table>
         </div>
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Attacks</div>
-            <p class="empty" style="padding:12px 16px">No attacks recorded yet &mdash; every engagement is logged when it happens.</p>
+            <table class="wl-table">
+                <thead><tr><th>Weapon</th><th>Damage type</th><th>Shot</th><th class="num">Battles</th><th class="num">Shots</th><th class="num">Hits</th><th class="num">Accuracy</th><th class="num">Damage / hit</th><th class="num">Total damage</th><th>Last observed</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>Frost-Lurker (natural)</td>
+                        <td>thermal</td>
+                        <td>beam</td>
+                        <td class="num">1</td>
+                        <td class="num">6</td>
+                        <td class="num">4</td>
+                        <td class="num">67%</td>
+                        <td class="num">19</td>
+                        <td class="num">76</td>
+                        <td>2026-08-30</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -134,6 +153,50 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td><a href="../systems/alnitak/index.html">Alnitak</a> <code style="font-size:0.85em">alnitak</code></td>
+                        <td class="num">0</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">2</td>
+                        <td title="tick 1759631">2026-08-31</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/angetenar/index.html">Angetenar</a> <code style="font-size:0.85em">angetenar</code></td>
+                        <td class="num">1</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Angetenar Ice Belt (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">4</td>
+                        <td title="tick 1764430">2026-09-01</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/atik/index.html">Atik</a> <code style="font-size:0.85em">atik</code></td>
+                        <td class="num">0</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 1761916">2026-08-31</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/brightfall/index.html">Brightfall</a> <code style="font-size:0.85em">brightfall</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Brightfall Frost Ring (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 1766244">2026-09-01</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/cursa/index.html">Cursa</a> <code style="font-size:0.85em">cursa</code></td>
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
@@ -143,6 +206,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">3</td>
                         <td title="tick 1738116">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/keid/index.html">Keid</a> <code style="font-size:0.85em">keid</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 1765009">2026-09-01</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/paikauhale/index.html">Paikauhale</a> <code style="font-size:0.85em">paikauhale</code></td>
@@ -156,6 +230,28 @@
                         <td title="tick 1740764">2026-08-29</td>
                     </tr>
                     <tr>
+                        <td><a href="../systems/ruchbah/index.html">Ruchbah</a> <code style="font-size:0.85em">ruchbah</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Ruchbah Ice Belt (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 1765193">2026-09-01</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/tau_bootis/index.html">Tau Bootis</a> <code style="font-size:0.85em">tau_bootis</code></td>
+                        <td class="num">1</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Tau Bootis Ice Shelf (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 1754595">2026-08-30</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/tonatiuh/index.html">Tonatiuh</a> <code style="font-size:0.85em">tonatiuh</code></td>
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
@@ -166,6 +262,17 @@
                         <td class="num">1</td>
                         <td title="tick 1738149">2026-08-29</td>
                     </tr>
+                    <tr>
+                        <td><a href="../systems/torcular/index.html">Torcular</a> <code style="font-size:0.85em">torcular</code></td>
+                        <td class="num">0</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 1766305">2026-09-01</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -173,7 +280,20 @@
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Kills &amp; drops</div>
-            <p class="empty" style="padding:12px 16px">No kills recorded yet. Carcass drops will be listed here once a kill is logged.</p>
+            <table class="wl-table">
+                <thead><tr><th>When</th><th>Where</th><th class="num">Duration (ticks)</th><th class="num">Damage dealt</th><th class="num">Damage taken</th><th class="num">Salvage value</th><th>Drops</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>2026-08-30 22:30 UTC</td>
+                        <td><a href="../systems/tau_bootis/index.html">Tau Bootis</a> &middot; Tau Bootis Ice Shelf</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">56</td>
+                        <td><a href="../items/misc/rime_fang.html">Rime Fang</a> &times;2</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <p style="margin-top:24px"><a href="index.html#frost-lurker">&larr; All wildlife</a></p>
     </main>

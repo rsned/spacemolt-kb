@@ -176,7 +176,7 @@ const indexTemplate = placesTemplate + `<!DOCTYPE html>
 {{- range .Species}}
         <div id="{{.Slug}}" class="species-section"{{if ne .Slug $.FirstSlug}} hidden{{end}}>
             <h3>{{.Name}} <span class="badge {{roleClass .Role}}" style="font-size:0.7em; vertical-align:middle;">{{.Role}}</span> <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{if eq (len .Places) 0}}Unsighted{{else}}~{{.EstimatedTotal}} in {{.SystemCount}} {{plural .SystemCount "system"}}{{end}}</span> <small style="font-size:0.8em; font-weight:normal;"><a href="{{.ID}}.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
-            <p class="text-muted" style="font-size:0.9em">Hull {{.MaxHull}}{{if .MaxShield}} &middot; Shield {{.MaxShield}}{{end}}{{if .Danger}} &middot; {{.Danger}}{{end}}{{if .Habitats}} &middot; {{range $i, $h := .Habitats}}{{if $i}}, {{end}}{{habitat $h}}{{end}}{{end}}{{if .Ranchable}} &middot; ranchable{{end}}</p>
+            <p class="text-muted" style="font-size:0.9em">Hull {{.MaxHull}}{{if .MaxShield}} &middot; Shield {{.MaxShield}}{{end}}{{if .Danger}} &middot; {{.Danger}}{{end}}{{if .Record}}{{if .Record.Rating}} &middot; <span class="badge {{ratingClass .Record.Rating}}" style="font-size:0.85em">danger: {{.Record.Rating}}</span>{{end}}{{end}}{{if .Habitats}} &middot; {{range $i, $h := .Habitats}}{{if $i}}, {{end}}{{habitat $h}}{{end}}{{end}}{{if .Ranchable}} &middot; ranchable{{end}}</p>
 {{- if eq (len .Places) 0}}
             <div class="unsighted">Scanned in the roster but not yet sighted anywhere. Survey agents may find it in uncharted regions.</div>
 {{- else}}
@@ -239,6 +239,7 @@ const speciesTemplate = placesTemplate + `<!DOCTYPE html>
                 <tr><td class="kv-label">Hull (HP)</td><td>{{.S.MaxHull}}</td></tr>
                 <tr><td class="kv-label">Shield</td><td>{{if .S.MaxShield}}{{.S.MaxShield}}{{else}}<span class="text-muted">none</span>{{end}}</td></tr>
                 <tr><td class="kv-label">Danger</td><td>{{if .S.Danger}}{{.S.Danger}}{{else}}<span class="text-muted">not yet scanned</span>{{end}}</td></tr>
+                <tr><td class="kv-label">Battle record</td><td>{{if .S.Record}}{{.S.Record.Battles}} battles, wildlife won {{.S.Record.WildlifeWins}} ({{printf "%.1f" .S.Record.WinPct}}%){{if .S.Record.Rating}} &mdash; <span class="badge {{ratingClass .S.Record.Rating}}">{{.S.Record.Rating}} danger</span>{{else}} &mdash; too few battles to rate{{end}} <span class="text-muted">(public battle feed, {{$.StatsMonths}})</span>{{else}}<span class="text-muted">no battles in the public feed</span>{{end}}</td></tr>
                 <tr><td class="kv-label">Habitats</td><td>{{if .S.Habitats}}{{range $i, $h := .S.Habitats}}{{if $i}}, {{end}}{{habitat $h}}{{end}}{{else}}<span class="text-muted">unknown</span>{{end}}</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>{{yesno .S.Ranchable}}</td></tr>
 {{- if .S.ScanTraits}}

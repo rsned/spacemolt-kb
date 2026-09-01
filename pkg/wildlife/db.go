@@ -151,9 +151,11 @@ type sighting struct {
 	Species, SystemID, POIID, Source string
 	Count                            int
 	Abundance, Bloom                 string
-	Ranched, Branded, InCombat       bool
-	Tick                             int
-	Observed                         string
+	// Ranched/Branded/InCombat are counts in newer server data (they were
+	// 0/1 flags before); any value > 0 means the state applies.
+	Ranched, Branded, InCombat int
+	Tick                       int
+	Observed                   string
 }
 
 func (s sighting) newerThan(o sighting) bool {
@@ -208,9 +210,9 @@ func loadPlaces(db *sql.DB, index map[string]*Species, sysName func(string) stri
 		if s.Tick > a.lastTick || (s.Tick == a.lastTick && s.Observed > a.lastSeen) {
 			a.lastTick, a.lastSeen = s.Tick, s.Observed
 		}
-		a.ranched = a.ranched || s.Ranched
-		a.branded = a.branded || s.Branded
-		a.combat = a.combat || s.InCombat
+		a.ranched = a.ranched || s.Ranched > 0
+		a.branded = a.branded || s.Branded > 0
+		a.combat = a.combat || s.InCombat > 0
 		row := s
 		if s.POIID == "" {
 			if a.system == nil || row.newerThan(*a.system) {
