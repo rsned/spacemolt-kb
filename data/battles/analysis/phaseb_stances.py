@@ -33,9 +33,12 @@ def main():
     args = parser.parse_args()
 
     # Collect observations by scenario type
-    evade_observations = []  # (battle_id, tick, evader_id, hit_chance, hit_delta, damage_ratio, fuel_per_tick, attacker_attacks)
-    brace_observations = []  # (battle_id, tick, braced_id, shield, max_shield, shield_delta, regen_observed)
-    regen_zero_observations = []  # (battle_id, tick_from_zero, target_id, shield_value)
+    evade_observations = []  # (battle_id, tick, evader_id, hit_chance, fuel, evader_attacks)
+    brace_timelines = defaultdict(lambda: defaultdict(list))  # battle_id -> braced_id -> [(tick, shield, max_shield)]
+    regen_zero_timelines = defaultdict(lambda: defaultdict(list))  # battle_id -> target_id -> [(tick, shield)]
+
+    # Track attacks per tick and battle
+    attacks_by_battle_tick = defaultdict(lambda: defaultdict(list))  # battle_id -> tick -> [attacks]
 
     entry_count = 0
     for battle_id_prefix, entry in entries(args.dir):
@@ -56,6 +59,10 @@ def main():
             if player_id:
                 snap_map[player_id] = snap
 
+        # Track attacks for this tick
+        if attacks:
+            attacks_by_battle_tick[battle_id][tick] = attacks
+
         # Detect scenario by stances
         has_evade = any(s.get("stance") == "evade" for s in snapshots)
         has_brace = any(s.get("stance") == "brace" for s in snapshots)
@@ -67,7 +74,6 @@ def main():
                 if stance == "evade":
                     evader_id = snap.get("player_id")
                     evader_fuel = snap.get("fuel", 0)
-                    evader_max_fuel = snap.get("max_fuel", 1)
 
                     # Count attacks on evader in this tick
                     evader_attacks_count = sum(1 for a in (attacks or [])
@@ -96,7 +102,7 @@ def main():
                             })
 
         elif has_brace:
-            # S4: brace scenario
+            # S4: brace scenario - collect timeline data
             for snap in snapshots:
                 stance = snap.get("stance")
                 if stance == "brace":
@@ -104,35 +110,21 @@ def main():
                     shield = snap.get("shield", 0)
                     max_shield = snap.get("max_shield", 1)
 
-                    brace_observations.append({
-                        "battle_id": battle_id,
+                    brace_timelines[battle_id][braced_id].append({
                         "tick": tick,
-                        "braced_id": braced_id,
                         "shield": shield,
                         "max_shield": max_shield
                     })
 
-            # Collect regen data
-            if regen:
-                for reg in regen:
-                    if reg.get("player_id") in snap_map:
-                        snap = snap_map[reg.get("player_id")]
-                        if snap.get("stance") == "brace":
-                            regen_value = reg.get("amount", 0)
-                            print(f"Brace regen observation: battle={battle_id}, tick={tick}, "
-                                  f"regen={regen_value}, shield={snap.get('shield')}/{snap.get('max_shield')}")
-
-        # S5 detection: shield at 0 and braced attacker
+        # S5 detection: collect timeline when shield transitions or stays at 0
         for snap in snapshots:
-            if snap.get("shield", 0) == 0 and snap.get("stance") == "brace":
-                # This might be regen_from_zero scenario
-                target_id = snap.get("player_id")
-                regen_zero_observations.append({
-                    "battle_id": battle_id,
-                    "tick": tick,
-                    "target_id": target_id,
-                    "shield": 0
-                })
+            shield_val = snap.get("shield", 0)
+            target_id = snap.get("player_id")
+            # Track all shield values for later regen-zero detection
+            regen_zero_timelines[battle_id][target_id].append({
+                "tick": tick,
+                "shield": shield_val
+            })
 
     if entry_count == 0:
         print("No logs found in", args.dir)
@@ -149,18 +141,112 @@ def main():
     else:
         print("(No evade observations found)")
 
+    # S4: Brace Scenario with shield delta and regen candidates
     print("\n=== Brace Scenario (S4) ===\n")
-    if brace_observations:
-        print("battle_id | tick | shield | max_shield")
-        for obs in brace_observations[:20]:
-            print(f"{obs['battle_id']} | {obs['tick']} | {obs['shield']} | {obs['max_shield']}")
+    if brace_timelines:
+        for battle_id in sorted(brace_timelines.keys()):
+            for braced_id in sorted(brace_timelines[battle_id].keys()):
+                timeline = sorted(brace_timelines[battle_id][braced_id], key=lambda x: x["tick"])
+
+                if not timeline:
+                    continue
+
+                print(f"Battle {battle_id}, braced player {braced_id}:")
+                print("tick | shield | shield_delta | was_hit | regen_obs | candidates: recharge, 2*recharge, floor(2*recharge/3), 2*floor(recharge/3)")
+
+                # Infer recharge from un-hit-tick deltas
+                un_hit_deltas = []
+                for i, obs in enumerate(timeline):
+                    tick = obs["tick"]
+                    # Check if this player was hit this tick
+                    attacks_this_tick = attacks_by_battle_tick.get(battle_id, {}).get(tick, [])
+                    was_hit = any(a.get("target_id") == braced_id for a in attacks_this_tick)
+
+                    if not was_hit and i > 0:
+                        delta = obs["shield"] - timeline[i-1]["shield"]
+                        if delta > 0:
+                            un_hit_deltas.append(delta)
+
+                # Mode of positive deltas (most common un-hit regen)
+                if un_hit_deltas:
+                    recharge = max(set(un_hit_deltas), key=un_hit_deltas.count)
+                else:
+                    recharge = 0
+
+                print(f"Inferred recharge: {recharge}")
+
+                # Print per-tick data
+                for i, obs in enumerate(timeline):
+                    tick = obs["tick"]
+                    shield = obs["shield"]
+                    delta = shield - timeline[i-1]["shield"] if i > 0 else 0
+
+                    # Check if hit this tick
+                    attacks_this_tick = attacks_by_battle_tick.get(battle_id, {}).get(tick, [])
+                    was_hit = any(a.get("target_id") == braced_id for a in attacks_this_tick)
+
+                    # Regen candidates
+                    if recharge > 0:
+                        cand_recharge = recharge
+                        cand_2x = 2 * recharge
+                        cand_floor_2div3 = int(2 * recharge / 3)
+                        cand_2floor_div3 = 2 * int(recharge / 3)
+                    else:
+                        cand_recharge = cand_2x = cand_floor_2div3 = cand_2floor_div3 = 0
+
+                    # Mark which candidate matches
+                    matches = []
+                    if delta == cand_recharge:
+                        matches.append("recharge")
+                    if delta == cand_2x:
+                        matches.append("2*recharge")
+                    if delta == cand_floor_2div3:
+                        matches.append("floor(2*recharge/3)")
+                    if delta == cand_2floor_div3:
+                        matches.append("2*floor(recharge/3)")
+
+                    match_str = ",".join(matches) if matches else "—"
+                    hit_str = "✓" if was_hit else "—"
+
+                    print(f"{tick} | {shield} | {delta:+3d} | {hit_str} | N/A | {cand_recharge}, {cand_2x}, {cand_floor_2div3}, {cand_2floor_div3} [{match_str}]")
+                print()
     else:
         print("(No brace observations found)")
 
+    # S5: Regen-Zero Scenario with timeline
     print("\n=== Regen-Zero Scenario (S5) ===\n")
-    if regen_zero_observations:
-        print(f"Found {len(regen_zero_observations)} shield-at-zero ticks")
-    else:
+    found_zero = False
+    for battle_id in sorted(regen_zero_timelines.keys()):
+        for target_id in sorted(regen_zero_timelines[battle_id].keys()):
+            timeline = sorted(regen_zero_timelines[battle_id][target_id], key=lambda x: x["tick"])
+
+            # Find first tick where shield is 0
+            zero_idx = None
+            for i, obs in enumerate(timeline):
+                if obs["shield"] == 0:
+                    zero_idx = i
+                    break
+
+            if zero_idx is not None:
+                found_zero = True
+                print(f"Battle {battle_id}, target {target_id} (shield hits 0 at tick {timeline[zero_idx]['tick']}):")
+                print("tick | shield | was_hit")
+
+                # Print from zero tick onwards, up to 10+ ticks or end of log
+                for i in range(zero_idx, min(zero_idx + 12, len(timeline))):
+                    obs = timeline[i]
+                    tick = obs["tick"]
+                    shield = obs["shield"]
+
+                    # Check if hit this tick
+                    attacks_this_tick = attacks_by_battle_tick.get(battle_id, {}).get(tick, [])
+                    was_hit = any(a.get("target_id") == target_id for a in attacks_this_tick)
+                    hit_str = "✓" if was_hit else "—"
+
+                    print(f"{tick} | {shield} | {hit_str}")
+                print()
+
+    if not found_zero:
         print("(No regen-zero observations found)")
 
 
