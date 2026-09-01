@@ -92,7 +92,8 @@
         </div>
         <div class="card" style="padding:12px 16px">
             <div class="section-label">Codex entry</div>
-            <p class="empty">Not read yet. Since v0.571.0 scanning any creature of this species returns its entry (the <code>description</code> field); the server does not keep it, so record it in <code>data/wildlife/codex.json</code> or let the knowledge DB capture it.</p>
+            <p class="codex">Crawls the deepest fields chewing void-laced rock for the essence trapped inside — the void-essence only concentrates in deposits far from anything else, so neither does it. Slow and incurious, it barely notices a ship until the shooting starts.</p>
+            <div class="codex-src">Official species entry returned by scanning a creature.</div>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -101,20 +102,37 @@
                 <tr><td class="kv-label">Class</td><td><span class="badge badge-green">grazer</span></td></tr>
                 <tr><td class="kv-label">Hull (HP)</td><td>110</td></tr>
                 <tr><td class="kv-label">Shield</td><td><span class="text-muted">none</span></td></tr>
-                <tr><td class="kv-label">Danger</td><td><span class="text-muted">not yet scanned</span></td></tr>
+                <tr><td class="kv-label">Danger</td><td>harmless prey</td></tr>
                 <tr><td class="kv-label">Battle record</td><td>122 battles, wildlife won 7 (5.7%) &mdash; <span class="badge ">low danger</span> <span class="text-muted">(public battle feed, since 2026-08-28, post-balance-patch)</span></td></tr>
                 <tr><td class="kv-label">Attack</td><td><span class="badge">kinetic</span> 6 base dmg/shot (6 shots observed) &middot; hit chance 0.08&ndash;0.30 <span class="text-muted">(2 exported battles)</span></td></tr>
                 <tr><td class="kv-label">Habitats</td><td>asteroid belt</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~7 across 1 system</td></tr>
+                <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~22 across 3 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-09-01 08:35 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-01 08:37 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-09-01 20:11 UTC</td></tr>
             </table>
         </div>
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Attacks</div>
-            <p class="empty" style="padding:12px 16px">No attacks recorded; it has never been seen to fight.</p>
+            <table class="wl-table">
+                <thead><tr><th>Weapon</th><th>Damage type</th><th>Shot</th><th class="num">Battles</th><th class="num">Shots</th><th class="num">Hits</th><th class="num">Accuracy</th><th class="num">Damage / hit</th><th class="num">Total damage</th><th>Last observed</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>Void-Browser (natural)</td>
+                        <td>kinetic</td>
+                        <td>projectile</td>
+                        <td class="num">1</td>
+                        <td class="num">3</td>
+                        <td class="num">1</td>
+                        <td class="num">33%</td>
+                        <td class="num">5</td>
+                        <td class="num">5</td>
+                        <td>2026-09-01</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -136,6 +154,17 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td><a href="../systems/regor/index.html">Regor</a> <code style="font-size:0.85em">regor</code></td>
+                        <td class="num">9</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Regor Inner Debris (2)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">4</td>
+                        <td title="tick 1771040">2026-09-01</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/schedar/index.html">Schedar</a> <code style="font-size:0.85em">schedar</code></td>
                         <td class="num">7</td>
                         <td><span class="abund-moderate">moderate</span></td>
@@ -146,6 +175,17 @@
                         <td class="num">3</td>
                         <td title="tick 1766883">2026-09-01</td>
                     </tr>
+                    <tr>
+                        <td><a href="../systems/the_archive/index.html">The Archive</a> <code style="font-size:0.85em">the_archive</code></td>
+                        <td class="num">6</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Capella Major Belt (6), Void Crystal Seam (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">8</td>
+                        <td title="tick 1770778">2026-09-01</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -153,7 +193,20 @@
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Kills &amp; drops</div>
-            <p class="empty" style="padding:12px 16px">No kills recorded yet. Carcass drops will be listed here once a kill is logged.</p>
+            <table class="wl-table">
+                <thead><tr><th>When</th><th>Where</th><th class="num">Duration (ticks)</th><th class="num">Damage dealt</th><th class="num">Damage taken</th><th class="num">Salvage value</th><th>Drops</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>2026-09-01 19:24 UTC</td>
+                        <td><a href="../systems/the_archive/index.html">The Archive</a> &middot; Void Crystal Seam</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">12</td>
+                        <td><a href="../items/misc/creature_carapace.html">Creature Carapace</a> &times;3</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <p style="margin-top:24px"><a href="index.html#void-browser">&larr; All wildlife</a></p>
     </main>
