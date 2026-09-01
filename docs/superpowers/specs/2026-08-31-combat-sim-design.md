@@ -117,7 +117,10 @@ Flee stance: does not fire (matches fled drones logging no attacks); each tick
 after the first, escape roll vs calibration `flee_escape_per_tick` (ASSUMED
 0.25); success ends the run as `X-fled`. Speed differential ignored in v1
 (flagged). Evade: fires normally, `evade_in_mult` reduction (ASSUMED).
-Brace: fires normally (assumption, flagged).
+Brace: does NOT fire — 75% incoming reduction with weapons down (MEASURED
+2026-08-31, post-v1 correction: 513 braced ticks across seven ships in
+fixture 2a76e1a1, zero shots; the v1 spec's "fires normally" assumption is
+retracted; implemented in commit 825d604ce3).
 
 Tick cap (`--max-ticks`, default 500) → `stalemate`.
 
