@@ -294,7 +294,9 @@ table.st td.v{font-size:14.5px;letter-spacing:.06em}
         <h2><span>MODULE SLOTS</span>
           <em id="slotSummary"></em>
           <span class="acts"><button id="btnStock" type="button">STOCK</button
-            ><button id="btnStrip" type="button">STRIP</button></span></h2>
+            ><button id="btnStrip" type="button">STRIP</button
+            ><button id="btnExport" type="button"
+              title="Download + copy a combat-sim fitting spec (cmd/combat-sim). Skills export as zeros — edit them to match your pilot.">EXPORT</button></span></h2>
         <div class="slotgrid" id="slots"></div>
         <div class="stocknote" id="stockNote"></div>
         <div class="ammobar" id="ammoBar"></div>
@@ -1268,6 +1270,26 @@ function init() {
     render();
   };
   el("btnStock").onclick = () => { loadStock(); render(); };
+  el("btnExport").onclick = () => {
+    // combat-sim fitting spec (data/combat-sim/README.md). The sheet does not
+    // model pilot skills, so they export as a zero scaffold to edit by hand.
+    const ship = SHIPS[state.ship];
+    const modules = [];
+    for (const slot of ["weapon","defense","utility"])
+      for (const id of state.fit[slot]) if (id) modules.push(id);
+    const spec = JSON.stringify({
+      name: ship.name + " fit",
+      hull: state.ship,
+      modules,
+      skills: {weapons:0, gunnery:0, shields:0, armor:0},
+    }, null, 2) + "\n";
+    if (navigator.clipboard) navigator.clipboard.writeText(spec).catch(() => {});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([spec], {type:"application/json"}));
+    a.download = "fit-" + state.ship + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
   el("btnStrip").onclick = () => {
     state.fit = {weapon:[], defense:[], utility:[]};
     state.stock = {missing:[], overflow:[]};

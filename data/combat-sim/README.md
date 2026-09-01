@@ -13,6 +13,10 @@ databases, no network, no credentials. The spec's `data/snapshots/latest`
 default was changed to the vendored copy for hermeticity — `data/snapshots/`
 is gitignored, so a fresh clone has no catalog there and tests would fail.
 
+Fitting specs can be exported straight from the KB fitting sheet
+(kb/ships/fitting.html): build a fit, hit EXPORT, edit the zeroed skills to
+match your pilot, and feed the file to --a/--b.
+
 Stances: brace = 75% incoming reduction and weapons DOWN (measured: 513
 braced ticks across seven ships in the Haven fixture, zero shots fired);
 flee likewise never fires. Brace is a turtle, not a fighting stance.
