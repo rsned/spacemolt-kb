@@ -112,7 +112,11 @@ fire (measured: 513 braced ticks / 1,763 flee ticks in the Haven fixture,
 zero shots).
 
 Full derivation: `docs/superpowers/specs/2026-08-31-combat-sim-design.md`
-and the analysis scripts in `data/battles/analysis/`.
+and the analysis scripts in `data/battles/analysis/`. The v0.574.3 docs
+(2026-09-01) later confirmed two reverse-engineered pieces officially:
+crit is 1%/Weapons-level (the old 0.2% text was a doc bug), and the
+Damage Types table now states "Armor x1.5" for kinetic and void — the
+exact armor-counted multipliers this engine uses.
 
 ## Measured vs ASSUMED
 
@@ -131,7 +135,12 @@ underestimated), boarding, zones/movement (both sides fixed at engaged),
 ammo reload mid-fight, armor-melt and EM debuffs, typed hardener resists,
 capital hulls, wildlife (phase C: harvest creature stats from battle logs,
 then a species becomes just another stat block). Gunnery is applied to all
-damage types (the real per-type mapping is unknown).
+damage types (matches the v0.574.3 "all weapon types" description; the
+per-type bonus-key mapping remains unconfirmed). Skill caps are not
+modeled: v0.574.3 reveals crit chance caps and the weapon-damage skills
+share a combined cap, but neither cap value is published — measurements
+prove crit cap ≥ 20% and damage cap ≥ +25%, so caps are irrelevant at the
+skill levels (≤ 10) these fits use.
 
 ## Files
 
