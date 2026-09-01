@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 )
 
 func run() error {
@@ -18,14 +19,38 @@ func run() error {
 	calPath := flag.String("calibration", "data/combat-sim/calibration.json", "calibration file (missing = built-in defaults)")
 	maxTicks := flag.Int("max-ticks", 0, "override calibration max_ticks (0 = keep)")
 	jsonOut := flag.String("json", "", "write full per-cell outcome distributions to this file")
+	extract := flag.String("extract-fits", "", "battle id: write one FitSpec JSON per participant and exit")
+	battles := flag.String("battles", "data/battles", "battle fixture dir (--extract-fits input)")
+	outDir := flag.String("out", "data/combat-sim/fits", "output dir (--extract-fits)")
 	flag.Parse()
-	if *fitA == "" || *fitB == "" {
+	if *extract == "" && (*fitA == "" || *fitB == "") {
 		flag.Usage()
-		return fmt.Errorf("--a and --b are required")
+		return fmt.Errorf("--a and --b are required (or --extract-fits)")
 	}
 	cat, err := LoadCatalog(*catalog)
 	if err != nil {
 		return err
+	}
+	if *extract != "" {
+		fits, err := ExtractFits(*extract, *battles, cat, os.Stderr)
+		if err != nil {
+			return err
+		}
+		for _, f := range fits {
+			path := filepath.Join(*outDir, f.Filename)
+			raw, err := json.MarshalIndent(f.Spec, "", "  ")
+			if err != nil {
+				return err
+			}
+			if err := os.WriteFile(path, append(raw, '\n'), 0o644); err != nil {
+				return err
+			}
+			s := f.Spec.Skills
+			fmt.Printf("wrote %s  hull=%s modules=%d skills W%d/G%d/S%d/A%d\n",
+				path, f.Spec.Hull, len(f.Spec.Modules),
+				s["weapons"], s["gunnery"], s["shields"], s["armor"])
+		}
+		return nil
 	}
 	cal, err := LoadCalibration(*calPath)
 	if errors.Is(err, fs.ErrNotExist) {

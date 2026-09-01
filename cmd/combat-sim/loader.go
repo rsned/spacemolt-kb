@@ -23,6 +23,7 @@ type ShipDef struct {
 
 type ItemDef struct {
 	ID                  string         `json:"id"`
+	Name                string         `json:"name"`
 	Type                string         `json:"type"`
 	Slot                string         `json:"slot"`
 	Damage              int            `json:"damage"`

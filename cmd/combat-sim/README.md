@@ -45,6 +45,9 @@ below. `--json out.json` dumps the full per-cell distributions.
 | `--calibration` | `data/combat-sim/calibration.json` | tunables; missing file → built-in defaults |
 | `--max-ticks` | 0 | override the calibration's stalemate cap (0 = keep) |
 | `--json` | | write full outcome distributions to this file |
+| `--extract-fits` | | battle id: write one fit per participant and exit (see below) |
+| `--battles` | `data/battles` | battle fixture dir for `--extract-fits` |
+| `--out` | `data/combat-sim/fits` | output dir for `--extract-fits` |
 
 ## Fitting specs
 
@@ -95,6 +98,30 @@ ignored.
 
 The resolver refuses capital hulls (tier 5+), mixed-damage-type weapon
 loadouts, and unknown ids — each with an error naming the problem.
+
+### Extracting fits from a battle
+
+Any exported battle in `data/battles/` can be turned into ready-to-run
+fits, one file per participant, named `<battle_id>_<player_id>.json`:
+
+    bin/combat-sim --extract-fits 7c044558c0c39e972fe560110f69ea25
+    # wrote data/combat-sim/fits/7c044558…_a5092491….json  hull=survey_vessel … skills W3/G3/S1/A0
+    # wrote data/combat-sim/fits/7c044558…_b195177b….json  hull=broadaxe … skills W7/G10/S4/A0
+
+Hull and modules come straight from the participant records. **Skills are
+inferred from the `.raw.json` battle log** when it sits next to the
+fixture: `weapons` from per-weapon `crit_chance` (1%/level, rolled even on
+misses so it is always visible), `gunnery` from `weapon_skill_pct` minus
+weapons, and `shields` from the `shield_resist_pct` on attacks *against*
+that pilot (observable only if they were shot at while their shields
+held). `armor` never appears in any battle log and is always written as
+0 — edit it in if you know it. Without a raw log every skill falls back to
+0 and a warning says so. Participants whose hull is not a catalog ship
+(stations, creatures) are skipped with a warning.
+
+The extracted pair above, fed back in as `--a`/`--b`, reproduces the real
+battle's outcome (Artis's survey vessel kills MoltenOne's Broadaxe in the
+fire/fire cell).
 
 ## The model (measured)
 
