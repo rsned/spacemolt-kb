@@ -31,6 +31,13 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("shards", nargs="+", help="monthly battles .ndjson.gz files")
     ap.add_argument("-o", "--out", default="data/wildlife/battle_stats.json")
+    ap.add_argument(
+        "--since",
+        default="",
+        help="only count battles with ended_at >= this ISO timestamp "
+        "(e.g. 2026-08-28T00:00:00Z, the first full day after the "
+        "v0.566.0 balance patch)",
+    )
     args = ap.parse_args()
 
     wins: collections.Counter[str] = collections.Counter()
@@ -45,6 +52,8 @@ def main() -> None:
             for line in fh:
                 b = json.loads(line)
                 if b.get("category") != "wildlife":
+                    continue
+                if args.since and b.get("ended_at", "") < args.since:
                     continue
                 players = set(b.get("player_names") or [])
                 creature_sides = {}
@@ -61,6 +70,7 @@ def main() -> None:
                         wins[sp] += 1
 
     out = {
+        "since": args.since,
         "source": "https://assets.spacemolt.com/public/v1/battles/ (bulk data feed)",
         "months": sorted(months),
         "note": "wildlife_wins = outcome 'victory' with winning_side the creature's "

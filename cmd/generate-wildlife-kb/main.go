@@ -32,6 +32,7 @@ func main() {
 	dbPath := flag.String("db", "../spacemolt-knowledge.db", "knowledge database")
 	lorePath := flag.String("lore", "data/mesh_bakeoff/wildlife/FORMS_LORE.md", "wildlife lore document (Part 1 roster is used)")
 	codexPath := flag.String("codex", "data/wildlife/codex.json", "hand-recorded official scan descriptions, used when the DB has none")
+	combatPath := flag.String("combat-stats", "data/wildlife/combat_stats.json", "per-species combat observations from exported battle logs (scripts/wildlife_combat_stats.py)")
 	statsPath := flag.String("battle-stats", "data/wildlife/battle_stats.json", "per-species battle records from the bulk data feed (scripts/wildlife_battle_stats.py)")
 	outDir := flag.String("out", "kb/wildlife", "output directory")
 	flag.Parse()
@@ -74,7 +75,15 @@ func main() {
 		log.Printf("Battle records: %d species from feed months %v", len(bs.Species), bs.Months)
 	}
 
-	if err := render(guide, lore, stats, *outDir); err != nil {
+	var combat *wildlife.CombatStats
+	if cs, err := wildlife.LoadCombatStats(*combatPath); err != nil {
+		log.Printf("warning: combat stats unavailable (%v); pages render without attack data", err)
+	} else {
+		combat = cs
+		log.Printf("Combat observations: %d species (%s)", len(cs.Species), cs.Source)
+	}
+
+	if err := render(guide, lore, stats, combat, *outDir); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -83,13 +92,14 @@ func main() {
 type speciesView struct {
 	wildlife.Species
 	Slug      string
+	Combat    *wildlife.CreatureCombat
 	Record    *wildlife.BattleRecord
 	Lore      *wildlife.LoreEntry
 	HasImage  bool
 	ImagePath string // relative to the section directory
 }
 
-func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleStats, outDir string) error {
+func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleStats, combat *wildlife.CombatStats, outDir string) error {
 	if err := os.MkdirAll(filepath.Join(outDir, "images"), 0o755); err != nil {
 		return err
 	}
@@ -117,6 +127,11 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleSta
 		if stats != nil {
 			if r, ok := stats.Species[s.Name]; ok {
 				v.Record = &r
+			}
+		}
+		if combat != nil {
+			if c, ok := combat.Species[s.Name]; ok {
+				v.Combat = &c
 			}
 		}
 		v.ImagePath = "images/" + s.ID + ".png"
@@ -192,10 +207,15 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleSta
 	}
 
 	statsMonths := ""
-	if stats != nil && len(stats.Months) > 0 {
-		statsMonths = stats.Months[0]
-		if n := len(stats.Months); n > 1 {
-			statsMonths += " to " + stats.Months[n-1]
+	if stats != nil {
+		switch {
+		case stats.Since != "":
+			statsMonths = "since " + stats.Since[:10] + ", post-balance-patch"
+		case len(stats.Months) > 0:
+			statsMonths = stats.Months[0]
+			if n := len(stats.Months); n > 1 {
+				statsMonths += " to " + stats.Months[n-1]
+			}
 		}
 	}
 
@@ -262,6 +282,12 @@ func templateFuncs() htmltpl.FuncMap {
 				return "badge-green"
 			}
 			return ""
+		},
+		"intRange": func(lo, hi int) string {
+			if lo == hi {
+				return fmt.Sprintf("%d", lo)
+			}
+			return fmt.Sprintf("%d\u2013%d", lo, hi)
 		},
 		"ratingClass": func(rating string) string {
 			switch rating {

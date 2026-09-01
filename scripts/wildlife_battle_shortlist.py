@@ -41,6 +41,11 @@ def main() -> None:
     ap.add_argument("shards", nargs="+")
     ap.add_argument("-o", "--out", default="data/wildlife/battle_shortlist.json")
     ap.add_argument("--per-side", type=int, default=2)
+    ap.add_argument(
+        "--since",
+        default="",
+        help="only consider battles with ended_at >= this ISO timestamp",
+    )
     args = ap.parse_args()
 
     candidates: dict[str, dict[str, list]] = collections.defaultdict(
@@ -51,6 +56,8 @@ def main() -> None:
             for line in fh:
                 b = json.loads(line)
                 if b.get("category") != "wildlife" or b.get("outcome") != "victory":
+                    continue
+                if args.since and b.get("ended_at", "") < args.since:
                     continue
                 players = set(b.get("player_names") or [])
                 creature_sides = {}

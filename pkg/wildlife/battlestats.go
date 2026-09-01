@@ -49,6 +49,7 @@ func (r BattleRecord) Rating() string {
 // scripts/wildlife_battle_stats.py from the public bulk data feed's monthly
 // battle shards. Species keys are display names (wildlife_species.name).
 type BattleStats struct {
+	Since   string                  `json:"since"` // ISO cutoff; "" = all history
 	Months  []string                `json:"months"`
 	Species map[string]BattleRecord `json:"species"`
 }
