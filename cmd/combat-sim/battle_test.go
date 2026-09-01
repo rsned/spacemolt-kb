@@ -40,7 +40,7 @@ func TestFleeNeverFires(t *testing.T) {
 	// discriminate a bug where the fleeing side fires anyway.
 	tank := &StatBlock{Name: "tank", MaxHull: 1000, MaxShield: 0}
 	cal := calFixed()
-	cal.FleeEscapePerTick = 0 // can never escape, and never fires: must hit MaxTicks
+	cal.FleeTicksRequired = 1 << 30 // can never escape, and never fires: must stalemate
 	cal.MaxTicks = 50
 	rng := rand.New(rand.NewPCG(2, 2))
 	if out := RunBattle(glass, tank, StanceFlee, StanceFire, cal, rng); out != OutStalemate {
@@ -67,7 +67,7 @@ func TestFleeEscapes(t *testing.T) {
 	a := &StatBlock{Name: "a", MaxHull: 100000, MaxShield: 0}
 	b := &StatBlock{Name: "b", MaxHull: 100000, MaxShield: 0}
 	cal := calFixed()
-	cal.FleeEscapePerTick = 1.0
+	cal.FleeTicksRequired = 1
 	rng := rand.New(rand.NewPCG(3, 3))
 	if out := RunBattle(a, b, StanceFlee, StanceFire, cal, rng); out != OutAFled {
 		t.Errorf("guaranteed escape = %s, want A-fled", out)
@@ -97,6 +97,7 @@ func TestEvadeReducesDamage(t *testing.T) {
 	cal := calFixed()
 	cal.MaxTicks = 4
 	rng := rand.New(rand.NewPCG(5, 5))
+	cal.EvadeAccuracyDebuff = 0 // isolate the damage mult from the accuracy debuff
 	// Same shape as TestBraceReducesDamage: 4 landed 100-dmg volleys.
 	// Unevaded fire deals 400 total, killing the 300-hull defender; evaded
 	// fire is cut to 50/tick (100×0.5 evade_in_mult, DefaultCalibration),
@@ -125,8 +126,10 @@ func TestLoadCalibrationFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.BraceInMult != 0.25 || c.RegenHitDivisor != 3 || c.MaxTicks != 500 {
-		t.Errorf("calibration = %+v, want measured defaults", c)
+	if c.BraceInMult != 0.25 || c.RegenHitDivisor != 3 || c.MaxTicks != 500 ||
+		c.BraceRegenMult != 2 || c.EvadeAccuracyDebuff != 0.20 ||
+		c.FleeTicksRequired != 3 || c.StalemateTicks != 30 {
+		t.Errorf("calibration = %+v, want measured/doc defaults", c)
 	}
 }
 
@@ -160,5 +163,78 @@ func TestLoadCalibrationMissingFileIsNotExist(t *testing.T) {
 	_, err := LoadCalibration("/nonexistent/path/does-not-exist.json")
 	if !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("LoadCalibration missing file err = %v, want errors.Is(err, fs.ErrNotExist)", err)
+	}
+}
+
+// skill.md stance table: evade cannot fire. Same discriminating shape as
+// the brace/flee no-fire tests: an armed evader vs an unarmed tank must
+// stalemate — any kill means the evading side fired.
+func TestEvadeDoesNotFire(t *testing.T) {
+	glass := &StatBlock{Name: "glass", MaxHull: 10, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 100, Type: "energy", Cooldown: 1}}}
+	tank := &StatBlock{Name: "tank", MaxHull: 1000, MaxShield: 0}
+	cal := calFixed()
+	cal.MaxTicks = 50
+	rng := rand.New(rand.NewPCG(31, 31))
+	if out := RunBattle(glass, tank, StanceEvade, StanceFire, cal, rng); out != OutStalemate {
+		t.Errorf("evading armed vs unarmed = %s, want stalemate (evading side must not fire)", out)
+	}
+}
+
+// skill.md: evade applies -20% to enemy accuracy. With a full 1.0 debuff
+// the attacker can never hit an evading target at all.
+func TestEvadeAccuracyDebuff(t *testing.T) {
+	att := &StatBlock{Name: "att", MaxHull: 100, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 100, Type: "energy", Cooldown: 1}}}
+	def := &StatBlock{Name: "def", MaxHull: 100, MaxShield: 0}
+	cal := calFixed()
+	cal.EvadeAccuracyDebuff = 1.0
+	rng := rand.New(rand.NewPCG(32, 32))
+	if out := RunBattle(att, def, StanceFire, StanceEvade, cal, rng); out != OutStalemate {
+		t.Errorf("un-hittable evader = %s, want stalemate", out)
+	}
+}
+
+// skill.md: brace doubles shield regeneration. Attacker drains 24
+// kinetic/tick into a 40-shield pool recharging 16/tick (divisor 1 for
+// clean arithmetic, BraceInMult 1.0 to isolate regen). Braced: +32
+// regen/tick beats the drain, shields never break, stalemate. Un-braced:
+// net -8/tick empties the pool by tick 3, regen never restarts from zero,
+// and 24 hull/tick kills the 120-hull defender well inside the window.
+func TestBraceDoublesRegen(t *testing.T) {
+	att := &StatBlock{Name: "att", MaxHull: 1000, MaxShield: 0, WeaponSkillPct: 0,
+		Weapons: []Weapon{{Damage: 24, Type: "kinetic", Cooldown: 1}}}
+	def := &StatBlock{Name: "def", MaxHull: 120, MaxShield: 40, Recharge: 16}
+	cal := calFixed()
+	cal.BraceInMult = 1.0   // isolate regen from the damage mult
+	cal.RegenHitDivisor = 1 // full regen on hit ticks, for clean arithmetic
+	cal.StalemateTicks = 12
+	rng := rand.New(rand.NewPCG(33, 33))
+	out := RunBattle(att, def, StanceFire, StanceBrace, cal, rng)
+	if out != OutStalemate {
+		t.Errorf("braced regen-tank = %s, want stalemate", out)
+	}
+	outUnbraced := RunBattle(att, def, StanceFire, StanceFire, cal, rand.New(rand.NewPCG(33, 33)))
+	if outUnbraced != OutAKill {
+		t.Errorf("un-braced control = %s, want A-kill (shields must collapse without the 2x regen)", outUnbraced)
+	}
+}
+
+// skill.md: 30 ticks with no kills is a stalemate draw. A kill that would
+// land on tick 35 under the damage math must instead read stalemate at the
+// default 30, and land when the threshold is raised.
+func TestStalemateAtThirtyTicks(t *testing.T) {
+	att := &StatBlock{Name: "att", MaxHull: 100, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 100, Type: "energy", Cooldown: 1}}}
+	def := &StatBlock{Name: "def", MaxHull: 3500, MaxShield: 0} // dies on tick 35
+	rng := rand.New(rand.NewPCG(34, 34))
+	if out := RunBattle(att, def, StanceFire, StanceFire, calFixed(), rng); out != OutStalemate {
+		t.Errorf("35-tick kill under 30-tick rule = %s, want stalemate", out)
+	}
+	cal := calFixed()
+	cal.StalemateTicks = 40
+	rng = rand.New(rand.NewPCG(34, 34))
+	if out := RunBattle(att, def, StanceFire, StanceFire, cal, rng); out != OutAKill {
+		t.Errorf("35-tick kill under 40-tick rule = %s, want A-kill", out)
 	}
 }

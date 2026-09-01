@@ -8,24 +8,33 @@ import (
 )
 
 type Calibration struct {
-	HitChanceA        float64  `json:"hit_chance_a"`
-	HitChanceB        float64  `json:"hit_chance_b"`
-	BraceInMult       float64  `json:"brace_in_mult"`
-	EvadeInMult       float64  `json:"evade_in_mult"`
-	FleeEscapePerTick float64  `json:"flee_escape_per_tick"`
-	RegenHitDivisor   int      `json:"regen_hit_divisor"`
-	RegenFromZero     bool     `json:"regen_from_zero"`
-	ArmorLaw          string   `json:"armor_law"`
-	ArmorLawCrossover float64  `json:"armor_law_crossover"`
-	MaxTicks          int      `json:"max_ticks"`
-	Assumed           []string `json:"assumed"`
+	HitChanceA          float64  `json:"hit_chance_a"`
+	HitChanceB          float64  `json:"hit_chance_b"`
+	BraceInMult         float64  `json:"brace_in_mult"`
+	BraceRegenMult      float64  `json:"brace_regen_mult"`
+	EvadeInMult         float64  `json:"evade_in_mult"`
+	EvadeAccuracyDebuff float64  `json:"evade_accuracy_debuff"`
+	FleeTicksRequired   int      `json:"flee_ticks_required"`
+	RegenHitDivisor     int      `json:"regen_hit_divisor"`
+	RegenFromZero       bool     `json:"regen_from_zero"`
+	ArmorLaw            string   `json:"armor_law"`
+	ArmorLawCrossover   float64  `json:"armor_law_crossover"`
+	StalemateTicks      int      `json:"stalemate_ticks"`
+	MaxTicks            int      `json:"max_ticks"`
+	Assumed             []string `json:"assumed"`
 }
 
 func DefaultCalibration() *Calibration {
+	// Stance behavior per skill.md "Combat & Battle System" (2026-09-01):
+	// brace 25% taken + 2x shield regen; evade 50% taken, -20% enemy
+	// accuracy, cannot fire; flee escapes after 3 consecutive flee ticks
+	// (base; speed/Tactics/tackle modifiers not modeled). Stalemate is 30
+	// ticks with no kills.
 	return &Calibration{HitChanceA: 0.95, HitChanceB: 0.95, BraceInMult: 0.25,
-		EvadeInMult: 0.5, FleeEscapePerTick: 0.25, RegenHitDivisor: 3,
-		ArmorLaw: "auto", ArmorLawCrossover: 12, MaxTicks: 500,
-		Assumed: []string{"evade_in_mult", "flee_escape_per_tick", "regen_from_zero"}}
+		BraceRegenMult: 2, EvadeInMult: 0.5, EvadeAccuracyDebuff: 0.20,
+		FleeTicksRequired: 3, RegenHitDivisor: 3,
+		ArmorLaw: "auto", ArmorLawCrossover: 12, StalemateTicks: 30, MaxTicks: 500,
+		Assumed: []string{"regen_from_zero"}}
 }
 
 func LoadCalibration(path string) (*Calibration, error) {
@@ -39,6 +48,12 @@ func LoadCalibration(path string) (*Calibration, error) {
 	}
 	if c.RegenHitDivisor <= 0 {
 		return nil, fmt.Errorf("%s: regen_hit_divisor must be > 0, got %d", path, c.RegenHitDivisor)
+	}
+	if c.FleeTicksRequired <= 0 {
+		return nil, fmt.Errorf("%s: flee_ticks_required must be > 0, got %d", path, c.FleeTicksRequired)
+	}
+	if c.StalemateTicks <= 0 {
+		return nil, fmt.Errorf("%s: stalemate_ticks must be > 0, got %d", path, c.StalemateTicks)
 	}
 	return c, nil
 }
@@ -67,10 +82,11 @@ func stanceInMult(s Stance, cal *Calibration) float64 {
 
 // volley rolls and resolves one side's attack; returns damage to apply.
 func volley(att, tgt *SideState, hitChance float64, cal *Calibration, rng *rand.Rand) VolleyOutcome {
-	// Braced ships do not fire — measured: across the Haven fixture
-	// (2a76e1a1), seven ships spent 513 braced ticks and fired zero shots.
-	// Fleeing ships likewise (1763 flee ticks, zero shots).
-	if att.Stance == StanceFlee || att.Stance == StanceBrace {
+	// Only the fire stance fires. Brace and flee are measured (Haven
+	// fixture: 513 braced ticks / 1763 flee ticks, zero shots); evade is
+	// per skill.md's stance table ("Can Fire: No") — zero evade ticks
+	// exist in any exported log to measure against.
+	if att.Stance != StanceFire {
 		return VolleyOutcome{}
 	}
 	var fired []int
@@ -90,6 +106,11 @@ func volley(att, tgt *SideState, hitChance float64, cal *Calibration, rng *rand.
 	for i := range crits { // crits roll regardless of hit (measured); a miss discards them
 		crits[i] = rng.Float64() < float64(att.Stats.CritPct)/100
 	}
+	// Evading targets debuff the attacker's accuracy (skill.md: -20%),
+	// on top of taking only half damage from volleys that still land.
+	if tgt.Stance == StanceEvade {
+		hitChance = max(hitChance-cal.EvadeAccuracyDebuff, 0)
+	}
 	if rng.Float64() >= hitChance {
 		return VolleyOutcome{}
 	}
@@ -101,6 +122,9 @@ func regen(s *SideState, cal *Calibration) {
 		return
 	}
 	r := s.Stats.Recharge
+	if s.Stance == StanceBrace { // skill.md: brace doubles shield regen
+		r = int(float64(r) * cal.BraceRegenMult)
+	}
 	if s.HitThisTick {
 		r = r / cal.RegenHitDivisor
 	}
@@ -110,6 +134,7 @@ func regen(s *SideState, cal *Calibration) {
 // RunBattle simulates one 1v1 battle to a terminal outcome.
 func RunBattle(a, b *StatBlock, sa, sb Stance, cal *Calibration, rng *rand.Rand) Outcome {
 	A, B := NewSide(a, sa), NewSide(b, sb)
+	fleeA, fleeB := 0, 0
 	for tick := range cal.MaxTicks {
 		A.HitThisTick, B.HitThisTick = false, false
 		outA := volley(A, B, cal.HitChanceA, cal, rng) // A attacks B
@@ -128,16 +153,28 @@ func RunBattle(a, b *StatBlock, sa, sb Stance, cal *Calibration, rng *rand.Rand)
 		case A.Hull <= 0:
 			return OutBKill
 		}
-		if tick > 0 {
-			// Deliberate ordering artifact: A's escape roll is checked before
-			// B's, so under symmetric fleeing/pursuing parameters A escapes
-			// slightly more often than B — someone has to roll first.
-			if A.Stance == StanceFlee && rng.Float64() < cal.FleeEscapePerTick {
+		// Flee is a deterministic counter (skill.md): escape after
+		// FleeTicksRequired consecutive flee ticks (stances are fixed per
+		// run, so every survived tick counts). Ordering artifact: A is
+		// checked first, so when both flee at the same requirement A
+		// escapes — someone has to be first.
+		if A.Stance == StanceFlee {
+			fleeA++
+			if fleeA >= cal.FleeTicksRequired {
 				return OutAFled
 			}
-			if B.Stance == StanceFlee && rng.Float64() < cal.FleeEscapePerTick {
+		}
+		if B.Stance == StanceFlee {
+			fleeB++
+			if fleeB >= cal.FleeTicksRequired {
 				return OutBFled
 			}
+		}
+		// Stalemate rule (skill.md): 30 ticks with no kills is a draw. In a
+		// 1v1 any kill ends the battle, so reaching the threshold IS the
+		// no-kill condition. MaxTicks remains a hard safety bound.
+		if tick+1 >= cal.StalemateTicks {
+			return OutStalemate
 		}
 		regen(A, cal)
 		regen(B, cal)

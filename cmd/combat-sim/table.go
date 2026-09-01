@@ -39,10 +39,11 @@ func cellAssumed(c Cell, cal *Calibration) bool {
 		}
 		return false
 	}
-	if (c.StanceA == StanceEvade || c.StanceB == StanceEvade) && assumed("evade_in_mult") {
+	if (c.StanceA == StanceEvade || c.StanceB == StanceEvade) &&
+		(assumed("evade_in_mult") || assumed("evade_accuracy_debuff")) {
 		return true
 	}
-	if (c.StanceA == StanceFlee || c.StanceB == StanceFlee) && assumed("flee_escape_per_tick") {
+	if (c.StanceA == StanceFlee || c.StanceB == StanceFlee) && assumed("flee_ticks_required") {
 		return true
 	}
 	return false

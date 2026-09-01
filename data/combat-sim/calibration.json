@@ -1,14 +1,17 @@
 {
-  "_comment": "measured: brace_in_mult (Haven fixture), regen_hit_divisor (3 fixtures), armor constants (see analysis scripts). ASSUMED (uncalibrated until phase-B duels): evade_in_mult, flee_escape_per_tick, regen_from_zero, hit chances beyond the 0.79-0.95 measured envelope.",
+  "_comment": "measured: brace_in_mult (Haven fixture), regen_hit_divisor (3 fixtures), armor constants (see analysis scripts). doc-backed (skill.md Combat & Battle System, 2026-09-01): evade_in_mult 0.5 / evade_accuracy_debuff 0.20 / brace_regen_mult 2 (stance table), flee_ticks_required 3 (base; Tactics/speed/tackle modifiers not modeled — our pilots logged flee_required 2), stalemate_ticks 30 (30 ticks with no kills is a draw). ASSUMED (uncalibrated until phase-B duels): regen_from_zero, hit chances beyond the 0.79-0.95 measured envelope.",
   "hit_chance_a": 0.95,
   "hit_chance_b": 0.95,
   "brace_in_mult": 0.25,
+  "brace_regen_mult": 2,
   "evade_in_mult": 0.5,
-  "flee_escape_per_tick": 0.25,
+  "evade_accuracy_debuff": 0.20,
+  "flee_ticks_required": 3,
   "regen_hit_divisor": 3,
   "regen_from_zero": false,
   "armor_law": "auto",
   "armor_law_crossover": 12,
+  "stalemate_ticks": 30,
   "max_ticks": 500,
-  "assumed": ["evade_in_mult", "flee_escape_per_tick", "regen_from_zero"]
+  "assumed": ["regen_from_zero"]
 }

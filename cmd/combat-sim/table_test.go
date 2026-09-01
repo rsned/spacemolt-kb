@@ -53,8 +53,10 @@ func TestRunTableDeterministic(t *testing.T) {
 
 func TestFormatTableFlagsAssumed(t *testing.T) {
 	a, b := tableFits()
-	cells := RunTable(a, b, DefaultCalibration(), 10, 1)
-	out := FormatTable(a, b, cells, DefaultCalibration())
+	cal := DefaultCalibration()
+	cal.Assumed = append(cal.Assumed, "evade_in_mult") // mark evade cells for this test
+	cells := RunTable(a, b, cal, 10, 1)
+	out := FormatTable(a, b, cells, cal)
 	if !strings.Contains(out, "*") || !strings.Contains(out, "evade_in_mult") {
 		t.Errorf("table must flag ASSUMED-dependent cells and legend them:\n%s", out)
 	}

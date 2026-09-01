@@ -24,10 +24,10 @@ network, no credentials, no live agents.
 Output (10,000 runs per cell, deterministic under `--seed`):
 
     A \ B     fire            brace            evade           flee
-    fire      B-kill 100%     A-kill 100%      B-kill 100%*    B-fled 91%*
-    brace     B-kill 100%     stalemate 100%   B-kill 100%*    B-fled 100%*
+    fire      B-kill 100%     stalemate 100%   A-kill 78%      B-fled 100%
+    brace     B-kill 94%      stalemate 100%   stalemate 100%  B-fled 100%
     ...
-    * cell depends on ASSUMED calibration: evade_in_mult, flee_escape_per_tick, ...
+    * cell depends on ASSUMED calibration: regen_from_zero (see calibration.json)
 
 Each cell names the dominant outcome (`A-kill`, `B-kill`, `A-fled`,
 `B-fled`, `mutual`, `stalemate`) and its share. Cells marked `*` rest on
@@ -43,7 +43,7 @@ below. `--json out.json` dumps the full per-cell distributions.
 | `--seed` | 42 | RNG seed; same seed → identical table |
 | `--catalog` | `data/combat-sim/catalog` | catalog snapshot dir |
 | `--calibration` | `data/combat-sim/calibration.json` | tunables; missing file → built-in defaults |
-| `--max-ticks` | 0 | override the calibration's stalemate cap (0 = keep) |
+| `--max-ticks` | 0 | override the calibration's hard tick cap (0 = keep; the 30-tick no-kill stalemate rule usually ends battles first) |
 | `--json` | | write full outcome distributions to this file |
 | `--extract-fits` | | battle id: write one fit per participant and exit (see below) |
 | `--battles` | `data/battles` | battle fixture dir for `--extract-fits` |
@@ -89,8 +89,9 @@ Broadaxe from battle 7c044558 flies with:
   }
 ```
 
-The skills matter: this fit's evade-vs-fire cell swings from ~67% at all
-zeros to ~98% at the real levels. `weapons` + `gunnery` scale damage
+The skills matter: at all-zero skills this Broadaxe's fire-vs-evade cell
+is a 79% stalemate (it cannot chew through the survey fit's shields inside
+the 30-tick stalemate window); at the real levels it becomes a 78% kill. `weapons` + `gunnery` scale damage
 (+1%/level each) and `weapons` sets crit chance (1%/level); `shields` is
 the shield-resist and only bites while shields hold; `armor` scales armor
 effectiveness (+1%/level). Any key omitted defaults to 0; other keys are
@@ -134,9 +135,15 @@ kinetic full, void skips shields entirely), then flat/adaptive reduction
 rule, breakthrough consuming `floor(pool/e)`, saturating percentage armor,
 a minimum of 1 hull damage per connecting hit, and damage capped at
 remaining hull. Shield regen is `floor(recharge/3)` on hit ticks, full
-otherwise, and does not restart from zero. Braced and fleeing ships do not
-fire (measured: 513 braced ticks / 1,763 flee ticks in the Haven fixture,
-zero shots).
+otherwise, and does not restart from zero. Only the fire stance fires:
+braced and fleeing ships are measured silent (513 braced / 1,763 flee
+ticks in the Haven fixture, zero shots) and evade is documented "Can
+Fire: No" (skill.md stance table; zero evade ticks exist in any export).
+Per that table, brace takes 25% damage with 2x shield regen, evade takes
+50% with a -20% debuff to the attacker's accuracy, and flee escapes after
+3 consecutive flee ticks (the base value — Tactics, speed, and tackle
+modules modify it in the real game and are not modeled). A battle with no
+kill by tick 30 is a stalemate draw (skill.md).
 
 Full derivation: `docs/superpowers/specs/2026-08-31-combat-sim-design.md`
 and the analysis scripts in `data/battles/analysis/`. The v0.574.3 docs
@@ -149,11 +156,14 @@ exact armor-counted multipliers this engine uses.
 
 Every tunable lives in `data/combat-sim/calibration.json`, each tagged by
 provenance. Measured: brace 0.25× incoming, regen divisor 3, armor
-constants. ASSUMED until calibrated: `evade_in_mult` (0.5),
-`flee_escape_per_tick` (0.25), `regen_from_zero` (false), and per-pair hit
-chances beyond the measured 0.79–0.95 envelope. Table cells depending on an
-assumed entry carry `*`. Phase B (scripted stance-pair duels between owned
-agents) exists to measure them.
+constants. Doc-backed (skill.md stance table, 2026-09-01): evade 0.5×
+incoming + 0.20 accuracy debuff, brace 2× regen, flee 3 ticks (base),
+stalemate at 30 kill-less ticks. ASSUMED until calibrated:
+`regen_from_zero` (false) and per-pair hit chances beyond the measured
+0.79–0.95 envelope (the real model is a per-ring base table plus a speed
+modifier; this sim pins both sides at engaged). Table cells depending on
+an assumed entry carry `*`. Phase B (scripted stance-pair duels between
+owned agents) measures the rest.
 
 ## Not modeled in v1
 
