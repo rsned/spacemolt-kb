@@ -23,7 +23,7 @@
 | autocannon_i | 2 | 710 cr | 1,420 cr | S4 weapon; reach 2; needs kinetic ammo |
 | missile_launcher_i | 2 | 1,800 cr | 3,600 cr | S1 far-ring; reach 6; needs explosive ammo |
 | armor_plate_i | 4+ | 490 cr | 2,000+ cr | S7 ladder; +5 armor per plate |
-| Kinetic Ammo | 1 stack | — | ~300 cr | S4 support |
+| Kinetic Ammo | 2 stacks | — | ~600 cr | S4 + S7-kinetic-check support; need reload before each S7-kinetic-check repeat |
 | Explosive Ammo | 1 stack | — | ~300 cr | S1 support |
 | **Dualism hull** | 1 | ~10,000 cr | 10,000 cr | 3 defense slots, base armor 7 (S7 target) |
 | **Lawn_dart hull** | 1 | ~5,000 cr | 5,000 cr | Fast hull, speed 6 (S2, S6d) |
@@ -64,7 +64,7 @@ If S0 reveals unexpected rep damage, faction flags, or other consequences, halt 
 
 ---
 
-**Campaign file**: `campaign.json` (33 duel repeats; S0-probe, S1 hit table ×9, S2 speed ×5, S3 evade ×2, S4 brace ×2, S5 regen ×2, S6 flee ×6, S7 armor ×6)
+**Campaign file**: `campaign.json` (33 duel repeats; S0-probe ×1, S1 hit table ×10, S2 speed ×4, S3 evade ×2, S4 brace ×2, S5 regen ×2, S6 flee ×6, S7 armor ×6)
 
 **Analysis scripts** (forthcoming):
 - `phaseb_hit_table.py` — ring-by-ring hit chance fitted values
