@@ -3,7 +3,7 @@
 ## Arena Decision
 
 **System**: Ashford (lawless, police 0)  
-**Rationale**: One jump from staging (treasure_cache), quiet wildlife activity (2 recorded battles as of 2026-08-29), adjacent to treasure_cache trading post for rapid bot repositioning.
+**Rationale**: One jump from staging (treasure_cache), quiet wildlife activity (402 wildlife battles measured across Aug+Sep 2026, ~12/day, zero pvp), adjacent to treasure_cache trading post for rapid bot repositioning. That rate is low enough to leave the arena usable — a third-party join is rare over a duel's few minutes, and the void rule (any duel a third participant joins is voided and both sides flee out) covers the interference case when it does happen.
 
 ## Campaign Geography
 
@@ -11,7 +11,7 @@
 - **Staging system**: treasure_cache
 - **Staging station**: treasure_cache_trading_post (both bots set home_base here)
 - **Duelists**: battle_bot1, battle_bot2 (fresh accounts, 250 credits, stock Prospect)
-- **Guest**: craftsman-1 (appears S6c only; Tactics 2, will be Artis empire)
+- **Guest**: craftsman-1 (appears S6c only; Tactics 2, will be Artis empire). S6c measures `flee_required` only — the runner must NOT refit craftsman-1; he keeps his own ship and fit for that duel.
 
 ## Shopping List & Funding
 
@@ -27,11 +27,12 @@
 | Explosive Ammo | 1 stack | — | ~300 cr | S1 support |
 | **Dualism hull** | 1 | ~10,000 cr | 10,000 cr | 3 defense slots, base armor 7 (S7 target) |
 | **Lawn_dart hull** | 1 | ~5,000 cr | 5,000 cr | Fast hull, speed 6 (S2, S6d) |
+| **Bad_idea hull** | 1 | ~20,000 cr | 20,000 cr | S7 attacker; tier 2 monitor, 3 weapon slots, base armor 35 |
 | **Respawn buffer** | — | — | 5,000 cr | Contingency for attrition |
 
 **Budget ceiling**: ~100k credits  
-**Expected spend**: ~38k credits  
-**Margin**: ~62k credits
+**Expected spend**: ~58k credits  
+**Margin**: ~42k credits
 
 ## Funding Checklist
 
@@ -64,7 +65,7 @@ If S0 reveals unexpected rep damage, faction flags, or other consequences, halt 
 
 ---
 
-**Campaign file**: `campaign.json` (33 duel repeats; S0-probe ×1, S1 hit table ×10, S2 speed ×4, S3 evade ×2, S4 brace ×2, S5 regen ×2, S6 flee ×6, S7 armor ×6)
+**Campaign file**: `campaign.json` (34 duel repeats; S0-probe ×1, S1 hit table ×11, S2 speed ×4, S3 evade ×2, S4 brace ×2, S5 regen ×2, S6 flee ×6, S7 armor ×6)
 
 **Analysis scripts** (forthcoming):
 - `phaseb_hit_table.py` — ring-by-ring hit chance fitted values

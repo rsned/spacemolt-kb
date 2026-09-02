@@ -75,7 +75,7 @@
       "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
       "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
       "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 1},
+        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring_a": 0, "hold_ring_b": 1},
         {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
       ],
       "max_ticks": 25,
@@ -83,12 +83,25 @@
     },
     {
       "id": "S1-odd-ring3",
+      "purpose": "hit table @ zone_distance 3 (one-side hold)",
+      "attacker": "battle_bot1",
+      "fit_a": {"hull": "prospect", "modules": ["missile_launcher_i"]},
+      "fit_b": {"hull": "prospect", "modules": ["missile_launcher_i"]},
+      "script": [
+        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring_a": 1, "hold_ring_b": 2},
+        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
+      ],
+      "max_ticks": 25,
+      "repeats": 1
+    },
+    {
+      "id": "S1-odd-ring5",
       "purpose": "hit table @ zone_distance 5 (one-side hold)",
       "attacker": "battle_bot1",
       "fit_a": {"hull": "prospect", "modules": ["missile_launcher_i"]},
       "fit_b": {"hull": "prospect", "modules": ["missile_launcher_i"]},
       "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 3},
+        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring_a": 2, "hold_ring_b": 3},
         {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
       ],
       "max_ticks": 25,

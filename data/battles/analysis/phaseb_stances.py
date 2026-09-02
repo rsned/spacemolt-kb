@@ -40,6 +40,9 @@ def main():
     # Track attacks per tick and battle
     attacks_by_battle_tick = defaultdict(lambda: defaultdict(list))  # battle_id -> tick -> [attacks]
 
+    # Track server-reported regen per tick and battle (RegenLogEntry.shield_regen)
+    regen_by_battle_tick = defaultdict(lambda: defaultdict(dict))  # battle_id -> tick -> player_id -> shield_regen
+
     entry_count = 0
     for battle_id_prefix, entry in entries(args.dir):
         entry_count += 1
@@ -62,6 +65,14 @@ def main():
         # Track attacks for this tick
         if attacks:
             attacks_by_battle_tick[battle_id][tick] = attacks
+
+        # Track server-reported shield regen for this tick, keyed by player_id
+        # (RegenLogEntry: player_id, shield_regen, ...; matched into the brace
+        # table below alongside the inferred-delta candidates).
+        for r in (regen or []):
+            player_id = r.get("player_id")
+            if player_id:
+                regen_by_battle_tick[battle_id][tick][player_id] = r.get("shield_regen")
 
         # Detect scenario by stances
         has_evade = any(s.get("stance") == "evade" for s in snapshots)
@@ -135,8 +146,9 @@ def main():
     if evade_observations:
         print("battle_id | tick | hit_chance | fuel | attacker_attacks")
         for obs in evade_observations[:20]:  # Print first 20
+            hit_chance_str = f"{obs['hit_chance']:.2f}" if obs['hit_chance'] is not None else "N/A"
             print(f"{obs['battle_id']} | {obs['tick']} | "
-                  f"{obs['hit_chance']:.2f if obs['hit_chance'] else 'N/A'} | "
+                  f"{hit_chance_str} | "
                   f"{obs['fuel']} | {obs['evader_attacks']}")
     else:
         print("(No evade observations found)")
@@ -208,7 +220,11 @@ def main():
                     match_str = ",".join(matches) if matches else "—"
                     hit_str = "✓" if was_hit else "—"
 
-                    print(f"{tick} | {shield} | {delta:+3d} | {hit_str} | N/A | {cand_recharge}, {cand_2x}, {cand_floor_2div3}, {cand_2floor_div3} [{match_str}]")
+                    regen_obs = regen_by_battle_tick.get(battle_id, {}).get(tick, {}).get(braced_id)
+                    regen_obs_str = regen_obs if regen_obs is not None else "N/A"
+
+                    print(f"{tick} | {shield} | {delta:+3d} | {hit_str} | {regen_obs_str} | "
+                          f"{cand_recharge}, {cand_2x}, {cand_floor_2div3}, {cand_2floor_div3} [{match_str}]")
                 print()
     else:
         print("(No brace observations found)")
