@@ -128,10 +128,13 @@ func primaryDamageType(sb *combatsim.StatBlock) string {
 }
 
 // CellResult is one defender×attacker crossover result in the matrix JSON.
+// Curve carries every swarm size probed en route to N, so the KB page can
+// render a crossover curve for the cell without re-running the simulation.
 type CellResult struct {
-	N           int     `json:"n"`
-	PWin        float64 `json:"p_win"`
-	MedianKills int     `json:"median_kills"`
+	N           int                    `json:"n"`
+	PWin        float64                `json:"p_win"`
+	MedianKills int                    `json:"median_kills"`
+	Curve       []combatsim.CrossPoint `json:"curve"`
 }
 
 // Row is one defender hull's crossover results against every resolved
@@ -260,7 +263,7 @@ func BuildMatrix(cat *combatsim.Catalog, cal *combatsim.Calibration, attackerIDs
 				for _, a := range attackers {
 					seed := cellSeed(j.defID, a.id)
 					cr := combatsim.Crossover(a.sb, j.def, cal, nMax, runs, maxTicks, seed)
-					cells[a.id] = &CellResult{N: cr.N, PWin: cr.PWin, MedianKills: cr.MedianKills}
+					cells[a.id] = &CellResult{N: cr.N, PWin: cr.PWin, MedianKills: cr.MedianKills, Curve: cr.Curve}
 				}
 				rows[i] = Row{ShipID: j.defID, Name: j.hull.Name, Tier: j.hull.Tier, Class: j.hull.Class, Cells: cells}
 			}
@@ -318,9 +321,14 @@ func run(catalogDir, calPath, out, page string, runs, nMax, limit int) error {
 	fmt.Printf("wrote %s: %d rows x %d columns\n", out, len(m.Rows), len(m.Columns))
 
 	if page != "" {
-		// The HTML render is a later task; -page is wired up here as a
-		// no-op placeholder so the flag already exists for it to fill in.
-		fmt.Fprintf(os.Stderr, "generate-last-stand: -page rendering not implemented yet\n")
+		html, err := RenderPage(m)
+		if err != nil {
+			return fmt.Errorf("render page: %w", err)
+		}
+		if err := os.WriteFile(page, []byte(html), 0o644); err != nil {
+			return err
+		}
+		fmt.Printf("wrote %s\n", page)
 	}
 	return nil
 }
