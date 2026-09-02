@@ -8,20 +8,21 @@ import (
 )
 
 type Calibration struct {
-	HitChanceA          float64  `json:"hit_chance_a"`
-	HitChanceB          float64  `json:"hit_chance_b"`
-	BraceInMult         float64  `json:"brace_in_mult"`
-	BraceRegenMult      float64  `json:"brace_regen_mult"`
-	EvadeInMult         float64  `json:"evade_in_mult"`
-	EvadeAccuracyDebuff float64  `json:"evade_accuracy_debuff"`
-	FleeTicksRequired   int      `json:"flee_ticks_required"`
-	RegenHitDivisor     int      `json:"regen_hit_divisor"`
-	RegenFromZero       bool     `json:"regen_from_zero"`
-	ArmorLaw            string   `json:"armor_law"`
-	ArmorLawCrossover   float64  `json:"armor_law_crossover"`
-	StalemateTicks      int      `json:"stalemate_ticks"`
-	MaxTicks            int      `json:"max_ticks"`
-	Assumed             []string `json:"assumed"`
+	HitChanceA          float64   `json:"hit_chance_a"`
+	HitChanceB          float64   `json:"hit_chance_b"`
+	BraceInMult         float64   `json:"brace_in_mult"`
+	BraceRegenMult      float64   `json:"brace_regen_mult"`
+	EvadeInMult         float64   `json:"evade_in_mult"`
+	EvadeAccuracyDebuff float64   `json:"evade_accuracy_debuff"`
+	FleeTicksRequired   int       `json:"flee_ticks_required"`
+	RegenHitDivisor     int       `json:"regen_hit_divisor"`
+	RegenFromZero       bool      `json:"regen_from_zero"`
+	ArmorLaw            string    `json:"armor_law"`
+	ArmorLawCrossover   float64   `json:"armor_law_crossover"`
+	StalemateTicks      int       `json:"stalemate_ticks"`
+	MaxTicks            int       `json:"max_ticks"`
+	Assumed             []string  `json:"assumed"`
+	HitChanceByDistance []float64 `json:"hit_chance_by_distance"`
 }
 
 func DefaultCalibration() *Calibration {
@@ -34,7 +35,8 @@ func DefaultCalibration() *Calibration {
 		BraceRegenMult: 2, EvadeInMult: 0.5, EvadeAccuracyDebuff: 0.20,
 		FleeTicksRequired: 3, RegenHitDivisor: 3,
 		ArmorLaw: "auto", ArmorLawCrossover: 12, StalemateTicks: 30, MaxTicks: 500,
-		Assumed: []string{"regen_from_zero"}}
+		Assumed:             []string{"regen_from_zero"},
+		HitChanceByDistance: []float64{0.90, 0.80, 0.65, 0.50, 0.35, 0.22, 0.12}}
 }
 
 func LoadCalibration(path string) (*Calibration, error) {

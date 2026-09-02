@@ -29,6 +29,7 @@ type SideState struct {
 	Hull, Shield int
 	Ammo         []int
 	Cool         []int
+	Reload       []int
 	Stance       Stance
 	HitThisTick  bool
 }
@@ -37,6 +38,7 @@ func NewSide(sb *StatBlock, stance Stance) *SideState {
 	s := &SideState{Stats: sb, Hull: sb.MaxHull, Shield: sb.MaxShield, Stance: stance}
 	s.Ammo = make([]int, len(sb.Weapons))
 	s.Cool = make([]int, len(sb.Weapons))
+	s.Reload = make([]int, len(sb.Weapons))
 	for i, w := range sb.Weapons {
 		if w.Magazine > 0 {
 			s.Ammo[i] = w.Magazine
