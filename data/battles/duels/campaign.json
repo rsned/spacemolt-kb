@@ -284,7 +284,7 @@
     }
    ],
    "max_ticks": 25,
-   "repeats": 1,
+   "repeats": 2,
    "reload_every": 4
   },
   {
@@ -787,17 +787,14 @@
   },
   {
    "id": "S6d-flee-slow",
-   "purpose": "flee speed, SLOW fleer: bot2(side B, speed 1) flees a FAST pursuer (bot1 side A, afterburner_ii speed 3, fires). Both Tactics 0 => pure speed penalty. Server rule 'longer the slower you are' => expect flee_required > 3.",
+   "purpose": "flee speed, SLOW fleer: bot2(side B, speed 1) flees a FAST pursuer (bot1 side A, afterburner_ii speed 3, fires). Both Tactics 0 => pure speed penalty. Server rule 'longer the slower you are' => expect flee_required > 3. [pursuer weapon = pulse_laser_i, needs no consumable ammo]",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "autocannon_i",
+     "pulse_laser_i",
      "afterburner_ii"
-    ],
-    "ammo": {
-     "autocannon_i": "standard_rounds_box"
-    }
+    ]
    },
    "fit_b": {
     "hull": "prospect",
