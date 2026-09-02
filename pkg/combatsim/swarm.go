@@ -197,7 +197,13 @@ func attackerVolleyProfile(sb *StatBlock, dist int) (raw int, dmgType string, fi
 			}
 			f = m / (m*float64(w.Cooldown) + 1)
 		}
-		expected += float64(w.Damage) * critBoost * skillMult * f
+		// NOT weighted by f here: f is the probability the ship fires at
+		// all this tick, already carried into RunSwarm's binomial as
+		// hitChance*firing. Folding f into expected too would double-count
+		// it (expected damage would carry f² instead of f) — invisible for
+		// beam/high-uptime weapons (f≈1) but a real ~2.5x DPS understatement
+		// for something like em_disruptor_i (cd 2, mag 40, f≈0.494).
+		expected += float64(w.Damage) * critBoost * skillMult
 		frac = math.Max(frac, f) // ship fires if any weapon is ready
 	}
 	return int(math.Round(expected)), dmgType, frac

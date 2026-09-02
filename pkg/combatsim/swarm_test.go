@@ -82,6 +82,51 @@ func TestSwarmAgreesWithMultiShipLargeN(t *testing.T) {
 	}
 }
 
+// TestSwarmAgreesWithMultiShipLowFiring covers an attacker whose only
+// weapon has a low steady-state firing fraction f (em_disruptor_i: cd 2,
+// mag 40 -> f~0.494), the case that exposed the f^2 double-count bug:
+// attackerVolleyProfile folded f into expected damage AND RunSwarm folded
+// it again into the binomial hit probability, so cohort DPS scaled with f^2
+// instead of f (invisible for beam/high-uptime weapons where f~1, which is
+// why the prospect-only coverage above never caught it).
+//
+// n=83 vs opus_magna is deliberately just past the very steep crossover
+// this matchup has (win rate rises from ~0% to ~99% across n~=76..86); at
+// the crossover itself (n~=80-82) RunSwarm and RunMultiShip can disagree by
+// more than the +/-0.15 tolerance even at large run counts (a real
+// staggered-fraction approximation artifact, not sampling noise) -- n=83 is
+// past that knife-edge with both win rates still meaningfully non-trivial
+// (neither saturated at 0 nor 1) and stable across run counts.
+func TestSwarmAgreesWithMultiShipLowFiring(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	thr := starter(t, cat, "threshold")
+	opus, err := ResolveHull("opus_magna", cat, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cal := testCal()
+	const n, runs = 83, 200
+	swarm := swarmWinRate(thr, opus, n, runs, cal)
+	wins := 0
+	for s := range uint64(runs) {
+		rng := rand.New(rand.NewPCG(s+1, 777))
+		ships := []Ship{{opus, 1}}
+		for range n {
+			ships = append(ships, Ship{thr, 0})
+		}
+		if RunMultiShip(ships, cal, 4000, rng).WinningTeam == 0 {
+			wins++
+		}
+	}
+	ref := float64(wins) / runs
+	if diff := swarm - ref; diff > 0.15 || diff < -0.15 {
+		t.Fatalf("n=%d: RunSwarm %.2f vs RunMultiShip %.2f (>0.15 apart)", n, swarm, ref)
+	}
+}
+
 // TestBinomialLowNPAccuracy directly checks binomial's Poisson-fallback
 // corner (count > binomialExactMax but np, or n(1-p), below
 // deMoivreLaplaceGate — reachable in the matrix via long-range low hit
