@@ -2,6 +2,10 @@ package main
 
 import "math/rand/v2"
 
+// swarmStartDistance is the shared ring both sides close from, one ring per
+// tick, in a multi-ship battle (spec §5.1).
+const swarmStartDistance = 6
+
 func hitChanceAt(dist int, cal *Calibration) float64 {
 	if dist >= 0 && dist < len(cal.HitChanceByDistance) {
 		return cal.HitChanceByDistance[dist]
@@ -68,4 +72,94 @@ func tickWeapons(s *SideState) {
 			}
 		}
 	}
+}
+
+// Ship is one participant's fit plus its team assignment for RunMultiShip.
+type Ship struct {
+	Stats *StatBlock
+	Team  int
+}
+
+// MultiResult is the outcome of a multi-ship battle.
+type MultiResult struct {
+	WinningTeam int // -1 = stalemate/timeout
+	Ticks       int
+	KillsByTeam map[int]int
+}
+
+// RunMultiShip simulates a heterogeneous battle: every ship closes from
+// swarmStartDistance, fires at one enemy per tick, and a team wins when it
+// is the only one left alive. Volleys within a tick resolve sequentially so
+// shields deplete in order.
+func RunMultiShip(ships []Ship, cal *Calibration, maxTicks int, rng *rand.Rand) MultiResult {
+	n := len(ships)
+	side := make([]*SideState, n)
+	team := make([]int, n)
+	alive := make([]bool, n)
+	for i, s := range ships {
+		side[i] = NewSide(s.Stats, StanceFire)
+		team[i] = s.Team
+		alive[i] = true
+	}
+	kills := map[int]int{}
+	dist := swarmStartDistance
+	for tick := range maxTicks {
+		for i := range side {
+			side[i].HitThisTick = false
+		}
+		// Each living ship fires at the lowest-index living enemy.
+		for i := range side {
+			if !alive[i] {
+				continue
+			}
+			tgt := -1
+			for j := range side {
+				if alive[j] && team[j] != team[i] {
+					tgt = j
+					break
+				}
+			}
+			if tgt == -1 {
+				continue
+			}
+			o := volleyAt(side[i], side[tgt], dist, cal, rng)
+			side[tgt].Shield -= o.ShieldDrain
+			side[tgt].Hull -= o.HullDmg
+			if o.ShieldDrain > 0 || o.HullDmg > 0 {
+				side[tgt].HitThisTick = true
+			}
+			if side[tgt].Hull <= 0 {
+				alive[tgt] = false
+				kills[team[i]]++
+			}
+		}
+		if w := soleTeam(team, alive); w != -2 {
+			return MultiResult{WinningTeam: w, Ticks: tick + 1, KillsByTeam: kills}
+		}
+		for i := range side {
+			if alive[i] {
+				regen(side[i], cal)
+				tickWeapons(side[i])
+			}
+		}
+		dist = max(dist-1, 0)
+	}
+	return MultiResult{WinningTeam: -1, Ticks: maxTicks, KillsByTeam: kills}
+}
+
+// soleTeam returns the only team with living ships, -1 if none alive, or -2
+// if more than one team is still alive.
+func soleTeam(team []int, alive []bool) int {
+	winner := -1
+	for i, a := range alive {
+		if !a {
+			continue
+		}
+		if winner == -1 {
+			winner = team[i]
+		} else if team[i] != winner {
+			return -2
+		}
+	}
+	return winner
 }

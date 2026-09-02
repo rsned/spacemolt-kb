@@ -47,6 +47,53 @@ func TestVolleyReachGate(t *testing.T) {
 	}
 }
 
+func starter(t *testing.T, cat *Catalog, id string) *StatBlock {
+	t.Helper()
+	sb, err := ResolveHull(id, cat, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return sb
+}
+
+func TestMultiShipFocusFireWins(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	// 6 Prospects vs 1 Prospect: the six must win, and lose few.
+	ships := []Ship{{pro, 1}}
+	for range 6 {
+		ships = append(ships, Ship{pro, 0})
+	}
+	wins := 0
+	for s := range uint64(40) {
+		rng := rand.New(rand.NewPCG(s+1, 99))
+		if RunMultiShip(ships, testCal(), 500, rng).WinningTeam == 0 {
+			wins++
+		}
+	}
+	if wins < 36 { // 6v1 should be near-certain
+		t.Fatalf("6v1 swarm won %d/40, expected >=36", wins)
+	}
+}
+
+func TestMultiShipSoloDuel(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	// 1v1 identical Prospects: someone wins or it times out; must not panic
+	// and must terminate.
+	rng := rand.New(rand.NewPCG(7, 7))
+	r := RunMultiShip([]Ship{{pro, 0}, {pro, 1}}, testCal(), 500, rng)
+	if r.Ticks == 0 {
+		t.Fatal("battle ran zero ticks")
+	}
+}
+
 func TestReloadCycle(t *testing.T) {
 	// mag 2, cd 1: fires t0,t1 then must reload for 1 idle tick before t3.
 	sb := &StatBlock{Name: "m2", Weapons: []Weapon{{Damage: 5, Type: "kinetic", Cooldown: 1, Magazine: 2, Reach: 6}}}
