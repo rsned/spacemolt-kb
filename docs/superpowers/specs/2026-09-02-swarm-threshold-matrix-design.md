@@ -353,3 +353,74 @@ generator is run on demand (like the other KB generators), not in CI.
   card.
 - `data/battles/` — a few new small-battle validation fixtures.
 - `cmd/combat-sim/README.md` — swarm mode + assumptions.
+
+## 13. Errata / as-built
+
+Deviations from this spec discovered during implementation. The `.superpowers/sdd/2026-09-02-swarm-threshold-matrix/progress.md` ledger is the authoritative record; this is a summary.
+
+- **`pkg/combatsim` extraction (structural, not in §12's File Map).** §12 lists
+  `cmd/combat-sim/swarm.go`, `resolver.go`, etc. — but `cmd/generate-last-stand`
+  is a separate `package main` and cannot import another `package main`. Task 7
+  extracted the entire reusable model (loader, resolver, engine, battle, table,
+  swarm) into `pkg/combatsim`; `cmd/combat-sim` became a thin CLI wrapper. Every
+  file this spec names under `cmd/combat-sim/*.go` (other than `main.go` itself)
+  now lives under `pkg/combatsim/`. Gated by an unchanged-behavior `go test
+  ./...` before and after the move; no behavior change.
+- **Reload timer value.** §5-adjacent reload text (and the implementer's first
+  pass) set the reload timer to 1 tick on an emptied magazine. With
+  `tickWeapons` decrementing and refilling at the *end* of the tick, timer=1 is
+  consumed the same tick it's set, yielding **zero** idle firing ticks. The
+  spec's own acceptance test (`TestReloadCycle`, expecting exactly one idle
+  tick: `[fire, fire, idle, fire]`) is binding, so the timer is set to **2** on
+  empty — end-of-tick decrement then leaves exactly one idle tick before the
+  weapon fires again.
+- **`binomial` sampler gate.** The plan's reference design gated the normal
+  approximation on a raw trial-count threshold (`count > 30`). That gate is
+  biased in the low-`np`/low-`n(1-p)` corner reachable by long-range shots
+  (e.g. `count=31, p=0.02`: normal approximation overstated the mean by ~13%
+  and diverged sharply on `P(k=0)`). The as-built gate instead checks
+  `np`/`n(1-p)` against a De Moivre–Laplace threshold of 9: below it, a Poisson
+  (Knuth) sample is used instead of the normal approximation. Both remain O(1)
+  per call. Related, not a deviation from any explicit spec text but worth
+  recording: the attacker's `WeaponSkillPct` is folded into the cohort's
+  per-volley expected-damage profile, and defender regen-on-hit is applied in
+  the bulk-damage path — both required for `TestSwarmAgreesWithMultiShip` to
+  pass.
+- **`Crossover` gallop-then-bisect edge case.** The plan's reference gallop
+  (double until the probe exceeds `n-max`, then declare ∞) misses a real
+  crossover strictly between the largest probed power of two and a non-power-
+  of-two `n-max` — and the shipped default `--n-max` is 25000, not a power of
+  two. As-built, on first overflow the search additionally probes `n-max`
+  itself before concluding ∞; if `n-max` dominates, it bisects
+  `(largest non-dominant power of two, n-max]` instead. Regression test:
+  `TestCrossoverNMaxNotPowerOfTwo`.
+- **`--runs` flag reuse, not a new flag.** §9's CLI extension implied a new
+  flag for swarm-mode run count; `--runs` already exists for `--a/--b` table
+  mode (default 10000) and Go's `flag` package can't register two flags under
+  one name, and changing the shared default would alter table-mode behavior.
+  As-built: `--swarm` mode reuses `--runs`, applying its own default of 300
+  only when the user didn't pass `--runs` explicitly (checked via
+  `flag.Visit`).
+- **`BuildMatrix` parameter order and missing-cell representation.** The
+  as-built signature is `BuildMatrix(cat, cal, attackerIDs, defenderIDs, ...)`
+  — attackers first, defenders second (opposite of how §7/§8 prose describes
+  the loop order). An attacker or defender hull that fails to resolve is
+  **omitted** from the matrix (no key/row) rather than emitted with an
+  explicit `null` — a consumer must treat a missing per-attacker cell as
+  unresolvable/∞, not distinguish it from a present `n:0` (∞ within `--n-max`)
+  cell by key absence alone. Also: `starter → empire` is a small hardcoded
+  table in the generator, not read from `ShipDef.Faction` — the catalog's
+  `ShipDef` doesn't expose an empire/faction field.
+- **`swarmMaxTicks = 4000`.** Both `--swarm` CLI mode and
+  `generate-last-stand` cap swarm battles at a fixed 4000 ticks (independent
+  of `--max-ticks`, which only applies to `--a/--b` table mode) — generous
+  headroom for slow grinds against tough capital defenders.
+- **Validation coverage (§9/Task 9), disclosed not deviated:** 3 real battle
+  fixtures validate winner-match (no wrong winners across all runs); 3 further
+  NPC fixtures were unresolvable and are skipped. No fixture exercises N>2
+  ships per side, so multi-ship focus-fire dynamics rest on the cohort model's
+  self-consistency against `RunMultiShip` (the `TestSwarmAgreesWithMultiShip`
+  family, ±0.15 win-rate tolerance) rather than a real multi-ship battle log;
+  likewise the 30/335 mixed-damage-type hulls skipped as defenders (see the
+  README) are unrated. Both are recorded as v2 follow-ups, not silently
+  dropped.

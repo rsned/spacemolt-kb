@@ -15,6 +15,12 @@ Fully hermetic: reads only files committed to this repo (a pinned catalog
 under `data/combat-sim/catalog/`, snapshot 20260827). No database, no
 network, no credentials, no live agents.
 
+The reusable combat model — catalog loading, fit resolution, the tick
+engine, the 1v1 table runner, and the swarm/multi-ship engines below —
+lives in `pkg/combatsim`. `cmd/combat-sim` is a thin CLI over that
+package; `cmd/generate-last-stand` (see below) is a second, independent
+consumer of the same package.
+
 ## Quick start
 
     go build -o bin/combat-sim ./cmd/combat-sim
@@ -48,6 +54,21 @@ below. `--json out.json` dumps the full per-cell distributions.
 | `--extract-fits` | | battle id: write one fit per participant and exit (see below) |
 | `--battles` | `data/battles` | battle fixture dir for `--extract-fits` |
 | `--out` | `data/combat-sim/fits` | output dir for `--extract-fits` |
+| `--swarm` | | attacker hull id: run swarm-crossover mode against `--vs` and exit (see below) |
+| `--vs` | | defender hull id (`--swarm`) |
+| `--n-max` | 25000 | largest swarm size probed before reporting the crossover as ∞ (`--swarm`) |
+| `--swarm-json` | | write the full crossing (curve included) as JSON to this file (`--swarm`) |
+
+`--runs` is shared between table mode and swarm mode: its flag default is
+10000 (table mode), but `--swarm` mode applies its own default of 300 when
+`--runs` isn't explicitly passed (a `flag.Visit` check — Go can't register
+two flags under one name). Pass `--runs` explicitly to override either
+mode's default.
+
+`--swarm` mode ignores `--max-ticks`: it always runs with a fixed
+`swarmMaxTicks = 4000` internal cap, generous enough for slow grinds
+against tough capital defenders. `--max-ticks` only affects `--a/--b`
+table mode.
 
 ## Fitting specs
 
@@ -124,6 +145,124 @@ The extracted pair above, fed back in as `--a`/`--b`, reproduces the real
 battle's outcome (Artis's survey vessel kills MoltenOne's Broadaxe in the
 fire/fire cell).
 
+## Swarm mode
+
+`--swarm` answers a different question than the 1v1 table: not "who wins
+this fight" but "how many identical, unskilled attackers does it take to
+beat this one defender by attrition." It finds the **crossover** — the
+smallest swarm size `N` whose simulated win rate exceeds 50% — via
+exponential doubling then bisection, so it visits roughly `2·log2(N)`
+swarm sizes rather than a linear scan:
+
+    bin/combat-sim --swarm shard --vs opus_magna \
+                   --n-max 25000 --runs 300 --swarm-json crossing.json
+
+    shard swarm vs opus_magna: crossover N=32 (P=0.51), opus_magna kills 31
+
+`--swarm`/`--vs` take catalog hull ids resolved to their `default_modules`
+stock fitting at zero skills — not FitSpec JSON files. The attacker
+resolves through the non-capital path (`ResolveHull(id, cat, false)`); the
+defender through the capital-allowed path (`ResolveHull(id, cat, true)`),
+since this mode exists specifically to answer "how many starters does it
+take to bring down a titan." If no swarm size up to `--n-max` reaches a
+majority win rate, the crossover is reported as ∞ (`N=0` in the JSON — see
+below). `--swarm-json` writes the full `Crossing` (the winning point plus
+every `{n, p_win, median_kills}` probed along the way) so a page can
+render the curve without re-running the search.
+
+**Two engines, one behind the CLI:** `RunSwarm` (`pkg/combatsim/swarm.go`)
+is the fast path this mode uses — a homogeneous-cohort model that tracks
+only a live headcount plus one "focused" attacker taking the defender's
+exact per-ship volleys, so a tick costs O(1) regardless of swarm size
+(binomial sampling over the cohort, exact Bernoulli trials below 30
+attackers, a Poisson or normal approximation above it depending on how
+extreme the per-tick hit probability is). `RunMultiShip` is the slower,
+exact reference engine — a real `sideState` per ship, everyone targeting
+the lowest-index living enemy — used in tests to confirm the cohort model
+tracks it (see errata below) and available for small heterogeneous
+battles the cohort model can't represent (mixed attacker types).
+
+**The model:** both sides start at ring distance 6 and close one ring per
+tick; a weapon only fires once distance is within its `Reach`. Every
+combatant fights in `fire` stance for the whole battle — no brace, evade,
+or flee AI. Ammo is unlimited but an emptied magazine costs a 1-tick
+reload (exactly one idle firing tick — see errata). Weapons fire their
+default ammo only (base catalog damage/type). Every ship — attacker or
+defender — targets exactly one opponent per tick, so a lone defender can
+kill at most one attacker per tick no matter how large the swarm; that
+one-kill-per-tick ceiling is what makes the crossover scale roughly with
+`√(effective HP / per-ship damage)` rather than with raw HP, which is why
+a stock Opus Magna (a titan-class capital) falls to on the order of
+30–130 starters rather than thousands — see the worked numbers in
+`generate-last-stand` below. Attacker swarms get **no capital weapon
+bonus**: the resolver only ever grants that bonus on the defender side,
+since the swarm attackers are always non-capital hulls.
+
+## generate-last-stand
+
+`cmd/generate-last-stand` builds the full "swarm threshold matrix": for
+every hull in the catalog (as defender), the crossover swarm size against
+each of the 5 empire-starter hulls (as attacker), using the same
+`pkg/combatsim.Crossover`/`RunSwarm` machinery as `--swarm` mode above.
+
+    go build -o bin/generate-last-stand ./cmd/generate-last-stand
+    bin/generate-last-stand --out data/combat-sim/last_stand_matrix.json \
+                            --page kb/did_you_know/last_stand.html
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--catalog` | `data/combat-sim/catalog` | catalog snapshot dir |
+| `--calibration` | `data/combat-sim/calibration.json` | tunables; missing file → built-in defaults |
+| `--runs` | 300 | battles per probed swarm size |
+| `--n-max` | 25000 | largest swarm size probed before reporting ∞ |
+| `--out` | `data/combat-sim/last_stand_matrix.json` | matrix JSON output path |
+| `--page` | | matrix HTML page output path (empty = skip) |
+| `--limit` | 0 | limit to the first N defenders in catalog-id order (0 = all; for smoke runs) |
+
+The 5 attacker columns are fixed: `shard` (Crimson), `prospect` (Nebula),
+`cobble` (Outer-Rim), `theoria` (Solarian), `threshold` (Voidborn) — one
+stock starter per empire. (The catalog's `ShipDef` doesn't expose faction
+as a field, so the id→empire mapping is a small hardcoded table in the
+generator, not derived from catalog data.) Every other hull in the
+catalog is a defender row. Defenders resolve through the capital-allowed
+path, so a titan like `opus_magna` can appear as a row; attacker columns
+always resolve through the non-capital path.
+
+Rows are computed by a worker pool (bounded by `GOMAXPROCS`); each cell's
+RNG seed is derived deterministically from the `(defender, attacker)` id
+pair (an FNV hash), so the matrix is reproducible regardless of
+scheduling order.
+
+**Matrix JSON schema:**
+
+```json
+{
+  "generated_utc": "2026-09-02T16:00:00Z",
+  "assumptions": ["attackers use the stock (default_modules) fitting...", "..."],
+  "columns": [{"id": "shard", "name": "...", "empire": "crimson", "weapon": "2× Autocannon I", "damage_type": "kinetic"}, ...],
+  "rows": [
+    {
+      "ship_id": "opus_magna", "name": "...", "tier": 5, "class": "...",
+      "cells": {
+        "shard": {"n": 32, "p_win": 0.51, "median_kills": 31, "curve": [{"n": 1, "p_win": 0.0, "median_kills": 0}, ...]}
+      }
+    }
+  ],
+  "notes": ["skipped defender \"annihilation\": mixed-damage-type fits unsupported in v1 (got energy and em)", "..."]
+}
+```
+
+A defender row's `cells` map is keyed by attacker column id. **A missing
+key means that attacker column failed to resolve entirely** (see
+`notes`); it is not a per-cell outcome and consumers should not confuse
+it with a measured result. Within a present cell, `n == 0` means the
+measured crossover exceeded `--n-max` — treat it as ∞, not "zero
+attackers needed." As of the snapshot in this repo, 30 of 335 catalog
+hulls are skipped as defenders entirely (not just individual cells),
+all for the same reason: the v1 fit resolver doesn't support a hull whose
+`default_modules` mix more than one weapon damage type. That's recorded
+per-hull in `notes`; the other 305 defenders resolve and get a full row.
+
 ## The model (measured)
 
 Per tick, both sides volley simultaneously: one hit roll per volley, one
@@ -196,6 +335,11 @@ not-yet-modeled entry carry `*`.
 
 ## Not modeled in v1
 
+This section describes the `--a/--b` 1v1 table engine (`RunBattle`)
+specifically — the swarm engines above are a separate code path and do
+model zones/reach, ammo reload, and capital hulls (as defenders); see
+Swarm mode above for what they model instead.
+
 Drone repair (invisible in battle logs — drone-fit survival is
 underestimated), boarding, zones/movement (both sides fixed at engaged),
 ammo reload mid-fight, armor-melt and EM debuffs, typed hardener resists,
@@ -210,9 +354,13 @@ skill levels (≤ 10) these fits use.
 
 ## Files
 
-    cmd/combat-sim/loader.go     catalog JSON → typed defs
-    cmd/combat-sim/resolver.go   fit + skills → combat stat block
-    cmd/combat-sim/engine.go     ResolveVolley: the golden-tested mitigation pipeline
-    cmd/combat-sim/battle.go     tick loop, stances, regen, flee, calibration
-    cmd/combat-sim/table.go      Monte Carlo runner + stance table
-    data/combat-sim/             calibration.json, example fits, vendored catalog
+    pkg/combatsim/loader.go       catalog JSON → typed defs
+    pkg/combatsim/resolver.go     fit + skills → combat stat block; ResolveHull for --swarm
+    pkg/combatsim/engine.go       ResolveVolley: the golden-tested mitigation pipeline
+    pkg/combatsim/battle.go       tick loop, stances, regen, flee, calibration
+    pkg/combatsim/table.go        Monte Carlo runner + stance table (--a/--b mode)
+    pkg/combatsim/swarm.go        RunMultiShip, RunSwarm, Crossover — the swarm engines
+    pkg/combatsim/extract.go      --extract-fits: battle log → FitSpec
+    cmd/combat-sim/main.go        thin CLI: table mode, --extract-fits, --swarm/--vs
+    cmd/generate-last-stand/      matrix builder (main.go) + HTML page renderer (render.go)
+    data/combat-sim/              calibration.json, example fits, vendored catalog, last_stand_matrix.json
