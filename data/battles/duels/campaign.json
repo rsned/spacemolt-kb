@@ -503,16 +503,13 @@
   },
   {
    "id": "S4-brace-1",
-   "purpose": "verify brace: 2\u00d7 shield regen, 0.25\u00d7 damage taken",
+   "purpose": "brace regen: drain B at ring 0, then both brace \u2014 watch climb rate vs the 1/tick un-hit baseline",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "autocannon_i"
-    ],
-    "ammo": {
-     "autocannon_i": "standard_rounds_box"
-    }
+     "pulse_laser_i"
+    ]
    },
    "fit_b": {
     "hull": "prospect",
@@ -522,30 +519,34 @@
     {
      "from_tick": 1,
      "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 12,
+     "stance_a": "brace",
      "stance_b": "brace",
      "hold_ring": 0
     },
     {
-     "from_tick": 25,
+     "from_tick": 30,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 30,
-   "repeats": 1
+   "max_ticks": 32,
+   "repeats": 2,
+   "require_full": true
   },
   {
    "id": "S4-brace-2",
-   "purpose": "verify brace (second run)",
+   "purpose": "brace regen: drain B at ring 0, then both brace \u2014 watch climb rate vs the 1/tick un-hit baseline",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "autocannon_i"
-    ],
-    "ammo": {
-     "autocannon_i": "standard_rounds_box"
-    }
+     "pulse_laser_i"
+    ]
    },
    "fit_b": {
     "hull": "prospect",
@@ -555,30 +556,34 @@
     {
      "from_tick": 1,
      "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 12,
+     "stance_a": "brace",
      "stance_b": "brace",
      "hold_ring": 0
     },
     {
-     "from_tick": 25,
+     "from_tick": 30,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 30,
-   "repeats": 1
+   "max_ticks": 32,
+   "repeats": 2,
+   "require_full": true
   },
   {
    "id": "S5-regen-zero-1",
-   "purpose": "verify regen_from_zero: shield restart after zero",
+   "purpose": "regen from zero: sustained ring-0 fire empties B's pool, then A ceases \u2014 does B's shield restart?",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "autocannon_i"
-    ],
-    "ammo": {
-     "autocannon_i": "standard_rounds_box"
-    }
+     "pulse_laser_i"
+    ]
    },
    "fit_b": {
     "hull": "prospect",
@@ -592,32 +597,30 @@
      "hold_ring": 0
     },
     {
-     "from_tick": 15,
+     "from_tick": 18,
      "stance_a": "brace",
      "stance_b": "fire",
      "hold_ring": 0
     },
     {
-     "from_tick": 25,
+     "from_tick": 29,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 30,
-   "repeats": 1
+   "max_ticks": 31,
+   "repeats": 2,
+   "require_full": true
   },
   {
    "id": "S5-regen-zero-2",
-   "purpose": "verify regen_from_zero (second run)",
+   "purpose": "regen from zero: sustained ring-0 fire empties B's pool, then A ceases \u2014 does B's shield restart?",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "autocannon_i"
-    ],
-    "ammo": {
-     "autocannon_i": "standard_rounds_box"
-    }
+     "pulse_laser_i"
+    ]
    },
    "fit_b": {
     "hull": "prospect",
@@ -631,19 +634,20 @@
      "hold_ring": 0
     },
     {
-     "from_tick": 15,
+     "from_tick": 18,
      "stance_a": "brace",
      "stance_b": "fire",
      "hold_ring": 0
     },
     {
-     "from_tick": 25,
+     "from_tick": 29,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 30,
-   "repeats": 1
+   "max_ticks": 31,
+   "repeats": 2,
+   "require_full": true
   },
   {
    "id": "S6a-flee-base",
@@ -714,8 +718,8 @@
    "repeats": 1
   },
   {
-   "id": "S6c-flee-guest",
-   "purpose": "flee with Tactics: craftsman-1 (Tactics 2) flees from A; expect 2",
+   "id": "S6c2-flee-guest-pursued",
+   "purpose": "Tactics discriminator (v2; v1 S6c-flee-guest collapsed to a 1-tick 0-shot stalemate, battle 704ae8bb, because the attacker had no ring-hold and drifted out of contact). craftsman-1 (Tactics 2, combat hull speed 2) flees a pursuing Prospect (speed 1). Faster fleer => NO speed penalty, so server-min 3 is the floor: escape==3 means Tactics does NOT reduce below the min (wildlife-log 2 is something else); escape<3 means Tactics cuts the floor. Attacker holds ring 0 (advances every tick) to cancel the flee-retreat and keep craftsman pursued and in-contact, else the battle disengages in ~1 tick (v1 did) with no count. Attacker pulse can't reach at outer but the flee counter only needs a pursuer, not a hit.",
    "attacker": "battle_bot1",
    "guest": "craftsman-1",
    "fit_a": {
@@ -734,7 +738,8 @@
     {
      "from_tick": 1,
      "stance_a": "fire",
-     "stance_b": "flee"
+     "stance_b": "flee",
+     "hold_ring_a": 0
     },
     {
      "from_tick": 25,
@@ -873,7 +878,8 @@
     }
    ],
    "max_ticks": 30,
-   "repeats": 1
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-armor-1",
@@ -909,7 +915,8 @@
     }
    ],
    "max_ticks": 30,
-   "repeats": 1
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-armor-2",
@@ -946,7 +953,8 @@
     }
    ],
    "max_ticks": 30,
-   "repeats": 1
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-armor-3",
@@ -984,7 +992,8 @@
     }
    ],
    "max_ticks": 30,
-   "repeats": 1
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-prospect",
@@ -1018,7 +1027,8 @@
     }
    ],
    "max_ticks": 30,
-   "repeats": 1
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-energy-check",
@@ -1050,7 +1060,79 @@
     }
    ],
    "max_ticks": 30,
-   "repeats": 1
+   "repeats": 1,
+   "require_full": true
+  },
+  {
+   "id": "S4c-brace-booster",
+   "purpose": "discriminate brace regen law: 2.5x recharge vs 5% of max shield. ONE shield_booster_i (+25 max shield => 75; Prospect has only 1 defense slot, 2 is impossible). At baseline max 50 the laws are degenerate (5%*50 = 2.5 = 2.5*recharge); at max 75 they split: braced un-hit regen ~2.5/tick => 2.5x-recharge, ~3.75/tick => 5%-of-max.",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "shield_booster_i"
+    ]
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 12,
+     "stance_a": "brace",
+     "stance_b": "brace",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 30,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 32,
+   "repeats": 1,
+   "require_full": true
+  },
+  {
+   "id": "S8-tank-dent",
+   "purpose": "dent check vs craftsman-1 combat hull (70% DR, recharge 4): pins hit-tick regen at recharge>1 (floor(r/3) vs alternatives). PRECONDITION: guest must have all weapons unfitted (one volley kills a Prospect) and hold stance only",
+   "attacker": "battle_bot1",
+   "guest": "craftsman-1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 40,
+     "stance_a": "flee",
+     "stance_b": "fire"
+    }
+   ],
+   "max_ticks": 46,
+   "repeats": 1,
+   "require_full": true
   }
  ]
 }
