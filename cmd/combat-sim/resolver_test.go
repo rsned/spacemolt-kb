@@ -107,3 +107,53 @@ func TestResolveUnknownDamageTypeRefused(t *testing.T) {
 		t.Errorf("unknown damage type error = %v, want unknown damage type refusal", err)
 	}
 }
+
+func TestResolveHullCapital(t *testing.T) {
+	cat, err := LoadCatalog(catalogDir(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Opus Magna is tier 5: rejected as an attacker, allowed as a defender.
+	if _, err := ResolveHull("opus_magna", cat, false); err == nil {
+		t.Fatal("expected tier-5 rejection when allowCapital=false")
+	}
+	sb, err := ResolveHull("opus_magna", cat, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sb.MaxHull != 3000 || sb.MaxShield != 2400 {
+		t.Fatalf("stock Opus Magna: hull=%d shield=%d want 3000/2400", sb.MaxHull, sb.MaxShield)
+	}
+	if len(sb.Weapons) != 8 {
+		t.Fatalf("Opus Magna default_modules give 8 weapons, got %d", len(sb.Weapons))
+	}
+	// Reach must be populated from the catalog item (judgment_beam reach 4).
+	var maxReach int
+	for _, w := range sb.Weapons {
+		if w.Reach > maxReach {
+			maxReach = w.Reach
+		}
+	}
+	if maxReach != 4 {
+		t.Fatalf("max mount reach = %d, want 4", maxReach)
+	}
+}
+
+func TestResolveStarterReach(t *testing.T) {
+	cat, err := LoadCatalog(catalogDir(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	sb, err := ResolveHull("shard", cat, false) // Crimson starter: 2× autocannon_i
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sb.Weapons) != 2 {
+		t.Fatalf("shard has 2 autocannons, got %d", len(sb.Weapons))
+	}
+	for _, w := range sb.Weapons {
+		if w.Type != "kinetic" || w.Reach != 2 {
+			t.Fatalf("autocannon_i: type=%s reach=%d want kinetic/2", w.Type, w.Reach)
+		}
+	}
+}

@@ -19,6 +19,7 @@ type Weapon struct {
 	Type     string // energy|kinetic|void|explosive|em|thermal
 	Cooldown int
 	Magazine int // 0 = no ammo tracking (beam weapons)
+	Reach    int
 }
 
 type StatBlock struct {
@@ -50,12 +51,29 @@ func LoadFit(path string) (*FitSpec, error) {
 // Resolve turns a fit + skills into the combat stat block. Measured rule: no
 // capacity skill multipliers — server stat blocks equal catalog + modules.
 func Resolve(fit *FitSpec, cat *Catalog) (*StatBlock, error) {
+	return resolveFit(fit, cat, false)
+}
+
+// ResolveHull resolves a hull's stock loadout (its default_modules). When
+// allowCapital is true the tier>=5 guard is skipped so any warship can be a
+// defender; NO capital weapon bonus is applied (stated assumption). Used for
+// swarm defenders and starter attackers alike.
+func ResolveHull(hullID string, cat *Catalog, allowCapital bool) (*StatBlock, error) {
+	hull, ok := cat.Ships[hullID]
+	if !ok {
+		return nil, fmt.Errorf("unknown hull %q", hullID)
+	}
+	fit := &FitSpec{Name: hull.Name, Hull: hullID, Modules: hull.DefaultModules}
+	return resolveFit(fit, cat, allowCapital)
+}
+
+func resolveFit(fit *FitSpec, cat *Catalog, allowCapital bool) (*StatBlock, error) {
 	hull, ok := cat.Ships[fit.Hull]
 	if !ok {
 		return nil, fmt.Errorf("unknown hull %q", fit.Hull)
 	}
-	if hull.Tier >= 5 {
-		return nil, fmt.Errorf("hull %q: capital hulls unsupported in v1 (capital weapon bonus unmodeled)", fit.Hull)
+	if hull.Tier >= 5 && !allowCapital {
+		return nil, fmt.Errorf("hull %q: capital hulls unsupported as attacker in v1", fit.Hull)
 	}
 	sk := func(name string) int { return fit.Skills[name] }
 	sb := &StatBlock{
@@ -81,7 +99,7 @@ func Resolve(fit *FitSpec, cat *Catalog) (*StatBlock, error) {
 		if it.Slot == "weapon" && it.Damage > 0 {
 			sb.Weapons = append(sb.Weapons, Weapon{
 				Name: it.ID, Damage: it.Damage, Type: it.DamageType,
-				Cooldown: it.Cooldown, Magazine: it.MagazineSize,
+				Cooldown: it.Cooldown, Magazine: it.MagazineSize, Reach: it.Reach,
 			})
 		}
 	}

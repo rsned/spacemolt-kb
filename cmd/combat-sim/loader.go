@@ -11,14 +11,15 @@ import (
 )
 
 type ShipDef struct {
-	ID                 string `json:"id"`
-	Name               string `json:"name"`
-	Class              string `json:"class"`
-	Tier               int    `json:"tier"`
-	BaseHull           int    `json:"base_hull"`
-	BaseShield         int    `json:"base_shield"`
-	BaseShieldRecharge int    `json:"base_shield_recharge"`
-	BaseArmor          int    `json:"base_armor"`
+	ID                 string   `json:"id"`
+	Name               string   `json:"name"`
+	Class              string   `json:"class"`
+	Tier               int      `json:"tier"`
+	BaseHull           int      `json:"base_hull"`
+	BaseShield         int      `json:"base_shield"`
+	BaseShieldRecharge int      `json:"base_shield_recharge"`
+	BaseArmor          int      `json:"base_armor"`
+	DefaultModules     []string `json:"default_modules"`
 }
 
 type ItemDef struct {
