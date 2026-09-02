@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"math/rand/v2"
+	"strings"
 	"testing"
 )
 
@@ -344,5 +345,20 @@ func TestCrossoverNMaxNotPowerOfTwo(t *testing.T) {
 	pinned := Crossover(pro, opus, testCal(), learned.N, 60, 4000, 7)
 	if pinned.N != learned.N {
 		t.Fatalf("nMax=%d (== true crossover): got N=%d, want N=%d (not ∞)", learned.N, pinned.N, learned.N)
+	}
+}
+
+func TestRunSwarmCLI(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var buf strings.Builder
+	if err := runSwarmCLI("prospect", "opus_magna", cat, testCal(), 25000, 60, 4000, 42, "", &buf); err != nil {
+		t.Fatal(err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "prospect") || !strings.Contains(out, "opus_magna") {
+		t.Fatalf("summary missing ids: %q", out)
 	}
 }
