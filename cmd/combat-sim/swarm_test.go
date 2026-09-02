@@ -271,3 +271,46 @@ func TestReloadCycle(t *testing.T) {
 		t.Fatalf("reload pattern = %v, want [true true false true]", fired)
 	}
 }
+
+func TestCrossoverGallopBisect(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	weak := starter(t, cat, "prospect") // Prospect vs Prospect: crossover is tiny
+	c := Crossover(pro, weak, testCal(), 25000, 120, 4000, 42)
+	if c.N < 1 || c.N > 8 {
+		t.Fatalf("Prospect-vs-Prospect crossover N=%d, expected small (1..8)", c.N)
+	}
+	if c.PWin <= 0.5 {
+		t.Fatalf("crossover PWin=%.2f must exceed 0.5", c.PWin)
+	}
+	// Just below the crossover must NOT dominate (defines "smallest").
+	if c.N > 1 {
+		below := swarmWinRate(pro, weak, c.N-1, 200, testCal())
+		if below > 0.5 {
+			t.Fatalf("n=%d already dominates (%.2f); crossover not minimal", c.N-1, below)
+		}
+	}
+	if len(c.Curve) == 0 {
+		t.Fatal("curve not recorded")
+	}
+}
+
+func TestCrossoverInfinite(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	opus, err := ResolveHull("opus_magna", cat, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A tiny cap cannot beat a dreadnought → N==0 (∞).
+	c := Crossover(pro, opus, testCal(), 4, 60, 4000, 7)
+	if c.N != 0 {
+		t.Fatalf("expected ∞ (N==0) under n-max 4, got N=%d", c.N)
+	}
+}

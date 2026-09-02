@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"math/rand/v2"
+	"sort"
 )
 
 // swarmStartDistance is the shared ring both sides close from, one ring per
@@ -347,4 +348,97 @@ func RunSwarm(attacker, defender *StatBlock, n int, cal *Calibration, maxTicks i
 		dist = max(dist-1, 0)
 	}
 	return SwarmResult{false, kills, maxTicks} // defender survived
+}
+
+// CrossPoint is one probed swarm size and its measured outcome.
+type CrossPoint struct {
+	N           int     `json:"n"`
+	PWin        float64 `json:"p_win"`
+	MedianKills int     `json:"median_kills"`
+}
+
+// Crossing is the result of a Crossover search: the smallest dominant
+// swarm size (N == 0 meaning no crossing was found within nMax, i.e. ∞)
+// plus every probed point along the way.
+type Crossing struct {
+	N           int          `json:"n"` // 0 = no crossing within nMax (∞)
+	PWin        float64      `json:"p_win"`
+	MedianKills int          `json:"median_kills"`
+	Curve       []CrossPoint `json:"curve"`
+}
+
+// Crossover finds the smallest swarm size whose win rate exceeds 0.5 via
+// exponential doubling then bisection. Win-rate is monotonic in n, so this
+// visits ~2·log2(N*) sizes.
+func Crossover(attacker, defender *StatBlock, cal *Calibration, nMax, runs, maxTicks int, seed uint64) Crossing {
+	curve := map[int]CrossPoint{}
+	probe := func(n int) CrossPoint {
+		if p, ok := curve[n]; ok {
+			return p
+		}
+		wins, kills := 0, make([]int, 0, runs)
+		for s := range uint64(runs) {
+			rng := rand.New(rand.NewPCG(seed+s+1, uint64(n)*2654435761))
+			r := RunSwarm(attacker, defender, n, cal, maxTicks, rng)
+			if r.SwarmWin {
+				wins++
+			}
+			kills = append(kills, r.Kills)
+		}
+		p := CrossPoint{N: n, PWin: float64(wins) / float64(runs), MedianKills: median(kills)}
+		curve[n] = p
+		return p
+	}
+	// Gallop: 1,2,4,... until dominant or past nMax.
+	lo, hi := 0, 0
+	for n := 1; ; n *= 2 {
+		if n > nMax {
+			hi = 0 // never dominated
+			break
+		}
+		if probe(n).PWin > 0.5 {
+			hi = n
+			lo = n / 2 // last non-dominant power (0 when n==1)
+			break
+		}
+	}
+	res := Crossing{Curve: sortedCurve(curve)}
+	if hi == 0 {
+		return res // ∞
+	}
+	// Bisect (lo dominated? no; hi dominates) for the smallest dominant n.
+	for lo+1 < hi {
+		mid := lo + (hi-lo)/2
+		if probe(mid).PWin > 0.5 {
+			hi = mid
+		} else {
+			lo = mid
+		}
+	}
+	p := probe(hi)
+	res.N, res.PWin, res.MedianKills = p.N, p.PWin, p.MedianKills
+	res.Curve = sortedCurve(curve)
+	return res
+}
+
+// median returns the middle element of a sorted copy of vals (0 for an
+// empty slice).
+func median(vals []int) int {
+	if len(vals) == 0 {
+		return 0
+	}
+	cp := make([]int, len(vals))
+	copy(cp, vals)
+	sort.Ints(cp)
+	return cp[len(cp)/2]
+}
+
+// sortedCurve returns the probed points sorted by N.
+func sortedCurve(curve map[int]CrossPoint) []CrossPoint {
+	out := make([]CrossPoint, 0, len(curve))
+	for _, p := range curve {
+		out = append(out, p)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].N < out[j].N })
+	return out
 }
