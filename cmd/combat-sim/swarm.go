@@ -228,7 +228,19 @@ func applyIdenticalVolleys(def *SideState, raw int, dmgType string, k int, cal *
 	def.Hull -= armorReduce(raw, def.Stats.ArmorTotal, dmgType, cal) * k
 }
 
-// binomial samples the number of successes in count trials at probability p.
+// binomialExactMax is the largest trial count sampled by rolling every
+// trial. Above it, binomial switches to a normal approximation so per-tick
+// cost stays bounded (O(1)) regardless of attacker headcount — a plain
+// Bernoulli loop over n attackers would make each tick O(n), defeating the
+// point of the homogeneous cohort model at n in the tens of thousands.
+const binomialExactMax = 30
+
+// binomial samples the number of successes in count trials at probability
+// p. Below binomialExactMax it rolls each trial exactly; above it, it uses
+// a mean/stddev normal approximation clamped to [0, count], which is
+// accurate once count*p and count*(1-p) are both well above 1 (true for
+// the swarm sizes this model targets) and keeps the cost independent of
+// count.
 func binomial(count int, p float64, rng *rand.Rand) int {
 	if p <= 0 || count <= 0 {
 		return 0
@@ -236,13 +248,19 @@ func binomial(count int, p float64, rng *rand.Rand) int {
 	if p >= 1 {
 		return count
 	}
-	k := 0
-	for range count {
-		if rng.Float64() < p {
-			k++
+	if count <= binomialExactMax {
+		k := 0
+		for range count {
+			if rng.Float64() < p {
+				k++
+			}
 		}
+		return k
 	}
-	return k
+	mean := float64(count) * p
+	sd := math.Sqrt(float64(count) * p * (1 - p))
+	k := int(math.Round(mean + sd*rng.NormFloat64()))
+	return min(max(k, 0), count)
 }
 
 // RunSwarm simulates n identical attackers vs one defender using the
