@@ -1,7 +1,4 @@
-// Command combat-sim Monte-Carlo simulates 1v1 combat between two ship
-// fittings using the battle-log-verified damage model. Hermetic: reads only
-// committed catalog snapshots and small JSON input files.
-package main
+package combatsim
 
 import (
 	"encoding/json"

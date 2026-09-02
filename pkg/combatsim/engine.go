@@ -1,4 +1,4 @@
-package main
+package combatsim
 
 import "math"
 
@@ -24,7 +24,7 @@ var armorMult = map[string]float64{
 
 const armorK = 150.0 // half-saturation constant = max bare hull armor
 
-type SideState struct {
+type sideState struct {
 	Stats        *StatBlock
 	Hull, Shield int
 	Ammo         []int
@@ -34,8 +34,8 @@ type SideState struct {
 	HitThisTick  bool
 }
 
-func NewSide(sb *StatBlock, stance Stance) *SideState {
-	s := &SideState{Stats: sb, Hull: sb.MaxHull, Shield: sb.MaxShield, Stance: stance}
+func newSide(sb *StatBlock, stance Stance) *sideState {
+	s := &sideState{Stats: sb, Hull: sb.MaxHull, Shield: sb.MaxShield, Stance: stance}
 	s.Ammo = make([]int, len(sb.Weapons))
 	s.Cool = make([]int, len(sb.Weapons))
 	s.Reload = make([]int, len(sb.Weapons))
@@ -49,7 +49,7 @@ func NewSide(sb *StatBlock, stance Stance) *SideState {
 	return s
 }
 
-type VolleyOutcome struct{ ShieldDrain, HullDmg int }
+type volleyOutcome struct{ ShieldDrain, HullDmg int }
 
 // stageFloor floors v, reporting whether the truncated fraction spills a
 // point to hull (measured threshold: frac >= 0.5).
@@ -82,8 +82,8 @@ func armorReduce(hullIn int, armorTotal float64, dmgType string, cal *Calibratio
 	return max(out, 1) // min-1: every hit that reaches hull lands for at least 1
 }
 
-// ResolveVolley applies one LANDED volley. Pure: mutates nothing.
-func ResolveVolley(att *StatBlock, tgt *SideState, fired []int, critFlags []bool, stanceInMult float64, cal *Calibration) VolleyOutcome {
+// resolveVolley applies one LANDED volley. Pure: mutates nothing.
+func resolveVolley(att *StatBlock, tgt *sideState, fired []int, critFlags []bool, stanceInMult float64, cal *Calibration) volleyOutcome {
 	raw := 0
 	dmgType := ""
 	for i, wi := range fired {
@@ -97,7 +97,7 @@ func ResolveVolley(att *StatBlock, tgt *SideState, fired []int, critFlags []bool
 	}
 	pre := raw * (100 + att.WeaponSkillPct) / 100
 	pre = int(float64(pre) * stanceInMult)
-	var out VolleyOutcome
+	var out volleyOutcome
 	hullIn := 0
 	if tgt.Shield > 0 && shieldEff[dmgType] > 0 {
 		spills := 0

@@ -1,4 +1,4 @@
-package main
+package combatsim
 
 import (
 	"math"
@@ -21,9 +21,9 @@ func hitChanceAt(dist int, cal *Calibration) float64 {
 // (dist <= Reach), off cooldown, and not mid-reload. One hit roll per ship
 // volley, hit chance from the distance table. Ammo is unlimited; emptying a
 // magazine schedules a reload (see tickWeapons).
-func volleyAt(att, tgt *SideState, dist int, cal *Calibration, rng *rand.Rand) VolleyOutcome {
+func volleyAt(att, tgt *sideState, dist int, cal *Calibration, rng *rand.Rand) volleyOutcome {
 	if att.Stance != StanceFire {
-		return VolleyOutcome{}
+		return volleyOutcome{}
 	}
 	var fired []int
 	for i := range att.Stats.Weapons {
@@ -46,7 +46,7 @@ func volleyAt(att, tgt *SideState, dist int, cal *Calibration, rng *rand.Rand) V
 		}
 	}
 	if len(fired) == 0 {
-		return VolleyOutcome{}
+		return volleyOutcome{}
 	}
 	crits := make([]bool, len(fired))
 	for i := range crits {
@@ -57,14 +57,14 @@ func volleyAt(att, tgt *SideState, dist int, cal *Calibration, rng *rand.Rand) V
 		hc = max(hc-cal.EvadeAccuracyDebuff, 0)
 	}
 	if rng.Float64() >= hc {
-		return VolleyOutcome{}
+		return volleyOutcome{}
 	}
-	return ResolveVolley(att.Stats, tgt, fired, crits, stanceInMult(tgt.Stance, cal), cal)
+	return resolveVolley(att.Stats, tgt, fired, crits, stanceInMult(tgt.Stance, cal), cal)
 }
 
 // tickWeapons advances cooldowns and reloads: a weapon whose reload timer
 // reaches zero refills its full magazine (unlimited ammo).
-func tickWeapons(s *SideState) {
+func tickWeapons(s *sideState) {
 	for i := range s.Cool {
 		if s.Cool[i] > 0 {
 			s.Cool[i]--
@@ -97,11 +97,11 @@ type MultiResult struct {
 // shields deplete in order.
 func RunMultiShip(ships []Ship, cal *Calibration, maxTicks int, rng *rand.Rand) MultiResult {
 	n := len(ships)
-	side := make([]*SideState, n)
+	side := make([]*sideState, n)
 	team := make([]int, n)
 	alive := make([]bool, n)
 	for i, s := range ships {
-		side[i] = NewSide(s.Stats, StanceFire)
+		side[i] = newSide(s.Stats, StanceFire)
 		team[i] = s.Team
 		alive[i] = true
 	}
@@ -177,7 +177,7 @@ type SwarmResult struct {
 
 // attackerVolleyProfile returns the expected combined raw damage of one
 // landing volley at this distance (after the attacker's weapon-skill
-// multiplier, mirroring ResolveVolley's `pre` stage), its single damage
+// multiplier, mirroring resolveVolley's `pre` stage), its single damage
 // type, and the fraction of ticks an attacker is ready to fire (steady-state
 // cooldown+reload).
 func attackerVolleyProfile(sb *StatBlock, dist int) (raw int, dmgType string, firing float64) {
@@ -205,9 +205,9 @@ func attackerVolleyProfile(sb *StatBlock, dist int) (raw int, dmgType string, fi
 
 // applyIdenticalVolleys applies k identical expected-damage volleys of raw
 // damage to def in closed form: deplete shield, then bulk hull. Mirrors the
-// ResolveVolley staging (spills ignored — a measured-small effect) so the
+// resolveVolley staging (spills ignored — a measured-small effect) so the
 // homogeneous engine stays O(1) per tick for huge k.
-func applyIdenticalVolleys(def *SideState, raw int, dmgType string, k int, cal *Calibration) {
+func applyIdenticalVolleys(def *sideState, raw int, dmgType string, k int, cal *Calibration) {
 	if k <= 0 || raw <= 0 {
 		return
 	}
@@ -306,14 +306,14 @@ func poisson(lambda float64, rng *rand.Rand) int {
 // RunSwarm simulates n identical attackers vs one defender using the
 // homogeneous cohort model (O(1) per tick regardless of n). n-1 attackers
 // are tracked only as a headcount; one "focused" attacker is a real
-// SideState taking the defender's exact per-ship volleys (cooldown, reload,
+// sideState taking the defender's exact per-ship volleys (cooldown, reload,
 // and reach honored), and is replaced from the healthy pool when killed.
 func RunSwarm(attacker, defender *StatBlock, n int, cal *Calibration, maxTicks int, rng *rand.Rand) SwarmResult {
 	if n <= 0 {
 		return SwarmResult{}
 	}
-	def := NewSide(defender, StanceFire)
-	focus := NewSide(attacker, StanceFire)
+	def := newSide(defender, StanceFire)
+	focus := newSide(attacker, StanceFire)
 	healthy := n - 1 // everyone except the one currently focused
 	kills := 0
 	dist := swarmStartDistance
@@ -340,7 +340,7 @@ func RunSwarm(attacker, defender *StatBlock, n int, cal *Calibration, maxTicks i
 				return SwarmResult{false, kills, tick + 1} // last attacker gone
 			}
 			healthy--
-			focus = NewSide(attacker, StanceFire) // draw a fresh healthy attacker
+			focus = newSide(attacker, StanceFire) // draw a fresh healthy attacker
 		}
 		regen(def, cal)
 		tickWeapons(def)

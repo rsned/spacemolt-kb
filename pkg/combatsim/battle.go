@@ -1,4 +1,4 @@
-package main
+package combatsim
 
 import (
 	"encoding/json"
@@ -83,13 +83,13 @@ func stanceInMult(s Stance, cal *Calibration) float64 {
 }
 
 // volley rolls and resolves one side's attack; returns damage to apply.
-func volley(att, tgt *SideState, hitChance float64, cal *Calibration, rng *rand.Rand) VolleyOutcome {
+func volley(att, tgt *sideState, hitChance float64, cal *Calibration, rng *rand.Rand) volleyOutcome {
 	// Only the fire stance fires. Brace and flee are measured (Haven
 	// fixture: 513 braced ticks / 1763 flee ticks, zero shots); evade is
 	// per skill.md's stance table ("Can Fire: No") — zero evade ticks
 	// exist in any exported log to measure against.
 	if att.Stance != StanceFire {
-		return VolleyOutcome{}
+		return volleyOutcome{}
 	}
 	var fired []int
 	for i := range att.Stats.Weapons {
@@ -102,7 +102,7 @@ func volley(att, tgt *SideState, hitChance float64, cal *Calibration, rng *rand.
 		}
 	}
 	if len(fired) == 0 {
-		return VolleyOutcome{}
+		return volleyOutcome{}
 	}
 	crits := make([]bool, len(fired))
 	for i := range crits { // crits roll regardless of hit (measured); a miss discards them
@@ -114,12 +114,12 @@ func volley(att, tgt *SideState, hitChance float64, cal *Calibration, rng *rand.
 		hitChance = max(hitChance-cal.EvadeAccuracyDebuff, 0)
 	}
 	if rng.Float64() >= hitChance {
-		return VolleyOutcome{}
+		return volleyOutcome{}
 	}
-	return ResolveVolley(att.Stats, tgt, fired, crits, stanceInMult(tgt.Stance, cal), cal)
+	return resolveVolley(att.Stats, tgt, fired, crits, stanceInMult(tgt.Stance, cal), cal)
 }
 
-func regen(s *SideState, cal *Calibration) {
+func regen(s *sideState, cal *Calibration) {
 	if s.Shield == 0 && !cal.RegenFromZero {
 		return
 	}
@@ -135,7 +135,7 @@ func regen(s *SideState, cal *Calibration) {
 
 // RunBattle simulates one 1v1 battle to a terminal outcome.
 func RunBattle(a, b *StatBlock, sa, sb Stance, cal *Calibration, rng *rand.Rand) Outcome {
-	A, B := NewSide(a, sa), NewSide(b, sb)
+	A, B := newSide(a, sa), newSide(b, sb)
 	fleeA, fleeB := 0, 0
 	for tick := range cal.MaxTicks {
 		A.HitThisTick, B.HitThisTick = false, false

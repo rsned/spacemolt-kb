@@ -1,9 +1,8 @@
-package main
+package combatsim
 
 import (
 	"math"
 	"math/rand/v2"
-	"strings"
 	"testing"
 )
 
@@ -29,16 +28,16 @@ func TestHitChanceAt(t *testing.T) {
 func TestVolleyReachGate(t *testing.T) {
 	// autocannon reach 2: silent at d6..d3, fires at d2.
 	sb := &StatBlock{Name: "ac", Weapons: []Weapon{{Damage: 8, Type: "kinetic", Cooldown: 1, Magazine: 500, Reach: 2}}}
-	tgt := NewSide(&StatBlock{MaxHull: 1000, MaxShield: 0}, StanceFire)
+	tgt := newSide(&StatBlock{MaxHull: 1000, MaxShield: 0}, StanceFire)
 	rng := rand.New(rand.NewPCG(1, 1))
-	att := NewSide(sb, StanceFire)
-	if o := volleyAt(att, tgt, 3, testCal(), rng); o != (VolleyOutcome{}) {
+	att := newSide(sb, StanceFire)
+	if o := volleyAt(att, tgt, 3, testCal(), rng); o != (volleyOutcome{}) {
 		t.Fatalf("out-of-reach volley fired: %+v", o)
 	}
 	// At d2 with hit chance 0.65 it eventually lands; force many rolls.
 	landed := false
 	for range 50 {
-		att = NewSide(sb, StanceFire)
+		att = newSide(sb, StanceFire)
 		if o := volleyAt(att, tgt, 2, testCal(), rng); o.HullDmg > 0 {
 			landed = true
 			break
@@ -256,8 +255,8 @@ func TestSwarmAgreesWithMultiShip(t *testing.T) {
 func TestReloadCycle(t *testing.T) {
 	// mag 2, cd 1: fires t0,t1 then must reload for 1 idle tick before t3.
 	sb := &StatBlock{Name: "m2", Weapons: []Weapon{{Damage: 5, Type: "kinetic", Cooldown: 1, Magazine: 2, Reach: 6}}}
-	att := NewSide(sb, StanceFire)
-	tgt := NewSide(&StatBlock{MaxHull: 1000}, StanceFire)
+	att := newSide(sb, StanceFire)
+	tgt := newSide(&StatBlock{MaxHull: 1000}, StanceFire)
 	cal := testCal()
 	cal.HitChanceByDistance = []float64{1, 1, 1, 1, 1, 1, 1} // always hit
 	rng := rand.New(rand.NewPCG(2, 2))
@@ -345,20 +344,5 @@ func TestCrossoverNMaxNotPowerOfTwo(t *testing.T) {
 	pinned := Crossover(pro, opus, testCal(), learned.N, 60, 4000, 7)
 	if pinned.N != learned.N {
 		t.Fatalf("nMax=%d (== true crossover): got N=%d, want N=%d (not ∞)", learned.N, pinned.N, learned.N)
-	}
-}
-
-func TestRunSwarmCLI(t *testing.T) {
-	cat, err := LoadCatalog("../../data/combat-sim/catalog")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var buf strings.Builder
-	if err := runSwarmCLI("prospect", "opus_magna", cat, testCal(), 25000, 60, 4000, 42, "", &buf); err != nil {
-		t.Fatal(err)
-	}
-	out := buf.String()
-	if !strings.Contains(out, "prospect") || !strings.Contains(out, "opus_magna") {
-		t.Fatalf("summary missing ids: %q", out)
 	}
 }

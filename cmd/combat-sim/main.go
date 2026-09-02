@@ -1,3 +1,7 @@
+// Command combat-sim Monte-Carlo simulates 1v1 combat between two ship
+// fittings using the battle-log-verified damage model. Hermetic: reads only
+// committed catalog snapshots and small JSON input files. The reusable
+// combat model lives in pkg/combatsim; this is a thin CLI over it.
 package main
 
 import (
@@ -9,6 +13,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/rsned/spacemolt-kb/pkg/combatsim"
 )
 
 // swarmMaxTicks is the battle-length cap used by --swarm mode. Long grinds
@@ -40,13 +46,13 @@ func run() error {
 		if !flagWasSet("runs") {
 			*runs = 300
 		}
-		cat, err := LoadCatalog(*catalog)
+		cat, err := combatsim.LoadCatalog(*catalog)
 		if err != nil {
 			return err
 		}
-		cal, err := LoadCalibration(*calPath)
+		cal, err := combatsim.LoadCalibration(*calPath)
 		if errors.Is(err, fs.ErrNotExist) {
-			cal, err = DefaultCalibration(), nil
+			cal, err = combatsim.DefaultCalibration(), nil
 		}
 		if err != nil {
 			return err
@@ -57,12 +63,12 @@ func run() error {
 		flag.Usage()
 		return fmt.Errorf("--a and --b are required (or --extract-fits, or --swarm)")
 	}
-	cat, err := LoadCatalog(*catalog)
+	cat, err := combatsim.LoadCatalog(*catalog)
 	if err != nil {
 		return err
 	}
 	if *extract != "" {
-		fits, err := ExtractFits(*extract, *battles, cat, os.Stderr)
+		fits, err := combatsim.ExtractFits(*extract, *battles, cat, os.Stderr)
 		if err != nil {
 			return err
 		}
@@ -82,9 +88,9 @@ func run() error {
 		}
 		return nil
 	}
-	cal, err := LoadCalibration(*calPath)
+	cal, err := combatsim.LoadCalibration(*calPath)
 	if errors.Is(err, fs.ErrNotExist) {
-		cal, err = DefaultCalibration(), nil
+		cal, err = combatsim.DefaultCalibration(), nil
 	}
 	if err != nil {
 		return err
@@ -92,24 +98,24 @@ func run() error {
 	if *maxTicks > 0 {
 		cal.MaxTicks = *maxTicks
 	}
-	fa, err := LoadFit(*fitA)
+	fa, err := combatsim.LoadFit(*fitA)
 	if err != nil {
 		return err
 	}
-	fb, err := LoadFit(*fitB)
+	fb, err := combatsim.LoadFit(*fitB)
 	if err != nil {
 		return err
 	}
-	a, err := Resolve(fa, cat)
+	a, err := combatsim.Resolve(fa, cat)
 	if err != nil {
 		return err
 	}
-	b, err := Resolve(fb, cat)
+	b, err := combatsim.Resolve(fb, cat)
 	if err != nil {
 		return err
 	}
-	cells := RunTable(a, b, cal, *runs, *seed)
-	fmt.Print(FormatTable(a, b, cells, cal))
+	cells := combatsim.RunTable(a, b, cal, *runs, *seed)
+	fmt.Print(combatsim.FormatTable(a, b, cells, cal))
 	if *jsonOut != "" {
 		raw, err := json.MarshalIndent(cells, "", " ")
 		if err != nil {
@@ -139,16 +145,16 @@ func flagWasSet(name string) bool {
 // allowed) from cat, runs Crossover, prints a one-line summary to w, and —
 // when jsonOut is non-empty — writes the full Crossing (curve included) as
 // indented JSON to that path.
-func runSwarmCLI(attackerID, defenderID string, cat *Catalog, cal *Calibration, nMax, runs, maxTicks int, seed uint64, jsonOut string, w io.Writer) error {
-	att, err := ResolveHull(attackerID, cat, false)
+func runSwarmCLI(attackerID, defenderID string, cat *combatsim.Catalog, cal *combatsim.Calibration, nMax, runs, maxTicks int, seed uint64, jsonOut string, w io.Writer) error {
+	att, err := combatsim.ResolveHull(attackerID, cat, false)
 	if err != nil {
 		return err
 	}
-	def, err := ResolveHull(defenderID, cat, true)
+	def, err := combatsim.ResolveHull(defenderID, cat, true)
 	if err != nil {
 		return err
 	}
-	c := Crossover(att, def, cal, nMax, runs, maxTicks, seed)
+	c := combatsim.Crossover(att, def, cal, nMax, runs, maxTicks, seed)
 	if c.N == 0 {
 		_, _ = fmt.Fprintf(w, "%s swarm vs %s: crossover N=∞ within %d\n", attackerID, defenderID, nMax)
 	} else {

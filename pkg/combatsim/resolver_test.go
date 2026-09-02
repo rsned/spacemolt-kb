@@ -1,4 +1,4 @@
-package main
+package combatsim
 
 import (
 	"strings"
@@ -76,7 +76,7 @@ func TestResolveErrors(t *testing.T) {
 	}
 }
 
-// Mixed damage types on one fit are unsupported in v1 (ResolveVolley assumes
+// Mixed damage types on one fit are unsupported in v1 (resolveVolley assumes
 // a single dmgType per volley) — the resolver must refuse them outright
 // rather than silently resolving as one type.
 func TestResolveMixedDamageTypeRefused(t *testing.T) {
