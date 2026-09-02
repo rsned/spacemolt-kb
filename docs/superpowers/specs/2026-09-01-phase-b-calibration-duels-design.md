@@ -292,4 +292,14 @@ Measured outcomes and where reality diverged from this design's assumptions:
 - The flee contradiction has a measured answer (pure speed law). ✔
 - Two golden duel-replay tests pass (`TestGoldenDuels`). ✔
 - Full combat-sim suite green; README stance/measured section updated. ✔
-- Low-armor law (S7) — DEFERRED, hull unavailable. (open)
+- Low-armor law (S7) — ATTEMPTED, NOT FEASIBLE. The Prospect's single
+  defense slot does take armor plates (base 4; +i/ii/iii = 9/14/22), so a
+  swap ladder is possible, but the law needs hull hits and the target's
+  50-shield never depletes: the server autopilot flickers both ships
+  fire↔flee (~40% of fire ticks lost), so a single-pulse Prospect's
+  effective DPS (~2 net/tick) barely exceeds the +1/tick regen and the
+  pool oscillates 30–50 without reaching 0. Zero hull hits across two
+  armor-4 attempts. No stronger weapon is available (1 slot, no
+  autocannon/missile/railgun ammo). The low-armor regime stays constrained
+  only by the large-battle fixtures. (open — needs higher sustained DPS or
+  autopilot suppression, not materials)
