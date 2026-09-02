@@ -94,6 +94,77 @@ func TestMultiShipSoloDuel(t *testing.T) {
 	}
 }
 
+func swarmWinRate(attacker, defender *StatBlock, n, runs int, cal *Calibration) float64 {
+	wins := 0
+	for s := range uint64(runs) {
+		rng := rand.New(rand.NewPCG(s+1, 12345))
+		if RunSwarm(attacker, defender, n, cal, 4000, rng).SwarmWin {
+			wins++
+		}
+	}
+	return float64(wins) / float64(runs)
+}
+
+func TestSwarmMonotonicAndFloor(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	opus, err := ResolveHull("opus_magna", cat, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cal := testCal()
+	// Floor: a lone Prospect cannot beat the Opus Magna (its chip < 25/tick
+	// regen, and it dies in one volley).
+	if r := swarmWinRate(pro, opus, 1, 40, cal); r > 0.0 {
+		t.Fatalf("1 Prospect beat Opus Magna %.0f%% of the time, want 0", r*100)
+	}
+	// Monotonic: win rate never decreases across a rising ladder.
+	prev := -1.0
+	for _, n := range []int{50, 200, 800, 3000} {
+		r := swarmWinRate(pro, opus, n, 40, cal)
+		if r < prev-0.05 {
+			t.Fatalf("win rate dropped at n=%d: %.2f < %.2f", n, r, prev)
+		}
+		prev = r
+	}
+	// A large enough swarm dominates.
+	if r := swarmWinRate(pro, opus, 25000, 40, cal); r < 0.9 {
+		t.Fatalf("25000 Prospects won only %.0f%%, want >=90%%", r*100)
+	}
+}
+
+func TestSwarmAgreesWithMultiShip(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	def := starter(t, cat, "axiom") // small tier-1 defender, quick battles
+	cal := testCal()
+	for _, n := range []int{3, 6, 10} {
+		swarm := swarmWinRate(pro, def, n, 200, cal)
+		// Reference: RunMultiShip with n identical attackers vs 1 defender.
+		wins := 0
+		for s := range uint64(200) {
+			rng := rand.New(rand.NewPCG(s+1, 777))
+			ships := []Ship{{def, 1}}
+			for range n {
+				ships = append(ships, Ship{pro, 0})
+			}
+			if RunMultiShip(ships, cal, 4000, rng).WinningTeam == 0 {
+				wins++
+			}
+		}
+		ref := float64(wins) / 200
+		if diff := swarm - ref; diff > 0.15 || diff < -0.15 {
+			t.Fatalf("n=%d: RunSwarm %.2f vs RunMultiShip %.2f (>0.15 apart)", n, swarm, ref)
+		}
+	}
+}
+
 func TestReloadCycle(t *testing.T) {
 	// mag 2, cd 1: fires t0,t1 then must reload for 1 idle tick before t3.
 	sb := &StatBlock{Name: "m2", Weapons: []Weapon{{Damage: 5, Type: "kinetic", Cooldown: 1, Magazine: 2, Reach: 6}}}

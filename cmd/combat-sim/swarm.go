@@ -1,6 +1,9 @@
 package main
 
-import "math/rand/v2"
+import (
+	"math"
+	"math/rand/v2"
+)
 
 // swarmStartDistance is the shared ring both sides close from, one ring per
 // tick, in a multi-ship battle (spec §5.1).
@@ -162,4 +165,127 @@ func soleTeam(team []int, alive []bool) int {
 		}
 	}
 	return winner
+}
+
+// SwarmResult is the outcome of a homogeneous-cohort swarm battle.
+type SwarmResult struct {
+	SwarmWin bool
+	Kills    int
+	Ticks    int
+}
+
+// attackerVolleyProfile returns the expected combined raw damage of one
+// landing volley at this distance (after the attacker's weapon-skill
+// multiplier, mirroring ResolveVolley's `pre` stage), its single damage
+// type, and the fraction of ticks an attacker is ready to fire (steady-state
+// cooldown+reload).
+func attackerVolleyProfile(sb *StatBlock, dist int) (raw int, dmgType string, firing float64) {
+	critBoost := 1 + float64(sb.CritPct)/100*0.5
+	skillMult := float64(100+sb.WeaponSkillPct) / 100
+	var expected, frac float64
+	for _, w := range sb.Weapons {
+		if dist > w.Reach {
+			continue
+		}
+		dmgType = w.Type
+		f := 1.0
+		if w.Cooldown > 1 || w.Magazine > 0 {
+			m := float64(w.Magazine)
+			if w.Magazine <= 0 {
+				m = math.Inf(1)
+			}
+			f = m / (m*float64(w.Cooldown) + 1)
+		}
+		expected += float64(w.Damage) * critBoost * skillMult * f
+		frac = math.Max(frac, f) // ship fires if any weapon is ready
+	}
+	return int(math.Round(expected)), dmgType, frac
+}
+
+// applyIdenticalVolleys applies k identical expected-damage volleys of raw
+// damage to def in closed form: deplete shield, then bulk hull. Mirrors the
+// ResolveVolley staging (spills ignored — a measured-small effect) so the
+// homogeneous engine stays O(1) per tick for huge k.
+func applyIdenticalVolleys(def *SideState, raw int, dmgType string, k int, cal *Calibration) {
+	if k <= 0 || raw <= 0 {
+		return
+	}
+	if def.Shield > 0 && shieldEff[dmgType] > 0 {
+		x1 := int(float64(raw) * (1 - float64(def.Stats.ShieldsSkill)/100))
+		d2 := int(float64(x1) * shieldEff[dmgType])
+		drain := int(float64(d2) * (1 - float64(def.Stats.FlatPct)/100))
+		if drain < 1 {
+			drain = 1
+		}
+		need := (def.Shield + drain - 1) / drain
+		if need >= k {
+			def.Shield = max(def.Shield-drain*k, 0)
+			return
+		}
+		def.Shield = 0
+		k -= need
+	}
+	def.Hull -= armorReduce(raw, def.Stats.ArmorTotal, dmgType, cal) * k
+}
+
+// binomial samples the number of successes in count trials at probability p.
+func binomial(count int, p float64, rng *rand.Rand) int {
+	if p <= 0 || count <= 0 {
+		return 0
+	}
+	if p >= 1 {
+		return count
+	}
+	k := 0
+	for range count {
+		if rng.Float64() < p {
+			k++
+		}
+	}
+	return k
+}
+
+// RunSwarm simulates n identical attackers vs one defender using the
+// homogeneous cohort model (O(1) per tick regardless of n). n-1 attackers
+// are tracked only as a headcount; one "focused" attacker is a real
+// SideState taking the defender's exact per-ship volleys (cooldown, reload,
+// and reach honored), and is replaced from the healthy pool when killed.
+func RunSwarm(attacker, defender *StatBlock, n int, cal *Calibration, maxTicks int, rng *rand.Rand) SwarmResult {
+	if n <= 0 {
+		return SwarmResult{}
+	}
+	def := NewSide(defender, StanceFire)
+	focus := NewSide(attacker, StanceFire)
+	healthy := n - 1 // everyone except the one currently focused
+	kills := 0
+	dist := swarmStartDistance
+	for tick := range maxTicks {
+		aliveAttackers := healthy + 1 // focus is alive here
+		raw, dmgType, firing := attackerVolleyProfile(attacker, dist)
+		if raw > 0 {
+			k := binomial(aliveAttackers, hitChanceAt(dist, cal)*firing, rng)
+			applyIdenticalVolleys(def, raw, dmgType, k, cal)
+			if def.Hull <= 0 {
+				return SwarmResult{true, kills, tick + 1}
+			}
+		}
+		// Defender fires at the one focused attacker (exact per-ship sim).
+		focus.HitThisTick = false
+		o := volleyAt(def, focus, dist, cal, rng)
+		focus.Shield -= o.ShieldDrain
+		focus.Hull -= o.HullDmg
+		if focus.Hull <= 0 {
+			kills++
+			if healthy == 0 {
+				return SwarmResult{false, kills, tick + 1} // last attacker gone
+			}
+			healthy--
+			focus = NewSide(attacker, StanceFire) // draw a fresh healthy attacker
+		}
+		regen(def, cal)
+		tickWeapons(def)
+		tickWeapons(focus)
+		dist = max(dist-1, 0)
+	}
+	return SwarmResult{false, kills, maxTicks} // defender survived
 }
