@@ -389,18 +389,28 @@ func Crossover(attacker, defender *StatBlock, cal *Calibration, nMax, runs, maxT
 		curve[n] = p
 		return p
 	}
-	// Gallop: 1,2,4,... until dominant or past nMax.
+	// Gallop: 1,2,4,... until dominant or past nMax. nMax need not be a
+	// power of two, so before concluding ∞ on overflow, probe nMax itself
+	// — the true crossover can land strictly between the largest probed
+	// power of two and nMax (e.g. nMax=41: powers 1..32 probed
+	// non-dominant, 64 overflows, but 41 itself may dominate).
 	lo, hi := 0, 0
+	lastPow := 0 // largest power of two probed so far (non-dominant), 0 initially
 	for n := 1; ; n *= 2 {
 		if n > nMax {
-			hi = 0 // never dominated
+			hi = 0 // never dominated, provisionally
+			if nMax >= 1 && probe(nMax).PWin > 0.5 {
+				hi = nMax
+				lo = lastPow
+			}
 			break
 		}
 		if probe(n).PWin > 0.5 {
 			hi = n
-			lo = n / 2 // last non-dominant power (0 when n==1)
+			lo = lastPow // last non-dominant power (0 when n==1)
 			break
 		}
+		lastPow = n
 	}
 	res := Crossing{Curve: sortedCurve(curve)}
 	if hi == 0 {

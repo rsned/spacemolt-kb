@@ -314,3 +314,35 @@ func TestCrossoverInfinite(t *testing.T) {
 		t.Fatalf("expected ∞ (N==0) under n-max 4, got N=%d", c.N)
 	}
 }
+
+// TestCrossoverNMaxNotPowerOfTwo guards the gallop overflow branch: the
+// smallest dominant N can land strictly between a probed power of two and
+// nMax when nMax itself is not a power of two. The doubling loop must probe
+// nMax before concluding ∞ — otherwise a true, finite crossover just above
+// the largest probed power of two gets misreported as unbeatable (N==0).
+//
+// This is self-adjusting: it first learns the matchup's true crossover C
+// with a generous nMax (so gallop finds dominance well before overflowing,
+// unaffected by the bug under test), then re-runs with nMax pinned to
+// exactly C. If C happens to be a power of two the second call is a no-op
+// check; for this matchup/seed C==41, which lands in the (32, 64] window
+// and exercises the overflow-probe branch.
+func TestCrossoverNMaxNotPowerOfTwo(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	opus, err := ResolveHull("opus_magna", cat, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	learned := Crossover(pro, opus, testCal(), 200000, 60, 4000, 7)
+	if learned.N == 0 {
+		t.Fatal("expected a finite crossover with a generous nMax")
+	}
+	pinned := Crossover(pro, opus, testCal(), learned.N, 60, 4000, 7)
+	if pinned.N != learned.N {
+		t.Fatalf("nMax=%d (== true crossover): got N=%d, want N=%d (not ∞)", learned.N, pinned.N, learned.N)
+	}
+}
