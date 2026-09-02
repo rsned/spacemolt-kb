@@ -215,7 +215,7 @@ func applyIdenticalVolleys(def *SideState, raw int, dmgType string, k int, cal *
 		d2 := int(float64(x1) * shieldEff[dmgType])
 		drain := int(float64(d2) * (1 - float64(def.Stats.FlatPct)/100))
 		if drain < 1 {
-			drain = 1
+			drain = 1 // avoid an infinite/divide-by-zero "need" below when heavy FlatPct floors drain to 0
 		}
 		need := (def.Shield + drain - 1) / drain
 		if need >= k {
@@ -229,18 +229,30 @@ func applyIdenticalVolleys(def *SideState, raw int, dmgType string, k int, cal *
 }
 
 // binomialExactMax is the largest trial count sampled by rolling every
-// trial. Above it, binomial switches to a normal approximation so per-tick
-// cost stays bounded (O(1)) regardless of attacker headcount — a plain
-// Bernoulli loop over n attackers would make each tick O(n), defeating the
-// point of the homogeneous cohort model at n in the tens of thousands.
+// trial. Above it, binomial switches to a Poisson or normal approximation
+// so per-tick cost stays bounded (O(1)) regardless of attacker headcount —
+// a plain Bernoulli loop over n attackers would make each tick O(n),
+// defeating the point of the homogeneous cohort model at n in the tens of
+// thousands.
 const binomialExactMax = 30
 
+// deMoivreLaplaceGate is the minimum np (and n(1-p)) for the normal
+// approximation to Binomial(n,p) to be trustworthy (rule of thumb: both
+// well above ~9, e.g. Feller). Below it, a swarm large enough to skip exact
+// Bernoulli trials but firing at a low hit chance (long range: d5=0.22,
+// d6=0.12) or landing hits almost every time would get a biased normal
+// sample — e.g. count=31,p=0.02 (np=0.62) sampled +13% high on the mean
+// with the normal approximation and diverged sharply on P(k=0) (43.9% vs
+// the true 53.6%). Poisson is the correct small-p (or small-(1-p), by
+// symmetry on misses) limit and is used instead in that regime.
+const deMoivreLaplaceGate = 9.0
+
 // binomial samples the number of successes in count trials at probability
-// p. Below binomialExactMax it rolls each trial exactly; above it, it uses
-// a mean/stddev normal approximation clamped to [0, count], which is
-// accurate once count*p and count*(1-p) are both well above 1 (true for
-// the swarm sizes this model targets) and keeps the cost independent of
-// count.
+// p. Below binomialExactMax it rolls each trial exactly. Above it: when np
+// or n(1-p) is small (deMoivreLaplaceGate), it uses the Poisson limit
+// (successes, or misses by symmetry) instead of the normal approximation,
+// which is biased in that corner; otherwise a mean/stddev normal
+// approximation clamped to [0, count]. All three paths are O(1) in count.
 func binomial(count int, p float64, rng *rand.Rand) int {
 	if p <= 0 || count <= 0 {
 		return 0
@@ -257,10 +269,37 @@ func binomial(count int, p float64, rng *rand.Rand) int {
 		}
 		return k
 	}
-	mean := float64(count) * p
-	sd := math.Sqrt(float64(count) * p * (1 - p))
-	k := int(math.Round(mean + sd*rng.NormFloat64()))
-	return min(max(k, 0), count)
+	np := float64(count) * p
+	nq := float64(count) * (1 - p)
+	switch {
+	case np < deMoivreLaplaceGate:
+		return min(poisson(np, rng), count)
+	case nq < deMoivreLaplaceGate:
+		return count - min(poisson(nq, rng), count)
+	default:
+		sd := math.Sqrt(np * nq)
+		k := int(math.Round(np + sd*rng.NormFloat64()))
+		return min(max(k, 0), count)
+	}
+}
+
+// poisson samples from a Poisson distribution with mean lambda via Knuth's
+// algorithm. Cost is O(1) in expectation for the small, bounded lambda
+// values (< deMoivreLaplaceGate) binomial calls this with.
+func poisson(lambda float64, rng *rand.Rand) int {
+	if lambda <= 0 {
+		return 0
+	}
+	l := math.Exp(-lambda)
+	k := 0
+	prod := 1.0
+	for {
+		prod *= rng.Float64()
+		if prod <= l {
+			return k
+		}
+		k++
+	}
 }
 
 // RunSwarm simulates n identical attackers vs one defender using the

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"math/rand/v2"
 	"testing"
 )
@@ -44,6 +45,92 @@ func TestVolleyReachGate(t *testing.T) {
 	}
 	if !landed {
 		t.Fatal("in-reach weapon never landed in 50 tries")
+	}
+}
+
+// TestSwarmAgreesWithMultiShipLargeN covers the n>binomialExactMax sampler
+// path (Poisson/normal in binomial), which TestSwarmAgreesWithMultiShip's
+// n=3,6,10 never exercises (those stay on the exact-Bernoulli path). Without
+// this, the sampler that actually runs in the matrix at scale has zero
+// accuracy coverage against the RunMultiShip reference.
+func TestSwarmAgreesWithMultiShipLargeN(t *testing.T) {
+	cat, err := LoadCatalog("../../data/combat-sim/catalog")
+	if err != nil {
+		t.Fatal(err)
+	}
+	pro := starter(t, cat, "prospect")
+	def := starter(t, cat, "axiom") // small tier-1 defender, quick battles
+	cal := testCal()
+	const runs = 100
+	for _, n := range []int{40, 70, 100} {
+		swarm := swarmWinRate(pro, def, n, runs, cal)
+		wins := 0
+		for s := range uint64(runs) {
+			rng := rand.New(rand.NewPCG(s+1, 8181))
+			ships := []Ship{{def, 1}}
+			for range n {
+				ships = append(ships, Ship{pro, 0})
+			}
+			if RunMultiShip(ships, cal, 4000, rng).WinningTeam == 0 {
+				wins++
+			}
+		}
+		ref := float64(wins) / runs
+		if diff := swarm - ref; diff > 0.15 || diff < -0.15 {
+			t.Fatalf("n=%d: RunSwarm %.2f vs RunMultiShip %.2f (>0.15 apart)", n, swarm, ref)
+		}
+	}
+}
+
+// TestBinomialLowNPAccuracy directly checks binomial's Poisson-fallback
+// corner (count > binomialExactMax but np, or n(1-p), below
+// deMoivreLaplaceGate — reachable in the matrix via long-range low hit
+// chances, e.g. d5=0.22/d6=0.12, once n exceeds the exact-trial threshold).
+// A normal approximation is measurably biased here (previously: sampled
+// mean +13% high, P(k=0) 43.9% vs a true ~53.5%); Poisson should track the
+// true mean and P(k=0)/P(k=count) closely.
+func TestBinomialLowNPAccuracy(t *testing.T) {
+	rng := rand.New(rand.NewPCG(1, 1))
+	const count, p = 31, 0.02 // np = 0.62, well below deMoivreLaplaceGate
+	const runs = 100000
+	trueMean := float64(count) * p
+	truePZero := math.Pow(1-p, count) // exact Binomial(count,p) P(k=0)
+	sum, zeros := 0, 0
+	for range runs {
+		k := binomial(count, p, rng)
+		sum += k
+		if k == 0 {
+			zeros++
+		}
+	}
+	mean := float64(sum) / runs
+	pZero := float64(zeros) / runs
+	if math.Abs(mean-trueMean) > 0.05*trueMean {
+		t.Fatalf("mean=%.4f, want within 5%% of true mean %.4f", mean, trueMean)
+	}
+	if math.Abs(pZero-truePZero) > 0.05 {
+		t.Fatalf("P(k=0)=%.4f, want within 0.05 of true %.4f", pZero, truePZero)
+	}
+
+	// Mirrored corner: n(1-p) small (high hit chance, e.g. close range).
+	const count2, p2 = 31, 0.98
+	trueMean2 := float64(count2) * p2
+	truePFull := math.Pow(p2, count2) // exact Binomial(count2,p2) P(k=count2)
+	sum2, full2 := 0, 0
+	for range runs {
+		k := binomial(count2, p2, rng)
+		sum2 += k
+		if k == count2 {
+			full2++
+		}
+	}
+	mean2 := float64(sum2) / runs
+	pFull := float64(full2) / runs
+	if math.Abs(mean2-trueMean2) > 0.05*trueMean2 {
+		t.Fatalf("mean=%.4f, want within 5%% of true mean %.4f", mean2, trueMean2)
+	}
+	if math.Abs(pFull-truePFull) > 0.05 {
+		t.Fatalf("P(k=count)=%.4f, want within 0.05 of true %.4f", pFull, truePFull)
 	}
 }
 
