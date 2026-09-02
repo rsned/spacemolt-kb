@@ -279,10 +279,12 @@ func RunSwarm(attacker, defender *StatBlock, n int, cal *Calibration, maxTicks i
 	dist := swarmStartDistance
 	for tick := range maxTicks {
 		aliveAttackers := healthy + 1 // focus is alive here
+		def.HitThisTick = false
 		raw, dmgType, firing := attackerVolleyProfile(attacker, dist)
 		if raw > 0 {
 			k := binomial(aliveAttackers, hitChanceAt(dist, cal)*firing, rng)
 			applyIdenticalVolleys(def, raw, dmgType, k, cal)
+			def.HitThisTick = k > 0
 			if def.Hull <= 0 {
 				return SwarmResult{true, kills, tick + 1}
 			}
