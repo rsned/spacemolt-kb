@@ -1,403 +1,1057 @@
 {
-  "arena_system": "ashford",
-  "staging_system": "treasure_cache",
-  "staging_station": "treasure_cache_trading_post",
-  "duels": [
+ "arena_system": "ashford",
+ "staging_system": "treasure_cache",
+ "staging_station": "treasure_cache_trading_post",
+ "duels": [
+  {
+   "id": "S0-probe",
+   "purpose": "verify friendly-fire + manifest round-trip + no police response (B unarmed: one-sided fire suffices for the probe)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
     {
-      "id": "S0-probe",
-      "purpose": "verify friendly-fire + manifest round-trip + no police response",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 5, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 10,
-      "repeats": 1
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
     },
     {
-      "id": "S1-ring0",
-      "purpose": "hit table @ zone_distance 0",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 0},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 2
-    },
-    {
-      "id": "S1-ring1",
-      "purpose": "hit table @ zone_distance 2",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 1},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 2
-    },
-    {
-      "id": "S1-ring2",
-      "purpose": "hit table @ zone_distance 4",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 2},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 2
-    },
-    {
-      "id": "S1-ring3",
-      "purpose": "hit table @ zone_distance 6",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 3},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 2
-    },
-    {
-      "id": "S1-odd-ring1",
-      "purpose": "hit table @ zone_distance 1 (one-side hold)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring_a": 0, "hold_ring_b": 1},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 1
-    },
-    {
-      "id": "S1-odd-ring3",
-      "purpose": "hit table @ zone_distance 3 (one-side hold)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring_a": 1, "hold_ring_b": 2},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 1
-    },
-    {
-      "id": "S1-odd-ring5",
-      "purpose": "hit table @ zone_distance 5 (one-side hold)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring_a": 2, "hold_ring_b": 3},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 1
-    },
-    {
-      "id": "S2-fast-attacker-ring0",
-      "purpose": "speed modifier @ zone_distance 0, A=fast",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "lawn_dart", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 0},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 1
-    },
-    {
-      "id": "S2-fast-target-ring0",
-      "purpose": "speed modifier @ zone_distance 0, B=fast",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "lawn_dart", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 0},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 1
-    },
-    {
-      "id": "S2-fast-attacker-ring2",
-      "purpose": "speed modifier @ zone_distance 4, A=fast",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "lawn_dart", "modules": ["missile_launcher_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 2},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 1
-    },
-    {
-      "id": "S2-fast-target-ring2",
-      "purpose": "speed modifier @ zone_distance 4, B=fast",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["missile_launcher_i"]},
-      "fit_b": {"hull": "lawn_dart", "modules": ["missile_launcher_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 2},
-        {"from_tick": 21, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 25,
-      "repeats": 1
-    },
-    {
-      "id": "S3-evade-1",
-      "purpose": "verify evade: −0.20 accuracy, 0.5× damage, 5 fuel/tick, no-fire",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "evade"},
-        {"from_tick": 40, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 45,
-      "repeats": 1
-    },
-    {
-      "id": "S3-evade-2",
-      "purpose": "verify evade (second run)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "evade"},
-        {"from_tick": 40, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 45,
-      "repeats": 1
-    },
-    {
-      "id": "S4-brace-1",
-      "purpose": "verify brace: 2× shield regen, 0.25× damage taken",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["autocannon_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "brace"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S4-brace-2",
-      "purpose": "verify brace (second run)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["autocannon_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "brace"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S5-regen-zero-1",
-      "purpose": "verify regen_from_zero: shield restart after zero",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 15, "stance_a": "brace", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S5-regen-zero-2",
-      "purpose": "verify regen_from_zero (second run)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 15, "stance_a": "brace", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S6a-flee-base",
-      "purpose": "flee baseline: B flees from tick 1, A fires; expect 3 required ticks",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "flee"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S6b-flee-reset",
-      "purpose": "flee counter reset: B flees 1-2, fires 3, flees 4",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "flee"},
-        {"from_tick": 3, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 4, "stance_a": "fire", "stance_b": "flee"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S6c-flee-guest",
-      "purpose": "flee with Tactics: craftsman-1 (Tactics 2) flees from A; expect 2",
-      "attacker": "battle_bot1",
-      "guest": "craftsman-1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "flee"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S6d-flee-fast",
-      "purpose": "flee speed: B=fast flees from A=speed1; B in lawn_dart",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "lawn_dart", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "flee"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S6d-flee-slow",
-      "purpose": "flee speed: A=speed1 flees from B=fast; A in prospect, B in lawn_dart",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "lawn_dart", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "flee", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S6e-flee-from-engaged",
-      "purpose": "flee counter accrues only at Outer: hold ring 0 then flee",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire", "hold_ring": 0},
-        {"from_tick": 10, "stance_a": "fire", "stance_b": "flee"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S7-armor-0",
-      "purpose": "armor ladder: 0 plates (armor 7 base)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "bad_idea", "modules": ["pulse_laser_i", "pulse_laser_i", "pulse_laser_i"]},
-      "fit_b": {"hull": "dualism", "modules": []},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S7-armor-1",
-      "purpose": "armor ladder: 1 plate (armor 12)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "bad_idea", "modules": ["pulse_laser_i", "pulse_laser_i", "pulse_laser_i"]},
-      "fit_b": {"hull": "dualism", "modules": ["armor_plate_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S7-armor-2",
-      "purpose": "armor ladder: 2 plates (armor 17)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "bad_idea", "modules": ["pulse_laser_i", "pulse_laser_i", "pulse_laser_i"]},
-      "fit_b": {"hull": "dualism", "modules": ["armor_plate_i", "armor_plate_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S7-armor-3",
-      "purpose": "armor ladder: 3 plates (armor 22)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "bad_idea", "modules": ["pulse_laser_i", "pulse_laser_i", "pulse_laser_i"]},
-      "fit_b": {"hull": "dualism", "modules": ["armor_plate_i", "armor_plate_i", "armor_plate_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S7-prospect",
-      "purpose": "armor with prospect base (armor 4, no plates possible)",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "bad_idea", "modules": ["pulse_laser_i", "pulse_laser_i", "pulse_laser_i"]},
-      "fit_b": {"hull": "prospect", "modules": ["pulse_laser_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
-    },
-    {
-      "id": "S7-kinetic-check",
-      "purpose": "armor law cross-check with kinetic weapon",
-      "attacker": "battle_bot1",
-      "fit_a": {"hull": "bad_idea", "modules": ["autocannon_i", "autocannon_i", "autocannon_i"]},
-      "fit_b": {"hull": "dualism", "modules": ["armor_plate_i", "armor_plate_i"]},
-      "script": [
-        {"from_tick": 1, "stance_a": "fire", "stance_b": "fire"},
-        {"from_tick": 25, "stance_a": "flee", "stance_b": "flee"}
-      ],
-      "max_ticks": 30,
-      "repeats": 1
+     "from_tick": 5,
+     "stance_a": "flee",
+     "stance_b": "flee"
     }
-  ]
+   ],
+   "max_ticks": 10,
+   "repeats": 1
+  },
+  {
+   "id": "S1-ring0",
+   "purpose": "hit table @ zone_distance 0",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 2
+  },
+  {
+   "id": "S1-ring1",
+   "purpose": "hit table @ zone_distance 2",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 1
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 2
+  },
+  {
+   "id": "S1-ring2",
+   "purpose": "hit table @ zone_distance 4",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 2
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 2,
+   "reload_every": 4
+  },
+  {
+   "id": "S1-ring3",
+   "purpose": "hit table @ zone_distance 6",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 3
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 2,
+   "reload_every": 4
+  },
+  {
+   "id": "S1-odd-ring1",
+   "purpose": "hit table @ zone_distance 1 (one-side hold)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring_a": 0,
+     "hold_ring_b": 1
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 1
+  },
+  {
+   "id": "S1-odd-ring3",
+   "purpose": "hit table @ zone_distance 3 (one-side hold)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring_a": 1,
+     "hold_ring_b": 2
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 1,
+   "reload_every": 4
+  },
+  {
+   "id": "S1-odd-ring5",
+   "purpose": "hit table @ zone_distance 5 (one-side hold)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring_a": 2,
+     "hold_ring_b": 3
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 1,
+   "reload_every": 4
+  },
+  {
+   "id": "S2-fast-attacker-ring0",
+   "purpose": "speed modifier @ zone_distance 0, A=fast",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "lawn_dart",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 1
+  },
+  {
+   "id": "S2-fast-target-ring0",
+   "purpose": "speed modifier @ zone_distance 0, B=fast",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "lawn_dart",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 1
+  },
+  {
+   "id": "S2-fast-attacker-ring2",
+   "purpose": "speed modifier @ zone_distance 4, A=fast",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "lawn_dart",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 2
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 1,
+   "reload_every": 4
+  },
+  {
+   "id": "S2-fast-target-ring2",
+   "purpose": "speed modifier @ zone_distance 4, B=fast",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "fit_b": {
+    "hull": "lawn_dart",
+    "modules": [
+     "missile_launcher_i"
+    ],
+    "ammo": {
+     "missile_launcher_i": "standard_guided_missiles"
+    }
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 2
+    },
+    {
+     "from_tick": 21,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 25,
+   "repeats": 1,
+   "reload_every": 4
+  },
+  {
+   "id": "S3-evade-1",
+   "purpose": "verify evade: \u22120.20 accuracy, 0.5\u00d7 damage, 5 fuel/tick, no-fire",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "evade"
+    },
+    {
+     "from_tick": 40,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 45,
+   "repeats": 1
+  },
+  {
+   "id": "S3-evade-2",
+   "purpose": "verify evade (second run)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "evade"
+    },
+    {
+     "from_tick": 40,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 45,
+   "repeats": 1
+  },
+  {
+   "id": "S4-brace-1",
+   "purpose": "verify brace: 2\u00d7 shield regen, 0.25\u00d7 damage taken",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "brace"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S4-brace-2",
+   "purpose": "verify brace (second run)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "brace"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S5-regen-zero-1",
+   "purpose": "verify regen_from_zero: shield restart after zero",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 15,
+     "stance_a": "brace",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S5-regen-zero-2",
+   "purpose": "verify regen_from_zero (second run)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 15,
+     "stance_a": "brace",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S6a-flee-base",
+   "purpose": "flee baseline: B flees from tick 1, A fires; expect 3 required ticks",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "flee"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S6b-flee-reset",
+   "purpose": "flee counter reset: B flees 1-2, fires 3, flees 4",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "flee"
+    },
+    {
+     "from_tick": 3,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 4,
+     "stance_a": "fire",
+     "stance_b": "flee"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S6c-flee-guest",
+   "purpose": "flee with Tactics: craftsman-1 (Tactics 2) flees from A; expect 2",
+   "attacker": "battle_bot1",
+   "guest": "craftsman-1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "flee"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S6d-flee-fast",
+   "purpose": "flee speed: B=fast flees from A=speed1; B in lawn_dart",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "lawn_dart",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "flee"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S6d-flee-slow",
+   "purpose": "flee speed: A=speed1 flees from B=fast; A in prospect, B in lawn_dart",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "lawn_dart",
+    "modules": [
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "flee",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S6e-flee-from-engaged",
+   "purpose": "flee counter accrues only at Outer: hold ring 0 then flee",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire",
+     "hold_ring": 0
+    },
+    {
+     "from_tick": 10,
+     "stance_a": "fire",
+     "stance_b": "flee"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S7-armor-0",
+   "purpose": "armor ladder: 0 plates (armor 7 base)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "bad_idea",
+    "modules": [
+     "autocannon_i",
+     "autocannon_i",
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "dualism",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S7-armor-1",
+   "purpose": "armor ladder: 1 plate (armor 12)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "bad_idea",
+    "modules": [
+     "autocannon_i",
+     "autocannon_i",
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "dualism",
+    "modules": [
+     "armor_plate_i"
+    ]
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S7-armor-2",
+   "purpose": "armor ladder: 2 plates (armor 17)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "bad_idea",
+    "modules": [
+     "autocannon_i",
+     "autocannon_i",
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "dualism",
+    "modules": [
+     "armor_plate_i",
+     "armor_plate_i"
+    ]
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S7-armor-3",
+   "purpose": "armor ladder: 3 plates (armor 22)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "bad_idea",
+    "modules": [
+     "autocannon_i",
+     "autocannon_i",
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "dualism",
+    "modules": [
+     "armor_plate_i",
+     "armor_plate_i",
+     "armor_plate_i"
+    ]
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S7-prospect",
+   "purpose": "armor with prospect base (armor 4, no plates possible)",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "bad_idea",
+    "modules": [
+     "autocannon_i",
+     "autocannon_i",
+     "autocannon_i"
+    ],
+    "ammo": {
+     "autocannon_i": "standard_rounds_box"
+    }
+   },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  },
+  {
+   "id": "S7-energy-check",
+   "purpose": "armor law cross-check with energy (x0.75 counted) vs the kinetic-primary ladder",
+   "attacker": "battle_bot1",
+   "fit_a": {
+    "hull": "prospect",
+    "modules": [
+     "pulse_laser_i"
+    ]
+   },
+   "fit_b": {
+    "hull": "dualism",
+    "modules": [
+     "armor_plate_i",
+     "armor_plate_i"
+    ]
+   },
+   "script": [
+    {
+     "from_tick": 1,
+     "stance_a": "fire",
+     "stance_b": "fire"
+    },
+    {
+     "from_tick": 25,
+     "stance_a": "flee",
+     "stance_b": "flee"
+    }
+   ],
+   "max_ticks": 30,
+   "repeats": 1
+  }
+ ]
 }
