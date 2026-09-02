@@ -289,13 +289,13 @@
   },
   {
    "id": "S2-fast-attacker-ring0",
-   "purpose": "speed modifier @ zone_distance 0, A=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
+   "purpose": "speed modifier @ zone_distance 0, A=fast. bot1(side A) carries afterburner_ii (+2 => speed 3 vs 1); bot1 attacks. Single afterburner_ii stays on bot1 across all speed scenarios (skill reqs unenforced). alhena/lawn_dart route dead.",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
      "autocannon_i",
-     "afterburner_i"
+     "afterburner_ii"
     ],
     "ammo": {
      "autocannon_i": "standard_rounds_box"
@@ -328,12 +328,13 @@
   },
   {
    "id": "S2-fast-target-ring0",
-   "purpose": "speed modifier @ zone_distance 0, B=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
-   "attacker": "battle_bot1",
+   "purpose": "speed modifier @ zone_distance 0, target=fast. bot1(side A) is the FAST target (afterburner_ii, speed 3); bot2 attacks. Same single afterburner_ii on bot1.",
+   "attacker": "battle_bot2",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "autocannon_i"
+     "autocannon_i",
+     "afterburner_ii"
     ],
     "ammo": {
      "autocannon_i": "standard_rounds_box"
@@ -342,8 +343,7 @@
    "fit_b": {
     "hull": "prospect",
     "modules": [
-     "autocannon_i",
-     "afterburner_i"
+     "autocannon_i"
     ],
     "ammo": {
      "autocannon_i": "standard_rounds_box"
@@ -367,13 +367,13 @@
   },
   {
    "id": "S2-fast-attacker-ring2",
-   "purpose": "speed modifier @ zone_distance 4, A=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
+   "purpose": "speed modifier @ zone_distance 4, A=fast (missiles). bot1(side A) afterburner_ii, attacks.",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
      "missile_launcher_i",
-     "afterburner_i"
+     "afterburner_ii"
     ],
     "ammo": {
      "missile_launcher_i": "standard_guided_missiles"
@@ -407,12 +407,13 @@
   },
   {
    "id": "S2-fast-target-ring2",
-   "purpose": "speed modifier @ zone_distance 4, B=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
-   "attacker": "battle_bot1",
+   "purpose": "speed modifier @ zone_distance 4, target=fast (missiles). bot1(side A) FAST target afterburner_ii; bot2 attacks.",
+   "attacker": "battle_bot2",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "missile_launcher_i"
+     "missile_launcher_i",
+     "afterburner_ii"
     ],
     "ammo": {
      "missile_launcher_i": "standard_guided_missiles"
@@ -421,8 +422,7 @@
    "fit_b": {
     "hull": "prospect",
     "modules": [
-     "missile_launcher_i",
-     "afterburner_i"
+     "missile_launcher_i"
     ],
     "ammo": {
      "missile_launcher_i": "standard_guided_missiles"
@@ -756,25 +756,25 @@
   },
   {
    "id": "S6d-flee-fast",
-   "purpose": "flee speed: B=fast flees from A=speed1; B in lawn_dart (speed via afterburner_i +1 on a Prospect, both Tactics 0; isolates the pure-speed flee term to subtract from S6c2's Tactics+speed result).",
-   "attacker": "battle_bot1",
+   "purpose": "flee speed, FAST fleer: bot1(side A, afterburner_ii speed 3) flees a speed-1 pursuer (bot2 fires). Both Tactics 0 => pure speed term. Server rule says faster => still min 3; measure flee_required to test.",
+   "attacker": "battle_bot2",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "pulse_laser_i"
+     "afterburner_ii"
     ]
    },
    "fit_b": {
     "hull": "prospect",
     "modules": [
-     "afterburner_i"
+     "pulse_laser_i"
     ]
    },
    "script": [
     {
      "from_tick": 1,
-     "stance_a": "fire",
-     "stance_b": "flee"
+     "stance_a": "flee",
+     "stance_b": "fire"
     },
     {
      "from_tick": 25,
@@ -787,13 +787,13 @@
   },
   {
    "id": "S6d-flee-slow",
-   "purpose": "flee speed: A=speed1 flees from B=fast; A in prospect, B in lawn_dart (speed via afterburner_i +1 on a Prospect, both Tactics 0; isolates the pure-speed flee term to subtract from S6c2's Tactics+speed result).",
+   "purpose": "flee speed, SLOW fleer: bot2(side B, speed 1) flees a FAST pursuer (bot1 side A, afterburner_ii speed 3, fires). Both Tactics 0 => pure speed penalty. Server rule 'longer the slower you are' => expect flee_required > 3.",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
      "autocannon_i",
-     "afterburner_i"
+     "afterburner_ii"
     ],
     "ammo": {
      "autocannon_i": "standard_rounds_box"
@@ -806,8 +806,8 @@
    "script": [
     {
      "from_tick": 1,
-     "stance_a": "flee",
-     "stance_b": "fire"
+     "stance_a": "fire",
+     "stance_b": "flee"
     },
     {
      "from_tick": 25,
