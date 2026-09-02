@@ -1,17 +1,21 @@
 {
-  "_comment": "measured: brace_in_mult (Haven fixture), regen_hit_divisor (3 fixtures), armor constants (see analysis scripts). doc-backed (skill.md Combat & Battle System, 2026-09-01): evade_in_mult 0.5 / evade_accuracy_debuff 0.20 / brace_regen_mult 2 (stance table), flee_ticks_required 3 (base; Tactics/speed/tackle modifiers not modeled — our pilots logged flee_required 2), stalemate_ticks 30 (30 ticks with no kills is a draw). ASSUMED (uncalibrated until phase-B duels): regen_from_zero, hit chances beyond the 0.79-0.95 measured envelope.",
-  "hit_chance_a": 0.95,
-  "hit_chance_b": 0.95,
+  "_comment": "MEASURED via Phase-B controlled duels (2026-09-02, raw logs carry exact server hit_chance/hit_roll/hit_success per shot): hit_chance_by_distance [d0..d6] equal-speed deterministic (d1=0.80 inferred, never settled at distance 1); hit_chance_a/b set to the measured engaged (d0) 0.90; brace_regen_mult 2.5 (S4c battle 7be5cbe0: braced un-hit regen ~2.5x recharge, FLAT on a boosted max-75 pool, disproving 5%-of-max); regen_from_zero FALSE (S5 + 40+ wildlife timelines); regen_hit_divisor 3, brace_in_mult 0.25 (Haven fixture); evade_in_mult 0.5 / evade_accuracy_debuff 0.20 (skill.md + S3). flee_ticks_required base 3 is the equal-speed value; the full law is deterministic flee_required = max(1, 3 + 2*(pursuer_speed - fleer_speed)) -- pure speed, NO Tactics term (S6a/S6c2/S6d, four points fit exactly). SPEED->hit_chance modifier is asymmetric on (attacker_speed - target_speed) at d0: +2 -> 0.95, 0 -> 0.90, -1 -> 0.81, -2 -> 0.78 (S2/S8) -- documented for the v2 zone/speed engine, NOT consumed by the v1 flat-hit engine. armor constants: see analysis scripts. Tank note (S8): 70% DR + shield-type absorption stack to ~90% effective (pulse 10 raw -> 1 net on a 600 shield).",
+  "hit_chance_a": 0.90,
+  "hit_chance_b": 0.90,
+  "hit_chance_by_distance": [0.90, 0.80, 0.65, 0.50, 0.35, 0.22, 0.12],
   "brace_in_mult": 0.25,
-  "brace_regen_mult": 2,
+  "brace_regen_mult": 2.5,
   "evade_in_mult": 0.5,
   "evade_accuracy_debuff": 0.20,
   "flee_ticks_required": 3,
+  "flee_speed_coeff": 2,
+  "flee_ticks_min": 1,
   "regen_hit_divisor": 3,
   "regen_from_zero": false,
   "armor_law": "auto",
   "armor_law_crossover": 12,
   "stalemate_ticks": 30,
   "max_ticks": 500,
-  "assumed": ["regen_from_zero"]
+  "assumed": [],
+  "measured_not_modeled": ["hit_chance_by_distance", "flee_speed_coeff", "flee_ticks_min", "speed_hit_modifier"]
 }

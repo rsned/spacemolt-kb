@@ -126,8 +126,12 @@ func TestLoadCalibrationFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Values reflect the Phase-B measured calibration: brace_regen_mult
+	// 2.5 (S4c, not the doc's 2), hit_chance 0.90 (measured engaged d0,
+	// not 0.95), the rest measured/doc-backed.
 	if c.BraceInMult != 0.25 || c.RegenHitDivisor != 3 || c.MaxTicks != 500 ||
-		c.BraceRegenMult != 2 || c.EvadeAccuracyDebuff != 0.20 ||
+		c.BraceRegenMult != 2.5 || c.EvadeAccuracyDebuff != 0.20 ||
+		c.HitChanceA != 0.90 || c.HitChanceB != 0.90 ||
 		c.FleeTicksRequired != 3 || c.StalemateTicks != 30 {
 		t.Errorf("calibration = %+v, want measured/doc defaults", c)
 	}

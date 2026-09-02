@@ -141,9 +141,11 @@ ticks in the Haven fixture, zero shots) and evade is documented "Can
 Fire: No" (skill.md stance table; zero evade ticks exist in any export).
 Per that table, brace takes 25% damage with 2x shield regen, evade takes
 50% with a -20% debuff to the attacker's accuracy, and flee escapes after
-3 consecutive flee ticks (the base value — Tactics, speed, and tackle
-modules modify it in the real game and are not modeled). A battle with no
-kill by tick 30 is a stalemate draw (skill.md).
+3 consecutive flee ticks at equal speed. Phase B measured the full flee
+law as `max(1, 3 + 2·(pursuer_speed − fleer_speed))` — pure speed, no
+Tactics term — but the v1 engine models only the equal-speed base of 3
+(see Measured vs ASSUMED). A battle with no kill by tick 30 is a stalemate
+draw (skill.md).
 
 Full derivation: `docs/superpowers/specs/2026-08-31-combat-sim-design.md`
 and the analysis scripts in `data/battles/analysis/`. The v0.574.3 docs
@@ -155,15 +157,42 @@ exact armor-counted multipliers this engine uses.
 ## Measured vs ASSUMED
 
 Every tunable lives in `data/combat-sim/calibration.json`, each tagged by
-provenance. Measured: brace 0.25× incoming, regen divisor 3, armor
-constants. Doc-backed (skill.md stance table, 2026-09-01): evade 0.5×
-incoming + 0.20 accuracy debuff, brace 2× regen, flee 3 ticks (base),
-stalemate at 30 kill-less ticks. ASSUMED until calibrated:
-`regen_from_zero` (false) and per-pair hit chances beyond the measured
-0.79–0.95 envelope (the real model is a per-ring base table plus a speed
-modifier; this sim pins both sides at engaged). Table cells depending on
-an assumed entry carry `*`. Phase B (scripted stance-pair duels between
-owned agents) measures the rest.
+provenance. Phase B (scripted stance-pair duels between owned agents,
+2026-09-02) turned almost everything here from assumed/doc-backed into
+measured — the raw battle logs carry the server's exact `hit_chance`,
+`hit_roll`, and `hit_success` on every shot, so a handful of volleys pins
+each value with no statistics.
+
+**Measured (Phase B controlled duels):**
+- Hit table by `zone_distance` (equal speed): d0 0.90, d1 0.80*, d2 0.65,
+  d3 0.50, d4 0.35, d5 0.22, d6 0.12 — deterministic (d1 inferred; it
+  never settled at distance 1). `hit_chance_a/b` are set to the engaged
+  (d0) 0.90; the full array is in `hit_chance_by_distance` for the future
+  zone engine (the v1 engine still pins both sides at engaged).
+- Speed → hit_chance: asymmetric on `attacker_speed − target_speed` at d0
+  — +2 → 0.95, 0 → 0.90, −1 → 0.81, −2 → 0.78 (a faster target is harder
+  to hit; the slow-attacker penalty is steeper than the fast bonus).
+- Brace regen: **2.5× recharge, flat** — S4c fitted a shield booster
+  (max shield 50 → 75) and braced un-hit regen stayed ~2.5/tick, ruling
+  out a 5%-of-max law (would have been 3.75). Corrected from the doc's 2×.
+- Flee: `flee_required = max(1, 3 + 2·(pursuer_speed − fleer_speed))` —
+  pure speed, **no Tactics term** (four points across S6a/S6c2/S6d fit
+  exactly; a Tactics-2 pilot's escape-in-1 was fully his +1 speed).
+- `regen_from_zero` **false** (S5 + 40+ wildlife timelines) — now
+  measured, no longer assumed.
+
+**Doc-backed (skill.md stance table):** evade 0.5× incoming + 0.20
+accuracy debuff, brace 0.25× incoming, stalemate at 30 kill-less ticks —
+all consistent with measurement.
+
+**Still assumed / not modeled:** the v1 engine is a flat-hit,
+single-distance model, so `hit_chance_by_distance`, the speed→hit
+modifier, and the flee speed law are recorded in calibration.json
+(`measured_not_modeled`) but not yet consumed — wiring them in is the v2
+zone/speed engine, a design change beyond calibration. Tank note (S8): a
+70% DR hull plus shield-type absorption stacks to ~90% effective (pulse
+10 raw → 1 net on a 600 shield). Table cells depending on a
+not-yet-modeled entry carry `*`.
 
 ## Not modeled in v1
 

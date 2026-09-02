@@ -246,3 +246,50 @@ resumable at any point via the manifest.
 - Two new golden duel-replay tests pass.
 - A re-run of the full combat-sim suite is green and the stance table
   in the README reflects any changed numbers.
+
+## Errata & Phase-B results (2026-09-02)
+
+Measured outcomes and where reality diverged from this design's assumptions:
+
+- **Raw logs carry exact hit_chance.** Each `entries[].attacks[]` record
+  has the server's `hit_chance`, `hit_roll`, `hit_success`, `zone_distance`
+  and full damage breakdown. No statistical estimation was needed — a few
+  volleys pin every value. This retroactively sharpened the whole hit
+  table from raw fields rather than hit/miss rates.
+- **Hit table (exact, equal speed):** d0 0.90, d2 0.65, d3 0.50, d4 0.35,
+  d5 0.22, d6 0.12. d1 (0.80) stayed inferred — the odd-ring convergence
+  never settled at distance 1 (shots landed at d0/d2/d3).
+- **Flee is pure speed, not Tactics.** `flee_required = max(1, 3 +
+  2·(pursuer_speed − fleer_speed))`. Four points (S6a 3, S6c2 1, S6d-fast
+  1, S6d-slow 7) fit exactly. The design's premise that Tactics reduces
+  flee is **refuted**: the Tactics-2 pilot's escape-in-1 was fully his +1
+  hull speed.
+- **Brace regen is 2.5× recharge (flat), not the doc's 2×.** S4c fitted a
+  shield booster (max 50→75); braced regen stayed ~2.5/tick, ruling out a
+  5%-of-max law.
+- **Speed → hit_chance** is asymmetric on the attacker−target speed delta
+  (d0: +2 → 0.95, 0 → 0.90, −1 → 0.81, −2 → 0.78).
+- **Design assumptions that broke in the field:** the lawn_dart hull for
+  the speed scenarios was unreachable (alhena is a pirate stronghold that
+  blocks the zero-rep bots) — replaced by fitting `afterburner_ii` on a
+  Prospect (module skill requirements are not enforced at fit time). The
+  runner also grew fixes the design did not anticipate: attack targets the
+  player id not the agent id; staging is skipped when no refit is needed;
+  both sides' preflight runs concurrently; refuel-on-detour; ammo top-up
+  is small and non-fatal.
+- **Deferred (not blockers for calibration):** S7 low-armor ladder still
+  needs a defense-slot hull (none sold within reach; dualism/bad_idea are
+  player-built only). S2 range-4 and a solid S1-odd-ring5 need guided
+  missiles restocked into each bot's storage (~4 on hand). The v1 engine
+  remains flat-hit/single-distance, so the measured distance table, speed
+  modifier, and flee speed law are recorded in calibration.json
+  (`measured_not_modeled`) pending a v2 zone/speed engine.
+
+### Success criteria status
+
+- calibration.json `assumed` list is now empty; `measured_not_modeled`
+  names the values awaiting the v2 engine. ✔
+- The flee contradiction has a measured answer (pure speed law). ✔
+- Two golden duel-replay tests pass (`TestGoldenDuels`). ✔
+- Full combat-sim suite green; README stance/measured section updated. ✔
+- Low-armor law (S7) — DEFERRED, hull unavailable. (open)
