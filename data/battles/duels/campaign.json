@@ -923,19 +923,16 @@
   },
   {
    "id": "S7-armor-4",
-   "purpose": "low-armor law: target Prospect armor 4 (base, no plate). Both Prospects armed with pulse, fire, hold ring 0 (target ARMED so its fire-stance holds instead of autopilot-fleeing); target shield depletes ~tick7 then hull takes armored hits; measure target hull_damage per hit vs armor from raw logs (exact raw/shield/hull/final breakdown). Energy damage (pulse) isolates the armor-value law from the kinetic x1.5 type mult (already doc-confirmed). Prospect 1 defense slot => swap plate between duels; skill reqs unenforced.",
-   "attacker": "battle_bot1",
+   "purpose": "low-armor law v2: craftsman-1 (guest side B, combat hull+Weapons skill, ONE user-installed weapon) attacks plated Prospect target (side A = battle_bot2) armor 4 (base). High per-hit damage depletes the 50 shield then chips hull under the plate; raw log's raw_damage/hull_damage per hit = armor absorption. craftsman holds ring 0. PRECONDITION: weapon on craftsman-1 + session CLOSED. RUN WITH --a battle_bot2 --b craftsman-1.",
+   "attacker": "craftsman-1",
+   "guest": "craftsman-1",
    "fit_a": {
     "hull": "prospect",
-    "modules": [
-     "pulse_laser_i"
-    ]
+    "modules": []
    },
    "fit_b": {
     "hull": "prospect",
-    "modules": [
-     "pulse_laser_i"
-    ]
+    "modules": []
    },
    "script": [
     {
@@ -945,31 +942,30 @@
      "hold_ring": 0
     },
     {
-     "from_tick": 34,
+     "from_tick": 30,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 40,
-   "repeats": 1
+   "max_ticks": 36,
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-armor-9",
-   "purpose": "low-armor law: target Prospect armor 9 (armor_plate_i). Both Prospects armed with pulse, fire, hold ring 0 (target ARMED so its fire-stance holds instead of autopilot-fleeing); target shield depletes ~tick7 then hull takes armored hits; measure target hull_damage per hit vs armor from raw logs (exact raw/shield/hull/final breakdown). Energy damage (pulse) isolates the armor-value law from the kinetic x1.5 type mult (already doc-confirmed). Prospect 1 defense slot => swap plate between duels; skill reqs unenforced.",
-   "attacker": "battle_bot1",
+   "purpose": "low-armor law v2: craftsman-1 (guest side B, combat hull+Weapons skill, ONE user-installed weapon) attacks plated Prospect target (side A = battle_bot2) armor 9 (armor_plate_i). High per-hit damage depletes the 50 shield then chips hull under the plate; raw log's raw_damage/hull_damage per hit = armor absorption. craftsman holds ring 0. PRECONDITION: weapon on craftsman-1 + session CLOSED. RUN WITH --a battle_bot2 --b craftsman-1.",
+   "attacker": "craftsman-1",
+   "guest": "craftsman-1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "pulse_laser_i"
-    ]
-   },
-   "fit_b": {
-    "hull": "prospect",
-    "modules": [
-     "pulse_laser_i",
      "armor_plate_i"
     ]
    },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
    "script": [
     {
      "from_tick": 1,
@@ -978,31 +974,30 @@
      "hold_ring": 0
     },
     {
-     "from_tick": 34,
+     "from_tick": 30,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 40,
-   "repeats": 1
+   "max_ticks": 36,
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-armor-14",
-   "purpose": "low-armor law: target Prospect armor 14 (armor_plate_ii). Both Prospects armed with pulse, fire, hold ring 0 (target ARMED so its fire-stance holds instead of autopilot-fleeing); target shield depletes ~tick7 then hull takes armored hits; measure target hull_damage per hit vs armor from raw logs (exact raw/shield/hull/final breakdown). Energy damage (pulse) isolates the armor-value law from the kinetic x1.5 type mult (already doc-confirmed). Prospect 1 defense slot => swap plate between duels; skill reqs unenforced.",
-   "attacker": "battle_bot1",
+   "purpose": "low-armor law v2: craftsman-1 (guest side B, combat hull+Weapons skill, ONE user-installed weapon) attacks plated Prospect target (side A = battle_bot2) armor 14 (armor_plate_ii). High per-hit damage depletes the 50 shield then chips hull under the plate; raw log's raw_damage/hull_damage per hit = armor absorption. craftsman holds ring 0. PRECONDITION: weapon on craftsman-1 + session CLOSED. RUN WITH --a battle_bot2 --b craftsman-1.",
+   "attacker": "craftsman-1",
+   "guest": "craftsman-1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "pulse_laser_i"
-    ]
-   },
-   "fit_b": {
-    "hull": "prospect",
-    "modules": [
-     "pulse_laser_i",
      "armor_plate_ii"
     ]
    },
+   "fit_b": {
+    "hull": "prospect",
+    "modules": []
+   },
    "script": [
     {
      "from_tick": 1,
@@ -1011,30 +1006,29 @@
      "hold_ring": 0
     },
     {
-     "from_tick": 34,
+     "from_tick": 30,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 40,
-   "repeats": 1
+   "max_ticks": 36,
+   "repeats": 1,
+   "require_full": true
   },
   {
    "id": "S7-armor-22",
-   "purpose": "low-armor law: target Prospect armor 22 (armor_plate_iii). Both Prospects armed with pulse, fire, hold ring 0 (target ARMED so its fire-stance holds instead of autopilot-fleeing); target shield depletes ~tick7 then hull takes armored hits; measure target hull_damage per hit vs armor from raw logs (exact raw/shield/hull/final breakdown). Energy damage (pulse) isolates the armor-value law from the kinetic x1.5 type mult (already doc-confirmed). Prospect 1 defense slot => swap plate between duels; skill reqs unenforced.",
-   "attacker": "battle_bot1",
+   "purpose": "low-armor law v2: craftsman-1 (guest side B, combat hull+Weapons skill, ONE user-installed weapon) attacks plated Prospect target (side A = battle_bot2) armor 22 (armor_plate_iii). High per-hit damage depletes the 50 shield then chips hull under the plate; raw log's raw_damage/hull_damage per hit = armor absorption. craftsman holds ring 0. PRECONDITION: weapon on craftsman-1 + session CLOSED. RUN WITH --a battle_bot2 --b craftsman-1.",
+   "attacker": "craftsman-1",
+   "guest": "craftsman-1",
    "fit_a": {
     "hull": "prospect",
     "modules": [
-     "pulse_laser_i"
+     "armor_plate_iii"
     ]
    },
    "fit_b": {
     "hull": "prospect",
-    "modules": [
-     "pulse_laser_i",
-     "armor_plate_iii"
-    ]
+    "modules": []
    },
    "script": [
     {
@@ -1044,13 +1038,14 @@
      "hold_ring": 0
     },
     {
-     "from_tick": 34,
+     "from_tick": 30,
      "stance_a": "flee",
      "stance_b": "flee"
     }
    ],
-   "max_ticks": 40,
-   "repeats": 1
+   "max_ticks": 36,
+   "repeats": 1,
+   "require_full": true
   }
  ]
 }
