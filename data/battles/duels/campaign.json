@@ -289,12 +289,13 @@
   },
   {
    "id": "S2-fast-attacker-ring0",
-   "purpose": "speed modifier @ zone_distance 0, A=fast",
+   "purpose": "speed modifier @ zone_distance 0, A=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
    "attacker": "battle_bot1",
    "fit_a": {
-    "hull": "lawn_dart",
+    "hull": "prospect",
     "modules": [
-     "autocannon_i"
+     "autocannon_i",
+     "afterburner_i"
     ],
     "ammo": {
      "autocannon_i": "standard_rounds_box"
@@ -327,7 +328,7 @@
   },
   {
    "id": "S2-fast-target-ring0",
-   "purpose": "speed modifier @ zone_distance 0, B=fast",
+   "purpose": "speed modifier @ zone_distance 0, B=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
@@ -339,9 +340,10 @@
     }
    },
    "fit_b": {
-    "hull": "lawn_dart",
+    "hull": "prospect",
     "modules": [
-     "autocannon_i"
+     "autocannon_i",
+     "afterburner_i"
     ],
     "ammo": {
      "autocannon_i": "standard_rounds_box"
@@ -365,12 +367,13 @@
   },
   {
    "id": "S2-fast-attacker-ring2",
-   "purpose": "speed modifier @ zone_distance 4, A=fast",
+   "purpose": "speed modifier @ zone_distance 4, A=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
    "attacker": "battle_bot1",
    "fit_a": {
-    "hull": "lawn_dart",
+    "hull": "prospect",
     "modules": [
-     "missile_launcher_i"
+     "missile_launcher_i",
+     "afterburner_i"
     ],
     "ammo": {
      "missile_launcher_i": "standard_guided_missiles"
@@ -404,7 +407,7 @@
   },
   {
    "id": "S2-fast-target-ring2",
-   "purpose": "speed modifier @ zone_distance 4, B=fast",
+   "purpose": "speed modifier @ zone_distance 4, B=fast (fast side = prospect + afterburner_i, +1 speed => speed 2 vs 1; lawn_dart route dead: alhena is a pirate stronghold blocking zero-rep bots).",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
@@ -416,9 +419,10 @@
     }
    },
    "fit_b": {
-    "hull": "lawn_dart",
+    "hull": "prospect",
     "modules": [
-     "missile_launcher_i"
+     "missile_launcher_i",
+     "afterburner_i"
     ],
     "ammo": {
      "missile_launcher_i": "standard_guided_missiles"
@@ -752,7 +756,7 @@
   },
   {
    "id": "S6d-flee-fast",
-   "purpose": "flee speed: B=fast flees from A=speed1; B in lawn_dart",
+   "purpose": "flee speed: B=fast flees from A=speed1; B in lawn_dart (speed via afterburner_i +1 on a Prospect, both Tactics 0; isolates the pure-speed flee term to subtract from S6c2's Tactics+speed result).",
    "attacker": "battle_bot1",
    "fit_a": {
     "hull": "prospect",
@@ -761,8 +765,10 @@
     ]
    },
    "fit_b": {
-    "hull": "lawn_dart",
-    "modules": []
+    "hull": "prospect",
+    "modules": [
+     "afterburner_i"
+    ]
    },
    "script": [
     {
@@ -781,12 +787,13 @@
   },
   {
    "id": "S6d-flee-slow",
-   "purpose": "flee speed: A=speed1 flees from B=fast; A in prospect, B in lawn_dart",
+   "purpose": "flee speed: A=speed1 flees from B=fast; A in prospect, B in lawn_dart (speed via afterburner_i +1 on a Prospect, both Tactics 0; isolates the pure-speed flee term to subtract from S6c2's Tactics+speed result).",
    "attacker": "battle_bot1",
    "fit_a": {
-    "hull": "lawn_dart",
+    "hull": "prospect",
     "modules": [
-     "autocannon_i"
+     "autocannon_i",
+     "afterburner_i"
     ],
     "ammo": {
      "autocannon_i": "standard_rounds_box"
