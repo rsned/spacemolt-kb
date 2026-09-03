@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -168,6 +169,113 @@ func computeOpusSpread(v *opusView) opusSpread {
 	return s
 }
 
+// lowEndRowView is one Tier-0 starter hull's crossover results as a
+// defender against the five starter attacker columns, for the Tier-0
+// mirror table in the low-end callout.
+type lowEndRowView struct {
+	Name  string   // pre-escaped
+	Cells []string // pre-escaped display value ("∞", "?", or the crossover N), in column order
+}
+
+// lowEndView is the companion "how easily most hulls fall" callout's
+// render data — the mirror of opusView. Where the Opus Magna callout
+// reports the single hardest target in the whole matrix, this reports how
+// common the opposite outcome is: matchups that resolve to a single
+// starter kill, a few of the most fragile hulls in the catalog, and the
+// Tier-0 starters' own crossover against each other. Returns via
+// buildLowEndView, which is nil only when the matrix has no finite cells
+// to report on (e.g. an empty defender set).
+type lowEndView struct {
+	FiniteCount  int      // finite (n>0) cells across all rows and the given columns
+	OneCount     int      // of FiniteCount, how many have n==1
+	LeTwoCount   int      // of FiniteCount, how many have n<=2 (includes OneCount)
+	FragileHulls []string // pre-escaped names of hulls with n==1 against every column, capped
+	Tier0Rows    []lowEndRowView
+}
+
+// maxFragileHulls caps how many "falls to one ship on every column" example
+// hulls the low-end callout lists — the matrix has dozens (see
+// buildLowEndView), but the callout only needs a few illustrative names.
+const maxFragileHulls = 6
+
+// buildLowEndView scans m for the opposite extreme of the Opus Magna
+// callout: it counts, across every row's cells in cols, how many finite
+// crossover results are N=1 (or N<=2), collects a capped, stably-ordered
+// (tier then name) list of hulls that fall to N=1 against every column in
+// cols, and builds the Tier-0 mirror table — each Tier-0 (starter) row in m
+// as a defender, against every column in cols, in column order so it lines
+// up with the table's header. All figures are computed from m; nothing is
+// hardcoded. Returns nil if m has no finite cells in cols at all.
+func buildLowEndView(m Matrix, cols []colView) *lowEndView {
+	v := &lowEndView{}
+
+	type fragile struct {
+		tier int
+		name string
+	}
+	var fragileHulls []fragile
+	for _, r := range m.Rows {
+		allOnes := len(cols) > 0
+		for _, c := range cols {
+			cell := r.Cells[c.ID]
+			if cell == nil || cell.N == 0 {
+				allOnes = false
+				continue
+			}
+			v.FiniteCount++
+			if cell.N <= 2 {
+				v.LeTwoCount++
+			}
+			if cell.N == 1 {
+				v.OneCount++
+			} else {
+				allOnes = false
+			}
+		}
+		if allOnes {
+			fragileHulls = append(fragileHulls, fragile{r.Tier, r.Name})
+		}
+	}
+	if v.FiniteCount == 0 {
+		return nil
+	}
+
+	sort.Slice(fragileHulls, func(i, j int) bool {
+		if fragileHulls[i].tier != fragileHulls[j].tier {
+			return fragileHulls[i].tier < fragileHulls[j].tier
+		}
+		return fragileHulls[i].name < fragileHulls[j].name
+	})
+	for i, f := range fragileHulls {
+		if i >= maxFragileHulls {
+			break
+		}
+		v.FragileHulls = append(v.FragileHulls, html.EscapeString(f.name))
+	}
+
+	for _, r := range m.Rows {
+		if r.Tier != 0 {
+			continue
+		}
+		row := lowEndRowView{Name: html.EscapeString(r.Name)}
+		for _, c := range cols {
+			cell := r.Cells[c.ID]
+			switch {
+			case cell == nil:
+				row.Cells = append(row.Cells, "?")
+			case cell.N == 0:
+				row.Cells = append(row.Cells, "∞")
+			default:
+				row.Cells = append(row.Cells, strconv.Itoa(cell.N))
+			}
+		}
+		v.Tier0Rows = append(v.Tier0Rows, row)
+	}
+	sort.Slice(v.Tier0Rows, func(i, j int) bool { return v.Tier0Rows[i].Name < v.Tier0Rows[j].Name })
+
+	return v
+}
+
 // jsonForScript marshals v to JSON and escapes it for safe embedding inside
 // an inline <script> block as a bare object literal: '<', '>', '&' and the
 // JS line/paragraph separators never occur outside JSON string values, so a
@@ -196,6 +304,7 @@ type pageData struct {
 	Assumptions  []string // pre-escaped
 	Opus         *opusView
 	Spread       opusSpread
+	LowEnd       *lowEndView
 	MatrixJSON   string
 }
 
@@ -207,6 +316,7 @@ func RenderPage(m Matrix) (string, error) {
 	cols := buildColViews(m.Columns)
 	opus := buildOpusView(m, cols)
 	spread := computeOpusSpread(opus)
+	lowEnd := buildLowEndView(m, cols)
 
 	assumptions := make([]string, 0, len(fixedAssumptions)+len(m.Assumptions))
 	for _, a := range fixedAssumptions {
@@ -229,6 +339,7 @@ func RenderPage(m Matrix) (string, error) {
 		Assumptions:  assumptions,
 		Opus:         opus,
 		Spread:       spread,
+		LowEnd:       lowEnd,
 		MatrixJSON:   matrixJSON,
 	}
 
@@ -371,6 +482,51 @@ const pageTemplate = `<!DOCTYPE html>
         <div class="ls-callout">
             <h3>Featured: Opus Magna</h3>
             <div class="ls-sub">The galaxy's biggest hull isn't in this particular matrix run.</div>
+        </div>
+        {{end}}
+
+        {{if .LowEnd}}
+        <div class="ls-callout" id="ls-low-end">
+            <h3>The other end of the spectrum: how easily most hulls fall</h3>
+            <div class="ls-sub">
+                One Opus Magna eats a swarm of dozens of starters before it goes down — but flip the question
+                around, and a single starter is often all it takes.
+            </div>
+            <p class="text-muted">
+                <strong>{{.LowEnd.OneCount}}</strong> of the <strong>{{.LowEnd.FiniteCount}}</strong> rated matchups
+                on this page fall to a single starter (N=1){{if .LowEnd.LeTwoCount}} &mdash;
+                <strong>{{.LowEnd.LeTwoCount}}</strong> fall to one or two{{end}}.
+            </p>
+            {{if .LowEnd.FragileHulls}}
+            <p class="text-muted">
+                Most fragile: every one of the five starter swarms needs just a single ship to beat
+                {{range $i, $n := .LowEnd.FragileHulls}}{{if $i}}, {{end}}<strong>{{$n}}</strong>{{end}}.
+            </p>
+            {{end}}
+            {{if .LowEnd.Tier0Rows}}
+            <p class="text-muted mt-1">
+                The mirror match: how many ships a lone starter swarm defeats before it dies itself, against each
+                of the five Tier-0 starter hulls as a defender.
+            </p>
+            <div class="ls-table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Starter (defender)</th>
+                            {{range .Columns}}<th title="{{.Weapon}} ({{.DamageType}})">{{.Name}}<br><span class="text-muted">{{.Empire}}</span></th>{{end}}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .LowEnd.Tier0Rows}}
+                        <tr>
+                            <td>{{.Name}}</td>
+                            {{range .Cells}}<td class="ls-cell">{{.}}</td>{{end}}
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{end}}
         </div>
         {{end}}
 

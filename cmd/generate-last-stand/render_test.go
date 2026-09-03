@@ -12,7 +12,10 @@ func TestRenderPage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"<title", "smui.css", "Opus Magna", "no capital weapon bonus", "id=\"matrix\""} {
+	for _, want := range []string{
+		"<title", "smui.css", "Opus Magna", "no capital weapon bonus", "id=\"matrix\"",
+		"how easily most hulls fall", "id=\"ls-low-end\"",
+	} {
 		if !strings.Contains(html, want) {
 			t.Fatalf("page missing %q", want)
 		}
