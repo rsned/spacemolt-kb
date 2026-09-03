@@ -57,18 +57,24 @@ func capitalize(s string) string {
 	return strings.ToUpper(s[:1]) + s[1:]
 }
 
+// displayEmpire renders an empire id (e.g. Column.Empire) as its escaped
+// display name — the shared lookup buildColViews and the High-End Setup
+// callout (buildHighEndView) both use to label a starter's empire.
+func displayEmpire(id string) string {
+	if name, ok := empireDisplay[id]; ok {
+		return name
+	}
+	return html.EscapeString(capitalize(id))
+}
+
 // buildColViews resolves each matrix column's display metadata.
 func buildColViews(cols []Column) []colView {
 	out := make([]colView, 0, len(cols))
 	for _, c := range cols {
-		emp := empireDisplay[c.Empire]
-		if emp == "" {
-			emp = html.EscapeString(capitalize(c.Empire))
-		}
 		out = append(out, colView{
 			ID:         html.EscapeString(c.ID),
 			Name:       html.EscapeString(c.Name),
-			Empire:     emp,
+			Empire:     displayEmpire(c.Empire),
 			Weapon:     html.EscapeString(c.Weapon),
 			DamageType: html.EscapeString(c.DamageType),
 		})
@@ -167,6 +173,94 @@ func computeOpusSpread(v *opusView) opusSpread {
 		s.OK = true
 	}
 	return s
+}
+
+// crossoverDisplay renders a crossover N as the page's display convention:
+// "∞" for 0 (no crossing found within the probe cap), otherwise the number
+// itself. Used by the High-End Setup and Multi-Opus Effect callouts, which
+// (unlike buildOpusView/buildLowEndView) work from already-resolved N ints
+// rather than *CellResult, so there's no separate "missing cell" case here.
+func crossoverDisplay(n int) string {
+	if n == 0 {
+		return "∞"
+	}
+	return strconv.Itoa(n)
+}
+
+// highEndRowView is one empire starter's stock-vs-high-end crossover row in
+// the High-End Setup callout.
+type highEndRowView struct {
+	StarterName string // pre-escaped
+	Empire      string // pre-escaped display name
+	StockN      string
+	HighEndN    string
+	Ratio       string // e.g. "1.53×", "" when StockN is ∞ or zero
+}
+
+// highEndView is the High-End Setup callout's render data.
+type highEndView struct {
+	FitName string // pre-escaped
+	Rows    []highEndRowView
+}
+
+// buildHighEndView renders d's computed crossover figures. Returns nil if d
+// is nil or empty (see buildHighEndData) so the page renders without the
+// callout rather than showing an empty table.
+func buildHighEndView(d *HighEndData) *highEndView {
+	if d == nil || len(d.Rows) == 0 {
+		return nil
+	}
+	v := &highEndView{FitName: html.EscapeString(d.FitName)}
+	for _, r := range d.Rows {
+		rv := highEndRowView{
+			StarterName: html.EscapeString(r.StarterName),
+			Empire:      displayEmpire(r.Empire),
+			StockN:      crossoverDisplay(r.StockN),
+			HighEndN:    crossoverDisplay(r.HighEndN),
+		}
+		if r.StockN > 0 && r.HighEndN > 0 {
+			rv.Ratio = fmt.Sprintf("%.2f×", float64(r.HighEndN)/float64(r.StockN))
+		}
+		v.Rows = append(v.Rows, rv)
+	}
+	return v
+}
+
+// multiOpusRowView is one titan-count D's crossover row in the Multi-Opus
+// Effect callout.
+type multiOpusRowView struct {
+	D        int
+	DogpileN string
+	DogpileX string // "×N1" ratio, e.g. "1.54×"
+	SpreadN  string
+	SpreadX  string
+}
+
+// multiOpusView is the Multi-Opus Effect callout's render data.
+type multiOpusView struct {
+	N1   int
+	Rows []multiOpusRowView // D=2..multiOpusDMax
+}
+
+// buildMultiOpusView renders d's computed crossover figures. Returns nil if
+// d is nil (see buildMultiOpusData) so the page renders without the callout
+// rather than showing an empty table.
+func buildMultiOpusView(d *MultiOpusData) *multiOpusView {
+	if d == nil {
+		return nil
+	}
+	v := &multiOpusView{N1: d.N1}
+	for _, r := range d.Rows {
+		rv := multiOpusRowView{D: r.D, DogpileN: crossoverDisplay(r.DogpileN), SpreadN: crossoverDisplay(r.SpreadN)}
+		if r.DogpileN > 0 {
+			rv.DogpileX = fmt.Sprintf("%.2f×", float64(r.DogpileN)/float64(d.N1))
+		}
+		if r.SpreadN > 0 {
+			rv.SpreadX = fmt.Sprintf("%.2f×", float64(r.SpreadN)/float64(d.N1))
+		}
+		v.Rows = append(v.Rows, rv)
+	}
+	return v
 }
 
 // lowEndRowView is one Tier-0 starter hull's crossover results as a
@@ -304,18 +398,24 @@ type pageData struct {
 	Assumptions  []string // pre-escaped
 	Opus         *opusView
 	Spread       opusSpread
+	HighEnd      *highEndView
+	MultiOpus    *multiOpusView
 	LowEnd       *lowEndView
 	MatrixJSON   string
 }
 
 // RenderPage builds the self-contained "Last Stand" KB page for matrix m:
-// an Opus Magna callout, the full sortable/filterable crossover table, a
-// damage-type explainer, an assumptions box, and the embedded matrix JSON
-// that drives all client-side interactivity.
-func RenderPage(m Matrix) (string, error) {
+// an Opus Magna callout, the High-End Setup and Multi-Opus Effect callouts
+// (from the separately-computed highEnd/multiOpus datasets, either of which
+// may be nil), the low-end companion callout, the full sortable/filterable
+// crossover table, a damage-type explainer, an assumptions box, and the
+// embedded matrix JSON that drives all client-side interactivity.
+func RenderPage(m Matrix, highEnd *HighEndData, multiOpus *MultiOpusData) (string, error) {
 	cols := buildColViews(m.Columns)
 	opus := buildOpusView(m, cols)
 	spread := computeOpusSpread(opus)
+	highEndV := buildHighEndView(highEnd)
+	multiOpusV := buildMultiOpusView(multiOpus)
 	lowEnd := buildLowEndView(m, cols)
 
 	assumptions := make([]string, 0, len(fixedAssumptions)+len(m.Assumptions))
@@ -339,6 +439,8 @@ func RenderPage(m Matrix) (string, error) {
 		Assumptions:  assumptions,
 		Opus:         opus,
 		Spread:       spread,
+		HighEnd:      highEndV,
+		MultiOpus:    multiOpusV,
 		LowEnd:       lowEnd,
 		MatrixJSON:   matrixJSON,
 	}
@@ -482,6 +584,75 @@ const pageTemplate = `<!DOCTYPE html>
         <div class="ls-callout">
             <h3>Featured: Opus Magna</h3>
             <div class="ls-sub">The galaxy's biggest hull isn't in this particular matrix run.</div>
+        </div>
+        {{end}}
+
+        {{if .HighEnd}}
+        <div class="ls-callout" id="ls-high-end">
+            <h3>High-End Setup: same hull, tricked out</h3>
+            <div class="ls-sub">
+                {{.HighEnd.FitName}} — a real Combat Drone gunline Opus Magna, reconstructed from a played battle.
+                Its only combat difference from stock: flat damage reduction pushed from 35% up to the 75% cap.
+            </div>
+            <div class="ls-table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Starter</th><th>Stock N</th><th>High-end N</th><th>&times;more</th></tr>
+                    </thead>
+                    <tbody>
+                        {{range .HighEnd.Rows}}
+                        <tr>
+                            <td>{{.StarterName}}<br><span class="text-muted">{{.Empire}}</span></td>
+                            <td class="ls-cell">{{.StockN}}</td>
+                            <td class="ls-cell">{{.HighEndN}}</td>
+                            <td class="ls-cell">{{if .Ratio}}{{.Ratio}}{{else}}&mdash;{{end}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted mt-1">
+                Roughly 2.6&times; the effective HP (the damage-reduction cap over stock) buys roughly
+                1.3&ndash;2&times; the swarm needed to crack it — win rate scales with the swarm's square root of
+                effective HP, not linearly.
+            </p>
+        </div>
+        {{end}}
+
+        {{if .MultiOpus}}
+        <div class="ls-callout" id="ls-multi-opus">
+            <h3>Multi-Opus Effect: facing more than one titan</h3>
+            <div class="ls-sub">
+                A Prospect swarm needs {{.MultiOpus.N1}} ships to beat a single stock Opus Magna. Add more
+                titans, and the threshold depends on a choice the defenders make: concentrate fire, or spread it.
+            </div>
+            <div class="ls-table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Titans (D)</th><th>Dogpile N</th><th>&times;N1</th><th>Spread N</th><th>&times;N1</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td class="ls-cell">{{.MultiOpus.N1}}</td><td class="ls-cell">1.00&times;</td>
+                            <td class="ls-cell">{{.MultiOpus.N1}}</td><td class="ls-cell">1.00&times;</td>
+                        </tr>
+                        {{range .MultiOpus.Rows}}
+                        <tr>
+                            <td>{{.D}}</td>
+                            <td class="ls-cell">{{.DogpileN}}</td><td class="ls-cell">{{.DogpileX}}</td>
+                            <td class="ls-cell">{{.SpreadN}}</td><td class="ls-cell">{{.SpreadX}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted mt-1">
+                Dogpile (concentrate fire) guarantees kills fastest; spread (parallelize) avoids wasting a
+                capital's overkill firepower on an already-dying target — a player choice, not a fixed rule. The
+                measured threshold sits between two theoretical bounds: N1&times;&radic;D (pure firepower scaling)
+                and the Lanchester square-law bound N1&times;&radic;(D(D+1)/2).
+            </p>
         </div>
         {{end}}
 
