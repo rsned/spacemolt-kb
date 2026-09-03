@@ -29,7 +29,7 @@ func TestRenderPage(t *testing.T) {
 	for _, want := range []string{
 		"<title", "smui.css", "Opus Magna", "no capital weapon bonus", "id=\"matrix\"",
 		"High-End Setup", "Combat Drone", "damage reduction",
-		"Multi-Opus Effect", "titans", "Dogpile", "Spread",
+		"Multi-Opus Effect", "dreadnoughts", "Dogpile", "Spread",
 		"how easily most hulls fall", "id=\"ls-low-end\"",
 		"Analysis Notes", "Data Source",
 	} {

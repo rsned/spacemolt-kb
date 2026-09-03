@@ -467,7 +467,7 @@ func RenderPage(m Matrix, highEnd *HighEndData, multiOpus *MultiOpusData) (strin
 	}
 
 	data := pageData{
-		Title:        "Last Stand: Swarm vs Titan",
+		Title:        "Last Stand: Swarm vs Dreadnought",
 		GeneratedUTC: html.EscapeString(m.GeneratedUTC),
 		RowCount:     len(m.Rows),
 		Columns:      cols,
@@ -590,8 +590,8 @@ const pageTemplate = `<!DOCTYPE html>
         </nav>
     </header>
     <main class="container page-content">
-        <div class="breadcrumb"><a href="./">Did You Know?</a> / Last Stand: Swarm vs Titan</div>
-        <h2>Last Stand: Swarm vs Titan</h2>
+        <div class="breadcrumb"><a href="./">Did You Know?</a> / Last Stand: Swarm vs Dreadnought</div>
+        <h2>Last Stand: Swarm vs Dreadnought</h2>
         <p class="text-muted mt-1 ls-lede">
             Picture facing a swarm of 1,000 fifth-graders. One of them can't lay a glove on you — but pile on
             enough, and even the toughest opponent goes down. This page runs that experiment for every hull in
@@ -610,7 +610,7 @@ const pageTemplate = `<!DOCTYPE html>
                 <div class="ls-stat">
                     <span class="label">{{.Empire}}</span>
                     <span class="n">{{.Display}}</span>
-                    {{if .Resolved}}<span class="kills">the titan kills {{.MedianKills}} of you first</span>{{else}}<span class="kills">not resolved</span>{{end}}
+                    {{if .Resolved}}<span class="kills">the dreadnought kills {{.MedianKills}} of you first</span>{{else}}<span class="kills">not resolved</span>{{end}}
                 </div>
                 {{end}}
             </div>
@@ -656,15 +656,15 @@ const pageTemplate = `<!DOCTYPE html>
 
         {{if .MultiOpus}}
         <div class="ls-callout" id="ls-multi-opus">
-            <h3>Multi-Opus Effect: facing more than one titan</h3>
+            <h3>Multi-Opus Effect: facing more than one dreadnought</h3>
             <div class="ls-sub">
                 A Prospect swarm needs {{.MultiOpus.N1}} ships to beat a single stock Opus Magna. Add more
-                titans, and the threshold depends on a choice the defenders make: concentrate fire, or spread it.
+                dreadnoughts, and the threshold depends on a choice the defenders make: concentrate fire, or spread it.
             </div>
             <div class="ls-table-wrap">
                 <table>
                     <thead>
-                        <tr><th>Titans (D)</th><th>Dogpile N</th><th>&times;N1</th><th>Spread N</th><th>&times;N1</th></tr>
+                        <tr><th>Dreadnoughts (D)</th><th>Dogpile N</th><th>&times;N1</th><th>Spread N</th><th>&times;N1</th></tr>
                     </thead>
                     <tbody>
                         <tr>
@@ -762,7 +762,7 @@ const pageTemplate = `<!DOCTYPE html>
             </div>
             {{if .Spread.OK}}
             <p class="text-muted mt-2">
-                In this matrix, the titan falls fastest to a <strong>{{.Spread.LowName}}</strong> swarm
+                In this matrix, the dreadnought falls fastest to a <strong>{{.Spread.LowName}}</strong> swarm
                 (N={{.Spread.LowN}}) and holds out longest against <strong>{{.Spread.HighName}}</strong>
                 (N={{.Spread.HighN}}) — a direct read of how its shield/armor mix answers each damage type above,
                 not a hand-wave.
@@ -828,16 +828,16 @@ const pageTemplate = `<!DOCTYPE html>
 
         <h3 class="mt-3">Analysis Notes</h3>
         <ul>
-            <li><strong>Why so few?</strong> A ship fires at one target per tick, so a lone titan removes at most one attacker per tick no matter how many guns it has. That turns the threshold into roughly a square-root law — a swarm needs about &radic;(effective HP &divide; per-ship damage) ships, which is why ~40 Prospects (not ~1,350) sink a stock Opus Magna.</li>
+            <li><strong>Why so few?</strong> A ship fires at one target per tick, so a lone dreadnought removes at most one attacker per tick no matter how many guns it has. That turns the threshold into roughly a square-root law — a swarm needs about &radic;(effective HP &divide; per-ship damage) ships, which is why ~40 Prospects (not ~1,350) sink a stock Opus Magna.</li>
             <li><strong>Damage type beats raw tonnage.</strong> Kinetic hits shields at full and armor at &times;1.5, energy at 0.75/0.75, EM at 1.0/1.0 — but sustained damage-per-tick dominates, so a two-autocannon Shard (32) beats a single-gun Cobble (56) despite the same damage type.</li>
-            <li><strong>More titans scale sub-linearly.</strong> Two Opus Magnas need well under 2&times; the swarm (~1.5&times; if they dogpile one target, ~1.7&times; if they parallelize) — a concentration-of-force (Lanchester square-law) effect; see the Multi-Opus Effect callout above.</li>
+            <li><strong>More dreadnoughts scale sub-linearly.</strong> Two Opus Magnas need well under 2&times; the swarm (~1.5&times; if they dogpile one target, ~1.7&times; if they parallelize) — a concentration-of-force (Lanchester square-law) effect; see the Multi-Opus Effect callout above.</li>
             <li><strong>Fitting is a force multiplier.</strong> The same hull taken to the 75% damage-reduction cap needs roughly twice the swarm; because the threshold is a square root of effective HP, a ~2.6&times; survivability gain costs the attacker only ~1.3&ndash;2&times; more ships — see the High-End Setup callout above.</li>
             <li><strong>Crossover definition.</strong> Each cell is the smallest swarm size that wins a majority (&gt;50%) of 300 Monte-Carlo battles, found by exponential-doubling then bisection — not a single lucky all-crit run.</li>
             <li><strong>Not modeled.</strong> Everyone flies the fire stance (no braking/evading/fleeing AI); 30 of 335 hulls whose stock loadout mixes weapon damage types are left unrated. See the <a href="#ls-assumptions">Assumptions box</a> above for the full list.</li>
         </ul>
 
         <h3 class="mt-3">Data Source</h3>
-        <p class="text-muted">Ship hulls and their stock modules come from the committed catalog snapshot; the combat constants (the hit-chance-by-distance table, shield/armor damage pipeline, regen and stance multipliers) were measured from real exported battle logs during an earlier calibration pass and live in <code>data/combat-sim/calibration.json</code>. Battles are resolved by a Monte-Carlo tick simulator (<code>pkg/combatsim</code>): a fast homogeneous "cohort" engine for the swarm-vs-one-defender matrix and a general per-ship engine for the multi-titan cases. The full {{.RowCount}}&times;{{len .Columns}} matrix is generated by <code>cmd/generate-last-stand</code> at 300 runs per cell. The High-End Setup fitting is a real Combat Drone Opus Magna reconstructed from a live battle log via battle-export and <code>combat-sim --extract-fits</code>.</p>
+        <p class="text-muted">Ship hulls and their stock modules come from the committed catalog snapshot; the combat constants (the hit-chance-by-distance table, shield/armor damage pipeline, regen and stance multipliers) were measured from real exported battle logs during an earlier calibration pass and live in <code>data/combat-sim/calibration.json</code>. Battles are resolved by a Monte-Carlo tick simulator (<code>pkg/combatsim</code>): a fast homogeneous "cohort" engine for the swarm-vs-one-defender matrix and a general per-ship engine for the multi-dreadnought cases. The full {{.RowCount}}&times;{{len .Columns}} matrix is generated by <code>cmd/generate-last-stand</code> at 300 runs per cell. The High-End Setup fitting is a real Combat Drone Opus Magna reconstructed from a live battle log via battle-export and <code>combat-sim --extract-fits</code>.</p>
     </main>
 
     <div class="ls-backdrop" id="ls-backdrop"></div>
