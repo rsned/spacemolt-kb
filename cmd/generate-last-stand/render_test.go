@@ -31,6 +31,7 @@ func TestRenderPage(t *testing.T) {
 		"High-End Setup", "Combat Drone", "damage reduction",
 		"Multi-Opus Effect", "titans", "Dogpile", "Spread",
 		"how easily most hulls fall", "id=\"ls-low-end\"",
+		"Analysis Notes", "Data Source",
 	} {
 		if !strings.Contains(html, want) {
 			t.Fatalf("page missing %q", want)
