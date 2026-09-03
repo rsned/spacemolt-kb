@@ -111,20 +111,36 @@ func RunMultiShip(ships []Ship, cal *Calibration, maxTicks int, rng *rand.Rand) 
 		for i := range side {
 			side[i].HitThisTick = false
 		}
-		// Each living ship fires at the lowest-index living enemy.
+		// Targeting is fixed for the whole tick: each living ship locks onto
+		// the lowest-index living enemy as of tick START. There is no
+		// within-tick retargeting — if that target dies partway through the
+		// tick (killed by an earlier ship's volley this same tick), the shot
+		// is lost rather than redirected to the next-lowest survivor
+		// (dev-confirmed rule). Firing order below still resolves
+		// sequentially, so shields/hull deplete in order among ships that
+		// share a still-living target.
+		targets := make([]int, n)
 		for i := range side {
+			targets[i] = -1
 			if !alive[i] {
 				continue
 			}
-			tgt := -1
 			for j := range side {
 				if alive[j] && team[j] != team[i] {
-					tgt = j
+					targets[i] = j
 					break
 				}
 			}
-			if tgt == -1 {
+		}
+		for i := range side {
+			// A ship killed earlier this tick (by a lower-index shooter)
+			// does not get to fire — no simultaneity for the shooter side.
+			if !alive[i] {
 				continue
+			}
+			tgt := targets[i]
+			if tgt == -1 || !alive[tgt] {
+				continue // no target at tick start, or it died earlier this tick
 			}
 			o := volleyAt(side[i], side[tgt], dist, cal, rng)
 			side[tgt].Shield -= o.ShieldDrain

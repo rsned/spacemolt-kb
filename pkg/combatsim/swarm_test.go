@@ -226,6 +226,92 @@ func TestMultiShipSoloDuel(t *testing.T) {
 	}
 }
 
+// TestMultiShipNoWithinTickTargetCycling is a dev-confirmed rule: a ship's
+// target is locked at the START of a tick (lowest-index living enemy at
+// that moment). If that target dies partway through the tick — killed by an
+// earlier shooter's volley in the SAME tick — later shooters whose locked
+// target was that same ship do NOT retarget to the next-lowest survivor;
+// their shot is simply lost.
+//
+// Setup: 3 unarmed attackers (team 0, indices 0-2, so they never fire and
+// can't confound the result) vs 2 one-shot-kill defenders (team 1, indices
+// 3-4). Hit chance is forced to 1.0 (deterministic — no RNG dependence).
+// Both defenders compute their tick-start target independently and land on
+// the SAME ship: attacker index 0, the lowest-index living team-0 ship at
+// the moment targets are snapshotted.
+//
+// Firing proceeds in ship-index order: defender 3 fires first and kills
+// attacker 0. Defender 4 fires next with its target STILL locked to
+// attacker 0 (computed once, at tick start) — but attacker 0 is now dead,
+// so defender 4's shot is void.
+//
+// Under the OLD (buggy) per-shot target computation, defender 4 would
+// re-scan for "the lowest-index living enemy" at the MOMENT it fires, find
+// attacker 0 already dead, and retarget to attacker 1 — landing a second
+// kill in the same tick. That is exactly the within-tick cycling the devs
+// say does not happen; this test would see KillsByTeam[1] == 2 under that
+// code, not 1.
+func TestMultiShipNoWithinTickTargetCycling(t *testing.T) {
+	atk := &StatBlock{Name: "unarmed-hulk", MaxHull: 10, MaxShield: 0} // no Weapons: never fires
+	def := &StatBlock{Name: "one-shot", MaxHull: 1000, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 1000, Type: "kinetic", Cooldown: 1, Magazine: 500, Reach: 6}}}
+	ships := []Ship{{atk, 0}, {atk, 0}, {atk, 0}, {def, 1}, {def, 1}}
+	cal := testCal()
+	cal.HitChanceByDistance = []float64{1, 1, 1, 1, 1, 1, 1} // always hit: fully deterministic
+	rng := rand.New(rand.NewPCG(1, 1))
+
+	r := RunMultiShip(ships, cal, 1, rng)
+
+	if r.Ticks != 1 {
+		t.Fatalf("Ticks = %d, want 1", r.Ticks)
+	}
+	if r.WinningTeam != -1 {
+		t.Fatalf("WinningTeam = %d, want -1 (both teams still have survivors after 1 tick)", r.WinningTeam)
+	}
+	if got := r.KillsByTeam[1]; got != 1 {
+		t.Fatalf("KillsByTeam[1] = %d, want exactly 1 (defender 4's shot at the "+
+			"already-dead attacker 0 must be lost, not redirected to attacker 1)", got)
+	}
+	if got := r.KillsByTeam[0]; got != 0 {
+		t.Fatalf("KillsByTeam[0] = %d, want 0 (attackers are unarmed)", got)
+	}
+}
+
+// TestMultiShipLockedTargetStillLandsWhenSurviving is the positive
+// counterpart to TestMultiShipNoWithinTickTargetCycling: when a ship's
+// locked target does NOT die mid-tick, the tick-start target lock must not
+// interfere with an ordinary landed hit. A single attacker vs a single
+// unarmed defender has no other ship to retarget to either way, so this
+// isolates "does the lock still deliver a normal hit" from the cycling
+// question.
+//
+// The defender's hull is exactly two hits' worth of damage: it survives
+// tick 1 (proving that hit landed — a lost/no-op shot would leave the
+// defender at full health and this battle would never end) and dies on
+// tick 2 (proving the second hit landed too, right on schedule).
+func TestMultiShipLockedTargetStillLandsWhenSurviving(t *testing.T) {
+	attacker := &StatBlock{Name: "striker", MaxHull: 50, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 5, Type: "kinetic", Cooldown: 1, Magazine: 500, Reach: 6}}}
+	target := &StatBlock{Name: "punching-bag", MaxHull: 10, MaxShield: 0} // no Weapons: never fires back
+	ships := []Ship{{attacker, 0}, {target, 1}}
+	cal := testCal()
+	cal.HitChanceByDistance = []float64{1, 1, 1, 1, 1, 1, 1} // always hit: fully deterministic
+	rng := rand.New(rand.NewPCG(2, 2))
+
+	r := RunMultiShip(ships, cal, 10, rng)
+
+	if r.WinningTeam != 0 {
+		t.Fatalf("WinningTeam = %d, want 0 (attacker survives, unarmed defender does not)", r.WinningTeam)
+	}
+	if r.Ticks != 2 {
+		t.Fatalf("Ticks = %d, want exactly 2 (5dmg/hit needs 2 landed hits to down a 10-hull target; "+
+			"a dropped tick-1 hit would push this to 3+ ticks)", r.Ticks)
+	}
+	if got := r.KillsByTeam[0]; got != 1 {
+		t.Fatalf("KillsByTeam[0] = %d, want 1", got)
+	}
+}
+
 func swarmWinRate(attacker, defender *StatBlock, n, runs int, cal *Calibration) float64 {
 	wins := 0
 	for s := range uint64(runs) {
