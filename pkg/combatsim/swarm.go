@@ -91,11 +91,76 @@ type MultiResult struct {
 	KillsByTeam map[int]int
 }
 
-// RunMultiShip simulates a heterogeneous battle: every ship closes from
-// swarmStartDistance, fires at one enemy per tick, and a team wins when it
-// is the only one left alive. Volleys within a tick resolve sequentially so
-// shields deplete in order.
+// TargetMode selects how a team's living ships pick their per-tick targets
+// in RunMultiShipModes. The zero value, TargetConcentrate, is the default.
+type TargetMode int
+
+const (
+	// TargetConcentrate: every ship on the team locks onto the same
+	// lowest-index living enemy (dogpile/focus-fire).
+	TargetConcentrate TargetMode = iota
+	// TargetSpread: the team's living ships (ordered by index) round-robin
+	// across DISTINCT living enemies (also ordered by index), wrapping when
+	// there are more shooters than enemies.
+	TargetSpread
+)
+
+// RunMultiShip simulates a heterogeneous battle with every team dogpiling
+// (TargetConcentrate) — see RunMultiShipModes for per-team targeting modes.
 func RunMultiShip(ships []Ship, cal *Calibration, maxTicks int, rng *rand.Rand) MultiResult {
+	return RunMultiShipModes(ships, nil, cal, maxTicks, rng)
+}
+
+// computeTargets snapshots one locked target per living ship for the coming
+// tick, honoring each team's TargetMode (teamMode[t] defaults to
+// TargetConcentrate — including when teamMode is nil — for any team without
+// an explicit entry). A team's "enemies" are every living ship on a
+// different team, ordered by index; a team's own living ships are likewise
+// ordered by index to determine round-robin rank under TargetSpread. The
+// result is fixed for the whole tick: the caller must re-check the target's
+// liveness at fire time rather than recomputing here (no within-tick
+// retargeting).
+func computeTargets(team []int, alive []bool, teamMode map[int]TargetMode) []int {
+	targets := make([]int, len(team))
+	for i := range targets {
+		targets[i] = -1
+	}
+	livingByTeam := map[int][]int{}
+	for i, a := range alive {
+		if a {
+			livingByTeam[team[i]] = append(livingByTeam[team[i]], i)
+		}
+	}
+	for t, members := range livingByTeam {
+		var enemies []int
+		for other, idxs := range livingByTeam {
+			if other != t {
+				enemies = append(enemies, idxs...)
+			}
+		}
+		if len(enemies) == 0 {
+			continue
+		}
+		sort.Ints(enemies) // map iteration order above is random; pin ascending by index
+		if teamMode[t] == TargetSpread {
+			for k, shipIdx := range members {
+				targets[shipIdx] = enemies[k%len(enemies)]
+			}
+		} else { // TargetConcentrate (default)
+			for _, shipIdx := range members {
+				targets[shipIdx] = enemies[0]
+			}
+		}
+	}
+	return targets
+}
+
+// RunMultiShipModes simulates a heterogeneous battle: every ship closes from
+// swarmStartDistance, fires at a target selected per teamMode (see
+// computeTargets) once per tick, and a team wins when it is the only one
+// left alive. Volleys within a tick resolve sequentially so shields deplete
+// in order.
+func RunMultiShipModes(ships []Ship, teamMode map[int]TargetMode, cal *Calibration, maxTicks int, rng *rand.Rand) MultiResult {
 	n := len(ships)
 	side := make([]*sideState, n)
 	team := make([]int, n)
@@ -111,27 +176,13 @@ func RunMultiShip(ships []Ship, cal *Calibration, maxTicks int, rng *rand.Rand) 
 		for i := range side {
 			side[i].HitThisTick = false
 		}
-		// Targeting is fixed for the whole tick: each living ship locks onto
-		// the lowest-index living enemy as of tick START. There is no
-		// within-tick retargeting — if that target dies partway through the
-		// tick (killed by an earlier ship's volley this same tick), the shot
-		// is lost rather than redirected to the next-lowest survivor
-		// (dev-confirmed rule). Firing order below still resolves
-		// sequentially, so shields/hull deplete in order among ships that
-		// share a still-living target.
-		targets := make([]int, n)
-		for i := range side {
-			targets[i] = -1
-			if !alive[i] {
-				continue
-			}
-			for j := range side {
-				if alive[j] && team[j] != team[i] {
-					targets[i] = j
-					break
-				}
-			}
-		}
+		// Targeting is fixed for the whole tick (dev-confirmed rule): no
+		// within-tick retargeting — if a locked target dies partway through
+		// the tick (killed by an earlier ship's volley this same tick), the
+		// shot is lost rather than redirected to a new one. Firing order
+		// below still resolves sequentially, so shields/hull deplete in
+		// order among ships that share a still-living target.
+		targets := computeTargets(team, alive, teamMode)
 		for i := range side {
 			// A ship killed earlier this tick (by a lower-index shooter)
 			// does not get to fire — no simultaneity for the shooter side.

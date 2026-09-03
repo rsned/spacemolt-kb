@@ -312,6 +312,83 @@ func TestMultiShipLockedTargetStillLandsWhenSurviving(t *testing.T) {
 	}
 }
 
+// TestMultiShipSpreadHitsDistinctTargets is the spread-mode discriminator:
+// with TargetSpread, a team's ships round-robin across DISTINCT living
+// enemies (still locked at tick start, still no within-tick retargeting)
+// instead of all dogpiling the lowest-index enemy. Same shape as
+// TestMultiShipNoWithinTickTargetCycling (3 unarmed attackers, 2 one-shot
+// defenders) but team 1 is TargetSpread instead of the default
+// TargetConcentrate — so where that test asserts exactly ONE kill (both
+// defenders locked onto the same doomed attacker 0), this one must see TWO
+// distinct kills: defender 3 -> attacker 0, defender 4 -> attacker 1, and
+// neither target dies before its shooter's turn, so neither shot is lost.
+func TestMultiShipSpreadHitsDistinctTargets(t *testing.T) {
+	atk := &StatBlock{Name: "unarmed-hulk", MaxHull: 10, MaxShield: 0} // no Weapons: never fires
+	def := &StatBlock{Name: "one-shot", MaxHull: 1000, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 1000, Type: "kinetic", Cooldown: 1, Magazine: 500, Reach: 6}}}
+	ships := []Ship{{atk, 0}, {atk, 0}, {atk, 0}, {def, 1}, {def, 1}}
+	cal := testCal()
+	cal.HitChanceByDistance = []float64{1, 1, 1, 1, 1, 1, 1} // always hit: fully deterministic
+	rng := rand.New(rand.NewPCG(1, 1))
+
+	r := RunMultiShipModes(ships, map[int]TargetMode{1: TargetSpread}, cal, 1, rng)
+
+	if r.Ticks != 1 {
+		t.Fatalf("Ticks = %d, want 1", r.Ticks)
+	}
+	if r.WinningTeam != -1 {
+		t.Fatalf("WinningTeam = %d, want -1 (attacker 2 and both defenders survive)", r.WinningTeam)
+	}
+	if got := r.KillsByTeam[1]; got != 2 {
+		t.Fatalf("KillsByTeam[1] = %d, want exactly 2 (spread: defender 3 -> attacker 0, "+
+			"defender 4 -> attacker 1 — distinct targets, both land)", got)
+	}
+}
+
+// TestMultiShipSpreadRoundRobinWrap covers the round-robin wrap: with more
+// spread shooters than living enemies, the assignment cycles back
+// (k-th living team-ship -> enemies[k mod E]). 3 spread defenders vs 2
+// living attackers assigns 0,1,0 — the third defender's target (attacker 0)
+// duplicates the first's. No-cycling still applies: if the wrapped
+// duplicate's target already died this tick (from the earlier shooter who
+// got the same assignment), that shot is lost, not redirected to the other
+// living enemy.
+//
+// This is made independently verifiable (not just "no more kills than
+// enemies exist," which the enemy count alone would already cap at 2):
+// attacker 1 survives a single 1000-damage hit but would die to two. Correct
+// wrapping (0,1,0) means attacker 1 takes exactly ONE hit (from defender 3)
+// and lives; a wrap bug that sent the duplicate to attacker 1 instead of
+// attacker 0 would land a second hit on it and kill it, which the
+// WinningTeam/KillsByTeam assertions below would catch.
+func TestMultiShipSpreadRoundRobinWrap(t *testing.T) {
+	atk0 := &StatBlock{Name: "one-shot-atk", MaxHull: 10, MaxShield: 0}    // no Weapons: never fires
+	atk1 := &StatBlock{Name: "two-shot-atk", MaxHull: 1500, MaxShield: 0} // survives 1 hit of 1000, not 2
+	def := &StatBlock{Name: "one-shot-def", MaxHull: 1000, MaxShield: 0,
+		Weapons: []Weapon{{Damage: 1000, Type: "kinetic", Cooldown: 1, Magazine: 500, Reach: 6}}}
+	ships := []Ship{{atk0, 0}, {atk1, 0}, {def, 1}, {def, 1}, {def, 1}}
+	cal := testCal()
+	cal.HitChanceByDistance = []float64{1, 1, 1, 1, 1, 1, 1} // always hit: fully deterministic
+	rng := rand.New(rand.NewPCG(3, 3))
+
+	r := RunMultiShipModes(ships, map[int]TargetMode{1: TargetSpread}, cal, 1, rng)
+
+	if r.Ticks != 1 {
+		t.Fatalf("Ticks = %d, want 1", r.Ticks)
+	}
+	if r.WinningTeam != -1 {
+		t.Fatalf("WinningTeam = %d, want -1 (attacker 1 must survive on 1 landed hit, "+
+			"not die to a wrap bug landing 2)", r.WinningTeam)
+	}
+	if got := r.KillsByTeam[1]; got != 1 {
+		t.Fatalf("KillsByTeam[1] = %d, want exactly 1 (attacker 0 dies to defender 2; "+
+			"defender 4's wrapped duplicate at attacker 0 is lost, not redirected to attacker 1)", got)
+	}
+	if got := r.KillsByTeam[0]; got != 0 {
+		t.Fatalf("KillsByTeam[0] = %d, want 0", got)
+	}
+}
+
 func swarmWinRate(attacker, defender *StatBlock, n, runs int, cal *Calibration) float64 {
 	wins := 0
 	for s := range uint64(runs) {
