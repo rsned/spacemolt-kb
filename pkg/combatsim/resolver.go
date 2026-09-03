@@ -67,6 +67,15 @@ func ResolveHull(hullID string, cat *Catalog, allowCapital bool) (*StatBlock, er
 	return resolveFit(fit, cat, allowCapital)
 }
 
+// ResolveFit resolves an arbitrary fit (not just a hull's stock
+// default_modules) into its combat stat block — the entry point for custom
+// defender fits, e.g. a reconstructed high-end loadout loaded via LoadFit.
+// allowCapital mirrors ResolveHull: skip the tier>=5 guard so a capital hull
+// can be resolved as a defender.
+func ResolveFit(fit *FitSpec, cat *Catalog, allowCapital bool) (*StatBlock, error) {
+	return resolveFit(fit, cat, allowCapital)
+}
+
 func resolveFit(fit *FitSpec, cat *Catalog, allowCapital bool) (*StatBlock, error) {
 	hull, ok := cat.Ships[fit.Hull]
 	if !ok {

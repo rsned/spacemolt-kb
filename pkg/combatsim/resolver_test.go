@@ -1,6 +1,7 @@
 package combatsim
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -136,6 +137,33 @@ func TestResolveHullCapital(t *testing.T) {
 	}
 	if maxReach != 4 {
 		t.Fatalf("max mount reach = %d, want 4", maxReach)
+	}
+}
+
+// The committed high-end fit (data/combat-sim/fits/high_end_opus_drone.json,
+// a reconstructed Combat Drone gunline Opus Magna) is a custom fit, not a
+// hull's stock default_modules — ResolveFit is the exported entry point the
+// KB page generator uses to resolve it. Its three shield/damage-control
+// modules (2x adaptive_shield_iii@35, quantum_shield_iv@35,
+// damage_control_system@10 = 115 raw) sum well past the 75 cap.
+func TestResolveFitHighEndDrone(t *testing.T) {
+	cat, err := LoadCatalog(catalogDir(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	fit, err := LoadFit(filepath.Join("..", "..", "data", "combat-sim", "fits", "high_end_opus_drone.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	sb, err := ResolveFit(fit, cat, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sb.FlatPct != 75 {
+		t.Errorf("FlatPct = %d, want 75 (capped)", sb.FlatPct)
+	}
+	if len(sb.Weapons) != 8 {
+		t.Errorf("weapons = %d, want 8", len(sb.Weapons))
 	}
 }
 
