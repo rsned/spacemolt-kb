@@ -265,10 +265,12 @@ func buildMultiOpusView(d *MultiOpusData) *multiOpusView {
 
 // lowEndRowView is one Tier-0 starter hull's crossover results as a
 // defender against the five starter attacker columns, for the Tier-0
-// mirror table in the low-end callout.
+// mirror table in the low-end callout. Cells is in tier0MirrorOrder, not
+// cols order (see buildLowEndView), so the row axis and column axis match
+// and the self-vs-self diagonal lines up.
 type lowEndRowView struct {
 	Name  string   // pre-escaped
-	Cells []string // pre-escaped display value ("∞", "?", or the crossover N), in column order
+	Cells []string // pre-escaped display value ("∞", "?", or the crossover N), in tier0MirrorOrder
 }
 
 // lowEndView is the companion "how easily most hulls fall" callout's
@@ -280,12 +282,23 @@ type lowEndRowView struct {
 // buildLowEndView, which is nil only when the matrix has no finite cells
 // to report on (e.g. an empty defender set).
 type lowEndView struct {
-	FiniteCount  int      // finite (n>0) cells across all rows and the given columns
-	OneCount     int      // of FiniteCount, how many have n==1
-	LeTwoCount   int      // of FiniteCount, how many have n<=2 (includes OneCount)
-	FragileHulls []string // pre-escaped names of hulls with n==1 against every column, capped
+	FiniteCount  int       // finite (n>0) cells across all rows and the given columns
+	OneCount     int       // of FiniteCount, how many have n==1
+	LeTwoCount   int       // of FiniteCount, how many have n<=2 (includes OneCount)
+	FragileHulls []string  // pre-escaped names of hulls with n==1 against every column, capped
+	Tier0Cols    []colView // the mirror table's column header, in tier0MirrorOrder
 	Tier0Rows    []lowEndRowView
 }
+
+// tier0MirrorOrder pins the shared row/column axis order for the Tier-0
+// mirror table (both the 5 Tier-0 defender rows and the 5 starter-swarm
+// columns), so the self-vs-self diagonal lines up. This happens to equal
+// sorting the 5 starter names alphabetically, but is named explicitly here
+// so it can't silently drift if a hull is renamed or the starter roster
+// changes — unlike the main matrix table, which keeps starterColumnIDs'
+// empire display order (shard, prospect, cobble, theoria, threshold) and is
+// untouched by this.
+var tier0MirrorOrder = []string{"cobble", "prospect", "shard", "theoria", "threshold"}
 
 // maxFragileHulls caps how many "falls to one ship on every column" example
 // hulls the low-end callout lists — the matrix has dozens (see
@@ -347,12 +360,35 @@ func buildLowEndView(m Matrix, cols []colView) *lowEndView {
 		v.FragileHulls = append(v.FragileHulls, html.EscapeString(f.name))
 	}
 
-	for _, r := range m.Rows {
-		if r.Tier != 0 {
+	// Both the mirror table's row axis (Tier0Rows, one per Tier-0 defender)
+	// and column axis (Tier0Cols, one per starter-swarm attacker) walk
+	// tier0MirrorOrder — not m.Rows order or cols order — so the two axes
+	// match and the self-vs-self diagonal lines up.
+	colByID := make(map[string]colView, len(cols))
+	for _, c := range cols {
+		colByID[c.ID] = c
+	}
+	var mirrorCols []colView
+	for _, id := range tier0MirrorOrder {
+		if c, ok := colByID[id]; ok {
+			mirrorCols = append(mirrorCols, c)
+		}
+	}
+	v.Tier0Cols = mirrorCols
+
+	rowByID := make(map[string]*Row, len(m.Rows))
+	for i := range m.Rows {
+		if m.Rows[i].Tier == 0 {
+			rowByID[m.Rows[i].ShipID] = &m.Rows[i]
+		}
+	}
+	for _, id := range tier0MirrorOrder {
+		r, ok := rowByID[id]
+		if !ok {
 			continue
 		}
 		row := lowEndRowView{Name: html.EscapeString(r.Name)}
-		for _, c := range cols {
+		for _, c := range mirrorCols {
 			cell := r.Cells[c.ID]
 			switch {
 			case cell == nil:
@@ -365,7 +401,6 @@ func buildLowEndView(m Matrix, cols []colView) *lowEndView {
 		}
 		v.Tier0Rows = append(v.Tier0Rows, row)
 	}
-	sort.Slice(v.Tier0Rows, func(i, j int) bool { return v.Tier0Rows[i].Name < v.Tier0Rows[j].Name })
 
 	return v
 }
@@ -684,7 +719,7 @@ const pageTemplate = `<!DOCTYPE html>
                     <thead>
                         <tr>
                             <th>Starter (defender)</th>
-                            {{range .Columns}}<th title="{{.Weapon}} ({{.DamageType}})">{{.Name}}<br><span class="text-muted">{{.Empire}}</span></th>{{end}}
+                            {{range .LowEnd.Tier0Cols}}<th title="{{.Weapon}} ({{.DamageType}})">{{.Name}}<br><span class="text-muted">{{.Empire}}</span></th>{{end}}
                         </tr>
                     </thead>
                     <tbody>

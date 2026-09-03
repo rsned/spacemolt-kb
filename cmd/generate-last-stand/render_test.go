@@ -63,6 +63,52 @@ func TestRenderPageNoHighEndOrMultiOpus(t *testing.T) {
 	}
 }
 
+// TestLowEndTier0MirrorAxesAligned asserts the Tier-0 mirror table's row
+// axis (Tier0Rows) and column axis (Tier0Cols) both follow
+// tier0MirrorOrder — cobble, prospect, shard, theoria, threshold — so the
+// self-vs-self diagonal lines up. This is independent of the main matrix
+// table's own column order (starterColumnIDs' shard/prospect/cobble/
+// theoria/threshold), which buildColViews still preserves unchanged.
+func TestLowEndTier0MirrorAxesAligned(t *testing.T) {
+	cat, cal := loadForTest(t)
+	defenders := append(append([]string{}, starterColumnIDs()...), opusMagnaID)
+	m := BuildMatrix(cat, cal, starterColumnIDs(), defenders, 25000, 20, 4000)
+	cols := buildColViews(m.Columns)
+
+	// The main table's column order is untouched by this change.
+	wantMainOrder := []string{"shard", "prospect", "cobble", "theoria", "threshold"}
+	for i, c := range cols {
+		if c.ID != wantMainOrder[i] {
+			t.Fatalf("main table column %d = %q, want %q (unchanged order)", i, c.ID, wantMainOrder[i])
+		}
+	}
+
+	lowEnd := buildLowEndView(m, cols)
+	if lowEnd == nil {
+		t.Fatal("buildLowEndView = nil")
+	}
+	if len(lowEnd.Tier0Cols) != len(tier0MirrorOrder) {
+		t.Fatalf("Tier0Cols = %d entries, want %d", len(lowEnd.Tier0Cols), len(tier0MirrorOrder))
+	}
+	for i, c := range lowEnd.Tier0Cols {
+		if c.ID != tier0MirrorOrder[i] {
+			t.Errorf("Tier0Cols[%d].ID = %q, want %q", i, c.ID, tier0MirrorOrder[i])
+		}
+	}
+	if len(lowEnd.Tier0Rows) != len(tier0MirrorOrder) {
+		t.Fatalf("Tier0Rows = %d entries, want %d", len(lowEnd.Tier0Rows), len(tier0MirrorOrder))
+	}
+	for i, r := range lowEnd.Tier0Rows {
+		wantName := capitalize(tier0MirrorOrder[i]) // hull display names are the capitalized ids here
+		if r.Name != wantName {
+			t.Errorf("Tier0Rows[%d].Name = %q, want %q", i, r.Name, wantName)
+		}
+		if len(r.Cells) != len(tier0MirrorOrder) {
+			t.Errorf("Tier0Rows[%d].Cells = %d entries, want %d", i, len(r.Cells), len(tier0MirrorOrder))
+		}
+	}
+}
+
 // TestBuildHighEndDataMissingOpusRow asserts the actual guard buildHighEndData
 // documents: given a matrix subset whose defenders don't include opus_magna
 // (so it has no row to source the stock crossover from), it returns nil
