@@ -609,8 +609,11 @@ function val(a, unit, opts={}) {
 }
 
 /* ------------------------------------------------------------- computation */
-/* Engineering is documented as "1% per level" CPU and power efficiency, so
-   level 100 zeroes every module. Implemented literally; flagged in the footer. */
+/* Engineering is "1% per level" CPU and power efficiency. MEASURED against the
+   server 2026-09-05: it sums the raw module costs and rounds ONCE at the end
+   (4x Cargo Expander I, 4 CPU raw, Engineering 30 -> cpu_used 3, i.e.
+   round(4 x 0.70) = 3, not 4x round(0.7) = 4 and not floor(2.8) = 2). Level 100
+   zeroes every module. */
 const engMul = () => 1 - state.eng / 100;
 
 /* ------------------------------------------------------------ sheet themes */
@@ -629,8 +632,6 @@ catch (e) { applyTheme("blueprint"); }
 /* flood-color in the shield-ring filters cannot use var(); resolve live. */
 const themeToken = name =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-const modCpu = m => Math.round(m.cpu * engMul());
-const modPwr = m => Math.round(m.pwr * engMul());
 
 function fittedModules() {
   const out = [];
@@ -986,7 +987,13 @@ function renderSlots() {
     const rows = Array.from({length:n}, (_,i) => {
       const cur = state.fit[slot][i] || "";
       const m = cur ? MOD[cur] : null;
-      const cost = m ? `${modCpu(m)}c &middot; ${modPwr(m)}p` : "&mdash;";
+      /* Raw catalog cost, matching what get_ship reports on each fitted
+         module instance (cpu_usage/power_usage come back unmodified by
+         Engineering). The discount is a ship-level total, so rounding it
+         per slot produced rows that did not sum to the total -- four
+         Cargo Expander I at Engineering 30 each read 1c while the total
+         read 3c. Confirmed against the server 2026-09-05. */
+      const cost = m ? `${m.cpu}c &middot; ${m.pwr}p` : "&mdash;";
       return `<div class="slotrow${m?' filled':''}">
         <span class="n">${i+1}</span>
         <select class="${m?'':'empty'}" data-slot="${slot}" data-i="${i}">${optionsFor(slot)}</select>
@@ -1285,8 +1292,10 @@ async function render() {
     + `speed), plus <b>Bounty Hunting</b>, <b>Piracy</b> and <b>Leadership</b>, which affect `
     + `payouts, loot and scan evasion rather than these stats. `
     + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to the fitted total, `
-    + `matching the server: per-slot figures are each rounded for display, so they can `
-    + `sum a point above the total. At level 100 modules cost nothing. `
+    + `summing raw costs and rounding once at the end — measured against the server, `
+    + `not inferred. Per-slot figures are each module's raw cost, the same way the `
+    + `server reports them on a fitted module, so they will read higher than the `
+    + `discounted total. At level 100 modules cost nothing. `
     + `<b>SPEED</b> stops at ${SPEED_CAP} however many modules are fitted; anything past it `
     + `is shown as wasted rather than added. `
     + `<b>DAMAGE / TICK</b> assumes continuous fire and every shot landing: the catalog `
