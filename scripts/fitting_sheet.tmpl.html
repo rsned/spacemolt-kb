@@ -609,12 +609,23 @@ function val(a, unit, opts={}) {
 }
 
 /* ------------------------------------------------------------- computation */
-/* Engineering is "1% per level" CPU and power efficiency. MEASURED against the
-   server 2026-09-05: it sums the raw module costs and rounds ONCE at the end
-   (4x Cargo Expander I, 4 CPU raw, Engineering 30 -> cpu_used 3, i.e.
-   round(4 x 0.70) = 3, not 4x round(0.7) = 4 and not floor(2.8) = 2). Level 100
-   zeroes every module. */
+/* Engineering is "1% per level" CPU and power efficiency. Both halves of this
+   are MEASURED against get_ship, 2026-09-05/06, not inferred from the skill text:
+
+     - the SHIP TOTAL sums raw module costs and rounds once at the end.
+       4x Cargo Expander I (4 CPU raw) at Engineering 30 -> cpu_used 3, i.e.
+       round(4 x 0.70); not 4x round(0.7) = 4, not floor(2.8) = 2.
+     - each MODULE is discounted and rounded on its own. At Engineering 67 the
+       server reports Quantum Shield IV (12 CPU raw) as cpu_usage 4 = round(3.96),
+       Null Cannon (15) as 5, Energy Siphon (12) as 4.
+
+   So per-slot figures legitimately do NOT sum to the total -- 4+4+5+0 = 13
+   against a 13 total there, but 1+1+1+1 = 4 against a total of 3 on the
+   Enterprise. That is the server's own behaviour and the sheet mirrors it
+   rather than papering over it. Level 100 zeroes every module. */
 const engMul = () => 1 - state.eng / 100;
+const modCpu = m => Math.round(m.cpu * engMul());
+const modPwr = m => Math.round(m.pwr * engMul());
 
 /* ------------------------------------------------------------ sheet themes */
 const THEMES = ["blueprint", "light", "dark"];
@@ -987,13 +998,11 @@ function renderSlots() {
     const rows = Array.from({length:n}, (_,i) => {
       const cur = state.fit[slot][i] || "";
       const m = cur ? MOD[cur] : null;
-      /* Raw catalog cost, matching what get_ship reports on each fitted
-         module instance (cpu_usage/power_usage come back unmodified by
-         Engineering). The discount is a ship-level total, so rounding it
-         per slot produced rows that did not sum to the total -- four
-         Cargo Expander I at Engineering 30 each read 1c while the total
-         read 3c. Confirmed against the server 2026-09-05. */
-      const cost = m ? `${m.cpu}c &middot; ${m.pwr}p` : "&mdash;";
+      /* Engineering-discounted and rounded per module, which is exactly what
+         get_ship reports on each fitted module instance. These rows do not
+         have to sum to the ship total -- the server rounds per module here
+         and rounds the raw sum separately for the total. See engMul above. */
+      const cost = m ? `${modCpu(m)}c &middot; ${modPwr(m)}p` : "&mdash;";
       return `<div class="slotrow${m?' filled':''}">
         <span class="n">${i+1}</span>
         <select class="${m?'':'empty'}" data-slot="${slot}" data-i="${i}">${optionsFor(slot)}</select>
@@ -1291,11 +1300,11 @@ async function render() {
     + `for the capital bonus), <b>Tactics</b> (+1%/level accuracy, evasion and combat `
     + `speed), plus <b>Bounty Hunting</b>, <b>Piracy</b> and <b>Leadership</b>, which affect `
     + `payouts, loot and scan evasion rather than these stats. `
-    + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100) to the fitted total, `
-    + `summing raw costs and rounding once at the end — measured against the server, `
-    + `not inferred. Per-slot figures are each module's raw cost, the same way the `
-    + `server reports them on a fitted module, so they will read higher than the `
-    + `discounted total. At level 100 modules cost nothing. `
+    + `<b>ENGINEERING</b> applies cost × (1 &minus; level/100), summing raw costs and `
+    + `rounding once for the ship total, and rounding each module separately for its `
+    + `own figure — both measured against the server, not inferred. Per-slot figures `
+    + `therefore need not sum to the total; the server behaves the same way. `
+    + `At level 100 modules cost nothing. `
     + `<b>SPEED</b> stops at ${SPEED_CAP} however many modules are fitted; anything past it `
     + `is shown as wasted rather than added. `
     + `<b>DAMAGE / TICK</b> assumes continuous fire and every shot landing: the catalog `
