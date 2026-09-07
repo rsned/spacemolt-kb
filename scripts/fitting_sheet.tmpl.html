@@ -719,6 +719,7 @@ function compute() {
       r.speed.add += u.speed||0;   r.speed.sub += u.speedpen||0;
       r.cargo.add += u.cargo||0;   r.hull.sub  += u.hullpen||0;
       r.cpuCap.add += u.cpub||0;   r.fuel.add  += u.mfuel||0;
+      r.pwrCap.add += u.pwrb||0;
       r.feff.add += Math.max(0, u.feff||0);
       r.feff.sub += Math.max(0, -(u.feff||0));
       r.tow.sub += u.towpen||0;

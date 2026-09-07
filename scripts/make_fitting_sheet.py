@@ -244,7 +244,8 @@ def load_modules(con, ammo):
     """Every fittable module, keyed by slot. Mining rolls into utility."""
     mods = []
     q = """select m.item_id, i.name, m.slot, m.type, m.cpu_usage, m.power_usage,
-                  m.special, i.required_skills, i.base_value, i.description
+                  m.special, i.required_skills, i.base_value, i.description,
+                  i.power_bonus
            from item_modules m join items i on i.id = m.item_id
            order by i.name"""
     rows = list(con.execute(q))
@@ -267,7 +268,8 @@ def load_modules(con, ammo):
                   cpu_bonus, max_fuel_bonus, hull_penalty, speed_penalty
            from item_utilities""")}
 
-    for (mid, name, slot, mtype, cpu, pwr, special, req, value, desc) in rows:
+    for (mid, name, slot, mtype, cpu, pwr, special, req, value, desc,
+         pwrb) in rows:
         m = {
             "id": mid, "name": name,
             # Mining modules occupy a utility slot; they share the dropdown.
@@ -314,6 +316,8 @@ def load_modules(con, ammo):
                 "towpen": towpen or 0, "cpub": cpub or 0, "mfuel": mfuel or 0,
                 "hullpen": hullpen or 0, "speedpen": speedpen or 0,
             })
+        if pwrb:
+            m.setdefault("u", {})["pwrb"] = pwrb
         mods.append(m)
     return mods
 
@@ -341,6 +345,7 @@ CAT_UTILITY = {"speed_bonus": "speed", "cargo_bonus": "cargo",
                "mining_power": "hpow", "mining_range": "hrng",
                "survey_power": "spow", "survey_range": "srng",
                "tow_speed_penalty": "towpen", "cpu_bonus": "cpub",
+               "power_bonus": "pwrb",
                "max_fuel_bonus": "mfuel", "hull_penalty": "hullpen",
                "speed_penalty": "speedpen"}
 
