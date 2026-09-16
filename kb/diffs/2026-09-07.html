@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — September 7, 2026 vs September 5, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-09-05.html">&larr; 2026-09-05</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-09-11.html">2026-09-11 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; September 7, 2026 vs September 5, 2026</h2>
+<div class="diff-summary">0 additions, 0 deletions, 96 modifications across 4 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~16</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~75</span></li>
+<li><a href="#ships">Ships</a></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~3</span></li>
+<li><a href="#facilities">Facilities</a></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~16</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../recipes/Defense/build_em_hull_hardener.html">build_em_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Hull resistance plating tuned to electromagnetic damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds passive plating that reduces EM damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_em_shield_hardener.html">build_em_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Shield resistance module tuned to electromagnetic damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds a powered module that reduces EM damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_explosive_hull_hardener.html">build_explosive_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Hull resistance plating tuned to explosive damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds passive plating that reduces explosive damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_explosive_shield_hardener.html">build_explosive_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Shield resistance module tuned to explosive damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds a powered module that reduces explosive damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_graviton_beam_ii.html">build_graviton_beam_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Builds a gravity weapon that deals 50 kinetic damage, deals 50% more while shields are down, and gives its selected target a 30% escape-speed penalty.&#34;</span> &rarr; <span class="diff-add">&#34;Builds a gravity weapon that deals 50 kinetic damage, deals 50% more while shields are down, and reduces its selected target&#39;s combat speed by 30%, affecting hit chance, maneuvering, escape, and boarding pursuit.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Mining/build_hyper_mining_laser_iii.html">build_hyper_mining_laser_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">crafting_time:</span> <span class="diff-del">495</span> &rarr; <span class="diff-add">375</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Industrial-grade mining system with multiple beams.&#34;</span> &rarr; <span class="diff-add">&#34;Multi-emitter mining system. Optics-heavy and power-light.&#34;</span></div><div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: focused_crystal, quantity: 6</td><td class="diff-unchanged">item_id: focused_crystal, quantity: 6</td></tr><tr><td class="diff-unchanged">item_id: laser_focus_array, quantity: 4</td><td class="diff-unchanged">item_id: laser_focus_array, quantity: 4</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: power_cell, quantity: 2</td></tr><tr><td class="diff-del">item_id: power_core, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: titanium_ingot, quantity: 5</td><td class="diff-unchanged">item_id: titanium_ingot, quantity: 5</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_kinetic_hull_hardener.html">build_kinetic_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Hull resistance plating tuned to kinetic damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds passive plating that reduces kinetic damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_kinetic_shield_hardener.html">build_kinetic_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Shield resistance module tuned to kinetic damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds a powered module that reduces kinetic damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_sensor_dampener.html">build_sensor_dampener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Reduces target&#39;s sensor range and lock speed.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces hostile weapon reach and scanner power.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_target_painter_i.html">build_target_painter_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Paints targets to increase incoming damage accuracy.&#34;</span> &rarr; <span class="diff-add">&#34;Marks the selected target to improve allied weapon accuracy.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_target_painter_ii.html">build_target_painter_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced target painting with broader signature bloom.&#34;</span> &rarr; <span class="diff-add">&#34;Enhanced target painting for stronger allied weapon accuracy.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_thermal_hull_hardener.html">build_thermal_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Hull resistance plating tuned to thermal damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds passive plating that reduces thermal damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_thermal_shield_hardener.html">build_thermal_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Shield resistance module tuned to thermal damage.&#34;</span> &rarr; <span class="diff-add">&#34;Builds a powered module that reduces thermal damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_void_hull_hardener.html">build_void_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Phase-resistant hull lining that absorbs void energy.&#34;</span> &rarr; <span class="diff-add">&#34;Builds passive plating that reduces void damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_void_shield_hardener.html">build_void_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Resonance-tuned shield matrix that deflects void energy.&#34;</span> &rarr; <span class="diff-add">&#34;Builds a powered module that reduces void damage across shields, armor, and hull.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Consumables/pack_sensor_obscurant.html">pack_sensor_obscurant</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: carbon_ore, quantity: 3</td><td class="diff-unchanged">item_id: carbon_ore, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: flex_polymer, quantity: 1</td><td class="diff-unchanged">item_id: flex_polymer, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: liquid_nitrogen, quantity: 1</td><td class="diff-unchanged">item_id: liquid_nitrogen, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: sensor_array, quantity: 1</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~75</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/consumable/adrenaline_surge.html">adrenaline_surge</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;+15% to all combat stats for 5 ticks. Powerful but brief.&#34;</span> &rarr; <span class="diff-add">&#34;+15% weapon damage and incoming-damage reduction for 5 ticks. Positive consumable offense caps at 30%; positive consumable defense caps at 60%.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/argon_condenser.html">argon_condenser</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of argon gas into cargo. Use this to filter out argon while harvesting rarer gases. Chills the intake to −186°C so argon condenses to liquid and vents. High power draw.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your harvester never targets argon gas — every cycle re-targets another deposit at the same cloud instead, so your yield of the rarer gases goes up. Chills the intake to −186°C so argon condenses to liquid and vents. High power draw. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/armor_repairer_i.html">armor_repairer_i</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">3700</span> &rarr; <span class="diff-add">4300</span></div>
+<div class="diff-item-id"><a href="../items/defense/armor_repairer_ii.html">armor_repairer_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">7500</span> &rarr; <span class="diff-add">8700</span></div>
+<div class="diff-item-id"><a href="../items/defense/armor_repairer_iii.html">armor_repairer_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">7000</span> &rarr; <span class="diff-add">29000</span></div>
+<div class="diff-item-id"><a href="../items/utility/atmospheric_processor.html">atmospheric_processor</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of hydrogen, argon, and neon into cargo. Use this to filter out all three common atmospheric gases in a single module. Three separation stages run in series: combustion for hydrogen, cryogenic condensers for argon and neon. Very high power draw.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your harvester never targets hydrogen, argon, or neon — every cycle re-targets another deposit at the same cloud instead. One module clears all three common atmospheric gases. Three separation stages run in series: combustion for hydrogen, cryogenic condensers for argon and neon. Very high power draw. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/berserker_compound.html">berserker_compound</a></div>
+<div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">amount: 30</td><td class="diff-unchanged">amount: 30</td></tr><tr><td class="diff-unchanged">duration: 15</td><td class="diff-unchanged">duration: 15</td></tr><tr><td class="diff-empty"></td><td class="diff-add">secondary_amount: -20</td></tr><tr><td class="diff-empty"></td><td class="diff-add">secondary_stat: defense</td></tr><tr><td class="diff-unchanged">stat: weapon_damage</td><td class="diff-unchanged">stat: weapon_damage</td></tr><tr><td class="diff-unchanged">type: buff</td><td class="diff-unchanged">type: buff</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;+30% damage, -20% defense for 15 ticks. High risk, high reward.&#34;</span> &rarr; <span class="diff-add">&#34;+30% damage, -20% defense for 15 ticks. This reaches the positive consumable offense cap; the incoming-damage penalty always applies after positive defense is capped.&#34;</span></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">770</span> &rarr; <span class="diff-add">880</span></div>
+<div class="diff-item-id"><a href="../items/utility/carbon_scrubber.html">carbon_scrubber</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of carbon ore into cargo. Use this to filter out carbon while targeting rarer co-located resources. A reactive bed of hot oxidizers converts carbon to gas at the intake and vents it. High CPU load.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your extractor never targets carbon ore — every cycle re-targets another deposit at the same field instead, so your yield of the rarer co-located ores goes up. A reactive bed of hot oxidizers converts carbon to gas at the intake and vents it. High CPU load. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/combat_stim.html">combat_stim</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Increases weapon damage by 10% for 10 ticks.&#34;</span> &rarr; <span class="diff-add">&#34;Increases weapon damage by 10% for 10 ticks. Positive consumable weapon-damage bonuses share a 30% cap.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/mining/crystal_mining_probe.html">crystal_mining_probe</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Specialized tool for extracting energy crystals.&#34;</span> &rarr; <span class="diff-add">&#34;Specialized crystal extraction optics. Adds a 100% yield bonus on every crystal deposit — energy, fury, trade and phase crystal — and nothing on other ores. Its low beam power also means it never loses a lock on a thin deposit, so it works a crystal vein down to zero.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/mining/deep_core_extractor_ii.html">deep_core_extractor_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Advanced rare ore extraction from dense asteroids.&#34;</span> &rarr; <span class="diff-add">&#34;Advanced deep core drilling rig. Grants deep_core_access, the capability that unlocks mining at hidden deep core POIs. It gates the POI, not ore rarity. Supplies mining power only — pair it with an ice or rad harvester at deep core POIs holding those deposits.&#34;</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;rare_ore_access&#34;</span> &rarr; <span class="diff-add">&#34;deep_core_access&#34;</span></div>
+<div class="diff-item-id"><a href="../items/mining/deep_core_extractor_iii.html">deep_core_extractor_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Elite mining system for the rarest materials in the galaxy.&#34;</span> &rarr; <span class="diff-add">&#34;Elite deep core drilling rig. Grants deep_core_access, the capability that unlocks mining at hidden deep core POIs. It gates the POI, not ore rarity. Supplies mining power only — pair it with an ice or rad harvester at deep core POIs holding those deposits.&#34;</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;rare_ore_access&#34;</span> &rarr; <span class="diff-add">&#34;deep_core_access&#34;</span></div>
+<div class="diff-item-id"><a href="../items/mining/deep_core_extractor_mk_i.html">deep_core_extractor_mk_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A cross-empire hybrid drilling assembly that combines darksteel vibration dampening, null matter thermal absorption, sol alloy power regulation, phase crystal resonance immunity, and trade crystal targeting optics. Enables extraction of rare ores from deep core deposits.&#34;</span> &rarr; <span class="diff-add">&#34;A cross-empire hybrid drilling assembly that combines darksteel vibration dampening, null matter thermal absorption, sol alloy power regulation, phase crystal resonance immunity, and trade crystal targeting optics. Grants deep_core_access: the capability that unlocks mining at hidden deep core POIs, which no other module provides. It gates the POI, not ore rarity — rare and exotic ore at an ordinary POI needs no extractor. Keep it fitted alongside an ice or rad harvester at deep core POIs holding those deposits; it supplies mining power only.&#34;</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;rare_ore_access&#34;</span> &rarr; <span class="diff-add">&#34;deep_core_access&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/ecm_jammer.html">ecm_jammer</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Each fitted jammer independently has a 40% chance per battle tick to break your selected target&#39;s lock within reach 3. Multiple jammers roll independently: two give a 64% chance that at least one succeeds. The target can reacquire a lock on a later tick.&#34;</span> &rarr; <span class="diff-add">&#34;Each fitted jammer independently has a 40% chance per battle tick to break your selected target&#39;s lock within reach 3; two unopposed jammers give a 64% chance that at least one succeeds. Operational ship scanners subtract 10/20/30 percentage points from every roll, stacking to a 30-point cap. The target can reacquire a lock on a later tick.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/electromagnetic_refinery.html">electromagnetic_refinery</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of both iron ore and copper ore into cargo. Use this to filter out the two most common solid ore blockers in a single module. Combines magnetic separation for iron with a flotation cell for copper. High power and CPU draw.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your extractor never targets iron ore or copper ore — every cycle re-targets another deposit at the same field instead. One module clears the two most common solid ore blockers. Combines magnetic separation for iron with a flotation cell for copper. High power and CPU draw. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/em_hull_hardener.html">em_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">em: 30</td><td class="diff-add">em: 25</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 30% EM resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming EM damage by 25% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/em_shield_hardener.html">em_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">em: 25</td><td class="diff-add">em: 30</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 25% EM resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming EM damage by 30% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/explosive_hull_hardener.html">explosive_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 30% explosive resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming explosive damage by 25% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div><div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">explosive: 30</td><td class="diff-add">explosive: 25</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/defense/explosive_shield_hardener.html">explosive_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">explosive: 25</td><td class="diff-add">explosive: 30</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 25% explosive resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming explosive damage by 30% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_i.html">flak_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 15 kinetic damage with +100% damage to drones. Fitted anti-missile ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 15 kinetic damage with +100% damage to drones. Provides 25 points of anti-missile defense; fitted ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;anti_drone_bonus_100,anti_missile_bonus_100&#34;</span> &rarr; <span class="diff-add">&#34;anti_drone_bonus_100,anti_missile_bonus_25&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">anti_drone_pct: 100</td><td class="diff-unchanged">anti_drone_pct: 100</td></tr><tr><td class="diff-del">anti_missile_pct: 100</td><td class="diff-add">anti_missile_pct: 25</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">4200</span> &rarr; <span class="diff-add">4800</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_ii.html">flak_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 28 kinetic damage with +150% damage to drones. Fitted anti-missile ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 28 kinetic damage with +150% damage to drones. Provides 45 points of anti-missile defense; fitted ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;anti_drone_bonus_150,anti_missile_bonus_150&#34;</span> &rarr; <span class="diff-add">&#34;anti_drone_bonus_150,anti_missile_bonus_45&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">anti_drone_pct: 150</td><td class="diff-unchanged">anti_drone_pct: 150</td></tr><tr><td class="diff-del">anti_missile_pct: 150</td><td class="diff-add">anti_missile_pct: 45</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">5300</span> &rarr; <span class="diff-add">6200</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_iii.html">flak_cannon_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;anti_drone_bonus_200,anti_missile_bonus_200&#34;</span> &rarr; <span class="diff-add">&#34;anti_drone_bonus_200,anti_missile_bonus_65&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 25 kinetic damage with +200% damage to drones. Fitted anti-missile ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 40 kinetic damage with +200% damage to drones. Provides 65 points of anti-missile defense; fitted ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span></div><div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">40</span></div><div class="diff-field"><span class="diff-field-name">required_skills:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">weapons: 3</td><td class="diff-add">weapons: 6</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">anti_drone_pct: 200</td><td class="diff-unchanged">anti_drone_pct: 200</td></tr><tr><td class="diff-del">anti_missile_pct: 200</td><td class="diff-add">anti_missile_pct: 65</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">26000</span> &rarr; <span class="diff-add">30000</span></div>
+<div class="diff-item-id"><a href="../items/utility/flotation_cell.html">flotation_cell</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of copper ore into cargo. Use this to filter out copper while targeting rarer co-located resources. Reagents injected into the ore slurry cause copper minerals to bind to bubbles and vent. High CPU load.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your extractor never targets copper ore — every cycle re-targets another deposit at the same field instead, so your yield of the rarer co-located ores goes up. Reagents injected into the ore slurry cause copper minerals to bind to bubbles and vent. High CPU load. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/gas_harvester_i.html">gas_harvester_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Collects valuable gases from nebulae and gas clouds.&#34;</span> &rarr; <span class="diff-add">&#34;Collects valuable gases from nebulae and gas clouds. Works any deposit whose resource is gas-extracted (the 10 gases: argon, chlorine, fluorine, hydrogen, ion, krypton, nebula, neon, plasma, xenon), whatever the POI type — a gas cloud can also hold ore that needs a mining laser instead.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/gas_harvester_ii.html">gas_harvester_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Improved gas collection with better containment.&#34;</span> &rarr; <span class="diff-add">&#34;Improved gas collection with better containment. Works any deposit whose resource is gas-extracted (the 10 gases: argon, chlorine, fluorine, hydrogen, ion, krypton, nebula, neon, plasma, xenon), whatever the POI type — a gas cloud can also hold ore that needs a mining laser instead.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/gas_harvester_iii.html">gas_harvester_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Industrial gas collection system.&#34;</span> &rarr; <span class="diff-add">&#34;Industrial gas collection system. Works any deposit whose resource is gas-extracted (the 10 gases: argon, chlorine, fluorine, hydrogen, ion, krypton, nebula, neon, plasma, xenon), whatever the POI type — a gas cloud can also hold ore that needs a mining laser instead.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/gas_harvester_iv.html">gas_harvester_iv</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Capital-grade gas collection and compression system.&#34;</span> &rarr; <span class="diff-add">&#34;Capital-grade gas collection and compression system. Works any deposit whose resource is gas-extracted (the 10 gases: argon, chlorine, fluorine, hydrogen, ion, krypton, nebula, neon, plasma, xenon), whatever the POI type — a gas cloud can also hold ore that needs a mining laser instead.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/graviton_beam_ii.html">graviton_beam_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 50 kinetic damage and deals 50% more while the target&#39;s shields are down. Within reach 4, gives its selected target a 30% escape-speed penalty; penalties add and cap at 75%. Fires every 3 ticks.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 50 kinetic damage and deals 50% more while the target&#39;s shields are down. Within reach 4, reduces its selected target&#39;s combat speed by 30%, affecting hit chance, maneuvering, escape, and boarding pursuit; web penalties add and cap at 75%. Fires every 3 ticks.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/hydrogen_combustor.html">hydrogen_combustor</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of hydrogen gas into cargo. Use this to filter out hydrogen while harvesting rarer gases. A plasma torch at the intake ignites and expels it on contact. High power draw.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your harvester never targets hydrogen gas — every cycle re-targets another deposit at the same cloud instead, so your yield of the rarer gases goes up. A plasma torch at the intake ignites and expels it on contact. High power draw. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/mining/hyper_mining_laser_iii.html">hyper_mining_laser_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Industrial-grade mining laser with extreme extraction power.&#34;</span> &rarr; <span class="diff-add">&#34;Splits the cut across many fine emitters instead of one heavy beam. Total yield sits a little below a comparable industrial laser, but it asks far less of the reactor and the computer. Fit it when power and CPU are your limit rather than slots — it leaves budget for the utility modules an industrial laser crowds out.&#34;</span></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">33000</span> &rarr; <span class="diff-add">20000</span></div><div class="diff-field"><span class="diff-field-name">cpu_usage:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">5</span></div><div class="diff-field"><span class="diff-field-name">power_usage:</span> <span class="diff-del">16</span> &rarr; <span class="diff-add">10</span></div>
+<div class="diff-item-id"><a href="../items/utility/ice_harvester_i.html">ice_harvester_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Extracts valuable ice from asteroid fields and comets.&#34;</span> &rarr; <span class="diff-add">&#34;Extracts valuable ice from asteroid fields and comets. Works any deposit whose resource is ice-extracted (the 9 ices: ammonia, carbon dioxide, deuterium, helium, methane, nitrogen, oxygen, tritium, water), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/ice_harvester_ii.html">ice_harvester_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced ice mining with thermal extraction.&#34;</span> &rarr; <span class="diff-add">&#34;Enhanced ice mining with thermal extraction. Works any deposit whose resource is ice-extracted (the 9 ices: ammonia, carbon dioxide, deuterium, helium, methane, nitrogen, oxygen, tritium, water), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/ice_harvester_iii.html">ice_harvester_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Industrial-grade ice mining equipment.&#34;</span> &rarr; <span class="diff-add">&#34;Industrial-grade ice mining equipment. Works any deposit whose resource is ice-extracted (the 9 ices: ammonia, carbon dioxide, deuterium, helium, methane, nitrogen, oxygen, tritium, water), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/ice_harvester_iv.html">ice_harvester_iv</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Capital-grade cryo-extraction and processing system.&#34;</span> &rarr; <span class="diff-add">&#34;Capital-grade cryo-extraction and processing system. Works any deposit whose resource is ice-extracted (the 9 ices: ammonia, carbon dioxide, deuterium, helium, methane, nitrogen, oxygen, tritium, water), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/isotope_separator.html">isotope_separator</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of water ice and nitrogen ice into cargo. Use this to filter out both common ice types and target only rare isotope ices. A dual-gradient thermal stack handles both in series.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your harvester never targets water ice or nitrogen ice — every cycle re-targets another deposit at the same field instead. One module clears both common ice types. A dual-gradient thermal stack handles both in series. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/kinetic_hull_hardener.html">kinetic_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 30% kinetic resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming kinetic damage by 25% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div><div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">kinetic: 30</td><td class="diff-add">kinetic: 25</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/defense/kinetic_shield_hardener.html">kinetic_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">kinetic: 25</td><td class="diff-add">kinetic: 30</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 25% kinetic resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming kinetic damage by 30% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/magnetic_ore_separator.html">magnetic_ore_separator</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of iron ore into cargo. Use this to filter out iron while targeting rarer co-located resources. A high-powered electromagnet pulls ferrous material aside and vents it. High power draw.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your extractor never targets iron ore — every cycle re-targets another deposit at the same field instead, so your yield of the rarer co-located ores goes up. A high-powered electromagnet pulls ferrous material aside and vents it. High power draw. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/neon_vent.html">neon_vent</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of neon gas into cargo. Use this to filter out neon while harvesting rarer gases. A differential pressure separator tuned to neon&#39;s condensation point liquefies it and vents it away.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your harvester never targets neon gas — every cycle re-targets another deposit at the same cloud instead, so your yield of the rarer gases goes up. A differential pressure separator tuned to neon&#39;s condensation point liquefies it and vents it away. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/nitrogen_vent.html">nitrogen_vent</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of nitrogen ice into cargo. Use this to filter out nitrogen ice while targeting rarer isotope ices. A thermal gradient set between nitrogen&#39;s and water&#39;s sublimation points vaporizes nitrogen while leaving other ices frozen.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your harvester never targets nitrogen ice — every cycle re-targets another deposit at the same field instead, so your yield of the rarer isotope ices goes up. A thermal gradient set between nitrogen&#39;s and water&#39;s sublimation points vaporizes nitrogen while leaving other ices frozen. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/overcharge_cell.html">overcharge_cell</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;High-voltage power cell for temporary weapon overcharging.&#34;</span> &rarr; <span class="diff-add">&#34;Increases weapon damage by 25% for 3 ticks. Positive consumable weapon-damage bonuses share a 30% cap.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/pd_burst.html">pd_burst</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Activates emergency point defense, reducing missile hit chance by 80% for 3 ticks.&#34;</span> &rarr; <span class="diff-add">&#34;Activates emergency point defense, reducing missile hit chance by 80% for 3 ticks. It shares an 80% avoidance cap with Smoke Screen.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/power_surge_cell.html">power_surge_cell</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">360</span> &rarr; <span class="diff-add">630</span></div>
+<div class="diff-item-id"><a href="../items/utility/rad_harvester_i.html">rad_harvester_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A lead-lined mining module that allows safe extraction of radioactive ores.&#34;</span> &rarr; <span class="diff-add">&#34;A lead-lined mining module that allows safe extraction of radioactive ores. Works any deposit whose resource is radiation-extracted (polonium, radium, thorium and uranium ore), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/rad_harvester_ii.html">rad_harvester_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced rad harvester with improved shielding and isotope capture systems.&#34;</span> &rarr; <span class="diff-add">&#34;Enhanced rad harvester with improved shielding and isotope capture systems. Works any deposit whose resource is radiation-extracted (polonium, radium, thorium and uranium ore), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/rad_harvester_iii.html">rad_harvester_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Industrial-grade hot-isotope extraction with titanium shielding and superconducting beam emitters.&#34;</span> &rarr; <span class="diff-add">&#34;Industrial-grade hot-isotope extraction with titanium shielding and superconducting beam emitters. Works any deposit whose resource is radiation-extracted (polonium, radium, thorium and uranium ore), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/rad_harvester_iv.html">rad_harvester_iv</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Capital-grade radiation mining system with full hot-cell containment and maximum yield.&#34;</span> &rarr; <span class="diff-add">&#34;Capital-grade radiation mining system with full hot-cell containment and maximum yield. Works any deposit whose resource is radiation-extracted (polonium, radium, thorium and uranium ore), whatever the POI type.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/reactive_armor_hardener.html">reactive_armor_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">reactive_resistance:</span> <span class="diff-del">60</span> &rarr; <span class="diff-add">25</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 60% resistance to the incoming damage type. Typed and reactive module resistances add and cap at 75%; resistance bypass reduces that total.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 25% resistance to every incoming damage type. Typed and reactive module resistances add and cap at 75%; resistance bypass reduces that total.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/reflex_enhancer.html">reflex_enhancer</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">540</span> &rarr; <span class="diff-add">620</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Improves evasion by 15% for 10 ticks.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming damage by 15% for 10 ticks. Positive temporary damage reductions share a 60% cap.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/remote_armor_repairer_i.html">remote_armor_repairer_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Repairs armor on allied ships.&#34;</span> &rarr; <span class="diff-add">&#34;Repairs the most-damaged allied ship within 2 radial bands.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/remote_armor_repairer_ii.html">remote_armor_repairer_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced remote repair capability.&#34;</span> &rarr; <span class="diff-add">&#34;Enhanced remote repair reaching allied ships within 4 radial bands.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/remote_armor_repairer_iii.html">remote_armor_repairer_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Capital-class remote repair for fleet support.&#34;</span> &rarr; <span class="diff-add">&#34;Capital-class fleet repair reaching allied ships within 6 radial bands.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/sensor_dampener.html">sensor_dampener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Reduces enemy targeting range and scan resolution.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces enemy weapon reach by 30% and scanner power by 30 points. Only the strongest fitted dampener affects reach; scanner reduction has strongest-first diminishing returns and caps at 60. Operational ship scanners counter up to 30 points of the reach reduction.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/shield_hardener.html">shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Increases shield resistance by 25% for 10 ticks.&#34;</span> &rarr; <span class="diff-add">&#34;Increases shield resistance by 25% for 10 ticks. While shields hold, positive temporary damage reductions share a 60% cap.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/ship_scanner_i.html">ship_scanner_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Scans other ships for information.&#34;</span> &rarr; <span class="diff-add">&#34;Scans other ships for information and provides 10 points of targeting and ECM resistance. Fitted scanner resistance stacks up to 30 points.&#34;</span></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">2800</span> &rarr; <span class="diff-add">3200</span></div>
+<div class="diff-item-id"><a href="../items/utility/ship_scanner_ii.html">ship_scanner_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced scanning resolution.&#34;</span> &rarr; <span class="diff-add">&#34;Enhanced scanning resolution with 20 points of targeting and ECM resistance. Fitted scanner resistance stacks up to 30 points.&#34;</span></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">1500</span> &rarr; <span class="diff-add">7000</span></div>
+<div class="diff-item-id"><a href="../items/utility/ship_scanner_iii.html">ship_scanner_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">4000</span> &rarr; <span class="diff-add">22000</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Military-grade intelligence gathering.&#34;</span> &rarr; <span class="diff-add">&#34;Military-grade intelligence gathering with 30 points of targeting and ECM resistance, the fitted resistance cap.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/smoke_screen.html">smoke_screen</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">190</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A conductive particulate cloud that reduces enemy accuracy by 40% for 3 ticks.&#34;</span> &rarr; <span class="diff-add">&#34;A conductive particulate cloud that reduces enemy accuracy by 40% for 3 ticks. It shares an 80% avoidance cap with missile-specific point defense.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/stasis_webifier_i.html">stasis_webifier_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Slows target ship&#39;s velocity.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces the selected target&#39;s effective combat speed by 30% within reach 3, affecting hit chance, maneuvering, escape, and boarding pursuit. Webifier strengths add and cap at 75%.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/stasis_webifier_ii.html">stasis_webifier_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced stasis field for better target control.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces the selected target&#39;s effective combat speed by 50% within reach 4, affecting hit chance, maneuvering, escape, and boarding pursuit. Webifier strengths add and cap at 75%.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/mining/strip_miner_i.html">strip_miner_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Massive mining system that extracts entire asteroid chunks. Maximizes yield on common ore deposits but cannot selectively extract rarer veins. Coarse beam — needs dense deposits and cannot get a lock on heavily depleted ones.&#34;</span> &rarr; <span class="diff-add">&#34;Massive mining system that extracts entire asteroid chunks. Works common-rarity deposits only and skips every uncommon, rare, exotic and legendary vein at the POI — including all deep core deposits, none of which are common. Coarse beam — needs dense deposits and cannot get a lock on heavily depleted ones.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/mining/strip_miner_ii.html">strip_miner_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Industrial mega-miner for maximum ore extraction. Maximizes yield on common ore deposits but cannot selectively extract rarer veins. Coarse beam — needs dense deposits and cannot get a lock on heavily depleted ones.&#34;</span> &rarr; <span class="diff-add">&#34;Industrial mega-miner for maximum ore extraction. Works common-rarity deposits only and skips every uncommon, rare, exotic and legendary vein at the POI — including all deep core deposits, none of which are common. Coarse beam — needs dense deposits and cannot get a lock on heavily depleted ones.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/target_painter_i.html">target_painter_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Marks target, increasing damage taken from all sources.&#34;</span> &rarr; <span class="diff-add">&#34;Marks your selected hostile target within reach 3, increasing allied weapon accuracy against it by 10 percentage points. The strongest allied target painter applies.&#34;</span></div><div class="diff-field"><span class="diff-field-name">signature_bonus:</span> <span class="diff-del">25</span> &rarr; <span class="diff-add">10</span></div>
+<div class="diff-item-id"><a href="../items/utility/target_painter_ii.html">target_painter_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">signature_bonus:</span> <span class="diff-del">50</span> &rarr; <span class="diff-add">20</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Advanced targeting system with stronger signature amplification.&#34;</span> &rarr; <span class="diff-add">&#34;Marks your selected hostile target within reach 5, increasing allied weapon accuracy against it by 20 percentage points. The strongest allied target painter applies.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/thermal_hull_hardener.html">thermal_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 30% thermal resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming thermal damage by 25% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div><div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">thermal: 30</td><td class="diff-add">thermal: 25</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/defense/thermal_shield_hardener.html">thermal_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">thermal: 25</td><td class="diff-add">thermal: 30</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 25% thermal resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming thermal damage by 30% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/thermal_sublimator.html">thermal_sublimator</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of water ice into cargo. Use this to filter out water ice while targeting rarer isotope ices. Heats the intake to just above water&#39;s sublimation point — water flashes to vapor and vents; deuterium and helium ices pass through.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your harvester never targets water ice — every cycle re-targets another deposit at the same field instead, so your yield of the rarer isotope ices goes up. Heats the intake to just above water&#39;s sublimation point — water flashes to vapor and vents; deuterium and helium ices pass through. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/tracking_computer_i.html">tracking_computer_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Improves weapon tracking speed and accuracy.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 10 points of weapon accuracy and offsets up to 15 points of accuracy penalty when the target&#39;s effective combat speed exceeds yours.&#34;</span></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">5500</span> &rarr; <span class="diff-add">6400</span></div>
+<div class="diff-item-id"><a href="../items/utility/tracking_computer_ii.html">tracking_computer_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced tracking system for hitting fast targets.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 20 points of weapon accuracy and offsets up to 30 points of accuracy penalty when the target&#39;s effective combat speed exceeds yours.&#34;</span></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">10000</span> &rarr; <span class="diff-add">12000</span></div>
+<div class="diff-item-id"><a href="../items/utility/tracking_computer_iii.html">tracking_computer_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">6500</span> &rarr; <span class="diff-add">37500</span></div><div class="diff-field"><span class="diff-field-name">required_skills:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">weapons: 3</td><td class="diff-add">weapons: 6</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Military-grade tracking for perfect weapon alignment.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 35 points of weapon accuracy and offsets up to 50 points of accuracy penalty when the target&#39;s effective combat speed exceeds yours.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/consumable/turtle_compound.html">turtle_compound</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;+40% defense, -25% speed for 15 ticks. Maximum survivability.&#34;</span> &rarr; <span class="diff-add">&#34;+40% defense, -25% speed for 15 ticks. Positive temporary damage reductions share a 60% cap; the speed penalty still applies.&#34;</span></div><div class="diff-field"><span class="diff-field-name">base_value:</span> <span class="diff-del">610</span> &rarr; <span class="diff-add">880</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">amount: 40</td><td class="diff-unchanged">amount: 40</td></tr><tr><td class="diff-unchanged">duration: 15</td><td class="diff-unchanged">duration: 15</td></tr><tr><td class="diff-empty"></td><td class="diff-add">secondary_amount: -25</td></tr><tr><td class="diff-empty"></td><td class="diff-add">secondary_stat: speed</td></tr><tr><td class="diff-unchanged">stat: defense</td><td class="diff-unchanged">stat: defense</td></tr><tr><td class="diff-unchanged">type: buff</td><td class="diff-unchanged">type: buff</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/utility/vanadium_ejector.html">vanadium_ejector</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;When mining, prevents collection of vanadium ore into cargo. Use this to filter out vanadium while targeting rarer co-located resources. A tuned eddy-current separator catches the dense paramagnetic ore mid-stream and flings it clear of the intake. High power draw.&#34;</span> &rarr; <span class="diff-add">&#34;When mining, your extractor never targets vanadium ore — every cycle re-targets another deposit at the same field instead, so your yield of the rarer co-located ores goes up. A tuned eddy-current separator catches the dense paramagnetic ore mid-stream and flings it clear of the intake. High power draw. If a field carries nothing but deposits this module rejects, a mining cycle there returns nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/void_hull_hardener.html">void_hull_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 20% void resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming void damage by 20% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/void_shield_hardener.html">void_shield_hardener</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 20% void resistance. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span> &rarr; <span class="diff-add">&#34;Reduces incoming void damage by 25% across shields, armor, and hull. Typed module resistances add and cap at 75%, then flat/adaptive reduction applies as the next damage stage.&#34;</span></div><div class="diff-field"><span class="diff-field-name">resistance_bonus:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">void: 20</td><td class="diff-add">void: 25</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/consumable/weapon_overload_capacitor.html">weapon_overload_capacitor</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Dumps stored energy into weapons for a burst of extra damage.&#34;</span> &rarr; <span class="diff-add">&#34;Increases weapon damage by 20% for 5 ticks. Positive consumable weapon-damage bonuses share a 30% cap.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~3</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../skills/deep_core_mining.html">deep_core_mining</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Specialized deep core extraction techniques. Increases deep core mining yield by 2% per level.&#34;</span> &rarr; <span class="diff-add">&#34;Specialized deep core extraction techniques. Increases yield from hidden deep core deposits by 5% per level, on top of the Mining skill&#39;s yield bonus. No effect on ordinary deposits.&#34;</span></div><div class="diff-field"><span class="diff-field-name">bonus_per_level:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">deepCoreYield: 2</td><td class="diff-add">deepCoreYield: 5</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../skills/mining.html">mining</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Ore extraction and resource harvesting. Increases mining yield by 1% per level across all resource types.&#34;</span> &rarr; <span class="diff-add">&#34;Ore extraction and resource harvesting. Increases mining yield by 1% per level across all resource types, and biases which deposit a mining cycle selects toward rarer ores as the skill grows — see mining.rare_ore_rarity_weight_per_level in the catalog for the exact weighting.&#34;</span></div>
+<div class="diff-item-id"><a href="../skills/tactics.html">tactics</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Combat awareness and maneuvering. Increases accuracy by 1% per level, evasion by 1% per level, and combat speed by 1% per level.&#34;</span> &rarr; <span class="diff-add">&#34;Combat awareness and maneuvering. Each level increases accuracy, evasion, combat speed, fitted target-painter strength, and resistance to electronic disruption by 1%.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/the_telescope/index.html">the_telescope</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/void_gate/index.html">void_gate</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>

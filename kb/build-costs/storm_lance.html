@@ -33,7 +33,7 @@
 <table>
 <thead><tr><th>Material</th><th>Qty</th></tr></thead>
 <tbody>
-<tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>6</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/nebula_gas.html">Nebula Gas</a></td><td>10</td></tr><tr><td>nebulium_core</td><td>3</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>6</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>48</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/xenon_gas.html">Xenon Gas</a></td><td>18</td></tr>
+<tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/fluorine_gas.html">Fluorine Gas</a></td><td>6</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>4</td></tr><tr><td><a href="../items/ore/lead_ore.html">Lead Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/nebula_gas.html">Nebula Gas</a></td><td>10</td></tr><tr><td><a href="../items/ore/nebulium.html">Nebulium</a></td><td>12</td></tr><tr><td><a href="../items/ore/nitrogen_ice.html">Nitrogen Ice</a></td><td>6</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>12</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>48</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/uranium_ore.html">Uranium Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/xenon_gas.html">Xenon Gas</a></td><td>18</td></tr>
 </tbody>
 </table>
 
@@ -45,15 +45,13 @@
 <table>
 <thead><tr><th>Input</th><th>Qty</th></tr></thead>
 <tbody>
-<tr><td><a href="../items/component/ion_emitter.html">Ion Emitter</a></td><td>3</td></tr><tr><td><a href="../items/refined/nebula_essence.html">Nebula Essence</a></td><td>2</td></tr><tr><td>nebulium_core</td><td>3</td></tr><tr><td><a href="../items/component/power_cell.html">Power Cell</a></td><td>3</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
+<tr><td><a href="../items/component/ion_emitter.html">Ion Emitter</a></td><td>3</td></tr><tr><td><a href="../items/refined/nebula_essence.html">Nebula Essence</a></td><td>2</td></tr><tr><td><a href="../items/refined/nebulium_core.html">Nebulium Core</a></td><td>3</td></tr><tr><td><a href="../items/component/power_cell.html">Power Cell</a></td><td>3</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
 </tbody>
 </table>
 
 
 
-<div class="banner">
-⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing inputs with no depth: <code>Lead Ore</code>, <code>nebulium_core</code>, <code>Silver Ore</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
-</div>
+
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
@@ -65,52 +63,8 @@
 
 <tr>
  <td>Iron Reach Mining Colony</td><td>crimson</td>
- <td class="infeasible">2/14</td>
- <td>7/14</td><td>8/14</td><td>8/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>3/5</td><td>3/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Grand Exchange</td><td>nebula</td>
- <td class="infeasible">6/14</td>
- <td>6/14</td><td>8/14</td><td>8/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>1/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Unknown Edge Waystation</td><td>outerrim</td>
- <td class="infeasible">2/14</td>
- <td>2/14</td><td>5/14</td><td>5/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>3/5</td><td>3/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Sol Central</td><td>solarian</td>
- <td class="infeasible">6/14</td>
- <td>6/14</td><td>7/14</td><td>8/14</td>
- <td class="infeasible">3/5</td>
- <td>3/5</td><td>3/5</td><td>3/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>The Core</td><td>voidborn</td>
  <td class="infeasible">3/14</td>
- <td>3/14</td><td>4/14</td><td>4/14</td>
+ <td>8/14</td><td>9/14</td><td>9/14</td>
  <td class="infeasible">1/5</td>
  <td>1/5</td><td>2/5</td><td>2/5</td>
  <td>build_storm_lance</td>
@@ -119,11 +73,55 @@
 </tr>
 
 <tr>
- <td>Cargo Lanes Freight Depot</td><td>nebula</td>
+ <td>Grand Exchange</td><td>nebula</td>
  <td class="infeasible">5/14</td>
- <td>8/14</td><td>8/14</td><td>8/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>1/5</td><td>1/5</td>
+ <td>5/14</td><td>7/14</td><td>7/14</td>
+ <td class="infeasible">3/5</td>
+ <td>3/5</td><td>29,317</td><td>29,317</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Unknown Edge Waystation</td><td>outerrim</td>
+ <td class="infeasible">4/14</td>
+ <td>5/14</td><td>5/14</td><td>5/14</td>
+ <td class="">31,289</td>
+ <td>30,068</td><td>30,068</td><td>30,068</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Sol Central</td><td>solarian</td>
+ <td class="infeasible">6/14</td>
+ <td>6/14</td><td>7/14</td><td>7/14</td>
+ <td class="infeasible">3/5</td>
+ <td>4/5</td><td>33,385</td><td>33,385</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Core</td><td>voidborn</td>
+ <td class="infeasible">4/14</td>
+ <td>4/14</td><td>5/14</td><td>5/14</td>
+ <td class="infeasible">3/5</td>
+ <td>4/5</td><td>4/5</td><td>29,417</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Cargo Lanes Freight Depot</td><td>nebula</td>
+ <td class="infeasible">3/14</td>
+ <td>6/14</td><td>7/14</td><td>7/14</td>
+ <td class="infeasible">1/5</td>
+ <td>4/5</td><td>29,317</td><td>29,317</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -131,10 +129,10 @@
 
 <tr>
  <td>Mobile Capital</td><td>outerrim</td>
- <td class="infeasible">5/14</td>
+ <td class="infeasible">4/14</td>
  <td>5/14</td><td>5/14</td><td>5/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>1/5</td><td>3/5</td>
+ <td class="infeasible">1/5</td>
+ <td>30,068</td><td>30,068</td><td>30,068</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -142,10 +140,10 @@
 
 <tr>
  <td>Kael Arsenal</td><td>Independent</td>
- <td class="infeasible">0/14</td>
- <td>0/14</td><td>0/14</td><td>0/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>1/5</td>
+ <td class="infeasible">1/14</td>
+ <td>1/14</td><td>1/14</td><td>1/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>0/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -153,10 +151,10 @@
 
 <tr>
  <td>The Rampart Checkpoint</td><td>crimson</td>
- <td class="infeasible">5/14</td>
- <td>5/14</td><td>6/14</td><td>8/14</td>
+ <td class="infeasible">4/14</td>
+ <td>6/14</td><td>7/14</td><td>9/14</td>
  <td class="infeasible">2/5</td>
- <td>3/5</td><td>3/5</td><td>3/5</td>
+ <td>2/5</td><td>2/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -165,9 +163,9 @@
 <tr>
  <td>Sirius Observatory Station</td><td>solarian</td>
  <td class="infeasible">4/14</td>
- <td>7/14</td><td>8/14</td><td>9/14</td>
- <td class="infeasible">0/5</td>
- <td>3/5</td><td>3/5</td><td>3/5</td>
+ <td>7/14</td><td>7/14</td><td>9/14</td>
+ <td class="infeasible">1/5</td>
+ <td>39,439</td><td>33,385</td><td>20,122</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -175,10 +173,10 @@
 
 <tr>
  <td>War Citadel</td><td>crimson</td>
- <td class="infeasible">7/14</td>
- <td>7/14</td><td>7/14</td><td>8/14</td>
+ <td class="infeasible">6/14</td>
+ <td>8/14</td><td>8/14</td><td>9/14</td>
  <td class="infeasible">0/5</td>
- <td>1/5</td><td>1/5</td><td>3/5</td>
+ <td>1/5</td><td>1/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -188,8 +186,8 @@
  <td>Alpha Centauri Colonial Station</td><td>solarian</td>
  <td class="infeasible">4/14</td>
  <td>6/14</td><td>6/14</td><td>7/14</td>
- <td class="infeasible">0/5</td>
- <td>3/5</td><td>3/5</td><td>3/5</td>
+ <td class="infeasible">1/5</td>
+ <td>4/5</td><td>4/5</td><td>33,385</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -198,9 +196,9 @@
 <tr>
  <td>Blood Forge Smelting Works</td><td>crimson</td>
  <td class="infeasible">1/14</td>
- <td>7/14</td><td>7/14</td><td>8/14</td>
+ <td>7/14</td><td>8/14</td><td>9/14</td>
  <td class="infeasible">0/5</td>
- <td>1/5</td><td>1/5</td><td>3/5</td>
+ <td>1/5</td><td>1/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -208,10 +206,10 @@
 
 <tr>
  <td>Deep Range Outpost</td><td>outerrim</td>
- <td class="infeasible">1/14</td>
- <td>5/14</td><td>5/14</td><td>5/14</td>
+ <td class="infeasible">3/14</td>
+ <td>3/14</td><td>4/14</td><td>4/14</td>
  <td class="infeasible">0/5</td>
- <td>0/5</td><td>0/5</td><td>3/5</td>
+ <td>0/5</td><td>0/5</td><td>30,068</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -220,9 +218,9 @@
 <tr>
  <td>Factory Belt Manufacturing Hub</td><td>nebula</td>
  <td class="infeasible">1/14</td>
- <td>4/14</td><td>7/14</td><td>7/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>1/5</td><td>1/5</td>
+ <td>5/14</td><td>6/14</td><td>6/14</td>
+ <td class="infeasible">1/5</td>
+ <td>2/5</td><td>4/5</td><td>4/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -230,10 +228,10 @@
 
 <tr>
  <td>First Step Memorial Station</td><td>outerrim</td>
- <td class="infeasible">2/14</td>
- <td>2/14</td><td>5/14</td><td>5/14</td>
+ <td class="infeasible">3/14</td>
+ <td>3/14</td><td>4/14</td><td>5/14</td>
  <td class="infeasible">0/5</td>
- <td>1/5</td><td>3/5</td><td>3/5</td>
+ <td>1/5</td><td>30,068</td><td>30,068</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -242,9 +240,9 @@
 <tr>
  <td>Gold Run Extraction Hub</td><td>nebula</td>
  <td class="infeasible">5/14</td>
- <td>8/14</td><td>8/14</td><td>8/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>1/5</td><td>1/5</td>
+ <td>6/14</td><td>7/14</td><td>7/14</td>
+ <td class="infeasible">3/5</td>
+ <td>4/5</td><td>29,317</td><td>29,317</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -252,10 +250,10 @@
 
 <tr>
  <td>Ramen&#39;s Rest</td><td>outerrim</td>
- <td class="infeasible">2/14</td>
- <td>2/14</td><td>2/14</td><td>5/14</td>
+ <td class="infeasible">5/14</td>
+ <td>5/14</td><td>5/14</td><td>5/14</td>
  <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>3/5</td>
+ <td>30,068</td><td>30,068</td><td>30,068</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -264,9 +262,9 @@
 <tr>
  <td>Node Alpha Processing Station</td><td>voidborn</td>
  <td class="infeasible">2/14</td>
- <td>4/14</td><td>4/14</td><td>4/14</td>
+ <td>5/14</td><td>5/14</td><td>5/14</td>
  <td class="infeasible">0/5</td>
- <td>2/5</td><td>2/5</td><td>2/5</td>
+ <td>4/5</td><td>29,417</td><td>29,417</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -274,10 +272,10 @@
 
 <tr>
  <td>Node Gamma Relay Station</td><td>voidborn</td>
- <td class="infeasible">3/14</td>
- <td>4/14</td><td>4/14</td><td>4/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>2/5</td><td>2/5</td>
+ <td class="infeasible">4/14</td>
+ <td>5/14</td><td>5/14</td><td>5/14</td>
+ <td class="infeasible">0/5</td>
+ <td>1/5</td><td>29,417</td><td>29,417</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -285,10 +283,10 @@
 
 <tr>
  <td>Nova Terra Central</td><td>solarian</td>
- <td class="infeasible">6/14</td>
- <td>8/14</td><td>8/14</td><td>9/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>3/5</td><td>3/5</td>
+ <td class="infeasible">5/14</td>
+ <td>7/14</td><td>7/14</td><td>9/14</td>
+ <td class="infeasible">2/5</td>
+ <td>2/5</td><td>39,439</td><td>20,122</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -296,10 +294,10 @@
 
 <tr>
  <td>Procyon Colonial Station</td><td>solarian</td>
- <td class="infeasible">5/14</td>
- <td>8/14</td><td>9/14</td><td>9/14</td>
+ <td class="infeasible">7/14</td>
+ <td>7/14</td><td>9/14</td><td>9/14</td>
  <td class="infeasible">0/5</td>
- <td>0/5</td><td>0/5</td><td>3/5</td>
+ <td>2/5</td><td>2/5</td><td>20,122</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -307,10 +305,10 @@
 
 <tr>
  <td>Starfall Salvage Station</td><td>outerrim</td>
- <td class="infeasible">2/14</td>
- <td>2/14</td><td>2/14</td><td>5/14</td>
+ <td class="infeasible">3/14</td>
+ <td>3/14</td><td>4/14</td><td>5/14</td>
  <td class="infeasible">2/5</td>
- <td>3/5</td><td>3/5</td><td>3/5</td>
+ <td>2/5</td><td>30,068</td><td>30,068</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -319,9 +317,9 @@
 <tr>
  <td>Synchrony Hub</td><td>voidborn</td>
  <td class="infeasible">2/14</td>
- <td>3/14</td><td>4/14</td><td>4/14</td>
+ <td>4/14</td><td>5/14</td><td>5/14</td>
  <td class="infeasible">1/5</td>
- <td>1/5</td><td>2/5</td><td>2/5</td>
+ <td>32,331</td><td>29,417</td><td>29,417</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -329,30 +327,8 @@
 
 <tr>
  <td>The Anvil Arsenal</td><td>crimson</td>
- <td class="infeasible">0/14</td>
- <td>7/14</td><td>7/14</td><td>8/14</td>
- <td class="infeasible">0/5</td>
- <td>1/5</td><td>1/5</td><td>3/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>The Crucible Garrison</td><td>crimson</td>
- <td class="infeasible">2/14</td>
- <td>6/14</td><td>8/14</td><td>8/14</td>
- <td class="infeasible">1/5</td>
- <td>3/5</td><td>3/5</td><td>3/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>The Experiment Research Station</td><td>voidborn</td>
- <td class="infeasible">0/14</td>
- <td>2/14</td><td>3/14</td><td>4/14</td>
+ <td class="infeasible">3/14</td>
+ <td>8/14</td><td>8/14</td><td>9/14</td>
  <td class="infeasible">1/5</td>
  <td>1/5</td><td>1/5</td><td>2/5</td>
  <td>build_storm_lance</td>
@@ -361,11 +337,33 @@
 </tr>
 
 <tr>
+ <td>The Crucible Garrison</td><td>crimson</td>
+ <td class="infeasible">3/14</td>
+ <td>7/14</td><td>9/14</td><td>9/14</td>
+ <td class="infeasible">1/5</td>
+ <td>2/5</td><td>2/5</td><td>2/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Experiment Research Station</td><td>voidborn</td>
+ <td class="infeasible">1/14</td>
+ <td>2/14</td><td>4/14</td><td>5/14</td>
+ <td class="">32,331</td>
+ <td>32,331</td><td>32,331</td><td>29,417</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
  <td>The Levy Customs Station</td><td>nebula</td>
  <td class="infeasible">2/14</td>
- <td>2/14</td><td>6/14</td><td>8/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>0/5</td><td>1/5</td>
+ <td>2/14</td><td>6/14</td><td>7/14</td>
+ <td class="infeasible">1/5</td>
+ <td>1/5</td><td>4/5</td><td>29,317</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -373,10 +371,10 @@
 
 <tr>
  <td>Trader&#39;s Rest Resort Station</td><td>nebula</td>
- <td class="infeasible">3/14</td>
- <td>6/14</td><td>7/14</td><td>8/14</td>
- <td class="infeasible">0/5</td>
- <td>1/5</td><td>1/5</td><td>1/5</td>
+ <td class="infeasible">4/14</td>
+ <td>5/14</td><td>6/14</td><td>7/14</td>
+ <td class="infeasible">1/5</td>
+ <td>3/5</td><td>4/5</td><td>29,317</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -385,9 +383,9 @@
 <tr>
  <td>Treasure Cache Trading Post</td><td>nebula</td>
  <td class="infeasible">2/14</td>
- <td>3/14</td><td>4/14</td><td>7/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>0/5</td><td>1/5</td>
+ <td>3/14</td><td>5/14</td><td>6/14</td>
+ <td class="infeasible">1/5</td>
+ <td>2/5</td><td>2/5</td><td>4/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -396,9 +394,9 @@
 <tr>
  <td>Void Gate Outpost</td><td>outerrim</td>
  <td class="infeasible">2/14</td>
- <td>2/14</td><td>2/14</td><td>5/14</td>
+ <td>4/14</td><td>4/14</td><td>4/14</td>
  <td class="infeasible">1/5</td>
- <td>3/5</td><td>3/5</td><td>3/5</td>
+ <td>2/5</td><td>2/5</td><td>30,068</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -408,8 +406,8 @@
  <td>Crix Stronghold</td><td>Independent</td>
  <td class="infeasible">1/14</td>
  <td>1/14</td><td>1/14</td><td>1/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>1/5</td>
+ <td class="infeasible">2/5</td>
+ <td>2/5</td><td>2/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -417,8 +415,8 @@
 
 <tr>
  <td>Sable Port</td><td>Independent</td>
- <td class="infeasible">1/14</td>
- <td>1/14</td><td>1/14</td><td>1/14</td>
+ <td class="infeasible">0/14</td>
+ <td>0/14</td><td>0/14</td><td>0/14</td>
  <td class="infeasible">1/5</td>
  <td>1/5</td><td>1/5</td><td>1/5</td>
  <td>build_storm_lance</td>
@@ -441,8 +439,8 @@
  <td>Dross Citadel</td><td>Independent</td>
  <td class="infeasible">1/14</td>
  <td>1/14</td><td>1/14</td><td>1/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>1/5</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>0/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -463,39 +461,6 @@
  <td>Voss Redoubt</td><td>Independent</td>
  <td class="infeasible">1/14</td>
  <td>1/14</td><td>1/14</td><td>1/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>1/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Mera Sanctum</td><td>Independent</td>
- <td class="infeasible">0/14</td>
- <td>0/14</td><td>0/14</td><td>0/14</td>
- <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>1/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Ironhearth Station</td><td>crimson</td>
- <td class="infeasible">2/14</td>
- <td>2/14</td><td>7/14</td><td>7/14</td>
- <td class="infeasible">0/5</td>
- <td>0/5</td><td>1/5</td><td>1/5</td>
- <td>build_storm_lance</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Hex Star</td><td>Independent</td>
- <td class="infeasible">6/14</td>
- <td>6/14</td><td>8/14</td><td>9/14</td>
  <td class="infeasible">0/5</td>
  <td>0/5</td><td>0/5</td><td>0/5</td>
  <td>build_storm_lance</td>
@@ -504,11 +469,44 @@
 </tr>
 
 <tr>
- <td>Market Prime Exchange</td><td>nebula</td>
+ <td>Mera Sanctum</td><td>Independent</td>
  <td class="infeasible">1/14</td>
- <td>8/14</td><td>8/14</td><td>8/14</td>
+ <td>1/14</td><td>1/14</td><td>1/14</td>
  <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>0/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Ironhearth Station</td><td>crimson</td>
+ <td class="infeasible">4/14</td>
+ <td>5/14</td><td>8/14</td><td>8/14</td>
+ <td class="infeasible">1/5</td>
  <td>1/5</td><td>1/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Hex Star</td><td>Independent</td>
+ <td class="infeasible">8/14</td>
+ <td>8/14</td><td>9/14</td><td>9/14</td>
+ <td class="infeasible">1/5</td>
+ <td>1/5</td><td>1/5</td><td>2/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Market Prime Exchange</td><td>nebula</td>
+ <td class="infeasible">3/14</td>
+ <td>7/14</td><td>7/14</td><td>7/14</td>
+ <td class="infeasible">0/5</td>
+ <td>29,317</td><td>29,317</td><td>29,317</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -517,9 +515,9 @@
 <tr>
  <td>Node Beta Industrial Station</td><td>voidborn</td>
  <td class="infeasible">3/14</td>
- <td>4/14</td><td>4/14</td><td>4/14</td>
- <td class="infeasible">0/5</td>
- <td>2/5</td><td>2/5</td><td>2/5</td>
+ <td>5/14</td><td>5/14</td><td>5/14</td>
+ <td class="infeasible">1/5</td>
+ <td>4/5</td><td>4/5</td><td>29,417</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -527,10 +525,10 @@
 
 <tr>
  <td>The Obsidian Well</td><td>Independent</td>
- <td class="infeasible">3/14</td>
- <td>3/14</td><td>3/14</td><td>6/14</td>
+ <td class="infeasible">2/14</td>
+ <td>2/14</td><td>3/14</td><td>8/14</td>
  <td class="infeasible">1/5</td>
- <td>1/5</td><td>1/5</td><td>3/5</td>
+ <td>1/5</td><td>1/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -538,10 +536,10 @@
 
 <tr>
  <td>The Veil Anchor</td><td>Independent</td>
- <td class="infeasible">1/14</td>
- <td>1/14</td><td>3/14</td><td>6/14</td>
+ <td class="infeasible">0/14</td>
+ <td>0/14</td><td>3/14</td><td>8/14</td>
  <td class="infeasible">0/5</td>
- <td>0/5</td><td>1/5</td><td>3/5</td>
+ <td>0/5</td><td>1/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -560,8 +558,8 @@
 
 <tr>
  <td>Ironlight Crossroads</td><td>Independent</td>
- <td class="infeasible">3/14</td>
- <td>3/14</td><td>3/14</td><td>3/14</td>
+ <td class="infeasible">7/14</td>
+ <td>7/14</td><td>7/14</td><td>7/14</td>
  <td class="infeasible">0/5</td>
  <td>0/5</td><td>0/5</td><td>0/5</td>
  <td>build_storm_lance</td>
@@ -572,9 +570,9 @@
 <tr>
  <td>The Zero Point Nexus</td><td>Independent</td>
  <td class="infeasible">0/14</td>
- <td>3/14</td><td>6/14</td><td>6/14</td>
+ <td>2/14</td><td>5/14</td><td>8/14</td>
  <td class="infeasible">0/5</td>
- <td>1/5</td><td>3/5</td><td>3/5</td>
+ <td>1/5</td><td>2/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -583,7 +581,7 @@
 <tr>
  <td>Starlight Cartographer</td><td>Independent</td>
  <td class="infeasible">0/14</td>
- <td>1/14</td><td>3/14</td><td>3/14</td>
+ <td>4/14</td><td>5/14</td><td>5/14</td>
  <td class="infeasible">0/5</td>
  <td>0/5</td><td>1/5</td><td>1/5</td>
  <td>build_storm_lance</td>
@@ -594,7 +592,7 @@
 <tr>
  <td>Cryo Zenith</td><td>Independent</td>
  <td class="infeasible">0/14</td>
- <td>0/14</td><td>1/14</td><td>3/14</td>
+ <td>3/14</td><td>4/14</td><td>5/14</td>
  <td class="infeasible">0/5</td>
  <td>0/5</td><td>0/5</td><td>1/5</td>
  <td>build_storm_lance</td>
@@ -605,7 +603,7 @@
 <tr>
  <td>Private Rain</td><td>Independent</td>
  <td class="infeasible">1/14</td>
- <td>1/14</td><td>3/14</td><td>3/14</td>
+ <td>4/14</td><td>5/14</td><td>5/14</td>
  <td class="infeasible">0/5</td>
  <td>0/5</td><td>1/5</td><td>1/5</td>
  <td>build_storm_lance</td>
@@ -616,7 +614,7 @@
 <tr>
  <td>The Second Ledger</td><td>Independent</td>
  <td class="infeasible">0/14</td>
- <td>1/14</td><td>1/14</td><td>3/14</td>
+ <td>0/14</td><td>4/14</td><td>5/14</td>
  <td class="infeasible">0/5</td>
  <td>0/5</td><td>0/5</td><td>1/5</td>
  <td>build_storm_lance</td>
@@ -627,9 +625,9 @@
 <tr>
  <td>Ghost Runner Terminal</td><td>Independent</td>
  <td class="infeasible">0/14</td>
- <td>3/14</td><td>3/14</td><td>6/14</td>
+ <td>3/14</td><td>5/14</td><td>8/14</td>
  <td class="infeasible">0/5</td>
- <td>1/5</td><td>1/5</td><td>3/5</td>
+ <td>1/5</td><td>1/5</td><td>2/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -638,9 +636,97 @@
 <tr>
  <td>The Deep Current</td><td>Independent</td>
  <td class="infeasible">0/14</td>
- <td>3/14</td><td>3/14</td><td>3/14</td>
+ <td>3/14</td><td>5/14</td><td>5/14</td>
  <td class="infeasible">0/5</td>
  <td>1/5</td><td>1/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Echo Protocol Hub</td><td>Independent</td>
+ <td class="infeasible">1/14</td>
+ <td>4/14</td><td>4/14</td><td>5/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Plasma Echo Station</td><td>Independent</td>
+ <td class="infeasible">0/14</td>
+ <td>3/14</td><td>4/14</td><td>4/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Whisper Point</td><td>Independent</td>
+ <td class="infeasible">2/14</td>
+ <td>4/14</td><td>4/14</td><td>5/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Hush Chamber</td><td>Independent</td>
+ <td class="infeasible">0/14</td>
+ <td>3/14</td><td>5/14</td><td>5/14</td>
+ <td class="infeasible">0/5</td>
+ <td>1/5</td><td>1/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Stellar Leap Station</td><td>Independent</td>
+ <td class="infeasible">0/14</td>
+ <td>3/14</td><td>5/14</td><td>5/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>1/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Event Horizon Relay</td><td>Independent</td>
+ <td class="infeasible">1/14</td>
+ <td>2/14</td><td>8/14</td><td>8/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>1/5</td><td>1/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Carnegie Hall</td><td>Independent</td>
+ <td class="infeasible">0/14</td>
+ <td>0/14</td><td>0/14</td><td>0/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>0/5</td>
+ <td>build_storm_lance</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Hex Wellspring</td><td>Independent</td>
+ <td class="infeasible">0/14</td>
+ <td>0/14</td><td>0/14</td><td>0/14</td>
+ <td class="infeasible">0/5</td>
+ <td>0/5</td><td>0/5</td><td>0/5</td>
  <td>build_storm_lance</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -649,6 +735,6 @@
 </tbody>
 </table>
 </div>
-<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-08-22 20:10 UTC</footer>
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-09-15 19:58 UTC</footer>
 </body>
 </html>

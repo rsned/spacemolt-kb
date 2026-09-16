@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — September 1, 2026 vs August 30, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-08-30.html">&larr; 2026-08-30</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-09-05.html">2026-09-05 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; September 1, 2026 vs August 30, 2026</h2>
+<div class="diff-summary">3 additions, 12 deletions, 22 modifications across 5 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;4</span> <span class="diff-mod">~3</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;4</span> <span class="diff-mod">~7</span></li>
+<li><a href="#ships">Ships</a></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~1</span></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+3</span> <span class="diff-del">&minus;4</span> <span class="diff-mod">~2</span></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~9</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;4</span>
+        <span class="diff-mod">~3</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; Build Advanced Repair Arm <span class="text-muted">(build_advanced_repair_arm)</span></li><li class="diff-del">&minus; Build Fleet Refueling Array <span class="text-muted">(build_fleet_refueling_array)</span></li><li class="diff-del">&minus; Build High Capacity Refueling Pump <span class="text-muted">(build_high_capacity_refueling_pump)</span></li><li class="diff-del">&minus; Build Nanite Repair Gantry <span class="text-muted">(build_nanite_repair_gantry)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_energy_siphon.html">build_energy_siphon</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Nebula weapon that drains enemy capacitor and transfers energy to your ship.&#34;</span> &rarr; <span class="diff-add">&#34;Nebula weapon that drains enemy shields and transfers half of the stolen energy to your ship&#39;s shields.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_ion_cannon_ii.html">build_ion_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced ion weapon with capacitor overload.&#34;</span> &rarr; <span class="diff-add">&#34;Enhanced ion weapon that deals 20 energy damage.&#34;</span></div>
+<div class="diff-item-id"><a href="../recipes/Consumables/manufacture_ion_charges.html">manufacture_ion_charges</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Heavy ion charges for capacitor drain.&#34;</span> &rarr; <span class="diff-add">&#34;Heavy ion charges with increased shield damage.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;4</span>
+        <span class="diff-mod">~7</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; Advanced Repair Arm <span class="text-muted">(advanced_repair_arm)</span></li><li class="diff-del">&minus; Fleet Refueling Array <span class="text-muted">(fleet_refueling_array)</span></li><li class="diff-del">&minus; High Capacity Refueling Pump <span class="text-muted">(high_capacity_refueling_pump)</span></li><li class="diff-del">&minus; Nanite Repair Gantry <span class="text-muted">(nanite_repair_gantry)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/weapon/ion_beam_array.html">ion_beam_array</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 30 energy damage and drains up to 20 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every 2 ticks at reach 3.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 30 energy damage. Fires every 2 ticks at reach 3.&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">capacitor_drain: 20</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_blaster_i.html">ion_blaster_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 8 EM damage, +50% while shields remain, and drains up to 5 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every tick at reach 2.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 8 EM damage, +50% while shields remain. Fires every tick at reach 2.&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">capacitor_drain: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">shield_damage_pct: 50</td><td class="diff-unchanged">shield_damage_pct: 50</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;shield_damage_bonus_50,capacitor_drain_5&#34;</span> &rarr; <span class="diff-add">&#34;shield_damage_bonus_50&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_blaster_ii.html">ion_blaster_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">capacitor_drain: 10</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">shield_damage_pct: 75</td><td class="diff-unchanged">shield_damage_pct: 75</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;shield_damage_bonus_75,capacitor_drain_10&#34;</span> &rarr; <span class="diff-add">&#34;shield_damage_bonus_75&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 14 EM damage, +75% while shields remain, and drains up to 10 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every tick at reach 2.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 14 EM damage, +75% while shields remain. Fires every tick at reach 2.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_blaster_iii.html">ion_blaster_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;shield_damage_bonus_100,capacitor_drain_20&#34;</span> &rarr; <span class="diff-add">&#34;shield_damage_bonus_100&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">capacitor_drain: 20</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">shield_damage_pct: 100</td><td class="diff-unchanged">shield_damage_pct: 100</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 22 EM damage, +100% while shields remain, and drains up to 20 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every tick at reach 2.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 22 EM damage, +100% while shields remain. Fires every tick at reach 2.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_cannon_i.html">ion_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 12 energy damage and drains up to 5 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every 2 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 12 energy damage. Fires every 2 ticks at reach 5.&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">capacitor_drain: 5</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/weapon/ion_cannon_ii.html">ion_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">capacitor_drain: 12</td><td class="diff-empty"></td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 20 energy damage and drains up to 12 capacitor on hit. Capacitor maximum equals Power Capacity. Fires every 2 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 20 energy damage. Fires every 2 ticks at reach 5.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/ammo/ion_charge_pack.html">ion_charge_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Heavy ion charges that drain capacitor banks and disable shield generators.&#34;</span> &rarr; <span class="diff-add">&#34;Heavy ion charges that deal 50% more shield damage.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~1</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../skills/weapons.html">weapons</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;General weapon proficiency. Increases all weapon damage by 1% per level and critical hit chance by 0.2% per level.&#34;</span> &rarr; <span class="diff-add">&#34;General weapon proficiency. Increases all weapon damage by 1% per level and critical hit chance by 1% per level. Critical hit chance stops increasing at a cap. Weapon damage shares a combined cap with the other weapon-damage skills.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+3</span>
+        <span class="diff-del">&minus;4</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Pirate Boarding Drill Deck <span class="text-muted">(pirate_boarding_drill_deck)</span></li><li class="diff-add">+ Pirate Crew Muster <span class="text-muted">(pirate_crew_muster)</span></li><li class="diff-add">+ Pirate Sawbones Ward <span class="text-muted">(pirate_sawbones_ward)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; Advanced Repair Arm Works <span class="text-muted">(advanced_repair_arm_works)</span></li><li class="diff-del">&minus; Fleet Refueling Array Complex <span class="text-muted">(fleet_refueling_array_complex)</span></li><li class="diff-del">&minus; High Capacity Refueling Pump Works <span class="text-muted">(high_capacity_refueling_pump_works)</span></li><li class="diff-del">&minus; Nanite Repair Gantry Complex <span class="text-muted">(nanite_repair_gantry_complex)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../facilities/production/capacitor_workshop.html">capacitor_workshop</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A specialized production line handling dual ion emitters and superconductor integration, with dedicated power-cell insertion and weapon-housing staging for improved capacitor disruption weapons.&#34;</span> &rarr; <span class="diff-add">&#34;A specialized production line handling dual ion emitters and superconductor integration, with dedicated power-cell insertion and weapon-housing staging for improved ion weapons.&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/ion_charge_press.html">ion_charge_press</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A specialized production line that integrates superconductors, circuit boards, and ion emitters into functional charge packs. Controlled assembly sequences ensure stable capacitor-drain properties.&#34;</span> &rarr; <span class="diff-add">&#34;A specialized production line that integrates superconductors, circuit boards, and ion emitters into functional charge packs. Controlled assembly sequences ensure consistent shield damage.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~9</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/azelfafage/index.html">azelfafage</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/blood_forge/index.html">blood_forge</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/deep_range/index.html">deep_range</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">8</span></div>
+<div class="diff-item-id"><a href="../systems/first_step/index.html">first_step</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/gliese_667/index.html">gliese_667</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0028/index.html">gsc_0028</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/jasmine/index.html">jasmine</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/the_anvil/index.html">the_anvil</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/zosma/index.html">zosma</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>

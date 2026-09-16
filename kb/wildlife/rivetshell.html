@@ -83,7 +83,7 @@
     </header>
     <main class="container page-content">
         <p class="text-muted" style="font-size:0.85em"><a href="index.html">Wildlife</a> &rsaquo; Grazers</p>
-        <h2>Rivetshell <span class="badge badge-green" style="font-size:0.6em; vertical-align:middle;">grazer</span></h2>
+        <h2>Rivetshell <span class="badge badge-green" style="font-size:0.6em; vertical-align:middle;">grazer</span> <span class="badge badge-green" style="font-size:0.6em; vertical-align:middle;">ranchable</span></h2>
         <code>rivetshell</code>
         <div class="hero placeholder" title="Hero image not yet available">
             <div class="glyph">&#x1F41A;</div>
@@ -92,7 +92,8 @@
         </div>
         <div class="card" style="padding:12px 16px">
             <div class="section-label">Codex entry</div>
-            <p class="empty">Not read yet. Since v0.571.0 scanning any creature of this species returns its entry (the <code>description</code> field); the server does not keep it, so record it in <code>data/wildlife/codex.json</code> or let the knowledge DB capture it.</p>
+            <p class="codex">A blunt, hand-sized bivalve that cements itself to belt rock by the thousand and hauls its shell open a crack to filter nickel grit from the drift, clamping shut hard the instant a shadow falls. Ranchers seed whole reefs of them across an outpost&#39;s rubble and pry the sweet meat loose by the crateload; left wild they crust the richest seams and little else.</p>
+            <div class="codex-src">Official species entry returned by scanning a creature.</div>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -101,20 +102,21 @@
                 <tr><td class="kv-label">Class</td><td><span class="badge badge-green">grazer</span></td></tr>
                 <tr><td class="kv-label">Hull (HP)</td><td>65</td></tr>
                 <tr><td class="kv-label">Shield</td><td><span class="text-muted">none</span></td></tr>
-                <tr><td class="kv-label">Danger</td><td><span class="text-muted">not yet scanned</span></td></tr>
+                <tr><td class="kv-label">Danger</td><td>harmless prey</td></tr>
                 <tr><td class="kv-label">Battle record</td><td>254 battles, wildlife won 1 (0.4%) &mdash; <span class="badge ">minimal danger</span> <span class="text-muted">(public battle feed, since 2026-08-28, post-balance-patch)</span></td></tr>
                 <tr><td class="kv-label">Attack</td><td><span class="badge">kinetic</span> 2 base dmg/shot (4 shots observed) &middot; hit chance 0.08&ndash;0.30 <span class="text-muted">(2 exported battles)</span></td></tr>
                 <tr><td class="kv-label">Habitats</td><td>asteroid belt</td></tr>
-                <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~64 across 6 systems</td></tr>
+                <tr><td class="kv-label">Ranchable</td><td>Yes</td></tr>
+                <tr><td class="kv-label">Scan traits</td><td>harmless prey, ranchable stock</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~68 across 7 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 08:07 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-01 19:06 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-09-15 02:15 UTC</td></tr>
             </table>
         </div>
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Attacks</div>
-            <p class="empty" style="padding:12px 16px">No attacks recorded; it has never been seen to fight.</p>
+            <p class="empty" style="padding:12px 16px">No attacks recorded; scanned as &ldquo;harmless prey&rdquo;.</p>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -135,6 +137,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td><a href="../systems/algorab/index.html">Algorab</a> <code style="font-size:0.85em">algorab</code></td>
+                        <td class="num">4</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Nickel Scatter Belt — Algorab (4)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">4</td>
+                        <td title="tick 1885110">2026-09-15</td>
+                    </tr>
                     <tr>
                         <td><a href="../systems/alsephina/index.html">Alsephina</a> <code style="font-size:0.85em">alsephina</code></td>
                         <td class="num">18</td>

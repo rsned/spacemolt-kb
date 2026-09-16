@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — September 5, 2026 vs September 1, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-09-01.html">&larr; 2026-09-01</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-09-07.html">2026-09-07 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; September 5, 2026 vs September 1, 2026</h2>
+<div class="diff-summary">16 additions, 24 deletions, 35 modifications across 5 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+2</span> <span class="diff-del">&minus;4</span> <span class="diff-mod">~1</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+2</span> <span class="diff-del">&minus;4</span> <span class="diff-mod">~18</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+4</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+8</span> <span class="diff-del">&minus;16</span> <span class="diff-mod">~10</span></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~4</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+2</span>
+        <span class="diff-del">&minus;4</span>
+        <span class="diff-mod">~1</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Assemble Smart Cluster Missiles <span class="text-muted">(assemble_smart_cluster_missiles)</span></li><li class="diff-add">+ Manufacture Standard Plasma Charges <span class="text-muted">(manufacture_standard_plasma_charges)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../recipes/Weapons/build_em_smartbomb.html">Build EM Smartbomb</a> <span class="text-muted">(build_em_smartbomb)</span></li><li class="diff-del">&minus; <a href="../recipes/Weapons/build_explosive_smartbomb.html">Build Explosive Smartbomb</a> <span class="text-muted">(build_explosive_smartbomb)</span></li><li class="diff-del">&minus; <a href="../recipes/Weapons/build_kinetic_smartbomb.html">Build Kinetic Smartbomb</a> <span class="text-muted">(build_kinetic_smartbomb)</span></li><li class="diff-del">&minus; <a href="../recipes/Weapons/build_thermal_smartbomb.html">Build Thermal Smartbomb</a> <span class="text-muted">(build_thermal_smartbomb)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../recipes/Consumables/manufacture_plasma_cells.html">manufacture_plasma_cells</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Standard plasma cell packs for plasma weapons.&#34;</span> &rarr; <span class="diff-add">&#34;Stabilized plasma cell packs with enhanced output for plasma weapons.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+2</span>
+        <span class="diff-del">&minus;4</span>
+        <span class="diff-mod">~18</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Smart Cluster Missiles <span class="text-muted">(smart_cluster_missiles)</span></li><li class="diff-add">+ Standard Plasma Charge Pack <span class="text-muted">(standard_plasma_charge_pack)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../items/weapon/em_smartbomb.html">EM Smartbomb</a> <span class="text-muted">(em_smartbomb)</span></li><li class="diff-del">&minus; <a href="../items/weapon/explosive_smartbomb.html">Explosive Smartbomb</a> <span class="text-muted">(explosive_smartbomb)</span></li><li class="diff-del">&minus; <a href="../items/weapon/kinetic_smartbomb.html">Kinetic Smartbomb</a> <span class="text-muted">(kinetic_smartbomb)</span></li><li class="diff-del">&minus; <a href="../items/weapon/thermal_smartbomb.html">Thermal Smartbomb</a> <span class="text-muted">(thermal_smartbomb)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/weapon/autocannon_i.html">autocannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Rapid-fire kinetic weapon. Good against armor.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 10 kinetic damage from a 500-round magazine. Sustained close-range fire pressures shields but struggles against armor. Fires every tick at reach 2.&#34;</span></div><div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">10</span></div>
+<div class="diff-item-id"><a href="../items/weapon/autocannon_ii.html">autocannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Dual-barrel autocannon with improved fire rate.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 18 kinetic damage from a 650-round magazine. Sustained close-range fire pressures shields but struggles against armor. Fires every tick at reach 2.&#34;</span></div><div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">14</span> &rarr; <span class="diff-add">18</span></div>
+<div class="diff-item-id"><a href="../items/weapon/heavy_mass_driver.html">heavy_mass_driver</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 120 kinetic damage; 80% bypasses armor and damage gains 50% while the target has no shields. Fires every 5 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 150 kinetic damage from a 10-slug magazine; 80% bypasses armor and damage gains 50% while the target has no shields. Fires every 5 ticks at reach 6.&#34;</span></div><div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div><div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">120</span> &rarr; <span class="diff-add">150</span></div>
+<div class="diff-item-id"><a href="../items/weapon/heavy_torpedo.html">heavy_torpedo</a></div>
+<div class="diff-field"><span class="diff-field-name">magazine_size:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">4</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Slow but devastating capital ship killer.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 80 explosive damage from a 4-torpedo magazine. Fires every 5 ticks at reach 6.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/mass_driver.html">mass_driver</a></div>
+<div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">90</span> &rarr; <span class="diff-add">130</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 90 kinetic damage; 75% bypasses armor. Fires every 4 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 130 kinetic damage from a 10-slug magazine; 75% bypasses armor. Fires every 4 ticks at reach 6.&#34;</span></div><div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../items/weapon/missile_launcher_i.html">missile_launcher_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Basic missile launcher. Area damage.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 20 explosive damage from an 8-missile magazine. Fires every 3 ticks at reach 6.&#34;</span></div><div class="diff-field"><span class="diff-field-name">magazine_size:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">8</span></div>
+<div class="diff-item-id"><a href="../items/weapon/missile_launcher_ii.html">missile_launcher_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Multi-warhead missile system.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 35 explosive damage from a 12-missile magazine. Fires every 3 ticks at reach 6.&#34;</span></div><div class="diff-field"><span class="diff-field-name">magazine_size:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">12</span></div>
+<div class="diff-item-id"><a href="../items/weapon/null_cannon.html">null_cannon</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 110 void damage, bypassing shields, armor, and defensive reductions. AOE radius 2 sends that full post-defense damage as a new hit to every other enemy within ZoneDistance 2 of the target; each applies its own defenses.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 110 void damage, bypassing shields, armor, and defensive reductions. AOE radius 2 sends that full post-defense damage as a new hit to every other enemy within 2 battle bands of the target; each applies its own defenses.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/piercing_railgun_i.html">piercing_railgun_i</a></div>
+<div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">60</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 35 kinetic damage; 50% bypasses armor. Fires every 3 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 60 kinetic damage from a 7-slug magazine; 70% bypasses armor. Fires every 3 ticks at reach 5.&#34;</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;armor_bypass_50&#34;</span> &rarr; <span class="diff-add">&#34;armor_bypass_70&#34;</span></div><div class="diff-field"><span class="diff-field-name">armor_bypass_bonus:</span> <span class="diff-del">0.5</span> &rarr; <span class="diff-add">0.7</span></div>
+<div class="diff-item-id"><a href="../items/weapon/piercing_railgun_ii.html">piercing_railgun_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">armor_bypass_bonus:</span> <span class="diff-del">0.65</span> &rarr; <span class="diff-add">0.85</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;armor_bypass_65&#34;</span> &rarr; <span class="diff-add">&#34;armor_bypass_85&#34;</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 65 kinetic damage; 65% bypasses armor. Fires every 3 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 90 kinetic damage from a 10-slug magazine; 85% bypasses armor. Fires every 3 ticks at reach 5.&#34;</span></div><div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">65</span> &rarr; <span class="diff-add">90</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_cannon_i.html">plasma_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Superheated plasma projectiles that burn through armor.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 22 thermal damage, increased by 50% while the target&#39;s shields are down. Fires every 2 ticks at reach 3.&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">hull_damage_pct: 50</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_cannon_ii.html">plasma_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">hull_damage_pct: 50</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Enhanced plasma weapon with improved containment fields.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 38 thermal damage, increased by 50% while the target&#39;s shields are down. Fires every 2 ticks at reach 3.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/ammo/plasma_cell_pack.html">plasma_cell_pack</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Pack of standard plasma cartridges. One pack fully loads any plasma weapon magazine.&#34;</span> &rarr; <span class="diff-add">&#34;Stabilized plasma cells that increase weapon damage by 15%. One pack fully loads any plasma weapon magazine.&#34;</span></div><div class="diff-field"><span class="diff-field-name">rarity:</span> <span class="diff-del">&#34;common&#34;</span> &rarr; <span class="diff-add">&#34;uncommon&#34;</span></div><div class="diff-field"><span class="diff-field-name">effect:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">ammo: {&#34;damage_mod&#34;:0.15}</td></tr><tr><td class="diff-unchanged">subtype: plasma</td><td class="diff-unchanged">subtype: plasma</td></tr><tr><td class="diff-unchanged">type: ammo</td><td class="diff-unchanged">type: ammo</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_repeater_i.html">plasma_repeater_i</a></div>
+<div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">hull_damage_pct: 50</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Rapid-fire plasma weapon with lower damage per shot.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 12 thermal damage, increased by 50% while the target&#39;s shields are down. Fires every tick at reach 3.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/plasma_repeater_ii.html">plasma_repeater_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Advanced rapid-fire plasma system with improved heat dissipation.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 20 thermal damage, increased by 50% while the target&#39;s shields are down. Fires every tick at reach 3.&#34;</span></div><div class="diff-field"><span class="diff-field-name">combat_effects:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">hull_damage_pct: 50</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../items/weapon/railgun_i.html">railgun_i</a></div>
+<div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">35</span> &rarr; <span class="diff-add">45</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Electromagnetic accelerator. High damage, slow fire.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 45 kinetic damage from a 5-slug magazine. Fires every 2 ticks at reach 5.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/railgun_ii.html">railgun_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">55</span> &rarr; <span class="diff-add">90</span></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 55 kinetic damage; 50% bypasses armor. Fires every 3 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 90 kinetic damage from a 7-slug magazine; 50% bypasses armor. Fires every 3 ticks at reach 5.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/siege_railgun.html">siege_railgun</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 120 kinetic damage; 80% bypasses armor. Fires every 4 ticks at reach 5.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 200 kinetic damage from a 3-slug magazine; 90% bypasses armor. Fires every 5 ticks at reach 6.&#34;</span></div><div class="diff-field"><span class="diff-field-name">damage:</span> <span class="diff-del">120</span> &rarr; <span class="diff-add">200</span></div><div class="diff-field"><span class="diff-field-name">special:</span> <span class="diff-del">&#34;armor_bypass_80&#34;</span> &rarr; <span class="diff-add">&#34;armor_bypass_90&#34;</span></div><div class="diff-field"><span class="diff-field-name">reach:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div><div class="diff-field"><span class="diff-field-name">cooldown:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div><div class="diff-field"><span class="diff-field-name">armor_bypass_bonus:</span> <span class="diff-del">0.8</span> &rarr; <span class="diff-add">0.9</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+4</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Bulk Discount <span class="text-muted">(bulk_discount)</span></li><li class="diff-add">+ Flight Risk <span class="text-muted">(flight_risk)</span></li><li class="diff-add">+ Insider Trading <span class="text-muted">(insider_trading)</span></li><li class="diff-add">+ Shell Company <span class="text-muted">(shell_company)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../ships/Combat/hostile_takeover.html">hostile_takeover</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A Crimson Halberd with cheaper hull construction and the boarding systems left exactly as found. The magnetic clamps and breaching gear are intact, though current pirate crews use them as cargo grapples rather than boarding gear. The armor is softer than the original.&#34;</span> &rarr; <span class="diff-add">&#34;A Crimson Halberd with cheaper hull construction and the boarding systems left exactly as found. The magnetic clamps, assault barracks, and breaching gear make it the workhorse of pirate prize crews. The armor is softer than the original.&#34;</span></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;Pirate yards keep the Halberd&#39;s clamp collar and replace nearly everything\naround it with whatever came off the last wreck. The result is softer than\nthe Fleet original and easier to repair away from a proper shipyard. Current\npirate crews use the collar to hold cargo containers and wreckage. A captain\nwith trained marines could put the original hardware back to its intended\npurpose without rebuilding the hull.\n&#34;</span> &rarr; <span class="diff-add">&#34;Pirate yards keep the Halberd&#39;s clamp collar and replace nearly everything\naround it with whatever came off the last wreck. The result is softer than\nthe Fleet original and easier to repair away from a proper shipyard. Current\npirate crews use the collar for its intended purpose: pinning a suppressed\nprize long enough for marines to cross. Captains still improvise with it as\na cargo grapple between seizures, because pirate hardware rarely does one job.\n&#34;</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/no_appeal.html">no_appeal</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Commandant Voss&#39;s flagship. A Crimson Executioner with the berserker plating swapped for salvage armor and the boarding systems left untouched. His crews use the clamps to immobilize crippled ships for stripping. The slow speed has never bothered him — he chooses his ground and holds it.&#34;</span> &rarr; <span class="diff-add">&#34;Commandant Voss&#39;s flagship. A Crimson Executioner with the berserker plating swapped for salvage armor and the boarding systems left untouched. His crews use the clamps to immobilize crippled ships for disciplined marine assaults. The slow speed has never bothered him — he chooses his ground and holds it.&#34;</span></div><div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;The walls of Voss Redoubt are patched with hull plating from a dozen different ship classes. Every piece came from a ship that tried to leave Alhena space without permission. Commandant Voss has been running the same operation for long enough that the patch history is visible in the architecture.\nThe No Appeal is the operational expression of Voss&#39;s doctrine: it doesn&#39;t chase, it doesn&#39;t negotiate, and it doesn&#39;t leave. The flight deck deploys drones while the weapon mounts suppress point defense, and the clamp galleries hold crippled hulls in place while salvage crews strip them. The fury alloy and crimson siege plating that gave the original its armor rating are gone — the rebuilt hull takes hits harder. Voss considers this appropriate. His crew earns their place. The ship earns its reputation the same way.\n&#34;</span> &rarr; <span class="diff-add">&#34;The walls of Voss Redoubt are patched with hull plating from a dozen different ship classes. Every piece came from a ship that tried to leave Alhena space without permission. Commandant Voss has been running the same operation for long enough that the patch history is visible in the architecture.\nThe No Appeal is the operational expression of Voss&#39;s doctrine: it doesn&#39;t chase, it doesn&#39;t negotiate, and it doesn&#39;t leave. The flight deck deploys drones while the weapon mounts suppress point defense, and the clamp galleries hold crippled hulls in place while marine companies seize them intact. The fury alloy and crimson siege plating that gave the original its armor rating are gone — the rebuilt hull takes hits harder. Voss considers this appropriate. His crew earns their place. The ship earns its reputation the same way.\n&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+8</span>
+        <span class="diff-del">&minus;16</span>
+        <span class="diff-mod">~10</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Autonomous Plasma Charge Manufactory <span class="text-muted">(autonomous_plasma_charge_manufactory)</span></li><li class="diff-add">+ Industrial Plasma Charge Works <span class="text-muted">(industrial_plasma_charge_works)</span></li><li class="diff-add">+ Plasma Charge Containment Plant <span class="text-muted">(plasma_charge_containment_plant)</span></li><li class="diff-add">+ Plasma Charge Filling Line <span class="text-muted">(plasma_charge_filling_line)</span></li><li class="diff-add">+ Smart Cluster Missile Assembly Line <span class="text-muted">(smart_cluster_missile_assembly_line)</span></li><li class="diff-add">+ Smart Cluster Missile Complex <span class="text-muted">(smart_cluster_missile_complex)</span></li><li class="diff-add">+ Smart Cluster Missile Plant <span class="text-muted">(smart_cluster_missile_plant)</span></li><li class="diff-add">+ Smart Cluster Missile Works <span class="text-muted">(smart_cluster_missile_works)</span></li></ul>
+<h4>Deletions</h4>
+<ul class="diff-list"><li class="diff-del">&minus; <a href="../facilities/production/em_smartbomb_assembly_line.html">EM Smartbomb Assembly Line</a> <span class="text-muted">(em_smartbomb_assembly_line)</span></li><li class="diff-del">&minus; <a href="../facilities/production/em_smartbomb_forge.html">Em Smartbomb Forge</a> <span class="text-muted">(em_smartbomb_forge)</span></li><li class="diff-del">&minus; <a href="../facilities/production/em_smartbomb_foundry.html">Em Smartbomb Foundry</a> <span class="text-muted">(em_smartbomb_foundry)</span></li><li class="diff-del">&minus; <a href="../facilities/production/em_smartbomb_workshop.html">Em Smartbomb Workshop</a> <span class="text-muted">(em_smartbomb_workshop)</span></li><li class="diff-del">&minus; <a href="../facilities/production/explosive_smartbomb_forge.html">Explosive Smartbomb Forge</a> <span class="text-muted">(explosive_smartbomb_forge)</span></li><li class="diff-del">&minus; <a href="../facilities/production/explosive_smartbomb_foundry.html">Explosive Smartbomb Foundry</a> <span class="text-muted">(explosive_smartbomb_foundry)</span></li><li class="diff-del">&minus; <a href="../facilities/production/explosive_smartbomb_workshop.html">Explosive Smartbomb Workshop</a> <span class="text-muted">(explosive_smartbomb_workshop)</span></li><li class="diff-del">&minus; <a href="../facilities/production/kinetic_assembly_line.html">Kinetic Assembly Line</a> <span class="text-muted">(kinetic_assembly_line)</span></li><li class="diff-del">&minus; <a href="../facilities/production/kinetic_smartbomb_forge.html">Kinetic Smartbomb Forge</a> <span class="text-muted">(kinetic_smartbomb_forge)</span></li><li class="diff-del">&minus; <a href="../facilities/production/kinetic_smartbomb_foundry.html">Kinetic Smartbomb Foundry</a> <span class="text-muted">(kinetic_smartbomb_foundry)</span></li><li class="diff-del">&minus; <a href="../facilities/production/kinetic_smartbomb_workshop.html">Kinetic Smartbomb Workshop</a> <span class="text-muted">(kinetic_smartbomb_workshop)</span></li><li class="diff-del">&minus; <a href="../facilities/production/shaped_charge_assembly_line.html">Shaped Charge Assembly Line</a> <span class="text-muted">(shaped_charge_assembly_line)</span></li><li class="diff-del">&minus; <a href="../facilities/production/thermal_ordnance_assembly_line.html">Thermal Ordnance Assembly Line</a> <span class="text-muted">(thermal_ordnance_assembly_line)</span></li><li class="diff-del">&minus; <a href="../facilities/production/thermal_smartbomb_forge.html">Thermal Smartbomb Forge</a> <span class="text-muted">(thermal_smartbomb_forge)</span></li><li class="diff-del">&minus; <a href="../facilities/production/thermal_smartbomb_foundry.html">Thermal Smartbomb Foundry</a> <span class="text-muted">(thermal_smartbomb_foundry)</span></li><li class="diff-del">&minus; <a href="../facilities/production/thermal_smartbomb_workshop.html">Thermal Smartbomb Workshop</a> <span class="text-muted">(thermal_smartbomb_workshop)</span></li></ul>
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../facilities/infrastructure/collective_compliance_annex.html">collective_compliance_annex</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: fuel_cell, quantity: 3</td><td class="diff-unchanged">item_id: fuel_cell, quantity: 3</td></tr><tr><td class="diff-del">item_id: plasma_cell_pack, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 2</td><td class="diff-unchanged">item_id: power_cell, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: standard_plasma_charge_pack, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: voidborn_neural_soma, quantity: 2</td><td class="diff-unchanged">item_id: voidborn_neural_soma, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/collective_panopticon.html">collective_panopticon</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: fuel_cell, quantity: 5</td><td class="diff-unchanged">item_id: fuel_cell, quantity: 5</td></tr><tr><td class="diff-del">item_id: plasma_cell_pack, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 3</td><td class="diff-unchanged">item_id: power_cell, quantity: 3</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: standard_plasma_charge_pack, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: voidborn_neural_soma, quantity: 3</td><td class="diff-unchanged">item_id: voidborn_neural_soma, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/confederacy_enforcement_command.html">confederacy_enforcement_command</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: fuel_cell, quantity: 5</td><td class="diff-unchanged">item_id: fuel_cell, quantity: 5</td></tr><tr><td class="diff-del">item_id: plasma_cell_pack, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 3</td><td class="diff-unchanged">item_id: power_cell, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: solarian_gourmet_rations, quantity: 3</td><td class="diff-unchanged">item_id: solarian_gourmet_rations, quantity: 3</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: standard_plasma_charge_pack, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/confederacy_precinct_station.html">confederacy_precinct_station</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: fuel_cell, quantity: 3</td><td class="diff-unchanged">item_id: fuel_cell, quantity: 3</td></tr><tr><td class="diff-del">item_id: plasma_cell_pack, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 2</td><td class="diff-unchanged">item_id: power_cell, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: solarian_gourmet_rations, quantity: 2</td><td class="diff-unchanged">item_id: solarian_gourmet_rations, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: standard_plasma_charge_pack, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/federation_enforcement_bureau.html">federation_enforcement_bureau</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: fuel_cell, quantity: 3</td><td class="diff-unchanged">item_id: fuel_cell, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: nebula_stellar_vintage, quantity: 2</td><td class="diff-unchanged">item_id: nebula_stellar_vintage, quantity: 2</td></tr><tr><td class="diff-del">item_id: plasma_cell_pack, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 2</td><td class="diff-unchanged">item_id: power_cell, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: standard_plasma_charge_pack, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/infrastructure/federation_trade_authority.html">federation_trade_authority</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: fuel_cell, quantity: 5</td><td class="diff-unchanged">item_id: fuel_cell, quantity: 5</td></tr><tr><td class="diff-unchanged">item_id: nebula_stellar_vintage, quantity: 3</td><td class="diff-unchanged">item_id: nebula_stellar_vintage, quantity: 3</td></tr><tr><td class="diff-del">item_id: plasma_cell_pack, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 3</td><td class="diff-unchanged">item_id: power_cell, quantity: 3</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: standard_plasma_charge_pack, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/production/plasma_cell_bottler.html">plasma_cell_bottler</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Straightforward production system that pairs refined plasma cores with ceramite plating in a sealed assembly process. Steady output maintains consistent cell quality for standard weapon loadouts.&#34;</span> &rarr; <span class="diff-add">&#34;Sealed production system that pairs refined plasma cores with ceramite plating and stabilizes each charge above ordinary field-grade output. Produces enhanced plasma cells for harder-hitting weapon loadouts.&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/plasma_containment_facility.html">plasma_containment_facility</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Mid-scale facility with integrated coolant systems and control automation to increase throughput. Ceramite plating is applied uniformly while plasma cores are charged to nominal specifications.&#34;</span> &rarr; <span class="diff-add">&#34;Mid-scale facility with integrated coolant systems and control automation to increase throughput. Ceramite plating is applied uniformly while plasma cores are stabilized to enhanced combat specifications.&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/stellar_plasma_manufactory.html">stellar_plasma_manufactory</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Fully automated facility employing quantum control and optimized coolant management for maximum efficiency. Every cell pack is individually calibrated and verified before discharge to weapons systems.&#34;</span> &rarr; <span class="diff-add">&#34;Fully automated facility employing quantum control and optimized coolant management for maximum efficiency. Every enhanced cell pack is individually stabilized, calibrated, and verified before discharge to weapons systems.&#34;</span></div>
+<div class="diff-item-id"><a href="../facilities/production/thermonuclear_cartridge_works.html">thermonuclear_cartridge_works</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Industrial-scale production with reinforced frames and advanced coolant circulation to sustain rapid cell assembly. Control nodes coordinate precise core-to-plating bonding and charge verification across multiple production lines.&#34;</span> &rarr; <span class="diff-add">&#34;Industrial-scale production with reinforced frames and advanced coolant circulation to sustain rapid enhanced-cell assembly. Control nodes coordinate precise core-to-plating bonding and stabilization across multiple production lines.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~4</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/deep_range/index.html">deep_range</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0032/index.html">gsc_0032</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/mirfak/index.html">mirfak</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/the_telescope/index.html">the_telescope</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>
