@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+// realPlayerID is the SQL predicate that keeps only genuine player accounts in
+// seen_players. Real player IDs are bare 32-character hex hashes; every other
+// entity the sighting scraper records shares the table under its own namespace —
+// creature spawns ("crt_<hex>", by far the largest group: wildlife belongs in
+// kb/wildlife/, generated from the wildlife_* tables), NPC authorities
+// ("npc_authority_*"), and named stations ("mera_sanctum_station",
+// "mobile_capital", ...). Matching the ID shape rather than blacklisting
+// prefixes keeps new namespaces out on their own.
+const realPlayerID = `length(player_id) = 32 AND player_id NOT GLOB '*[^0-9a-f]*'`
+
 // loadShips returns, per player_id, the distinct ship classes sighted (sorted),
 // and the full ShipSeen records per player for player pages.
 func loadShips(db *sql.DB) (classes map[string][]string, detail map[string][]ShipSeen, err error) {
@@ -84,7 +94,8 @@ func loadPlayers(db *sql.DB, shipDetail map[string][]ShipSeen, sightings map[str
 		       primary_color, secondary_color, status_message,
 		       first_seen_utc, last_seen_utc
 		FROM seen_players
-		WHERE username NOT LIKE '[%' AND player_id NOT LIKE 'npc%'`)
+		WHERE username NOT LIKE '[%' AND player_id NOT LIKE 'npc%'
+		  AND ` + realPlayerID)
 	if err != nil {
 		return nil, fmt.Errorf("query seen_players: %w", err)
 	}
