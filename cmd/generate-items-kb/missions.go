@@ -477,11 +477,12 @@ func writeMissionPages(outDir string, missions []*Mission) error {
 	})
 
 	funcs := htmltpl.FuncMap{
-		"titleCase":  titleCase,
-		"fmtValue":   fmtValue,
-		"difficulty": difficultyBadge,
-		"lower":      strings.ToLower,
-		"inc":        func(i int) int { return i + 1 },
+		"titleCase":          titleCase,
+		"fmtValue":           fmtValue,
+		"difficulty":         difficultyBadge,
+		"lower":              strings.ToLower,
+		"inc":                func(i int) int { return i + 1 },
+		"missionTitleFromID": missionTitleFromID,
 		"totalCount": func(cats []MissionCategoryInfo) int {
 			n := 0
 			for _, c := range cats {
@@ -582,7 +583,7 @@ var missionTableTemplate = `
                             <td>{{if .FactionName}}{{.FactionName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
                             <td data-sort="{{.RewardsCredits}}" class="value">{{fmtValue .RewardsCredits}}</td>
                             <td data-sort="{{len .Objectives}}">{{len .Objectives}}</td>
-                            <td>{{if .ChainNext}}{{if .ChainNextHref}}<a href="{{.ChainNextHref}}" title="Chains into {{.ChainNextTitle}}">{{.ChainNextTitle}}</a>{{else}}<span class="text-muted" title="Not yet discovered">{{.ChainNext}}</span>{{end}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+                            <td>{{if .ChainNext}}{{if .ChainNextHref}}<a href="{{.ChainNextHref}}" title="Chains into {{.ChainNextTitle}}">{{.ChainNextTitle}}</a>{{else}}<span class="chain-undiscovered" title="Not yet discovered — mission id {{.ChainNext}}">{{missionTitleFromID .ChainNext}}</span>{{end}}{{else}}<span class="text-muted">—</span>{{end}}</td>
                         </tr>
 {{- end}}
                     </tbody>
@@ -709,7 +710,7 @@ var htmlMissionDetailTemplate = `<!DOCTYPE html>
                     {{if .FactionName}}<tr><td class="kv-label">Faction</td><td>{{.FactionName}}</td></tr>{{end}}
                     <tr><td class="kv-label">Repeatable</td><td>{{if .Repeatable}}Yes{{else}}No{{end}}</td></tr>
                     {{if gt .ExpiresInTicks 0}}<tr><td class="kv-label">Expires In</td><td>{{.ExpiresInTicks}} ticks</td></tr>{{end}}
-                    {{if .ChainNext}}<tr><td class="kv-label">Chains To</td><td>{{if .ChainNextHref}}<a href="{{.ChainNextHref}}">{{.ChainNextTitle}}</a>{{else}}<span class="text-muted" title="Not yet discovered">{{.ChainNext}}</span>{{end}}</td></tr>{{end}}
+                    {{if .ChainNext}}<tr><td class="kv-label">Chains To</td><td>{{if .ChainNextHref}}<a href="{{.ChainNextHref}}">{{.ChainNextTitle}}</a>{{else}}<span class="chain-undiscovered" title="Not yet discovered — mission id {{.ChainNext}}">{{missionTitleFromID .ChainNext}}</span>{{end}}</td></tr>{{end}}
                     {{if .ChainPrev}}<tr><td class="kv-label">Chains From</td><td><a href="{{.ChainPrevHref}}">{{.ChainPrevTitle}}</a></td></tr>{{end}}
                 </tbody>
             </table>

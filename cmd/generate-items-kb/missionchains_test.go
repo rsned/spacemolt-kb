@@ -150,3 +150,23 @@ func missionTitles(ms []*Mission) []string {
 	}
 	return out
 }
+
+func TestMissionTitleFromID(t *testing.T) {
+	cases := []struct{ id, want string }{
+		{"bid_and_ask", "Bid and Ask"},
+		{"network_expansion", "Network Expansion"},
+		{"the_anvils_stamp", "The Anvils Stamp"},
+		{"return_journey", "Return Journey"},
+		{"silicon_supply_for_science", "Silicon Supply for Science"},
+		{"into_the_unknown", "Into the Unknown"},
+		{"end_of_the_line", "End of the Line"},
+		{"patrol_to_valor", "Patrol to Valor"},
+		{"phase_two_clearance", "Phase Two Clearance"},
+		{"", ""},
+	}
+	for _, c := range cases {
+		if got := missionTitleFromID(c.id); got != c.want {
+			t.Errorf("missionTitleFromID(%q) = %q, want %q", c.id, got, c.want)
+		}
+	}
+}

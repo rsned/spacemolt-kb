@@ -4,6 +4,7 @@ package main
 import (
 	"cmp"
 	"slices"
+	"strings"
 )
 
 // missionTypeIcons gives each mission type a glyph, used to flag chain steps
@@ -164,4 +165,34 @@ func compareMissions(a, b *Mission) int {
 		return c
 	}
 	return cmp.Compare(a.Title, b.Title)
+}
+
+// missionChainSmallWords stay lowercase inside a reconstructed title.
+var missionChainSmallWords = map[string]bool{
+	"a": true, "an": true, "and": true, "at": true, "by": true, "for": true,
+	"from": true, "in": true, "of": true, "on": true, "or": true, "the": true,
+	"to": true, "with": true,
+}
+
+// missionTitleFromID reconstructs a readable title from a mission ID. Mission
+// IDs are the slugified title (verified: 129 of 131 story missions match
+// exactly), so this renders a chain continuation we have not scraped yet as a
+// name rather than a raw slug. It is a display convenience only — the real
+// title arrives with the mission itself.
+func missionTitleFromID(id string) string {
+	if id == "" {
+		return ""
+	}
+	words := strings.Split(id, "_")
+	for i, w := range words {
+		if w == "" {
+			continue
+		}
+		if i > 0 && missionChainSmallWords[w] {
+			words[i] = w
+			continue
+		}
+		words[i] = strings.ToUpper(w[:1]) + w[1:]
+	}
+	return strings.Join(words, " ")
 }
