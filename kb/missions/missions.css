@@ -200,3 +200,68 @@ th.sortable:hover {
   margin-left: 4px;
   font-size: 10px;
 }
+
+/* ---- Category listing sections (chains / standalone / procedural) ---- */
+.mission-section {
+  margin-top: 2.5rem;
+}
+
+.mission-section h3 {
+  font-size: var(--text-heading);
+  border-bottom: 1px solid hsl(var(--border));
+  padding-bottom: 0.4rem;
+}
+
+.mission-section .section-note {
+  margin: 0.4rem 0 1rem;
+  font-size: var(--text-ui);
+}
+
+/* Each chain is its own tbody inside one table, so columns stay aligned
+   across chains while the gap between groups reads as the chain break. */
+.chain-table tbody.mission-chain::before {
+  content: "";
+  display: table-row;
+  height: 1.1rem;
+}
+
+.chain-table tbody.mission-chain + tbody.mission-chain {
+  border-top: 1px solid hsl(var(--border));
+}
+
+.chain-table .chain-step-col {
+  width: 2.5rem;
+  text-align: right;
+  color: hsl(var(--muted-foreground));
+  font-variant-numeric: tabular-nums;
+}
+
+/* Steps belonging to another mission type: dimmed, with a type icon. */
+.chain-table tr.chain-foreign td {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.72;
+}
+
+.chain-table tr.chain-foreign a {
+  color: hsl(var(--muted-foreground));
+}
+
+.chain-table tr.chain-foreign a:hover {
+  color: hsl(var(--foreground));
+}
+
+.chain-type-icon {
+  font-size: 12px;
+  opacity: 0.85;
+  cursor: help;
+}
+
+/* Prev/Next on a detail page when the link crosses categories. */
+.chain-nav a.chain-foreign-link {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.chain-nav a.chain-foreign-link:hover {
+  opacity: 1;
+}

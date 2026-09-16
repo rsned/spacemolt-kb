@@ -42,77 +42,132 @@
         <div class="breadcrumb"><a href="../">Missions</a> / Equipment</div>
         <h2>Equipment <span class="text-muted">6 missions</span></h2>
         <p class="text-muted mt-1">Starter and onboarding missions that teach ship systems and basic gameplay.</p>
-        <div class="table-container">
-            <table class="sortable">
-                <thead>
-                    <tr>
-                        <th class="sortable">Title</th>
-                        <th class="sortable">Difficulty</th>
-                        <th class="sortable">Giver</th>
-                        <th class="sortable">Faction</th>
-                        <th class="sortable">Credits</th>
-                        <th class="sortable">Objectives</th>
-                        <th class="sortable">Chain</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><a href="cargo_optimization.html">Cargo Optimization</a></td>
-                        <td data-sort="1"><span class="difficulty" title="Difficulty 1">★</span></td>
-                        <td>Fleet Optimization Advisor Chen</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="1500" class="value">1,500 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><a href="insurance_policy.html" title="Chains into Insurance Policy">Insurance Policy</a></td>
-                    </tr>
-                    <tr>
-                        <td><a href="first_haul.html">First Haul</a></td>
-                        <td data-sort="1"><span class="difficulty" title="Difficulty 1">★</span></td>
-                        <td>Yard Foreman Dak</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="500" class="value">500 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="replacement_survey_lens.html">Replacement Survey Lens</a></td>
-                        <td data-sort="1"><span class="difficulty" title="Difficulty 1">★</span></td>
-                        <td>Sinter</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="0" class="value">0 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="a_lucrative_sideline.html">A Lucrative Sideline</a></td>
-                        <td data-sort="2"><span class="difficulty" title="Difficulty 2">★★</span></td>
-                        <td>Korrin Vex</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="1000" class="value">1,000 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                    <tr>
-                        <td><a href="commodity_diversification.html">Commodity Diversification</a></td>
-                        <td data-sort="2"><span class="difficulty" title="Difficulty 2">★★</span></td>
-                        <td>Equipment Specialist Ryker</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="2000" class="value">2,000 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><a href="../mining/gas_futures.html" title="Chains into Gas Futures">Gas Futures</a></td>
-                    </tr>
-                    <tr>
-                        <td><a href="insurance_policy.html">Insurance Policy</a></td>
-                        <td data-sort="2"><span class="difficulty" title="Difficulty 2">★★</span></td>
-                        <td>Fleet Optimization Advisor Chen</td>
-                        <td><span class="text-muted">—</span></td>
-                        <td data-sort="2000" class="value">2,000 cr</td>
-                        <td data-sort="1">1</td>
-                        <td><span class="text-muted">—</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+
+
+        <section class="mission-section">
+            <h3>Mission Chains <span class="text-muted">2</span></h3>
+            <p class="text-muted section-note">Hand-authored storylines in chain order, ordered by the difficulty of the mission that starts them. A chain may run through other mission types; those steps are dimmed and marked with their own icon.</p>
+            <div class="table-container">
+                <table class="chain-table">
+                    <thead>
+                        <tr>
+                            <th class="chain-step-col">#</th>
+                            <th>Title</th>
+                            <th>Difficulty</th>
+                            <th>Giver</th>
+                            <th>Faction</th>
+                            <th>Credits</th>
+                            <th>Objectives</th>
+                        </tr>
+                    </thead>
+                    <tbody class="mission-chain">
+                        <tr>
+                            <td class="chain-step-col">1</td>
+                            <td><a href="cargo_optimization.html">Cargo Optimization</a></td>
+                            <td><span class="difficulty" title="Difficulty 1">★</span></td>
+                            <td>Fleet Optimization Advisor Chen</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td class="value">1,500 cr</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td class="chain-step-col">2</td>
+                            <td><a href="insurance_policy.html">Insurance Policy</a></td>
+                            <td><span class="difficulty" title="Difficulty 2">★★</span></td>
+                            <td>Fleet Optimization Advisor Chen</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td class="value">2,000 cr</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>
+                    <tbody class="mission-chain">
+                        <tr>
+                            <td class="chain-step-col">1</td>
+                            <td><a href="commodity_diversification.html">Commodity Diversification</a></td>
+                            <td><span class="difficulty" title="Difficulty 2">★★</span></td>
+                            <td>Equipment Specialist Ryker</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td class="value">2,000 cr</td>
+                            <td>1</td>
+                        </tr>
+                        <tr class="chain-foreign">
+                            <td class="chain-step-col">2</td>
+                            <td><a href="../mining/gas_futures.html">Gas Futures</a> <span class="chain-type-icon" title="Mining mission">⛏️</span></td>
+                            <td><span class="difficulty" title="Difficulty 2">★★</span></td>
+                            <td>Equipment Specialist Ryker</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td class="value">2,500 cr</td>
+                            <td>2</td>
+                        </tr>
+                        <tr class="chain-foreign">
+                            <td class="chain-step-col">3</td>
+                            <td><a href="../mining/rare_gas_market.html">Rare Gas Market</a> <span class="chain-type-icon" title="Mining mission">⛏️</span></td>
+                            <td><span class="difficulty" title="Difficulty 3">★★★</span></td>
+                            <td>Equipment Specialist Ryker</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td class="value">3,500 cr</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+
+        <section class="mission-section">
+            <h3>Standalone Missions <span class="text-muted">3</span></h3>
+            <p class="text-muted section-note">Hand-authored missions that belong to no chain.</p>
+            
+            <div class="table-container">
+                <table class="sortable">
+                    <thead>
+                        <tr>
+                            <th class="sortable">Title</th>
+                            <th class="sortable">Difficulty</th>
+                            <th class="sortable">Giver</th>
+                            <th class="sortable">Faction</th>
+                            <th class="sortable">Credits</th>
+                            <th class="sortable">Objectives</th>
+                            <th class="sortable">Chain</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a href="first_haul.html">First Haul</a></td>
+                            <td data-sort="1"><span class="difficulty" title="Difficulty 1">★</span></td>
+                            <td>Yard Foreman Dak</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td data-sort="500" class="value">500 cr</td>
+                            <td data-sort="1">1</td>
+                            <td><span class="text-muted">—</span></td>
+                        </tr>
+                        <tr>
+                            <td><a href="replacement_survey_lens.html">Replacement Survey Lens</a></td>
+                            <td data-sort="1"><span class="difficulty" title="Difficulty 1">★</span></td>
+                            <td>Sinter</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td data-sort="0" class="value">0 cr</td>
+                            <td data-sort="1">1</td>
+                            <td><span class="text-muted">—</span></td>
+                        </tr>
+                        <tr>
+                            <td><a href="a_lucrative_sideline.html">A Lucrative Sideline</a></td>
+                            <td data-sort="2"><span class="difficulty" title="Difficulty 2">★★</span></td>
+                            <td>Korrin Vex</td>
+                            <td><span class="text-muted">—</span></td>
+                            <td data-sort="1000" class="value">1,000 cr</td>
+                            <td data-sort="1">1</td>
+                            <td><span class="text-muted">—</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+
+
     </main>
     <script>
     document.querySelectorAll("table.sortable").forEach(function(table) {

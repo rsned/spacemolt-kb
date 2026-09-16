@@ -35,14 +35,23 @@ type Mission struct {
 	ChainPrev      string
 	ChainPrevTitle string
 	ChainPrevHref  string
-	Repeatable     bool
-	ExpiresInTicks int
-	RewardsCredits int
-	RewardsSkillXP []MissionReward
-	RewardsItems   []MissionItemReward
-	ProvidedItems  []MissionItemReward
-	Requirements   map[string]any
-	RequiredModules []string
+	// Set when a chain link leaves this mission's own type, so the detail
+	// page can dim it and show the other category's icon.
+	ChainNextForeign bool
+	ChainNextIcon    string
+	ChainNextType    string
+	ChainPrevForeign bool
+	ChainPrevIcon    string
+	ChainPrevType    string
+	Procedural       bool
+	Repeatable       bool
+	ExpiresInTicks   int
+	RewardsCredits   int
+	RewardsSkillXP   []MissionReward
+	RewardsItems     []MissionItemReward
+	ProvidedItems    []MissionItemReward
+	Requirements     map[string]any
+	RequiredModules  []string
 
 	Objectives []MissionObjective
 	Locations  []MissionLocation
@@ -64,27 +73,27 @@ type MissionItemReward struct {
 
 // MissionObjective is a single objective in a mission_objectives row.
 type MissionObjective struct {
-	SortOrder       int
-	Type            string
-	Description     string
-	ItemID          string
-	ItemName        string
-	ItemCategory    string
-	Quantity        int
-	SystemID        string
-	SystemName      string
-	TargetBaseID    string
-	TargetBaseName  string
+	SortOrder      int
+	Type           string
+	Description    string
+	ItemID         string
+	ItemName       string
+	ItemCategory   string
+	Quantity       int
+	SystemID       string
+	SystemName     string
+	TargetBaseID   string
+	TargetBaseName string
 }
 
 // MissionLocation is a place the mission is offered.
 type MissionLocation struct {
-	BaseID        string
-	BaseName      string
-	SystemID      string
-	SystemName    string
-	FirstSeenAt   string
-	LastSeenAt    string
+	BaseID      string
+	BaseName    string
+	SystemID    string
+	SystemName  string
+	FirstSeenAt string
+	LastSeenAt  string
 }
 
 // MissionCategoryInfo groups missions for page generation.
@@ -92,8 +101,17 @@ type MissionCategoryInfo struct {
 	Name        string // internal key, e.g. "mining"
 	Description string
 	Count       int
-	Missions    []*Mission
+	Missions    []*Mission // every mission of this type, for detail pages
+
+	// Listing sections: hand-authored chains first, then hand-authored
+	// missions that belong to no chain, then the procedural bulk.
+	Chains     []MissionChain
+	Standalone []*Mission
+	Procedural []*Mission
 }
+
+// ChainCount reports how many chains the category lists.
+func (c MissionCategoryInfo) ChainCount() int { return len(c.Chains) }
 
 // chainHref returns a relative link from a mission detail page in fromType
 // to the detail page for toID within toType. Pages live at
@@ -135,7 +153,8 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 		       COALESCE(rewards_items,'{}'),
 		       COALESCE(requirements,'{}'),
 		       COALESCE(required_modules,'[]'),
-		       COALESCE(provided_items,'{}')
+		       COALESCE(provided_items,'{}'),
+		       COALESCE(procedural,0)
 		FROM mission_templates
 		ORDER BY type, title
 	`)
@@ -148,7 +167,7 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 	var missions []*Mission
 	for missionRows.Next() {
 		var m Mission
-		var repeatable int
+		var repeatable, procedural int
 		var rewardsXPJSON, rewardsItemsJSON, requirementsJSON, requiredModulesJSON, providedItemsJSON string
 		if err := missionRows.Scan(
 			&m.ID, &m.Title, &m.Description, &m.Type,
@@ -162,10 +181,12 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 			&m.RewardsCredits,
 			&rewardsXPJSON, &rewardsItemsJSON,
 			&requirementsJSON, &requiredModulesJSON, &providedItemsJSON,
+			&procedural,
 		); err != nil {
 			return nil, fmt.Errorf("scan mission: %w", err)
 		}
 		m.Repeatable = repeatable != 0
+		m.Procedural = procedural != 0
 
 		m.RewardsSkillXP = decodeIntMap(rewardsXPJSON)
 		m.RewardsItems = decodeItemMap(rewardsItemsJSON)
@@ -192,9 +213,15 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 		}
 		m.ChainNextTitle = next.Title
 		m.ChainNextHref = chainHref(m.Type, next.Type, next.ID)
+		m.ChainNextForeign = next.Type != m.Type
+		m.ChainNextIcon = missionTypeIcons[next.Type]
+		m.ChainNextType = next.Type
 		next.ChainPrev = m.ID
 		next.ChainPrevTitle = m.Title
 		next.ChainPrevHref = chainHref(next.Type, m.Type, m.ID)
+		next.ChainPrevForeign = m.Type != next.Type
+		next.ChainPrevIcon = missionTypeIcons[m.Type]
+		next.ChainPrevType = m.Type
 	}
 
 	// Load objectives.
@@ -427,13 +454,22 @@ func writeMissionPages(outDir string, missions []*Mission) error {
 		})
 	}
 
+	// Chains are global: a run of chain_next links crosses mission types
+	// freely, so build them once over every mission and then select per type.
+	chains := buildMissionChains(missions)
+	chained := chainMemberIDs(chains)
+
 	categories := make([]MissionCategoryInfo, 0, len(byType))
 	for typ, list := range byType {
+		standalone, procedural := partitionMissions(list, chained)
 		categories = append(categories, MissionCategoryInfo{
 			Name:        typ,
 			Description: missionTypeDescriptions[typ],
 			Count:       len(list),
 			Missions:    list,
+			Chains:      chainsForType(chains, typ),
+			Standalone:  standalone,
+			Procedural:  procedural,
 		})
 	}
 	slices.SortFunc(categories, func(a, b MissionCategoryInfo) int {
@@ -441,10 +477,11 @@ func writeMissionPages(outDir string, missions []*Mission) error {
 	})
 
 	funcs := htmltpl.FuncMap{
-		"titleCase":   titleCase,
-		"fmtValue":    fmtValue,
-		"difficulty":  difficultyBadge,
-		"lower":       strings.ToLower,
+		"titleCase":  titleCase,
+		"fmtValue":   fmtValue,
+		"difficulty": difficultyBadge,
+		"lower":      strings.ToLower,
+		"inc":        func(i int) int { return i + 1 },
 		"totalCount": func(cats []MissionCategoryInfo) int {
 			n := 0
 			for _, c := range cats {
@@ -455,7 +492,8 @@ func writeMissionPages(outDir string, missions []*Mission) error {
 	}
 
 	topTmpl := htmltpl.Must(htmltpl.New("top").Funcs(funcs).Parse(htmlMissionsTopTemplate))
-	catTmpl := htmltpl.Must(htmltpl.New("cat").Funcs(funcs).Parse(htmlMissionsCategoryTemplate))
+	catTmpl := htmltpl.Must(htmltpl.New("cat").Funcs(funcs).Parse(missionTableTemplate))
+	catTmpl = htmltpl.Must(catTmpl.Parse(htmlMissionsCategoryTemplate))
 	detTmpl := htmltpl.Must(htmltpl.New("det").Funcs(funcs).Parse(htmlMissionDetailTemplate))
 
 	if err := writeTemplate(filepath.Join(outDir, "index.html"), topTmpl, categories); err != nil {
@@ -491,7 +529,6 @@ func difficultyBadge(d int) htmltpl.HTML {
 
 // --- Templates ---
 
-
 var htmlMissionsTopTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -521,6 +558,39 @@ var htmlMissionsTopTemplate = `<!DOCTYPE html>
 </html>
 `
 
+var missionTableTemplate = `
+{{define "missionTable"}}
+            <div class="table-container">
+                <table class="sortable">
+                    <thead>
+                        <tr>
+                            <th class="sortable">Title</th>
+                            <th class="sortable">Difficulty</th>
+                            <th class="sortable">Giver</th>
+                            <th class="sortable">Faction</th>
+                            <th class="sortable">Credits</th>
+                            <th class="sortable">Objectives</th>
+                            <th class="sortable">Chain</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+{{- range .}}
+                        <tr>
+                            <td><a href="{{.ID}}.html">{{.Title}}</a></td>
+                            <td data-sort="{{.Difficulty}}">{{difficulty .Difficulty}}</td>
+                            <td>{{if .GiverName}}{{.GiverName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+                            <td>{{if .FactionName}}{{.FactionName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+                            <td data-sort="{{.RewardsCredits}}" class="value">{{fmtValue .RewardsCredits}}</td>
+                            <td data-sort="{{len .Objectives}}">{{len .Objectives}}</td>
+                            <td>{{if .ChainNext}}{{if .ChainNextHref}}<a href="{{.ChainNextHref}}" title="Chains into {{.ChainNextTitle}}">{{.ChainNextTitle}}</a>{{else}}<span class="text-muted" title="Not yet discovered">{{.ChainNext}}</span>{{end}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+                        </tr>
+{{- end}}
+                    </tbody>
+                </table>
+            </div>
+{{end}}
+`
+
 var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -536,34 +606,59 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
         <div class="breadcrumb"><a href="../">Missions</a> / {{titleCase .Name}}</div>
         <h2>{{titleCase .Name}} <span class="text-muted">{{.Count}} missions</span></h2>
         {{if .Description}}<p class="text-muted mt-1">{{.Description}}</p>{{end}}
-        <div class="table-container">
-            <table class="sortable">
-                <thead>
-                    <tr>
-                        <th class="sortable">Title</th>
-                        <th class="sortable">Difficulty</th>
-                        <th class="sortable">Giver</th>
-                        <th class="sortable">Faction</th>
-                        <th class="sortable">Credits</th>
-                        <th class="sortable">Objectives</th>
-                        <th class="sortable">Chain</th>
-                    </tr>
-                </thead>
-                <tbody>
-{{- range .Missions}}
-                    <tr>
-                        <td><a href="{{.ID}}.html">{{.Title}}</a></td>
-                        <td data-sort="{{.Difficulty}}">{{difficulty .Difficulty}}</td>
-                        <td>{{if .GiverName}}{{.GiverName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-                        <td>{{if .FactionName}}{{.FactionName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-                        <td data-sort="{{.RewardsCredits}}" class="value">{{fmtValue .RewardsCredits}}</td>
-                        <td data-sort="{{len .Objectives}}">{{len .Objectives}}</td>
-                        <td>{{if .ChainNext}}{{if .ChainNextHref}}<a href="{{.ChainNextHref}}" title="Chains into {{.ChainNextTitle}}">{{.ChainNextTitle}}</a>{{else}}<span class="text-muted" title="Not yet discovered">{{.ChainNext}}</span>{{end}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-                    </tr>
+
+{{if .Chains}}
+        <section class="mission-section">
+            <h3>Mission Chains <span class="text-muted">{{.ChainCount}}</span></h3>
+            <p class="text-muted section-note">Hand-authored storylines in chain order, ordered by the difficulty of the mission that starts them. A chain may run through other mission types; those steps are dimmed and marked with their own icon.</p>
+            <div class="table-container">
+                <table class="chain-table">
+                    <thead>
+                        <tr>
+                            <th class="chain-step-col">#</th>
+                            <th>Title</th>
+                            <th>Difficulty</th>
+                            <th>Giver</th>
+                            <th>Faction</th>
+                            <th>Credits</th>
+                            <th>Objectives</th>
+                        </tr>
+                    </thead>
+{{- range .Chains}}
+                    <tbody class="mission-chain">
+{{- range $i, $step := .Steps}}
+                        <tr{{if $step.Foreign}} class="chain-foreign"{{end}}>
+                            <td class="chain-step-col">{{inc $i}}</td>
+                            <td><a href="{{$step.Href}}">{{$step.Mission.Title}}</a>{{if $step.Foreign}} <span class="chain-type-icon" title="{{titleCase $step.TypeName}} mission">{{$step.TypeIcon}}</span>{{end}}</td>
+                            <td>{{difficulty $step.Mission.Difficulty}}</td>
+                            <td>{{if $step.Mission.GiverName}}{{$step.Mission.GiverName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+                            <td>{{if $step.Mission.FactionName}}{{$step.Mission.FactionName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+                            <td class="value">{{fmtValue $step.Mission.RewardsCredits}}</td>
+                            <td>{{len $step.Mission.Objectives}}</td>
+                        </tr>
 {{- end}}
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+{{- end}}
+                </table>
+            </div>
+        </section>
+{{end}}
+
+{{if .Standalone}}
+        <section class="mission-section">
+            <h3>Standalone Missions <span class="text-muted">{{len .Standalone}}</span></h3>
+            <p class="text-muted section-note">Hand-authored missions that belong to no chain.</p>
+            {{template "missionTable" .Standalone}}
+        </section>
+{{end}}
+
+{{if .Procedural}}
+        <section class="mission-section">
+            <h3>Procedural Missions <span class="text-muted">{{len .Procedural}}</span></h3>
+            <p class="text-muted section-note">Generated contracts that repopulate as the galaxy runs.</p>
+            {{template "missionTable" .Procedural}}
+        </section>
+{{end}}
     </main>
 ` + sortScript + themeScript + `
 </body>
@@ -586,8 +681,8 @@ var htmlMissionDetailTemplate = `<!DOCTYPE html>
 
         {{if or .ChainPrevHref .ChainNextHref}}
         <nav class="chain-nav">
-            {{if .ChainPrevHref}}<a class="chain-prev" href="{{.ChainPrevHref}}">&lt; Prev: {{.ChainPrevTitle}}</a>{{else}}<span></span>{{end}}
-            {{if .ChainNextHref}}<a class="chain-next" href="{{.ChainNextHref}}">Next: {{.ChainNextTitle}} &gt;</a>{{else}}<span></span>{{end}}
+            {{if .ChainPrevHref}}<a class="chain-prev{{if .ChainPrevForeign}} chain-foreign-link{{end}}" href="{{.ChainPrevHref}}"{{if .ChainPrevForeign}} title="{{titleCase .ChainPrevType}} mission"{{end}}>&lt; Prev: {{.ChainPrevTitle}}{{if .ChainPrevForeign}} {{.ChainPrevIcon}}{{end}}</a>{{else}}<span></span>{{end}}
+            {{if .ChainNextHref}}<a class="chain-next{{if .ChainNextForeign}} chain-foreign-link{{end}}" href="{{.ChainNextHref}}"{{if .ChainNextForeign}} title="{{titleCase .ChainNextType}} mission"{{end}}>Next: {{.ChainNextTitle}}{{if .ChainNextForeign}} {{.ChainNextIcon}}{{end}} &gt;</a>{{else}}<span></span>{{end}}
         </nav>
         {{end}}
 
