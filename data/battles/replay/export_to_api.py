@@ -72,7 +72,7 @@ def convert(export, ended_at=None):
     static = ("username", "kind", "side_id", "faction_id", "ship_class", "max_hull", "max_shield", "max_fuel", "modules")
     battle_id, system_id = export["battle_id"], export["system_id"]
     category = _category(parts)
-    destroyed = [p for p in parts if p.get("destroyed_at_tick") is not None]
+    destroyed = [p for p in parts if p.get("destroyed_at_tick")]  # 0 or absent = survived
     frames = export["frames"]
     finished = export.get("status") in ("completed", "complete")
 

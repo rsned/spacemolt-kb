@@ -80,6 +80,16 @@ class StatusTest(unittest.TestCase):
         self.assertIn("battle_ended", entries[-1])
 
 
+class DestroyedTest(unittest.TestCase):
+    def test_destroyed_at_tick_zero_means_survived(self):
+        export = load()[1]
+        for p in export["participants"]:
+            p["destroyed_at_tick"] = p.get("destroyed_at_tick") or 0   # stress-test spelling of "never"
+        summary, _ = e2a.convert(export)
+        self.assertEqual(summary["ships_destroyed"], 1)
+        self.assertEqual(summary["destroyed_names"], ["MoltenOne"])
+
+
 class PagingTest(unittest.TestCase):
     def test_pages_by_tick_cursor(self):
         entries = [{"tick": t} for t in range(10, 15)]
