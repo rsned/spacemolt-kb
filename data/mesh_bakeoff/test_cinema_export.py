@@ -89,5 +89,77 @@ class GlbTest(unittest.TestCase):
         self.assertEqual(len(data) % 4, 0)
 
 
+import hardpoints as hp
+
+
+def merge(*parts):
+    vs, fs, off = [], [], 0
+    for v, f in parts:
+        vs.append(v); fs.append(f + off); off += len(v)
+    return np.vstack(vs), np.vstack(fs)
+
+
+def subdivide(v, f, times):
+    """Midpoint 4-split, enough to give flat faces many candidate triangles."""
+    for _ in range(times):
+        mids = {}
+        verts = list(map(tuple, v))
+        def mid(a, b):
+            key = (min(a, b), max(a, b))
+            if key not in mids:
+                mids[key] = len(verts)
+                verts.append(tuple((np.asarray(verts[a]) + np.asarray(verts[b])) / 2))
+            return mids[key]
+        nf = []
+        for a, b, c in f:
+            ab, bc, ca = mid(a, b), mid(b, c), mid(c, a)
+            nf += [[a, ab, ca], [ab, b, bc], [ca, bc, c], [ab, bc, ca]]
+        v, f = np.array(verts), np.array(nf)
+    return v, f
+
+
+class EnginesTest(unittest.TestCase):
+    def test_two_nozzles_found_and_rear_wall_rejected(self):
+        hull = box((-.5, -.1, -.15), (.5, .1, .15))
+        n1 = box((-.55, -.02, .08), (-.5, .02, .12))
+        n2 = box((-.55, -.02, -.12), (-.5, .02, -.08))
+        v, f = merge(hull, n1, n2)
+        engines = hp.guess_engines(v, f)
+        self.assertEqual(len(engines), 2)
+        zs = sorted(e["pos"][2] for e in engines)
+        self.assertAlmostEqual(zs[0], -.1, places=2)
+        self.assertAlmostEqual(zs[1], .1, places=2)
+        for e in engines:
+            self.assertAlmostEqual(e["pos"][0], -.55, places=2)
+            self.assertTrue(.015 <= e["radius"] <= .05)
+
+    def test_fallback_single_stern_engine(self):
+        v, f = box((-.5, -.1, -.15), (.5, .1, .15))
+        engines = hp.guess_engines(v, f)
+        self.assertEqual(len(engines), 1)
+        self.assertAlmostEqual(engines[0]["pos"][0], -.5, places=3)
+        self.assertAlmostEqual(engines[0]["pos"][2], 0, places=3)
+
+
+class MountsTest(unittest.TestCase):
+    def setUp(self):
+        self.v, self.f = subdivide(*box((-.5, -.1, -.15), (.5, .1, .15)), 3)
+
+    def test_mounts_forward_unit_normals_capped(self):
+        mounts = hp.guess_mounts(self.v, self.f)
+        self.assertTrue(0 < len(mounts) <= 12)
+        for m in mounts:
+            self.assertGreater(m["pivot"][0], 0)
+            self.assertAlmostEqual(float(np.linalg.norm(m["normal"])), 1, places=4)
+
+    def test_mirror_pairs_on_symmetric_hull(self):
+        mounts = hp.guess_mounts(self.v, self.f)
+        for m in mounts:
+            x, y, z = m["pivot"]
+            if abs(z) > .02:
+                self.assertTrue(any(abs(o["pivot"][0] - x) < .04 and abs(o["pivot"][2] + z) < .04
+                                    for o in mounts), f"no mirror for {m}")
+
+
 if __name__ == "__main__":
     unittest.main()
