@@ -27,6 +27,7 @@
 1. **Turret placement:** `createShip`'s `fitHardware()` already raycasts turrets onto whatever geometry was `add`ed as hull (`deckAt`/`hullSurface` in `ships.ts`), using `CinemaHardware` counts. We reuse that instead of placing turrets at sidecar mounts. The sidecar still exports ranked `mounts`, but only for the future placement tool; nothing consumes them yet.
 2. **Wreckage:** we always add the hull in 8 bow-to-stern slices. Each `add()` call gets its own `cinemaStructuralPart`, so `createShipWreckage` breaks the hull apart with no special code. This replaces the spec's "check first, then maybe split".
 3. **No de-roll:** the export uses the footprint frame and bow/vflip/mirror flags but not `make_views`' 2D de-roll. Revisit only if hulls visibly list.
+4. **Source mesh:** the export loads `mesh.obj` and re-applies solo + stretch itself (via `frame_for`/the footprint pipeline), rather than reading a precomputed `mesh_adjusted.obj`. Equivalent geometry, but one code path for all 402 stems instead of depending on a second per-stem artifact.
 
 ## File Structure
 
