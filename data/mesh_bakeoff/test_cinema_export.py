@@ -173,5 +173,49 @@ class SidecarTest(unittest.TestCase):
         json.dumps(s)   # must be plain JSON types
 
 
+class MergeManifestTest(unittest.TestCase):
+    def test_only_run_merges_into_existing(self):
+        existing = {"version": 1, "ships": {"axiom": {"glb": "axiom.glb", "sidecar": "axiom.json"}}}
+        exported = {"dirk": {"glb": "dirk.glb", "sidecar": "dirk.json"}}
+        merged = ech.merge_manifest(existing, exported, only=True)
+        self.assertEqual(merged, {"version": 1, "ships": {
+            "axiom": {"glb": "axiom.glb", "sidecar": "axiom.json"},
+            "dirk": {"glb": "dirk.glb", "sidecar": "dirk.json"},
+        }})
+
+    def test_full_run_rebuilds_from_scratch_and_prunes_stale_ids(self):
+        existing = {"version": 1, "ships": {
+            "axiom": {"glb": "axiom.glb", "sidecar": "axiom.json"},
+            "withdrawn": {"glb": "withdrawn.glb", "sidecar": "withdrawn.json"},
+        }}
+        exported = {"dirk": {"glb": "dirk.glb", "sidecar": "dirk.json"}}
+        merged = ech.merge_manifest(existing, exported, only=False)
+        self.assertEqual(merged, {"version": 1, "ships": {"dirk": {"glb": "dirk.glb", "sidecar": "dirk.json"}}})
+
+    def test_result_is_sorted(self):
+        merged = ech.merge_manifest({"version": 1, "ships": {}}, {"zed": {"glb": "z.glb", "sidecar": "z.json"}, "axiom": {"glb": "a.glb", "sidecar": "a.json"}}, only=False)
+        self.assertEqual(list(merged["ships"]), ["axiom", "zed"])
+
+
+class MissingDbTest(unittest.TestCase):
+    def test_missing_db_exits_before_touching_output(self):
+        import subprocess
+        import sys
+        import tempfile
+        from pathlib import Path
+
+        here = Path(__file__).resolve().parent
+        with tempfile.TemporaryDirectory() as tmp:
+            missing_db = Path(tmp) / "no-such.db"
+            out = Path(tmp) / "out"
+            result = subprocess.run(
+                [sys.executable, str(here / "export_cinema_hulls.py"),
+                 "--db", str(missing_db), "--out", str(out), "--only", "dirk"],
+                cwd=here, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(str(missing_db), result.stderr)
+            self.assertFalse(out.exists())
+
+
 if __name__ == "__main__":
     unittest.main()
