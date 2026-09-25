@@ -161,5 +161,17 @@ class MountsTest(unittest.TestCase):
                                     for o in mounts), f"no mirror for {m}")
 
 
+import export_cinema_hulls as ech
+
+
+class SidecarTest(unittest.TestCase):
+    def test_schema(self):
+        v, f = box((-.5, -.1, -.15), (.5, .1, .15))
+        s = ech.build_sidecar("dirk", v, f, 3)
+        self.assertEqual(set(s), {"version", "id", "source", "engines", "mounts", "weaponSlots"})
+        self.assertEqual((s["version"], s["id"], s["source"], s["weaponSlots"]), (1, "dirk", "auto", 3))
+        json.dumps(s)   # must be plain JSON types
+
+
 if __name__ == "__main__":
     unittest.main()
