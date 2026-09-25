@@ -38,5 +38,22 @@ class BarrageTest(unittest.TestCase):
         self.assertEqual(summary["ships_destroyed"], sum(len(f["kills"]) for f in self.battle["frames"]))
 
 
+class AlphaStrikeTest(unittest.TestCase):
+    def test_every_ship_fires_every_gun_once_on_the_first_tick_only(self):
+        battle = mb.build_alpha(json.loads(mb.SOURCE.read_text()), 8, 7)
+        frames = battle["frames"]
+        self.assertEqual(battle["battle_id"], mb.ALPHA_ID)
+        self.assertEqual(len(frames), 8)
+        self.assertTrue(all(not f["shots"] for f in frames[1:]))
+        shooters = {s["from_id"] for s in frames[0]["shots"]}
+        self.assertEqual(shooters, {s["player_id"] for s in frames[0]["ships"]})
+        guns = {p["player_id"]: len(p["modules"]) for p in battle["participants"]}
+        self.assertEqual(len(frames[0]["shots"]), sum(guns[p] for p in shooters))
+        side = {p["player_id"]: p["side_id"] for p in battle["participants"]}
+        self.assertTrue(all(side[s["from_id"]] != side[s["to_id"]] for s in frames[0]["shots"]))
+        self.assertTrue(all(s["hull"] > 0 for f in frames for s in f["ships"]))
+        self.assertTrue(all(len(f["ships"]) == 420 for f in frames))
+
+
 if __name__ == "__main__":
     unittest.main()

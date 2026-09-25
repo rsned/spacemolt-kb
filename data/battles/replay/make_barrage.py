@@ -9,6 +9,8 @@ invented data: outcome "synthetic", never mixed into real-battle stats.
 
     python3 make_barrage.py [--ticks 120] [--seed 7]
     -> data/battles/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.json (replay_server serves it)
+    python3 make_barrage.py --alpha --ticks 8
+    -> data/battles/dddddddddddddddddddddddddddddddd.json: one full alpha strike, then quiet
 """
 import argparse
 import copy
@@ -19,6 +21,7 @@ from pathlib import Path
 BATTLES = Path(__file__).resolve().parent.parent
 SOURCE = BATTLES / ("f" * 32 + ".json")
 BARRAGE_ID = "e" * 32
+ALPHA_ID = "d" * 32
 
 # (name, damage_type, weapon_damage) — real catalog weapons, one theme per side.
 THEMES = {
@@ -91,13 +94,35 @@ def build(source, ticks, seed):
     return battle
 
 
+def build_alpha(source, ticks, seed):
+    """Every ship fires every gun once, at an enemy, on the first tick; then quiet."""
+    battle = build(source, ticks, seed)
+    first, rest = battle["frames"][0], battle["frames"][1:]
+    first["shots"] = [dict(s, hit=True, damage=s["weapon_damage"], shield_damage=s["weapon_damage"]) for s in first["shots"]]
+    for frame in rest:
+        frame["shots"], frame["kills"] = [], []
+    # Nobody dies in an alpha strike; restore anyone the barrage schedule removed.
+    for p in battle["participants"]:
+        p["destroyed_at_tick"], p["killed_by"] = 0, ""
+    # Every frame keeps the full fleet at source health, aimed where the volley went.
+    targets = {s["from_id"]: s["to_id"] for s in first["shots"]}
+    for frame, original in zip(battle["frames"], source["frames"][:ticks]):
+        frame["ships"] = [dict(s, stance="fire", target_id=targets.get(s["player_id"], s.get("target_id", "")))
+                          for s in original["ships"]]
+    battle.update({"battle_id": ALPHA_ID, "system_name": "ALPHA STRIKE",
+                   "total_damage": sum(s["damage"] for s in first["shots"])})
+    return battle
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ticks", type=int, default=120)
     parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument("--alpha", action="store_true", help="one volley from every ship on the first tick (dddd...dddd.json)")
     args = parser.parse_args()
-    battle = build(json.loads(SOURCE.read_text()), args.ticks, args.seed)
-    out = BATTLES / f"{BARRAGE_ID}.json"
+    source = json.loads(SOURCE.read_text())
+    battle = build_alpha(source, args.ticks, args.seed) if args.alpha else build(source, args.ticks, args.seed)
+    out = BATTLES / f"{battle['battle_id']}.json"
     out.write_text(json.dumps(battle))
     shots = sum(len(f["shots"]) for f in battle["frames"])
     kills = sum(len(f["kills"]) for f in battle["frames"])
