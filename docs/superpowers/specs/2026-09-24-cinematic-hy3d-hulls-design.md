@@ -165,3 +165,38 @@ list (≤ 12). `weaponSlots` comes from the KB `ships.weapon_slots` column.
   verify it looks right in 3D.
 - 28 hero ships × 40k triangles ≈ 1.1M triangles plus shadows — fine on the
   workstation, but not representative of production budgets.
+
+## Part C — Hero-colour projection onto hulls (later; separate cycle)
+
+Goal: paint each hull from its own hero image instead of the flat empire
+material. Independent of A/B; needs its own brainstorm → spec → plan before
+implementation.
+
+- Start from `data/mesh_bakeoff/colorize_cloud.py`, which already fits an
+  orthographic hero camera (azimuth/elevation search, roll ≈ 0, scored by
+  silhouette IoU against the chroma-key alpha) and projects colours onto a
+  25k-point cloud, with occluded points taking their nearest visible
+  neighbour's colour. Part C moves this from points to mesh vertices/triangles
+  and adds symmetry fill.
+- Project onto `mesh.obj` (the frame the hero conditioned). Stretch keeps the
+  triangle list, so colours carry to `mesh_adjusted.obj` by index; `solo`
+  drops faces, so it needs an index map.
+- Visible = passes a depth test from the fitted camera and is not seen nearly
+  edge-on. Sample the keyed hero (no backdrop leak); skip very dark and
+  blown-out pixels.
+- Mirror colours across the ±Z symmetry plane for every ship except the
+  asymmetric exceptions (the `sym` list in `adjustments-final.json`
+  identifies the lopsided hulls; the 1–2 truly asymmetric ones opt out).
+  Expected direct + mirrored coverage ≈ 80 %; the underside is the main blind
+  spot.
+- Palette: k-means (k ≈ 5) over keyed hero pixels → `palette` in the sidecar
+  ("factory colours"). Unfilled faces take the nearest main swatch
+  or a chosen swatch; the empire default is the last fallback.
+- Engines: faces near sidecar `engines` get one shared engine-cone metallic
+  grey.
+- Baked lighting is the main caveat: flatten brightness toward the palette
+  swatch, or divide out Lambert shading from the fitted light direction.
+- Output: per-vertex `COLOR_0` in the GLB. The cinema materials already
+  support vertex colours (the salvage-paint path sets `vertexColors=true`),
+  so the renderer change is a near-white base material when colours exist,
+  empire material otherwise.
