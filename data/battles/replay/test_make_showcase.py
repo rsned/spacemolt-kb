@@ -22,14 +22,16 @@ class ShowcaseTest(unittest.TestCase):
         self.assertEqual(by_class["d2"], "VOIDBORN")
         self.assertEqual(len(side_names), 7)
 
-    def test_every_ship_fires_exactly_once_harmlessly_at_another_side(self):
+    def test_every_ship_lands_exactly_one_scratch_hit_on_another_side(self):
+        # The cinematic only films encounters with a recorded hit, so each shot
+        # lands for a single shield point: filmable, but nobody is hurt.
         side = {p["player_id"]: p["side_id"] for p in self.battle["participants"]}
         shots = [s for f in self.battle["frames"] for s in f["shots"]]
         self.assertEqual(sorted(s["from_id"] for s in shots), sorted(side))
         for s in shots:
             self.assertNotEqual(side[s["from_id"]], side[s["to_id"]])
-            self.assertFalse(s["hit"])
-            self.assertEqual(s["damage"], 0)
+            self.assertTrue(s["hit"])
+            self.assertEqual((s["damage"], s["shield_damage"], s.get("hull_damage", 0)), (1, 1, 0))
         self.assertTrue(all(len(f["shots"]) <= 3 for f in self.battle["frames"]))
 
     def test_everyone_present_every_tick_and_nobody_dies(self):

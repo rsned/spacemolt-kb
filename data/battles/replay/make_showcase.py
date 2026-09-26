@@ -2,7 +2,8 @@
 """Synthetic fleet review: one of every ship class that has a Hy3D model, sides
 by empire, so the cinematic shows the whole modeled fleet together.
 
-Each tick a handful of ships fire one harmless miss at another side; the
+Each tick a handful of ships land a one-point shield scratch on another side
+(the cinematic only films encounters with a recorded hit); the
 director frames whoever acts, so the camera tours the fleet ship by ship.
 Nobody takes damage. Deliberately invented data (outcome "synthetic").
 
@@ -45,8 +46,8 @@ def build(ship_factions, per_tick=8):
             others = [q for q in parts if q["side_id"] != p["side_id"]]
             target = others[(t * 7 + i * 13) % len(others)]
             shots.append({"from_id": p["player_id"], "to_id": target["player_id"], "kind": "beam",
-                          "weapon_name": "Pulse Laser I", "damage_type": "energy", "hit": False,
-                          "damage": 0, "weapon_damage": 10, "zone_distance": 1})
+                          "weapon_name": "Pulse Laser I", "damage_type": "energy", "hit": True,
+                          "damage": 1, "shield_damage": 1, "weapon_damage": 10, "zone_distance": 1})
         frames.append({"tick": START_TICK + t, "shots": shots, "kills": [], "moves": [], "chatter": [], "repairs": [],
                        "ships": [{"player_id": p["player_id"], "x": 0, "y": 0, "zone": "mid", "hull": 100, "shield": 100,
                                   "fuel": 100, "stance": "fire", "target_id": "", "auto_pilot": True} for p in parts]})
@@ -55,7 +56,7 @@ def build(ship_factions, per_tick=8):
     return {"schema": 1, "battle_id": SHOWCASE_ID, "system_id": "sol", "system_name": "FLEET REVIEW",
             "status": "complete", "outcome": "synthetic", "winning_side": 0, "has_station": False,
             "start_tick": START_TICK, "end_tick": START_TICK + ticks - 1, "tick_count": ticks, "total_ticks": ticks,
-            "total_damage": 0, "zones": ["outer", "mid", "inner", "engaged"],
+            "total_damage": len(order), "zones": ["outer", "mid", "inner", "engaged"],
             "sides": [{"side_id": side_id[f], "faction_tag": (f or "independent").upper(),
                        "count": sum(1 for p in parts if p["side_id"] == side_id[f])} for f in sides],
             "participants": parts, "frames": frames}
