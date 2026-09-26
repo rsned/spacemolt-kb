@@ -217,5 +217,14 @@ class MissingDbTest(unittest.TestCase):
             self.assertFalse(out.exists())
 
 
+class GlbReadTest(unittest.TestCase):
+    def test_round_trip(self):
+        v, f = box((-.5, -.1, -.2), (.5, .1, .2))
+        n = cf.vertex_normals(v, f)
+        rv, rf = cf.read_glb(cf.glb_bytes(v.astype(np.float32), n, f.astype(np.uint32)))
+        np.testing.assert_allclose(rv, v, atol=1e-6)
+        np.testing.assert_array_equal(rf, f)
+
+
 if __name__ == "__main__":
     unittest.main()

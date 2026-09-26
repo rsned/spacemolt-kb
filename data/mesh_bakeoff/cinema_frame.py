@@ -18,10 +18,6 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-import apply_adjustments as aa                         # noqa: E402  (solo_hull)
-from make_svg_footprints import bow_flip, rings_of     # noqa: E402
-from make_views import frame_for                       # noqa: E402
-
 SWEEP = HERE / "out-hy3d-full"
 
 
@@ -31,6 +27,7 @@ def _signed_volume(v: np.ndarray, f: np.ndarray) -> float:
 
 def orient(verts: np.ndarray, faces: np.ndarray, adj: dict, bow_flipped: bool):
     """Pure transform into the cinema frame. Returns (float32 verts, uint32 faces)."""
+    from make_views import frame_for   # heavy (shapely): only the orient path needs it
     verts = np.asarray(verts, dtype=float)
     faces = np.asarray(faces, dtype=np.int64)
     centroid = verts.mean(axis=0)
@@ -97,9 +94,32 @@ def glb_bytes(verts: np.ndarray, normals: np.ndarray, faces: np.ndarray) -> byte
             + struct.pack("<II", len(blob), 0x004E4942) + blob)
 
 
+def read_glb(data: bytes):
+    """Inverse of glb_bytes (our minimal layout): -> (float verts N x 3, int faces M x 3)."""
+    jlen, _ = struct.unpack_from("<II", data, 12)
+    gltf = json.loads(data[20:20 + jlen])
+    bin_start = 20 + jlen + 8
+    views, accessors = gltf["bufferViews"], gltf["accessors"]
+    prim = gltf["meshes"][0]["primitives"][0]
+
+    def accessor(index, dtype, width):
+        acc = accessors[index]
+        view = views[acc["bufferView"]]
+        start = bin_start + view.get("byteOffset", 0)
+        count = acc["count"] * width
+        return np.frombuffer(data, dtype=dtype, count=count, offset=start).reshape(-1, width) if width > 1 \
+            else np.frombuffer(data, dtype=dtype, count=count, offset=start)
+    verts = accessor(prim["attributes"]["POSITION"], "<f4", 3).astype(float)
+    index_dtype = "<u4" if accessors[prim["indices"]]["componentType"] == 5125 else "<u2"
+    faces = accessor(prim["indices"], index_dtype, 1).astype(np.int64).reshape(-1, 3)
+    return verts, faces
+
+
 def load_stem(stem: str, adj: dict):
     """Raw Hy3D mesh (solo applied) + the committed bow-right verdict."""
     import trimesh
+    import apply_adjustments as aa
+    from make_svg_footprints import bow_flip, rings_of
     d = SWEEP / stem
     mesh = trimesh.load(d / "mesh.obj", force="mesh", process=False)
     if adj.get("solo"):

@@ -42,5 +42,19 @@ class ShowcaseTest(unittest.TestCase):
         self.assertIn("battle_ended", entries[-1])
 
 
+class LodReviewTest(unittest.TestCase):
+    def test_one_side_per_level_with_the_same_ships_in_each(self):
+        battle = ms.build_lod_review(["axiom", "opus_magna"], ["16k", "2k"])
+        self.assertEqual(battle["battle_id"], ms.LOD_REVIEW_ID)
+        tags = {s["side_id"]: s["faction_tag"] for s in battle["sides"]}
+        self.assertEqual(sorted(tags.values()), ["16K", "2K", "FULL 40K"])
+        by_side = {}
+        for p in battle["participants"]:
+            by_side.setdefault(tags[p["side_id"]], []).append(p["ship_class"])
+        self.assertEqual(sorted(by_side["FULL 40K"]), ["axiom", "opus_magna"])
+        self.assertEqual(sorted(by_side["2K"]), ["axiom__lod2k", "opus_magna__lod2k"])
+        self.assertTrue(all(len(f["shots"]) <= 8 for f in battle["frames"]))
+
+
 if __name__ == "__main__":
     unittest.main()
