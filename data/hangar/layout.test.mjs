@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { filterShips, layoutLineup, railAt, railPose, nearestIndex, parseFilters, formatFilters, FLOAT_M, panStep, smoothFactor, nowText, PAN_SHIPS_PER_SEC } from '../../kb/ships/hangar/layout.js'
+import { filterShips, layoutLineup, railAt, railPose, nearestIndex, parseFilters, formatFilters, FLOAT_M, panStep, smoothFactor, nowText, PAN_SHIPS_PER_SEC, easeInOut, tweenX, repackMoves, isClick, CLICK_SLOP_PX, focusPose } from '../../kb/ships/hangar/layout.js'
 
 const ships = [
   { id: 'a', lengthM: 10, empire: 'crimson', tier: 1, category: 'Combat' },
@@ -72,4 +72,48 @@ test('readout names the nearest ship with its 1-based position', () => {
   assert.equal(nowText(l, 0.6), 'Beta · 40 m (2/2)')
   assert.equal(nowText(l, 7), 'Beta · 40 m (2/2)')
   assert.equal(nowText([], 0), '')
+})
+
+test('easeInOut is a clamped smooth 0→1 curve', () => {
+  assert.equal(easeInOut(0), 0)
+  assert.equal(easeInOut(1), 1)
+  assert.equal(easeInOut(.5), .5)
+  assert.equal(easeInOut(-1), 0)
+  assert.equal(easeInOut(2), 1)
+  assert.ok(easeInOut(.1) < .1 && easeInOut(.9) > .9)
+})
+
+test('tweenX eases from old to new x and holds at the ends', () => {
+  assert.equal(tweenX(10, 30, 0), 10)
+  assert.equal(tweenX(10, 30, .5), 20)
+  assert.equal(tweenX(10, 30, 1), 30)
+  assert.equal(tweenX(10, 30, 5), 30)
+})
+
+test('repack moves each visible ship from its previous x; newcomers start in place', () => {
+  const prev = new Map([['a', 0], ['c', 200]])
+  const next = [{ id: 'a', x: 0 }, { id: 'b', x: 22 }, { id: 'c', x: 117 }]
+  assert.deepEqual(repackMoves(prev, next), [
+    { id: 'a', from: 0, to: 0 },
+    { id: 'b', from: 22, to: 22 },
+    { id: 'c', from: 200, to: 117 },
+  ])
+})
+
+test('a pointer that moves past the slop is a drag, not a click', () => {
+  assert.equal(CLICK_SLOP_PX, 5)
+  assert.equal(isClick({ x: 10, y: 10 }, { x: 10, y: 10 }), true)
+  assert.equal(isClick({ x: 10, y: 10 }, { x: 13, y: 14 }), true)   // distance 5
+  assert.equal(isClick({ x: 10, y: 10 }, { x: 14, y: 14 }), false)
+  assert.equal(isClick({ x: 0, y: 0 }, { x: 8, y: 0 }, 10), true)
+})
+
+test('focus pose looks at the ship centre from about 1.3 x length away', () => {
+  const p = focusPose([100, 5, 0], 50)
+  assert.deepEqual(p.target, [100, 5, 0])
+  const d = Math.hypot(p.position[0] - 100, p.position[1] - 5, p.position[2])
+  assert.ok(Math.abs(d - 65) < 1e-9)
+  assert.ok(p.position[1] > 5 && p.position[2] > 0)
+  const tiny = focusPose([0, 3, 0], 2)   // never inside a tiny hull
+  assert.ok(Math.abs(Math.hypot(...tiny.position.map((v, i) => v - tiny.target[i])) - 8) < 1e-9)
 })

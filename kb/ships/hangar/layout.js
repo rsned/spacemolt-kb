@@ -69,3 +69,34 @@ export function formatFilters({ empires, tiers, categories } = {}) {
   if (categories?.size) parts.push(`cat=${[...categories].join(',')}`)
   return parts.join('&')
 }
+
+// --- focus + re-pack tweens ---
+export const CLICK_SLOP_PX = 5
+export const FOCUS_MIN_DIST = 8
+
+// Smoothstep-style cubic ease, clamped to [0, 1].
+export function easeInOut(t) {
+  const c = Math.max(0, Math.min(1, t))
+  return c < .5 ? 4 * c * c * c : 1 - (-2 * c + 2) ** 3 / 2
+}
+
+export function tweenX(from, to, t) {
+  return from + (to - from) * easeInOut(t)
+}
+
+// Re-pack plan: each ship in the new layout moves from its previous x (or appears in place).
+export function repackMoves(prevX, layout) {
+  return layout.map(({ id, x }) => ({ id, from: prevX.has(id) ? prevX.get(id) : x, to: x }))
+}
+
+// pointerdown → pointerup counts as a click only if the pointer barely moved.
+export function isClick(down, up, slop = CLICK_SLOP_PX) {
+  return Math.hypot(up.x - down.x, up.y - down.y) <= slop
+}
+
+// Orbit start pose: front-above-left of the hull centre, ~1.3 × length away.
+export function focusPose(center, length) {
+  const d = Math.max(FOCUS_MIN_DIST, length * 1.3)
+  const dir = [-.3, .45, 1], n = Math.hypot(...dir)
+  return { position: center.map((c, i) => c + dir[i] / n * d), target: [...center] }
+}
