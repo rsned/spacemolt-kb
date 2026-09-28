@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """cd data/mesh_bakeoff && ~/hy3d-venv/bin/python -m unittest test_export_hangar -v"""
+import tempfile
 import unittest
+from pathlib import Path
 
 import export_hangar as eh
 
@@ -58,3 +60,60 @@ class LineupTest(unittest.TestCase):
         self.assertEqual(self.by_id["nocat"]["page"], "Discontinued/nocat.html")
         # missing from the pages mapping entirely -> null, not a guessed path
         self.assertIsNone(self.by_id["orphan"]["page"])
+
+
+def make_pages(tmp, layout):
+    """layout: {"Dir": ["stem", ...]} -> touches tmp/Dir/stem.html for each."""
+    root = Path(tmp)
+    for d, stems in layout.items():
+        (root / d).mkdir(parents=True, exist_ok=True)
+        for stem in stems:
+            (root / d / f"{stem}.html").write_text("")
+    return root
+
+
+class ResolvePageDirTest(unittest.TestCase):
+    """Pure-function tests for the duplicate-page tiebreak (order-independent by
+    construction, unlike testing raw filesystem glob order, which is not stable
+    across filesystems/OSes)."""
+
+    def test_prefers_dir_matching_catalog_category(self):
+        self.assertEqual(eh.resolve_page_dir(["Discontinued", "Combat"], "Combat"), "Combat")
+        self.assertEqual(eh.resolve_page_dir(["Combat", "Discontinued"], "Combat"), "Combat")
+
+    def test_empty_category_prefers_non_discontinued_dir(self):
+        self.assertEqual(eh.resolve_page_dir(["Discontinued", "Support"], ""), "Support")
+        self.assertEqual(eh.resolve_page_dir(["Support", "Discontinued"], ""), "Support")
+
+    def test_only_discontinued_available(self):
+        self.assertEqual(eh.resolve_page_dir(["Discontinued"], "Discontinued"), "Discontinued")
+        self.assertEqual(eh.resolve_page_dir(["Discontinued"], ""), "Discontinued")
+
+
+class LoadPagesDuplicatesTest(unittest.TestCase):
+    """load_pages end-to-end: real duplicate files on disk, resolved via resolve_page_dir."""
+
+    def test_prefers_dir_matching_catalog_category(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_pages(tmp, {"Combat": ["shiv"], "Discontinued": ["shiv"]})
+            pages = eh.load_pages(root, {"shiv": "Combat"})
+            self.assertEqual(pages["shiv"], "Combat/shiv.html")
+
+    def test_empty_category_prefers_non_discontinued_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_pages(tmp, {"Support": ["nocat"], "Discontinued": ["nocat"]})
+            pages = eh.load_pages(root, {"nocat": ""})
+            self.assertEqual(pages["nocat"], "Support/nocat.html")
+
+    def test_only_in_discontinued_resolves_there(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_pages(tmp, {"Discontinued": ["legacy"]})
+            pages = eh.load_pages(root, {"legacy": "Discontinued"})
+            self.assertEqual(pages["legacy"], "Discontinued/legacy.html")
+
+    def test_ignores_non_catalog_stems(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_pages(tmp, {"Combat": ["shiv", "index"]})
+            pages = eh.load_pages(root, {"shiv": "Combat"})
+            self.assertNotIn("index", pages)
+            self.assertEqual(pages["shiv"], "Combat/shiv.html")

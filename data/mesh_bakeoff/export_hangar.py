@@ -86,13 +86,33 @@ def write_models(ids, faces_budget, out_dir):
     return aspects
 
 
-def load_pages(ships_dir, ids):
-    """{ship_id: "Category/id.html"} for every catalog id with a page under kb/ships/*/<id>.html."""
-    pages = {}
+def resolve_page_dir(dirs, category):
+    """Pick one directory name out of several that all hold a same-named page.
+
+    A ship can have a page under more than one folder (a live category dir plus a
+    stale Discontinued/ copy from before a reclassification). Deterministic pick:
+    prefer the dir matching the ship's catalog `category`, else prefer a dir that
+    isn't "Discontinued", else the first dir in sorted order.
+    """
+    dirs = sorted(set(dirs))
+    if category in dirs:
+        return category
+    non_discontinued = [d for d in dirs if d != "Discontinued"]
+    return non_discontinued[0] if non_discontinued else dirs[0]
+
+
+def load_pages(ships_dir, categories):
+    """{ship_id: "Category/id.html"} for every catalog id with a page under kb/ships/*/<id>.html.
+
+    `categories` is {ship_id: catalog_category}; only its keys (real catalog ids) are
+    considered, so stray pages like index.html are ignored. Duplicate candidates for
+    the same id are resolved deterministically via `resolve_page_dir`.
+    """
+    candidates = {}
     for html in ships_dir.glob("*/*.html"):
-        if html.stem in ids:
-            pages[html.stem] = f"{html.parent.name}/{html.name}"
-    return pages
+        if html.stem in categories:
+            candidates.setdefault(html.stem, []).append(html.parent.name)
+    return {sid: f"{resolve_page_dir(dirs, categories.get(sid))}/{sid}.html" for sid, dirs in candidates.items()}
 
 
 def main():
@@ -103,7 +123,8 @@ def main():
     scale = json.loads(SCALE.read_text())
     modeled = {sid for sid in json.loads((HULLS / "manifest.json").read_text())["ships"] if "__lod" not in sid} & set(catalog)
     aspects = write_models(sorted(modeled), args.faces, OUT / "models")
-    pages = load_pages(OUT.parent, set(catalog))
+    categories = {sid: c.get("category") or "" for sid, c in catalog.items()}
+    pages = load_pages(OUT.parent, categories)
     lineup = build_lineup(catalog, scale["ships"], scale, aspects, modeled, pages)
     (OUT / "lineup.json").write_text(json.dumps(lineup, separators=(",", ":")))
     size = sum(p.stat().st_size for p in (OUT / "models").glob("*.glb"))
