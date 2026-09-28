@@ -8,11 +8,11 @@
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"}}</script>
 </head>
 <body>
-  <canvas id="stage"></canvas>
+  <canvas id="stage" tabindex="0" role="img" aria-label="3D lineup of every ship, smallest to largest. Arrow keys move along the line; Enter inspects the ship in view; Escape returns."></canvas>
   <header id="topbar">
     <a href="index.html" class="back">&larr; Ships</a>
     <h1>Ship Hangar <span id="count"></span></h1>
-    <div id="filters"></div>
+    <details id="filterbox" open><summary>Filters</summary><div id="filters"></div></details>
   </header>
   <aside id="card" hidden></aside>
   <footer id="rail">

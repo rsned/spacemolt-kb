@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { filterShips, layoutLineup, railAt, railPose, nearestIndex, parseFilters, formatFilters, FLOAT_M, panStep, smoothFactor, nowText, PAN_SHIPS_PER_SEC, easeInOut, tweenX, repackMoves, isClick, CLICK_SLOP_PX, focusPose } from '../../kb/ships/hangar/layout.js'
+import { filterShips, layoutLineup, railAt, railPose, nearestIndex, parseFilters, formatFilters, FLOAT_M, panStep, smoothFactor, nowText, PAN_SHIPS_PER_SEC, easeInOut, tweenX, repackMoves, isClick, CLICK_SLOP_PX, focusPose, indexAtLength, uAtX, nearestFirst } from '../../kb/ships/hangar/layout.js'
 
 const ships = [
   { id: 'a', lengthM: 10, empire: 'crimson', tier: 1, category: 'Combat' },
@@ -38,11 +38,61 @@ test('rail pose frames bigger ships from further away, looking at float height',
 test('nearest index and filter query round trip', () => {
   const l = layoutLineup(ships)
   assert.equal(nearestIndex(l, l[1].x + 1), 1)
-  const f = parseFilters('?empire=crimson,solarian&tier=1,5&cat=Combat')
+  const f = parseFilters('?empire=crimson&empire=solarian&tier=1&tier=5&cat=Combat')
   assert.deepEqual([...f.empires], ['crimson', 'solarian'])
   assert.deepEqual([...f.tiers], [1, 5])
-  assert.equal(formatFilters(f), 'empire=crimson,solarian&tier=1,5&cat=Combat')
+  assert.equal(formatFilters(f), 'empire=crimson&empire=solarian&tier=1&tier=5&cat=Combat')
   assert.equal(formatFilters({}), '')
+})
+
+const KNOWN = { empires: new Set(['crimson', 'solarian']), tiers: new Set([1, 5]), categories: new Set(['Combat', 'Salvage, Heavy']) }
+
+test('filter values with commas and spaces survive a round trip', () => {
+  const f = { empires: new Set(), tiers: new Set(), categories: new Set(['Salvage, Heavy', 'Combat']) }
+  const q = formatFilters(f)
+  assert.deepEqual([...parseFilters('?' + q, KNOWN).categories], ['Salvage, Heavy', 'Combat'])
+})
+
+test('parseFilters drops values with no chip when given the known sets', () => {
+  const f = parseFilters('?empire=crimson&empire=klingon&tier=9&tier=5&tier=x&cat=Nope', KNOWN)
+  assert.deepEqual([...f.empires], ['crimson'])
+  assert.deepEqual([...f.tiers], [5])
+  assert.deepEqual([...f.categories], [])
+})
+
+test('parseFilters still reads old comma-joined links against the known sets', () => {
+  const f = parseFilters('?empire=crimson,solarian&tier=1,5', KNOWN)
+  assert.deepEqual([...f.empires], ['crimson', 'solarian'])
+  assert.deepEqual([...f.tiers], [1, 5])
+})
+
+test('indexAtLength finds the first ship at least that long, else the last', () => {
+  const l = [{ lengthM: 10 }, { lengthM: 20 }, { lengthM: 20 }, { lengthM: 100 }]
+  assert.equal(indexAtLength(l, 0), 0)
+  assert.equal(indexAtLength(l, 10), 0)
+  assert.equal(indexAtLength(l, 15), 1)
+  assert.equal(indexAtLength(l, 20), 1)
+  assert.equal(indexAtLength(l, 99.5), 3)
+  assert.equal(indexAtLength(l, 500), 3)
+  assert.equal(indexAtLength([], 5), 0)
+})
+
+test('uAtX inverts the rail: fractional index for a world x, clamped', () => {
+  const l = layoutLineup(ships)
+  assert.equal(uAtX(l, 0), 0)
+  assert.equal(uAtX(l, l[1].x), 1)
+  assert.equal(uAtX(l, (l[1].x + l[2].x) / 2), 1.5)
+  assert.equal(uAtX(l, -50), 0)
+  assert.equal(uAtX(l, 1e6), 2)
+  for (const u of [.25, 1.3]) assert.ok(Math.abs(uAtX(l, railAt(l, ships, u).x) - u) < 1e-9)
+  assert.equal(uAtX([], 5), 0)
+})
+
+test('nearestFirst orders a clamped window around i by distance, ahead first on ties', () => {
+  assert.deepEqual(nearestFirst(5, 10, 2), [5, 6, 4, 7, 3])
+  assert.deepEqual(nearestFirst(0, 10, 2), [0, 1, 2])
+  assert.deepEqual(nearestFirst(9, 10, 2), [9, 8, 7])
+  assert.deepEqual(nearestFirst(0, 0, 2), [])
 })
 
 test('rail pose gives small ships breathing room (min distance 22 m)', () => {

@@ -56,18 +56,54 @@ export function nearestIndex(layout, x) {
   return best
 }
 
-export function parseFilters(search) {
-  const q = new URLSearchParams(search)
-  const list = key => new Set((q.get(key) || '').split(',').filter(Boolean))
-  return { empires: list('empire'), tiers: new Set([...list('tier')].map(Number)), categories: list('cat') }
+// First index whose ship is at least `length` long (ships sorted by length), else the last.
+export function indexAtLength(ships, length) {
+  const i = ships.findIndex(s => s.lengthM >= length)
+  return i >= 0 ? i : Math.max(0, ships.length - 1)
 }
 
-export function formatFilters({ empires, tiers, categories } = {}) {
-  const parts = []
-  if (empires?.size) parts.push(`empire=${[...empires].join(',')}`)
-  if (tiers?.size) parts.push(`tier=${[...tiers].join(',')}`)
-  if (categories?.size) parts.push(`cat=${[...categories].join(',')}`)
-  return parts.join('&')
+// Inverse of railAt's x: the fractional index at world x, clamped to the line.
+export function uAtX(layout, x) {
+  const last = layout.length - 1
+  if (last <= 0 || x <= layout[0].x) return 0
+  if (x >= layout[last].x) return last
+  let i = 0
+  while (layout[i + 1].x < x) i++
+  const span = layout[i + 1].x - layout[i].x
+  return i + (span > 0 ? (x - layout[i].x) / span : 0)
+}
+
+// Indices within `radius` of i (clamped to [0, n)), nearest first, ahead before behind.
+export function nearestFirst(i, n, radius) {
+  const out = n > 0 ? [Math.max(0, Math.min(n - 1, i))] : []
+  const c = out[0]
+  for (let d = 1; d <= radius; d++) {
+    if (c + d < n) out.push(c + d)
+    if (c - d >= 0) out.push(c - d)
+  }
+  return out
+}
+
+const FILTER_KEYS = [['empires', 'empire'], ['tiers', 'tier'], ['categories', 'cat']]
+
+// ?empire=a&empire=b&tier=1&cat=X (repeated keys, so values may hold commas).
+// With `known` sets, values that have no chip are dropped, and old comma-joined
+// links (?empire=a,b) are still read.
+export function parseFilters(search, known) {
+  const q = new URLSearchParams(search), out = {}
+  for (const [field, key] of FILTER_KEYS) {
+    const ok = known?.[field], conv = field === 'tiers' ? Number : String
+    let values = q.getAll(key).filter(Boolean)
+    if (ok) values = values.flatMap(v => !ok.has(conv(v)) && v.includes(',') ? v.split(',') : [v])
+    out[field] = new Set(values.map(conv).filter(v => !ok || ok.has(v)))
+  }
+  return out
+}
+
+export function formatFilters(filters = {}) {
+  const q = new URLSearchParams()
+  for (const [field, key] of FILTER_KEYS) for (const v of filters[field] || []) q.append(key, String(v))
+  return q.toString()
 }
 
 // --- focus + re-pack tweens ---
