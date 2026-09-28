@@ -1,5 +1,6 @@
 // Pure layout / rail / filter maths for the hangar lineup (no three.js).
 export const FLOAT_M = 3
+export const PAN_SHIPS_PER_SEC = .35
 
 const inSet = (set, value) => !set || set.size === 0 || set.has(value)
 
@@ -26,8 +27,27 @@ export function railAt(layout, ships, u) {
 }
 
 export function railPose(x, length) {
-  const d = Math.max(14, length * 1.7)
+  const d = Math.max(22, length * 1.7)
   return { position: [x - d * .18, FLOAT_M + d * .42, d], target: [x, FLOAT_M, 0] }
+}
+
+// One auto-pan step along the rail; `ended` once u reaches the last ship.
+export function panStep(u, dt, n, speed = PAN_SHIPS_PER_SEC) {
+  const last = Math.max(0, n - 1)
+  const next = Math.min(last, u + dt * speed)
+  return { u: next, ended: next >= last }
+}
+
+// Frame-rate independent lerp factor for exponential smoothing.
+export function smoothFactor(dt, rate = 3) {
+  return 1 - Math.exp(-dt * rate)
+}
+
+// Scrubber readout: "<name> · <length> m (<i+1>/<n>)" for the ship nearest u.
+export function nowText(ships, u) {
+  if (!ships.length) return ''
+  const i = Math.max(0, Math.min(ships.length - 1, Math.round(u)))
+  return `${ships[i].name} · ${ships[i].lengthM} m (${i + 1}/${ships.length})`
 }
 
 export function nearestIndex(layout, x) {
