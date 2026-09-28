@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Export the KB ship hangar: kb/ships/hangar/lineup.json + decimated models.
 
-    ~/hy3d-venv/bin/python export_hangar.py [--faces 6000]
+    ~/hy3d-venv/bin/python export_hangar.py [--faces 6000] [--db PATH] [--hulls DIR] [--out DIR]
 See docs/superpowers/specs/2026-09-26-ship-hangar-lineup-design.md.
 """
 import argparse
+import datetime as dt
 import json
 import sqlite3
 import statistics
@@ -54,30 +55,63 @@ def build_lineup(catalog, estimates, ladder, aspects, modeled, pages=None):
             length = ladder["ladder_group_median"].get(key) or ladder["ladder_scale_geomean"].get(str(c.get("scale"))) or 30.0
             length, source = float(length), "estimate"
             beam, height = length * typical(sid, "beam"), length * typical(sid, "height")
+        page = pages.get(sid)
+        # No DB category: fall back to the directory the ship's page lives in.
+        category = c.get("category") or (page.split("/")[0] if page else "")
         ships.append({"id": sid, "name": c["name"], "empire": EMPIRE_OF(c.get("faction")), "tier": c.get("tier") or 0,
-                      "category": c.get("category") or "", "lengthM": round(length, 1), "lengthSource": source,
+                      "category": category, "lengthM": round(length, 1), "lengthSource": source,
                       "beamM": round(beam, 1), "heightM": round(height, 1),
                       "model": f"models/{sid}.glb" if sid in modeled else None,
-                      "page": pages.get(sid)})
-    ships.sort(key=lambda s: (s["lengthM"], s["name"]))
+                      "page": page})
+    ships.sort(key=lambda s: (s["lengthM"], s["name"], s["id"]))
     return {"version": 1, "ships": ships}
 
 
 def load_catalog(db_path):
+    """Catalog ships keyed by id; faction 'legacy' rows are old-id duplicates and are dropped."""
     db = sqlite3.connect(db_path)
     try:
         rows = db.execute("SELECT id, name, faction, tier, scale, category, class FROM ships").fetchall()
     finally:
         db.close()
-    return {r[0]: {"name": r[1], "faction": r[2], "tier": r[3], "scale": r[4], "category": r[5], "class": r[6]} for r in rows}
+    return {r[0]: {"name": r[1], "faction": r[2], "tier": r[3], "scale": r[4], "category": r[5], "class": r[6]}
+            for r in rows if r[2] != "legacy"}
 
 
-def write_models(ids, faces_budget, out_dir):
+def hull_ids(manifest_path):
+    """Hull ids in the cinema-hulls manifest, without the __lod variants."""
+    return [sid for sid in json.loads(Path(manifest_path).read_text())["ships"] if "__lod" not in sid]
+
+
+def _shown(path):
+    """Path as text, with the home directory shown as ~ (the KB is published)."""
+    home, text = str(Path.home()), str(path)
+    return "~" + text[len(home):] if text.startswith(home + "/") else text
+
+
+def source_info(faces, manifest_path, db_path, now=None):
+    """Provenance block for lineup.json: what inputs produced this export."""
+    now = now or dt.datetime.now(dt.timezone.utc)
+    mtime = dt.datetime.fromtimestamp(Path(db_path).stat().st_mtime, dt.timezone.utc)
+    return {"faces": faces, "generated": now.strftime("%Y-%m-%d"),
+            "hulls": {"manifest": _shown(manifest_path), "ships": len(hull_ids(manifest_path))},
+            "db": {"path": _shown(db_path), "mtime": mtime.strftime("%Y-%m-%dT%H:%M:%SZ")}}
+
+
+def prune_models(models_dir, modeled):
+    """Delete models/*.glb whose id is not in the modeled set; returns the removed file names."""
+    removed = sorted(p.name for p in Path(models_dir).glob("*.glb") if p.stem not in modeled)
+    for name in removed:
+        (Path(models_dir) / name).unlink()
+    return removed
+
+
+def write_models(ids, faces_budget, out_dir, hulls=HULLS):
     from make_lod_variants import decimate
     out_dir.mkdir(parents=True, exist_ok=True)
     aspects = {}
     for sid in ids:
-        verts, faces = cf.read_glb((HULLS / f"{sid}.glb").read_bytes())
+        verts, faces = cf.read_glb((hulls / f"{sid}.glb").read_bytes())
         if len(faces) > faces_budget:
             verts, faces = decimate(verts, faces, faces_budget)
         ext = np.ptp(verts, axis=0)
@@ -115,20 +149,31 @@ def load_pages(ships_dir, categories):
     return {sid: f"{resolve_page_dir(dirs, categories.get(sid))}/{sid}.html" for sid, dirs in candidates.items()}
 
 
-def main():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--faces", type=int, default=HANGAR_FACES)
-    args = parser.parse_args()
-    catalog = load_catalog(KB_DB)
+    parser.add_argument("--db", type=Path, default=KB_DB, help="knowledge DB with the ships table")
+    parser.add_argument("--hulls", type=Path, default=HULLS, help="cinema-hulls dir (manifest.json + <id>.glb)")
+    parser.add_argument("--out", type=Path, default=OUT, help="hangar output dir (lineup.json + models/)")
+    return parser.parse_args(argv)
+
+
+def main():
+    args = parse_args()
+    catalog = load_catalog(args.db)
     scale = json.loads(SCALE.read_text())
-    modeled = {sid for sid in json.loads((HULLS / "manifest.json").read_text())["ships"] if "__lod" not in sid} & set(catalog)
-    aspects = write_models(sorted(modeled), args.faces, OUT / "models")
+    manifest = args.hulls / "manifest.json"
+    modeled = set(hull_ids(manifest)) & set(catalog)
+    aspects = write_models(sorted(modeled), args.faces, args.out / "models", args.hulls)
+    removed = prune_models(args.out / "models", modeled)
     categories = {sid: c.get("category") or "" for sid, c in catalog.items()}
-    pages = load_pages(OUT.parent, categories)
+    pages = load_pages(args.out.parent, categories)
     lineup = build_lineup(catalog, scale["ships"], scale, aspects, modeled, pages)
-    (OUT / "lineup.json").write_text(json.dumps(lineup, separators=(",", ":")))
-    size = sum(p.stat().st_size for p in (OUT / "models").glob("*.glb"))
-    print(f"{len(lineup['ships'])} ships ({len(modeled)} modeled), models {size / 1e6:.1f} MB -> {OUT}")
+    lineup["source"] = source_info(args.faces, manifest, args.db)
+    (args.out / "lineup.json").write_text(json.dumps(lineup, separators=(",", ":")))
+    size = sum(p.stat().st_size for p in (args.out / "models").glob("*.glb"))
+    print(f"{len(lineup['ships'])} ships ({len(modeled)} modeled), models {size / 1e6:.1f} MB, "
+          f"removed {len(removed)} stale GLBs {removed} -> {args.out}")
 
 
 if __name__ == "__main__":

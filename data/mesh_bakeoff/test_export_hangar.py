@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """cd data/mesh_bakeoff && ~/hy3d-venv/bin/python -m unittest test_export_hangar -v"""
+import json
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -55,11 +57,74 @@ class LineupTest(unittest.TestCase):
         self.assertEqual(self.by_id["small"]["tier"], 1)
 
     def test_page_from_mapping_not_category(self):
-        # empty DB category, but a real page exists under a different folder
-        self.assertEqual(self.by_id["nocat"]["category"], "")
+        # empty DB category, but a real page exists under a different folder:
+        # the category falls back to that page's directory
+        self.assertEqual(self.by_id["nocat"]["category"], "Discontinued")
         self.assertEqual(self.by_id["nocat"]["page"], "Discontinued/nocat.html")
         # missing from the pages mapping entirely -> null, not a guessed path
         self.assertIsNone(self.by_id["orphan"]["page"])
+
+
+    def test_empty_category_without_page_stays_empty(self):
+        catalog = {"x": {**CATALOG["nocat"]}}
+        lineup = eh.build_lineup(catalog, {}, LADDER, ASPECTS, set(), {})
+        self.assertEqual(lineup["ships"][0]["category"], "")
+
+    def test_sort_ties_break_by_name_then_id(self):
+        catalog = {sid: {"name": name, "faction": "krynn", "tier": 1, "scale": 1, "category": "Combat", "class": "Fighter"}
+                   for sid, name in [("zz", "Same"), ("aa", "Same"), ("mm", "Alpha")]}
+        lineup = eh.build_lineup(catalog, {}, LADDER, ASPECTS, set(), {})
+        self.assertEqual([s["id"] for s in lineup["ships"]], ["mm", "aa", "zz"])
+
+
+class LoadCatalogTest(unittest.TestCase):
+    def test_drops_legacy_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "kb.db"
+            db = sqlite3.connect(path)
+            db.execute("CREATE TABLE ships (id, name, faction, tier, scale, category, class)")
+            db.executemany("INSERT INTO ships VALUES (?,?,?,?,?,?,?)", [
+                ("excavator", "Excavator", "", 2, 2, "", "Barge"),
+                ("mining_barge", "Excavator", "legacy", 2, 2, "Industrial", "Barge"),
+                ("shiv", "Shiv", "crimson", 1, 1, "Combat", "Fighter")])
+            db.commit(); db.close()
+            self.assertEqual(sorted(eh.load_catalog(path)), ["excavator", "shiv"])
+
+
+class CliTest(unittest.TestCase):
+    def test_defaults(self):
+        a = eh.parse_args([])
+        self.assertEqual((a.faces, a.db, a.hulls, a.out), (eh.HANGAR_FACES, eh.KB_DB, eh.HULLS, eh.OUT))
+
+    def test_overrides(self):
+        a = eh.parse_args(["--db", "x.db", "--hulls", "h", "--out", "o", "--faces", "100"])
+        self.assertEqual((a.faces, a.db, a.hulls, a.out), (100, Path("x.db"), Path("h"), Path("o")))
+
+
+class SourceInfoTest(unittest.TestCase):
+    def test_records_inputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db = Path(tmp) / "kb.db"; db.write_text("")
+            manifest = Path(tmp) / "manifest.json"; manifest.write_text(json.dumps({"ships": ["a", "b", "a__lod1"]}))
+            import datetime as dt
+            now = dt.datetime(2026, 9, 27, 23, 5, tzinfo=dt.timezone.utc)
+            src = eh.source_info(6000, manifest, db, now)
+            self.assertEqual(src["faces"], 6000)
+            self.assertEqual(src["generated"], "2026-09-27")
+            self.assertEqual(src["hulls"], {"manifest": str(manifest), "ships": 2})
+            self.assertEqual(src["db"]["path"], str(db))
+            self.assertRegex(src["db"]["mtime"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
+
+
+class PruneModelsTest(unittest.TestCase):
+    def test_removes_only_unmodeled_glbs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            for n in ["keep.glb", "gone.glb", "notes.txt"]:
+                (d / n).write_text("")
+            removed = eh.prune_models(d, {"keep"})
+            self.assertEqual(removed, ["gone.glb"])
+            self.assertEqual(sorted(p.name for p in d.iterdir()), ["keep.glb", "notes.txt"])
 
 
 def make_pages(tmp, layout):
