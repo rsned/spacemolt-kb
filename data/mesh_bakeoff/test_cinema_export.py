@@ -88,6 +88,16 @@ class GlbTest(unittest.TestCase):
         self.assertEqual(gltf["meshes"][0]["primitives"][0]["attributes"], {"POSITION": 0, "NORMAL": 1})
         self.assertEqual(len(data) % 4, 0)
 
+    def test_small_meshes_use_uint16_indices(self):
+        v, f = box((-.5, -.1, -.2), (.5, .1, .2))
+        data = cf.glb_bytes(v.astype(np.float32), cf.vertex_normals(v, f), f.astype(np.uint32))
+        jlen, _ = struct.unpack_from("<II", data, 12)
+        gltf = json.loads(data[20:20 + jlen])
+        self.assertEqual(gltf["accessors"][2]["componentType"], 5123)
+        rv, rf = cf.read_glb(data)
+        np.testing.assert_array_equal(rf, f)
+        self.assertEqual(len(data) % 4, 0)
+
 
 import hardpoints as hp
 

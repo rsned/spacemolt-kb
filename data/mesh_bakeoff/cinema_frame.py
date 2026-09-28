@@ -65,7 +65,8 @@ def glb_bytes(verts: np.ndarray, normals: np.ndarray, faces: np.ndarray) -> byte
     """Minimal glTF 2.0 binary: one mesh, POSITION + NORMAL + uint32 indices."""
     v = np.ascontiguousarray(verts, dtype="<f4")
     n = np.ascontiguousarray(normals, dtype="<f4")
-    idx = np.ascontiguousarray(faces, dtype="<u4").ravel()
+    small = len(v) < 65536
+    idx = np.ascontiguousarray(faces, dtype="<u2" if small else "<u4").ravel()
     blob = v.tobytes() + n.tobytes() + idx.tobytes()
     blob += b"\0" * (-len(blob) % 4)
     lv, ln = v.nbytes, n.nbytes
@@ -83,7 +84,7 @@ def glb_bytes(verts: np.ndarray, normals: np.ndarray, faces: np.ndarray) -> byte
             {"bufferView": 0, "componentType": 5126, "count": len(v), "type": "VEC3",
              "min": v.min(axis=0).tolist(), "max": v.max(axis=0).tolist()},
             {"bufferView": 1, "componentType": 5126, "count": len(n), "type": "VEC3"},
-            {"bufferView": 2, "componentType": 5125, "count": int(idx.size), "type": "SCALAR"},
+            {"bufferView": 2, "componentType": 5123 if small else 5125, "count": int(idx.size), "type": "SCALAR"},
         ],
     }
     js = json.dumps(gltf, separators=(",", ":")).encode()
