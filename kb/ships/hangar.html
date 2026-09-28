@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ship Hangar — SpaceMolt KB</title>
+  <link rel="stylesheet" href="hangar/hangar.css">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"}}</script>
+</head>
+<body>
+  <canvas id="stage"></canvas>
+  <header id="topbar">
+    <a href="index.html" class="back">&larr; Ships</a>
+    <h1>Ship Hangar <span id="count"></span></h1>
+    <div id="filters"></div>
+  </header>
+  <aside id="card" hidden></aside>
+  <footer id="rail">
+    <button id="play" aria-label="Pause">&#10074;&#10074;</button>
+    <input id="scrub" type="range" min="0" value="0" step="0.01" aria-label="Position along the lineup">
+    <span id="now"></span>
+  </footer>
+  <p id="note">Lengths from cockpit-window measurements; <em>est.</em> = estimated. Ghost hulls: model pending. Models are shape scans (colour coming).</p>
+  <script type="module" src="hangar/app.js"></script>
+</body>
+</html>
