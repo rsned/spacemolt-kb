@@ -449,6 +449,7 @@ var shipPageTemplate = `<!DOCTYPE html>
 {{- if .TotalBlueprints}}
       <p class="mt-1"><a href="blueprints/index.html">&#x25F1; Registry Blueprints &mdash; three-view drawings for {{.TotalBlueprints}} ships &rarr;</a></p>
       <p class="mt-1"><a href="fitting.html">&#x25E9; Fitting Sheet &mdash; fit modules and read the combined ship stats &rarr;</a></p>
+      <p class="mt-1"><a href="hangar.html">&#x25A3; Ship Hangar &mdash; every ship side by side, smallest to largest &rarr;</a></p>
 {{- end}}
 
       <nav class="card mt-3" id="toc">
