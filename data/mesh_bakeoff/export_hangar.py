@@ -30,7 +30,8 @@ def EMPIRE_OF(faction):
     return faction if faction and faction != "legacy" else "independent"
 
 
-def build_lineup(catalog, estimates, ladder, aspects, modeled):
+def build_lineup(catalog, estimates, ladder, aspects, modeled, pages=None):
+    pages = pages or {}
     group_of = {sid: role_group(c.get("class")) for sid, c in catalog.items()}
     by_group = {}
     for sid, a in aspects.items():
@@ -57,7 +58,7 @@ def build_lineup(catalog, estimates, ladder, aspects, modeled):
                       "category": c.get("category") or "", "lengthM": round(length, 1), "lengthSource": source,
                       "beamM": round(beam, 1), "heightM": round(height, 1),
                       "model": f"models/{sid}.glb" if sid in modeled else None,
-                      "page": f"{c.get('category')}/{sid}.html"})
+                      "page": pages.get(sid)})
     ships.sort(key=lambda s: (s["lengthM"], s["name"]))
     return {"version": 1, "ships": ships}
 
@@ -85,6 +86,15 @@ def write_models(ids, faces_budget, out_dir):
     return aspects
 
 
+def load_pages(ships_dir, ids):
+    """{ship_id: "Category/id.html"} for every catalog id with a page under kb/ships/*/<id>.html."""
+    pages = {}
+    for html in ships_dir.glob("*/*.html"):
+        if html.stem in ids:
+            pages[html.stem] = f"{html.parent.name}/{html.name}"
+    return pages
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--faces", type=int, default=HANGAR_FACES)
@@ -93,7 +103,8 @@ def main():
     scale = json.loads(SCALE.read_text())
     modeled = {sid for sid in json.loads((HULLS / "manifest.json").read_text())["ships"] if "__lod" not in sid} & set(catalog)
     aspects = write_models(sorted(modeled), args.faces, OUT / "models")
-    lineup = build_lineup(catalog, scale["ships"], scale, aspects, modeled)
+    pages = load_pages(OUT.parent, set(catalog))
+    lineup = build_lineup(catalog, scale["ships"], scale, aspects, modeled, pages)
     (OUT / "lineup.json").write_text(json.dumps(lineup, separators=(",", ":")))
     size = sum(p.stat().st_size for p in (OUT / "models").glob("*.glb"))
     print(f"{len(lineup['ships'])} ships ({len(modeled)} modeled), models {size / 1e6:.1f} MB -> {OUT}")
