@@ -23,12 +23,27 @@ export function railAt(layout, ships, u) {
   const last = layout.length - 1
   const c = Math.max(0, Math.min(last, u)), i = Math.min(last, Math.floor(c)), f = c - i
   const j = Math.min(last, i + 1)
-  return { x: layout[i].x + (layout[j].x - layout[i].x) * f, length: ships[i].lengthM + (ships[j].lengthM - ships[i].lengthM) * f }
+  const h = s => s.heightM ?? s.lengthM * .3
+  return { x: layout[i].x + (layout[j].x - layout[i].x) * f, length: ships[i].lengthM + (ships[j].lengthM - ships[i].lengthM) * f,
+    height: h(ships[i]) + (h(ships[j]) - h(ships[i])) * f }
 }
 
-export function railPose(x, length) {
-  const d = Math.max(22, length * 1.7)
-  return { position: [x - d * .18, FLOAT_M + d * .42, d], target: [x, FLOAT_M, 0] }
+// Rail framing: the camera looks along a fixed three-quarter direction and backs
+// off until the ship's bounding sphere (length x height) fits the smaller of the
+// vertical and horizontal fields of view, shrunk for the top/bottom UI bars, with
+// padding to spare.
+export const FIT_USABLE = .72     // share of the vertical half-fov left after the UI bars
+export const FIT_PAD = 1.12       // extra room around the ship
+export const RAIL_MIN_DIST = 22
+const RAIL_DIR = (() => { const v = [-.18, .42, 1], n = Math.hypot(...v); return v.map(c => c / n) })()
+export function railPose(x, length, height = length * .3, { fovDeg = 38, aspect = 16 / 9 } = {}) {
+  const halfV = fovDeg * Math.PI / 360
+  const halfH = Math.atan(Math.tan(halfV) * aspect)
+  const half = Math.min(halfV * FIT_USABLE, halfH * .92)
+  const radius = Math.hypot(length, height) / 2
+  const d = Math.max(RAIL_MIN_DIST, radius * FIT_PAD / Math.sin(half))
+  const target = [x, FLOAT_M + height / 2, 0]
+  return { position: target.map((c, k) => c + RAIL_DIR[k] * d), target }
 }
 
 // One auto-pan step along the rail; `ended` once u reaches the last ship.

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { filterShips, layoutLineup, railAt, railPose, nearestIndex, parseFilters, formatFilters, FLOAT_M, panStep, smoothFactor, nowText, PAN_SHIPS_PER_SEC, easeInOut, tweenX, repackMoves, isClick, CLICK_SLOP_PX, focusPose, indexAtLength, uAtX, nearestFirst } from '../../kb/ships/hangar/layout.js'
+import { filterShips, layoutLineup, railAt, railPose, nearestIndex, parseFilters, formatFilters, FLOAT_M, panStep, smoothFactor, nowText, PAN_SHIPS_PER_SEC, easeInOut, tweenX, repackMoves, isClick, CLICK_SLOP_PX, focusPose, indexAtLength, uAtX, nearestFirst, FIT_USABLE } from '../../kb/ships/hangar/layout.js'
 
 const ships = [
   { id: 'a', lengthM: 10, empire: 'crimson', tier: 1, category: 'Combat' },
@@ -23,14 +23,16 @@ test('filters combine and empty sets mean all', () => {
 
 test('rail interpolates between ships and clamps', () => {
   const l = layoutLineup(ships)
-  assert.deepEqual(railAt(l, ships, 0), { x: 0, length: 10 })
-  assert.deepEqual(railAt(l, ships, 1.5), { x: (l[1].x + l[2].x) / 2, length: 60 })
-  assert.deepEqual(railAt(l, ships, 99), { x: l[2].x, length: 100 })
+  // Ships without heightM fall back to .3 x length for framing.
+  assert.deepEqual(railAt(l, ships, 0), { x: 0, length: 10, height: 3 })
+  assert.deepEqual(railAt(l, ships, 1.5), { x: (l[1].x + l[2].x) / 2, length: 60, height: 18 })
+  assert.deepEqual(railAt(l, ships, 99), { x: l[2].x, length: 100, height: 30 })
+  assert.equal(railAt(layoutLineup([{ id: 'h', lengthM: 50, heightM: 20 }]), [{ id: 'h', lengthM: 50, heightM: 20 }], 0).height, 20)
 })
 
-test('rail pose frames bigger ships from further away, looking at float height', () => {
+test('rail pose frames bigger ships from further away, looking at the ship centre', () => {
   const small = railPose(0, 10), big = railPose(0, 100)
-  assert.equal(small.target[1], FLOAT_M)
+  assert.equal(small.target[1], FLOAT_M + 10 * .3 / 2)
   assert.ok(big.position[2] > small.position[2] * 5)
   assert.ok(big.position[1] > small.position[1])
 })
@@ -96,9 +98,9 @@ test('nearestFirst orders a clamped window around i by distance, ahead first on 
 })
 
 test('rail pose gives small ships breathing room (min distance 22 m)', () => {
-  assert.equal(railPose(0, 5).position[2], 22)
-  assert.equal(railPose(0, 10).position[2], 22)
-  assert.equal(railPose(0, 100).position[2], 170)
+  // Minimum framing distance for tiny ships.
+  const dist = p => Math.hypot(p.position[0] - p.target[0], p.position[1] - p.target[1], p.position[2] - p.target[2])
+  assert.ok(Math.abs(dist(railPose(0, 5)) - 22) < 1e-9)
 })
 
 test('auto-pan advances at ships/sec and stops at the end of the line', () => {
@@ -166,4 +168,17 @@ test('focus pose looks at the ship centre from about 1.3 x length away', () => {
   assert.ok(p.position[1] > 5 && p.position[2] > 0)
   const tiny = focusPose([0, 3, 0], 2)   // never inside a tiny hull
   assert.ok(Math.abs(Math.hypot(...tiny.position.map((v, i) => v - tiny.target[i])) - 8) < 1e-9)
+})
+
+test('railPose fits the whole ship (bounding sphere + padding) inside the usable field of view', () => {
+  const dist = p => Math.hypot(p.position[0] - p.target[0], p.position[1] - p.target[1], p.position[2] - p.target[2])
+  const view = { fovDeg: 38, aspect: 16 / 9 }
+  const L = 300, H = 90, pose = railPose(0, L, H, view)
+  const r = Math.hypot(L, H) / 2
+  // the sphere's angular radius must sit inside the usable half-fov with padding to spare
+  const half = Math.asin(r / dist(pose)) * 180 / Math.PI
+  assert.ok(half < 19 * FIT_USABLE, `half-angle ${half}`)
+  assert.equal(pose.target[1], FLOAT_M + H / 2)
+  // a tall narrow window needs more distance than a wide one
+  assert.ok(dist(railPose(0, L, H, { fovDeg: 38, aspect: .5 })) > dist(pose))
 })

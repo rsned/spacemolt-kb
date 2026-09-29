@@ -378,8 +378,9 @@ function frame(dt) {
   let x, length
   if (focused) ({ x, length } = focusCamera(dt))
   else {
-    ({ x, length } = railAt(layout, visible, u))
-    const pose = railPose(x, length)
+    let height
+    ;({ x, length, height } = railAt(layout, visible, u))
+    const pose = railPose(x, length, height, { fovDeg: camera.fov, aspect: camera.aspect })
     wantPos.set(...pose.position); wantLook.set(...pose.target)
     if (!camReady) { camPos.copy(wantPos); camLook.copy(wantLook); camReady = true }
     const a = smoothFactor(dt)
