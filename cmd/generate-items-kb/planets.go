@@ -64,7 +64,7 @@ func writePlanetPages(db *sql.DB, outDir string, systems []*System) error {
 
 			sanitizedSys := sanitizeName(sys.ID)
 			sanitizedPlanet := sanitizeName(poi.Name)
-			imgFilename := fmt.Sprintf("%s_%s.png", sanitizedSys, sanitizedPlanet)
+			imgFilename := fmt.Sprintf("%s_%s.webp", sanitizedSys, sanitizedPlanet)
 
 			// Generate stats and persist to metadata table.
 			orbitalDist := math.Hypot(poi.PositionX, poi.PositionY)

@@ -174,3 +174,13 @@ go run ./cmd/generate-factions-kb --portraits ../spacemolt-knowledge.db
 If `SMKB_PORTRAIT_CMD` is not set, `--portraits` skips image generation (useful
 for a dry run or when you only want to refresh the KB without producing new
 portraits).
+
+## Planet textures
+
+`overlays/planets/<system>_<planet>.png` is an explicit replacement for a planet's
+procedural surface texture (2:1 equirectangular, e.g. 2000×1000). Sol's real NASA
+maps live here. `scripts/publish_planet_textures.py` converts the generator's PNG
+renders to `kb/images/planets/*.webp` and then applies these overlays, so an
+overlay always wins over the render of the same planet — whichever generator
+version produced it. Filenames match the page's image: the sanitized system id
+and planet name, e.g. `sol_earth.png`.

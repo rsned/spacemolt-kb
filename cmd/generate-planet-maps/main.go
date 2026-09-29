@@ -20,9 +20,16 @@ import (
 )
 
 type planet struct {
+	SystemID   string
 	SystemName string
 	PlanetName string
 	PlanetType string
+}
+
+// textureFilename matches the image path generate-items-kb writes into the
+// planet page: sanitized system ID (not name) plus sanitized planet name.
+func textureFilename(p planet) string {
+	return fmt.Sprintf("%s_%s.png", sanitize(p.SystemID), sanitize(p.PlanetName))
 }
 
 func main() {
@@ -89,8 +96,7 @@ func main() {
 		go func() {
 			defer wg.Done()
 			for p := range ch {
-				filename := fmt.Sprintf("%s_%s.png", sanitize(p.SystemName), sanitize(p.PlanetName))
-				outPath := filepath.Join(*outDir, filename)
+				outPath := filepath.Join(*outDir, textureFilename(p))
 
 				if err := generateSingle(p.PlanetType, p.PlanetName, *faceSize, *eqWidth, *eqHeight, outPath); err != nil {
 					log.Printf("ERROR: %s/%s (%s): %v", p.SystemName, p.PlanetName, p.PlanetType, err)
@@ -169,7 +175,7 @@ func generateSingle(planetType, planetName string, faceSize, equirectW, equirect
 
 func loadPlanets(db *sql.DB, systemName string) ([]planet, error) {
 	const baseQuery = `
-		SELECT s.name, p.name, p.class
+		SELECT s.id, s.name, p.name, p.class
 		FROM pois p
 		JOIN systems s ON p.system_id = s.id
 		WHERE p.type = 'planet' AND p.class != ''`
@@ -190,7 +196,7 @@ func loadPlanets(db *sql.DB, systemName string) ([]planet, error) {
 	var planets []planet
 	for rows.Next() {
 		var p planet
-		if err := rows.Scan(&p.SystemName, &p.PlanetName, &p.PlanetType); err != nil {
+		if err := rows.Scan(&p.SystemID, &p.SystemName, &p.PlanetName, &p.PlanetType); err != nil {
 			return nil, err
 		}
 		planets = append(planets, p)
