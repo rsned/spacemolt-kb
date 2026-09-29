@@ -44,25 +44,23 @@ starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3))
 const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 18, fog: false, sizeAttenuation: true }))
 scene.add(stars)
 
-const white = new THREE.MeshStandardMaterial({ color: 0xf1f3f5, roughness: .45, metalness: .2, vertexColors: true })
-
-function accentBand(geometry, colour) {
-  // Near-white hull with a thin empire-coloured band around the waist.
-  const pos = geometry.getAttribute('position')
-  geometry.computeBoundingBox()
-  const { min, max } = geometry.boundingBox, mid = (min.y + max.y) / 2, half = (max.y - min.y) * .06
-  const c = new THREE.Color(colour), w = new THREE.Color(0xf1f3f5), colors = new Float32Array(pos.count * 3)
-  for (let i = 0; i < pos.count; i++) (Math.abs(pos.getY(i) - mid) < half ? c : w).toArray(colors, i * 3)
-  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-}
+const white = new THREE.MeshStandardMaterial({ color: 0xf1f3f5, roughness: .45, metalness: .2 })
+// Three-quarter profile: each hull turns this far about its vertical axis so the
+// bow (+X, screen right) swings toward the camera. The line itself stays square.
+const SHIP_YAW_DEG = 30, SHIP_YAW = -SHIP_YAW_DEG * Math.PI / 180
 
 const LABEL_W = 512, LABEL_H = 96
 function labelSprite(ship) {
   const cnv = document.createElement('canvas'); cnv.width = LABEL_W; cnv.height = LABEL_H
   const g = cnv.getContext('2d')
-  g.fillStyle = '#0d1b26'; g.font = '600 32px system-ui'; g.fillText(ship.name, 8, 40)
-  g.font = '400 24px system-ui'; g.fillStyle = '#223a4b'
-  g.fillText(`${ship.lengthM} m${ship.lengthSource === 'estimate' ? ' est.' : ''}${ship.model ? '' : ' · model pending'}`, 8, 75)
+  // Empire colour lives in a thick border around the caption, not on the hull.
+  const border = 10, pad = 22, detail = `${ship.lengthM} m${ship.lengthSource === 'estimate' ? ' est.' : ''}${ship.model ? '' : ' · model pending'}`
+  g.fillStyle = 'rgba(244,247,250,.72)'; g.fillRect(0, 0, LABEL_W, LABEL_H)
+  g.lineWidth = border; g.strokeStyle = accentOf(ship.empire); g.strokeRect(border / 2, border / 2, LABEL_W - border, LABEL_H - border)
+  let size = 32; g.font = `600 ${size}px system-ui`
+  while (size > 18 && g.measureText(ship.name).width > LABEL_W - 2 * pad) g.font = `600 ${--size}px system-ui`
+  g.fillStyle = '#0d1b26'; g.fillText(ship.name, pad, 44)
+  g.font = '400 22px system-ui'; g.fillStyle = '#223a4b'; g.fillText(detail, pad, 76)
   const tex = new THREE.CanvasTexture(cnv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8
   // Once on the GPU the pixels live there; free the CPU-side canvas backing store.
   tex.onUpdate = () => { cnv.width = cnv.height = 0; tex.onUpdate = null }
@@ -93,11 +91,14 @@ try {
 const all = lineup.ships
 const entries = new Map(all.map(ship => {
   const group = new THREE.Group(); group.userData.ship = ship
-  const g = ghost(ship); group.add(g); group.userData.ghost = g
+  const body = new THREE.Group(); body.rotation.y = SHIP_YAW; body.userData.ship = ship; group.add(body); group.userData.body = body
+  const g = ghost(ship); body.add(g); group.userData.ghost = g
   // Caption on the floor just in front of the hull (plane depth is w * LABEL_H/LABEL_W).
   const label = labelSprite(ship); label.userData.label = true
   const depth = label.geometry.parameters.height
-  label.position.set(0, .05 - (FLOAT_M + ship.heightM / 2), ship.beamM / 2 + depth / 2 + 1); group.add(label)
+  // The turned hull reaches further toward the camera: clear its rotated footprint.
+  const reach = (ship.lengthM * Math.abs(Math.sin(SHIP_YAW)) + ship.beamM * Math.cos(SHIP_YAW)) / 2
+  label.position.set(0, .05 - (FLOAT_M + ship.heightM / 2), reach + depth / 2 + 1); group.add(label)
   group.position.y = FLOAT_M + ship.heightM / 2
   scene.add(group)
   return [ship.id, { ship, group, state: ship.model ? 'idle' : 'none' }]
@@ -110,12 +111,11 @@ function loadModel(entry) {
     loading--
     let mesh; gltf.scene.traverse(o => { if (!mesh && o.isMesh) mesh = o })
     if (!mesh) { entry.state = 'failed'; return }
-    accentBand(mesh.geometry, accentOf(entry.ship.empire))
     const hull = new THREE.Mesh(mesh.geometry, white); hull.castShadow = true; hull.receiveShadow = true
     hull.scale.setScalar(entry.ship.lengthM)
     const g = entry.group.userData.ghost
-    entry.group.add(hull)
-    if (g) { entry.group.remove(g); g.geometry.dispose(); g.material.dispose(); entry.group.userData.ghost = null }
+    entry.group.userData.body.add(hull)
+    if (g) { g.parent.remove(g); g.geometry.dispose(); g.material.dispose(); entry.group.userData.ghost = null }
     entry.state = 'loaded'
   }, undefined, () => { loading--; entry.state = 'failed' })
 }
@@ -258,7 +258,7 @@ function pickEntry(e) {
   ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1)
   raycaster.setFromCamera(ndc, camera)
   const targets = []
-  for (const s of visible) for (const o of entries.get(s.id).group.children) if (!o.userData.label) targets.push(o)
+  for (const s of visible) targets.push(...entries.get(s.id).group.userData.body.children)
   const hit = raycaster.intersectObjects(targets, false)[0]
   return hit ? entries.get(hit.object.parent.userData.ship.id) : null
 }
