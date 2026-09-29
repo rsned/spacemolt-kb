@@ -33,5 +33,23 @@ class LodLineupTest(unittest.TestCase):
             mhl.build_lod_lineup(BASE, ["nope"], [2000])
 
 
+class MasterLineupTest(unittest.TestCase):
+    def setUp(self):
+        self.rows = mhl.build_lod_lineup(BASE, ["big"], [40000, 6000], master=500000)["ships"]
+
+    def test_master_leads_then_each_level_pairs_orig_with_master(self):
+        self.assertEqual([r["id"] for r in self.rows], [
+            "big__m500k", "big__40k", "big__m40k", "big__6k", "big__m6k"])
+
+    def test_master_names_and_models(self):
+        by = {r["id"]: r for r in self.rows}
+        self.assertEqual(by["big__m500k"]["name"], "Big One · 500k master")
+        self.assertEqual(by["big__m500k"]["model"], "lod/big__m500k.glb")
+        self.assertEqual(by["big__40k"]["name"], "Big One · 40k orig")
+        self.assertEqual(by["big__m40k"]["name"], "Big One · 40k from master")
+        self.assertEqual(by["big__m6k"]["model"], "lod/big__m6k.glb")
+        self.assertEqual(by["big__6k"]["model"], "models/big.glb")
+
+
 if __name__ == "__main__":
     unittest.main()
