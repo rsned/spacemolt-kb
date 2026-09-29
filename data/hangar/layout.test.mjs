@@ -182,3 +182,11 @@ test('railPose fits the whole ship (bounding sphere + padding) inside the usable
   // a tall narrow window needs more distance than a wide one
   assert.ok(dist(railPose(0, L, H, { fovDeg: 38, aspect: .5 })) > dist(pose))
 })
+
+test('railPose can include a caption in front of the ship in the framing', () => {
+  const dist = p => Math.hypot(p.position[0] - p.target[0], p.position[1] - p.target[1], p.position[2] - p.target[2])
+  const plain = railPose(0, 100, 30), withCaption = railPose(0, 100, 30, undefined, 45)
+  assert.equal(withCaption.target[2], 22.5)            // aim between hull and caption
+  assert.ok(dist(withCaption) > dist(plain))
+  assert.equal(plain.target[2], 0)
+})

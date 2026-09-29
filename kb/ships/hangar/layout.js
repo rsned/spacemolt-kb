@@ -36,13 +36,15 @@ export const FIT_USABLE = .72     // share of the vertical half-fov left after t
 export const FIT_PAD = 1.12       // extra room around the ship
 export const RAIL_MIN_DIST = 22
 const RAIL_DIR = (() => { const v = [-.18, .42, 1], n = Math.hypot(...v); return v.map(c => c / n) })()
-export function railPose(x, length, height = length * .3, { fovDeg = 38, aspect = 16 / 9 } = {}) {
+// `front`: how far in front of the hull (toward the camera, +z) its floor caption
+// reaches; the fitted sphere then spans hull and caption, centred between them.
+export function railPose(x, length, height = length * .3, { fovDeg = 38, aspect = 16 / 9 } = {}, front = 0) {
   const halfV = fovDeg * Math.PI / 360
   const halfH = Math.atan(Math.tan(halfV) * aspect)
   const half = Math.min(halfV * FIT_USABLE, halfH * .92)
-  const radius = Math.hypot(length, height) / 2
+  const radius = Math.hypot(length, height, front) / 2
   const d = Math.max(RAIL_MIN_DIST, radius * FIT_PAD / Math.sin(half))
-  const target = [x, FLOAT_M + height / 2, 0]
+  const target = [x, FLOAT_M + height / 2, front / 2]
   return { position: target.map((c, k) => c + RAIL_DIR[k] * d), target }
 }
 

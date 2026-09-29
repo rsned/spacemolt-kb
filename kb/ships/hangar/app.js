@@ -49,18 +49,21 @@ const white = new THREE.MeshStandardMaterial({ color: 0xf1f3f5, roughness: .45, 
 // bow (+X, screen right) swings toward the camera. The line itself stays square.
 const SHIP_YAW_DEG = 30, SHIP_YAW = -SHIP_YAW_DEG * Math.PI / 180
 
-const LABEL_W = 512, LABEL_H = 96
+const LABEL_W = 512, LABEL_H = 192
+const CAPTION_FRONT = .5   // caption reach in front of the hull, as a share of length (for framing)
 function labelSprite(ship) {
   const cnv = document.createElement('canvas'); cnv.width = LABEL_W; cnv.height = LABEL_H
   const g = cnv.getContext('2d')
   // Empire colour lives in a thick border around the caption, not on the hull.
-  const border = 10, pad = 22, detail = `${ship.lengthM} m${ship.lengthSource === 'estimate' ? ' est.' : ''}${ship.model ? '' : ' · model pending'}`
+  const border = 14, pad = 24, detail = `${ship.lengthM} m${ship.lengthSource === 'estimate' ? ' est.' : ''}${ship.model ? '' : ' · model pending'}`
   g.fillStyle = 'rgba(244,247,250,.72)'; g.fillRect(0, 0, LABEL_W, LABEL_H)
   g.lineWidth = border; g.strokeStyle = accentOf(ship.empire); g.strokeRect(border / 2, border / 2, LABEL_W - border, LABEL_H - border)
-  let size = 32; g.font = `600 ${size}px system-ui`
-  while (size > 18 && g.measureText(ship.name).width > LABEL_W - 2 * pad) g.font = `600 ${--size}px system-ui`
-  g.fillStyle = '#0d1b26'; g.fillText(ship.name, pad, 44)
-  g.font = '400 22px system-ui'; g.fillStyle = '#223a4b'; g.fillText(detail, pad, 76)
+  let size = 64; g.font = `600 ${size}px system-ui`
+  while (size > 36 && g.measureText(ship.name).width > LABEL_W - 2 * pad) g.font = `600 ${--size}px system-ui`
+  g.fillStyle = '#0d1b26'; g.fillText(ship.name, pad, 88)
+  let small = 44; g.font = `400 ${small}px system-ui`
+  while (small > 26 && g.measureText(detail).width > LABEL_W - 2 * pad) g.font = `400 ${--small}px system-ui`
+  g.fillStyle = '#223a4b'; g.fillText(detail, pad, 156)
   const tex = new THREE.CanvasTexture(cnv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8
   // Once on the GPU the pixels live there; free the CPU-side canvas backing store.
   tex.onUpdate = () => { cnv.width = cnv.height = 0; tex.onUpdate = null }
@@ -383,7 +386,8 @@ function frame(dt) {
   else {
     let height
     ;({ x, length, height } = railAt(layout, visible, u))
-    const pose = railPose(x, length, height, { fovDeg: camera.fov, aspect: camera.aspect })
+    // Frame the floor caption too (it sits about .5 x length in front of the hull).
+    const pose = railPose(x, length, height, { fovDeg: camera.fov, aspect: camera.aspect }, length * CAPTION_FRONT)
     wantPos.set(...pose.position); wantLook.set(...pose.target)
     if (!camReady) { camPos.copy(wantPos); camLook.copy(wantLook); camReady = true }
     const a = smoothFactor(dt)
