@@ -81,7 +81,10 @@ function ghost(ship) {
 const loader = new GLTFLoader()
 let lineup
 try {
-  const res = await fetch('hangar/lineup.json')
+  // ?lod: the local detail comparison (make_hangar_lod.py) instead of the fleet.
+  const lodReview = new URLSearchParams(location.search).has('lod')
+  if (lodReview) document.querySelector('#topbar h1').firstChild.textContent = 'Ship Hangar — detail comparison '
+  const res = await fetch(lodReview ? 'hangar/lod/lineup.json' : 'hangar/lineup.json')
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   lineup = await res.json()
 } catch (err) {
