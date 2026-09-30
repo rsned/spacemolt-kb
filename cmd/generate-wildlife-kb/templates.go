@@ -137,6 +137,7 @@ const indexTemplate = placesTemplate + `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Wildlife</h2>
         <p>Every species the survey scans have recorded, with estimated populations by system. <span class="text-muted">Counts are the latest system survey (or the sum of the latest counts at each POI); wildlife moves, blooms, and gets hunted, so treat them as a snapshot. Each species has a <a href="#jump">detail page</a> with hull, attacks, kills, and field notes.</span></p>
+        <p><a href="combat.html">&#x2694; Wildlife combat &mdash; danger, damage per shot and hit chance for every species, sortable &rarr;</a></p>
 
         <div id="wl-map-wrap">
             <select id="wl-map-select" aria-label="Highlight species on map">

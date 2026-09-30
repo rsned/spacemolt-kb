@@ -268,6 +268,9 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleSta
 			return fmt.Errorf("render %s: %w", v.ID, err)
 		}
 	}
+	if err := writeCombatPage(outDir, htmltpl.HTML(kbnav.Header("../")), views, statsMonths); err != nil { //nolint:gosec // site header, generated internally
+		return fmt.Errorf("render combat: %w", err)
+	}
 	log.Printf("Wildlife: %d species (%d sighted), %d systems with wildlife, ~%d creatures; wrote %s/", len(views), sighted, guide.Coverage.SystemsWithWildlife, guide.EstimatedCreatures(), outDir)
 	return nil
 }
