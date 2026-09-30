@@ -92,7 +92,8 @@
         </div>
         <div class="card" style="padding:12px 16px">
             <div class="section-label">Codex entry</div>
-            <p class="empty">Not read yet. Since v0.571.0 scanning any creature of this species returns its entry (the <code>description</code> field); the server does not keep it, so record it in <code>data/wildlife/codex.json</code> or let the knowledge DB capture it.</p>
+            <p class="codex">Stalks belt grazers and peels their shells with serrated forelimbs. It pays passing ships no mind, fixed entirely on the hunt — but corner one, or hunt it, and it fights with everything those forelimbs can do.</p>
+            <div class="codex-src">Official species entry returned by scanning a creature.</div>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -109,7 +110,7 @@
                 <tr><td class="kv-label">Scan traits</td><td>hunts ships</td></tr>
                 <tr><td class="kv-label">Population (est.)</td><td>~21 across 28 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-17 22:44 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-15 02:50 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-09-29 09:23 UTC</td></tr>
             </table>
         </div>
 
@@ -122,13 +123,13 @@
                         <td>Crusher-Mantis (natural)</td>
                         <td>kinetic</td>
                         <td>projectile</td>
-                        <td class="num">2</td>
-                        <td class="num">12</td>
-                        <td class="num">11</td>
-                        <td class="num">92%</td>
-                        <td class="num">59.73 <span class="text-muted">(59&ndash;60)</span></td>
-                        <td class="num">657</td>
-                        <td>2026-08-27</td>
+                        <td class="num">3</td>
+                        <td class="num">16</td>
+                        <td class="num">15</td>
+                        <td class="num">94%</td>
+                        <td class="num">48.33 <span class="text-muted">(17&ndash;60)</span></td>
+                        <td class="num">725</td>
+                        <td>2026-09-16</td>
                     </tr>
                 </tbody>
             </table>
@@ -245,11 +246,11 @@
                         <td class="num">0</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Frostfeld Thermal Vent (1), Smelt Reef — Frostfeld (1)</td>
+                        <td>Smelt Reef — Frostfeld (2), Frostfeld Thermal Vent (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">267</td>
-                        <td title="tick 1885312">2026-09-15</td>
+                        <td class="num">413</td>
+                        <td title="tick 2008596">2026-09-29</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0013/index.html">GSC-0013</a> <code style="font-size:0.85em">gsc_0013</code></td>
@@ -278,11 +279,11 @@
                         <td class="num">2</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="bloom">rising</span></td>
-                        <td>Goldcrest Belt (1), The Gold Crest (1)</td>
+                        <td>Goldcrest Belt (1), Sol Alloy Scatter — Goldcrest (1), The Gold Crest (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">9</td>
-                        <td title="tick 1720746">2026-08-27</td>
+                        <td class="num">21</td>
+                        <td title="tick 1900901">2026-09-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/helvetios/index.html">Helvetios</a> <code style="font-size:0.85em">helvetios</code></td>
@@ -467,7 +468,29 @@
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Kills &amp; drops</div>
-            <p class="empty" style="padding:12px 16px">No kills recorded yet. Carcass drops will be listed here once a kill is logged.</p>
+            <table class="wl-table">
+                <thead><tr><th>When</th><th>Where</th><th class="num">Duration (ticks)</th><th class="num">Damage dealt</th><th class="num">Damage taken</th><th class="num">Salvage value</th><th>Drops</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>2026-09-16 22:08 UTC</td>
+                        <td><a href="../systems/goldcrest/index.html">Goldcrest</a> &middot; Sol Alloy Scatter — Goldcrest</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">72</td>
+                        <td><span class="text-muted">none read</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-09-16 03:07 UTC</td>
+                        <td><a href="../systems/goldcrest/index.html">Goldcrest</a> &middot; Goldcrest Belt</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">32</td>
+                        <td><a href="../items/misc/creature_carapace.html">Creature Carapace</a> &times;2, <a href="../items/misc/mantis_claw.html">Mantis Claw</a> &times;1</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <p style="margin-top:24px"><a href="index.html#crusher-mantis">&larr; All wildlife</a></p>
     </main>
