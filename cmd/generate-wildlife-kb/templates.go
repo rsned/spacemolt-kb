@@ -140,10 +140,8 @@ const indexTemplate = placesTemplate + `<!DOCTYPE html>
 
         <div id="wl-map-wrap">
             <select id="wl-map-select" aria-label="Highlight species on map">
-{{- range .Species}}
-{{- if gt (len .Places) 0}}
+{{- range .MapOptions}}
                 <option value="{{.Slug}}">{{.Name}} ({{.SystemCount}} {{plural .SystemCount "system"}}, ~{{.EstimatedTotal}})</option>
-{{- end}}
 {{- end}}
             </select>
             <div id="wl-map" data-active="{{.FirstSlug}}">{{.MapSVG}}</div>

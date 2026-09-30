@@ -99,6 +99,21 @@ type speciesView struct {
 	ImagePath string // relative to the section directory
 }
 
+// mapOptions is the map dropdown: sighted species only, A-Z by name. The page
+// body keeps the role-grouped order the guide loads them in.
+func mapOptions(views []speciesView) []speciesView {
+	var out []speciesView
+	for _, v := range views {
+		if len(v.Places) > 0 {
+			out = append(out, v)
+		}
+	}
+	slices.SortFunc(out, func(a, b speciesView) int {
+		return strings.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name))
+	})
+	return out
+}
+
 func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleStats, combat *wildlife.CombatStats, outDir string) error {
 	if err := os.MkdirAll(filepath.Join(outDir, "images"), 0o755); err != nil {
 		return err
@@ -192,19 +207,12 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleSta
 		}
 		groups[len(groups)-1].Species = append(groups[len(groups)-1].Species, v)
 	}
+	options := mapOptions(views)
 	firstSlug := ""
-	for _, v := range views {
-		if len(v.Places) > 0 {
-			firstSlug = v.Slug
-			break
-		}
+	if len(options) > 0 {
+		firstSlug = options[0].Slug // the dropdown's first entry is what the page opens on
 	}
-	sighted := 0
-	for _, v := range views {
-		if len(v.Places) > 0 {
-			sighted++
-		}
-	}
+	sighted := len(options)
 
 	statsMonths := ""
 	if stats != nil {
@@ -228,6 +236,7 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleSta
 	err = idx.Execute(f, map[string]any{
 		"Header":       htmltpl.HTML(kbnav.Header("../")), //nolint:gosec // site header, generated internally
 		"Species":      views,
+		"MapOptions":   options,
 		"Groups":       groups,
 		"Coverage":     guide.Coverage,
 		"Sighted":      sighted,
