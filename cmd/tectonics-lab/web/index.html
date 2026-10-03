@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tectonics Lab</title>
+<style>
+  :root { --bg:#0e1116; --fg:#d8dee9; --muted:#7a8494; --panel:#171b22; --accent:#5aa9ff; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.4 system-ui, sans-serif; }
+  header { display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; padding:10px 16px; background:var(--panel); }
+  header label { display:flex; gap:6px; align-items:center; color:var(--muted); }
+  input, select, button { background:#0b0e13; color:var(--fg); border:1px solid #2a313c; border-radius:4px; padding:4px 6px; font:inherit; }
+  button { cursor:pointer; } button:hover { border-color:var(--accent); }
+  main { display:grid; grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr); gap:16px; padding:16px; }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+  .view { position:relative; background:#05070a; border:1px solid #2a313c; border-radius:6px; overflow:hidden; }
+  canvas { display:block; width:100%; height:auto; }
+  #arrows { position:absolute; inset:0; pointer-events:none; }
+  .timeline { grid-column: 1 / -1; display:flex; gap:12px; align-items:center; }
+  .timeline input[type=range] { flex:1; }
+  #status { color:var(--muted); min-width:220px; }
+  #myr { font-variant-numeric: tabular-nums; min-width:120px; }
+  fieldset { border:1px solid #2a313c; border-radius:4px; padding:4px 8px; display:flex; gap:10px; }
+  legend { color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <label>Bundle <select id="bundle"></select></label>
+  <fieldset><legend>New run</legend>
+    <label>Planet <input id="planet" size="12" placeholder="sol_earth"></label>
+    <label>Seed <input id="seed" type="number" value="42" style="width:7em"></label>
+    <label>Archetype <select id="archetype"></select></label>
+    <label>Face <input id="face" type="number" value="256" style="width:5em"></label>
+    <label>Steps <input id="steps" type="number" value="150" style="width:5em"></label>
+    <label>Sets <input id="sets" size="24" placeholder="RidgeThickness=0.2 Steps=100"></label>
+    <button id="run">Run</button>
+  </fieldset>
+  <fieldset><legend>Layer</legend>
+    <label><input type="radio" name="layer" value="0" checked> plates</label>
+    <label><input type="radio" name="layer" value="1"> thickness</label>
+    <label><input type="radio" name="layer" value="2"> hypsometric</label>
+    <label><input type="radio" name="layer" value="3"> features</label>
+    <label><input type="checkbox" id="showArrows" checked> arrows</label>
+  </fieldset>
+  <span id="status">no bundle loaded</span>
+</header>
+<main>
+  <div class="view"><canvas id="sphere" width="640" height="640"></canvas><canvas id="arrows" width="640" height="640"></canvas></div>
+  <div class="view"><canvas id="cross" width="800" height="600"></canvas></div>
+  <div class="timeline">
+    <button id="play">▶</button>
+    <input id="slider" type="range" min="0" max="0" value="0">
+    <span id="myr">0 Myr</span>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
