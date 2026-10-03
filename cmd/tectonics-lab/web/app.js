@@ -49,7 +49,7 @@
       } else {
         c = vec3(0.25+0.5*th);
       }
-      if (uLayer == 0 || uLayer == 3) {
+      if (uLayer == 3) {
         float fade = 1.0 - fage/63.0;
         if (ftype == 1.0) c = mix(c, vec3(0.2,0.5,1.0), 0.4+0.6*fade);
         if (ftype == 2.0) c = mix(c, mix(vec3(0.55,0.3,0.15), vec3(1.0,0.2,0.1), fade), 0.5+0.5*fade);
