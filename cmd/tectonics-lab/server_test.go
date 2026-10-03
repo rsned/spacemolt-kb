@@ -76,3 +76,73 @@ func TestServerRunListAndFiles(t *testing.T) {
 	}
 	_ = r.Body.Close()
 }
+
+func TestServerSurvivesRunPanic(t *testing.T) {
+	prev := runBundleFn
+	runBundleFn = func(runOpts) (string, error) { panic("boom") }
+	t.Cleanup(func() { runBundleFn = prev })
+
+	data, web := t.TempDir(), t.TempDir()
+	ts := httptest.NewServer(newServer(data, web).Handler())
+	defer ts.Close()
+
+	res, err := http.Post(ts.URL+"/api/run", "application/json",
+		strings.NewReader(`{"seed":9,"archetype":"arid","face":16,"steps":1}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.StatusCode != http.StatusAccepted {
+		t.Fatalf("run status %d", res.StatusCode)
+	}
+	var started struct{ Job string }
+	_ = json.NewDecoder(res.Body).Decode(&started)
+	_ = res.Body.Close()
+
+	var st struct {
+		State string
+		Error string
+	}
+	deadline := time.Now().Add(30 * time.Second)
+	for st.State != "done" && st.State != "error" && time.Now().Before(deadline) {
+		r, err := http.Get(ts.URL + "/api/jobs/" + started.Job)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_ = json.NewDecoder(r.Body).Decode(&st)
+		_ = r.Body.Close()
+		time.Sleep(50 * time.Millisecond)
+	}
+	if st.State != "error" || !strings.Contains(st.Error, "panic") {
+		t.Fatalf("job %+v", st)
+	}
+
+	r2, err := http.Post(ts.URL+"/api/run", "application/json",
+		strings.NewReader(`{"seed":9,"archetype":"arid","face":16,"steps":1}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r2.StatusCode != http.StatusAccepted {
+		t.Errorf("second run status %d, want 202 (server must survive the panic)", r2.StatusCode)
+	}
+	var started2 struct{ Job string }
+	_ = json.NewDecoder(r2.Body).Decode(&started2)
+	_ = r2.Body.Close()
+
+	// Wait for the second job's goroutine to finish (it panics too, since
+	// runBundleFn is still the injected fake) before the test returns and
+	// t.Cleanup restores runBundleFn out from under it.
+	var st2 struct{ State string }
+	deadline = time.Now().Add(30 * time.Second)
+	for st2.State != "done" && st2.State != "error" && time.Now().Before(deadline) {
+		r, err := http.Get(ts.URL + "/api/jobs/" + started2.Job)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_ = json.NewDecoder(r.Body).Decode(&st2)
+		_ = r.Body.Close()
+		time.Sleep(50 * time.Millisecond)
+	}
+	if st2.State == "" {
+		t.Fatalf("second job never reached a terminal state: %+v", st2)
+	}
+}

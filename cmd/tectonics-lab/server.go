@@ -14,6 +14,10 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/tectonics"
 )
 
+// runBundleFn is runBundle by default; tests swap it to inject failures
+// (e.g. a panic) without touching the real bundle pipeline.
+var runBundleFn = runBundle
+
 type job struct {
 	ID    string `json:"job"`
 	State string `json:"state"`
@@ -114,7 +118,16 @@ func (s *server) startRun(w http.ResponseWriter, r *http.Request) {
 	s.mu.Unlock()
 
 	go func() {
-		dir, err := runBundle(runOpts{Planet: req.Planet, Seed: req.Seed, Archetype: req.Archetype,
+		var finished bool
+		defer func() {
+			if r := recover(); r != nil && !finished {
+				s.mu.Lock()
+				j.State, j.Error = "error", fmt.Sprintf("panic: %v", r)
+				s.running = false
+				s.mu.Unlock()
+			}
+		}()
+		dir, err := runBundleFn(runOpts{Planet: req.Planet, Seed: req.Seed, Archetype: req.Archetype,
 			Out: s.data, Sets: req.Sets, Face: req.Face, Steps: req.Steps,
 			Progress: func(step, steps int) {
 				s.mu.Lock()
@@ -122,13 +135,14 @@ func (s *server) startRun(w http.ResponseWriter, r *http.Request) {
 				s.mu.Unlock()
 			}})
 		s.mu.Lock()
-		defer s.mu.Unlock()
+		finished = true
 		s.running = false
 		if err != nil {
 			j.State, j.Error = "error", err.Error()
-			return
+		} else {
+			j.State, j.Slug = "done", filepath.Base(dir)
 		}
-		j.State, j.Slug = "done", filepath.Base(dir)
+		s.mu.Unlock()
 	}()
 	writeJSON(w, http.StatusAccepted, map[string]string{"job": j.ID})
 }
