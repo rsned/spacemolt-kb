@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -39,5 +40,21 @@ func TestRunBundleRefusesGasGiantAndBadSet(t *testing.T) {
 	}
 	if _, err := runBundle(runOpts{Planet: "x_i", Archetype: "arid", Out: t.TempDir(), Face: 16, Steps: 1, Sets: []string{"garbage"}}); err == nil {
 		t.Error("malformed -set must be refused")
+	}
+}
+
+func TestRunBundleRejectsTraversalPlanetIDs(t *testing.T) {
+	for _, id := range []string{"../../x", "a/b", "a..b"} {
+		out := t.TempDir()
+		if _, err := runBundle(runOpts{Planet: id, Archetype: "arid", Out: out, Face: 16, Steps: 1}); err == nil {
+			t.Errorf("planet id %q must be refused", id)
+		}
+		entries, err := os.ReadDir(out)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(entries) != 0 {
+			t.Errorf("planet id %q: Out dir not empty: %v", id, entries)
+		}
 	}
 }

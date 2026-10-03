@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/rsned/spacemolt-kb/pkg/tectonics"
@@ -26,7 +27,18 @@ type setFlag []string
 func (s *setFlag) String() string     { return strings.Join(*s, ",") }
 func (s *setFlag) Set(v string) error { *s = append(*s, v); return nil }
 
+var slugRe = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
+
+// validSlug reports whether s is safe to use as a directory-name component:
+// only letters, digits, '_', '-' and '.', and no ".." path-traversal segment.
+func validSlug(s string) bool {
+	return slugRe.MatchString(s) && !strings.Contains(s, "..")
+}
+
 func runBundle(o runOpts) (string, error) {
+	if o.Planet != "" && !validSlug(o.Planet) {
+		return "", fmt.Errorf("planet id %q: only letters, digits, '_', '-' and '.' are allowed", o.Planet)
+	}
 	p, err := tectonics.DefaultParams(o.Archetype)
 	if err != nil {
 		return "", err
