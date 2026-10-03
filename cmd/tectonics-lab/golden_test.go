@@ -9,6 +9,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -87,8 +88,15 @@ func goldenRun(t *testing.T) []string {
 }
 
 func TestGoldenFace64(t *testing.T) {
+	// The hashes cover raw float64 bits. The Go compiler fuses a*b+c into a
+	// single FMA instruction on arm64 (and some other architectures) but not
+	// on amd64, which changes the low bits, so the golden is only
+	// bit-exact on the architecture it was baked on.
+	if runtime.GOARCH != "amd64" {
+		t.Skipf("golden hashes are baked on amd64; GOARCH %s may differ in float64 bits (fused multiply-add)", runtime.GOARCH)
+	}
 	path := filepath.Join("testdata", "golden_face64.json")
-	got := golden{Recipe: "terran/2026/64/20/v2", Hashes: goldenRun(t)}
+	got := golden{Recipe: "terran/2026/64/20/v3", Hashes: goldenRun(t)}
 	if *update {
 		b, _ := json.MarshalIndent(got, "", "  ")
 		if err := os.WriteFile(path, b, 0o644); err != nil {
@@ -128,8 +136,8 @@ func TestTimingBudgetFace128(t *testing.T) {
 	if err := tectonics.Run(p, 1, func(tectonics.Frame) error { return nil }); err != nil {
 		t.Fatal(err)
 	}
-	if d := time.Since(start); d > 60*time.Second {
-		t.Errorf("face 128 × 10 steps took %s, budget 60s", d)
+	if d := time.Since(start); d > 10*time.Second {
+		t.Errorf("face 128 × 10 steps took %s, budget 10s", d)
 	} else {
 		t.Logf("face 128 × 10 steps: %s", d)
 	}
