@@ -20,11 +20,8 @@ func TestBuildPlatesCountsAreasAndThinBoundaries(t *testing.T) {
 	p := testParams(t, 32)
 	th := GenerateThickness(p, 11)
 	labels, plates := BuildPlates(th, p, 11)
-	// mergeSmall legitimately folds plates under MinPlateArea into
-	// neighbours, so the floor here is p.MajorMin (not MajorMin+MinorMin):
-	// see commit message for the measured counts that justified this.
-	if n := len(plates); n < p.MajorMin || n > p.MajorMax+p.MinorMax {
-		t.Fatalf("%d plates, want %d..%d", n, p.MajorMin, p.MajorMax+p.MinorMax)
+	if n := len(plates); n < p.MajorMin+p.MinorMin || n > p.MajorMax+p.MinorMax {
+		t.Fatalf("%d plates, want %d..%d", n, p.MajorMin+p.MinorMin, p.MajorMax+p.MinorMax)
 	}
 	majors, total := 0, 0.0
 	for i, pl := range plates {
@@ -47,6 +44,19 @@ func TestBuildPlatesCountsAreasAndThinBoundaries(t *testing.T) {
 	}
 	if plates[0].Area < plates[len(plates)-1].Area {
 		t.Error("plates not sorted largest first")
+	}
+	if plates[0].Area >= 0.5 {
+		t.Errorf("largest plate covers %g of the sphere, want < 0.5", plates[0].Area)
+	}
+	hasMinor := false
+	for _, pl := range plates {
+		if !pl.Major {
+			hasMinor = true
+			break
+		}
+	}
+	if !hasMinor {
+		t.Error("no minor plates")
 	}
 	// boundaries lie on thin crust: mean thickness of boundary pixels is
 	// below the mean of the whole field.

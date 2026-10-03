@@ -119,23 +119,56 @@ func BuildPlates(th *Grid[float64], p Params, master int64) (*Grid[int32], []Pla
 		}
 	}
 	parent := make([]int32, n)
+	area := make([]float64, n) // pixel count per root; only meaningful while r is a live root
 	for i := range parent {
 		parent[i] = int32(i)
 	}
+	for _, l := range labels.Cells {
+		area[l]++
+	}
 	count := n
 	for count > target && len(divide) > 0 {
-		// pick the thickest divide; ties on the smaller pair for determinism
-		var best pairKey
-		bestV := -1.0
-		for k, v := range divide {
-			if v > bestV || (v == bestV && (k.a < best.a || (k.a == best.a && k.b < best.b))) {
-				best, bestV = k, v
+		// smallest-first absorption: merging the biggest basin into its
+		// thickest neighbour every time is rich-get-richer and starves
+		// minor plates, so instead find the smallest live plate (ties on
+		// lower id) and fold IT into the neighbour across its thickest
+		// shared divide (ties on lower neighbour id). Thin divides survive
+		// longest, so boundaries still fall on thin crust.
+		roots := map[int32]bool{}
+		for k := range divide {
+			roots[k.a] = true
+			roots[k.b] = true
+		}
+		small := int32(-1)
+		smallArea := math.Inf(1)
+		for r := range roots {
+			if area[r] < smallArea || (area[r] == smallArea && r < small) {
+				small, smallArea = r, area[r]
 			}
 		}
-		ra, rb := find(parent, best.a), find(parent, best.b)
-		parent[rb] = ra
+		if small < 0 {
+			break
+		}
+		mergeInto := int32(-1)
+		bestV := -1.0
+		for k, v := range divide {
+			var other int32
+			switch {
+			case k.a == small:
+				other = k.b
+			case k.b == small:
+				other = k.a
+			default:
+				continue
+			}
+			if v > bestV || (v == bestV && other < mergeInto) {
+				mergeInto, bestV = other, v
+			}
+		}
+		parent[small] = mergeInto
+		area[mergeInto] += area[small]
 		count--
-		// re-key every divide that touched rb onto ra
+		// re-key every divide that touched small onto mergeInto
 		next := make(map[pairKey]float64, len(divide))
 		for k, v := range divide {
 			a, b := find(parent, k.a), find(parent, k.b)
