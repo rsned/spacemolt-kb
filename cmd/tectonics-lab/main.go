@@ -15,7 +15,7 @@ import (
 func usage() {
 	fmt.Fprintf(os.Stderr, `usage:
   tectonics-lab run  -planet <id> | -seed <n>  -archetype <%s> [-face 256] [-steps 150] [-set Name=value]... [-out data/tectonics]
-  tectonics-lab serve [-addr :8091] [-data data/tectonics] [-web cmd/tectonics-lab/web]
+  tectonics-lab serve [-addr localhost:8091] [-data data/tectonics] [-web cmd/tectonics-lab/web]
 `, strings.Join(tectonics.Archetypes(), "|"))
 	os.Exit(2)
 }
@@ -50,7 +50,7 @@ func main() {
 		log.Printf("bundle written to %s", dir)
 	case "serve":
 		fs := flag.NewFlagSet("serve", flag.ExitOnError)
-		addr := fs.String("addr", ":8091", "listen address")
+		addr := fs.String("addr", "localhost:8091", "listen address (use :8091 to listen on all interfaces)")
 		data := fs.String("data", "data/tectonics", "bundle root")
 		web := fs.String("web", "cmd/tectonics-lab/web", "viewer assets")
 		_ = fs.Parse(os.Args[2:])

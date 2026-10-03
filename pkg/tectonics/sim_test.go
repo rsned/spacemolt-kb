@@ -53,4 +53,9 @@ func TestValidate(t *testing.T) {
 	if err := Validate(p); err == nil {
 		t.Error("Steps 0 must fail")
 	}
+	p = testParams(t, 16)
+	p.Face = 2048
+	if err := Validate(p); err == nil {
+		t.Error("Face 2048 must fail")
+	}
 }

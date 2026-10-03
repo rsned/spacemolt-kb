@@ -119,7 +119,7 @@
   // ---- state ----
   const sphere = makeGL($('sphere')), cross = makeGL($('cross'));
   const arrows = $('arrows').getContext('2d');
-  let manifest = null, slug = '', frameCache = new Map(), current = 0, playing = false, timer = null;
+  let manifest = null, bundleGen = 0, slug = '', frameCache = new Map(), current = 0, playing = false, timer = null;
   const layer = () => parseInt(document.querySelector('input[name=layer]:checked').value, 10);
 
   function loadImage(url) {
@@ -156,8 +156,8 @@
 
   async function render() {
     if (!manifest) { return; }
-    const i = current, images = await frameImages(i);
-    if (i !== current) { return; }
+    const i = current, gen = bundleGen, images = await frameImages(i);
+    if (i !== current || gen !== bundleGen) { return; }
     for (const [ctx, mode] of [[sphere, 0], [cross, 1]]) {
       const gl = ctx.gl;
       upload(ctx, images);
@@ -173,7 +173,7 @@
   function setFrame(i) { current = Math.max(0, Math.min(manifest.frames.length - 1, i)); $('slider').value = current; render(); }
 
   async function loadBundle(name) {
-    slug = name; frameCache = new Map();
+    bundleGen++; slug = name; frameCache = new Map();
     manifest = await (await fetch(`/bundles/${slug}/manifest.json`)).json();
     $('slider').max = manifest.frames.length - 1;
     $('status').textContent = `${slug}: ${manifest.archetype}, face ${manifest.face}, ${manifest.frames.length} frames, ${manifest.frames[0].plates.length} plates`;
@@ -211,6 +211,7 @@
   $('slider').addEventListener('input', (e) => setFrame(parseInt(e.target.value, 10)));
   document.querySelectorAll('input[name=layer], #showArrows').forEach((el) => el.addEventListener('change', render));
   $('play').addEventListener('click', () => {
+    if (!manifest) { return; }
     playing = !playing; $('play').textContent = playing ? '❚❚' : '▶';
     if (playing) { timer = setInterval(() => setFrame(current + 1 >= manifest.frames.length ? 0 : current + 1), 120); } else { clearInterval(timer); }
   });

@@ -184,7 +184,11 @@ func serve(addr, data, web string) error {
 	if err := os.MkdirAll(data, 0o755); err != nil {
 		return err
 	}
-	fmt.Printf("tectonics-lab viewer on http://localhost%s (bundles: %s)\n", addr, data)
+	host := addr
+	if strings.HasPrefix(host, ":") {
+		host = "localhost" + host
+	}
+	fmt.Printf("tectonics-lab viewer on http://%s (bundles: %s)\n", host, data)
 	srv := &http.Server{Addr: addr, Handler: newServer(data, web).Handler(), ReadHeaderTimeout: 10 * time.Second}
 	return srv.ListenAndServe()
 }

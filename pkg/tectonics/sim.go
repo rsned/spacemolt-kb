@@ -26,12 +26,14 @@ type Frame struct {
 }
 
 // Validate reports whether p's knobs are internally consistent enough to
-// run: positive face size and step count, and sane plate-count and speed
-// ranges.
+// run: a face size in 8..1024, a positive step count, and sane plate-count
+// and speed ranges.
 func Validate(p Params) error {
 	switch {
 	case p.Face < 8:
 		return fmt.Errorf("face %d < 8", p.Face)
+	case p.Face > 1024:
+		return fmt.Errorf("face %d > 1024", p.Face)
 	case p.Steps < 1:
 		return fmt.Errorf("steps %d < 1", p.Steps)
 	case p.KeyframeEvery < 1:
