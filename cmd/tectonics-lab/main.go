@@ -59,6 +59,3 @@ func main() {
 		usage()
 	}
 }
-
-// serve is implemented in Task 10; this stub keeps the package building.
-func serve(_, _, _ string) error { return fmt.Errorf("serve not implemented") }
