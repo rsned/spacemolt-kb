@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"flag"
+	"hash"
 	"hash/fnv"
 	"math"
 	"os"
@@ -21,20 +22,50 @@ type golden struct {
 	Hashes []string `json:"hashes"`
 }
 
+// putF64 writes v's bits to h as 8 little-endian bytes, shared by the grid
+// and plate-row hashing below.
+func putF64(h hash.Hash, v float64) {
+	var b [8]byte
+	bits := math.Float64bits(v)
+	for k := range 8 {
+		b[k] = byte(bits >> (8 * k))
+	}
+	_, _ = h.Write(b[:])
+}
+
 func frameHash(f tectonics.Frame) string {
 	h := fnv.New64a()
-	var b [8]byte
 	for _, v := range f.Th.Cells {
-		bits := math.Float64bits(v)
-		for k := range 8 {
-			b[k] = byte(bits >> (8 * k))
-		}
-		_, _ = h.Write(b[:])
+		putF64(h, v)
 	}
 	for _, v := range f.Labels.Cells {
 		_, _ = h.Write([]byte{byte(v), byte(v >> 8)})
 	}
 	_, _ = h.Write(f.Feature.Cells)
+	for _, pl := range f.Plates {
+		var idb [4]byte
+		id := uint32(pl.ID)
+		for k := range 4 {
+			idb[k] = byte(id >> (8 * k))
+		}
+		_, _ = h.Write(idb[:])
+		for _, c := range pl.Centroid {
+			putF64(h, c)
+		}
+		for _, c := range pl.Pole {
+			putF64(h, c)
+		}
+		putF64(h, pl.SpeedCmYr)
+		putF64(h, pl.Area)
+		var major, retired byte
+		if pl.Major {
+			major = 1
+		}
+		if pl.Retired {
+			retired = 1
+		}
+		_, _ = h.Write([]byte{major, retired})
+	}
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -57,7 +88,7 @@ func goldenRun(t *testing.T) []string {
 
 func TestGoldenFace64(t *testing.T) {
 	path := filepath.Join("testdata", "golden_face64.json")
-	got := golden{Recipe: "terran/2026/64/20", Hashes: goldenRun(t)}
+	got := golden{Recipe: "terran/2026/64/20/v2", Hashes: goldenRun(t)}
 	if *update {
 		b, _ := json.MarshalIndent(got, "", "  ")
 		if err := os.WriteFile(path, b, 0o644); err != nil {
