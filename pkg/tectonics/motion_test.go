@@ -81,3 +81,27 @@ func TestReaimBlendsTowardNewPush(t *testing.T) {
 		t.Error("reaim must not change speed")
 	}
 }
+
+// Earth's plate speeds are bottom-heavy: the default skew of 2 puts the mean
+// at min + range/3 while the top of the range is still reachable.
+func TestDrawSpeedSkewsSlow(t *testing.T) {
+	p := testParams(t, 16)
+	p.SpeedMinCmYr, p.SpeedMaxCmYr, p.SpeedSkew = 3, 10, 2
+	rng := newRNG(5, "test")
+	sum, hi := 0.0, 0.0
+	const n = 20000
+	for range n {
+		s := drawSpeed(rng, p)
+		if s < 3 || s > 10 {
+			t.Fatalf("speed %g outside 3..10", s)
+		}
+		sum += s
+		hi = math.Max(hi, s)
+	}
+	if mean := sum / n; math.Abs(mean-(3+7.0/3)) > 0.1 {
+		t.Errorf("mean %g, want ~5.33", mean)
+	}
+	if hi < 9.5 {
+		t.Errorf("fast tail unreachable: max %g", hi)
+	}
+}

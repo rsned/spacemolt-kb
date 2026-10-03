@@ -45,6 +45,8 @@ func Validate(p Params) error {
 		return fmt.Errorf("plate count ranges %d-%d / %d-%d invalid", p.MajorMin, p.MajorMax, p.MinorMin, p.MinorMax)
 	case p.SpeedMinCmYr < 0 || p.SpeedMaxCmYr < p.SpeedMinCmYr:
 		return fmt.Errorf("speed range %g-%g invalid", p.SpeedMinCmYr, p.SpeedMaxCmYr)
+	case p.SpeedSkew <= 0:
+		return fmt.Errorf("SpeedSkew %g must be positive", p.SpeedSkew)
 	case p.RepoleEveryMyr <= 0:
 		return fmt.Errorf("RepoleEveryMyr %g must be positive", p.RepoleEveryMyr)
 	case p.ReaimFresh < 0 || p.ReaimFresh > 1:

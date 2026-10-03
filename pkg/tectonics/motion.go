@@ -94,12 +94,20 @@ func pushDirection(th *Grid[float64], labels *Grid[int32], id int32, c [3]float6
 
 func poleFor(c, t [3]float64) [3]float64 { return unit(cross(c, t)) }
 
+// drawSpeed samples a plate speed in [SpeedMinCmYr, SpeedMaxCmYr]. The draw
+// is skewed toward the slow end (u^SpeedSkew): Earth's speed distribution is
+// bottom-heavy, most plates crawl and a few race, so a uniform draw gave an
+// area-weighted mean ~35% above Earth's while the fast tail matched.
+func drawSpeed(rng *rand.Rand, p Params) float64 {
+	return p.SpeedMinCmYr + math.Pow(rng.Float64(), p.SpeedSkew)*(p.SpeedMaxCmYr-p.SpeedMinCmYr)
+}
+
 // InitMotion draws each plate's speed and push direction.
 func InitMotion(th *Grid[float64], labels *Grid[int32], plates []Plate, p Params, master int64) []Motion {
 	rng := newRNG(master, "plates.motion")
 	ms := make([]Motion, len(plates))
 	for i, pl := range plates {
-		speed := p.SpeedMinCmYr + rng.Float64()*(p.SpeedMaxCmYr-p.SpeedMinCmYr)
+		speed := drawSpeed(rng, p)
 		t := pushDirection(th, labels, pl.ID, pl.Centroid)
 		jitter := (rng.Float64()*2 - 1) * p.PushJitterDeg
 		if dot(t, t) == 0 { // no boundary: pick any tangent

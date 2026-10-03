@@ -11,7 +11,7 @@ func TestDefaultParamsPerArchetype(t *testing.T) {
 	if p.Face != 256 || p.Steps != 400 || p.KeyframeEvery != 4 || p.MajorMin != 6 || p.MajorMax != 9 || p.TimelineMyr != 800 {
 		t.Errorf("terran defaults %+v", p)
 	}
-	if p.SpeedMinCmYr != 3 || p.SpeedMaxCmYr != 10 || p.DominantMin != 0.20 || p.DominantMax != 0.35 || p.RepoleEveryMyr != 25 || p.ReaimFresh != 0.75 {
+	if p.SpeedMinCmYr != 3 || p.SpeedMaxCmYr != 10 || p.DominantMin != 0.20 || p.DominantMax != 0.35 || p.RepoleEveryMyr != 25 || p.ReaimFresh != 0.75 || p.SpeedSkew != 2 {
 		t.Errorf("terran tuning defaults %+v", p)
 	}
 	if got := p.MyrPerStep(); got != 2 {

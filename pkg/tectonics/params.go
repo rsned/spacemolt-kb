@@ -39,6 +39,7 @@ type Params struct {
 
 	// Motion
 	SpeedMinCmYr, SpeedMaxCmYr float64
+	SpeedSkew                  float64 // exponent on the uniform draw; 1 = uniform, 2 = bottom-heavy like Earth
 	TimelineMyr                float64
 	RadiusKm                   float64
 	RepoleEveryMyr             float64 // plates re-aim toward their thinnest seam this often
@@ -105,7 +106,7 @@ func DefaultParams(archetype string) (Params, error) {
 		NoiseFreq: 2, NoiseOctaves: 3, WarpAmp: 0.3, MaxNeighborDelta: 0.05, RelaxIters: 2, CrustBias: a.crustBias,
 		MajorMin: a.majorMin, MajorMax: a.majorMax, MinorMin: a.minorMin, MinorMax: a.minorMax, MinPlateArea: 0.002,
 		DominantMin: 0.20, DominantMax: 0.35, DominantSlack: 6,
-		SpeedMinCmYr: a.speedMin, SpeedMaxCmYr: a.speedMax, TimelineMyr: a.timeline, RadiusKm: 6371,
+		SpeedMinCmYr: a.speedMin, SpeedMaxCmYr: a.speedMax, SpeedSkew: 2, TimelineMyr: a.timeline, RadiusKm: 6371,
 		RepoleEveryMyr: 25, ReaimFresh: 0.75, PushJitterDeg: 20,
 		RidgeThickness: 0.15, RidgeJitter: 0.03, OceanicThickening: 0.01, TransformRatio: 2, ContinentalThreshold: 0.5,
 		CollisionUplift: 0.01, TrenchDepth: 0.03, TrenchWidth: 3, ArcUplift: 0.01, ArcOffset: 4, FaultScar: 0.02,
