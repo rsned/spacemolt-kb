@@ -5,10 +5,19 @@ import (
 	"math/rand/v2"
 )
 
+// Motion is one plate's rigid rotation about an Euler pole.
 type Motion struct {
 	Pole       [3]float64 // unit rotation axis (right-handed)
 	DegPerStep float64
 	SpeedCmYr  float64
+	// Pending is rotation (degrees) owed but not yet applied. Step resamples
+	// nearest-pixel, so a sub-pixel rotation would be quantised away every
+	// step; instead DegPerStep accumulates here and Step applies only whole
+	// rim-pixel angles (90/S degrees), carrying the remainder. Slow plates
+	// therefore move in discrete one-pixel hops at the correct long-run rate.
+	// The proper fix is a per-plate cumulative rotation sampled from a
+	// reference frame (Lagrangian advection); that is future work.
+	Pending float64
 }
 
 func dot(a, b [3]float64) float64 { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] }
@@ -115,9 +124,10 @@ func Reaim(th *Grid[float64], labels *Grid[int32], plates []Plate, ms []Motion, 
 			continue
 		}
 		old := unit(tangent(velocityAt(ms[i], pl.Centroid), pl.Centroid))
-		blend := unit(add(scale(old, 0.5), scale(fresh, 0.5)))
-		if dot(blend, blend) < 1e-12 {
-			blend = fresh
+		sum := add(scale(old, 0.5), scale(fresh, 0.5))
+		blend := fresh // old and fresh cancel: unit() would not return zero, so test the raw sum
+		if dot(sum, sum) >= 1e-12 {
+			blend = unit(sum)
 		}
 		blend = rotate(blend, pl.Centroid, (rng.Float64()*2-1)*p.PushJitterDeg*0.5)
 		ms[i].Pole = poleFor(pl.Centroid, unit(tangent(blend, pl.Centroid)))

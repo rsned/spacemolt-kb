@@ -59,8 +59,8 @@ type claim struct {
 
 // capCos returns, per plate, the cosine of the angular radius of its
 // bounding cap around its centroid, widened by a two-pixel margin and the
-// plate's step rotation.
-func (s *State) capCos() []float64 {
+// larger of the plate's nominal and applied step rotation.
+func (s *State) capCos(applied []float64) []float64 {
 	dirs := Dirs(s.Th.S)
 	minCos := make([]float64, len(s.Plates))
 	for i := range minCos {
@@ -74,7 +74,8 @@ func (s *State) capCos() []float64 {
 	}
 	margin := 2.0 * (90.0 / float64(s.Th.S)) * math.Pi / 180
 	for i, c := range minCos {
-		ang := math.Acos(math.Max(-1, math.Min(1, c))) + margin + s.Motions[i].DegPerStep*math.Pi/180
+		rot := math.Max(math.Abs(s.Motions[i].DegPerStep), math.Abs(applied[i]))
+		ang := math.Acos(math.Max(-1, math.Min(1, c))) + margin + rot*math.Pi/180
 		minCos[i] = math.Cos(math.Min(ang, math.Pi))
 	}
 	return minCos
@@ -96,7 +97,20 @@ func (s *State) Step(rng *rand.Rand) {
 	th, labels, age := NewGrid[float64](S), NewGrid[int32](S), NewGrid[uint16](S)
 	featType, featAge := NewGrid[uint8](S), NewGrid[uint8](S)
 	stamped := make([]bool, N)
-	capc := s.capCos()
+
+	// 0. whole-pixel rotation owed this step (see Motion.Pending)
+	pixelDeg := 90.0 / float64(S)
+	applied := make([]float64, len(s.Plates))
+	for k, pl := range s.Plates {
+		if pl.Retired {
+			continue
+		}
+		m := &s.Motions[k]
+		m.Pending += m.DegPerStep
+		applied[k] = math.Round(m.Pending/pixelDeg) * pixelDeg
+		m.Pending -= applied[k]
+	}
+	capc := s.capCos(applied)
 
 	// 1. claims
 	claims := make([][]claim, N)
@@ -109,9 +123,12 @@ func (s *State) Step(rng *rand.Rand) {
 			if dot(dirs[i], pl.Centroid) < capc[k] {
 				continue
 			}
-			src := rotate(dirs[i], m.Pole, -m.DegPerStep)
-			f, px, py := cubemap.DirToFacePixel(src[0], src[1], src[2], S)
-			j := prevL.Index(f, px, py)
+			j := i // applied 0: identity claim, no drift and no gaps
+			if applied[k] != 0 {
+				src := rotate(dirs[i], m.Pole, -applied[k])
+				f, px, py := cubemap.DirToFacePixel(src[0], src[1], src[2], S)
+				j = prevL.Index(f, px, py)
+			}
 			if prevL.Cells[j] == int32(k) {
 				claims[i] = append(claims[i], claim{int32(k), prevTh.Cells[j], prevAge.Cells[j], prevFT.Cells[j], prevFA.Cells[j]})
 			}
@@ -309,10 +326,12 @@ func (s *State) trenchAndArc(th *Grid[float64], labels *Grid[int32], trenches []
 }
 
 // retire folds plates under MinPlateArea into their most-shared neighbour and
-// keeps the Retired flag on plates that already were.
+// carries the Retired and Major flags forward, since PlateStats rebuilds the
+// plate table without them.
 func (s *State) retire(stats []Plate) []Plate {
 	for i := range stats {
 		stats[i].Retired = stats[i].Retired || s.Plates[i].Retired
+		stats[i].Major = s.Plates[i].Major
 	}
 	nb := Neighbors4(s.Th.S)
 	for i := range stats {
@@ -347,6 +366,7 @@ func (s *State) retire(stats []Plate) []Plate {
 		stats = PlateStats(s.Th, s.Labels, len(stats))
 		for k := range stats {
 			stats[k].Retired = stats[k].Retired || s.Plates[k].Retired
+			stats[k].Major = s.Plates[k].Major
 		}
 		stats[i].Retired = true
 	}

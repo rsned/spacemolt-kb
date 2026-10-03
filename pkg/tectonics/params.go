@@ -126,7 +126,9 @@ func (p *Params) Set(name, value string) error {
 		}
 		f.SetFloat(x)
 	case reflect.String:
-		f.SetString(value)
+		// String knobs (Archetype) identify the run; overriding one would
+		// desync the bundle slug and manifest from the knobs actually used.
+		return fmt.Errorf("knob %s: string knobs cannot be overridden", name)
 	default:
 		return fmt.Errorf("knob %s: unsupported kind %s", name, f.Kind())
 	}

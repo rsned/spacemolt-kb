@@ -36,6 +36,9 @@ func TestParamsSet(t *testing.T) {
 	if err := p.Set("Steps", "x"); err == nil {
 		t.Error("bad value must error")
 	}
+	if err := p.Set("Archetype", "x"); err == nil || p.Archetype == "x" {
+		t.Errorf("string knob must error and stay unchanged: %v %q", err, p.Archetype)
+	}
 }
 
 func TestSeedForPlanetStable(t *testing.T) {

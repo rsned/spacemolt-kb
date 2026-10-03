@@ -3,6 +3,8 @@ package tectonics
 import (
 	"math"
 	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 )
 
 func stepState(t *testing.T, S int, thN, thS float64, poleN, poleS [3]float64, degN, degS float64) *State {
@@ -136,6 +138,17 @@ func TestStepTransformFault(t *testing.T) {
 func TestStepAreaConservedAndDeterministic(t *testing.T) {
 	a := stepState(t, 16, 0.8, 0.3, [3]float64{1, 0, 0}, [3]float64{0, 1, 0}, 3, 2)
 	b := stepState(t, 16, 0.8, 0.3, [3]float64{1, 0, 0}, [3]float64{0, 1, 0}, 3, 2)
+	a.Plates[0].Major, b.Plates[0].Major = true, true
+	countMajor := func(s *State) int {
+		n := 0
+		for _, pl := range s.Plates {
+			if pl.Major {
+				n++
+			}
+		}
+		return n
+	}
+	majorsBefore := countMajor(a)
 	for range 5 {
 		a.Step(newRNG(9, "t"))
 		b.Step(newRNG(9, "t"))
@@ -151,6 +164,9 @@ func TestStepAreaConservedAndDeterministic(t *testing.T) {
 	}
 	if math.Abs(total-1) > 1e-9 {
 		t.Errorf("areas sum to %g", total)
+	}
+	if got := countMajor(a); got != majorsBefore {
+		t.Errorf("%d major plates after stepping, want %d", got, majorsBefore)
 	}
 	if fb := a.FeatureByte(0); fb>>6 != uint8(a.FeatType.Cells[0]) {
 		t.Errorf("feature byte %08b", fb)
@@ -171,5 +187,71 @@ func TestStepTransformScarsOnce(t *testing.T) {
 	}
 	if countFeat(s, FeatTransform) == 0 {
 		t.Error("no transform pixels after 5 steps")
+	}
+}
+
+func TestStepSlowPlateStillDrifts(t *testing.T) {
+	// A plate moving 0.3 rim-pixels per step must still drift: the pending
+	// rotation accumulates until it reaches a whole pixel, then hops.
+	S := 32
+	pixelDeg := 90.0 / float64(S)
+	th := NewGrid[float64](S)
+	labels := NewGrid[int32](S)
+	for i, d := range Dirs(S) {
+		th.Cells[i] = 0.5 + 0.3*d[0]
+	}
+	p := testParams(t, S)
+	p.RelaxIters = 0
+	s := NewState(p, th, labels, PlateStats(th, labels, 1), []Motion{{Pole: [3]float64{0, 0, 1}, DegPerStep: 0.3 * pixelDeg}})
+	rng := newRNG(1, "t")
+	for range 20 {
+		s.Step(rng)
+	}
+	if n := countFeat(s, FeatDivergent); n != 0 {
+		t.Errorf("%d divergent pixels on a one-plate world", n)
+	}
+	best, bi := -1.0, 0
+	for i, v := range s.Th.Cells {
+		if v > best {
+			best, bi = v, i
+		}
+	}
+	d := Dirs(S)[bi]
+	got := math.Atan2(d[1], d[0]) * 180 / math.Pi
+	t.Logf("thickest pixel rotated %.3f deg (rigid expectation %.3f)", got, 20*0.3*pixelDeg)
+	if want := 0.5 * 20 * 0.3 * pixelDeg; got < want {
+		t.Errorf("thickest pixel rotated %.3f deg about z, want >= %.3f", got, want)
+	}
+}
+
+func TestStepBeltMovesWithPlate(t *testing.T) {
+	// A carried feature advects with its plate: one pixel-angle of rotation
+	// about z moves a convergent mark to the forward-rotated pixel, aged by one.
+	S := 32
+	pixelDeg := 90.0 / float64(S)
+	th := NewGrid[float64](S)
+	labels := NewGrid[int32](S)
+	for i := range th.Cells {
+		th.Cells[i] = 0.8
+	}
+	p := testParams(t, S)
+	p.RelaxIters = 0
+	s := NewState(p, th, labels, PlateStats(th, labels, 1), []Motion{{Pole: [3]float64{0, 0, 1}, DegPerStep: pixelDeg}})
+	dirs := Dirs(S)
+	f, px, py := cubemap.DirToFacePixel(1, 0.01, 0.01, S) // just off +x on the equator
+	i0 := s.Th.Index(f, px, py)
+	s.FeatType.Cells[i0], s.FeatAge.Cells[i0] = FeatConvergent, 5
+	want := rotate(dirs[i0], [3]float64{0, 0, 1}, pixelDeg)
+	f, px, py = cubemap.DirToFacePixel(want[0], want[1], want[2], S)
+	i1 := s.Th.Index(f, px, py)
+	if i1 == i0 {
+		t.Fatal("test setup: rotation did not leave the pixel")
+	}
+	s.Step(newRNG(1, "t"))
+	if s.FeatType.Cells[i1] != FeatConvergent || s.FeatAge.Cells[i1] != 6 {
+		t.Errorf("destination pixel feature %d age %d, want convergent age 6", s.FeatType.Cells[i1], s.FeatAge.Cells[i1])
+	}
+	if s.FeatType.Cells[i0] == FeatConvergent && s.FeatAge.Cells[i0] == 6 {
+		t.Error("original pixel still carries the belt")
 	}
 }
