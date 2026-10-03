@@ -96,7 +96,7 @@ func TestGoldenFace64(t *testing.T) {
 		t.Skipf("golden hashes are baked on amd64; GOARCH %s may differ in float64 bits (fused multiply-add)", runtime.GOARCH)
 	}
 	path := filepath.Join("testdata", "golden_face64.json")
-	got := golden{Recipe: "terran/2026/64/20/v3", Hashes: goldenRun(t)}
+	got := golden{Recipe: "terran/2026/64/20/v4", Hashes: goldenRun(t)}
 	if *update {
 		b, _ := json.MarshalIndent(got, "", "  ")
 		if err := os.WriteFile(path, b, 0o644); err != nil {

@@ -1,6 +1,9 @@
 package tectonics
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 // PlateRow is one plate's state as emitted in a Frame.
 type PlateRow struct {
@@ -42,10 +45,19 @@ func Validate(p Params) error {
 		return fmt.Errorf("plate count ranges %d-%d / %d-%d invalid", p.MajorMin, p.MajorMax, p.MinorMin, p.MinorMax)
 	case p.SpeedMinCmYr < 0 || p.SpeedMaxCmYr < p.SpeedMinCmYr:
 		return fmt.Errorf("speed range %g-%g invalid", p.SpeedMinCmYr, p.SpeedMaxCmYr)
-	case p.RepoleEvery < 1:
-		return fmt.Errorf("RepoleEvery %d < 1", p.RepoleEvery)
+	case p.RepoleEveryMyr <= 0:
+		return fmt.Errorf("RepoleEveryMyr %g must be positive", p.RepoleEveryMyr)
+	case p.ReaimFresh < 0 || p.ReaimFresh > 1:
+		return fmt.Errorf("ReaimFresh %g outside 0..1", p.ReaimFresh)
+	case p.DominantMin < 0 || p.DominantMax < p.DominantMin || p.DominantMax > 0.9 || p.DominantSlack < 0:
+		return fmt.Errorf("dominant share range %g-%g (slack %d) invalid", p.DominantMin, p.DominantMax, p.DominantSlack)
 	}
 	return nil
+}
+
+// repoleSteps converts RepoleEveryMyr into a step interval, at least 1.
+func repoleSteps(p Params) int {
+	return max(1, int(math.Round(p.RepoleEveryMyr/p.MyrPerStep())))
 }
 
 // Snapshot copies the current grids and plate table into a Frame at the
@@ -82,7 +94,7 @@ func Run(p Params, master int64, emit func(Frame) error) error {
 	}
 	for step := 1; step <= p.Steps; step++ {
 		s.Step(stepRNG)
-		if step%p.RepoleEvery == 0 {
+		if step%repoleSteps(p) == 0 {
 			Reaim(s.Th, s.Labels, s.Plates, s.Motions, p, reaimRNG)
 		}
 		if step%p.KeyframeEvery == 0 || step == p.Steps {

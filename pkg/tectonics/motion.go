@@ -124,7 +124,7 @@ func Reaim(th *Grid[float64], labels *Grid[int32], plates []Plate, ms []Motion, 
 			continue
 		}
 		old := unit(tangent(velocityAt(ms[i], pl.Centroid), pl.Centroid))
-		sum := add(scale(old, 0.5), scale(fresh, 0.5))
+		sum := add(scale(old, 1-p.ReaimFresh), scale(fresh, p.ReaimFresh))
 		blend := fresh // old and fresh cancel: unit() would not return zero, so test the raw sum
 		if dot(sum, sum) >= 1e-12 {
 			blend = unit(sum)

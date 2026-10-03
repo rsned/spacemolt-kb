@@ -127,49 +127,56 @@ func BuildPlates(th *Grid[float64], p Params, master int64) (*Grid[int32], []Pla
 		area[l]++
 	}
 	count := n
-	for count > target && len(divide) > 0 {
-		// smallest-first absorption: merging the biggest basin into its
-		// thickest neighbour every time is rich-get-richer and starves
-		// minor plates, so instead find the smallest live plate (ties on
-		// lower id) and fold IT into the neighbour across its thickest
-		// shared divide (ties on lower neighbour id). Thin divides survive
-		// longest, so boundaries still fall on thin crust.
+	// extremeRoot returns the live root with the smallest (or largest) area,
+	// ties on the lower id; -1 when no divides remain.
+	extremeRoot := func(largest bool) int32 {
 		roots := map[int32]bool{}
 		for k := range divide {
 			roots[k.a] = true
 			roots[k.b] = true
 		}
-		small := int32(-1)
-		smallArea := math.Inf(1)
+		best := int32(-1)
+		bestArea := math.Inf(1)
+		if largest {
+			bestArea = math.Inf(-1)
+		}
 		for r := range roots {
-			if area[r] < smallArea || (area[r] == smallArea && r < small) {
-				small, smallArea = r, area[r]
+			better := area[r] < bestArea
+			if largest {
+				better = area[r] > bestArea
+			}
+			if better || (area[r] == bestArea && r < best) {
+				best, bestArea = r, area[r]
 			}
 		}
-		if small < 0 {
-			break
-		}
-		mergeInto := int32(-1)
+		return best
+	}
+	// thickestNeighbour returns the root across r's thickest shared divide
+	// (ties on the lower neighbour id), the least seam-like boundary to erase.
+	thickestNeighbour := func(r int32) int32 {
+		other := int32(-1)
 		bestV := -1.0
 		for k, v := range divide {
-			var other int32
+			var o int32
 			switch {
-			case k.a == small:
-				other = k.b
-			case k.b == small:
-				other = k.a
+			case k.a == r:
+				o = k.b
+			case k.b == r:
+				o = k.a
 			default:
 				continue
 			}
-			if v > bestV || (v == bestV && other < mergeInto) {
-				mergeInto, bestV = other, v
+			if v > bestV || (v == bestV && o < other) {
+				other, bestV = o, v
 			}
 		}
-		parent[small] = mergeInto
-		area[mergeInto] += area[small]
+		return other
+	}
+	merge := func(from, into int32) {
+		parent[from] = into
+		area[into] += area[from]
 		count--
-		// re-key every divide that touched small onto mergeInto
-		next := make(map[pairKey]float64, len(divide))
+		next := make(map[pairKey]float64, len(divide)) // re-key divides that touched from
 		for k, v := range divide {
 			a, b := find(parent, k.a), find(parent, k.b)
 			if a == b {
@@ -181,6 +188,38 @@ func BuildPlates(th *Grid[float64], p Params, master int64) (*Grid[int32], []Pla
 			}
 		}
 		divide = next
+	}
+	// Phase 1, smallest-first absorption down to target+slack: merging the
+	// biggest basin into its thickest neighbour every time is rich-get-richer
+	// and starves minor plates, so the smallest live plate folds into the
+	// neighbour across its thickest divide. Thin divides survive longest, so
+	// boundaries still fall on thin crust.
+	for count > target+p.DominantSlack && len(divide) > 0 {
+		small := extremeRoot(false)
+		if small < 0 {
+			break
+		}
+		merge(small, thickestNeighbour(small))
+	}
+	// Phase 2, a dominant plate: Earth keeps one plate near 0.3 of the
+	// sphere, while balanced merging tops out near 0.15. Grow the largest
+	// plate across its thickest divides until it reaches a seeded share.
+	share := p.DominantMin + rng.Float64()*(p.DominantMax-p.DominantMin)
+	total := float64(th.Len())
+	for count > target && len(divide) > 0 {
+		big := extremeRoot(true)
+		if big < 0 || area[big]/total >= share {
+			break
+		}
+		merge(thickestNeighbour(big), big)
+	}
+	// Phase 3, smallest-first again down to the target count.
+	for count > target && len(divide) > 0 {
+		small := extremeRoot(false)
+		if small < 0 {
+			break
+		}
+		merge(small, thickestNeighbour(small))
 	}
 	for i, l := range labels.Cells {
 		labels.Cells[i] = find(parent, l)

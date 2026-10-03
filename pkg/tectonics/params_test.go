@@ -8,11 +8,14 @@ func TestDefaultParamsPerArchetype(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p.Face != 256 || p.Steps != 150 || p.MajorMin != 6 || p.MajorMax != 9 || p.TimelineMyr != 800 {
+	if p.Face != 256 || p.Steps != 400 || p.KeyframeEvery != 4 || p.MajorMin != 6 || p.MajorMax != 9 || p.TimelineMyr != 800 {
 		t.Errorf("terran defaults %+v", p)
 	}
-	if got := p.MyrPerStep(); got < 5.3 || got > 5.4 {
-		t.Errorf("MyrPerStep %g", got)
+	if p.SpeedMinCmYr != 3 || p.SpeedMaxCmYr != 10 || p.DominantMin != 0.20 || p.DominantMax != 0.35 || p.RepoleEveryMyr != 25 || p.ReaimFresh != 0.75 {
+		t.Errorf("terran tuning defaults %+v", p)
+	}
+	if got := p.MyrPerStep(); got != 2 {
+		t.Errorf("MyrPerStep %g, want 2", got)
 	}
 	if _, err := DefaultParams("jovian"); err == nil {
 		t.Error("jovian must be refused")

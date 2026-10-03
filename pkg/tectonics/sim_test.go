@@ -58,4 +58,23 @@ func TestValidate(t *testing.T) {
 	if err := Validate(p); err == nil {
 		t.Error("Face 2048 must fail")
 	}
+	p = testParams(t, 16)
+	p.RepoleEveryMyr = 0
+	if err := Validate(p); err == nil {
+		t.Error("RepoleEveryMyr 0 must fail")
+	}
+	p = testParams(t, 16)
+	p.DominantMax = 0.1
+	if err := Validate(p); err == nil {
+		t.Error("DominantMax below DominantMin must fail")
+	}
+	p = testParams(t, 16)
+	p.Steps, p.TimelineMyr, p.RepoleEveryMyr = 400, 800, 25
+	if got := repoleSteps(p); got != 13 {
+		t.Errorf("repoleSteps = %d, want 13 (25 Myr at 2 Myr per step is 12.5, rounded half up)", got)
+	}
+	p.RepoleEveryMyr = 0.5
+	if got := repoleSteps(p); got != 1 {
+		t.Errorf("repoleSteps = %d, want the floor of 1", got)
+	}
 }

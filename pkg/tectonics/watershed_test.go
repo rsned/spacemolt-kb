@@ -48,6 +48,11 @@ func TestBuildPlatesCountsAreasAndThinBoundaries(t *testing.T) {
 	if plates[0].Area >= 0.5 {
 		t.Errorf("largest plate covers %g of the sphere, want < 0.5", plates[0].Area)
 	}
+	// the dominant-plate phase lifts the largest plate to a seeded share of
+	// DominantMin..DominantMax (Earth keeps one plate near 0.3)
+	if plates[0].Area < p.DominantMin-0.02 {
+		t.Errorf("largest plate %g below the dominant share floor %g", plates[0].Area, p.DominantMin)
+	}
 	hasMinor := false
 	for _, pl := range plates {
 		if !pl.Major {

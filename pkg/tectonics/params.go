@@ -30,12 +30,19 @@ type Params struct {
 	MajorMin, MajorMax int
 	MinorMin, MinorMax int
 	MinPlateArea       float64 // fraction of the sphere
+	// DominantMin..DominantMax: seeded target share of the sphere for the
+	// largest plate (Earth keeps one plate near 0.3: Panthalassa, then the
+	// Pacific). DominantSlack is how many extra plates the first merge phase
+	// keeps so growing the dominant plate does not undershoot the count.
+	DominantMin, DominantMax float64
+	DominantSlack            int
 
 	// Motion
 	SpeedMinCmYr, SpeedMaxCmYr float64
 	TimelineMyr                float64
 	RadiusKm                   float64
-	RepoleEvery                int
+	RepoleEveryMyr             float64 // plates re-aim toward their thinnest seam this often
+	ReaimFresh                 float64 // weight of the fresh push direction in a re-aim (0..1)
 	PushJitterDeg              float64
 
 	// Interactions
@@ -58,9 +65,9 @@ type archetypeRow struct {
 }
 
 var archetypes = map[string]archetypeRow{
-	"terran":       {6, 9, 10, 16, 3, 8, 800, 0},
-	"super_terran": {6, 9, 10, 16, 3, 8, 800, 0},
-	"oceanic":      {6, 9, 10, 16, 3, 8, 800, -0.15},
+	"terran":       {6, 9, 10, 16, 3, 10, 800, 0},
+	"super_terran": {6, 9, 10, 16, 3, 10, 800, 0},
+	"oceanic":      {6, 9, 10, 16, 3, 10, 800, -0.15},
 	"arid":         {4, 7, 8, 12, 2, 5, 600, 0},
 	"tundra":       {4, 7, 8, 12, 2, 5, 600, 0},
 	"glacial":      {4, 7, 8, 12, 2, 5, 600, 0},
@@ -94,10 +101,12 @@ func DefaultParams(archetype string) (Params, error) {
 	}
 
 	return Params{
-		Archetype: archetype, Face: 256, Steps: 150, KeyframeEvery: 1,
+		Archetype: archetype, Face: 256, Steps: 400, KeyframeEvery: 4,
 		NoiseFreq: 2, NoiseOctaves: 3, WarpAmp: 0.3, MaxNeighborDelta: 0.05, RelaxIters: 2, CrustBias: a.crustBias,
 		MajorMin: a.majorMin, MajorMax: a.majorMax, MinorMin: a.minorMin, MinorMax: a.minorMax, MinPlateArea: 0.002,
-		SpeedMinCmYr: a.speedMin, SpeedMaxCmYr: a.speedMax, TimelineMyr: a.timeline, RadiusKm: 6371, RepoleEvery: 25, PushJitterDeg: 20,
+		DominantMin: 0.20, DominantMax: 0.35, DominantSlack: 6,
+		SpeedMinCmYr: a.speedMin, SpeedMaxCmYr: a.speedMax, TimelineMyr: a.timeline, RadiusKm: 6371,
+		RepoleEveryMyr: 25, ReaimFresh: 0.75, PushJitterDeg: 20,
 		RidgeThickness: 0.15, RidgeJitter: 0.03, OceanicThickening: 0.01, TransformRatio: 2, ContinentalThreshold: 0.5,
 		CollisionUplift: 0.01, TrenchDepth: 0.03, TrenchWidth: 3, ArcUplift: 0.01, ArcOffset: 4, FaultScar: 0.02,
 	}, nil
