@@ -156,3 +156,20 @@ func TestStepAreaConservedAndDeterministic(t *testing.T) {
 		t.Errorf("feature byte %08b", fb)
 	}
 }
+
+func TestStepTransformScarsOnce(t *testing.T) {
+	// Pure shear along a persistent seam: the same pixels stay on the fault
+	// every step, but must only be scarred when the fault first forms.
+	s := stepState(t, 24, 0.8, 0.8, [3]float64{0, 0, 1}, [3]float64{0, 0, -1}, 4, 4)
+	for range 5 {
+		s.Step(newRNG(1, "t"))
+	}
+	for i, v := range s.Th.Cells {
+		if v < 0.8-s.P.FaultScar-1e-9 {
+			t.Fatalf("pixel %d thickness %g: scarred more than once", i, v)
+		}
+	}
+	if countFeat(s, FeatTransform) == 0 {
+		t.Error("no transform pixels after 5 steps")
+	}
+}

@@ -151,8 +151,10 @@ func (s *State) Step(rng *rand.Rand) {
 			tang := math.Sqrt(math.Max(0, dot(rel, rel)-normal*normal))
 			switch {
 			case tang > s.P.TransformRatio*normal:
+				if a.ft != FeatTransform { // scar only when the fault first forms
+					th.Cells[i] = math.Max(0, th.Cells[i]-s.P.FaultScar)
+				}
 				featType.Cells[i] = FeatTransform
-				th.Cells[i] = math.Max(0, th.Cells[i]-s.P.FaultScar)
 			case a.th >= s.P.ContinentalThreshold && b.th >= s.P.ContinentalThreshold:
 				featType.Cells[i] = FeatConvergent
 				th.Cells[i] = math.Min(1, th.Cells[i]+s.P.CollisionUplift)
@@ -248,9 +250,11 @@ func (s *State) shearPass(th *Grid[float64], labels *Grid[int32], featType, feat
 			normal := math.Abs(dot(rel, n))
 			tang := math.Sqrt(math.Max(0, rr-normal*normal))
 			if rr > 1e-18 && tang > s.P.TransformRatio*normal {
+				if featType.Cells[i] != FeatTransform { // carried feature: scar only on first stamping
+					th.Cells[i] = math.Max(0, th.Cells[i]-s.P.FaultScar)
+				}
 				featType.Cells[i] = FeatTransform
 				featAge.Cells[i] = 0
-				th.Cells[i] = math.Max(0, th.Cells[i]-s.P.FaultScar)
 				stamped[i] = true
 				break
 			}
