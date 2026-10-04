@@ -120,24 +120,30 @@ func InitMotion(th *Grid[float64], labels *Grid[int32], plates []Plate, p Params
 	return ms
 }
 
-// Reaim blends each plate's current push direction with a fresh one computed
-// from its present thinnest boundary, so locked plates slowly turn away.
+// reaimPlate blends one plate's current push direction with a fresh one from
+// its present thinnest boundary (weight p.ReaimFresh), so locked plates turn
+// away and a freshly rifted plate pushes off its new ridge.
+func reaimPlate(th *Grid[float64], labels *Grid[int32], pl Plate, m *Motion, p Params, rng *rand.Rand) {
+	fresh := pushDirection(th, labels, pl.ID, pl.Centroid)
+	if dot(fresh, fresh) == 0 {
+		return
+	}
+	old := unit(tangent(velocityAt(*m, pl.Centroid), pl.Centroid))
+	sum := add(scale(old, 1-p.ReaimFresh), scale(fresh, p.ReaimFresh))
+	blend := fresh // old and fresh cancel: unit() would not return zero, so test the raw sum
+	if dot(sum, sum) >= 1e-12 {
+		blend = unit(sum)
+	}
+	blend = rotate(blend, pl.Centroid, (rng.Float64()*2-1)*p.PushJitterDeg*0.5)
+	m.Pole = poleFor(pl.Centroid, unit(tangent(blend, pl.Centroid)))
+}
+
+// Reaim re-aims every live plate; see reaimPlate.
 func Reaim(th *Grid[float64], labels *Grid[int32], plates []Plate, ms []Motion, p Params, rng *rand.Rand) {
 	for i, pl := range plates {
 		if pl.Retired {
 			continue
 		}
-		fresh := pushDirection(th, labels, pl.ID, pl.Centroid)
-		if dot(fresh, fresh) == 0 {
-			continue
-		}
-		old := unit(tangent(velocityAt(ms[i], pl.Centroid), pl.Centroid))
-		sum := add(scale(old, 1-p.ReaimFresh), scale(fresh, p.ReaimFresh))
-		blend := fresh // old and fresh cancel: unit() would not return zero, so test the raw sum
-		if dot(sum, sum) >= 1e-12 {
-			blend = unit(sum)
-		}
-		blend = rotate(blend, pl.Centroid, (rng.Float64()*2-1)*p.PushJitterDeg*0.5)
-		ms[i].Pole = poleFor(pl.Centroid, unit(tangent(blend, pl.Centroid)))
+		reaimPlate(th, labels, pl, &ms[i], p, rng)
 	}
 }
