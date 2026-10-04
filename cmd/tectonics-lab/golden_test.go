@@ -66,6 +66,7 @@ func frameHash(f tectonics.Frame) string {
 			retired = 1
 		}
 		_, _ = h.Write([]byte{major, retired})
+		// Two little-endian bytes cover Born step numbers up to 65535.
 		_, _ = h.Write([]byte{byte(pl.Born), byte(pl.Born >> 8)})
 	}
 	return hex.EncodeToString(h.Sum(nil))
@@ -97,7 +98,7 @@ func TestGoldenFace64(t *testing.T) {
 		t.Skipf("golden hashes are baked on amd64; GOARCH %s may differ in float64 bits (fused multiply-add)", runtime.GOARCH)
 	}
 	path := filepath.Join("testdata", "golden_face64.json")
-	got := golden{Recipe: "terran/2026/64/20/v6", Hashes: goldenRun(t)}
+	got := golden{Recipe: "terran/2026/64/20/v7", Hashes: goldenRun(t)}
 	if *update {
 		b, _ := json.MarshalIndent(got, "", "  ")
 		if err := os.WriteFile(path, b, 0o644); err != nil {
