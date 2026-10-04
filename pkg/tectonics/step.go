@@ -325,14 +325,24 @@ func (s *State) trenchAndArc(th *Grid[float64], labels *Grid[int32], trenches []
 	}
 }
 
-// retire folds plates under MinPlateArea into their most-shared neighbour and
-// carries the Retired and Major flags forward, since PlateStats rebuilds the
-// plate table without them.
-func (s *State) retire(stats []Plate) []Plate {
+// carryPlateFlags copies the per-plate bookkeeping that PlateStats cannot
+// know (Retired, Major, Born, LastRift) from s.Plates onto freshly computed
+// stats. Plates appended after s.Plates (a rift child) are left as given.
+func (s *State) carryPlateFlags(stats []Plate) {
 	for i := range stats {
+		if i >= len(s.Plates) {
+			continue
+		}
 		stats[i].Retired = stats[i].Retired || s.Plates[i].Retired
 		stats[i].Major = s.Plates[i].Major
+		stats[i].Born = s.Plates[i].Born
+		stats[i].LastRift = s.Plates[i].LastRift
 	}
+}
+
+// retire folds plates under MinPlateArea into their most-shared neighbour.
+func (s *State) retire(stats []Plate) []Plate {
+	s.carryPlateFlags(stats)
 	nb := Neighbors4(s.Th.S)
 	for i := range stats {
 		if stats[i].Retired || stats[i].Area >= s.P.MinPlateArea {
@@ -364,10 +374,7 @@ func (s *State) retire(stats []Plate) []Plate {
 			}
 		}
 		stats = PlateStats(s.Th, s.Labels, len(stats))
-		for k := range stats {
-			stats[k].Retired = stats[k].Retired || s.Plates[k].Retired
-			stats[k].Major = s.Plates[k].Major
-		}
+		s.carryPlateFlags(stats)
 		stats[i].Retired = true
 	}
 	return stats

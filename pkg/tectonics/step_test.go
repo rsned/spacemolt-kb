@@ -255,3 +255,16 @@ func TestStepBeltMovesWithPlate(t *testing.T) {
 		t.Error("original pixel still carries the belt")
 	}
 }
+
+func TestRetireCarriesBornAndLastRift(t *testing.T) {
+	s := stepState(t, 16, 0.8, 0.3, [3]float64{1, 0, 0}, [3]float64{0, 1, 0}, 3, 2)
+	s.Plates[1].Born, s.Plates[1].LastRift = 4, 7
+	s.Step(newRNG(1, "t"))
+	if s.Plates[1].Born != 4 || s.Plates[1].LastRift != 7 {
+		t.Errorf("plate 1 after step: born %d lastRift %d, want 4 7", s.Plates[1].Born, s.Plates[1].LastRift)
+	}
+	rows := s.Snapshot(1).Plates
+	if rows[1].Born != 4 {
+		t.Errorf("PlateRow.Born = %d, want 4", rows[1].Born)
+	}
+}

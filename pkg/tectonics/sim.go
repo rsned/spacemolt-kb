@@ -14,6 +14,7 @@ type PlateRow struct {
 	Area      float64    `json:"area"`
 	Major     bool       `json:"major"`
 	Retired   bool       `json:"retired"`
+	Born      int        `json:"born"`
 }
 
 // Frame is one emitted snapshot of the simulation: the step number, the
@@ -53,6 +54,18 @@ func Validate(p Params) error {
 		return fmt.Errorf("ReaimFresh %g outside 0..1", p.ReaimFresh)
 	case p.DominantMin < 0 || p.DominantMax < p.DominantMin || p.DominantMax > 0.9 || p.DominantSlack < 0:
 		return fmt.Errorf("dominant share range %g-%g (slack %d) invalid", p.DominantMin, p.DominantMax, p.DominantSlack)
+	case p.RiftMinShareMin <= 0 || p.RiftMinShareMax < p.RiftMinShareMin || p.RiftMinShareMax > 0.9:
+		return fmt.Errorf("rift share range %g-%g invalid", p.RiftMinShareMin, p.RiftMinShareMax)
+	case p.RiftRestMyrMin < 0 || p.RiftRestMyrMax < p.RiftRestMyrMin:
+		return fmt.Errorf("rift rest range %g-%g invalid", p.RiftRestMyrMin, p.RiftRestMyrMax)
+	case p.RiftChancePerMyr < 0 || p.RiftChancePerMyr > 1:
+		return fmt.Errorf("RiftChancePerMyr %g outside 0..1", p.RiftChancePerMyr)
+	case p.RiftMinChildShare <= 0 || p.RiftMinChildShare >= 0.5:
+		return fmt.Errorf("RiftMinChildShare %g outside (0, 0.5)", p.RiftMinChildShare)
+	case p.RiftThinPower <= 0:
+		return fmt.Errorf("RiftThinPower %g must be positive", p.RiftThinPower)
+	case p.RiftMaxPlates < 2 || p.RiftMaxPlates > 255:
+		return fmt.Errorf("RiftMaxPlates %d outside 2..255", p.RiftMaxPlates)
 	}
 	return nil
 }
@@ -72,7 +85,7 @@ func (s *State) Snapshot(myrPerStep float64) Frame {
 	rows := make([]PlateRow, len(s.Plates))
 	for i, pl := range s.Plates {
 		rows[i] = PlateRow{ID: pl.ID, Centroid: pl.Centroid, Pole: s.Motions[i].Pole,
-			SpeedCmYr: s.Motions[i].SpeedCmYr, Area: pl.Area, Major: pl.Major, Retired: pl.Retired}
+			SpeedCmYr: s.Motions[i].SpeedCmYr, Area: pl.Area, Major: pl.Major, Retired: pl.Retired, Born: pl.Born}
 	}
 	return Frame{Step: s.StepNo, Myr: float64(s.StepNo) * myrPerStep,
 		Th: s.Th.Clone(), Labels: s.Labels.Clone(), Feature: feat, Plates: rows}

@@ -77,4 +77,19 @@ func TestValidate(t *testing.T) {
 	if got := repoleSteps(p); got != 1 {
 		t.Errorf("repoleSteps = %d, want the floor of 1", got)
 	}
+
+	for _, bad := range []func(*Params){
+		func(p *Params) { p.RiftMinShareMax = p.RiftMinShareMin - 0.01 },
+		func(p *Params) { p.RiftRestMyrMin = -1 },
+		func(p *Params) { p.RiftChancePerMyr = 1.5 },
+		func(p *Params) { p.RiftMinChildShare = 0.5 },
+		func(p *Params) { p.RiftThinPower = 0 },
+		func(p *Params) { p.RiftMaxPlates = 256 },
+	} {
+		q := testParams(t, 16)
+		bad(&q)
+		if err := Validate(q); err == nil {
+			t.Errorf("Validate accepted bad rift knobs %+v", q)
+		}
+	}
 }

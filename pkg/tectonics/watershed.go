@@ -13,6 +13,8 @@ type Plate struct {
 	MeanThickness float64
 	Centroid      [3]float64 // unit vector
 	Retired       bool
+	Born          int // step the plate was created (0 for the initial set)
+	LastRift      int // step of its last split (0 if never)
 }
 
 type floodItem struct {

@@ -58,6 +58,14 @@ type Params struct {
 	ArcUplift            float64
 	ArcOffset            int
 	FaultScar            float64
+
+	// Rifting (plate birth), see docs/superpowers/specs/2026-10-03-tectonics-rifting-design.md
+	RiftMinShareMin, RiftMinShareMax float64 // seeded share of the sphere a plate must exceed
+	RiftRestMyrMin, RiftRestMyrMax   float64 // seeded Myr without a split before eligibility
+	RiftChancePerMyr                 float64 // per-Myr probability an eligible plate rifts
+	RiftMinChildShare                float64 // smaller half below this cancels the split
+	RiftThinPower                    float64 // exponent on thickness in the path cost
+	RiftMaxPlates                    int     // no rifts once this many plate ids exist (byte-sized ids)
 }
 
 type archetypeRow struct {
@@ -110,6 +118,8 @@ func DefaultParams(archetype string) (Params, error) {
 		RepoleEveryMyr: 25, ReaimFresh: 0.75, PushJitterDeg: 20,
 		RidgeThickness: 0.15, RidgeJitter: 0.03, OceanicThickening: 0.01, TransformRatio: 2, ContinentalThreshold: 0.5,
 		CollisionUplift: 0.01, TrenchDepth: 0.03, TrenchWidth: 3, ArcUplift: 0.01, ArcOffset: 4, FaultScar: 0.02,
+		RiftMinShareMin: 0.15, RiftMinShareMax: 0.25, RiftRestMyrMin: 100, RiftRestMyrMax: 200,
+		RiftChancePerMyr: 0.02, RiftMinChildShare: 0.03, RiftThinPower: 3, RiftMaxPlates: 200,
 	}, nil
 }
 

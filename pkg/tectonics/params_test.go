@@ -14,6 +14,10 @@ func TestDefaultParamsPerArchetype(t *testing.T) {
 	if p.SpeedMinCmYr != 3 || p.SpeedMaxCmYr != 10 || p.DominantMin != 0.20 || p.DominantMax != 0.35 || p.RepoleEveryMyr != 25 || p.ReaimFresh != 0.75 || p.SpeedSkew != 2 {
 		t.Errorf("terran tuning defaults %+v", p)
 	}
+	if p.RiftMinShareMin != 0.15 || p.RiftMinShareMax != 0.25 || p.RiftRestMyrMin != 100 || p.RiftRestMyrMax != 200 ||
+		p.RiftChancePerMyr != 0.02 || p.RiftMinChildShare != 0.03 || p.RiftThinPower != 3 || p.RiftMaxPlates != 200 {
+		t.Errorf("rift defaults %+v", p)
+	}
 	if got := p.MyrPerStep(); got != 2 {
 		t.Errorf("MyrPerStep %g, want 2", got)
 	}
