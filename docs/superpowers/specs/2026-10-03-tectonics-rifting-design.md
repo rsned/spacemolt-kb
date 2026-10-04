@@ -26,11 +26,11 @@ interior crust and the two halves drift apart.
 
 | Knob | Default | Meaning |
 | --- | --- | --- |
-| `RiftMinShareMin`, `RiftMinShareMax` | 0.15, 0.25 | per-planet seeded share of the sphere a plate must exceed to be eligible |
-| `RiftRestMyrMin`, `RiftRestMyrMax` | 100, 200 | per-planet seeded Myr a plate must go without a split (from birth, or the run's start) before it is eligible |
-| `RiftChancePerMyr` | 0.02 | probability per Myr that an eligible plate rifts this step (per step: `1 − (1−c)^MyrPerStep`) |
+| `RiftMinShareMin`, `RiftMinShareMax` | 0.08, 0.15 | per-planet seeded share of the sphere a plate must exceed to be eligible |
+| `RiftRestMyrMin`, `RiftRestMyrMax` | 50, 120 | per-planet seeded Myr a plate must go without a split (from birth, or the run's start) before it is eligible |
+| `RiftChancePerMyr` | 0.04 | probability per Myr that an eligible plate rifts this step (per step: `1 − (1−c)^MyrPerStep`) |
 | `RiftMinChildShare` | 0.03 | a split whose smaller half is below this share is cancelled |
-| `RiftThinPower` | 3 | exponent on thickness in the path cost; higher hugs thin crust harder |
+| `RiftThinPower` | 1 | exponent on thickness in the path cost; higher hugs thin crust harder |
 | `RiftMaxPlates` | 200 | no rifts once this many plate ids exist (the bundle stores ids in one byte) |
 
 `Validate`: shares in (0, 0.9], `RiftMinShareMin ≤ RiftMinShareMax`, rest range

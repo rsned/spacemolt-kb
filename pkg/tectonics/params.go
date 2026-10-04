@@ -119,8 +119,8 @@ func DefaultParams(archetype string) (Params, error) {
 		RepoleEveryMyr: 25, ReaimFresh: 0.75, PushJitterDeg: 20,
 		RidgeThickness: 0.15, RidgeJitter: 0.03, OceanicThickening: 0.01, TransformRatio: 2, ContinentalThreshold: 0.5,
 		CollisionUplift: 0.01, TrenchDepth: 0.03, TrenchWidth: 3, ArcUplift: 0.01, ArcOffset: 4, FaultScar: 0.02,
-		RiftMinShareMin: 0.15, RiftMinShareMax: 0.25, RiftRestMyrMin: 100, RiftRestMyrMax: 200,
-		RiftChancePerMyr: 0.02, RiftMinChildShare: 0.03, RiftThinPower: 3, RiftMaxPlates: 200,
+		RiftMinShareMin: 0.08, RiftMinShareMax: 0.15, RiftRestMyrMin: 50, RiftRestMyrMax: 120,
+		RiftChancePerMyr: 0.04, RiftMinChildShare: 0.03, RiftThinPower: 1, RiftMaxPlates: 200,
 		RiftRetries: 3,
 	}, nil
 }
