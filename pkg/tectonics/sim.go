@@ -104,11 +104,14 @@ func Run(p Params, master int64, emit func(Frame) error) error {
 	s := NewState(p, th, labels, plates, motions)
 	stepRNG := newRNG(master, "sim.step")
 	reaimRNG := newRNG(master, "sim.reaim")
+	riftRNG := newRNG(master, "sim.rift")
+	rp := drawRiftParams(p, master)
 	if err := emit(s.Snapshot(p.MyrPerStep())); err != nil {
 		return err
 	}
 	for step := 1; step <= p.Steps; step++ {
 		s.Step(stepRNG)
+		s.Rift(riftRNG, rp)
 		if step%repoleSteps(p) == 0 {
 			Reaim(s.Th, s.Labels, s.Plates, s.Motions, p, reaimRNG)
 		}

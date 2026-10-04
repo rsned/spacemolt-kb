@@ -14,6 +14,7 @@ earth_plates_export.py), so the same numbers can be put side by side:
                 convergent / transform ("active" = feature age 0)
   lifetime      median plate lifetime in Myr (ids present in consecutive
                 frames; censored at the run's ends)
+  births        plate births (ids first seen after frame 0)
   re-aims       mean number of >30° pole-direction changes per plate per 100 Myr
 
 Usage:
@@ -119,6 +120,7 @@ class Bundle:
                         reaims[pid] = reaims.get(pid, 0) + 1
                 poles[pid] = pole
         lifetimes = [(last[p] - first[p] + 1) * self.myr_per_frame for p in first]
+        births = sum(1 for p in first if first[p] > 0)
         span = per[-1]["myr"] - per[0]["myr"]
         total_plate_myr = sum(lifetimes)
         agg = {
@@ -134,6 +136,7 @@ class Bundle:
             "conv": statistics.mean(p["conv"] for p in per),
             "trans": statistics.mean(p["trans"] for p in per),
             "lifetime_median": statistics.median(lifetimes) if lifetimes else 0.0,
+            "births": births,
             "reaims_per_100myr": (sum(reaims.values()) / total_plate_myr * 100) if total_plate_myr else 0.0,
         }
         rows = []
@@ -183,6 +186,7 @@ def main():
         ("active boundary: convergent", lambda a: fmt_pct(a['conv'])),
         ("active boundary: transform", lambda a: fmt_pct(a['trans'])),
         ("median plate lifetime Myr", lambda a: f"{a['lifetime_median']:.0f}"),
+        ("plate births (ids first seen after frame 0)", lambda a: f"{a['births']}"),
         ("re-aims (>30°) per plate per 100 Myr", lambda a: f"{a['reaims_per_100myr']:.2f}"),
     ]
     for label, fn in lines:

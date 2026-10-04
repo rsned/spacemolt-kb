@@ -93,3 +93,32 @@ func TestValidate(t *testing.T) {
 		}
 	}
 }
+
+func TestRunRiftsWhenForced(t *testing.T) {
+	p := testParams(t, 16)
+	p.Steps, p.KeyframeEvery = 20, 20
+	p.RiftChancePerMyr, p.RiftMinShareMin, p.RiftMinShareMax = 1, 0.05, 0.05
+	p.RiftRestMyrMin, p.RiftRestMyrMax, p.RiftMinChildShare = 0, 0, 0.02
+	var last Frame
+	if err := Run(p, 77, func(f Frame) error { last = f; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	born := 0
+	for _, r := range last.Plates {
+		if r.Born > 0 {
+			born++
+		}
+	}
+	if born == 0 {
+		t.Error("no plates born in a run with forced rifting")
+	}
+	p.RiftChancePerMyr = 0
+	if err := Run(p, 77, func(f Frame) error { last = f; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range last.Plates {
+		if r.Born > 0 {
+			t.Fatal("a plate was born with RiftChancePerMyr 0")
+		}
+	}
+}
