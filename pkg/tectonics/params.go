@@ -66,6 +66,7 @@ type Params struct {
 	RiftMinChildShare                float64 // smaller half below this cancels the split
 	RiftThinPower                    float64 // exponent on thickness in the path cost
 	RiftMaxPlates                    int     // no rifts once this many plate ids exist (byte-sized ids)
+	RiftRetries                      int     // extra seeded start pixels tried after a cancelled attempt
 }
 
 type archetypeRow struct {
@@ -120,6 +121,7 @@ func DefaultParams(archetype string) (Params, error) {
 		CollisionUplift: 0.01, TrenchDepth: 0.03, TrenchWidth: 3, ArcUplift: 0.01, ArcOffset: 4, FaultScar: 0.02,
 		RiftMinShareMin: 0.15, RiftMinShareMax: 0.25, RiftRestMyrMin: 100, RiftRestMyrMax: 200,
 		RiftChancePerMyr: 0.02, RiftMinChildShare: 0.03, RiftThinPower: 3, RiftMaxPlates: 200,
+		RiftRetries: 3,
 	}, nil
 }
 

@@ -66,6 +66,8 @@ func Validate(p Params) error {
 		return fmt.Errorf("RiftThinPower %g must be positive", p.RiftThinPower)
 	case p.RiftMaxPlates < 2 || p.RiftMaxPlates > 255:
 		return fmt.Errorf("RiftMaxPlates %d outside 2..255", p.RiftMaxPlates)
+	case p.RiftRetries < 0 || p.RiftRetries > 10:
+		return fmt.Errorf("RiftRetries %d outside 0..10", p.RiftRetries)
 	}
 	return nil
 }

@@ -85,6 +85,7 @@ func TestValidate(t *testing.T) {
 		func(p *Params) { p.RiftMinChildShare = 0.5 },
 		func(p *Params) { p.RiftThinPower = 0 },
 		func(p *Params) { p.RiftMaxPlates = 256 },
+		func(p *Params) { p.RiftRetries = 11 },
 	} {
 		q := testParams(t, 16)
 		bad(&q)

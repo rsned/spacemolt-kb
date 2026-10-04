@@ -23,10 +23,16 @@ func drawRiftParams(p Params, master int64) riftParams {
 
 // boundaryPixels lists plate id's pixels that touch another plate, in index order.
 func (s *State) boundaryPixels(id int32) []int32 {
+	return s.boundaryPixelsIn(id, nil)
+}
+
+// boundaryPixelsIn lists the pixels of plate id that touch another plate, in
+// index order, restricted to inSet when it is non-nil.
+func (s *State) boundaryPixelsIn(id int32, inSet []bool) []int32 {
 	nb := Neighbors4(s.Th.S)
 	var out []int32
 	for i, l := range s.Labels.Cells {
-		if l != id {
+		if l != id || (inSet != nil && !inSet[i]) {
 			continue
 		}
 		for _, j := range nb[i] {
@@ -37,6 +43,55 @@ func (s *State) boundaryPixels(id int32) []int32 {
 		}
 	}
 	return out
+}
+
+// labelComponents labels the 4-connected components of the pixels in inSet,
+// skipping any pixel in exclude (nil excludes nothing). Components are
+// numbered in order of their lowest pixel index and filled breadth-first, so
+// the labelling is deterministic. comp is -1 outside the labelled set.
+func labelComponents(S int, inSet, exclude []bool) (comp []int32, sizes []int) {
+	nb := Neighbors4(S)
+	comp = make([]int32, len(inSet))
+	for i := range comp {
+		comp[i] = -1
+	}
+	keep := func(i int32) bool { return inSet[i] && (exclude == nil || !exclude[i]) }
+	queue := make([]int32, 0, len(inSet))
+	for i := range inSet {
+		if !keep(int32(i)) || comp[i] >= 0 {
+			continue
+		}
+		c := int32(len(sizes))
+		sizes = append(sizes, 0)
+		queue = append(queue[:0], int32(i))
+		comp[i] = c
+		for len(queue) > 0 {
+			u := queue[0]
+			queue = queue[1:]
+			sizes[c]++
+			for _, j := range nb[u] {
+				if keep(j) && comp[j] < 0 {
+					comp[j] = c
+					queue = append(queue, j)
+				}
+			}
+		}
+	}
+	return comp, sizes
+}
+
+// componentOf marks the 4-connected component of plate id that contains start.
+func (s *State) componentOf(id, start int32) []bool {
+	mask := make([]bool, s.Th.Len())
+	for i, l := range s.Labels.Cells {
+		mask[i] = l == id
+	}
+	comp, _ := labelComponents(s.Th.S, mask, nil)
+	in := make([]bool, len(mask))
+	for i, c := range comp {
+		in[i] = c >= 0 && c == comp[start]
+	}
+	return in
 }
 
 type pathItem struct {
@@ -62,11 +117,11 @@ func (h *pathHeap) Pop() any {
 	return it
 }
 
-// riftPath is the cheapest 4-connected path from start to end through plate
-// id's pixels, where entering a pixel costs thickness^RiftThinPower (plus a
+// riftPath is the cheapest 4-connected path from start to end through the
+// pixels of inSet (one connected component of a plate), where entering a pixel costs thickness^RiftThinPower (plus a
 // tiny constant so the path still prefers short routes through equal crust).
 // It returns nil when end is unreachable.
-func (s *State) riftPath(id int32, start, end int32) []int32 {
+func (s *State) riftPath(inSet []bool, start, end int32) []int32 {
 	nb := Neighbors4(s.Th.S)
 	N := s.Th.Len()
 	dist := make([]float64, N)
@@ -86,7 +141,7 @@ func (s *State) riftPath(id int32, start, end int32) []int32 {
 			break
 		}
 		for _, j := range nb[it.idx] {
-			if s.Labels.Cells[j] != id {
+			if !inSet[j] {
 				continue
 			}
 			c := it.cost + math.Pow(s.Th.Cells[j], s.P.RiftThinPower) + 1e-6
@@ -107,16 +162,19 @@ func (s *State) riftPath(id int32, start, end int32) []int32 {
 }
 
 // riftPlate splits plate id along the thinnest path from the boundary pixel
-// start to the boundary pixel farthest from it. The largest remaining
-// component keeps id; every other component becomes a new plate. It returns
-// false, changing nothing, when the path fails or the child would be smaller
-// than RiftMinChildShare.
+// start to the boundary pixel farthest from it, all within the 4-connected
+// component of id that contains start; the plate's other fragments are left
+// untouched with the parent. The largest piece of that component keeps id;
+// every other piece of it becomes the new child plate. It returns false,
+// changing nothing and drawing no random numbers, when the path fails or the
+// child would be smaller than RiftMinChildShare.
 func (s *State) riftPlate(id int32, start int32, rng *rand.Rand) bool {
 	S := s.Th.S
 	N := s.Th.Len()
 	dirs := Dirs(S)
 	nb := Neighbors4(S)
-	bounds := s.boundaryPixels(id)
+	inComp := s.componentOf(id, start)
+	bounds := s.boundaryPixelsIn(id, inComp)
 	if len(bounds) < 2 {
 		return false
 	}
@@ -126,7 +184,7 @@ func (s *State) riftPlate(id int32, start int32, rng *rand.Rand) bool {
 			end, endDot = b, d
 		}
 	}
-	path := s.riftPath(id, start, end)
+	path := s.riftPath(inComp, start, end)
 	if path == nil {
 		return false
 	}
@@ -134,32 +192,8 @@ func (s *State) riftPlate(id int32, start int32, rng *rand.Rand) bool {
 	for _, i := range path {
 		onPath[i] = true
 	}
-	// connected components of the plate minus the path
-	comp := make([]int32, N)
-	for i := range comp {
-		comp[i] = -1
-	}
-	var sizes []int
-	for i := range N {
-		if s.Labels.Cells[i] != id || onPath[i] || comp[i] >= 0 {
-			continue
-		}
-		c := int32(len(sizes))
-		sizes = append(sizes, 0)
-		queue := []int32{int32(i)}
-		comp[i] = c
-		for len(queue) > 0 {
-			u := queue[0]
-			queue = queue[1:]
-			sizes[c]++
-			for _, j := range nb[u] {
-				if s.Labels.Cells[j] == id && !onPath[j] && comp[j] < 0 {
-					comp[j] = c
-					queue = append(queue, j)
-				}
-			}
-		}
-	}
+	// connected components of the start's component minus the path
+	comp, sizes := labelComponents(S, inComp, onPath)
 	if len(sizes) < 2 {
 		return false
 	}
@@ -187,10 +221,8 @@ func (s *State) riftPlate(id int32, start int32, rng *rand.Rand) bool {
 	}
 	queue := make([]int32, 0, N)
 	for i := range N {
-		if s.Labels.Cells[i] == id || s.Labels.Cells[i] == child {
-			if !onPath[i] {
-				queue = append(queue, int32(i))
-			}
+		if comp[i] >= 0 {
+			queue = append(queue, int32(i))
 		}
 	}
 	assigned := make([]bool, N)
@@ -234,7 +266,11 @@ func (s *State) riftPlate(id int32, start int32, rng *rand.Rand) bool {
 // above rp.share of the sphere, rp.rest Myr since its last split, and fewer
 // than RiftMaxPlates ids in use. Each eligible plate, in id order, rolls
 // against RiftChancePerMyr scaled to the step length; the first to pass rifts
-// at a seeded boundary pixel.
+// at a seeded boundary pixel. A cancelled attempt (no path, or an undersized
+// child) draws a fresh start pixel and tries again, up to RiftRetries extra
+// times; the first success ends the step, and if every attempt cancels no
+// other plate is tried this step. The retries only add rng.IntN draws on the
+// rift stream, so the run still depends only on the seed.
 func (s *State) Rift(rng *rand.Rand, rp riftParams) bool {
 	if len(s.Plates) >= s.P.RiftMaxPlates {
 		return false
@@ -251,7 +287,12 @@ func (s *State) Rift(rng *rand.Rand, rp riftParams) bool {
 		if len(bounds) < 2 {
 			continue
 		}
-		return s.riftPlate(int32(k), bounds[rng.IntN(len(bounds))], rng)
+		for range s.P.RiftRetries + 1 {
+			if s.riftPlate(int32(k), bounds[rng.IntN(len(bounds))], rng) {
+				return true
+			}
+		}
+		return false
 	}
 	return false
 }

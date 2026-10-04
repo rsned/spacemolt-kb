@@ -61,7 +61,7 @@ func TestRiftSplitsAlongThinTrough(t *testing.T) {
 		}
 		if s.FeatType.Cells[i] == FeatDivergent {
 			ridge++
-			if s.Th.Cells[i] > s.P.RidgeThickness+s.P.RidgeJitter+1e-9 || s.Age.Cells[i] != 0 || s.FeatAge.Cells[i] != 0 {
+			if s.Th.Cells[i] > s.P.RidgeThickness+s.P.RidgeJitter+1e-9 || s.Th.Cells[i] < s.P.RidgeThickness-s.P.RidgeJitter-1e-9 || s.Age.Cells[i] != 0 || s.FeatAge.Cells[i] != 0 {
 				t.Fatalf("ridge pixel %d: th %g age %d featAge %d", i, s.Th.Cells[i], s.Age.Cells[i], s.FeatAge.Cells[i])
 			}
 		}
@@ -108,13 +108,17 @@ func TestRiftEligibilityAndCancel(t *testing.T) {
 		t.Error("plate inside its rest period rifted")
 	}
 	s.P.RiftMinChildShare = 0.45 // impossible for a 0.5-share parent
-	before := s.Labels.Clone()
+	before, th, ft, age := s.Labels.Clone(), s.Th.Clone(), s.FeatType.Clone(), s.Age.Clone()
 	if s.Rift(newRNG(1, "r"), riftParams{share: 0.4, rest: 0}) {
 		t.Error("rift with an undersized child was not cancelled")
 	}
 	for i := range before.Cells {
 		if before.Cells[i] != s.Labels.Cells[i] {
 			t.Fatal("cancelled rift changed labels")
+		}
+		if th.Cells[i] != s.Th.Cells[i] || ft.Cells[i] != s.FeatType.Cells[i] || age.Cells[i] != s.Age.Cells[i] {
+			t.Fatalf("cancelled rift changed pixel %d: th %g→%g feat %d→%d age %d→%d", i,
+				th.Cells[i], s.Th.Cells[i], ft.Cells[i], s.FeatType.Cells[i], age.Cells[i], s.Age.Cells[i])
 		}
 	}
 	if len(s.Plates) != 2 || s.Plates[0].LastRift != 0 {
@@ -166,6 +170,50 @@ func TestRiftKeepsTablesParallelAndDeterministic(t *testing.T) {
 		if a.Labels.Cells[i] != b.Labels.Cells[i] || a.Th.Cells[i] != b.Th.Cells[i] {
 			t.Fatalf("runs differ at pixel %d", i)
 		}
+	}
+	for i := range a.Motions {
+		if a.Motions[i] != b.Motions[i] {
+			t.Fatalf("runs differ at motion %d: %+v vs %+v", i, a.Motions[i], b.Motions[i])
+		}
+	}
+}
+
+// A plate already split into fragments rifts only within the fragment that
+// holds the start pixel; its other fragments stay with the parent.
+func TestRiftIgnoresOtherFragments(t *testing.T) {
+	s := riftWorld(t, 24)
+	dirs := Dirs(24)
+	capPixels := 0
+	for i, d := range dirs {
+		if d[2] < -0.9 {
+			s.Labels.Cells[i] = 0 // an island of plate 0 inside plate 1
+			capPixels++
+		}
+	}
+	if capPixels == 0 {
+		t.Fatal("no -z cap pixels")
+	}
+	s.Plates = PlateStats(s.Th, s.Labels, len(s.Plates))
+	if !s.riftPlate(0, startNearPlusY(s), newRNG(9, "rift")) {
+		t.Fatal("rift cancelled")
+	}
+	child := int32(len(s.Plates) - 1)
+	for i, d := range dirs {
+		if d[2] >= -0.9 {
+			continue
+		}
+		if s.Labels.Cells[i] != 0 {
+			t.Fatalf("cap pixel %d relabelled to %d, want it kept by the parent", i, s.Labels.Cells[i])
+		}
+	}
+	n := 0
+	for _, l := range s.Labels.Cells {
+		if l == child {
+			n++
+		}
+	}
+	if child != 2 || n == 0 {
+		t.Errorf("child id %d with %d pixels", child, n)
 	}
 }
 
