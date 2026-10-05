@@ -155,6 +155,20 @@ class Bundle:
         return agg, rows
 
 
+CSV_FIELDS = ["frames", "span_myr", "face", "plates_mean", "plates_min", "plates_max", "majors_mean",
+              "largest", "top3", "speed", "speed_p90", "div", "conv", "trans",
+              "lifetime_median", "births", "reaims_per_100myr"]
+
+
+def csv_row(name, agg):
+    """One CSV line for a bundle summary; floats to 5 significant places."""
+    cells = [name]
+    for k in CSV_FIELDS:
+        v = agg[k]
+        cells.append(str(v) if isinstance(v, int) else f"{v:.5g}")
+    return ",".join(cells)
+
+
 def fmt_pct(x):
     return f"{100 * x:4.0f}%"
 
@@ -163,6 +177,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("bundles", nargs="+")
     ap.add_argument("--series", type=int, default=0, help="also print a per-N-Myr table")
+    ap.add_argument("--csv", action="store_true",
+                    help="print one CSV row per bundle (header first) instead of the markdown table")
     args = ap.parse_args()
 
     results = []
@@ -170,6 +186,12 @@ def main():
         bundle = Bundle(b)
         agg, rows = bundle.summary(args.series)
         results.append((os.path.basename(b.rstrip("/")), agg, rows))
+
+    if args.csv:
+        print(",".join(["bundle"] + CSV_FIELDS))
+        for name, agg, _ in results:
+            print(csv_row(name, agg))
+        return
 
     names = [r[0] for r in results]
     print("| metric | " + " | ".join(names) + " |")
