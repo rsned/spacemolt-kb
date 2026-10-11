@@ -1,8 +1,11 @@
 package tectonics
 
 import (
+	"image"
 	"math"
 	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 )
 
 func TestElevationContinentalMonotone(t *testing.T) {
@@ -38,6 +41,17 @@ func TestElevationOceanSinksWithAge(t *testing.T) {
 	if h0 := elevationAt(p, thExpected(p, 0), 0); math.Abs(h0-p.RidgeDepthKm) > 1e-9 {
 		t.Fatalf("age 0 ridge sits at %.4f, want %g", h0, p.RidgeDepthKm)
 	}
+
+	// render: a 16×16 face of ridge crust ageing 0, 50, 200, 400 steps
+	var panels []*image.RGBA
+	for _, steps := range []uint16{0, 50, 200, 400} {
+		th, age := NewGrid[float64](16), NewGrid[uint16](16)
+		for i := range th.Cells {
+			th.Cells[i], age.Cells[i] = thExpected(p, float64(steps)), steps
+		}
+		panels = append(panels, renderIso(Elevation(th, age, p), cubemap.FacePosZ, 0, 12))
+	}
+	writeVis(t, "elevation_ocean_sinks_with_age", panels...)
 }
 
 func TestElevationBranchesMeet(t *testing.T) {

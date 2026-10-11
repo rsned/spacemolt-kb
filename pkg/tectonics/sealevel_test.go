@@ -3,6 +3,8 @@ package tectonics
 import (
 	"math"
 	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 )
 
 func TestSeaLevelAtDatum(t *testing.T) {
@@ -21,6 +23,7 @@ func TestSeaLevelAtDatum(t *testing.T) {
 	if L2 <= L {
 		t.Fatalf("more water must raise the sea: %.4f vs %.4f", L2, L)
 	}
+	writeVis(t, "sealevel_factor_1_vs_1.2", renderIso(elev, cubemap.FacePosZ, L, 6), renderIso(elev, cubemap.FacePosZ, L2, 6))
 	if got := HollowVolume(elev, L2, p); math.Abs(got-hollow*1.2)/(hollow*1.2) > 0.001 {
 		t.Fatalf("filled volume %.6g, want %.6g within 0.1%%", got, hollow*1.2)
 	}

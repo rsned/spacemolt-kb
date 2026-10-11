@@ -3,6 +3,8 @@ package tectonics
 import (
 	"math"
 	"testing"
+
+	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 )
 
 func testParams(t *testing.T, S int) Params {
@@ -135,4 +137,8 @@ func TestGenerateThicknessStartsWithContinents(t *testing.T) {
 	if math.Abs(got-p.LandShareT0) > 0.05 {
 		t.Fatalf("land share after remap+relax %.3f, want %.2f ± 0.05", got, p.LandShareT0)
 	}
+
+	elev := Elevation(th, InitialAges(th, p), p)
+	writeVis(t, "thickness_remap_continents", renderIso(th, cubemap.FacePosZ, p.ContinentalThreshold, 60),
+		renderIso(elev, cubemap.FacePosZ, 0, 6))
 }
