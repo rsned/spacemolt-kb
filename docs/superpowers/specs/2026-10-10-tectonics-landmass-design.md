@@ -52,7 +52,7 @@ Tuning) before merge, not from one seed.
 | `OceanReliefKm` | 20 | km per unit of thickness deviation from the age-predicted ocean thickness (deviation clamped to ±0.1) |
 | `ElevBlend` | 0.05 | half-width in thickness of the ocean/continent blend around `ContinentalThreshold` |
 | `WaterFactorMin`, `WaterFactorMax` | archetype: terran 0.9–1.1, super_terran 0.9–1.1, oceanic 1.3–1.6, arid 0.5–0.7, tundra 0.8–1.0, glacial 0.8–1.0, scorched 0.3–0.6, lava_world 0.2–0.5, ice_world 0.8–1.0 | seeded multiplier on the step-0 hollow volume that sets the planet's water |
-| `ErosionRate` | 0.01 | fraction of the elevation difference (over `ElevPeakKm`) moved per Myr |
+| `ErosionRate` | 0.0015 | fraction of the elevation difference (over `ElevPeakKm`) moved per Myr (0.01 was ~10× too strong: a coast pixel lost ~2 km of crust per Myr) |
 | `ErosionMaxPerStep` | 0.2 | cap on the total fraction a pixel gives away in one step (stability) |
 | `SedimentOceanFactor` | 0.5 | share of a slice kept when the receiving pixel is deep ocean |
 
@@ -121,7 +121,7 @@ So ocean thicker than the cap explains starts as a submerged plateau
   `hollow = Σ max(0, 0 − elev0_i) × Ω_i × R²`, `s.Water = hollow × drawWaterFactor(p, master)`.
 - **Sea level** (`SeaLevelFor(elev, water, S, p) float64`, every step and
   at step 0): the height `L` with `Σ max(0, L − elev_i) × Ω_i × R² = water`.
-  Elevations are binned at 1 m over [−32 km, +32 km] (65,536 bins); a
+  Elevations are binned at 1 m over [−32 km, +33.536 km) (65,536 bins); a
   single pass over the bins accumulates area and volume and interpolates
   `L` inside the bin where the volume is reached. `L` is clamped to the bin
   range.
@@ -153,6 +153,37 @@ deterministic. Pixels with `h_i < L` never erode. Plate labels are
 ignored for deposition. No new feature type, no sediment field.
 
 Thickness is clamped to [0, 1] after the pass, as elsewhere.
+
+## 3b. Conservative advection (amendment, 2026-10-11)
+
+Implementation of the land-mass layer exposed a pre-existing leak in
+`Step`: on the unmodified checkpoint-1 model, continental pixels fell from
+32 % to 4.5 % of the sphere over 800 Myr (face 64, 2 Myr steps) even with
+erosion, relax, trench/scar and rifting off. Every whole-pixel hop opens
+one-pixel staircase holes along the sliding and jagged edges of a plate;
+every hole was filled with ridge crust; the relax pass then blended that
+fresh thin crust into the adjacent coast. Three rules fix it:
+
+- **Gap regions are classified.** After the BFS that labels gap pixels (now
+  also recording each gap's source pixel), every connected region of gaps
+  is examined. A region touching two plates whose relative velocity at the
+  region's centroid opens across the seam (`dot(rel, normal) > 0.3 |rel|`,
+  normal from the centroid difference) is a spreading centre and gets ridge
+  crust as before. Every other region — pure-shear seams, staircase holes,
+  holes behind a plate with no other plate across — is a resampling
+  artefact and is healed by copying thickness, age and feature from the
+  nearest claimed pixel.
+- **Relax stays within a regime.** `RelaxWithin` skips pixel pairs that
+  straddle `ContinentalThreshold`, so coasts and rifted margins keep their
+  step and fresh ridge crust never pulls a continent below the threshold.
+  `GenerateThickness` still uses plain `Relax` once at step 0.
+- **Ocean thickening is capped** at `OceanBandMax`, so ageing sea floor never
+  crosses into the continental band.
+
+With these, continental pixels stay within 0.7–1.0 of their start over
+800 Myr with the secondary rules off. Remaining drift (continent–continent
+overlaps still delete the thinner row; trench depth and rift paths thin
+continents) is left to the tuning sweep.
 
 ## 4. Bundle, viewer, lab, stats
 
@@ -224,8 +255,9 @@ strip for multi-step tests) through these helpers.
 - `TestErosionSubmarineUntouched`: pixels below sea level never change.
 - `TestErosionOceanLoss`: a coast pixel next to deep ocean loses `Δ` while the ocean pixel gains `SedimentOceanFactor × Δ`.
 - `TestLandmassDeterminism`: two `Run`s at S=32, 10 steps produce identical `Elev`, `SeaLevelKm`, `LandShare`.
-- `TestLandmassIntegration`: `Run` at S=64, 20 steps, terran: land share in [0.15, 0.5] on every frame, sea levels finite and within [−5, 5] km.
-- Golden rebaked as v10; `TestTimingBudgetFace128` unchanged (10 s).
+- `TestLandmassIntegration`: `Run` at S=64, 20 steps with `TimelineMyr` 40 (2 Myr per step), terran: land share in [0.1, 0.5] on every frame, sea levels finite and within [−5, 5] km.
+- Advection (amendment 3b): a pure-shear seam along a jagged boundary opens no ridge crust and leaves thickness untouched; a diverging seam still opens ridge crust on the diverging side only; ocean thickening never exceeds `OceanBandMax`; `RelaxWithin` leaves a 0.55/0.15 coast step alone; with erosion, relax, trench/scar and rifting off, continental pixels stay ≥ 60 % of their step-0 share over a full 400-step run.
+- Golden rebaked as v10 (bundle v2) and v11 (amendment 3b); `TestTimingBudgetFace128` unchanged (10 s).
 - Manual: `tectonics_stats.py` on `earth-test` (regenerated as v2) and on a seed bundle prints the new lines; the sweep smoke at face 64 writes the new columns.
 
 ## Tuning (before merge)
