@@ -49,6 +49,50 @@ func TestParamsSet(t *testing.T) {
 	}
 }
 
+func TestLandmassDefaultsAndValidation(t *testing.T) {
+	p, err := DefaultParams("terran")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.LandShareT0 != 0.30 || p.WaterFactorMin != 0.9 || p.WaterFactorMax != 1.1 {
+		t.Fatalf("terran land/water defaults: %g %g %g", p.LandShareT0, p.WaterFactorMin, p.WaterFactorMax)
+	}
+	if p.ElevPeakKm != 8 || p.RidgeDepthKm != -2.5 || p.ErosionRate != 0.01 {
+		t.Fatalf("elevation/erosion defaults: %g %g %g", p.ElevPeakKm, p.RidgeDepthKm, p.ErosionRate)
+	}
+	if err := Validate(p); err != nil {
+		t.Fatalf("defaults must validate: %v", err)
+	}
+	o, _ := DefaultParams("oceanic")
+	if o.LandShareT0 != 0.15 || o.WaterFactorMin != 1.3 {
+		t.Fatalf("oceanic columns: %g %g", o.LandShareT0, o.WaterFactorMin)
+	}
+	bad := []struct {
+		name string
+		mut  func(*Params)
+	}{
+		{"LandShareT0 0", func(q *Params) { q.LandShareT0 = 0 }},
+		{"bands cross threshold", func(q *Params) { q.OceanBandMax = 0.6 }},
+		{"LandBandMin below threshold", func(q *Params) { q.LandBandMin = 0.4 }},
+		{"ElevPow 0", func(q *Params) { q.ElevPow = 0 }},
+		{"shelf above peak", func(q *Params) { q.ElevShelfKm = 9 }},
+		{"abyss above ridge", func(q *Params) { q.AbyssKm = -1 }},
+		{"ElevBlend 0", func(q *Params) { q.ElevBlend = 0 }},
+		{"water range reversed", func(q *Params) { q.WaterFactorMax = 0.5 }},
+		{"water min 0", func(q *Params) { q.WaterFactorMin = 0 }},
+		{"ErosionMaxPerStep 0.3", func(q *Params) { q.ErosionMaxPerStep = 0.3 }},
+		{"SedimentOceanFactor 2", func(q *Params) { q.SedimentOceanFactor = 2 }},
+		{"negative erosion", func(q *Params) { q.ErosionRate = -1 }},
+	}
+	for _, b := range bad {
+		q := p
+		b.mut(&q)
+		if err := Validate(q); err == nil {
+			t.Errorf("%s: Validate accepted an invalid value", b.name)
+		}
+	}
+}
+
 func TestSeedForPlanetStable(t *testing.T) {
 	// The repeated call is intentional: it checks that SeedForPlanet is
 	// deterministic (same id -> same seed), not a copy-paste mistake.

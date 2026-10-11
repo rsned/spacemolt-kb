@@ -68,6 +68,32 @@ func Validate(p Params) error {
 		return fmt.Errorf("RiftMaxPlates %d outside 2..255", p.RiftMaxPlates)
 	case p.RiftRetries < 0 || p.RiftRetries > 10:
 		return fmt.Errorf("RiftRetries %d outside 0..10", p.RiftRetries)
+	case p.LandShareT0 <= 0 || p.LandShareT0 >= 0.9:
+		return fmt.Errorf("LandShareT0 %g outside (0, 0.9)", p.LandShareT0)
+	case !(p.OceanBandMax < p.ContinentalThreshold && p.ContinentalThreshold < p.LandBandMin):
+		return fmt.Errorf("bands %g < threshold %g < %g violated", p.OceanBandMax, p.ContinentalThreshold, p.LandBandMin)
+	case p.LandRankPow <= 0 || p.OceanRankPow <= 0:
+		return fmt.Errorf("rank powers %g/%g must be positive", p.LandRankPow, p.OceanRankPow)
+	case p.ContinentAgeMyr < 0 || p.OceanAgeCapMyr < 0:
+		return fmt.Errorf("initial ages %g/%g must be non-negative", p.ContinentAgeMyr, p.OceanAgeCapMyr)
+	case p.ElevShelfKm >= p.ElevPeakKm:
+		return fmt.Errorf("ElevShelfKm %g must be below ElevPeakKm %g", p.ElevShelfKm, p.ElevPeakKm)
+	case p.ElevPow <= 0:
+		return fmt.Errorf("ElevPow %g must be positive", p.ElevPow)
+	case p.AbyssKm > p.RidgeDepthKm:
+		return fmt.Errorf("AbyssKm %g above RidgeDepthKm %g", p.AbyssKm, p.RidgeDepthKm)
+	case p.SubsidenceKm < 0 || p.OceanReliefKm < 0:
+		return fmt.Errorf("SubsidenceKm %g / OceanReliefKm %g must be non-negative", p.SubsidenceKm, p.OceanReliefKm)
+	case p.ElevBlend <= 0 || p.ElevBlend >= 0.2:
+		return fmt.Errorf("ElevBlend %g outside (0, 0.2)", p.ElevBlend)
+	case p.WaterFactorMin <= 0 || p.WaterFactorMax < p.WaterFactorMin:
+		return fmt.Errorf("water factor range %g-%g invalid", p.WaterFactorMin, p.WaterFactorMax)
+	case p.ErosionRate < 0:
+		return fmt.Errorf("ErosionRate %g must be non-negative", p.ErosionRate)
+	case p.ErosionMaxPerStep <= 0 || p.ErosionMaxPerStep > 0.25:
+		return fmt.Errorf("ErosionMaxPerStep %g outside (0, 0.25]", p.ErosionMaxPerStep)
+	case p.SedimentOceanFactor < 0 || p.SedimentOceanFactor > 1:
+		return fmt.Errorf("SedimentOceanFactor %g outside 0..1", p.SedimentOceanFactor)
 	}
 	return nil
 }

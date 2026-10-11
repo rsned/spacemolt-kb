@@ -67,23 +67,41 @@ type Params struct {
 	RiftThinPower                    float64 // exponent on thickness in the path cost
 	RiftMaxPlates                    int     // no rifts once this many plate ids exist (byte-sized ids)
 	RiftRetries                      int     // extra seeded start pixels tried after a cancelled attempt
+
+	// Land-mass layer, see docs/superpowers/specs/2026-10-10-tectonics-landmass-design.md
+	LandShareT0                    float64 // share of the sphere remapped to continent at step 0 (archetype)
+	LandBandMin, OceanBandMax      float64 // thickness bands after the step-0 remap
+	LandRankPow, OceanRankPow      float64 // rank exponents inside the bands
+	ContinentAgeMyr                float64 // initial crust age of continental pixels
+	OceanAgeCapMyr                 float64 // cap on the initial ocean age inferred from thickness
+	ElevShelfKm, ElevPeakKm        float64 // continental elevation at the threshold and at thickness 1
+	ElevPow                        float64 // shape of the continental curve
+	RidgeDepthKm, SubsidenceKm     float64 // ocean floor at age 0; km sunk per sqrt(Myr)
+	AbyssKm                        float64 // floor of the subsidence
+	OceanReliefKm                  float64 // km per unit of thickness deviation from the age-predicted ocean thickness
+	ElevBlend                      float64 // half-width in thickness of the ocean/continent blend
+	WaterFactorMin, WaterFactorMax float64 // seeded multiplier on the step-0 hollow volume (archetype)
+	ErosionRate                    float64 // fraction of the elevation difference (over ElevPeakKm) moved per Myr
+	ErosionMaxPerStep              float64 // cap on the fraction a pixel gives away per step
+	SedimentOceanFactor            float64 // share kept when the receiver is deep ocean
 }
 
 type archetypeRow struct {
 	majorMin, majorMax, minorMin, minorMax  int
 	speedMin, speedMax, timeline, crustBias float64
+	landShare, waterMin, waterMax           float64
 }
 
 var archetypes = map[string]archetypeRow{
-	"terran":       {6, 9, 10, 16, 3, 10, 800, 0},
-	"super_terran": {6, 9, 10, 16, 3, 10, 800, 0},
-	"oceanic":      {6, 9, 10, 16, 3, 10, 800, -0.15},
-	"arid":         {4, 7, 8, 12, 2, 5, 600, 0},
-	"tundra":       {4, 7, 8, 12, 2, 5, 600, 0},
-	"glacial":      {4, 7, 8, 12, 2, 5, 600, 0},
-	"scorched":     {8, 12, 14, 20, 6, 12, 600, -0.2},
-	"lava_world":   {8, 12, 14, 20, 6, 12, 600, -0.2},
-	"ice_world":    {2, 4, 2, 6, 0.2, 1, 600, 0.1},
+	"terran":       {6, 9, 10, 16, 3, 10, 800, 0, 0.30, 0.9, 1.1},
+	"super_terran": {6, 9, 10, 16, 3, 10, 800, 0, 0.35, 0.9, 1.1},
+	"oceanic":      {6, 9, 10, 16, 3, 10, 800, -0.15, 0.15, 1.3, 1.6},
+	"arid":         {4, 7, 8, 12, 2, 5, 600, 0, 0.45, 0.5, 0.7},
+	"tundra":       {4, 7, 8, 12, 2, 5, 600, 0, 0.30, 0.8, 1.0},
+	"glacial":      {4, 7, 8, 12, 2, 5, 600, 0, 0.30, 0.8, 1.0},
+	"scorched":     {8, 12, 14, 20, 6, 12, 600, -0.2, 0.40, 0.3, 0.6},
+	"lava_world":   {8, 12, 14, 20, 6, 12, 600, -0.2, 0.40, 0.2, 0.5},
+	"ice_world":    {2, 4, 2, 6, 0.2, 1, 600, 0.1, 0.30, 0.8, 1.0},
 }
 
 var refused = map[string]bool{"jovian": true, "ice_giant": true}
@@ -122,6 +140,12 @@ func DefaultParams(archetype string) (Params, error) {
 		RiftMinShareMin: 0.04, RiftMinShareMax: 0.08, RiftRestMyrMin: 50, RiftRestMyrMax: 120,
 		RiftChancePerMyr: 0.03, RiftMinChildShare: 0.015, RiftThinPower: 1, RiftMaxPlates: 200,
 		RiftRetries: 3,
+		LandShareT0: a.landShare, LandBandMin: 0.55, OceanBandMax: 0.45, LandRankPow: 3, OceanRankPow: 1,
+		ContinentAgeMyr: 1000, OceanAgeCapMyr: 180,
+		ElevShelfKm: -0.2, ElevPeakKm: 8, ElevPow: 1.6,
+		RidgeDepthKm: -2.5, SubsidenceKm: 0.35, AbyssKm: -6, OceanReliefKm: 20, ElevBlend: 0.05,
+		WaterFactorMin: a.waterMin, WaterFactorMax: a.waterMax,
+		ErosionRate: 0.01, ErosionMaxPerStep: 0.2, SedimentOceanFactor: 0.5,
 	}, nil
 }
 
