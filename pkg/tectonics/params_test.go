@@ -57,7 +57,7 @@ func TestLandmassDefaultsAndValidation(t *testing.T) {
 	if p.LandShareT0 != 0.30 || p.WaterFactorMin != 0.9 || p.WaterFactorMax != 1.1 {
 		t.Fatalf("terran land/water defaults: %g %g %g", p.LandShareT0, p.WaterFactorMin, p.WaterFactorMax)
 	}
-	if p.ElevPeakKm != 8 || p.RidgeDepthKm != -2.5 || p.ErosionRate != 0.01 {
+	if p.ElevPeakKm != 8 || p.RidgeDepthKm != -2.5 || p.ErosionRate != 0.0015 {
 		t.Fatalf("elevation/erosion defaults: %g %g %g", p.ElevPeakKm, p.RidgeDepthKm, p.ErosionRate)
 	}
 	if err := Validate(p); err != nil {

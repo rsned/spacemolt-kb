@@ -1,6 +1,7 @@
 package tectonics
 
 import (
+	"math"
 	"reflect"
 	"testing"
 )
@@ -141,6 +142,26 @@ func TestLandmassDeterminism(t *testing.T) {
 	for k := range a {
 		if a[k].SeaLevelKm != b[k].SeaLevelKm || a[k].LandShare != b[k].LandShare || !reflect.DeepEqual(a[k].Elev.Cells, b[k].Elev.Cells) {
 			t.Fatalf("frame %d differs between runs", k)
+		}
+	}
+}
+
+func TestLandmassIntegration(t *testing.T) {
+	p, err := DefaultParams("terran")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p.Face, p.Steps, p.TimelineMyr, p.KeyframeEvery = 64, 20, 40, 5 // 20 steps × 2 Myr
+	var frames []Frame
+	if err := Run(p, 2026, func(f Frame) error { frames = append(frames, f); return nil }); err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range frames {
+		if f.LandShare < 0.1 || f.LandShare > 0.5 {
+			t.Fatalf("frame %d: land share %.3f outside [0.1, 0.5]", f.Step, f.LandShare)
+		}
+		if math.IsNaN(f.SeaLevelKm) || f.SeaLevelKm < -5 || f.SeaLevelKm > 5 {
+			t.Fatalf("frame %d: sea level %.3f km", f.Step, f.SeaLevelKm)
 		}
 	}
 }

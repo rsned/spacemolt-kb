@@ -147,3 +147,35 @@ func Relax(th *Grid[float64], maxDelta float64, iters int) int {
 
 	return fixed
 }
+
+// RelaxWithin is Relax restricted to pixel pairs on the same side of the
+// continental threshold: coasts and rifted margins keep their step, so fresh
+// ridge crust never pulls a continent below the threshold.
+func RelaxWithin(th *Grid[float64], maxDelta float64, iters int, threshold float64) int {
+	nb := Neighbors4(th.S)
+	fixed := 0
+	for range iters {
+		fixed = 0
+		for i := range th.Len() {
+			for _, j := range nb[i] {
+				if int(j) <= i {
+					continue
+				}
+				a, b := th.Cells[i], th.Cells[j]
+				if (a >= threshold) != (b >= threshold) {
+					continue
+				}
+				if d := a - b; d > maxDelta {
+					adj := (d - maxDelta) / 2
+					th.Cells[i], th.Cells[j] = a-adj, b+adj
+					fixed++
+				} else if d < -maxDelta {
+					adj := (-d - maxDelta) / 2
+					th.Cells[i], th.Cells[j] = a+adj, b-adj
+					fixed++
+				}
+			}
+		}
+	}
+	return fixed
+}

@@ -159,7 +159,7 @@ func (s *State) Step(rng *rand.Rand) {
 			featType.Cells[i], featAge.Cells[i] = c[0].ft, c[0].fa
 			if c[0].th < s.P.ContinentalThreshold {
 				a := float64(c[0].age)
-				th.Cells[i] += s.P.OceanicThickening * (math.Sqrt(a+1) - math.Sqrt(a))
+				th.Cells[i] = math.Min(math.Max(th.Cells[i], s.P.OceanBandMax), th.Cells[i]+s.P.OceanicThickening*(math.Sqrt(a+1)-math.Sqrt(a)))
 			}
 		default:
 			sort.Slice(c, func(x, y int) bool {
@@ -203,22 +203,92 @@ func (s *State) Step(rng *rand.Rand) {
 				queue = append(queue, int32(i))
 			}
 		}
+		src := make([]int32, N)
+		for i := range N {
+			src[i] = int32(i)
+		}
 		for len(queue) > 0 {
 			i := queue[0]
 			queue = queue[1:]
 			for _, j := range nb[i] {
 				if labels.Cells[j] < 0 {
 					labels.Cells[j] = labels.Cells[i]
+					src[j] = src[i]
 					queue = append(queue, j)
 				}
 			}
 		}
-		for _, i := range gaps {
-			th.Cells[i] = s.P.RidgeThickness + (rng.Float64()*2-1)*s.P.RidgeJitter
-			age.Cells[i] = 0
-			featType.Cells[i] = FeatDivergent
-			featAge.Cells[i] = 0
-			stamped[i] = true
+		// 2b. classify each connected gap region: a seam between two plates
+		// moving apart is a spreading centre (ridge crust); every other gap
+		// (staircase holes along sliding or jagged edges, holes behind a
+		// plate with no other plate across) is a resampling artefact that
+		// is healed by copying the nearest claimed pixel.
+		isGap := make([]bool, N)
+		for _, g := range gaps {
+			isGap[g] = true
+		}
+		seen := make([]bool, N)
+		var members []int32
+		for _, g0 := range gaps {
+			if seen[g0] {
+				continue
+			}
+			members = members[:0]
+			touch := map[int32]int{}
+			seen[g0] = true
+			stack := []int32{g0}
+			for len(stack) > 0 {
+				g := stack[len(stack)-1]
+				stack = stack[:len(stack)-1]
+				members = append(members, g)
+				for _, j := range nb[g] {
+					if isGap[j] {
+						if !seen[j] {
+							seen[j] = true
+							stack = append(stack, j)
+						}
+					} else {
+						touch[labels.Cells[j]]++
+					}
+				}
+			}
+			ridge := false
+			if len(touch) >= 2 {
+				ls := make([]int32, 0, len(touch))
+				for l := range touch {
+					ls = append(ls, l)
+				}
+				sort.Slice(ls, func(x, y int) bool {
+					if touch[ls[x]] != touch[ls[y]] {
+						return touch[ls[x]] > touch[ls[y]]
+					}
+					return ls[x] < ls[y]
+				})
+				a, b := ls[0], ls[1]
+				var c [3]float64
+				for _, g := range members {
+					c = add(c, dirs[g])
+				}
+				c = unit(c)
+				rel := add(velocityAt(s.Motions[a], c), scale(velocityAt(s.Motions[b], c), -1))
+				nrm := tangent(add(s.Plates[a].Centroid, scale(s.Plates[b].Centroid, -1)), c)
+				// opening must dominate the relative motion: pure shear seams
+				// (tiny, noisy normal components) are healed, not spread
+				ridge = dot(rel, nrm) > 0.3*math.Sqrt(dot(rel, rel))
+			}
+			for _, g := range members {
+				if ridge {
+					th.Cells[g] = s.P.RidgeThickness + (rng.Float64()*2-1)*s.P.RidgeJitter
+					age.Cells[g] = 0
+					featType.Cells[g] = FeatDivergent
+					featAge.Cells[g] = 0
+					stamped[g] = true
+				} else {
+					j := src[g]
+					th.Cells[g], age.Cells[g] = th.Cells[j], age.Cells[j]
+					featType.Cells[g], featAge.Cells[g] = featType.Cells[j], featAge.Cells[j]
+				}
+			}
 		}
 	}
 
@@ -255,7 +325,7 @@ func (s *State) Step(rng *rand.Rand) {
 
 	// 9. smooth
 	if s.P.RelaxIters > 0 {
-		Relax(s.Th, s.P.MaxNeighborDelta, s.P.RelaxIters)
+		RelaxWithin(s.Th, s.P.MaxNeighborDelta, s.P.RelaxIters, s.P.ContinentalThreshold)
 	}
 
 	// 10. sea level

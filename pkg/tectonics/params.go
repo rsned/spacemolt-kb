@@ -145,7 +145,7 @@ func DefaultParams(archetype string) (Params, error) {
 		ElevShelfKm: -0.2, ElevPeakKm: 8, ElevPow: 1.6,
 		RidgeDepthKm: -2.5, SubsidenceKm: 0.35, AbyssKm: -6, OceanReliefKm: 20, ElevBlend: 0.05,
 		WaterFactorMin: a.waterMin, WaterFactorMax: a.waterMax,
-		ErosionRate: 0.01, ErosionMaxPerStep: 0.2, SedimentOceanFactor: 0.5,
+		ErosionRate: 0.0015, ErosionMaxPerStep: 0.2, SedimentOceanFactor: 0.5,
 	}, nil
 }
 
