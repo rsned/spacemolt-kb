@@ -101,3 +101,38 @@ func Dirs(S int) [][3]float64 {
 
 	return d
 }
+
+var (
+	areaMu    sync.Mutex
+	areaCache = map[int][]float64{}
+)
+
+// cornerAngle is the solid angle of the rectangle [0,u]×[0,v] on the plane
+// z = 1 seen from the origin.
+func cornerAngle(u, v float64) float64 { return math.Atan(u * v / math.Sqrt(1+u*u+v*v)) }
+
+// rectSolidAngle is the solid angle of [u0,u1]×[v0,v1] on the plane z = 1.
+func rectSolidAngle(u0, u1, v0, v1 float64) float64 {
+	return cornerAngle(u1, v1) - cornerAngle(u0, v1) - cornerAngle(u1, v0) + cornerAngle(u0, v0)
+}
+
+// AreaWeights returns the solid angle in steradians of every pixel; the six
+// faces sum to 4π. Cached per face size.
+func AreaWeights(S int) []float64 {
+	areaMu.Lock()
+	defer areaMu.Unlock()
+	if w, ok := areaCache[S]; ok {
+		return w
+	}
+	g := NewGrid[struct{}](S)
+	w := make([]float64, g.Len())
+	for i := range g.Len() {
+		_, px, py := g.Addr(i)
+		u0, u1 := 2*float64(px)/float64(S)-1, 2*float64(px+1)/float64(S)-1
+		v0, v1 := 2*float64(py)/float64(S)-1, 2*float64(py+1)/float64(S)-1
+		w[i] = rectSolidAngle(u0, u1, v0, v1)
+	}
+	areaCache[S] = w
+
+	return w
+}

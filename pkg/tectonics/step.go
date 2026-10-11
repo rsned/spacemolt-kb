@@ -26,7 +26,7 @@ type State struct {
 	P        Params
 	Th       *Grid[float64]
 	Labels   *Grid[int32]
-	Age      *Grid[uint16] // steps since the crust formed
+	Age      *Grid[uint16] // steps since the crust formed (InitialAges at step 0)
 	FeatType *Grid[uint8]
 	FeatAge  *Grid[uint8] // steps since the feature was stamped, saturating at 63
 	Plates   []Plate
@@ -35,10 +35,10 @@ type State struct {
 }
 
 // NewState wraps an initial thickness field, plate labelling and motions as
-// step 0, with zero crust ages and no features.
+// step 0, with crust ages from InitialAges and no features.
 func NewState(p Params, th *Grid[float64], labels *Grid[int32], plates []Plate, motions []Motion) *State {
 	S := th.S
-	return &State{P: p, Th: th, Labels: labels, Age: NewGrid[uint16](S),
+	return &State{P: p, Th: th, Labels: labels, Age: InitialAges(th, p),
 		FeatType: NewGrid[uint8](S), FeatAge: NewGrid[uint8](S), Plates: plates, Motions: motions}
 }
 
