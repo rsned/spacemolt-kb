@@ -49,6 +49,10 @@ METRICS = [
     ("lifetime_median", "median plate lifetime Myr", "{:.0f}", None, None),
     ("births", "plate births", "{:.0f}", 1, None),
     ("reaims_per_100myr", "re-aims (>30°) / plate / 100 Myr", "{:.2f}", None, None),
+    ("land_mean", "land share (mean)", "{:.0%}", 0.15, 0.5),
+    ("land_elev_mean", "mean land elevation km", "{:.2f}", None, None),
+    ("elev_max", "max elevation km", "{:.1f}", None, None),
+    ("ocean_depth_mean", "mean ocean depth km", "{:.2f}", None, None),
 ]
 
 
@@ -86,7 +90,7 @@ def bake_and_score(args, seed):
         agg, _ = ts.Bundle(bundle).summary()
         for k in ts.CSV_FIELDS:
             v = agg[k]
-            row[k] = str(v) if isinstance(v, int) else f"{v:.5g}"
+            row[k] = "" if v is None else (str(v) if isinstance(v, int) else f"{v:.5g}")
         row["status"] = "ok"
     except subprocess.CalledProcessError as e:
         row["status"], row["error"] = "error", (e.stderr or str(e)).strip().replace("\n", " ")[-300:]
@@ -132,10 +136,10 @@ def summarize(args):
     out.append("| metric | Earth | median | p10 | p90 | min | max |")
     out.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
     for key, label, fmt, _, _ in METRICS:
-        vals = [float(r[key]) for r in ok]
+        vals = [float(r[key]) for r in ok if r.get(key) not in ("", None)]
         if not vals:
             continue
-        e = fmt.format(earth[key]) if earth else "—"
+        e = fmt.format(earth.get(key)) if earth and earth.get(key) is not None else "—"
         out.append(f"| {label} | {e} | {fmt.format(statistics.median(vals))} | {fmt.format(pct(vals, 0.1))} | "
                    f"{fmt.format(pct(vals, 0.9))} | {fmt.format(min(vals))} | {fmt.format(max(vals))} |")
     if ok:
@@ -148,6 +152,8 @@ def summarize(args):
     for r in ok:
         why = []
         for key, label, fmt, lo, hi in METRICS:
+            if r.get(key) in ("", None):
+                continue
             v = float(r[key])
             if lo is not None and v < lo:
                 why.append(f"{label} {fmt.format(v)} < {lo}")

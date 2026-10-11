@@ -12,6 +12,9 @@ like any other bundle.
   plate.png      dense plate index (first-appearance order, wraps at 255)
   feature.png    boundary type in the top 2 bits (1 ridge/rift, 2 subduction,
                  3 transform/fault), age bits 0
+  elevation.png  bundle v2: 0.8 km inside a reconstructed continent polygon,
+                 -3.7 km elsewhere, packed as 16-bit metres + 32768 offset
+                 (red high byte / green low byte); sea_level_km is 0
 
 Run with the gplates venv:
   ~/gplates-venv/bin/python scripts/earth_plates_export.py \
@@ -31,7 +34,11 @@ import numpy as np
 import pygplates
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from tectonics_stats import area_weights  # noqa: E402
+
 RADIUS_KM = 6371.0
+LAND_ELEV_KM, OCEAN_ELEV_KM = 0.8, -3.7
 TOPOLOGY_FILES = [
     "1000-410-Topologies_Merdith_et_al.gpml",
     "1000-410-Convergence_Merdith_et_al.gpml",
@@ -149,6 +156,19 @@ def write_cross(path, values, S):
     return img
 
 
+def write_cross16(values_km, S):
+    """elevation cross: 16-bit metres + 32768 packed red (high) / green (low)."""
+    v = np.clip(np.round(values_km * 1000) + 32768, 0, 65535).astype(np.uint16)
+    img = np.zeros((3 * S, 4 * S, 4), dtype=np.uint8)
+    for face in range(6):
+        col, row = CROSS_CELLS[face]
+        cell = v[face * S * S:(face + 1) * S * S].reshape(S, S)
+        img[row * S:(row + 1) * S, col * S:(col + 1) * S, 0] = cell >> 8
+        img[row * S:(row + 1) * S, col * S:(col + 1) * S, 1] = cell & 255
+        img[row * S:(row + 1) * S, col * S:(col + 1) * S, 3] = 255
+    return img
+
+
 def save_png(path, img):
     Image.fromarray(img, "RGBA").save(path, optimize=False, compress_level=6)
 
@@ -206,6 +226,7 @@ def main():
     dense = {}  # gplates plate id -> dense index
     frames = []
     pixel_area = 1.0 / N
+    W = area_weights(S)
     t_begin = time.time()
     for step, t in enumerate(times):
         t0 = time.time()
@@ -293,14 +314,19 @@ def main():
         save_png(os.path.join(fdir, "thickness.png"), img)
         save_png(os.path.join(fdir, "plate.png"), write_cross(None, dense_labels, S))
         save_png(os.path.join(fdir, "feature.png"), write_cross(None, feature, S))
-        frames.append({"step": step, "myr": args.start - t, "ma": t, "dir": rel, "plates": rows})
+        elev = np.where(cont_labels >= 0, LAND_ELEV_KM, OCEAN_ELEV_KM)
+        save_png(os.path.join(fdir, "elevation.png"), write_cross16(elev, S))
+        land_share = float(W[cont_labels >= 0].sum() / (4 * math.pi))
+        frames.append({"step": step, "myr": args.start - t, "ma": t, "dir": rel, "plates": rows,
+                       "sea_level_km": 0.0, "land_share": land_share})
         print(f"frame {step:3d} t={t:7.1f} Ma  plates={len(areas)} gaps={gaps} {time.time()-t0:5.1f}s", flush=True)
 
     manifest = {
-        "version": 1, "seed": 0, "planet": "earth", "archetype": "earth",
+        "version": 2, "seed": 0, "planet": "earth", "archetype": "earth",
         "params": {"Archetype": "earth", "Face": S, "Steps": len(times) - 1, "KeyframeEvery": 1,
                    "TimelineMyr": args.start - args.end, "RadiusKm": RADIUS_KM},
         "face": S, "steps": len(times) - 1, "myr_per_step": args.step,
+        "water_km3": 0.0,
         "source": {"model": "Merdith et al. 2021 via Müller et al. 2022 v1.1", "frame": args.frame,
                    "licence": "CC-BY 4.0", "see": "docs/BIBLIOGRAPHY.md"},
         "plate_ids": {str(v): k for k, v in dense.items()},

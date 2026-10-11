@@ -16,6 +16,9 @@ earth_plates_export.py), so the same numbers can be put side by side:
                 frames; censored at the run's ends)
   births        plate births (ids first seen after frame 0)
   re-aims       mean number of >30° pole-direction changes per plate per 100 Myr
+  land          land share (mean, min-max), mean land elevation km, max
+                elevation km, mean ocean depth km — from elevation.png and
+                sea_level_km (bundle v2 only; "—" on v1 bundles)
 
 Usage:
   python3 scripts/tectonics_stats.py data/tectonics/earth-nnr data/tectonics/seed-42-terran [...]
@@ -50,6 +53,27 @@ def pixel_dirs(S):
     return np.concatenate([face_uv_to_dir(f, u.ravel(), v.ravel()) for f in range(6)])
 
 
+def area_weights(S):
+    """Solid angle of every pixel (steradians), 6*S*S, summing to 4π."""
+    edges = 2 * np.arange(S + 1) / S - 1
+    u0, u1 = np.meshgrid(edges[:-1], edges[:-1], indexing="xy")[0], np.meshgrid(edges[1:], edges[1:], indexing="xy")[0]
+    v0, v1 = np.meshgrid(edges[:-1], edges[:-1], indexing="xy")[1], np.meshgrid(edges[1:], edges[1:], indexing="xy")[1]
+    corner = lambda u, v: np.arctan(u * v / np.sqrt(1 + u * u + v * v))  # noqa: E731
+    face = corner(u1, v1) - corner(u0, v1) - corner(u1, v0) + corner(u0, v0)
+    return np.tile(face.ravel(), 6)
+
+
+def read_elevation(path, S):
+    """elevation.png → km: 16-bit height packed red (high) / green (low), offset 32768."""
+    img = np.array(Image.open(path)).astype(np.int64)
+    v = img[..., 0] * 256 + img[..., 1]
+    out = np.empty(6 * S * S, dtype=np.float64)
+    for face in range(6):
+        col, row = CROSS_CELLS[face]
+        out[face * S * S:(face + 1) * S * S] = v[row * S:(row + 1) * S, col * S:(col + 1) * S].ravel()
+    return (out - 32768) / 1000.0
+
+
 def read_cross(path, S):
     img = np.array(Image.open(path))[..., 0]
     out = np.empty(6 * S * S, dtype=np.int64)
@@ -65,6 +89,7 @@ class Bundle:
         self.m = json.load(open(os.path.join(path, "manifest.json")))
         self.S = self.m["face"]
         self.dirs = pixel_dirs(self.S)
+        self.w = area_weights(self.S)
         self.frames = self.m["frames"]
         self.myr_per_frame = (self.frames[-1]["myr"] - self.frames[0]["myr"]) / max(1, len(self.frames) - 1)
 
@@ -93,6 +118,16 @@ class Bundle:
         active = (ftype > 0) & (fage == 0)
         n_active = int(active.sum())
         frac = {k: (int(((ftype == k) & active).sum()) / n_active if n_active else 0.0) for k in (1, 2, 3)}
+        land = {"land": None, "land_elev": None, "elev_max": None, "ocean_depth": None}
+        epath = os.path.join(d, "elevation.png")
+        if os.path.exists(epath) and "sea_level_km" in f:
+            h = read_elevation(epath, self.S)
+            L = f["sea_level_km"]
+            wet, dry = h < L, h >= L
+            land["land"] = float(self.w[dry].sum() / (4 * math.pi))
+            land["land_elev"] = float(((h[dry] - L) * self.w[dry]).sum() / self.w[dry].sum()) if dry.any() else 0.0
+            land["elev_max"] = float((h - L).max())
+            land["ocean_depth"] = float(((h[wet] - L) * self.w[wet]).sum() / self.w[wet].sum()) if wet.any() else 0.0
         return {
             "plates": len(rows),
             "majors": sum(1 for r in rows if r.get("major")),
@@ -103,6 +138,7 @@ class Bundle:
             "div": frac[1], "conv": frac[2], "trans": frac[3],
             "ids": {r["id"]: np.array(r["pole"]) for r in rows},
             "myr": f["myr"],
+            **land,
         }
 
     def summary(self, series=0):
@@ -138,6 +174,12 @@ class Bundle:
             "lifetime_median": statistics.median(lifetimes) if lifetimes else 0.0,
             "births": births,
             "reaims_per_100myr": (sum(reaims.values()) / total_plate_myr * 100) if total_plate_myr else 0.0,
+            "land_mean": statistics.mean(p["land"] for p in per) if per[0]["land"] is not None else None,
+            "land_min": min(p["land"] for p in per) if per[0]["land"] is not None else None,
+            "land_max": max(p["land"] for p in per) if per[0]["land"] is not None else None,
+            "land_elev_mean": statistics.mean(p["land_elev"] for p in per) if per[0]["land"] is not None else None,
+            "elev_max": max(p["elev_max"] for p in per) if per[0]["land"] is not None else None,
+            "ocean_depth_mean": statistics.mean(p["ocean_depth"] for p in per) if per[0]["land"] is not None else None,
         }
         rows = []
         if series:
@@ -157,7 +199,8 @@ class Bundle:
 
 CSV_FIELDS = ["frames", "span_myr", "face", "plates_mean", "plates_min", "plates_max", "majors_mean",
               "largest", "top3", "speed", "speed_p90", "div", "conv", "trans",
-              "lifetime_median", "births", "reaims_per_100myr"]
+              "lifetime_median", "births", "reaims_per_100myr",
+              "land_mean", "land_min", "land_max", "land_elev_mean", "elev_max", "ocean_depth_mean"]
 
 
 def csv_row(name, agg):
@@ -165,7 +208,10 @@ def csv_row(name, agg):
     cells = [name]
     for k in CSV_FIELDS:
         v = agg[k]
-        cells.append(str(v) if isinstance(v, int) else f"{v:.5g}")
+        if v is None:
+            cells.append("")
+        else:
+            cells.append(str(v) if isinstance(v, int) else f"{v:.5g}")
     return ",".join(cells)
 
 
@@ -210,6 +256,10 @@ def main():
         ("median plate lifetime Myr", lambda a: f"{a['lifetime_median']:.0f}"),
         ("plate births (ids first seen after frame 0)", lambda a: f"{a['births']}"),
         ("re-aims (>30°) per plate per 100 Myr", lambda a: f"{a['reaims_per_100myr']:.2f}"),
+        ("land share (mean, min–max)", lambda a: "—" if a["land_mean"] is None else f"{100*a['land_mean']:.0f}% ({100*a['land_min']:.0f}–{100*a['land_max']:.0f}%)"),
+        ("mean land elevation km", lambda a: "—" if a["land_elev_mean"] is None else f"{a['land_elev_mean']:.2f}"),
+        ("max elevation km", lambda a: "—" if a["elev_max"] is None else f"{a['elev_max']:.1f}"),
+        ("mean ocean depth km", lambda a: "—" if a["ocean_depth_mean"] is None else f"{a['ocean_depth_mean']:.2f}"),
     ]
     for label, fn in lines:
         print(f"| {label} | " + " | ".join(fn(r[1]) for r in results) + " |")
