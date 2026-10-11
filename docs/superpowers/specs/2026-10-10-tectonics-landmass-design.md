@@ -135,8 +135,8 @@ So ocean thicker than the cap explains starts as a submerged plateau
 
 ## 3. Erosion in the step loop
 
-`erode(th, age, labels, seaLevel, p, nb)` runs inside `Step` as a new step 7
-after ageing (step 6) and before the relax pass; it reads an `Elevation`
+`erode(th, age, labels, seaLevel, p, nb)` runs inside `Step` as a new step 8
+after retire (step 7) and before the relax pass (step 9); it reads an `Elevation`
 grid computed from the step's thickness and age.
 
 For each pixel `i` with `h_i ≥ L`:
@@ -218,8 +218,9 @@ continents) is left to the tuning sweep.
   adds these to its METRICS table with an outlier band of 0.15–0.5 on
   `land_mean`.
 - **Golden** (`cmd/tectonics-lab/testdata/golden_face64.json`): recipe
-  `terran/2026/64/20/v10`; the hash adds the `Elev` float bits and each
-  frame's `SeaLevelKm` and `LandShare` bits.
+  `terran/2026/64/20/v12` (current; rebaked twice more after this amendment,
+  for amendment 3b and then the gap-ridge seam-normal fix); the hash adds
+  the `Elev` float bits and each frame's `SeaLevelKm` and `LandShare` bits.
 
 ## 5. Test visualisations
 
@@ -231,9 +232,12 @@ continents) is left to the tuning sweep.
   (green → brown → white), a translucent water plane at `seaLevel`, water
   depth tinted below it. Painter's order back to front.
 - `writeVis(t, name string, panels ...*image.RGBA)` tiles the panels side
-  by side with a label strip and writes `testdata/vis/<name>.png`, then
-  regenerates `testdata/vis/index.html` listing every PNG present. Both are
-  no-ops unless `go test -vis` is passed (flag registered like `-update`).
+  by side separated by a gap (no in-image labels) and writes
+  `testdata/vis/<name>.png`, then regenerates `testdata/vis/index.html`
+  listing every PNG under an `<h2>` naming the file; the page's caption
+  tells the reader panels run left to right as named in each test (typically
+  before | after | diff). Both are no-ops unless `go test -vis` is passed
+  (flag registered like `-update`).
 - A difference panel helper `diffPanel(before, after *Grid[float64], face, scale)`
   colours loss red and gain blue, used by the erosion tests.
 - `testdata/vis/` is added to `.gitignore`.
@@ -257,7 +261,8 @@ strip for multi-step tests) through these helpers.
 - `TestLandmassDeterminism`: two `Run`s at S=32, 10 steps produce identical `Elev`, `SeaLevelKm`, `LandShare`.
 - `TestLandmassIntegration`: `Run` at S=64, 20 steps with `TimelineMyr` 40 (2 Myr per step), terran: land share in [0.1, 0.5] on every frame, sea levels finite and within [−5, 5] km.
 - Advection (amendment 3b): a pure-shear seam along a jagged boundary opens no ridge crust and leaves thickness untouched; a diverging seam still opens ridge crust on the diverging side only; ocean thickening never exceeds `OceanBandMax`; `RelaxWithin` leaves a 0.55/0.15 coast step alone; with erosion, relax, trench/scar and rifting off, continental pixels stay ≥ 60 % of their step-0 share over a full 400-step run.
-- Golden rebaked as v10 (bundle v2) and v11 (amendment 3b); `TestTimingBudgetFace128` unchanged (10 s).
+- Golden rebaked as v10 (bundle v2) and v11 (amendment 3b), then v12 (gap-ridge
+  seam-normal fix, current); `TestTimingBudgetFace128` unchanged (10 s).
 - Manual: `tectonics_stats.py` on `earth-test` (regenerated as v2) and on a seed bundle prints the new lines; the sweep smoke at face 64 writes the new columns.
 
 ## Tuning (before merge)

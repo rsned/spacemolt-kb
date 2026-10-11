@@ -83,6 +83,12 @@ func TestLandmassDefaultsAndValidation(t *testing.T) {
 		{"ErosionMaxPerStep 0.3", func(q *Params) { q.ErosionMaxPerStep = 0.3 }},
 		{"SedimentOceanFactor 2", func(q *Params) { q.SedimentOceanFactor = 2 }},
 		{"negative erosion", func(q *Params) { q.ErosionRate = -1 }},
+		{"LandRankPow 0", func(q *Params) { q.LandRankPow = 0 }},
+		{"OceanRankPow negative", func(q *Params) { q.OceanRankPow = -1 }},
+		{"negative ContinentAgeMyr", func(q *Params) { q.ContinentAgeMyr = -1 }},
+		{"negative OceanAgeCapMyr", func(q *Params) { q.OceanAgeCapMyr = -1 }},
+		{"negative SubsidenceKm", func(q *Params) { q.SubsidenceKm = -1 }},
+		{"negative OceanReliefKm", func(q *Params) { q.OceanReliefKm = -1 }},
 	}
 	for _, b := range bad {
 		q := p

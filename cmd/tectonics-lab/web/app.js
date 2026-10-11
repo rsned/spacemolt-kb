@@ -157,7 +157,7 @@
     const dir = `/bundles/${slug}/${manifest.frames[i].dir}`;
     const p = Promise.all([
       ...['thickness', 'plate', 'feature'].map((n) => loadImage(`${dir}/${n}.png`)),
-      loadImage(`${dir}/elevation.png`).catch(() => null),
+      manifest.version >= 2 ? loadImage(`${dir}/elevation.png`).catch(() => null) : Promise.resolve(null),
     ]);
     frameCache.set(i, p);
     return p;

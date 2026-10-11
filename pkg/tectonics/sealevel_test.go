@@ -46,6 +46,35 @@ func TestSeaLevelZeroWaterIsLowestPixel(t *testing.T) {
 	}
 }
 
+func TestSeaLevelForOverflowReturnsRangeTop(t *testing.T) {
+	p := testParams(t, 8)
+	elev := NewGrid[float64](8)
+	for i := range elev.Cells {
+		elev.Cells[i] = seaMinKm
+	}
+	w := AreaWeights(8)
+	total := 0.0
+	for _, v := range w {
+		total += v
+	}
+	// More water than the full bin range (65.536 km of depth) could ever hold.
+	water := total * p.RadiusKm * p.RadiusKm * float64(seaBins) * seaBinKm * 2
+	want := seaMinKm + float64(seaBins)*seaBinKm
+	if L := SeaLevelFor(elev, water, p); math.Abs(L-want) > 1e-9 {
+		t.Fatalf("overflow sea level %.6f, want the top of the range %.6f", L, want)
+	}
+}
+
+func TestDrawWaterFactorWithinRange(t *testing.T) {
+	p := testParams(t, 8)
+	for seed := int64(0); seed < 20; seed++ {
+		f := drawWaterFactor(p, seed)
+		if f < p.WaterFactorMin || f > p.WaterFactorMax {
+			t.Fatalf("seed %d: water factor %.4f outside [%.4f, %.4f]", seed, f, p.WaterFactorMin, p.WaterFactorMax)
+		}
+	}
+}
+
 func TestRunCarriesWaterAndSeaLevel(t *testing.T) {
 	p := testParams(t, 16)
 	p.Steps, p.KeyframeEvery = 4, 2

@@ -106,6 +106,67 @@ func TestBundleRoundTripsElevation(t *testing.T) {
 	}
 }
 
+func TestReadFrameMissingElevation(t *testing.T) {
+	p := testParams(t, 16)
+	p.Steps, p.KeyframeEvery = 1, 1
+	dir := t.TempDir()
+	var fi FrameInfo
+	var frame Frame
+	if err := Run(p, 7, func(f Frame) error {
+		frame = f
+		f.Elev = nil // a v1 frame carries no elevation grid
+		var err error
+		fi, err = WriteFrame(dir, f)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, fi.Dir, "elevation.png")); !os.IsNotExist(err) {
+		t.Fatalf("elevation.png should not exist, stat err %v", err)
+	}
+	got, err := ReadFrame(dir, fi)
+	if err != nil {
+		t.Fatalf("ReadFrame on a v1 frame directory: %v", err)
+	}
+	if got.Elev != nil {
+		t.Fatal("Elev should be nil when elevation.png is absent")
+	}
+	if math.Abs(got.Th.Cells[0]-frame.Th.Cells[0]) > 1.0/255+1e-9 {
+		t.Fatalf("thickness grid not read: got %g, want %g", got.Th.Cells[0], frame.Th.Cells[0])
+	}
+
+	// A real read failure (not "file missing") must still surface.
+	if err := os.WriteFile(filepath.Join(dir, fi.Dir, "elevation.png"), []byte("not a png"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ReadFrame(dir, fi); err == nil {
+		t.Fatal("ReadFrame must error on a corrupt elevation.png, not swallow it")
+	}
+}
+
+func TestElevationPackingClamps(t *testing.T) {
+	S := 4
+	elev := NewGrid[float64](S)
+	elev.Cells[0] = 40.0  // above the +33.536 km range: clamps to 32.767 km
+	elev.Cells[1] = -40.0 // below the -32 km range: clamps to -32.768 km
+	fr := Frame{Step: 0, Th: NewGrid[float64](S), Labels: NewGrid[int32](S), Feature: NewGrid[uint8](S), Elev: elev}
+	dir := t.TempDir()
+	fi, err := WriteFrame(dir, fr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := ReadFrame(dir, fi)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if math.Abs(got.Elev.Cells[0]-32.767) > 1e-9 {
+		t.Errorf("clamp high: %.6f, want 32.767", got.Elev.Cells[0])
+	}
+	if math.Abs(got.Elev.Cells[1]-(-32.768)) > 1e-9 {
+		t.Errorf("clamp low: %.6f, want -32.768", got.Elev.Cells[1])
+	}
+}
+
 func TestReadManifestAcceptsVersion1(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "manifest.json"), []byte(`{"version":1,"archetype":"terran","face":8,"steps":1,"myr_per_step":1,"frames":[]}`), 0o644); err != nil {

@@ -26,6 +26,28 @@ func countFeat(s *State, ft uint8) int {
 	return n
 }
 
+func TestStepAgeSaturatesInsteadOfWrapping(t *testing.T) {
+	// A pixel whose age InitialAges clamped to math.MaxUint16 must stay
+	// there forever, not wrap to 0 on the next increment.
+	S := 8
+	th := NewGrid[float64](S)
+	for i := range th.Cells {
+		th.Cells[i] = 0.5
+	}
+	labels := NewGrid[int32](S)
+	p := testParams(t, S)
+	s := NewState(p, th, labels, PlateStats(th, labels, 1), []Motion{{Pole: [3]float64{0, 0, 1}, DegPerStep: 0}})
+	for i := range s.Age.Cells {
+		s.Age.Cells[i] = math.MaxUint16
+	}
+	s.Step(newRNG(1, "t"))
+	for i, a := range s.Age.Cells {
+		if a != math.MaxUint16 {
+			t.Fatalf("pixel %d age %d after step, want saturated at %d", i, a, math.MaxUint16)
+		}
+	}
+}
+
 func TestStepSinglePlateRotatesWithoutGaps(t *testing.T) {
 	S := 16
 	th := NewGrid[float64](S)

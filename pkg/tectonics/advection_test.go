@@ -144,6 +144,8 @@ func TestContinentsSurviveAdvection(t *testing.T) {
 			start = share
 		} else if share < 0.6*start {
 			t.Fatalf("step %d: continental share %.3f fell below 60%% of its start %.3f", f.Step, share, start)
+		} else if share > 1.1*start {
+			t.Fatalf("step %d: continental share %.3f rose above 110%% of its start %.3f", f.Step, share, start)
 		}
 		return nil
 	}); err != nil {

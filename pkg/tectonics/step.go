@@ -20,6 +20,17 @@ const (
 // featAgeMax is the saturation value of a feature's age (six bits).
 const featAgeMax = 63
 
+// incAge increments a crust age, saturating at the uint16 maximum instead of
+// wrapping. InitialAges can clamp a pixel's age to math.MaxUint16 (e.g. a very
+// large ContinentAgeMyr relative to MyrPerStep), and that pixel must stay at
+// the saturation value forever rather than wrapping to 0 on the next step.
+func incAge(a uint16) uint16 {
+	if a == math.MaxUint16 {
+		return math.MaxUint16
+	}
+	return a + 1
+}
+
 // State is the full simulation state between steps. Every per-pixel grid,
 // including the boundary features, advects with the plates.
 type State struct {
@@ -155,7 +166,7 @@ func (s *State) Step(rng *rand.Rand) {
 		case 0:
 			gaps = append(gaps, int32(i))
 		case 1:
-			labels.Cells[i], th.Cells[i], age.Cells[i] = c[0].plate, c[0].th, c[0].age+1
+			labels.Cells[i], th.Cells[i], age.Cells[i] = c[0].plate, c[0].th, incAge(c[0].age)
 			featType.Cells[i], featAge.Cells[i] = c[0].ft, c[0].fa
 			if c[0].th < s.P.ContinentalThreshold {
 				a := float64(c[0].age)
@@ -169,7 +180,7 @@ func (s *State) Step(rng *rand.Rand) {
 				return c[x].plate < c[y].plate
 			})
 			a, b := c[0], c[1]
-			labels.Cells[i], th.Cells[i], age.Cells[i] = a.plate, a.th, a.age+1
+			labels.Cells[i], th.Cells[i], age.Cells[i] = a.plate, a.th, incAge(a.age)
 			featType.Cells[i], featAge.Cells[i] = a.ft, a.fa
 			va := velocityAt(s.Motions[a.plate], dirs[i])
 			vb := velocityAt(s.Motions[b.plate], dirs[i])
@@ -195,7 +206,8 @@ func (s *State) Step(rng *rand.Rand) {
 		}
 	}
 
-	// 2. gaps: nearest labelled pixel by BFS, ridge crust
+	// 2. gaps: label every gap pixel from the nearest claimed pixel by BFS,
+	// then classify each connected gap region below (ridge crust or healed).
 	if len(gaps) > 0 {
 		queue := make([]int32, 0, N)
 		for i := range N {

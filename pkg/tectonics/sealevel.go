@@ -4,7 +4,7 @@ import "math"
 
 const (
 	seaMinKm = -32.0
-	seaBins  = 65536 // 1 m bins over [-32 km, +32 km)
+	seaBins  = 65536 // 1 m bins over [-32 km, +33.536 km)
 	seaBinKm = 0.001
 )
 
