@@ -250,12 +250,15 @@ func (s *State) Step(rng *rand.Rand) {
 	// 7. retire
 	s.Plates = s.retire(PlateStats(s.Th, s.Labels, len(s.Plates)))
 
-	// 8. smooth
+	// 8. erosion (land only, from the sea level of the previous step)
+	s.erode(s.Th, s.Age, s.SeaLevel)
+
+	// 9. smooth
 	if s.P.RelaxIters > 0 {
 		Relax(s.Th, s.P.MaxNeighborDelta, s.P.RelaxIters)
 	}
 
-	// 9. sea level
+	// 10. sea level
 	s.updateSeaLevel()
 }
 

@@ -126,8 +126,6 @@ func renderIso(h *Grid[float64], face cubemap.Face, seaLevel, exag float64) *ima
 }
 
 // diffPanel colours after−before: loss red, gain blue, scaled so |scale| is full intensity.
-//
-//nolint:unused // shared vis helper; no Task 5 test needs a diff panel yet, future tests will call it
 func diffPanel(before, after *Grid[float64], face cubemap.Face, scale float64) *image.RGBA {
 	S := before.S
 	const cell = 10

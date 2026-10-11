@@ -14,6 +14,7 @@ func testParams(t *testing.T, S int) Params {
 		t.Fatal(err)
 	}
 	p.Face = S
+	p.ErosionRate = 0 // step tests assert pre-erosion behaviour; erosion has its own tests
 	return p
 }
 
