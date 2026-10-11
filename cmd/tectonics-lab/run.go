@@ -76,6 +76,7 @@ func runBundle(o runOpts) (string, error) {
 			return err
 		}
 		m.Frames = append(m.Frames, fi)
+		m.WaterKm3 = f.WaterKm3
 		if o.Progress != nil {
 			o.Progress(f.Step, p.Steps)
 		}

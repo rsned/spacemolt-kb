@@ -2,6 +2,7 @@ package tectonics
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image/color"
 	"math"
@@ -11,15 +12,17 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/planetgen/cubemap"
 )
 
-const manifestVersion = 1
+const manifestVersion = 2 // 1 = checkpoint 1 bundles (no elevation); 2 adds elevation.png, sea level, land share, water
 
 // FrameInfo is one frame's manifest row: where its grids live on disk and
 // the plate table at that step.
 type FrameInfo struct {
-	Step   int        `json:"step"`
-	Myr    float64    `json:"myr"`
-	Dir    string     `json:"dir"` // relative to the bundle root
-	Plates []PlateRow `json:"plates"`
+	Step       int        `json:"step"`
+	Myr        float64    `json:"myr"`
+	Dir        string     `json:"dir"` // relative to the bundle root
+	SeaLevelKm float64    `json:"sea_level_km"`
+	LandShare  float64    `json:"land_share"`
+	Plates     []PlateRow `json:"plates"`
 }
 
 // Manifest describes a keyframe bundle on disk: the run's parameters and
@@ -33,6 +36,7 @@ type Manifest struct {
 	Face       int         `json:"face"`
 	Steps      int         `json:"steps"`
 	MyrPerStep float64     `json:"myr_per_step"`
+	WaterKm3   float64     `json:"water_km3"`
 	Frames     []FrameInfo `json:"frames"`
 }
 
@@ -64,8 +68,8 @@ func writeCross(path string, cm *cubemap.CubeMap) error {
 	return err
 }
 
-// WriteFrame writes frames/<step:04d>/{thickness,plate,feature}.png under
-// bundleDir and returns the manifest row for the frame.
+// WriteFrame writes frames/<step:04d>/{thickness,plate,feature,elevation}.png
+// under bundleDir and returns the manifest row for the frame.
 func WriteFrame(bundleDir string, fr Frame) (FrameInfo, error) {
 	rel := filepath.Join("frames", fmt.Sprintf("%04d", fr.Step))
 	dir := filepath.Join(bundleDir, rel)
@@ -87,7 +91,18 @@ func WriteFrame(bundleDir string, fr Frame) (FrameInfo, error) {
 	if err := writeCross(filepath.Join(dir, "feature.png"), gridToCross(fr.Feature, fb)); err != nil {
 		return FrameInfo{}, err
 	}
-	return FrameInfo{Step: fr.Step, Myr: fr.Myr, Dir: rel, Plates: fr.Plates}, nil
+	if fr.Elev != nil {
+		elevPx := func(v float64) color.RGBA {
+			m := math.Max(0, math.Min(65535, math.Round(v*1000)+32768))
+			u := uint16(m)
+			return color.RGBA{R: uint8(u >> 8), G: uint8(u), B: 0, A: 255}
+		}
+		if err := writeCross(filepath.Join(dir, "elevation.png"), gridToCross(fr.Elev, elevPx)); err != nil {
+			return FrameInfo{}, err
+		}
+	}
+	return FrameInfo{Step: fr.Step, Myr: fr.Myr, Dir: rel, Plates: fr.Plates,
+		SeaLevelKm: fr.SeaLevelKm, LandShare: fr.LandShare}, nil
 }
 
 // WriteManifest writes m as manifest.json under bundleDir.
@@ -109,8 +124,8 @@ func ReadManifest(bundleDir string) (*Manifest, error) {
 	if err := json.Unmarshal(b, &m); err != nil {
 		return nil, fmt.Errorf("manifest %s: %w", bundleDir, err)
 	}
-	if m.Version != manifestVersion {
-		return nil, fmt.Errorf("manifest %s: version %d, want %d", bundleDir, m.Version, manifestVersion)
+	if m.Version < 1 || m.Version > manifestVersion {
+		return nil, fmt.Errorf("manifest %s: version %d, want 1..%d", bundleDir, m.Version, manifestVersion)
 	}
 	return &m, nil
 }
@@ -148,9 +163,17 @@ func ReadFrame(bundleDir string, fi FrameInfo) (Frame, error) {
 	if err != nil {
 		return Frame{}, err
 	}
-	return Frame{Step: fi.Step, Myr: fi.Myr, Plates: fi.Plates,
+	fr := Frame{Step: fi.Step, Myr: fi.Myr, Plates: fi.Plates, SeaLevelKm: fi.SeaLevelKm, LandShare: fi.LandShare,
 		Th:      crossToGrid(th, func(c color.RGBA) float64 { return float64(c.R) / 255 }),
 		Labels:  crossToGrid(pl, func(c color.RGBA) int32 { return int32(c.R) }),
 		Feature: crossToGrid(fe, func(c color.RGBA) uint8 { return c.R }),
-	}, nil
+	}
+	if el, err := readCross(filepath.Join(dir, "elevation.png")); err == nil {
+		fr.Elev = crossToGrid(el, func(c color.RGBA) float64 {
+			return (float64(uint16(c.R)<<8|uint16(c.G)) - 32768) / 1000
+		})
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return Frame{}, err
+	}
+	return fr, nil
 }

@@ -1,6 +1,9 @@
 package tectonics
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestRunEmitsFramesDeterministically(t *testing.T) {
 	p := testParams(t, 16)
@@ -120,6 +123,24 @@ func TestRunRiftsWhenForced(t *testing.T) {
 	for _, r := range last.Plates {
 		if r.Born > 0 {
 			t.Fatal("a plate was born with RiftChancePerMyr 0")
+		}
+	}
+}
+
+func TestLandmassDeterminism(t *testing.T) {
+	p := testParams(t, 32)
+	p.Steps, p.KeyframeEvery, p.ErosionRate = 10, 5, 0.01
+	run := func() []Frame {
+		var out []Frame
+		if err := Run(p, 99, func(f Frame) error { out = append(out, f); return nil }); err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	a, b := run(), run()
+	for k := range a {
+		if a[k].SeaLevelKm != b[k].SeaLevelKm || a[k].LandShare != b[k].LandShare || !reflect.DeepEqual(a[k].Elev.Cells, b[k].Elev.Cells) {
+			t.Fatalf("frame %d differs between runs", k)
 		}
 	}
 }

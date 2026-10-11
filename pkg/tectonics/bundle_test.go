@@ -2,6 +2,7 @@ package tectonics
 
 import (
 	"math"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -54,5 +55,69 @@ func TestBundleRoundTrip(t *testing.T) {
 		if len(fi.Plates) != len(want.Plates) {
 			t.Errorf("frame %d plate rows %d vs %d", i, len(fi.Plates), len(want.Plates))
 		}
+	}
+}
+
+func TestBundleRoundTripsElevation(t *testing.T) {
+	p := testParams(t, 16)
+	p.Steps, p.KeyframeEvery = 2, 2
+	dir := t.TempDir()
+	m := NewManifest(p, 5, "")
+	var frames []Frame
+	err := Run(p, 5, func(f Frame) error {
+		fi, err := WriteFrame(dir, f)
+		if err != nil {
+			return err
+		}
+		m.Frames = append(m.Frames, fi)
+		m.WaterKm3 = f.WaterKm3
+		frames = append(frames, f)
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := WriteManifest(dir, m); err != nil {
+		t.Fatal(err)
+	}
+	got, err := ReadManifest(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Version != 2 || got.WaterKm3 != frames[0].WaterKm3 {
+		t.Fatalf("manifest version %d water %g", got.Version, got.WaterKm3)
+	}
+	for k, fi := range got.Frames {
+		if fi.SeaLevelKm != frames[k].SeaLevelKm || fi.LandShare != frames[k].LandShare {
+			t.Fatalf("frame %d: sea/land rows %g/%g vs %g/%g", k, fi.SeaLevelKm, fi.LandShare, frames[k].SeaLevelKm, frames[k].LandShare)
+		}
+		if _, err := os.Stat(filepath.Join(dir, fi.Dir, "elevation.png")); err != nil {
+			t.Fatal(err)
+		}
+		fr, err := ReadFrame(dir, fi)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for i, v := range frames[k].Elev.Cells {
+			if math.Abs(fr.Elev.Cells[i]-v) > 0.0006 {
+				t.Fatalf("frame %d pixel %d: elevation %.4f read back as %.4f", k, i, v, fr.Elev.Cells[i])
+			}
+		}
+	}
+}
+
+func TestReadManifestAcceptsVersion1(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "manifest.json"), []byte(`{"version":1,"archetype":"terran","face":8,"steps":1,"myr_per_step":1,"frames":[]}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ReadManifest(dir); err != nil {
+		t.Fatalf("version 1 must still load: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "manifest.json"), []byte(`{"version":3}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ReadManifest(dir); err == nil {
+		t.Fatal("version 3 must be refused")
 	}
 }

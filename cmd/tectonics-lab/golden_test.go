@@ -43,6 +43,13 @@ func frameHash(f tectonics.Frame) string {
 		_, _ = h.Write([]byte{byte(v), byte(v >> 8)})
 	}
 	_, _ = h.Write(f.Feature.Cells)
+	if f.Elev != nil {
+		for _, v := range f.Elev.Cells {
+			putF64(h, v)
+		}
+	}
+	putF64(h, f.SeaLevelKm)
+	putF64(h, f.LandShare)
 	for _, pl := range f.Plates {
 		var idb [4]byte
 		id := uint32(pl.ID)
@@ -98,7 +105,7 @@ func TestGoldenFace64(t *testing.T) {
 		t.Skipf("golden hashes are baked on amd64; GOARCH %s may differ in float64 bits (fused multiply-add)", runtime.GOARCH)
 	}
 	path := filepath.Join("testdata", "golden_face64.json")
-	got := golden{Recipe: "terran/2026/64/20/v9", Hashes: goldenRun(t)}
+	got := golden{Recipe: "terran/2026/64/20/v10", Hashes: goldenRun(t)}
 	if *update {
 		b, _ := json.MarshalIndent(got, "", "  ")
 		if err := os.WriteFile(path, b, 0o644); err != nil {
