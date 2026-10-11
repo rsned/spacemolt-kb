@@ -150,3 +150,49 @@ func TestContinentsSurviveAdvection(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// TestSmallAdjacentPlatesDivergeAcrossSeam guards against the gap classifier's
+// ridge test collapsing when the two plates' centroids are close together: the
+// brief's formula compares dot(rel, nrm) against 0.3*|rel| using an
+// un-normalised nrm, so for small, closely-spaced plates |nrm| itself can be
+// well under 0.3 and no relative motion, however strongly opening, can ever
+// pass the test. Two small caps side by side on an otherwise single
+// background plate, pulling apart along their shared seam, must still open
+// ridge crust there.
+func TestSmallAdjacentPlatesDivergeAcrossSeam(t *testing.T) {
+	S := 32
+	p := testParams(t, S)
+	p.RelaxIters, p.FaultScar = 0, 0
+	pixelDeg := 90.0 / float64(S)
+	radius := 3 * pixelDeg // ~8.4 degrees: a small plate, well under the bug's ~17 degree cutoff
+	lonDeg := func(sign float64) [3]float64 {
+		lon := sign * radius * math.Pi / 180
+		return [3]float64{math.Cos(lon), math.Sin(lon), 0}
+	}
+	cA, cB := lonDeg(-1), lonDeg(1) // caps touch at longitude 0
+	cosRadius := math.Cos(radius * math.Pi / 180)
+	th, labels := NewGrid[float64](S), NewGrid[int32](S)
+	for i, d := range Dirs(S) {
+		th.Cells[i] = 0.6
+		switch {
+		case dot(d, cA) >= cosRadius:
+			labels.Cells[i] = 0
+		case dot(d, cB) >= cosRadius:
+			labels.Cells[i] = 1
+		default:
+			labels.Cells[i] = 2
+		}
+	}
+	plates := PlateStats(th, labels, 3)
+	// cap A drifts west, cap B drifts east: they pull apart across their
+	// shared seam at longitude 0; the background plate stays put.
+	s := NewState(p, th, labels, plates, []Motion{
+		{Pole: [3]float64{0, 0, 1}, DegPerStep: -pixelDeg},
+		{Pole: [3]float64{0, 0, 1}, DegPerStep: pixelDeg},
+		{Pole: [3]float64{0, 0, 1}, DegPerStep: 0},
+	})
+	s.Step(newRNG(1, "x"))
+	if n := freshCrust(s); n == 0 {
+		t.Fatal("no ridge crust where two small adjacent plates diverge across their shared seam")
+	}
+}

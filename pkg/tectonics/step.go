@@ -271,7 +271,7 @@ func (s *State) Step(rng *rand.Rand) {
 				}
 				c = unit(c)
 				rel := add(velocityAt(s.Motions[a], c), scale(velocityAt(s.Motions[b], c), -1))
-				nrm := tangent(add(s.Plates[a].Centroid, scale(s.Plates[b].Centroid, -1)), c)
+				nrm := unit(tangent(add(s.Plates[a].Centroid, scale(s.Plates[b].Centroid, -1)), c))
 				// opening must dominate the relative motion: pure shear seams
 				// (tiny, noisy normal components) are healed, not spread
 				ridge = dot(rel, nrm) > 0.3*math.Sqrt(dot(rel, rel))
