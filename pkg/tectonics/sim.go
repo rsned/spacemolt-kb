@@ -21,12 +21,16 @@ type PlateRow struct {
 // elapsed geologic time, and copies of every per-pixel grid plus the plate
 // table at that point.
 type Frame struct {
-	Step    int
-	Myr     float64
-	Th      *Grid[float64]
-	Labels  *Grid[int32]
-	Feature *Grid[uint8]
-	Plates  []PlateRow
+	Step       int
+	Myr        float64
+	Th         *Grid[float64]
+	Labels     *Grid[int32]
+	Feature    *Grid[uint8]
+	Elev       *Grid[float64] // km, derived (nil for version 1 bundles read from disk)
+	SeaLevelKm float64
+	LandShare  float64
+	WaterKm3   float64
+	Plates     []PlateRow
 }
 
 // Validate reports whether p's knobs are internally consistent enough to
@@ -115,8 +119,10 @@ func (s *State) Snapshot(myrPerStep float64) Frame {
 		rows[i] = PlateRow{ID: pl.ID, Centroid: pl.Centroid, Pole: s.Motions[i].Pole,
 			SpeedCmYr: s.Motions[i].SpeedCmYr, Area: pl.Area, Major: pl.Major, Retired: pl.Retired, Born: pl.Born}
 	}
+	elev := Elevation(s.Th, s.Age, s.P)
 	return Frame{Step: s.StepNo, Myr: float64(s.StepNo) * myrPerStep,
-		Th: s.Th.Clone(), Labels: s.Labels.Clone(), Feature: feat, Plates: rows}
+		Th: s.Th.Clone(), Labels: s.Labels.Clone(), Feature: feat, Plates: rows,
+		Elev: elev, SeaLevelKm: s.SeaLevel, LandShare: LandShare(elev, s.SeaLevel), WaterKm3: s.Water}
 }
 
 // Run builds the initial plates for (p, master) and drives them for
@@ -130,6 +136,8 @@ func Run(p Params, master int64, emit func(Frame) error) error {
 	labels, plates := BuildPlates(th, p, master)
 	motions := InitMotion(th, labels, plates, p, master)
 	s := NewState(p, th, labels, plates, motions)
+	s.Water *= drawWaterFactor(p, master)
+	s.updateSeaLevel()
 	stepRNG := newRNG(master, "sim.step")
 	reaimRNG := newRNG(master, "sim.reaim")
 	riftRNG := newRNG(master, "sim.rift")

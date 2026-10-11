@@ -32,14 +32,25 @@ type State struct {
 	Plates   []Plate
 	Motions  []Motion
 	StepNo   int
+
+	Water    float64 // the planet's water in km³ (set once; factor 1 from NewState, seeded factor from Run)
+	SeaLevel float64 // km, refreshed at the end of every Step
 }
 
 // NewState wraps an initial thickness field, plate labelling and motions as
 // step 0, with crust ages from InitialAges and no features.
 func NewState(p Params, th *Grid[float64], labels *Grid[int32], plates []Plate, motions []Motion) *State {
 	S := th.S
-	return &State{P: p, Th: th, Labels: labels, Age: InitialAges(th, p),
+	s := &State{P: p, Th: th, Labels: labels, Age: InitialAges(th, p),
 		FeatType: NewGrid[uint8](S), FeatAge: NewGrid[uint8](S), Plates: plates, Motions: motions}
+	s.Water = HollowVolume(Elevation(s.Th, s.Age, p), 0, p)
+	s.updateSeaLevel()
+	return s
+}
+
+// updateSeaLevel recomputes SeaLevel from the current crust and Water.
+func (s *State) updateSeaLevel() {
+	s.SeaLevel = SeaLevelFor(Elevation(s.Th, s.Age, s.P), s.Water, s.P)
 }
 
 // FeatureByte packs pixel i's feature as type<<6 | min(age, 63).
@@ -243,6 +254,9 @@ func (s *State) Step(rng *rand.Rand) {
 	if s.P.RelaxIters > 0 {
 		Relax(s.Th, s.P.MaxNeighborDelta, s.P.RelaxIters)
 	}
+
+	// 9. sea level
+	s.updateSeaLevel()
 }
 
 // shearPass stamps FeatTransform on not-yet-stamped boundary pixels whose
