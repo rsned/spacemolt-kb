@@ -10,9 +10,12 @@
   const FS = `
     precision highp float;
     varying vec2 vUV;
-    uniform sampler2D uTh, uPl, uFe;
+    uniform sampler2D uTh, uPl, uFe, uEl;
     uniform int uMode;      // 0 sphere, 1 flat cross
     uniform int uLayer;     // 0 plates, 1 thickness, 2 hypsometric, 3 features
+    uniform int uHasEl;     // 1 when the bundle has elevation.png (version 2)
+    uniform float uSea;     // sea level, km
+    uniform vec2 uTexel;    // one texel of the cross texture
     uniform mat3 uView;     // view rotation (screen -> world)
     uniform vec3 uSun;
 
@@ -33,6 +36,30 @@
       vec3 k = fract(vec3(h, h+2.0/3.0, h+1.0/3.0))*6.0;
       return v * mix(vec3(1.0), clamp(abs(k-3.0)-1.0, 0.0, 1.0), s);
     }
+    // elevation in km from the packed 16-bit red/green bytes; a < 0.5 marks the cross gaps
+    float elevAt(vec2 uv, out bool ok){
+      vec4 e = texture2D(uEl, uv);
+      ok = e.a > 0.5;
+      return (floor(e.r*255.0+0.5)*256.0 + floor(e.g*255.0+0.5) - 32768.0)/1000.0;
+    }
+    vec3 hypso(vec2 uv, float th){
+      bool ok; float h = elevAt(uv, ok);
+      if (uHasEl == 0 || !ok) {
+        return th < 0.5 ? mix(vec3(0.05,0.15,0.45), vec3(0.2,0.55,0.8), th*2.0)
+                        : mix(vec3(0.25,0.5,0.2), vec3(0.95,0.95,0.95), (th-0.5)*2.0);
+      }
+      if (h < uSea) {
+        float d = clamp((uSea - h)/6.0, 0.0, 1.0);
+        return mix(vec3(0.22,0.45,0.72), vec3(0.03,0.10,0.32), d);
+      }
+      float a = clamp((h - uSea)/4.0, 0.0, 1.0);
+      vec3 land = a < 0.5 ? mix(vec3(0.24,0.55,0.24), vec3(0.55,0.40,0.24), a*2.0)
+                          : mix(vec3(0.55,0.40,0.24), vec3(0.95,0.95,0.95), (a-0.5)*2.0);
+      // one-pixel coast: any valid 4-neighbour texel below sea level
+      vec2 o[4]; o[0] = vec2(uTexel.x,0.0); o[1] = vec2(-uTexel.x,0.0); o[2] = vec2(0.0,uTexel.y); o[3] = vec2(0.0,-uTexel.y);
+      for (int k = 0; k < 4; k++) { bool nok; float hn = elevAt(uv+o[k], nok); if (nok && hn < uSea) { return vec3(0.9,0.9,0.75); } }
+      return land;
+    }
     vec3 colour(vec2 uv){
       float th = texture2D(uTh, uv).r;
       float id = floor(texture2D(uPl, uv).r*255.0+0.5);
@@ -44,8 +71,7 @@
       } else if (uLayer == 1) {
         c = vec3(th);
       } else if (uLayer == 2) {
-        c = th < 0.5 ? mix(vec3(0.05,0.15,0.45), vec3(0.2,0.55,0.8), th*2.0)
-                     : mix(vec3(0.25,0.5,0.2), vec3(0.95,0.95,0.95), (th-0.5)*2.0);
+        c = hypso(uv, th);
       } else {
         c = vec3(0.25+0.5*th);
       }
@@ -85,9 +111,9 @@
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
     const aPos = gl.getAttribLocation(prog, 'aPos'); gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-    const u = {}; ['uTh','uPl','uFe','uMode','uLayer','uView','uSun'].forEach((n) => { u[n] = gl.getUniformLocation(prog, n); });
-    gl.uniform1i(u.uTh, 0); gl.uniform1i(u.uPl, 1); gl.uniform1i(u.uFe, 2);
-    const tex = [0,1,2].map(() => {
+    const u = {}; ['uTh','uPl','uFe','uEl','uMode','uLayer','uHasEl','uSea','uTexel','uView','uSun'].forEach((n) => { u[n] = gl.getUniformLocation(prog, n); });
+    gl.uniform1i(u.uTh, 0); gl.uniform1i(u.uPl, 1); gl.uniform1i(u.uFe, 2); gl.uniform1i(u.uEl, 3);
+    const tex = [0,1,2,3].map(() => {
       const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -99,6 +125,7 @@
   function upload(ctx, images) {
     const gl = ctx.gl;
     images.forEach((img, i) => {
+      if (!img) { return; }
       gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, ctx.tex[i]);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     });
@@ -128,7 +155,10 @@
   async function frameImages(i) {
     if (frameCache.has(i)) { return frameCache.get(i); }
     const dir = `/bundles/${slug}/${manifest.frames[i].dir}`;
-    const p = Promise.all(['thickness', 'plate', 'feature'].map((n) => loadImage(`${dir}/${n}.png`)));
+    const p = Promise.all([
+      ...['thickness', 'plate', 'feature'].map((n) => loadImage(`${dir}/${n}.png`)),
+      loadImage(`${dir}/elevation.png`).catch(() => null),
+    ]);
     frameCache.set(i, p);
     return p;
   }
@@ -163,11 +193,17 @@
       upload(ctx, images);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       gl.uniform1i(ctx.u.uMode, mode); gl.uniform1i(ctx.u.uLayer, layer());
+      const f = manifest.frames[i];
+      gl.uniform1i(ctx.u.uHasEl, images[3] ? 1 : 0);
+      gl.uniform1f(ctx.u.uSea, f.sea_level_km || 0);
+      gl.uniform2f(ctx.u.uTexel, 1 / (4 * manifest.face), 1 / (3 * manifest.face));
       gl.uniformMatrix3fv(ctx.u.uView, false, viewMatrix()); gl.uniform3f(ctx.u.uSun, -0.5, 0.4, 0.8);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
     drawArrows(manifest.frames[i]);
-    $('myr').textContent = `${manifest.frames[i].myr.toFixed(0)} Myr  (step ${manifest.frames[i].step}/${manifest.steps})`;
+    const fr = manifest.frames[i];
+    const sea = fr.sea_level_km === undefined ? '' : ` · sea ${fr.sea_level_km.toFixed(2)} km · land ${(100 * fr.land_share).toFixed(0)} %`;
+    $('myr').textContent = `${fr.myr.toFixed(0)} Myr  (step ${fr.step}/${manifest.steps})${sea}`;
   }
 
   function setFrame(i) { current = Math.max(0, Math.min(manifest.frames.length - 1, i)); $('slider').value = current; render(); }

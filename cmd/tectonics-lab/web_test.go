@@ -6,6 +6,18 @@ import (
 	"testing"
 )
 
+func TestViewerReadsElevation(t *testing.T) {
+	b, err := os.ReadFile("web/app.js")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"elevation", "uSea", "uHasEl", "sea_level_km", "land_share"} {
+		if !strings.Contains(string(b), want) {
+			t.Errorf("app.js lacks %q", want)
+		}
+	}
+}
+
 func TestViewerAssetsPresent(t *testing.T) {
 	idx, err := os.ReadFile("web/index.html")
 	if err != nil {
