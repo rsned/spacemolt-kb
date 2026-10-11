@@ -1,6 +1,10 @@
 package tectonics
 
-import "math"
+import (
+	"cmp"
+	"math"
+	"slices"
+)
 
 // hash3 mixes an integer lattice point and a seed into [0,1).
 func hash3(seed uint64, ix, iy, iz int64) float64 {
@@ -30,8 +34,9 @@ func valueNoise(seed uint64, x, y, z float64) float64 {
 }
 
 // GenerateThickness builds the crust thickness field: warped low-frequency
-// value noise, normalised to [0,1], then relaxed so no 4-neighbour pair
-// differs by more than p.MaxNeighborDelta.
+// value noise, normalised to [0,1], remapped into ocean and continent bands
+// (remapBands), then relaxed so no 4-neighbour pair differs by more than
+// p.MaxNeighborDelta.
 func GenerateThickness(p Params, master int64) *Grid[float64] {
 	S := p.Face
 	th := NewGrid[float64](S)
@@ -54,6 +59,7 @@ func GenerateThickness(p Params, master int64) *Grid[float64] {
 		th.Cells[i] = sum/norm + p.CrustBias
 	}
 	normalize(th)
+	remapBands(th, p)
 	for range 200 {
 		if Relax(th, p.MaxNeighborDelta, 1) == 0 {
 			break
@@ -61,6 +67,43 @@ func GenerateThickness(p Params, master int64) *Grid[float64] {
 	}
 
 	return th
+}
+
+// remapBands pushes the normalised field into an ocean band
+// [RidgeThickness, OceanBandMax] and a continent band [LandBandMin, 1] by
+// rank, so LandShareT0 of the sphere (by area) starts as continent. The map
+// is monotone, so the watershed's basins and divides keep their order.
+func remapBands(th *Grid[float64], p Params) {
+	n := th.Len()
+	idx := make([]int, n)
+	for i := range idx {
+		idx[i] = i
+	}
+	slices.SortFunc(idx, func(a, b int) int {
+		if c := cmp.Compare(th.Cells[a], th.Cells[b]); c != 0 {
+			return c
+		}
+		return cmp.Compare(a, b)
+	})
+	w := AreaWeights(th.S)
+	cut, cum := n, 0.0
+	for k := n - 1; k >= 0; k-- {
+		cum += w[idx[k]] / (4 * math.Pi)
+		if cum >= p.LandShareT0 {
+			cut = k
+			break
+		}
+	}
+	nOcean, nLand := float64(cut), float64(n-cut)
+	for k, i := range idx {
+		if k < cut {
+			r := float64(k) / math.Max(1, nOcean-1)
+			th.Cells[i] = p.RidgeThickness + (p.OceanBandMax-p.RidgeThickness)*math.Pow(r, p.OceanRankPow)
+		} else {
+			r := float64(k-cut) / math.Max(1, nLand-1)
+			th.Cells[i] = p.LandBandMin + (1-p.LandBandMin)*math.Pow(r, p.LandRankPow)
+		}
+	}
 }
 
 func normalize(th *Grid[float64]) {

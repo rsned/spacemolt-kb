@@ -83,3 +83,56 @@ func TestRelaxEnforcesBoundAndConverges(t *testing.T) {
 		}
 	}
 }
+
+func landShareByArea(th *Grid[float64], threshold float64) float64 {
+	w := AreaWeights(th.S)
+	land := 0.0
+	for i, v := range th.Cells {
+		if v >= threshold {
+			land += w[i]
+		}
+	}
+	return land / (4 * math.Pi)
+}
+
+func TestRemapLandShare(t *testing.T) {
+	p := testParams(t, 32)
+	th := NewGrid[float64](32)
+	rng := newRNG(7, "test.remap")
+	for i := range th.Cells {
+		th.Cells[i] = rng.Float64()
+	}
+	normalize(th)
+	remapBands(th, p)
+	if got := landShareByArea(th, p.ContinentalThreshold); math.Abs(got-p.LandShareT0) > 0.01 {
+		t.Fatalf("land share %.3f, want %.2f ± 0.01", got, p.LandShareT0)
+	}
+	for i, v := range th.Cells {
+		if v < p.ContinentalThreshold && v > p.OceanBandMax+1e-12 {
+			t.Fatalf("pixel %d: ocean thickness %.4f above OceanBandMax", i, v)
+		}
+		if v >= p.ContinentalThreshold && v < p.LandBandMin-1e-12 {
+			t.Fatalf("pixel %d: continent thickness %.4f below LandBandMin", i, v)
+		}
+		if v < p.RidgeThickness-1e-12 || v > 1+1e-12 {
+			t.Fatalf("pixel %d: thickness %.4f outside [RidgeThickness, 1]", i, v)
+		}
+	}
+	for range 200 {
+		if Relax(th, p.MaxNeighborDelta, 1) == 0 {
+			break
+		}
+	}
+	if d := maxNeighborDelta(th); d > p.MaxNeighborDelta+1e-9 {
+		t.Fatalf("gradient cap violated after relax: %.4f", d)
+	}
+}
+
+func TestGenerateThicknessStartsWithContinents(t *testing.T) {
+	p := testParams(t, 32)
+	th := GenerateThickness(p, 2026)
+	got := landShareByArea(th, p.ContinentalThreshold)
+	if math.Abs(got-p.LandShareT0) > 0.05 {
+		t.Fatalf("land share after remap+relax %.3f, want %.2f ± 0.05", got, p.LandShareT0)
+	}
+}
