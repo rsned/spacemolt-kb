@@ -20,6 +20,7 @@
         .species-section h3 { margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
         .species-section table, .wl-table { width: 100%; font-size: 0.9em; }
         .species-section th, .wl-table th { text-align: left; white-space: nowrap; }
+        .species-section th.num, .wl-table th.num { text-align: right; }
         .species-section td, .wl-table td { padding: 4px 8px; vertical-align: top; }
         .num { text-align: right; font-variant-numeric: tabular-nums; }
         .back-top { font-size: 0.8em; margin-left: 8px; color: var(--text-muted); }
@@ -49,8 +50,10 @@
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
         .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
-        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
-        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 3; }
+        .stage-hist .axis-line { stroke: var(--muted-foreground); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--muted-foreground); font-size: 11px; }
+        .stage-hist .axis-title { fill: var(--muted-foreground); font-size: 11px; letter-spacing: 0.5px; }
         .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
         .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
         .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
@@ -131,7 +134,7 @@
                         <td>Hatchling</td>
                         <td class="num">4</td>
                         <td class="num">243</td>
-                        <td class="num">317.50</td>
+                        <td class="num">317.5</td>
                         <td class="num">324</td>
                     </tr>
                     <tr>
@@ -143,7 +146,7 @@
                     </tr>
                 </tbody>
             </table>
-            <svg viewBox="0 0 640 150" class="chart stage-hist" role="img" aria-label="hull histogram by life stage"><line x1="8.0" y1="118.0" x2="632.0" y2="118.0" class="grid"/><rect x="12.7" y="84.7" width="42.6" height="33.3" class="stage-bar-0"><title>Hatchling: 1</title></rect><rect x="64.7" y="18.0" width="42.6" height="100.0" class="stage-bar-0"><title>Hatchling: 3</title></rect><rect x="480.7" y="84.7" width="42.6" height="33.3" class="stage-bar-1"><title>Juvenile: 1</title></rect><rect x="584.7" y="51.3" width="42.6" height="66.7" class="stage-bar-1"><title>Juvenile: 2</title></rect><text x="8.0" y="134.0" class="axis">243</text><text x="632.0" y="134.0" class="axis" text-anchor="end">769</text></svg><div class="stage-legend"><span class="stage-legend-item"><i class="stage-swatch stage-bg-0"></i>Hatchling (4)</span><span class="stage-legend-item"><i class="stage-swatch stage-bg-1"></i>Juvenile (3)</span></div><p class="stage-hist-caption text-muted">Max hull of each individual creature at its latest sighting, by life stage (n = 7 creatures, since 2026-10-14).</p>
+            <svg viewBox="0 0 640 196" class="chart stage-hist" role="img" aria-label="Histogram of creature counts by max hull, coloured by life stage"><line x1="52.0" y1="150.0" x2="628.0" y2="150.0" class="axis-line"/><text x="46.0" y="150.0" class="axis" text-anchor="end" dominant-baseline="middle">0</text><line x1="52.0" y1="106.0" x2="628.0" y2="106.0" class="grid"/><text x="46.0" y="106.0" class="axis" text-anchor="end" dominant-baseline="middle">1</text><line x1="52.0" y1="62.0" x2="628.0" y2="62.0" class="grid"/><text x="46.0" y="62.0" class="axis" text-anchor="end" dominant-baseline="middle">2</text><line x1="52.0" y1="18.0" x2="628.0" y2="18.0" class="grid"/><text x="46.0" y="18.0" class="axis" text-anchor="end" dominant-baseline="middle">3</text><line x1="52.0" y1="18.0" x2="52.0" y2="150.0" class="axis-line"/><text x="14" y="84.0" class="axis-title" text-anchor="middle" transform="rotate(-90 14 84.0)">Creatures</text><rect x="56.3" y="106.0" width="39.4" height="44.0" class="stage-bar-0"><title>Hatchling, hull 243–286: 1</title></rect><rect x="104.3" y="18.0" width="39.4" height="132.0" class="stage-bar-0"><title>Hatchling, hull 286–330: 3</title></rect><rect x="488.3" y="106.0" width="39.4" height="44.0" class="stage-bar-1"><title>Juvenile, hull 637–681: 1</title></rect><rect x="584.3" y="62.0" width="39.4" height="88.0" class="stage-bar-1"><title>Juvenile, hull 725–769: 2</title></rect><line x1="52.0" y1="150.0" x2="52.0" y2="154.0" class="axis-line"/><text x="52.0" y="167.0" class="axis" text-anchor="start">243</text><line x1="196.0" y1="150.0" x2="196.0" y2="154.0" class="axis-line"/><text x="196.0" y="167.0" class="axis" text-anchor="middle">374</text><line x1="340.0" y1="150.0" x2="340.0" y2="154.0" class="axis-line"/><text x="340.0" y="167.0" class="axis" text-anchor="middle">506</text><line x1="484.0" y1="150.0" x2="484.0" y2="154.0" class="axis-line"/><text x="484.0" y="167.0" class="axis" text-anchor="middle">637</text><line x1="628.0" y1="150.0" x2="628.0" y2="154.0" class="axis-line"/><text x="628.0" y="167.0" class="axis" text-anchor="end">769</text><text x="340.0" y="188.0" class="axis-title" text-anchor="middle">Max hull (HP)</text></svg><div class="stage-legend"><span class="stage-legend-item"><i class="stage-swatch stage-bg-0"></i>Hatchling (4)</span><span class="stage-legend-item"><i class="stage-swatch stage-bg-1"></i>Juvenile (3)</span></div><p class="stage-hist-caption text-muted">Max hull of each individual creature at its latest sighting, by life stage (n = 7 creatures, since 2026-10-14).</p>
         </div>
 
         <div class="card mt-2" style="padding:0">

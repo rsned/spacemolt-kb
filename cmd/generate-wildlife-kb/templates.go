@@ -15,6 +15,7 @@ const wildlifeStyle = `<style>
         .species-section h3 { margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
         .species-section table, .wl-table { width: 100%; font-size: 0.9em; }
         .species-section th, .wl-table th { text-align: left; white-space: nowrap; }
+        .species-section th.num, .wl-table th.num { text-align: right; }
         .species-section td, .wl-table td { padding: 4px 8px; vertical-align: top; }
         .num { text-align: right; font-variant-numeric: tabular-nums; }
         .back-top { font-size: 0.8em; margin-left: 8px; color: var(--text-muted); }
@@ -44,8 +45,10 @@ const wildlifeStyle = `<style>
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
         .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
-        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
-        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 3; }
+        .stage-hist .axis-line { stroke: var(--muted-foreground); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--muted-foreground); font-size: 11px; }
+        .stage-hist .axis-title { fill: var(--muted-foreground); font-size: 11px; letter-spacing: 0.5px; }
         .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
         .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
         .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
@@ -271,7 +274,7 @@ const speciesTemplate = placesTemplate + `<!DOCTYPE html>
                         <td>{{title .Stage}}</td>
                         <td class="num">{{.Creatures}}</td>
                         <td class="num">{{.Min}}</td>
-                        <td class="num">{{fmtF .Median}}</td>
+                        <td class="num">{{printf "%g" .Median}}</td>
                         <td class="num">{{.Max}}</td>
                     </tr>
 {{- end}}

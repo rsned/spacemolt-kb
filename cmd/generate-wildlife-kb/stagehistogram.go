@@ -9,14 +9,16 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/wildlife"
 )
 
-// SVG geometry (user units) for the per-species life-stage histogram.
+// SVG geometry (user units) for the per-species life-stage histogram. The
+// left margin holds the count axis and its label, the bottom margin the hull
+// ticks and the axis title.
 const (
 	stageHistW     = 640.0
-	stageHistH     = 150.0
-	stageHistLeft  = 8.0
-	stageHistRight = 632.0
-	stageHistAxisY = 118.0
-	stageHistPlotH = 100.0
+	stageHistH     = 196.0
+	stageHistLeft  = 52.0
+	stageHistRight = 628.0
+	stageHistTop   = 18.0
+	stageHistAxisY = 150.0
 	stageHistBins  = 12 // target bin count; a species with a single hull value gets 1
 )
 
@@ -85,11 +87,26 @@ func stageHistogramSVG(s wildlife.Species) htmltpl.HTML {
 		maxStack = max(maxStack, sum)
 	}
 
+	plotH := stageHistAxisY - stageHistTop
 	var b strings.Builder
-	fmt.Fprintf(&b, `<svg viewBox="0 0 %.0f %.0f" class="chart stage-hist" role="img" aria-label="hull histogram by life stage">`,
+	fmt.Fprintf(&b, `<svg viewBox="0 0 %.0f %.0f" class="chart stage-hist" role="img" aria-label="Histogram of creature counts by max hull, coloured by life stage">`,
 		stageHistW, stageHistH)
-	fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="grid"/>`,
-		stageHistLeft, stageHistAxisY, stageHistRight, stageHistAxisY)
+
+	// count axis: integer ticks with gridlines, at most five steps
+	step := max(1, (maxStack+4)/5)
+	top := ((maxStack + step - 1) / step) * step
+	for v := 0; v <= top; v += step {
+		y := stageHistAxisY - float64(v)/float64(top)*plotH
+		cls := "grid"
+		if v == 0 {
+			cls = "axis-line"
+		}
+		fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="%s"/>`, stageHistLeft, y, stageHistRight, y, cls)
+		fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis" text-anchor="end" dominant-baseline="middle">%d</text>`, stageHistLeft-6, y, v)
+	}
+	fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="axis-line"/>`, stageHistLeft, stageHistTop, stageHistLeft, stageHistAxisY)
+	midY := stageHistTop + plotH/2
+	fmt.Fprintf(&b, `<text x="14" y="%.1f" class="axis-title" text-anchor="middle" transform="rotate(-90 14 %.1f)">Creatures</text>`, midY, midY)
 
 	slot := (stageHistRight - stageHistLeft) / float64(nBins)
 	barW := slot * 0.82
@@ -100,14 +117,41 @@ func stageHistogramSVG(s wildlife.Species) htmltpl.HTML {
 			if c == 0 {
 				continue
 			}
-			h := float64(c) / float64(maxStack) * stageHistPlotH
+			h := float64(c) / float64(top) * plotH
 			y -= h
-			fmt.Fprintf(&b, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" class="%s"><title>%s: %d</title></rect>`,
-				x, y, barW, h, stageBarColors[stageColorIndex(si)], htmltpl.HTMLEscapeString(stageLabel(s.Stages[si].Stage)), c)
+			binLo := lo + int(float64(i)*binW)
+			binHi := lo + int(float64(i+1)*binW)
+			if nBins == 1 {
+				binLo, binHi = lo, hi
+			}
+			fmt.Fprintf(&b, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" class="%s"><title>%s, hull %d–%d: %d</title></rect>`,
+				x, y, barW, h, stageBarColors[stageColorIndex(si)], htmltpl.HTMLEscapeString(stageLabel(s.Stages[si].Stage)), binLo, binHi, c)
 		}
 	}
-	fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis">%d</text>`, stageHistLeft, stageHistAxisY+16, lo)
-	fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis" text-anchor="end">%d</text>`, stageHistRight, stageHistAxisY+16, hi)
+
+	// hull axis: the range ends and up to three interior bin edges
+	ticks := []int{0, nBins}
+	if nBins >= 4 {
+		ticks = []int{0, nBins / 4, nBins / 2, 3 * nBins / 4, nBins}
+	}
+	for _, t := range ticks {
+		x := stageHistLeft + float64(t)*slot
+		v := lo + int(float64(t)*binW)
+		if t == nBins {
+			v = hi
+		}
+		anchor := "middle"
+		switch t {
+		case 0:
+			anchor = "start"
+		case nBins:
+			anchor = "end"
+		}
+		fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="axis-line"/>`, x, stageHistAxisY, x, stageHistAxisY+4)
+		fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis" text-anchor="%s">%d</text>`, x, stageHistAxisY+17, anchor, v)
+	}
+	fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis-title" text-anchor="middle">Max hull (HP)</text>`,
+		(stageHistLeft+stageHistRight)/2, stageHistAxisY+38)
 	b.WriteString(`</svg>`)
 
 	b.WriteString(`<div class="stage-legend">`)
