@@ -19,7 +19,8 @@ const (
 	stageHistRight = 628.0
 	stageHistTop   = 18.0
 	stageHistAxisY = 150.0
-	stageHistBins  = 12 // target bin count; a species with a single hull value gets 1
+	stageHistBins  = 20 // target bin count; a species with a single hull value gets 1
+	stageHistMajor = 5  // label every fifth bin edge; the rest get minor tick marks
 )
 
 // stageBarColors assigns a fill class to each life stage in ascending
@@ -95,6 +96,15 @@ func stageHistogramSVG(s wildlife.Species) htmltpl.HTML {
 	// count axis: integer ticks with gridlines, at most five steps
 	step := max(1, (maxStack+4)/5)
 	top := ((maxStack + step - 1) / step) * step
+	if step > 1 && top <= 40 { // minor marks on the counts the labels skip
+		for v := 1; v < top; v++ {
+			if v%step == 0 {
+				continue
+			}
+			y := stageHistAxisY - float64(v)/float64(top)*plotH
+			fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="axis-line minor"/>`, stageHistLeft-3, y, stageHistLeft, y)
+		}
+	}
 	for v := 0; v <= top; v += step {
 		y := stageHistAxisY - float64(v)/float64(top)*plotH
 		cls := "grid"
@@ -129,13 +139,15 @@ func stageHistogramSVG(s wildlife.Species) htmltpl.HTML {
 		}
 	}
 
-	// hull axis: the range ends and up to three interior bin edges
-	ticks := []int{0, nBins}
-	if nBins >= 4 {
-		ticks = []int{0, nBins / 4, nBins / 2, 3 * nBins / 4, nBins}
-	}
-	for _, t := range ticks {
+	// hull axis: a tick at every bin edge, labelled on every stageHistMajor-th
+	// edge and at both range ends, so each labelled span splits into equal steps
+	for t := 0; t <= nBins; t++ {
 		x := stageHistLeft + float64(t)*slot
+		major := t%stageHistMajor == 0 || t == nBins
+		if !major {
+			fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="axis-line minor"/>`, x, stageHistAxisY, x, stageHistAxisY+3)
+			continue
+		}
 		v := lo + int(float64(t)*binW)
 		if t == nBins {
 			v = hi
@@ -147,8 +159,8 @@ func stageHistogramSVG(s wildlife.Species) htmltpl.HTML {
 		case nBins:
 			anchor = "end"
 		}
-		fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="axis-line"/>`, x, stageHistAxisY, x, stageHistAxisY+4)
-		fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis" text-anchor="%s">%d</text>`, x, stageHistAxisY+17, anchor, v)
+		fmt.Fprintf(&b, `<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="axis-line"/>`, x, stageHistAxisY, x, stageHistAxisY+6)
+		fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis" text-anchor="%s">%d</text>`, x, stageHistAxisY+18, anchor, v)
 	}
 	fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" class="axis-title" text-anchor="middle">Max hull (HP)</text>`,
 		(stageHistLeft+stageHistRight)/2, stageHistAxisY+38)
