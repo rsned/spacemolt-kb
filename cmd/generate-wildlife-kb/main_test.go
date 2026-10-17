@@ -1,6 +1,8 @@
 package main
 
 import (
+	htmltpl "html/template"
+	"strings"
 	"testing"
 
 	"github.com/rsned/spacemolt-kb/pkg/wildlife"
@@ -75,5 +77,58 @@ func TestCombatRowsMostDangerousFirstWithUnknownsMarked(t *testing.T) {
 	q := rows[2]
 	if q.Rating != "" || q.RatingRank != 0 || q.Battles != 4 || q.WinPct != 100 {
 		t.Errorf("unrated row %+v", q)
+	}
+}
+
+// TestSpeciesPageLifeStagesCard renders the species detail template directly
+// (the same template main.go executes) to check that only a species with
+// stage variation gets the "Life stages" card and the hull range, and that
+// an unstaged species' page carries neither.
+func TestSpeciesPageLifeStagesCard(t *testing.T) {
+	staged := speciesView{Species: wildlife.Species{
+		ID: "hoarfrost_leviathan", Name: "Hoarfrost Leviathan", Role: "predator", MaxHull: 700,
+		Stages: []wildlife.StageStats{
+			{Stage: "hatchling", Creatures: 4, Min: 243, Max: 324, Median: 290},
+			{Stage: "juvenile", Creatures: 3, Min: 669, Max: 769, Median: 700},
+		},
+	}}
+	staged.StageHistogram = stageHistogramSVG(staged.Species)
+
+	unstaged := speciesView{Species: wildlife.Species{
+		ID: "belt_grazer", Name: "Belt-Grazer", Role: "grazer", MaxHull: 60,
+	}}
+
+	tpl := htmltpl.Must(htmltpl.New("species").Funcs(templateFuncs()).Parse(speciesTemplate))
+	render := func(v speciesView) string {
+		var b strings.Builder
+		if err := tpl.Execute(&b, map[string]any{"Header": htmltpl.HTML(""), "S": v, "StatsMonths": ""}); err != nil {
+			t.Fatalf("render %s: %v", v.ID, err)
+		}
+		return b.String()
+	}
+
+	stagedHTML := render(staged)
+	if !strings.Contains(stagedHTML, "Life stages") {
+		t.Error("staged species page: missing \"Life stages\" card")
+	}
+	if !strings.Contains(stagedHTML, "243&ndash;769") {
+		t.Errorf("staged species page: missing hull range 243–769")
+	}
+	if !strings.Contains(stagedHTML, "Hatchling") || !strings.Contains(stagedHTML, "Juvenile") {
+		t.Error("staged species page: missing stage rows")
+	}
+	if !strings.Contains(stagedHTML, "stage-hist") {
+		t.Error("staged species page: missing the stage histogram SVG")
+	}
+
+	unstagedHTML := render(unstaged)
+	if strings.Contains(unstagedHTML, "Life stages") {
+		t.Error("unstaged species page: unexpected \"Life stages\" card")
+	}
+	if strings.Contains(unstagedHTML, "varies by life stage") {
+		t.Error("unstaged species page: unexpected hull-range note")
+	}
+	if !strings.Contains(unstagedHTML, "Hull (HP)</td><td>60</td>") {
+		t.Errorf("unstaged species page: hull cell should render the plain value unchanged")
 	}
 }

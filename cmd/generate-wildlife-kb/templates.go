@@ -43,6 +43,15 @@ const wildlifeStyle = `<style>
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>`
 
 const themeScript = `    <script>
@@ -175,7 +184,7 @@ const indexTemplate = placesTemplate + `<!DOCTYPE html>
 {{- range .Species}}
         <div id="{{.Slug}}" class="species-section"{{if ne .Slug $.FirstSlug}} hidden{{end}}>
             <h3>{{.Name}} <span class="badge {{roleClass .Role}}" style="font-size:0.7em; vertical-align:middle;">{{.Role}}</span> <span class="badge" style="font-size:0.7em; vertical-align:middle;">{{if eq (len .Places) 0}}Unsighted{{else}}~{{.EstimatedTotal}} in {{.SystemCount}} {{plural .SystemCount "system"}}{{end}}</span> <small style="font-size:0.8em; font-weight:normal;"><a href="{{.ID}}.html">Details</a></small> <a href="#" class="back-top">[top]</a></h3>
-            <p class="text-muted" style="font-size:0.9em">Hull {{.MaxHull}}{{if .MaxShield}} &middot; Shield {{.MaxShield}}{{end}}{{if .Danger}} &middot; {{.Danger}}{{end}}{{if .Record}}{{if .Record.Rating}} &middot; <span class="badge {{ratingClass .Record.Rating}}" style="font-size:0.85em">danger: {{.Record.Rating}}</span>{{end}}{{end}}{{if .Combat}}{{range .Combat.DamageTypes}} &middot; {{.}} attack{{end}}{{end}}{{if .Habitats}} &middot; {{range $i, $h := .Habitats}}{{if $i}}, {{end}}{{habitat $h}}{{end}}{{end}}{{if .Ranchable}} &middot; ranchable{{end}}</p>
+            <p class="text-muted" style="font-size:0.9em">Hull {{if .HasStageVariation}}{{.HullMin}}&ndash;{{.HullMax}}{{else}}{{.MaxHull}}{{end}}{{if .MaxShield}} &middot; Shield {{.MaxShield}}{{end}}{{if .Danger}} &middot; {{.Danger}}{{end}}{{if .Record}}{{if .Record.Rating}} &middot; <span class="badge {{ratingClass .Record.Rating}}" style="font-size:0.85em">danger: {{.Record.Rating}}</span>{{end}}{{end}}{{if .Combat}}{{range .Combat.DamageTypes}} &middot; {{.}} attack{{end}}{{end}}{{if .Habitats}} &middot; {{range $i, $h := .Habitats}}{{if $i}}, {{end}}{{habitat $h}}{{end}}{{end}}{{if .Ranchable}} &middot; ranchable{{end}}</p>
 {{- if eq (len .Places) 0}}
             <div class="unsighted">Scanned in the roster but not yet sighted anywhere. Survey agents may find it in uncharted regions.</div>
 {{- else}}
@@ -235,7 +244,7 @@ const speciesTemplate = placesTemplate + `<!DOCTYPE html>
             <div class="section-label">General</div>
             <table>
                 <tr><td class="kv-label">Class</td><td><span class="badge {{roleClass .S.Role}}">{{.S.Role}}</span></td></tr>
-                <tr><td class="kv-label">Hull (HP)</td><td>{{.S.MaxHull}}</td></tr>
+                <tr><td class="kv-label">Hull (HP)</td><td>{{if .S.HasStageVariation}}{{.S.HullMin}}&ndash;{{.S.HullMax}} <span class="text-muted">(varies by life stage, see below)</span>{{else}}{{.S.MaxHull}}{{end}}</td></tr>
                 <tr><td class="kv-label">Shield</td><td>{{if .S.MaxShield}}{{.S.MaxShield}}{{else}}<span class="text-muted">none</span>{{end}}</td></tr>
                 <tr><td class="kv-label">Danger</td><td>{{if .S.Danger}}{{.S.Danger}}{{else}}<span class="text-muted">not yet scanned</span>{{end}}</td></tr>
                 <tr><td class="kv-label">Battle record</td><td>{{if .S.Record}}{{.S.Record.Battles}} battles, wildlife won {{.S.Record.WildlifeWins}} ({{printf "%.1f" .S.Record.WinPct}}%){{if .S.Record.Rating}} &mdash; <span class="badge {{ratingClass .S.Record.Rating}}">{{.S.Record.Rating}} danger</span>{{else}} &mdash; too few battles to rate{{end}} <span class="text-muted">(public battle feed, {{$.StatsMonths}})</span>{{else}}<span class="text-muted">no battles in the public feed</span>{{end}}</td></tr>
@@ -250,6 +259,27 @@ const speciesTemplate = placesTemplate + `<!DOCTYPE html>
                 <tr><td class="kv-label">Last seen</td><td>{{if .S.LastSeen}}{{datetime .S.LastSeen}}{{else}}<span class="text-muted">&mdash;</span>{{end}}</td></tr>
             </table>
         </div>
+
+{{- if .S.HasStageVariation}}
+        <div class="card mt-2" style="padding:12px 16px">
+            <div class="section-label">Life stages</div>
+            <table class="wl-table">
+                <thead><tr><th>Stage</th><th class="num">Creatures seen</th><th class="num">Hull min</th><th class="num">Median</th><th class="num">Hull max</th></tr></thead>
+                <tbody>
+{{- range .S.Stages}}
+                    <tr>
+                        <td>{{title .Stage}}</td>
+                        <td class="num">{{.Creatures}}</td>
+                        <td class="num">{{.Min}}</td>
+                        <td class="num">{{fmtF .Median}}</td>
+                        <td class="num">{{.Max}}</td>
+                    </tr>
+{{- end}}
+                </tbody>
+            </table>
+            {{.S.StageHistogram}}
+        </div>
+{{- end}}
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Attacks</div>

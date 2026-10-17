@@ -91,12 +91,13 @@ func main() {
 // speciesView is a Species plus everything the templates derive from it.
 type speciesView struct {
 	wildlife.Species
-	Slug      string
-	Combat    *wildlife.CreatureCombat
-	Record    *wildlife.BattleRecord
-	Lore      *wildlife.LoreEntry
-	HasImage  bool
-	ImagePath string // relative to the section directory
+	Slug           string
+	Combat         *wildlife.CreatureCombat
+	Record         *wildlife.BattleRecord
+	Lore           *wildlife.LoreEntry
+	HasImage       bool
+	ImagePath      string       // relative to the section directory
+	StageHistogram htmltpl.HTML // "" unless the species has stage variation
 }
 
 // mapOptions is the map dropdown: sighted species only, A-Z by name. The page
@@ -152,6 +153,9 @@ func render(guide *wildlife.Guide, lore wildlife.Lore, stats *wildlife.BattleSta
 		v.ImagePath = "images/" + s.ID + ".png"
 		if _, err := os.Stat(filepath.Join(outDir, v.ImagePath)); err == nil {
 			v.HasImage = true
+		}
+		if s.HasStageVariation() {
+			v.StageHistogram = stageHistogramSVG(s)
 		}
 		views = append(views, v)
 	}

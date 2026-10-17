@@ -47,6 +47,9 @@ func Load(db *sql.DB) (*Guide, error) {
 	if err := loadKills(db, index, sysName, pois); err != nil {
 		return nil, fmt.Errorf("kills: %w", err)
 	}
+	if err := loadStages(db, index); err != nil {
+		return nil, fmt.Errorf("stages: %w", err)
+	}
 	if err := loadCoverage(db, &g.Coverage); err != nil {
 		return nil, fmt.Errorf("surveys: %w", err)
 	}

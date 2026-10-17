@@ -36,7 +36,61 @@ type Species struct {
 	Places  []Place  // systems where it has been sighted, sorted by name
 	Attacks []Attack // observed natural weapons, aggregated
 	Kills   []Kill   // recorded kills, newest first
+
+	// Stages is per-life-stage hull statistics from wildlife_observations,
+	// ordered by median max_hull ascending. Empty when the knowledge DB has
+	// no observation ledger, or the species has never been observed there.
+	Stages []StageStats
+	// StagesSince is the earliest observed_utc behind Stages, RFC3339 UTC or
+	// "" when Stages is empty.
+	StagesSince string
 }
+
+// StageStats summarises one life stage's observed hull size: each creature's
+// max_hull at its latest sighting, grouped by stage (the game's "" default
+// is reported here as "adult").
+type StageStats struct {
+	Stage      string
+	Creatures  int
+	Min, Max   int
+	Median     float64
+	HullValues []int // one max_hull per creature, ascending, for histograms
+}
+
+// HasStageVariation reports whether a single Hull value misrepresents the
+// species: it has more than one life stage, or a stage whose creatures
+// haven't all finished growing to the same size.
+func (s Species) HasStageVariation() bool {
+	if len(s.Stages) > 1 {
+		return true
+	}
+	for _, st := range s.Stages {
+		if st.Min != st.Max {
+			return true
+		}
+	}
+	return false
+}
+
+// HullRange returns the min and max max_hull across every life stage. With
+// no stage data it returns MaxHull for both, so callers can use it
+// unconditionally once HasStageVariation is false.
+func (s Species) HullRange() (lo, hi int) {
+	if len(s.Stages) == 0 {
+		return s.MaxHull, s.MaxHull
+	}
+	lo, hi = s.Stages[0].Min, s.Stages[0].Max
+	for _, st := range s.Stages[1:] {
+		lo = min(lo, st.Min)
+		hi = max(hi, st.Max)
+	}
+	return lo, hi
+}
+
+// HullMin and HullMax expose HullRange as single-value methods, since Go's
+// html/template cannot destructure a multi-value method call.
+func (s Species) HullMin() int { lo, _ := s.HullRange(); return lo }
+func (s Species) HullMax() int { _, hi := s.HullRange(); return hi }
 
 // EstimatedTotal sums the latest per-system estimates.
 func (s Species) EstimatedTotal() int {
