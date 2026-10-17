@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+
+	"github.com/rsned/spacemolt-kb/internal/kbpoi"
 )
 
 // FromDB builds a snapshot from the knowledge database using the same joins
@@ -18,7 +20,8 @@ func FromDB(db *sql.DB) (*Snapshot, error) {
 		       pr.resource_id, pr.richness, pr.remaining, pr.max_remaining, pr.last_updated_tick
 		FROM poi_resources pr
 		JOIN pois p ON pr.poi_id = p.id
-		JOIN systems s ON p.system_id = s.id`)
+		JOIN systems s ON p.system_id = s.id
+		WHERE ` + kbpoi.Live)
 	if err != nil {
 		return nil, fmt.Errorf("query deposits: %w", err)
 	}

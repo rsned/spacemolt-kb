@@ -16,11 +16,11 @@ func openTestDB(t *testing.T) *sql.DB {
 	t.Cleanup(func() { _ = db.Close() })
 	stmts := []string{
 		`CREATE TABLE systems (id TEXT PRIMARY KEY, name TEXT, last_updated_tick INTEGER DEFAULT 0)`,
-		`CREATE TABLE pois (id TEXT PRIMARY KEY, system_id TEXT, name TEXT, type TEXT, hidden BOOLEAN NOT NULL DEFAULT 0)`,
+		`CREATE TABLE pois (id TEXT PRIMARY KEY, system_id TEXT, name TEXT, type TEXT, hidden BOOLEAN NOT NULL DEFAULT 0, last_updated_tick INTEGER DEFAULT 0)`,
 		`CREATE TABLE items (id TEXT PRIMARY KEY, name TEXT, category TEXT)`,
 		`CREATE TABLE poi_resources (poi_id TEXT, resource_id TEXT, richness REAL, remaining REAL, last_updated_tick INTEGER DEFAULT 0, max_remaining REAL NOT NULL DEFAULT 0)`,
 		`INSERT INTO systems VALUES ('sol','Sol',100), ('haven','Haven',0), ('dark','Dark',5)`,
-		`INSERT INTO pois VALUES ('sol_station','sol','Sol Station','station',0), ('sol_belt','sol','Belt','asteroid_belt',0), ('dark_core','dark','Core','asteroid_belt',1)`,
+		`INSERT INTO pois (id, system_id, name, type, hidden) VALUES ('sol_station','sol','Sol Station','station',0), ('sol_belt','sol','Belt','asteroid_belt',0), ('dark_core','dark','Core','asteroid_belt',1)`,
 		`INSERT INTO items VALUES ('iron_ore','Iron Ore','ore'), ('void_crystal','Void Crystal','material'), ('laser','Laser','weapon')`,
 		`INSERT INTO poi_resources VALUES ('sol_belt','iron_ore',15.6,1250.9,603343,50000), ('dark_core','iron_ore',3.2,10,12,0), ('dark_core','mystery_ore',1,1,1,0)`,
 	}

@@ -16,6 +16,7 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 
+	"github.com/rsned/spacemolt-kb/internal/kbpoi"
 	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 	"github.com/rsned/spacemolt-kb/pkg/resourcediff"
 )
@@ -63,6 +64,7 @@ func loadResourceEntries(db *sql.DB) ([]ResourceEntry, error) {
 		JOIN pois p ON pr.poi_id = p.id
 		JOIN systems s ON p.system_id = s.id
 		LEFT JOIN items i ON pr.resource_id = i.id
+		WHERE ` + kbpoi.Live + `
 		ORDER BY COALESCE(i.name, pr.resource_id), s.name, p.name
 	`)
 	if err != nil {

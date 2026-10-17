@@ -20,6 +20,7 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/rsned/spacemolt-kb/internal/kbnav"
 	"github.com/rsned/spacemolt-kb/internal/kblegacy"
+	"github.com/rsned/spacemolt-kb/internal/kbpoi"
 	"github.com/rsned/spacemolt-kb/pkg/bom"
 	"github.com/rsned/spacemolt-kb/pkg/hyperjump"
 	"github.com/rsned/spacemolt-kb/pkg/kbdb"
@@ -1784,6 +1785,37 @@ func findLatestCatalogDir(base string) string {
 	return dir
 }
 
+// mapSystemDescriptions reads every system's description from the newest
+// get_map.json scrape, keyed by system ID. Server v0.623.0 gave every system
+// a description and rewrote many older ones, but the knowledge database only
+// holds what agents have fetched since, so the map scrape is the fresher and
+// complete source. A missing or unreadable file yields nil and the database
+// descriptions stand.
+func mapSystemDescriptions(catalogDir string) map[string]string {
+	data, err := os.ReadFile(filepath.Join(catalogDir, "get_map.json"))
+	if err != nil {
+		log.Printf("warning: system descriptions from the map scrape unavailable: %v", err)
+		return nil
+	}
+	var m struct {
+		Systems []struct {
+			ID          string `json:"system_id"`
+			Description string `json:"description"`
+		} `json:"systems"`
+	}
+	if err := json.Unmarshal(data, &m); err != nil {
+		log.Printf("warning: parse %s/get_map.json: %v", catalogDir, err)
+		return nil
+	}
+	out := make(map[string]string, len(m.Systems))
+	for _, sys := range m.Systems {
+		if d := strings.TrimSpace(sys.Description); d != "" {
+			out[sys.ID] = d
+		}
+	}
+	return out
+}
+
 func loadSystems(db *sql.DB) ([]*System, error) {
 	rows, err := db.Query(`SELECT id, name, position_x, position_y, police_level, COALESCE(empire,''), COALESCE(description,''), is_stronghold, COALESCE(security_status,''), last_updated_tick FROM systems ORDER BY name`)
 	if err != nil {
@@ -1808,6 +1840,13 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+	if desc := mapSystemDescriptions(findLatestCatalogDir("../spacemolt/data/game-api")); len(desc) > 0 {
+		for _, s := range systems {
+			if d, ok := desc[s.ID]; ok {
+				s.Description = d
+			}
+		}
 	}
 
 	// Load connections.
@@ -1847,7 +1886,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 
 	// Load POIs.
-	poiRows, err := db.Query(`SELECT system_id, id, name, type, COALESCE(class,''), COALESCE(description,''), position_x, position_y, hidden, reveal_difficulty FROM pois ORDER BY system_id, name`)
+	poiRows, err := db.Query(`SELECT p.system_id, p.id, p.name, p.type, COALESCE(p.class,''), COALESCE(p.description,''), p.position_x, p.position_y, p.hidden, p.reveal_difficulty FROM pois p WHERE ` + kbpoi.Live + ` ORDER BY p.system_id, p.name`)
 	if err != nil {
 		return nil, err
 	}
