@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — October 17, 2026 vs October 12, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-10-12.html">&larr; 2026-10-12</a></span>
+    <a href="index.html">All Reports</a>
+    <span>&nbsp;</span>
+</div>
+<h2>Game Data Changes &mdash; October 17, 2026 vs October 12, 2026</h2>
+<div class="diff-summary">1 addition, 0 deletions, 79 modifications across 3 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+<li><a href="#items">Items</a></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+1</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~77</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/encode_trade_cipher.html">encode_trade_cipher</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: trade_crystal, quantity: 10</td><td class="diff-add">item_id: trade_crystal, quantity: 8</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Facility_Only/wire_trade_authenticator.html">wire_trade_authenticator</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: copper_wiring, quantity: 1</td><td class="diff-unchanged">item_id: copper_wiring, quantity: 1</td></tr><tr><td class="diff-del">item_id: trade_cipher, quantity: 2</td><td class="diff-add">item_id: trade_cipher, quantity: 1</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+1</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ MacGuffin <span class="text-muted">(macguffin)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~77</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/acubens/index.html">acubens</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;At Acubens, illumination dies along the edges of the Shadow Pocket, where material clinging to the asteroid surfaces absorbs passing energy.&#34;</span> &rarr; <span class="diff-add">&#34;Acubens is a quiet Voidborn waypoint on the way out to the Hamal border. The white star lights it plainly, but the dark pocket out in the rocks is what pilots remember. The network watches here with a light touch and rarely intervenes.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/ain/index.html">ain</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Ain pairs an orange Hyades giant with a gas planet more than seven times Jupiter&#39;s mass, one of the rare giant-star worlds known within an open cluster.&#34;</span> &rarr; <span class="diff-add">&#34;Ain is one of the rare giant stars in an open cluster known to carry a planet, and the survey crews who confirmed it still bring it up with some pride. Last Light is a single jump away, so Rim explorers treat Ain as the first real step past their last dependable port. Nobody governs it and nobody has tried.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/algieba/index.html">algieba</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Two orange giants govern Algieba in a five-century orbit, each hosting planets while their gravitational crossfire churns a chaotic but workable metallic belt.&#34;</span> &rarr; <span class="diff-add">&#34;Two orange giants govern Algieba on a five-century orbit, each hosting planets of its own, and their gravitational crossfire keeps the whole system unsettled. Pirates from the Zaniah stronghold range through these lawless lanes, and the prospectors who once came for the metal have mostly stopped coming.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/alhena/index.html">alhena</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Alhena is a lawless stronghold dominated by Voss Redoubt, a patchwork fortress anchoring an unusually disciplined pirate fleet.&#34;</span> &rarr; <span class="diff-add">&#34;Alhena belongs to Commandant Voss, and it runs like a garrison: a disciplined fleet in a patched fortress, at the end of a lane that leads nowhere else. Nobody passes through, because there is no further to go.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/alpha_centauri/index.html">alpha_centauri</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Home to humanity&#39;s first extrasolar colony, Alpha Centauri preserves the monuments and institutions of that interstellar beginning, even as newer Solarian systems eclipse it in practical importance.&#34;</span> &rarr; <span class="diff-add">&#34;Home to humanity&#39;s first extrasolar colony, Alpha Centauri preserves the monuments and institutions of that interstellar beginning, even as newer Solarian systems eclipse it in practical importance. School groups and pilgrims arrive by the shuttle-load to stand where the first colonists stood, while the freight bound for Tau Ceti and the Nebula road runs on its own schedule and does not stop to look.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/altair/index.html">altair</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Phantom scanner echoes haunt Altair&#39;s isolated Dim Lantern nebula, where refracted light masks whatever lies beneath the crystalline dust.&#34;</span> &rarr; <span class="diff-add">&#34;Phantom scanner echoes haunt Altair&#39;s isolated Dim Lantern nebula, where refracted light masks whatever lies beneath the crystalline dust. The red dwarf adds no help, and Warlord Thane&#39;s crews at Sheratan are only three jumps away, so few pilots stay long enough to argue with their sensors.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/altais/index.html">altais</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;An aging yellow giant shapes Altais, shedding a wind that slowly enriches the outer system while distant ice remains cold and beyond its reach.&#34;</span> &rarr; <span class="diff-add">&#34;Altais is the first real junction past Frontier, and every expedition leaving the capital passes under its aging yellow giant. The giant sheds a wind that is slowly enriching the outer system, while the farthest ice stays cold and out of its reach. The Patchwork passes through on its loop, and the lanes get busy while it is here.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/alzirr/index.html">alzirr</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Alzirr is a lawless black-hole binary where an orange giant feeds The Maw and a ring of superheated plasma marks its boundary in bleeding light.&#34;</span> &rarr; <span class="diff-add">&#34;Alzirr is a lawless black-hole binary on the Pact&#39;s doorstep, with four Crimson systems bordering it. Customs hold the lane at Windmere and the garrison at Blood Forge watches the lane on its side, so whatever crosses has been looked at twice. The Pact catalogued Alzirr decades ago, built nothing, and has not explained why.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/barnard_44/index.html">barnard_44</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Director Sable runs isolated Barnard 44 as a coldly professional pirate enterprise, with Sable Port turning an impersonal catalog system into reliably profitable territory.&#34;</span> &rarr; <span class="diff-add">&#34;Barnard 44 was a catalogue entry nobody cared about until Director Sable took it, and the impersonal system has been turned into reliably profitable territory. The one lane in runs through Zubenelgenubi, and everything here is kept the way a well-managed firm keeps a branch office: quiet, orderly, nothing wasted. Visitors without business at Sable Port will find the system has no use for them.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/barnards_star/index.html">barnards_star</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Barnard&#39;s Star is a dim, ancient red dwarf whose exceptional motion and disputed planetary signals make its system an enduring astronomical puzzle.&#34;</span> &rarr; <span class="diff-add">&#34;Barnard&#39;s Star races across the sky faster than any other, an ancient red dwarf whose disputed planetary signals have kept astronomers arguing for centuries. The Confederacy never claimed it, and the capital runs pass by through Dheneb next door, so it sees mostly the ships that come on purpose.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/bellatrix/index.html">bellatrix</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Bellatrix is Sovereign Crix&#39;s lawless stronghold, an unusually orderly pirate system centered on the sector&#39;s most organized outlaw operation.&#34;</span> &rarr; <span class="diff-add">&#34;Bellatrix is Sovereign Crix&#39;s lawless stronghold, kept the way a clerk keeps a ledger: everything in its place, nothing left to chance. The sector&#39;s most organized outlaw operation sits at the end of the line, so nobody arrives by accident and almost nobody arrives to stay.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/blood_forge/index.html">blood_forge</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Under the Red Maw&#39;s oppressive heat, Blood Forge turns Iron Reach ore into weapons-grade alloys at the Pact&#39;s primary refinery, whose furnaces and automated slag barges never stop.&#34;</span> &rarr; <span class="diff-add">&#34;Under the Red Maw&#39;s oppressive heat, Blood Forge turns Iron Reach ore into weapons-grade alloys at the Pact&#39;s primary refinery, whose furnaces and automated slag barges never stop. Every other Crimson yard waits on what leaves this system, so the garrison watches the lane to unclaimed Alzirr as closely as it watches the furnaces.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/bluerift/index.html">bluerift</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Long-exposure surveys reveal the faint blue scar in the interstellar medium that gives Bluerift its name, glowing beside an otherwise quiet star.&#34;</span> &rarr; <span class="diff-add">&#34;A faint blue scar in the interstellar medium, visible only in long exposures, gave Bluerift its name, and the quiet star beside it does nothing to compete. Miners drift out from Solarian space to be left alone, and the system answers to nobody.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/caph/index.html">caph</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Caph&#39;s rapidly rotating, measurably flattened star marks one point of Cassiopeia&#39;s familiar W, while its evolving magnetic field keeps a sparse debris disk mildly active.&#34;</span> &rarr; <span class="diff-add">&#34;Caph is one point of Cassiopeia&#39;s familiar W, a star pilots steered by long before they knew where they were headed. Its rapid spin has flattened it measurably, and its changing magnetic field keeps the sparse debris around it mildly active. The Federation holds this far-edge claim loosely, and the miners working the disk like it that way.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/chalawan/index.html">chalawan</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">2</span> &rarr; <span class="diff-add">3</span></div>
+<div class="diff-item-id"><a href="../systems/coalridge/index.html">coalridge</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/cocibolca/index.html">cocibolca</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A survey pilot named the system Cocibolca for a great lake on old Earth, seeing water in its faint blue haze.&#34;</span> &rarr; <span class="diff-add">&#34;A survey pilot named Cocibolca for a great lake on old Earth, seeing water in the system&#39;s faint blue haze. The place has the easy feel of somewhere no one is in charge and no one minds. The name stuck, which is more than most surveyors&#39; names manage.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/distant_light/index.html">distant_light</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Accessible but quiet, Distant Light is an Outer Rim survey waypoint where sparse traffic leaves visiting pilots with little help close at hand.&#34;</span> &rarr; <span class="diff-add">&#34;Distant Light is a survey waypoint on the quiet side of the Rim, where a pilot can go hours without hearing another ship on comms. Surveyors still hang their charts from its steady yellow star, and a pilot in trouble has little help close at hand. The Patchwork&#39;s loop touches it for about a day, and then the quiet closes back up.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/felis/index.html">felis</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Felis is marked by null-stained asteroid surfaces that swallow light and scanner beams alike, darkening a system already threaded with faint crystal formations.&#34;</span> &rarr; <span class="diff-add">&#34;Felis is a dark system with faint crystal formations threaded through it, where null-stained asteroid surfaces swallow light and scanner beams alike. The gloom is the only cover on offer, and pilots who linger tend to prefer not being seen.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/frontier/index.html">frontier</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The launching point for Outer Rim expeditions.&#34;</span> &rarr; <span class="diff-add">&#34;Frontier is where every Outer Rim expedition begins and the nearest thing the Rim has to a home system, held at the tightest security in the region. The Patchwork drops in for about a day on each of its loops, and the traffic shifts around the visit. Crews bound for the deep systems leave from here without ceremony, because out here a captain is judged by where they went next.&#34;</span></div><div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">7</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/frostfeld/index.html">frostfeld</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Under the last dim heat of a white dwarf, Frostfeld remains a frozen Crimson system of glaciated worlds and drifting ice fields too barren for permanent industry.&#34;</span> &rarr; <span class="diff-add">&#34;Under the last dim heat of a white dwarf, Frostfeld remains a frozen Crimson system of glaciated worlds and drifting ice fields. Crimson officers talk about a posting here the way sailors talk about weather, and the few crews who stop never take their gloves off.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/furud/index.html">furud</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Furud&#39;s Legacy Drift bears the crystalline signature of Sol alloy, likely ancient fragments cast from the Main Belt by a long-ago collision.&#34;</span> &rarr; <span class="diff-add">&#34;Furud&#39;s Legacy Drift bears the crystalline signature of Sol alloy, likely ancient fragments cast from the Main Belt by a long-ago collision. Past Nova Terra the Confederacy&#39;s patrols shrink to a few cutters at the crossing toward unclaimed Acrux and Homam, and the system itself is left quiet.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gj_3470/index.html">gj_3470</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;At GJ 3470&#39;s Thinning Point, the boundary between dimensions frays enough for null matter to condense like dew on the surrounding rock.&#34;</span> &rarr; <span class="diff-add">&#34;GJ 3470 sits on the unclaimed side of the Voidborn frontier, with Hamal a jump away and no law of its own. At the Dewfall Fray the boundary between dimensions frays enough for null matter to condense like dew on the surrounding rock.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gliese_581/index.html">gliese_581</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;At isolated Gliese 581, Korr Fortress serves as Grand Marshal Korr&#39;s seat of power, the sector&#39;s largest and oldest pirate station and the model other strongholds copy.&#34;</span> &rarr; <span class="diff-add">&#34;Isolated Gliese 581 sits at the end of the road, and Korr Fortress is the reason it is on anyone&#39;s chart: the sector&#39;s largest and oldest pirate station, and the model other strongholds copy. Grand Marshal Korr runs it like a garrison, and the system has the settled, weathered calm of a place that has been held for a very long time.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gliese_876/index.html">gliese_876</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Gliese 876 compresses four worlds into a remarkable planetary clockwork, with paired gas giants in resonance and a rocky super-Earth skimming its dim star.&#34;</span> &rarr; <span class="diff-add">&#34;Gliese 876 compresses four worlds into a remarkable planetary clockwork, with paired gas giants in resonance and a rocky super-Earth skimming its dim star. Surveyors loved it. The prospectors who followed found the pirate stronghold closer than the charts suggested, and the belts have been idle since.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/goldcrest/index.html">goldcrest</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Goldcrest takes its name from The Gold Crest, a crescent-shaped asteroid ridge whose exposed gold shines as a bright arc on long-range scanners.&#34;</span> &rarr; <span class="diff-add">&#34;Goldcrest takes its name from The Gold Crest, a crescent-shaped asteroid ridge whose exposed gold shines as a bright arc on long-range scanners. The dim red star leaves the arc to carry the system, and the nearest Confederacy system is two jumps off at Nihal.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0008/index.html">gsc_0008</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;GSC-0008 lies in the black between transit lanes, an isolated pirate stronghold centered on Nyx Nexus where nothing arrives accidentally.&#34;</span> &rarr; <span class="diff-add">&#34;GSC-0008 lies in the black between transit lanes, an isolated pirate stronghold where Overlord Nyx keeps house at the end of the road. Nothing arrives here accidentally, and the ships that come on purpose rarely stay long.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0010/index.html">gsc_0010</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Four routes meet at GSC-0010, giving an otherwise anonymous catalog star a modest purpose as a frontier crossroads.&#34;</span> &rarr; <span class="diff-add">&#34;Four routes meet at GSC-0010, giving an otherwise anonymous catalog star a modest purpose as a frontier crossroads. Most crews cross it without stopping, and the road toward Violethall is the one they choose not to take.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0022/index.html">gsc_0022</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A dim catalog star marks GSC-0022, useful enough as a quiet waypoint and notable for almost nothing else.&#34;</span> &rarr; <span class="diff-add">&#34;GSC-0022 is a dim catalog star and a quiet waypoint one jump past Markab, where Confederacy customs cutters work the near lanes. Few ships come to stay and fewer are noticed, which suits the ones that do.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0026/index.html">gsc_0026</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;At the edge of mapped space, GSC-0026&#39;s Starless Drift remains an overlooked nebula, bypassed by surveys focused on closer targets.&#34;</span> &rarr; <span class="diff-add">&#34;GSC-0026 lies at the edge of mapped space, a dim red-dwarf system with no company to speak of. Surveys chased closer targets and left it alone, which is how its Starless Drift remains an overlooked nebula.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0027/index.html">gsc_0027</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Two faint anomalies distinguish GSC-0027: a nebula alive with drifting sparks and a weak point in local spacetime where darkness seeps through.&#34;</span> &rarr; <span class="diff-add">&#34;GSC-0027 is where the Voidborn border thins on purpose. Anyone moving goods past the Collective&#39;s watch knows the short run through the node chain leads straight to Nexus Prime. The sky here is strange enough to keep surveyors busy.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0032/index.html">gsc_0032</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;At a deep-space crossroads, GSC-0032 offers little beyond a dim unnamed star, an accessible belt, and the solitude prospectors find there.&#34;</span> &rarr; <span class="diff-add">&#34;GSC-0032 is a crossroads under a dim red dwarf, the one fixed light in the dark. Three jumps from Voss Redoubt is close enough to scare off most miners, and prospectors who do come find the solitude more notable than the ore.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/gsc_0036/index.html">gsc_0036</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The Furnace defines GSC-0036, scouring its three worlds with radiation fierce enough to strip atmospheres, disable survey beacons, and threaten unshielded crews.&#34;</span> &rarr; <span class="diff-add">&#34;Crimson space surrounds GSC-0036 and none of it visits. The Furnace is reason enough to stay away: it strips atmospheres, blinds survey beacons, and cooks unshielded crews. The charts mark it lawless and say nothing more.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/haven/index.html">haven</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The commercial heart of the Nebula Trade Federation.&#34;</span> &rarr; <span class="diff-add">&#34;Haven is the commercial heart of the Federation, and it prices everything else against itself. Captains from every empire arrive to sell, and most leave having bought something they never planned on. Security is at its maximum, because the whole fortune sits in one place.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/horizon/index.html">horizon</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Horizon is a well-patrolled Outer Rim crossroads where six routes converge at the threshold of deeper space.&#34;</span> &rarr; <span class="diff-add">&#34;Horizon is the Rim&#39;s busiest crossroads, one jump out from Frontier, where pilots decide how far they really want to go. Patrols keep the lanes orderly without ever asking about cargo, and the Patchwork&#39;s loop brings the capital through for about a day at a time. Beyond it, the charts start to thin.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/innes_40/index.html">innes_40</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Innes 40 is anchored by the Orphan Nebula, where charged gas and mineral dust turn in slow patterns as crystalline structures continually form and reform at its heart.&#34;</span> &rarr; <span class="diff-add">&#34;Pilots remember Innes 40 for the Orphan Nebula: charged gas and mineral dust turning in slow patterns while crystalline structures form and reform at its heart. The system keeps no law, and the nebula does not change its pace for anyone.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/iron_reach/index.html">iron_reach</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Iron Reach is a regimented Crimson mining system where the Motherlode and deep-bore workings feed scheduled ore convoys bound for the Pact&#39;s war foundries.&#34;</span> &rarr; <span class="diff-add">&#34;Iron Reach is a regimented Crimson mining system where the Motherlode and deep-bore workings feed scheduled ore convoys bound for the Pact&#39;s war foundries. The convoy timetable is treated as scripture, and a late ore train is a matter for a tribunal. Krynn is one jump away, so nobody here forgets who the ore is for.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/ironhearth/index.html">ironhearth</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Ironhearth is the Crimson Pact&#39;s population center and closest thing to a civilian homeworld, where families, farms, mines, and refineries sustain both daily life and the war machine.&#34;</span> &rarr; <span class="diff-add">&#34;Ironhearth is the Crimson Pact&#39;s population center and closest thing to a civilian homeworld, where families, farms, mines, and refineries sustain both daily life and the war machine. The generals call it the reason they can afford to be generals: what the war machine eats is grown, raised, and forged here. Policing here is a hometown affair, loud and personal, carried out by officers who went to school with the people they stop.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/ironhollow/index.html">ironhollow</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Ironhollow holds two faint echoes of Sol: antimatter readings buried beneath background radiation and traces of Sol alloy carried by ancient ejecta.&#34;</span> &rarr; <span class="diff-add">&#34;Ironhollow lies just past the Voidborn frontier, where prospectors chase two faint echoes of Sol: antimatter readings buried beneath background radiation and traces of Sol alloy carried by ancient ejecta. Prospectors who go home empty-handed tell the story anyway, which is how the echoes got their reputation.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/jasmine/index.html">jasmine</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Quiet navigation beacons mark private claims through Jasmine&#39;s sparse Silent Reef, where prospectors on the long approach to Voidborn space keep their cargo estimates secret.&#34;</span> &rarr; <span class="diff-add">&#34;Jasmine sits on the long approach to Voidborn space, a lawless stretch where prospectors work claims they would rather not discuss. Quiet navigation beacons mark the private claims in the Silent Reef, and cargo estimates stay secret.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/krynn/index.html">krynn</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The war-forged capital of the Crimson Pact.&#34;</span> &rarr; <span class="diff-add">&#34;The war-forged capital of the Crimson Pact, where High Command sits behind its own guns and nobody stays a civilian for long. Under a swollen red giant, the foundries, mines, and ranges the capital feeds keep a war economy running, and every crew that arrives does its business under the Citadel&#39;s batteries and is expected to find that reassuring.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/maia/index.html">maia</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Maia lies within the young Pleiades as its light scatters through passing interstellar dust, filling the system with a ghostly reflection nebula.&#34;</span> &rarr; <span class="diff-add">&#34;Maia lies within the young Pleiades, where its blue giant&#39;s light scatters through passing interstellar dust and fills the system with a ghostly reflection nebula. The star is barely a hundred million years old, a newborn by galactic standards, and Frostpeak&#39;s Outer Rim road runs close enough to share a few curious pilots. The haze is spectacular and is the one thing anyone mentions twice.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/mebsuta/index.html">mebsuta</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/netherwick/index.html">netherwick</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Netherwick&#39;s untouched Glass Reef scatters starlight through pristine silicon formations, turning its asteroid field into a display of refracted light.&#34;</span> &rarr; <span class="diff-add">&#34;Netherwick&#39;s untouched Glass Reef scatters starlight through pristine silicon formations, turning its asteroid field into a display of refracted light. Beyond its giant sun the rim falls away into empty black, and the Bellatrix stronghold is close enough that nobody surveys in comfort.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/nexus_prime/index.html">nexus_prime</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Central processing hub of the Voidborn Collective.&#34;</span> &rarr; <span class="diff-add">&#34;Nexus Prime is the Voidborn Collective&#39;s capital, a pocket of space reachable only through the Node Alpha and Node Beta approaches, so every arrival is noted before it docks. Security is less a patrol than a property of the place: the network sees everything and comments on little. Beneath a slow red giant, the oldest minds here think in centuries and the youngest in microseconds, and the Collective has never found that inconvenient.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/node_alpha/index.html">node_alpha</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Node Alpha is the Collective&#39;s primary backup and processing center, its planetary arrays sustaining active computation, archived mind-states, automated extraction, and emergency network coordination.&#34;</span> &rarr; <span class="diff-add">&#34;Node Alpha is where the Collective keeps its spare self: backup minds, standby processing, and the quiet machinery that takes over if the capital goes dark. It sits right beside Nexus Prime, near enough that a handoff would pass unnoticed by anyone outside the network. Security is high, and very little happens that the network has not already predicted.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/node_beta/index.html">node_beta</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Powered by abundant energy from a large orange star, Node Beta is the Voidborn Collective&#39;s material-conversion center, where precisely calibrated extraction, smelting, and fabrication turn rich resources into standardized infrastructure.&#34;</span> &rarr; <span class="diff-add">&#34;Node Beta is where the Collective turns rock into infrastructure, and it never stops. Ore convoys arrive from across Collective space under an orange giant, and the smelters take every one of them. Everything that leaves is identical to the last thing that left.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/node_gamma/index.html">node_gamma</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Concentric signal arrays and deep-storage archives define Node Gamma, a Voidborn relay hub amid persistent electromagnetic interference from a blue-white giant.&#34;</span> &rarr; <span class="diff-add">&#34;Node Gamma is where the Collective listened, and what it heard changed its research priorities overnight. A blue-white giant fills the space with interference that the network treats as camouflage, and the relay hub sits inside it, hard to scan from outside. Signal Master Threx keeps a permanent post here, and the Collective has no wish for a crowd.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/nova_terra/index.html">nova_terra</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Nova Terra is the Solarian Confederacy&#39;s unacknowledged economic capital, a prosperous colonial system whose population, trade, and mineral wealth outshine Sol while local ambition waits on distant bureaucracy.&#34;</span> &rarr; <span class="diff-add">&#34;Nova Terra is the Solarian Confederacy&#39;s unacknowledged economic capital, a prosperous colonial system whose population, trade, and mineral wealth outshine Sol while local ambition waits on distant bureaucracy. Its freight brokers talk about Sol the way a successful child talks about a parent&#39;s firm: respectfully, and with a plan. Most of what moves across the Confederacy&#39;s thinner edges is paid for here, whatever flag the cargo flies.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/pherkad/index.html">pherkad</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Two anomalies distinguish Pherkad&#39;s Voidborn frontier: a charged nebula that bends light strangely and an isolated pocket where reality itself grows thin.&#34;</span> &rarr; <span class="diff-add">&#34;Pherkad is the Voidborn frontier where patrols thin out and the Collective&#39;s order fades into unclaimed space. A charged nebula bends light here, and an isolated pocket is where reality grows thin. Neither is guarded. Customs cutters watch the Synchrony lane instead, since Solarian and Crimson traffic bound for the capital comes through this way.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/pollux/index.html">pollux</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Around Pollux&#39;s aging orange giant, a massive gas world keeps a nearly circular orbit while a sparse, metal-rich debris ring lingers in the planet&#39;s gravitational shadow.&#34;</span> &rarr; <span class="diff-add">&#34;An aging orange giant and one calm, well-behaved gas world make Pollux the quietest of the Federation&#39;s border posts, though not the safest: Alhena&#39;s raiding crews work the unclaimed space beyond the border, and patrols hold the line on this side of it. The metal-rich debris ring still lingers in the giant&#39;s shadow, where gravity left the work unfinished.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/procyon/index.html">procyon</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Once chosen as a prime colony prospect, Procyon now endures as an underfunded Solarian system of aging infrastructure, shrinking communities, unrealized resources, and stubbornly functional industry.&#34;</span> &rarr; <span class="diff-add">&#34;Once chosen as a prime colony prospect, Procyon now endures as an underfunded Solarian system of aging infrastructure, shrinking communities, unrealized resources, and stubbornly functional industry. The Confederacy&#39;s attention is the one resource Procyon never has enough of: every visiting committee promises a funding round, and every round belongs to next year.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/ravensbrook/index.html">ravensbrook</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Ravensbrook owes its name to a survey crew stranded for three weeks beneath an unremarkable star, with only a workmanlike asteroid field for scenery.&#34;</span> &rarr; <span class="diff-add">&#34;Ravensbrook is named for a survey crew that spent three weeks stranded beneath its unremarkable star, with only an asteroid field for company. Since then the quiet little system has become a favorite of independents, who like the story and a belt nobody fights over.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/rimegate/index.html">rimegate</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Rimegate&#39;s Hollow Light lies so far from settled space that the isolated nebula was discovered only by accident, despite its faint but unmistakable crystal readings.&#34;</span> &rarr; <span class="diff-add">&#34;Rimegate sits so far from settled space that no empire has bothered to claim it, and the crews who make the trip bring their own order. The isolated Hollow Light nebula was discovered only by accident, and its crystal readings, though faint, are unmistakable.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/sargas/index.html">sargas</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/seginus/index.html">seginus</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Seginus has no star, only a broad spread of drifting belts, clouds, and ice across several useful transit lines. Prospectors and haulers made it too valuable as both a working ground and a waypoint to leave blank on the charts.&#34;</span> &rarr; <span class="diff-add">&#34;Seginus has no star, only drifting belts, clouds, and ice laid across several useful transit lines. Prospectors and haulers kept coming back until the charts gave up and drew it in, too valuable as a working ground and a waypoint to leave blank.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/sheratan/index.html">sheratan</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Sheratan is Warlord Thane&#39;s isolated lawless stronghold, where the lone approach leads to Thane Keep, a pirate station reinforced far beyond any reasonable expectation.&#34;</span> &rarr; <span class="diff-add">&#34;Sheratan is a dead end by design: one lane in, through Quartzfield, and no way out except back the same way. Thane Keep, reinforced far beyond anything a pirate base should need, owns the system, and the warlord who built it does not take visitors.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/sirius/index.html">sirius</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;One jump from Sol, Sirius is the Confederacy&#39;s prestigious research and training system, where universities, observatories, cartographers, and the Epsilon Initiative turn methodical expansion into institutional science.&#34;</span> &rarr; <span class="diff-add">&#34;One jump from Sol, Sirius is the Confederacy&#39;s prestigious research and training system, where universities, observatories, cartographers, and the Epsilon Initiative turn methodical expansion into institutional science. Order here is kept by tenure committees as much as by the police.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/skyreach/index.html">skyreach</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Visible from several neighboring systems, Skyreach&#39;s star serves frontier navigators as a natural reference point and gives the system its name.&#34;</span> &rarr; <span class="diff-add">&#34;Navigators across the frontier take a bearing off Skyreach&#39;s star, and that is how the system got its name. It is a landmark more than a destination: the raiders that roam out of GSC-0008 have taught most crews to read the sky and keep going.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/sol/index.html">sol</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The birthplace of humanity. Heart of the Solarian Confederacy.&#34;</span> &rarr; <span class="diff-add">&#34;The birthplace of humanity and the seat of the Solarian Confederacy, where every world is either a monument or a working part of the machine. Visitors wait months for a permit and then spend a week of it in the next queue, while clerks who have never lived anywhere else file the paperwork for a hundred worlds. Nobody born here thinks of it as the birthplace of anything: it is simply home, and the rest of the galaxy is the frontier.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/starfall/index.html">starfall</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/stonecrest/index.html">stonecrest</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Stonecrest is a quiet frontier system whose dim, steady star overlooks a dense iron-heavy belt productive enough to reward miners seeking isolation.&#34;</span> &rarr; <span class="diff-add">&#34;Stonecrest is the first unclaimed stop beyond The Levy&#39;s customs line, on a road that carries freight toward the Outer Rim. It stays quiet anyway: a dim, steady star over a dense iron belt, and miners who came for solitude and watch the traffic pass at a distance. The Levy&#39;s inspectors do not follow.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/struve_1321/index.html">struve_1321</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Far from any trade route, Struve 1321&#39;s Wanderer&#39;s Veil pulses with faint crystalline light, a lonely nebula left unobserved for millennia.&#34;</span> &rarr; <span class="diff-add">&#34;Wanderer&#39;s Veil pulses with faint crystalline light at the edge of Struve 1321, a nebula left unobserved for millennia while the long haul between the Crimson and Nebula capitals ran straight past it. No one keeps order here, and nothing asks a pilot to stop.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/sualocin/index.html">sualocin</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Sualocin takes its unusual name from the Latinized reverse of Nicolaus, an astronomer&#39;s joke attached to the system&#39;s hot B-type subgiant in Delphinus.&#34;</span> &rarr; <span class="diff-add">&#34;Sualocin takes its unusual name from the Latinized reverse of Nicolaus, an astronomer&#39;s joke attached to the system&#39;s hot B-type subgiant in Delphinus, and the joke has outlasted the traffic. The glare is hard on miners, and Grand Marshal Korr&#39;s crews at Gliese 581, three jumps off, are harder.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/synchrony/index.html">synchrony</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Built around an exceptionally stable star, Synchrony aligns distributed Voidborn minds, calibrates their network against nanosecond drift, and gives consciousnesses space to defragment or restructure.&#34;</span> &rarr; <span class="diff-add">&#34;Synchrony is the one system where the Collective stops to think together. Its star was picked from a catalog for stability, and the whole network calibrates against it, because a nanosecond of drift here becomes a catastrophe at the far edge. Minds come from across Voidborn space to align, and some come to defragment and rest.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/talitha/index.html">talitha</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/tegmine/index.html">tegmine</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Tegmine&#39;s Armored Shelf is a dense asteroid formation that deflects light-based scans so effectively that prospectors nearly have to stumble across it to find it.&#34;</span> &rarr; <span class="diff-add">&#34;Tegmine&#39;s Armored Shelf is a dense asteroid formation that deflects light-based scans so effectively that prospectors nearly have to stumble across it to find it. Beyond that one stubborn formation the system is a quiet lawless corner of the far east, with nobody in charge and nobody asking.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/the_anvil/index.html">the_anvil</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The Anvil is the Crimson Pact&#39;s weapons proving ground and final assembly center, where precise engineering turns Blood Forge alloys into turrets and armor.&#34;</span> &rarr; <span class="diff-add">&#34;The Anvil is the Crimson Pact&#39;s weapons proving ground and final assembly center, where precise engineering turns Blood Forge alloys into turrets and armor. The Pact tests here what it intends to fire elsewhere, so the lanes in carry weapons designers, quartermasters, and officers with opinions about the last batch. Crimson patrols pass through often, and visitors learn quickly which of the ranges are live.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/the_experiment/index.html">the_experiment</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The Experiment is the Voidborn Collective&#39;s most remote research system, chosen for isolation and devoted to classified work the Collective refuses to discuss.&#34;</span> &rarr; <span class="diff-add">&#34;The Experiment is the Voidborn Collective&#39;s most remote research system, chosen for isolation and devoted to classified work it refuses to discuss. On the unclaimed side the Collective&#39;s writ ends, and customs cutters watch the approach. Visitors are permitted, monitored, and told nothing.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/the_rampart/index.html">the_rampart</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The Rampart forms the outer wall of Crimson space, combining all-angle sensor coverage, outward-facing batteries, siege stores, and a fleet-stopping checkpoint in an unbreached defensive chokepoint.&#34;</span> &rarr; <span class="diff-add">&#34;The Rampart forms the outer wall of Crimson space, combining all-angle sensor coverage, outward-facing batteries, siege stores, and a fleet-stopping checkpoint in an unbreached defensive chokepoint. The crews here have never fired in anger, which the Pact counts as proof the wall works and the crews privately count as a long wait. Traders from the unclaimed systems beyond know the checkpoint by reputation and arrive with their manifests in order.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/theemin/index.html">theemin</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Theemin&#39;s slowly evolving star has not yet disturbed its otherwise standard metallic belt, leaving the quiet system largely unchanged on any human timescale.&#34;</span> &rarr; <span class="diff-add">&#34;Theemin is a quiet system at a quiet point in its star&#39;s life. The slow aging has not touched the belt and will not on any timescale a crew lives to see, and the little traffic here is passing through on the Outer Rim to Voidborn route, eyes forward.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/toi_2257/index.html">toi_2257</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;TOI-2257&#39;s faint red dwarf holds a super-Neptune on an unusually eccentric 35-day orbit, swinging the planet between temperate respite and deep-frozen seasonal extremes.&#34;</span> &rarr; <span class="diff-add">&#34;TOI-2257 is the long neck of the corridor to Admiral Kael&#39;s anchorage, a dim red star and a planet that swings between thaw and deep freeze every 35 days. Kael&#39;s raiders are said to favour ships traveling alone, and there is little company out here.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/treasure_cache/index.html">treasure_cache</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;At the Federation&#39;s furthest edge, Treasure Cache is a loosely regulated trading system where independent miners and harvesters chase strong margins along a route that bypasses customs.&#34;</span> &rarr; <span class="diff-add">&#34;Treasure Cache sits at the Federation&#39;s furthest edge and is known to everyone, officially to no one. Independent miners and harvesters chase their margins here along a route that bypasses customs, and Haven tolerates the arrangement because the fees are good. Everything that changes hands here looks a little older than it should and costs a little less.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/valor/index.html">valor</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Named for a military virtue by an early survey crew, Valor remains a Crimson frontier system whose original claim to valor has been lost to time.&#34;</span> &rarr; <span class="diff-add">&#34;Named for a military virtue by an early survey crew, Valor remains a Crimson frontier system whose original claim to valor has been lost to time. The Pact keeps the lanes patrolled and the miners working, and pilots mostly pass through on the way between the capital and the garrisons.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/violethall/index.html">violethall</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+<div class="diff-item-id"><a href="../systems/xamidimura/index.html">xamidimura</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;At isolated Xamidimura, Kael Arsenal serves as the weapons depot and fortified anchorage of a pirate fleet steeped in naval tradition.&#34;</span> &rarr; <span class="diff-add">&#34;Xamidimura is the end of the line: one lane in, and at its far end Admiral Kael keeps his weapons depot and fleet anchorage, run in the old naval manner. Nobody arrives here by accident, because the lane has no other destination.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/zaniah/index.html">zaniah</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Zaniah is a solitary lawless stronghold where a cryptic pirate fleet reads strategy as constellations, threads, and equations written across the dark.&#34;</span> &rarr; <span class="diff-add">&#34;Zaniah is a solitary lawless stronghold at the end of a single road, where Archon Mera&#39;s fleet reads strategy as constellations, threads, and equations written across the dark. Nothing crosses it on the way to somewhere else. Ships arrive on purpose or not at all.&#34;</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>
