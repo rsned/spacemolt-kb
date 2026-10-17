@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -108,9 +117,9 @@
                 <tr><td class="kv-label">Habitats</td><td>ice field</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~2 across 3 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~3 across 3 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-31 17:51 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-01 21:52 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 02:37 UTC</td></tr>
             </table>
         </div>
 
@@ -166,14 +175,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/tarazed/index.html">Tarazed</a> <code style="font-size:0.85em">tarazed</code></td>
-                        <td class="num">1</td>
+                        <td class="num">2</td>
                         <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Tarazed Ice Shelf (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Tarazed Ice Shelf (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">7</td>
-                        <td title="tick 1771639">2026-09-01</td>
+                        <td class="num">11</td>
+                        <td title="tick 2158727">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/upsilon_andromedae/index.html">Upsilon Andromedae</a> <code style="font-size:0.85em">upsilon_andromedae</code></td>

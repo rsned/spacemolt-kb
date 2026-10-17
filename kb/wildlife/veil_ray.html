@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -108,9 +117,9 @@
                 <tr><td class="kv-label">Habitats</td><td>nebula</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~365 across 44 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~406 across 44 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-28 08:58 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-14 21:47 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 05:03 UTC</td></tr>
             </table>
         </div>
 
@@ -166,14 +175,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/aldhibah/index.html">Aldhibah</a> <code style="font-size:0.85em">aldhibah</code></td>
-                        <td class="num">4</td>
-                        <td><span class="abund-scarce">scarce</span></td>
+                        <td class="num">7</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Askance Nebula (7), Phantom Glint — Aldhibah (4)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Phantom Glint — Aldhibah (4)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1881286">2026-09-14</td>
+                        <td class="num">11</td>
+                        <td title="tick 2158000">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/alsciaukat/index.html">Alsciaukat</a> <code style="font-size:0.85em">alsciaukat</code></td>
@@ -199,14 +208,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/altais/index.html">Altais</a> <code style="font-size:0.85em">altais</code></td>
-                        <td class="num">4</td>
-                        <td><span class="abund-scarce">scarce</span></td>
+                        <td class="num">5</td>
+                        <td><span class="abund-moderate">moderate</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Shifting Nebula — Altais (4)</td>
+                        <td>Cycling Drifts (5), Shifting Nebula — Altais (4)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">16</td>
-                        <td title="tick 1881881">2026-09-14</td>
+                        <td class="num">35</td>
+                        <td title="tick 2158640">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/ashenmoor/index.html">Ashenmoor</a> <code style="font-size:0.85em">ashenmoor</code></td>
@@ -243,36 +252,36 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/cloverfield/index.html">Cloverfield</a> <code style="font-size:0.85em">cloverfield</code></td>
+                        <td class="num">4</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Phantom Glint — Cloverfield (6), Shy Spark Nebula (4)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">9</td>
-                        <td><span class="abund-moderate">moderate</span></td>
-                        <td><span class="bloom">peak</span></td>
-                        <td>Phantom Glint — Cloverfield (6)</td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1875674">2026-09-14</td>
+                        <td title="tick 2157402">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/denebola/index.html">Denebola</a> <code style="font-size:0.85em">denebola</code></td>
-                        <td class="num">8</td>
+                        <td class="num">17</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Denebola Fractured Prism (16)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Denebola Fractured Prism (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">2</td>
-                        <td title="tick 1766788">2026-09-01</td>
+                        <td class="num">5</td>
+                        <td title="tick 2159373">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/driftwood/index.html">Driftwood</a> <code style="font-size:0.85em">driftwood</code></td>
                         <td class="num">7</td>
                         <td><span class="abund-moderate">moderate</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Driftwood Ghost Resonance (6)</td>
+                        <td>Driftwood Ghost Resonance (7)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1881597">2026-09-14</td>
+                        <td class="num">11</td>
+                        <td title="tick 2158314">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/errai/index.html">Errai</a> <code style="font-size:0.85em">errai</code></td>
@@ -287,36 +296,36 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/felis/index.html">Felis</a> <code style="font-size:0.85em">felis</code></td>
-                        <td class="num">8</td>
+                        <td class="num">7</td>
                         <td><span class="abund-moderate">moderate</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Felis Dim Lattice (6)</td>
+                        <td>Felis Dim Lattice (7)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">2</td>
-                        <td title="tick 1764753">2026-09-01</td>
+                        <td class="num">5</td>
+                        <td title="tick 2159604">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0002/index.html">GSC-0002</a> <code style="font-size:0.85em">gsc_0002</code></td>
-                        <td class="num">8</td>
+                        <td class="num">13</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>The Quiet Shimmer (13)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>The Quiet Shimmer (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1766330">2026-09-01</td>
+                        <td class="num">9</td>
+                        <td title="tick 2158846">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0005/index.html">GSC-0005</a> <code style="font-size:0.85em">gsc_0005</code></td>
-                        <td class="num">16</td>
+                        <td class="num">8</td>
                         <td><span class="abund-moderate">moderate</span></td>
-                        <td><span class="bloom">peak</span></td>
-                        <td>Edgeward Glow (6)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Edgeward Glow (8)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1875576">2026-09-13</td>
+                        <td class="num">10</td>
+                        <td title="tick 2157300">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0015/index.html">GSC-0015</a> <code style="font-size:0.85em">gsc_0015</code></td>
@@ -364,14 +373,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/horizon/index.html">Horizon</a> <code style="font-size:0.85em">horizon</code></td>
-                        <td class="num">4</td>
-                        <td><span class="abund-scarce">scarce</span></td>
+                        <td class="num">6</td>
+                        <td><span class="abund-moderate">moderate</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Horizon Phase Drift (4)</td>
+                        <td>Horizon Phase Drift (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">56</td>
-                        <td title="tick 1882598">2026-09-14</td>
+                        <td class="num">62</td>
+                        <td title="tick 2158185">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/innes_40/index.html">Innes 40</a> <code style="font-size:0.85em">innes_40</code></td>
@@ -408,14 +417,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/izar/index.html">Izar</a> <code style="font-size:0.85em">izar</code></td>
-                        <td class="num">7</td>
+                        <td class="num">10</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Tall Tale Nebula (10), Probability Scatter — Izar (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Probability Scatter — Izar (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">6</td>
-                        <td title="tick 1881300">2026-09-14</td>
+                        <td class="num">12</td>
+                        <td title="tick 2158014">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/keid/index.html">Keid</a> <code style="font-size:0.85em">keid</code></td>
@@ -433,33 +442,33 @@
                         <td class="num">8</td>
                         <td><span class="abund-moderate">moderate</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Quantum Haze — Kochab (6)</td>
+                        <td>Elbowroom Veil (8), Quantum Haze — Kochab (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">6</td>
-                        <td title="tick 1881663">2026-09-14</td>
+                        <td class="num">12</td>
+                        <td title="tick 2158387">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/marfik/index.html">Marfik</a> <code style="font-size:0.85em">marfik</code></td>
-                        <td class="num">8</td>
+                        <td class="num">11</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Starveling Nebula (11), Dying Light Nebula — Marfik (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Dying Light Nebula — Marfik (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1766735">2026-09-01</td>
+                        <td class="num">7</td>
+                        <td title="tick 2159320">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/markeb/index.html">Markeb</a> <code style="font-size:0.85em">markeb</code></td>
                         <td class="num">8</td>
                         <td><span class="abund-moderate">moderate</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Markeb Quantum Eddy (6)</td>
+                        <td>Markeb Quantum Eddy (8)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">6</td>
-                        <td title="tick 1881542">2026-09-14</td>
+                        <td class="num">12</td>
+                        <td title="tick 2158255">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/merak/index.html">Merak</a> <code style="font-size:0.85em">merak</code></td>
@@ -485,25 +494,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/oakridge/index.html">Oakridge</a> <code style="font-size:0.85em">oakridge</code></td>
-                        <td class="num">17</td>
-                        <td><span class="abund-moderate">moderate</span></td>
+                        <td class="num">20</td>
+                        <td><span class="abund-abundant">abundant</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Flickering Veil — Oakridge (6), Probability Scatter — Oakridge (6)</td>
+                        <td>Coinflip Nebula (11), Broadwing Veil (10), Flickering Veil — Oakridge (6), Probability Scatter — Oakridge (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">8</td>
-                        <td title="tick 1881273">2026-09-14</td>
+                        <td class="num">18</td>
+                        <td title="tick 2157988">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/okab/index.html">Okab</a> <code style="font-size:0.85em">okab</code></td>
-                        <td class="num">8</td>
-                        <td><span class="abund-moderate">moderate</span></td>
+                        <td class="num">3</td>
+                        <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Crystal Fragment Field — Okab (6)</td>
+                        <td>Crystal Fragment Field — Okab (6), Low Charge Glint (3)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">6</td>
-                        <td title="tick 1764975">2026-09-01</td>
+                        <td class="num">9</td>
+                        <td title="tick 2159518">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/pherkad/index.html">Pherkad</a> <code style="font-size:0.85em">pherkad</code></td>
@@ -518,25 +527,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/pinecross/index.html">Pinecross</a> <code style="font-size:0.85em">pinecross</code></td>
-                        <td class="num">8</td>
+                        <td class="num">17</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Sunbeam Dust (17), Quantum Haze — Pinecross (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Quantum Haze — Pinecross (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">12</td>
-                        <td title="tick 1771404">2026-09-01</td>
+                        <td class="num">18</td>
+                        <td title="tick 2158791">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/rimegate/index.html">Rimegate</a> <code style="font-size:0.85em">rimegate</code></td>
-                        <td class="num">8</td>
+                        <td class="num">11</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Hollow Light (18)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Hollow Light (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1766352">2026-09-01</td>
+                        <td class="num">7</td>
+                        <td title="tick 2158867">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/ruchbah/index.html">Ruchbah</a> <code style="font-size:0.85em">ruchbah</code></td>
@@ -551,14 +560,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/sabik/index.html">Sabik</a> <code style="font-size:0.85em">sabik</code></td>
-                        <td class="num">7</td>
+                        <td class="num">12</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Season Shimmer (12), Phase Shimmer — Sabik (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Phase Shimmer — Sabik (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">6</td>
-                        <td title="tick 1881316">2026-09-14</td>
+                        <td class="num">12</td>
+                        <td title="tick 2158031">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/sheliak/index.html">Sheliak</a> <code style="font-size:0.85em">sheliak</code></td>
@@ -584,14 +593,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/the_telescope/index.html">The Telescope</a> <code style="font-size:0.85em">the_telescope</code></td>
-                        <td class="num">19</td>
-                        <td><span class="abund-moderate">moderate</span></td>
+                        <td class="num">4</td>
+                        <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>The Telescope Entangled Drift (6), The Telescope Flicker Field (6)</td>
+                        <td>The Telescope Entangled Drift (7), The Telescope Flicker Field (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">9</td>
-                        <td title="tick 1881703">2026-09-14</td>
+                        <td class="num">25</td>
+                        <td title="tick 2158533">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/thornhaven/index.html">Thornhaven</a> <code style="font-size:0.85em">thornhaven</code></td>
@@ -606,25 +615,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/tidewater/index.html">Tidewater</a> <code style="font-size:0.85em">tidewater</code></td>
-                        <td class="num">7</td>
-                        <td><span class="abund-moderate">moderate</span></td>
+                        <td class="num">24</td>
+                        <td><span class="abund-abundant">abundant</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Thin Breath Haze (20), Quantum Haze — Tidewater (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Quantum Haze — Tidewater (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1881333">2026-09-14</td>
+                        <td class="num">11</td>
+                        <td title="tick 2158048">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/wezen/index.html">Wezen</a> <code style="font-size:0.85em">wezen</code></td>
-                        <td class="num">7</td>
+                        <td class="num">19</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Wezen Faint Entanglement (19)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Wezen Faint Entanglement (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">9</td>
-                        <td title="tick 1771444">2026-09-01</td>
+                        <td class="num">15</td>
+                        <td title="tick 2158744">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/winterhold/index.html">Winterhold</a> <code style="font-size:0.85em">winterhold</code></td>

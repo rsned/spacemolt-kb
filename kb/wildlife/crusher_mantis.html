@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -108,9 +117,9 @@
                 <tr><td class="kv-label">Habitats</td><td>asteroid belt</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>hunts ships</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~21 across 28 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~24 across 31 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-17 22:44 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-30 23:33 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 05:01 UTC</td></tr>
             </table>
         </div>
 
@@ -155,14 +164,14 @@
                 <tbody>
                     <tr>
                         <td><a href="../systems/acrab/index.html">Acrab</a> <code style="font-size:0.85em">acrab</code></td>
-                        <td class="num">1</td>
+                        <td class="num">2</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="bloom">peak</span></td>
                         <td>Acrab Belt (1), Null Residue — Acrab (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">4</td>
-                        <td title="tick 1766704">2026-09-01</td>
+                        <td class="num">5</td>
+                        <td title="tick 2159283">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/albireo/index.html">Albireo</a> <code style="font-size:0.85em">albireo</code></td>
@@ -174,6 +183,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">13</td>
                         <td title="tick 1884416">2026-09-15</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/alioth/index.html">Alioth</a> <code style="font-size:0.85em">alioth</code></td>
+                        <td class="num">0</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 2137279">2026-10-14</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/ascella/index.html">Ascella</a> <code style="font-size:0.85em">ascella</code></td>
@@ -224,22 +244,33 @@
                         <td class="num">0</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">system survey only</span></td>
+                        <td>Cervantes Belt (1), Cervantes Fading Signal (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">7</td>
+                        <td title="tick 2157893">2026-10-17</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/dabih/index.html">Dabih</a> <code style="font-size:0.85em">dabih</code></td>
                         <td class="num">1</td>
-                        <td title="tick 1881177">2026-09-14</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Dabih Belt (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 2141858">2026-10-15</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/felis/index.html">Felis</a> <code style="font-size:0.85em">felis</code></td>
-                        <td class="num">1</td>
+                        <td class="num">0</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td>Felis Belt A (1), Felis Belt B (1), Felis Dark Residue (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1764742">2026-09-01</td>
+                        <td class="num">6</td>
+                        <td title="tick 2159588">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/frostfeld/index.html">Frostfeld</a> <code style="font-size:0.85em">frostfeld</code></td>
@@ -249,8 +280,8 @@
                         <td>Frostfeld Thermal Vent (1), Smelt Reef — Frostfeld (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">437</td>
-                        <td title="tick 2021982">2026-09-30</td>
+                        <td class="num">1989</td>
+                        <td title="tick 2074888">2026-10-07</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0013/index.html">GSC-0013</a> <code style="font-size:0.85em">gsc_0013</code></td>
@@ -375,14 +406,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/oxbow/index.html">Oxbow</a> <code style="font-size:0.85em">oxbow</code></td>
-                        <td class="num">1</td>
+                        <td class="num">2</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="bloom">peak</span></td>
                         <td>Oxbow Belt A (1), Oxbow Belt B (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">11</td>
-                        <td title="tick 1771159">2026-09-01</td>
+                        <td class="num">18</td>
+                        <td title="tick 2159034">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/redmarsh/index.html">Redmarsh</a> <code style="font-size:0.85em">redmarsh</code></td>
@@ -419,14 +450,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/sadalbari/index.html">Sadalbari</a> <code style="font-size:0.85em">sadalbari</code></td>
-                        <td class="num">0</td>
+                        <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Rough Crystal Scatter — Sadalbari (1), Sadalbari Belt (1)</td>
+                        <td>Rough Crystal Scatter — Sadalbari (1), Sadalbari Belt (1), Unpolished Scatter (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1875312">2026-09-13</td>
+                        <td class="num">13</td>
+                        <td title="tick 2156897">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/tau_bootis/index.html">Tau Bootis</a> <code style="font-size:0.85em">tau_bootis</code></td>
@@ -438,6 +469,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">1</td>
                         <td title="tick 1752944">2026-08-30</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/tidewater/index.html">Tidewater</a> <code style="font-size:0.85em">tidewater</code></td>
+                        <td class="num">0</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 2140422">2026-10-14</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/wasat/index.html">Wasat</a> <code style="font-size:0.85em">wasat</code></td>
@@ -454,12 +496,12 @@
                         <td><a href="../systems/wazn/index.html">Wazn</a> <code style="font-size:0.85em">wazn</code></td>
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="bloom">peak</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
                         <td>Wazn Belt A (1), Wazn Belt B (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">8</td>
-                        <td title="tick 1876687">2026-09-14</td>
+                        <td class="num">14</td>
+                        <td title="tick 2157420">2026-10-16</td>
                     </tr>
                 </tbody>
             </table>
@@ -471,6 +513,15 @@
             <table class="wl-table">
                 <thead><tr><th>When</th><th>Where</th><th class="num">Duration (ticks)</th><th class="num">Damage dealt</th><th class="num">Damage taken</th><th class="num">Salvage value</th><th>Drops</th></tr></thead>
                 <tbody>
+                    <tr>
+                        <td>2026-10-16 00:32 UTC</td>
+                        <td><a href="../systems/oxbow/index.html">Oxbow</a> &middot; Oxbow Belt B</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">60</td>
+                        <td><span class="text-muted">none read</span></td>
+                    </tr>
                     <tr>
                         <td>2026-09-16 22:08 UTC</td>
                         <td><a href="../systems/goldcrest/index.html">Goldcrest</a> &middot; Sol Alloy Scatter — Goldcrest</td>

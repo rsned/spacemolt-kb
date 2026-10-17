@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -129,7 +138,7 @@
                     <td class="num" data-sort="0.300">0.18&ndash;0.30</td>
                     <td class="num">320</td>
                     <td class="num">0</td>
-                    <td class="num">2</td>
+                    <td class="num">3</td>
                     <td class="num">2</td>
                 </tr>
                 <tr>
@@ -241,7 +250,7 @@
                     <td class="num" data-sort="0.300">0.08&ndash;0.30</td>
                     <td class="num">60</td>
                     <td class="num">0</td>
-                    <td class="num">35</td>
+                    <td class="num">37</td>
                     <td class="num">2</td>
                 </tr>
                 <tr>
@@ -255,7 +264,7 @@
                     <td class="num" data-sort="0.600">0.08&ndash;0.60</td>
                     <td class="num">70</td>
                     <td class="num">0</td>
-                    <td class="num">0</td>
+                    <td class="num">3</td>
                     <td class="num">2</td>
                 </tr>
                 <tr>
@@ -325,7 +334,7 @@
                     <td class="num" data-sort="0.300">0.08&ndash;0.30</td>
                     <td class="num">40</td>
                     <td class="num">0</td>
-                    <td class="num">6</td>
+                    <td class="num">8</td>
                     <td class="num">2</td>
                 </tr>
                 <tr>
@@ -353,7 +362,7 @@
                     <td class="num" data-sort="0.300">0.08&ndash;0.30</td>
                     <td class="num">60</td>
                     <td class="num">0</td>
-                    <td class="num">69</td>
+                    <td class="num">86</td>
                     <td class="num">2</td>
                 </tr>
                 <tr>
@@ -367,7 +376,7 @@
                     <td class="num" data-sort="0.300">0.08&ndash;0.30</td>
                     <td class="num">90</td>
                     <td class="num">0</td>
-                    <td class="num">5</td>
+                    <td class="num">8</td>
                     <td class="num">2</td>
                 </tr>
                 <tr>
@@ -451,7 +460,7 @@
                     <td class="num" data-sort="0.300">0.08&ndash;0.30</td>
                     <td class="num">45</td>
                     <td class="num">0</td>
-                    <td class="num">4</td>
+                    <td class="num">5</td>
                     <td class="num">2</td>
                 </tr>
                 <tr>
@@ -675,7 +684,7 @@
                     <td class="num" data-sort="0.080">0.08&ndash;0.08</td>
                     <td class="num">100</td>
                     <td class="num">0</td>
-                    <td class="num">0</td>
+                    <td class="num">1</td>
                     <td class="num">1</td>
                 </tr>
                 <tr>
@@ -721,6 +730,20 @@
                     <td class="num">1</td>
                 </tr>
                 <tr>
+                    <td><a href="wormwood.html">Wormwood</a></td>
+                    <td><span class="badge badge-green">grazer</span></td>
+                    <td data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.00"><span class="text-muted">&mdash;</span></td>
+                    <td><span class="badge">energy</span></td>
+                    <td class="num" data-sort="5">5</td>
+                    <td class="num" data-sort="0.850">0.08&ndash;0.85</td>
+                    <td class="num">75</td>
+                    <td class="num">0</td>
+                    <td class="num">0</td>
+                    <td class="num">2</td>
+                </tr>
+                <tr>
                     <td><a href="mirror_skate.html">Mirror-Skate</a></td>
                     <td><span class="badge badge-green">grazer</span></td>
                     <td data-sort="0"><span class="text-muted">&mdash;</span></td>
@@ -735,6 +758,34 @@
                     <td class="num">1</td>
                 </tr>
                 <tr>
+                    <td><a href="bulwark.html">Bulwark</a></td>
+                    <td><span class="badge badge-green">grazer</span></td>
+                    <td data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.00"><span class="text-muted">&mdash;</span></td>
+                    <td><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.000"><span class="text-muted">&mdash;</span></td>
+                    <td class="num">95</td>
+                    <td class="num">0</td>
+                    <td class="num">1</td>
+                    <td class="num">0</td>
+                </tr>
+                <tr>
+                    <td><a href="cloudwhale.html">Cloudwhale</a></td>
+                    <td><span class="badge badge-green">grazer</span></td>
+                    <td data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.00"><span class="text-muted">&mdash;</span></td>
+                    <td><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.000"><span class="text-muted">&mdash;</span></td>
+                    <td class="num">3419</td>
+                    <td class="num">0</td>
+                    <td class="num">0</td>
+                    <td class="num">0</td>
+                </tr>
+                <tr>
                     <td><a href="glimmer_druse.html">Glimmer-Druse</a></td>
                     <td><span class="badge badge-green">grazer</span></td>
                     <td data-sort="0"><span class="text-muted">&mdash;</span></td>
@@ -743,9 +794,23 @@
                     <td><span class="text-muted">&mdash;</span></td>
                     <td class="num" data-sort="-1"><span class="text-muted">&mdash;</span></td>
                     <td class="num" data-sort="-1.000"><span class="text-muted">&mdash;</span></td>
+                    <td class="num">110</td>
                     <td class="num">0</td>
+                    <td class="num">1</td>
                     <td class="num">0</td>
+                </tr>
+                <tr>
+                    <td><a href="hoarfrost_leviathan.html">Hoarfrost Leviathan</a></td>
+                    <td><span class="badge badge-red">predator</span></td>
+                    <td data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.00"><span class="text-muted">&mdash;</span></td>
+                    <td><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.000"><span class="text-muted">&mdash;</span></td>
+                    <td class="num">769</td>
                     <td class="num">0</td>
+                    <td class="num">1</td>
                     <td class="num">0</td>
                 </tr>
                 <tr>
@@ -760,6 +825,20 @@
                     <td class="num">65</td>
                     <td class="num">0</td>
                     <td class="num">0</td>
+                    <td class="num">0</td>
+                </tr>
+                <tr>
+                    <td><a href="molt_leviathan.html">Molt Leviathan</a></td>
+                    <td><span class="badge badge-red">predator</span></td>
+                    <td data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="0"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.00"><span class="text-muted">&mdash;</span></td>
+                    <td><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1"><span class="text-muted">&mdash;</span></td>
+                    <td class="num" data-sort="-1.000"><span class="text-muted">&mdash;</span></td>
+                    <td class="num">691</td>
+                    <td class="num">0</td>
+                    <td class="num">2</td>
                     <td class="num">0</td>
                 </tr>
                 <tr>

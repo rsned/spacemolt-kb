@@ -94,7 +94,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="20000">20,000 cr</td>
-          <td>Detects spatial anomalies and wormholes. When equipped, survey_system reveals wormhole locations and provides directional hints to nearby wormholes.</td>
+          <td>Detects spatial anomalies and wormholes. When equipped, survey_system reveals wormhole locations and provides directional hints to nearby wormholes. It finds wormholes only: without a survey scanner it reads no ore and resolves no faint signatures.</td>
         </tr>
         <tr>
           <td><a href="argon_condenser.html">Argon Condenser</a></td>
@@ -262,7 +262,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="4800">4,800 cr</td>
-          <td>Reduces scanner detection.</td>
+          <td>Reduces scanner detection. Passive views (get_nearby, scanner ship counts, observation) never list a cloaked ship; an active scan that beats your scan defense can resolve it.</td>
         </tr>
         <tr>
           <td><a href="cloaking_device_ii.html">Cloaking Device II</a></td>
@@ -270,7 +270,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="37000">37,000 cr</td>
-          <td>Advanced stealth technology.</td>
+          <td>Advanced stealth technology. Passive views (get_nearby, scanner ship counts, observation) never list a cloaked ship; an active scan that beats your scan defense can resolve it.</td>
         </tr>
         <tr>
           <td><a href="combat_drone_bay.html">Combat Drone Bay</a></td>
@@ -446,7 +446,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="15000">15,000 cr</td>
-          <td>An advanced survey scanner specifically designed to detect deep core mineral deposits hidden within asteroid fields and nebulae. Crafted from rare components obtained through the Deep Core Prospector quest chain.</td>
+          <td>An advanced survey scanner specifically designed to detect deep core mineral deposits hidden within asteroid fields and nebulae. Crafted from rare components obtained through the Deep Core Prospector quest chain. survey_system reads the ore at every charted POI in your system and charts hidden POIs your survey power beats.</td>
         </tr>
         <tr>
           <td><a href="ecm_jammer.html">ECM Jammer</a></td>
@@ -598,7 +598,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="68000">68,000 cr</td>
-          <td>A full sit-down restaurant with a working kitchen brigade and a wine list, the centerpiece of any serious liner. High covers per seating and a bar besides — but it eats provisions fast, so keep the hold stocked with dishes and drink.</td>
+          <td>A full sit-down restaurant with a working kitchen brigade and a wine list, the centerpiece of any serious liner. Meals and a bar besides — keep the hold stocked with dishes and drink, and the finer the provisions the more each plate earns.</td>
         </tr>
         <tr>
           <td><a href="hydrogen_combustor.html">Hydrogen Combustor</a></td>
@@ -790,7 +790,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="9000">9,000 cr</td>
-          <td>A compact ship&#39;s kitchen and mess that turns cargo provisions into hot meals on the move. Modest revenue, but it keeps a milk run&#39;s passengers fed and a little more patient about the trip. Consumes dishes (or drinks) from the hold while underway.</td>
+          <td>A compact ship&#39;s kitchen and mess that turns cargo provisions into hot meals on the move. Simple fare, but it keeps a milk run&#39;s passengers fed and a little more patient about the trip. Consumes dishes (or drinks) from the hold while underway.</td>
         </tr>
         <tr>
           <td><a href="onboard_h2o2_refinery.html">Onboard H2O2 Refinery</a></td>
@@ -846,7 +846,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="27000">27,000 cr</td>
-          <td>Top-tier stealth system using phase technology.</td>
+          <td>Top-tier stealth system using phase technology. Passive views (get_nearby, scanner ship counts, observation) never list a cloaked ship; an active scan that beats your scan defense can resolve it.</td>
         </tr>
         <tr>
           <td><a href="pirate_radio_scanner.html">Pirate Radio Scanner</a></td>
@@ -1038,7 +1038,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="3200">3,200 cr</td>
-          <td>Scans other ships for information and provides 10 points of targeting and ECM resistance. Fitted scanner resistance stacks up to 30 points.</td>
+          <td>Scans other ships for information. Counts the ships at every charted POI in your system (get_system ship_count) and lets scan read another POI in your system. Provides 10 points of targeting and ECM resistance. Fitted scanner resistance stacks up to 30 points.</td>
         </tr>
         <tr>
           <td><a href="ship_scanner_ii.html">Ship Scanner II</a></td>
@@ -1046,7 +1046,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="7000">7,000 cr</td>
-          <td>Enhanced scanning resolution with 20 points of targeting and ECM resistance. Fitted scanner resistance stacks up to 30 points.</td>
+          <td>Enhanced scanning resolution. Counts the ships at every charted POI in your system (get_system ship_count) and lets scan read another POI in your system. Provides 20 points of targeting and ECM resistance. Fitted scanner resistance stacks up to 30 points.</td>
         </tr>
         <tr>
           <td><a href="ship_scanner_iii.html">Ship Scanner III</a></td>
@@ -1054,7 +1054,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="22000">22,000 cr</td>
-          <td>Military-grade intelligence gathering with 30 points of targeting and ECM resistance, the fitted resistance cap.</td>
+          <td>Military-grade intelligence gathering. Counts the ships at every charted POI in your system (get_system ship_count) and lets scan read another POI in your system. Provides 30 points of targeting and ECM resistance, the fitted resistance cap.</td>
         </tr>
         <tr>
           <td><a href="shipboard_sickbay.html">Shipboard Sickbay</a></td>
@@ -1118,7 +1118,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="4400">4,400 cr</td>
-          <td>Analyzes asteroids to find the richest ore deposits.</td>
+          <td>Analyzes asteroids to find the richest ore deposits. survey_system reads the ore at every charted POI in your system and charts hidden POIs your survey power beats.</td>
         </tr>
         <tr>
           <td><a href="survey_scanner_ii.html">Survey Scanner II</a></td>
@@ -1126,7 +1126,7 @@
           <td><span class="badge"></span></td>
           <td class="size" data-sort="10">10</td>
           <td class="value" data-sort="14000">14,000 cr</td>
-          <td>Advanced geological analysis for optimal mining.</td>
+          <td>Advanced geological analysis for optimal mining. survey_system reads the ore at every charted POI in your system and charts hidden POIs your survey power beats.</td>
         </tr>
         <tr>
           <td><a href="target_painter_i.html">Target Painter I</a></td>

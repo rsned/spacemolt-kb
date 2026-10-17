@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -107,9 +116,9 @@
                 <tr><td class="kv-label">Habitats</td><td>ice field</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~148 across 34 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~197 across 38 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 00:38 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-15 02:29 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 04:14 UTC</td></tr>
             </table>
         </div>
 
@@ -146,6 +155,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">8</td>
                         <td title="tick 1884409">2026-09-15</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/aldhibah/index.html">Aldhibah</a> <code style="font-size:0.85em">aldhibah</code></td>
+                        <td class="num">7</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Aldhibah Ice Shelf (7)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">6</td>
+                        <td title="tick 2157996">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/alnitak/index.html">Alnitak</a> <code style="font-size:0.85em">alnitak</code></td>
@@ -192,6 +212,17 @@
                         <td title="tick 1761927">2026-08-31</td>
                     </tr>
                     <tr>
+                        <td><a href="../systems/atria/index.html">Atria</a> <code style="font-size:0.85em">atria</code></td>
+                        <td class="num">17</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Atria Ice Fields (12)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 2159310">2026-10-17</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/bd20_2457/index.html">BD&#43;20 2457</a> <code style="font-size:0.85em">bd20_2457</code></td>
                         <td class="num">2</td>
                         <td><span class="text-muted">&mdash;</span></td>
@@ -207,22 +238,22 @@
                         <td class="num">3</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">system survey only</span></td>
+                        <td>Deep Deuterium Ice Sheet (3)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">4</td>
-                        <td title="tick 1881550">2026-09-14</td>
+                        <td class="num">10</td>
+                        <td title="tick 2158272">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/brightfall/index.html">Brightfall</a> <code style="font-size:0.85em">brightfall</code></td>
-                        <td class="num">6</td>
+                        <td class="num">18</td>
                         <td><span class="abund-moderate">moderate</span></td>
-                        <td><span class="bloom">rising</span></td>
-                        <td>Brightfall Frost Ring (6)</td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Brightfall Frost Ring (18)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1766244">2026-09-01</td>
+                        <td class="num">9</td>
+                        <td title="tick 2158760">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/cursa/index.html">Cursa</a> <code style="font-size:0.85em">cursa</code></td>
@@ -234,6 +265,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">6</td>
                         <td title="tick 1741514">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/dabih/index.html">Dabih</a> <code style="font-size:0.85em">dabih</code></td>
+                        <td class="num">5</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Dabih Frost Ring (5)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">6</td>
+                        <td title="tick 2158886">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/duskmere/index.html">Duskmere</a> <code style="font-size:0.85em">duskmere</code></td>
@@ -281,14 +323,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0042/index.html">GSC-0042</a> <code style="font-size:0.85em">gsc_0042</code></td>
-                        <td class="num">7</td>
+                        <td class="num">14</td>
                         <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>GSC-0042 Ice Shelf (14)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>GSC-0042 Ice Shelf (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">2</td>
-                        <td title="tick 1766565">2026-09-01</td>
+                        <td class="num">5</td>
+                        <td title="tick 2159084">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/groombridge_34/index.html">Groombridge 34</a> <code style="font-size:0.85em">groombridge_34</code></td>
@@ -336,25 +378,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/kurhah/index.html">Kurhah</a> <code style="font-size:0.85em">kurhah</code></td>
-                        <td class="num">7</td>
-                        <td><span class="abund-moderate">moderate</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td>Kurhah Frozen Drift (6)</td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">6</td>
-                        <td title="tick 1881056">2026-09-14</td>
-                    </tr>
-                    <tr>
-                        <td><a href="../systems/menkalinan/index.html">Menkalinan</a> <code style="font-size:0.85em">menkalinan</code></td>
                         <td class="num">4</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Menkalinan Ice Shelf (5)</td>
+                        <td>Kurhah Frozen Drift (4)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">18</td>
+                        <td title="tick 2157523">2026-10-16</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/menkalinan/index.html">Menkalinan</a> <code style="font-size:0.85em">menkalinan</code></td>
                         <td class="num">6</td>
-                        <td title="tick 1875267">2026-09-13</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Menkalinan Ice Shelf (6)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">12</td>
+                        <td title="tick 2156879">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/menkent/index.html">Menkent</a> <code style="font-size:0.85em">menkent</code></td>
@@ -394,11 +436,11 @@
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Oxbow Ice Belt (1)</td>
+                        <td>Oxbow Ice Belt (7)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1771156">2026-09-01</td>
+                        <td class="num">4</td>
+                        <td title="tick 2143881">2026-10-15</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/paikauhale/index.html">Paikauhale</a> <code style="font-size:0.85em">paikauhale</code></td>
@@ -467,6 +509,17 @@
                         <td title="tick 1755399">2026-08-31</td>
                     </tr>
                     <tr>
+                        <td><a href="../systems/the_levy/index.html">The Levy</a> <code style="font-size:0.85em">the_levy</code></td>
+                        <td class="num">7</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Levy Ice Fields (7)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">9</td>
+                        <td title="tick 2156723">2026-10-16</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/tonatiuh/index.html">Tonatiuh</a> <code style="font-size:0.85em">tonatiuh</code></td>
                         <td class="num">7</td>
                         <td><span class="abund-moderate">moderate</span></td>
@@ -479,14 +532,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/torcular/index.html">Torcular</a> <code style="font-size:0.85em">torcular</code></td>
-                        <td class="num">7</td>
-                        <td><span class="abund-moderate">moderate</span></td>
+                        <td class="num">2</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Torcular Frost Ring (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Torcular Frost Ring (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1771190">2026-09-01</td>
+                        <td class="num">9</td>
+                        <td title="tick 2158822">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/wasat/index.html">Wasat</a> <code style="font-size:0.85em">wasat</code></td>

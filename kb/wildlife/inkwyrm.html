@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -107,9 +116,9 @@
                 <tr><td class="kv-label">Habitats</td><td>asteroid belt</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~4 across 3 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~6 across 5 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-17 10:01 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-14 19:14 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 02:36 UTC</td></tr>
             </table>
         </div>
 
@@ -136,6 +145,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td><a href="../systems/ain/index.html">Ain</a> <code style="font-size:0.85em">ain</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>Ain Tidal Fields (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">5</td>
+                        <td title="tick 2158719">2026-10-17</td>
+                    </tr>
                     <tr>
                         <td><a href="../systems/first_step/index.html">First Step</a> <code style="font-size:0.85em">first_step</code></td>
                         <td class="num">1</td>
@@ -168,6 +188,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">10</td>
                         <td title="tick 1740695">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/sulafat/index.html">Sulafat</a> <code style="font-size:0.85em">sulafat</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Sulafat Belt (1), Sulafat Outer Fields (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">14</td>
+                        <td title="tick 2158377">2026-10-17</td>
                     </tr>
                 </tbody>
             </table>

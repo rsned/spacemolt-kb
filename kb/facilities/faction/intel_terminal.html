@@ -44,7 +44,7 @@
         <h2>Intel Terminal <span class="badge">Always On</span></h2>
 
         
-        <blockquote class="item-desc">A shared data terminal for pooling scanner results and scouting reports. Members submit system data manually using faction_submit_intel. Every entry is a snapshot of what the scout saw at the time — resource deposit quantities and other readings are last-seen values, not live, and only refresh when someone resubmits. Upgrade to Intel Center (L2) to enable automatic data collection whenever a member visits a system.</blockquote>
+        <blockquote class="item-desc">A shared data terminal for pooling scanner results and scouting reports. Members submit system data manually using faction_submit_intel. A submission keeps only the POIs on the submitter&#39;s own charts; an unknown or uncharted POI ID is dropped. Hand-submitted resource readings carry no read_at_tick, so they always read as unverified, and they only refresh when someone resubmits. Upgrade to Intel Center (L2) to record what members&#39; ships read automatically.</blockquote>
         
 
         

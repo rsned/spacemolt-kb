@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -108,9 +117,9 @@
                 <tr><td class="kv-label">Habitats</td><td>gas cloud, nebula</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~49 across 21 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~54 across 23 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 01:13 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-15 02:22 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 04:39 UTC</td></tr>
             </table>
         </div>
 
@@ -139,14 +148,14 @@
                 <tbody>
                     <tr>
                         <td><a href="../systems/acrab/index.html">Acrab</a> <code style="font-size:0.85em">acrab</code></td>
-                        <td class="num">1</td>
+                        <td class="num">3</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="bloom">peak</span></td>
                         <td><span class="text-muted">system survey only</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">1</td>
-                        <td title="tick 1766700">2026-09-01</td>
+                        <td class="num">2</td>
+                        <td title="tick 2159283">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/albireo/index.html">Albireo</a> <code style="font-size:0.85em">albireo</code></td>
@@ -158,6 +167,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">1</td>
                         <td title="tick 1883346">2026-09-14</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/alioth/index.html">Alioth</a> <code style="font-size:0.85em">alioth</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Alioth Gas Plume (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 2156801">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/ascella/index.html">Ascella</a> <code style="font-size:0.85em">ascella</code></td>
@@ -224,6 +244,17 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">2</td>
                         <td title="tick 1764753">2026-09-01</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/gj_3470/index.html">GJ 3470</a> <code style="font-size:0.85em">gj_3470</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 2159455">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/intercrus/index.html">Intercrus</a> <code style="font-size:0.85em">intercrus</code></td>
@@ -304,14 +335,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/oxbow/index.html">Oxbow</a> <code style="font-size:0.85em">oxbow</code></td>
-                        <td class="num">2</td>
+                        <td class="num">4</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="bloom">peak</span></td>
                         <td><span class="text-muted">system survey only</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1771152">2026-09-01</td>
+                        <td class="num">4</td>
+                        <td title="tick 2141911">2026-10-15</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/redmarsh/index.html">Redmarsh</a> <code style="font-size:0.85em">redmarsh</code></td>
@@ -332,8 +363,8 @@
                         <td><span class="text-muted">system survey only</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1875312">2026-09-13</td>
+                        <td class="num">5</td>
+                        <td title="tick 2156893">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/tureis/index.html">Tureis</a> <code style="font-size:0.85em">tureis</code></td>
@@ -359,14 +390,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/wazn/index.html">Wazn</a> <code style="font-size:0.85em">wazn</code></td>
-                        <td class="num">2</td>
+                        <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="bloom">peak</span></td>
-                        <td>Wazn Haze (5)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Wazn Haze (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">7</td>
-                        <td title="tick 1876676">2026-09-14</td>
+                        <td class="num">13</td>
+                        <td title="tick 2157422">2026-10-16</td>
                     </tr>
                 </tbody>
             </table>

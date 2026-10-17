@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -108,9 +117,9 @@
                 <tr><td class="kv-label">Habitats</td><td>gas cloud</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~55 across 32 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~59 across 38 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 00:19 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-15 03:46 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 05:14 UTC</td></tr>
             </table>
         </div>
 
@@ -150,14 +159,14 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/alrescha/index.html">Alrescha</a> <code style="font-size:0.85em">alrescha</code></td>
-                        <td class="num">1</td>
+                        <td class="num">0</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td>Alrescha Emission Nebula (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">7</td>
-                        <td title="tick 1738089">2026-08-29</td>
+                        <td class="num">8</td>
+                        <td title="tick 2137066">2026-10-14</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/alsciaukat/index.html">Alsciaukat</a> <code style="font-size:0.85em">alsciaukat</code></td>
@@ -182,26 +191,48 @@
                         <td title="tick 1885179">2026-09-15</td>
                     </tr>
                     <tr>
+                        <td><a href="../systems/birchwood/index.html">Birchwood</a> <code style="font-size:0.85em">birchwood</code></td>
+                        <td class="num">3</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Birchwood Vapor Fields (2)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">4</td>
+                        <td title="tick 2158773">2026-10-17</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/bunda/index.html">Bunda</a> <code style="font-size:0.85em">bunda</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Bunda Gas Cloud (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 2132661">2026-10-14</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/cervantes/index.html">Cervantes</a> <code style="font-size:0.85em">cervantes</code></td>
                         <td class="num">0</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">system survey only</span></td>
+                        <td>Cervantes Vapor Fields (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">1</td>
-                        <td title="tick 1881177">2026-09-14</td>
+                        <td class="num">5</td>
+                        <td title="tick 2157893">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/fulu/index.html">Fulu</a> <code style="font-size:0.85em">fulu</code></td>
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="bloom">rising</span></td>
                         <td>Fulu Vapor Fields (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1766595">2026-09-01</td>
+                        <td class="num">6</td>
+                        <td title="tick 2159114">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/fuyue/index.html">Fuyue</a> <code style="font-size:0.85em">fuyue</code></td>
@@ -222,19 +253,19 @@
                         <td>GSC-0004 Gas Pocket (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1766502">2026-09-01</td>
+                        <td class="num">11</td>
+                        <td title="tick 2159019">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0006/index.html">GSC-0006</a> <code style="font-size:0.85em">gsc_0006</code></td>
-                        <td class="num">2</td>
+                        <td class="num">3</td>
                         <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>GSC-0006 Gas Pocket (3)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>GSC-0006 Gas Pocket (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">2</td>
-                        <td title="tick 1766581">2026-09-01</td>
+                        <td class="num">5</td>
+                        <td title="tick 2159100">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0012/index.html">GSC-0012</a> <code style="font-size:0.85em">gsc_0012</code></td>
@@ -255,8 +286,8 @@
                         <td>GSC-0016 Emission Nebula (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1764761">2026-09-01</td>
+                        <td class="num">6</td>
+                        <td title="tick 2159580">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0018/index.html">GSC-0018</a> <code style="font-size:0.85em">gsc_0018</code></td>
@@ -270,15 +301,26 @@
                         <td title="tick 1761585">2026-08-31</td>
                     </tr>
                     <tr>
-                        <td><a href="../systems/gsc_0045/index.html">GSC-0045</a> <code style="font-size:0.85em">gsc_0045</code></td>
-                        <td class="num">2</td>
+                        <td><a href="../systems/gsc_0035/index.html">GSC-0035</a> <code style="font-size:0.85em">gsc_0035</code></td>
+                        <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>GSC-0045 Gas Pocket (2)</td>
+                        <td>GSC-0035 Vapor Fields (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">2</td>
-                        <td title="tick 1766406">2026-09-01</td>
+                        <td class="num">4</td>
+                        <td title="tick 2159666">2026-10-17</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/gsc_0045/index.html">GSC-0045</a> <code style="font-size:0.85em">gsc_0045</code></td>
+                        <td class="num">3</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="bloom">rising</span></td>
+                        <td>GSC-0045 Gas Pocket (4)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">6</td>
+                        <td title="tick 2158908">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gsc_0050/index.html">GSC-0050</a> <code style="font-size:0.85em">gsc_0050</code></td>
@@ -299,8 +341,8 @@
                         <td>Glenhaven Gas Cloud (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">2</td>
-                        <td title="tick 1740983">2026-08-29</td>
+                        <td class="num">5</td>
+                        <td title="tick 2132926">2026-10-14</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/gliese_229/index.html">Gliese 229</a> <code style="font-size:0.85em">gliese_229</code></td>
@@ -326,25 +368,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/hd_85512/index.html">HD 85512</a> <code style="font-size:0.85em">hd_85512</code></td>
-                        <td class="num">3</td>
-                        <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="bloom">rising</span></td>
-                        <td>HD 85512 Haze (3)</td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1875394">2026-09-13</td>
-                    </tr>
-                    <tr>
-                        <td><a href="../systems/hatysa/index.html">Hatysa</a> <code style="font-size:0.85em">hatysa</code></td>
                         <td class="num">2</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Hatysa Vapor Fields (2)</td>
+                        <td>HD 85512 Haze (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1881212">2026-09-14</td>
+                        <td class="num">9</td>
+                        <td title="tick 2156976">2026-10-16</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/hatysa/index.html">Hatysa</a> <code style="font-size:0.85em">hatysa</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Hatysa Vapor Fields (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">9</td>
+                        <td title="tick 2157928">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/kepler_62/index.html">Kepler-62</a> <code style="font-size:0.85em">kepler_62</code></td>
@@ -370,25 +412,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/maplevale/index.html">Maplevale</a> <code style="font-size:0.85em">maplevale</code></td>
-                        <td class="num">1</td>
+                        <td class="num">0</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td>Maplevale Vapor Fields (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">3</td>
-                        <td title="tick 1881140">2026-09-14</td>
+                        <td class="num">7</td>
+                        <td title="tick 2157854">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/menkalinan/index.html">Menkalinan</a> <code style="font-size:0.85em">menkalinan</code></td>
-                        <td class="num">1</td>
+                        <td class="num">0</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Menkalinan Gas Cloud (1)</td>
+                        <td>Menkalinan Gas Cloud (6)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1875271">2026-09-13</td>
+                        <td class="num">9</td>
+                        <td title="tick 2156878">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/merope/index.html">Merope</a> <code style="font-size:0.85em">merope</code></td>
@@ -436,14 +478,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/regulus/index.html">Regulus</a> <code style="font-size:0.85em">regulus</code></td>
-                        <td class="num">3</td>
+                        <td class="num">2</td>
                         <td><span class="abund-scarce">scarce</span></td>
-                        <td><span class="bloom">rising</span></td>
-                        <td>Regulus Vapor Fields (3)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Regulus Vapor Fields (2)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">10</td>
+                        <td title="tick 2157079">2026-10-16</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/ross_128/index.html">Ross 128</a> <code style="font-size:0.85em">ross_128</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Ross 128 Gas Plume (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">3</td>
-                        <td title="tick 1875493">2026-09-13</td>
+                        <td title="tick 2137031">2026-10-14</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/scheat/index.html">Scheat</a> <code style="font-size:0.85em">scheat</code></td>
@@ -480,14 +533,36 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/thornfield/index.html">Thornfield</a> <code style="font-size:0.85em">thornfield</code></td>
+                        <td class="num">0</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Thornfield Vapor Fields (3)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">9</td>
+                        <td title="tick 2156830">2026-10-16</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/treasure_cache/index.html">Treasure Cache</a> <code style="font-size:0.85em">treasure_cache</code></td>
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Thornfield Vapor Fields (1)</td>
+                        <td>Treasure Cache Gas Plume (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">5</td>
-                        <td title="tick 1875217">2026-09-13</td>
+                        <td class="num">3</td>
+                        <td title="tick 2137100">2026-10-14</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/wazn/index.html">Wazn</a> <code style="font-size:0.85em">wazn</code></td>
+                        <td class="num">2</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Wazn Haze (2)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">6</td>
+                        <td title="tick 2157422">2026-10-16</td>
                     </tr>
                 </tbody>
             </table>

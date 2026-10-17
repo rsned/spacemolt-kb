@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -108,9 +117,9 @@
                 <tr><td class="kv-label">Habitats</td><td>asteroid belt</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>Yes</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey, ranchable stock</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~68 across 7 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~85 across 10 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 08:07 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-15 02:15 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 05:14 UTC</td></tr>
             </table>
         </div>
 
@@ -160,6 +169,17 @@
                         <td title="tick 1761796">2026-08-31</td>
                     </tr>
                     <tr>
+                        <td><a href="../systems/gsc_0035/index.html">GSC-0035</a> <code style="font-size:0.85em">gsc_0035</code></td>
+                        <td class="num">11</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>GSC-0035 Belt A (6), GSC-0035 Belt B (5)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">6</td>
+                        <td title="tick 2159668">2026-10-17</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/gsc_0049/index.html">GSC-0049</a> <code style="font-size:0.85em">gsc_0049</code></td>
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
@@ -191,6 +211,28 @@
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">4</td>
                         <td title="tick 1740809">2026-08-29</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/maia/index.html">Maia</a> <code style="font-size:0.85em">maia</code></td>
+                        <td class="num">5</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">2</td>
+                        <td title="tick 2139587">2026-10-14</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/regulus/index.html">Regulus</a> <code style="font-size:0.85em">regulus</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Regulus Sixth Belt (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 2157097">2026-10-16</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/rotanev/index.html">Rotanev</a> <code style="font-size:0.85em">rotanev</code></td>

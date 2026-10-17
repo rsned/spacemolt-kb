@@ -48,6 +48,15 @@
         .empty { color: var(--text-muted); font-style: italic; }
         .codex { font-size: 1.05em; line-height: 1.5; margin: 0; padding: 4px 0 8px; }
         .codex-src { font-size: 0.8em; color: var(--text-muted); }
+        .chart.stage-hist { width: 100%; height: auto; display: block; margin-top: 10px; }
+        .stage-hist .grid { stroke: var(--border); stroke-width: 1; }
+        .stage-hist .axis { fill: var(--text-muted); font-size: 11px; }
+        .stage-bar-0 { fill: #5b8dd9; } .stage-bar-1 { fill: #50a050; } .stage-bar-2 { fill: #c0a030; } .stage-bar-3 { fill: #b35bd9; }
+        .stage-bg-0 { background: #5b8dd9; } .stage-bg-1 { background: #50a050; } .stage-bg-2 { background: #c0a030; } .stage-bg-3 { background: #b35bd9; }
+        .stage-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 0.85em; }
+        .stage-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stage-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .stage-hist-caption { font-size: 0.8em; margin: 4px 0 0; }
 </style>
 </head>
 <body>
@@ -108,9 +117,9 @@
                 <tr><td class="kv-label">Habitats</td><td>asteroid belt</td></tr>
                 <tr><td class="kv-label">Ranchable</td><td>Yes</td></tr>
                 <tr><td class="kv-label">Scan traits</td><td>harmless prey, ranchable stock</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~6 across 3 systems</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~33 across 7 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 08:41 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-09-13 23:01 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-10-17 05:47 UTC</td></tr>
             </table>
         </div>
 
@@ -138,6 +147,39 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td><a href="../systems/avior/index.html">Avior</a> <code style="font-size:0.85em">avior</code></td>
+                        <td class="num">21</td>
+                        <td><span class="abund-abundant">abundant</span></td>
+                        <td><span class="bloom">peak</span></td>
+                        <td>Avior Belt (21)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">3</td>
+                        <td title="tick 2159067">2026-10-17</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/elnath/index.html">Elnath</a> <code style="font-size:0.85em">elnath</code></td>
+                        <td class="num">0</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">system survey only</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">1</td>
+                        <td title="tick 2159707">2026-10-17</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/kurhah/index.html">Kurhah</a> <code style="font-size:0.85em">kurhah</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Kurhah Wild Facets (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">6</td>
+                        <td title="tick 2157514">2026-10-16</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/nusakan/index.html">Nusakan</a> <code style="font-size:0.85em">nusakan</code></td>
                         <td class="num">4</td>
                         <td><span class="abund-scarce">scarce</span></td>
@@ -150,14 +192,25 @@
                     </tr>
                     <tr>
                         <td><a href="../systems/sadalbari/index.html">Sadalbari</a> <code style="font-size:0.85em">sadalbari</code></td>
+                        <td class="num">5</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Sadalbari Belt (3), Unpolished Scatter (3), Rough Crystal Scatter — Sadalbari (2)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">16</td>
+                        <td title="tick 2156897">2026-10-16</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/silverbend/index.html">Silverbend</a> <code style="font-size:0.85em">silverbend</code></td>
                         <td class="num">2</td>
                         <td><span class="abund-scarce">scarce</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td>Rough Crystal Scatter — Sadalbari (2), Sadalbari Belt (1)</td>
+                        <td>Silverbend Exhausted Lode (2)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">11</td>
-                        <td title="tick 1875315">2026-09-13</td>
+                        <td class="num">3</td>
+                        <td title="tick 2159864">2026-10-17</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/silvermark/index.html">Silvermark</a> <code style="font-size:0.85em">silvermark</code></td>
