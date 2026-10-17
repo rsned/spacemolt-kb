@@ -181,7 +181,9 @@ var weaponAllTemplate = `<!DOCTYPE html>
               <th class="sortable">Ammo</th>
               <th class="sortable num" title="Magazine size">Mag</th>
               <th class="sortable num" title="Total damage in one magazine: damage x magazine size">Volley</th>
+{{- if .ShowSkill}}
               <th class="sortable">Skill req</th>
+{{- end}}
               <th class="sortable num">Value</th>
               <th>Special</th>
             </tr>
@@ -205,7 +207,9 @@ var weaponAllTemplate = `<!DOCTYPE html>
               <td>{{strOrDash (ammoLabel .AmmoType)}}</td>
               <td class="num">{{intOrDash .MagazineSize}}</td>
               <td class="num" data-sort="{{.Volley}}">{{intOrDash .Volley}}</td>
+{{- if $.ShowSkill}}
               <td>{{strOrDash .SkillReq}}</td>
+{{- end}}
               <td class="num value" data-sort="{{.BaseValue}}">{{fmtValue .BaseValue}}</td>
               <td class="specials">{{join .Specials " · "}}</td>
             </tr>
@@ -281,7 +285,9 @@ var defenseAllTemplate = `<!DOCTYPE html>
               <th class="sortable num" title="Resistance to {{.}} damage">{{dtLabel .}}</th>
 {{- end}}
               <th class="sortable">Penalties</th>
+{{- if .ShowSkill}}
               <th class="sortable">Skill req</th>
+{{- end}}
               <th class="sortable num">Value</th>
               <th>Special</th>
             </tr>
@@ -306,7 +312,9 @@ var defenseAllTemplate = `<!DOCTYPE html>
                   {{if .Adaptive}}title="Adaptive: applies to every damage type, ramping as it learns what is hitting you"{{end}}>{{strOrDash .Value}}</td>
 {{- end}}
               <td>{{strOrDash (join .Penalties ", ")}}</td>
+{{- if $.ShowSkill}}
               <td>{{strOrDash .SkillReq}}</td>
+{{- end}}
               <td class="num value" data-sort="{{.BaseValue}}">{{fmtValue .BaseValue}}</td>
               <td class="specials">{{join .Specials " · "}}</td>
             </tr>

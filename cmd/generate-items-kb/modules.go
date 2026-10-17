@@ -420,12 +420,19 @@ func writeModuleComparisons(outDir string, items []*Item) error {
 	}
 	sort.Strings(ammoTypes)
 
+	// The skill column shows only while some module still lists a
+	// requirement; server v0.630.7 removed them all (skills no longer gate
+	// fitting), and a column of dashes would suggest unknown data.
+	weaponSkill := slices.ContainsFunc(weapons, func(r weaponRow) bool { return r.SkillReq != "" })
+	defenseSkill := slices.ContainsFunc(defenses, func(r defenseRow) bool { return r.SkillReq != "" })
+
 	wTmpl := htmltpl.Must(htmltpl.New("weapons-all").Funcs(funcs).Parse(weaponAllTemplate))
 	if err := writeTemplate(filepath.Join(outDir, "weapon", "all.html"), wTmpl, struct {
 		Rows      []weaponRow
 		Total     int
 		AmmoTypes []string
-	}{weapons, len(weapons), ammoTypes}); err != nil {
+		ShowSkill bool
+	}{weapons, len(weapons), ammoTypes, weaponSkill}); err != nil {
 		return err
 	}
 
@@ -434,5 +441,6 @@ func writeModuleComparisons(outDir string, items []*Item) error {
 		Rows        []defenseRow
 		Total       int
 		DamageTypes []string
-	}{defenses, len(defenses), damageTypes})
+		ShowSkill   bool
+	}{defenses, len(defenses), damageTypes, defenseSkill})
 }

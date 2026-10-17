@@ -86,6 +86,13 @@ func TestItemOverlayAndStats(t *testing.T) {
 		"passenger": "Passenger Berths",
 	}
 	for name, it := range cases {
+		if it == nil && name == "skills" {
+			// Server v0.630.7 dropped required_skills from every module:
+			// skills no longer gate fitting. Older snapshots still carry
+			// the field, so the section stays covered when one is in use.
+			t.Logf("no catalog item has required skills (removed in v0.630.7); skipping that section")
+			continue
+		}
 		if it == nil {
 			t.Errorf("no catalog item found exercising %q section", name)
 			continue
