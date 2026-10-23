@@ -14,22 +14,17 @@ const headerMarker = `<header class="site-header">`
 
 // exemptSections are page trees whose header is NOT produced by this package.
 // Each is a real gap, not a permanent carve-out — the nav is shared by
-// generate-items-kb and generate-factions-kb, but these three producers still
+// generate-items-kb and generate-factions-kb, but these producers still
 // carry their own header copy, which is why the site currently shows three
 // different nav vintages. Removing an entry here means migrating that
 // generator to Header and re-rendering its pages.
 //
-//	did_you_know/  cmd/generate-stronghold-reach/template.go — its own header,
-//	               nav stops at Missions, plus a "Did You Know?" self-link that
-//	               is not in Items. Migrating drops that self-link, so it is a
-//	               product call rather than a mechanical fix.
 //	diffs/         pkg/gamediff/report.go — an older nav still. These are
 //	               historical snapshot reports; re-rendering them means a
 //	               57-date backfill (see the regeneration runbook), not a rerun.
 //	ships/glyphs/  cmd/generate-ship-glyphs/contactsheet.go — deliberately a
 //	               breadcrumb header, not the site nav. Arguably correct as is.
 var exemptSections = []string{
-	"did_you_know/",
 	"diffs/",
 	"ships/glyphs/",
 }

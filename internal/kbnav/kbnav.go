@@ -25,6 +25,7 @@ var Items = []struct{ Slug, Label string }{
 	{"factions", "Factions"},
 	{"players", "Players"},
 	{"passengers", "Passengers"},
+	{"did_you_know", "Did You Know?"},
 }
 
 // themeBtn is the dark/light toggle; themeScript on each page wires it up.

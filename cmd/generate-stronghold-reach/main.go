@@ -18,6 +18,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
+	"github.com/rsned/spacemolt-kb/internal/kbnav"
 	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 )
 
@@ -128,6 +129,7 @@ func main() {
 		ReachCSS          template.CSS
 		MapSVG            template.HTML
 		StatsJSON         template.JS
+		SiteHeader        template.HTML
 	}{
 		TotalSystems:     len(systems),
 		ReachableCount:   len(reach.Dist),
@@ -145,6 +147,7 @@ func main() {
 		ReachCSS:         template.CSS(ReachCSS(reach.Max)),
 		MapSVG:           template.HTML(svg),
 		StatsJSON:        template.JS(statsJSON),
+		SiteHeader:       template.HTML(kbnav.Header("../")), //nolint:gosec // static markup from kbnav
 	}
 	if len(territory) > 0 {
 		data.TopTerritory = territory[0].Name

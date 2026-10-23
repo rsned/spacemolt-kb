@@ -1,4 +1,5 @@
 <!doctype html><meta charset="utf-8"><title>Station bake triage</title>
+<link rel="stylesheet" href="../smui.css">
 <style>
 body { background:#181a1f; color:#cfd3da; font:13px system-ui,sans-serif; margin:20px; }
 h1 { font-size:18px; } h2 { font-size:15px; margin:26px 0 6px; color:#9fd9ff; }
@@ -12,6 +13,37 @@ input[type=checkbox] { transform:scale(1.5); margin:8px; }
 #export { position:fixed; top:12px; right:16px; background:#22384c; color:#9fd9ff;
   border:1px solid #3d6d94; border-radius:4px; padding:6px 12px; cursor:pointer; }
 </style>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../wildlife/index.html">Wildlife</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="../factions/index.html">Factions</a>
+            <a href="../players/index.html">Players</a>
+            <a href="../passengers/index.html">Passengers</a>
+            <a href="../did_you_know/index.html">Did You Know?</a>
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
 <button id="export">export stars</button>
 <h1>Station bake triage</h1>
 <div class="miss">star + note persist in localStorage; export dumps JSON.
@@ -44,4 +76,16 @@ document.getElementById('export').onclick = () => {
   navigator.clipboard.writeText(JSON.stringify(out, null, 1));
   alert('copied to clipboard');
 };
+</script>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    var stored = localStorage.getItem('theme');
+    if (stored === 'dark') root.classList.add('dark');
+    toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
 </script>

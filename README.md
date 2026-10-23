@@ -111,7 +111,7 @@ Aggregated gallery pages: `portrait-gallery.html` (passengers), `agent-portrait-
 
 ## Generated site structure
 
-Output is written under `kb/`. Top navigation (from `internal/kbnav`): **Systems · Items · Recipes · Skills · Ships · Facilities · Resources · Missions · Factions · Players · Passengers**.
+Output is written under `kb/`. Top navigation (from `internal/kbnav`): **Systems · Items · Recipes · Skills · Ships · Facilities · Resources · Missions · Factions · Players · Passengers · Did You Know?**.
 
 ```
 kb/
