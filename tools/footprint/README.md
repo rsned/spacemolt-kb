@@ -10,7 +10,17 @@ Design: `docs/superpowers/specs/2026-07-29-hero-art-footprint-recovery-design.md
     ~/moge-venv/bin/pip install -r tools/footprint/requirements.txt
 
 torch comes from the CUDA index first; the rest resolve from PyPI. To
-reproduce an exact environment instead, use `requirements.lock.txt`.
+reproduce an exact environment instead, use `requirements.lock.txt`, installed
+with `--no-deps`:
+
+    ~/moge-venv/bin/pip install --no-deps -r tools/footprint/requirements.lock.txt
+
+The lock pins pillow 13.0.0 for its CVE fixes, but gradio (pulled in only by
+MoGe's demo app; nothing here imports it) still declares `pillow<13`, so a
+resolving install of the lock fails with ResolutionImpossible. The footprint
+test suite passes on pillow 13, and `pip check` flagging gradio's pillow pin
+is expected. The unlocked `requirements.txt` path resolves pillow to 12.x
+until gradio lifts that cap.
 
 This venv is deliberately separate from `~/sd-venv`; do not merge them.
 
