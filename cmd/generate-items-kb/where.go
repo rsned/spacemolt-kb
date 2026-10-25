@@ -342,6 +342,16 @@ type NoFacilityRecipe struct {
 	CraftingTime   float64
 }
 
+// compareName orders display names case-insensitively, so "Build Capital"
+// sorts before "Build CPU" and a lowercase-led station name does not sink to
+// the end. The byte comparison breaks case-only ties deterministically.
+func compareName(a, b string) int {
+	if c := cmp.Compare(strings.ToLower(a), strings.ToLower(b)); c != 0 {
+		return c
+	}
+	return cmp.Compare(a, b)
+}
+
 // groupByRecipe buckets public lines by the recipe they run, sorted by recipe
 // name. Facilities whose recipe is absent from the crafting DB are dropped --
 // every ID resolves today, and a group with no name or category would render as
@@ -365,7 +375,7 @@ func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRec
 	for id, lines := range byRecipe {
 		r := recipes[id]
 		slices.SortFunc(lines, func(a, b PublicFacility) int {
-			if c := cmp.Compare(a.StationName, b.StationName); c != 0 {
+			if c := compareName(a.StationName, b.StationName); c != 0 {
 				return c
 			}
 			if c := cmp.Compare(a.FeePerRun, b.FeePerRun); c != 0 {
@@ -399,7 +409,7 @@ func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRec
 		})
 	}
 	slices.SortFunc(groups, func(a, b WhereRecipeGroup) int {
-		if c := cmp.Compare(a.RecipeName, b.RecipeName); c != 0 {
+		if c := compareName(a.RecipeName, b.RecipeName); c != 0 {
 			return c
 		}
 		return cmp.Compare(a.RecipeID, b.RecipeID)
@@ -407,8 +417,8 @@ func groupByRecipe(facs []PublicFacility, recipes map[string]*Recipe) []WhereRec
 	return groups
 }
 
-// groupByStation buckets public lines by station (count descending, then name)
-// and, within each station, by recipe category (name ascending). The category
+// groupByStation buckets public lines by station (name ascending) and, within
+// each station, by recipe category (name ascending). The category
 // grouping is what keeps a 219-line station scannable.
 func groupByStation(facs []PublicFacility, recipes map[string]*Recipe) []WhereStationGroup {
 	type stationAcc struct {
@@ -453,7 +463,7 @@ func groupByStation(facs []PublicFacility, recipes map[string]*Recipe) []WhereSt
 		cats := make([]WhereStationCategory, 0, len(a.byCat))
 		for name, lines := range a.byCat {
 			slices.SortFunc(lines, func(x, y WhereStationFacility) int {
-				if c := cmp.Compare(x.RecipeName, y.RecipeName); c != 0 {
+				if c := compareName(x.RecipeName, y.RecipeName); c != 0 {
 					return c
 				}
 				return cmp.Compare(x.FacilityID, y.FacilityID)
@@ -472,17 +482,14 @@ func groupByStation(facs []PublicFacility, recipes map[string]*Recipe) []WhereSt
 			cats = append(cats, WhereStationCategory{Category: name, Facilities: lines})
 		}
 		slices.SortFunc(cats, func(x, y WhereStationCategory) int {
-			return cmp.Compare(x.Category, y.Category)
+			return compareName(x.Category, y.Category)
 		})
 		a.g.Categories = cats
 		stations = append(stations, a.g)
 	}
 
 	slices.SortFunc(stations, func(a, b WhereStationGroup) int {
-		if c := cmp.Compare(b.Count, a.Count); c != 0 { // count descending
-			return c
-		}
-		if c := cmp.Compare(a.StationName, b.StationName); c != 0 {
+		if c := compareName(a.StationName, b.StationName); c != 0 {
 			return c
 		}
 		return cmp.Compare(a.StationID, b.StationID)

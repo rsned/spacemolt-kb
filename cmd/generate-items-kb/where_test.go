@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -276,7 +277,7 @@ func TestGroupByStation(t *testing.T) {
 	if len(stations) != 2 {
 		t.Fatalf("got %d stations, want 2", len(stations))
 	}
-	// Ordered by facility count descending: CCC has 2, Starfall has 1.
+	// Ordered by station name: Confederacy < Starfall.
 	if stations[0].StationID != "confederacy_central_command" || stations[0].Count != 2 {
 		t.Fatalf("first station = %s (%d facilities), want confederacy_central_command (2)",
 			stations[0].StationID, stations[0].Count)
@@ -554,6 +555,67 @@ func TestGroupByRecipeFacilityOrder(t *testing.T) {
 		if got[i] != want[i] {
 			t.Fatalf("order = %v, want %v", got, want)
 		}
+	}
+}
+
+// TestWhereAlphabeticalOrder pins both tabs to case-insensitive alphabetical
+// order. A byte-order sort put "Build CPU Co-Processor" ahead of "Build Capital
+// Armor Plate", and the station tab used to lead with the busiest station.
+func TestWhereAlphabeticalOrder(t *testing.T) {
+	recipes := map[string]*Recipe{
+		"build_cpu":     {ID: "build_cpu", Name: "Build CPU Co-Processor", Category: "Equipment"},
+		"build_capital": {ID: "build_capital", Name: "Build Capital Armor Plate", Category: "Equipment"},
+		"build_cargo":   {ID: "build_cargo", Name: "Build cargo Bay", Category: "Equipment"},
+		"assemble":      {ID: "assemble", Name: "Assemble Engine Core", Category: "components"},
+	}
+	mk := func(id, station, name, recipe string) PublicFacility {
+		return PublicFacility{StationID: station, StationName: name, FacilityID: id, RecipeID: recipe}
+	}
+	facs := []PublicFacility{
+		// "zulu" runs the most lines, so a count-first sort would lead with it.
+		mk("f1", "zulu", "Zulu Station", "build_cpu"),
+		mk("f2", "zulu", "Zulu Station", "build_capital"),
+		mk("f3", "zulu", "Zulu Station", "build_cargo"),
+		mk("f4", "zulu", "Zulu Station", "assemble"),
+		mk("f5", "alpha", "alpha Outpost", "build_cpu"),
+		mk("f6", "bravo", "Bravo Hub", "build_cpu"),
+	}
+
+	var gotRecipes []string
+	groups := groupByRecipe(facs, recipes)
+	for _, g := range groups {
+		gotRecipes = append(gotRecipes, g.RecipeName)
+	}
+	wantRecipes := []string{"Assemble Engine Core", "Build Capital Armor Plate", "Build cargo Bay", "Build CPU Co-Processor"}
+	if !slices.Equal(gotRecipes, wantRecipes) {
+		t.Errorf("recipe order = %q, want %q", gotRecipes, wantRecipes)
+	}
+	var gotLines []string
+	for _, f := range groups[3].Facilities {
+		gotLines = append(gotLines, f.StationName)
+	}
+	if want := []string{"alpha Outpost", "Bravo Hub", "Zulu Station"}; !slices.Equal(gotLines, want) {
+		t.Errorf("CPU line order = %q, want %q", gotLines, want)
+	}
+
+	var gotStations []string
+	stations := groupByStation(facs, recipes)
+	for _, s := range stations {
+		gotStations = append(gotStations, s.StationName)
+	}
+	if want := []string{"alpha Outpost", "Bravo Hub", "Zulu Station"}; !slices.Equal(gotStations, want) {
+		t.Errorf("station order = %q, want %q", gotStations, want)
+	}
+	zulu := stations[2]
+	if len(zulu.Categories) != 2 || zulu.Categories[0].Category != "components" {
+		t.Fatalf("zulu categories = %+v, want components before Equipment", zulu.Categories)
+	}
+	var gotZulu []string
+	for _, f := range zulu.Categories[1].Facilities {
+		gotZulu = append(gotZulu, f.RecipeName)
+	}
+	if want := wantRecipes[1:]; !slices.Equal(gotZulu, want) {
+		t.Errorf("zulu Equipment order = %q, want %q", gotZulu, want)
 	}
 }
 
