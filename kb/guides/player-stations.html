@@ -52,6 +52,8 @@
             <a href="../factions/index.html">Factions</a>
             <a href="../players/index.html">Players</a>
             <a href="../passengers/index.html">Passengers</a>
+            <a href="../did_you_know/index.html">Did You Know?</a>
+            <a href="../guides/index.html">Guides</a>
             <div class="kbs">
                 <input id="kb-search" type="search" placeholder="Search the KB…  /"
                     autocomplete="off" spellcheck="false" role="combobox"
@@ -161,7 +163,64 @@ crafting and life support are up. This step will name the facility once we have 
             <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1,600</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </aside>
         </div>
-        <div class="guide-body"><h2>Station administration</h2>
+        <div class="guide-body"><h2>Reading your station</h2>
+<p>The official guides don't say how to tell what a station needs. These are the places the
+server does tell you, all <em>measured</em> at Conjunction Junction and Grand Exchange in October 2026.</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Command</th>
+<th>Field to read</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Is the station healthy overall?</td>
+<td><code>get_base</code>, or the reply when you dock</td>
+<td><code>condition</code> (<code>thriving</code> … <code>critical</code>), <code>satisfied_count</code> / <code>total_service_infra</code>, <code>satisfaction_pct</code></td>
+</tr>
+<tr>
+<td>Which facility is starving?</td>
+<td><code>facility list</code></td>
+<td><code>maintenance_satisfied</code> (true/false) and <code>maintenance_level</code> (0–1) per facility; the description switches to its <em>degraded</em> text</td>
+</tr>
+<tr>
+<td>What does a facility consume?</td>
+<td><code>facility types --facility_type &lt;id&gt;</code></td>
+<td><code>maintenance_per_cycle</code> (also shown on some facilities in <code>facility list</code>)</td>
+</tr>
+<tr>
+<td>What is life support short of right now?</td>
+<td><code>facility list</code> or <code>get_base</code></td>
+<td><code>life_support.starved</code> and <code>life_support.remediation</code> (only present when short), against <code>supply</code>, <code>demand</code>, <code>maintenance</code></td>
+</tr>
+<tr>
+<td>Is there enough power?</td>
+<td><code>facility list</code></td>
+<td><code>power.supply</code> vs <code>power.current_draw</code>, <code>battery_stored</code> / <code>battery_capacity</code>, <code>efficiency</code></td>
+</tr>
+<tr>
+<td>What is a build still waiting on?</td>
+<td><code>facility list</code></td>
+<td><code>construction.pending[].status</code> (<code>waiting_for_materials</code>) and <code>materials[].quantity_missing</code></td>
+</tr>
+<tr>
+<td>What does it cost the treasury?</td>
+<td><code>facility list</code></td>
+<td><code>labor_per_cycle</code> per facility; <code>faction_rent</code> (0 at your own station)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What the server doesn't tell you:</strong> for a <em>service</em> facility (the Locker Bay, the Faction
+Workshop) there is no &quot;starved&quot; list, only <code>maintenance_satisfied: false</code>. To know what to haul,
+compare the facility's <code>maintenance_per_cycle</code> (the upkeep tables in the steps above) against
+<code>view_faction_storage</code> at the station. One cycle is 100 ticks (about 16.7 minutes); 86.4 cycles
+make a day.</p>
+<p><strong>What happens when it runs dry (<em>measured</em>):</strong> the Locker Bay went <code>maintenance_satisfied: false</code> with <code>maintenance_level</code> 0.4, the station dropped from <code>thriving</code> to <code>critical</code>
+(<em>&quot;Critical infrastructure failure. Emergency lighting only.&quot;</em>), and <code>get_base</code> listed <strong>no
+services at all</strong>, so personal storage stopped working.</p>
+<h2>Station administration</h2>
 <p>Run these while docked at your own station. <code>info</code> is open to any member; every other
 action needs the <strong>ManageBases</strong> permission. Outposts support only <code>info</code>, <code>set_name</code> and
 <code>set_description</code>. Rows marked ✅ have been run live.</p>

@@ -66,6 +66,32 @@ steps:
       *Not yet charted.* Other players report fuel production comes next once storage,
       crafting and life support are up. This step will name the facility once we have built it.
 ---
+## Reading your station
+
+The official guides don't say how to tell what a station needs. These are the places the
+server does tell you, all *measured* at Conjunction Junction and Grand Exchange in October 2026.
+
+| Question | Command | Field to read |
+|---|---|---|
+| Is the station healthy overall? | `get_base`, or the reply when you dock | `condition` (`thriving` … `critical`), `satisfied_count` / `total_service_infra`, `satisfaction_pct` |
+| Which facility is starving? | `facility list` | `maintenance_satisfied` (true/false) and `maintenance_level` (0–1) per facility; the description switches to its *degraded* text |
+| What does a facility consume? | `facility types --facility_type <id>` | `maintenance_per_cycle` (also shown on some facilities in `facility list`) |
+| What is life support short of right now? | `facility list` or `get_base` | `life_support.starved` and `life_support.remediation` (only present when short), against `supply`, `demand`, `maintenance` |
+| Is there enough power? | `facility list` | `power.supply` vs `power.current_draw`, `battery_stored` / `battery_capacity`, `efficiency` |
+| What is a build still waiting on? | `facility list` | `construction.pending[].status` (`waiting_for_materials`) and `materials[].quantity_missing` |
+| What does it cost the treasury? | `facility list` | `labor_per_cycle` per facility; `faction_rent` (0 at your own station) |
+
+**What the server doesn't tell you:** for a *service* facility (the Locker Bay, the Faction
+Workshop) there is no "starved" list, only `maintenance_satisfied: false`. To know what to haul,
+compare the facility's `maintenance_per_cycle` (the upkeep tables in the steps above) against
+`view_faction_storage` at the station. One cycle is 100 ticks (about 16.7 minutes); 86.4 cycles
+make a day.
+
+**What happens when it runs dry (*measured*):** the Locker Bay went `maintenance_satisfied:
+false` with `maintenance_level` 0.4, the station dropped from `thriving` to `critical`
+(*"Critical infrastructure failure. Emergency lighting only."*), and `get_base` listed **no
+services at all**, so personal storage stopped working.
+
 ## Station administration
 
 Run these while docked at your own station. `info` is open to any member; every other
