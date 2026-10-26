@@ -112,5 +112,18 @@ func generate(guidesDir, snapshotsDir, outDir string) ([]string, error) {
 			return r.warnings, err
 		}
 	}
+	// outDir belongs to this generator: drop pages for guides that no longer
+	// exist, so a deleted or renamed guide stops publishing stale numbers.
+	old, err := filepath.Glob(filepath.Join(outDir, "*.html"))
+	if err != nil {
+		return r.warnings, err
+	}
+	for _, path := range old {
+		if _, keep := pages[filepath.Base(path)]; !keep {
+			if err := os.Remove(path); err != nil {
+				return r.warnings, err
+			}
+		}
+	}
 	return r.warnings, nil
 }

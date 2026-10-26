@@ -178,3 +178,23 @@ func TestGenerate_MarkdownTablesSafe(t *testing.T) {
 		t.Error("raw HTML leaked through")
 	}
 }
+
+// A guide that was deleted or renamed must not keep publishing its old page
+// (and its old catalog numbers): outDir is the generator's own directory.
+func TestGenerate_RemovesStalePages(t *testing.T) {
+	out := t.TempDir()
+	for name, body := range map[string]string{"old-guide.html": "stale", "notes.txt": "keep me"} {
+		if err := os.WriteFile(filepath.Join(out, name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := generate("testdata/guides", testSnapshots(t), out); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(out, "old-guide.html")); !os.IsNotExist(err) {
+		t.Error("stale old-guide.html was left in place")
+	}
+	if _, err := os.Stat(filepath.Join(out, "notes.txt")); err != nil {
+		t.Error("non-HTML files must be left alone")
+	}
+}
