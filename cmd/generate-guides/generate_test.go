@@ -80,7 +80,8 @@ func TestGenerate_CardShowsCostsAndLinks(t *testing.T) {
 		`href="../facilities/service/locker_bay.html"`,
 		"500,000", "1,600",
 		`href="../items/refined/flex_polymer.html"`,
-		">86<", // 1 flex_polymer/cycle = 86/day
+		">2.9<", // 1 flex_polymer/cycle at a 3,000-tick cycle = 2.88/day
+		"3,000 ticks", "player-reported 2026-10-26",
 		"Gets its own POI.",
 		"5,000,000 cr", "measured 2026-10-25",
 		"Reference",
@@ -196,5 +197,25 @@ func TestGenerate_RemovesStalePages(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(out, "notes.txt")); err != nil {
 		t.Error("non-HTML files must be left alone")
+	}
+}
+
+// Without maintenance_cycle_ticks the guide falls back to the default cycle
+// and says so, rather than silently presenting it as measured.
+func TestGenerate_DefaultCycleLabelled(t *testing.T) {
+	dir := t.TempDir()
+	guide := "---\ntitle: Shed\nsteps:\n  - title: Bay\n    facility: locker_bay\n---\n"
+	if err := os.WriteFile(filepath.Join(dir, "shed.md"), []byte(guide), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	if _, err := generate(dir, testSnapshots(t), out); err != nil {
+		t.Fatal(err)
+	}
+	b, _ := os.ReadFile(filepath.Join(out, "shed.html"))
+	for _, want := range []string{"3,000 ticks", "default", ">2.9<"} {
+		if !strings.Contains(string(b), want) {
+			t.Errorf("missing %q", want)
+		}
 	}
 }

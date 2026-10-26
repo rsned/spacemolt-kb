@@ -22,6 +22,7 @@ var markdown = goldmark.New(goldmark.WithExtensions(extension.Table))
 // renderer turns parsed guides into page view models. warnings collects
 // unresolved [[id]] references.
 type renderer struct {
+	cycleTicks int // maintenance cycle of the guide being rendered
 	facilities map[string]catalog.Facility
 	links      *stationplan.Linker
 	warnings   []string
@@ -82,6 +83,7 @@ type sidebarView struct {
 }
 
 type pageView struct {
+	Cycle   string // e.g. "1 maintenance cycle = 3,000 ticks (≈8.3 h, 2.9/day) · player-reported"
 	Header  htmltpl.HTML
 	Title   string
 	Intro   htmltpl.HTML
@@ -115,7 +117,7 @@ func (r *renderer) qtys(m map[string]int, perCycle bool) []qtyView {
 	for id, q := range m {
 		v := qtyView{Item: r.link(id)}
 		if perCycle {
-			v.PerCycle, v.PerDay = commas(q), commas(stationplan.PerDay(q))
+			v.PerCycle, v.PerDay = commas(q), perDayText(stationplan.PerDay(q, r.cycleTicks))
 		} else {
 			v.Qty = commas(q)
 		}
@@ -170,17 +172,28 @@ func grid(t stationplan.Totals) gridView {
 	}
 }
 
-func perDayTotal(m map[string]int) int {
-	n := 0
+func (r *renderer) perDayTotal(m map[string]int) float64 {
+	n := 0.0
 	for _, q := range m {
-		n += stationplan.PerDay(q)
+		n += stationplan.PerDay(q, r.cycleTicks)
 	}
 	return n
 }
 
+// perDayText shows small daily quantities to one decimal (2.9, not 3) and
+// large ones as grouped integers.
+func perDayText(f float64) string {
+	if f < 100 {
+		return strconv.FormatFloat(f, 'f', 1, 64)
+	}
+	return commas(int(f + 0.5))
+}
+
 // page builds the view for g given its cumulative totals (one per step).
 func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error) {
-	pv := pageView{Header: htmltpl.HTML(kbnav.Header("../")), Title: g.Title} //nolint:gosec // site header, generated internally
+	r.cycleTicks = g.MaintenanceCycleTicks
+	pv := pageView{Header: htmltpl.HTML(kbnav.Header("../")), Title: g.Title, //nolint:gosec // site header, generated internally
+		Cycle: cycleNote(g.MaintenanceCycleTicks, g.MaintenanceCycleBasis)}
 	var err error
 	if pv.Intro, err = r.md(g, g.Intro); err != nil {
 		return pv, err
@@ -191,7 +204,7 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 	for i, s := range g.Steps {
 		t := totals[i]
 		sv := stepView{Num: i, Title: s.Title, Facts: s.Facts, Grid: grid(t),
-			SoFarItems: len(t.UpkeepPerCycle), SoFarDay: commas(perDayTotal(t.UpkeepPerCycle))}
+			SoFarItems: len(t.UpkeepPerCycle), SoFarDay: perDayText(r.perDayTotal(t.UpkeepPerCycle))}
 		if sv.Notes, err = r.md(g, s.Notes); err != nil {
 			return pv, err
 		}
@@ -214,7 +227,7 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 		for _, id := range s.Alternatives {
 			f := r.facilities[id]
 			sv.Alts = append(sv.Alts, altView{Facility: r.link(id), Credits: commas(f.BuildCost),
-				PerDay: commas(perDayTotal(upkeepMap(f))), Gives: gives(f)})
+				PerDay: perDayText(r.perDayTotal(upkeepMap(f))), Gives: gives(f)})
 		}
 		pv.Steps = append(pv.Steps, sv)
 	}
@@ -224,6 +237,17 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 			Materials: r.qtys(last.Materials, false), Grid: grid(last)}
 	}
 	return pv, nil
+}
+
+// cycleNote explains the cycle the per-day figures assume, and its basis.
+func cycleNote(ticks int, basis string) string {
+	hours := float64(ticks*stationplan.TickSeconds) / 3600
+	note := "1 maintenance cycle = " + commas(ticks) + " ticks (≈" + strconv.FormatFloat(hours, 'f', 1, 64) +
+		" h, " + strconv.FormatFloat(stationplan.CyclesPerDay(ticks), 'f', 1, 64) + "/day)"
+	if basis != "" {
+		note += " · " + basis
+	}
+	return note
 }
 
 // commas formats n with thousands separators.
@@ -337,7 +361,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
         </div>
         <aside class="guide-sidebar">
             <h3>Station upkeep / day</h3>
-            <div class="text-muted">after every step, catalog values</div>
+            <div class="text-muted">after every step, catalog values; {{.Cycle}}</div>
             {{template "upkeep" .Sidebar.Upkeep}}
             <p>{{template "grid" .Sidebar.Grid}}</p>
             <p><b>Build credits:</b> {{.Sidebar.Credits}}</p>

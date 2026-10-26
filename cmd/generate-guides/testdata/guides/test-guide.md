@@ -1,6 +1,8 @@
 ---
 title: Test Station Guide
 summary: A fixture guide for the generator tests.
+maintenance_cycle_ticks: 3000
+maintenance_cycle_basis: "player-reported 2026-10-26"
 intro: |
   Why build one: no rent. Stock [[flex_polymer]] first.
 steps:

@@ -1,5 +1,7 @@
 ---
 title: Building a Player Station
+maintenance_cycle_ticks: 3000
+maintenance_cycle_basis: "player-reported 2026-10-26, not yet measured (rent bills every 100 ticks; upkeep is a separate, longer cycle)"
 summary: From Station Core to a running home station, with every facility's build cost and upkeep, measured at Conjunction Junction (Cloverfield).
 intro: |
   A **player station** is a base your faction owns outright, founded in lawless space from a
@@ -45,8 +47,8 @@ steps:
     facility: faction_workshop
     notes: |
       ⚠ Upkeep consumes [[focused_crystal]], each made from 4 [[energy_crystal]] + 1
-      [[palladium_ore]], so this facility costs about **346 energy crystals a day** to run.
-      Decide where those come from before building it.
+      [[palladium_ore]]: about 3 a day at a ~3,000-tick maintenance cycle, so roughly **12 energy
+      crystals a day**. Decide where those come from before building it.
   - title: Life support
     facility: atmospheric_recycler
     notes: |
@@ -60,7 +62,7 @@ steps:
       Service facilities list **no power draw** in the catalog, but production facilities do,
       so power is what unlocks production lines. In a system with a star the collector grid is
       the simplest to keep fed: 2 [[circuit_board]] per cycle and nothing else. The Bunker-Fed
-      Reactor burns [[fuel]] instead, about 4,752 a day.
+      Reactor burns [[fuel]] instead: 55 per cycle, about 158 a day.
   - title: Fuel production
     notes: |
       *Not yet charted.* Other players report fuel production comes next once storage,
@@ -84,8 +86,13 @@ server does tell you, all *measured* at Conjunction Junction and Grand Exchange 
 **What the server doesn't tell you:** for a *service* facility (the Locker Bay, the Faction
 Workshop) there is no "starved" list, only `maintenance_satisfied: false`. To know what to haul,
 compare the facility's `maintenance_per_cycle` (the upkeep tables in the steps above) against
-`view_faction_storage` at the station. One cycle is 100 ticks (about 16.7 minutes); 86.4 cycles
-make a day.
+`view_faction_storage` at the station.
+
+**Two clocks (*player-reported*, being measured):** facility **rent** bills every **100 ticks**
+(about 17 minutes), but facilities **consume their upkeep** on a separate maintenance cycle of
+about **3,000 ticks** (about 8.3 hours, roughly 2.9 times a day). The per-day upkeep figures on
+this page use the 3,000-tick cycle. Life support may run on its own 100-tick cycle:
+Grand Exchange reports `life_support.maintenance_cycle_ticks: 100`.
 
 **What happens when it runs dry (*measured*):** the Locker Bay went `maintenance_satisfied:
 false` with `maintenance_level` 0.4, the station dropped from `thriving` to `critical`

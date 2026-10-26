@@ -13,18 +13,30 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/catalog"
 )
 
-// CyclesPerDay is how many upkeep cycles run in a real-time day: a cycle is
-// 100 ticks and a tick is 10 seconds.
-const CyclesPerDay = 86.4
+// TickSeconds is the length of one game tick in real time.
+const TickSeconds = 10
+
+// DefaultMaintenanceCycleTicks is how often a station's facilities consume
+// their maintenance inputs. Player-reported (2026-10-26) as ~3,000 ticks and
+// not yet measured by us; it is NOT the 100-tick facility rent cycle. Guides
+// can override it per file once a measured value exists.
+const DefaultMaintenanceCycleTicks = 3000
+
+// CyclesPerDay is how many cycles of cycleTicks run in a real-time day.
+func CyclesPerDay(cycleTicks int) float64 {
+	return 86400 / float64(cycleTicks*TickSeconds)
+}
+
+// PerDay converts a per-cycle quantity to a per-day quantity for a cycle of
+// cycleTicks. It is not rounded: at ~2.9 cycles a day, rounding hides most of
+// the value, so callers format it.
+func PerDay(perCycle, cycleTicks int) float64 {
+	return float64(perCycle) * CyclesPerDay(cycleTicks)
+}
 
 // FuelItemID is the key under which a facility's maintenance_fuel is counted,
 // so upkeep totals stay keyed by item id.
 const FuelItemID = "fuel"
-
-// PerDay converts a per-cycle quantity to a rounded per-day quantity.
-func PerDay(perCycle int) int {
-	return int(math.Round(float64(perCycle) * CyclesPerDay))
-}
 
 // StepInput is one build step. An empty FacilityID is a non-facility step
 // (e.g. founding); ExtraCredits adds hand-stated costs such as the founding fee.

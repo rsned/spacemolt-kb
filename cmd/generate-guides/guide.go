@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/rsned/spacemolt-kb/pkg/stationplan"
 	"gopkg.in/yaml.v3"
 )
 
@@ -15,6 +16,12 @@ type guide struct {
 	Summary string     `yaml:"summary"`
 	Intro   string     `yaml:"intro"`
 	Steps   []stepSpec `yaml:"steps"`
+
+	// MaintenanceCycleTicks is how often facilities consume their upkeep;
+	// MaintenanceCycleBasis says where that figure came from. Zero falls back
+	// to stationplan.DefaultMaintenanceCycleTicks, labelled "default".
+	MaintenanceCycleTicks int    `yaml:"maintenance_cycle_ticks"`
+	MaintenanceCycleBasis string `yaml:"maintenance_cycle_basis"`
 
 	slug string // file name without .md
 	file string // file name, for error messages
@@ -66,6 +73,10 @@ func loadGuide(path, file string) (*guide, error) {
 	}
 	if g.Title == "" {
 		return nil, fmt.Errorf("%s: frontmatter needs a title", file)
+	}
+	if g.MaintenanceCycleTicks <= 0 {
+		g.MaintenanceCycleTicks = stationplan.DefaultMaintenanceCycleTicks
+		g.MaintenanceCycleBasis = "default, player-reported, unconfirmed"
 	}
 	g.file = file
 	g.slug = strings.TrimSuffix(file, ".md")

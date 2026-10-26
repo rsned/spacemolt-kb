@@ -1,6 +1,7 @@
 package stationplan
 
 import (
+	"math"
 	"strings"
 	"testing"
 
@@ -37,10 +38,22 @@ func testFacilities() map[string]catalog.Facility {
 }
 
 func TestPerDay(t *testing.T) {
-	for in, want := range map[int]int{1: 86, 2: 173, 3: 259, 55: 4752} {
-		if got := PerDay(in); got != want {
-			t.Errorf("PerDay(%d) = %d, want %d", in, got, want)
+	cases := []struct {
+		perCycle, cycleTicks int
+		want                 float64
+	}{
+		{1, 3000, 2.88}, // station maintenance cycle (player-reported ~3,000 ticks)
+		{3, 3000, 8.64},
+		{1, 100, 86.4}, // rent cycle
+		{55, 100, 4752},
+	}
+	for _, c := range cases {
+		if got := PerDay(c.perCycle, c.cycleTicks); math.Abs(got-c.want) > 1e-9 {
+			t.Errorf("PerDay(%d, %d) = %v, want %v", c.perCycle, c.cycleTicks, got, c.want)
 		}
+	}
+	if got := CyclesPerDay(3000); math.Abs(got-2.88) > 1e-9 {
+		t.Errorf("CyclesPerDay(3000) = %v, want 2.88", got)
 	}
 }
 
