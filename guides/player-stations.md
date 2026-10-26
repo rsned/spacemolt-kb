@@ -168,18 +168,31 @@ steps:
   - title: Medical
     facility: first_aid_ward
     notes: |
-      The catalog lists **no upkeep** for this one. The build needs [[medical_supplies]].
-      It upgrades to [[trauma_clinic]], [[surgical_center]] and [[regenerative_medical_complex]].
+      It **does** have upkeep, listed in a different place from the usual upkeep: a service
+      pool fed by [[medical_supplies]] (catalog `service_pool_supply_item`). Running out
+      hurts the station's operational status, and the pool may refill on a different cycle
+      from the regular consumables (*player-reported*). The catalog gives the pool 32 units,
+      refilling 8 per cycle at 5 units per supply. Our reading is about 1.6 medical_supplies a
+      cycle, *not yet measured*. The build also needs [[medical_supplies]]. It upgrades to
+      [[trauma_clinic]], [[surgical_center]] and [[regenerative_medical_complex]], each with a
+      four-times-larger pool.
   - title: Personnel
     facility: crew_registry
     notes: |
-      No upkeep listed. It upgrades to [[personnel_bureau]], [[sector_labor_exchange]] and
-      [[fleet_personnel_command]].
+      Upkeep is a service pool fed by [[protein_rations]], listed apart from the usual upkeep;
+      running out hurts operational status (*player-reported*). The catalog pool is 32 units,
+      refilling 8 per cycle at 8 units per ration: about 1 protein_rations a cycle by our
+      reading, *not yet measured*. It upgrades to [[personnel_bureau]],
+      [[sector_labor_exchange]] and [[fleet_personnel_command]].
   - title: Marine training
     facility: security_training_post
     notes: |
-      No upkeep listed. It upgrades to [[marine_training_barracks]], [[fleet_marine_academy]]
-      and [[expeditionary_warfare_command]].
+      Upkeep is a service pool fed by [[protein_rations]], listed apart from the usual upkeep;
+      running out hurts operational status (*player-reported*). The catalog pool is 8 units,
+      refilling 2 per cycle at 2 units per ration: about 1 protein_rations a cycle by our
+      reading, *not yet measured*. The upgrades use rations faster (2 units each).
+      It upgrades to [[marine_training_barracks]], [[fleet_marine_academy]] and
+      [[expeditionary_warfare_command]].
 ---
 ## Reading your station
 
@@ -279,3 +292,4 @@ The `faction_*` facilities you rent space for at NPC stations (fuel bunkers and 
 - Defense: guns, ammo and shields.
 - Whether infrastructure facilities (power, life support) can be dismantled or replaced.
 - Exactly how [[trade_authenticator]] upkeep scales with trades.
+- How service pools ([[medical_supplies]], [[protein_rations]]) draw down, and on what cycle.
