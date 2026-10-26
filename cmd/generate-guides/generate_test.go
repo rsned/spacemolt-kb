@@ -317,3 +317,49 @@ func TestGenerate_PerCycleOnlyByDefault(t *testing.T) {
 		}
 	}
 }
+
+// drawerSnapshot returns the upkeep drawer's block for build step n.
+func drawerSnapshot(t *testing.T, html string, n string) string {
+	t.Helper()
+	side := html[strings.Index(html, `class="guide-sidebar`):]
+	i := strings.Index(side, `data-step="`+n+`"`)
+	if i < 0 {
+		t.Fatalf("drawer has no snapshot for step %s", n)
+	}
+	snap := side[i:]
+	if j := strings.Index(snap[1:], `data-step="`); j >= 0 {
+		snap = snap[:j+1]
+	}
+	return snap
+}
+
+// The upkeep drawer holds one cumulative snapshot per step, so it can follow
+// the step being read: after the Locker Bay only its upkeep, after the
+// Recycler the Recycler's inputs added (and highlighted as new).
+func TestGenerate_DrawerFollowsSteps(t *testing.T) {
+	html, _ := runFixture(t)
+	bay := drawerSnapshot(t, html, "1")
+	if !strings.Contains(bay, "After Step 1: Locker Bay") || !strings.Contains(bay, "Flex Polymer") {
+		t.Errorf("step-1 snapshot should show the Locker Bay's upkeep:\n%s", bay)
+	}
+	if strings.Contains(bay, "Water Ice") {
+		t.Error("step-1 snapshot must not include the Recycler's upkeep yet")
+	}
+	rec := drawerSnapshot(t, html, "2")
+	for _, want := range []string{"Flex Polymer", `<tr class="added"><td><a href="../items/ore/water_ice.html">Water Ice</a>`} {
+		if !strings.Contains(rec, want) {
+			t.Errorf("step-2 snapshot missing %q", want)
+		}
+	}
+	if strings.Contains(rec, `<tr class="added"><td><a href="../items/refined/flex_polymer.html">`) {
+		t.Error("Flex Polymer was already there at step 1; it must not be highlighted as new at step 2")
+	}
+	if !strings.Contains(drawerSnapshot(t, html, "0"), "No upkeep yet") {
+		t.Error("founding step has no upkeep and should say so")
+	}
+	// Without JavaScript the drawer shows the final totals: every snapshot but
+	// the last starts hidden.
+	if !strings.Contains(html, `data-step="0" hidden`) || strings.Contains(html, `data-step="5" hidden`) {
+		t.Error("only the last snapshot should be visible by default")
+	}
+}

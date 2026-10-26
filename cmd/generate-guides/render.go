@@ -50,6 +50,8 @@ type qtyView struct {
 	Qty      string
 	PerCycle string
 	PerDay   string
+	Added    bool   // in a drawer snapshot: new or raised by this step
+	id       string // item id, for comparing snapshots
 }
 
 type altView struct {
@@ -89,7 +91,13 @@ type stepView struct {
 	Grid       gridView
 }
 
-type sidebarView struct {
+// snapView is the station's cumulative upkeep, grid balance and build bill
+// after one step. The drawer holds one per step and shows the one for the
+// step being read (the last, without JavaScript).
+type snapView struct {
+	Num       int
+	Label     string
+	Last      bool
 	Upkeep    []qtyView
 	Credits   string
 	Materials []qtyView
@@ -110,9 +118,9 @@ type pageView struct {
 	Summary string
 	TOC     []tocEntry
 	Intro   htmltpl.HTML
-	Steps   []stepView
-	Sidebar sidebarView
-	Body    htmltpl.HTML
+	Steps     []stepView
+	Snapshots []snapView
+	Body      htmltpl.HTML
 }
 
 // md expands [[id]] refs, records unresolved ones against the guide, and
@@ -138,7 +146,7 @@ func (r *renderer) link(id string) linkView {
 func (r *renderer) qtys(m map[string]int, perCycle bool) []qtyView {
 	out := make([]qtyView, 0, len(m))
 	for id, q := range m {
-		v := qtyView{Item: r.link(id)}
+		v := qtyView{Item: r.link(id), id: id}
 		if perCycle {
 			v.PerCycle = commas(q)
 			if r.perDay {
@@ -150,6 +158,16 @@ func (r *renderer) qtys(m map[string]int, perCycle bool) []qtyView {
 		out = append(out, v)
 	}
 	slices.SortFunc(out, func(a, b qtyView) int { return strings.Compare(a.Item.Name, b.Item.Name) })
+	return out
+}
+
+// qtysSince renders cumulative upkeep m, marking rows that are new or larger
+// than in prev (the totals one step earlier).
+func (r *renderer) qtysSince(m, prev map[string]int) []qtyView {
+	out := r.qtys(m, true)
+	for i := range out {
+		out[i].Added = m[out[i].id] > prev[out[i].id]
+	}
 	return out
 }
 
@@ -281,14 +299,16 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 			label = sv.Facility.Name
 		}
 		pv.TOC = append(pv.TOC, tocEntry{ID: "step-" + strconv.Itoa(i), Label: "Step " + strconv.Itoa(i) + ": " + label, Sub: true})
+		var prev map[string]int
+		if i > 0 {
+			prev = totals[i-1].UpkeepPerCycle
+		}
+		pv.Snapshots = append(pv.Snapshots, snapView{Num: i, Label: label, Last: i == len(g.Steps)-1,
+			Upkeep: r.qtysSince(t.UpkeepPerCycle, prev), Credits: commas(t.Credits),
+			Materials: r.qtys(t.Materials, false), Grid: grid(t)})
 	}
 	for _, m := range bodyH2.FindAllStringSubmatch(string(pv.Body), -1) {
 		pv.TOC = append(pv.TOC, tocEntry{ID: m[1], Label: html.UnescapeString(tags.ReplaceAllString(m[2], ""))})
-	}
-	if n := len(totals); n > 0 {
-		last := totals[n-1]
-		pv.Sidebar = sidebarView{Upkeep: r.qtys(last.UpkeepPerCycle, true), Credits: commas(last.Credits),
-			Materials: r.qtys(last.Materials, false), Grid: grid(last)}
 	}
 	return pv, nil
 }
@@ -398,6 +418,9 @@ const pageStyle = `<style>
         .guide-drawer tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
         .guide-drawer .num { width: 3.5rem; }
         .guide-drawer p { margin: 0 0 10px; }
+        .guide-drawer .at-step { font-weight: 600; font-size: 15px; margin: 4px 0 10px; padding: 6px 10px; border-radius: 6px; background: hsl(var(--muted) / .6); }
+        .guide-drawer tr.added td { background: hsl(var(--smui-yellow) / .16); }
+        .guide-drawer tr.added td:first-child { box-shadow: inset 3px 0 0 hsl(var(--smui-yellow)); padding-left: 8px; }
         .drawer-close { position: absolute; top: 14px; right: 14px; border: 0; background: none; font-size: 22px; cursor: pointer; color: hsl(var(--muted-foreground)); }
         .drawer-tab { position: fixed; right: 0; top: 50%; z-index: 45; transform: translateY(-50%); writing-mode: vertical-rl; border: 1px solid hsl(var(--border)); border-right: 0;
             border-radius: 10px 0 0 10px; background: hsl(var(--smui-yellow)); color: #111; padding: 16px 9px; cursor: pointer; font: 600 12px var(--font-sans);
@@ -429,7 +452,8 @@ const themeScript = `    <script>
     </script>`
 
 // guideScript opens and closes the upkeep drawer (tab, any "Station so far"
-// line, ×, Esc) and highlights the TOC entry for the section being read.
+// line, ×, Esc), switches the drawer to the snapshot for the step being read,
+// and highlights the TOC entry for the section being read.
 const guideScript = `    <script>
     (function() {
         var drawer = document.getElementById('upkeep-drawer');
@@ -446,10 +470,21 @@ const guideScript = `    <script>
         }
         var links = Array.prototype.slice.call(document.querySelectorAll('.guide-toc a'));
         var targets = links.map(function(a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+        // The drawer shows the snapshot for the last step whose card has
+        // reached the upper 40% of the screen (step 0 before any has).
+        var snaps = Array.prototype.slice.call(document.querySelectorAll('.upkeep-at'));
+        var cards = snaps.map(function(s) { return document.getElementById('step-' + s.getAttribute('data-step')); });
+        snaps.forEach(function(s) {
+            var d = s.querySelector('details');
+            if (d) d.addEventListener('toggle', function() { snaps.forEach(function(o) { var od = o.querySelector('details'); if (od) od.open = d.open; }); });
+        });
         function spy() {
             var current = 0;
             targets.forEach(function(t, i) { if (t && t.getBoundingClientRect().top < 120) current = i; });
             links.forEach(function(a, i) { a.classList.toggle('active', i === current); });
+            var step = 0, line = window.innerHeight * 0.4;
+            cards.forEach(function(c, i) { if (c && c.getBoundingClientRect().top < line) step = i; });
+            snaps.forEach(function(s, i) { s.hidden = i !== step; });
         }
         window.addEventListener('scroll', spy, {passive: true});
         spy();
@@ -477,7 +512,7 @@ const pageFoot = themeScript + `
 `
 
 var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}{{end}}
-{{define "upkeep"}}<table><tr><th>Upkeep</th><th class="num">/cycle</th>{{if .}}{{if (index . 0).PerDay}}<th class="num">/day</th>{{end}}{{end}}</tr>{{range .}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.PerCycle}}</td>{{if .PerDay}}<td class="num">{{.PerDay}}</td>{{end}}</tr>{{end}}</table>{{end}}
+{{define "upkeep"}}<table><tr><th>Upkeep</th><th class="num">/cycle</th>{{if .}}{{if (index . 0).PerDay}}<th class="num">/day</th>{{end}}{{end}}</tr>{{range .}}<tr{{if .Added}} class="added"{{end}}><td>{{template "link" .Item}}</td><td class="num">{{.PerCycle}}</td>{{if .PerDay}}<td class="num">{{.PerDay}}</td>{{end}}</tr>{{end}}</table>{{end}}
 {{define "grid"}}power {{if .PowerDeficit}}<span class="deficit">⚠ {{.Power}}</span>{{else}}{{.Power}}{{end}} · life support {{if .LifeSupportDeficit}}<span class="deficit">⚠ {{.LifeSupport}}</span>{{else}}{{.LifeSupport}}{{end}} <span class="text-muted">(supply / draw)</span>{{end}}
 ` + pageHead + `    <main class="guide-shell">
         <nav class="guide-toc" aria-label="On this page">
@@ -535,11 +570,16 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
     <aside class="guide-sidebar guide-drawer" id="upkeep-drawer" aria-label="Station upkeep">
         <button class="drawer-close" type="button" aria-label="Close">×</button>
         <h3>Station upkeep / {{.Unit}}</h3>
-        <div class="text-muted">after every step, catalog values; {{.Cycle}}</div>
-        {{template "upkeep" .Sidebar.Upkeep}}
-        <p>{{template "grid" .Sidebar.Grid}}</p>
-        <p><b>Build credits:</b> {{.Sidebar.Credits}}</p>
-        <details><summary>Build materials</summary><table>{{range .Sidebar.Materials}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.Qty}}</td></tr>{{end}}</table></details>
+        <div class="text-muted">follows the step you are reading; highlighted rows are new or raised by that step. Catalog values; {{.Cycle}}</div>
+{{- range .Snapshots}}
+        <div class="upkeep-at" data-step="{{.Num}}"{{if not .Last}} hidden{{end}}>
+            <p class="at-step">After Step {{.Num}}: {{.Label}}</p>
+            {{if .Upkeep}}{{template "upkeep" .Upkeep}}{{else}}<p class="no-upkeep">No upkeep yet</p>{{end}}
+            <p>{{template "grid" .Grid}}</p>
+            <p><b>Build credits:</b> {{.Credits}}</p>
+            <details><summary>Build materials</summary><table>{{range .Materials}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.Qty}}</td></tr>{{end}}</table></details>
+        </div>
+{{- end}}
     </aside>
     <button class="drawer-tab" type="button" aria-controls="upkeep-drawer" aria-expanded="false">Station upkeep</button>
 {{- end}}
