@@ -46,27 +46,121 @@ steps:
   - title: Crafting
     facility: faction_workshop
     notes: |
-      ⚠ Upkeep consumes [[focused_crystal]], each made from 4 [[energy_crystal]] + 1
-      [[palladium_ore]]: about 3 a day at a ~3,000-tick maintenance cycle, so roughly **12 energy
-      crystals a day**. Decide where those come from before building it.
+      Build this second, so the faction can craft at the station straight away. Crafting by
+      hand is slow next to real production lines, but it means build materials and upkeep
+      items can be made on site until those lines come online.
+
+      ⚠ Upkeep consumes one [[focused_crystal]] a cycle, and each is made from 4
+      [[energy_crystal]] + 1 [[palladium_ore]], so **4 energy crystals every cycle**. Decide
+      where those come from before building it.
+  - title: Refuel service
+    facility: refueling_dock
+    notes: |
+      Third, because everyone needs fuel: your own miners and haulers working out of the
+      station, and every pilot passing through. Faction members draw from the shared tank for
+      free; everyone else pays your station price (set with `station set_refuel_price`). Until
+      fuel production comes online, keep the tank filled by tankers depositing fuel from their
+      own tanks (storage deposit, `item_id=fuel`). Its upkeep is
+      [[fuel_cell]] and [[liquid_hydrogen]], so plan both supplies before it finishes.
+
+      Until a refuel service exists, ships docked at your station can't refuel at all; the
+      server's message (`no_fuel_source … insufficient credits for station refueling`) is
+      misleading, because credits are not the problem (*measured*).
+  - title: Fuel storage
+    facility: fuel_tank_expansion
+    notes: |
+      ⚠ **Don't build a [[faction_fuel_bunker]] here.** At your own station the server refuses
+      it: *"a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
+      would just sit unused. Build a Fuel Tank Expansion … instead"* (*measured* 2026-10-26).
+
+      Each expansion adds 50,000 to the station's own shared tank (the bare station tank holds
+      200), and you can build several. Fill it from fuel-production facilities or by depositing
+      a docked ship's fuel (storage deposit, `item_id=fuel`). With `station set_auto_buy_fuel`
+      on, visiting pilots can sell fuel into the tank too, paid from the treasury.
+      Whether the expansions feed the refueling dock's 5,000-unit tank is *not yet measured*.
+  - title: Market
+    facility: trade_concourse
+    notes: |
+      The rest of a full station is its **services**. A mature station lists eleven:
+      `crafting`, `marine_training`, `market`, `medical`, `missions`, `personnel`, `refuel`,
+      `repair`, `salvage_yard`, `shipyard` and `storage` (*player-reported*). Each has a level-1
+      facility a player station can build.
+
+      The market comes right after fuel because it starts the station earning: crossroads
+      traffic trades here, and you set the listing fee they pay with
+      `station set_market_fee`. Its upkeep is one [[trade_authenticator]] a cycle, so find a
+      source before you build.
   - title: Life support
     facility: atmospheric_recycler
+    break_before: |
+      **Next: production support.** With storage, crafting, fuel and a market in place, we
+      switch from basic services to power and life support, the two things production
+      facilities need, so production lines can start moving to the station.
     notes: |
       The heaviest upkeep of the early build: five different inputs every cycle.
       [[water_ice]] is usually mineable nearby (Cloverfield has an ice field); plan a supply of
-      the other four before you build. Reported as the third build (*player-reported*).
+      the other four before you build. Other players build it third (*player-reported*); we
+      build it after the market, together with power, because the two of them are what
+      production facilities need: this is where more advanced crafting and processing can
+      move to the station.
+
+      There is no other level-1 life-support facility a player station can build. The
+      recycler upgrades to [[climate_control_array]] (life support 20), [[biosphere_ring]] (35)
+      and [[full_habitat_dome]] (60).
   - title: Power
     facility: stellar_collector_grid
-    alternatives: [fuel_cell_generator, bunker_fed_reactor, scrap_reactor]
+    alternatives: [fuel_cell_generator, bunker_fed_reactor, scrap_reactor, dark_matter_reactor]
     notes: |
       Service facilities list **no power draw** in the catalog, but production facilities do,
-      so power is what unlocks production lines. In a system with a star the collector grid is
+      so power, with life support, is what unlocks production lines at the station.
+      [[capacitor_bank]], [[buffer_array]] and [[cryo_capacitor_vault]] add battery storage
+      on top of any of these. In a system with a star the collector grid is
       the simplest to keep fed: 2 [[circuit_board]] per cycle and nothing else. The Bunker-Fed
-      Reactor burns [[fuel]] instead: 55 per cycle, about 158 a day.
-  - title: Fuel production
+      Reactor burns [[fuel]] instead: 55 per cycle.
+
+      We started the grid at Conjunction Junction on 2026-10-26; the build reply again gave
+      750 corporation_management XP to every member and showed rent 0 (*measured*).
+  - title: Shipyard
+    facility: outfitting_bay
+    break_before: |
+      **From here on the order is flexible.** With storage, crafting, fuel, a market and
+      production support in place, build the remaining services as you need them. Our
+      suggestion is shipyard, repair and salvage yard first, then missions, medical, personnel
+      and marine training.
     notes: |
-      *Not yet charted.* Other players report fuel production comes next once storage,
-      crafting and life support are up. This step will name the facility once we have built it.
+      The most expensive level-1 service to build: thousands of [[steel_plate]] plus
+      [[circuit_board]], and the longest build time. Upkeep includes [[titanium_alloy]].
+      It upgrades to [[fabrication_yard]], [[assembly_complex]] and [[grand_shipworks]].
+  - title: Repair
+    facility: repair_slip
+    notes: |
+      Outside pilots pay your `station set_repair_price` per hull point. Upkeep is
+      [[repair_kit]] and [[steel_plate]].
+  - title: Salvage yard
+    facility: reclamation_dock
+    notes: |
+      Breaks down what pilots drag in from debris fields. Upkeep includes a [[fuel_cell]],
+      like the refueling dock.
+  - title: Missions
+    facility: contract_terminal
+    notes: |
+      A job board for the faction or anyone passing through. Cheap to build and to keep:
+      [[circuit_board]] and [[copper_wiring]].
+  - title: Medical
+    facility: first_aid_ward
+    notes: |
+      The catalog lists **no upkeep** for this one. The build needs [[medical_supplies]].
+      It upgrades to [[trauma_clinic]], [[surgical_center]] and [[regenerative_medical_complex]].
+  - title: Personnel
+    facility: crew_registry
+    notes: |
+      No upkeep listed. It upgrades to [[personnel_bureau]], [[sector_labor_exchange]] and
+      [[fleet_personnel_command]].
+  - title: Marine training
+    facility: security_training_post
+    notes: |
+      No upkeep listed. It upgrades to [[marine_training_barracks]], [[fleet_marine_academy]]
+      and [[expeditionary_warfare_command]].
 ---
 ## Reading your station
 
@@ -90,8 +184,8 @@ compare the facility's `maintenance_per_cycle` (the upkeep tables in the steps a
 
 **Two clocks (*player-reported*, being measured):** facility **rent** bills every **100 ticks**
 (about 17 minutes), but facilities **consume their upkeep** on a separate maintenance cycle of
-about **3,000 ticks** (about 8.3 hours, roughly 2.9 times a day). The per-day upkeep figures on
-this page use the 3,000-tick cycle. Life support may run on its own 100-tick cycle:
+about **3,000 ticks** (about 8.3 hours). Until we have measured that cycle, this page gives
+upkeep **per cycle** only; per-day figures will come back once the length is confirmed. Life support may run on its own 100-tick cycle:
 Grand Exchange reports `life_support.maintenance_cycle_ticks: 100`.
 
 **What happens when it runs dry (*measured*):** the Locker Bay went `maintenance_satisfied:
@@ -129,6 +223,23 @@ action needs the **ManageBases** permission. Outposts support only `info`, `set_
 > A missing value is **not refused**: the server reads it as false or 0. `set_public` with no
 > value makes a station private (*measured*).
 
+## What you can build here
+
+The facility catalog marks every facility a player station can build with
+**`player_station_buildable: true`**: 63 of the catalog's 2,907 facilities (catalog read
+2026-10-26). Plan from that flag, not from the official guides. Besides the steps above, it covers:
+
+- **Power:** [[stellar_collector_grid]], [[fuel_cell_generator]], [[bunker_fed_reactor]],
+  [[scrap_reactor]], [[dark_matter_reactor]], plus [[capacitor_bank]] and [[buffer_array]] storage.
+- **Services for visitors:** [[refueling_dock]], [[trade_concourse]], [[repair_slip]],
+  [[outfitting_bay]], [[contract_terminal]], [[reclamation_dock]], [[fabrication_yard]].
+- **Defense:** [[point_defense_battery]], [[station_defense_turret]], [[shield_projector]],
+  [[reinforced_plating]], up to [[siege_lance]] and [[shield_bastion]].
+- **Food and leisure venues:** [[dockside_diner]], [[frontier_cantina]], [[rec_lounge]] and others.
+
+The `faction_*` facilities you rent space for at NPC stations (fuel bunkers and similar) are
+**not** on the list.
+
 ## Where the official docs are wrong
 
 - **What a station comes with.** The factions guide says market, refuel, repair, shipyard,
@@ -139,6 +250,8 @@ action needs the **ManageBases** permission. Outposts support only `info`, `set_
 - **Storage capacity units.** base-builder lists faction storage in total items (500 → 50,000);
   the factions guide lists per item type (100k → 500k). The station's 500k is per item type
   (*player-reported*).
+- **Fuel storage.** The [[faction_fuel_bunker]] is refused at your own station; the server
+  points you to the [[fuel_tank_expansion]] instead (*measured*).
 
 ## Not yet measured
 

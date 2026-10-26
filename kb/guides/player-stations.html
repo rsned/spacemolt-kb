@@ -53,6 +53,8 @@
         .upkeep tr + tr td, .measured tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
         .no-upkeep { color: hsl(var(--muted-foreground)); font-style: italic; margin: 0 !important; }
         .num { text-align: right !important; font-variant-numeric: tabular-nums; width: 5.5rem; }
+        .step-break { margin: 2.4em 0 1.6em; padding: 1em 0 0; border-top: 2px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); }
+        .step-break p { margin: 0 0 .5em; }
         .alts { font-size: .9em; color: hsl(var(--muted-foreground)); margin: 0 0 1.4em; line-height: 1.6; }
         .alts > div { padding: 4px 0; }
         .so-far { border-top: 1px dashed hsl(var(--border)); margin-top: 1.6em; padding-top: 14px; font-size: .82em; color: hsl(var(--muted-foreground)); cursor: pointer; }
@@ -128,11 +130,21 @@
             <a class="sub" href="#step-0">Step 0: Found the station</a>
             <a class="sub" href="#step-1">Step 1: Locker Bay</a>
             <a class="sub" href="#step-2">Step 2: Faction Workshop</a>
-            <a class="sub" href="#step-3">Step 3: Atmospheric Recycler</a>
-            <a class="sub" href="#step-4">Step 4: Stellar Collector Grid</a>
-            <a class="sub" href="#step-5">Step 5: Fuel production</a>
+            <a class="sub" href="#step-3">Step 3: Refueling Dock</a>
+            <a class="sub" href="#step-4">Step 4: Fuel Tank Expansion</a>
+            <a class="sub" href="#step-5">Step 5: Trade Concourse</a>
+            <a class="sub" href="#step-6">Step 6: Atmospheric Recycler</a>
+            <a class="sub" href="#step-7">Step 7: Stellar Collector Grid</a>
+            <a class="sub" href="#step-8">Step 8: Outfitting Bay</a>
+            <a class="sub" href="#step-9">Step 9: Repair Slip</a>
+            <a class="sub" href="#step-10">Step 10: Reclamation Dock</a>
+            <a class="sub" href="#step-11">Step 11: Contract Terminal</a>
+            <a class="sub" href="#step-12">Step 12: First Aid Ward</a>
+            <a class="sub" href="#step-13">Step 13: Crew Registry</a>
+            <a class="sub" href="#step-14">Step 14: Security Training Post</a>
             <a href="#reading-your-station">Reading your station</a>
             <a href="#station-administration">Station administration</a>
+            <a href="#what-you-can-build-here">What you can build here</a>
             <a href="#where-the-official-docs-are-wrong">Where the official docs are wrong</a>
             <a href="#not-yet-measured">Not yet measured</a>
         </nav>
@@ -165,62 +177,196 @@ interest</strong> next to where you are, and your ship is docked there automatic
 <p>The station's built-in faction storage satisfies the &quot;Faction Storage is required before
 any other faction facility&quot; rule: <code>faction_build</code> works straight away (<em>measured</em>).</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 0 upkeep items, 0.0 units/day · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" title="Open station upkeep">Station so far: 0 upkeep items, 0 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-1">
             <h3>Step 1: <a href="../facilities/service/locker_bay.html">Locker Bay</a> <small class="text-muted">Personal storage</small></h3>
             <p class="step-gives">service: storage</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 1,600 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
-            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th><th class="num">/day</th></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td><td class="num">2.9</td></tr></table></div>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table></div>
             <p>Adds personal storage for anyone docked. At your own station rent is <strong>0</strong>, and the build
 gave <strong>750 corporation_management XP to every faction member</strong> (<em>measured</em>).</p>
 <p>⚠ We built it with no <a href="../items/refined/flex_polymer.html">Flex Polymer</a> in faction storage, and the station went
 <code>critical</code> with zero services as soon as it finished (<em>measured</em>). Deposit a few days of
 <a href="../items/refined/flex_polymer.html">Flex Polymer</a> and <a href="../items/refined/steel_plate.html">Steel Plate</a> first.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 2 upkeep items, 5.8 units/day · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" title="Open station upkeep">Station so far: 2 upkeep items, 2 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-2">
             <h3>Step 2: <a href="../facilities/service/faction_workshop.html">Faction Workshop</a> <small class="text-muted">Crafting</small></h3>
             <p class="step-gives">service: crafting</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 800 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
-            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th><th class="num">/day</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td><td class="num">2.9</td></tr></table></div>
-            <p>⚠ Upkeep consumes <a href="../items/refined/focused_crystal.html">Focused Crystal</a>, each made from 4 <a href="../items/ore/energy_crystal.html">Energy Crystal</a> + 1
-<a href="../items/ore/palladium_ore.html">Palladium Ore</a>: about 3 a day at a ~3,000-tick maintenance cycle, so roughly <strong>12 energy
-crystals a day</strong>. Decide where those come from before building it.</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr></table></div>
+            <p>Build this second, so the faction can craft at the station straight away. Crafting by
+hand is slow next to real production lines, but it means build materials and upkeep
+items can be made on site until those lines come online.</p>
+<p>⚠ Upkeep consumes one <a href="../items/refined/focused_crystal.html">Focused Crystal</a> a cycle, and each is made from 4
+<a href="../items/ore/energy_crystal.html">Energy Crystal</a> + 1 <a href="../items/ore/palladium_ore.html">Palladium Ore</a>, so <strong>4 energy crystals every cycle</strong>. Decide
+where those come from before building it.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 4 upkeep items, 11.5 units/day · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" title="Open station upkeep">Station so far: 4 upkeep items, 4 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-3">
-            <h3>Step 3: <a href="../facilities/infrastructure/atmospheric_recycler.html">Atmospheric Recycler</a> <small class="text-muted">Life support</small></h3>
-            <p class="step-gives">life support &#43;12</p>
-            <p class="step-build"><b>Build:</b> 600,000 cr + 1,200 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 200 <a href="../items/component/water_recycler.html">Water Recycler</a> · 150 ticks</p>
-            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th><th class="num">/day</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td><td class="num">5.8</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td><td class="num">8.6</td></tr></table></div>
-            <p>The heaviest upkeep of the early build: five different inputs every cycle.
-<a href="../items/ore/water_ice.html">Water Ice</a> is usually mineable nearby (Cloverfield has an ice field); plan a supply of
-the other four before you build. Reported as the third build (<em>player-reported</em>).</p>
+            <h3>Step 3: <a href="../facilities/service/refueling_dock.html">Refueling Dock</a> <small class="text-muted">Refuel service</small></h3>
+            <p class="step-gives">service: refuel</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 2,000 <a href="../items/consumable/fuel_cell.html">Fuel Cell</a> + 800 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr></table></div>
+            <p>Third, because everyone needs fuel: your own miners and haulers working out of the
+station, and every pilot passing through. Faction members draw from the shared tank for
+free; everyone else pays your station price (set with <code>station set_refuel_price</code>). Until
+fuel production comes online, keep the tank filled by tankers depositing fuel from their
+own tanks (storage deposit, <code>item_id=fuel</code>). Its upkeep is
+<a href="../items/consumable/fuel_cell.html">Fuel Cell</a> and <a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a>, so plan both supplies before it finishes.</p>
+<p>Until a refuel service exists, ships docked at your station can't refuel at all; the
+server's message (<code>no_fuel_source … insufficient credits for station refueling</code>) is
+misleading, because credits are not the problem (<em>measured</em>).</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 9 upkeep items, 34.6 units/day · power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" title="Open station upkeep">Station so far: 6 upkeep items, 7 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-4">
-            <h3>Step 4: <a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a> <small class="text-muted">Power</small></h3>
-            <p class="step-gives">power &#43;20</p>
-            <p class="step-build"><b>Build:</b> 900,000 cr + 1,200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 250 ticks</p>
-            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th><th class="num">/day</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2</td><td class="num">5.8</td></tr></table></div>
-            <p>Service facilities list <strong>no power draw</strong> in the catalog, but production facilities do,
-so power is what unlocks production lines. In a system with a star the collector grid is
-the simplest to keep fed: 2 <a href="../items/refined/circuit_board.html">Circuit Board</a> per cycle and nothing else. The Bunker-Fed
-Reactor burns <a href="../items/fuel/fuel.html">Fuel</a> instead: 55 per cycle, about 158 a day.</p>
+            <h3>Step 4: <a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a> <small class="text-muted">Fuel storage</small></h3>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 1,500 <a href="../items/refined/ceramite_plating.html">Ceramite Plating</a> + 800 <a href="../items/component/fuel_tank.html">Fuel Tank</a> + 8,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr></table></div>
+            <p>⚠ <strong>Don't build a <a href="../facilities/faction/faction_fuel_bunker.html">Faction Fuel Bunker</a> here.</strong> At your own station the server refuses
+it: <em>&quot;a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
+would just sit unused. Build a Fuel Tank Expansion … instead&quot;</em> (<em>measured</em> 2026-10-26).</p>
+<p>Each expansion adds 50,000 to the station's own shared tank (the bare station tank holds
+200), and you can build several. Fill it from fuel-production facilities or by depositing
+a docked ship's fuel (storage deposit, <code>item_id=fuel</code>). With <code>station set_auto_buy_fuel</code>
+on, visiting pilots can sell fuel into the tank too, paid from the treasury.
+Whether the expansions feed the refueling dock's 5,000-unit tank is <em>not yet measured</em>.</p>
 
-            <div class="alts"><b>Alternatives:</b><div><a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a>: 500,000 cr · upkeep 8.6/day · power &#43;12</div><div><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>: 500,000 cr · upkeep 158/day · power &#43;12</div><div><a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a>: 80,000 cr · upkeep 11.5/day · power &#43;10</div></div>
-            <div class="so-far" title="Open station upkeep">Station so far: 9 upkeep items, 40.3 units/day · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" title="Open station upkeep">Station so far: 6 upkeep items, 12 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-5">
-            <h3>Step 5: Fuel production</h3>
-            <p><em>Not yet charted.</em> Other players report fuel production comes next once storage,
-crafting and life support are up. This step will name the facility once we have built it.</p>
+            <h3>Step 5: <a href="../facilities/service/trade_concourse.html">Trade Concourse</a> <small class="text-muted">Market</small></h3>
+            <p class="step-gives">service: market</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/refined/circuit_board.html">Circuit Board</a> · 100 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr></table></div>
+            <p>The rest of a full station is its <strong>services</strong>. A mature station lists eleven:
+<code>crafting</code>, <code>marine_training</code>, <code>market</code>, <code>medical</code>, <code>missions</code>, <code>personnel</code>, <code>refuel</code>,
+<code>repair</code>, <code>salvage_yard</code>, <code>shipyard</code> and <code>storage</code> (<em>player-reported</em>). Each has a level-1
+facility a player station can build.</p>
+<p>The market comes right after fuel because it starts the station earning: crossroads
+traffic trades here, and you set the listing fee they pay with
+<code>station set_market_fee</code>. Its upkeep is one <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> a cycle, so find a
+source before you build.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 9 upkeep items, 40.3 units/day · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" title="Open station upkeep">Station so far: 7 upkeep items, 13 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <div class="step-break"><p><strong>Next: production support.</strong> With storage, crafting, fuel and a market in place, we
+switch from basic services to power and life support, the two things production
+facilities need, so production lines can start moving to the station.</p>
+</div>
+        <section class="step-card" id="step-6">
+            <h3>Step 6: <a href="../facilities/infrastructure/atmospheric_recycler.html">Atmospheric Recycler</a> <small class="text-muted">Life support</small></h3>
+            <p class="step-gives">life support &#43;12</p>
+            <p class="step-build"><b>Build:</b> 600,000 cr + 1,200 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 200 <a href="../items/component/water_recycler.html">Water Recycler</a> · 150 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table></div>
+            <p>The heaviest upkeep of the early build: five different inputs every cycle.
+<a href="../items/ore/water_ice.html">Water Ice</a> is usually mineable nearby (Cloverfield has an ice field); plan a supply of
+the other four before you build. Other players build it third (<em>player-reported</em>); we
+build it after the market, together with power, because the two of them are what
+production facilities need: this is where more advanced crafting and processing can
+move to the station.</p>
+<p>There is no other level-1 life-support facility a player station can build. The
+recycler upgrades to <a href="../facilities/infrastructure/climate_control_array.html">Climate Control Array</a> (life support 20), <a href="../facilities/infrastructure/biosphere_ring.html">Biosphere Ring</a> (35)
+and <a href="../facilities/infrastructure/full_habitat_dome.html">Full Habitat Dome</a> (60).</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 12 upkeep items, 21 units/cycle · power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-7">
+            <h3>Step 7: <a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a> <small class="text-muted">Power</small></h3>
+            <p class="step-gives">power &#43;20</p>
+            <p class="step-build"><b>Build:</b> 900,000 cr + 1,200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 250 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2</td></tr></table></div>
+            <p>Service facilities list <strong>no power draw</strong> in the catalog, but production facilities do,
+so power, with life support, is what unlocks production lines at the station.
+<a href="../facilities/infrastructure/capacitor_bank.html">Capacitor Bank</a>, <a href="../facilities/infrastructure/buffer_array.html">Buffer Array</a> and <a href="../facilities/infrastructure/cryo_capacitor_vault.html">Cryo Capacitor Vault</a> add battery storage
+on top of any of these. In a system with a star the collector grid is
+the simplest to keep fed: 2 <a href="../items/refined/circuit_board.html">Circuit Board</a> per cycle and nothing else. The Bunker-Fed
+Reactor burns <a href="../items/fuel/fuel.html">Fuel</a> instead: 55 per cycle.</p>
+<p>We started the grid at Conjunction Junction on 2026-10-26; the build reply again gave
+750 corporation_management XP to every member and showed rent 0 (<em>measured</em>).</p>
+
+            <div class="alts"><b>Alternatives:</b><div><a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a>: 500,000 cr · upkeep 3/cycle · power &#43;12</div><div><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>: 500,000 cr · upkeep 55/cycle · power &#43;12</div><div><a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a>: 80,000 cr · upkeep 4/cycle · power &#43;10</div><div><a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a>: 3,000,000 cr · upkeep 3/cycle · power &#43;48</div></div>
+            <div class="so-far" title="Open station upkeep">Station so far: 12 upkeep items, 23 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <div class="step-break"><p><strong>From here on the order is flexible.</strong> With storage, crafting, fuel, a market and
+production support in place, build the remaining services as you need them. Our
+suggestion is shipyard, repair and salvage yard first, then missions, medical, personnel
+and marine training.</p>
+</div>
+        <section class="step-card" id="step-8">
+            <h3>Step 8: <a href="../facilities/service/outfitting_bay.html">Outfitting Bay</a> <small class="text-muted">Shipyard</small></h3>
+            <p class="step-gives">service: shipyard</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 800 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 4,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 300 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr></table></div>
+            <p>The most expensive level-1 service to build: thousands of <a href="../items/refined/steel_plate.html">Steel Plate</a> plus
+<a href="../items/refined/circuit_board.html">Circuit Board</a>, and the longest build time. Upkeep includes <a href="../items/refined/titanium_alloy.html">Titanium Alloy</a>.
+It upgrades to <a href="../facilities/service/fabrication_yard.html">Fabrication Yard</a>, <a href="../facilities/service/assembly_complex.html">Assembly Complex</a> and <a href="../facilities/service/grand_shipworks.html">Grand Shipworks</a>.</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 13 upkeep items, 26 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-9">
+            <h3>Step 9: <a href="../facilities/service/repair_slip.html">Repair Slip</a> <small class="text-muted">Repair</small></h3>
+            <p class="step-gives">service: repair</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/consumable/repair_kit.html">Repair Kit</a> + 1,200 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 120 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table></div>
+            <p>Outside pilots pay your <code>station set_repair_price</code> per hull point. Upkeep is
+<a href="../items/consumable/repair_kit.html">Repair Kit</a> and <a href="../items/refined/steel_plate.html">Steel Plate</a>.</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 14 upkeep items, 28 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-10">
+            <h3>Step 10: <a href="../facilities/service/reclamation_dock.html">Reclamation Dock</a> <small class="text-muted">Salvage yard</small></h3>
+            <p class="step-gives">service: salvage_yard</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table></div>
+            <p>Breaks down what pilots drag in from debris fields. Upkeep includes a <a href="../items/consumable/fuel_cell.html">Fuel Cell</a>,
+like the refueling dock.</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 14 upkeep items, 30 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-11">
+            <h3>Step 11: <a href="../facilities/service/contract_terminal.html">Contract Terminal</a> <small class="text-muted">Missions</small></h3>
+            <p class="step-gives">service: missions</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 200 <a href="../items/refined/circuit_board.html">Circuit Board</a> · 50 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr></table></div>
+            <p>A job board for the faction or anyone passing through. Cheap to build and to keep:
+<a href="../items/refined/circuit_board.html">Circuit Board</a> and <a href="../items/refined/copper_wiring.html">Copper Wiring</a>.</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-12">
+            <h3>Step 12: <a href="../facilities/service/first_aid_ward.html">First Aid Ward</a> <small class="text-muted">Medical</small></h3>
+            <p class="step-gives">service: medical</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 250 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 200 <a href="../items/consumable/medical_supplies.html">Medical Supplies</a> + 400 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>The catalog lists <strong>no upkeep</strong> for this one. The build needs <a href="../items/consumable/medical_supplies.html">Medical Supplies</a>.
+It upgrades to <a href="../facilities/service/trauma_clinic.html">Trauma Clinic</a>, <a href="../facilities/service/surgical_center.html">Surgical Center</a> and <a href="../facilities/service/regenerative_medical_complex.html">Regenerative Medical Complex</a>.</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-13">
+            <h3>Step 13: <a href="../facilities/service/crew_registry.html">Crew Registry</a> <small class="text-muted">Personnel</small></h3>
+            <p class="step-gives">service: personnel</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 500 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>No upkeep listed. It upgrades to <a href="../facilities/service/personnel_bureau.html">Personnel Bureau</a>, <a href="../facilities/service/sector_labor_exchange.html">Sector Labor Exchange</a> and
+<a href="../facilities/service/fleet_personnel_command.html">Fleet Personnel Command</a>.</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-14">
+            <h3>Step 14: <a href="../facilities/service/security_training_post.html">Security Training Post</a> <small class="text-muted">Marine training</small></h3>
+            <p class="step-gives">service: marine_training</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 150 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 700 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>No upkeep listed. It upgrades to <a href="../facilities/service/marine_training_barracks.html">Marine Training Barracks</a>, <a href="../facilities/service/fleet_marine_academy.html">Fleet Marine Academy</a>
+and <a href="../facilities/service/expeditionary_warfare_command.html">Expeditionary Warfare Command</a>.</p>
+
+            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         </div>
         <div class="guide-body"><h2 id="reading-your-station">Reading your station</h2>
@@ -278,8 +424,8 @@ compare the facility's <code>maintenance_per_cycle</code> (the upkeep tables in 
 <code>view_faction_storage</code> at the station.</p>
 <p><strong>Two clocks (<em>player-reported</em>, being measured):</strong> facility <strong>rent</strong> bills every <strong>100 ticks</strong>
 (about 17 minutes), but facilities <strong>consume their upkeep</strong> on a separate maintenance cycle of
-about <strong>3,000 ticks</strong> (about 8.3 hours, roughly 2.9 times a day). The per-day upkeep figures on
-this page use the 3,000-tick cycle. Life support may run on its own 100-tick cycle:
+about <strong>3,000 ticks</strong> (about 8.3 hours). Until we have measured that cycle, this page gives
+upkeep <strong>per cycle</strong> only; per-day figures will come back once the length is confirmed. Life support may run on its own 100-tick cycle:
 Grand Exchange reports <code>life_support.maintenance_cycle_ticks: 100</code>.</p>
 <p><strong>What happens when it runs dry (<em>measured</em>):</strong> the Locker Bay went <code>maintenance_satisfied: false</code> with <code>maintenance_level</code> 0.4, the station dropped from <code>thriving</code> to <code>critical</code>
 (<em>&quot;Critical infrastructure failure. Emergency lighting only.&quot;</em>), and <code>get_base</code> listed <strong>no
@@ -431,6 +577,21 @@ action needs the <strong>ManageBases</strong> permission. Outposts support only 
 <p>A missing value is <strong>not refused</strong>: the server reads it as false or 0. <code>set_public</code> with no
 value makes a station private (<em>measured</em>).</p>
 </blockquote>
+<h2 id="what-you-can-build-here">What you can build here</h2>
+<p>The facility catalog marks every facility a player station can build with
+<strong><code>player_station_buildable: true</code></strong>: 63 of the catalog's 2,907 facilities (catalog read
+2026-10-26). Plan from that flag, not from the official guides. Besides the steps above, it covers:</p>
+<ul>
+<li><strong>Power:</strong> <a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a>, <a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a>, <a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>,
+<a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a>, <a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a>, plus <a href="../facilities/infrastructure/capacitor_bank.html">Capacitor Bank</a> and <a href="../facilities/infrastructure/buffer_array.html">Buffer Array</a> storage.</li>
+<li><strong>Services for visitors:</strong> <a href="../facilities/service/refueling_dock.html">Refueling Dock</a>, <a href="../facilities/service/trade_concourse.html">Trade Concourse</a>, <a href="../facilities/service/repair_slip.html">Repair Slip</a>,
+<a href="../facilities/service/outfitting_bay.html">Outfitting Bay</a>, <a href="../facilities/service/contract_terminal.html">Contract Terminal</a>, <a href="../facilities/service/reclamation_dock.html">Reclamation Dock</a>, <a href="../facilities/service/fabrication_yard.html">Fabrication Yard</a>.</li>
+<li><strong>Defense:</strong> <a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a>, <a href="../facilities/defense/station_defense_turret.html">Station Defense Turret</a>, <a href="../facilities/defense/shield_projector.html">Shield Projector</a>,
+<a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a>, up to <a href="../facilities/defense/siege_lance.html">Siege Lance</a> and <a href="../facilities/defense/shield_bastion.html">Shield Bastion</a>.</li>
+<li><strong>Food and leisure venues:</strong> <a href="../facilities/infrastructure/dockside_diner.html">Dockside Diner</a>, <a href="../facilities/infrastructure/frontier_cantina.html">Frontier Cantina</a>, <a href="../facilities/infrastructure/rec_lounge.html">Rec Lounge</a> and others.</li>
+</ul>
+<p>The <code>faction_*</code> facilities you rent space for at NPC stations (fuel bunkers and similar) are
+<strong>not</strong> on the list.</p>
 <h2 id="where-the-official-docs-are-wrong">Where the official docs are wrong</h2>
 <ul>
 <li><strong>What a station comes with.</strong> The factions guide says market, refuel, repair, shipyard,
@@ -441,6 +602,8 @@ with 0 power, 0 life support and no services (<em>measured / player-reported</em
 <li><strong>Storage capacity units.</strong> base-builder lists faction storage in total items (500 → 50,000);
 the factions guide lists per item type (100k → 500k). The station's 500k is per item type
 (<em>player-reported</em>).</li>
+<li><strong>Fuel storage.</strong> The <a href="../facilities/faction/faction_fuel_bunker.html">Faction Fuel Bunker</a> is refused at your own station; the server
+points you to the <a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a> instead (<em>measured</em>).</li>
 </ul>
 <h2 id="not-yet-measured">Not yet measured</h2>
 <ul>
@@ -453,12 +616,12 @@ the factions guide lists per item type (100k → 500k). The station's 500k is pe
     </main>
     <aside class="guide-sidebar guide-drawer" id="upkeep-drawer" aria-label="Station upkeep">
         <button class="drawer-close" type="button" aria-label="Close">×</button>
-        <h3>Station upkeep / day</h3>
-        <div class="text-muted">after every step, catalog values; 1 maintenance cycle = 3,000 ticks (≈8.3 h, 2.9/day) · player-reported 2026-10-26, not yet measured (rent bills every 100 ticks; upkeep is a separate, longer cycle)</div>
-        <table><tr><th>Upkeep</th><th class="num">/cycle</th><th class="num">/day</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td><td class="num">8.6</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td><td class="num">5.8</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td><td class="num">2.9</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td><td class="num">8.6</td></tr></table>
+        <h3>Station upkeep / cycle</h3>
+        <div class="text-muted">after every step, catalog values; 1 maintenance cycle = 3,000 ticks (≈8.3 h) · player-reported 2026-10-26, not yet measured (rent bills every 100 ticks; upkeep is a separate, longer cycle)</div>
+        <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
         <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
-        <p><b>Build credits:</b> 7,500,000</p>
-        <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1,600</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        <p><b>Build credits:</b> 12,500,000</p>
+        <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,200</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
     </aside>
     <button class="drawer-tab" type="button" aria-controls="upkeep-drawer" aria-expanded="false">Station upkeep</button>
     <script>
