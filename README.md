@@ -50,6 +50,7 @@ The two `*.db` files are symlinks to their authoritative sources; the KB is read
 | `test-system-map` | Generates 60+ HTML test pages exercising every rendering path (all spectral types O–Y, luminosity classes Ia–VII, white-dwarf variants, planet classes, POI subtypes, black holes, multi-star systems, animated traffic). | _(hardcoded)_ |
 | `planet-land-ratio-test` | Test grid of planet types across a range of land/liquid ratios, plus an HTML preview. | _(hardcoded, writes to `/tmp/land-ratio-test`)_ |
 | `generate-bom-explorer` | Builds `kb/build-costs/recipe-graph.json`, the data file for the interactive Bill of Materials explorer (`kb/build-costs/explorer.html`). Reads only `crafting.db` and the newest snapshot catalogs — no market DB, so it never goes stale against market data. | `-crafting`, `-catalog`, `-out` |
+| `generate-guides` | Renders hand-written guides (`guides/*.md`: YAML frontmatter + markdown) into `kb/guides/`. Build steps name facility ids; build cost, materials, upkeep and power/life-support figures come from the latest facility catalog, with a running-totals sidebar. | `-guides`, `-snapshots`, `-out` |
 
 ### Example: regenerate the core item/recipe/system site
 
@@ -59,6 +60,7 @@ go run ./cmd/generate-items-kb -systems-only
 go run ./cmd/generate-items-kb -system sol
 go run ./cmd/generate-resource-diffs        # then snapshot the Resources page + render kb/resources/changes/
 go run ./cmd/generate-wildlife-kb           # wildlife index + species pages from the survey ledger
+go run ./cmd/generate-guides                # guides/*.md -> kb/guides/ (catalog-driven build steps)
 ```
 
 ### Example: render a single system map
@@ -86,6 +88,7 @@ go run ./cmd/system-map -db spacemolt-knowledge.db -system sol [-o output.svg]
 | `pkg/tierchart` | Groups tiered module families (e.g. `pulse_laser I–III`) and selects the relevant stat columns for comparison tables. | `TierStats`, `TierFamily`, `BuildFamilies`, `ColumnLabel` |
 | `pkg/kbdb` | Manages KB-specific metadata tables in the knowledge DB so derived data persists across regenerations. | `Schema`, `Migrate` |
 | `pkg/catalog` | Ship and facility catalog loaders, plus latest-snapshot-directory discovery, shared by `generate-build-costs` and `generate-bom-explorer`. | `FindLatestDir`, `LoadShips`, `LoadFacilities` |
+| `pkg/stationplan` | Player-station planning maths shared by the guides (and a future station planner): cumulative build BoM, upkeep per cycle/day, power and life-support balance, and KB cross-link resolution with `[[id]]` expansion. | `Accumulate`, `PerDay`, `Totals`, `NewLinker`, `ExpandRefs` |
 | `internal/kbnav` | Single source of truth for the site header and top navigation bar, shared by all generators. | `Items`, `Header` |
 
 ## Overlays — manual content enrichment

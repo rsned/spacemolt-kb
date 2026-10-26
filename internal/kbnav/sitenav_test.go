@@ -199,3 +199,16 @@ func TestHomePageCoversNav(t *testing.T) {
 			"or search fetches the index from the wrong path", homePage)
 	}
 }
+
+// TestHomePageLinksGuides: kb/guides/ is linked from the hand-maintained home
+// page (nav + section card) before it joins Items, which needs a full-site
+// regeneration to keep TestGeneratedPagesMatchNav green.
+func TestHomePageLinksGuides(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join(locateKBDir(t), homePage)) //nolint:gosec // test-only read of repo output
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n := strings.Count(string(data), `href="guides/index.html"`); n < 2 {
+		t.Errorf("kb/%s links guides/index.html %d time(s), want nav + card (2)", homePage, n)
+	}
+}
