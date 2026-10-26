@@ -371,6 +371,7 @@ const pageStyle = `<style>
             border-radius: 10px 0 0 10px; background: hsl(var(--smui-yellow)); color: #111; padding: 16px 9px; cursor: pointer; font: 600 12px var(--font-sans);
             letter-spacing: .06em; text-transform: uppercase; box-shadow: -4px 4px 16px rgb(0 0 0 / .15); transition: right .25s ease; }
         body.drawer-open .drawer-tab { right: min(360px, 92vw); }
+        body.nav-open .drawer-tab { visibility: hidden; }
 
         @media (max-width: 1000px) { .guide-shell { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; } }
         @media (max-width: 800px) {

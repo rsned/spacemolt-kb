@@ -132,7 +132,7 @@ func TestRenderReport(t *testing.T) {
 	}
 	for _, want := range []string{
 		`<title>Resource Survey Changes`,
-		`href="../../resources/index.html"`, // kbnav header at depth 2
+		`<script src="../../nav.js" defer>`, // kbnav header at depth 2
 		"Since the last regen",
 		"Since the last server content update",
 		"Zinc Ore",

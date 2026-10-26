@@ -29,11 +29,8 @@ var exemptSections = []string{
 	"ships/glyphs/",
 }
 
-// homePage is hand-maintained and legitimately differs: it omits the Home
-// self-link and does not wrap its <h1> in one. TestHomePageCoversNav checks it
-// separately rather than exempting it outright — a nav entry added to Items and
-// forgotten here is a demonstrated failure mode (commit a2ab6a274 exists to fix
-// exactly that for Passengers).
+// homePage is hand-maintained but carries the same header shell as every
+// generated page, so TestGeneratedPagesMatchNav checks it too.
 const homePage = "index.html"
 
 // maxReported bounds the failure output: a desync is usually site-wide, and
@@ -95,7 +92,7 @@ func TestGeneratedPagesMatchNav(t *testing.T) {
 			return err
 		}
 		slashed := filepath.ToSlash(rel)
-		if slashed == homePage || exempt(slashed) {
+		if exempt(slashed) {
 			skipped++
 			return nil
 		}
@@ -161,54 +158,14 @@ func locateKBDir(t *testing.T) string {
 	}
 }
 
-// TestHomePageCoversNav asserts the hand-maintained kb/index.html links every
-// section in Items. It deliberately checks link targets rather than exact
-// markup, because the home page's header is allowed to differ in shape.
-func TestHomePageCoversNav(t *testing.T) {
-	kbDir := locateKBDir(t)
-	data, err := os.ReadFile(filepath.Join(kbDir, homePage)) //nolint:gosec // test-only read of repo output
-	if err != nil {
-		t.Fatalf("reading %s: %v", homePage, err)
-	}
-	body := string(data)
-	for _, it := range Items {
-		if it.Slug == "" {
-			continue // the home page does not link to itself
-		}
-		want := `href="` + it.Slug + `/index.html"`
-		if !strings.Contains(body, want) {
-			t.Errorf("kb/%s is missing a nav link for %q (expected %s); "+
-				"it is hand-maintained, so adding an entry to Items requires editing it too",
-				homePage, it.Label, want)
-		}
-	}
-
-	// The search box reaches every generated page through Header, but the home
-	// page renders its own nav and so silently missed it when search shipped —
-	// the same failure mode as a forgotten nav entry, one layer down.
-	for _, want := range []string{`id="kb-search"`, `id="kb-search-results"`, `src="search.js"`} {
-		if !strings.Contains(body, want) {
-			t.Errorf("kb/%s is missing %s: the site search box is in kbnav.Header for "+
-				"generated pages, but this page is hand-maintained and needs it copied in",
-				homePage, want)
-		}
-	}
-	// A root-level page addresses the index and its results without a prefix.
-	if strings.Contains(body, `data-kb-root="`) && !strings.Contains(body, `data-kb-root=""`) {
-		t.Errorf("kb/%s: data-kb-root must be empty on a root-level page, "+
-			"or search fetches the index from the wrong path", homePage)
-	}
-}
-
-// TestHomePageLinksGuides: kb/guides/ is linked from the hand-maintained home
-// page (nav + section card) before it joins Items, which needs a full-site
-// regeneration to keep TestGeneratedPagesMatchNav green.
+// TestHomePageLinksGuides: the home page has a Guides section card (the nav
+// drawer link comes from nav.js).
 func TestHomePageLinksGuides(t *testing.T) {
 	data, err := os.ReadFile(filepath.Join(locateKBDir(t), homePage)) //nolint:gosec // test-only read of repo output
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n := strings.Count(string(data), `href="guides/index.html"`); n < 2 {
-		t.Errorf("kb/%s links guides/index.html %d time(s), want nav + card (2)", homePage, n)
+	if !strings.Contains(string(data), `href="guides/index.html"`) {
+		t.Errorf("kb/%s has no Guides card linking guides/index.html", homePage)
 	}
 }

@@ -51,6 +51,7 @@ The two `*.db` files are symlinks to their authoritative sources; the KB is read
 | `planet-land-ratio-test` | Test grid of planet types across a range of land/liquid ratios, plus an HTML preview. | _(hardcoded, writes to `/tmp/land-ratio-test`)_ |
 | `generate-bom-explorer` | Builds `kb/build-costs/recipe-graph.json`, the data file for the interactive Bill of Materials explorer (`kb/build-costs/explorer.html`). Reads only `crafting.db` and the newest snapshot catalogs — no market DB, so it never goes stale against market data. | `-crafting`, `-catalog`, `-out` |
 | `generate-guides` | Renders hand-written guides (`guides/*.md`: YAML frontmatter + markdown) into `kb/guides/`. Build steps name facility ids; build cost, materials, upkeep and power/life-support figures come from the latest facility catalog, with a running-totals sidebar. | `-guides`, `-snapshots`, `-out` |
+| `generate-nav` | Writes `kb/nav.js`, the site nav drawer's section list, from `internal/kbnav.Items`. Run after changing the nav; no page needs regenerating. | `-out` |
 
 ### Example: regenerate the core item/recipe/system site
 
@@ -89,7 +90,7 @@ go run ./cmd/system-map -db spacemolt-knowledge.db -system sol [-o output.svg]
 | `pkg/kbdb` | Manages KB-specific metadata tables in the knowledge DB so derived data persists across regenerations. | `Schema`, `Migrate` |
 | `pkg/catalog` | Ship and facility catalog loaders, plus latest-snapshot-directory discovery, shared by `generate-build-costs` and `generate-bom-explorer`. | `FindLatestDir`, `LoadShips`, `LoadFacilities` |
 | `pkg/stationplan` | Player-station planning maths shared by the guides (and a future station planner): cumulative build BoM, upkeep per cycle/day, power and life-support balance, and KB cross-link resolution with `[[id]]` expansion. | `Accumulate`, `PerDay`, `Totals`, `NewLinker`, `ExpandRefs` |
-| `internal/kbnav` | Single source of truth for the site header and top navigation bar, shared by all generators. | `Items`, `Header` |
+| `internal/kbnav` | Single source of truth for the site header (menu button, search, theme toggle) and the slide-out nav drawer, shared by all generators. Pages carry a fixed header shell; the drawer's section links come from `kb/nav.js`, so changing `Items` needs only `go run ./cmd/generate-nav`, not a site regen. | `Items`, `Header`, `NavScript` |
 
 ## Overlays — manual content enrichment
 
@@ -114,7 +115,7 @@ Aggregated gallery pages: `portrait-gallery.html` (passengers), `agent-portrait-
 
 ## Generated site structure
 
-Output is written under `kb/`. Top navigation (from `internal/kbnav`): **Systems · Items · Recipes · Skills · Ships · Facilities · Resources · Missions · Factions · Players · Passengers · Did You Know?**.
+Output is written under `kb/`. Site navigation is a slide-out drawer behind the ☰ button (from `internal/kbnav` via `kb/nav.js`): **Home · Systems · Items · Recipes · Skills · Ships · Facilities · Resources · Wildlife · Missions · Factions · Players · Passengers · Did You Know? · Guides**.
 
 ```
 kb/
