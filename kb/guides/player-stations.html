@@ -442,7 +442,7 @@ action needs the <strong>ManageBases</strong> permission. Outposts support only 
 <tr>
 <th>Action</th>
 <th>Params</th>
-<th>play_as example</th>
+<th>v1 client example</th>
 <th>Raw payload</th>
 <th>What it does</th>
 </tr>
@@ -451,126 +451,126 @@ action needs the <strong>ManageBases</strong> permission. Outposts support only 
 <tr>
 <td><code>info</code> ✅ 2026-10-25</td>
 <td>—</td>
-<td><code>station info</code></td>
+<td><code>station action=info</code></td>
 <td><code>{&quot;action&quot;:&quot;info&quot;}</code></td>
 <td>Current config: name, description, public_access, allow_outsider_facilities, auto_buy_fuel, contraband_mode/items, service_access (once services exist).</td>
 </tr>
 <tr>
 <td><code>set_name</code></td>
 <td><code>name</code></td>
-<td><code>station set_name --name &quot;Conjunction Junction&quot;</code></td>
+<td><code>station action=set_name name=&quot;Conjunction Junction&quot;</code></td>
 <td><code>{&quot;action&quot;:&quot;set_name&quot;,&quot;name&quot;:&quot;Conjunction Junction&quot;}</code></td>
 <td>Rename the station.</td>
 </tr>
 <tr>
 <td><code>set_description</code> ✅ 2026-10-25</td>
 <td><code>description</code> (≤500 chars)</td>
-<td><code>station set_description --description &quot;CRFT home. Crossroads of Haven and the Rim.&quot;</code></td>
+<td><code>station action=set_description description=&quot;CRFT home. Crossroads of Haven and the Rim.&quot;</code></td>
 <td><code>{&quot;action&quot;:&quot;set_description&quot;,&quot;description&quot;:&quot;…&quot;}</code></td>
 <td>Station blurb shown on dock.</td>
 </tr>
 <tr>
 <td><code>set_public</code> ✅ reply seen 2026-10-25</td>
 <td><code>public</code> true/false</td>
-<td><code>station set_public true</code></td>
+<td><code>station action=set_public public=true</code></td>
 <td><code>{&quot;action&quot;:&quot;set_public&quot;,&quot;public&quot;:true}</code></td>
 <td>When false, only the owning faction, allowed factions and allowed players may dock.</td>
 </tr>
 <tr>
 <td><code>set_build_policy</code></td>
 <td><code>allow_outsiders</code> true/false</td>
-<td><code>station set_build_policy --allow_outsiders true</code></td>
+<td><code>station action=set_build_policy allow_outsiders=true</code></td>
 <td><code>{&quot;action&quot;:&quot;set_build_policy&quot;,&quot;allow_outsiders&quot;:true}</code></td>
 <td>Let non-members build their own facilities. Tenants pay rent each cycle to our treasury.</td>
 </tr>
 <tr>
 <td><code>set_service_access</code></td>
 <td><code>service</code> = market|refuel|repair|shipyard|crafting|salvage_yard|missions, <code>access</code> = public|allies|faction</td>
-<td><code>station set_service_access --service refuel --access public</code></td>
+<td><code>station action=set_service_access service=refuel access=public</code></td>
 <td><code>{&quot;action&quot;:&quot;set_service_access&quot;,&quot;service&quot;:&quot;refuel&quot;,&quot;access&quot;:&quot;public&quot;}</code></td>
 <td>Gate one service to the faction, allies, or everyone.</td>
 </tr>
 <tr>
 <td><code>set_market_fee</code></td>
 <td><code>fee_percent</code> 0–10</td>
-<td><code>station set_market_fee --fee_percent 3</code></td>
+<td><code>station action=set_market_fee fee_percent=3</code></td>
 <td><code>{&quot;action&quot;:&quot;set_market_fee&quot;,&quot;fee_percent&quot;:3}</code></td>
 <td>Listing fee outside traders pay; goes to our treasury.</td>
 </tr>
 <tr>
 <td><code>set_refuel_price</code></td>
 <td><code>price</code> (per fuel unit)</td>
-<td><code>station set_refuel_price --price 12</code></td>
+<td><code>station action=set_refuel_price price=12</code></td>
 <td><code>{&quot;action&quot;:&quot;set_refuel_price&quot;,&quot;price&quot;:12}</code></td>
 <td>What outside pilots pay per unit of fuel; to treasury.</td>
 </tr>
 <tr>
 <td><code>set_repair_price</code></td>
 <td><code>price</code> (per hull point)</td>
-<td><code>station set_repair_price --price 4</code></td>
+<td><code>station action=set_repair_price price=4</code></td>
 <td><code>{&quot;action&quot;:&quot;set_repair_price&quot;,&quot;price&quot;:4}</code></td>
 <td>What outside pilots pay per hull point repaired; to treasury.</td>
 </tr>
 <tr>
 <td><code>set_auto_buy_fuel</code></td>
 <td><code>auto_buy_fuel</code> true/false</td>
-<td><code>station set_auto_buy_fuel --auto_buy_fuel true</code></td>
+<td><code>station action=set_auto_buy_fuel auto_buy_fuel=true</code></td>
 <td><code>{&quot;action&quot;:&quot;set_auto_buy_fuel&quot;,&quot;auto_buy_fuel&quot;:true}</code></td>
 <td>Off by default. When on, any docked pilot can sell fuel from their tank into our shared tank at live scarcity prices, paid from the treasury (capped to what it can afford).</td>
 </tr>
 <tr>
 <td><code>set_contraband</code></td>
 <td><code>contraband_items</code> (array of item ids)</td>
-<td><code>station set_contraband --contraband_items pirate_moonshine,void_spice</code></td>
+<td><code>station action=set_contraband contraband_items=[pirate_moonshine,void_spice]</code></td>
 <td><code>{&quot;action&quot;:&quot;set_contraband&quot;,&quot;contraband_items&quot;:[&quot;pirate_moonshine&quot;]}</code></td>
 <td>Replaces this station market's contraband (banned) list. <code>[]</code> allows <strong>all</strong> items. Smuggling skill bypass still applies; empire customs unchanged.</td>
 </tr>
 <tr>
 <td><code>reset_contraband</code></td>
 <td>—</td>
-<td><code>station reset_contraband</code></td>
+<td><code>station action=reset_contraband</code></td>
 <td><code>{&quot;action&quot;:&quot;reset_contraband&quot;}</code></td>
 <td>Back to the default contraband rules.</td>
 </tr>
 <tr>
 <td><code>allow_player</code></td>
 <td><code>player</code> (id or username)</td>
-<td><code>station allow_player --player marketbot_home</code></td>
+<td><code>station action=allow_player player=marketbot_home</code></td>
 <td><code>{&quot;action&quot;:&quot;allow_player&quot;,&quot;player&quot;:&quot;marketbot_home&quot;}</code></td>
 <td>Let a non-member dock while the station is private.</td>
 </tr>
 <tr>
 <td><code>remove_player</code></td>
 <td><code>player</code></td>
-<td><code>station remove_player --player marketbot_home</code></td>
+<td><code>station action=remove_player player=marketbot_home</code></td>
 <td><code>{&quot;action&quot;:&quot;remove_player&quot;,&quot;player&quot;:&quot;marketbot_home&quot;}</code></td>
 <td>Take a player off the allow list.</td>
 </tr>
 <tr>
 <td><code>ban</code></td>
 <td><code>player</code></td>
-<td><code>station ban --player &lt;username&gt;</code></td>
+<td><code>station action=ban player=&lt;username&gt;</code></td>
 <td><code>{&quot;action&quot;:&quot;ban&quot;,&quot;player&quot;:&quot;&lt;username&gt;&quot;}</code></td>
 <td>Blocks docking immediately and drops them from the allow list.</td>
 </tr>
 <tr>
 <td><code>unban</code></td>
 <td><code>player</code></td>
-<td><code>station unban --player &lt;username&gt;</code></td>
+<td><code>station action=unban player=&lt;username&gt;</code></td>
 <td><code>{&quot;action&quot;:&quot;unban&quot;,&quot;player&quot;:&quot;&lt;username&gt;&quot;}</code></td>
 <td>Lift a ban.</td>
 </tr>
 <tr>
 <td><code>allow_faction</code></td>
 <td><code>faction</code> (id)</td>
-<td><code>station allow_faction --faction 6686e24354619eadffc738b607425457</code></td>
+<td><code>station action=allow_faction faction=6686e24354619eadffc738b607425457</code></td>
 <td><code>{&quot;action&quot;:&quot;allow_faction&quot;,&quot;faction&quot;:&quot;6686e…&quot;}</code></td>
 <td>Let a whole faction dock while private (example id: Explorers Guild, a CRFT ally).</td>
 </tr>
 <tr>
 <td><code>remove_faction</code></td>
 <td><code>faction</code> (id)</td>
-<td><code>station remove_faction --faction 6686e24354619eadffc738b607425457</code></td>
+<td><code>station action=remove_faction faction=6686e24354619eadffc738b607425457</code></td>
 <td><code>{&quot;action&quot;:&quot;remove_faction&quot;,&quot;faction&quot;:&quot;6686e…&quot;}</code></td>
 <td>Remove that faction's access.</td>
 </tr>

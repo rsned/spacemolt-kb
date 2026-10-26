@@ -202,26 +202,26 @@ Run these while docked at your own station. `info` is open to any member; every 
 action needs the **ManageBases** permission. Outposts support only `info`, `set_name` and
 `set_description`. Rows marked ✅ have been run live.
 
-| Action | Params | play_as example | Raw payload | What it does |
+| Action | Params | v1 client example | Raw payload | What it does |
 |---|---|---|---|---|
-| `info` ✅ 2026-10-25 | — | `station info` | `{"action":"info"}` | Current config: name, description, public_access, allow_outsider_facilities, auto_buy_fuel, contraband_mode/items, service_access (once services exist). |
-| `set_name` | `name` | `station set_name --name "Conjunction Junction"` | `{"action":"set_name","name":"Conjunction Junction"}` | Rename the station. |
-| `set_description` ✅ 2026-10-25 | `description` (≤500 chars) | `station set_description --description "CRFT home. Crossroads of Haven and the Rim."` | `{"action":"set_description","description":"…"}` | Station blurb shown on dock. |
-| `set_public` ✅ reply seen 2026-10-25 | `public` true/false | `station set_public true` | `{"action":"set_public","public":true}` | When false, only the owning faction, allowed factions and allowed players may dock. |
-| `set_build_policy` | `allow_outsiders` true/false | `station set_build_policy --allow_outsiders true` | `{"action":"set_build_policy","allow_outsiders":true}` | Let non-members build their own facilities. Tenants pay rent each cycle to our treasury. |
-| `set_service_access` | `service` = market\|refuel\|repair\|shipyard\|crafting\|salvage_yard\|missions, `access` = public\|allies\|faction | `station set_service_access --service refuel --access public` | `{"action":"set_service_access","service":"refuel","access":"public"}` | Gate one service to the faction, allies, or everyone. |
-| `set_market_fee` | `fee_percent` 0–10 | `station set_market_fee --fee_percent 3` | `{"action":"set_market_fee","fee_percent":3}` | Listing fee outside traders pay; goes to our treasury. |
-| `set_refuel_price` | `price` (per fuel unit) | `station set_refuel_price --price 12` | `{"action":"set_refuel_price","price":12}` | What outside pilots pay per unit of fuel; to treasury. |
-| `set_repair_price` | `price` (per hull point) | `station set_repair_price --price 4` | `{"action":"set_repair_price","price":4}` | What outside pilots pay per hull point repaired; to treasury. |
-| `set_auto_buy_fuel` | `auto_buy_fuel` true/false | `station set_auto_buy_fuel --auto_buy_fuel true` | `{"action":"set_auto_buy_fuel","auto_buy_fuel":true}` | Off by default. When on, any docked pilot can sell fuel from their tank into our shared tank at live scarcity prices, paid from the treasury (capped to what it can afford). |
-| `set_contraband` | `contraband_items` (array of item ids) | `station set_contraband --contraband_items pirate_moonshine,void_spice` | `{"action":"set_contraband","contraband_items":["pirate_moonshine"]}` | Replaces this station market's contraband (banned) list. `[]` allows **all** items. Smuggling skill bypass still applies; empire customs unchanged. |
-| `reset_contraband` | — | `station reset_contraband` | `{"action":"reset_contraband"}` | Back to the default contraband rules. |
-| `allow_player` | `player` (id or username) | `station allow_player --player marketbot_home` | `{"action":"allow_player","player":"marketbot_home"}` | Let a non-member dock while the station is private. |
-| `remove_player` | `player` | `station remove_player --player marketbot_home` | `{"action":"remove_player","player":"marketbot_home"}` | Take a player off the allow list. |
-| `ban` | `player` | `station ban --player <username>` | `{"action":"ban","player":"<username>"}` | Blocks docking immediately and drops them from the allow list. |
-| `unban` | `player` | `station unban --player <username>` | `{"action":"unban","player":"<username>"}` | Lift a ban. |
-| `allow_faction` | `faction` (id) | `station allow_faction --faction 6686e24354619eadffc738b607425457` | `{"action":"allow_faction","faction":"6686e…"}` | Let a whole faction dock while private (example id: Explorers Guild, a CRFT ally). |
-| `remove_faction` | `faction` (id) | `station remove_faction --faction 6686e24354619eadffc738b607425457` | `{"action":"remove_faction","faction":"6686e…"}` | Remove that faction's access. |
+| `info` ✅ 2026-10-25 | — | `station action=info` | `{"action":"info"}` | Current config: name, description, public_access, allow_outsider_facilities, auto_buy_fuel, contraband_mode/items, service_access (once services exist). |
+| `set_name` | `name` | `station action=set_name name="Conjunction Junction"` | `{"action":"set_name","name":"Conjunction Junction"}` | Rename the station. |
+| `set_description` ✅ 2026-10-25 | `description` (≤500 chars) | `station action=set_description description="CRFT home. Crossroads of Haven and the Rim."` | `{"action":"set_description","description":"…"}` | Station blurb shown on dock. |
+| `set_public` ✅ reply seen 2026-10-25 | `public` true/false | `station action=set_public public=true` | `{"action":"set_public","public":true}` | When false, only the owning faction, allowed factions and allowed players may dock. |
+| `set_build_policy` | `allow_outsiders` true/false | `station action=set_build_policy allow_outsiders=true` | `{"action":"set_build_policy","allow_outsiders":true}` | Let non-members build their own facilities. Tenants pay rent each cycle to our treasury. |
+| `set_service_access` | `service` = market\|refuel\|repair\|shipyard\|crafting\|salvage_yard\|missions, `access` = public\|allies\|faction | `station action=set_service_access service=refuel access=public` | `{"action":"set_service_access","service":"refuel","access":"public"}` | Gate one service to the faction, allies, or everyone. |
+| `set_market_fee` | `fee_percent` 0–10 | `station action=set_market_fee fee_percent=3` | `{"action":"set_market_fee","fee_percent":3}` | Listing fee outside traders pay; goes to our treasury. |
+| `set_refuel_price` | `price` (per fuel unit) | `station action=set_refuel_price price=12` | `{"action":"set_refuel_price","price":12}` | What outside pilots pay per unit of fuel; to treasury. |
+| `set_repair_price` | `price` (per hull point) | `station action=set_repair_price price=4` | `{"action":"set_repair_price","price":4}` | What outside pilots pay per hull point repaired; to treasury. |
+| `set_auto_buy_fuel` | `auto_buy_fuel` true/false | `station action=set_auto_buy_fuel auto_buy_fuel=true` | `{"action":"set_auto_buy_fuel","auto_buy_fuel":true}` | Off by default. When on, any docked pilot can sell fuel from their tank into our shared tank at live scarcity prices, paid from the treasury (capped to what it can afford). |
+| `set_contraband` | `contraband_items` (array of item ids) | `station action=set_contraband contraband_items=[pirate_moonshine,void_spice]` | `{"action":"set_contraband","contraband_items":["pirate_moonshine"]}` | Replaces this station market's contraband (banned) list. `[]` allows **all** items. Smuggling skill bypass still applies; empire customs unchanged. |
+| `reset_contraband` | — | `station action=reset_contraband` | `{"action":"reset_contraband"}` | Back to the default contraband rules. |
+| `allow_player` | `player` (id or username) | `station action=allow_player player=marketbot_home` | `{"action":"allow_player","player":"marketbot_home"}` | Let a non-member dock while the station is private. |
+| `remove_player` | `player` | `station action=remove_player player=marketbot_home` | `{"action":"remove_player","player":"marketbot_home"}` | Take a player off the allow list. |
+| `ban` | `player` | `station action=ban player=<username>` | `{"action":"ban","player":"<username>"}` | Blocks docking immediately and drops them from the allow list. |
+| `unban` | `player` | `station action=unban player=<username>` | `{"action":"unban","player":"<username>"}` | Lift a ban. |
+| `allow_faction` | `faction` (id) | `station action=allow_faction faction=6686e24354619eadffc738b607425457` | `{"action":"allow_faction","faction":"6686e…"}` | Let a whole faction dock while private (example id: Explorers Guild, a CRFT ally). |
+| `remove_faction` | `faction` (id) | `station action=remove_faction faction=6686e24354619eadffc738b607425457` | `{"action":"remove_faction","faction":"6686e…"}` | Remove that faction's access. |
 
 > A missing value is **not refused**: the server reads it as false or 0. `set_public` with no
 > value makes a station private (*measured*).
