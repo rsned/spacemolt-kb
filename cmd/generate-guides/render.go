@@ -11,11 +11,13 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/catalog"
 	"github.com/rsned/spacemolt-kb/pkg/stationplan"
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
 )
 
-// markdown renders with goldmark's safe defaults: raw HTML in a guide is
-// dropped, so the only markup on the page is what the generator emits.
-var markdown = goldmark.New()
+// markdown renders with goldmark's safe defaults (raw HTML in a guide is
+// dropped, so the only markup on the page is what the generator emits) plus
+// GFM tables, which the reference sections use.
+var markdown = goldmark.New(goldmark.WithExtensions(extension.Table))
 
 // renderer turns parsed guides into page view models. warnings collects
 // unresolved [[id]] references.
@@ -260,6 +262,8 @@ const pageStyle = `<style>
         .so-far { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 6px; font-size: 0.85em; color: var(--muted-foreground); }
         .deficit { color: var(--smui-red); font-weight: 600; }
         .facts td:last-child { color: var(--muted-foreground); font-size: 0.85em; }
+        .guide-body table, .step-card table.facts { display: block; max-width: 100%; overflow-x: auto; }
+        .guide-steps, .guide-body { min-width: 0; overflow-wrap: anywhere; }
         @media (max-width: 900px) {
             .guide-layout { grid-template-columns: 1fr; }
             .guide-sidebar { position: static; order: -1; }

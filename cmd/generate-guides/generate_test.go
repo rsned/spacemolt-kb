@@ -156,3 +156,25 @@ func TestGenerate_UnknownRefWarns(t *testing.T) {
 		t.Error("unknown ref rendered as a link")
 	}
 }
+
+// The reference section carries the station command table; markdown tables
+// must render as tables, while raw HTML stays stripped (safe mode).
+func TestGenerate_MarkdownTablesSafe(t *testing.T) {
+	dir := t.TempDir()
+	guide := "---\ntitle: T\nsteps: []\n---\n| Action | Params |\n|---|---|\n| `info` | none |\n\n<script>alert(1)</script>\n"
+	if err := os.WriteFile(filepath.Join(dir, "t.md"), []byte(guide), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	if _, err := generate(dir, testSnapshots(t), out); err != nil {
+		t.Fatal(err)
+	}
+	b, _ := os.ReadFile(filepath.Join(out, "t.html"))
+	body := string(b)[strings.Index(string(b), `class="guide-body"`):]
+	if !strings.Contains(body, "<table>") || !strings.Contains(body, "<code>info</code>") {
+		t.Error("markdown table not rendered as a table")
+	}
+	if strings.Contains(body, "alert(1)") {
+		t.Error("raw HTML leaked through")
+	}
+}

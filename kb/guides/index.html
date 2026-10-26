@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guides - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+<style>
+        .guide-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+        .guide-sidebar { position: sticky; top: 16px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--card); font-size: 0.9em; }
+        .guide-sidebar h3 { margin: 0 0 4px; font-size: 1em; }
+        .guide-sidebar table { width: 100%; }
+        .step-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin: 14px 0; background: var(--card); }
+        .step-card h3 { margin: 0 0 4px; }
+        .step-gives { color: var(--muted-foreground); font-size: 0.9em; margin: 0 0 8px; }
+        .step-card table { font-size: 0.9em; margin: 4px 0 8px; }
+        .step-card td, .step-card th, .guide-sidebar td { padding: 2px 10px 2px 0; text-align: left; }
+        .num { text-align: right !important; font-variant-numeric: tabular-nums; }
+        .upkeep { border-left: 3px solid var(--smui-yellow); padding-left: 8px; }
+        .no-upkeep { color: var(--muted-foreground); font-style: italic; }
+        .measured { border-left: 3px solid var(--smui-green); padding-left: 8px; font-size: 0.9em; }
+        .alts { font-size: 0.85em; color: var(--muted-foreground); }
+        .so-far { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 6px; font-size: 0.85em; color: var(--muted-foreground); }
+        .deficit { color: var(--smui-red); font-weight: 600; }
+        .facts td:last-child { color: var(--muted-foreground); font-size: 0.85em; }
+        .guide-body table, .step-card table.facts { display: block; max-width: 100%; overflow-x: auto; }
+        .guide-steps, .guide-body { min-width: 0; overflow-wrap: anywhere; }
+        @media (max-width: 900px) {
+            .guide-layout { grid-template-columns: 1fr; }
+            .guide-sidebar { position: static; order: -1; }
+        }
+</style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <nav>
+            <a href="../">Home</a>
+            <a href="../systems/index.html">Systems</a>
+            <a href="../items/index.html">Items</a>
+            <a href="../recipes/index.html">Recipes</a>
+            <a href="../skills/index.html">Skills</a>
+            <a href="../ships/index.html">Ships</a>
+            <a href="../facilities/index.html">Facilities</a>
+            <a href="../resources/index.html">Resources</a>
+            <a href="../wildlife/index.html">Wildlife</a>
+            <a href="../missions/index.html">Missions</a>
+            <a href="../factions/index.html">Factions</a>
+            <a href="../players/index.html">Players</a>
+            <a href="../passengers/index.html">Passengers</a>
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </nav>
+    </header>
+    <main class="container page-content">
+        <h2>Guides</h2>
+        <p class="text-muted">Hand-written walkthroughs of what the official docs leave thin. Numbers come from the game catalog at build time.</p>
+        <ul>
+            <li><a href="player-stations.html">Building a Player Station</a> &mdash; From Station Core to a running home station, with every facility&#39;s build cost and upkeep, measured at Conjunction Junction (Cloverfield).</li>
+        </ul>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        if (toggle) toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>
