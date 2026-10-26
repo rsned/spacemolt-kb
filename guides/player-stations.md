@@ -118,8 +118,11 @@ steps:
       the simplest to keep fed: 2 [[circuit_board]] per cycle and nothing else. The Bunker-Fed
       Reactor burns [[fuel]] instead: 55 per cycle.
 
-      We started the grid at Conjunction Junction on 2026-10-26; the build reply again gave
-      750 corporation_management XP to every member and showed rent 0 (*measured*).
+      We built the grid at Conjunction Junction on 2026-10-26; the build reply again gave
+      750 corporation_management XP to every member and showed rent 0. Once it finished,
+      `get_base` gained a `power` block (absent until then) showing `supply: 20`, matching the
+      catalog, and the grid counted toward station health alongside the Locker Bay
+      (`satisfied_count 2 / total_service_infra 2`) (*measured*).
   - title: Shipyard
     facility: outfitting_bay
     break_before: |
@@ -173,7 +176,7 @@ server does tell you, all *measured* at Conjunction Junction and Grand Exchange 
 | Which facility is starving? | `facility list` | `maintenance_satisfied` (true/false) and `maintenance_level` (0–1) per facility; the description switches to its *degraded* text |
 | What does a facility consume? | `facility types --facility_type <id>` | `maintenance_per_cycle` (also shown on some facilities in `facility list`) |
 | What is life support short of right now? | `facility list` or `get_base` | `life_support.starved` and `life_support.remediation` (only present when short), against `supply`, `demand`, `maintenance` |
-| Is there enough power? | `facility list` | `power.supply` vs `power.current_draw`, `battery_stored` / `battery_capacity`, `efficiency` |
+| Is there enough power? | `get_base` or `facility list` | `power.supply` vs `power.current_draw`, `battery_stored` / `battery_capacity`, `efficiency`. `get_base` shows the `power` block only once a power source exists |
 | What is a build still waiting on? | `facility list` | `construction.pending[].status` (`waiting_for_materials`) and `materials[].quantity_missing` |
 | What does it cost the treasury? | `facility list` | `labor_per_cycle` per facility; `faction_rent` (0 at your own station) |
 

@@ -286,8 +286,11 @@ so power, with life support, is what unlocks production lines at the station.
 on top of any of these. In a system with a star the collector grid is
 the simplest to keep fed: 2 <a href="../items/refined/circuit_board.html">Circuit Board</a> per cycle and nothing else. The Bunker-Fed
 Reactor burns <a href="../items/fuel/fuel.html">Fuel</a> instead: 55 per cycle.</p>
-<p>We started the grid at Conjunction Junction on 2026-10-26; the build reply again gave
-750 corporation_management XP to every member and showed rent 0 (<em>measured</em>).</p>
+<p>We built the grid at Conjunction Junction on 2026-10-26; the build reply again gave
+750 corporation_management XP to every member and showed rent 0. Once it finished,
+<code>get_base</code> gained a <code>power</code> block (absent until then) showing <code>supply: 20</code>, matching the
+catalog, and the grid counted toward station health alongside the Locker Bay
+(<code>satisfied_count 2 / total_service_infra 2</code>) (<em>measured</em>).</p>
 
             <div class="alts"><b>Alternatives:</b><div><a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a>: 500,000 cr · upkeep 3/cycle · power &#43;12</div><div><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>: 500,000 cr · upkeep 55/cycle · power &#43;12</div><div><a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a>: 80,000 cr · upkeep 4/cycle · power &#43;10</div><div><a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a>: 3,000,000 cr · upkeep 3/cycle · power &#43;48</div></div>
             <div class="so-far" title="Open station upkeep">Station so far: 12 upkeep items, 23 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
@@ -403,8 +406,8 @@ server does tell you, all <em>measured</em> at Conjunction Junction and Grand Ex
 </tr>
 <tr>
 <td>Is there enough power?</td>
-<td><code>facility list</code></td>
-<td><code>power.supply</code> vs <code>power.current_draw</code>, <code>battery_stored</code> / <code>battery_capacity</code>, <code>efficiency</code></td>
+<td><code>get_base</code> or <code>facility list</code></td>
+<td><code>power.supply</code> vs <code>power.current_draw</code>, <code>battery_stored</code> / <code>battery_capacity</code>, <code>efficiency</code>. <code>get_base</code> shows the <code>power</code> block only once a power source exists</td>
 </tr>
 <tr>
 <td>What is a build still waiting on?</td>
