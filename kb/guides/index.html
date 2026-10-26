@@ -6,29 +6,87 @@
     <title>Guides - Spacemolt KB</title>
     <link rel="stylesheet" href="../smui.css">
     <link rel="stylesheet" href="../system.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 <style>
-        .guide-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
-        .guide-sidebar { position: sticky; top: 16px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--card); font-size: 0.9em; }
-        .guide-sidebar h3 { margin: 0 0 4px; font-size: 1em; }
-        .guide-sidebar table { width: 100%; }
-        .step-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin: 14px 0; background: var(--card); }
-        .step-card h3 { margin: 0 0 4px; }
-        .step-gives { color: var(--muted-foreground); font-size: 0.9em; margin: 0 0 8px; }
-        .step-card table { font-size: 0.9em; margin: 4px 0 8px; }
-        .step-card td, .step-card th, .guide-sidebar td { padding: 2px 10px 2px 0; text-align: left; }
-        .num { text-align: right !important; font-variant-numeric: tabular-nums; }
-        .upkeep { border-left: 3px solid var(--smui-yellow); padding-left: 8px; }
-        .no-upkeep { color: var(--muted-foreground); font-style: italic; }
-        .measured { border-left: 3px solid var(--smui-green); padding-left: 8px; font-size: 0.9em; }
-        .alts { font-size: 0.85em; color: var(--muted-foreground); }
-        .so-far { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 6px; font-size: 0.85em; color: var(--muted-foreground); }
-        .deficit { color: var(--smui-red); font-weight: 600; }
-        .facts td:last-child { color: var(--muted-foreground); font-size: 0.85em; }
-        .guide-body table, .step-card table.facts { display: block; max-width: 100%; overflow-x: auto; }
-        .guide-steps, .guide-body { min-width: 0; overflow-wrap: anywhere; }
-        @media (max-width: 900px) {
-            .guide-layout { grid-template-columns: 1fr; }
-            .guide-sidebar { position: static; order: -1; }
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; overflow-x: clip; }
+        .guide-shell { display: grid; grid-template-columns: 260px minmax(0, 72rem); gap: 56px; padding: 32px 48px 96px 24px; align-items: start; }
+        .guide-toc { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; font-size: 14px; line-height: 1.4; border-left: 1px solid hsl(var(--border)); }
+        .guide-toc .toc-title, .guide-toc .toc-group { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin: 0 0 12px 16px; }
+        .guide-toc .toc-group { margin: 18px 0 6px 16px; }
+        .guide-toc a { display: block; padding: 6px 12px 6px 16px; margin-left: -1px; border-left: 2px solid transparent; color: hsl(var(--muted-foreground)); text-decoration: none; }
+        .guide-toc a.sub { padding-left: 28px; }
+        .guide-toc a:hover { color: hsl(var(--foreground)); }
+        .guide-toc a.active { color: hsl(var(--foreground)); border-left-color: hsl(var(--smui-yellow)); font-weight: 600; }
+
+        .guide-main { min-width: 0; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 18px; line-height: 1.75; overflow-wrap: anywhere; }
+        .guide-main h1, .guide-main h2, .guide-main h3, .guide-main code, .guide-main .num, .guide-main .facts b, .guide-main .breadcrumb { font-family: var(--font-sans); }
+        .guide-main p, .guide-main ul, .guide-main ol, .guide-main blockquote, .guide-main table, .guide-main dl, .guide-main details { margin: 0 0 1.15em; }
+        .guide-main ul, .guide-main ol { padding-left: 1.4em; }
+        .guide-main li { margin: .35em 0; }
+        .guide-main .breadcrumb { font-size: 14px; margin-bottom: 1em; }
+        .guide-title { font-size: 2.35rem; line-height: 1.2; margin: 0 0 .4em; }
+        .guide-lede { font-size: 1.1em; color: hsl(var(--muted-foreground)); margin-bottom: 2em !important; }
+        .guide-main h2 { font-size: 1.75rem; line-height: 1.3; margin: 3.2em 0 .9em; padding-top: 1.2em; border-top: 1px solid hsl(var(--border)); }
+        .guide-main h3 { font-size: 1.3rem; line-height: 1.35; margin: 2em 0 .6em; }
+        .guide-main blockquote { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--card)); padding: 18px 22px; border-radius: 0 8px 8px 0; }
+        .guide-main blockquote p:last-child { margin-bottom: 0; }
+        .guide-main code { font-size: .88em; padding: .1em .35em; border-radius: 4px; background: hsl(var(--muted)); }
+
+        .step-card { border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 28px 32px; margin: 0 0 40px; background: hsl(var(--card)); }
+        .step-card h3 { margin: 0 0 .25em; font-size: 1.45rem; }
+        .step-card h3 small { display: block; font-size: .7em; font-weight: 400; margin-top: .2em; }
+        .step-gives { color: hsl(var(--muted-foreground)); font-size: .9em; margin-bottom: 1.4em !important; }
+        .step-build { background: hsl(var(--muted) / .5); padding: 10px 14px; border-radius: 8px; }
+        .facts { margin: 1.2em 0 1.6em; border-top: 1px solid hsl(var(--border)); }
+        .fact { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 20px; padding: 12px 0; border-bottom: 1px solid hsl(var(--border)); }
+        .fact dt { color: hsl(var(--muted-foreground)); font-size: .9em; white-space: nowrap; }
+        .fact dd b { font-weight: 600; }
+        .fact .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
+        .upkeep, .measured { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--smui-yellow) / .06); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 0 0 1.4em; }
+        .measured { border-left-color: hsl(var(--smui-green)); background: hsl(var(--smui-green) / .06); font-size: .9em; }
+        .upkeep table, .measured table { width: 100%; margin: 0; border-collapse: collapse; font-size: 16px; }
+        .upkeep th, .measured th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: hsl(var(--muted-foreground)); font-weight: 500; }
+        .upkeep td, .upkeep th, .measured td, .measured th { padding: 6px 0; text-align: left; }
+        .upkeep tr + tr td, .measured tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
+        .no-upkeep { color: hsl(var(--muted-foreground)); font-style: italic; margin: 0 !important; }
+        .num { text-align: right !important; font-variant-numeric: tabular-nums; width: 5.5rem; }
+        .alts { font-size: .9em; color: hsl(var(--muted-foreground)); margin: 0 0 1.4em; line-height: 1.6; }
+        .alts > div { padding: 4px 0; }
+        .so-far { border-top: 1px dashed hsl(var(--border)); margin-top: 1.6em; padding-top: 14px; font-size: .82em; color: hsl(var(--muted-foreground)); cursor: pointer; }
+        .so-far:hover { color: hsl(var(--foreground)); }
+        .deficit { color: hsl(var(--smui-red)); font-weight: 600; }
+
+        .guide-body table { width: 100%; border-collapse: collapse; font-size: .9em; line-height: 1.55; }
+        .guide-body th { text-align: left; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: hsl(var(--muted-foreground)); font-weight: 500; padding: 10px 12px; border-bottom: 2px solid hsl(var(--border)); }
+        .guide-body td { padding: 12px; vertical-align: top; border-bottom: 1px solid hsl(var(--border)); }
+        .guide-body td:first-child { min-width: 9rem; }
+        .guide-body .table-scroll { overflow-x: auto; }
+
+        .guide-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 360px; max-width: 92vw; overflow-y: auto; z-index: 40; font-size: 14px; line-height: 1.5;
+            border-left: 1px solid hsl(var(--border)); padding: 28px 24px 80px; background: hsl(var(--card)); box-shadow: -12px 0 40px rgb(0 0 0 / .18);
+            transform: translateX(105%); transition: transform .25s ease; }
+        body.drawer-open .guide-drawer { transform: none; }
+        .guide-drawer h3 { font-size: 16px; margin: 0 0 6px; }
+        .guide-drawer > .text-muted { font-size: 13px; margin-bottom: 14px; }
+        .guide-drawer table { width: 100%; border-collapse: collapse; margin: 0 0 14px; }
+        .guide-drawer td, .guide-drawer th { padding: 5px 0; text-align: left; vertical-align: top; }
+        .guide-drawer tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
+        .guide-drawer .num { width: 3.5rem; }
+        .guide-drawer p { margin: 0 0 10px; }
+        .drawer-close { position: absolute; top: 14px; right: 14px; border: 0; background: none; font-size: 22px; cursor: pointer; color: hsl(var(--muted-foreground)); }
+        .drawer-tab { position: fixed; right: 0; top: 50%; z-index: 45; transform: translateY(-50%); writing-mode: vertical-rl; border: 1px solid hsl(var(--border)); border-right: 0;
+            border-radius: 10px 0 0 10px; background: hsl(var(--smui-yellow)); color: #111; padding: 16px 9px; cursor: pointer; font: 600 12px var(--font-sans);
+            letter-spacing: .06em; text-transform: uppercase; box-shadow: -4px 4px 16px rgb(0 0 0 / .15); transition: right .25s ease; }
+        body.drawer-open .drawer-tab { right: min(360px, 92vw); }
+
+        @media (max-width: 1000px) { .guide-shell { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; } }
+        @media (max-width: 800px) {
+            .guide-shell { grid-template-columns: 1fr; padding: 16px; }
+            .guide-toc { position: static; max-height: none; }
+            .guide-title { font-size: 1.75rem; overflow-wrap: normal; }
+            .fact { grid-template-columns: 1fr; gap: 2px; }
+            .step-card { padding: 20px 18px; }
+            .guide-body table { display: block; overflow-x: auto; }
         }
 </style>
 </head>

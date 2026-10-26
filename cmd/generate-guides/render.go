@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"html"
 	htmltpl "html/template"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -12,12 +14,22 @@ import (
 	"github.com/rsned/spacemolt-kb/pkg/stationplan"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
 )
 
 // markdown renders with goldmark's safe defaults (raw HTML in a guide is
 // dropped, so the only markup on the page is what the generator emits) plus
-// GFM tables, which the reference sections use.
-var markdown = goldmark.New(goldmark.WithExtensions(extension.Table))
+// GFM tables, which the reference sections use, and heading ids, which the
+// on-this-page TOC links to.
+var markdown = goldmark.New(goldmark.WithExtensions(extension.Table),
+	goldmark.WithParserOptions(parser.WithAutoHeadingID()))
+
+// bodyH2 matches the reference-section headings goldmark emits, for the TOC;
+// tags strips their inline markup.
+var (
+	bodyH2 = regexp.MustCompile(`<h2 id="([^"]+)">(.*?)</h2>`)
+	tags   = regexp.MustCompile(`<[^>]+>`)
+)
 
 // renderer turns parsed guides into page view models. warnings collects
 // unresolved [[id]] references.
@@ -82,10 +94,18 @@ type sidebarView struct {
 	Grid      gridView
 }
 
+// tocEntry is one on-this-page link; Sub entries (build steps) are indented.
+type tocEntry struct {
+	ID, Label string
+	Sub       bool
+}
+
 type pageView struct {
 	Cycle   string // e.g. "1 maintenance cycle = 3,000 ticks (≈8.3 h, 2.9/day) · player-reported"
 	Header  htmltpl.HTML
 	Title   string
+	Summary string
+	TOC     []tocEntry
 	Intro   htmltpl.HTML
 	Steps   []stepView
 	Sidebar sidebarView
@@ -193,7 +213,7 @@ func perDayText(f float64) string {
 func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error) {
 	r.cycleTicks = g.MaintenanceCycleTicks
 	pv := pageView{Header: htmltpl.HTML(kbnav.Header("../")), Title: g.Title, //nolint:gosec // site header, generated internally
-		Cycle: cycleNote(g.MaintenanceCycleTicks, g.MaintenanceCycleBasis)}
+		Summary: strings.TrimSpace(g.Summary), Cycle: cycleNote(g.MaintenanceCycleTicks, g.MaintenanceCycleBasis)}
 	var err error
 	if pv.Intro, err = r.md(g, g.Intro); err != nil {
 		return pv, err
@@ -230,6 +250,14 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 				PerDay: perDayText(r.perDayTotal(upkeepMap(f))), Gives: gives(f)})
 		}
 		pv.Steps = append(pv.Steps, sv)
+		label := s.Title
+		if sv.Facility != nil {
+			label = sv.Facility.Name
+		}
+		pv.TOC = append(pv.TOC, tocEntry{ID: "step-" + strconv.Itoa(i), Label: "Step " + strconv.Itoa(i) + ": " + label, Sub: true})
+	}
+	for _, m := range bodyH2.FindAllStringSubmatch(string(pv.Body), -1) {
+		pv.TOC = append(pv.TOC, tocEntry{ID: m[1], Label: html.UnescapeString(tags.ReplaceAllString(m[2], ""))})
 	}
 	if n := len(totals); n > 0 {
 		last := totals[n-1]
@@ -268,29 +296,90 @@ func commas(n int) string {
 	return b.String()
 }
 
+// pageStyle is the guide look: a left-edge TOC, a wide reading column with
+// sans-serif prose (monospace kept for headings, numbers and commands), roomy
+// step cards, and station upkeep in a drawer that slides over the page.
+// smui.css colour tokens are bare HSL triples, so they are wrapped in hsl().
 const pageStyle = `<style>
-        .guide-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
-        .guide-sidebar { position: sticky; top: 16px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--card); font-size: 0.9em; }
-        .guide-sidebar h3 { margin: 0 0 4px; font-size: 1em; }
-        .guide-sidebar table { width: 100%; }
-        .step-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin: 14px 0; background: var(--card); }
-        .step-card h3 { margin: 0 0 4px; }
-        .step-gives { color: var(--muted-foreground); font-size: 0.9em; margin: 0 0 8px; }
-        .step-card table { font-size: 0.9em; margin: 4px 0 8px; }
-        .step-card td, .step-card th, .guide-sidebar td { padding: 2px 10px 2px 0; text-align: left; }
-        .num { text-align: right !important; font-variant-numeric: tabular-nums; }
-        .upkeep { border-left: 3px solid var(--smui-yellow); padding-left: 8px; }
-        .no-upkeep { color: var(--muted-foreground); font-style: italic; }
-        .measured { border-left: 3px solid var(--smui-green); padding-left: 8px; font-size: 0.9em; }
-        .alts { font-size: 0.85em; color: var(--muted-foreground); }
-        .so-far { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 6px; font-size: 0.85em; color: var(--muted-foreground); }
-        .deficit { color: var(--smui-red); font-weight: 600; }
-        .facts td:last-child { color: var(--muted-foreground); font-size: 0.85em; }
-        .guide-body table, .step-card table.facts { display: block; max-width: 100%; overflow-x: auto; }
-        .guide-steps, .guide-body { min-width: 0; overflow-wrap: anywhere; }
-        @media (max-width: 900px) {
-            .guide-layout { grid-template-columns: 1fr; }
-            .guide-sidebar { position: static; order: -1; }
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; overflow-x: clip; }
+        .guide-shell { display: grid; grid-template-columns: 260px minmax(0, 72rem); gap: 56px; padding: 32px 48px 96px 24px; align-items: start; }
+        .guide-toc { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; font-size: 14px; line-height: 1.4; border-left: 1px solid hsl(var(--border)); }
+        .guide-toc .toc-title, .guide-toc .toc-group { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin: 0 0 12px 16px; }
+        .guide-toc .toc-group { margin: 18px 0 6px 16px; }
+        .guide-toc a { display: block; padding: 6px 12px 6px 16px; margin-left: -1px; border-left: 2px solid transparent; color: hsl(var(--muted-foreground)); text-decoration: none; }
+        .guide-toc a.sub { padding-left: 28px; }
+        .guide-toc a:hover { color: hsl(var(--foreground)); }
+        .guide-toc a.active { color: hsl(var(--foreground)); border-left-color: hsl(var(--smui-yellow)); font-weight: 600; }
+
+        .guide-main { min-width: 0; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 18px; line-height: 1.75; overflow-wrap: anywhere; }
+        .guide-main h1, .guide-main h2, .guide-main h3, .guide-main code, .guide-main .num, .guide-main .facts b, .guide-main .breadcrumb { font-family: var(--font-sans); }
+        .guide-main p, .guide-main ul, .guide-main ol, .guide-main blockquote, .guide-main table, .guide-main dl, .guide-main details { margin: 0 0 1.15em; }
+        .guide-main ul, .guide-main ol { padding-left: 1.4em; }
+        .guide-main li { margin: .35em 0; }
+        .guide-main .breadcrumb { font-size: 14px; margin-bottom: 1em; }
+        .guide-title { font-size: 2.35rem; line-height: 1.2; margin: 0 0 .4em; }
+        .guide-lede { font-size: 1.1em; color: hsl(var(--muted-foreground)); margin-bottom: 2em !important; }
+        .guide-main h2 { font-size: 1.75rem; line-height: 1.3; margin: 3.2em 0 .9em; padding-top: 1.2em; border-top: 1px solid hsl(var(--border)); }
+        .guide-main h3 { font-size: 1.3rem; line-height: 1.35; margin: 2em 0 .6em; }
+        .guide-main blockquote { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--card)); padding: 18px 22px; border-radius: 0 8px 8px 0; }
+        .guide-main blockquote p:last-child { margin-bottom: 0; }
+        .guide-main code { font-size: .88em; padding: .1em .35em; border-radius: 4px; background: hsl(var(--muted)); }
+
+        .step-card { border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 28px 32px; margin: 0 0 40px; background: hsl(var(--card)); }
+        .step-card h3 { margin: 0 0 .25em; font-size: 1.45rem; }
+        .step-card h3 small { display: block; font-size: .7em; font-weight: 400; margin-top: .2em; }
+        .step-gives { color: hsl(var(--muted-foreground)); font-size: .9em; margin-bottom: 1.4em !important; }
+        .step-build { background: hsl(var(--muted) / .5); padding: 10px 14px; border-radius: 8px; }
+        .facts { margin: 1.2em 0 1.6em; border-top: 1px solid hsl(var(--border)); }
+        .fact { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 20px; padding: 12px 0; border-bottom: 1px solid hsl(var(--border)); }
+        .fact dt { color: hsl(var(--muted-foreground)); font-size: .9em; white-space: nowrap; }
+        .fact dd b { font-weight: 600; }
+        .fact .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
+        .upkeep, .measured { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--smui-yellow) / .06); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 0 0 1.4em; }
+        .measured { border-left-color: hsl(var(--smui-green)); background: hsl(var(--smui-green) / .06); font-size: .9em; }
+        .upkeep table, .measured table { width: 100%; margin: 0; border-collapse: collapse; font-size: 16px; }
+        .upkeep th, .measured th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: hsl(var(--muted-foreground)); font-weight: 500; }
+        .upkeep td, .upkeep th, .measured td, .measured th { padding: 6px 0; text-align: left; }
+        .upkeep tr + tr td, .measured tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
+        .no-upkeep { color: hsl(var(--muted-foreground)); font-style: italic; margin: 0 !important; }
+        .num { text-align: right !important; font-variant-numeric: tabular-nums; width: 5.5rem; }
+        .alts { font-size: .9em; color: hsl(var(--muted-foreground)); margin: 0 0 1.4em; line-height: 1.6; }
+        .alts > div { padding: 4px 0; }
+        .so-far { border-top: 1px dashed hsl(var(--border)); margin-top: 1.6em; padding-top: 14px; font-size: .82em; color: hsl(var(--muted-foreground)); cursor: pointer; }
+        .so-far:hover { color: hsl(var(--foreground)); }
+        .deficit { color: hsl(var(--smui-red)); font-weight: 600; }
+
+        .guide-body table { width: 100%; border-collapse: collapse; font-size: .9em; line-height: 1.55; }
+        .guide-body th { text-align: left; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: hsl(var(--muted-foreground)); font-weight: 500; padding: 10px 12px; border-bottom: 2px solid hsl(var(--border)); }
+        .guide-body td { padding: 12px; vertical-align: top; border-bottom: 1px solid hsl(var(--border)); }
+        .guide-body td:first-child { min-width: 9rem; }
+        .guide-body .table-scroll { overflow-x: auto; }
+
+        .guide-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 360px; max-width: 92vw; overflow-y: auto; z-index: 40; font-size: 14px; line-height: 1.5;
+            border-left: 1px solid hsl(var(--border)); padding: 28px 24px 80px; background: hsl(var(--card)); box-shadow: -12px 0 40px rgb(0 0 0 / .18);
+            transform: translateX(105%); transition: transform .25s ease; }
+        body.drawer-open .guide-drawer { transform: none; }
+        .guide-drawer h3 { font-size: 16px; margin: 0 0 6px; }
+        .guide-drawer > .text-muted { font-size: 13px; margin-bottom: 14px; }
+        .guide-drawer table { width: 100%; border-collapse: collapse; margin: 0 0 14px; }
+        .guide-drawer td, .guide-drawer th { padding: 5px 0; text-align: left; vertical-align: top; }
+        .guide-drawer tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
+        .guide-drawer .num { width: 3.5rem; }
+        .guide-drawer p { margin: 0 0 10px; }
+        .drawer-close { position: absolute; top: 14px; right: 14px; border: 0; background: none; font-size: 22px; cursor: pointer; color: hsl(var(--muted-foreground)); }
+        .drawer-tab { position: fixed; right: 0; top: 50%; z-index: 45; transform: translateY(-50%); writing-mode: vertical-rl; border: 1px solid hsl(var(--border)); border-right: 0;
+            border-radius: 10px 0 0 10px; background: hsl(var(--smui-yellow)); color: #111; padding: 16px 9px; cursor: pointer; font: 600 12px var(--font-sans);
+            letter-spacing: .06em; text-transform: uppercase; box-shadow: -4px 4px 16px rgb(0 0 0 / .15); transition: right .25s ease; }
+        body.drawer-open .drawer-tab { right: min(360px, 92vw); }
+
+        @media (max-width: 1000px) { .guide-shell { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; } }
+        @media (max-width: 800px) {
+            .guide-shell { grid-template-columns: 1fr; padding: 16px; }
+            .guide-toc { position: static; max-height: none; }
+            .guide-title { font-size: 1.75rem; overflow-wrap: normal; }
+            .fact { grid-template-columns: 1fr; gap: 2px; }
+            .step-card { padding: 20px 18px; }
+            .guide-body table { display: block; overflow-x: auto; }
         }
 </style>`
 
@@ -306,6 +395,34 @@ const themeScript = `    <script>
     })();
     </script>`
 
+// guideScript opens and closes the upkeep drawer (tab, any "Station so far"
+// line, ×, Esc) and highlights the TOC entry for the section being read.
+const guideScript = `    <script>
+    (function() {
+        var drawer = document.getElementById('upkeep-drawer');
+        var tab = document.querySelector('.drawer-tab');
+        function setOpen(open) {
+            document.body.classList.toggle('drawer-open', open);
+            if (tab) tab.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        if (drawer) {
+            tab.addEventListener('click', function() { setOpen(!document.body.classList.contains('drawer-open')); });
+            drawer.querySelector('.drawer-close').addEventListener('click', function() { setOpen(false); });
+            document.querySelectorAll('.so-far').forEach(function(el) { el.addEventListener('click', function() { setOpen(true); }); });
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') setOpen(false); });
+        }
+        var links = Array.prototype.slice.call(document.querySelectorAll('.guide-toc a'));
+        var targets = links.map(function(a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+        function spy() {
+            var current = 0;
+            targets.forEach(function(t, i) { if (t && t.getBoundingClientRect().top < 120) current = i; });
+            links.forEach(function(a, i) { a.classList.toggle('active', i === current); });
+        }
+        window.addEventListener('scroll', spy, {passive: true});
+        spy();
+    })();
+    </script>`
+
 const pageHead = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -314,15 +431,14 @@ const pageHead = `<!DOCTYPE html>
     <title>{{.Title}} - Spacemolt KB</title>
     <link rel="stylesheet" href="../smui.css">
     <link rel="stylesheet" href="../system.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 ` + pageStyle + `
 </head>
 <body>
 {{.Header}}
-    <main class="container page-content">
 `
 
-const pageFoot = `    </main>
-` + themeScript + `
+const pageFoot = themeScript + `
 </body>
 </html>
 `
@@ -330,22 +446,38 @@ const pageFoot = `    </main>
 var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}{{end}}
 {{define "upkeep"}}<table><tr><th>Upkeep</th><th class="num">/cycle</th><th class="num">/day</th></tr>{{range .}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.PerCycle}}</td><td class="num">{{.PerDay}}</td></tr>{{end}}</table>{{end}}
 {{define "grid"}}power {{if .PowerDeficit}}<span class="deficit">⚠ {{.Power}}</span>{{else}}{{.Power}}{{end}} · life support {{if .LifeSupportDeficit}}<span class="deficit">⚠ {{.LifeSupport}}</span>{{else}}{{.LifeSupport}}{{end}} <span class="text-muted">(supply / draw)</span>{{end}}
-` + pageHead + `        <div class="breadcrumb"><a href="index.html">Guides</a> / {{.Title}}</div>
-        <h2>{{.Title}}</h2>
+` + pageHead + `    <main class="guide-shell">
+        <nav class="guide-toc" aria-label="On this page">
+            <div class="toc-title">On this page</div>
+            <a href="#top">Introduction</a>
+{{- if .Steps}}
+            <div class="toc-group">Build order</div>
+{{- end}}
+{{- range .TOC}}
+            <a {{if .Sub}}class="sub" {{end}}href="#{{.ID}}">{{.Label}}</a>
+{{- end}}
+        </nav>
+        <article class="guide-main">
+        <div class="breadcrumb"><a href="index.html">Guides</a> / {{.Title}}</div>
+        <h1 class="guide-title" id="top">{{.Title}}</h1>
+{{- if .Summary}}
+        <p class="guide-lede">{{.Summary}}</p>
+{{- end}}
         <div class="guide-intro">{{.Intro}}</div>
-        <div class="guide-layout">
+{{- if .Steps}}
+        <h2 id="build-order">Build order</h2>
         <div class="guide-steps">
 {{- range .Steps}}
         <section class="step-card" id="step-{{.Num}}">
-            <h3>Step {{.Num}}: {{if .Facility}}{{template "link" .Facility}}{{else}}{{.Title}}{{end}}{{if and .Facility (ne .Title .Facility.Name)}} <small class="text-muted">({{.Title}})</small>{{end}}</h3>
+            <h3>Step {{.Num}}: {{if .Facility}}{{template "link" .Facility}}{{else}}{{.Title}}{{end}}{{if and .Facility (ne .Title .Facility.Name)}} <small class="text-muted">{{.Title}}</small>{{end}}</h3>
 {{- if .Gives}}
             <p class="step-gives">{{.Gives}}</p>
 {{- end}}
 {{- if .Facts}}
-            <table class="facts">{{range .Facts}}<tr><td>{{.Label}}</td><td><b>{{.Value}}</b></td><td>{{.Basis}}</td></tr>{{end}}</table>
+            <dl class="facts">{{range .Facts}}<div class="fact"><dt>{{.Label}}</dt><dd><b>{{.Value}}</b>{{if .Basis}}<span class="basis">{{.Basis}}</span>{{end}}</dd></div>{{end}}</dl>
 {{- end}}
 {{- if .Facility}}
-            <p><b>Build:</b> {{.Credits}} cr{{range .Materials}} + {{.Qty}} {{template "link" .Item}}{{end}}{{if .BuildTime}} · {{.BuildTime}} ticks{{end}}</p>
+            <p class="step-build"><b>Build:</b> {{.Credits}} cr{{range .Materials}} + {{.Qty}} {{template "link" .Item}}{{end}}{{if .BuildTime}} · {{.BuildTime}} ticks{{end}}</p>
             <div class="upkeep">{{if .NoUpkeep}}<p class="no-upkeep">No upkeep</p>{{else}}{{template "upkeep" .Upkeep}}{{end}}</div>
 {{- end}}
 {{- if .Measured}}
@@ -355,31 +487,40 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- if .Alts}}
             <div class="alts"><b>Alternatives:</b>{{range .Alts}}<div>{{template "link" .Facility}}: {{.Credits}} cr · upkeep {{.PerDay}}/day{{if .Gives}} · {{.Gives}}{{end}}</div>{{end}}</div>
 {{- end}}
-            <div class="so-far">Station so far: {{.SoFarItems}} upkeep items, {{.SoFarDay}} units/day · {{template "grid" .Grid}}</div>
+            <div class="so-far" title="Open station upkeep">Station so far: {{.SoFarItems}} upkeep items, {{.SoFarDay}} units/day · {{template "grid" .Grid}}</div>
         </section>
 {{- end}}
         </div>
-        <aside class="guide-sidebar">
-            <h3>Station upkeep / day</h3>
-            <div class="text-muted">after every step, catalog values; {{.Cycle}}</div>
-            {{template "upkeep" .Sidebar.Upkeep}}
-            <p>{{template "grid" .Sidebar.Grid}}</p>
-            <p><b>Build credits:</b> {{.Sidebar.Credits}}</p>
-            <details><summary>Build materials</summary><table>{{range .Sidebar.Materials}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.Qty}}</td></tr>{{end}}</table></details>
-        </aside>
-        </div>
+{{- end}}
         <div class="guide-body">{{.Body}}</div>
+        </article>
+    </main>
+{{- if .Steps}}
+    <aside class="guide-sidebar guide-drawer" id="upkeep-drawer" aria-label="Station upkeep">
+        <button class="drawer-close" type="button" aria-label="Close">×</button>
+        <h3>Station upkeep / day</h3>
+        <div class="text-muted">after every step, catalog values; {{.Cycle}}</div>
+        {{template "upkeep" .Sidebar.Upkeep}}
+        <p>{{template "grid" .Sidebar.Grid}}</p>
+        <p><b>Build credits:</b> {{.Sidebar.Credits}}</p>
+        <details><summary>Build materials</summary><table>{{range .Sidebar.Materials}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.Qty}}</td></tr>{{end}}</table></details>
+    </aside>
+    <button class="drawer-tab" type="button" aria-controls="upkeep-drawer" aria-expanded="false">Station upkeep</button>
+{{- end}}
+` + guideScript + `
 ` + pageFoot))
 
 type indexEntry struct {
 	Slug, Title, Summary string
 }
 
-var indexTemplate = htmltpl.Must(htmltpl.New("index").Parse(pageHead + `        <h2>Guides</h2>
+var indexTemplate = htmltpl.Must(htmltpl.New("index").Parse(pageHead + `    <main class="container page-content">
+        <h2>Guides</h2>
         <p class="text-muted">Hand-written walkthroughs of what the official docs leave thin. Numbers come from the game catalog at build time.</p>
         <ul>
 {{- range .Guides}}
             <li><a href="{{.Slug}}.html">{{.Title}}</a>{{if .Summary}} &mdash; {{.Summary}}{{end}}</li>
 {{- end}}
         </ul>
+    </main>
 ` + pageFoot))

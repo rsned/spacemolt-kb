@@ -110,7 +110,7 @@ func TestGenerate_NoUpkeepText(t *testing.T) {
 
 func TestGenerate_SidebarTotalsAndDeficit(t *testing.T) {
 	html, _ := runFixture(t)
-	side := html[strings.Index(html, `class="guide-sidebar"`):]
+	side := html[strings.Index(html, `class="guide-sidebar`):]
 	if !strings.Contains(side, "12 / 0") {
 		t.Errorf("sidebar should show life support 12 / 0")
 	}
@@ -216,6 +216,50 @@ func TestGenerate_DefaultCycleLabelled(t *testing.T) {
 	for _, want := range []string{"3,000 ticks", "default", ">2.9<"} {
 		if !strings.Contains(string(b), want) {
 			t.Errorf("missing %q", want)
+		}
+	}
+}
+
+// The guide page carries an on-this-page TOC: the intro, every build step and
+// every reference-section heading, each pointing at an id that exists.
+func TestGenerate_TOCListsStepsAndSections(t *testing.T) {
+	html, _ := runFixture(t)
+	toc := html[strings.Index(html, `class="guide-toc"`):]
+	toc = toc[:strings.Index(toc, "</nav>")]
+	for _, want := range []string{`href="#top"`, `href="#step-0"`, `href="#step-5"`, `href="#reference"`, ">Reference<", ">Step 1: Locker Bay<"} {
+		if !strings.Contains(toc, want) {
+			t.Errorf("TOC missing %q", want)
+		}
+	}
+	for _, id := range []string{`id="top"`, `id="step-0"`, `id="reference"`} {
+		if !strings.Contains(html, id) {
+			t.Errorf("page missing anchor %s", id)
+		}
+	}
+}
+
+// Founding facts render as a label/value list with the basis under the value,
+// not a three-column table whose narrow columns wrap every word.
+func TestGenerate_FactsAsList(t *testing.T) {
+	html, _ := runFixture(t)
+	for _, want := range []string{`<dl class="facts">`, "<dt>Founding fee</dt>", `<span class="basis">measured 2026-10-25</span>`} {
+		if !strings.Contains(html, want) {
+			t.Errorf("guide missing %q", want)
+		}
+	}
+	if strings.Contains(html, `<table class="facts">`) {
+		t.Error("facts still rendered as a table")
+	}
+}
+
+// Station upkeep lives in a drawer opened from an edge tab, and the guide's
+// summary sits under the title as its lede.
+func TestGenerate_UpkeepDrawerAndLede(t *testing.T) {
+	html, _ := runFixture(t)
+	for _, want := range []string{`class="guide-sidebar guide-drawer"`, `class="drawer-tab"`, `class="drawer-close"`,
+		`<p class="guide-lede">A fixture guide for the generator tests.</p>`} {
+		if !strings.Contains(html, want) {
+			t.Errorf("guide missing %q", want)
 		}
 	}
 }
