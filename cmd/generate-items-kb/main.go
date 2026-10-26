@@ -116,6 +116,7 @@ type Item struct {
 	ProducedBy  []ProducedBy
 	UsedIn      []UsedIn
 	UsedInShips []ShipBuildRef
+	ConsumedBy  []UpkeepRef // facilities that burn this item as upkeep
 	BuiltBy     []BuiltByFacility
 	BoM *bom.BoMResult
 }
@@ -173,6 +174,14 @@ type UsedIn struct {
 	OutputID       string
 	OutputName     string
 	OutputCategory string
+}
+
+// UpkeepRef is a facility that consumes an item every maintenance cycle.
+type UpkeepRef struct {
+	FacilityID       string
+	FacilityName     string
+	FacilityCategory string
+	Quantity         int // per maintenance cycle
 }
 
 // CategoryInfo groups items for page generation.
@@ -747,6 +756,7 @@ func main() {
 			log.Printf("warning: load catalog recipe fallback: %v", crErr)
 		}
 		resolveFacilityRecipes(facilities, recipes, catalogRecipes)
+		loadUpkeepConsumers(facilities, items)
 	}
 
 	// --- BOM Calculation ---
@@ -3123,7 +3133,7 @@ var htmlItemTemplate = `<!DOCTYPE html>
 
 {{statsHTML .}}
 
-{{- if or .ProducedBy .BuiltBy .UsedIn .UsedInShips}}
+{{- if or .ProducedBy .BuiltBy .UsedIn .UsedInShips .ConsumedBy}}
         <div class="card" style="padding:0">
 {{- if .ProducedBy}}
           <div class="section-label">Produced By</div>
@@ -3181,6 +3191,21 @@ var htmlItemTemplate = `<!DOCTYPE html>
             <tr>
               <td><a href="../../ships/{{.ShipCategory}}/{{.ShipID}}.html">{{.ShipName}}</a></td>
               <td>{{.ShipCategory}}</td>
+              <td>{{.Quantity}}</td>
+            </tr>
+{{- end}}
+            </tbody>
+          </table>
+{{- end}}
+{{- if .ConsumedBy}}
+          <div class="section-label">Consumed as Facility Upkeep</div>
+          <table>
+            <thead><tr><th>Facility</th><th>Category</th><th>Qty / cycle</th></tr></thead>
+            <tbody>
+{{- range .ConsumedBy}}
+            <tr>
+              <td><a href="../../facilities/{{.FacilityCategory}}/{{.FacilityID}}.html">{{.FacilityName}}</a></td>
+              <td>{{.FacilityCategory}}</td>
               <td>{{.Quantity}}</td>
             </tr>
 {{- end}}

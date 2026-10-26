@@ -41,6 +41,7 @@ type Facility struct {
 	// Embedded data
 	BuildMaterials      []MaterialRef
 	MaintenancePerCycle []MaterialRef
+	MaintenanceFuel     int    // fuel burned per maintenance cycle, on top of MaintenancePerCycle
 	RecipeID            string // resolved into Recipe from the recipe catalog
 	Recipe              *RecipeSummary
 	BoM                 *bom.BoMResult
@@ -184,6 +185,33 @@ func loadFacilitiesFromJSON(dir string) (map[string]*Facility, error) {
 	return facilities, nil
 }
 
+// fuelItemID is the item a facility's maintenance_fuel draws on.
+const fuelItemID = "fuel"
+
+// loadUpkeepConsumers records on each item the facilities that consume it as
+// upkeep every maintenance cycle, so an item page can say it is a running
+// cost and not only a build material. maintenance_fuel counts against the
+// fuel item. Facilities naming an item the catalog lacks are skipped.
+func loadUpkeepConsumers(facilities map[string]*Facility, items map[string]*Item) {
+	add := func(itemID string, f *Facility, qty int) {
+		if it, ok := items[itemID]; ok && qty > 0 {
+			it.ConsumedBy = append(it.ConsumedBy, UpkeepRef{FacilityID: f.ID, FacilityName: f.Name,
+				FacilityCategory: f.Category, Quantity: qty})
+		}
+	}
+	for _, f := range facilities {
+		for _, m := range f.MaintenancePerCycle {
+			add(m.ItemID, f, m.Quantity)
+		}
+		add(fuelItemID, f, f.MaintenanceFuel)
+	}
+	for _, it := range items {
+		slices.SortFunc(it.ConsumedBy, func(a, b UpkeepRef) int {
+			return cmp.Or(cmp.Compare(a.FacilityName, b.FacilityName), cmp.Compare(a.FacilityID, b.FacilityID))
+		})
+	}
+}
+
 // facilityCatalogJSON is the unified facility catalog (catalog_facilities.json,
 // server v0.418.0+): a single {"items":[...]} array of full facility records
 // replacing the legacy per-facility facility_details/*.json dumps.
@@ -205,6 +233,7 @@ type facilityCatalogItem struct {
 	LaborCost         int           `json:"labor_cost"`
 	BuildMaterials    []MaterialRef  `json:"build_materials"`
 	MaintenanceInputs []MaterialRef  `json:"maintenance_inputs"`
+	MaintenanceFuel   int            `json:"maintenance_fuel"`
 	RecipeID          string         `json:"recipe_id"`
 	UpgradesFrom      string         `json:"upgrades_from"`
 
@@ -279,6 +308,7 @@ func convertCatalogItemToFacility(raw *facilityCatalogItem) *Facility {
 		LaborCost:           raw.LaborCost,
 		BuildMaterials:      raw.BuildMaterials,
 		MaintenancePerCycle: raw.MaintenanceInputs,
+		MaintenanceFuel:     raw.MaintenanceFuel,
 		RecipeID:            raw.RecipeID,
 		AlwaysOn:            raw.AlwaysOn,
 		PowerDraw:           raw.PowerDraw,
