@@ -97,3 +97,66 @@ func TestLoadFacilitiesKeepsFloatQuantities(t *testing.T) {
 		t.Errorf("build materials = %+v, want second quantity 2.5 preserved", f.BuildMaterials)
 	}
 }
+
+func writeCatalogFiles(t *testing.T, files map[string]string) string {
+	t.Helper()
+	root := t.TempDir()
+	dir := filepath.Join(root, "20261018")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return root
+}
+
+func TestLoadFacilities_UpkeepFields(t *testing.T) {
+	root := writeCatalogFiles(t, map[string]string{"catalog_facilities.json": `{"items":[
+		{"id":"atmospheric_recycler","name":"Atmospheric Recycler","category":"infrastructure","level":1,
+		 "description":"Air.","build_cost":600000,"build_time":150,
+		 "build_materials":[{"item_id":"steel_plate","quantity":1200},{"item_id":"water_recycler","quantity":200}],
+		 "maintenance_inputs":[{"item_id":"sunspindle","quantity":1},{"item_id":"water_ice","quantity":3},{"item_id":"purified_water","quantity":1},{"item_id":"oxygen_gas","quantity":2},{"item_id":"catalytic_scrubber_cartridge","quantity":1}],
+		 "life_support_supply":12},
+		{"id":"bunker_fed_reactor","name":"Bunker-Fed Reactor","category":"infrastructure","level":1,
+		 "build_cost":500000,"maintenance_fuel":55,"power_supply":12},
+		{"id":"scriptorium","name":"Scriptorium","category":"production","level":1,
+		 "power_draw":6,"life_support_draw":1,"service_type":"crafting"}]}`})
+	facs, err := LoadFacilities(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	by := map[string]Facility{}
+	for _, f := range facs {
+		by[f.ID] = f
+	}
+	r := by["atmospheric_recycler"]
+	if r.BuildCost != 600000 || r.BuildTime != 150 || r.LifeSupportSupply != 12 || r.Description != "Air." {
+		t.Errorf("recycler = %+v", r)
+	}
+	if len(r.MaintenanceInputs) != 5 || r.MaintenanceInputs[1].ItemID != "water_ice" || r.MaintenanceInputs[1].Quantity != 3 {
+		t.Errorf("recycler upkeep = %+v", r.MaintenanceInputs)
+	}
+	b := by["bunker_fed_reactor"]
+	if b.MaintenanceFuel != 55 || b.PowerSupply != 12 {
+		t.Errorf("reactor = %+v", b)
+	}
+	s := by["scriptorium"]
+	if s.PowerDraw != 6 || s.LifeSupportDraw != 1 || s.ServiceType != "crafting" {
+		t.Errorf("scriptorium = %+v", s)
+	}
+}
+
+func TestLoadItems(t *testing.T) {
+	root := writeCatalogFiles(t, map[string]string{"catalog_items.json": `{"items":[
+		{"id":"flex_polymer","name":"Flex Polymer","category":"refined"}]}`})
+	items, err := LoadItems(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 1 || items[0] != (Item{ID: "flex_polymer", Name: "Flex Polymer", Category: "refined"}) {
+		t.Errorf("items = %+v", items)
+	}
+}

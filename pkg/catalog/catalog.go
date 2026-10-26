@@ -35,6 +35,38 @@ type Facility struct {
 	Level          int        `json:"level"`
 	RecipeID       string     `json:"recipe_id"`
 	BuildMaterials []Material `json:"build_materials"`
+
+	// Cost, upkeep and station-grid fields, used by the guides' build steps.
+	// MaintenanceInputs is consumed every cycle (100 ticks); MaintenanceFuel
+	// is fuel consumed per cycle, not an item.
+	Description       string     `json:"description"`
+	BuildCost         int        `json:"build_cost"`
+	BuildTime         int        `json:"build_time"`
+	MaintenanceInputs []Material `json:"maintenance_inputs"`
+	MaintenanceFuel   int        `json:"maintenance_fuel"`
+	PowerSupply       int        `json:"power_supply"`
+	PowerDraw         int        `json:"power_draw"`
+	LifeSupportSupply int        `json:"life_support_supply"`
+	LifeSupportDraw   int        `json:"life_support_draw"`
+	ServiceType       string     `json:"service_type"`
+}
+
+// Item is the subset of catalog_items.json needed to link to an item's KB page.
+type Item struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Category string `json:"category"`
+}
+
+// LoadItems reads catalog_items.json from the latest snapshot under root.
+func LoadItems(root string) ([]Item, error) {
+	var doc struct {
+		Items []Item `json:"items"`
+	}
+	if err := loadCatalog(root, "catalog_items.json", &doc); err != nil {
+		return nil, err
+	}
+	return doc.Items, nil
 }
 
 // FindLatestDir returns the most recently modified subdirectory of root.
