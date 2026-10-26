@@ -88,8 +88,11 @@ steps:
 
       The market comes right after fuel because it starts the station earning: crossroads
       traffic trades here, and you set the listing fee they pay with
-      `station set_market_fee`. Its upkeep is one [[trade_authenticator]] a cycle, so find a
-      source before you build.
+      `station set_market_fee`. The catalog lists its upkeep as one [[trade_authenticator]] a
+      cycle, but players have found the authenticators go **per trade**, possibly on top of
+      the per-cycle charge, so a busy market eats them much faster than any other upkeep
+      (*player-reported*). Line up a steady source before you build, sized to your trade
+      volume rather than to the cycle.
   - title: Life support
     facility: atmospheric_recycler
     break_before: |
@@ -107,6 +110,12 @@ steps:
       There is no other level-1 life-support facility a player station can build. The
       recycler upgrades to [[climate_control_array]] (life support 20), [[biosphere_ring]] (35)
       and [[full_habitat_dome]] (60).
+
+      **Upgrade, don't stack.** When you need more life support, upgrade toward the
+      [[full_habitat_dome]] rather than building more recyclers. One station that stacked
+      recyclers spends roughly twice the consumables of a few domes for the same life support
+      (*player-reported*). The upgrades cost more credits up front, but upkeep never stops, so
+      the domes come out ahead over time.
   - title: Power
     facility: stellar_collector_grid
     alternatives: [fuel_cell_generator, bunker_fed_reactor, scrap_reactor, dark_matter_reactor]
@@ -117,6 +126,13 @@ steps:
       on top of any of these. In a system with a star the collector grid is
       the simplest to keep fed: 2 [[circuit_board]] per cycle and nothing else. The Bunker-Fed
       Reactor burns [[fuel]] instead: 55 per cycle.
+
+      **Size power for your defenses, not your production.** Production facilities draw
+      little unless every one of them runs at once, and players report never getting near the
+      power limit that way. In combat, production stops and the defenses get all the power.
+      So build only enough to run your defense facilities at peak (*player-reported*). One
+      experienced builder would rebuild all their power as Bunker-Fed Reactors if
+      infrastructure could be dismantled; whether it can is *not yet known*.
 
       We built the grid at Conjunction Junction on 2026-10-26; the build reply again gave
       750 corporation_management XP to every member and showed rent 0. Once it finished,
@@ -261,3 +277,5 @@ The `faction_*` facilities you rent space for at NPC stations (fuel bunkers and 
 - Real upkeep consumption per cycle (catalog figures are shown above until we have it).
 - How fast a `critical` station recovers once its upkeep is stocked.
 - Defense: guns, ammo and shields.
+- Whether infrastructure facilities (power, life support) can be dismantled or replaced.
+- Exactly how [[trade_authenticator]] upkeep scales with trades.
