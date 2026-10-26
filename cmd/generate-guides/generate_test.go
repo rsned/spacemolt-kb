@@ -94,7 +94,7 @@ func TestGenerate_CardShowsCostsAndLinks(t *testing.T) {
 
 func TestGenerate_NoUpkeepText(t *testing.T) {
 	dir := t.TempDir()
-	guide := "---\ntitle: Shed\nsteps:\n  - title: Shed\n    facility: bare_shed\n---\n"
+	guide := "---\ntitle: Shed\nshow_per_day: true\nsteps:\n  - title: Shed\n    facility: bare_shed\n---\n"
 	if err := os.WriteFile(filepath.Join(dir, "shed.md"), []byte(guide), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -204,7 +204,7 @@ func TestGenerate_RemovesStalePages(t *testing.T) {
 // and says so, rather than silently presenting it as measured.
 func TestGenerate_DefaultCycleLabelled(t *testing.T) {
 	dir := t.TempDir()
-	guide := "---\ntitle: Shed\nsteps:\n  - title: Bay\n    facility: locker_bay\n---\n"
+	guide := "---\ntitle: Shed\nshow_per_day: true\nsteps:\n  - title: Bay\n    facility: locker_bay\n---\n"
 	if err := os.WriteFile(filepath.Join(dir, "shed.md"), []byte(guide), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -260,6 +260,60 @@ func TestGenerate_UpkeepDrawerAndLede(t *testing.T) {
 		`<p class="guide-lede">A fixture guide for the generator tests.</p>`} {
 		if !strings.Contains(html, want) {
 			t.Errorf("guide missing %q", want)
+		}
+	}
+}
+
+// A step's break_before renders as a divider just before that step's card,
+// so a guide can mark where a strict build order gives way to a flexible one.
+func TestGenerate_BreakBeforeStep(t *testing.T) {
+	html, _ := runFixture(t)
+	brk := strings.Index(html, `<div class="step-break">`)
+	card := strings.Index(html, `id="step-5"`)
+	if brk < 0 || card < 0 || brk > card {
+		t.Fatalf("step-break at %d, step-5 card at %d: want a break just before step 5", brk, card)
+	}
+	between := html[brk:card]
+	for _, want := range []string{"<strong>From here on the order is flexible.</strong>", `href="../facilities/service/locker_bay.html"`} {
+		if !strings.Contains(between, want) {
+			t.Errorf("break missing %q in %q", want, between)
+		}
+	}
+	if strings.Count(html, `<div class="step-break">`) != 1 {
+		t.Error("want exactly one step break")
+	}
+}
+
+// Until the maintenance cycle length is measured, a guide shows upkeep per
+// cycle only: show_per_day defaults to false, and no /day figure, column or
+// heading appears anywhere on the page or in the upkeep panel.
+func TestGenerate_PerCycleOnlyByDefault(t *testing.T) {
+	src, err := os.ReadFile("testdata/guides/test-guide.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	body := strings.Replace(string(src), "show_per_day: true\n", "", 1)
+	if err := os.WriteFile(filepath.Join(dir, "test-guide.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	if _, err := generate(dir, testSnapshots(t), out); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(out, "test-guide.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(b)
+	for _, bad := range []string{"/day", "units/day", "per day"} {
+		if strings.Contains(html, bad) {
+			t.Errorf("per-cycle-only guide still shows %q", bad)
+		}
+	}
+	for _, want := range []string{">/cycle<", "Station upkeep / cycle", "upkeep 55/cycle", "units/cycle"} {
+		if !strings.Contains(html, want) {
+			t.Errorf("per-cycle-only guide missing %q", want)
 		}
 	}
 }

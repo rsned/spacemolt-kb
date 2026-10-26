@@ -34,7 +34,8 @@ var (
 // renderer turns parsed guides into page view models. warnings collects
 // unresolved [[id]] references.
 type renderer struct {
-	cycleTicks int // maintenance cycle of the guide being rendered
+	cycleTicks int  // maintenance cycle of the guide being rendered
+	perDay     bool // the guide shows per-day figures beside per-cycle ones
 	facilities map[string]catalog.Facility
 	links      *stationplan.Linker
 	warnings   []string
@@ -54,7 +55,7 @@ type qtyView struct {
 type altView struct {
 	Facility linkView
 	Credits  string
-	PerDay   string // total upkeep units per day
+	Upkeep   string // total upkeep units, "N/cycle" or "N/day"
 	Gives    string
 }
 
@@ -80,10 +81,11 @@ type stepView struct {
 	NoUpkeep   bool
 	Facts      []fact
 	Notes      htmltpl.HTML
+	Break      htmltpl.HTML
 	Measured   *measuredView
 	Alts       []altView
 	SoFarItems int
-	SoFarDay   string
+	SoFar      string // "N units/cycle" or "N units/day"
 	Grid       gridView
 }
 
@@ -102,6 +104,7 @@ type tocEntry struct {
 
 type pageView struct {
 	Cycle   string // e.g. "1 maintenance cycle = 3,000 ticks (≈8.3 h, 2.9/day) · player-reported"
+	Unit    string // "cycle" or "day": what the upkeep panel totals are per
 	Header  htmltpl.HTML
 	Title   string
 	Summary string
@@ -137,7 +140,10 @@ func (r *renderer) qtys(m map[string]int, perCycle bool) []qtyView {
 	for id, q := range m {
 		v := qtyView{Item: r.link(id)}
 		if perCycle {
-			v.PerCycle, v.PerDay = commas(q), perDayText(stationplan.PerDay(q, r.cycleTicks))
+			v.PerCycle = commas(q)
+			if r.perDay {
+				v.PerDay = perDayText(stationplan.PerDay(q, r.cycleTicks))
+			}
 		} else {
 			v.Qty = commas(q)
 		}
@@ -192,6 +198,19 @@ func grid(t stationplan.Totals) gridView {
 	}
 }
 
+// upkeepTotal is the total upkeep units in m, per day when the guide shows
+// per-day figures and per cycle otherwise, with its unit suffix.
+func (r *renderer) upkeepTotal(m map[string]int) string {
+	if r.perDay {
+		return perDayText(r.perDayTotal(m)) + "/day"
+	}
+	n := 0
+	for _, q := range m {
+		n += q
+	}
+	return commas(n) + "/cycle"
+}
+
 func (r *renderer) perDayTotal(m map[string]int) float64 {
 	n := 0.0
 	for _, q := range m {
@@ -212,8 +231,12 @@ func perDayText(f float64) string {
 // page builds the view for g given its cumulative totals (one per step).
 func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error) {
 	r.cycleTicks = g.MaintenanceCycleTicks
+	r.perDay = g.ShowPerDay
 	pv := pageView{Header: htmltpl.HTML(kbnav.Header("../")), Title: g.Title, //nolint:gosec // site header, generated internally
-		Summary: strings.TrimSpace(g.Summary), Cycle: cycleNote(g.MaintenanceCycleTicks, g.MaintenanceCycleBasis)}
+		Summary: strings.TrimSpace(g.Summary), Cycle: cycleNote(g.MaintenanceCycleTicks, g.MaintenanceCycleBasis, g.ShowPerDay), Unit: "cycle"}
+	if g.ShowPerDay {
+		pv.Unit = "day"
+	}
 	var err error
 	if pv.Intro, err = r.md(g, g.Intro); err != nil {
 		return pv, err
@@ -224,8 +247,11 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 	for i, s := range g.Steps {
 		t := totals[i]
 		sv := stepView{Num: i, Title: s.Title, Facts: s.Facts, Grid: grid(t),
-			SoFarItems: len(t.UpkeepPerCycle), SoFarDay: perDayText(r.perDayTotal(t.UpkeepPerCycle))}
+			SoFarItems: len(t.UpkeepPerCycle), SoFar: strings.Replace(r.upkeepTotal(t.UpkeepPerCycle), "/", " units/", 1)}
 		if sv.Notes, err = r.md(g, s.Notes); err != nil {
+			return pv, err
+		}
+		if sv.Break, err = r.md(g, s.BreakBefore); err != nil {
 			return pv, err
 		}
 		if s.Facility != "" {
@@ -247,7 +273,7 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 		for _, id := range s.Alternatives {
 			f := r.facilities[id]
 			sv.Alts = append(sv.Alts, altView{Facility: r.link(id), Credits: commas(f.BuildCost),
-				PerDay: perDayText(r.perDayTotal(upkeepMap(f))), Gives: gives(f)})
+				Upkeep: r.upkeepTotal(upkeepMap(f)), Gives: gives(f)})
 		}
 		pv.Steps = append(pv.Steps, sv)
 		label := s.Title
@@ -267,11 +293,15 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 	return pv, nil
 }
 
-// cycleNote explains the cycle the per-day figures assume, and its basis.
-func cycleNote(ticks int, basis string) string {
+// cycleNote states the maintenance cycle length and its basis, with cycles
+// per day only when the guide shows per-day figures.
+func cycleNote(ticks int, basis string, perDay bool) string {
 	hours := float64(ticks*stationplan.TickSeconds) / 3600
-	note := "1 maintenance cycle = " + commas(ticks) + " ticks (≈" + strconv.FormatFloat(hours, 'f', 1, 64) +
-		" h, " + strconv.FormatFloat(stationplan.CyclesPerDay(ticks), 'f', 1, 64) + "/day)"
+	note := "1 maintenance cycle = " + commas(ticks) + " ticks (≈" + strconv.FormatFloat(hours, 'f', 1, 64) + " h"
+	if perDay {
+		note += ", " + strconv.FormatFloat(stationplan.CyclesPerDay(ticks), 'f', 1, 64) + "/day"
+	}
+	note += ")"
 	if basis != "" {
 		note += " · " + basis
 	}
@@ -343,6 +373,8 @@ const pageStyle = `<style>
         .upkeep tr + tr td, .measured tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
         .no-upkeep { color: hsl(var(--muted-foreground)); font-style: italic; margin: 0 !important; }
         .num { text-align: right !important; font-variant-numeric: tabular-nums; width: 5.5rem; }
+        .step-break { margin: 2.4em 0 1.6em; padding: 1em 0 0; border-top: 2px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); }
+        .step-break p { margin: 0 0 .5em; }
         .alts { font-size: .9em; color: hsl(var(--muted-foreground)); margin: 0 0 1.4em; line-height: 1.6; }
         .alts > div { padding: 4px 0; }
         .so-far { border-top: 1px dashed hsl(var(--border)); margin-top: 1.6em; padding-top: 14px; font-size: .82em; color: hsl(var(--muted-foreground)); cursor: pointer; }
@@ -445,7 +477,7 @@ const pageFoot = themeScript + `
 `
 
 var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}{{end}}
-{{define "upkeep"}}<table><tr><th>Upkeep</th><th class="num">/cycle</th><th class="num">/day</th></tr>{{range .}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.PerCycle}}</td><td class="num">{{.PerDay}}</td></tr>{{end}}</table>{{end}}
+{{define "upkeep"}}<table><tr><th>Upkeep</th><th class="num">/cycle</th>{{if .}}{{if (index . 0).PerDay}}<th class="num">/day</th>{{end}}{{end}}</tr>{{range .}}<tr><td>{{template "link" .Item}}</td><td class="num">{{.PerCycle}}</td>{{if .PerDay}}<td class="num">{{.PerDay}}</td>{{end}}</tr>{{end}}</table>{{end}}
 {{define "grid"}}power {{if .PowerDeficit}}<span class="deficit">⚠ {{.Power}}</span>{{else}}{{.Power}}{{end}} · life support {{if .LifeSupportDeficit}}<span class="deficit">⚠ {{.LifeSupport}}</span>{{else}}{{.LifeSupport}}{{end}} <span class="text-muted">(supply / draw)</span>{{end}}
 ` + pageHead + `    <main class="guide-shell">
         <nav class="guide-toc" aria-label="On this page">
@@ -469,6 +501,9 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
         <h2 id="build-order">Build order</h2>
         <div class="guide-steps">
 {{- range .Steps}}
+{{- if .Break}}
+        <div class="step-break">{{.Break}}</div>
+{{- end}}
         <section class="step-card" id="step-{{.Num}}">
             <h3>Step {{.Num}}: {{if .Facility}}{{template "link" .Facility}}{{else}}{{.Title}}{{end}}{{if and .Facility (ne .Title .Facility.Name)}} <small class="text-muted">{{.Title}}</small>{{end}}</h3>
 {{- if .Gives}}
@@ -486,9 +521,9 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- end}}
             {{.Notes}}
 {{- if .Alts}}
-            <div class="alts"><b>Alternatives:</b>{{range .Alts}}<div>{{template "link" .Facility}}: {{.Credits}} cr · upkeep {{.PerDay}}/day{{if .Gives}} · {{.Gives}}{{end}}</div>{{end}}</div>
+            <div class="alts"><b>Alternatives:</b>{{range .Alts}}<div>{{template "link" .Facility}}: {{.Credits}} cr · upkeep {{.Upkeep}}{{if .Gives}} · {{.Gives}}{{end}}</div>{{end}}</div>
 {{- end}}
-            <div class="so-far" title="Open station upkeep">Station so far: {{.SoFarItems}} upkeep items, {{.SoFarDay}} units/day · {{template "grid" .Grid}}</div>
+            <div class="so-far" title="Open station upkeep">Station so far: {{.SoFarItems}} upkeep items, {{.SoFar}} · {{template "grid" .Grid}}</div>
         </section>
 {{- end}}
         </div>
@@ -499,7 +534,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- if .Steps}}
     <aside class="guide-sidebar guide-drawer" id="upkeep-drawer" aria-label="Station upkeep">
         <button class="drawer-close" type="button" aria-label="Close">×</button>
-        <h3>Station upkeep / day</h3>
+        <h3>Station upkeep / {{.Unit}}</h3>
         <div class="text-muted">after every step, catalog values; {{.Cycle}}</div>
         {{template "upkeep" .Sidebar.Upkeep}}
         <p>{{template "grid" .Sidebar.Grid}}</p>

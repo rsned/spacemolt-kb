@@ -3,6 +3,7 @@ title: Test Station Guide
 summary: A fixture guide for the generator tests.
 maintenance_cycle_ticks: 3000
 maintenance_cycle_basis: "player-reported 2026-10-26"
+show_per_day: true
 intro: |
   Why build one: no rent. Stock [[flex_polymer]] first.
 steps:
@@ -27,6 +28,8 @@ steps:
       source: "storage diff"
       upkeep_per_cycle: {circuit_board: 2}
   - title: Fuel
+    break_before: |
+      **From here on the order is flexible.** See [[locker_bay]].
     notes: |
       Not yet charted.
 ---

@@ -22,6 +22,9 @@ type guide struct {
 	// to stationplan.DefaultMaintenanceCycleTicks, labelled "default".
 	MaintenanceCycleTicks int    `yaml:"maintenance_cycle_ticks"`
 	MaintenanceCycleBasis string `yaml:"maintenance_cycle_basis"`
+	// ShowPerDay adds per-day upkeep figures beside the per-cycle ones. Off
+	// until the maintenance cycle length is measured; per-cycle is exact.
+	ShowPerDay bool `yaml:"show_per_day"`
 
 	slug string // file name without .md
 	file string // file name, for error messages
@@ -38,6 +41,9 @@ type stepSpec struct {
 	Facts        []fact    `yaml:"facts"`
 	Notes        string    `yaml:"notes"`
 	Measured     *measured `yaml:"measured"`
+	// BreakBefore is markdown shown as a divider before this step's card,
+	// e.g. where a strict build order gives way to a flexible one.
+	BreakBefore string `yaml:"break_before"`
 }
 
 // fact is a hand-stated figure for a non-facility step, with its basis
