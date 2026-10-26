@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"html"
 	htmltpl "html/template"
 	"regexp"
@@ -54,11 +56,20 @@ type qtyView struct {
 	id       string // item id, for comparing snapshots
 }
 
-type altView struct {
-	Facility linkView
-	Credits  string
-	Upkeep   string // total upkeep units, "N/cycle" or "N/day"
-	Gives    string
+// optionView is one facility a step can be built with: the guide's default
+// or one of its alternatives. The card shows the chosen option's panel.
+type optionView struct {
+	ID          string
+	Default     bool
+	Facility    linkView
+	Gives       string
+	Credits     string
+	Materials   []qtyView
+	BuildTime   int
+	Upkeep      []qtyView
+	NoUpkeep    bool
+	UpkeepTotal string // "N/cycle" or "N/day"
+	Measured    *measuredView
 }
 
 type measuredView struct {
@@ -85,7 +96,7 @@ type stepView struct {
 	Notes      htmltpl.HTML
 	Break      htmltpl.HTML
 	Measured   *measuredView
-	Alts       []altView
+	Options    []optionView // set when the step has alternatives; default first
 	SoFarItems int
 	SoFar      string // "N units/cycle" or "N units/day"
 	Grid       gridView
@@ -121,6 +132,40 @@ type pageView struct {
 	Steps     []stepView
 	Snapshots []snapView
 	Body      htmltpl.HTML
+	Plan      htmltpl.JS // every step's options and contributions, for the page script
+}
+
+// planJSON is what the page script needs to redo the running totals when the
+// reader picks a different option: each step's options with what each adds
+// on its own (stationplan.Contribution), and a name and link per item.
+type planJSON struct {
+	Slug         string              `json:"slug"`
+	PerDay       bool                `json:"per_day"`
+	CyclesPerDay float64             `json:"cycles_per_day"`
+	Items        map[string]linkJSON `json:"items"`
+	Steps        []planStep          `json:"steps"`
+}
+
+type linkJSON struct {
+	Name string `json:"name"`
+	Href string `json:"href,omitempty"`
+}
+
+type planStep struct {
+	Num     int          `json:"num"`
+	Options []planOption `json:"options"` // the first is the guide's default
+}
+
+type planOption struct {
+	ID                string         `json:"id"`
+	Label             string         `json:"label"`
+	Credits           int            `json:"credits"`
+	Materials         map[string]int `json:"materials"`
+	Upkeep            map[string]int `json:"upkeep"`
+	PowerSupply       int            `json:"power_supply"`
+	PowerDraw         int            `json:"power_draw"`
+	LifeSupportSupply int            `json:"life_support_supply"`
+	LifeSupportDraw   int            `json:"life_support_draw"`
 }
 
 // md expands [[id]] refs, records unresolved ones against the guide, and
@@ -159,6 +204,36 @@ func (r *renderer) qtys(m map[string]int, perCycle bool) []qtyView {
 	}
 	slices.SortFunc(out, func(a, b qtyView) int { return strings.Compare(a.Item.Name, b.Item.Name) })
 	return out
+}
+
+// option builds the card panel for facility id; measured is shown only on the
+// guide's default.
+func (r *renderer) option(id string, def bool, measured *measuredView) optionView {
+	f := r.facilities[id]
+	up := upkeepMap(f)
+	o := optionView{ID: id, Default: def, Facility: r.link(id), Gives: gives(f), Credits: commas(f.BuildCost),
+		Materials: r.qtys(materialMap(f.BuildMaterials), false), BuildTime: f.BuildTime,
+		Upkeep: r.qtys(up, true), NoUpkeep: len(up) == 0, UpkeepTotal: r.upkeepTotal(up)}
+	if def {
+		o.Measured = measured
+	}
+	return o
+}
+
+// planOptionFor is one option's contribution, recording its items' names.
+func (r *renderer) planOptionFor(id, label string, extraCredits int, items map[string]linkJSON) (planOption, error) {
+	c, err := stationplan.Contribution(r.facilities, stationplan.StepInput{FacilityID: id, ExtraCredits: extraCredits})
+	if err != nil {
+		return planOption{}, err
+	}
+	for _, m := range []map[string]int{c.Materials, c.UpkeepPerCycle} {
+		for item := range m {
+			items[item] = linkJSON(r.link(item))
+		}
+	}
+	return planOption{ID: id, Label: label, Credits: c.Credits, Materials: c.Materials, Upkeep: c.UpkeepPerCycle,
+		PowerSupply: c.PowerSupply, PowerDraw: c.PowerDraw, LifeSupportSupply: c.LifeSupportSupply,
+		LifeSupportDraw: c.LifeSupportDraw}, nil
 }
 
 // qtysSince renders cumulative upkeep m, marking rows that are new or larger
@@ -255,6 +330,8 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 	if g.ShowPerDay {
 		pv.Unit = "day"
 	}
+	plan := planJSON{Slug: g.slug, PerDay: g.ShowPerDay, CyclesPerDay: stationplan.CyclesPerDay(g.MaintenanceCycleTicks),
+		Items: map[string]linkJSON{}}
 	var err error
 	if pv.Intro, err = r.md(g, g.Intro); err != nil {
 		return pv, err
@@ -288,16 +365,34 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 			sv.Measured = &measuredView{Date: s.Measured.Date, Source: s.Measured.Source,
 				Upkeep: r.qtys(s.Measured.UpkeepPerCycle, true)}
 		}
-		for _, id := range s.Alternatives {
-			f := r.facilities[id]
-			sv.Alts = append(sv.Alts, altView{Facility: r.link(id), Credits: commas(f.BuildCost),
-				Upkeep: r.upkeepTotal(upkeepMap(f)), Gives: gives(f)})
+		if len(s.Alternatives) > 0 {
+			sv.Options = append(sv.Options, r.option(s.Facility, true, sv.Measured))
+			for _, id := range s.Alternatives {
+				sv.Options = append(sv.Options, r.option(id, false, nil))
+			}
 		}
 		pv.Steps = append(pv.Steps, sv)
 		label := s.Title
 		if sv.Facility != nil {
 			label = sv.Facility.Name
 		}
+		extra := 0
+		for _, f := range s.Facts {
+			extra += f.Credits
+		}
+		ps := planStep{Num: i}
+		for _, id := range append([]string{s.Facility}, s.Alternatives...) {
+			l := label
+			if id != "" {
+				l = r.links.Name(id)
+			}
+			po, err := r.planOptionFor(id, l, extra, plan.Items)
+			if err != nil {
+				return pv, fmt.Errorf("step %q: %w", s.Title, err)
+			}
+			ps.Options = append(ps.Options, po)
+		}
+		plan.Steps = append(plan.Steps, ps)
 		pv.TOC = append(pv.TOC, tocEntry{ID: "step-" + strconv.Itoa(i), Label: "Step " + strconv.Itoa(i) + ": " + label, Sub: true})
 		var prev map[string]int
 		if i > 0 {
@@ -310,6 +405,12 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 	for _, m := range bodyH2.FindAllStringSubmatch(string(pv.Body), -1) {
 		pv.TOC = append(pv.TOC, tocEntry{ID: m[1], Label: html.UnescapeString(tags.ReplaceAllString(m[2], ""))})
 	}
+	// json.Marshal escapes <, > and &, so the data cannot close its <script>.
+	b, err := json.Marshal(plan)
+	if err != nil {
+		return pv, err
+	}
+	pv.Plan = htmltpl.JS(b) //nolint:gosec // JSON from our own data; HTML-significant characters are escaped
 	return pv, nil
 }
 
@@ -395,8 +496,14 @@ const pageStyle = `<style>
         .num { text-align: right !important; font-variant-numeric: tabular-nums; width: 5.5rem; }
         .step-break { margin: 2.4em 0 1.6em; padding: 1em 0 0; border-top: 2px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); }
         .step-break p { margin: 0 0 .5em; }
-        .alts { font-size: .9em; color: hsl(var(--muted-foreground)); margin: 0 0 1.4em; line-height: 1.6; }
-        .alts > div { padding: 4px 0; }
+        .opt-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 10px; margin: 1.2em 0 1.4em; }
+        .opt-choice { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px 14px; border-radius: 10px; cursor: pointer;
+            border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font: inherit; line-height: 1.4; }
+        .opt-choice:hover { border-color: hsl(var(--smui-yellow) / .7); }
+        .opt-choice[aria-pressed="true"] { border: 2px solid hsl(var(--smui-yellow)); padding: 11px 13px; background: hsl(var(--smui-yellow) / .08); }
+        .opt-title { font-weight: 600; font-size: .95em; }
+        .opt-title em { font-style: normal; font-weight: 500; font-size: .75em; text-transform: uppercase; letter-spacing: .05em; color: hsl(var(--muted-foreground)); margin-left: 4px; }
+        .opt-meta { font-size: .8em; color: hsl(var(--muted-foreground)); }
         .so-far { border-top: 1px dashed hsl(var(--border)); margin-top: 1.6em; padding-top: 14px; font-size: .82em; color: hsl(var(--muted-foreground)); cursor: pointer; }
         .so-far:hover { color: hsl(var(--foreground)); }
         .deficit { color: hsl(var(--smui-red)); font-weight: 600; }
@@ -453,7 +560,10 @@ const themeScript = `    <script>
 
 // guideScript opens and closes the upkeep drawer (tab, any "Station so far"
 // line, ×, Esc), switches the drawer to the snapshot for the step being read,
-// and highlights the TOC entry for the section being read.
+// highlights the TOC entry for the section being read, and handles steps with
+// alternatives: the reader's pick swaps the card's panel, is remembered in
+// localStorage, and the drawer and "Station so far" lines are recomputed from
+// GUIDE_PLAN. With the guide's defaults the generated HTML is used as is.
 const guideScript = `    <script>
     (function() {
         var drawer = document.getElementById('upkeep-drawer');
@@ -474,10 +584,12 @@ const guideScript = `    <script>
         // reached the upper 40% of the screen (step 0 before any has).
         var snaps = Array.prototype.slice.call(document.querySelectorAll('.upkeep-at'));
         var cards = snaps.map(function(s) { return document.getElementById('step-' + s.getAttribute('data-step')); });
-        snaps.forEach(function(s) {
-            var d = s.querySelector('details');
-            if (d) d.addEventListener('toggle', function() { snaps.forEach(function(o) { var od = o.querySelector('details'); if (od) od.open = d.open; }); });
-        });
+        var matsOpen = false;
+        if (drawer) drawer.addEventListener('toggle', function(e) {
+            if (e.target.tagName !== 'DETAILS') return;
+            matsOpen = e.target.open;
+            snaps.forEach(function(s) { var d = s.querySelector('details'); if (d && d.open !== matsOpen) d.open = matsOpen; });
+        }, true);
         function spy() {
             var current = 0;
             targets.forEach(function(t, i) { if (t && t.getBoundingClientRect().top < 120) current = i; });
@@ -488,6 +600,90 @@ const guideScript = `    <script>
         }
         window.addEventListener('scroll', spy, {passive: true});
         spy();
+
+        var plan = window.GUIDE_PLAN;
+        if (!plan) return;
+        var key = 'guide-choice:' + plan.slug, picks = {};
+        try { picks = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { picks = {}; }
+        var snapHTML = snaps.map(function(s) { return s.innerHTML; });
+        var soFar = Array.prototype.slice.call(document.querySelectorAll('.so-far[data-step]'));
+        var soFarHTML = soFar.map(function(el) { return el.innerHTML; });
+
+        function chosen(st) {
+            for (var i = 0; i < st.options.length; i++) if (st.options[i].id === picks[st.num]) return st.options[i];
+            return st.options[0];
+        }
+        function esc(v) { return String(v).replace(/[&<>"]/g, function(c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
+        function num(n) { return n.toLocaleString('en-US'); }
+        function day(q) { var f = q * plan.cycles_per_day; return f < 100 ? f.toFixed(1) : num(Math.round(f)); }
+        function name(id) { return (plan.items[id] || {name: id}).name; }
+        function link(id) { var it = plan.items[id] || {name: id}; return it.href ? '<a href="' + esc(it.href) + '">' + esc(it.name) + '</a>' : esc(it.name); }
+        function byName(m) { return Object.keys(m).sort(function(a, b) { return name(a) < name(b) ? -1 : name(a) > name(b) ? 1 : 0; }); }
+        function pair(supply, draw) { var v = supply + ' / ' + draw; return draw > supply ? '<span class="deficit">⚠ ' + v + '</span>' : v; }
+        function grid(t) { return 'power ' + pair(t.ps, t.pd) + ' · life support ' + pair(t.ls, t.ld) + ' <span class="text-muted">(supply / draw)</span>'; }
+        function add(t, o) {
+            var u = {credits: t.credits + o.credits, mats: Object.assign({}, t.mats), up: Object.assign({}, t.up),
+                ps: t.ps + o.power_supply, pd: t.pd + o.power_draw, ls: t.ls + o.life_support_supply, ld: t.ld + o.life_support_draw};
+            Object.keys(o.materials).forEach(function(k) { u.mats[k] = (u.mats[k] || 0) + o.materials[k]; });
+            Object.keys(o.upkeep).forEach(function(k) { u.up[k] = (u.up[k] || 0) + o.upkeep[k]; });
+            return u;
+        }
+        var empty = {credits: 0, mats: {}, up: {}, ps: 0, pd: 0, ls: 0, ld: 0};
+        function upkeepTable(t, prev) {
+            var ids = byName(t.up);
+            if (!ids.length) return '<p class="no-upkeep">No upkeep yet</p>';
+            var h = '<table><tr><th>Upkeep</th><th class="num">/cycle</th>' + (plan.per_day ? '<th class="num">/day</th>' : '') + '</tr>';
+            ids.forEach(function(id) {
+                h += '<tr' + (t.up[id] > (prev.up[id] || 0) ? ' class="added"' : '') + '><td>' + link(id) + '</td><td class="num">' + num(t.up[id]) + '</td>' +
+                    (plan.per_day ? '<td class="num">' + day(t.up[id]) + '</td>' : '') + '</tr>';
+            });
+            return h + '</table>';
+        }
+        function soFarText(t) {
+            var ids = Object.keys(t.up), units = 0;
+            ids.forEach(function(id) { units += t.up[id]; });
+            var total = plan.per_day ? day(units) + ' units/day' : num(units) + ' units/cycle';
+            return 'Station so far: ' + ids.length + ' upkeep items, ' + total + ' · ' + grid(t);
+        }
+        function render() {
+            var isDefault = plan.steps.every(function(st) { return chosen(st) === st.options[0]; });
+            document.querySelectorAll('.opt-choice').forEach(function(b) {
+                var st = plan.steps[+b.getAttribute('data-step')];
+                b.setAttribute('aria-pressed', chosen(st).id === b.getAttribute('data-opt') ? 'true' : 'false');
+            });
+            document.querySelectorAll('.opt-panel, .opt-name').forEach(function(el) {
+                var st = plan.steps[+el.getAttribute('data-step')];
+                el.hidden = chosen(st).id !== el.getAttribute('data-opt');
+            });
+            plan.steps.forEach(function(st) {
+                var a = st.options.length > 1 && document.querySelector('.guide-toc a[href="#step-' + st.num + '"]');
+                if (a) a.textContent = 'Step ' + st.num + ': ' + chosen(st).label;
+            });
+            var cur = empty, all = plan.steps.map(function(st) { cur = add(cur, chosen(st)); return cur; });
+            snaps.forEach(function(s, i) {
+                if (isDefault) { s.innerHTML = snapHTML[i]; } else {
+                    var n = +s.getAttribute('data-step'), t = all[n], prev = n ? all[n - 1] : empty, mats = '';
+                    byName(t.mats).forEach(function(id) { mats += '<tr><td>' + link(id) + '</td><td class="num">' + num(t.mats[id]) + '</td></tr>'; });
+                    s.innerHTML = '<p class="at-step">After Step ' + n + ': ' + esc(chosen(plan.steps[n]).label) + '</p>' + upkeepTable(t, prev) +
+                        '<p>' + grid(t) + '</p><p><b>Build credits:</b> ' + num(t.credits) + '</p>' +
+                        '<details><summary>Build materials</summary><table>' + mats + '</table></details>';
+                }
+                var d = s.querySelector('details');
+                if (d) d.open = matsOpen;
+            });
+            soFar.forEach(function(el, i) {
+                el.innerHTML = isDefault ? soFarHTML[i] : soFarText(all[+el.getAttribute('data-step')]);
+            });
+        }
+        document.querySelectorAll('.opt-choice').forEach(function(b) {
+            b.addEventListener('click', function() {
+                var st = plan.steps[+b.getAttribute('data-step')], id = b.getAttribute('data-opt');
+                if (id === st.options[0].id) delete picks[st.num]; else picks[st.num] = id;
+                try { localStorage.setItem(key, JSON.stringify(picks)); } catch (e) { /* private mode: the pick just isn't remembered */ }
+                render();
+            });
+        });
+        render();
     })();
     </script>`
 
@@ -535,12 +731,31 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- if .Steps}}
         <h2 id="build-order">Build order</h2>
         <div class="guide-steps">
-{{- range .Steps}}
+{{- range .Steps}}{{$s := .}}
 {{- if .Break}}
         <div class="step-break">{{.Break}}</div>
 {{- end}}
         <section class="step-card" id="step-{{.Num}}">
-            <h3>Step {{.Num}}: {{if .Facility}}{{template "link" .Facility}}{{else}}{{.Title}}{{end}}{{if and .Facility (ne .Title .Facility.Name)}} <small class="text-muted">{{.Title}}</small>{{end}}</h3>
+            <h3>Step {{.Num}}: {{if .Options}}{{range .Options}}<span class="opt-name" data-step="{{$s.Num}}" data-opt="{{.ID}}"{{if not .Default}} hidden{{end}}>{{template "link" .Facility}}</span>{{end}}{{else if .Facility}}{{template "link" .Facility}}{{else}}{{.Title}}{{end}}{{if and .Facility (ne .Title .Facility.Name)}} <small class="text-muted">{{.Title}}</small>{{end}}</h3>
+{{- if .Options}}
+            <div class="opt-choices" role="group" aria-label="Choose the facility for this step">
+{{- range .Options}}
+                <button type="button" class="opt-choice" data-step="{{$s.Num}}" data-opt="{{.ID}}" aria-pressed="{{if .Default}}true{{else}}false{{end}}"><span class="opt-title">{{.Facility.Name}}{{if .Default}} <em>recommended</em>{{end}}</span><span class="opt-meta">{{.Credits}} cr · upkeep {{.UpkeepTotal}}{{if .Gives}} · {{.Gives}}{{end}}</span></button>
+{{- end}}
+            </div>
+{{- range .Options}}
+            <div class="opt-panel" data-step="{{$s.Num}}" data-opt="{{.ID}}"{{if not .Default}} hidden{{end}}>
+{{- if .Gives}}
+            <p class="step-gives">{{.Gives}}</p>
+{{- end}}
+            <p class="step-build"><b>Build:</b> {{.Credits}} cr{{range .Materials}} + {{.Qty}} {{template "link" .Item}}{{end}}{{if .BuildTime}} · {{.BuildTime}} ticks{{end}}</p>
+            <div class="upkeep">{{if .NoUpkeep}}<p class="no-upkeep">No upkeep</p>{{else}}{{template "upkeep" .Upkeep}}{{end}}</div>
+{{- if .Measured}}
+            <div class="measured"><b>measured ({{.Measured.Date}})</b>{{if .Measured.Source}} · {{.Measured.Source}}{{end}}{{template "upkeep" .Measured.Upkeep}}</div>
+{{- end}}
+            </div>
+{{- end}}
+{{- else}}
 {{- if .Gives}}
             <p class="step-gives">{{.Gives}}</p>
 {{- end}}
@@ -554,11 +769,9 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- if .Measured}}
             <div class="measured"><b>measured ({{.Measured.Date}})</b>{{if .Measured.Source}} · {{.Measured.Source}}{{end}}{{template "upkeep" .Measured.Upkeep}}</div>
 {{- end}}
-            {{.Notes}}
-{{- if .Alts}}
-            <div class="alts"><b>Alternatives:</b>{{range .Alts}}<div>{{template "link" .Facility}}: {{.Credits}} cr · upkeep {{.Upkeep}}{{if .Gives}} · {{.Gives}}{{end}}</div>{{end}}</div>
 {{- end}}
-            <div class="so-far" title="Open station upkeep">Station so far: {{.SoFarItems}} upkeep items, {{.SoFar}} · {{template "grid" .Grid}}</div>
+            {{.Notes}}
+            <div class="so-far" data-step="{{.Num}}" title="Open station upkeep">Station so far: {{.SoFarItems}} upkeep items, {{.SoFar}} · {{template "grid" .Grid}}</div>
         </section>
 {{- end}}
         </div>
@@ -582,6 +795,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- end}}
     </aside>
     <button class="drawer-tab" type="button" aria-controls="upkeep-drawer" aria-expanded="false">Station upkeep</button>
+    <script>window.GUIDE_PLAN = {{.Plan}};</script>
 {{- end}}
 ` + guideScript + `
 ` + pageFoot))

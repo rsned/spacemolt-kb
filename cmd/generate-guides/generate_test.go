@@ -305,7 +305,7 @@ func TestGenerate_PerCycleOnlyByDefault(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	html := string(b)
+	html := withoutScripts(string(b)) // the page script handles both units; only rendered text counts
 	for _, bad := range []string{"/day", "units/day", "per day"} {
 		if strings.Contains(html, bad) {
 			t.Errorf("per-cycle-only guide still shows %q", bad)
@@ -361,5 +361,50 @@ func TestGenerate_DrawerFollowsSteps(t *testing.T) {
 	// the last starts hidden.
 	if !strings.Contains(html, `data-step="0" hidden`) || strings.Contains(html, `data-step="5" hidden`) {
 		t.Error("only the last snapshot should be visible by default")
+	}
+}
+
+// A step with alternatives renders a chooser and one panel per option (the
+// default visible, the rest hidden), and embeds every option's contribution
+// so the page can redo the totals when the reader picks another.
+func TestGenerate_AlternativesAreSelectable(t *testing.T) {
+	html, _ := runFixture(t)
+	for _, want := range []string{
+		`class="opt-choices"`,
+		`data-step="4" data-opt="stellar_collector_grid" aria-pressed="true"`,
+		`data-step="4" data-opt="bunker_fed_reactor" aria-pressed="false"`,
+		`<div class="opt-panel" data-step="4" data-opt="stellar_collector_grid">`,
+		`<div class="opt-panel" data-step="4" data-opt="bunker_fed_reactor" hidden>`,
+		`window.GUIDE_PLAN = `,
+		`"id":"bunker_fed_reactor"`,
+		`"power_supply":12`,
+		`"upkeep":{"fuel":55}`,
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("guide missing %q", want)
+		}
+	}
+	if strings.Contains(html, `class="alts"`) {
+		t.Error("the chooser replaces the old alternatives list")
+	}
+	bunker := html[strings.Index(html, `data-opt="bunker_fed_reactor" hidden>`):]
+	bunker = bunker[:strings.Index(bunker, `</div>`+"\n")]
+	if !strings.Contains(bunker, "500,000") {
+		t.Errorf("bunker panel should carry its own build cost:\n%s", bunker)
+	}
+}
+
+// withoutScripts drops <script> blocks, leaving the page's rendered markup.
+func withoutScripts(html string) string {
+	for {
+		i := strings.Index(html, "<script")
+		if i < 0 {
+			return html
+		}
+		j := strings.Index(html[i:], "</script>")
+		if j < 0 {
+			return html[:i]
+		}
+		html = html[:i] + html[i+j+len("</script>"):]
 	}
 }

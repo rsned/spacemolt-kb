@@ -149,3 +149,32 @@ func TestAccumulate_TotalsIndependent(t *testing.T) {
 		t.Errorf("totals share maps: %+v", tot[1])
 	}
 }
+
+// Contribution is one step on its own; Accumulate is their running sum, so a
+// client that swaps a step's facility can re-add contributions and get the
+// same totals.
+func TestContributionSumsToAccumulate(t *testing.T) {
+	fs := testFacilities()
+	steps := []StepInput{{ExtraCredits: 5000000}, {FacilityID: "locker_bay"}, {FacilityID: "bunker_fed_reactor"}, {FacilityID: "power_hog"}}
+	acc, err := Accumulate(fs, steps)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sum := Totals{Materials: map[string]int{}, UpkeepPerCycle: map[string]int{}}
+	for _, s := range steps {
+		c, err := Contribution(fs, s)
+		if err != nil {
+			t.Fatal(err)
+		}
+		sum = sum.Plus(c)
+	}
+	last := acc[len(acc)-1]
+	if sum.Credits != last.Credits || sum.PowerSupply != last.PowerSupply || sum.PowerDraw != last.PowerDraw ||
+		sum.LifeSupportDraw != last.LifeSupportDraw || sum.UpkeepPerCycle[FuelItemID] != 55 ||
+		sum.Materials["steel_plate"] != last.Materials["steel_plate"] || sum.UpkeepPerCycle["flex_polymer"] != 1 {
+		t.Errorf("sum of contributions %+v != accumulated %+v", sum, last)
+	}
+	if _, err := Contribution(fs, StepInput{FacilityID: "nope"}); err == nil {
+		t.Error("unknown facility should error")
+	}
+}

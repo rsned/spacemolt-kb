@@ -62,37 +62,73 @@ func (t Totals) PowerDeficit() bool { return t.PowerDraw > t.PowerSupply }
 // LifeSupportDeficit reports whether life-support draw exceeds supply.
 func (t Totals) LifeSupportDeficit() bool { return t.LifeSupportDraw > t.LifeSupportSupply }
 
+// Contribution returns what one step adds on its own. Accumulate is the
+// running sum of these, so a client that lets the reader swap a step's
+// facility can re-add contributions and reach the same totals. An unknown
+// facility id is an error.
+func Contribution(facilities map[string]catalog.Facility, s StepInput) (Totals, error) {
+	c := Totals{Credits: s.ExtraCredits, Materials: map[string]int{}, UpkeepPerCycle: map[string]int{}}
+	if s.FacilityID == "" {
+		return c, nil
+	}
+	f, ok := facilities[s.FacilityID]
+	if !ok {
+		return c, fmt.Errorf("unknown facility %q", s.FacilityID)
+	}
+	c.Credits += f.BuildCost
+	for _, mat := range f.BuildMaterials {
+		c.Materials[mat.ItemID] += qty(mat)
+	}
+	for _, mat := range f.MaintenanceInputs {
+		c.UpkeepPerCycle[mat.ItemID] += qty(mat)
+	}
+	if f.MaintenanceFuel > 0 {
+		c.UpkeepPerCycle[FuelItemID] += f.MaintenanceFuel
+	}
+	c.PowerSupply = f.PowerSupply
+	c.PowerDraw = f.PowerDraw
+	c.LifeSupportSupply = f.LifeSupportSupply
+	c.LifeSupportDraw = f.LifeSupportDraw
+	return c, nil
+}
+
+// Plus returns t with c added. The result owns its maps.
+func (t Totals) Plus(c Totals) Totals {
+	out := t
+	out.Materials = maps.Clone(t.Materials)
+	out.UpkeepPerCycle = maps.Clone(t.UpkeepPerCycle)
+	if out.Materials == nil {
+		out.Materials = map[string]int{}
+	}
+	if out.UpkeepPerCycle == nil {
+		out.UpkeepPerCycle = map[string]int{}
+	}
+	out.Credits += c.Credits
+	for id, q := range c.Materials {
+		out.Materials[id] += q
+	}
+	for id, q := range c.UpkeepPerCycle {
+		out.UpkeepPerCycle[id] += q
+	}
+	out.PowerSupply += c.PowerSupply
+	out.PowerDraw += c.PowerDraw
+	out.LifeSupportSupply += c.LifeSupportSupply
+	out.LifeSupportDraw += c.LifeSupportDraw
+	return out
+}
+
 // Accumulate returns the cumulative Totals after each step, in order. Each
 // returned Totals owns its maps. An unknown facility id is an error.
 func Accumulate(facilities map[string]catalog.Facility, steps []StepInput) ([]Totals, error) {
 	cur := Totals{Materials: map[string]int{}, UpkeepPerCycle: map[string]int{}}
 	out := make([]Totals, 0, len(steps))
 	for i, s := range steps {
-		cur.Credits += s.ExtraCredits
-		if s.FacilityID != "" {
-			f, ok := facilities[s.FacilityID]
-			if !ok {
-				return nil, fmt.Errorf("step %d: unknown facility %q", i, s.FacilityID)
-			}
-			cur.Credits += f.BuildCost
-			for _, mat := range f.BuildMaterials {
-				cur.Materials[mat.ItemID] += qty(mat)
-			}
-			for _, mat := range f.MaintenanceInputs {
-				cur.UpkeepPerCycle[mat.ItemID] += qty(mat)
-			}
-			if f.MaintenanceFuel > 0 {
-				cur.UpkeepPerCycle[FuelItemID] += f.MaintenanceFuel
-			}
-			cur.PowerSupply += f.PowerSupply
-			cur.PowerDraw += f.PowerDraw
-			cur.LifeSupportSupply += f.LifeSupportSupply
-			cur.LifeSupportDraw += f.LifeSupportDraw
+		c, err := Contribution(facilities, s)
+		if err != nil {
+			return nil, fmt.Errorf("step %d: %w", i, err)
 		}
-		snap := cur
-		snap.Materials = maps.Clone(cur.Materials)
-		snap.UpkeepPerCycle = maps.Clone(cur.UpkeepPerCycle)
-		out = append(out, snap)
+		cur = cur.Plus(c)
+		out = append(out, cur)
 	}
 	return out, nil
 }

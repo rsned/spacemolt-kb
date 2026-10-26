@@ -55,8 +55,14 @@
         .num { text-align: right !important; font-variant-numeric: tabular-nums; width: 5.5rem; }
         .step-break { margin: 2.4em 0 1.6em; padding: 1em 0 0; border-top: 2px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); }
         .step-break p { margin: 0 0 .5em; }
-        .alts { font-size: .9em; color: hsl(var(--muted-foreground)); margin: 0 0 1.4em; line-height: 1.6; }
-        .alts > div { padding: 4px 0; }
+        .opt-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 10px; margin: 1.2em 0 1.4em; }
+        .opt-choice { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px 14px; border-radius: 10px; cursor: pointer;
+            border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font: inherit; line-height: 1.4; }
+        .opt-choice:hover { border-color: hsl(var(--smui-yellow) / .7); }
+        .opt-choice[aria-pressed="true"] { border: 2px solid hsl(var(--smui-yellow)); padding: 11px 13px; background: hsl(var(--smui-yellow) / .08); }
+        .opt-title { font-weight: 600; font-size: .95em; }
+        .opt-title em { font-style: normal; font-weight: 500; font-size: .75em; text-transform: uppercase; letter-spacing: .05em; color: hsl(var(--muted-foreground)); margin-left: 4px; }
+        .opt-meta { font-size: .8em; color: hsl(var(--muted-foreground)); }
         .so-far { border-top: 1px dashed hsl(var(--border)); margin-top: 1.6em; padding-top: 14px; font-size: .82em; color: hsl(var(--muted-foreground)); cursor: pointer; }
         .so-far:hover { color: hsl(var(--foreground)); }
         .deficit { color: hsl(var(--smui-red)); font-weight: 600; }
@@ -180,7 +186,7 @@ interest</strong> next to where you are, and your ship is docked there automatic
 <p>The station's built-in faction storage satisfies the &quot;Faction Storage is required before
 any other faction facility&quot; rule: <code>faction_build</code> works straight away (<em>measured</em>).</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 0 upkeep items, 0 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="0" title="Open station upkeep">Station so far: 0 upkeep items, 0 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-1">
             <h3>Step 1: <a href="../facilities/service/locker_bay.html">Locker Bay</a> <small class="text-muted">Personal storage</small></h3>
@@ -193,7 +199,7 @@ gave <strong>750 corporation_management XP to every faction member</strong> (<em
 <code>critical</code> with zero services as soon as it finished (<em>measured</em>). Deposit a few days of
 <a href="../items/refined/flex_polymer.html">Flex Polymer</a> and <a href="../items/refined/steel_plate.html">Steel Plate</a> first.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 2 upkeep items, 2 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="1" title="Open station upkeep">Station so far: 2 upkeep items, 2 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-2">
             <h3>Step 2: <a href="../facilities/service/faction_workshop.html">Faction Workshop</a> <small class="text-muted">Crafting</small></h3>
@@ -207,7 +213,7 @@ items can be made on site until those lines come online.</p>
 <a href="../items/ore/energy_crystal.html">Energy Crystal</a> + 1 <a href="../items/ore/palladium_ore.html">Palladium Ore</a>, so <strong>4 energy crystals every cycle</strong>. Decide
 where those come from before building it.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 4 upkeep items, 4 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="2" title="Open station upkeep">Station so far: 4 upkeep items, 4 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-3">
             <h3>Step 3: <a href="../facilities/service/refueling_dock.html">Refueling Dock</a> <small class="text-muted">Refuel service</small></h3>
@@ -224,7 +230,7 @@ own tanks (storage deposit, <code>item_id=fuel</code>). Its upkeep is
 server's message (<code>no_fuel_source … insufficient credits for station refueling</code>) is
 misleading, because credits are not the problem (<em>measured</em>).</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 6 upkeep items, 7 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="3" title="Open station upkeep">Station so far: 6 upkeep items, 7 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-4">
             <h3>Step 4: <a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a> <small class="text-muted">Fuel storage</small></h3>
@@ -239,7 +245,7 @@ a docked ship's fuel (storage deposit, <code>item_id=fuel</code>). With <code>st
 on, visiting pilots can sell fuel into the tank too, paid from the treasury.
 Whether the expansions feed the refueling dock's 5,000-unit tank is <em>not yet measured</em>.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 6 upkeep items, 12 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="4" title="Open station upkeep">Station so far: 6 upkeep items, 12 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-5">
             <h3>Step 5: <a href="../facilities/service/trade_concourse.html">Trade Concourse</a> <small class="text-muted">Market</small></h3>
@@ -255,7 +261,7 @@ traffic trades here, and you set the listing fee they pay with
 <code>station set_market_fee</code>. Its upkeep is one <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> a cycle, so find a
 source before you build.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 7 upkeep items, 13 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="5" title="Open station upkeep">Station so far: 7 upkeep items, 13 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <div class="step-break"><p><strong>Next: production support.</strong> With storage, crafting, fuel and a market in place, we
 switch from basic services to power and life support, the two things production
@@ -276,13 +282,42 @@ move to the station.</p>
 recycler upgrades to <a href="../facilities/infrastructure/climate_control_array.html">Climate Control Array</a> (life support 20), <a href="../facilities/infrastructure/biosphere_ring.html">Biosphere Ring</a> (35)
 and <a href="../facilities/infrastructure/full_habitat_dome.html">Full Habitat Dome</a> (60).</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 12 upkeep items, 21 units/cycle · power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="6" title="Open station upkeep">Station so far: 12 upkeep items, 21 units/cycle · power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-7">
-            <h3>Step 7: <a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a> <small class="text-muted">Power</small></h3>
+            <h3>Step 7: <span class="opt-name" data-step="7" data-opt="stellar_collector_grid"><a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a></span><span class="opt-name" data-step="7" data-opt="fuel_cell_generator" hidden><a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a></span><span class="opt-name" data-step="7" data-opt="bunker_fed_reactor" hidden><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a></span><span class="opt-name" data-step="7" data-opt="scrap_reactor" hidden><a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a></span><span class="opt-name" data-step="7" data-opt="dark_matter_reactor" hidden><a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a></span> <small class="text-muted">Power</small></h3>
+            <div class="opt-choices" role="group" aria-label="Choose the facility for this step">
+                <button type="button" class="opt-choice" data-step="7" data-opt="stellar_collector_grid" aria-pressed="true"><span class="opt-title">Stellar Collector Grid <em>recommended</em></span><span class="opt-meta">900,000 cr · upkeep 2/cycle · power &#43;20</span></button>
+                <button type="button" class="opt-choice" data-step="7" data-opt="fuel_cell_generator" aria-pressed="false"><span class="opt-title">Fuel Cell Generator</span><span class="opt-meta">500,000 cr · upkeep 3/cycle · power &#43;12</span></button>
+                <button type="button" class="opt-choice" data-step="7" data-opt="bunker_fed_reactor" aria-pressed="false"><span class="opt-title">Bunker-Fed Reactor</span><span class="opt-meta">500,000 cr · upkeep 55/cycle · power &#43;12</span></button>
+                <button type="button" class="opt-choice" data-step="7" data-opt="scrap_reactor" aria-pressed="false"><span class="opt-title">Scrap Reactor</span><span class="opt-meta">80,000 cr · upkeep 4/cycle · power &#43;10</span></button>
+                <button type="button" class="opt-choice" data-step="7" data-opt="dark_matter_reactor" aria-pressed="false"><span class="opt-title">Dark Matter Reactor</span><span class="opt-meta">3,000,000 cr · upkeep 3/cycle · power &#43;48</span></button>
+            </div>
+            <div class="opt-panel" data-step="7" data-opt="stellar_collector_grid">
             <p class="step-gives">power &#43;20</p>
             <p class="step-build"><b>Build:</b> 900,000 cr + 1,200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 250 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2</td></tr></table></div>
+            </div>
+            <div class="opt-panel" data-step="7" data-opt="fuel_cell_generator" hidden>
+            <p class="step-gives">power &#43;12</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/component/power_cell.html">Power Cell</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 200 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr></table></div>
+            </div>
+            <div class="opt-panel" data-step="7" data-opt="bunker_fed_reactor" hidden>
+            <p class="step-gives">power &#43;12</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/component/power_cell.html">Power Cell</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 200 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/fuel/fuel.html">Fuel</a></td><td class="num">55</td></tr></table></div>
+            </div>
+            <div class="opt-panel" data-step="7" data-opt="scrap_reactor" hidden>
+            <p class="step-gives">power &#43;10</p>
+            <p class="step-build"><b>Build:</b> 80,000 cr + 30 <a href="../items/component/salvage_metal.html">Salvage Metal</a> + 40 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 120 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/component/salvage_metal.html">Salvage Metal</a></td><td class="num">2</td></tr></table></div>
+            </div>
+            <div class="opt-panel" data-step="7" data-opt="dark_matter_reactor" hidden>
+            <p class="step-gives">power &#43;48</p>
+            <p class="step-build"><b>Build:</b> 3,000,000 cr + 1,000 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 200 <a href="../items/component/dark_matter_cell.html">Dark Matter Cell</a> + 8,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 400 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/dark_matter_cell.html">Dark Matter Cell</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr></table></div>
+            </div>
             <p>Service facilities list <strong>no power draw</strong> in the catalog, but production facilities do,
 so power, with life support, is what unlocks production lines at the station.
 <a href="../facilities/infrastructure/capacitor_bank.html">Capacitor Bank</a>, <a href="../facilities/infrastructure/buffer_array.html">Buffer Array</a> and <a href="../facilities/infrastructure/cryo_capacitor_vault.html">Cryo Capacitor Vault</a> add battery storage
@@ -295,8 +330,7 @@ Reactor burns <a href="../items/fuel/fuel.html">Fuel</a> instead: 55 per cycle.<
 catalog, and the grid counted toward station health alongside the Locker Bay
 (<code>satisfied_count 2 / total_service_infra 2</code>) (<em>measured</em>).</p>
 
-            <div class="alts"><b>Alternatives:</b><div><a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a>: 500,000 cr · upkeep 3/cycle · power &#43;12</div><div><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>: 500,000 cr · upkeep 55/cycle · power &#43;12</div><div><a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a>: 80,000 cr · upkeep 4/cycle · power &#43;10</div><div><a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a>: 3,000,000 cr · upkeep 3/cycle · power &#43;48</div></div>
-            <div class="so-far" title="Open station upkeep">Station so far: 12 upkeep items, 23 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="7" title="Open station upkeep">Station so far: 12 upkeep items, 23 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <div class="step-break"><p><strong>From here on the order is flexible.</strong> With storage, crafting, fuel, a market and
 production support in place, build the remaining services as you need them. Our
@@ -312,7 +346,7 @@ and marine training.</p>
 <a href="../items/refined/circuit_board.html">Circuit Board</a>, and the longest build time. Upkeep includes <a href="../items/refined/titanium_alloy.html">Titanium Alloy</a>.
 It upgrades to <a href="../facilities/service/fabrication_yard.html">Fabrication Yard</a>, <a href="../facilities/service/assembly_complex.html">Assembly Complex</a> and <a href="../facilities/service/grand_shipworks.html">Grand Shipworks</a>.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 13 upkeep items, 26 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="8" title="Open station upkeep">Station so far: 13 upkeep items, 26 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-9">
             <h3>Step 9: <a href="../facilities/service/repair_slip.html">Repair Slip</a> <small class="text-muted">Repair</small></h3>
@@ -322,7 +356,7 @@ It upgrades to <a href="../facilities/service/fabrication_yard.html">Fabrication
             <p>Outside pilots pay your <code>station set_repair_price</code> per hull point. Upkeep is
 <a href="../items/consumable/repair_kit.html">Repair Kit</a> and <a href="../items/refined/steel_plate.html">Steel Plate</a>.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 14 upkeep items, 28 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="9" title="Open station upkeep">Station so far: 14 upkeep items, 28 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-10">
             <h3>Step 10: <a href="../facilities/service/reclamation_dock.html">Reclamation Dock</a> <small class="text-muted">Salvage yard</small></h3>
@@ -332,7 +366,7 @@ It upgrades to <a href="../facilities/service/fabrication_yard.html">Fabrication
             <p>Breaks down what pilots drag in from debris fields. Upkeep includes a <a href="../items/consumable/fuel_cell.html">Fuel Cell</a>,
 like the refueling dock.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 14 upkeep items, 30 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="10" title="Open station upkeep">Station so far: 14 upkeep items, 30 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-11">
             <h3>Step 11: <a href="../facilities/service/contract_terminal.html">Contract Terminal</a> <small class="text-muted">Missions</small></h3>
@@ -342,7 +376,7 @@ like the refueling dock.</p>
             <p>A job board for the faction or anyone passing through. Cheap to build and to keep:
 <a href="../items/refined/circuit_board.html">Circuit Board</a> and <a href="../items/refined/copper_wiring.html">Copper Wiring</a>.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="11" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-12">
             <h3>Step 12: <a href="../facilities/service/first_aid_ward.html">First Aid Ward</a> <small class="text-muted">Medical</small></h3>
@@ -352,7 +386,7 @@ like the refueling dock.</p>
             <p>The catalog lists <strong>no upkeep</strong> for this one. The build needs <a href="../items/consumable/medical_supplies.html">Medical Supplies</a>.
 It upgrades to <a href="../facilities/service/trauma_clinic.html">Trauma Clinic</a>, <a href="../facilities/service/surgical_center.html">Surgical Center</a> and <a href="../facilities/service/regenerative_medical_complex.html">Regenerative Medical Complex</a>.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="12" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-13">
             <h3>Step 13: <a href="../facilities/service/crew_registry.html">Crew Registry</a> <small class="text-muted">Personnel</small></h3>
@@ -362,7 +396,7 @@ It upgrades to <a href="../facilities/service/trauma_clinic.html">Trauma Clinic<
             <p>No upkeep listed. It upgrades to <a href="../facilities/service/personnel_bureau.html">Personnel Bureau</a>, <a href="../facilities/service/sector_labor_exchange.html">Sector Labor Exchange</a> and
 <a href="../facilities/service/fleet_personnel_command.html">Fleet Personnel Command</a>.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="13" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-14">
             <h3>Step 14: <a href="../facilities/service/security_training_post.html">Security Training Post</a> <small class="text-muted">Marine training</small></h3>
@@ -372,7 +406,7 @@ It upgrades to <a href="../facilities/service/trauma_clinic.html">Trauma Clinic<
             <p>No upkeep listed. It upgrades to <a href="../facilities/service/marine_training_barracks.html">Marine Training Barracks</a>, <a href="../facilities/service/fleet_marine_academy.html">Fleet Marine Academy</a>
 and <a href="../facilities/service/expeditionary_warfare_command.html">Expeditionary Warfare Command</a>.</p>
 
-            <div class="so-far" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="14" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         </div>
         <div class="guide-body"><h2 id="reading-your-station">Reading your station</h2>
@@ -731,6 +765,7 @@ points you to the <a href="../facilities/infrastructure/fuel_tank_expansion.html
         </div>
     </aside>
     <button class="drawer-tab" type="button" aria-controls="upkeep-drawer" aria-expanded="false">Station upkeep</button>
+    <script>window.GUIDE_PLAN = {"slug":"player-stations","per_day":false,"cycles_per_day":2.88,"items":{"catalytic_scrubber_cartridge":{"name":"Catalytic Scrubber Cartridge","href":"../items/component/catalytic_scrubber_cartridge.html"},"ceramite_plating":{"name":"Ceramite Plating","href":"../items/refined/ceramite_plating.html"},"circuit_board":{"name":"Circuit Board","href":"../items/refined/circuit_board.html"},"copper_wiring":{"name":"Copper Wiring","href":"../items/refined/copper_wiring.html"},"dark_matter_cell":{"name":"Dark Matter Cell","href":"../items/component/dark_matter_cell.html"},"flex_polymer":{"name":"Flex Polymer","href":"../items/refined/flex_polymer.html"},"focused_crystal":{"name":"Focused Crystal","href":"../items/refined/focused_crystal.html"},"fuel":{"name":"Fuel","href":"../items/fuel/fuel.html"},"fuel_cell":{"name":"Fuel Cell","href":"../items/consumable/fuel_cell.html"},"fuel_tank":{"name":"Fuel Tank","href":"../items/component/fuel_tank.html"},"liquid_hydrogen":{"name":"Liquid Hydrogen","href":"../items/refined/liquid_hydrogen.html"},"medical_supplies":{"name":"Medical Supplies","href":"../items/consumable/medical_supplies.html"},"oxygen_gas":{"name":"Oxygen Gas","href":"../items/refined/oxygen_gas.html"},"power_cell":{"name":"Power Cell","href":"../items/component/power_cell.html"},"purified_water":{"name":"Purified Water","href":"../items/refined/purified_water.html"},"repair_kit":{"name":"Repair Kit","href":"../items/consumable/repair_kit.html"},"salvage_metal":{"name":"Salvage Metal","href":"../items/component/salvage_metal.html"},"steel_plate":{"name":"Steel Plate","href":"../items/refined/steel_plate.html"},"sunspindle":{"name":"Sunspindle","href":"../items/refined/sunspindle.html"},"titanium_alloy":{"name":"Titanium Alloy","href":"../items/refined/titanium_alloy.html"},"trade_authenticator":{"name":"Trade Authenticator","href":"../items/component/trade_authenticator.html"},"water_ice":{"name":"Water Ice","href":"../items/ore/water_ice.html"},"water_recycler":{"name":"Water Recycler","href":"../items/component/water_recycler.html"}},"steps":[{"num":0,"options":[{"id":"","label":"Found the station","credits":5000000,"materials":{},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":1,"options":[{"id":"locker_bay","label":"Locker Bay","credits":500000,"materials":{"steel_plate":1600},"upkeep":{"flex_polymer":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":2,"options":[{"id":"faction_workshop","label":"Faction Workshop","credits":500000,"materials":{"circuit_board":400,"steel_plate":800},"upkeep":{"circuit_board":1,"focused_crystal":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":3,"options":[{"id":"refueling_dock","label":"Refueling Dock","credits":500000,"materials":{"fuel_cell":2000,"steel_plate":800},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":4,"options":[{"id":"fuel_tank_expansion","label":"Fuel Tank Expansion","credits":500000,"materials":{"ceramite_plating":1500,"fuel_tank":800,"steel_plate":8000},"upkeep":{"steel_plate":5},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":5,"options":[{"id":"trade_concourse","label":"Trade Concourse","credits":500000,"materials":{"circuit_board":400},"upkeep":{"trade_authenticator":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":6,"options":[{"id":"atmospheric_recycler","label":"Atmospheric Recycler","credits":600000,"materials":{"steel_plate":1200,"water_recycler":200},"upkeep":{"catalytic_scrubber_cartridge":1,"oxygen_gas":2,"purified_water":1,"sunspindle":1,"water_ice":3},"power_supply":0,"power_draw":0,"life_support_supply":12,"life_support_draw":0}]},{"num":7,"options":[{"id":"stellar_collector_grid","label":"Stellar Collector Grid","credits":900000,"materials":{"circuit_board":1200,"steel_plate":2000},"upkeep":{"circuit_board":2},"power_supply":20,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"fuel_cell_generator","label":"Fuel Cell Generator","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"bunker_fed_reactor","label":"Bunker-Fed Reactor","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel":55},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"scrap_reactor","label":"Scrap Reactor","credits":80000,"materials":{"salvage_metal":30,"steel_plate":40},"upkeep":{"fuel_cell":2,"salvage_metal":2},"power_supply":10,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"dark_matter_reactor","label":"Dark Matter Reactor","credits":3000000,"materials":{"circuit_board":1000,"dark_matter_cell":200,"steel_plate":8000},"upkeep":{"dark_matter_cell":1,"fuel_cell":2},"power_supply":48,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":8,"options":[{"id":"outfitting_bay","label":"Outfitting Bay","credits":500000,"materials":{"circuit_board":800,"steel_plate":4000},"upkeep":{"steel_plate":2,"titanium_alloy":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":9,"options":[{"id":"repair_slip","label":"Repair Slip","credits":500000,"materials":{"repair_kit":400,"steel_plate":1200},"upkeep":{"repair_kit":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":10,"options":[{"id":"reclamation_dock","label":"Reclamation Dock","credits":500000,"materials":{"circuit_board":200,"steel_plate":2000},"upkeep":{"fuel_cell":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":11,"options":[{"id":"contract_terminal","label":"Contract Terminal","credits":500000,"materials":{"circuit_board":200},"upkeep":{"circuit_board":1,"copper_wiring":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":12,"options":[{"id":"first_aid_ward","label":"First Aid Ward","credits":500000,"materials":{"circuit_board":250,"medical_supplies":200,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":13,"options":[{"id":"crew_registry","label":"Crew Registry","credits":500000,"materials":{"circuit_board":200,"steel_plate":500},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":14,"options":[{"id":"security_training_post","label":"Security Training Post","credits":500000,"materials":{"circuit_board":150,"steel_plate":700},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]}]};</script>
     <script>
     (function() {
         var drawer = document.getElementById('upkeep-drawer');
@@ -751,10 +786,12 @@ points you to the <a href="../facilities/infrastructure/fuel_tank_expansion.html
         
         var snaps = Array.prototype.slice.call(document.querySelectorAll('.upkeep-at'));
         var cards = snaps.map(function(s) { return document.getElementById('step-' + s.getAttribute('data-step')); });
-        snaps.forEach(function(s) {
-            var d = s.querySelector('details');
-            if (d) d.addEventListener('toggle', function() { snaps.forEach(function(o) { var od = o.querySelector('details'); if (od) od.open = d.open; }); });
-        });
+        var matsOpen = false;
+        if (drawer) drawer.addEventListener('toggle', function(e) {
+            if (e.target.tagName !== 'DETAILS') return;
+            matsOpen = e.target.open;
+            snaps.forEach(function(s) { var d = s.querySelector('details'); if (d && d.open !== matsOpen) d.open = matsOpen; });
+        }, true);
         function spy() {
             var current = 0;
             targets.forEach(function(t, i) { if (t && t.getBoundingClientRect().top < 120) current = i; });
@@ -765,6 +802,90 @@ points you to the <a href="../facilities/infrastructure/fuel_tank_expansion.html
         }
         window.addEventListener('scroll', spy, {passive: true});
         spy();
+
+        var plan = window.GUIDE_PLAN;
+        if (!plan) return;
+        var key = 'guide-choice:' + plan.slug, picks = {};
+        try { picks = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { picks = {}; }
+        var snapHTML = snaps.map(function(s) { return s.innerHTML; });
+        var soFar = Array.prototype.slice.call(document.querySelectorAll('.so-far[data-step]'));
+        var soFarHTML = soFar.map(function(el) { return el.innerHTML; });
+
+        function chosen(st) {
+            for (var i = 0; i < st.options.length; i++) if (st.options[i].id === picks[st.num]) return st.options[i];
+            return st.options[0];
+        }
+        function esc(v) { return String(v).replace(/[&<>"]/g, function(c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
+        function num(n) { return n.toLocaleString('en-US'); }
+        function day(q) { var f = q * plan.cycles_per_day; return f < 100 ? f.toFixed(1) : num(Math.round(f)); }
+        function name(id) { return (plan.items[id] || {name: id}).name; }
+        function link(id) { var it = plan.items[id] || {name: id}; return it.href ? '<a href="' + esc(it.href) + '">' + esc(it.name) + '</a>' : esc(it.name); }
+        function byName(m) { return Object.keys(m).sort(function(a, b) { return name(a) < name(b) ? -1 : name(a) > name(b) ? 1 : 0; }); }
+        function pair(supply, draw) { var v = supply + ' / ' + draw; return draw > supply ? '<span class="deficit">⚠ ' + v + '</span>' : v; }
+        function grid(t) { return 'power ' + pair(t.ps, t.pd) + ' · life support ' + pair(t.ls, t.ld) + ' <span class="text-muted">(supply / draw)</span>'; }
+        function add(t, o) {
+            var u = {credits: t.credits + o.credits, mats: Object.assign({}, t.mats), up: Object.assign({}, t.up),
+                ps: t.ps + o.power_supply, pd: t.pd + o.power_draw, ls: t.ls + o.life_support_supply, ld: t.ld + o.life_support_draw};
+            Object.keys(o.materials).forEach(function(k) { u.mats[k] = (u.mats[k] || 0) + o.materials[k]; });
+            Object.keys(o.upkeep).forEach(function(k) { u.up[k] = (u.up[k] || 0) + o.upkeep[k]; });
+            return u;
+        }
+        var empty = {credits: 0, mats: {}, up: {}, ps: 0, pd: 0, ls: 0, ld: 0};
+        function upkeepTable(t, prev) {
+            var ids = byName(t.up);
+            if (!ids.length) return '<p class="no-upkeep">No upkeep yet</p>';
+            var h = '<table><tr><th>Upkeep</th><th class="num">/cycle</th>' + (plan.per_day ? '<th class="num">/day</th>' : '') + '</tr>';
+            ids.forEach(function(id) {
+                h += '<tr' + (t.up[id] > (prev.up[id] || 0) ? ' class="added"' : '') + '><td>' + link(id) + '</td><td class="num">' + num(t.up[id]) + '</td>' +
+                    (plan.per_day ? '<td class="num">' + day(t.up[id]) + '</td>' : '') + '</tr>';
+            });
+            return h + '</table>';
+        }
+        function soFarText(t) {
+            var ids = Object.keys(t.up), units = 0;
+            ids.forEach(function(id) { units += t.up[id]; });
+            var total = plan.per_day ? day(units) + ' units/day' : num(units) + ' units/cycle';
+            return 'Station so far: ' + ids.length + ' upkeep items, ' + total + ' · ' + grid(t);
+        }
+        function render() {
+            var isDefault = plan.steps.every(function(st) { return chosen(st) === st.options[0]; });
+            document.querySelectorAll('.opt-choice').forEach(function(b) {
+                var st = plan.steps[+b.getAttribute('data-step')];
+                b.setAttribute('aria-pressed', chosen(st).id === b.getAttribute('data-opt') ? 'true' : 'false');
+            });
+            document.querySelectorAll('.opt-panel, .opt-name').forEach(function(el) {
+                var st = plan.steps[+el.getAttribute('data-step')];
+                el.hidden = chosen(st).id !== el.getAttribute('data-opt');
+            });
+            plan.steps.forEach(function(st) {
+                var a = st.options.length > 1 && document.querySelector('.guide-toc a[href="#step-' + st.num + '"]');
+                if (a) a.textContent = 'Step ' + st.num + ': ' + chosen(st).label;
+            });
+            var cur = empty, all = plan.steps.map(function(st) { cur = add(cur, chosen(st)); return cur; });
+            snaps.forEach(function(s, i) {
+                if (isDefault) { s.innerHTML = snapHTML[i]; } else {
+                    var n = +s.getAttribute('data-step'), t = all[n], prev = n ? all[n - 1] : empty, mats = '';
+                    byName(t.mats).forEach(function(id) { mats += '<tr><td>' + link(id) + '</td><td class="num">' + num(t.mats[id]) + '</td></tr>'; });
+                    s.innerHTML = '<p class="at-step">After Step ' + n + ': ' + esc(chosen(plan.steps[n]).label) + '</p>' + upkeepTable(t, prev) +
+                        '<p>' + grid(t) + '</p><p><b>Build credits:</b> ' + num(t.credits) + '</p>' +
+                        '<details><summary>Build materials</summary><table>' + mats + '</table></details>';
+                }
+                var d = s.querySelector('details');
+                if (d) d.open = matsOpen;
+            });
+            soFar.forEach(function(el, i) {
+                el.innerHTML = isDefault ? soFarHTML[i] : soFarText(all[+el.getAttribute('data-step')]);
+            });
+        }
+        document.querySelectorAll('.opt-choice').forEach(function(b) {
+            b.addEventListener('click', function() {
+                var st = plan.steps[+b.getAttribute('data-step')], id = b.getAttribute('data-opt');
+                if (id === st.options[0].id) delete picks[st.num]; else picks[st.num] = id;
+                try { localStorage.setItem(key, JSON.stringify(picks)); } catch (e) {   }
+                render();
+            });
+        });
+        render();
     })();
     </script>
     <script>
