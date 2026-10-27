@@ -49,6 +49,14 @@ type Facility struct {
 	LifeSupportSupply int        `json:"life_support_supply"`
 	LifeSupportDraw   int        `json:"life_support_draw"`
 	ServiceType       string     `json:"service_type"`
+
+	// Service facilities with no maintenance_inputs can still have upkeep: a
+	// pool of service units refilled each cycle from ServicePoolSupplyItem,
+	// ServicePoolUnitsPerItem units per item.
+	ServicePoolCapacity       int    `json:"service_pool_capacity"`
+	ServicePoolRefillPerCycle int    `json:"service_pool_refill_per_cycle"`
+	ServicePoolSupplyItem     string `json:"service_pool_supply_item"`
+	ServicePoolUnitsPerItem   int    `json:"service_pool_units_per_item"`
 }
 
 // Item is the subset of catalog_items.json needed to link to an item's KB page.

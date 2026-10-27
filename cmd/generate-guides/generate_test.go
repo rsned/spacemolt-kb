@@ -19,14 +19,17 @@ const testFacilitiesJSON = `{"items":[
  {"id":"stellar_collector_grid","name":"Stellar Collector Grid","category":"infrastructure","build_cost":900000,"build_time":250,
   "maintenance_inputs":[{"item_id":"circuit_board","quantity":2}],"power_supply":20},
  {"id":"bunker_fed_reactor","name":"Bunker-Fed Reactor","category":"infrastructure","build_cost":500000,"maintenance_fuel":55,"power_supply":12},
- {"id":"bare_shed","name":"Bare Shed","category":"service","build_cost":10}
+ {"id":"bare_shed","name":"Bare Shed","category":"service","build_cost":10},
+ {"id":"first_aid_ward","name":"First Aid Ward","category":"service","service_type":"medical","build_cost":500000,
+  "service_pool_capacity":32,"service_pool_refill_per_cycle":8,"service_pool_supply_item":"medical_supplies","service_pool_units_per_item":5}
 ]}`
 
 const testItemsJSON = `{"items":[
  {"id":"steel_plate","name":"Steel Plate","category":"refined"},
  {"id":"flex_polymer","name":"Flex Polymer","category":"refined"},
  {"id":"water_ice","name":"Water Ice","category":"ore"},
- {"id":"circuit_board","name":"Circuit Board","category":"component"}
+ {"id":"circuit_board","name":"Circuit Board","category":"component"},
+ {"id":"medical_supplies","name":"Medical Supplies","category":"consumable"}
 ]}`
 
 func testSnapshots(t *testing.T) string {
@@ -105,6 +108,35 @@ func TestGenerate_NoUpkeepText(t *testing.T) {
 	b, _ := os.ReadFile(filepath.Join(out, "shed.html"))
 	if !strings.Contains(string(b), "No upkeep") {
 		t.Error("facility without upkeep should say No upkeep")
+	}
+}
+
+// A service facility fed from a service pool has upkeep even though its
+// maintenance_inputs are empty: the card shows the pool, not "No upkeep".
+func TestGenerate_ServicePoolUpkeep(t *testing.T) {
+	dir := t.TempDir()
+	guide := "---\ntitle: Ward\nsteps:\n  - title: Medical\n    facility: first_aid_ward\n---\n"
+	if err := os.WriteFile(filepath.Join(dir, "ward.md"), []byte(guide), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	if _, err := generate(dir, testSnapshots(t), out); err != nil {
+		t.Fatal(err)
+	}
+	b, _ := os.ReadFile(filepath.Join(out, "ward.html"))
+	html := string(b)
+	if strings.Contains(html, `class="no-upkeep">No upkeep<`) {
+		t.Error("service-pool facility should not say No upkeep")
+	}
+	for _, want := range []string{
+		"Service pool",
+		`href="../items/consumable/medical_supplies.html"`,
+		"≈1.6", // 8 refill / 5 units per item
+		"pool 32, refills 8/cycle, 5 units per item",
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("ward card missing %q", want)
+		}
 	}
 }
 

@@ -57,55 +57,43 @@ steps:
     facility: refueling_dock
     notes: |
       Third, because everyone needs fuel: your own miners and haulers working out of the
-      station, and every pilot passing through. Faction members draw from the shared tank for
-      free; everyone else pays your station price (set with `station set_refuel_price`). Until
-      fuel production comes online, keep the tank filled by tankers depositing fuel from their
-      own tanks (storage deposit, `item_id=fuel`). Its upkeep is
-      [[fuel_cell]] and [[liquid_hydrogen]], so plan both supplies before it finishes.
+      station, and every pilot passing through. The dock brings its **own 5,000-unit tank**:
+      `get_base` `max_fuel` went from 200 to 5,000 when ours was built, with no tank expansion
+      (*measured* 2026-10-26). Faction members draw from the shared tank for free; everyone
+      else pays your station price (set with `station set_refuel_price`).
+
+      ⚠ **Stock its upkeep before it finishes:** [[fuel_cell]] and [[liquid_hydrogen]] every
+      cycle. Ours finished with no fuel cells in faction storage, and `get_base` showed
+      `satisfied_count 3 / total_service_infra 4`, condition `operational` ("signs of deferred
+      maintenance") and **no `refuel` in `services`**: an unpaid dock is built but sells
+      nothing. After we deposited 1,000 fuel cells the station was back to `thriving`, 4/4,
+      with `refuel` listed, within 69 ticks (*measured*).
+
+      ⚠ **Then fill the tank.** The dock starts empty, and a refuel answers *"station_fuel_empty:
+      This station's fuel reserves are depleted"* (*measured*). Until fuel production comes
+      online, keep it filled by tankers depositing fuel from their own tanks (storage deposit,
+      `item_id=fuel`).
 
       Until a refuel service exists, ships docked at your station can't refuel at all; the
       server's message (`no_fuel_source … insufficient credits for station refueling`) is
       misleading, because credits are not the problem (*measured*).
-  - title: Fuel storage
-    facility: fuel_tank_expansion
-    notes: |
-      ⚠ **Don't build a [[faction_fuel_bunker]] here.** At your own station the server refuses
-      it: *"a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
-      would just sit unused. Build a Fuel Tank Expansion … instead"* (*measured* 2026-10-26).
-
-      Each expansion adds 50,000 to the station's own shared tank (the bare station tank holds
-      200), and you can build several. Fill it from fuel-production facilities or by depositing
-      a docked ship's fuel (storage deposit, `item_id=fuel`). With `station set_auto_buy_fuel`
-      on, visiting pilots can sell fuel into the tank too, paid from the treasury.
-      Whether the expansions feed the refueling dock's 5,000-unit tank is *not yet measured*.
-  - title: Market
-    facility: trade_concourse
-    notes: |
-      The rest of a full station is its **services**. A mature station lists eleven:
-      `crafting`, `marine_training`, `market`, `medical`, `missions`, `personnel`, `refuel`,
-      `repair`, `salvage_yard`, `shipyard` and `storage` (*player-reported*). Each has a level-1
-      facility a player station can build.
-
-      The market comes right after fuel because it starts the station earning: crossroads
-      traffic trades here, and you set the listing fee they pay with
-      `station set_market_fee`. The catalog lists its upkeep as one [[trade_authenticator]] a
-      cycle, but players have found the authenticators go **per trade**, possibly on top of
-      the per-cycle charge, so a busy market eats them much faster than any other upkeep
-      (*player-reported*). Line up a steady source before you build, sized to your trade
-      volume rather than to the cycle.
   - title: Life support
     facility: atmospheric_recycler
     break_before: |
-      **Next: production support.** With storage, crafting, fuel and a market in place, we
+      **Next: production support.** With storage, crafting and fuel in place, we
       switch from basic services to power and life support, the two things production
       facilities need, so production lines can start moving to the station.
     notes: |
       The heaviest upkeep of the early build: five different inputs every cycle.
       [[water_ice]] is usually mineable nearby (Cloverfield has an ice field); plan a supply of
       the other four before you build. Other players build it third (*player-reported*); we
-      build it after the market, together with power, because the two of them are what
+      build it right after fuel, together with power, because the two of them are what
       production facilities need: this is where more advanced crafting and processing can
       move to the station.
+
+      Without it, production is refused outright: *"no_life_support: This station has no life
+      support yet. Build a life support facility (faction_build) before adding facilities that
+      draw life support."* (*measured* 2026-10-27, building an [[h2_fuel_combustor]]).
 
       There is no other level-1 life-support facility a player station can build. The
       recycler upgrades to [[climate_control_array]] (life support 20), [[biosphere_ring]] (35)
@@ -132,20 +120,37 @@ steps:
       power limit that way. In combat, production stops and the defenses get all the power.
       So build only enough to run your defense facilities at peak (*player-reported*). One
       experienced builder would rebuild all their power as Bunker-Fed Reactors if
-      infrastructure could be dismantled; whether it can is *not yet known*.
+      infrastructure could be dismantled. The server's rent note lists *dismantling* as a
+      facility state, so it looks possible; we have not tried it yet.
 
       We built the grid at Conjunction Junction on 2026-10-26; the build reply again gave
       750 corporation_management XP to every member and showed rent 0. Once it finished,
       `get_base` gained a `power` block (absent until then) showing `supply: 20`, matching the
       catalog, and the grid counted toward station health alongside the Locker Bay
       (`satisfied_count 2 / total_service_infra 2`) (*measured*).
+  - title: Market
+    facility: trade_concourse
+    notes: |
+      The rest of a full station is its **services**. A mature station lists eleven:
+      `crafting`, `marine_training`, `market`, `medical`, `missions`, `personnel`, `refuel`,
+      `repair`, `salvage_yard`, `shipyard` and `storage` (*player-reported*). Each has a level-1
+      facility a player station can build.
+
+      The market is the first build after power and life support, because it starts the
+      station earning: crossroads
+      traffic trades here, and you set the listing fee they pay with
+      `station set_market_fee`. The catalog lists its upkeep as one [[trade_authenticator]] a
+      cycle, but players have found the authenticators go **per trade**, possibly on top of
+      the per-cycle charge, so a busy market eats them much faster than any other upkeep
+      (*player-reported*). Line up a steady source before you build, sized to your trade
+      volume rather than to the cycle.
   - title: Shipyard
     facility: outfitting_bay
     break_before: |
       **From here on the order is flexible.** With storage, crafting, fuel, a market and
       production support in place, build the remaining services as you need them. Our
       suggestion is shipyard, repair and salvage yard first, then missions, medical, personnel
-      and marine training.
+      and marine training, and more fuel tank once the dock's 5,000 runs short.
     notes: |
       The most expensive level-1 service to build: thousands of [[steel_plate]] plus
       [[circuit_board]], and the longest build time. Upkeep includes [[titanium_alloy]].
@@ -193,6 +198,26 @@ steps:
       reading, *not yet measured*. The upgrades use rations faster (2 units each).
       It upgrades to [[marine_training_barracks]], [[fleet_marine_academy]] and
       [[expeditionary_warfare_command]].
+  - title: Fuel storage
+    facility: fuel_tank_expansion
+    notes: |
+      Late in the build: the refueling dock's own 5,000-unit tank is enough to get a station
+      started. Add expansions when that runs short. Each expansion adds 50,000 to the
+      station's shared tank, and you can build several. Fill it from fuel-production
+      facilities or by depositing a docked ship's fuel (storage deposit, `item_id=fuel`). With
+      `station set_auto_buy_fuel` on, visiting pilots can sell fuel into the tank too, paid
+      from the treasury.
+
+      Fuel production needs tank capacity first. With our dock unpaid, an [[h2_fuel_combustor]]
+      was refused: *"no_fuel_bunker: This station needs fuel tank capacity before building fuel
+      production facilities. Use 'faction_build' with facility_type='fuel_tank_expansion'
+      first."* Once the dock was paid for, the same build got past that check, so a working
+      dock appears to count as tank capacity (*measured* 2026-10-26; the inference is ours).
+      Fuel production also draws life support and power.
+
+      ⚠ **Don't build a [[faction_fuel_bunker]] here.** At your own station the server refuses
+      it: *"a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
+      would just sit unused. Build a Fuel Tank Expansion … instead"* (*measured* 2026-10-26).
 ---
 ## Reading your station
 
@@ -284,12 +309,15 @@ The `faction_*` facilities you rent space for at NPC stations (fuel bunkers and 
   (*player-reported*).
 - **Fuel storage.** The [[faction_fuel_bunker]] is refused at your own station; the server
   points you to the [[fuel_tank_expansion]] instead (*measured*).
+- **Fuel production needs a tank first.** Fuel-production facilities are refused without
+  tank capacity, and the error names the [[fuel_tank_expansion]]. A paid-up [[refueling_dock]]
+  appears to satisfy it too (*measured*).
 
 ## Not yet measured
 
 - Real upkeep consumption per cycle (catalog figures are shown above until we have it).
 - How fast a `critical` station recovers once its upkeep is stocked.
 - Defense: guns, ammo and shields.
-- Whether infrastructure facilities (power, life support) can be dismantled or replaced.
+- How dismantling works (the rent note names a *dismantling* state) and what it returns.
 - Exactly how [[trade_authenticator]] upkeep scales with trades.
 - How service pools ([[medical_supplies]], [[protein_rations]]) draw down, and on what cycle.

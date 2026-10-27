@@ -68,8 +68,17 @@ type optionView struct {
 	BuildTime   int
 	Upkeep      []qtyView
 	NoUpkeep    bool
+	Pool        *poolView
 	UpkeepTotal string // "N/cycle" or "N/day"
 	Measured    *measuredView
+}
+
+// poolView is a service facility's upkeep pool: the supply item and the
+// catalog figures the per-cycle estimate comes from.
+type poolView struct {
+	Item                       linkView
+	Capacity, Refill, UnitsPer int
+	PerCycle                   string // "≈1.6": refill / units per item
 }
 
 type measuredView struct {
@@ -92,6 +101,7 @@ type stepView struct {
 	BuildTime  int
 	Upkeep     []qtyView
 	NoUpkeep   bool
+	Pool       *poolView
 	Facts      []fact
 	Notes      htmltpl.HTML
 	Break      htmltpl.HTML
@@ -213,7 +223,8 @@ func (r *renderer) option(id string, def bool, measured *measuredView) optionVie
 	up := upkeepMap(f)
 	o := optionView{ID: id, Default: def, Facility: r.link(id), Gives: gives(f), Credits: commas(f.BuildCost),
 		Materials: r.qtys(materialMap(f.BuildMaterials), false), BuildTime: f.BuildTime,
-		Upkeep: r.qtys(up, true), NoUpkeep: len(up) == 0, UpkeepTotal: r.upkeepTotal(up)}
+		Upkeep: r.qtys(up, true), Pool: r.pool(f), UpkeepTotal: r.upkeepTotal(up)}
+	o.NoUpkeep = len(up) == 0 && o.Pool == nil
 	if def {
 		o.Measured = measured
 	}
@@ -260,6 +271,17 @@ func upkeepMap(f catalog.Facility) map[string]int {
 		out[stationplan.FuelItemID] += f.MaintenanceFuel
 	}
 	return out
+}
+
+// pool is f's service pool, or nil when it has none.
+func (r *renderer) pool(f catalog.Facility) *poolView {
+	if f.ServicePoolSupplyItem == "" || f.ServicePoolUnitsPerItem <= 0 {
+		return nil
+	}
+	per := float64(f.ServicePoolRefillPerCycle) / float64(f.ServicePoolUnitsPerItem)
+	return &poolView{Item: r.link(f.ServicePoolSupplyItem), Capacity: f.ServicePoolCapacity,
+		Refill: f.ServicePoolRefillPerCycle, UnitsPer: f.ServicePoolUnitsPerItem,
+		PerCycle: "≈" + strconv.FormatFloat(per, 'f', -1, 64)}
 }
 
 func gives(f catalog.Facility) string {
@@ -359,7 +381,8 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 			sv.BuildTime = f.BuildTime
 			up := upkeepMap(f)
 			sv.Upkeep = r.qtys(up, true)
-			sv.NoUpkeep = len(up) == 0
+			sv.Pool = r.pool(f)
+			sv.NoUpkeep = len(up) == 0 && sv.Pool == nil
 		}
 		if s.Measured != nil {
 			sv.Measured = &measuredView{Date: s.Measured.Date, Source: s.Measured.Source,
@@ -485,6 +508,8 @@ const pageStyle = `<style>
         .fact { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 20px; padding: 12px 0; border-bottom: 1px solid hsl(var(--border)); }
         .fact dt { color: hsl(var(--muted-foreground)); font-size: .9em; white-space: nowrap; }
         .fact dd b { font-weight: 600; }
+        .upkeep .pool { margin: .5em 0 0; }
+        .upkeep .pool .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
         .fact .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
         .upkeep, .measured { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--smui-yellow) / .06); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 0 0 1.4em; }
         .measured { border-left-color: hsl(var(--smui-green)); background: hsl(var(--smui-green) / .06); font-size: .9em; }
@@ -709,6 +734,7 @@ const pageFoot = themeScript + `
 
 var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}{{end}}
 {{define "upkeep"}}<table><tr><th>Upkeep</th><th class="num">/cycle</th>{{if .}}{{if (index . 0).PerDay}}<th class="num">/day</th>{{end}}{{end}}</tr>{{range .}}<tr{{if .Added}} class="added"{{end}}><td>{{template "link" .Item}}</td><td class="num">{{.PerCycle}}</td>{{if .PerDay}}<td class="num">{{.PerDay}}</td>{{end}}</tr>{{end}}</table>{{end}}
+{{define "pool"}}<p class="pool"><b>Service pool:</b> {{template "link" .Item}} {{.PerCycle}}/cycle <span class="basis">estimate: pool {{.Capacity}}, refills {{.Refill}}/cycle, {{.UnitsPer}} units per item (catalog); not counted in the totals</span></p>{{end}}
 {{define "grid"}}power {{if .PowerDeficit}}<span class="deficit">⚠ {{.Power}}</span>{{else}}{{.Power}}{{end}} · life support {{if .LifeSupportDeficit}}<span class="deficit">⚠ {{.LifeSupport}}</span>{{else}}{{.LifeSupport}}{{end}} <span class="text-muted">(supply / draw)</span>{{end}}
 ` + pageHead + `    <main class="guide-shell">
         <nav class="guide-toc" aria-label="On this page">
@@ -749,7 +775,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
             <p class="step-gives">{{.Gives}}</p>
 {{- end}}
             <p class="step-build"><b>Build:</b> {{.Credits}} cr{{range .Materials}} + {{.Qty}} {{template "link" .Item}}{{end}}{{if .BuildTime}} · {{.BuildTime}} ticks{{end}}</p>
-            <div class="upkeep">{{if .NoUpkeep}}<p class="no-upkeep">No upkeep</p>{{else}}{{template "upkeep" .Upkeep}}{{end}}</div>
+            <div class="upkeep">{{if .NoUpkeep}}<p class="no-upkeep">No upkeep</p>{{else}}{{if .Upkeep}}{{template "upkeep" .Upkeep}}{{end}}{{if .Pool}}{{template "pool" .Pool}}{{end}}{{end}}</div>
 {{- if .Measured}}
             <div class="measured"><b>measured ({{.Measured.Date}})</b>{{if .Measured.Source}} · {{.Measured.Source}}{{end}}{{template "upkeep" .Measured.Upkeep}}</div>
 {{- end}}
@@ -764,7 +790,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- end}}
 {{- if .Facility}}
             <p class="step-build"><b>Build:</b> {{.Credits}} cr{{range .Materials}} + {{.Qty}} {{template "link" .Item}}{{end}}{{if .BuildTime}} · {{.BuildTime}} ticks{{end}}</p>
-            <div class="upkeep">{{if .NoUpkeep}}<p class="no-upkeep">No upkeep</p>{{else}}{{template "upkeep" .Upkeep}}{{end}}</div>
+            <div class="upkeep">{{if .NoUpkeep}}<p class="no-upkeep">No upkeep</p>{{else}}{{if .Upkeep}}{{template "upkeep" .Upkeep}}{{end}}{{if .Pool}}{{template "pool" .Pool}}{{end}}{{end}}</div>
 {{- end}}
 {{- if .Measured}}
             <div class="measured"><b>measured ({{.Measured.Date}})</b>{{if .Measured.Source}} · {{.Measured.Source}}{{end}}{{template "upkeep" .Measured.Upkeep}}</div>
