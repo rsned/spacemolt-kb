@@ -208,12 +208,14 @@ steps:
       `station set_auto_buy_fuel` on, visiting pilots can sell fuel into the tank too, paid
       from the treasury.
 
-      Fuel production needs tank capacity first. With our dock unpaid, an [[h2_fuel_combustor]]
-      was refused: *"no_fuel_bunker: This station needs fuel tank capacity before building fuel
-      production facilities. Use 'faction_build' with facility_type='fuel_tank_expansion'
-      first."* Once the dock was paid for, the same build got past that check, so a working
-      dock appears to count as tank capacity (*measured* 2026-10-26; the inference is ours).
-      Fuel production also draws life support and power.
+      Fuel production needs tank capacity, and the refueling dock's tank counts: you do not
+      need an expansion first. ⚠ **Server bug (developer-confirmed, being fixed):** for up to
+      about 17 minutes after the dock finishes, the station does not count its tank yet.
+      During that window, building a fuel producer or depositing fuel wrongly answers
+      *"no_fuel_bunker: This station needs fuel tank capacity … Use 'faction_build' with
+      facility_type='fuel_tank_expansion' first."* We hit exactly that with an
+      [[h2_fuel_combustor]] (*measured* 2026-10-26). Wait and retry; don't build an expansion
+      because of it. Fuel production also draws life support and power.
 
       ⚠ **Don't build a [[faction_fuel_bunker]] here.** At your own station the server refuses
       it: *"a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
@@ -309,9 +311,12 @@ The `faction_*` facilities you rent space for at NPC stations (fuel bunkers and 
   (*player-reported*).
 - **Fuel storage.** The [[faction_fuel_bunker]] is refused at your own station; the server
   points you to the [[fuel_tank_expansion]] instead (*measured*).
-- **Fuel production needs a tank first.** Fuel-production facilities are refused without
-  tank capacity, and the error names the [[fuel_tank_expansion]]. A paid-up [[refueling_dock]]
-  appears to satisfy it too (*measured*).
+- **"Build a fuel tank expansion first" right after the dock finishes.** For up to about
+  17 minutes after a [[refueling_dock]] completes, fuel producers and fuel deposits are refused
+  with `no_fuel_bunker`, naming the [[fuel_tank_expansion]]. It is a server timing bug
+  (developer-confirmed); the dock's own tank is enough, so retry later (*measured*).
+- **`fuel_depot` is not yours to build.** It is the empire-station fuel facility; at your own
+  station the refuel facility is the [[refueling_dock]] (developer-confirmed).
 
 ## Not yet measured
 
