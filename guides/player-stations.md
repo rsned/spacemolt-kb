@@ -70,8 +70,14 @@ steps:
       with `refuel` listed, within 69 ticks (*measured*).
 
       ⚠ **Then fill the tank.** The dock starts empty, and a refuel answers *"station_fuel_empty:
-      This station's fuel reserves are depleted"* (*measured*). Until fuel production comes
-      online, keep it filled by tankers depositing fuel from their own tanks (storage deposit,
+      This station's fuel reserves are depleted"* (*measured*). The way to fill it is an
+      [[h2_fuel_combustor]]: crafting `manufacture_fuel_basic` there turns 10
+      [[liquid_hydrogen]] into 100 fuel per run (about 1 s a run, 8 cr labor), and the output
+      goes straight into the station's tank, not into faction storage, whatever the craft
+      reply says. Each completed run adds its 100 fuel as it finishes, so the tank climbs
+      steadily while the job runs. Faction storage and the treasury cover the job when the crafter's own
+      can't (*measured* 2026-10-27). Until the combustor is up,
+      a CRFT member can top the tank up from their own ship (`faction_deposit_items`,
       `item_id=fuel`).
 
       Until a refuel service exists, ships docked at your station can't refuel at all; the
