@@ -127,8 +127,7 @@ steps:
       power limit that way. In combat, production stops and the defenses get all the power.
       So build only enough to run your defense facilities at peak (*player-reported*). One
       experienced builder would rebuild all their power as Bunker-Fed Reactors if
-      infrastructure could be dismantled. The server's rent note lists *dismantling* as a
-      facility state, so it looks possible; we have not tried it yet.
+      infrastructure could be dismantled. It can: see [Moving a facility](#moving-a-facility).
 
       We built the grid at Conjunction Junction on 2026-10-26; the build reply again gave
       750 corporation_management XP to every member and showed rent 0. Once it finished,
@@ -311,6 +310,28 @@ The facility catalog marks every facility a player station can build with
 The `faction_*` facilities you rent space for at NPC stations (fuel bunkers and similar) are
 **not** on the list.
 
+## Moving a facility
+
+`facility action=faction_dismantle` takes a facility apart so you can rebuild it somewhere
+else. We first ran it on 2026-10-27, on an [[iron_refinery]] that CRFT rented at Grand
+Exchange Station (*measured*):
+
+- **The facility goes offline at once** and vanishes when the dismantle finishes. Any repair
+  in progress is cancelled, and repair costs already spent are not refunded.
+- **It takes a few minutes**: 231 ticks for the refinery.
+- **All the build materials come back.** The refinery returned 250 [[control_node]] and
+  2,510 [[copper_piping]], exactly its catalog recipe, packed into 28 labeled packages.
+- **Packages land in the faction storage at that station.** Haul them like any cargo, unpack
+  them at the destination, and rebuild from the recovered materials.
+- Items left in faction storage can still be viewed and withdrawn after the storage facility
+  itself is dismantled.
+- Rent pauses while a facility is dismantling (from the rent note).
+
+The reply does not say whether the credit part of the build cost (89,000 for the refinery)
+comes back. Expect to pay it again when you rebuild. Rented `faction_*` facilities at NPC
+stations cannot be rebuilt at your own station. Check that the facility is on the
+[buildable list](#what-you-can-build-here) before dismantling it to move it.
+
 ## Where the official docs are wrong
 
 - **What a station comes with.** The factions guide says market, refuel, repair, shipyard,
@@ -335,6 +356,6 @@ The `faction_*` facilities you rent space for at NPC stations (fuel bunkers and 
 - Real upkeep consumption per cycle (catalog figures are shown above until we have it).
 - How fast a `critical` station recovers once its upkeep is stocked.
 - Defense: guns, ammo and shields.
-- How dismantling works (the rent note names a *dismantling* state) and what it returns.
+- Whether dismantling refunds any credits, how packages are unpacked, and package size.
 - Exactly how [[trade_authenticator]] upkeep scales with trades.
 - How service pools ([[medical_supplies]], [[protein_rations]]) draw down, and on what cycle.
