@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,14 +62,14 @@
 <h2>synthesize_nerve_burn <small>Synthesize Nerve Burn</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L2 (labor 20) · pirate base only</td><td>20</td><td>0</td><td>20</td><td>0.500</td><td>1</td><td>128.42</td><td>1.85</td></tr>
-<tr><td>own L1 (labor 20) · pirate base only</td><td>20</td><td>0</td><td>20</td><td>1.50</td><td>1</td><td>128.42</td><td>2.85</td></tr>
-<tr><td>own L3 (labor 28) · pirate base only</td><td>28</td><td>0</td><td>28</td><td>0.167</td><td>1</td><td>136.42</td><td>1.52</td></tr>
-<tr><td>own L4 (labor 44) · pirate base only</td><td>44</td><td>0</td><td>44</td><td>0.0556</td><td>1</td><td>152.42</td><td>1.41</td></tr>
-<tr><td>BEAT L1 @ Dross Citadel Station (labor 20 + fee 125)</td><td>20</td><td>125</td><td>145</td><td>1.50</td><td>1</td><td class="hl-cheap">253.42</td><td class="hl-fast">2.85</td></tr>
-<tr><td>HEXC L1 @ Mera Sanctum Station (labor 20 + fee 125)</td><td>20</td><td>125</td><td>145</td><td>1.50</td><td>1</td><td>253.42</td><td>2.85</td></tr>
+<tr><td>own L2 (labor 20) · pirate base only <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>0.500</td><td>1</td><td class="hl-cheap-if">128.42</td><td>1.85</td><td>490475</td><td>3924</td></tr>
+<tr><td>own L1 (labor 20) · pirate base only <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>1.50</td><td>1</td><td>128.42</td><td>2.85</td><td>136400</td><td>1092</td></tr>
+<tr><td>own L3 (labor 28) · pirate base only <span class="note">if built</span></td><td>28</td><td>0</td><td>28</td><td>0.167</td><td>1</td><td>136.42</td><td>1.52</td><td>1843825</td><td>15760</td></tr>
+<tr><td>own L4 (labor 44) · pirate base only <span class="note">if built</span></td><td>44</td><td>0</td><td>44</td><td>0.0556</td><td>1</td><td>152.42</td><td class="hl-fast-if">1.41</td><td>6464275</td><td>64003</td></tr>
+<tr><td>BEAT L1 @ Dross Citadel Station (labor 20 + fee 125)</td><td>20</td><td>125</td><td>145</td><td>1.50</td><td>1</td><td class="hl-cheap">253.42</td><td class="hl-fast">2.85</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Mera Sanctum Station (labor 20 + fee 125)</td><td>20</td><td>125</td><td>145</td><td>1.50</td><td>1</td><td>253.42</td><td>2.85</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -78,7 +80,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

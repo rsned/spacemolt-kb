@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,9 +62,17 @@
 <h2>assemble_crystal_sensor_array <small>Assemble Crystal Sensor Array</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>22.8</td><td>2</td><td class="hl-cheap">0</td><td>14.4</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>22.8</td><td>2</td><td class="hl-cheap">0</td><td>14.4</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>4.56</td><td>2</td><td>4</td><td>5.28</td><td>165000</td><td>—</td></tr>
+<tr><td>own L2 (labor 16) <span class="note">if built</span></td><td>16</td><td>0</td><td>16</td><td>1.52</td><td>2</td><td>8</td><td>3.76</td><td>577600</td><td>—</td></tr>
+<tr><td>own L3 (labor 28) <span class="note">if built</span></td><td>28</td><td>0</td><td>28</td><td>0.507</td><td>2</td><td>14</td><td>3.25</td><td>2287550</td><td>—</td></tr>
+<tr><td>own L4 (labor 40) <span class="note">if built</span></td><td>40</td><td>0</td><td>40</td><td>0.169</td><td>2</td><td>20</td><td class="hl-fast-if">3.08</td><td>7277500</td><td>—</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 8 + fee 380)</td><td>8</td><td>380</td><td>388</td><td>3.51</td><td>2</td><td>194</td><td>4.75</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 8 + fee 380)</td><td>8</td><td>380</td><td>388</td><td>3.51</td><td>2</td><td>194</td><td>4.75</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 8 + fee 380) <span class="note">uniform at all empire stations</span></td><td>8</td><td>380</td><td>388</td><td>4.56</td><td>2</td><td>194</td><td>5.28</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 16 + fee 380) <span class="note">uniform at all empire stations</span></td><td>16</td><td>380</td><td>396</td><td>1.52</td><td>2</td><td>198</td><td class="hl-fast">3.76</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -75,9 +85,14 @@
 <h2>build_precision_optics <small>Build Precision Optics</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>34.2</td><td>3</td><td>0</td><td>24.1</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>34.2</td><td>3</td><td>0</td><td>24.1</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 10) <span class="note">if built</span></td><td>10</td><td>0</td><td>10</td><td>6.84</td><td>3</td><td>3.33</td><td>15.0</td><td>160000</td><td>—</td></tr>
+<tr><td>own L2 (labor 20) <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>2.28</td><td>3</td><td>6.67</td><td>13.5</td><td>578000</td><td>—</td></tr>
+<tr><td>own L3 (labor 35) <span class="note">if built</span></td><td>35</td><td>0</td><td>35</td><td>0.760</td><td>3</td><td>11.67</td><td>13.0</td><td>2207400</td><td>—</td></tr>
+<tr><td>own L4 (labor 50) <span class="note">if built</span></td><td>50</td><td>0</td><td>50</td><td>0.253</td><td>3</td><td>16.67</td><td>12.8</td><td>6915350</td><td>—</td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 10 + fee 570)</td><td>10</td><td>570</td><td>580</td><td>5.26</td><td>3</td><td>193.33</td><td>14.5</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -91,18 +106,18 @@
 <h2>construct_sensor_array <small>Construct Sensor Array</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>11.4</td><td>1</td><td>0</td><td>41.4</td></tr>
-<tr><td>own L1 (labor 8)</td><td>8</td><td>0</td><td>8</td><td>2.28</td><td>1</td><td>8</td><td>32.3</td></tr>
-<tr><td>own L2 (labor 16)</td><td>16</td><td>0</td><td>16</td><td>0.760</td><td>1</td><td>16</td><td>30.8</td></tr>
-<tr><td>own L3 (labor 28)</td><td>28</td><td>0</td><td>28</td><td>0.253</td><td>1</td><td>28</td><td>30.3</td></tr>
-<tr><td>own L4 (labor 40)</td><td>40</td><td>0</td><td>40</td><td>0.0844</td><td>1</td><td>40</td><td>30.1</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 8 + fee 190)</td><td>8</td><td>190</td><td>198</td><td>1.75</td><td>1</td><td>198</td><td>31.8</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 8 + fee 190)</td><td>8</td><td>190</td><td>198</td><td>1.75</td><td>1</td><td>198</td><td>31.8</td></tr>
-<tr><td>HEXC L1 @ Crimson War Citadel (labor 8 + fee 190)</td><td>8</td><td>190</td><td>198</td><td>1.98</td><td>1</td><td>198</td><td>32.0</td></tr>
-<tr><td>empire L1 (labor 8 + fee 190) <span class="note">uniform at all empire stations</span></td><td>8</td><td>190</td><td>198</td><td>2.28</td><td>1</td><td>198</td><td>32.3</td></tr>
-<tr><td>HEXC L2 @ Confederacy Central Command (labor 16 + fee 190)</td><td>16</td><td>190</td><td>206</td><td>0.585</td><td>1</td><td>206</td><td>30.6</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>11.4</td><td>1</td><td>0</td><td>41.4</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>2.28</td><td>1</td><td>8</td><td>32.3</td><td>165000</td><td>—</td></tr>
+<tr><td>own L2 (labor 16) <span class="note">if built</span></td><td>16</td><td>0</td><td>16</td><td>0.760</td><td>1</td><td>16</td><td>30.8</td><td>577600</td><td>—</td></tr>
+<tr><td>own L3 (labor 28) <span class="note">if built</span></td><td>28</td><td>0</td><td>28</td><td>0.253</td><td>1</td><td>28</td><td>30.3</td><td>2287550</td><td>—</td></tr>
+<tr><td>own L4 (labor 40) <span class="note">if built</span></td><td>40</td><td>0</td><td>40</td><td>0.0844</td><td>1</td><td>40</td><td>30.1</td><td>7277500</td><td>—</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 8 + fee 190)</td><td>8</td><td>190</td><td>198</td><td>1.75</td><td>1</td><td>198</td><td>31.8</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 8 + fee 190)</td><td>8</td><td>190</td><td>198</td><td>1.75</td><td>1</td><td>198</td><td>31.8</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Crimson War Citadel (labor 8 + fee 190)</td><td>8</td><td>190</td><td>198</td><td>1.98</td><td>1</td><td>198</td><td>32.0</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 8 + fee 190) <span class="note">uniform at all empire stations</span></td><td>8</td><td>190</td><td>198</td><td>2.28</td><td>1</td><td>198</td><td>32.3</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 16 + fee 190)</td><td>16</td><td>190</td><td>206</td><td>0.585</td><td>1</td><td>206</td><td>30.6</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -116,13 +131,13 @@
 <h2>grow_nebula_sensor_crystal <small>Grow Nebula Sensor Crystal</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>22.8</td><td>2</td><td>90</td><td>26.3</td></tr>
-<tr><td>own L1 (labor 10)</td><td>10</td><td>0</td><td>10</td><td>4.56</td><td>2</td><td>95</td><td>17.2</td></tr>
-<tr><td>own L2 (labor 20)</td><td>20</td><td>0</td><td>20</td><td>1.52</td><td>2</td><td>100</td><td>15.6</td></tr>
-<tr><td>own L3 (labor 35)</td><td>35</td><td>0</td><td>35</td><td>0.507</td><td>2</td><td>107.5</td><td>15.1</td></tr>
-<tr><td>own L4 (labor 50)</td><td>50</td><td>0</td><td>50</td><td>0.169</td><td>2</td><td>115</td><td>15.0</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>22.8</td><td>2</td><td>90</td><td>26.3</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 10) <span class="note">if built</span></td><td>10</td><td>0</td><td>10</td><td>4.56</td><td>2</td><td>95</td><td>17.2</td><td>146000</td><td>—</td></tr>
+<tr><td>own L2 (labor 20) <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>1.52</td><td>2</td><td>100</td><td>15.6</td><td>600000</td><td>—</td></tr>
+<tr><td>own L3 (labor 35) <span class="note">if built</span></td><td>35</td><td>0</td><td>35</td><td>0.507</td><td>2</td><td>107.5</td><td>15.1</td><td>2120050</td><td>—</td></tr>
+<tr><td>own L4 (labor 50) <span class="note">if built</span></td><td>50</td><td>0</td><td>50</td><td>0.169</td><td>2</td><td>115</td><td>15.0</td><td>6854200</td><td>—</td></tr>
 </tbody>
 </table>
 </div>
@@ -134,7 +149,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

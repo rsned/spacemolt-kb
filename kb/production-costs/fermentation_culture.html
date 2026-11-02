@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,21 +62,21 @@
 <h2>culture_fermentation_vat <small>Culture Fermentation Vat</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 8)</td><td>8</td><td>0</td><td>8</td><td>0.270</td><td>3</td><td>2.67</td><td>0.273</td></tr>
-<tr><td>own L2 (labor 15)</td><td>15</td><td>0</td><td>15</td><td>0.0900</td><td>3</td><td>5</td><td>0.213</td></tr>
-<tr><td>BEAT L1 @ Confederacy Central Command (labor 8 + fee 13)</td><td>8</td><td>13</td><td>21</td><td>0.235</td><td>3</td><td class="hl-cheap">7</td><td>0.262</td></tr>
-<tr><td>HEXC L1 @ Hex Star (labor 8 + fee 14)</td><td>8</td><td>14</td><td>22</td><td>0.208</td><td>3</td><td>7.33</td><td>0.253</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 8 + fee 14)</td><td>8</td><td>14</td><td>22</td><td>0.208</td><td>3</td><td>7.33</td><td>0.253</td></tr>
-<tr><td>BEIN L1 @ The Hush Chamber (labor 8 + fee 14)</td><td>8</td><td>14</td><td>22</td><td>0.270</td><td>3</td><td>7.33</td><td>0.273</td></tr>
-<tr><td>empire L1 (labor 8 + fee 14) <span class="note">uniform at all empire stations</span></td><td>8</td><td>14</td><td>22</td><td>0.270</td><td>3</td><td>7.33</td><td>0.273</td></tr>
-<tr><td>own L3 (labor 28)</td><td>28</td><td>0</td><td>28</td><td>0.0300</td><td>3</td><td>9.33</td><td>0.193</td></tr>
-<tr><td>BUSY L2 @ The Obsidian Well (labor 15 + fee 14)</td><td>15</td><td>14</td><td>29</td><td>0.0692</td><td>3</td><td>9.67</td><td class="hl-fast">0.206</td></tr>
-<tr><td>HEXC L2 @ Confederacy Central Command (labor 15 + fee 14)</td><td>15</td><td>14</td><td>29</td><td>0.0692</td><td>3</td><td>9.67</td><td>0.206</td></tr>
-<tr><td>HEXC L2 @ Confederacy Central Command (labor 15 + fee 14)</td><td>15</td><td>14</td><td>29</td><td>0.0692</td><td>3</td><td>9.67</td><td>0.206</td></tr>
-<tr><td>own L4 (labor 40)</td><td>40</td><td>0</td><td>40</td><td>0.0100</td><td>3</td><td>13.33</td><td>0.187</td></tr>
-<tr><td>ENDL L2 @ Central Nexus (labor 15 + fee 123)</td><td>15</td><td>123</td><td>138</td><td>0.0692</td><td>3</td><td>46</td><td>0.206</td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>0.270</td><td>3</td><td class="hl-cheap-if">2.67</td><td>0.273</td><td>88000</td><td>20308</td></tr>
+<tr><td>own L2 (labor 15) <span class="note">if built</span></td><td>15</td><td>0</td><td>15</td><td>0.0900</td><td>3</td><td>5</td><td>0.213</td><td>412733.33</td><td>206367</td></tr>
+<tr><td>BEAT L1 @ Confederacy Central Command (labor 8 + fee 13)</td><td>8</td><td>13</td><td>21</td><td>0.235</td><td>3</td><td class="hl-cheap">7</td><td>0.262</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Hex Star (labor 8 + fee 14)</td><td>8</td><td>14</td><td>22</td><td>0.208</td><td>3</td><td>7.33</td><td>0.253</td><td></td><td></td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 8 + fee 14)</td><td>8</td><td>14</td><td>22</td><td>0.208</td><td>3</td><td>7.33</td><td>0.253</td><td></td><td></td></tr>
+<tr><td>BEIN L1 @ The Hush Chamber (labor 8 + fee 14)</td><td>8</td><td>14</td><td>22</td><td>0.270</td><td>3</td><td>7.33</td><td>0.273</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 8 + fee 14) <span class="note">uniform at all empire stations</span></td><td>8</td><td>14</td><td>22</td><td>0.270</td><td>3</td><td>7.33</td><td>0.273</td><td></td><td></td></tr>
+<tr><td>own L3 (labor 28) <span class="note">if built</span></td><td>28</td><td>0</td><td>28</td><td>0.0300</td><td>3</td><td>9.33</td><td>0.193</td><td>1702966.67</td><td>—</td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 15 + fee 14)</td><td>15</td><td>14</td><td>29</td><td>0.0692</td><td>3</td><td>9.67</td><td class="hl-fast">0.206</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 15 + fee 14)</td><td>15</td><td>14</td><td>29</td><td>0.0692</td><td>3</td><td>9.67</td><td>0.206</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 15 + fee 14)</td><td>15</td><td>14</td><td>29</td><td>0.0692</td><td>3</td><td>9.67</td><td>0.206</td><td></td><td></td></tr>
+<tr><td>own L4 (labor 40) <span class="note">if built</span></td><td>40</td><td>0</td><td>40</td><td>0.0100</td><td>3</td><td>13.33</td><td class="hl-fast-if">0.187</td><td>5244466.67</td><td>—</td></tr>
+<tr><td>ENDL L2 @ Central Nexus (labor 15 + fee 123)</td><td>15</td><td>123</td><td>138</td><td>0.0692</td><td>3</td><td>46</td><td>0.206</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -85,7 +87,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

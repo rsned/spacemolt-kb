@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,9 +62,10 @@
 <h2>fusion_pearl_processing <small>Fusion Pearl Processing</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.600</td><td>4</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.150</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.600</td><td>4</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.150</td><td></td><td></td></tr>
+<tr><td>own L2 (labor 11) <span class="note">if built</span></td><td>11</td><td>0</td><td>11</td><td>0.0400</td><td>4</td><td>≥ 2.75 <span class="note">has an unpriced input</span></td><td>0.0100</td><td>221920</td><td>—</td></tr>
 </tbody>
 </table>
 </div>
@@ -74,9 +77,10 @@
 <h2>ember_gland_combustion <small>Ember Gland Combustion</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.500</td><td>3</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.167</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.500</td><td>3</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.167</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>0.100</td><td>3</td><td>≥ 3 <span class="note">has an unpriced input</span></td><td>0.0333</td><td>150000</td><td>—</td></tr>
 </tbody>
 </table>
 </div>
@@ -88,9 +92,10 @@
 <h2>noble_gas_liquefaction <small>Noble Gas Liquefaction</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.500</td><td>3</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.167</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.500</td><td>3</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.167</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>0.100</td><td>3</td><td>≥ 3 <span class="note">has an unpriced input</span></td><td>0.0333</td><td>150000</td><td>—</td></tr>
 </tbody>
 </table>
 </div>
@@ -102,9 +107,14 @@
 <h2>biogas_fuel_synthesis <small>Biogas Fuel Synthesis</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.400</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.200</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.400</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.200</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 6) <span class="note">if built</span></td><td>6</td><td>0</td><td>6</td><td>0.0800</td><td>2</td><td>≥ 3 <span class="note">has an unpriced input</span></td><td>0.0400</td><td>90000</td><td>—</td></tr>
+<tr><td>own L2 (labor 12) <span class="note">if built</span></td><td>12</td><td>0</td><td>12</td><td>0.0267</td><td>2</td><td>≥ 6 <span class="note">has an unpriced input</span></td><td>0.0133</td><td>372400</td><td>—</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 6 + fee 21)</td><td>6</td><td>21</td><td>27</td><td>0.0615</td><td>2</td><td>≥ 13.5 <span class="note">has an unpriced input</span></td><td>0.0308</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 6 + fee 21) <span class="note">uniform at all empire stations</span></td><td>6</td><td>21</td><td>27</td><td>0.0800</td><td>2</td><td>≥ 13.5 <span class="note">has an unpriced input</span></td><td>0.0400</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 12 + fee 21) <span class="note">uniform at all empire stations</span></td><td>12</td><td>21</td><td>33</td><td>0.0267</td><td>2</td><td>≥ 16.5 <span class="note">has an unpriced input</span></td><td>0.0133</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -116,9 +126,12 @@
 <h2>levity_gas_synthesis <small>Levity Gas Synthesis</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.400</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.200</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.400</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.200</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 6) <span class="note">if built</span></td><td>6</td><td>0</td><td>6</td><td>0.0800</td><td>2</td><td>≥ 3 <span class="note">has an unpriced input</span></td><td>0.0400</td><td>90000</td><td>—</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 6 + fee 21)</td><td>6</td><td>21</td><td>27</td><td>0.0615</td><td>2</td><td>≥ 13.5 <span class="note">has an unpriced input</span></td><td>0.0308</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 6 + fee 21) <span class="note">uniform at all empire stations</span></td><td>6</td><td>21</td><td>27</td><td>0.0800</td><td>2</td><td>≥ 13.5 <span class="note">has an unpriced input</span></td><td>0.0400</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -130,9 +143,9 @@
 <h2>drain_fuel_reserves <small>Drain Fuel Reserves</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>1.29</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.645</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>1.29</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.645</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -144,9 +157,14 @@
 <h2>scavenge_fuel_cells <small>Scavenge Fuel Cells</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>2.58</td><td>4</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.645</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>2.58</td><td>4</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.645</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 6) <span class="note">if built</span></td><td>6</td><td>0</td><td>6</td><td>0.516</td><td>4</td><td>≥ 1.5 <span class="note">has an unpriced input</span></td><td>0.129</td><td>113000</td><td>—</td></tr>
+<tr><td>299df2 L1 @ Korr Fortress Station (labor 6 + fee 43)</td><td>6</td><td>43</td><td>49</td><td>0.516</td><td>4</td><td>≥ 12.25 <span class="note">has an unpriced input</span></td><td>0.129</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Mera Sanctum Station (labor 6 + fee 43)</td><td>6</td><td>43</td><td>49</td><td>0.516</td><td>4</td><td>≥ 12.25 <span class="note">has an unpriced input</span></td><td>0.129</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Voss Redoubt Station (labor 6 + fee 43)</td><td>6</td><td>43</td><td>49</td><td>0.516</td><td>4</td><td>≥ 12.25 <span class="note">has an unpriced input</span></td><td>0.129</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 6 + fee 43) <span class="note">uniform at all empire stations</span></td><td>6</td><td>43</td><td>49</td><td>0.516</td><td>4</td><td>≥ 12.25 <span class="note">has an unpriced input</span></td><td>0.129</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -159,9 +177,21 @@
 <h2>crack_plasma_fuel_cells <small>Crack Plasma Fuel Cells</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>1.40</td><td>2</td><td class="hl-cheap">0</td><td>0.835</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>1.40</td><td>2</td><td class="hl-cheap">0</td><td>0.835</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>0.280</td><td>2</td><td>4.5</td><td>0.275</td><td>105000</td><td>—</td></tr>
+<tr><td>own L2 (labor 20) <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>0.0933</td><td>2</td><td>10</td><td>0.182</td><td>749200</td><td>—</td></tr>
+<tr><td>HEXC L1 @ Hex Star (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.215</td><td>2</td><td>15</td><td>0.243</td><td></td><td></td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.215</td><td>2</td><td>15</td><td>0.243</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Hex Wellspring (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.243</td><td>2</td><td>15</td><td>0.257</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 9 + fee 21) <span class="note">uniform at all empire stations</span></td><td>9</td><td>21</td><td>30</td><td>0.280</td><td>2</td><td>15</td><td>0.275</td><td></td><td></td></tr>
+<tr><td>own L3 (labor 35) <span class="note">if built</span></td><td>35</td><td>0</td><td>35</td><td>0.0311</td><td>2</td><td>17.5</td><td>0.151</td><td>2146380</td><td>—</td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 20 + fee 21)</td><td>20</td><td>21</td><td>41</td><td>0.0718</td><td>2</td><td>20.5</td><td>0.171</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 20 + fee 21)</td><td>20</td><td>21</td><td>41</td><td>0.0718</td><td>2</td><td>20.5</td><td>0.171</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 20 + fee 21) <span class="note">uniform at all empire stations</span></td><td>20</td><td>21</td><td>41</td><td>0.0933</td><td>2</td><td>20.5</td><td>0.182</td><td></td><td></td></tr>
+<tr><td>own L4 (labor 50) <span class="note">if built</span></td><td>50</td><td>0</td><td>50</td><td>0.0104</td><td>2</td><td>25</td><td class="hl-fast-if">0.140</td><td>5187860</td><td>—</td></tr>
+<tr><td>empire L3 (labor 35 + fee 21) <span class="note">uniform at all empire stations</span></td><td>35</td><td>21</td><td>56</td><td>0.0311</td><td>2</td><td>28</td><td class="hl-fast">0.151</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -174,21 +204,21 @@
 <h2>craft_fuel_cell <small>Craft Fuel Cell</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.650</td><td>1</td><td>0</td><td>1.67</td></tr>
-<tr><td>own L1 (labor 8)</td><td>8</td><td>0</td><td>8</td><td>0.130</td><td>1</td><td>8</td><td>1.15</td></tr>
-<tr><td>own L1 (labor 8)</td><td>8</td><td>0</td><td>8</td><td>0.130</td><td>1</td><td>8</td><td>1.15</td></tr>
-<tr><td>own L2 (labor 14)</td><td>14</td><td>0</td><td>14</td><td>0.0433</td><td>1</td><td>14</td><td>1.06</td></tr>
-<tr><td>own L2 (labor 15)</td><td>15</td><td>0</td><td>15</td><td>0.0433</td><td>1</td><td>15</td><td>1.06</td></tr>
-<tr><td>HEXC L1 @ Hex Star (labor 8 + fee 10)</td><td>8</td><td>10</td><td>18</td><td>0.100</td><td>1</td><td>18</td><td>1.12</td></tr>
-<tr><td>empire L1 (labor 8 + fee 10) <span class="note">uniform at all empire stations</span></td><td>8</td><td>10</td><td>18</td><td>0.130</td><td>1</td><td>18</td><td>1.15</td></tr>
-<tr><td>own L3 (labor 25)</td><td>25</td><td>0</td><td>25</td><td>0.0144</td><td>1</td><td>25</td><td>1.03</td></tr>
-<tr><td>own L3 (labor 25)</td><td>25</td><td>0</td><td>25</td><td>0.0144</td><td>1</td><td>25</td><td>1.03</td></tr>
-<tr><td>BUSY L2 @ The Obsidian Well (labor 15 + fee 10)</td><td>15</td><td>10</td><td>25</td><td>0.0333</td><td>1</td><td>25</td><td>1.05</td></tr>
-<tr><td>empire L2 (labor 15 + fee 10) <span class="note">uniform at all empire stations</span></td><td>15</td><td>10</td><td>25</td><td>0.0433</td><td>1</td><td>25</td><td>1.06</td></tr>
-<tr><td>own L4 (labor 38)</td><td>38</td><td>0</td><td>38</td><td>0.00481</td><td>1</td><td>38</td><td>1.02</td></tr>
-<tr><td>own L4 (labor 40)</td><td>40</td><td>0</td><td>40</td><td>0.00481</td><td>1</td><td>40</td><td>1.02</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.650</td><td>1</td><td>0</td><td>1.67</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>0.130</td><td>1</td><td>8</td><td>1.15</td><td>95000</td><td>—</td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>0.130</td><td>1</td><td>8</td><td>1.15</td><td>95000</td><td>—</td></tr>
+<tr><td>own L2 (labor 14) <span class="note">if built</span></td><td>14</td><td>0</td><td>14</td><td>0.0433</td><td>1</td><td>14</td><td>1.06</td><td>493200</td><td>—</td></tr>
+<tr><td>own L2 (labor 15) <span class="note">if built</span></td><td>15</td><td>0</td><td>15</td><td>0.0433</td><td>1</td><td>15</td><td>1.06</td><td>490200</td><td>—</td></tr>
+<tr><td>HEXC L1 @ Hex Star (labor 8 + fee 10)</td><td>8</td><td>10</td><td>18</td><td>0.100</td><td>1</td><td>18</td><td>1.12</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 8 + fee 10) <span class="note">uniform at all empire stations</span></td><td>8</td><td>10</td><td>18</td><td>0.130</td><td>1</td><td>18</td><td>1.15</td><td></td><td></td></tr>
+<tr><td>own L3 (labor 25) <span class="note">if built</span></td><td>25</td><td>0</td><td>25</td><td>0.0144</td><td>1</td><td>25</td><td>1.03</td><td>1790725</td><td>—</td></tr>
+<tr><td>own L3 (labor 25) <span class="note">if built</span></td><td>25</td><td>0</td><td>25</td><td>0.0144</td><td>1</td><td>25</td><td>1.03</td><td>1952875</td><td>—</td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 15 + fee 10)</td><td>15</td><td>10</td><td>25</td><td>0.0333</td><td>1</td><td>25</td><td>1.05</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 15 + fee 10) <span class="note">uniform at all empire stations</span></td><td>15</td><td>10</td><td>25</td><td>0.0433</td><td>1</td><td>25</td><td>1.06</td><td></td><td></td></tr>
+<tr><td>own L4 (labor 38) <span class="note">if built</span></td><td>38</td><td>0</td><td>38</td><td>0.00481</td><td>1</td><td>38</td><td>1.02</td><td>6194875</td><td>—</td></tr>
+<tr><td>own L4 (labor 40) <span class="note">if built</span></td><td>40</td><td>0</td><td>40</td><td>0.00481</td><td>1</td><td>40</td><td>1.02</td><td>5959575</td><td>—</td></tr>
 </tbody>
 </table>
 </div>
@@ -201,16 +231,16 @@
 <h2>catalyze_fuel_cells <small>Catalyze Fuel Cells</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 10)</td><td>10</td><td>0</td><td>10</td><td>3.00</td><td>50</td><td>9.44</td><td>0.656</td></tr>
-<tr><td>own L2 (labor 16)</td><td>16</td><td>0</td><td>16</td><td>1.00</td><td>50</td><td>9.56</td><td>0.616</td></tr>
-<tr><td>own L3 (labor 28)</td><td>28</td><td>0</td><td>28</td><td>0.333</td><td>50</td><td>9.8</td><td>0.603</td></tr>
-<tr><td>own L4 (labor 40)</td><td>40</td><td>0</td><td>40</td><td>0.111</td><td>50</td><td>10.04</td><td>0.599</td></tr>
-<tr><td>empire L1 (labor 10 + fee 537) <span class="note">uniform at all empire stations</span></td><td>10</td><td>537</td><td>547</td><td>3.00</td><td>50</td><td>20.18</td><td>0.656</td></tr>
-<tr><td>BUSY L2 @ The Obsidian Well (labor 16 + fee 537)</td><td>16</td><td>537</td><td>553</td><td>0.769</td><td>50</td><td>20.3</td><td>0.612</td></tr>
-<tr><td>empire L2 (labor 16 + fee 537) <span class="note">uniform at all empire stations</span></td><td>16</td><td>537</td><td>553</td><td>1.00</td><td>50</td><td>20.3</td><td>0.616</td></tr>
-<tr><td>empire L3 (labor 28 + fee 537) <span class="note">uniform at all empire stations</span></td><td>28</td><td>537</td><td>565</td><td>0.333</td><td>50</td><td>20.54</td><td>0.603</td></tr>
+<tr><td>own L1 (labor 10) <span class="note">if built</span></td><td>10</td><td>0</td><td>10</td><td>3.00</td><td>50</td><td>9.44</td><td>0.656</td><td>188000</td><td>—</td></tr>
+<tr><td>own L2 (labor 16) <span class="note">if built</span></td><td>16</td><td>0</td><td>16</td><td>1.00</td><td>50</td><td>9.56</td><td>0.616</td><td>754600</td><td>—</td></tr>
+<tr><td>own L3 (labor 28) <span class="note">if built</span></td><td>28</td><td>0</td><td>28</td><td>0.333</td><td>50</td><td>9.8</td><td>0.603</td><td>2612500</td><td>—</td></tr>
+<tr><td>own L4 (labor 40) <span class="note">if built</span></td><td>40</td><td>0</td><td>40</td><td>0.111</td><td>50</td><td>10.04</td><td>0.599</td><td>8696650</td><td>—</td></tr>
+<tr><td>empire L1 (labor 10 + fee 537) <span class="note">uniform at all empire stations</span></td><td>10</td><td>537</td><td>547</td><td>3.00</td><td>50</td><td>20.18</td><td>0.656</td><td></td><td></td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 16 + fee 537)</td><td>16</td><td>537</td><td>553</td><td>0.769</td><td>50</td><td>20.3</td><td>0.612</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 16 + fee 537) <span class="note">uniform at all empire stations</span></td><td>16</td><td>537</td><td>553</td><td>1.00</td><td>50</td><td>20.3</td><td>0.616</td><td></td><td></td></tr>
+<tr><td>empire L3 (labor 28 + fee 537) <span class="note">uniform at all empire stations</span></td><td>28</td><td>537</td><td>565</td><td>0.333</td><td>50</td><td>20.54</td><td>0.603</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -224,15 +254,15 @@
 <h2>synthesize_methane_fuel_cells <small>Synthesize Methane Fuel Cells</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 9)</td><td>9</td><td>0</td><td>9</td><td>0.320</td><td>2</td><td>23.25</td><td>0.345</td></tr>
-<tr><td>own L2 (labor 20)</td><td>20</td><td>0</td><td>20</td><td>0.107</td><td>2</td><td>28.75</td><td>0.238</td></tr>
-<tr><td>HEXC L1 @ Hex Star (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.246</td><td>2</td><td>33.75</td><td>0.308</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.246</td><td>2</td><td>33.75</td><td>0.308</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.246</td><td>2</td><td>33.75</td><td>0.308</td></tr>
-<tr><td>own L3 (labor 35)</td><td>35</td><td>0</td><td>35</td><td>0.0356</td><td>2</td><td>36.25</td><td>0.202</td></tr>
-<tr><td>own L4 (labor 50)</td><td>50</td><td>0</td><td>50</td><td>0.0119</td><td>2</td><td>43.75</td><td>0.191</td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>0.320</td><td>2</td><td>23.25</td><td>0.345</td><td>105000</td><td>—</td></tr>
+<tr><td>own L2 (labor 20) <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>0.107</td><td>2</td><td>28.75</td><td>0.238</td><td>715000</td><td>—</td></tr>
+<tr><td>HEXC L1 @ Hex Star (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.246</td><td>2</td><td>33.75</td><td>0.308</td><td></td><td></td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.246</td><td>2</td><td>33.75</td><td>0.308</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 9 + fee 21)</td><td>9</td><td>21</td><td>30</td><td>0.246</td><td>2</td><td>33.75</td><td>0.308</td><td></td><td></td></tr>
+<tr><td>own L3 (labor 35) <span class="note">if built</span></td><td>35</td><td>0</td><td>35</td><td>0.0356</td><td>2</td><td>36.25</td><td>0.202</td><td>2032380</td><td>—</td></tr>
+<tr><td>own L4 (labor 50) <span class="note">if built</span></td><td>50</td><td>0</td><td>50</td><td>0.0119</td><td>2</td><td>43.75</td><td>0.191</td><td>4906660</td><td>—</td></tr>
 </tbody>
 </table>
 </div>
@@ -243,7 +273,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

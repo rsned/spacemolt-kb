@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,9 +62,18 @@
 <h2>carapace_plating <small>Carapace Plating</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.500</td><td>1</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.500</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.500</td><td>1</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.500</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 6) <span class="note">if built</span></td><td>6</td><td>0</td><td>6</td><td>0.100</td><td>1</td><td>≥ 6 <span class="note">has an unpriced input</span></td><td>0.100</td><td>90000</td><td>593</td></tr>
+<tr><td>own L2 (labor 12) <span class="note">if built</span></td><td>12</td><td>0</td><td>12</td><td>0.0333</td><td>1</td><td>≥ 12 <span class="note">has an unpriced input</span></td><td>0.0333</td><td>372400</td><td>2551</td></tr>
+<tr><td>HEXC L1 @ Hex Star (labor 6 + fee 112)</td><td>6</td><td>112</td><td>118</td><td>0.0769</td><td>1</td><td>≥ 118 <span class="note">has an unpriced input</span></td><td>0.0769</td><td></td><td></td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 6 + fee 112)</td><td>6</td><td>112</td><td>118</td><td>0.0769</td><td>1</td><td>≥ 118 <span class="note">has an unpriced input</span></td><td>0.0769</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Hex Wellspring (labor 6 + fee 112)</td><td>6</td><td>112</td><td>118</td><td>0.0870</td><td>1</td><td>≥ 118 <span class="note">has an unpriced input</span></td><td>0.0870</td><td></td><td></td></tr>
+<tr><td>DEAD L1 @ Private Rain (labor 6 + fee 112)</td><td>6</td><td>112</td><td>118</td><td>0.100</td><td>1</td><td>≥ 118 <span class="note">has an unpriced input</span></td><td>0.100</td><td></td><td></td></tr>
+<tr><td>BEIN L1 @ The Hush Chamber (labor 6 + fee 112)</td><td>6</td><td>112</td><td>118</td><td>0.100</td><td>1</td><td>≥ 118 <span class="note">has an unpriced input</span></td><td>0.100</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 6 + fee 112) <span class="note">uniform at all empire stations</span></td><td>6</td><td>112</td><td>118</td><td>0.100</td><td>1</td><td>≥ 118 <span class="note">has an unpriced input</span></td><td>0.100</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 12 + fee 112) <span class="note">uniform at all empire stations</span></td><td>12</td><td>112</td><td>124</td><td>0.0333</td><td>1</td><td>≥ 124 <span class="note">has an unpriced input</span></td><td>0.0333</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -74,9 +85,11 @@
 <h2>mantis_claw_plating <small>Mantis Claw Plating</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.700</td><td>1</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.700</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.700</td><td>1</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.700</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>0.140</td><td>1</td><td>≥ 9 <span class="note">has an unpriced input</span></td><td>0.140</td><td>161920</td><td>1087</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 9 + fee 112)</td><td>9</td><td>112</td><td>121</td><td>0.108</td><td>1</td><td>≥ 121 <span class="note">has an unpriced input</span></td><td>0.108</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -88,11 +101,11 @@
 <h2>rime_fang_plating <small>Rime Fang Plating</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.700</td><td>1</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.700</td></tr>
-<tr><td>own L1 (labor 9)</td><td>9</td><td>0</td><td>9</td><td>0.140</td><td>1</td><td>≥ 9 <span class="note">has an unpriced input</span></td><td>0.140</td></tr>
-<tr><td>empire L1 (labor 9 + fee 112) <span class="note">uniform at all empire stations</span></td><td>9</td><td>112</td><td>121</td><td>0.140</td><td>1</td><td>≥ 121 <span class="note">has an unpriced input</span></td><td>0.140</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.700</td><td>1</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.700</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>0.140</td><td>1</td><td>≥ 9 <span class="note">has an unpriced input</span></td><td>0.140</td><td>161920</td><td>1087</td></tr>
+<tr><td>empire L1 (labor 9 + fee 112) <span class="note">uniform at all empire stations</span></td><td>9</td><td>112</td><td>121</td><td>0.140</td><td>1</td><td>≥ 121 <span class="note">has an unpriced input</span></td><td>0.140</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -104,12 +117,12 @@
 <h2>forge_scrap_armor <small>Forge Scrap Armor</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>13.5</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>6.75</td></tr>
-<tr><td>own L1 (labor 8)</td><td>8</td><td>0</td><td>8</td><td>2.70</td><td>2</td><td>≥ 4 <span class="note">has an unpriced input</span></td><td>1.35</td></tr>
-<tr><td>HEXC L1 @ Voss Redoubt Station (labor 8 + fee 225)</td><td>8</td><td>225</td><td>233</td><td>2.70</td><td>2</td><td>≥ 116.5 <span class="note">has an unpriced input</span></td><td>1.35</td></tr>
-<tr><td>empire L1 (labor 8 + fee 225) <span class="note">uniform at all empire stations</span></td><td>8</td><td>225</td><td>233</td><td>2.70</td><td>2</td><td>≥ 116.5 <span class="note">has an unpriced input</span></td><td>1.35</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>13.5</td><td>2</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>6.75</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>2.70</td><td>2</td><td>≥ 4 <span class="note">has an unpriced input</span></td><td>1.35</td><td>126000</td><td>819</td></tr>
+<tr><td>HEXC L1 @ Voss Redoubt Station (labor 8 + fee 225)</td><td>8</td><td>225</td><td>233</td><td>2.70</td><td>2</td><td>≥ 116.5 <span class="note">has an unpriced input</span></td><td>1.35</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 8 + fee 225) <span class="note">uniform at all empire stations</span></td><td>8</td><td>225</td><td>233</td><td>2.70</td><td>2</td><td>≥ 116.5 <span class="note">has an unpriced input</span></td><td>1.35</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -122,16 +135,16 @@
 <h2>forge_armor_plate <small>Forge Armor Plate</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>6.75</td><td>1</td><td class="hl-cheap">158</td><td>8.27</td></tr>
-<tr><td>own L1 (labor 8)</td><td>8</td><td>0</td><td>8</td><td>1.35</td><td>1</td><td>166</td><td>2.87</td></tr>
-<tr><td>own L2 (labor 16)</td><td>16</td><td>0</td><td>16</td><td>0.450</td><td>1</td><td>174</td><td>1.97</td></tr>
-<tr><td>own L3 (labor 28)</td><td>28</td><td>0</td><td>28</td><td>0.150</td><td>1</td><td>186</td><td>1.67</td></tr>
-<tr><td>own L4 (labor 40)</td><td>40</td><td>0</td><td>40</td><td>0.0500</td><td>1</td><td>198</td><td>1.57</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 8 + fee 112)</td><td>8</td><td>112</td><td>120</td><td>1.04</td><td>1</td><td>278</td><td class="hl-fast">2.55</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 8 + fee 112)</td><td>8</td><td>112</td><td>120</td><td>1.04</td><td>1</td><td>278</td><td>2.55</td></tr>
-<tr><td>empire L1 (labor 8 + fee 112) <span class="note">uniform at all empire stations</span></td><td>8</td><td>112</td><td>120</td><td>1.35</td><td>1</td><td>278</td><td>2.87</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>6.75</td><td>1</td><td class="hl-cheap">158</td><td>8.27</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>1.35</td><td>1</td><td>166</td><td>2.87</td><td>119000</td><td>—</td></tr>
+<tr><td>own L2 (labor 16) <span class="note">if built</span></td><td>16</td><td>0</td><td>16</td><td>0.450</td><td>1</td><td>174</td><td>1.97</td><td>504500</td><td>—</td></tr>
+<tr><td>own L3 (labor 28) <span class="note">if built</span></td><td>28</td><td>0</td><td>28</td><td>0.150</td><td>1</td><td>186</td><td>1.67</td><td>1893600</td><td>—</td></tr>
+<tr><td>own L4 (labor 40) <span class="note">if built</span></td><td>40</td><td>0</td><td>40</td><td>0.0500</td><td>1</td><td>198</td><td class="hl-fast-if">1.57</td><td>5699300</td><td>—</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 8 + fee 112)</td><td>8</td><td>112</td><td>120</td><td>1.04</td><td>1</td><td>278</td><td class="hl-fast">2.55</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 8 + fee 112)</td><td>8</td><td>112</td><td>120</td><td>1.04</td><td>1</td><td>278</td><td>2.55</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 8 + fee 112) <span class="note">uniform at all empire stations</span></td><td>8</td><td>112</td><td>120</td><td>1.35</td><td>1</td><td>278</td><td>2.87</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -143,7 +156,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

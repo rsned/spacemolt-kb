@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,18 +62,18 @@
 <h2>draw_gold_wire <small>Draw Gold Wire</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>2.85</td><td>1</td><td class="hl-cheap">0</td><td>2.85</td></tr>
-<tr><td>own L1 (labor 6)</td><td>6</td><td>0</td><td>6</td><td>0.570</td><td>1</td><td>6</td><td>0.570</td></tr>
-<tr><td>8d6cdc L1 @ Confederacy Central Command (labor 6 + fee 1)</td><td>6</td><td>1</td><td>7</td><td>0.570</td><td>1</td><td>7</td><td>0.570</td></tr>
-<tr><td>own L2 (labor 12)</td><td>12</td><td>0</td><td>12</td><td>0.190</td><td>1</td><td>12</td><td>0.190</td></tr>
-<tr><td>own L3 (labor 21)</td><td>21</td><td>0</td><td>21</td><td>0.0633</td><td>1</td><td>21</td><td>0.0633</td></tr>
-<tr><td>own L4 (labor 30)</td><td>30</td><td>0</td><td>30</td><td>0.0211</td><td>1</td><td>30</td><td>0.0211</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 6 + fee 47)</td><td>6</td><td>47</td><td>53</td><td>0.438</td><td>1</td><td>53</td><td>0.438</td></tr>
-<tr><td>BEIN L1 @ The Hush Chamber (labor 6 + fee 47)</td><td>6</td><td>47</td><td>53</td><td>0.570</td><td>1</td><td>53</td><td>0.570</td></tr>
-<tr><td>empire L1 (labor 6 + fee 47) <span class="note">uniform at all empire stations</span></td><td>6</td><td>47</td><td>53</td><td>0.570</td><td>1</td><td>53</td><td>0.570</td></tr>
-<tr><td>HEXC L2 @ Confederacy Central Command (labor 12 + fee 47)</td><td>12</td><td>47</td><td>59</td><td>0.146</td><td>1</td><td>59</td><td class="hl-fast">0.146</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>2.85</td><td>1</td><td class="hl-cheap">0</td><td>2.85</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 6) <span class="note">if built</span></td><td>6</td><td>0</td><td>6</td><td>0.570</td><td>1</td><td>6</td><td>0.570</td><td>105000</td><td>—</td></tr>
+<tr><td>8d6cdc L1 @ Confederacy Central Command (labor 6 + fee 1)</td><td>6</td><td>1</td><td>7</td><td>0.570</td><td>1</td><td>7</td><td>0.570</td><td></td><td></td></tr>
+<tr><td>own L2 (labor 12) <span class="note">if built</span></td><td>12</td><td>0</td><td>12</td><td>0.190</td><td>1</td><td>12</td><td>0.190</td><td>540600</td><td>—</td></tr>
+<tr><td>own L3 (labor 21) <span class="note">if built</span></td><td>21</td><td>0</td><td>21</td><td>0.0633</td><td>1</td><td>21</td><td>0.0633</td><td>2104675</td><td>—</td></tr>
+<tr><td>own L4 (labor 30) <span class="note">if built</span></td><td>30</td><td>0</td><td>30</td><td>0.0211</td><td>1</td><td>30</td><td class="hl-fast-if">0.0211</td><td>7097850</td><td>—</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 6 + fee 47)</td><td>6</td><td>47</td><td>53</td><td>0.438</td><td>1</td><td>53</td><td>0.438</td><td></td><td></td></tr>
+<tr><td>BEIN L1 @ The Hush Chamber (labor 6 + fee 47)</td><td>6</td><td>47</td><td>53</td><td>0.570</td><td>1</td><td>53</td><td>0.570</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 6 + fee 47) <span class="note">uniform at all empire stations</span></td><td>6</td><td>47</td><td>53</td><td>0.570</td><td>1</td><td>53</td><td>0.570</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 12 + fee 47)</td><td>12</td><td>47</td><td>59</td><td>0.146</td><td>1</td><td>59</td><td class="hl-fast">0.146</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -81,7 +83,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

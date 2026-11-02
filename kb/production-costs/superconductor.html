@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,9 +62,19 @@
 <h2>create_superconductor <small>Create Superconductor</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 9)</td><td>9</td><td>0</td><td>9</td><td>1.68</td><td>1</td><td>9</td><td>2.64</td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>1.68</td><td>1</td><td class="hl-cheap-if">9</td><td>2.64</td><td>132000</td><td>1016</td></tr>
+<tr><td>own L2 (labor 18) <span class="note">if built</span></td><td>18</td><td>0</td><td>18</td><td>0.560</td><td>1</td><td>18</td><td>1.52</td><td>621200</td><td>5134</td></tr>
+<tr><td>own L3 (labor 32) <span class="note">if built</span></td><td>32</td><td>0</td><td>32</td><td>0.187</td><td>1</td><td>32</td><td>1.15</td><td>2203300</td><td>20592</td></tr>
+<tr><td>own L4 (labor 45) <span class="note">if built</span></td><td>45</td><td>0</td><td>45</td><td>0.0622</td><td>1</td><td>45</td><td class="hl-fast-if">1.02</td><td>7245775</td><td>77083</td></tr>
+<tr><td>STLR L1 @ Crimson War Citadel (labor 9 + fee 139)</td><td>9</td><td>139</td><td>148</td><td>1.68</td><td>1</td><td>148</td><td>2.64</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 9 + fee 140)</td><td>9</td><td>140</td><td>149</td><td>1.29</td><td>1</td><td>149</td><td>2.25</td><td></td><td></td></tr>
+<tr><td>BEIN L1 @ The Hush Chamber (labor 9 + fee 140)</td><td>9</td><td>140</td><td>149</td><td>1.68</td><td>1</td><td>149</td><td>2.64</td><td></td><td></td></tr>
+<tr><td>BEAT L1 @ Starfall Salvage Station (labor 9 + fee 140)</td><td>9</td><td>140</td><td>149</td><td>1.68</td><td>1</td><td>149</td><td>2.64</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 9 + fee 140) <span class="note">uniform at all empire stations</span></td><td>9</td><td>140</td><td>149</td><td>1.68</td><td>1</td><td>149</td><td>2.64</td><td></td><td></td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 18 + fee 140)</td><td>18</td><td>140</td><td>158</td><td>0.431</td><td>1</td><td>158</td><td class="hl-fast">1.39</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 18 + fee 140)</td><td>18</td><td>140</td><td>158</td><td>0.431</td><td>1</td><td>158</td><td>1.39</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -76,9 +88,16 @@
 <h2>create_silver_superconductor <small>Create Silver Superconductor</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 9)</td><td>9</td><td>0</td><td>9</td><td>1.68</td><td>1</td><td>9</td><td>5.28</td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>1.68</td><td>1</td><td>9</td><td>5.28</td><td>127000</td><td>977</td></tr>
+<tr><td>own L2 (labor 18) <span class="note">if built</span></td><td>18</td><td>0</td><td>18</td><td>0.560</td><td>1</td><td>18</td><td>4.16</td><td>634600</td><td>5245</td></tr>
+<tr><td>own L3 (labor 32) <span class="note">if built</span></td><td>32</td><td>0</td><td>32</td><td>0.187</td><td>1</td><td>32</td><td>3.79</td><td>2246275</td><td>20994</td></tr>
+<tr><td>own L4 (labor 45) <span class="note">if built</span></td><td>45</td><td>0</td><td>45</td><td>0.0622</td><td>1</td><td>45</td><td>3.66</td><td>7684775</td><td>81753</td></tr>
+<tr><td>BEAT L1 @ Confederacy Central Command (labor 9 + fee 130)</td><td>9</td><td>130</td><td>139</td><td>1.46</td><td>1</td><td class="hl-cheap">139</td><td>5.06</td><td></td><td></td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 9 + fee 140)</td><td>9</td><td>140</td><td>149</td><td>1.29</td><td>1</td><td>149</td><td>4.89</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 9 + fee 140)</td><td>9</td><td>140</td><td>149</td><td>1.29</td><td>1</td><td>149</td><td>4.89</td><td></td><td></td></tr>
+<tr><td>BEIN L1 @ The Hush Chamber (labor 9 + fee 140)</td><td>9</td><td>140</td><td>149</td><td>1.68</td><td>1</td><td>149</td><td>5.28</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -92,11 +111,11 @@
 <h2>cobalt_superconductor <small>Cobalt Superconductor</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L2 (labor 11)</td><td>11</td><td>0</td><td>11</td><td>0.560</td><td>1</td><td>≥ 11 <span class="note">has an unpriced input</span></td><td>2.72</td></tr>
-<tr><td>BUSY L2 @ The Obsidian Well (labor 11 + fee 140)</td><td>11</td><td>140</td><td>151</td><td>0.431</td><td>1</td><td>≥ 151 <span class="note">has an unpriced input</span></td><td>2.59</td></tr>
-<tr><td>HEXC L2 @ Confederacy Central Command (labor 11 + fee 140)</td><td>11</td><td>140</td><td>151</td><td>0.431</td><td>1</td><td>≥ 151 <span class="note">has an unpriced input</span></td><td>2.59</td></tr>
+<tr><td>own L2 (labor 11) <span class="note">if built</span></td><td>11</td><td>0</td><td>11</td><td>0.560</td><td>1</td><td>≥ 11 <span class="note">has an unpriced input</span></td><td>2.72</td><td>220000</td><td>1719</td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 11 + fee 140)</td><td>11</td><td>140</td><td>151</td><td>0.431</td><td>1</td><td>≥ 151 <span class="note">has an unpriced input</span></td><td>2.59</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 11 + fee 140)</td><td>11</td><td>140</td><td>151</td><td>0.431</td><td>1</td><td>≥ 151 <span class="note">has an unpriced input</span></td><td>2.59</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -109,10 +128,10 @@
 <h2>smelt_noble_superconductor <small>Smelt Noble Superconductor</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 14)</td><td>14</td><td>0</td><td>14</td><td>1.68</td><td>1</td><td>≥ 14 <span class="note">has an unpriced input</span></td><td>2.32</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 14 + fee 140)</td><td>14</td><td>140</td><td>154</td><td>1.29</td><td>1</td><td>≥ 154 <span class="note">has an unpriced input</span></td><td>1.93</td></tr>
+<tr><td>own L1 (labor 14) <span class="note">if built</span></td><td>14</td><td>0</td><td>14</td><td>1.68</td><td>1</td><td>≥ 14 <span class="note">has an unpriced input</span></td><td>2.32</td><td>220000</td><td>1760</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 14 + fee 140)</td><td>14</td><td>140</td><td>154</td><td>1.29</td><td>1</td><td>≥ 154 <span class="note">has an unpriced input</span></td><td>1.93</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -123,7 +142,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

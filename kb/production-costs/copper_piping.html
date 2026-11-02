@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,9 +62,11 @@
 <h2>verdigris_smelting <small>Verdigris Smelting</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.400</td><td>3</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.133</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>0.400</td><td>3</td><td>≥ 0 <span class="note">has an unpriced input</span></td><td>0.133</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 6) <span class="note">if built</span></td><td>6</td><td>0</td><td>6</td><td>0.0800</td><td>3</td><td>≥ 2 <span class="note">has an unpriced input</span></td><td>0.0267</td><td>90000</td><td>—</td></tr>
+<tr><td>HEXC L1 @ Hex Wellspring (labor 6 + fee 22)</td><td>6</td><td>22</td><td>28</td><td>0.0696</td><td>3</td><td>≥ 9.33 <span class="note">has an unpriced input</span></td><td>0.0232</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -74,22 +78,22 @@
 <h2>draw_copper_piping <small>Draw Copper Piping</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>1.80</td><td>4</td><td class="hl-cheap">0</td><td>0.585</td></tr>
-<tr><td>own L1 (labor 5)</td><td>5</td><td>0</td><td>5</td><td>0.360</td><td>4</td><td>1.25</td><td>0.225</td></tr>
-<tr><td>own L2 (labor 10)</td><td>10</td><td>0</td><td>10</td><td>0.120</td><td>4</td><td>2.5</td><td>0.165</td></tr>
-<tr><td>own L3 (labor 18)</td><td>18</td><td>0</td><td>18</td><td>0.0400</td><td>4</td><td>4.5</td><td>0.145</td></tr>
-<tr><td>own L4 (labor 25)</td><td>25</td><td>0</td><td>25</td><td>0.0133</td><td>4</td><td>6.25</td><td>0.138</td></tr>
-<tr><td>HEXC L1 @ Hex Star (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.277</td><td>4</td><td>8.75</td><td>0.204</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.277</td><td>4</td><td>8.75</td><td>0.204</td></tr>
-<tr><td>HEXC L1 @ Hex Wellspring (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.313</td><td>4</td><td>8.75</td><td>0.213</td></tr>
-<tr><td>HEXC L1 @ Unknown Edge Waystation (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.313</td><td>4</td><td>8.75</td><td>0.213</td></tr>
-<tr><td>DEAD L1 @ Private Rain (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.360</td><td>4</td><td>8.75</td><td>0.225</td></tr>
-<tr><td>BEIN L1 @ The Hush Chamber (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.360</td><td>4</td><td>8.75</td><td>0.225</td></tr>
-<tr><td>empire L1 (labor 5 + fee 30) <span class="note">uniform at all empire stations</span></td><td>5</td><td>30</td><td>35</td><td>0.360</td><td>4</td><td>8.75</td><td>0.225</td></tr>
-<tr><td>HEXC L2 @ Confederacy Central Command (labor 10 + fee 30)</td><td>10</td><td>30</td><td>40</td><td>0.0923</td><td>4</td><td>10</td><td class="hl-fast">0.158</td></tr>
-<tr><td>empire L2 (labor 10 + fee 30) <span class="note">uniform at all empire stations</span></td><td>10</td><td>30</td><td>40</td><td>0.120</td><td>4</td><td>10</td><td>0.165</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>1.80</td><td>4</td><td class="hl-cheap">0</td><td>0.585</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 5) <span class="note">if built</span></td><td>5</td><td>0</td><td>5</td><td>0.360</td><td>4</td><td>1.25</td><td>0.225</td><td>101000</td><td>—</td></tr>
+<tr><td>own L2 (labor 10) <span class="note">if built</span></td><td>10</td><td>0</td><td>10</td><td>0.120</td><td>4</td><td>2.5</td><td>0.165</td><td>424950</td><td>—</td></tr>
+<tr><td>own L3 (labor 18) <span class="note">if built</span></td><td>18</td><td>0</td><td>18</td><td>0.0400</td><td>4</td><td>4.5</td><td>0.145</td><td>1797700</td><td>—</td></tr>
+<tr><td>own L4 (labor 25) <span class="note">if built</span></td><td>25</td><td>0</td><td>25</td><td>0.0133</td><td>4</td><td>6.25</td><td class="hl-fast-if">0.138</td><td>5991600</td><td>—</td></tr>
+<tr><td>HEXC L1 @ Hex Star (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.277</td><td>4</td><td>8.75</td><td>0.204</td><td></td><td></td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.277</td><td>4</td><td>8.75</td><td>0.204</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Hex Wellspring (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.313</td><td>4</td><td>8.75</td><td>0.213</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Unknown Edge Waystation (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.313</td><td>4</td><td>8.75</td><td>0.213</td><td></td><td></td></tr>
+<tr><td>DEAD L1 @ Private Rain (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.360</td><td>4</td><td>8.75</td><td>0.225</td><td></td><td></td></tr>
+<tr><td>BEIN L1 @ The Hush Chamber (labor 5 + fee 30)</td><td>5</td><td>30</td><td>35</td><td>0.360</td><td>4</td><td>8.75</td><td>0.225</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 5 + fee 30) <span class="note">uniform at all empire stations</span></td><td>5</td><td>30</td><td>35</td><td>0.360</td><td>4</td><td>8.75</td><td>0.225</td><td></td><td></td></tr>
+<tr><td>HEXC L2 @ Confederacy Central Command (labor 10 + fee 30)</td><td>10</td><td>30</td><td>40</td><td>0.0923</td><td>4</td><td>10</td><td class="hl-fast">0.158</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 10 + fee 30) <span class="note">uniform at all empire stations</span></td><td>10</td><td>30</td><td>40</td><td>0.120</td><td>4</td><td>10</td><td>0.165</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -100,7 +104,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {
