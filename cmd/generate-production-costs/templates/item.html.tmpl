@@ -1,0 +1,21 @@
+{{template "head" .}}
+<p><a href="./">&larr; Production Costs</a></p>
+<h1>{{.Name}}</h1>
+<p>{{if .ItemHref}}<a href="{{.ItemHref}}">Item page</a> &middot; {{end}}<a href="{{.BuildHref}}">Build cost</a></p>
+{{if .NoUsable}}<p class="note">no usable route</p>{{end}}
+{{range .Recipes}}
+<h2>{{.ID}}{{if .Name}} <small>{{.Name}}</small>{{end}}</h2>
+<div class="scrollx">
+<table class="pc-table rt">
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<tbody>
+{{range .Routes}}<tr><td>{{.Label}}</td><td>{{.Labor}}</td><td>{{.Fee}}</td><td>{{.RunTotal}}</td><td>{{.Ticks}}</td><td>{{.Out}}</td>{{template "costcells" .}}</tr>
+{{end}}</tbody>
+</table>
+</div>
+<h3>Inputs <small>per output unit</small></h3>
+<ul>
+{{range .Inputs}}<li>{{.Qty}} &times; {{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}} <span class="note">{{.Via}}</span></li>
+{{end}}</ul>
+{{end}}
+{{template "foot" .}}

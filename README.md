@@ -51,6 +51,7 @@ The two `*.db` files are symlinks to their authoritative sources; the KB is read
 | `planet-land-ratio-test` | Test grid of planet types across a range of land/liquid ratios, plus an HTML preview. | _(hardcoded, writes to `/tmp/land-ratio-test`)_ |
 | `generate-bom-explorer` | Builds `kb/build-costs/recipe-graph.json`, the data file for the interactive Bill of Materials explorer (`kb/build-costs/explorer.html`). Reads only `crafting.db` and the newest snapshot catalogs — no market DB, so it never goes stale against market data. | `-crafting`, `-catalog`, `-out` |
 | `generate-guides` | Renders hand-written guides (`guides/*.md`: YAML frontmatter + markdown) into `kb/guides/`. Build steps name facility ids; build cost, materials, upkeep and power/life-support figures come from the latest facility catalog, with a running-totals sidebar. | `-guides`, `-snapshots`, `-out` |
+| `generate-production-costs` | Renders the Production Costs section (`kb/production-costs/`): for every craftable item, the credits and ticks per unit by every route (hand, empire stations, public faction lines), over the whole input tree, with the cheapest and fastest boxed. Public data only; no market prices. | `-catalog`, `-knowledge`, `-market`, `-out`, `-private-out`, `-our-tag`, `-ship-speed`, `-hold` |
 | `generate-nav` | Writes `kb/nav.js`, the site nav drawer's section list, from `internal/kbnav.Items`. Run after changing the nav; no page needs regenerating. | `-out` |
 
 ### Example: regenerate the core item/recipe/system site

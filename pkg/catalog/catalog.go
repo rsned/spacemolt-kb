@@ -78,6 +78,30 @@ type Recipe struct {
 	ProducedBy    []string   `json:"produced_by_facility_ids"`
 }
 
+// StringList decodes a JSON string, an array of strings or null. The live
+// catalog gives extracted_by as a bare string ("mining") while older
+// snapshots used an array.
+type StringList []string
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (l *StringList) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		*l = nil
+		return nil
+	}
+	var one string
+	if err := json.Unmarshal(b, &one); err == nil {
+		*l = StringList{one}
+		return nil
+	}
+	var many []string
+	if err := json.Unmarshal(b, &many); err != nil {
+		return err
+	}
+	*l = many
+	return nil
+}
+
 // Item is the subset of catalog_items.json needed to link to an item's KB page.
 type Item struct {
 	ID       string `json:"id"`
@@ -86,8 +110,8 @@ type Item struct {
 
 	// ExtractedBy lists the extraction methods that yield the item; Size is
 	// its cargo size per unit.
-	ExtractedBy []string `json:"extracted_by"`
-	Size        float64  `json:"size"`
+	ExtractedBy StringList `json:"extracted_by"`
+	Size        float64    `json:"size"`
 }
 
 // LoadItems reads catalog_items.json from the latest snapshot under root.

@@ -1,0 +1,17 @@
+{{template "head" .}}
+<h1>Production Costs</h1>
+<p>What it costs to make each item from raw ore, by every way it can be made: hand crafting, empire stations, and public faction production lines. Labor and rental fees only; raw resources count as free. Credits and time are per output unit, over the whole input tree, with each sub-item made by its cheapest route. The cheapest route is boxed in green and the fastest in blue.</p>
+<div class="scrollx">
+<table class="pc-table idx">
+<thead><tr><th>Item</th><th>Recipe</th><th>Route</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+{{range .Items}}<tbody>
+<tr><td><a href="{{.ID}}.html">{{.Name}}</a></td><td>{{.First.Recipe}}</td><td>{{.First.Label}}</td><td>{{.First.Out}}</td>{{template "costcells" .First}}</tr>
+{{if .Rest}}<tr><td colspan="6" class="more"><details><summary>{{len .Rest}} more route{{if ne (len .Rest) 1}}s{{end}}</summary>
+<table class="pc-table idx"><tbody>
+{{range .Rest}}<tr><td></td><td>{{.Recipe}}</td><td>{{.Label}}</td><td>{{.Out}}</td>{{template "costcells" .}}</tr>
+{{end}}</tbody></table></details></td></tr>{{end}}
+</tbody>
+{{end}}
+</table>
+</div>
+{{template "foot" .}}

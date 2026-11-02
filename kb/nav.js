@@ -34,6 +34,10 @@
       "label": "Facilities"
     },
     {
+      "path": "production-costs/index.html",
+      "label": "Production Costs"
+    },
+    {
       "path": "resources/index.html",
       "label": "Resources"
     },

@@ -1,0 +1,47 @@
+{{define "head"}}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+    <style>
+        :root { --up: #1a7f37; --link: #0969da; }
+        .dark { --up: #3fb950; --link: #58a6ff; }
+        main.pc { padding: 1rem 1.5rem 4rem; }
+        table.pc-table { border-collapse: collapse; font-size: .85rem; margin: .75rem 0; }
+        .pc-table th, .pc-table td { border: 1px solid hsl(var(--border)); padding: .3rem .5rem; text-align: left; }
+        .pc-table.idx td:nth-child(n+4), .pc-table.idx th:nth-child(n+4),
+        .pc-table.rt td:nth-child(n+2), .pc-table.rt th:nth-child(n+2) { text-align: right; }
+        .pc-table .more { text-align: left; }
+        .hl-cheap { outline: 2px solid var(--up); }
+        .hl-fast { outline: 2px solid var(--link); }
+        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
+        details > summary { cursor: pointer; }
+        .scrollx { overflow-x: auto; }
+    </style>
+</head>
+<body>
+{{.Header}}
+<main class="pc">
+{{end}}
+{{define "foot"}}
+<p class="note">{{if .Ages.Catalog}}Catalog snapshot {{.Ages.Catalog}}.{{end}}{{if .Ages.Facilities}} Production lines last seen {{.Ages.Facilities}}.{{end}}</p>
+</main>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+    if (toggle) toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
+</script>
+</body>
+</html>
+{{end}}
+{{define "costcells"}}{{if .Cheap}}<td class="hl-cheap">{{else}}<td>{{end}}{{.Credits}}{{if .Note}} <span class="note">{{.Note}}</span>{{end}}</td>{{if .Fast}}<td class="hl-fast">{{else}}<td>{{end}}{{.Time}}</td>{{end}}

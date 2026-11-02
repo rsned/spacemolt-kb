@@ -23,6 +23,7 @@ var Items = []struct{ Slug, Label string }{
 	{"skills", "Skills"},
 	{"ships", "Ships"},
 	{"facilities", "Facilities"},
+	{"production-costs", "Production Costs"},
 	{"resources", "Resources"},
 	{"wildlife", "Wildlife"},
 	{"missions", "Missions"},

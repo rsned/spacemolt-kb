@@ -209,3 +209,16 @@ func TestLoadRecipes(t *testing.T) {
 		t.Errorf("hand_thing HandCraftable = false")
 	}
 }
+
+func TestLoadItemsExtractedByString(t *testing.T) {
+	root := writeCatalogFiles(t, map[string]string{"catalog_items.json": `{"items":[
+		{"id":"iron_ore","category":"ore","extracted_by":"mining"},
+		{"id":"steel_plate","category":"component","extracted_by":null}]}`})
+	items, err := LoadItems(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(items[0].ExtractedBy, []string{"mining"}) || len(items[1].ExtractedBy) != 0 {
+		t.Errorf("extracted_by = %v / %v", items[0].ExtractedBy, items[1].ExtractedBy)
+	}
+}

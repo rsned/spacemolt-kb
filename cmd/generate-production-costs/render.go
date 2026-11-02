@@ -1,0 +1,224 @@
+package main
+
+import (
+	"bytes"
+	"embed"
+	"fmt"
+	htmltpl "html/template"
+	"math"
+	"os"
+	"path/filepath"
+	"slices"
+	"strconv"
+	"strings"
+
+	"github.com/rsned/spacemolt-kb/internal/kbnav"
+	"github.com/rsned/spacemolt-kb/pkg/prodcost"
+)
+
+//go:embed templates/*.tmpl
+var tmplFS embed.FS
+
+var tmpl = htmltpl.Must(htmltpl.ParseFS(tmplFS, "templates/*.tmpl"))
+
+// DataAges says how fresh each data source is; empty means "not shown".
+type DataAges struct{ Catalog, Facilities, Market string }
+
+type routeView struct {
+	Label                                    htmltpl.HTML // escaped by escLabel so "+" stays literal
+	Recipe, Labor, Fee, RunTotal, Ticks, Out string
+	Credits, Time, Note                      string
+	Cheap, Fast                              bool
+}
+
+type itemRow struct {
+	ID, Name string
+	First    routeView
+	Rest     []routeView
+}
+
+type inputView struct {
+	Qty, Name, Href string
+	Via             htmltpl.HTML
+}
+
+type recipeView struct {
+	ID, Name string
+	Routes   []routeView
+	Inputs   []inputView
+}
+
+type pageData struct {
+	Title  string
+	Header htmltpl.HTML
+	Ages   DataAges
+
+	Items []itemRow // index
+
+	Name, ItemHref, BuildHref string // item page
+	NoUsable                  bool
+	Recipes                   []recipeView
+}
+
+var labelEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;", "'", "&#39;")
+
+// escLabel HTML-escapes a route label without touching "+", which
+// html/template would otherwise render as &#43;.
+func escLabel(s string) htmltpl.HTML {
+	return htmltpl.HTML(labelEscaper.Replace(s)) //nolint:gosec // escaped above
+}
+
+// num formats v with up to 2 decimals and no trailing zeros.
+func num(v float64) string {
+	return strconv.FormatFloat(math.Round(v*100)/100, 'f', -1, 64)
+}
+
+// sig3 formats v to three significant figures without an exponent.
+func sig3(v float64) string {
+	if v == 0 {
+		return "0"
+	}
+	dec := max(0, 2-int(math.Floor(math.Log10(math.Abs(v)))))
+	return strconv.FormatFloat(v, 'f', dec, 64)
+}
+
+// stripPrivate returns w without CRFT lines and, when any CRFT route was in
+// costs, costs recomputed from it, so the public pages never carry them.
+func stripPrivate(w prodcost.World, costs map[string]*prodcost.ItemCost) (prodcost.World, map[string]*prodcost.ItemCost) {
+	dirty := slices.ContainsFunc(w.Lines, func(l prodcost.Line) bool { return l.Kind == prodcost.KindCRFT })
+	for _, ic := range costs {
+		if slices.ContainsFunc(ic.Routes, func(r prodcost.RouteCost) bool { return r.Kind == prodcost.KindCRFT }) {
+			dirty = true
+		}
+	}
+	if !dirty {
+		return w, costs
+	}
+	w.Lines = slices.DeleteFunc(slices.Clone(w.Lines), func(l prodcost.Line) bool { return l.Kind == prodcost.KindCRFT })
+	return w, prodcost.Compute(w, prodcost.Options{})
+}
+
+func viewRoute(ic *prodcost.ItemCost, i int) routeView {
+	r := ic.Routes[i]
+	multi := len(ic.Routes) > 1
+	v := routeView{
+		Recipe: r.RecipeID, Label: escLabel(r.Label()),
+		Labor: num(r.Labor), Fee: num(r.Fee), RunTotal: num(r.Labor + r.Fee),
+		Ticks: sig3(r.TicksPerRun), Out: num(r.OutPerRun),
+		Credits: num(r.CreditsPerUnit), Time: sig3(r.TicksPerUnit),
+		Cheap: multi && i == ic.Cheapest, Fast: multi && i == ic.Fastest,
+	}
+	if r.Partial {
+		v.Credits = "≥ " + v.Credits
+		v.Note = "has an unpriced input"
+	}
+	if r.Cycle {
+		v.Note = strings.TrimSpace(v.Note + " cycle")
+	}
+	if ic.NoUsableRoute {
+		v.Note = "no usable route"
+	}
+	return v
+}
+
+func renderPublic(outDir string, w prodcost.World, costs map[string]*prodcost.ItemCost, ages DataAges) error {
+	w, costs = stripPrivate(w, costs)
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return err
+	}
+	header := htmltpl.HTML(kbnav.Header("../")) //nolint:gosec // site header, generated internally
+
+	ids := make([]string, 0, len(costs))
+	for id, ic := range costs {
+		if len(ic.Routes) > 0 {
+			ids = append(ids, id)
+		}
+	}
+	name := func(id string) string {
+		if it, ok := w.Items[id]; ok && it.Name != "" {
+			return it.Name
+		}
+		return id
+	}
+	slices.SortFunc(ids, func(a, b string) int {
+		return strings.Compare(strings.ToLower(name(a)), strings.ToLower(name(b)))
+	})
+	recipeName := map[string]string{}
+	for _, rec := range w.Recipes {
+		recipeName[rec.ID] = rec.Name
+	}
+
+	index := pageData{Title: "Production Costs", Header: header, Ages: ages}
+	pages := map[string][]byte{}
+	for _, id := range ids {
+		ic := costs[id]
+		first := max(ic.Cheapest, 0)
+		row := itemRow{ID: id, Name: name(id), First: viewRoute(ic, first)}
+		for i := range ic.Routes {
+			if i != first {
+				row.Rest = append(row.Rest, viewRoute(ic, i))
+			}
+		}
+		index.Items = append(index.Items, row)
+
+		pd := pageData{Title: name(id) + " Production Cost", Header: header, Ages: ages, Name: name(id),
+			BuildHref: "../build-costs/" + id + ".html", NoUsable: ic.NoUsableRoute}
+		if it, ok := w.Items[id]; ok && it.Category != "" {
+			pd.ItemHref = "../items/" + strings.ReplaceAll(it.Category, " ", "_") + "/" + id + ".html"
+		}
+		byRecipe := map[string]*recipeView{}
+		for i, r := range ic.Routes {
+			rv := byRecipe[r.RecipeID]
+			if rv == nil {
+				pd.Recipes = append(pd.Recipes, recipeView{ID: r.RecipeID, Name: recipeName[r.RecipeID]})
+				rv = &pd.Recipes[len(pd.Recipes)-1]
+				byRecipe[r.RecipeID] = rv
+				for _, in := range r.Inputs {
+					iv := inputView{Qty: num(in.QtyPerUnit), Name: name(in.ItemID), Via: escLabel(in.Via)}
+					if _, ok := costs[in.ItemID]; ok {
+						iv.Href = in.ItemID + ".html"
+					}
+					rv.Inputs = append(rv.Inputs, iv)
+				}
+			}
+			rv.Routes = append(rv.Routes, viewRoute(ic, i))
+		}
+		b, err := execute("item.html.tmpl", pd)
+		if err != nil {
+			return fmt.Errorf("render %s: %w", id, err)
+		}
+		pages[id+".html"] = b
+	}
+	b, err := execute("index.html.tmpl", index)
+	if err != nil {
+		return fmt.Errorf("render index: %w", err)
+	}
+	pages["index.html"] = b
+
+	for fname, content := range pages {
+		if err := os.WriteFile(filepath.Join(outDir, fname), content, 0o644); err != nil { //nolint:gosec // static site output
+			return err
+		}
+	}
+	// outDir belongs to this generator: drop pages for items that no longer exist.
+	old, err := filepath.Glob(filepath.Join(outDir, "*.html"))
+	if err != nil {
+		return err
+	}
+	for _, p := range old {
+		if _, keep := pages[filepath.Base(p)]; !keep {
+			if err := os.Remove(p); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func execute(name string, data pageData) ([]byte, error) {
+	var buf bytes.Buffer
+	if err := tmpl.ExecuteTemplate(&buf, name, data); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
