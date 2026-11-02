@@ -199,3 +199,59 @@ func (e *engine) route(rec catalog.Recipe, r Route) RouteCost {
 	}
 	return rc
 }
+
+// Policy chooses each input's route across a whole costing tree.
+type Policy string
+
+// Policies.
+const (
+	PolicyCheapest Policy = "cheapest"
+	PolicyFastest  Policy = "fastest"
+)
+
+// CostUnder costs one unit of itemID made on top, with every input below it
+// made on its own Cheapest (PolicyCheapest) or Fastest (PolicyFastest)
+// route, recursively. Raw inputs cost 0. An input that is unpriced, has no
+// usable route, or loops back onto an item already being costed adds 0 and
+// sets partial. A top route absent from costs[itemID] yields only its own
+// step, marked partial.
+func CostUnder(costs map[string]*ItemCost, w World, itemID string, top Route, p Policy) (credits, ticks float64, partial bool) {
+	return costUnder(costs, w, itemID, top, p, map[string]bool{})
+}
+
+func costUnder(costs map[string]*ItemCost, w World, itemID string, top Route, p Policy, stack map[string]bool) (credits, ticks float64, partial bool) {
+	if top.OutPerRun <= 0 {
+		return 0, 0, true
+	}
+	credits = (top.Labor + top.Fee) / top.OutPerRun
+	ticks = top.TicksPerRun / top.OutPerRun
+	ic := costs[itemID]
+	if ic == nil {
+		return credits, ticks, true
+	}
+	i := slices.IndexFunc(ic.Routes, func(rc RouteCost) bool { return rc.Route == top })
+	if i < 0 {
+		return credits, ticks, true
+	}
+	stack[itemID] = true
+	defer delete(stack, itemID)
+	for _, in := range ic.Routes[i].Inputs {
+		if it, ok := w.Items[in.ItemID]; in.Via == "raw" || (ok && len(it.ExtractedBy) > 0) {
+			continue
+		}
+		sub := costs[in.ItemID]
+		if sub == nil || sub.NoUsableRoute || stack[in.ItemID] {
+			partial = true
+			continue
+		}
+		idx := sub.Cheapest
+		if p == PolicyFastest {
+			idx = sub.Fastest
+		}
+		c, t, pa := costUnder(costs, w, in.ItemID, sub.Routes[idx].Route, p, stack)
+		credits += in.QtyPerUnit * c
+		ticks += in.QtyPerUnit * t
+		partial = partial || pa
+	}
+	return credits, ticks, partial
+}

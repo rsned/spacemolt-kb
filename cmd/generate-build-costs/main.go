@@ -10,6 +10,7 @@ import (
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
 	"github.com/rsned/spacemolt-kb/pkg/catalog"
+	"github.com/rsned/spacemolt-kb/pkg/galaxyhops"
 	"github.com/rsned/spacemolt-kb/pkg/marketmeta"
 	_ "modernc.org/sqlite"
 )
@@ -65,9 +66,9 @@ func main() {
 	}
 	stations, err := loadStations(marketDB, knowledgeDB)
 	must(err, "load stations")
-	resolver, err := loadSystemResolver(knowledgeDB)
+	resolver, err := galaxyhops.LoadSystemResolver(knowledgeDB)
 	must(err, "load system resolver")
-	adj, err := loadConnections(knowledgeDB)
+	adj, err := galaxyhops.LoadConnections(knowledgeDB)
 	must(err, "load connections")
 	stationSys, unresolved := stationSystems(stations, resolver)
 	if len(unresolved) > 0 {

@@ -1,119 +1,25 @@
 package main
 
 import (
-	"database/sql"
 	"sort"
 
 	"github.com/rsned/spacemolt-kb/pkg/buildcost"
+	"github.com/rsned/spacemolt-kb/pkg/galaxyhops"
 )
-
-// systemResolver maps a market station's system_id — which may be a systems.id
-// slug OR a systems.name display value — to the canonical systems.id used by the
-// connections graph.
-type systemResolver struct {
-	ids    map[string]bool
-	byName map[string]string
-}
-
-// canon resolves a raw system_id to a canonical systems.id: it prefers a direct
-// id match, then falls back to a systems.name match. ok is false if neither hits.
-func (r *systemResolver) canon(systemID string) (string, bool) {
-	if r.ids[systemID] {
-		return systemID, true
-	}
-	if id, ok := r.byName[systemID]; ok {
-		return id, true
-	}
-	return "", false
-}
-
-// loadSystemResolver builds a resolver from the knowledge DB systems table.
-func loadSystemResolver(knowledgeDB *sql.DB) (*systemResolver, error) {
-	r := &systemResolver{ids: map[string]bool{}, byName: map[string]string{}}
-	rows, err := knowledgeDB.Query(`SELECT id, name FROM systems`)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = rows.Close() }()
-	for rows.Next() {
-		var id, name string
-		if err := rows.Scan(&id, &name); err != nil {
-			return nil, err
-		}
-		r.ids[id] = true
-		r.byName[name] = id
-	}
-	return r, rows.Err()
-}
-
-// loadConnections returns a symmetric adjacency map (systems.id -> neighbor ids)
-// from the knowledge DB connections table.
-func loadConnections(knowledgeDB *sql.DB) (map[string][]string, error) {
-	set := map[string]map[string]bool{}
-	add := func(a, b string) {
-		if set[a] == nil {
-			set[a] = map[string]bool{}
-		}
-		set[a][b] = true
-	}
-	rows, err := knowledgeDB.Query(`SELECT from_system, to_system FROM connections`)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = rows.Close() }()
-	for rows.Next() {
-		var a, b string
-		if err := rows.Scan(&a, &b); err != nil {
-			return nil, err
-		}
-		add(a, b)
-		add(b, a)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	adj := make(map[string][]string, len(set))
-	for a, nbrs := range set {
-		list := make([]string, 0, len(nbrs))
-		for b := range nbrs {
-			list = append(list, b)
-		}
-		sort.Strings(list)
-		adj[a] = list
-	}
-	return adj, nil
-}
 
 // stationSystems maps each station id to its canonical system id, and returns
 // the ids of any stations whose system could not be resolved.
-func stationSystems(stations []StationMeta, r *systemResolver) (map[string]string, []string) {
+func stationSystems(stations []StationMeta, r *galaxyhops.SystemResolver) (map[string]string, []string) {
 	out := map[string]string{}
 	var unresolved []string
 	for _, s := range stations {
-		if id, ok := r.canon(s.System); ok {
+		if id, ok := r.Canon(s.System); ok {
 			out[s.ID] = id
 		} else {
 			unresolved = append(unresolved, s.ID)
 		}
 	}
 	return out, unresolved
-}
-
-// bfsHops returns the jump distance from src to every reachable system.
-func bfsHops(adj map[string][]string, src string) map[string]int {
-	dist := map[string]int{src: 0}
-	queue := []string{src}
-	for len(queue) > 0 {
-		u := queue[0]
-		queue = queue[1:]
-		for _, v := range adj[u] {
-			if _, seen := dist[v]; !seen {
-				dist[v] = dist[u] + 1
-				queue = append(queue, v)
-			}
-		}
-	}
-	return dist
 }
 
 // stationHopDist returns hopDist[home][other] = jump distance between the two
@@ -123,7 +29,7 @@ func stationHopDist(adj map[string][]string, stationSys map[string]string) map[s
 	// group stations by their system to translate system distances to stations.
 	out := map[string]map[string]int{}
 	for home, homeSys := range stationSys {
-		sysDist := bfsHops(adj, homeSys)
+		sysDist := galaxyhops.BFSHops(adj, homeSys)
 		row := map[string]int{}
 		for other, otherSys := range stationSys {
 			if home == other {
