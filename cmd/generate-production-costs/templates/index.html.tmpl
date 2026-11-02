@@ -1,17 +1,30 @@
 {{template "head" .}}
 <h1>Production Costs</h1>
-<p>What it costs to make each item from raw ore, by every way it can be made: hand crafting, empire stations, and public faction production lines. Labor and rental fees only; raw resources count as free. Credits and time are per output unit, over the whole input tree, with each sub-item made by its cheapest route. The cheapest route is boxed in green and the fastest in blue.</p>
+<p>What it costs to make each item from raw ore, by every way it can be made: hand crafting, empire stations, and public faction production lines. Labor and rental fees only; raw resources count as free. Credits and time are per output unit, over the whole input tree, with each sub-item made by its cheapest route. The cheapest route you can use today is boxed in green and the fastest in blue. An own facility you could build is marked <em>if built</em>; when it would beat those, it gets a dashed box and stays visible, with its build cost (credits plus materials at production cost, counting every level below it) and how many units it takes to pay that back against the boxed route.</p>
+<p><button type="button" id="pc-expand-all">Expand all</button></p>
 <div class="scrollx">
 <table class="pc-table idx">
-<thead><tr><th>Item</th><th>Recipe</th><th>Route</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Item</th><th>Recipe</th><th>Route</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 {{range .Items}}<tbody>
-<tr><td><a href="{{.ID}}.html">{{.Name}}</a></td><td>{{.First.Recipe}}</td><td>{{.First.Label}}</td><td>{{.First.Out}}</td>{{template "costcells" .First}}</tr>
-{{if .Rest}}<tr><td colspan="6" class="more"><details><summary>{{len .Rest}} more route{{if ne (len .Rest) 1}}s{{end}}</summary>
+<tr><td><a href="{{.ID}}.html">{{.Name}}</a></td><td>{{.First.Recipe}}</td><td>{{template "routelabel" .First}}</td><td>{{.First.Out}}</td>{{template "costcells" .First}}</tr>
+{{range .Pinned}}<tr><td></td><td>{{.Recipe}}</td><td>{{template "routelabel" .}}</td><td>{{.Out}}</td>{{template "costcells" .}}</tr>
+{{end}}{{if .Rest}}<tr><td colspan="8" class="more"><details><summary>{{len .Rest}} more route{{if ne (len .Rest) 1}}s{{end}}</summary>
 <table class="pc-table idx"><tbody>
-{{range .Rest}}<tr><td></td><td>{{.Recipe}}</td><td>{{.Label}}</td><td>{{.Out}}</td>{{template "costcells" .}}</tr>
+{{range .Rest}}<tr><td></td><td>{{.Recipe}}</td><td>{{template "routelabel" .}}</td><td>{{.Out}}</td>{{template "costcells" .}}</tr>
 {{end}}</tbody></table></details></td></tr>{{end}}
 </tbody>
 {{end}}
 </table>
 </div>
+<script>
+(function() {
+    var b = document.getElementById('pc-expand-all');
+    if (!b) return;
+    b.addEventListener('click', function() {
+        var open = b.textContent === 'Expand all';
+        document.querySelectorAll('details').forEach(function(d) { d.open = open; });
+        b.textContent = open ? 'Collapse all' : 'Expand all';
+    });
+})();
+</script>
 {{template "foot" .}}

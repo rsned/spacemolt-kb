@@ -17,7 +17,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -44,4 +46,5 @@
 </body>
 </html>
 {{end}}
-{{define "costcells"}}{{if .Cheap}}<td class="hl-cheap">{{else}}<td>{{end}}{{.Credits}}{{if .Note}} <span class="note">{{.Note}}</span>{{end}}</td>{{if .Fast}}<td class="hl-fast">{{else}}<td>{{end}}{{.Time}}</td>{{end}}
+{{define "costcells"}}{{if .Cheap}}<td class="hl-cheap">{{else if .CheapIf}}<td class="hl-cheap-if">{{else}}<td>{{end}}{{.Credits}}{{if .Note}} <span class="note">{{.Note}}</span>{{end}}</td>{{if .Fast}}<td class="hl-fast">{{else if .FastIf}}<td class="hl-fast-if">{{else}}<td>{{end}}{{.Time}}</td><td>{{.Build}}</td><td>{{.Payback}}</td>{{end}}
+{{define "routelabel"}}{{.Label}}{{if .IfBuilt}} <span class="note">if built</span>{{end}}{{end}}

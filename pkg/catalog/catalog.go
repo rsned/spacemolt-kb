@@ -63,6 +63,9 @@ type Facility struct {
 	LaborCost      int    `json:"labor_cost"`
 	Empire         string `json:"empire"`
 	PirateBaseOnly bool   `json:"pirate_base_only"`
+	// UpgradesFrom is the facility this one is upgraded from; reaching it
+	// means building every level below it first.
+	UpgradesFrom string `json:"upgrades_from"`
 }
 
 // Recipe is the subset of catalog_recipes.json the production-cost model

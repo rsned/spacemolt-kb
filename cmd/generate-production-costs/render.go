@@ -34,11 +34,17 @@ type routeView struct {
 	Credits, Time, Note                      string
 	Cheap, Fast                              bool
 	Empire                                   bool // the item page notes the fee is uniform
+
+	// Unbuilt own routes: dashed boxes when they beat the boxed usable
+	// route, plus what building them costs and when that pays back.
+	IfBuilt, CheapIf, FastIf bool
+	Build, Payback           string
 }
 
 type itemRow struct {
 	ID, Name string
 	First    routeView
+	Pinned   []routeView // "if built" routes that beat First, always shown
 	Rest     []routeView
 }
 
@@ -104,16 +110,32 @@ func stripPrivate(w prodcost.World, costs map[string]*prodcost.ItemCost) (prodco
 	return w, prodcost.Compute(w, prodcost.Options{})
 }
 
-func viewRoute(ic *prodcost.ItemCost, i int) routeView {
+func viewRoute(w prodcost.World, costs map[string]*prodcost.ItemCost, ic *prodcost.ItemCost, i int) routeView {
 	r := ic.Routes[i]
 	multi := len(ic.Routes) > 1
+	cheapIf, fastIf := ifBuilt(ic)
 	v := routeView{
 		Recipe: r.RecipeID, Label: escLabel(r.Label()),
 		Labor: num(r.Labor), Fee: num(r.Fee), RunTotal: num(r.Labor + r.Fee),
 		Ticks: sig3(r.TicksPerRun), Out: num(r.OutPerRun),
 		Credits: num(r.CreditsPerUnit), Time: sig3(r.TicksPerUnit),
 		Cheap: multi && i == ic.Cheapest, Fast: multi && i == ic.Fastest,
-		Empire: r.Kind == prodcost.KindEmpire,
+		Empire:  r.Kind == prodcost.KindEmpire,
+		IfBuilt: r.Kind == prodcost.KindOwn,
+		CheapIf: multi && i == cheapIf, FastIf: multi && i == fastIf,
+	}
+	if v.IfBuilt {
+		build, partial := buildCost(w, costs, r.FacilityID)
+		v.Build, v.Payback = num(build), "—"
+		if units, ok := payback(ic, r, build); ok {
+			v.Payback = num(units)
+		}
+		if partial {
+			v.Build = "≥ " + v.Build // a floor: an uncostable material counts as 0
+			if v.Payback != "—" {
+				v.Payback = "≥ " + v.Payback
+			}
+		}
 	}
 	if r.Partial || r.Cycle {
 		v.Credits = "≥ " + v.Credits // a floor: the missing inputs count as 0
@@ -162,10 +184,15 @@ func renderPublic(outDir string, w prodcost.World, costs map[string]*prodcost.It
 	for _, id := range ids {
 		ic := costs[id]
 		first := max(ic.Cheapest, 0)
-		row := itemRow{ID: id, Name: name(id), First: viewRoute(ic, first)}
+		row := itemRow{ID: id, Name: name(id), First: viewRoute(w, costs, ic, first)}
+		cheapIf, fastIf := ifBuilt(ic)
 		for i := range ic.Routes {
-			if i != first {
-				row.Rest = append(row.Rest, viewRoute(ic, i))
+			switch i {
+			case first:
+			case cheapIf, fastIf:
+				row.Pinned = append(row.Pinned, viewRoute(w, costs, ic, i))
+			default:
+				row.Rest = append(row.Rest, viewRoute(w, costs, ic, i))
 			}
 		}
 		index.Items = append(index.Items, row)
@@ -175,13 +202,15 @@ func renderPublic(outDir string, w prodcost.World, costs map[string]*prodcost.It
 		if it, ok := w.Items[id]; ok && it.Category != "" {
 			pd.ItemHref = "../items/" + strings.ReplaceAll(it.Category, " ", "_") + "/" + id + ".html"
 		}
-		byRecipe := map[string]*recipeView{}
+		// Index, not pointer: appending to pd.Recipes can move its backing array.
+		byRecipe := map[string]int{}
 		for i, r := range ic.Routes {
-			rv := byRecipe[r.RecipeID]
-			if rv == nil {
+			ri, seen := byRecipe[r.RecipeID]
+			if !seen {
 				pd.Recipes = append(pd.Recipes, recipeView{ID: r.RecipeID, Name: recipeName[r.RecipeID]})
-				rv = &pd.Recipes[len(pd.Recipes)-1]
-				byRecipe[r.RecipeID] = rv
+				ri = len(pd.Recipes) - 1
+				byRecipe[r.RecipeID] = ri
+				rv := &pd.Recipes[ri]
 				for _, in := range r.Inputs {
 					iv := inputView{Qty: num(in.QtyPerUnit), Name: name(in.ItemID), Via: escLabel(in.Via)}
 					if _, ok := costs[in.ItemID]; ok {
@@ -190,7 +219,7 @@ func renderPublic(outDir string, w prodcost.World, costs map[string]*prodcost.It
 					rv.Inputs = append(rv.Inputs, iv)
 				}
 			}
-			rv.Routes = append(rv.Routes, viewRoute(ic, i))
+			pd.Recipes[ri].Routes = append(pd.Recipes[ri].Routes, viewRoute(w, costs, ic, i))
 		}
 		b, err := execute("item.html.tmpl", pd)
 		if err != nil {

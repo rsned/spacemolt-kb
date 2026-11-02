@@ -82,7 +82,7 @@ func Routes(rec catalog.Recipe, facs map[string]catalog.Facility, lines []Line) 
 			continue
 		}
 		r := Route{RecipeID: rec.ID, Kind: KindOwn, Level: f.Level, Labor: float64(f.LaborCost),
-			TicksPerRun: levelTicks(rec.CraftingTime, f.Level), OutPerRun: outPerRun}
+			TicksPerRun: levelTicks(rec.CraftingTime, f.Level), OutPerRun: outPerRun, FacilityID: f.ID}
 		if f.PirateBaseOnly {
 			r.Tag = "pirate base only"
 		}

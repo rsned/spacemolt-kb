@@ -39,4 +39,5 @@ type Route struct {
 	StationID, StationName, FactionTag string // empty for hand/own/empire
 	Usable                             bool
 	Tag                                string // "pirate base only" or ""
+	FacilityID                         string // catalog facility, for own routes
 }
