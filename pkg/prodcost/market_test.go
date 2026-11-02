@@ -51,7 +51,8 @@ INSERT INTO market_orders (station_id,item_id,side,price_each,quantity,source,ca
 	('sol_central','ore','sell',9,5,'','T1'),        -- stale capture: dropped
 	('sol_central','ore','sell',7,5,'','T2'),
 	('sol_central','ore','sell',6,2,'station','T2'),
-	('grand_exchange','ore','sell',4,1,'worker','T1'),
+	('grand_exchange','ore','sell',4,1,'','T1'),
+	('grand_exchange','ore','sell',1,1,'worker','T1'),  -- worker view: ignored
 	('sol_central','ore','buy',3,100,'station','T2'),
 	('sol_central','ore','buy',3.5,10,'','T2'),       -- player bid: dropped
 	('grand_exchange','ore','buy',2,50,'station','T1'),  -- stale
@@ -85,5 +86,35 @@ INSERT INTO bases VALUES ('confederacy_central_command','sol_central'), ('c976',
 	}
 	if _, ok := m.StationSystem["ghost"]; ok {
 		t.Errorf("ghost should be unresolved")
+	}
+}
+
+func TestLoadMarketIgnoresWorkerCaptures(t *testing.T) {
+	mdb := openMem(t, `
+CREATE TABLE market_orders (id INTEGER PRIMARY KEY, station_id TEXT, item_id TEXT, side TEXT,
+	price_each REAL, quantity REAL, source TEXT, captured_at TEXT);
+CREATE TABLE stations (station_id TEXT PRIMARY KEY, system_id TEXT);
+INSERT INTO market_orders (station_id,item_id,side,price_each,quantity,source,captured_at) VALUES
+	('st','ore','buy',3,100,'station','T1'),
+	('st','ore','buy',4,5,'','T1'),
+	('st','ore','buy',3.2,7,'worker','T2'),   -- newer worker view: ignored
+	('st','ore','sell',6,2,'','T1'),
+	('st','ore','sell',5,1,'station','T1'),
+	('st','ore','sell',4,9,'worker','T2');     -- newer worker view: ignored
+`)
+	kdb := openMem(t, `
+CREATE TABLE systems (id TEXT PRIMARY KEY, name TEXT);
+CREATE TABLE pois (id TEXT PRIMARY KEY, system_id TEXT);
+CREATE TABLE bases (id TEXT PRIMARY KEY, poi_id TEXT);
+`)
+	m, err := LoadMarket(mdb, kdb)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := []Level{{"st", 3, 100}}; !slices.Equal(m.Bids["ore"], want) {
+		t.Errorf("bids = %v, want %v", m.Bids["ore"], want)
+	}
+	if want := []Level{{"st", 5, 1}, {"st", 6, 2}}; !slices.Equal(m.Asks["ore"], want) {
+		t.Errorf("asks = %v, want %v", m.Asks["ore"], want)
 	}
 }

@@ -17,7 +17,7 @@ type Level struct {
 
 // Market is the latest captured order book of every station.
 type Market struct {
-	// Asks is item -> sell levels (any source), price asc then station id.
+	// Asks is item -> marketbot-captured sell levels, price asc then station id.
 	Asks map[string][]Level
 	// Bids is item -> Station Manager buy levels (source='station'), price
 	// desc then station id.
@@ -28,19 +28,24 @@ type Market struct {
 	StationSystem map[string]string
 }
 
-// latestOrdersSQL keeps, for each (station, item, side), only the rows at
-// that key's latest captured_at; of those it keeps every ask and the Station
-// Manager bids.
+// latestOrdersSQL reads only marketbot captures (source '' or 'station',
+// which share one captured_at per capture); 'worker' rows are our agents'
+// partial views and are ignored. For each (station, item, side) it keeps the
+// rows at that key's latest marketbot captured_at: every ask, and the Station
+// Manager (source='station') bids.
 const latestOrdersSQL = `
-WITH latest AS (
+WITH bot AS (
+	SELECT station_id, item_id, side, price_each, quantity, source, captured_at
+	FROM market_orders WHERE source IN ('', 'station')
+), latest AS (
 	SELECT item_id, side, station_id, MAX(captured_at) AS mc
-	FROM market_orders GROUP BY item_id, side, station_id
+	FROM bot GROUP BY item_id, side, station_id
 )
 SELECT o.station_id, o.item_id, o.side, o.price_each, o.quantity
-FROM market_orders o
+FROM bot o
 JOIN latest l ON o.item_id = l.item_id AND o.side = l.side
 	AND o.station_id = l.station_id AND o.captured_at = l.mc
-WHERE o.side = 'sell' OR (o.side = 'buy' AND o.source = 'station')`
+WHERE o.side = 'sell' OR o.source = 'station'`
 
 // LoadMarket reads the latest books from mdb (market.db) and station systems
 // from mdb's stations table and kdb's bases/pois, canonicalised through kdb's
