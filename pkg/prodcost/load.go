@@ -44,18 +44,25 @@ func LoadWorld(catalogRoot string, kdb *sql.DB, ourTag string) (World, error) {
 		}
 	}
 
-	pub, err := loadPublicLines(kdb, ourID)
+	var own []Line
+	if ourID != "" {
+		own, err = loadCRFTLines(kdb, ourID, ourTag)
+		if err != nil {
+			return World{}, err
+		}
+	}
+	// A public row that duplicates a captured crft line is represented by the
+	// crft line only.
+	covered := make(map[[2]string]bool, len(own))
+	for _, l := range own {
+		covered[[2]string{l.StationID, l.RecipeID}] = true
+	}
+	pub, err := loadPublicLines(kdb, ourID, covered)
 	if err != nil {
 		return World{}, err
 	}
 	w.Lines = append(w.Lines, pub...)
-	if ourID != "" {
-		own, err := loadCRFTLines(kdb, ourID, ourTag)
-		if err != nil {
-			return World{}, err
-		}
-		w.Lines = append(w.Lines, own...)
-	}
+	w.Lines = append(w.Lines, own...)
 	return w, nil
 }
 
@@ -66,9 +73,9 @@ func tagOrPrefix(tag, id string) string {
 	return id[:min(6, len(id))]
 }
 
-// loadPublicLines reads public_facilities. Lines owned by ourID are skipped
-// (they are loaded as crft lines) when ourID is set.
-func loadPublicLines(kdb *sql.DB, ourID string) ([]Line, error) {
+// loadPublicLines reads public_facilities. Rows owned by ourID that are
+// in covered (station, recipe) are skipped; they are loaded as crft lines.
+func loadPublicLines(kdb *sql.DB, ourID string, covered map[[2]string]bool) ([]Line, error) {
 	rows, err := kdb.Query(`
 SELECT pf.station_id, COALESCE(b.name, ''), pf.recipe_id, COALESCE(pf.level, 1),
        COALESCE(pf.rental_fee_per_run, 0), COALESCE(pf.owner_faction, ''),
@@ -91,7 +98,7 @@ ORDER BY pf.station_id, pf.facility_id`)
 			&l.FactionID, &tag, &l.TicksPerRun); err != nil {
 			return nil, fmt.Errorf("scan public_facilities: %w", err)
 		}
-		if ourID != "" && l.FactionID == ourID {
+		if ourID != "" && l.FactionID == ourID && covered[[2]string{l.StationID, l.RecipeID}] {
 			continue
 		}
 		l.StationName = name

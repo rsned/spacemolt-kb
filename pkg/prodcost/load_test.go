@@ -180,3 +180,27 @@ func TestLoadWorldFromSQLite(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadWorldKeepsOrphanCRFTPublicLine(t *testing.T) {
+	root, db := writeLoadFixture(t)
+	if _, err := db.Exec(`INSERT INTO public_facilities (station_id, facility_id, recipe_id, level, rental_fee_per_run, owner_faction, details_json)
+VALUES ('b_fac', 'fa9', 'refine_steel', 1, 5, 'f_crft', '')`); err != nil {
+		t.Fatal(err)
+	}
+	w, err := LoadWorld(root, db, "CRFT")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var orphan *Line
+	for i := range w.Lines {
+		if w.Lines[i].StationID == "b_fac" && w.Lines[i].Fee == 5 {
+			orphan = &w.Lines[i]
+		}
+	}
+	if orphan == nil || orphan.Kind != KindFaction || orphan.FactionTag != "CRFT" {
+		t.Fatalf("orphan CRFT-owned public line dropped or mis-kinded: %+v", w.Lines)
+	}
+	if len(w.Lines) != 4 {
+		t.Errorf("got %d lines, want 4", len(w.Lines))
+	}
+}
