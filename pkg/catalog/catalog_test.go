@@ -3,6 +3,7 @@ package catalog
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 	"time"
 )
@@ -78,7 +79,7 @@ func TestLoadShips(t *testing.T) {
 func TestLoadFacilitiesKeepsFloatQuantities(t *testing.T) {
 	root := t.TempDir()
 	writeSnapshot(t, root, "20260807", `{"items":[]}`, `{"items":[
-	  {"id":"depot","name":"Depot","category":"service","level":2,"recipe_id":"build_depot",
+	  {"id":"depot","name":"Depot","category":"service","level":2,"recipe_id":"build_depot","labor_cost":10,"empire":"haven","pirate_base_only":true,
 	   "build_materials":[{"item_id":"steel_plate","quantity":8150.0},{"item_id":"hot_cell","quantity":2.5}]}
 	]}`, time.Now())
 
@@ -92,6 +93,9 @@ func TestLoadFacilitiesKeepsFloatQuantities(t *testing.T) {
 	f := facs[0]
 	if f.ID != "depot" || f.Name != "Depot" || f.Category != "service" || f.Level != 2 || f.RecipeID != "build_depot" {
 		t.Errorf("facility = %+v, want depot/Depot/service/2/build_depot", f)
+	}
+	if f.LaborCost != 10 || f.Empire != "haven" || !f.PirateBaseOnly {
+		t.Errorf("labor/empire/pirate = %d/%q/%v, want 10/haven/true", f.LaborCost, f.Empire, f.PirateBaseOnly)
 	}
 	if len(f.BuildMaterials) != 2 || f.BuildMaterials[1].Quantity != 2.5 {
 		t.Errorf("build materials = %+v, want second quantity 2.5 preserved", f.BuildMaterials)
@@ -151,12 +155,57 @@ func TestLoadFacilities_UpkeepFields(t *testing.T) {
 
 func TestLoadItems(t *testing.T) {
 	root := writeCatalogFiles(t, map[string]string{"catalog_items.json": `{"items":[
-		{"id":"flex_polymer","name":"Flex Polymer","category":"refined"}]}`})
+		{"id":"flex_polymer","name":"Flex Polymer","category":"refined","extracted_by":["mining_laser","gas_harvester"],"size":2.5}]}`})
 	items, err := LoadItems(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(items) != 1 || items[0] != (Item{ID: "flex_polymer", Name: "Flex Polymer", Category: "refined"}) {
-		t.Errorf("items = %+v", items)
+	if len(items) != 1 {
+		t.Fatalf("items = %+v", items)
+	}
+	it := items[0]
+	if it.ID != "flex_polymer" || it.Name != "Flex Polymer" || it.Category != "refined" {
+		t.Errorf("item = %+v", it)
+	}
+	if !slices.Equal(it.ExtractedBy, []string{"mining_laser", "gas_harvester"}) || it.Size != 2.5 {
+		t.Errorf("extracted_by/size = %v/%v", it.ExtractedBy, it.Size)
+	}
+}
+
+func TestLoadRecipes(t *testing.T) {
+	root := writeCatalogFiles(t, map[string]string{"catalog_recipes.json": `{"items":[
+		{"id":"refine_steel","name":"Refine Steel","category":"refining",
+		 "inputs":[{"item_id":"iron_ore","quantity":5}],
+		 "outputs":[{"item_id":"steel_plate","quantity":2}],
+		 "crafting_time":0.54,"hand_craftable":false,
+		 "produced_by_facility_ids":["iron_refinery","steel_mill"]},
+		{"id":"hand_thing","name":"Hand Thing","category":"misc",
+		 "inputs":[],"outputs":[{"item_id":"widget","quantity":1}],
+		 "crafting_time":2,"hand_craftable":true,"produced_by_facility_ids":[]}]}`})
+	recs, err := LoadRecipes(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(recs) != 2 {
+		t.Fatalf("len(recipes) = %d, want 2", len(recs))
+	}
+	r := recs[0]
+	if r.ID != "refine_steel" || r.Name != "Refine Steel" || r.Category != "refining" {
+		t.Errorf("recipe = %+v", r)
+	}
+	if r.CraftingTime != 0.54 || r.HandCraftable {
+		t.Errorf("time/hand = %v/%v, want 0.54/false", r.CraftingTime, r.HandCraftable)
+	}
+	if len(r.Inputs) != 1 || r.Inputs[0] != (Material{ItemID: "iron_ore", Quantity: 5}) {
+		t.Errorf("inputs = %+v", r.Inputs)
+	}
+	if len(r.Outputs) != 1 || r.Outputs[0] != (Material{ItemID: "steel_plate", Quantity: 2}) {
+		t.Errorf("outputs = %+v", r.Outputs)
+	}
+	if !slices.Contains(r.ProducedBy, "iron_refinery") {
+		t.Errorf("ProducedBy = %v, want iron_refinery", r.ProducedBy)
+	}
+	if !recs[1].HandCraftable {
+		t.Errorf("hand_thing HandCraftable = false")
 	}
 }

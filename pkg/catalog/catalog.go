@@ -57,6 +57,25 @@ type Facility struct {
 	ServicePoolRefillPerCycle int    `json:"service_pool_refill_per_cycle"`
 	ServicePoolSupplyItem     string `json:"service_pool_supply_item"`
 	ServicePoolUnitsPerItem   int    `json:"service_pool_units_per_item"`
+
+	// Production-cost fields: per-cycle crafting labor, the owning empire (if
+	// any), and whether only pirate bases may host the facility.
+	LaborCost      int    `json:"labor_cost"`
+	Empire         string `json:"empire"`
+	PirateBaseOnly bool   `json:"pirate_base_only"`
+}
+
+// Recipe is the subset of catalog_recipes.json the production-cost model
+// consumes. ProducedBy lists the facility ids that can run the recipe.
+type Recipe struct {
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	Category      string     `json:"category"`
+	Inputs        []Material `json:"inputs"`
+	Outputs       []Material `json:"outputs"`
+	CraftingTime  float64    `json:"crafting_time"`
+	HandCraftable bool       `json:"hand_craftable"`
+	ProducedBy    []string   `json:"produced_by_facility_ids"`
 }
 
 // Item is the subset of catalog_items.json needed to link to an item's KB page.
@@ -64,6 +83,11 @@ type Item struct {
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	Category string `json:"category"`
+
+	// ExtractedBy lists the extraction methods that yield the item; Size is
+	// its cargo size per unit.
+	ExtractedBy []string `json:"extracted_by"`
+	Size        float64  `json:"size"`
 }
 
 // LoadItems reads catalog_items.json from the latest snapshot under root.
@@ -120,6 +144,17 @@ func LoadFacilities(root string) ([]Facility, error) {
 		Items []Facility `json:"items"`
 	}
 	if err := loadCatalog(root, "catalog_facilities.json", &doc); err != nil {
+		return nil, err
+	}
+	return doc.Items, nil
+}
+
+// LoadRecipes reads catalog_recipes.json from the newest snapshot under root.
+func LoadRecipes(root string) ([]Recipe, error) {
+	var doc struct {
+		Items []Recipe `json:"items"`
+	}
+	if err := loadCatalog(root, "catalog_recipes.json", &doc); err != nil {
 		return nil, err
 	}
 	return doc.Items, nil
