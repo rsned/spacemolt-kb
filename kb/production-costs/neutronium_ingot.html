@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,17 +62,17 @@
 <h2>synthesize_neutronium <small>Synthesize Neutronium</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 18)</td><td>18</td><td>0</td><td>18</td><td>7.50</td><td>1</td><td>33306</td><td>377</td></tr>
-<tr><td>own L2 (labor 36)</td><td>36</td><td>0</td><td>36</td><td>2.50</td><td>1</td><td>33324</td><td>372</td></tr>
-<tr><td>own L3 (labor 63)</td><td>63</td><td>0</td><td>63</td><td>0.833</td><td>1</td><td>33351</td><td>370</td></tr>
-<tr><td>own L4 (labor 90)</td><td>90</td><td>0</td><td>90</td><td>0.278</td><td>1</td><td>33378</td><td>370</td></tr>
-<tr><td>STLR L1 @ Crimson War Citadel (labor 18 + fee 600)</td><td>18</td><td>600</td><td>618</td><td>7.50</td><td>1</td><td class="hl-cheap">33906</td><td>377</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 18 + fee 625)</td><td>18</td><td>625</td><td>643</td><td>5.77</td><td>1</td><td>33931</td><td>375</td></tr>
-<tr><td>eab830 L1 @ Node Gamma Relay Station (labor 18 + fee 625)</td><td>18</td><td>625</td><td>643</td><td>7.50</td><td>1</td><td>33931</td><td>377</td></tr>
-<tr><td>empire L1 (labor 18 + fee 625) <span class="note">uniform at all empire stations</span></td><td>18</td><td>625</td><td>643</td><td>7.50</td><td>1</td><td>33931</td><td>377</td></tr>
-<tr><td>BUSY L2 @ The Obsidian Well (labor 36 + fee 625)</td><td>36</td><td>625</td><td>661</td><td>1.92</td><td>1</td><td>33949</td><td class="hl-fast">371</td></tr>
+<tr><td>own L1 (labor 18) <span class="note">if built</span></td><td>18</td><td>0</td><td>18</td><td>7.50</td><td>1</td><td class="hl-cheap-if">33306</td><td>377</td><td>387800</td><td>647</td></tr>
+<tr><td>own L2 (labor 36) <span class="note">if built</span></td><td>36</td><td>0</td><td>36</td><td>2.50</td><td>1</td><td>33324</td><td>372</td><td>1450200</td><td>2492</td></tr>
+<tr><td>own L3 (labor 63) <span class="note">if built</span></td><td>63</td><td>0</td><td>63</td><td>0.833</td><td>1</td><td>33351</td><td>370</td><td>5295075</td><td>9541</td></tr>
+<tr><td>own L4 (labor 90) <span class="note">if built</span></td><td>90</td><td>0</td><td>90</td><td>0.278</td><td>1</td><td>33378</td><td class="hl-fast-if">370</td><td>16249275</td><td>30776</td></tr>
+<tr><td>STLR L1 @ Crimson War Citadel (labor 18 + fee 600)</td><td>18</td><td>600</td><td>618</td><td>7.50</td><td>1</td><td class="hl-cheap">33906</td><td>377</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 18 + fee 625)</td><td>18</td><td>625</td><td>643</td><td>5.77</td><td>1</td><td>33931</td><td>375</td><td></td><td></td></tr>
+<tr><td>eab830 L1 @ Node Gamma Relay Station (labor 18 + fee 625)</td><td>18</td><td>625</td><td>643</td><td>7.50</td><td>1</td><td>33931</td><td>377</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 18 + fee 625) <span class="note">uniform at all empire stations</span></td><td>18</td><td>625</td><td>643</td><td>7.50</td><td>1</td><td>33931</td><td>377</td><td></td><td></td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 36 + fee 625)</td><td>36</td><td>625</td><td>661</td><td>1.92</td><td>1</td><td>33949</td><td class="hl-fast">371</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -82,7 +84,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

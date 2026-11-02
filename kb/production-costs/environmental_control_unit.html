@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,15 +62,15 @@
 <h2>build_environmental_control_unit <small>Build Environmental Control Unit</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>4.20</td><td>1</td><td class="hl-cheap">18.67</td><td>9.01</td></tr>
-<tr><td>own L1 (labor 9)</td><td>9</td><td>0</td><td>9</td><td>0.840</td><td>1</td><td>27.67</td><td>5.65</td></tr>
-<tr><td>own L2 (labor 18)</td><td>18</td><td>0</td><td>18</td><td>0.280</td><td>1</td><td>36.67</td><td>5.09</td></tr>
-<tr><td>own L3 (labor 32)</td><td>32</td><td>0</td><td>32</td><td>0.0933</td><td>1</td><td>50.67</td><td>4.91</td></tr>
-<tr><td>own L4 (labor 45)</td><td>45</td><td>0</td><td>45</td><td>0.0311</td><td>1</td><td>63.67</td><td>4.85</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 9 + fee 70)</td><td>9</td><td>70</td><td>79</td><td>0.646</td><td>1</td><td>97.67</td><td class="hl-fast">5.46</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 9 + fee 70)</td><td>9</td><td>70</td><td>79</td><td>0.646</td><td>1</td><td>97.67</td><td>5.46</td></tr>
+<tr><td>hand</td><td>0</td><td>0</td><td>0</td><td>4.20</td><td>1</td><td class="hl-cheap">18.67</td><td>9.01</td><td></td><td></td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>0.840</td><td>1</td><td>27.67</td><td>5.65</td><td>106000</td><td>—</td></tr>
+<tr><td>own L2 (labor 18) <span class="note">if built</span></td><td>18</td><td>0</td><td>18</td><td>0.280</td><td>1</td><td>36.67</td><td>5.09</td><td>387600</td><td>—</td></tr>
+<tr><td>own L3 (labor 32) <span class="note">if built</span></td><td>32</td><td>0</td><td>32</td><td>0.0933</td><td>1</td><td>50.67</td><td>4.91</td><td>1575650</td><td>—</td></tr>
+<tr><td>own L4 (labor 45) <span class="note">if built</span></td><td>45</td><td>0</td><td>45</td><td>0.0311</td><td>1</td><td>63.67</td><td class="hl-fast-if">4.85</td><td>5211150</td><td>—</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 9 + fee 70)</td><td>9</td><td>70</td><td>79</td><td>0.646</td><td>1</td><td>97.67</td><td class="hl-fast">5.46</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 9 + fee 70)</td><td>9</td><td>70</td><td>79</td><td>0.646</td><td>1</td><td>97.67</td><td>5.46</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -80,7 +82,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

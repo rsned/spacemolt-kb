@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,13 +62,13 @@
 <h2>build_ice_harvester_iv <small>Build Ice Harvester IV</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 10)</td><td>10</td><td>0</td><td>10</td><td>84.0</td><td>1</td><td>4693.5</td><td>638</td></tr>
-<tr><td>own L2 (labor 20)</td><td>20</td><td>0</td><td>20</td><td>28.0</td><td>1</td><td>4703.5</td><td>582</td></tr>
-<tr><td>own L3 (labor 35)</td><td>35</td><td>0</td><td>35</td><td>9.33</td><td>1</td><td>4718.5</td><td>563</td></tr>
-<tr><td>own L4 (labor 50)</td><td>50</td><td>0</td><td>50</td><td>3.11</td><td>1</td><td>4733.5</td><td>557</td></tr>
-<tr><td>empire L1 (labor 10 + fee 7000) <span class="note">uniform at all empire stations</span></td><td>10</td><td>7000</td><td>7010</td><td>84.0</td><td>1</td><td class="hl-cheap">11693.5</td><td class="hl-fast">638</td></tr>
+<tr><td>own L1 (labor 10) <span class="note">if built</span></td><td>10</td><td>0</td><td>10</td><td>84.0</td><td>1</td><td class="hl-cheap-if">4693.5</td><td>638</td><td>1392000</td><td>199</td></tr>
+<tr><td>own L2 (labor 20) <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>28.0</td><td>1</td><td>4703.5</td><td>582</td><td>5724000</td><td>819</td></tr>
+<tr><td>own L3 (labor 35) <span class="note">if built</span></td><td>35</td><td>0</td><td>35</td><td>9.33</td><td>1</td><td>4718.5</td><td>563</td><td>23938500</td><td>3433</td></tr>
+<tr><td>own L4 (labor 50) <span class="note">if built</span></td><td>50</td><td>0</td><td>50</td><td>3.11</td><td>1</td><td>4733.5</td><td class="hl-fast-if">557</td><td>78351350</td><td>11258</td></tr>
+<tr><td>empire L1 (labor 10 + fee 7000) <span class="note">uniform at all empire stations</span></td><td>10</td><td>7000</td><td>7010</td><td>84.0</td><td>1</td><td class="hl-cheap">11693.5</td><td class="hl-fast">638</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -82,7 +84,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

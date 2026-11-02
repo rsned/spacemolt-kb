@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,10 +62,10 @@
 <h2>baleen_capital_plate <small>Baleen Capital Plate</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L2 (labor 16)</td><td>16</td><td>0</td><td>16</td><td>12.0</td><td>1</td><td>≥ 16 <span class="note">has an unpriced input</span></td><td>17.4</td></tr>
-<tr><td>BUSY L2 @ The Obsidian Well (labor 16 + fee 3000)</td><td>16</td><td>3000</td><td>3016</td><td>9.23</td><td>1</td><td>≥ 3016 <span class="note">has an unpriced input</span></td><td>14.6</td></tr>
+<tr><td>own L2 (labor 16) <span class="note">if built</span></td><td>16</td><td>0</td><td>16</td><td>12.0</td><td>1</td><td>≥ 16 <span class="note">has an unpriced input</span></td><td>17.4</td><td>504200</td><td>77</td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 16 + fee 3000)</td><td>16</td><td>3000</td><td>3016</td><td>9.23</td><td>1</td><td>≥ 3016 <span class="note">has an unpriced input</span></td><td>14.6</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -77,14 +79,14 @@
 <h2>build_capital_armor_plate <small>Build Capital Armor Plate</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 17)</td><td>17</td><td>0</td><td>17</td><td>36.0</td><td>1</td><td>3647</td><td>143</td></tr>
-<tr><td>own L2 (labor 34)</td><td>34</td><td>0</td><td>34</td><td>12.0</td><td>1</td><td>3664</td><td>119</td></tr>
-<tr><td>own L3 (labor 60)</td><td>60</td><td>0</td><td>60</td><td>4.00</td><td>1</td><td>3690</td><td>111</td></tr>
-<tr><td>own L4 (labor 85)</td><td>85</td><td>0</td><td>85</td><td>1.33</td><td>1</td><td>3715</td><td>108</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 17 + fee 3000)</td><td>17</td><td>3000</td><td>3017</td><td>27.7</td><td>1</td><td class="hl-cheap">6647</td><td class="hl-fast">135</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 17 + fee 3000)</td><td>17</td><td>3000</td><td>3017</td><td>27.7</td><td>1</td><td>6647</td><td>135</td></tr>
+<tr><td>own L1 (labor 17) <span class="note">if built</span></td><td>17</td><td>0</td><td>17</td><td>36.0</td><td>1</td><td class="hl-cheap-if">3647</td><td>143</td><td>1344500</td><td>449</td></tr>
+<tr><td>own L2 (labor 34) <span class="note">if built</span></td><td>34</td><td>0</td><td>34</td><td>12.0</td><td>1</td><td>3664</td><td>119</td><td>5353300</td><td>1795</td></tr>
+<tr><td>own L3 (labor 60) <span class="note">if built</span></td><td>60</td><td>0</td><td>60</td><td>4.00</td><td>1</td><td>3690</td><td>111</td><td>19408600</td><td>6564</td></tr>
+<tr><td>own L4 (labor 85) <span class="note">if built</span></td><td>85</td><td>0</td><td>85</td><td>1.33</td><td>1</td><td>3715</td><td class="hl-fast-if">108</td><td>59622800</td><td>20336</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 17 + fee 3000)</td><td>17</td><td>3000</td><td>3017</td><td>27.7</td><td>1</td><td class="hl-cheap">6647</td><td class="hl-fast">135</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 17 + fee 3000)</td><td>17</td><td>3000</td><td>3017</td><td>27.7</td><td>1</td><td>6647</td><td>135</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -96,7 +98,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,15 +62,15 @@
 <h2>build_pulse_laser_iii <small>Build Pulse Laser III</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 11)</td><td>11</td><td>0</td><td>11</td><td>39.0</td><td>1</td><td>1960</td><td>343</td></tr>
-<tr><td>own L2 (labor 22)</td><td>22</td><td>0</td><td>22</td><td>13.0</td><td>1</td><td>1971</td><td>317</td></tr>
-<tr><td>own L3 (labor 39)</td><td>39</td><td>0</td><td>39</td><td>4.33</td><td>1</td><td>1988</td><td>309</td></tr>
-<tr><td>own L4 (labor 55)</td><td>55</td><td>0</td><td>55</td><td>1.44</td><td>1</td><td>2004</td><td>306</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 11 + fee 3250)</td><td>11</td><td>3250</td><td>3261</td><td>30.0</td><td>1</td><td class="hl-cheap">5210</td><td class="hl-fast">334</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 11 + fee 3250)</td><td>11</td><td>3250</td><td>3261</td><td>30.0</td><td>1</td><td>5210</td><td>334</td></tr>
-<tr><td>empire L1 (labor 11 + fee 3250) <span class="note">uniform at all empire stations</span></td><td>11</td><td>3250</td><td>3261</td><td>39.0</td><td>1</td><td>5210</td><td>343</td></tr>
+<tr><td>own L1 (labor 11) <span class="note">if built</span></td><td>11</td><td>0</td><td>11</td><td>39.0</td><td>1</td><td class="hl-cheap-if">1960</td><td>343</td><td>1922425</td><td>592</td></tr>
+<tr><td>own L2 (labor 22) <span class="note">if built</span></td><td>22</td><td>0</td><td>22</td><td>13.0</td><td>1</td><td>1971</td><td>317</td><td>7575200</td><td>2339</td></tr>
+<tr><td>own L3 (labor 39) <span class="note">if built</span></td><td>39</td><td>0</td><td>39</td><td>4.33</td><td>1</td><td>1988</td><td>309</td><td>26386725</td><td>8190</td></tr>
+<tr><td>own L4 (labor 55) <span class="note">if built</span></td><td>55</td><td>0</td><td>55</td><td>1.44</td><td>1</td><td>2004</td><td class="hl-fast-if">306</td><td>79780375</td><td>24885</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 11 + fee 3250)</td><td>11</td><td>3250</td><td>3261</td><td>30.0</td><td>1</td><td class="hl-cheap">5210</td><td class="hl-fast">334</td><td></td><td></td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 11 + fee 3250)</td><td>11</td><td>3250</td><td>3261</td><td>30.0</td><td>1</td><td>5210</td><td>334</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 11 + fee 3250) <span class="note">uniform at all empire stations</span></td><td>11</td><td>3250</td><td>3261</td><td>39.0</td><td>1</td><td>5210</td><td>343</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -82,7 +84,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

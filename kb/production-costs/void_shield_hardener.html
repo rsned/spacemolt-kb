@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,12 +62,12 @@
 <h2>build_void_shield_hardener <small>Build Void Shield Hardener</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 10)</td><td>10</td><td>0</td><td>10</td><td>24.6</td><td>1</td><td>1586 <span class="note">no usable route</span></td><td>156</td></tr>
-<tr><td>own L2 (labor 20)</td><td>20</td><td>0</td><td>20</td><td>8.20</td><td>1</td><td>1596 <span class="note">no usable route</span></td><td>139</td></tr>
-<tr><td>own L3 (labor 35)</td><td>35</td><td>0</td><td>35</td><td>2.73</td><td>1</td><td>1611 <span class="note">no usable route</span></td><td>134</td></tr>
-<tr><td>own L4 (labor 50)</td><td>50</td><td>0</td><td>50</td><td>0.911</td><td>1</td><td>1626 <span class="note">no usable route</span></td><td>132</td></tr>
+<tr><td>own L1 (labor 10) <span class="note">if built</span></td><td>10</td><td>0</td><td>10</td><td>24.6</td><td>1</td><td class="hl-cheap-if">1586 <span class="note">no usable route</span></td><td>156</td><td>940800</td><td>—</td></tr>
+<tr><td>own L2 (labor 20) <span class="note">if built</span></td><td>20</td><td>0</td><td>20</td><td>8.20</td><td>1</td><td>1596 <span class="note">no usable route</span></td><td>139</td><td>3644000</td><td>—</td></tr>
+<tr><td>own L3 (labor 35) <span class="note">if built</span></td><td>35</td><td>0</td><td>35</td><td>2.73</td><td>1</td><td>1611 <span class="note">no usable route</span></td><td>134</td><td>13384050</td><td>—</td></tr>
+<tr><td>own L4 (labor 50) <span class="note">if built</span></td><td>50</td><td>0</td><td>50</td><td>0.911</td><td>1</td><td>1626 <span class="note">no usable route</span></td><td class="hl-fast-if">132</td><td>42044175</td><td>—</td></tr>
 </tbody>
 </table>
 </div>
@@ -78,7 +80,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

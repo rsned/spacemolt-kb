@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,15 +62,15 @@
 <h2>manufacture_void_cores <small>Manufacture Void Cores</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 12)</td><td>12</td><td>0</td><td>12</td><td>40.8</td><td>4</td><td>941.5</td><td>37.6</td></tr>
-<tr><td>own L2 (labor 24)</td><td>24</td><td>0</td><td>24</td><td>13.6</td><td>4</td><td>944.5</td><td>30.8</td></tr>
-<tr><td>own L3 (labor 42)</td><td>42</td><td>0</td><td>42</td><td>4.53</td><td>4</td><td>949</td><td>28.5</td></tr>
-<tr><td>own L4 (labor 60)</td><td>60</td><td>0</td><td>60</td><td>1.51</td><td>4</td><td>953.5</td><td>27.7</td></tr>
-<tr><td>empire L1 (labor 12 + fee 3400) <span class="note">uniform at all empire stations</span></td><td>12</td><td>3400</td><td>3412</td><td>40.8</td><td>4</td><td class="hl-cheap">1791.5</td><td>37.6</td></tr>
-<tr><td>empire L2 (labor 24 + fee 3400) <span class="note">uniform at all empire stations</span></td><td>24</td><td>3400</td><td>3424</td><td>13.6</td><td>4</td><td>1794.5</td><td>30.8</td></tr>
-<tr><td>empire L3 (labor 42 + fee 3400) <span class="note">uniform at all empire stations</span></td><td>42</td><td>3400</td><td>3442</td><td>4.53</td><td>4</td><td>1799</td><td class="hl-fast">28.5</td></tr>
+<tr><td>own L1 (labor 12) <span class="note">if built</span></td><td>12</td><td>0</td><td>12</td><td>40.8</td><td>4</td><td class="hl-cheap-if">941.5</td><td>37.6</td><td>351250</td><td>414</td></tr>
+<tr><td>own L2 (labor 24) <span class="note">if built</span></td><td>24</td><td>0</td><td>24</td><td>13.6</td><td>4</td><td>944.5</td><td>30.8</td><td>1508100</td><td>1781</td></tr>
+<tr><td>own L3 (labor 42) <span class="note">if built</span></td><td>42</td><td>0</td><td>42</td><td>4.53</td><td>4</td><td>949</td><td>28.5</td><td>6423425</td><td>7625</td></tr>
+<tr><td>own L4 (labor 60) <span class="note">if built</span></td><td>60</td><td>0</td><td>60</td><td>1.51</td><td>4</td><td>953.5</td><td class="hl-fast-if">27.7</td><td>20120575</td><td>24011</td></tr>
+<tr><td>empire L1 (labor 12 + fee 3400) <span class="note">uniform at all empire stations</span></td><td>12</td><td>3400</td><td>3412</td><td>40.8</td><td>4</td><td class="hl-cheap">1791.5</td><td>37.6</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 24 + fee 3400) <span class="note">uniform at all empire stations</span></td><td>24</td><td>3400</td><td>3424</td><td>13.6</td><td>4</td><td>1794.5</td><td>30.8</td><td></td><td></td></tr>
+<tr><td>empire L3 (labor 42 + fee 3400) <span class="note">uniform at all empire stations</span></td><td>42</td><td>3400</td><td>3442</td><td>4.53</td><td>4</td><td>1799</td><td class="hl-fast">28.5</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -79,7 +81,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

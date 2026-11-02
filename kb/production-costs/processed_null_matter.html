@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,9 +62,17 @@
 <h2>process_null_matter <small>Process Null Matter</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 9)</td><td>9</td><td>0</td><td>9</td><td>2.73</td><td>1</td><td>9</td><td>2.73</td></tr>
+<tr><td>own L1 (labor 9) <span class="note">if built</span></td><td>9</td><td>0</td><td>9</td><td>2.73</td><td>1</td><td class="hl-cheap-if">9</td><td>2.73</td><td>131000</td><td>578</td></tr>
+<tr><td>own L2 (labor 18) <span class="note">if built</span></td><td>18</td><td>0</td><td>18</td><td>0.910</td><td>1</td><td>18</td><td>0.910</td><td>659800</td><td>3027</td></tr>
+<tr><td>own L3 (labor 32) <span class="note">if built</span></td><td>32</td><td>0</td><td>32</td><td>0.303</td><td>1</td><td>32</td><td>0.303</td><td>2447350</td><td>11997</td></tr>
+<tr><td>own L4 (labor 45) <span class="note">if built</span></td><td>45</td><td>0</td><td>45</td><td>0.101</td><td>1</td><td>45</td><td class="hl-fast-if">0.101</td><td>7418975</td><td>38843</td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 9 + fee 227)</td><td>9</td><td>227</td><td>236</td><td>2.10</td><td>1</td><td class="hl-cheap">236</td><td>2.10</td><td></td><td></td></tr>
+<tr><td>eab830 L1 @ Node Beta Industrial Station (labor 9 + fee 227)</td><td>9</td><td>227</td><td>236</td><td>2.73</td><td>1</td><td>236</td><td>2.73</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 9 + fee 227) <span class="note">uniform at all empire stations</span></td><td>9</td><td>227</td><td>236</td><td>2.73</td><td>1</td><td>236</td><td>2.73</td><td></td><td></td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 18 + fee 227)</td><td>18</td><td>227</td><td>245</td><td>0.700</td><td>1</td><td>245</td><td class="hl-fast">0.700</td><td></td><td></td></tr>
+<tr><td>empire L2 (labor 18 + fee 227) <span class="note">uniform at all empire stations</span></td><td>18</td><td>227</td><td>245</td><td>0.910</td><td>1</td><td>245</td><td>0.910</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -74,10 +84,10 @@
 <h2>condense_null_matter <small>Condense Null Matter</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 14)</td><td>14</td><td>0</td><td>14</td><td>1.60</td><td>1</td><td>≥ 14 <span class="note">has an unpriced input</span></td><td>1.60</td></tr>
-<tr><td>empire L1 (labor 14 + fee 227) <span class="note">uniform at all empire stations</span></td><td>14</td><td>227</td><td>241</td><td>1.60</td><td>1</td><td>≥ 241 <span class="note">has an unpriced input</span></td><td>1.60</td></tr>
+<tr><td>own L1 (labor 14) <span class="note">if built</span></td><td>14</td><td>0</td><td>14</td><td>1.60</td><td>1</td><td>≥ 14 <span class="note">has an unpriced input</span></td><td>1.60</td><td>180000</td><td>811</td></tr>
+<tr><td>empire L1 (labor 14 + fee 227) <span class="note">uniform at all empire stations</span></td><td>14</td><td>227</td><td>241</td><td>1.60</td><td>1</td><td>≥ 241 <span class="note">has an unpriced input</span></td><td>1.60</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -87,7 +97,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

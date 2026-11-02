@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,16 +62,16 @@
 <h2>concentrate_thorium <small>Concentrate Thorium</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 8)</td><td>8</td><td>0</td><td>8</td><td>2.22</td><td>2</td><td>4</td><td>1.11</td></tr>
-<tr><td>own L2 (labor 16)</td><td>16</td><td>0</td><td>16</td><td>0.740</td><td>2</td><td>8</td><td>0.370</td></tr>
-<tr><td>own L3 (labor 28)</td><td>28</td><td>0</td><td>28</td><td>0.247</td><td>2</td><td>14</td><td>0.123</td></tr>
-<tr><td>own L4 (labor 40)</td><td>40</td><td>0</td><td>40</td><td>0.0822</td><td>2</td><td>20</td><td>0.0411</td></tr>
-<tr><td>HEXC L1 @ Confederacy Central Command (labor 8 + fee 185)</td><td>8</td><td>185</td><td>193</td><td>1.71</td><td>2</td><td class="hl-cheap">96.5</td><td>0.854</td></tr>
-<tr><td>eab830 L1 @ Node Gamma Relay Station (labor 8 + fee 185)</td><td>8</td><td>185</td><td>193</td><td>2.22</td><td>2</td><td>96.5</td><td>1.11</td></tr>
-<tr><td>empire L1 (labor 8 + fee 185) <span class="note">uniform at all empire stations</span></td><td>8</td><td>185</td><td>193</td><td>2.22</td><td>2</td><td>96.5</td><td>1.11</td></tr>
-<tr><td>BUSY L2 @ The Obsidian Well (labor 16 + fee 185)</td><td>16</td><td>185</td><td>201</td><td>0.569</td><td>2</td><td>100.5</td><td class="hl-fast">0.285</td></tr>
+<tr><td>own L1 (labor 8) <span class="note">if built</span></td><td>8</td><td>0</td><td>8</td><td>2.22</td><td>2</td><td class="hl-cheap-if">4</td><td>1.11</td><td>123000</td><td>1330</td></tr>
+<tr><td>own L2 (labor 16) <span class="note">if built</span></td><td>16</td><td>0</td><td>16</td><td>0.740</td><td>2</td><td>8</td><td>0.370</td><td>427066.67</td><td>4826</td></tr>
+<tr><td>own L3 (labor 28) <span class="note">if built</span></td><td>28</td><td>0</td><td>28</td><td>0.247</td><td>2</td><td>14</td><td>0.123</td><td>1636100</td><td>19832</td></tr>
+<tr><td>own L4 (labor 40) <span class="note">if built</span></td><td>40</td><td>0</td><td>40</td><td>0.0822</td><td>2</td><td>20</td><td class="hl-fast-if">0.0411</td><td>5494283.33</td><td>71821</td></tr>
+<tr><td>HEXC L1 @ Confederacy Central Command (labor 8 + fee 185)</td><td>8</td><td>185</td><td>193</td><td>1.71</td><td>2</td><td class="hl-cheap">96.5</td><td>0.854</td><td></td><td></td></tr>
+<tr><td>eab830 L1 @ Node Gamma Relay Station (labor 8 + fee 185)</td><td>8</td><td>185</td><td>193</td><td>2.22</td><td>2</td><td>96.5</td><td>1.11</td><td></td><td></td></tr>
+<tr><td>empire L1 (labor 8 + fee 185) <span class="note">uniform at all empire stations</span></td><td>8</td><td>185</td><td>193</td><td>2.22</td><td>2</td><td>96.5</td><td>1.11</td><td></td><td></td></tr>
+<tr><td>BUSY L2 @ The Obsidian Well (labor 16 + fee 185)</td><td>16</td><td>185</td><td>201</td><td>0.569</td><td>2</td><td>100.5</td><td class="hl-fast">0.285</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -79,7 +81,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {

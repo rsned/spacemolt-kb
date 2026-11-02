@@ -18,7 +18,9 @@
         .pc-table .more { text-align: left; }
         .hl-cheap { outline: 2px solid var(--up); }
         .hl-fast { outline: 2px solid var(--link); }
-        .hl-cheap.hl-fast { outline-offset: -3px; padding: 4px 8px; }
+        .hl-cheap-if { outline: 2px dashed var(--up); }
+        .hl-fast-if { outline: 2px dashed var(--link); }
+        .hl-cheap, .hl-fast, .hl-cheap-if, .hl-fast-if { outline-offset: -3px; padding: 4px 8px; }
         .note { color: hsl(var(--muted-foreground)); font-size: .8rem; }
         details > summary { cursor: pointer; }
         .scrollx { overflow-x: auto; }
@@ -60,13 +62,13 @@
 <h2>build_nuclear_reactor_ii <small>Build Nuclear Reactor II</small></h2>
 <div class="scrollx">
 <table class="pc-table rt">
-<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th></tr></thead>
+<thead><tr><th>Route</th><th>Labor</th><th>Fee</th><th>Run total</th><th>Ticks/run</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Build cost</th><th>Pays back after (units)</th></tr></thead>
 <tbody>
-<tr><td>own L1 (labor 35)</td><td>35</td><td>0</td><td>35</td><td>147</td><td>1</td><td>42469</td><td>778</td></tr>
-<tr><td>own L2 (labor 66)</td><td>66</td><td>0</td><td>66</td><td>49.0</td><td>1</td><td>42500</td><td>680</td></tr>
-<tr><td>own L3 (labor 105)</td><td>105</td><td>0</td><td>105</td><td>16.3</td><td>1</td><td>42539</td><td>648</td></tr>
-<tr><td>own L4 (labor 148)</td><td>148</td><td>0</td><td>148</td><td>5.44</td><td>1</td><td>42582</td><td>637</td></tr>
-<tr><td>BUSY L1 @ The Obsidian Well (labor 35 + fee 12250)</td><td>35</td><td>12250</td><td>12285</td><td>113</td><td>1</td><td class="hl-cheap">54719</td><td class="hl-fast">744</td></tr>
+<tr><td>own L1 (labor 35) <span class="note">if built</span></td><td>35</td><td>0</td><td>35</td><td>147</td><td>1</td><td class="hl-cheap-if">42469</td><td>778</td><td>2143000</td><td>175</td></tr>
+<tr><td>own L2 (labor 66) <span class="note">if built</span></td><td>66</td><td>0</td><td>66</td><td>49.0</td><td>1</td><td>42500</td><td>680</td><td>7718600</td><td>632</td></tr>
+<tr><td>own L3 (labor 105) <span class="note">if built</span></td><td>105</td><td>0</td><td>105</td><td>16.3</td><td>1</td><td>42539</td><td>648</td><td>27119800</td><td>2227</td></tr>
+<tr><td>own L4 (labor 148) <span class="note">if built</span></td><td>148</td><td>0</td><td>148</td><td>5.44</td><td>1</td><td>42582</td><td class="hl-fast-if">637</td><td>89418500</td><td>7368</td></tr>
+<tr><td>BUSY L1 @ The Obsidian Well (labor 35 + fee 12250)</td><td>35</td><td>12250</td><td>12285</td><td>113</td><td>1</td><td class="hl-cheap">54719</td><td class="hl-fast">744</td><td></td><td></td></tr>
 </tbody>
 </table>
 </div>
@@ -81,7 +83,7 @@
 </ul>
 
 
-<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T11:07:04Z.</p>
+<p class="note">Catalog snapshot 20261101. Production lines last seen 2026-11-02T15:12:37Z.</p>
 </main>
 <script>
 (function() {
