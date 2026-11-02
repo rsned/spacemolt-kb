@@ -1,0 +1,65 @@
+{{define "pcnode"}}<li>{{if .Qty}}{{.Qty}} &times; {{end}}{{.Name}} <select class="pc-step" data-item="{{.ItemID}}"><option value="" selected>{{.Default}}</option></select>{{if .Above}} <span class="note">expanded above</span>{{end}}{{if .Children}}<ul>{{range .Children}}{{template "pcnode" .}}{{end}}</ul>{{end}}</li>{{end}}
+{{template "head" .}}
+<style>
+    .pc-settings { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; align-items: center; padding: .6rem .8rem;
+        border: 1px solid hsl(var(--border)); border-radius: 6px; position: sticky; top: 0; z-index: 2; background: hsl(var(--background)); }
+    .pc-settings label { font-size: .85rem; }
+    .pc-settings input[type=number] { width: 6rem; }
+    .pc-badge, .pc-flag { display: inline-block; font-size: .72rem; padding: 0 .35rem; border-radius: 4px;
+        border: 1px solid hsl(var(--border)); color: hsl(var(--muted-foreground)); white-space: nowrap; }
+    .pc-flag { border-color: var(--up); color: var(--up); }
+    tr.pc-partial td { color: hsl(var(--muted-foreground)); }
+    #pc-opp-table th[data-key] { cursor: pointer; user-select: none; }
+    #pc-opp-table td:nth-child(n+3):nth-child(-n+9), #pc-opp-table th:nth-child(n+3):nth-child(-n+9),
+    .pc-table.base td:nth-child(n+4):nth-child(-n+8) { text-align: right; }
+    .pc-tree { font-size: .85rem; }
+    .pc-tree select { font-size: .8rem; max-width: 22rem; }
+    .pc-cost { color: hsl(var(--muted-foreground)); }
+    details.pc-item { margin: .25rem 0; }
+</style>
+<h1>Production Costs <small>private</small></h1>
+<p class="note">Local only, never published. Market prices, Station Manager bids, our own lines, and toggled assumptions.</p>
+
+<form id="pc-settings" class="pc-settings" onsubmit="return false">
+    <label>Raw resources <select id="pc-raw"><option value="mine" selected>mine</option><option value="buy">buy now</option></select></label>
+    <label>Haul fuel <input id="pc-haul-fuel" type="number" min="0" step="any" value="0"> cr/jump</label>
+    <label>Mine fuel <input id="pc-mine-fuel" type="number" min="0" step="any" value="0"> cr/unit</label>
+    <label><input id="pc-unpriced" type="checkbox"> price unpriced inputs at ask</label>
+    <button id="pc-reset" type="button">Reset step choices</button>
+    <span class="note">Home {{.Home}} · {{.JumpTicks}} ticks/jump · hold {{.Hold}} ·
+        catalog {{if .Ages.Catalog}}{{.Ages.Catalog}}{{else}}?{{end}} ·
+        facilities {{if .Ages.Facilities}}{{.Ages.Facilities}}{{else}}?{{end}} ·
+        market {{if .Ages.Market}}{{.Ages.Market}}{{else}}?{{end}}</span>
+</form>
+
+<h2>Opportunities</h2>
+<p class="note">Station Manager buy orders, one row per bid level, each made on the route and policy with the best profit per hour. Hours = make time over the whole depth + haul from home to the bidder and back. Partial rows count unpriced inputs at 0, so their margins are overstated; they sort after complete rows. Click a column to sort.{{if .Uncosted}} {{.Uncosted}} bid levels are for items we have no usable route to.{{end}}</p>
+<div class="scrollx">
+<table class="pc-table" id="pc-opp-table">
+<thead><tr><th data-key="item">Item</th><th data-key="station">Station</th><th data-key="bid">Bid</th><th data-key="depth">Depth</th><th data-key="cost">Our cost</th><th data-key="margin">Margin/u</th><th data-key="total">Total</th><th data-key="hours">Hours</th><th data-key="profitPerHour">Profit/hr</th><th data-key="route">Route</th><th data-key="policy">Policy</th></tr></thead>
+<tbody id="pc-opps">
+{{range .Opps}}<tr{{if .Partial}} class="pc-partial"{{end}}><td>{{.Name}}{{if .Partial}} <span class="pc-badge">partial — unpriced inputs at 0</span>{{end}}</td><td>{{.Station}}</td><td>{{.Bid}}</td><td>{{.Depth}}</td><td>{{.Cost}}</td><td>{{.Margin}}</td><td>{{.Total}}</td><td>{{.Hours}}</td><td>{{.PPH}}</td><td>{{.Route}}</td><td>{{.Policy}}</td></tr>
+{{end}}</tbody>
+</table>
+</div>
+
+<h2>Baseline with market</h2>
+<p class="note">Each item on its cheapest usable route (public columns), with the best market ask and the best Station Manager bid. "buy is cheaper" marks an ask below our cost.</p>
+<div class="scrollx">
+<table class="pc-table base">
+<thead><tr><th>Item</th><th>Recipe</th><th>Route</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Ask</th><th>Best bid</th><th>Flags</th></tr></thead>
+<tbody>
+{{range .Baseline}}<tr><td>{{.Name}}</td><td>{{.Recipe}}</td><td>{{.Route}}</td><td>{{.Out}}</td><td>{{if .Partial}}&ge; {{end}}{{.Credits}}</td><td>{{.Time}}</td><td>{{.Ask}}</td><td>{{.BestBid}}</td><td>{{if .BuyCheaper}}<span class="pc-flag">buy is cheaper</span> {{end}}{{if .NoPrice}}<span class="pc-flag">market has no price</span> {{end}}{{if .NoUsable}}<span class="note">no usable route</span>{{end}}{{if .Partial}}<span class="note">has an unpriced input</span>{{end}}</td></tr>
+{{end}}</tbody>
+</table>
+</div>
+
+<h2>Item trees</h2>
+<p class="note">Each step can be mined, bought now at the ask, or made on any route. A choice applies to that item everywhere, including the opportunities above.</p>
+{{range .Details}}<details class="pc-item" data-item="{{.ID}}"><summary>{{.Name}} <span class="pc-total note">{{.Total}}</span></summary>
+<div class="pc-tree-box"><ul class="pc-tree">{{template "pcnode" .Tree}}</ul></div>
+</details>
+{{end}}
+<script type="application/json" id="pc-data">{{.Data}}</script>
+<script src="prodcost.js"></script>
+{{template "foot" .}}

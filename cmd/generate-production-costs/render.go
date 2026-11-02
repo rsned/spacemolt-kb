@@ -55,6 +55,7 @@ type recipeView struct {
 type pageData struct {
 	Title  string
 	Header htmltpl.HTML
+	Base   string // prefix of the KB root, for stylesheets
 	Ages   DataAges
 
 	Items []itemRow // index
@@ -152,7 +153,7 @@ func renderPublic(outDir string, w prodcost.World, costs map[string]*prodcost.It
 		recipeName[rec.ID] = rec.Name
 	}
 
-	index := pageData{Title: "Production Costs", Header: header, Ages: ages}
+	index := pageData{Title: "Production Costs", Header: header, Base: "../", Ages: ages}
 	pages := map[string][]byte{}
 	for _, id := range ids {
 		ic := costs[id]
@@ -165,7 +166,7 @@ func renderPublic(outDir string, w prodcost.World, costs map[string]*prodcost.It
 		}
 		index.Items = append(index.Items, row)
 
-		pd := pageData{Title: name(id) + " Production Cost", Header: header, Ages: ages, Name: name(id),
+		pd := pageData{Title: name(id) + " Production Cost", Header: header, Base: "../", Ages: ages, Name: name(id),
 			BuildHref: "../build-costs/" + id + ".html", NoUsable: ic.NoUsableRoute}
 		if it, ok := w.Items[id]; ok && it.Category != "" {
 			pd.ItemHref = "../items/" + strings.ReplaceAll(it.Category, " ", "_") + "/" + id + ".html"

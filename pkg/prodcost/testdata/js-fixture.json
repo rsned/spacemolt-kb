@@ -1,0 +1,426 @@
+{
+  "home": "home",
+  "jumpTicks": 4,
+  "hold": 100,
+  "tickSeconds": 10,
+  "items": {
+    "circuit_board": {
+      "name": "Circuit Board",
+      "size": 1,
+      "routes": [
+        {
+          "label": "hand",
+          "recipe": "etch_circuit_boards",
+          "kind": "hand",
+          "usable": true,
+          "labor": 0,
+          "fee": 0,
+          "ticks": 2,
+          "out": 1,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "copper_wiring",
+              "qty": 2
+            }
+          ],
+          "creditsPerUnit": 0,
+          "ticksPerUnit": 2.32
+        }
+      ],
+      "cheapest": 0,
+      "fastest": 0
+    },
+    "copper_ore": {
+      "name": "Copper Ore",
+      "size": 1,
+      "raw": true,
+      "asks": [
+        {
+          "station": "near",
+          "price": 3,
+          "qty": 1000,
+          "hops": 1
+        },
+        {
+          "station": "far",
+          "price": 4,
+          "qty": 1000,
+          "hops": 2
+        }
+      ],
+      "cheapest": -1,
+      "fastest": -1
+    },
+    "copper_wiring": {
+      "name": "Copper Wiring",
+      "size": 0.5,
+      "routes": [
+        {
+          "label": "hand",
+          "recipe": "draw_copper_wiring",
+          "kind": "hand",
+          "usable": true,
+          "labor": 0,
+          "fee": 0,
+          "ticks": 0.32,
+          "out": 2,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "copper_ore",
+              "qty": 8
+            }
+          ],
+          "creditsPerUnit": 0,
+          "ticksPerUnit": 0.16
+        }
+      ],
+      "cheapest": 0,
+      "fastest": 0
+    },
+    "harness": {
+      "name": "Harness",
+      "size": 2,
+      "asks": [
+        {
+          "station": "near",
+          "price": 100,
+          "qty": 4,
+          "hops": 1
+        }
+      ],
+      "routes": [
+        {
+          "label": "own L1 (labor 12)",
+          "recipe": "assemble_harness",
+          "kind": "own",
+          "usable": false,
+          "labor": 12,
+          "fee": 0,
+          "ticks": 0.3,
+          "out": 1,
+          "sys": "",
+          "inputs": [
+            {
+              "item": "copper_wiring",
+              "qty": 3
+            },
+            {
+              "item": "steel_plate",
+              "qty": 1
+            }
+          ],
+          "creditsPerUnit": 12,
+          "ticksPerUnit": 1.05
+        },
+        {
+          "label": "CRFT L1 @ Conjunction Junction (labor 12)",
+          "recipe": "assemble_harness",
+          "kind": "crft",
+          "usable": true,
+          "labor": 12,
+          "fee": 0,
+          "ticks": 0.3,
+          "out": 1,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "copper_wiring",
+              "qty": 3
+            },
+            {
+              "item": "steel_plate",
+              "qty": 1
+            }
+          ],
+          "creditsPerUnit": 12,
+          "ticksPerUnit": 1.05
+        },
+        {
+          "label": "empire L1 (labor 12 + fee 325)",
+          "recipe": "assemble_harness",
+          "kind": "empire",
+          "usable": true,
+          "labor": 12,
+          "fee": 325,
+          "ticks": 0.3,
+          "out": 1,
+          "sys": "s1",
+          "inputs": [
+            {
+              "item": "copper_wiring",
+              "qty": 3
+            },
+            {
+              "item": "steel_plate",
+              "qty": 1
+            }
+          ],
+          "creditsPerUnit": 337,
+          "ticksPerUnit": 1.05
+        }
+      ],
+      "cheapest": 1,
+      "fastest": 1
+    },
+    "iron_ore": {
+      "name": "Iron Ore",
+      "size": 1,
+      "raw": true,
+      "asks": [
+        {
+          "station": "far",
+          "price": 2,
+          "qty": 50,
+          "hops": 2
+        },
+        {
+          "station": "island",
+          "price": 2.5,
+          "qty": 500,
+          "hops": -1
+        },
+        {
+          "station": "near",
+          "price": 6,
+          "qty": 500,
+          "hops": 1
+        }
+      ],
+      "cheapest": -1,
+      "fastest": -1
+    },
+    "mystery_part": {
+      "name": "Mystery Part",
+      "size": 1,
+      "asks": [
+        {
+          "station": "far",
+          "price": 40,
+          "qty": 10,
+          "hops": 2
+        }
+      ],
+      "cheapest": -1,
+      "fastest": -1
+    },
+    "plasma_injector": {
+      "name": "Plasma Injector",
+      "size": 1,
+      "routes": [
+        {
+          "label": "hand",
+          "recipe": "make_plasma_injector",
+          "kind": "hand",
+          "usable": true,
+          "labor": 0,
+          "fee": 0,
+          "ticks": 1,
+          "out": 1,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "iron_ore",
+              "qty": 2
+            },
+            {
+              "item": "mystery_part",
+              "qty": 1
+            }
+          ],
+          "creditsPerUnit": 0,
+          "ticksPerUnit": 1,
+          "partial": true
+        },
+        {
+          "label": "hand",
+          "recipe": "make_plasma_injector_alt",
+          "kind": "hand",
+          "usable": true,
+          "labor": 0,
+          "fee": 0,
+          "ticks": 2,
+          "out": 1,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "iron_ore",
+              "qty": 4
+            },
+            {
+              "item": "mystery_part",
+              "qty": 1
+            }
+          ],
+          "creditsPerUnit": 0,
+          "ticksPerUnit": 2,
+          "partial": true
+        }
+      ],
+      "cheapest": 0,
+      "fastest": 0
+    },
+    "steel_plate": {
+      "name": "Steel Plate",
+      "size": 1,
+      "routes": [
+        {
+          "label": "hand",
+          "recipe": "basic_iron_smelting",
+          "kind": "hand",
+          "usable": true,
+          "labor": 0,
+          "fee": 0,
+          "ticks": 0.27,
+          "out": 1,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "iron_ore",
+              "qty": 3
+            }
+          ],
+          "creditsPerUnit": 0,
+          "ticksPerUnit": 0.27
+        },
+        {
+          "label": "own L1 (labor 10)",
+          "recipe": "refine_steel",
+          "kind": "own",
+          "usable": false,
+          "labor": 10,
+          "fee": 0,
+          "ticks": 0.10800000000000001,
+          "out": 2,
+          "sys": "",
+          "inputs": [
+            {
+              "item": "iron_ore",
+              "qty": 2.5
+            }
+          ],
+          "creditsPerUnit": 5,
+          "ticksPerUnit": 0.054000000000000006
+        },
+        {
+          "label": "empire L1 (labor 10 + fee 9)",
+          "recipe": "refine_steel",
+          "kind": "empire",
+          "usable": true,
+          "labor": 10,
+          "fee": 9,
+          "ticks": 0.10800000000000001,
+          "out": 2,
+          "sys": "s1",
+          "inputs": [
+            {
+              "item": "iron_ore",
+              "qty": 2.5
+            }
+          ],
+          "creditsPerUnit": 9.5,
+          "ticksPerUnit": 0.054000000000000006
+        },
+        {
+          "label": "own L2 (labor 20)",
+          "recipe": "refine_steel",
+          "kind": "own",
+          "usable": false,
+          "labor": 20,
+          "fee": 0,
+          "ticks": 0.036000000000000004,
+          "out": 2,
+          "sys": "",
+          "inputs": [
+            {
+              "item": "iron_ore",
+              "qty": 2.5
+            }
+          ],
+          "creditsPerUnit": 10,
+          "ticksPerUnit": 0.018000000000000002
+        },
+        {
+          "label": "ABC L2 @ Dock (labor 20 + fee 4)",
+          "recipe": "refine_steel",
+          "kind": "faction",
+          "usable": true,
+          "labor": 20,
+          "fee": 4,
+          "ticks": 0.083,
+          "out": 2,
+          "sys": "s2",
+          "inputs": [
+            {
+              "item": "iron_ore",
+              "qty": 2.5
+            }
+          ],
+          "creditsPerUnit": 12,
+          "ticksPerUnit": 0.0415
+        }
+      ],
+      "cheapest": 0,
+      "fastest": 4
+    }
+  },
+  "bids": [
+    {
+      "item": "circuit_board",
+      "station": "far",
+      "sys": "s2",
+      "price": 80,
+      "qty": 20
+    },
+    {
+      "item": "copper_wiring",
+      "station": "bidder",
+      "sys": "s3",
+      "price": 30,
+      "qty": 40
+    },
+    {
+      "item": "harness",
+      "station": "near",
+      "sys": "s1",
+      "price": 500,
+      "qty": 5
+    },
+    {
+      "item": "harness",
+      "station": "island",
+      "sys": "isolated",
+      "price": 450,
+      "qty": 9
+    },
+    {
+      "item": "plasma_injector",
+      "station": "near",
+      "sys": "s1",
+      "price": 9000,
+      "qty": 3
+    },
+    {
+      "item": "steel_plate",
+      "station": "bidder",
+      "sys": "s3",
+      "price": 50,
+      "qty": 100
+    }
+  ],
+  "hops": {
+    "home": {
+      "s1": 1,
+      "s2": 2,
+      "s3": 3
+    },
+    "s1": {
+      "s2": 1,
+      "s3": 2
+    },
+    "s2": {
+      "s3": 1
+    }
+  }
+}

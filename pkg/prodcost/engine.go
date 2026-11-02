@@ -17,7 +17,8 @@ type World struct {
 
 // Options tunes Compute.
 type Options struct {
-	// SkipInputs leaves out every recipe with one of these items as an input.
+	// SkipInputs leaves out every recipe with one of these items as an input
+	// or as outputs[0], so the items themselves are never costed either.
 	SkipInputs map[string]bool
 }
 
@@ -107,7 +108,7 @@ func Compute(w World, opt Options) map[string]*ItemCost {
 		memo: map[string]*ItemCost{}, onStack: map[string]bool{}}
 	var order []string
 	for _, rec := range w.Recipes {
-		if len(rec.Outputs) == 0 || slices.ContainsFunc(rec.Inputs, func(m catalog.Material) bool { return opt.SkipInputs[m.ItemID] }) {
+		if len(rec.Outputs) == 0 || opt.SkipInputs[rec.Outputs[0].ItemID] || slices.ContainsFunc(rec.Inputs, func(m catalog.Material) bool { return opt.SkipInputs[m.ItemID] }) {
 			continue
 		}
 		id := rec.Outputs[0].ItemID

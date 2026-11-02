@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} - Spacemolt KB</title>
-    <link rel="stylesheet" href="../smui.css">
-    <link rel="stylesheet" href="../system.css">
+    <link rel="stylesheet" href="{{.Base}}smui.css">
+    <link rel="stylesheet" href="{{.Base}}system.css">
     <style>
         :root { --up: #1a7f37; --link: #0969da; }
         .dark { --up: #3fb950; --link: #58a6ff; }
@@ -28,7 +28,7 @@
 <main class="pc">
 {{end}}
 {{define "foot"}}
-<p class="note">{{if .Ages.Catalog}}Catalog snapshot {{.Ages.Catalog}}.{{end}}{{if .Ages.Facilities}} Production lines last seen {{.Ages.Facilities}}.{{end}}</p>
+<p class="note">{{if .Ages.Catalog}}Catalog snapshot {{.Ages.Catalog}}.{{end}}{{if .Ages.Facilities}} Production lines last seen {{.Ages.Facilities}}.{{end}}{{if .Ages.Market}} Market captured {{.Ages.Market}}.{{end}}</p>
 </main>
 <script>
 (function() {
