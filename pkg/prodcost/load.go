@@ -39,7 +39,10 @@ func LoadWorld(catalogRoot string, kdb *sql.DB, ourTag string) (World, error) {
 	var ourID string
 	if ourTag != "" {
 		err := kdb.QueryRow(`SELECT faction_id FROM factions WHERE tag = ? LIMIT 1`, ourTag).Scan(&ourID)
-		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
+			return World{}, fmt.Errorf("find faction %q: no such tag in factions", ourTag)
+		}
+		if err != nil {
 			return World{}, fmt.Errorf("find faction %q: %w", ourTag, err)
 		}
 	}

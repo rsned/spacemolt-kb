@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"maps"
 	"regexp"
 	"strings"
 	"testing"
@@ -115,5 +116,23 @@ func TestRenderPrivatePartialAndUnreachable(t *testing.T) {
 		if !strings.Contains(idx, want) {
 			t.Errorf("index missing %q", want)
 		}
+	}
+}
+
+func TestRenderPrivateBaselineCycleIsLowerBound(t *testing.T) {
+	w, m, hp := privateWorld()
+	cw := cycleWorld()
+	maps.Copy(w.Items, cw.Items)
+	w.Recipes = append(w.Recipes, cw.Recipes...)
+	w.Facilities["shop"] = cw.Facilities["shop"]
+	w.Lines = append(w.Lines, cw.Lines...)
+	costs := prodcost.Compute(w, prodcost.Options{})
+	dir := t.TempDir()
+	if err := renderPrivate(dir, w, costs, m, hp, prodcost.Opportunities(costs, w, m, hp), DataAges{}); err != nil {
+		t.Fatal(err)
+	}
+	row := regexp.MustCompile(`<tr><td><a href="[^"]*/x\.html">Ex</a></td>[^\n]*`).FindString(readOut(t, dir, "index.html"))
+	if !strings.Contains(row, "&ge; ") || !strings.Contains(row, "cycle") {
+		t.Errorf("baseline cycle row not a lower bound: %q", row)
 	}
 }

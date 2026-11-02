@@ -33,6 +33,7 @@ type routeView struct {
 	Recipe, Labor, Fee, RunTotal, Ticks, Out string
 	Credits, Time, Note                      string
 	Cheap, Fast                              bool
+	Empire                                   bool // the item page notes the fee is uniform
 }
 
 type itemRow struct {
@@ -112,9 +113,12 @@ func viewRoute(ic *prodcost.ItemCost, i int) routeView {
 		Ticks: sig3(r.TicksPerRun), Out: num(r.OutPerRun),
 		Credits: num(r.CreditsPerUnit), Time: sig3(r.TicksPerUnit),
 		Cheap: multi && i == ic.Cheapest, Fast: multi && i == ic.Fastest,
+		Empire: r.Kind == prodcost.KindEmpire,
+	}
+	if r.Partial || r.Cycle {
+		v.Credits = "≥ " + v.Credits // a floor: the missing inputs count as 0
 	}
 	if r.Partial {
-		v.Credits = "≥ " + v.Credits
 		v.Note = "has an unpriced input"
 	}
 	if r.Cycle {

@@ -118,3 +118,18 @@ CREATE TABLE bases (id TEXT PRIMARY KEY, poi_id TEXT);
 		t.Errorf("asks = %v, want %v", m.Asks["ore"], want)
 	}
 }
+
+func TestMarketAgeIgnoresWorkerRows(t *testing.T) {
+	mdb := openMem(t, `
+CREATE TABLE market_orders (id INTEGER PRIMARY KEY, station_id TEXT, item_id TEXT, side TEXT,
+	price_each REAL, quantity REAL, source TEXT, captured_at TEXT);
+INSERT INTO market_orders (station_id,item_id,side,price_each,quantity,source,captured_at) VALUES
+	('a','ore','sell',1,1,'','2026-11-02T09:00:00Z'),
+	('a','ore','buy',1,1,'station','2026-11-02T10:00:00Z'),
+	('a','ore','sell',1,1,'worker','2026-11-02T11:00:00Z');
+`)
+	got, err := MarketAge(mdb)
+	if err != nil || got != "2026-11-02T10:00:00Z" {
+		t.Errorf("MarketAge = %q, %v; want the latest marketbot capture", got, err)
+	}
+}

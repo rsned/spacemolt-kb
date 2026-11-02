@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -154,5 +155,55 @@ func TestRenderPublicCleanupOnlyRemovesOwnPages(t *testing.T) {
 	}
 	if !strings.Contains(readOut(t, dir, "index.html"), pageMarker) {
 		t.Errorf("index lacks marker")
+	}
+}
+
+// cycleWorld has x and y each made only from the other at an empire L1, so
+// both are costed as a cycle: a floor, like a partial cost.
+func cycleWorld() prodcost.World {
+	return prodcost.World{
+		Items: map[string]catalog.Item{
+			"x": {ID: "x", Name: "Ex", Category: "component", Size: 1},
+			"y": {ID: "y", Name: "Why", Category: "component", Size: 1},
+		},
+		Recipes: []catalog.Recipe{
+			{ID: "make_x", CraftingTime: 1, ProducedBy: []string{"shop"},
+				Inputs: []catalog.Material{mat("y", 1)}, Outputs: []catalog.Material{mat("x", 1)}},
+			{ID: "make_y", CraftingTime: 1, ProducedBy: []string{"shop"},
+				Inputs: []catalog.Material{mat("x", 1)}, Outputs: []catalog.Material{mat("y", 1)}},
+		},
+		Facilities: map[string]catalog.Facility{"shop": {ID: "shop", Level: 1, LaborCost: 10}},
+		Lines: []prodcost.Line{{RecipeID: "make_x", Level: 1, Fee: 5, Empire: true},
+			{RecipeID: "make_y", Level: 1, Fee: 5, Empire: true}},
+	}
+}
+
+func TestRenderPublicCycleIsLowerBound(t *testing.T) {
+	w := cycleWorld()
+	dir := t.TempDir()
+	if err := renderPublic(dir, w, prodcost.Compute(w, prodcost.Options{}), DataAges{}); err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range []string{"index.html", "x.html"} {
+		out := readOut(t, dir, f)
+		if !strings.Contains(out, "≥ ") || !strings.Contains(out, "cycle") {
+			t.Errorf("%s: cycle cost not shown as a lower bound", f)
+		}
+	}
+}
+
+func TestRenderPublicEmpireUniformNote(t *testing.T) {
+	w := steelWorld()
+	dir := t.TempDir()
+	if err := renderPublic(dir, w, prodcost.Compute(w, prodcost.Options{}), DataAges{}); err != nil {
+		t.Fatal(err)
+	}
+	page := readOut(t, dir, "steel_plate.html")
+	row := regexp.MustCompile(`<tr><td>empire L1 \(labor 10 \+ fee 9\)[^\n]*`).FindString(page)
+	if !strings.Contains(row, "uniform at all empire stations") {
+		t.Errorf("empire row lacks the uniform note: %q", row)
+	}
+	if n := strings.Count(page, "uniform at all empire stations"); n != 1 {
+		t.Errorf("uniform note shown %d times, want once (empire row only)", n)
 	}
 }

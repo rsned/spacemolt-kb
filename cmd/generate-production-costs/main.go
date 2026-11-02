@@ -79,7 +79,8 @@ func main() {
 			hp.Hops[sys] = galaxyhops.BFSHops(adj, sys)
 		}
 	}
-	must(mdb.QueryRow(`SELECT COALESCE(MAX(captured_at), '') FROM market_orders`).Scan(&ages.Market), "market age")
+	ages.Market, err = prodcost.MarketAge(mdb)
+	must(err, "market age")
 	opps := prodcost.Opportunities(pcosts, pw, m, hp)
 	must(renderPrivate(*privateOut, pw, pcosts, m, hp, opps, ages), "render private")
 	log.Printf("production-costs: wrote private page (%d items, %d opportunities, %d uncosted bid levels) to %s",

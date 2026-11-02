@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,7 +16,7 @@ import (
 var update = flag.Bool("update", false, "rewrite testdata/js-fixture.json and testdata/js-golden.json")
 
 // goldenWorld joins the steel_plate, copper_wiring and plasma_injector
-// fixtures, with a CRFT line, an energy_crystal recipe on each side, and a
+// fixtures, a sealed_steel wrap/unwrap loop, with a CRFT line, an energy_crystal recipe on each side, and a
 // market whose bidders sit 1–3 hops from home (plus one unreachable).
 func goldenWorld() (World, Market, HaulParams) {
 	w := World{
@@ -29,6 +30,7 @@ func goldenWorld() (World, Market, HaulParams) {
 			"mystery_part":    {ID: "mystery_part", Name: "Mystery Part", Category: "component", Size: 1},
 			"plasma_injector": {ID: "plasma_injector", Name: "Plasma Injector", Category: "component", Size: 1},
 			"circuit_board":   {ID: "circuit_board", Name: "Circuit Board", Category: "component", Size: 1},
+			"sealed_steel":    {ID: "sealed_steel", Name: "Sealed Steel", Category: "component", Size: 1},
 		},
 		Recipes: []catalog.Recipe{
 			{ID: "basic_iron_smelting", CraftingTime: 0.27, HandCraftable: true,
@@ -47,6 +49,12 @@ func goldenWorld() (World, Market, HaulParams) {
 				Inputs: []catalog.Material{mat("energy_crystal", 1)}, Outputs: []catalog.Material{mat("circuit_board", 1)}},
 			{ID: "etch_circuit_boards", CraftingTime: 2, HandCraftable: true,
 				Inputs: []catalog.Material{mat("copper_wiring", 2)}, Outputs: []catalog.Material{mat("circuit_board", 1)}},
+			// sealed_steel wraps steel_plate, which unwraps back: a loop
+			// steel_plate's other routes complete.
+			{ID: "unseal_steel", CraftingTime: 0.5, HandCraftable: true,
+				Inputs: []catalog.Material{mat("sealed_steel", 1)}, Outputs: []catalog.Material{mat("steel_plate", 1)}},
+			{ID: "seal_steel", CraftingTime: 0.5, HandCraftable: true,
+				Inputs: []catalog.Material{mat("steel_plate", 1)}, Outputs: []catalog.Material{mat("sealed_steel", 1)}},
 			{ID: "synthesise_crystal", CraftingTime: 3, HandCraftable: true,
 				Inputs: []catalog.Material{mat("iron_ore", 4)}, Outputs: []catalog.Material{mat("energy_crystal", 1)}},
 		},
@@ -201,5 +209,30 @@ func TestPageDataShape(t *testing.T) {
 	}
 	if nBids != 6 {
 		t.Errorf("bids %+v", p.Bids)
+	}
+}
+
+// TestCostUnderMatchesCompute: for every complete item, CostUnder on its
+// cheapest route under PolicyCheapest reproduces Compute's cost.
+func TestCostUnderMatchesCompute(t *testing.T) {
+	w, _, _ := goldenWorld()
+	costs := Compute(w, Options{SkipInputs: goldenSkip})
+	checked := 0
+	for id, ic := range costs {
+		if ic.Cheapest < 0 || !ic.Routes[ic.Cheapest].complete() {
+			continue
+		}
+		want := ic.Routes[ic.Cheapest]
+		c, tk, partial := CostUnder(costs, w, id, want.Route, PolicyCheapest)
+		if partial || math.Abs(c-want.CreditsPerUnit) > 1e-9 || math.Abs(tk-want.TicksPerUnit) > 1e-9 {
+			t.Errorf("%s: CostUnder = (%v, %v, partial %v), Compute = (%v, %v)", id, c, tk, partial, want.CreditsPerUnit, want.TicksPerUnit)
+		}
+		checked++
+	}
+	if checked < 5 {
+		t.Errorf("only %d complete items checked", checked)
+	}
+	if ic := costs["sealed_steel"]; ic == nil || ic.Cheapest < 0 || !ic.Routes[ic.Cheapest].complete() {
+		t.Errorf("sealed_steel should be complete through steel_plate: %+v", ic)
 	}
 }

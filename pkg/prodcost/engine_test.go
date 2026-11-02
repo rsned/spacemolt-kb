@@ -194,3 +194,51 @@ func TestComputeByproductPrimaryOnly(t *testing.T) {
 		t.Errorf("oxygen has an entry: %+v", o)
 	}
 }
+
+// TestComputeCycleNotMemoisedIntoCompleteItem: a has a complete fabricate
+// route and an unwrap route from b; b is wrapped from a. b must cost a's
+// fabricate route, never the broken cycle, and unwrap_a completes through
+// fab_a then wrap_b, whatever the recipe order.
+func TestComputeCycleNotMemoisedIntoCompleteItem(t *testing.T) {
+	fab := catalog.Recipe{ID: "fab_a", CraftingTime: 3, ProducedBy: []string{"fab"},
+		Inputs: []catalog.Material{mat("ore", 2)}, Outputs: []catalog.Material{mat("a", 1)}}
+	unwrap := catalog.Recipe{ID: "unwrap_a", CraftingTime: 1, ProducedBy: []string{"wrapper"},
+		Inputs: []catalog.Material{mat("b", 1)}, Outputs: []catalog.Material{mat("a", 1)}}
+	wrap := catalog.Recipe{ID: "wrap_b", CraftingTime: 1, ProducedBy: []string{"wrapper"},
+		Inputs: []catalog.Material{mat("a", 1)}, Outputs: []catalog.Material{mat("b", 1)}}
+	orders := [][]catalog.Recipe{
+		{fab, unwrap, wrap}, {unwrap, fab, wrap}, {wrap, fab, unwrap},
+		{wrap, unwrap, fab}, {unwrap, wrap, fab}, {fab, wrap, unwrap},
+	}
+	for _, recs := range orders {
+		w := World{
+			Items:   map[string]catalog.Item{"ore": {ID: "ore", ExtractedBy: []string{"mining"}}},
+			Recipes: recs,
+			Facilities: map[string]catalog.Facility{
+				"fab":     {ID: "fab", Level: 1, LaborCost: 100},
+				"wrapper": {ID: "wrapper", Level: 1, LaborCost: 7},
+			},
+			Lines: []Line{{RecipeID: "fab_a", Level: 1, Empire: true}, {RecipeID: "unwrap_a", Level: 1, Empire: true},
+				{RecipeID: "wrap_b", Level: 1, Empire: true}},
+		}
+		got := Compute(w, Options{})
+		name := recs[0].ID + "," + recs[1].ID + "," + recs[2].ID
+		a, b := got["a"], got["b"]
+		if a == nil || b == nil || a.Cheapest < 0 || b.Cheapest < 0 {
+			t.Fatalf("%s: got %+v", name, got)
+		}
+		if c := a.Routes[a.Cheapest]; c.RecipeID != "fab_a" || c.Cycle || c.Partial || !near(c.CreditsPerUnit, 100) {
+			t.Errorf("%s: a cheapest %+v", name, c)
+		}
+		c := b.Routes[b.Cheapest]
+		if c.Cycle || c.Partial || !near(c.CreditsPerUnit, 107) || !near(c.RawPerUnit, 2) {
+			t.Errorf("%s: b cheapest %+v", name, c)
+		}
+		if len(c.Inputs) != 1 || c.Inputs[0].Via == "cycle" {
+			t.Errorf("%s: b inputs %+v", name, c.Inputs)
+		}
+		if u := routeOf(t, a, "unwrap_a", KindEmpire); u.Cycle || u.Partial || !near(u.CreditsPerUnit, 114) {
+			t.Errorf("%s: unwrap_a completes via fab_a, wrap_b: %+v", name, u)
+		}
+	}
+}

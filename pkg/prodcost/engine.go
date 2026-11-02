@@ -2,6 +2,7 @@ package prodcost
 
 import (
 	"cmp"
+	"math"
 	"slices"
 
 	"github.com/rsned/spacemolt-kb/pkg/catalog"
@@ -92,20 +93,31 @@ type engine struct {
 	w        World
 	byOutput map[string][]catalog.Recipe
 	memo     map[string]*ItemCost
-	onStack  map[string]bool
+	onStack  map[string]int // item -> stack depth
+	// complete is each item's cheapest complete route, from settle.
+	complete map[string]RouteCost
+	// settling makes route treat every input without a complete cost as a
+	// cycle instead of searching it.
+	settling bool
 }
+
+// noDep is the "depends on no ancestor" depth returned by item and route.
+const noDep = math.MaxInt
 
 // Compute costs every item that is outputs[0] of at least one recipe not
 // skipped by opt. Raw and unpriced items get no entry.
 //
-// It is a memoised depth-first search. An input already on the stack marks
-// the route Cycle and contributes nothing. Because an item first reached
-// inside a cycle is memoised with that cycle broken where the search entered
-// it, results around cycles depend on the order items are visited; Compute
-// visits them in recipe order so the output is deterministic.
+// It runs in two passes. settle first finds every item's cheapest complete
+// route as a fixed point, so an input with any complete route is always
+// costed on it, however the recipes loop. A memoised depth-first search then
+// costs every route, recursing only into inputs with no complete route. An
+// input already on that search's stack marks the route Cycle and contributes
+// nothing; a result that hit an ancestor still on the stack is used only by
+// that ancestor's search and never memoised. So a route is Cycle only when it
+// cannot be completed without the loop.
 func Compute(w World, opt Options) map[string]*ItemCost {
 	e := &engine{w: w, byOutput: map[string][]catalog.Recipe{},
-		memo: map[string]*ItemCost{}, onStack: map[string]bool{}}
+		memo: map[string]*ItemCost{}, onStack: map[string]int{}, complete: map[string]RouteCost{}}
 	var order []string
 	for _, rec := range w.Recipes {
 		if len(rec.Outputs) == 0 || opt.SkipInputs[rec.Outputs[0].ItemID] || slices.ContainsFunc(rec.Inputs, func(m catalog.Material) bool { return opt.SkipInputs[m.ItemID] }) {
@@ -117,8 +129,9 @@ func Compute(w World, opt Options) map[string]*ItemCost {
 		}
 		e.byOutput[id] = append(e.byOutput[id], rec)
 	}
+	e.settle(order)
 	for _, id := range order {
-		e.item(id)
+		e.item(id) // at the root, so always memoised
 	}
 	return e.memo
 }
@@ -128,34 +141,84 @@ func (e *engine) raw(id string) bool {
 	return ok && len(it.ExtractedBy) > 0
 }
 
-// item costs id, which must have at least one recipe in byOutput.
-func (e *engine) item(id string) *ItemCost {
-	if ic, ok := e.memo[id]; ok {
-		return ic
-	}
-	e.onStack[id] = true
-	ic := &ItemCost{ItemID: id}
-	for _, rec := range e.byOutput[id] {
-		for _, r := range Routes(rec, e.w.Facilities, e.w.Lines) {
-			ic.Routes = append(ic.Routes, e.route(rec, r))
+// settle fills e.complete by relaxing every item's routes until no cheapest
+// complete route changes. Costs only fall once set; the round cap stops a
+// loop whose output per unit of input exceeds 1 from shrinking forever.
+func (e *engine) settle(order []string) {
+	e.settling = true
+	defer func() { e.settling = false }()
+	for range len(order) + 1 {
+		changed := false
+		for _, id := range order {
+			var rs []RouteCost
+			for _, rec := range e.byOutput[id] {
+				for _, r := range Routes(rec, e.w.Facilities, e.w.Lines) {
+					if rc, _ := e.route(rec, r); rc.complete() {
+						rs = append(rs, rc)
+					}
+				}
+			}
+			sortRoutes(rs)
+			i := best(rs, cheaper)
+			if i < 0 {
+				continue
+			}
+			old, ok := e.complete[id]
+			if !ok || old.Route != rs[i].Route || old.CreditsPerUnit != rs[i].CreditsPerUnit ||
+				old.TicksPerUnit != rs[i].TicksPerUnit || old.RawPerUnit != rs[i].RawPerUnit {
+				e.complete[id] = rs[i]
+				changed = true
+			}
+		}
+		if !changed {
+			return
 		}
 	}
-	slices.SortStableFunc(ic.Routes, func(a, b RouteCost) int {
+}
+
+// sortRoutes orders routes credits asc, then ticks asc, stably.
+func sortRoutes(rs []RouteCost) {
+	slices.SortStableFunc(rs, func(a, b RouteCost) int {
 		return cmp.Or(cmp.Compare(a.CreditsPerUnit, b.CreditsPerUnit), cmp.Compare(a.TicksPerUnit, b.TicksPerUnit))
 	})
+}
+
+// item costs id, which must have at least one recipe in byOutput. dep is
+// the smallest stack depth of an ancestor the result looped back onto, or
+// noDep; only a noDep result is memoised.
+func (e *engine) item(id string) (ic *ItemCost, dep int) {
+	if ic, ok := e.memo[id]; ok {
+		return ic, noDep
+	}
+	depth := len(e.onStack)
+	e.onStack[id] = depth
+	ic, dep = &ItemCost{ItemID: id}, noDep
+	for _, rec := range e.byOutput[id] {
+		for _, r := range Routes(rec, e.w.Facilities, e.w.Lines) {
+			rc, d := e.route(rec, r)
+			ic.Routes = append(ic.Routes, rc)
+			dep = min(dep, d)
+		}
+	}
+	sortRoutes(ic.Routes)
 	ic.Cheapest, ic.Fastest = best(ic.Routes, cheaper), best(ic.Routes, faster)
 	ic.NoUsableRoute = ic.Cheapest < 0
 	delete(e.onStack, id)
-	e.memo[id] = ic
-	return ic
+	if dep >= depth {
+		// Looped back only onto id itself: complete as seen from the root.
+		e.memo[id] = ic
+		dep = noDep
+	}
+	return ic, dep
 }
 
 // route costs one route of rec over its input tree.
-func (e *engine) route(rec catalog.Recipe, r Route) RouteCost {
-	rc := RouteCost{Route: r}
+// dep is as for item.
+func (e *engine) route(rec catalog.Recipe, r Route) (rc RouteCost, dep int) {
+	rc, dep = RouteCost{Route: r}, noDep
 	if r.OutPerRun <= 0 {
 		rc.Partial = true
-		return rc
+		return rc, dep
 	}
 	rc.CreditsPerUnit = (r.Labor + r.Fee) / r.OutPerRun
 	rc.TicksPerUnit = r.TicksPerRun / r.OutPerRun
@@ -169,6 +232,8 @@ func (e *engine) route(rec catalog.Recipe, r Route) RouteCost {
 	}
 	for _, in := range rec.Inputs {
 		line := InputLine{ItemID: in.ItemID, QtyPerUnit: in.Quantity / r.OutPerRun}
+		stackDepth, looped := e.onStack[in.ItemID]
+		done, isComplete := e.complete[in.ItemID]
 		switch {
 		case e.raw(in.ItemID):
 			line.Via = "raw"
@@ -176,21 +241,24 @@ func (e *engine) route(rec catalog.Recipe, r Route) RouteCost {
 		case len(e.byOutput[in.ItemID]) == 0:
 			line.Via = "unpriced"
 			addUnpriced(in.ItemID)
-		case e.onStack[in.ItemID]:
+		case isComplete:
+			addInput(&rc, &line, done)
+		case looped || e.settling:
 			line.Via = "cycle"
 			rc.Cycle = true
+			if looped {
+				dep = min(dep, stackDepth)
+			}
 		default:
-			sub := e.item(in.ItemID)
+			sub, d := e.item(in.ItemID)
+			dep = min(dep, d)
 			if sub.NoUsableRoute {
 				line.Via = "unpriced"
 				addUnpriced(in.ItemID)
 				break
 			}
 			c := sub.Routes[sub.Cheapest]
-			line.Via = c.Label()
-			rc.CreditsPerUnit += line.QtyPerUnit * c.CreditsPerUnit
-			rc.TicksPerUnit += line.QtyPerUnit * c.TicksPerUnit
-			rc.RawPerUnit += line.QtyPerUnit * c.RawPerUnit
+			addInput(&rc, &line, c)
 			if c.Partial {
 				addUnpriced(c.Unpriced...)
 			}
@@ -198,7 +266,15 @@ func (e *engine) route(rec catalog.Recipe, r Route) RouteCost {
 		}
 		rc.Inputs = append(rc.Inputs, line)
 	}
-	return rc
+	return rc, dep
+}
+
+// addInput adds line's input, made on route c, to rc.
+func addInput(rc *RouteCost, line *InputLine, c RouteCost) {
+	line.Via = c.Label()
+	rc.CreditsPerUnit += line.QtyPerUnit * c.CreditsPerUnit
+	rc.TicksPerUnit += line.QtyPerUnit * c.TicksPerUnit
+	rc.RawPerUnit += line.QtyPerUnit * c.RawPerUnit
 }
 
 // Policy chooses each input's route across a whole costing tree.

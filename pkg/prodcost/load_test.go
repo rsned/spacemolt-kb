@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	_ "modernc.org/sqlite"
@@ -202,5 +203,13 @@ VALUES ('b_fac', 'fa9', 'refine_steel', 1, 5, 'f_crft', '')`); err != nil {
 	}
 	if len(w.Lines) != 4 {
 		t.Errorf("got %d lines, want 4", len(w.Lines))
+	}
+}
+
+func TestLoadWorldUnknownTagErrors(t *testing.T) {
+	root, db := writeLoadFixture(t)
+	_, err := LoadWorld(root, db, "NOPE")
+	if err == nil || !strings.Contains(err.Error(), `"NOPE"`) {
+		t.Fatalf("want an error naming the tag, got %v", err)
 	}
 }

@@ -47,6 +47,14 @@ JOIN latest l ON o.item_id = l.item_id AND o.side = l.side
 	AND o.station_id = l.station_id AND o.captured_at = l.mc
 WHERE o.side = 'sell' OR o.source = 'station'`
 
+// MarketAge returns the latest marketbot captured_at in mdb (market.db), or
+// "" when there is none; worker rows are ignored, as in LoadMarket.
+func MarketAge(mdb *sql.DB) (string, error) {
+	var age string
+	err := mdb.QueryRow(`SELECT COALESCE(MAX(captured_at), '') FROM market_orders WHERE source IN ('', 'station')`).Scan(&age)
+	return age, err
+}
+
 // LoadMarket reads the latest books from mdb (market.db) and station systems
 // from mdb's stations table and kdb's bases/pois, canonicalised through kdb's
 // systems table.

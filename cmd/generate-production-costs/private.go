@@ -32,6 +32,7 @@ type baseRow struct {
 	Recipe, Out, Credits, Time, Ask, BestBid string
 	Route                                    htmltpl.HTML
 	BuyCheaper, NoPrice, NoUsable, Partial   bool
+	Cycle                                    bool
 }
 
 type treeNode struct {
@@ -168,7 +169,7 @@ func baselineRow(page prodcost.Page, ic *prodcost.ItemCost, m prodcost.Market) b
 	top := ic.Routes[max(ic.Cheapest, 0)]
 	r := baseRow{Name: page.Items[ic.ItemID].Name, Href: privateBase + "production-costs/" + ic.ItemID + ".html", Recipe: top.RecipeID, Route: escLabel(top.Label()),
 		Out: num(top.OutPerRun), Credits: num(top.CreditsPerUnit), Time: sig3(top.TicksPerUnit),
-		Ask: "—", BestBid: "—", NoUsable: ic.NoUsableRoute, Partial: top.Partial}
+		Ask: "—", BestBid: "—", NoUsable: ic.NoUsableRoute, Partial: top.Partial, Cycle: top.Cycle}
 	asks, bids := m.Asks[ic.ItemID], m.Bids[ic.ItemID]
 	if len(asks) > 0 {
 		r.Ask = num(asks[0].Price)

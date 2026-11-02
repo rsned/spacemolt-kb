@@ -261,6 +261,33 @@
       "cheapest": 0,
       "fastest": 0
     },
+    "sealed_steel": {
+      "name": "Sealed Steel",
+      "size": 1,
+      "routes": [
+        {
+          "label": "hand",
+          "recipe": "seal_steel",
+          "kind": "hand",
+          "usable": true,
+          "labor": 0,
+          "fee": 0,
+          "ticks": 0.5,
+          "out": 1,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "steel_plate",
+              "qty": 1
+            }
+          ],
+          "creditsPerUnit": 0,
+          "ticksPerUnit": 0.77
+        }
+      ],
+      "cheapest": 0,
+      "fastest": 0
+    },
     "steel_plate": {
       "name": "Steel Plate",
       "size": 1,
@@ -283,6 +310,25 @@
           ],
           "creditsPerUnit": 0,
           "ticksPerUnit": 0.27
+        },
+        {
+          "label": "hand",
+          "recipe": "unseal_steel",
+          "kind": "hand",
+          "usable": true,
+          "labor": 0,
+          "fee": 0,
+          "ticks": 0.5,
+          "out": 1,
+          "sys": "home",
+          "inputs": [
+            {
+              "item": "sealed_steel",
+              "qty": 1
+            }
+          ],
+          "creditsPerUnit": 0,
+          "ticksPerUnit": 1.27
         },
         {
           "label": "own L1 (labor 10)",
@@ -362,7 +408,7 @@
         }
       ],
       "cheapest": 0,
-      "fastest": 4
+      "fastest": 5
     }
   },
   "bids": [
