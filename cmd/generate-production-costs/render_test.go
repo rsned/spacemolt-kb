@@ -131,3 +131,28 @@ func TestRenderPublicNoPrivateData(t *testing.T) {
 		t.Errorf("private crft data in public output")
 	}
 }
+
+func TestRenderPublicCleanupOnlyRemovesOwnPages(t *testing.T) {
+	dir := t.TempDir()
+	foreign := filepath.Join(dir, "foreign.html")
+	stale := filepath.Join(dir, "stale.html")
+	if err := os.WriteFile(foreign, []byte("<html>someone else</html>"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(stale, []byte(pageMarker+"\n<html>old</html>"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	w := steelWorld()
+	if err := renderPublic(dir, w, prodcost.Compute(w, prodcost.Options{}), DataAges{}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(foreign); err != nil {
+		t.Errorf("foreign page removed: %v", err)
+	}
+	if _, err := os.Stat(stale); err == nil {
+		t.Errorf("stale marked page kept")
+	}
+	if !strings.Contains(readOut(t, dir, "index.html"), pageMarker) {
+		t.Errorf("index lacks marker")
+	}
+}
