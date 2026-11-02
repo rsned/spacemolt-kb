@@ -68,7 +68,7 @@ func TestRenderPrivateSections(t *testing.T) {
 	for _, want := range []string{"Profit/hr", `<span class="pc-flag">buy is cheaper</span>`,
 		`<span class="pc-flag">market has no price</span>`, "2026-11-02T10:44:23Z", `id="pc-data"`,
 		`src="prodcost.js"`, `id="pc-raw"`, `id="pc-haul-fuel"`, `id="pc-mine-fuel"`, `id="pc-unpriced"`,
-		"empire L1 (labor 10 + fee 300)"} {
+		"empire L1 (labor 10 + fee 300)", `<td><a href="../../kb/production-costs/harness.html">Harness</a></td>`} {
 		if !strings.Contains(idx, want) {
 			t.Errorf("index missing %q", want)
 		}

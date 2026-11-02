@@ -182,6 +182,9 @@ func TestPageDataShape(t *testing.T) {
 		if r.Kind == string(KindCRFT) {
 			crft = &h.Routes[i]
 		}
+		if r.Kind == string(KindOwn) && r.Sys != "home" {
+			t.Errorf("own route runs at %q, want home", r.Sys)
+		}
 	}
 	if crft == nil || crft.Sys != "home" || !crft.Usable || len(crft.Inputs) != 2 || crft.Inputs[0] != (PageInput{Item: "copper_wiring", Qty: 3}) {
 		t.Errorf("harness crft route %+v", crft)

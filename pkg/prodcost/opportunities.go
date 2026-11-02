@@ -125,13 +125,14 @@ func candidates(costs map[string]*ItemCost, w World, m Market, hp HaulParams, it
 	return out
 }
 
-// runSystem is F, the system a route's runs happen in: home for hand, the
-// line's station system for faction and crft lines, and for an empire route
-// the system of the empire line (same recipe and level) nearest home, ties
-// broken by station id. "" when unknown or unreachable.
+// runSystem is F, the system a route's runs happen in: home for hand and for
+// an own route (unbuilt, so it would be built at home), the line's station
+// system for faction and crft lines, and for an empire route the system of
+// the empire line (same recipe and level) nearest home, ties broken by
+// station id. "" when unknown or unreachable.
 func runSystem(r Route, w World, m Market, hp HaulParams) string {
 	switch r.Kind {
-	case KindHand:
+	case KindHand, KindOwn:
 		return hp.Home
 	case KindEmpire:
 		bestSys, bestSt, bestD := "", "", math.MaxInt

@@ -34,9 +34,9 @@ type PageItem struct {
 	Asks []PageAsk `json:"asks,omitempty"`
 	// Routes is ItemCost.Routes in order; Cheapest and Fastest index it, -1
 	// when there is no usable route.
-	Routes            []PageRoute `json:"routes,omitempty"`
-	Cheapest int `json:"cheapest"`
-	Fastest  int `json:"fastest"`
+	Routes   []PageRoute `json:"routes,omitempty"`
+	Cheapest int         `json:"cheapest"`
+	Fastest  int         `json:"fastest"`
 }
 
 // PageAsk is one ask level; Hops is its station's jumps to home, -1 when

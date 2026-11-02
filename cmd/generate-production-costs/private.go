@@ -28,9 +28,9 @@ type oppView struct {
 }
 
 type baseRow struct {
-	Name                                      string
+	Name, Href                               string // Href: the public item page
 	Recipe, Out, Credits, Time, Ask, BestBid string
-	Route                                     htmltpl.HTML
+	Route                                    htmltpl.HTML
 	BuyCheaper, NoPrice, NoUsable, Partial   bool
 }
 
@@ -166,7 +166,7 @@ func cmpDesc(a, b float64) int {
 
 func baselineRow(page prodcost.Page, ic *prodcost.ItemCost, m prodcost.Market) baseRow {
 	top := ic.Routes[max(ic.Cheapest, 0)]
-	r := baseRow{Name: page.Items[ic.ItemID].Name, Recipe: top.RecipeID, Route: escLabel(top.Label()),
+	r := baseRow{Name: page.Items[ic.ItemID].Name, Href: privateBase + "production-costs/" + ic.ItemID + ".html", Recipe: top.RecipeID, Route: escLabel(top.Label()),
 		Out: num(top.OutPerRun), Credits: num(top.CreditsPerUnit), Time: sig3(top.TicksPerUnit),
 		Ask: "—", BestBid: "—", NoUsable: ic.NoUsableRoute, Partial: top.Partial}
 	asks, bids := m.Asks[ic.ItemID], m.Bids[ic.ItemID]

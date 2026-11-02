@@ -135,3 +135,23 @@ test('treeHTML renders one select per step and expands an item once', () => {
   assert.strictEqual((html.match(/<select/g) || []).length, 5);
   assert.ok(!html.includes('<script'));
 });
+
+test('a route with out 0 does not break rank', () => {
+  const d = data();
+  d.items.harness.routes.forEach((r) => { r.out = 0; });
+  assert.doesNotThrow(() => pc.rank(d, {}, {}));
+  const row = pc.rank(d, {}, {}).find((o) => o.item === 'harness' && o.station === 'near');
+  assert.strictEqual(row.partial, true);
+});
+
+test('choosing an unbuilt own route runs it at home: reachable, hauled like hand', () => {
+  const d = data();
+  const own = d.items.harness.routes.find((r) => r.kind === 'own');
+  assert.ok(own && !own.usable);
+  const row = pc.rank(d, {harness: own.label}, {}).find((o) => o.item === 'harness' && o.station === 'near');
+  assert.strictEqual(row.route, own.label);
+  assert.strictEqual(row.unreachable, false);
+  assert.ok(row.hours > 0);
+  // home -> near (s1) and back.
+  assert.strictEqual(row.jumps, 2);
+});

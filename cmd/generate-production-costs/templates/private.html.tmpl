@@ -44,12 +44,12 @@
 </div>
 
 <h2>Baseline with market</h2>
-<p class="note">Each item on its cheapest usable route (public columns), with the best market ask and the best Station Manager bid. "buy is cheaper" marks an ask below our cost.</p>
+<p class="note">Each item on its cheapest usable route (public columns; the item links to its public page with every route), with the best market ask and the best Station Manager bid. "buy is cheaper" marks an ask below our cost.</p>
 <div class="scrollx">
 <table class="pc-table base">
 <thead><tr><th>Item</th><th>Recipe</th><th>Route</th><th>Out/run</th><th>Credits/u</th><th>Time/u (ticks)</th><th>Ask</th><th>Best bid</th><th>Flags</th></tr></thead>
 <tbody>
-{{range .Baseline}}<tr><td>{{.Name}}</td><td>{{.Recipe}}</td><td>{{.Route}}</td><td>{{.Out}}</td><td>{{if .Partial}}&ge; {{end}}{{.Credits}}</td><td>{{.Time}}</td><td>{{.Ask}}</td><td>{{.BestBid}}</td><td>{{if .BuyCheaper}}<span class="pc-flag">buy is cheaper</span> {{end}}{{if .NoPrice}}<span class="pc-flag">market has no price</span> {{end}}{{if .NoUsable}}<span class="note">no usable route</span>{{end}}{{if .Partial}}<span class="note">has an unpriced input</span>{{end}}</td></tr>
+{{range .Baseline}}<tr><td><a href="{{.Href}}">{{.Name}}</a></td><td>{{.Recipe}}</td><td>{{.Route}}</td><td>{{.Out}}</td><td>{{if .Partial}}&ge; {{end}}{{.Credits}}</td><td>{{.Time}}</td><td>{{.Ask}}</td><td>{{.BestBid}}</td><td>{{if .BuyCheaper}}<span class="pc-flag">buy is cheaper</span> {{end}}{{if .NoPrice}}<span class="pc-flag">market has no price</span> {{end}}{{if .NoUsable}}<span class="note">no usable route</span>{{end}}{{if .Partial}}<span class="note">has an unpriced input</span>{{end}}</td></tr>
 {{end}}</tbody>
 </table>
 </div>

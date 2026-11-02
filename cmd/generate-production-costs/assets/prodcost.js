@@ -147,14 +147,15 @@ function candidates(data, itemId, qty, ctx) {
   const out = [];
   if (choice === 'buy') {
     const c = buyNow(data, itemId, qty, ctx.s);
-    return [Object.assign(c, {route: 'buy', policy: 'buy', kind: 'hand', sys: data.home})];
+    return [Object.assign({}, c, {route: 'buy', policy: 'buy', kind: 'hand', sys: data.home})];
   }
   const chosen = chosenRoute(it, choice);
   it.routes.forEach((r, i) => {
     if (chosen >= 0 ? i !== chosen : !r.usable) return;
     for (const policy of ['cheapest', 'fastest']) {
       const c = routeCost(data, itemId, r, qty, policy, ctx, new Set());
-      out.push(Object.assign(c, {route: r.label, policy, kind: r.kind, sys: r.sys}));
+      // routeCost may return the shared frozen UNPRICED, so copy.
+      out.push(Object.assign({}, c, {route: r.label, policy, kind: r.kind, sys: r.sys}));
     }
   });
   return out;
