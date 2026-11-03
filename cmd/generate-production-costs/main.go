@@ -94,7 +94,7 @@ func main() {
 	must(err, "load ships")
 	tierOf := make(map[string]int, len(ships))
 	for _, s := range ships {
-		tierOf[s.Class] = s.Tier
+		tierOf[s.ID] = s.Tier
 	}
 	hd, err := prodcost.LoadHullData(kdb, *ourTag, tierOf, time.Now())
 	must(err, "load hull data")
