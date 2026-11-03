@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -76,7 +77,7 @@ func rowOf(t *testing.T, out, id string) string {
 
 func TestRenderHullsRowsAndFlags(t *testing.T) {
 	out := renderHullsString(t)
-	for _, want := range []string{"congregation", "984", "2,082", "1,000,000", "owned", "needs salvage", "server charged 723", `data-sort="98">98`} {
+	for _, want := range []string{"congregation", "984", "2,082", "1,000,000", "owned", "needs salvage", "server charged 723", `data-sort="98.4">98`} {
 		if !strings.Contains(out, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -123,6 +124,25 @@ func TestMoney(t *testing.T) {
 	for in, want := range map[float64]string{2082.4: "2,082", 984: "984", 1000000: "1,000,000", 98.4: "98", 0: "0", -1500.6: "-1,501"} {
 		if got := money(in); got != want {
 			t.Errorf("money(%v)=%q want %q", in, got, want)
+		}
+	}
+}
+
+func TestRenderHullsSortKeysNumeric(t *testing.T) {
+	hulls, items := hullFixture()
+	hulls[0].MaterialCredits, hulls[0].Royalty, hulls[0].MakeTotal = 12345, 1234.5, 13579.5
+	dir := t.TempDir()
+	if err := renderHulls(dir, hulls, items, DataAges{}); err != nil {
+		t.Fatal(err)
+	}
+	b, _ := os.ReadFile(filepath.Join(dir, "hulls.html"))
+	row := rowOf(t, string(b), "congregation")
+	if !strings.Contains(row, `data-sort="1234.5"`) {
+		t.Error("royalty sort key not plain numeric")
+	}
+	for _, m := range regexp.MustCompile(`data-sort="(\d[^"]*)"`).FindAllStringSubmatch(row, -1) {
+		if strings.Contains(m[1], ",") {
+			t.Errorf("comma in sort key %q", m[1])
 		}
 	}
 }

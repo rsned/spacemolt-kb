@@ -36,16 +36,16 @@ type hullMatView struct {
 }
 
 type hullView struct {
-	ID, Class, Name, Empire         string
-	Tier, Cargo                     int
-	Materials, MaterialsSort        string
-	Labor, LaborSort, LaborNote     string
-	Royalty, RoyaltyNote            string
-	Total, TotalSort                string
-	License, Market, MarketSort     string
-	Listing, ListingSort, FlagsText string
-	Best, Partial, LaborUnknown     bool
-	Mats                            []hullMatView
+	ID, Class, Name, Empire           string
+	Tier, Cargo                       int
+	Materials, MaterialsSort          string
+	Labor, LaborSort, LaborNote       string
+	Royalty, RoyaltySort, RoyaltyNote string
+	Total, TotalSort                  string
+	License, Market, MarketSort       string
+	Listing, ListingSort, FlagsText   string
+	Best, Partial, LaborUnknown       bool
+	Mats                              []hullMatView
 }
 
 type hullsPage struct {
@@ -69,7 +69,7 @@ func hullViews(hulls []prodcost.HullCost, items map[string]catalog.Item) []hullV
 		s := h.Ship
 		v := hullView{ID: s.ID, Class: s.Class, Name: s.Name, Empire: s.Faction, Tier: s.Tier, Cargo: s.CargoCapacity,
 			Materials: money(h.MaterialCredits), MaterialsSort: num(h.MaterialCredits),
-			Royalty: money(h.Royalty), Total: money(h.MakeTotal), TotalSort: num(h.MakeTotal),
+			Royalty: money(h.Royalty), RoyaltySort: num(h.Royalty), Total: money(h.MakeTotal), TotalSort: num(h.MakeTotal),
 			License: string(h.License), Market: "—", MarketSort: "-1", Listing: "—", ListingSort: "-1",
 			Best: h.Best, Partial: h.Partial, LaborSort: "-1", FlagsText: flagsText(h.Flags)}
 		if h.Partial {
