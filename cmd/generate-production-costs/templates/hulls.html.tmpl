@@ -2,18 +2,19 @@
 <style>
     #hull-table th[data-type] { cursor: pointer; user-select: none; }
     #hull-table td.n, #hull-table th.n { text-align: right; }
+    tr.pc-partial td { color: hsl(var(--muted-foreground)); }
     #hull-table details > .pc-table { margin-left: 0; }
 </style>
 <h1>Hull Costs <small>private</small></h1>
 <p class="note"><a href="index.html">Production costs</a> · Local only, never published. Making each hull from its build materials versus buying the materials or a listed hull. Make total = materials + royalty + labor. A "≥" marks a floor (salvage, unpriced or cyclic inputs count as 0); "?" is unknown labor. Boxed = making beats the market. Click a column to sort; expand a hull for its materials.</p>
 <div class="scrollx">
 <table class="pc-table" id="hull-table">
-<thead><tr><th data-type="text">Hull</th><th data-type="num" class="n">Tier</th><th data-type="text">Empire</th><th data-type="num" class="n">Cargo</th><th data-type="num" class="n">Materials</th><th data-type="num" class="n">Labor</th><th data-type="num" class="n">Royalty</th><th data-type="num" class="n">Make total</th><th data-type="text">License</th><th data-type="num" class="n">Materials at market</th><th data-type="num" class="n">Cheapest listing</th><th data-type="text">Flags</th></tr></thead>
+<thead><tr><th data-type="text">Hull</th><th data-type="num" class="n">Tier</th><th data-type="text">Empire</th><th data-type="num" class="n">Cargo</th><th data-type="num" class="n">Materials</th><th data-type="num" class="n">Labor</th><th data-type="num" class="n">Royalty</th><th data-type="num" class="n">Make total</th><th data-type="num" class="n">License</th><th data-type="num" class="n">Materials at market</th><th data-type="num" class="n">Cheapest listing</th><th data-type="text">Flags</th></tr></thead>
 <tbody>
 {{range .Hulls}}<tr data-hull="{{.ID}}"{{if .Partial}} class="pc-partial"{{end}}>
 <td data-sort="{{.Name}}"><details><summary>{{.Name}} <span class="note">{{.Class}}</span></summary>
 <table class="pc-table"><thead><tr><th>Material</th><th>Qty</th><th>Route</th><th>Cost/u</th><th>Total</th><th>Flags</th><th>Ask</th></tr></thead><tbody>
-{{range .Mats}}<tr><td><a href="{{.Href}}">{{.Name}}</a></td><td>{{.Qty}}</td><td>{{.Route}}</td><td>{{.Unit}}</td><td>{{.Total}}</td><td>{{.Flags}}</td><td>{{.Ask}}</td></tr>
+{{range .Mats}}<tr><td>{{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td><td>{{.Qty}}</td><td>{{.Route}}</td><td>{{.Unit}}</td><td>{{.Total}}</td><td>{{.Flags}}</td><td>{{.Ask}}</td></tr>
 {{end}}</tbody></table></details></td>
 <td class="n" data-sort="{{.Tier}}">{{.Tier}}</td>
 <td data-sort="{{.Empire}}">{{.Empire}}</td>
@@ -22,7 +23,7 @@
 <td class="n" data-sort="{{.LaborSort}}">{{if .LaborNote}}<span title="{{.LaborNote}}">{{.Labor}}</span>{{else}}{{.Labor}}{{end}}</td>
 <td class="n" data-sort="{{.RoyaltySort}}">{{.Royalty}}{{if .RoyaltyNote}} <span class="note">{{.RoyaltyNote}}</span>{{end}}</td>
 {{if .Best}}<td class="n hl-cheap" data-sort="{{.TotalSort}}">{{else}}<td class="n" data-sort="{{.TotalSort}}">{{end}}{{.Total}}</td>
-<td data-sort="{{.License}}">{{.License}}</td>
+<td class="n" data-sort="{{.LicenseSort}}">{{.License}}</td>
 <td class="n" data-sort="{{.MarketSort}}">{{.Market}}</td>
 <td class="n" data-sort="{{.ListingSort}}">{{.Listing}}</td>
 <td data-sort="{{.FlagsText}}">{{.FlagsText}}</td>

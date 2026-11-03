@@ -27,8 +27,8 @@ func hullFixture() ([]prodcost.HullCost, map[string]catalog.Item) {
 				{ItemID: "steel_plate", Qty: 10, Route: "refine_steel", CreditsPerUnit: 98.4, Credits: 984, AskPrice: 120, AskStation: "near"},
 				{ItemID: "energy_crystal", Qty: 2, Route: "raw", Flags: []prodcost.HullFlag{prodcost.FlagCrystal}, AskPrice: 70, AskStation: "far"},
 			},
-			MaterialCredits: 984, Labor: fptr(1000), LaborNote: "quoted", Royalty: 98.4, QuotedRoyalty: iptr(723),
-			MakeTotal: 2082.4, License: prodcost.LicenseOwned, MarketCredits: 1340, Listing: &prodcost.ListingMin{Price: 1000000, Count: 2, StationID: "yard"},
+			MaterialCredits: 984, Labor: fptr(1000), LaborNote: "quoted", Royalty: 98.4, QuotedRoyalty: iptr(723), QuotedRoyaltyMode: "commission",
+			MakeTotal: 2082.4, License: prodcost.LicenseOwned, LicenseCost: 5_000_000, MarketCredits: 1340, Listing: &prodcost.ListingMin{Price: 1000000, Count: 2, StationID: "yard"},
 			Flags: []prodcost.HullFlag{prodcost.FlagCrystal}, Best: true,
 		},
 		{
@@ -37,7 +37,7 @@ func hullFixture() ([]prodcost.HullCost, map[string]catalog.Item) {
 				{ItemID: "salvage_part", Qty: 1, Route: "unpriced", Flags: []prodcost.HullFlag{prodcost.FlagSalvage}},
 			},
 			Partial: true, MaterialCredits: 500, Labor: fptr(100), Royalty: 50, MakeTotal: 650,
-			License: prodcost.LicenseNotOwned, Flags: []prodcost.HullFlag{prodcost.FlagSalvage},
+			License: prodcost.LicenseNotOwned, LicenseCost: 10_000_000, Flags: []prodcost.HullFlag{prodcost.FlagSalvage},
 		},
 		{
 			Ship:            catalog.Ship{ID: "mystery", Name: "Mystery", Class: "Bulk Hauler", Tier: 1},
@@ -48,11 +48,26 @@ func hullFixture() ([]prodcost.HullCost, map[string]catalog.Item) {
 	return hulls, items
 }
 
+// hullEnv is the market, public costs and haul settings the fixture renders with.
+func hullEnv() (map[string]*prodcost.ItemCost, prodcost.Market, prodcost.HaulParams) {
+	public := map[string]*prodcost.ItemCost{"steel_plate": {}, "energy_crystal": {}}
+	m := prodcost.Market{
+		Asks: map[string][]prodcost.Level{
+			"steel_plate":    {{StationID: "near", Price: 100, Qty: 5}, {StationID: "costly", Price: 140, Qty: 50}},
+			"energy_crystal": {{StationID: "far", Price: 70, Qty: 9}},
+		},
+		StationSystem: map[string]string{"near": "sys_near", "costly": "sys_costly"},
+	}
+	hp := prodcost.HaulParams{Home: "home", Hops: map[string]map[string]int{"home": {"sys_near": 6, "sys_costly": 9}}}
+	return public, m, hp
+}
+
 func renderHullsString(t *testing.T) string {
 	t.Helper()
 	hulls, items := hullFixture()
+	public, m, hp := hullEnv()
 	dir := t.TempDir()
-	if err := renderHulls(dir, hulls, items, DataAges{Catalog: "20261101", Facilities: "f", Market: "m", Ships: "s", Listings: "l"}); err != nil {
+	if err := renderHulls(dir, hulls, items, public, m, hp, DataAges{Catalog: "20261101", Facilities: "f", Market: "m", Quotes: "qa", Licenses: "la", Listings: "l"}); err != nil {
 		t.Fatal(err)
 	}
 	b, err := os.ReadFile(filepath.Join(dir, "hulls.html"))
@@ -77,7 +92,7 @@ func rowOf(t *testing.T, out, id string) string {
 
 func TestRenderHullsRowsAndFlags(t *testing.T) {
 	out := renderHullsString(t)
-	for _, want := range []string{"congregation", "984", "2,082", "1,000,000", "owned", "needs salvage", "server charged 723", `data-sort="98.4">98`} {
+	for _, want := range []string{"congregation", "984", "2,082", "1,000,000", "owned · T2 5,000,000", "not owned · T3 10,000,000", "1,000,000 @ yard (2 listed)", "needs salvage", "server charged 723", `data-sort="98.4">98`} {
 		if !strings.Contains(out, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -132,7 +147,8 @@ func TestRenderHullsSortKeysNumeric(t *testing.T) {
 	hulls, items := hullFixture()
 	hulls[0].MaterialCredits, hulls[0].Royalty, hulls[0].MakeTotal = 12345, 1234.5, 13579.5
 	dir := t.TempDir()
-	if err := renderHulls(dir, hulls, items, DataAges{}); err != nil {
+	public, m, hp := hullEnv()
+	if err := renderHulls(dir, hulls, items, public, m, hp, DataAges{}); err != nil {
 		t.Fatal(err)
 	}
 	b, _ := os.ReadFile(filepath.Join(dir, "hulls.html"))
@@ -144,5 +160,89 @@ func TestRenderHullsSortKeysNumeric(t *testing.T) {
 		if strings.Contains(m[1], ",") {
 			t.Errorf("comma in sort key %q", m[1])
 		}
+	}
+}
+
+func TestRenderHullsLicenseSortKeyNumeric(t *testing.T) {
+	out := renderHullsString(t)
+	if !strings.Contains(rowOf(t, out, "congregation"), `data-sort="5000000"`) {
+		t.Error("license sort key is not the numeric cost")
+	}
+	if !strings.Contains(out, `data-type="num" class="n">License`) {
+		t.Error("License column is not numeric")
+	}
+}
+
+func TestRenderHullsTotalFloorPrefix(t *testing.T) {
+	out := renderHullsString(t)
+	if !strings.Contains(rowOf(t, out, "wreck_runner"), "≥650") {
+		t.Error("partial hull total lacks ≥")
+	}
+	if !strings.Contains(rowOf(t, out, "mystery"), "≥330") {
+		t.Error("labor-unknown hull total lacks ≥")
+	}
+	if strings.Contains(rowOf(t, out, "congregation"), "≥2,082") {
+		t.Error("complete hull total has ≥")
+	}
+	if !strings.Contains(out, "tr.pc-partial td") {
+		t.Error("pc-partial CSS rule missing")
+	}
+}
+
+func TestRenderHullsAskJumpsFromCheapestLevel(t *testing.T) {
+	out := renderHullsString(t)
+	// steel_plate: the cheapest level is "near" (6 jumps), not the costly one.
+	if !strings.Contains(out, "near (6j)") {
+		t.Error("cheapest ask station lacks jumps")
+	}
+	if strings.Contains(out, "costly") {
+		t.Error("shows the costliest level's station")
+	}
+	// energy_crystal's station has no known system, so no jumps.
+	if !strings.Contains(out, "70 @ far</td>") {
+		t.Error("unknown system should omit jumps")
+	}
+}
+
+func TestRenderHullsLinksOnlyPublicItems(t *testing.T) {
+	out := renderHullsString(t)
+	if !strings.Contains(out, `href="`+privateBase+`production-costs/steel_plate.html"`) {
+		t.Error("public item not linked")
+	}
+	if strings.Contains(out, "salvage_part.html") {
+		t.Error("non-public item linked")
+	}
+	if !strings.Contains(out, "<td>Salvage Part</td>") {
+		t.Error("non-public item not plain text")
+	}
+}
+
+func TestRenderHullsRoyaltyNoteMode(t *testing.T) {
+	out := renderHullsString(t)
+	if !strings.Contains(out, "server charged 723") {
+		t.Error("commission royalty not 'charged'")
+	}
+	hulls, items := hullFixture()
+	hulls[0].QuotedRoyaltyMode = "quote"
+	public, m, hp := hullEnv()
+	dir := t.TempDir()
+	if err := renderHulls(dir, hulls, items, public, m, hp, DataAges{}); err != nil {
+		t.Fatal(err)
+	}
+	b, _ := os.ReadFile(filepath.Join(dir, "hulls.html"))
+	if !strings.Contains(string(b), "server quoted 723") || strings.Contains(string(b), "server charged") {
+		t.Error("quote-mode royalty not 'quoted'")
+	}
+}
+
+func TestRenderHullsFooterAges(t *testing.T) {
+	out := renderHullsString(t)
+	for _, want := range []string{"Shipyard quotes last seen qa", "Ship licenses last seen la"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+	if strings.Contains(out, "Ship catalog") {
+		t.Error("redundant Ships age shown")
 	}
 }

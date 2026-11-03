@@ -99,10 +99,11 @@ func main() {
 	hd, err := prodcost.LoadHullData(kdb, *ourTag, tierOf, time.Now())
 	must(err, "load hull data")
 	hulls := prodcost.CostHulls(ships, pw, hcosts, m, hd)
-	ages.Ships = ages.Catalog
-	// ship_listings may not exist yet; an empty age is then simply not shown.
+	// These tables may not exist yet; an empty age is then simply not shown.
+	_ = kdb.QueryRow(`SELECT COALESCE(MAX(seen_at), '') FROM shipyard_quotes`).Scan(&ages.Quotes)
+	_ = kdb.QueryRow(`SELECT COALESCE(MAX(seen_at), '') FROM ship_licenses`).Scan(&ages.Licenses)
 	_ = kdb.QueryRow(`SELECT COALESCE(MAX(captured_at), '') FROM ship_listings`).Scan(&ages.Listings)
-	must(renderHulls(*privateOut, hulls, pw.Items, ages), "render hulls")
+	must(renderHulls(*privateOut, hulls, pw.Items, costs, m, hp, ages), "render hulls")
 	var partial, noLabor int
 	for _, h := range hulls {
 		if h.Partial {
