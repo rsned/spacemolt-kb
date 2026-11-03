@@ -21,6 +21,11 @@ type Options struct {
 	// SkipInputs leaves out every recipe with one of these items as an input
 	// or as outputs[0], so the items themselves are never costed either.
 	SkipInputs map[string]bool
+	// UnbuiltL1 makes an own route Usable when its Level is the lowest own
+	// level among its recipe's own routes, so facility-only items can be
+	// costed as if that facility were built at its lowest level. Consumers
+	// tell such a step by Kind == KindOwn && Usable.
+	UnbuiltL1 bool
 }
 
 // InputLine is one input of a costed route.
@@ -99,6 +104,7 @@ type engine struct {
 	// settling makes route treat every input without a complete cost as a
 	// cycle instead of searching it.
 	settling bool
+	unbuilt  bool
 }
 
 // noDep is the "depends on no ancestor" depth returned by item and route.
@@ -117,7 +123,7 @@ const noDep = math.MaxInt
 // cannot be completed without the loop.
 func Compute(w World, opt Options) map[string]*ItemCost {
 	e := &engine{w: w, byOutput: map[string][]catalog.Recipe{},
-		memo: map[string]*ItemCost{}, onStack: map[string]int{}, complete: map[string]RouteCost{}}
+		memo: map[string]*ItemCost{}, onStack: map[string]int{}, complete: map[string]RouteCost{}, unbuilt: opt.UnbuiltL1}
 	var order []string
 	for _, rec := range w.Recipes {
 		if len(rec.Outputs) == 0 || opt.SkipInputs[rec.Outputs[0].ItemID] || slices.ContainsFunc(rec.Inputs, func(m catalog.Material) bool { return opt.SkipInputs[m.ItemID] }) {
@@ -152,7 +158,7 @@ func (e *engine) settle(order []string) {
 		for _, id := range order {
 			var rs []RouteCost
 			for _, rec := range e.byOutput[id] {
-				for _, r := range Routes(rec, e.w.Facilities, e.w.Lines) {
+				for _, r := range e.routes(rec) {
 					if rc, _ := e.route(rec, r); rc.complete() {
 						rs = append(rs, rc)
 					}
@@ -176,6 +182,27 @@ func (e *engine) settle(order []string) {
 	}
 }
 
+// routes is Routes(rec), with the lowest-level own routes promoted to Usable
+// when UnbuiltL1 is set.
+func (e *engine) routes(rec catalog.Recipe) []Route {
+	rs := Routes(rec, e.w.Facilities, e.w.Lines)
+	if !e.unbuilt {
+		return rs
+	}
+	lowest := math.MaxInt
+	for _, r := range rs {
+		if r.Kind == KindOwn {
+			lowest = min(lowest, r.Level)
+		}
+	}
+	for i, r := range rs {
+		if r.Kind == KindOwn && r.Level == lowest {
+			rs[i].Usable = true
+		}
+	}
+	return rs
+}
+
 // sortRoutes orders routes credits asc, then ticks asc, stably.
 func sortRoutes(rs []RouteCost) {
 	slices.SortStableFunc(rs, func(a, b RouteCost) int {
@@ -194,7 +221,7 @@ func (e *engine) item(id string) (ic *ItemCost, dep int) {
 	e.onStack[id] = depth
 	ic, dep = &ItemCost{ItemID: id}, noDep
 	for _, rec := range e.byOutput[id] {
-		for _, r := range Routes(rec, e.w.Facilities, e.w.Lines) {
+		for _, r := range e.routes(rec) {
 			rc, d := e.route(rec, r)
 			ic.Routes = append(ic.Routes, rc)
 			dep = min(dep, d)

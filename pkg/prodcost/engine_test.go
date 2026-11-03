@@ -242,3 +242,46 @@ func TestComputeCycleNotMemoisedIntoCompleteItem(t *testing.T) {
 		}
 	}
 }
+
+func facilityOnlyWorld() World {
+	return World{
+		Recipes: []catalog.Recipe{{ID: "forge_hull", CraftingTime: 5, ProducedBy: []string{"shipyard", "shipyard_2"},
+			Outputs: []catalog.Material{mat("hull", 2)}}},
+		Facilities: map[string]catalog.Facility{
+			"shipyard":   {ID: "shipyard", Level: 1, LaborCost: 40},
+			"shipyard_2": {ID: "shipyard_2", Level: 2, LaborCost: 80},
+		},
+	}
+}
+
+func TestUnbuiltL1MakesFacilityOnlyItemCostable(t *testing.T) {
+	if ic := Compute(facilityOnlyWorld(), Options{})["hull"]; ic == nil || !ic.NoUsableRoute {
+		t.Fatalf("default: %+v", ic)
+	}
+	ic := Compute(facilityOnlyWorld(), Options{UnbuiltL1: true})["hull"]
+	if ic == nil || ic.NoUsableRoute || ic.Cheapest < 0 {
+		t.Fatalf("unbuilt: %+v", ic)
+	}
+	r := ic.Routes[ic.Cheapest]
+	if r.Kind != KindOwn || r.Level != 1 || !r.Usable || !near(r.CreditsPerUnit, 20) {
+		t.Errorf("cheapest %+v", r)
+	}
+	for _, r := range ic.Routes {
+		if r.Level == 2 && r.Usable {
+			t.Errorf("L2 usable: %+v", r)
+		}
+	}
+}
+
+// An input made only at an unbuilt facility must be costed in the fixed point
+// too, so the parent route is complete.
+func TestUnbuiltL1AppliesToInputs(t *testing.T) {
+	w := facilityOnlyWorld()
+	w.Recipes = append(w.Recipes, catalog.Recipe{ID: "make_ship", CraftingTime: 1, ProducedBy: []string{"yard"},
+		Inputs: []catalog.Material{mat("hull", 2)}, Outputs: []catalog.Material{mat("ship", 1)}})
+	w.Facilities["yard"] = catalog.Facility{ID: "yard", Level: 1, LaborCost: 5}
+	ic := Compute(w, Options{UnbuiltL1: true})["ship"]
+	if ic.NoUsableRoute || !near(ic.Routes[ic.Cheapest].CreditsPerUnit, 45) || !ic.Routes[ic.Cheapest].complete() {
+		t.Errorf("got %+v", ic)
+	}
+}
