@@ -178,12 +178,12 @@ func costHull(s catalog.Ship, w World, recipes map[string]catalog.Recipe, costs 
 	if hc.Labor == nil && s.CapturePolicy != "reclaim_only" {
 		hc.Flags = append(hc.Flags, FlagLaborUnknown)
 	}
-	hc.QuotedRoyalty = quotedRoyalty(d.Quotes, s.Class)
+	hc.QuotedRoyalty = quotedRoyalty(d.Quotes, s.ID)
 	hc.MakeTotal = hc.MaterialCredits + hc.Royalty
 	if hc.Labor != nil {
 		hc.MakeTotal += *hc.Labor
 	}
-	if l, ok := d.Listings[s.Class]; ok {
+	if l, ok := d.Listings[s.ID]; ok {
 		hc.Listing = &l
 	}
 	hc.Best = hc.Labor != nil && !hc.Partial && hc.MakeTotal < hc.MarketCredits && (hc.Listing == nil || hc.MakeTotal < float64(hc.Listing.Price))
@@ -250,7 +250,7 @@ func licenseState(s catalog.Ship, d HullData) (LicenseState, int) {
 	case s.PrestigeLock != "" || s.StarterShip || s.NPCRole == "boss_flagship":
 		return LicenseNotLicensable, 0
 	case s.Faction != "":
-		if d.Licensed[s.Class] {
+		if d.Licensed[s.ID] {
 			return LicenseOwned, LicenseCost(s.Tier)
 		}
 		return LicenseNotOwned, LicenseCost(s.Tier)
@@ -266,7 +266,7 @@ func hullLabor(s catalog.Ship, quotes []Quote) (*float64, string) {
 	}
 	var latest *Quote
 	for i, q := range quotes {
-		if q.ShipClass == s.Class && q.Labor > 0 && (latest == nil || q.Tick >= latest.Tick) {
+		if q.ShipClass == s.ID && q.Labor > 0 && (latest == nil || q.Tick >= latest.Tick) {
 			latest = &quotes[i]
 		}
 	}

@@ -22,7 +22,7 @@ func hullFixture() ([]prodcost.HullCost, map[string]catalog.Item) {
 	}
 	hulls := []prodcost.HullCost{
 		{
-			Ship: catalog.Ship{ID: "congregation", Name: "Congregation", Class: "congregation", Tier: 2, Faction: "solarian", CargoCapacity: 120},
+			Ship: catalog.Ship{ID: "congregation", Name: "Congregation", Class: "Bulk Hauler", Tier: 2, Faction: "solarian", CargoCapacity: 120},
 			Materials: []prodcost.HullMaterial{
 				{ItemID: "steel_plate", Qty: 10, Route: "refine_steel", CreditsPerUnit: 98.4, Credits: 984, AskPrice: 120, AskStation: "near"},
 				{ItemID: "energy_crystal", Qty: 2, Route: "raw", Flags: []prodcost.HullFlag{prodcost.FlagCrystal}, AskPrice: 70, AskStation: "far"},
@@ -32,7 +32,7 @@ func hullFixture() ([]prodcost.HullCost, map[string]catalog.Item) {
 			Flags: []prodcost.HullFlag{prodcost.FlagCrystal}, Best: true,
 		},
 		{
-			Ship: catalog.Ship{ID: "wreck_runner", Name: "Wreck Runner", Class: "wreck_runner", Tier: 3},
+			Ship: catalog.Ship{ID: "wreck_runner", Name: "Wreck Runner", Class: "Bulk Hauler", Tier: 3},
 			Materials: []prodcost.HullMaterial{
 				{ItemID: "salvage_part", Qty: 1, Route: "unpriced", Flags: []prodcost.HullFlag{prodcost.FlagSalvage}},
 			},
@@ -40,7 +40,7 @@ func hullFixture() ([]prodcost.HullCost, map[string]catalog.Item) {
 			License: prodcost.LicenseNotOwned, Flags: []prodcost.HullFlag{prodcost.FlagSalvage},
 		},
 		{
-			Ship:            catalog.Ship{ID: "mystery", Name: "Mystery", Class: "mystery", Tier: 1},
+			Ship:            catalog.Ship{ID: "mystery", Name: "Mystery", Class: "Bulk Hauler", Tier: 1},
 			MaterialCredits: 300, Royalty: 30, MakeTotal: 330, License: prodcost.LicenseNotOwned,
 			Flags: []prodcost.HullFlag{prodcost.FlagLaborUnknown},
 		},

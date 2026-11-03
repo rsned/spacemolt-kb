@@ -34,7 +34,7 @@ func hullWorld() World {
 }
 
 func congregation() catalog.Ship {
-	return catalog.Ship{ID: "congregation_hull", Class: "congregation", Tier: 1, Faction: "crft", BuildMaterials: []catalog.Material{
+	return catalog.Ship{ID: "congregation", Class: "Bulk Hauler", Tier: 1, Faction: "crft", BuildMaterials: []catalog.Material{
 		mat("aluminum_sheet", 50), mat("flex_polymer", 20), mat("cargo_container", 12), mat("fuel_tank", 5), mat("hull_plating", 3),
 	}}
 }
@@ -85,7 +85,7 @@ func TestCostHullsFlagsCrystalAndUnbuilt(t *testing.T) {
 		Recipes:    []catalog.Recipe{{ID: "make_core", ProducedBy: []string{"lab"}, Inputs: []catalog.Material{mat("energy_crystal", 1)}, Outputs: []catalog.Material{mat("core", 1)}}},
 		Facilities: map[string]catalog.Facility{"lab": {ID: "lab", Level: 1, LaborCost: 30}},
 	}
-	s := catalog.Ship{Class: "x", Tier: 1, BuildMaterials: []catalog.Material{mat("core", 2)}}
+	s := catalog.Ship{ID: "x", Class: "Class x", Tier: 1, BuildMaterials: []catalog.Material{mat("core", 2)}}
 	hc := costOne(t, w, s, HullData{})
 	if !slices.Contains(hc.Materials[0].Flags, FlagCrystal) || !slices.Contains(hc.Materials[0].Flags, FlagUnbuilt) {
 		t.Errorf("flags %v", hc.Materials[0].Flags)
@@ -96,7 +96,7 @@ func TestCostHullsFlagsCrystalAndUnbuilt(t *testing.T) {
 }
 
 func TestCostHullsSalvageIsFlaggedFloor(t *testing.T) {
-	s := catalog.Ship{Class: "x", BuildMaterials: []catalog.Material{mat("salvage_metal", 200), mat("flex_polymer", 1)}}
+	s := catalog.Ship{ID: "x", Class: "Class x", BuildMaterials: []catalog.Material{mat("salvage_metal", 200), mat("flex_polymer", 1)}}
 	hc := costOne(t, hullWorld(), s, HullData{})
 	if !hc.Partial || !slices.Contains(hc.Flags, FlagSalvage) || hc.Materials[0].Credits != 0 || hc.Materials[0].Route != "unpriced" {
 		t.Errorf("got %+v", hc)
@@ -104,7 +104,7 @@ func TestCostHullsSalvageIsFlaggedFloor(t *testing.T) {
 }
 
 func TestCostHullsUnpricedNonSalvage(t *testing.T) {
-	s := catalog.Ship{Class: "x", BuildMaterials: []catalog.Material{mat("mystery_part", 1)}}
+	s := catalog.Ship{ID: "x", Class: "Class x", BuildMaterials: []catalog.Material{mat("mystery_part", 1)}}
 	hc := costOne(t, hullWorld(), s, HullData{})
 	if !slices.Contains(hc.Flags, FlagUnpriced) || slices.Contains(hc.Flags, FlagSalvage) || !hc.Partial {
 		t.Errorf("flags %v partial %v", hc.Flags, hc.Partial)
@@ -113,7 +113,7 @@ func TestCostHullsUnpricedNonSalvage(t *testing.T) {
 
 func TestCostHullsLaborTierRange(t *testing.T) {
 	d := HullData{Quotes: []Quote{{ShipClass: "a", Tier: 2, Labor: 2000, Tick: 1}, {ShipClass: "b", Tier: 2, Labor: 2400, Tick: 2}}}
-	got := CostHulls([]catalog.Ship{{Class: "c", Tier: 2}, {Class: "a", Tier: 2}}, hullWorld(), nil, Market{}, d)
+	got := CostHulls([]catalog.Ship{{ID: "c", Class: "Class c", Tier: 2}, {ID: "a", Class: "Class a", Tier: 2}}, hullWorld(), nil, Market{}, d)
 	if got[0].Labor == nil || *got[0].Labor != 2000 || got[0].LaborNote != "tier range 2,000–2,400" {
 		t.Errorf("c: %v %q", got[0].Labor, got[0].LaborNote)
 	}
@@ -124,7 +124,7 @@ func TestCostHullsLaborTierRange(t *testing.T) {
 
 func TestCostHullsLaborUnknown(t *testing.T) {
 	d := HullData{Quotes: []Quote{{ShipClass: "a", Tier: 2, Labor: 2000}}}
-	hc := CostHulls([]catalog.Ship{{Class: "z", Tier: 3}}, hullWorld(), nil, Market{}, d)[0]
+	hc := CostHulls([]catalog.Ship{{ID: "z", Class: "Class z", Tier: 3}}, hullWorld(), nil, Market{}, d)[0]
 	if hc.Labor != nil || !slices.Contains(hc.Flags, FlagLaborUnknown) || hc.Best {
 		t.Errorf("got %+v", hc)
 	}
@@ -132,10 +132,10 @@ func TestCostHullsLaborUnknown(t *testing.T) {
 
 func TestCostHullsLicenseStates(t *testing.T) {
 	ships := []catalog.Ship{
-		{Class: "r", CapturePolicy: "reclaim_only", Faction: "f", Tier: 2},
-		{Class: "p", PrestigeLock: "x", Faction: "f", Tier: 2},
-		{Class: "b", NPCRole: "boss_flagship", Faction: "f", Tier: 2},
-		{Class: "pirate", Faction: "pirate", Tier: 3},
+		{ID: "r", Class: "Class r", CapturePolicy: "reclaim_only", Faction: "f", Tier: 2},
+		{ID: "p", Class: "Class p", PrestigeLock: "x", Faction: "f", Tier: 2},
+		{ID: "b", Class: "Class b", NPCRole: "boss_flagship", Faction: "f", Tier: 2},
+		{ID: "pirate", Class: "Class pirate", Faction: "pirate", Tier: 3},
 	}
 	got := CostHulls(ships, hullWorld(), nil, Market{}, HullData{})
 	want := []LicenseState{"not buildable", "not licensable", "not licensable", "not owned"}
@@ -171,7 +171,7 @@ func TestCostHullsBestRequiresCompleteCost(t *testing.T) {
 		Quotes:   []Quote{{ShipClass: "x", Tier: 1, Labor: 1000, Tick: 1}},
 		Listings: map[string]ListingMin{"x": {Price: 5000, Count: 2, StationID: "S"}},
 	}
-	complete := catalog.Ship{Class: "x", Tier: 1, BuildMaterials: []catalog.Material{mat("flex_polymer", 20)}}
+	complete := catalog.Ship{ID: "x", Class: "Class x", Tier: 1, BuildMaterials: []catalog.Material{mat("flex_polymer", 20)}}
 	hc := CostHulls([]catalog.Ship{complete}, w, costs, m, d)[0]
 	if !approx(hc.MarketCredits, 2000) || !approx(hc.MakeTotal, 1000) || hc.Listing == nil || hc.Listing.Price != 5000 || !hc.Best {
 		t.Errorf("complete: %+v", hc)
