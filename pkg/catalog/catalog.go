@@ -25,6 +25,16 @@ type Ship struct {
 	Class          string     `json:"class"`
 	Price          int        `json:"price"`
 	BuildMaterials []Material `json:"build_materials"`
+
+	// Hull-cost fields: tier and owning faction, cargo capacity, and the
+	// licensing rules that gate who may buy or capture the hull.
+	Tier          int    `json:"tier"`
+	Faction       string `json:"faction"`
+	CargoCapacity int    `json:"cargo_capacity"`
+	StarterShip   bool   `json:"starter_ship"`
+	PrestigeLock  string `json:"prestige_lock"`
+	NPCRole       string `json:"npc_role"`
+	CapturePolicy string `json:"capture_policy"`
 }
 
 // Facility is the subset of catalog_facilities.json the KB generators consume.

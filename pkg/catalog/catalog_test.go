@@ -76,6 +76,44 @@ func TestLoadShips(t *testing.T) {
 	}
 }
 
+func TestLoadShipsHullFields(t *testing.T) {
+	root := writeCatalogFiles(t, map[string]string{"catalog_ships.json": `{"items":[
+	  {"id":"congregation","name":"Congregation","class":"hauler","price":45000,
+	   "build_materials":[{"item_id":"steel_plate","quantity":5}],
+	   "tier":3,"faction":"congregation","cargo_capacity":400,
+	   "starter_ship":true,"prestige_lock":"elder","npc_role":"courier",
+	   "capture_policy":"surrender"}]}`})
+	ships, err := LoadShips(root)
+	if err != nil {
+		t.Fatalf("LoadShips: %v", err)
+	}
+	if len(ships) != 1 {
+		t.Fatalf("len(ships) = %d, want 1", len(ships))
+	}
+	s := ships[0]
+	if s.Tier != 3 {
+		t.Errorf("Tier = %d, want 3", s.Tier)
+	}
+	if s.Faction != "congregation" {
+		t.Errorf("Faction = %q, want congregation", s.Faction)
+	}
+	if s.CargoCapacity != 400 {
+		t.Errorf("CargoCapacity = %d, want 400", s.CargoCapacity)
+	}
+	if !s.StarterShip {
+		t.Errorf("StarterShip = false, want true")
+	}
+	if s.PrestigeLock != "elder" {
+		t.Errorf("PrestigeLock = %q, want elder", s.PrestigeLock)
+	}
+	if s.NPCRole != "courier" {
+		t.Errorf("NPCRole = %q, want courier", s.NPCRole)
+	}
+	if s.CapturePolicy != "surrender" {
+		t.Errorf("CapturePolicy = %q, want surrender", s.CapturePolicy)
+	}
+}
+
 func TestLoadFacilitiesKeepsFloatQuantities(t *testing.T) {
 	root := t.TempDir()
 	writeSnapshot(t, root, "20260807", `{"items":[]}`, `{"items":[
