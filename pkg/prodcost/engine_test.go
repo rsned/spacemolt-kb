@@ -285,3 +285,31 @@ func TestUnbuiltL1AppliesToInputs(t *testing.T) {
 		t.Errorf("got %+v", ic)
 	}
 }
+
+// An item that already has a usable (rented) route must not be promoted to
+// an unbuilt own route, even a cheaper one.
+func TestUnbuiltL1DoesNotBeatUsableRoute(t *testing.T) {
+	w := World{
+		Recipes: []catalog.Recipe{
+			{ID: "rented", CraftingTime: 1, ProducedBy: []string{"press"}, Outputs: []catalog.Material{mat("sheet", 2)}},
+			{ID: "owned", CraftingTime: 1, ProducedBy: []string{"bench"}, Outputs: []catalog.Material{mat("sheet", 2)}},
+		},
+		Facilities: map[string]catalog.Facility{
+			"press": {ID: "press", Level: 1, LaborCost: 8},
+			"bench": {ID: "bench", Level: 1, LaborCost: 6},
+		},
+		Lines: []Line{{RecipeID: "rented", Level: 1, Fee: 8, Empire: true}},
+	}
+	ic := Compute(w, Options{UnbuiltL1: true})["sheet"]
+	if ic == nil || ic.Cheapest < 0 {
+		t.Fatalf("got %+v", ic)
+	}
+	if r := ic.Routes[ic.Cheapest]; r.Kind != KindEmpire || !near(r.CreditsPerUnit, 8) {
+		t.Errorf("cheapest %+v", r)
+	}
+	for _, r := range ic.Routes {
+		if r.Kind == KindOwn && r.Usable {
+			t.Errorf("own route usable: %+v", r)
+		}
+	}
+}

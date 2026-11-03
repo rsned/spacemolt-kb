@@ -157,11 +157,9 @@ func (e *engine) settle(order []string) {
 		changed := false
 		for _, id := range order {
 			var rs []RouteCost
-			for _, rec := range e.byOutput[id] {
-				for _, r := range e.routes(rec) {
-					if rc, _ := e.route(rec, r); rc.complete() {
-						rs = append(rs, rc)
-					}
+			for _, rr := range e.routes(id) {
+				if rc, _ := e.route(rr.rec, rr.r); rc.complete() {
+					rs = append(rs, rc)
 				}
 			}
 			sortRoutes(rs)
@@ -182,25 +180,41 @@ func (e *engine) settle(order []string) {
 	}
 }
 
-// routes is Routes(rec), with the lowest-level own routes promoted to Usable
-// when UnbuiltL1 is set.
-func (e *engine) routes(rec catalog.Recipe) []Route {
-	rs := Routes(rec, e.w.Facilities, e.w.Lines)
-	if !e.unbuilt {
-		return rs
-	}
-	lowest := math.MaxInt
-	for _, r := range rs {
-		if r.Kind == KindOwn {
-			lowest = min(lowest, r.Level)
+// recRoute is one route of one recipe.
+type recRoute struct {
+	rec catalog.Recipe
+	r   Route
+}
+
+// routes is every route of every recipe producing id. When UnbuiltL1 is set
+// and no recipe of id has a usable route, each recipe's lowest-level own
+// routes are promoted to Usable.
+func (e *engine) routes(id string) []recRoute {
+	var out []recRoute
+	anyUsable := false
+	for _, rec := range e.byOutput[id] {
+		for _, r := range Routes(rec, e.w.Facilities, e.w.Lines) {
+			anyUsable = anyUsable || r.Usable
+			out = append(out, recRoute{rec, r})
 		}
 	}
-	for i, r := range rs {
-		if r.Kind == KindOwn && r.Level == lowest {
-			rs[i].Usable = true
+	if !e.unbuilt || anyUsable {
+		return out
+	}
+	lowest := map[string]int{}
+	for _, rr := range out {
+		if rr.r.Kind == KindOwn {
+			if l, ok := lowest[rr.rec.ID]; !ok || rr.r.Level < l {
+				lowest[rr.rec.ID] = rr.r.Level
+			}
 		}
 	}
-	return rs
+	for i, rr := range out {
+		if l, ok := lowest[rr.rec.ID]; ok && rr.r.Kind == KindOwn && rr.r.Level == l {
+			out[i].r.Usable = true
+		}
+	}
+	return out
 }
 
 // sortRoutes orders routes credits asc, then ticks asc, stably.
@@ -220,12 +234,10 @@ func (e *engine) item(id string) (ic *ItemCost, dep int) {
 	depth := len(e.onStack)
 	e.onStack[id] = depth
 	ic, dep = &ItemCost{ItemID: id}, noDep
-	for _, rec := range e.byOutput[id] {
-		for _, r := range e.routes(rec) {
-			rc, d := e.route(rec, r)
-			ic.Routes = append(ic.Routes, rc)
-			dep = min(dep, d)
-		}
+	for _, rr := range e.routes(id) {
+		rc, d := e.route(rr.rec, rr.r)
+		ic.Routes = append(ic.Routes, rc)
+		dep = min(dep, d)
 	}
 	sortRoutes(ic.Routes)
 	ic.Cheapest, ic.Fastest = best(ic.Routes, cheaper), best(ic.Routes, faster)
