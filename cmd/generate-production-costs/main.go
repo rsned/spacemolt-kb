@@ -10,6 +10,7 @@ import (
 	"maps"
 	"path/filepath"
 	"slices"
+	"time"
 
 	"github.com/rsned/spacemolt-kb/pkg/catalog"
 	"github.com/rsned/spacemolt-kb/pkg/galaxyhops"
@@ -85,4 +86,32 @@ func main() {
 	must(renderPrivate(*privateOut, pw, pcosts, m, hp, opps, ages), "render private")
 	log.Printf("production-costs: wrote private page (%d items, %d opportunities, %d uncosted bid levels) to %s",
 		len(pcosts), len(opps), prodcost.UncostedBids(pcosts, m), *privateOut)
+
+	// Hull page: the same private world, unbuilt level-1 own facilities
+	// included and no crystal skip, so crystal recipes are costed and flagged.
+	hcosts := prodcost.Compute(pw, prodcost.Options{UnbuiltL1: true})
+	ships, err := catalog.LoadShips(*catalogRoot)
+	must(err, "load ships")
+	tierOf := make(map[string]int, len(ships))
+	for _, s := range ships {
+		tierOf[s.Class] = s.Tier
+	}
+	hd, err := prodcost.LoadHullData(kdb, *ourTag, tierOf, time.Now())
+	must(err, "load hull data")
+	hulls := prodcost.CostHulls(ships, pw, hcosts, m, hd)
+	ages.Ships = ages.Catalog
+	// ship_listings may not exist yet; an empty age is then simply not shown.
+	_ = kdb.QueryRow(`SELECT COALESCE(MAX(captured_at), '') FROM ship_listings`).Scan(&ages.Listings)
+	must(renderHulls(*privateOut, hulls, pw.Items, ages), "render hulls")
+	var partial, noLabor int
+	for _, h := range hulls {
+		if h.Partial {
+			partial++
+		}
+		if h.Labor == nil {
+			noLabor++
+		}
+	}
+	log.Printf("production-costs: wrote hull page (%d hulls, %d partial, %d labor unknown) to %s",
+		len(hulls), partial, noLabor, *privateOut)
 }
