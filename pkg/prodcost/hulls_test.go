@@ -159,3 +159,27 @@ func TestLicenseCost(t *testing.T) {
 		}
 	}
 }
+
+func TestCostHullsBestRequiresCompleteCost(t *testing.T) {
+	w := hullWorld()
+	costs := Compute(w, Options{UnbuiltL1: true})
+	m := Market{Asks: map[string][]Level{
+		"flex_polymer":  {{StationID: "S", Price: 100, Qty: 20}},
+		"salvage_metal": {{StationID: "S", Price: 10, Qty: 200}},
+	}}
+	d := HullData{
+		Quotes:   []Quote{{ShipClass: "x", Tier: 1, Labor: 1000, Tick: 1}},
+		Listings: map[string]ListingMin{"x": {Price: 5000, Count: 2, StationID: "S"}},
+	}
+	complete := catalog.Ship{Class: "x", Tier: 1, BuildMaterials: []catalog.Material{mat("flex_polymer", 20)}}
+	hc := CostHulls([]catalog.Ship{complete}, w, costs, m, d)[0]
+	if !approx(hc.MarketCredits, 2000) || !approx(hc.MakeTotal, 1000) || hc.Listing == nil || hc.Listing.Price != 5000 || !hc.Best {
+		t.Errorf("complete: %+v", hc)
+	}
+	partial := complete
+	partial.BuildMaterials = []catalog.Material{mat("flex_polymer", 20), mat("salvage_metal", 200)}
+	hc = CostHulls([]catalog.Ship{partial}, w, costs, m, d)[0]
+	if !hc.Partial || hc.MakeTotal >= hc.MarketCredits || hc.Best {
+		t.Errorf("partial: %+v", hc)
+	}
+}

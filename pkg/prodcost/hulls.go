@@ -99,7 +99,8 @@ type HullCost struct {
 	MarketShort   bool
 	Listing       *ListingMin
 	Flags         []HullFlag
-	// Best is set when making beats the market ask and any listing; never
+	// Best is set when making beats the market ask and any listing; never when
+	// Partial (the make cost is only a floor) and never
 	// when Labor is nil.
 	Best bool
 }
@@ -185,7 +186,7 @@ func costHull(s catalog.Ship, w World, recipes map[string]catalog.Recipe, costs 
 	if l, ok := d.Listings[s.Class]; ok {
 		hc.Listing = &l
 	}
-	hc.Best = hc.Labor != nil && hc.MakeTotal < hc.MarketCredits && (hc.Listing == nil || hc.MakeTotal < float64(hc.Listing.Price))
+	hc.Best = hc.Labor != nil && !hc.Partial && hc.MakeTotal < hc.MarketCredits && (hc.Listing == nil || hc.MakeTotal < float64(hc.Listing.Price))
 	return hc
 }
 
