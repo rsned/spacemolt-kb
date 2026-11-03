@@ -21,10 +21,12 @@ type Options struct {
 	// SkipInputs leaves out every recipe with one of these items as an input
 	// or as outputs[0], so the items themselves are never costed either.
 	SkipInputs map[string]bool
-	// UnbuiltL1 makes an own route Usable when its Level is the lowest own
-	// level among its recipe's own routes, so facility-only items can be
-	// costed as if that facility were built at its lowest level. Consumers
-	// tell such a step by Kind == KindOwn && Usable.
+	// UnbuiltL1 makes facility-only items costable: an item with no usable
+	// route at all gets, for each of its recipes, the own routes at that
+	// recipe's lowest own level promoted to Usable, as if that facility were
+	// built at its lowest level. The promotion is per item, so an item that
+	// already has any usable route is left alone. Consumers tell a promoted
+	// step by Kind == KindOwn && Usable.
 	UnbuiltL1 bool
 }
 
@@ -104,7 +106,8 @@ type engine struct {
 	// settling makes route treat every input without a complete cost as a
 	// cycle instead of searching it.
 	settling bool
-	unbuilt  bool
+	// unbuilt is Options.UnbuiltL1: routes promotes unbuilt own routes.
+	unbuilt bool
 }
 
 // noDep is the "depends on no ancestor" depth returned by item and route.
@@ -188,7 +191,7 @@ type recRoute struct {
 
 // routes is every route of every recipe producing id. When UnbuiltL1 is set
 // and no recipe of id has a usable route, each recipe's lowest-level own
-// routes are promoted to Usable.
+// routes are promoted to Usable (per item, not per recipe).
 func (e *engine) routes(id string) []recRoute {
 	var out []recRoute
 	anyUsable := false

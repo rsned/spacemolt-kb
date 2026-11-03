@@ -91,9 +91,12 @@ type HullCost struct {
 	Royalty   float64
 	// QuotedRoyalty is the latest recorded royalty for this class.
 	QuotedRoyalty *int
-	MakeTotal     float64
-	License       LicenseState
-	LicenseCost   int
+	// QuotedRoyaltyMode is the mode ("commission" or "quote") of the row
+	// QuotedRoyalty came from.
+	QuotedRoyaltyMode string
+	MakeTotal         float64
+	License           LicenseState
+	LicenseCost       int
 	// MarketCredits sums AskPrice*Qty; MarketShort is set when any ask is short.
 	MarketCredits float64
 	MarketShort   bool
@@ -140,6 +143,7 @@ func costHull(s catalog.Ship, w World, recipes map[string]catalog.Recipe, costs 
 	hc := HullCost{Ship: s}
 	for _, bm := range s.BuildMaterials {
 		hm := HullMaterial{ItemID: bm.ItemID, Qty: bm.Quantity}
+		topPartial := false
 		ic := costs[bm.ItemID]
 		switch {
 		case isRaw(w, bm.ItemID):
@@ -151,6 +155,7 @@ func costHull(s catalog.Ship, w World, recipes map[string]catalog.Recipe, costs 
 			hm.Route = rc.Label()
 			hm.CreditsPerUnit = rc.CreditsPerUnit
 			hm.Credits = bm.Quantity * rc.CreditsPerUnit
+			topPartial = rc.Partial
 			if rc.Partial {
 				hc.Partial = true
 			}
@@ -160,6 +165,10 @@ func costHull(s catalog.Ship, w World, recipes map[string]catalog.Recipe, costs 
 			return f == FlagSalvage || f == FlagUnpriced || f == FlagCycle
 		}) {
 			hc.Partial = true
+		} else if topPartial {
+			// Every unpriced step must be flagged, even one the tree walk
+			// cannot name (e.g. a route that yields nothing per run).
+			hm.Flags = append(hm.Flags, FlagUnpriced)
 		}
 		for _, f := range hm.Flags {
 			if !slices.Contains(hc.Flags, f) {
@@ -178,7 +187,7 @@ func costHull(s catalog.Ship, w World, recipes map[string]catalog.Recipe, costs 
 	if hc.Labor == nil && s.CapturePolicy != "reclaim_only" {
 		hc.Flags = append(hc.Flags, FlagLaborUnknown)
 	}
-	hc.QuotedRoyalty = quotedRoyalty(d.Quotes, s.ID)
+	hc.QuotedRoyalty, hc.QuotedRoyaltyMode = quotedRoyalty(d.Quotes, s.ID)
 	hc.MakeTotal = hc.MaterialCredits + hc.Royalty
 	if hc.Labor != nil {
 		hc.MakeTotal += *hc.Labor
@@ -190,16 +199,22 @@ func costHull(s catalog.Ship, w World, recipes map[string]catalog.Recipe, costs 
 	return hc
 }
 
-// quotedRoyalty is the royalty of the latest class quote that has one.
-func quotedRoyalty(qs []Quote, class string) *int {
+// quotedRoyalty is the royalty of the latest class commission that has one,
+// else of the latest quote that has one, with that row's mode.
+func quotedRoyalty(qs []Quote, class string) (*int, string) {
 	var out *int
+	var mode string
 	var tick int64
 	for _, q := range qs {
-		if q.ShipClass == class && q.Royalty != nil && (out == nil || q.Tick >= tick) {
-			out, tick = q.Royalty, q.Tick
+		if q.ShipClass != class || q.Royalty == nil {
+			continue
+		}
+		commission := q.Mode == "commission"
+		if out == nil || (commission && mode != "commission") || (commission == (mode == "commission") && q.Tick >= tick) {
+			out, mode, tick = q.Royalty, q.Mode, q.Tick
 		}
 	}
-	return out
+	return out, mode
 }
 
 func isRaw(w World, id string) bool {

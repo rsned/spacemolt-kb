@@ -183,3 +183,39 @@ func TestCostHullsBestRequiresCompleteCost(t *testing.T) {
 		t.Errorf("partial: %+v", hc)
 	}
 }
+
+func TestCostHullsPartialRouteWithoutFlagGetsUnpriced(t *testing.T) {
+	w := hullWorld()
+	w.Recipes = append(w.Recipes, catalog.Recipe{ID: "make_ghost", HandCraftable: true,
+		Inputs: []catalog.Material{mat("iron_ore", 1)}, Outputs: []catalog.Material{mat("ghost_part", 0)}})
+	s := catalog.Ship{ID: "x", Class: "Class x", BuildMaterials: []catalog.Material{mat("ghost_part", 1)}}
+	hc := costOne(t, w, s, HullData{})
+	if !hc.Partial || !slices.Contains(hc.Flags, FlagUnpriced) {
+		t.Errorf("partial %v flags %v", hc.Partial, hc.Flags)
+	}
+}
+
+func TestCostHullsQuotedRoyaltyMode(t *testing.T) {
+	r1, r2, r3 := 100, 200, 300
+	s := catalog.Ship{ID: "c", Class: "Class c", Tier: 1}
+	cases := []struct {
+		name string
+		qs   []Quote
+		want int
+		mode string
+	}{
+		{"quote only", []Quote{{ShipClass: "c", Royalty: &r1, Mode: "quote", Tick: 9}}, 100, "quote"},
+		{"commission preferred over later quote", []Quote{
+			{ShipClass: "c", Royalty: &r1, Mode: "commission", Tick: 5},
+			{ShipClass: "c", Royalty: &r2, Mode: "quote", Tick: 9}}, 100, "commission"},
+		{"latest commission", []Quote{
+			{ShipClass: "c", Royalty: &r1, Mode: "commission", Tick: 5},
+			{ShipClass: "c", Royalty: &r3, Mode: "commission", Tick: 7}}, 300, "commission"},
+	}
+	for _, c := range cases {
+		hc := CostHulls([]catalog.Ship{s}, hullWorld(), nil, Market{}, HullData{Quotes: c.qs})[0]
+		if hc.QuotedRoyalty == nil || *hc.QuotedRoyalty != c.want || hc.QuotedRoyaltyMode != c.mode {
+			t.Errorf("%s: got %v %q", c.name, hc.QuotedRoyalty, hc.QuotedRoyaltyMode)
+		}
+	}
+}
