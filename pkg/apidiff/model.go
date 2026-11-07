@@ -62,8 +62,20 @@ func BuildModel(schemas map[string]any) map[string]*Struct {
 }
 
 type builder struct {
-	schemas map[string]any
-	out     map[string]*Struct
+	schemas    map[string]any
+	out        map[string]*Struct
+	aliasDepth int
+}
+
+// isAlias reports whether a named schema has no properties, members or allOf
+// parts, so it can never become a struct.
+func isAlias(m map[string]any) bool {
+	for _, k := range []string{"properties", "oneOf", "anyOf", "allOf"} {
+		if _, ok := m[k]; ok {
+			return false
+		}
+	}
+	return true
 }
 
 // object records node as struct id when it has properties or members, and
@@ -155,6 +167,15 @@ func (b *builder) typeOf(n any, id, display string) TypeRef {
 		return TypeRef{Kind: KindAny}
 	}
 	if r := refName(m); r != "" {
+		if alias, ok := b.schemas[r].(map[string]any); ok && isAlias(alias) && b.aliasDepth < 8 {
+			// A ref to a schema that is only a map, scalar or array names a
+			// type, not a struct: compare and show what it stands for.
+			b.aliasDepth++
+			tr := b.typeOf(alias, id, display)
+			b.aliasDepth--
+			tr.Nullable = tr.Nullable || m["nullable"] == true
+			return tr
+		}
 		return TypeRef{Kind: KindRef, Ref: r, Nullable: m["nullable"] == true}
 	}
 	t, nullable := baseType(m)
