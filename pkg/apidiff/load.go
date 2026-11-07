@@ -62,14 +62,14 @@ func readSchemas(path string, gz bool) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close() //nolint:errcheck // read-only file
+	defer func() { _ = f.Close() }()
 	var r io.Reader = f
 	if gz {
 		zr, err := gzip.NewReader(f)
 		if err != nil {
 			return nil, err
 		}
-		defer zr.Close() //nolint:errcheck // read-only stream
+		defer func() { _ = zr.Close() }()
 		r = zr
 	}
 	var doc struct {
