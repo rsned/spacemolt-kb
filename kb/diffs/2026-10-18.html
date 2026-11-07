@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — October 18, 2026 vs October 17, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+<header class="site-header">
+    <h1>Spacemolt KB</h1>
+    <nav>
+        <a href="../systems/">Systems</a>
+        <a href="../items/">Items</a>
+        <a href="../recipes/">Recipes</a>
+        <a href="../skills/">Skills</a>
+        <a href="../ships/">Ships</a>
+    </nav>
+</header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-10-17.html">&larr; 2026-10-17</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-11-01.html">2026-11-01 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; October 18, 2026 vs October 17, 2026</h2>
+<div class="diff-summary">0 additions, 0 deletions, 50 modifications across 3 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~43</span></li>
+<li><a href="#items">Items</a></li>
+<li><a href="#ships">Ships</a></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~5</span></li>
+<li><a href="#facilities">Facilities</a></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~2</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~43</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../recipes/Defense/build_adaptive_shield_ii.html">build_adaptive_shield_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: adaptive_shield_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: metamaterial_panel, quantity: 2</td><td class="diff-add">item_id: metamaterial_panel, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: processing_core, quantity: 1</td><td class="diff-unchanged">item_id: processing_core, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: refined_quantum_matrix, quantity: 1</td><td class="diff-unchanged">item_id: refined_quantum_matrix, quantity: 1</td></tr><tr><td class="diff-del">item_id: shield_emitter, quantity: 2</td><td class="diff-add">item_id: shield_emitter, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_adaptive_shield_iii.html">build_adaptive_shield_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: adaptive_shield_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: metamaterial_panel, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: processing_core, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: refined_quantum_matrix, quantity: 2</td><td class="diff-add">item_id: refined_quantum_matrix, quantity: 1</td></tr><tr><td class="diff-del">item_id: shield_emitter, quantity: 3</td><td class="diff-add">item_id: shield_emitter, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: superconductor, quantity: 2</td><td class="diff-unchanged">item_id: superconductor, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_afterburner_ii.html">build_afterburner_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: afterburner_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-del">item_id: engine_core, quantity: 2</td><td class="diff-add">item_id: engine_core, quantity: 1</td></tr><tr><td class="diff-del">item_id: flex_polymer, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: titanium_alloy, quantity: 3</td><td class="diff-add">item_id: titanium_alloy, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_afterburner_iii.html">build_afterburner_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: afterburner_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: durasteel_plate, quantity: 2</td><td class="diff-add">item_id: durasteel_plate, quantity: 1</td></tr><tr><td class="diff-del">item_id: engine_core, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: flex_polymer, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: superconductor, quantity: 1</td><td class="diff-unchanged">item_id: superconductor, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_armor_plate_ii.html">build_armor_plate_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: armor_plate_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: durasteel_plate, quantity: 4</td><td class="diff-unchanged">item_id: durasteel_plate, quantity: 4</td></tr><tr><td class="diff-unchanged">item_id: flex_polymer, quantity: 2</td><td class="diff-unchanged">item_id: flex_polymer, quantity: 2</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 2</td><td class="diff-add">item_id: hull_plating, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_armor_plate_iii.html">build_armor_plate_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: armor_plate_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: durasteel_plate, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: graphene_sheet, quantity: 2</td><td class="diff-unchanged">item_id: graphene_sheet, quantity: 2</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: titanium_ingot, quantity: 4</td><td class="diff-add">item_id: titanium_ingot, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_armor_repairer_ii.html">build_armor_repairer_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: armor_repairer_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: biofiber_mesh, quantity: 1</td><td class="diff-unchanged">item_id: biofiber_mesh, quantity: 1</td></tr><tr><td class="diff-del">item_id: circuit_board, quantity: 3</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: durasteel_plate, quantity: 3</td><td class="diff-unchanged">item_id: durasteel_plate, quantity: 3</td></tr><tr><td class="diff-del">item_id: repair_nanite_container, quantity: 2</td><td class="diff-add">item_id: repair_nanite_container, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_autocannon_ii.html">build_autocannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: autocannon_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: circuit_board, quantity: 3</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: engine_core, quantity: 1</td><td class="diff-unchanged">item_id: engine_core, quantity: 1</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 8</td><td class="diff-add">item_id: steel_plate, quantity: 3</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Stealth/build_cloaking_device_ii.html">build_cloaking_device_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: cloaking_device_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: exotic_crystal, quantity: 2</td><td class="diff-unchanged">item_id: exotic_crystal, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: phase_array, quantity: 2</td><td class="diff-unchanged">item_id: phase_array, quantity: 2</td></tr><tr><td class="diff-del">item_id: power_core, quantity: 2</td><td class="diff-add">item_id: power_core, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: refined_quantum_matrix, quantity: 1</td><td class="diff-unchanged">item_id: refined_quantum_matrix, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_emp_pulse_ii.html">build_emp_pulse_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 6</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: emp_pulse_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: ion_emitter, quantity: 1</td><td class="diff-unchanged">item_id: ion_emitter, quantity: 1</td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 3</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 4</td><td class="diff-add">item_id: superconductor, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_emp_pulse_iii.html">build_emp_pulse_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: emp_pulse_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: ion_emitter, quantity: 2</td><td class="diff-add">item_id: ion_emitter, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: metamaterial_panel, quantity: 2</td><td class="diff-unchanged">item_id: metamaterial_panel, quantity: 2</td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 4</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 6</td><td class="diff-add">item_id: superconductor, quantity: 2</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_flak_cannon_ii.html">build_flak_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 3</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: durasteel_plate, quantity: 3</td><td class="diff-unchanged">item_id: durasteel_plate, quantity: 3</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flak_cannon_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: sensor_array, quantity: 1</td><td class="diff-unchanged">item_id: sensor_array, quantity: 1</td></tr><tr><td class="diff-del">item_id: tracking_system, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_flak_cannon_iii.html">build_flak_cannon_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: durasteel_plate, quantity: 5</td><td class="diff-add">item_id: durasteel_plate, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: flak_cannon_ii, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: metamaterial_panel, quantity: 1</td><td class="diff-unchanged">item_id: metamaterial_panel, quantity: 1</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 2</td><td class="diff-add">item_id: sensor_array, quantity: 1</td></tr><tr><td class="diff-del">item_id: tracking_system, quantity: 2</td><td class="diff-add">item_id: tracking_system, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: weapon_housing, quantity: 1</td><td class="diff-unchanged">item_id: weapon_housing, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_focused_beam_ii.html">build_focused_beam_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: focused_beam_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: focused_crystal, quantity: 5</td><td class="diff-add">item_id: focused_crystal, quantity: 2</td></tr><tr><td class="diff-del">item_id: laser_focus_array, quantity: 2</td><td class="diff-add">item_id: laser_focus_array, quantity: 1</td></tr><tr><td class="diff-del">item_id: optical_fiber_bundle, quantity: 3</td><td class="diff-add">item_id: optical_fiber_bundle, quantity: 2</td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 2</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_focused_beam_iii.html">build_focused_beam_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: crystalline_lattice, quantity: 3</td><td class="diff-add">item_id: crystalline_lattice, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: focused_beam_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: laser_focus_array, quantity: 3</td><td class="diff-add">item_id: laser_focus_array, quantity: 1</td></tr><tr><td class="diff-del">item_id: optical_fiber_bundle, quantity: 4</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 3</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_graviton_beam_ii.html">build_graviton_beam_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: graphene_sheet, quantity: 4</td><td class="diff-add">item_id: graphene_sheet, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: graviton_beam_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: metamaterial_panel, quantity: 2</td><td class="diff-unchanged">item_id: metamaterial_panel, quantity: 2</td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 3</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 5</td><td class="diff-add">item_id: superconductor, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_hull_reinforcement_ii.html">build_hull_reinforcement_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: durasteel_plate, quantity: 3</td><td class="diff-unchanged">item_id: durasteel_plate, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: flex_polymer, quantity: 2</td><td class="diff-unchanged">item_id: flex_polymer, quantity: 2</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: hull_reinforcement_i, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_hull_reinforcement_iii.html">build_hull_reinforcement_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: durasteel_plate, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: graphene_sheet, quantity: 2</td><td class="diff-unchanged">item_id: graphene_sheet, quantity: 2</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 3</td><td class="diff-add">item_id: hull_plating, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: hull_reinforcement_ii, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: titanium_ingot, quantity: 4</td><td class="diff-unchanged">item_id: titanium_ingot, quantity: 4</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_ion_blaster_ii.html">build_ion_blaster_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: ion_blaster_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: ion_emitter, quantity: 2</td><td class="diff-add">item_id: ion_emitter, quantity: 1</td></tr><tr><td class="diff-del">item_id: ion_solution, quantity: 5</td><td class="diff-add">item_id: ion_solution, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 1</td><td class="diff-unchanged">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_ion_blaster_iii.html">build_ion_blaster_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: ion_blaster_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: ion_emitter, quantity: 3</td><td class="diff-add">item_id: ion_emitter, quantity: 1</td></tr><tr><td class="diff-del">item_id: ion_solution, quantity: 6</td><td class="diff-add">item_id: ion_solution, quantity: 1</td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 2</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 3</td><td class="diff-add">item_id: superconductor, quantity: 2</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_ion_cannon_ii.html">build_ion_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">item_id: ion_cannon_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: ion_emitter, quantity: 2</td><td class="diff-add">item_id: ion_emitter, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 1</td><td class="diff-unchanged">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 2</td><td class="diff-add">item_id: superconductor, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_mine_launcher_ii.html">build_mine_launcher_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: mine_launcher_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: titanium_alloy, quantity: 5</td><td class="diff-add">item_id: titanium_alloy, quantity: 1</td></tr><tr><td class="diff-del">item_id: warhead_assembly, quantity: 2</td><td class="diff-add">item_id: warhead_assembly, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Modules/build_mining_laser_ii.html">build_mining_laser_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 3</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: focused_crystal, quantity: 1</td><td class="diff-unchanged">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: mining_laser_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: titanium_alloy, quantity: 3</td><td class="diff-add">item_id: titanium_alloy, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_missile_launcher_ii.html">build_missile_launcher_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: missile_guidance_unit, quantity: 1</td><td class="diff-unchanged">item_id: missile_guidance_unit, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: missile_launcher_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: titanium_alloy, quantity: 4</td><td class="diff-add">item_id: titanium_alloy, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: tracking_system, quantity: 1</td><td class="diff-unchanged">item_id: tracking_system, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_piercing_railgun_ii.html">build_piercing_railgun_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: durasteel_plate, quantity: 5</td><td class="diff-add">item_id: durasteel_plate, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: piercing_railgun_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: power_core, quantity: 1</td><td class="diff-unchanged">item_id: power_core, quantity: 1</td></tr><tr><td class="diff-del">item_id: railgun_capacitor, quantity: 2</td><td class="diff-add">item_id: railgun_capacitor, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 3</td><td class="diff-add">item_id: superconductor, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_plasma_cannon_ii.html">build_plasma_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: ceramite_plating, quantity: 3</td><td class="diff-add">item_id: ceramite_plating, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: plasma_cannon_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: plasma_injector, quantity: 2</td><td class="diff-add">item_id: plasma_injector, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: superconductor, quantity: 1</td><td class="diff-unchanged">item_id: superconductor, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_plasma_cannon_iii.html">build_plasma_cannon_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: ceramite_plating, quantity: 5</td><td class="diff-add">item_id: ceramite_plating, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: fury_alloy, quantity: 2</td><td class="diff-unchanged">item_id: fury_alloy, quantity: 2</td></tr><tr><td class="diff-del">item_id: heat_sink, quantity: 3</td><td class="diff-add">item_id: heat_sink, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: plasma_cannon_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: plasma_injector, quantity: 3</td><td class="diff-add">item_id: plasma_injector, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_plasma_cannon_iv.html">build_plasma_cannon_iv</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: exotic_crystal, quantity: 1</td><td class="diff-unchanged">item_id: exotic_crystal, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: plasma_cannon_iii, quantity: 1</td></tr><tr><td class="diff-del">item_id: refined_plasma_core, quantity: 2</td><td class="diff-add">item_id: refined_plasma_core, quantity: 1</td></tr><tr><td class="diff-del">item_id: titanium_ingot, quantity: 8</td><td class="diff-add">item_id: titanium_ingot, quantity: 2</td></tr><tr><td class="diff-del">item_id: weapon_core, quantity: 3</td><td class="diff-add">item_id: weapon_core, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_plasma_repeater_ii.html">build_plasma_repeater_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: ceramite_plating, quantity: 4</td><td class="diff-add">item_id: ceramite_plating, quantity: 2</td></tr><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: heat_sink, quantity: 2</td><td class="diff-unchanged">item_id: heat_sink, quantity: 2</td></tr><tr><td class="diff-del">item_id: plasma_injector, quantity: 2</td><td class="diff-add">item_id: plasma_injector, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: plasma_repeater_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_pulse_laser_ii.html">build_pulse_laser_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-del">item_id: focused_crystal, quantity: 2</td><td class="diff-add">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: laser_focus_array, quantity: 1</td><td class="diff-unchanged">item_id: laser_focus_array, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: pulse_laser_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: steel_plate, quantity: 4</td><td class="diff-add">item_id: steel_plate, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_pulse_laser_iii.html">build_pulse_laser_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: focused_crystal, quantity: 4</td><td class="diff-add">item_id: focused_crystal, quantity: 2</td></tr><tr><td class="diff-del">item_id: laser_focus_array, quantity: 2</td><td class="diff-add">item_id: laser_focus_array, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 1</td><td class="diff-unchanged">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: pulse_laser_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 2</td><td class="diff-add">item_id: superconductor, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_railgun_ii.html">build_railgun_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: durasteel_plate, quantity: 5</td><td class="diff-add">item_id: durasteel_plate, quantity: 2</td></tr><tr><td class="diff-del">item_id: railgun_capacitor, quantity: 2</td><td class="diff-add">item_id: railgun_capacitor, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: railgun_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 3</td><td class="diff-add">item_id: superconductor, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: tungsten_rod, quantity: 3</td><td class="diff-unchanged">item_id: tungsten_rod, quantity: 3</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_remote_armor_repairer_ii.html">build_remote_armor_repairer_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-del">item_id: durasteel_plate, quantity: 3</td><td class="diff-add">item_id: durasteel_plate, quantity: 1</td></tr><tr><td class="diff-del">item_id: hull_plating, quantity: 2</td><td class="diff-add">item_id: hull_plating, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 2</td><td class="diff-unchanged">item_id: power_cell, quantity: 2</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: remote_armor_repairer_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: repair_nanite_container, quantity: 3</td><td class="diff-add">item_id: repair_nanite_container, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_remote_armor_repairer_iii.html">build_remote_armor_repairer_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: capital_armor_plate, quantity: 2</td><td class="diff-unchanged">item_id: capital_armor_plate, quantity: 2</td></tr><tr><td class="diff-del">item_id: circuit_board, quantity: 5</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: crystalline_lattice, quantity: 1</td><td class="diff-unchanged">item_id: crystalline_lattice, quantity: 1</td></tr><tr><td class="diff-del">item_id: durasteel_plate, quantity: 4</td><td class="diff-add">item_id: durasteel_plate, quantity: 1</td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 3</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: processing_core, quantity: 1</td><td class="diff-unchanged">item_id: processing_core, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: remote_armor_repairer_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: repair_nanite_container, quantity: 4</td><td class="diff-add">item_id: repair_nanite_container, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_shield_booster_ii.html">build_shield_booster_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 3</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-del">item_id: focused_crystal, quantity: 2</td><td class="diff-add">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_booster_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: shield_emitter, quantity: 1</td><td class="diff-unchanged">item_id: shield_emitter, quantity: 1</td></tr><tr><td class="diff-del">item_id: titanium_alloy, quantity: 3</td><td class="diff-add">item_id: titanium_alloy, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_shield_booster_iii.html">build_shield_booster_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: focused_crystal, quantity: 3</td><td class="diff-add">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 1</td><td class="diff-unchanged">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_booster_ii, quantity: 1</td></tr><tr><td class="diff-del">item_id: shield_emitter, quantity: 2</td><td class="diff-add">item_id: shield_emitter, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 3</td><td class="diff-add">item_id: superconductor, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_shield_booster_iv.html">build_shield_booster_iv</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: focused_crystal, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 2</td><td class="diff-add">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: refined_quantum_matrix, quantity: 1</td><td class="diff-unchanged">item_id: refined_quantum_matrix, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_booster_iii, quantity: 1</td></tr><tr><td class="diff-del">item_id: shield_emitter, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 3</td><td class="diff-empty"></td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Defense/build_shield_recharger_ii.html">build_shield_recharger_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 3</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-del">item_id: focused_crystal, quantity: 2</td><td class="diff-add">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: shield_emitter, quantity: 1</td><td class="diff-unchanged">item_id: shield_emitter, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: shield_recharger_i, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: superconductor, quantity: 1</td><td class="diff-unchanged">item_id: superconductor, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_stasis_webifier_ii.html">build_stasis_webifier_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 1</td><td class="diff-unchanged">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 2</td><td class="diff-add">item_id: sensor_array, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: stasis_webifier_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: superconductor, quantity: 3</td><td class="diff-add">item_id: superconductor, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_survey_scanner_ii.html">build_survey_scanner_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 3</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-del">item_id: focused_crystal, quantity: 3</td><td class="diff-add">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 2</td><td class="diff-add">item_id: sensor_array, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: stabilized_exotic, quantity: 1</td><td class="diff-unchanged">item_id: stabilized_exotic, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: survey_scanner_i, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_target_painter_ii.html">build_target_painter_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-del">item_id: focused_crystal, quantity: 2</td><td class="diff-add">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: optical_fiber_bundle, quantity: 2</td><td class="diff-unchanged">item_id: optical_fiber_bundle, quantity: 2</td></tr><tr><td class="diff-del">item_id: sensor_array, quantity: 2</td><td class="diff-add">item_id: sensor_array, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: target_painter_i, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Utility/build_tracking_computer_ii.html">build_tracking_computer_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: circuit_board, quantity: 4</td><td class="diff-add">item_id: circuit_board, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: optical_fiber_bundle, quantity: 1</td><td class="diff-unchanged">item_id: optical_fiber_bundle, quantity: 1</td></tr><tr><td class="diff-del">item_id: processing_core, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: tracking_computer_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: tracking_system, quantity: 2</td><td class="diff-add">item_id: tracking_system, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../recipes/Weapons/build_void_lance_ii.html">build_void_lance_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">item_id: crystalline_lattice, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: power_cell, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: processed_null_matter, quantity: 2</td><td class="diff-unchanged">item_id: processed_null_matter, quantity: 2</td></tr><tr><td class="diff-del">item_id: stabilized_exotic, quantity: 3</td><td class="diff-add">item_id: stabilized_exotic, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_condensate, quantity: 4</td><td class="diff-add">item_id: void_condensate, quantity: 1</td></tr><tr><td class="diff-empty"></td><td class="diff-add">item_id: void_lance_i, quantity: 1</td></tr><tr><td class="diff-del">item_id: weapon_housing, quantity: 1</td><td class="diff-empty"></td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~5</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../skills/drone_control.html">drone_control</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Neural interface proficiency for autonomous drone operation. Improves drone combat damage, mining yield, and repair rate by 1% per level. Drone deployment count is gated by the bandwidth of installed drone bay modules — this skill makes the drones you deploy more effective.&#34;</span> &rarr; <span class="diff-add">&#34;Neural interface proficiency for autonomous drone operation. Improves drone combat damage, mining yield, and repair rate by 1% per level, and adds 1 percentage point of drone hit chance per level. Drone deployment count is gated by the bandwidth of installed drone bay modules — this skill makes the drones you deploy more effective.&#34;</span></div>
+<div class="diff-item-id"><a href="../skills/exploration.html">exploration</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Discovery and surveying. Increases scan range and detail level.&#34;</span> &rarr; <span class="diff-add">&#34;Discovery and surveying. Increases survey power by 1% per level, added to the Scanning skill&#39;s bonus. survey_system reveals a hidden POI when your survey power reaches its reveal difficulty.&#34;</span></div><div class="diff-field"><span class="diff-field-name">bonus_per_level:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">scannerRange: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-empty"></td><td class="diff-add">surveyPower: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../skills/piloting.html">piloting</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Ship handling proficiency. Higher piloting skill improves module effectiveness on larger ships. Capital ships require piloting level 70.&#34;</span> &rarr; <span class="diff-add">&#34;Ship handling proficiency. Increases travel speed between POIs within a system by 1% per level; jumps between systems are not affected. Flying a Tier 2, 3, 4 or 5 ship requires Piloting 10, 20, 30 or 50.&#34;</span></div><div class="diff-field"><span class="diff-field-name">bonus_per_level:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">moduleEffectiveness: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-empty"></td><td class="diff-add">travelSpeed: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../skills/piracy.html">piracy</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;The art of raiding and plundering. Increases loot from raids by 1% per level and improves scan evasion against customs and NPC inspections by 1% per level.&#34;</span> &rarr; <span class="diff-add">&#34;The art of raiding and plundering. When you destroy a player&#39;s ship, the share of its cargo that drops into the wreck rises by 1% per level (a 60% drop becomes 90% at level 50), up to all of it. Also improves scan evasion against customs and NPC inspections by 1% per level.&#34;</span></div>
+<div class="diff-item-id"><a href="../skills/wormhole_navigation.html">wormhole_navigation</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Navigating unstable wormhole passages. Improves wormhole transit accuracy.&#34;</span> &rarr; <span class="diff-add">&#34;Navigating unstable wormhole passages. Adds 4 wormhole prediction power per level. At a wormhole you have not used, get_poi shows where it leads once your prediction power reaches its prediction difficulty (10-40).&#34;</span></div><div class="diff-field"><span class="diff-field-name">bonus_per_level:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-del">wormholeAccuracy: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-empty"></td><td class="diff-add">wormholePrediction: 4</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~2</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/starfall/index.html">starfall</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/void_gate/index.html">void_gate</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">5</span> &rarr; <span class="diff-add">6</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>document.documentElement.classList.add('dark');</script>
+</body>
+</html>

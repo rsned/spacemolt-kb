@@ -33,7 +33,7 @@
 <table>
 <thead><tr><th>Material</th><th>Qty</th></tr></thead>
 <tbody>
-<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>56</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>18</td></tr><tr><td><a href="../items/ore/iridium_ore.html">Iridium Ore</a></td><td>3</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>25</td></tr><tr><td><a href="../items/ore/palladium_ore.html">Palladium Ore</a></td><td>6</td></tr><tr><td><a href="../items/ore/plasma_residue.html">Plasma Residue</a></td><td>4</td></tr><tr><td><a href="../items/ore/silver_ore.html">Silver Ore</a></td><td>24</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>48</td></tr><tr><td><a href="../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>16</td></tr>
+<tr><td><a href="../items/ore/aluminum_ore.html">Aluminum Ore</a></td><td>56</td></tr><tr><td><a href="../items/ore/argon_gas.html">Argon Gas</a></td><td>2</td></tr><tr><td><a href="../items/ore/carbon_ore.html">Carbon Ore</a></td><td>2</td></tr><tr><td><a href="../items/misc/cobalt_ink.html">Cobalt Ink</a></td><td>18</td></tr><tr><td><a href="../items/ore/copper_ore.html">Copper Ore</a></td><td>38</td></tr><tr><td><a href="../items/ore/iron_ore.html">Iron Ore</a></td><td>27</td></tr><tr><td><a href="../items/ore/manganese_ore.html">Manganese Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/methane_ice.html">Methane Ice</a></td><td>2</td></tr><tr><td><a href="../items/ore/plasma_residue.html">Plasma Residue</a></td><td>4</td></tr><tr><td><a href="../items/ore/rhodium_ore.html">Rhodium Ore</a></td><td>2</td></tr><tr><td><a href="../items/ore/titanium_ore.html">Titanium Ore</a></td><td>48</td></tr><tr><td><a href="../items/ore/vanadium_ore.html">Vanadium Ore</a></td><td>16</td></tr>
 </tbody>
 </table>
 
@@ -45,13 +45,15 @@
 <table>
 <thead><tr><th>Input</th><th>Qty</th></tr></thead>
 <tbody>
-<tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td>3</td></tr><tr><td><a href="../items/component/plasma_injector.html">Plasma Injector</a></td><td>2</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>1</td></tr><tr><td><a href="../items/component/weapon_housing.html">Weapon Housing</a></td><td>1</td></tr>
+<tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td>1</td></tr><tr><td><a href="../items/weapon/plasma_cannon_i.html">Plasma Cannon I</a></td><td>1</td></tr><tr><td><a href="../items/component/plasma_injector.html">Plasma Injector</a></td><td>1</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td>1</td></tr>
 </tbody>
 </table>
 
 
 
-
+<div class="banner">
+⚠ <strong>Not buildable from current market depth anywhere</strong> — even pooling all stations. Missing input with no depth: <code>Cobalt Ink</code>. See <a href="../did_you_know/stations_to_build.html">Stations Needed to Build</a>.
+</div>
 
 <h2>Build cost by station</h2>
 <p class="legend"><strong>Savings</strong> = the finished item's cheapest <em>ask</em> at that station &minus; build cost (positive = building beats buying it outright). <strong>Profit</strong> = the station's best <em>bid</em> for the finished item &minus; build cost (positive = build-and-sell arbitrage). Both use the BoM cost and appear only when that build is feasible. Ships have an ask but no bid, so they show Savings only.
@@ -63,42 +65,9 @@
 
 <tr>
  <td>Iron Reach Mining Colony</td><td>crimson</td>
- <td class="infeasible">3/9</td>
- <td>6/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">2/4</td>
- <td>28,882</td><td>28,882</td><td>28,882</td>
- <td>build_plasma_cannon_ii</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Grand Exchange</td><td>nebula</td>
- <td class="infeasible">7/9</td>
- <td>7/9</td><td>7/9</td><td>7/9</td>
- <td class="">30,731</td>
- <td>30,731</td><td>30,573</td><td>30,157</td>
- <td>build_plasma_cannon_ii</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Unknown Edge Waystation</td><td>outerrim</td>
- <td class="infeasible">4/9</td>
- <td>5/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">1/4</td>
- <td>2/4</td><td>28,444</td><td>28,444</td>
- <td>build_plasma_cannon_ii</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Sol Central</td><td>solarian</td>
- <td class="infeasible">4/9</td>
- <td>6/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">2/4</td>
+ <td class="infeasible">4/12</td>
+ <td>8/12</td><td>8/12</td><td>8/12</td>
+ <td class="infeasible">0/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
@@ -106,9 +75,20 @@
 </tr>
 
 <tr>
- <td>The Core</td><td>voidborn</td>
- <td class="infeasible">5/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td>Grand Exchange</td><td>nebula</td>
+ <td class="infeasible">8/12</td>
+ <td>9/12</td><td>9/12</td><td>9/12</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>2/4</td><td>2/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Unknown Edge Waystation</td><td>outerrim</td>
+ <td class="infeasible">3/12</td>
+ <td>6/12</td><td>7/12</td><td>7/12</td>
  <td class="infeasible">2/4</td>
  <td>2/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -117,11 +97,33 @@
 </tr>
 
 <tr>
+ <td>Sol Central</td><td>solarian</td>
+ <td class="infeasible">7/12</td>
+ <td>8/12</td><td>8/12</td><td>8/12</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Core</td><td>voidborn</td>
+ <td class="infeasible">5/12</td>
+ <td>6/12</td><td>6/12</td><td>6/12</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
  <td>Cargo Lanes Freight Depot</td><td>nebula</td>
- <td class="infeasible">2/9</td>
- <td>4/9</td><td>7/9</td><td>7/9</td>
- <td class="infeasible">2/4</td>
- <td>3/4</td><td>30,573</td><td>30,573</td>
+ <td class="infeasible">4/12</td>
+ <td>6/12</td><td>8/12</td><td>9/12</td>
+ <td class="infeasible">0/4</td>
+ <td>2/4</td><td>2/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -129,10 +131,10 @@
 
 <tr>
  <td>Mobile Capital</td><td>outerrim</td>
- <td class="infeasible">3/9</td>
- <td>5/9</td><td>5/9</td><td>6/9</td>
- <td class="infeasible">3/4</td>
- <td>3/4</td><td>28,736</td><td>28,444</td>
+ <td class="infeasible">4/12</td>
+ <td>6/12</td><td>6/12</td><td>7/12</td>
+ <td class="infeasible">1/4</td>
+ <td>2/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -140,8 +142,8 @@
 
 <tr>
  <td>Kael Arsenal</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>1/9</td><td>1/9</td><td>1/9</td>
+ <td class="infeasible">1/12</td>
+ <td>1/12</td><td>1/12</td><td>1/12</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -151,10 +153,10 @@
 
 <tr>
  <td>The Rampart Checkpoint</td><td>crimson</td>
- <td class="infeasible">3/9</td>
- <td>4/9</td><td>5/9</td><td>6/9</td>
+ <td class="infeasible">3/12</td>
+ <td>5/12</td><td>6/12</td><td>8/12</td>
  <td class="infeasible">0/4</td>
- <td>1/4</td><td>2/4</td><td>28,882</td>
+ <td>0/4</td><td>0/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -162,8 +164,8 @@
 
 <tr>
  <td>Sirius Observatory Station</td><td>solarian</td>
- <td class="infeasible">6/9</td>
- <td>6/9</td><td>6/9</td><td>7/9</td>
+ <td class="infeasible">5/12</td>
+ <td>8/12</td><td>8/12</td><td>10/12</td>
  <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -173,10 +175,10 @@
 
 <tr>
  <td>War Citadel</td><td>crimson</td>
- <td class="infeasible">4/9</td>
- <td>5/9</td><td>6/9</td><td>6/9</td>
+ <td class="infeasible">8/12</td>
+ <td>8/12</td><td>8/12</td><td>8/12</td>
  <td class="infeasible">3/4</td>
- <td>28,882</td><td>28,882</td><td>28,882</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -184,8 +186,8 @@
 
 <tr>
  <td>Alpha Centauri Colonial Station</td><td>solarian</td>
- <td class="infeasible">3/9</td>
- <td>4/9</td><td>6/9</td><td>6/9</td>
+ <td class="infeasible">2/12</td>
+ <td>7/12</td><td>8/12</td><td>8/12</td>
  <td class="infeasible">2/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -195,10 +197,10 @@
 
 <tr>
  <td>Blood Forge Smelting Works</td><td>crimson</td>
- <td class="infeasible">3/9</td>
- <td>5/9</td><td>6/9</td><td>6/9</td>
+ <td class="infeasible">4/12</td>
+ <td>8/12</td><td>8/12</td><td>8/12</td>
  <td class="infeasible">0/4</td>
- <td>28,882</td><td>28,882</td><td>28,882</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -206,10 +208,10 @@
 
 <tr>
  <td>Deep Range Outpost</td><td>outerrim</td>
- <td class="infeasible">3/9</td>
- <td>3/9</td><td>4/9</td><td>5/9</td>
- <td class="infeasible">0/4</td>
- <td>0/4</td><td>1/4</td><td>28,736</td>
+ <td class="infeasible">3/12</td>
+ <td>3/12</td><td>3/12</td><td>6/12</td>
+ <td class="infeasible">1/4</td>
+ <td>1/4</td><td>2/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -217,10 +219,10 @@
 
 <tr>
  <td>Factory Belt Manufacturing Hub</td><td>nebula</td>
- <td class="infeasible">3/9</td>
- <td>4/9</td><td>7/9</td><td>7/9</td>
+ <td class="infeasible">5/12</td>
+ <td>6/12</td><td>9/12</td><td>9/12</td>
  <td class="infeasible">1/4</td>
- <td>2/4</td><td>30,315</td><td>30,315</td>
+ <td>1/4</td><td>2/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -228,10 +230,10 @@
 
 <tr>
  <td>First Step Memorial Station</td><td>outerrim</td>
- <td class="infeasible">3/9</td>
- <td>3/9</td><td>5/9</td><td>6/9</td>
- <td class="infeasible">1/4</td>
- <td>2/4</td><td>28,736</td><td>28,444</td>
+ <td class="infeasible">2/12</td>
+ <td>2/12</td><td>6/12</td><td>7/12</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -239,10 +241,10 @@
 
 <tr>
  <td>Gold Run Extraction Hub</td><td>nebula</td>
- <td class="infeasible">4/9</td>
- <td>4/9</td><td>7/9</td><td>7/9</td>
- <td class="infeasible">3/4</td>
- <td>3/4</td><td>30,573</td><td>30,573</td>
+ <td class="infeasible">3/12</td>
+ <td>6/12</td><td>8/12</td><td>9/12</td>
+ <td class="infeasible">2/4</td>
+ <td>2/4</td><td>2/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -250,10 +252,10 @@
 
 <tr>
  <td>Ramen&#39;s Rest</td><td>outerrim</td>
- <td class="infeasible">5/9</td>
- <td>5/9</td><td>5/9</td><td>6/9</td>
+ <td class="infeasible">5/12</td>
+ <td>6/12</td><td>6/12</td><td>7/12</td>
  <td class="infeasible">1/4</td>
- <td>2/4</td><td>2/4</td><td>28,444</td>
+ <td>2/4</td><td>2/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -261,8 +263,8 @@
 
 <tr>
  <td>Node Alpha Processing Station</td><td>voidborn</td>
- <td class="infeasible">2/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">4/12</td>
+ <td>6/12</td><td>6/12</td><td>6/12</td>
  <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -272,20 +274,9 @@
 
 <tr>
  <td>Node Gamma Relay Station</td><td>voidborn</td>
- <td class="infeasible">3/9</td>
- <td>4/9</td><td>5/9</td><td>5/9</td>
- <td class="infeasible">2/4</td>
- <td>2/4</td><td>3/4</td><td>3/4</td>
- <td>build_plasma_cannon_ii</td>
- <td class="">—</td>
- <td class="">—</td>
-</tr>
-
-<tr>
- <td>Nova Terra Central</td><td>solarian</td>
- <td class="infeasible">4/9</td>
- <td>6/9</td><td>6/9</td><td>7/9</td>
- <td class="infeasible">2/4</td>
+ <td class="infeasible">2/12</td>
+ <td>5/12</td><td>6/12</td><td>6/12</td>
+ <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
@@ -293,10 +284,10 @@
 </tr>
 
 <tr>
- <td>Procyon Colonial Station</td><td>solarian</td>
- <td class="infeasible">4/9</td>
- <td>4/9</td><td>7/9</td><td>7/9</td>
- <td class="infeasible">0/4</td>
+ <td>Nova Terra Central</td><td>solarian</td>
+ <td class="infeasible">5/12</td>
+ <td>7/12</td><td>8/12</td><td>10/12</td>
+ <td class="infeasible">2/4</td>
  <td>2/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
@@ -304,11 +295,22 @@
 </tr>
 
 <tr>
+ <td>Procyon Colonial Station</td><td>solarian</td>
+ <td class="infeasible">7/12</td>
+ <td>7/12</td><td>9/12</td><td>10/12</td>
+ <td class="infeasible">1/4</td>
+ <td>2/4</td><td>2/4</td><td>3/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
  <td>Starfall Salvage Station</td><td>outerrim</td>
- <td class="infeasible">3/9</td>
- <td>5/9</td><td>5/9</td><td>6/9</td>
- <td class="infeasible">0/4</td>
- <td>3/4</td><td>28,736</td><td>28,444</td>
+ <td class="infeasible">4/12</td>
+ <td>6/12</td><td>6/12</td><td>7/12</td>
+ <td class="infeasible">1/4</td>
+ <td>2/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -316,8 +318,8 @@
 
 <tr>
  <td>Synchrony Hub</td><td>voidborn</td>
- <td class="infeasible">3/9</td>
- <td>4/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">2/12</td>
+ <td>5/12</td><td>6/12</td><td>6/12</td>
  <td class="infeasible">1/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -327,10 +329,10 @@
 
 <tr>
  <td>The Anvil Arsenal</td><td>crimson</td>
- <td class="infeasible">2/9</td>
- <td>5/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">1/4</td>
- <td>28,882</td><td>28,882</td><td>28,882</td>
+ <td class="infeasible">5/12</td>
+ <td>8/12</td><td>8/12</td><td>8/12</td>
+ <td class="infeasible">0/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -338,10 +340,10 @@
 
 <tr>
  <td>The Crucible Garrison</td><td>crimson</td>
- <td class="infeasible">2/9</td>
- <td>5/9</td><td>6/9</td><td>6/9</td>
- <td class="infeasible">1/4</td>
- <td>2/4</td><td>28,882</td><td>28,882</td>
+ <td class="infeasible">4/12</td>
+ <td>6/12</td><td>8/12</td><td>8/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -349,9 +351,9 @@
 
 <tr>
  <td>The Experiment Research Station</td><td>voidborn</td>
- <td class="infeasible">1/9</td>
- <td>3/9</td><td>4/9</td><td>5/9</td>
- <td class="infeasible">2/4</td>
+ <td class="infeasible">2/12</td>
+ <td>4/12</td><td>5/12</td><td>6/12</td>
+ <td class="infeasible">3/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
@@ -360,10 +362,10 @@
 
 <tr>
  <td>The Levy Customs Station</td><td>nebula</td>
- <td class="infeasible">3/9</td>
- <td>3/9</td><td>5/9</td><td>7/9</td>
- <td class="infeasible">2/4</td>
- <td>2/4</td><td>3/4</td><td>30,573</td>
+ <td class="infeasible">3/12</td>
+ <td>3/12</td><td>6/12</td><td>9/12</td>
+ <td class="infeasible">1/4</td>
+ <td>1/4</td><td>2/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -371,10 +373,10 @@
 
 <tr>
  <td>Trader&#39;s Rest Resort Station</td><td>nebula</td>
- <td class="infeasible">2/9</td>
- <td>7/9</td><td>7/9</td><td>7/9</td>
+ <td class="infeasible">4/12</td>
+ <td>9/12</td><td>9/12</td><td>9/12</td>
  <td class="infeasible">1/4</td>
- <td>30,731</td><td>30,315</td><td>30,157</td>
+ <td>2/4</td><td>2/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -382,10 +384,10 @@
 
 <tr>
  <td>Treasure Cache Trading Post</td><td>nebula</td>
- <td class="infeasible">2/9</td>
- <td>4/9</td><td>4/9</td><td>7/9</td>
- <td class="infeasible">2/4</td>
- <td>2/4</td><td>2/4</td><td>30,315</td>
+ <td class="infeasible">2/12</td>
+ <td>6/12</td><td>6/12</td><td>9/12</td>
+ <td class="infeasible">0/4</td>
+ <td>1/4</td><td>1/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -393,10 +395,10 @@
 
 <tr>
  <td>Void Gate Outpost</td><td>outerrim</td>
- <td class="infeasible">2/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
- <td class="infeasible">1/4</td>
- <td>29,066</td><td>29,066</td><td>28,736</td>
+ <td class="infeasible">2/12</td>
+ <td>6/12</td><td>6/12</td><td>6/12</td>
+ <td class="infeasible">0/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -404,10 +406,10 @@
 
 <tr>
  <td>Crix Stronghold</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>0/9</td><td>0/9</td><td>0/9</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td class="infeasible">1/12</td>
+ <td>1/12</td><td>1/12</td><td>1/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -415,10 +417,10 @@
 
 <tr>
  <td>Sable Port</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>1/9</td><td>1/9</td><td>1/9</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td class="infeasible">1/12</td>
+ <td>1/12</td><td>1/12</td><td>1/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -426,10 +428,10 @@
 
 <tr>
  <td>Thane Keep</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>0/9</td><td>0/9</td><td>0/9</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td class="infeasible">0/12</td>
+ <td>0/12</td><td>0/12</td><td>0/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -437,10 +439,10 @@
 
 <tr>
  <td>Dross Citadel</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>2/9</td><td>2/9</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td class="infeasible">4/12</td>
+ <td>4/12</td><td>4/12</td><td>4/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -448,8 +450,8 @@
 
 <tr>
  <td>Nyx Nexus</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>0/9</td><td>0/9</td><td>0/9</td>
+ <td class="infeasible">2/12</td>
+ <td>2/12</td><td>2/12</td><td>2/12</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -459,10 +461,10 @@
 
 <tr>
  <td>Voss Redoubt</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>1/9</td><td>1/9</td><td>1/9</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td class="infeasible">2/12</td>
+ <td>2/12</td><td>2/12</td><td>2/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -470,8 +472,8 @@
 
 <tr>
  <td>Mera Sanctum</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>2/9</td><td>2/9</td><td>2/9</td>
+ <td class="infeasible">2/12</td>
+ <td>2/12</td><td>2/12</td><td>2/12</td>
  <td class="infeasible">1/4</td>
  <td>1/4</td><td>1/4</td><td>1/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -481,10 +483,10 @@
 
 <tr>
  <td>Ironhearth Station</td><td>crimson</td>
- <td class="infeasible">3/9</td>
- <td>3/9</td><td>5/9</td><td>6/9</td>
- <td class="infeasible">0/4</td>
- <td>1/4</td><td>28,882</td><td>28,882</td>
+ <td class="infeasible">4/12</td>
+ <td>6/12</td><td>8/12</td><td>8/12</td>
+ <td class="infeasible">1/4</td>
+ <td>1/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -492,10 +494,10 @@
 
 <tr>
  <td>Hex Star</td><td>Independent</td>
- <td class="infeasible">6/9</td>
- <td>6/9</td><td>7/9</td><td>7/9</td>
+ <td class="infeasible">6/12</td>
+ <td>6/12</td><td>9/12</td><td>9/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>0/4</td><td>3/4</td>
+ <td>0/4</td><td>1/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -503,10 +505,10 @@
 
 <tr>
  <td>Market Prime Exchange</td><td>nebula</td>
- <td class="infeasible">1/9</td>
- <td>7/9</td><td>7/9</td><td>7/9</td>
+ <td class="infeasible">3/12</td>
+ <td>8/12</td><td>9/12</td><td>9/12</td>
  <td class="infeasible">1/4</td>
- <td>30,573</td><td>30,573</td><td>30,573</td>
+ <td>2/4</td><td>2/4</td><td>2/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -514,8 +516,8 @@
 
 <tr>
  <td>Node Beta Industrial Station</td><td>voidborn</td>
- <td class="infeasible">3/9</td>
- <td>5/9</td><td>5/9</td><td>5/9</td>
+ <td class="infeasible">5/12</td>
+ <td>6/12</td><td>6/12</td><td>6/12</td>
  <td class="infeasible">0/4</td>
  <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -525,10 +527,10 @@
 
 <tr>
  <td>The Obsidian Well</td><td>Independent</td>
- <td class="infeasible">3/9</td>
- <td>3/9</td><td>3/9</td><td>4/9</td>
- <td class="infeasible">1/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td class="infeasible">4/12</td>
+ <td>4/12</td><td>4/12</td><td>5/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -536,10 +538,10 @@
 
 <tr>
  <td>The Veil Anchor</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>0/9</td><td>3/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>0/12</td><td>4/12</td><td>5/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -547,10 +549,10 @@
 
 <tr>
  <td>Korr Fortress</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>0/9</td><td>0/9</td><td>0/9</td>
- <td class="infeasible">2/4</td>
- <td>2/4</td><td>2/4</td><td>2/4</td>
+ <td class="infeasible">0/12</td>
+ <td>0/12</td><td>0/12</td><td>0/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -558,10 +560,10 @@
 
 <tr>
  <td>Ironlight Crossroads</td><td>Independent</td>
- <td class="infeasible">8/9</td>
- <td>8/9</td><td>8/9</td><td>8/9</td>
- <td class="infeasible">2/4</td>
- <td>2/4</td><td>2/4</td><td>2/4</td>
+ <td class="infeasible">11/12</td>
+ <td>11/12</td><td>11/12</td><td>11/12</td>
+ <td class="infeasible">3/4</td>
+ <td>3/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -569,10 +571,10 @@
 
 <tr>
  <td>The Zero Point Nexus</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>3/9</td><td>5/9</td>
+ <td class="infeasible">0/12</td>
+ <td>4/12</td><td>5/12</td><td>6/12</td>
  <td class="infeasible">0/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -580,10 +582,10 @@
 
 <tr>
  <td>Starlight Cartographer</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>2/12</td><td>4/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -591,10 +593,10 @@
 
 <tr>
  <td>Cryo Zenith</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>3/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>2/12</td><td>2/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>0/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -602,10 +604,10 @@
 
 <tr>
  <td>Private Rain</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">1/12</td>
+ <td>2/12</td><td>4/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -613,10 +615,10 @@
 
 <tr>
  <td>The Second Ledger</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>0/9</td><td>3/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>0/12</td><td>2/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>0/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -624,10 +626,10 @@
 
 <tr>
  <td>Ghost Runner Terminal</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>4/12</td><td>4/12</td><td>5/12</td>
  <td class="infeasible">0/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -635,10 +637,10 @@
 
 <tr>
  <td>The Deep Current</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>4/12</td><td>4/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -646,10 +648,10 @@
 
 <tr>
  <td>Echo Protocol Hub</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>3/9</td><td>3/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>2/12</td><td>2/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>0/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -657,8 +659,8 @@
 
 <tr>
  <td>Plasma Echo Station</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>3/9</td><td>3/9</td>
+ <td class="infeasible">0/12</td>
+ <td>2/12</td><td>2/12</td><td>3/12</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -668,10 +670,10 @@
 
 <tr>
  <td>The Whisper Point</td><td>Independent</td>
- <td class="infeasible">2/9</td>
- <td>3/9</td><td>3/9</td><td>4/9</td>
+ <td class="infeasible">2/12</td>
+ <td>2/12</td><td>2/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>0/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -679,10 +681,10 @@
 
 <tr>
  <td>The Hush Chamber</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>3/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>4/12</td><td>4/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>1/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -690,10 +692,10 @@
 
 <tr>
  <td>Stellar Leap Station</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>2/9</td><td>4/9</td><td>4/9</td>
+ <td class="infeasible">0/12</td>
+ <td>2/12</td><td>4/12</td><td>4/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>1/4</td><td>1/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -701,10 +703,10 @@
 
 <tr>
  <td>Event Horizon Relay</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>3/9</td><td>5/9</td><td>6/9</td>
+ <td class="infeasible">1/12</td>
+ <td>5/12</td><td>8/12</td><td>8/12</td>
  <td class="infeasible">0/4</td>
- <td>0/4</td><td>28,882</td><td>28,882</td>
+ <td>0/4</td><td>3/4</td><td>3/4</td>
  <td>build_plasma_cannon_ii</td>
  <td class="">—</td>
  <td class="">—</td>
@@ -712,8 +714,8 @@
 
 <tr>
  <td>Carnegie Hall</td><td>Independent</td>
- <td class="infeasible">1/9</td>
- <td>1/9</td><td>1/9</td><td>1/9</td>
+ <td class="infeasible">0/12</td>
+ <td>0/12</td><td>0/12</td><td>0/12</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -723,8 +725,74 @@
 
 <tr>
  <td>Hex Wellspring</td><td>Independent</td>
- <td class="infeasible">0/9</td>
- <td>0/9</td><td>0/9</td><td>0/9</td>
+ <td class="infeasible">2/12</td>
+ <td>2/12</td><td>2/12</td><td>2/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Woodstock</td><td>Independent</td>
+ <td class="infeasible">1/12</td>
+ <td>1/12</td><td>1/12</td><td>1/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Conjunction Junction</td><td>Independent</td>
+ <td class="infeasible">0/12</td>
+ <td>2/12</td><td>2/12</td><td>2/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Half Moon</td><td>Independent</td>
+ <td class="infeasible">1/12</td>
+ <td>1/12</td><td>1/12</td><td>2/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>1/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>Goldcrest Moon</td><td>Independent</td>
+ <td class="infeasible">0/12</td>
+ <td>0/12</td><td>4/12</td><td>5/12</td>
+ <td class="infeasible">0/4</td>
+ <td>0/4</td><td>0/4</td><td>0/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Full Moon</td><td>Independent</td>
+ <td class="infeasible">1/12</td>
+ <td>4/12</td><td>7/12</td><td>9/12</td>
+ <td class="infeasible">0/4</td>
+ <td>2/4</td><td>2/4</td><td>2/4</td>
+ <td>build_plasma_cannon_ii</td>
+ <td class="">—</td>
+ <td class="">—</td>
+</tr>
+
+<tr>
+ <td>The Crescent Moon</td><td>Independent</td>
+ <td class="infeasible">0/12</td>
+ <td>0/12</td><td>0/12</td><td>0/12</td>
  <td class="infeasible">0/4</td>
  <td>0/4</td><td>0/4</td><td>0/4</td>
  <td>build_plasma_cannon_ii</td>
@@ -735,6 +803,6 @@
 </tbody>
 </table>
 </div>
-<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-10-17 18:29 UTC</footer>
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #333;color:#888;font-size:0.85rem;text-align:center">Market data last updated: 2026-11-07 04:18 UTC</footer>
 </body>
 </html>
