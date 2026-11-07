@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/rsned/spacemolt-kb/internal/kbnav"
 )
 
 // DayReport holds all data needed to render a single day's diff page.
@@ -412,6 +414,11 @@ var templateFuncs = htmltpl.FuncMap{
 	},
 }
 
+// siteHeader is the shared KB header for pages in kb/diffs/.
+func siteHeader() htmltpl.HTML {
+	return htmltpl.HTML(kbnav.Header("../")) //nolint:gosec // site header, generated internally
+}
+
 // RenderDayReport renders a single day's diff report page as HTML.
 func RenderDayReport(day DayReport) (string, error) {
 	t, err := htmltpl.New("day").Funcs(templateFuncs).Parse(dayTemplate)
@@ -419,7 +426,10 @@ func RenderDayReport(day DayReport) (string, error) {
 		return "", fmt.Errorf("parse day template: %w", err)
 	}
 	var buf bytes.Buffer
-	if err := t.Execute(&buf, day); err != nil {
+	if err := t.Execute(&buf, struct {
+		DayReport
+		Header htmltpl.HTML
+	}{day, siteHeader()}); err != nil {
 		return "", fmt.Errorf("execute day template: %w", err)
 	}
 	return buf.String(), nil
@@ -432,7 +442,10 @@ func RenderIndex(days []IndexEntry) (string, error) {
 		return "", fmt.Errorf("parse index template: %w", err)
 	}
 	var buf bytes.Buffer
-	if err := t.Execute(&buf, days); err != nil {
+	if err := t.Execute(&buf, struct {
+		Days   []IndexEntry
+		Header htmltpl.HTML
+	}{days, siteHeader()}); err != nil {
 		return "", fmt.Errorf("execute index template: %w", err)
 	}
 	return buf.String(), nil
@@ -478,16 +491,7 @@ const dayTemplate = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-<header class="site-header">
-    <h1>Spacemolt KB</h1>
-    <nav>
-        <a href="../systems/">Systems</a>
-        <a href="../items/">Items</a>
-        <a href="../recipes/">Recipes</a>
-        <a href="../skills/">Skills</a>
-        <a href="../ships/">Ships</a>
-    </nav>
-</header>
+{{.Header}}
 <main class="container">
 <div class="diff-nav">
     <span>{{if .PrevDate}}<a href="{{.PrevDate}}.html">&larr; {{.PrevDate}}</a>{{else}}&nbsp;{{end}}</span>
@@ -533,7 +537,17 @@ const dayTemplate = `<!DOCTYPE html>
 </div>
 {{end}}
 </main>
-<script>document.documentElement.classList.add('dark');</script>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+    if (toggle) toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
+</script>
 </body>
 </html>`
 
@@ -546,16 +560,7 @@ const indexTemplate = `<!DOCTYPE html>
 <link rel="stylesheet" href="../smui.css">
 </head>
 <body>
-<header class="site-header">
-    <h1>Spacemolt KB</h1>
-    <nav>
-        <a href="../systems/">Systems</a>
-        <a href="../items/">Items</a>
-        <a href="../recipes/">Recipes</a>
-        <a href="../skills/">Skills</a>
-        <a href="../ships/">Ships</a>
-    </nav>
-</header>
+{{.Header}}
 <main class="container">
 <div class="page-content">
 <h2>Game Data Change Log</h2>
@@ -564,12 +569,22 @@ const indexTemplate = `<!DOCTYPE html>
 <table class="mt-2">
 <thead><tr><th>Date</th><th>Changes</th></tr></thead>
 <tbody>
-{{range .}}<tr><td><a href="{{.Date}}.html">{{.Date}}</a></td><td>{{.Summary}}</td></tr>
+{{range .Days}}<tr><td><a href="{{.Date}}.html">{{.Date}}</a></td><td>{{.Summary}}</td></tr>
 {{end}}
 </tbody>
 </table>
 </div>
 </main>
-<script>document.documentElement.classList.add('dark');</script>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+    if (toggle) toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
+</script>
 </body>
 </html>`

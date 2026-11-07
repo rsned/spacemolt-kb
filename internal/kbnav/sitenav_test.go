@@ -19,13 +19,9 @@ const headerMarker = `<header class="site-header">`
 // different nav vintages. Removing an entry here means migrating that
 // generator to Header and re-rendering its pages.
 //
-//	diffs/         pkg/gamediff/report.go — an older nav still. These are
-//	               historical snapshot reports; re-rendering them means a
-//	               57-date backfill (see the regeneration runbook), not a rerun.
 //	ships/glyphs/  cmd/generate-ship-glyphs/contactsheet.go — deliberately a
 //	               breadcrumb header, not the site nav. Arguably correct as is.
 var exemptSections = []string{
-	"diffs/",
 	"ships/glyphs/",
 }
 
