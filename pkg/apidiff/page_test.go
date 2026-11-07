@@ -68,3 +68,15 @@ func TestRenderIndex(t *testing.T) {
 		}
 	}
 }
+
+// .page-content zeroes .container's side padding when both sit on <main>,
+// which puts the report flush against the window edge.
+func TestRenderReportKeepsContainerGutter(t *testing.T) {
+	out, err := RenderReport(sampleStep(t), "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(out, `class="container page-content"`) || !strings.Contains(out, `<main class="container">`) {
+		t.Errorf("report <main> must be a bare container with page-content inside it")
+	}
+}

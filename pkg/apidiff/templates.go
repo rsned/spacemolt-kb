@@ -101,7 +101,8 @@ const reportTemplate = linesTemplate + `<!DOCTYPE html>
 </head>
 <body data-lang="go">
 {{.Header}}
-<main class="container page-content">
+<main class="container">
+<div class="page-content">
 <div class="diff-nav">
     <span>{{if .Prev}}<a href="{{.Prev}}.html">&larr; {{.Prev}}</a>{{else}}&nbsp;{{end}}</span>
     <a href="index.html">All Reports</a>
@@ -122,6 +123,7 @@ const reportTemplate = linesTemplate + `<!DOCTYPE html>
 {{range .Structural}}{{template "card" .}}{{end}}{{end}}
 {{if .Wording}}<h3 class="group">Wording only</h3>
 {{range .Wording}}{{template "card" .}}{{end}}{{end}}
+</div>
 </main>
 ` + themeScript + langScript + `
 </body>
