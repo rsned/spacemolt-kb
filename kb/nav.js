@@ -68,6 +68,10 @@
     {
       "path": "guides/index.html",
       "label": "Guides"
+    },
+    {
+      "path": "diffs/index.html",
+      "label": "Change Log"
     }
   ];
   var script = document.currentScript;
