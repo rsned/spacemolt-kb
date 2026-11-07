@@ -1,7 +1,9 @@
 package apidiff
 
 import (
+	"fmt"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -189,6 +191,30 @@ func TestCompareSameShapeRefNotRetype(t *testing.T) {
 			if f.Retyped {
 				t.Errorf("%s.%s retyped", d.Display(), f.Name)
 			}
+		}
+	}
+}
+
+func TestMatchOrderIsStable(t *testing.T) {
+	var ov, nv []string
+	for i := range 20 {
+		ov = append(ov, fmt.Sprintf(`{"type":"object","properties":{"o%d":{}}}`, i))
+		nv = append(nv, fmt.Sprintf(`{"type":"object","properties":{"n%d":{}}}`, i))
+	}
+	old := BuildModel(schemas(t, `{"X":{"oneOf":[`+strings.Join(ov, ",")+`]}}`))
+	new := BuildModel(schemas(t, `{"X":{"oneOf":[`+strings.Join(nv, ",")+`]}}`))
+	key := func(ps []Pair) string {
+		s := ""
+		for _, p := range ps {
+			s += fmt.Sprintf("%v/%v;", p.Old != nil, p.New != nil)
+
+		}
+		return s
+	}
+	first := key(Match(old, new))
+	for range 200 {
+		if got := key(Match(old, new)); got != first {
+			t.Fatalf("pair order changed between runs: %s vs %s", first, got)
 		}
 	}
 }

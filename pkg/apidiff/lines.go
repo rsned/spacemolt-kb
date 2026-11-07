@@ -79,10 +79,10 @@ func esc(s string) string { return htmltpl.HTMLEscapeString(s) }
 func span(class, s string) string { return `<span class="` + class + `">` + esc(s) + `</span>` }
 
 type renderer struct {
-	lang   Lang
-	owner  string // type name of the struct being rendered
-	nameW  int
-	typeW  int
+	lang  Lang
+	owner string // type name of the struct being rendered
+	nameW int
+	typeW int
 }
 
 func (r renderer) typeStr(t TypeRef, enumType string) string {

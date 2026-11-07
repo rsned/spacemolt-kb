@@ -167,7 +167,10 @@ func CompareStep(from, to Snapshot) Step {
 		if a.Structural() != b.Structural() {
 			return a.Structural()
 		}
-		return a.Display() < b.Display()
+		if a.Display() != b.Display() {
+			return a.Display() < b.Display()
+		}
+		return pairKey(a.Pair)+pairRank(a.Pair) < pairKey(b.Pair)+pairRank(b.Pair)
 	})
 	return st
 }

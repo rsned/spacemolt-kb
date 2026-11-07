@@ -90,10 +90,7 @@ func Match(old, new map[string]*Struct) []Pair {
 		if pairKey(a) != pairKey(b) {
 			return pairKey(a) < pairKey(b)
 		}
-		if a.Merged != b.Merged {
-			return !a.Merged
-		}
-		return a.Old != nil && b.Old != nil && a.Old.ID < b.Old.ID
+		return pairRank(a) < pairRank(b)
 	})
 	return pairs
 }
@@ -120,6 +117,21 @@ func bestMatch(o *Struct, new map[string]*Struct) *Struct {
 		}
 	}
 	return best
+}
+
+// pairRank orders pairs that share a key: removed, then matched, then new,
+// then merged copies by old ID. Every pair has a distinct rank, so the order
+// never depends on map iteration.
+func pairRank(p Pair) string {
+	switch {
+	case p.Merged:
+		return "3" + p.Old.ID
+	case p.New == nil:
+		return "0"
+	case p.Old == nil:
+		return "2"
+	}
+	return "1"
 }
 
 func pairKey(p Pair) string {
