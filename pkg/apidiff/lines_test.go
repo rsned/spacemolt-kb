@@ -141,3 +141,30 @@ func TestStructLinesUnion(t *testing.T) {
 		t.Errorf("no added Go union member:\n%s", dump(lines))
 	}
 }
+
+func TestStructLinesEnumRemovedEntirely(t *testing.T) {
+	d := onlyDiff(t, step(t, `{"G":{"type":"object","properties":{"s":{"type":"string","enum":["a","b"]}}}}`,
+		`{"G":{"type":"object","properties":{"s":{"type":"string"}}}}`))
+	for _, lang := range []Lang{"go", "ts"} {
+		lines := StructLines(d, lang)
+		for _, l := range lines {
+			p := plain(l)
+			if p == "export type =" || (strings.HasSuffix(p, `= "a"`) && !strings.HasPrefix(p, "GSA GS")) {
+				t.Errorf("%s: nameless enum line %q", lang, p)
+			}
+		}
+	}
+	ts := StructLines(d, "ts")
+	if !find(ts, LineDel, "s?: GS;") || !find(ts, LineAdd, "s?: string;") {
+		t.Errorf("enum removal should show the field as retyped:\n%s", dump(ts))
+	}
+}
+
+func TestStructLinesEnumAddedToField(t *testing.T) {
+	d := onlyDiff(t, step(t, `{"G":{"type":"object","properties":{"s":{"type":"string"}}}}`,
+		`{"G":{"type":"object","properties":{"s":{"type":"string","enum":["a"]}}}}`))
+	ts := StructLines(d, "ts")
+	if !find(ts, LineDel, "s?: string;") || !find(ts, LineAdd, "s?: GS;") || !find(ts, LineHdr, "export type GS =") {
+		t.Errorf("enum addition should show a del/add pair and a named block:\n%s", dump(ts))
+	}
+}

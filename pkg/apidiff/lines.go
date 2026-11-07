@@ -341,7 +341,11 @@ func StructLines(d StructDiff, lang Lang) []Line {
 }
 
 func (r renderer) enumBlock(fc FieldChange) []Line {
-	t := r.enumType(fc.New)
+	side := fc.New
+	if len(side.Enum) == 0 {
+		side = fc.Old // the enum was removed: name the block after the old type
+	}
+	t := r.enumType(side)
 	lines := []Line{{Kind: LineHdr, HTML: ""}}
 	if r.lang == LangGo {
 		lines = append(lines, Line{Kind: LineHdr, HTML: htmltpl.HTML(span("k", "const") + " (")}) //nolint:gosec // escaped parts

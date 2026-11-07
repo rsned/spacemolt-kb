@@ -14,6 +14,7 @@ type FieldChange struct {
 	Old, New               *Field
 	Retyped, Reword        bool
 	EnumAdded, EnumRemoved []string
+	enumFlip               bool // the field gained or lost its enum: counted once, as a retype
 }
 
 // Changed reports whether anything about the field changed.
@@ -126,8 +127,10 @@ func CompareStep(from, to Snapshot) Step {
 					if f.Reword {
 						c.Comments++
 					}
-					c.Additions += len(f.EnumAdded)
-					c.Removals += len(f.EnumRemoved)
+					if !f.enumFlip {
+						c.Additions += len(f.EnumAdded)
+						c.Removals += len(f.EnumRemoved)
+					}
 				}
 			}
 			oldSet := map[string]bool{}
@@ -141,6 +144,9 @@ func CompareStep(from, to Snapshot) Step {
 					d.MembersKept = append(d.MembersKept, displayOf(nm, m))
 					continue
 				}
+				if positional(m) {
+					continue // an inline variant is compared as a struct, not a union entry
+				}
 				d.MembersAdded = append(d.MembersAdded, displayOf(nm, m))
 				if newMatched[m] || nm[m] == nil {
 					c.Additions++
@@ -148,7 +154,7 @@ func CompareStep(from, to Snapshot) Step {
 			}
 			for _, m := range p.Old.Members {
 				id := mapID(m, oldToNew)
-				if newSet[id] {
+				if newSet[id] || positional(m) {
 					continue
 				}
 				d.MembersRemoved = append(d.MembersRemoved, displayOf(om, m))
@@ -200,7 +206,8 @@ func fieldChanges(old, new []Field, eq typeEq) []FieldChange {
 	for _, k := range sorted {
 		fc := FieldChange{Name: k, Old: om[k], New: nm[k]}
 		if fc.Old != nil && fc.New != nil {
-			fc.Retyped = fc.Old.Required != fc.New.Required || !eq.equal(fc.Old.Type, fc.New.Type)
+			fc.enumFlip = (len(fc.Old.Enum) > 0) != (len(fc.New.Enum) > 0)
+			fc.Retyped = fc.Old.Required != fc.New.Required || fc.enumFlip || !eq.equal(fc.Old.Type, fc.New.Type)
 			fc.Reword = norm(fc.Old.Desc) != norm(fc.New.Desc)
 			fc.EnumAdded = minus(fc.New.Enum, fc.Old.Enum)
 			fc.EnumRemoved = minus(fc.Old.Enum, fc.New.Enum)

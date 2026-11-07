@@ -1,6 +1,7 @@
 package apidiff
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
@@ -78,5 +79,23 @@ func TestRenderReportKeepsContainerGutter(t *testing.T) {
 	}
 	if strings.Contains(out, `class="container page-content"`) || !strings.Contains(out, `<main class="container">`) {
 		t.Errorf("report <main> must be a bare container with page-content inside it")
+	}
+}
+
+func TestRenderReportAnchorsUnique(t *testing.T) {
+	a := &Struct{ID: "X#v1", Display: "X (variant 1)", Fields: []Field{{Name: "a"}}}
+	b := &Struct{ID: "X#v1", Display: "X (variant 1)", Fields: []Field{{Name: "b"}}}
+	s := Step{From: "20260101", To: "20260102", Counts: Counts{Additions: 1, Removals: 1, Structs: 2},
+		Diffs: []StructDiff{{Pair: Pair{Old: a}}, {Pair: Pair{New: b}}}}
+	out, err := RenderReport(s, "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	seen := map[string]bool{}
+	for _, m := range regexp.MustCompile(`id="(s-[^"]*)"`).FindAllStringSubmatch(out, -1) {
+		if seen[m[1]] {
+			t.Errorf("duplicate anchor %s", m[1])
+		}
+		seen[m[1]] = true
 	}
 }

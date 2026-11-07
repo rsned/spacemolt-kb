@@ -218,3 +218,36 @@ func TestMatchOrderIsStable(t *testing.T) {
 		}
 	}
 }
+
+func TestCompareVariantTiePrefersSameID(t *testing.T) {
+	s := step(t, `{"B":{"oneOf":[{"type":"object","properties":{"p":{},"q":{}}}]},
+		"A":{"type":"object","properties":{"s":{"type":"array","items":{"type":"object","properties":{"p":{},"q":{}}}}}}}`,
+		`{"B":{"oneOf":[{"type":"object","properties":{"p":{},"q":{}}}]},"Z":{"type":"object","properties":{"p":{},"q":{}}},
+		"A":{"type":"object","properties":{"s":{"type":"array","items":{"$ref":"#/components/schemas/Z"}}}}}`)
+	if s.Counts.Structs != 0 {
+		for _, d := range s.Diffs {
+			t.Errorf("spurious diff %q old=%v new=%v m+%v m-%v", d.Display(), d.Old != nil, d.New != nil, d.MembersAdded, d.MembersRemoved)
+		}
+	}
+}
+
+func TestCompareVariantGainingFieldsShowsFields(t *testing.T) {
+	s := step(t, `{"X":{"oneOf":[{"type":"object","properties":{"a":{},"b":{},"c":{},"d":{}}}]}}`,
+		`{"X":{"oneOf":[{"type":"object","properties":{"a":{},"b":{},"c":{},"d":{},"e":{},"f":{}}}]}}`)
+	if len(s.Diffs) != 1 || s.Diffs[0].Old == nil || s.Diffs[0].New == nil {
+		t.Fatalf("want one matched variant, got %d diffs", len(s.Diffs))
+	}
+	if s.Counts.Additions != 2 || len(s.Diffs[0].MembersAdded)+len(s.Diffs[0].MembersRemoved) != 0 {
+		t.Errorf("counts %+v", s.Counts)
+	}
+}
+
+func TestComparePositionalMembersNoUnionEntry(t *testing.T) {
+	s := step(t, `{"X":{"oneOf":[{"type":"object","properties":{"a":{}}}]}}`,
+		`{"X":{"oneOf":[{"type":"object","properties":{"a":{}}},{"type":"object","properties":{"z":{}}}]}}`)
+	for _, d := range s.Diffs {
+		if len(d.MembersAdded)+len(d.MembersRemoved) > 0 {
+			t.Errorf("%s lists positional members %v %v", d.Display(), d.MembersAdded, d.MembersRemoved)
+		}
+	}
+}

@@ -178,6 +178,11 @@ func (b *builder) typeOf(n any, id, display string) TypeRef {
 		}
 		return TypeRef{Kind: KindRef, Ref: r, Nullable: m["nullable"] == true}
 	}
+	if other, ok := nullUnion(m); ok {
+		tr := b.typeOf(other, id, display)
+		tr.Nullable = true
+		return tr
+	}
 	t, nullable := baseType(m)
 	var tr TypeRef
 	switch {
@@ -199,6 +204,23 @@ func (b *builder) typeOf(n any, id, display string) TypeRef {
 	}
 	tr.Nullable = nullable
 	return tr
+}
+
+// nullUnion recognises the 3.1 idiom anyOf/oneOf [T, {type: null}] and
+// returns T.
+func nullUnion(m map[string]any) (any, bool) {
+	for _, key := range []string{"anyOf", "oneOf"} {
+		list, _ := m[key].([]any)
+		if len(list) != 2 {
+			continue
+		}
+		for i, x := range list {
+			if xm, ok := x.(map[string]any); ok && len(xm) == 1 && xm["type"] == "null" {
+				return list[1-i], true
+			}
+		}
+	}
+	return nil, false
 }
 
 func baseType(m map[string]any) (string, bool) {

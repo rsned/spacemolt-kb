@@ -53,6 +53,12 @@ func Match(old, new map[string]*Struct) []Pair {
 		if a.score != b.score {
 			return a.score > b.score
 		}
+		if x, y := a.o.ID == a.n.ID, b.o.ID == b.n.ID; x != y {
+			return x
+		}
+		if x, y := parentOf(a.o.ID) == parentOf(a.n.ID), parentOf(b.o.ID) == parentOf(b.n.ID); x != y {
+			return x
+		}
 		if a.n.ID != b.n.ID {
 			return a.n.ID < b.n.ID
 		}
@@ -60,6 +66,41 @@ func Match(old, new map[string]*Struct) []Pair {
 	})
 	usedO, usedN := map[*Struct]bool{}, map[*Struct]bool{}
 	for _, c := range cands {
+		if usedO[c.o] || usedN[c.n] {
+			continue
+		}
+		usedO[c.o], usedN[c.n] = true, true
+		pairs = append(pairs, Pair{Old: c.o, New: c.n})
+	}
+	// A variant that changed too much to reach nearMatch is still the same
+	// variant when a leftover under the same parent has the same title or
+	// shares any fields.
+	var vc []cand
+	for _, n := range newLeft {
+		for _, o := range oldLeft {
+			if usedN[n] || usedO[o] || !positional(n.ID) || !positional(o.ID) || parentOf(n.ID) != parentOf(o.ID) {
+				continue
+			}
+			s := jaccard(o, n)
+			if o.Display == n.Display {
+				s++
+			}
+			if s > 0 {
+				vc = append(vc, cand{s, o, n})
+			}
+		}
+	}
+	sort.Slice(vc, func(i, j int) bool {
+		a, b := vc[i], vc[j]
+		if a.score != b.score {
+			return a.score > b.score
+		}
+		if a.n.ID != b.n.ID {
+			return a.n.ID < b.n.ID
+		}
+		return a.o.ID < b.o.ID
+	})
+	for _, c := range vc {
 		if usedO[c.o] || usedN[c.n] {
 			continue
 		}
@@ -98,6 +139,18 @@ func Match(old, new map[string]*Struct) []Pair {
 // positional reports whether an ID depends on a variant's position, which
 // shifts between snapshots; those structs match by fields only.
 func positional(id string) bool { return strings.Contains(id, "#v") }
+
+// parentOf is the ID a variant or nested object hangs off: "P" for "P#v3",
+// "P.items[]" for "P.items[]#v1", "P" for "P.x".
+func parentOf(id string) string {
+	if i := strings.LastIndex(id, "#v"); i >= 0 {
+		return id[:i]
+	}
+	if i := strings.LastIndex(id, "."); i >= 0 {
+		return id[:i]
+	}
+	return id
+}
 
 // inline reports whether an ID names an inline object rather than a schema.
 func inline(id string) bool { return strings.ContainsAny(id, ".#") }

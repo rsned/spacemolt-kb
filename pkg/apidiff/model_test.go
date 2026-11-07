@@ -124,3 +124,15 @@ func TestBuildModelRequiredAndMapOnly(t *testing.T) {
 		t.Errorf("map-only schema should not be a struct")
 	}
 }
+
+func TestBuildModelNullableRefUnion(t *testing.T) {
+	m := BuildModel(schemas(t, `{"X":{"type":"object","properties":{"a":{}}},
+		"P":{"type":"object","properties":{"m":{"anyOf":[{"$ref":"#/components/schemas/X"},{"type":"null"}]}}}}`))
+	f := field(t, m["P"], "m").Type
+	if f.Kind != KindRef || f.Ref != "X" || !f.Nullable {
+		t.Errorf("m = %+v, want nullable ref X", f)
+	}
+	if _, ok := m["P.m"]; ok {
+		t.Errorf("nullable ref became a struct")
+	}
+}

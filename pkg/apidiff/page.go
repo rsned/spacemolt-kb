@@ -141,8 +141,13 @@ var funcs = htmltpl.FuncMap{
 // neighbouring reports, or "".
 func RenderReport(s Step, prev, next string) (string, error) {
 	var structural, wording []card
+	used := map[string]int{}
 	for _, d := range s.Diffs {
-		c := card{Anchor: anchor(d.Display()), Title: d.Display(), Tags: tagsFor(d), Go: StructLines(d, LangGo), TS: StructLines(d, LangTS)}
+		a := anchor(d.Display())
+		if used[a]++; used[a] > 1 {
+			a = fmt.Sprintf("%s-%d", a, used[a])
+		}
+		c := card{Anchor: a, Title: d.Display(), Tags: tagsFor(d), Go: StructLines(d, LangGo), TS: StructLines(d, LangTS)}
 		if d.Structural() {
 			structural = append(structural, c)
 		} else {
