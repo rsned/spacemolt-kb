@@ -72,6 +72,10 @@
     {
       "path": "diffs/index.html",
       "label": "Change Log"
+    },
+    {
+      "path": "api-diffs/index.html",
+      "label": "API Changes"
     }
   ];
   var script = document.currentScript;

@@ -1,0 +1,142 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Changes &mdash; August 1, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+:root {
+  --ad-add-bg: #e4f6e6; --ad-add-fg: #17602b; --ad-add-mark: #b5e8bd;
+  --ad-del-bg: #fde8e8; --ad-del-fg: #9b2226; --ad-del-mark: #f9c4c4;
+  --ad-mod-bg: #fdf1d8; --ad-mod-fg: #7a5400;
+  --ad-k: #7a3e9d; --ad-t: #1f6d7a; --ad-s: #8a5a00; --ad-c: #5e6977;
+}
+html.dark {
+  --ad-add-bg: #1c3a27; --ad-add-fg: #9fe0ae; --ad-add-mark: #2d6a40;
+  --ad-del-bg: #43232a; --ad-del-fg: #f4b1b1; --ad-del-mark: #7c3540;
+  --ad-mod-bg: #40351c; --ad-mod-fg: #efcf85;
+  --ad-k: #c8a2e6; --ad-t: #86d0dc; --ad-s: #e3c07c; --ad-c: #94a0b1;
+}
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a, .toc a, .intro a { color: hsl(var(--primary)); }
+.summary, .note { color: hsl(var(--muted-foreground)); font-size: var(--text-ui); margin: 0.5rem 0; }
+.bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 0.6rem 1.25rem; align-items: center; justify-content: space-between;
+  background: hsl(var(--card)); border: 1px solid hsl(var(--border)); padding: 0.5rem 0.75rem; margin: 1rem 0; }
+.seg { display: inline-flex; border: 1px solid hsl(var(--border)); }
+.seg button { font: inherit; font-size: var(--text-ui); padding: 0.3rem 0.85rem; background: none; color: hsl(var(--muted-foreground)); border: 0; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+.seg button:focus-visible, summary:focus-visible, .toc a:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; font-size: var(--text-label); color: hsl(var(--muted-foreground)); }
+.legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.legend i { width: 0.9rem; height: 0.9rem; border: 1px solid hsl(var(--border)); display: inline-block; }
+.i-add { background: var(--ad-add-bg); } .i-del { background: var(--ad-del-bg); }
+.i-mark { background: linear-gradient(90deg, var(--ad-del-mark) 50%, var(--ad-add-mark) 50%); }
+.toc { list-style: none; padding: 0; margin: 0 0 1rem; display: grid; gap: 0.3rem; font-size: var(--text-ui); }
+.toc li { display: flex; flex-wrap: wrap; gap: 0.3rem 0.6rem; align-items: baseline; }
+h3.group { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1.75rem 0 0.5rem; }
+.card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); margin: 1rem 0; min-width: 0; }
+.card header { display: flex; flex-wrap: wrap; gap: 0.4rem 0.75rem; justify-content: space-between; align-items: baseline; padding: 0.65rem 0.85rem; }
+.card h4 { font-size: var(--text-ui); font-weight: 600; margin: 0; overflow-wrap: anywhere; }
+.tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.tag { font-size: var(--text-label); padding: 0.05rem 0.45rem; }
+.tag.add, .tag.new { background: var(--ad-add-bg); color: var(--ad-add-fg); }
+.tag.del { background: var(--ad-del-bg); color: var(--ad-del-fg); }
+.tag.mod { background: var(--ad-mod-bg); color: var(--ad-mod-fg); }
+.code { overflow-x: auto; border-top: 1px solid hsl(var(--border)); font-size: var(--text-label); line-height: 1.6; }
+.lines { display: inline-block; min-width: 100%; padding: 0.3rem 0; }
+.l, .code summary { display: flex; white-space: pre; }
+.g { flex: none; width: 1.9rem; text-align: center; color: hsl(var(--muted-foreground)); user-select: none; }
+.x { flex: 1; padding-right: 1rem; }
+.l.add { background: var(--ad-add-bg); } .l.add .g { color: var(--ad-add-fg); font-weight: 600; }
+.l.del { background: var(--ad-del-bg); } .l.del .g { color: var(--ad-del-fg); font-weight: 600; }
+.k { color: var(--ad-k); } .t { color: var(--ad-t); } .s { color: var(--ad-s); } .c { color: var(--ad-c); }
+.l.add .c, .l.del .c { color: hsl(var(--foreground)); }
+mark { color: inherit; padding: 0 0.12em; }
+.l.add mark { background: var(--ad-add-mark); } .l.del mark { background: var(--ad-del-mark); }
+details.fold { border-top: 1px dashed hsl(var(--border)); border-bottom: 1px dashed hsl(var(--border)); }
+.code summary { cursor: pointer; color: hsl(var(--muted-foreground)); list-style: none; }
+.code summary::-webkit-details-marker { display: none; }
+.code summary:hover { color: hsl(var(--primary)); }
+body[data-lang="go"] .ts, body[data-lang="ts"] .go { display: none; }
+</style>
+</head>
+<body data-lang="go">
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../nav.js" defer></script>
+    </header>
+<main class="container">
+<div class="page-content">
+<div class="diff-nav">
+    <span><a href="2026-07-26.html">&larr; 2026-07-26</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-08-15.html">2026-08-15 &rarr;</a></span>
+</div>
+<h2>API Changes &mdash; August 1, 2026 vs July 26, 2026</h2>
+<p class="summary">5 additions, 1 comment across 2 structs.</p>
+<p class="note">Structs here are generated from the server's OpenAPI spec, so names and types may differ from <code>serverapi</code>. Unchanged fields are folded; click a fold to open it.</p>
+<div class="bar">
+    <div class="seg" role="group" aria-label="Language">
+        <button type="button" data-l="go" aria-pressed="true">Go</button>
+        <button type="button" data-l="ts" aria-pressed="false">TypeScript</button>
+    </div>
+    <div class="legend"><span><i class="i-add"></i>added</span><span><i class="i-del"></i>removed</span><span><i class="i-mark"></i>changed words</span></div>
+</div>
+<ul class="toc"><li><a class="toc-link" href="#s-BattleSummaryResponse">BattleSummaryResponse</a><span class="tag add">&#43;1 field</span></li><li><a class="toc-link" href="#s-FacilityFactionEntry">FacilityFactionEntry</a><span class="tag add">&#43;1 field</span><span class="tag add">&#43;3 enum values</span><span class="tag mod">1 description</span></li></ul>
+<h3 class="group">Structural changes</h3>
+<article class="card" id="s-BattleSummaryResponse"><header><h4>BattleSummaryResponse</h4><div class="tags"><span class="tag add">&#43;1 field</span></div></header>
+<div class="code go"><div class="lines"><div class="l hdr"><span class="g"> </span><span class="x"><span class="k">type</span> <span class="t">BattleSummaryResponse</span> <span class="k">struct</span> {</span></div><details class="fold"><summary><span class="g">⋯</span><span class="x">3 unchanged fields</span></summary><div class="l"><span class="g"> </span><span class="x">    <span class="n">BattleID        </span> <span class="t">string             </span> <span class="s">`json:&#34;battle_id&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">Category        </span> <span class="t">string             </span> <span class="s">`json:&#34;category,omitempty&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">DestroyedNames  </span> <span class="t">[]string           </span> <span class="s">`json:&#34;destroyed_names,omitempty&#34;`</span></span></div></details><div class="l "><span class="g"> </span><span class="x">    <span class="n">DurationTicks   </span> <span class="t">int                </span> <span class="s">`json:&#34;duration_ticks&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">EndedAt         </span> <span class="t">string             </span> <span class="s">`json:&#34;ended_at,omitempty&#34;`</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="n">HasStation      </span> <span class="t">bool               </span> <span class="s">`json:&#34;has_station&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">OriginPOI       </span> <span class="t">string             </span> <span class="s">`json:&#34;origin_poi,omitempty&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">Outcome         </span> <span class="t">string             </span> <span class="s">`json:&#34;outcome&#34;`</span></span></div><details class="fold"><summary><span class="g">⋯</span><span class="x">11 unchanged fields</span></summary><div class="l"><span class="g"> </span><span class="x">    <span class="n">ParticipantCount</span> <span class="t">int                </span> <span class="s">`json:&#34;participant_count&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">PlayerNames     </span> <span class="t">[]string           </span> <span class="s">`json:&#34;player_names,omitempty&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">ShipsDestroyed  </span> <span class="t">int                </span> <span class="s">`json:&#34;ships_destroyed&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">Sides           </span> <span class="t">[]BattleSideSummary</span> <span class="s">`json:&#34;sides&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">StartTick       </span> <span class="t">int                </span> <span class="s">`json:&#34;start_tick&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">Status          </span> <span class="t">string             </span> <span class="s">`json:&#34;status&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">SystemID        </span> <span class="t">string             </span> <span class="s">`json:&#34;system_id&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">SystemName      </span> <span class="t">string             </span> <span class="s">`json:&#34;system_name&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">TopDamage       </span> <span class="t">*BattleTopDamage   </span> <span class="s">`json:&#34;top_damage,omitempty&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">TotalDamage     </span> <span class="t">int                </span> <span class="s">`json:&#34;total_damage&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">WinningSide     </span> <span class="t">int                </span> <span class="s">`json:&#34;winning_side&#34;`</span></span></div></details><div class="l hdr"><span class="g"> </span><span class="x">}</span></div></div></div><div class="code ts"><div class="lines"><div class="l hdr"><span class="g"> </span><span class="x"><span class="k">export interface</span> <span class="t">BattleSummaryResponse</span> {</span></div><details class="fold"><summary><span class="g">⋯</span><span class="x">3 unchanged fields</span></summary><div class="l"><span class="g"> </span><span class="x">    <span class="n">battle_id</span>: <span class="t">string</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">category?</span>: <span class="t">string</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">destroyed_names?</span>: <span class="t">string[]</span>;</span></div></details><div class="l "><span class="g"> </span><span class="x">    <span class="n">duration_ticks</span>: <span class="t">number</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">ended_at?</span>: <span class="t">string</span>;</span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="n">has_station</span>: <span class="t">boolean</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">origin_poi?</span>: <span class="t">string</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">outcome</span>: <span class="t">string</span>;</span></div><details class="fold"><summary><span class="g">⋯</span><span class="x">11 unchanged fields</span></summary><div class="l"><span class="g"> </span><span class="x">    <span class="n">participant_count</span>: <span class="t">number</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">player_names?</span>: <span class="t">string[]</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">ships_destroyed</span>: <span class="t">number</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">sides</span>: <span class="t">BattleSideSummary[]</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">start_tick</span>: <span class="t">number</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">status</span>: <span class="t">string</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">system_id</span>: <span class="t">string</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">system_name</span>: <span class="t">string</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">top_damage?</span>: <span class="t">BattleTopDamage</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">total_damage</span>: <span class="t">number</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">winning_side</span>: <span class="t">number</span>;</span></div></details><div class="l hdr"><span class="g"> </span><span class="x">}</span></div></div></div></article>
+<article class="card" id="s-FacilityFactionEntry"><header><h4>FacilityFactionEntry</h4><div class="tags"><span class="tag add">&#43;1 field</span><span class="tag add">&#43;3 enum values</span><span class="tag mod">1 description</span></div></header>
+<div class="code go"><div class="lines"><div class="l hdr"><span class="g"> </span><span class="x"><span class="k">type</span> <span class="t">FacilityFactionEntry</span> <span class="k">struct</span> {</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">Capacity          </span> <span class="t">int                       </span> <span class="s">`json:&#34;capacity,omitempty&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">CustomName        </span> <span class="t">string                    </span> <span class="s">`json:&#34;custom_name,omitempty&#34;`</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// Set when this facility was knocked out in battle. It does nothing until repaired</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// (facility action repair).</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="n">Damaged           </span> <span class="t">bool                      </span> <span class="s">`json:&#34;damaged,omitempty&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">FacilityID        </span> <span class="t">string                    </span> <span class="s">`json:&#34;facility_id&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">FactionService    </span> <span class="t">string                    </span> <span class="s">`json:&#34;faction_service&#34;`</span></span></div><details class="fold"><summary><span class="g">⋯</span><span class="x">3 unchanged fields</span></summary><div class="l"><span class="g"> </span><span class="x">    <span class="n">Level             </span> <span class="t">int                       </span> <span class="s">`json:&#34;level&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">MissedRentCycles  </span> <span class="t">int                       </span> <span class="s">`json:&#34;missed_rent_cycles,omitempty&#34;`</span></span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">Name              </span> <span class="t">string                    </span> <span class="s">`json:&#34;name&#34;`</span></span></div></details><div class="l "><span class="g"> </span><span class="x">    <span class="n">RentPerCycle      </span> <span class="t">int                       </span> <span class="s">`json:&#34;rent_per_cycle&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">RentalFeePerRun   </span> <span class="t">int                       </span> <span class="s">`json:&#34;rental_fee_per_run,omitempty&#34;`</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// Only active facilities produce or provide their service; damaged ones need facility</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// action repair.</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">Status            </span> <span class="t">FacilityFactionEntryStatus</span> <span class="s">`json:&#34;status&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">TicksUntilComplete</span> <span class="t">int                       </span> <span class="s">`json:&#34;ticks_until_complete,omitempty&#34;`</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">Type              </span> <span class="t">string                    </span> <span class="s">`json:&#34;type&#34;`</span></span></div><div class="l hdr"><span class="g"> </span><span class="x">}</span></div><div class="l hdr"><span class="g"> </span><span class="x"></span></div><div class="l hdr"><span class="g"> </span><span class="x"><span class="k">const</span> (</span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="n">FacilityFactionEntryStatusUnderConstruction</span> <span class="t">FacilityFactionEntryStatus</span> = <span class="s">&#34;under_construction&#34;</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="n">FacilityFactionEntryStatusDamaged</span> <span class="t">FacilityFactionEntryStatus</span> = <span class="s">&#34;damaged&#34;</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="n">FacilityFactionEntryStatusActive</span> <span class="t">FacilityFactionEntryStatus</span> = <span class="s">&#34;active&#34;</span></span></div><div class="l hdr"><span class="g"> </span><span class="x">)</span></div></div></div><div class="code ts"><div class="lines"><div class="l hdr"><span class="g"> </span><span class="x"><span class="k">export interface</span> <span class="t">FacilityFactionEntry</span> {</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">capacity?</span>: <span class="t">number</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">custom_name?</span>: <span class="t">string</span>;</span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// Set when this facility was knocked out in battle. It does nothing until repaired</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// (facility action repair).</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="n">damaged?</span>: <span class="t">boolean</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">facility_id</span>: <span class="t">string</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">faction_service</span>: <span class="t">string</span>;</span></div><details class="fold"><summary><span class="g">⋯</span><span class="x">3 unchanged fields</span></summary><div class="l"><span class="g"> </span><span class="x">    <span class="n">level</span>: <span class="t">number</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">missed_rent_cycles?</span>: <span class="t">number</span>;</span></div><div class="l"><span class="g"> </span><span class="x">    <span class="n">name</span>: <span class="t">string</span>;</span></div></details><div class="l "><span class="g"> </span><span class="x">    <span class="n">rent_per_cycle</span>: <span class="t">number</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">rental_fee_per_run?</span>: <span class="t">number</span>;</span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// Only active facilities produce or provide their service; damaged ones need facility</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    <span class="c">// action repair.</span></span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">status</span>: <span class="t">FacilityFactionEntryStatus</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">ticks_until_complete?</span>: <span class="t">number</span>;</span></div><div class="l "><span class="g"> </span><span class="x">    <span class="n">type</span>: <span class="t">string</span>;</span></div><div class="l hdr"><span class="g"> </span><span class="x">}</span></div><div class="l hdr"><span class="g"> </span><span class="x"></span></div><div class="l hdr"><span class="g"> </span><span class="x"><span class="k">export type</span> <span class="t">FacilityFactionEntryStatus</span> =</span></div><div class="l add"><span class="g">&#43;</span><span class="x">    | <span class="s">&#34;under_construction&#34;</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    | <span class="s">&#34;damaged&#34;</span></span></div><div class="l add"><span class="g">&#43;</span><span class="x">    | <span class="s">&#34;active&#34;</span></span></div><div class="l hdr"><span class="g"> </span><span class="x">;</span></div></div></div></article>
+
+
+</div>
+</main>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+    if (toggle) toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
+</script><script>
+(function() {
+    var buttons = document.querySelectorAll('.seg button');
+    function set(l) {
+        document.body.dataset.lang = l;
+        buttons.forEach(function(b) { b.setAttribute('aria-pressed', b.dataset.l === l ? 'true' : 'false'); });
+        try { localStorage.setItem('api-diffs-lang', l); } catch (e) {}
+    }
+    buttons.forEach(function(b) { b.addEventListener('click', function() { set(b.dataset.l); }); });
+    try { var s = localStorage.getItem('api-diffs-lang'); if (s === 'go' || s === 'ts') set(s); } catch (e) {}
+})();
+</script>
+</body>
+</html>
