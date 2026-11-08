@@ -877,6 +877,12 @@ target than its neighbours, and keep a repair reserve on site.</p>
 <a href="../facilities/defense/fire_control_center.html">Fire Control Center</a>; shield 12,000, the base value. Battery capacity is still 0.</p>
 <p><strong>What we know so far:</strong></p>
 <ul>
+<li><strong>Defense facilities stack.</strong> Every defense facility can be built more than once, and
+each copy adds to the station's guns, shields or armor (<em>player-reported</em>). So a station
+grows its defense by adding copies as well as by upgrading. On the public stations list
+(<code>/api/stations</code>, 2026-11-08), 63 of 97 stations show <code>weapon_dps</code> above 0: all 42 empire
+stations and 21 player stations. Player stations range from 30 (ours, one L1 battery) to
+914, with 242 the most common value.</li>
 <li>Guns fire ammunition from faction storage: <a href="../items/ammo/ferrous_slug_case.html">Ferrous Slug Case</a> for the point defense
 battery, <a href="../items/ammo/armor_piercing_rounds_box.html">Armor Piercing Rounds Box</a> for the turret, <a href="../items/ammo/fragmentation_rounds_box.html">Fragmentation Rounds Box</a> for the
 heavy battery. All three are hand recipes.</li>
@@ -890,6 +896,154 @@ feed its power grid (<code>generator</code>), burning 1 ship fuel a tick for up 
 which charges batteries and powers shields and guns. The outerrim <strong>Jump Start</strong> (T2,
 1,200 fuel) is built for it, with a +100% generator output bonus (<em>doc-quoted</em>).</li>
 </ul>
+<p><strong>The reference build: Ironlight Crossroads</strong> (Ironlight Combine, LHS 1140). Its builders
+were wiped out by pirate raids early on, said &quot;never again&quot;, and went all in on defense
+(<em>player-reported</em>). Its public listing (<code>/api/stations/&lt;id&gt;</code>, 2026-11-08) shows what
+stacking adds up to: hull 345,000, shield 193,000, armor 600, <code>weapon_dps</code> 914, reach 3, from
+42 defense facilities:</p>
+<table>
+<thead>
+<tr>
+<th>Count</th>
+<th>Facility</th>
+<th>Level</th>
+<th>Role</th>
+<th>Credits each¹</th>
+<th>Power each</th>
+<th>Upkeep each / cycle</th>
+<th>Ammo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10×</td>
+<td><a href="../facilities/defense/siege_lance.html">Siege Lance</a></td>
+<td>L3</td>
+<td>Gun, reach 3</td>
+<td>2,600,000</td>
+<td>14</td>
+<td>5 <a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td>
+<td><a href="../items/ammo/focused_plasma_cell_pack.html">Focused Plasma Cell Pack</a></td>
+</tr>
+<tr>
+<td>1×</td>
+<td><a href="../facilities/defense/heavy_defense_battery.html">Heavy Defense Battery</a></td>
+<td>L3</td>
+<td>Gun, reach 3</td>
+<td>2,000,000</td>
+<td>8</td>
+<td>3 <a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td>
+<td><a href="../items/ammo/fragmentation_rounds_box.html">Fragmentation Rounds Box</a></td>
+</tr>
+<tr>
+<td>4×</td>
+<td><a href="../facilities/defense/station_defense_turret.html">Station Defense Turret</a></td>
+<td>L2</td>
+<td>Gun, reach 2</td>
+<td>600,000</td>
+<td>4</td>
+<td>2 <a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td>
+<td><a href="../items/ammo/armor_piercing_rounds_box.html">Armor Piercing Rounds Box</a></td>
+</tr>
+<tr>
+<td>8×</td>
+<td><a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a></td>
+<td>L1</td>
+<td>Gun, reach 1</td>
+<td>180,000</td>
+<td>2</td>
+<td>1 <a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td>
+<td><a href="../items/ammo/ferrous_slug_case.html">Ferrous Slug Case</a></td>
+</tr>
+<tr>
+<td>7×</td>
+<td><a href="../facilities/defense/shield_projector.html">Shield Projector</a></td>
+<td>L1</td>
+<td>Shield</td>
+<td>900,000</td>
+<td>10</td>
+<td>4 <a href="../items/component/power_cell.html">Power Cell</a>, 2 <a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td>
+<td>—</td>
+</tr>
+<tr>
+<td>1×</td>
+<td><a href="../facilities/defense/shield_bastion.html">Shield Bastion</a></td>
+<td>L2</td>
+<td>Shield</td>
+<td>4,100,000</td>
+<td>26</td>
+<td>10 <a href="../items/component/power_cell.html">Power Cell</a>, 5 <a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td>
+<td>—</td>
+</tr>
+<tr>
+<td>3×</td>
+<td><a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a></td>
+<td>L1</td>
+<td>Armor</td>
+<td>700,000</td>
+<td>—</td>
+<td>1 <a href="../items/component/armor_plate.html">Armor Plate</a></td>
+<td>—</td>
+</tr>
+<tr>
+<td>3×</td>
+<td><a href="../facilities/defense/bulwark_plating.html">Bulwark Plating</a></td>
+<td>L2</td>
+<td>Armor</td>
+<td>3,500,000</td>
+<td>—</td>
+<td>2 <a href="../items/component/armor_plate.html">Armor Plate</a></td>
+<td>—</td>
+</tr>
+<tr>
+<td>3×</td>
+<td><a href="../facilities/defense/automated_repair_dock.html">Automated Repair Dock</a></td>
+<td>L1</td>
+<td>Hull repair between fights</td>
+<td>1,100,000</td>
+<td>6</td>
+<td>1 <a href="../items/component/power_cell.html">Power Cell</a></td>
+<td>—</td>
+</tr>
+<tr>
+<td>1×</td>
+<td><a href="../facilities/defense/damage_control_center.html">Damage Control Center</a></td>
+<td>L2</td>
+<td>Damage control</td>
+<td>2,400,000</td>
+<td>—</td>
+<td>3 <a href="../items/consumable/repair_kit.html">Repair Kit</a></td>
+<td>—</td>
+</tr>
+<tr>
+<td>1×</td>
+<td><a href="../facilities/defense/fire_control_center.html">Fire Control Center</a></td>
+<td>L1</td>
+<td>Gun accuracy</td>
+<td>1,200,000</td>
+<td>—</td>
+<td>2 <a href="../items/refined/circuit_board.html">Circuit Board</a></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>42</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td><strong>≈ 61.7M total</strong></td>
+<td><strong>294 total</strong></td>
+<td>88 coolant, 41 power cells, 9 armor plate, 3 repair kits, 2 circuit boards</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>¹ Catalog credit cost, including the lower levels an upgrade is built from (a turret is a
+point defense battery plus its 420,000 upgrade). Build materials come on top.</p>
+<p>What carries it is everything behind the guns: 6 <a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>, 5
+<a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a>, 3 <a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a> and a <a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a> for power,
+3 <a href="../facilities/infrastructure/capacitor_bank.html">Capacitor Bank</a> for storage, 26 <a href="../facilities/infrastructure/atmospheric_recycler.html">Atmospheric Recycler</a> plus 4 <a href="../facilities/infrastructure/climate_control_array.html">Climate Control Array</a>
+for life support, and its own ammunition lines. Power and life support, not credits, are what
+cap how many defenses a station can run.</p>
 <p><strong>Not yet measured:</strong> how much ammunition a fight uses; what fire control changes in
 numbers; shield and battery behaviour under fire; how fast a wrecked station repairs.</p>
 <h2 id="tourism">Tourism</h2>
@@ -923,6 +1077,8 @@ with a lifetime <strong><code>tourism_revenue</code></strong> in credits (the pl
 upkeep lists are long: the Dockside Diner alone takes seven different items a cycle
 (<a href="../items/consumable/algae_wafer.html">Algae Wafer</a>, <a href="../items/consumable/crimson_iron_rations.html">Crimson Iron Rations</a>, <a href="../items/refined/purified_water.html">Purified Water</a>, <a href="../items/consumable/frontier_hash.html">Frontier Hash</a>,
 <a href="../items/consumable/station_seltzer.html">Station Seltzer</a>, <a href="../items/consumable/sustagel_bowl.html">Sustagel Bowl</a>, <a href="../items/consumable/vat_protein_loaf.html">Vat Protein Loaf</a>). Line up the supply first.</p>
+<p>For scale: Ironlight Crossroads, with 6 dining and 6 leisure points from seven venues, shows
+a lifetime <code>tourism_revenue</code> of <strong>17,002,924 cr</strong> on its public listing (2026-11-08).</p>
 <p><strong>Not yet measured:</strong> where tourism revenue comes from and whether it reaches the treasury;
 how <code>tourism_upkeep</code> scales with visitors; what dining and leisure points do beyond revenue.</p>
 <h2 id="where-the-official-docs-are-wrong">Where the official docs are wrong</h2>

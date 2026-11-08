@@ -464,6 +464,12 @@ target than its neighbours, and keep a repair reserve on site.
 [[fire_control_center]]; shield 12,000, the base value. Battery capacity is still 0.
 
 **What we know so far:**
+- **Defense facilities stack.** Every defense facility can be built more than once, and
+  each copy adds to the station's guns, shields or armor (*player-reported*). So a station
+  grows its defense by adding copies as well as by upgrading. On the public stations list
+  (`/api/stations`, 2026-11-08), 63 of 97 stations show `weapon_dps` above 0: all 42 empire
+  stations and 21 player stations. Player stations range from 30 (ours, one L1 battery) to
+  914, with 242 the most common value.
 - Guns fire ammunition from faction storage: [[ferrous_slug_case]] for the point defense
   battery, [[armor_piercing_rounds_box]] for the turret, [[fragmentation_rounds_box]] for the
   heavy battery. All three are hand recipes.
@@ -476,6 +482,36 @@ target than its neighbours, and keep a repair reserve on site.
   feed its power grid (`generator`), burning 1 ship fuel a tick for up to 360 ticks per link,
   which charges batteries and powers shields and guns. The outerrim **Jump Start** (T2,
   1,200 fuel) is built for it, with a +100% generator output bonus (*doc-quoted*).
+
+**The reference build: Ironlight Crossroads** (Ironlight Combine, LHS 1140). Its builders
+were wiped out by pirate raids early on, said "never again", and went all in on defense
+(*player-reported*). Its public listing (`/api/stations/<id>`, 2026-11-08) shows what
+stacking adds up to: hull 345,000, shield 193,000, armor 600, `weapon_dps` 914, reach 3, from
+42 defense facilities:
+
+| Count | Facility | Level | Role | Credits each¹ | Power each | Upkeep each / cycle | Ammo |
+|---|---|---|---|---|---|---|---|
+| 10× | [[siege_lance]] | L3 | Gun, reach 3 | 2,600,000 | 14 | 5 [[coolant_fluid]] | [[focused_plasma_cell_pack]] |
+| 1× | [[heavy_defense_battery]] | L3 | Gun, reach 3 | 2,000,000 | 8 | 3 [[coolant_fluid]] | [[fragmentation_rounds_box]] |
+| 4× | [[station_defense_turret]] | L2 | Gun, reach 2 | 600,000 | 4 | 2 [[coolant_fluid]] | [[armor_piercing_rounds_box]] |
+| 8× | [[point_defense_battery]] | L1 | Gun, reach 1 | 180,000 | 2 | 1 [[coolant_fluid]] | [[ferrous_slug_case]] |
+| 7× | [[shield_projector]] | L1 | Shield | 900,000 | 10 | 4 [[power_cell]], 2 [[coolant_fluid]] | — |
+| 1× | [[shield_bastion]] | L2 | Shield | 4,100,000 | 26 | 10 [[power_cell]], 5 [[coolant_fluid]] | — |
+| 3× | [[reinforced_plating]] | L1 | Armor | 700,000 | — | 1 [[armor_plate]] | — |
+| 3× | [[bulwark_plating]] | L2 | Armor | 3,500,000 | — | 2 [[armor_plate]] | — |
+| 3× | [[automated_repair_dock]] | L1 | Hull repair between fights | 1,100,000 | 6 | 1 [[power_cell]] | — |
+| 1× | [[damage_control_center]] | L2 | Damage control | 2,400,000 | — | 3 [[repair_kit]] | — |
+| 1× | [[fire_control_center]] | L1 | Gun accuracy | 1,200,000 | — | 2 [[circuit_board]] | — |
+| **42** | | | | **≈ 61.7M total** | **294 total** | 88 coolant, 41 power cells, 9 armor plate, 3 repair kits, 2 circuit boards | |
+
+¹ Catalog credit cost, including the lower levels an upgrade is built from (a turret is a
+point defense battery plus its 420,000 upgrade). Build materials come on top.
+
+What carries it is everything behind the guns: 6 [[bunker_fed_reactor]], 5
+[[fuel_cell_generator]], 3 [[stellar_collector_grid]] and a [[dark_matter_reactor]] for power,
+3 [[capacitor_bank]] for storage, 26 [[atmospheric_recycler]] plus 4 [[climate_control_array]]
+for life support, and its own ammunition lines. Power and life support, not credits, are what
+cap how many defenses a station can run.
 
 **Not yet measured:** how much ammunition a fight uses; what fire control changes in
 numbers; shield and battery behaviour under fire; how fast a wrecked station repairs.
@@ -498,6 +534,9 @@ with a lifetime **`tourism_revenue`** in credits (the play_as client prints them
 upkeep lists are long: the Dockside Diner alone takes seven different items a cycle
 ([[algae_wafer]], [[crimson_iron_rations]], [[purified_water]], [[frontier_hash]],
 [[station_seltzer]], [[sustagel_bowl]], [[vat_protein_loaf]]). Line up the supply first.
+
+For scale: Ironlight Crossroads, with 6 dining and 6 leisure points from seven venues, shows
+a lifetime `tourism_revenue` of **17,002,924 cr** on its public listing (2026-11-08).
 
 **Not yet measured:** where tourism revenue comes from and whether it reaches the treasury;
 how `tourism_upkeep` scales with visitors; what dining and leisure points do beyond revenue.
