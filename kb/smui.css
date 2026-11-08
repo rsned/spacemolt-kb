@@ -332,6 +332,21 @@ body.nav-open .site-nav {
   text-decoration: none;
 }
 
+.site-nav a.nav-sub {
+  padding: 0.3rem 1.5rem 0.3rem 2.6rem;
+  font-size: 13px;
+}
+
+.site-nav hr.nav-divider {
+  border: 0;
+  border-top: 1px solid hsl(var(--border));
+  margin: 0.6rem 1.5rem;
+}
+
+.site-nav a[aria-current="true"] {
+  color: hsl(var(--foreground));
+}
+
 .site-nav a[aria-current="page"] {
   color: hsl(var(--foreground));
   font-weight: 600;

@@ -73,3 +73,75 @@ func TestCommittedNavScriptMatchesItems(t *testing.T) {
 		t.Error("kb/nav.js does not match kbnav.Items; run `go run ./cmd/generate-nav` and commit kb/nav.js")
 	}
 }
+
+func TestNavScriptListsChildren(t *testing.T) {
+	js := NavScript()
+	n := 0
+	for _, it := range Items {
+		for _, c := range it.Children {
+			n++
+			if !strings.Contains(js, `"path": "`+c.Path+`"`) || !strings.Contains(js, `"label": "`+c.Label+`"`) {
+				t.Errorf("nav.js missing sub-entry %q (%s) under %q", c.Label, c.Path, it.Label)
+			}
+		}
+	}
+	if n != 8 {
+		t.Errorf("got %d sub-entries, want 8", n)
+	}
+	if !strings.Contains(js, `"path": "recipes/where.html"`) {
+		t.Error("Where Can I Make This? missing from the drawer")
+	}
+	if !strings.Contains(js, "nav-sub") || !strings.Contains(js, "nav-divider") {
+		t.Error("nav.js does not render sub-entries or the divider")
+	}
+}
+
+// The divider splits the sections that have a card on the home page (Guides
+// excepted, by the owner's call) from the other pages.
+func TestDividerFollowsHomeCards(t *testing.T) {
+	home, err := os.ReadFile(filepath.Join(locateKBDir(t), "index.html")) //nolint:gosec // test-only read of repo output
+	if err != nil {
+		t.Fatal(err)
+	}
+	dividers, above, below := 0, map[string]bool{}, map[string]bool{}
+	for _, it := range Items {
+		if it.Divider {
+			dividers++
+		}
+		if it.Slug == "" {
+			continue
+		}
+		if dividers == 0 {
+			above[it.Slug] = true
+		} else {
+			below[it.Slug] = true
+		}
+	}
+	if dividers != 1 {
+		t.Fatalf("want exactly one divider, got %d", dividers)
+	}
+	for slug := range above {
+		if !strings.Contains(string(home), `<a href="`+slug+`/index.html" class="cat"`) {
+			t.Errorf("%s is above the divider but has no home page card", slug)
+		}
+	}
+	for slug := range below {
+		if slug != "guides" && strings.Contains(string(home), `<a href="`+slug+`/index.html" class="cat"`) {
+			t.Errorf("%s has a home page card but is below the divider", slug)
+		}
+	}
+}
+
+func TestSubEntryPagesExist(t *testing.T) {
+	kb := locateKBDir(t)
+	for _, it := range Items {
+		for _, c := range it.Children {
+			if !strings.HasPrefix(c.Path, it.Slug+"/") {
+				t.Errorf("%q (%s) is not inside its section %q", c.Label, c.Path, it.Slug)
+			}
+			if _, err := os.Stat(filepath.Join(kb, c.Path)); err != nil {
+				t.Errorf("%q: %v", c.Label, err)
+			}
+		}
+	}
+}
