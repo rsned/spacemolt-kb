@@ -440,3 +440,33 @@ func withoutScripts(html string) string {
 		html = html[:i] + html[i+j+len("</script>"):]
 	}
 }
+
+// A step whose title names its job ("Personal storage") leads with that job,
+// then the facility: the heading reads "Personal storage - Locker Bay" and the
+// TOC and upkeep labels use the title.
+func TestGenerate_StepLeadsWithTitle(t *testing.T) {
+	dir := t.TempDir()
+	guide := "---\ntitle: Shed\nsteps:\n  - title: Personal storage\n    facility: locker_bay\n---\n"
+	if err := os.WriteFile(filepath.Join(dir, "shed.md"), []byte(guide), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	if _, err := generate(dir, testSnapshots(t), out); err != nil {
+		t.Fatal(err)
+	}
+	b, _ := os.ReadFile(filepath.Join(out, "shed.html"))
+	html := string(b)
+	for _, want := range []string{"<h3>Step 0: Personal storage - ", ">Step 0: Personal storage<", "After Step 0: Personal storage"} {
+		if !strings.Contains(html, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+	if strings.Contains(html, ">Step 0: Locker Bay<") {
+		t.Error("TOC still labels the step by facility name")
+	}
+	h3 := html[strings.Index(html, "<h3>Step 0:"):]
+	h3 = h3[:strings.Index(h3, "</h3>")]
+	if !strings.Contains(h3, "Locker Bay") || !strings.Contains(h3, "(locker_bay)") {
+		t.Errorf("heading should name the facility and its id: %s", h3)
+	}
+}

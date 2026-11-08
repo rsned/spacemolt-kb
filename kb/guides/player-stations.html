@@ -1,6 +1,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,6 +29,7 @@
         .guide-main ul, .guide-main ol { padding-left: 1.4em; }
         .guide-main li { margin: .35em 0; }
         .guide-main .breadcrumb { font-size: 14px; margin-bottom: 1em; }
+        .fac-id { font-size: .7em; font-weight: 400; color: hsl(var(--muted-foreground)); }
         .guide-title { font-size: 2.35rem; line-height: 1.2; margin: 0 0 .4em; }
         .guide-lede { font-size: 1.1em; color: hsl(var(--muted-foreground)); margin-bottom: 2em !important; }
         .guide-main h2 { font-size: 1.75rem; line-height: 1.3; margin: 3.2em 0 .9em; padding-top: 1.2em; border-top: 1px solid hsl(var(--border)); }
@@ -44,6 +47,8 @@
         .fact { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 20px; padding: 12px 0; border-bottom: 1px solid hsl(var(--border)); }
         .fact dt { color: hsl(var(--muted-foreground)); font-size: .9em; white-space: nowrap; }
         .fact dd b { font-weight: 600; }
+        .upkeep .pool { margin: .5em 0 0; }
+        .upkeep .pool .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
         .fact .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
         .upkeep, .measured { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--smui-yellow) / .06); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 0 0 1.4em; }
         .measured { border-left-color: hsl(var(--smui-green)); background: hsl(var(--smui-green) / .06); font-size: .9em; }
@@ -137,23 +142,30 @@
             <a href="#top">Introduction</a>
             <div class="toc-group">Build order</div>
             <a class="sub" href="#step-0">Step 0: Found the station</a>
-            <a class="sub" href="#step-1">Step 1: Locker Bay</a>
-            <a class="sub" href="#step-2">Step 2: Faction Workshop</a>
-            <a class="sub" href="#step-3">Step 3: Refueling Dock</a>
-            <a class="sub" href="#step-4">Step 4: Fuel Tank Expansion</a>
-            <a class="sub" href="#step-5">Step 5: Trade Concourse</a>
-            <a class="sub" href="#step-6">Step 6: Atmospheric Recycler</a>
-            <a class="sub" href="#step-7">Step 7: Stellar Collector Grid</a>
-            <a class="sub" href="#step-8">Step 8: Outfitting Bay</a>
-            <a class="sub" href="#step-9">Step 9: Repair Slip</a>
-            <a class="sub" href="#step-10">Step 10: Reclamation Dock</a>
-            <a class="sub" href="#step-11">Step 11: Contract Terminal</a>
-            <a class="sub" href="#step-12">Step 12: First Aid Ward</a>
-            <a class="sub" href="#step-13">Step 13: Crew Registry</a>
-            <a class="sub" href="#step-14">Step 14: Security Training Post</a>
+            <a class="sub" href="#step-1">Step 1: Personal storage</a>
+            <a class="sub" href="#step-2">Step 2: Crafting</a>
+            <a class="sub" href="#step-3">Step 3: Life Support</a>
+            <a class="sub" href="#step-4">Step 4: Power</a>
+            <a class="sub" href="#step-5">Step 5: Refuel service</a>
+            <a class="sub" href="#step-6">Step 6: Market</a>
+            <a class="sub" href="#step-7">Step 7: Shipyard</a>
+            <a class="sub" href="#step-8">Step 8: Repair</a>
+            <a class="sub" href="#step-9">Step 9: Salvage yard</a>
+            <a class="sub" href="#step-10">Step 10: Missions</a>
+            <a class="sub" href="#step-11">Step 11: Medical</a>
+            <a class="sub" href="#step-12">Step 12: Personnel</a>
+            <a class="sub" href="#step-13">Step 13: Marine training</a>
+            <a class="sub" href="#step-14">Step 14: Fuel storage</a>
+            <a class="sub" href="#step-15">Step 15: Ship garage</a>
+            <a class="sub" href="#step-16">Step 16: Recruitment</a>
+            <a class="sub" href="#step-17">Step 17: Storage buckets</a>
+            <a class="sub" href="#step-18">Step 18: Point defense</a>
+            <a class="sub" href="#step-19">Step 19: Armor plating</a>
+            <a class="sub" href="#step-20">Step 20: Fire control</a>
             <a href="#reading-your-station">Reading your station</a>
             <a href="#station-administration">Station administration</a>
             <a href="#what-you-can-build-here">What you can build here</a>
+            <a href="#moving-a-facility">Moving a facility</a>
             <a href="#where-the-official-docs-are-wrong">Where the official docs are wrong</a>
             <a href="#not-yet-measured">Not yet measured</a>
         </nav>
@@ -166,13 +178,19 @@
 and a market other pilots can use if your station sits on a crossroads.</p>
 <p>The official guides leave the important parts out: what a new station actually comes with,
 what each facility consumes to keep running, and in what order to build. This guide records
-what we measured while founding <strong>Conjunction Junction</strong> in Cloverfield on 2026-10-25.
+what we measured while founding <strong>Conjunction Junction</strong> in Cloverfield on 2026-10-25, and
+while running it since (last updated 2026-11-08: 24 faction facilities, condition
+<code>thriving</code>, 8 of 8 counted facilities satisfied).
 Build costs and upkeep below come from the game catalog. Our own observations are labelled
 <em>measured</em>, other players' reports <em>player-reported</em>, and the official docs <em>doc-quoted</em>.</p>
 <blockquote>
-<p><strong>The one rule:</strong> a facility whose upkeep isn't in faction storage stops working, and one
-unsatisfied facility takes the whole station from <code>thriving</code> to <code>critical</code> (<em>measured</em>).
-Stock every input <strong>before</strong> the build finishes.</p>
+<p><strong>The one rule:</strong> stock every facility's upkeep in faction storage <strong>before</strong> the build
+finishes. A facility short of upkeep doesn't stop outright: it drops into a reduced
+operating mode (for example running at half speed) and its description switches to its
+<em>degraded</em> text. The station's condition steps down gradually with the share of
+facilities left unsatisfied (<em>measured</em>: one unpaid dock out of four took us from
+<code>thriving</code> to <code>operational</code>). On a young station with only one or two facilities, that
+one shortfall is most of the station, which is how ours hit <code>critical</code> (<em>measured</em>).</p>
 </blockquote>
 </div>
         <h2 id="build-order">Build order</h2>
@@ -189,20 +207,23 @@ any other faction facility&quot; rule: <code>faction_build</code> works straight
             <div class="so-far" data-step="0" title="Open station upkeep">Station so far: 0 upkeep items, 0 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-1">
-            <h3>Step 1: <a href="../facilities/service/locker_bay.html">Locker Bay</a> <small class="text-muted">Personal storage</small></h3>
+            <h3>Step 1: Personal storage - <a href="../facilities/service/locker_bay.html">Locker Bay</a> <code class="fac-id">(locker_bay)</code></h3>
             <p class="step-gives">service: storage</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 1,600 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table></div>
             <p>Adds personal storage for anyone docked. At your own station rent is <strong>0</strong>, and the build
 gave <strong>750 corporation_management XP to every faction member</strong> (<em>measured</em>).</p>
-<p>⚠ We built it with no <a href="../items/refined/flex_polymer.html">Flex Polymer</a> in faction storage, and the station went
-<code>critical</code> with zero services as soon as it finished (<em>measured</em>). Deposit a few days of
+<p><strong>What we learned building it first:</strong> we built it with no <a href="../items/refined/flex_polymer.html">Flex Polymer</a> in faction
+storage, and <code>get_base</code> read <code>critical</code> with zero services (<code>satisfied_count 0 / total_service_infra 1</code>). That wasn't the station collapsing: the Locker Bay was the
+only facility counted, so one unpaid facility was 100% of the station. Once its upkeep
+arrived it read <code>thriving</code>, 1 of 1 (<em>measured</em> 2026-10-26). With more facilities, the
+same shortfall costs a step of condition, not the whole station. Deposit a few days of
 <a href="../items/refined/flex_polymer.html">Flex Polymer</a> and <a href="../items/refined/steel_plate.html">Steel Plate</a> first.</p>
 
             <div class="so-far" data-step="1" title="Open station upkeep">Station so far: 2 upkeep items, 2 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-2">
-            <h3>Step 2: <a href="../facilities/service/faction_workshop.html">Faction Workshop</a> <small class="text-muted">Crafting</small></h3>
+            <h3>Step 2: Crafting - <a href="../facilities/service/faction_workshop.html">Faction Workshop</a> <code class="fac-id">(faction_workshop)</code></h3>
             <p class="step-gives">service: crafting</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 800 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr></table></div>
@@ -215,105 +236,71 @@ where those come from before building it.</p>
 
             <div class="so-far" data-step="2" title="Open station upkeep">Station so far: 4 upkeep items, 4 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-3">
-            <h3>Step 3: <a href="../facilities/service/refueling_dock.html">Refueling Dock</a> <small class="text-muted">Refuel service</small></h3>
-            <p class="step-gives">service: refuel</p>
-            <p class="step-build"><b>Build:</b> 500,000 cr + 2,000 <a href="../items/consumable/fuel_cell.html">Fuel Cell</a> + 800 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
-            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr></table></div>
-            <p>Third, because everyone needs fuel: your own miners and haulers working out of the
-station, and every pilot passing through. Faction members draw from the shared tank for
-free; everyone else pays your station price (set with <code>station set_refuel_price</code>). Until
-fuel production comes online, keep the tank filled by tankers depositing fuel from their
-own tanks (storage deposit, <code>item_id=fuel</code>). Its upkeep is
-<a href="../items/consumable/fuel_cell.html">Fuel Cell</a> and <a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a>, so plan both supplies before it finishes.</p>
-<p>Until a refuel service exists, ships docked at your station can't refuel at all; the
-server's message (<code>no_fuel_source … insufficient credits for station refueling</code>) is
-misleading, because credits are not the problem (<em>measured</em>).</p>
-
-            <div class="so-far" data-step="3" title="Open station upkeep">Station so far: 6 upkeep items, 7 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
-        </section>
-        <section class="step-card" id="step-4">
-            <h3>Step 4: <a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a> <small class="text-muted">Fuel storage</small></h3>
-            <p class="step-build"><b>Build:</b> 500,000 cr + 1,500 <a href="../items/refined/ceramite_plating.html">Ceramite Plating</a> + 800 <a href="../items/component/fuel_tank.html">Fuel Tank</a> + 8,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
-            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr></table></div>
-            <p>⚠ <strong>Don't build a <a href="../facilities/faction/faction_fuel_bunker.html">Faction Fuel Bunker</a> here.</strong> At your own station the server refuses
-it: <em>&quot;a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
-would just sit unused. Build a Fuel Tank Expansion … instead&quot;</em> (<em>measured</em> 2026-10-26).</p>
-<p>Each expansion adds 50,000 to the station's own shared tank (the bare station tank holds
-200), and you can build several. Fill it from fuel-production facilities or by depositing
-a docked ship's fuel (storage deposit, <code>item_id=fuel</code>). With <code>station set_auto_buy_fuel</code>
-on, visiting pilots can sell fuel into the tank too, paid from the treasury.
-Whether the expansions feed the refueling dock's 5,000-unit tank is <em>not yet measured</em>.</p>
-
-            <div class="so-far" data-step="4" title="Open station upkeep">Station so far: 6 upkeep items, 12 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
-        </section>
-        <section class="step-card" id="step-5">
-            <h3>Step 5: <a href="../facilities/service/trade_concourse.html">Trade Concourse</a> <small class="text-muted">Market</small></h3>
-            <p class="step-gives">service: market</p>
-            <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/refined/circuit_board.html">Circuit Board</a> · 100 ticks</p>
-            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr></table></div>
-            <p>The rest of a full station is its <strong>services</strong>. A mature station lists eleven:
-<code>crafting</code>, <code>marine_training</code>, <code>market</code>, <code>medical</code>, <code>missions</code>, <code>personnel</code>, <code>refuel</code>,
-<code>repair</code>, <code>salvage_yard</code>, <code>shipyard</code> and <code>storage</code> (<em>player-reported</em>). Each has a level-1
-facility a player station can build.</p>
-<p>The market comes right after fuel because it starts the station earning: crossroads
-traffic trades here, and you set the listing fee they pay with
-<code>station set_market_fee</code>. Its upkeep is one <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> a cycle, so find a
-source before you build.</p>
-
-            <div class="so-far" data-step="5" title="Open station upkeep">Station so far: 7 upkeep items, 13 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
-        </section>
-        <div class="step-break"><p><strong>Next: production support.</strong> With storage, crafting, fuel and a market in place, we
-switch from basic services to power and life support, the two things production
-facilities need, so production lines can start moving to the station.</p>
+        <div class="step-break"><p><strong>Next: production support.</strong> With storage and crafting in place, build life support
+and power, the two things production facilities need, so production lines (including
+the fuel combustor that fills the refuel tank) can start moving to the station.</p>
 </div>
-        <section class="step-card" id="step-6">
-            <h3>Step 6: <a href="../facilities/infrastructure/atmospheric_recycler.html">Atmospheric Recycler</a> <small class="text-muted">Life support</small></h3>
+        <section class="step-card" id="step-3">
+            <h3>Step 3: Life Support - <a href="../facilities/infrastructure/atmospheric_recycler.html">Atmospheric Recycler</a> <code class="fac-id">(atmospheric_recycler)</code></h3>
             <p class="step-gives">life support &#43;12</p>
             <p class="step-build"><b>Build:</b> 600,000 cr + 1,200 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 200 <a href="../items/component/water_recycler.html">Water Recycler</a> · 150 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table></div>
             <p>The heaviest upkeep of the early build: five different inputs every cycle.
 <a href="../items/ore/water_ice.html">Water Ice</a> is usually mineable nearby (Cloverfield has an ice field); plan a supply of
-the other four before you build. Other players build it third (<em>player-reported</em>); we
-build it after the market, together with power, because the two of them are what
-production facilities need: this is where more advanced crafting and processing can
-move to the station.</p>
+the other four before you build. Other players build it third (<em>player-reported</em>); so do
+we, together with power, because the two of them are what production facilities need:
+this is where more advanced crafting and processing can move to the station. (We
+actually built the refueling dock first, and its empty tank had to wait for both.)</p>
+<p><strong>Stock all five before it finishes, and keep them stocked.</strong> If one input runs out, the
+plant goes <code>starved</code> and the station drops to <code>operational</code>. <code>get_base</code> then shows a
+<code>life_support.starved</code> list naming <strong>every</strong> upkeep input, not just the missing one, so
+check faction storage for the real gap. Ours was oxygen. After a restock, the plant only
+recovers at its next maintenance check: ours went from <code>starved</code> to <code>thriving</code> within about
+60 ticks, taking just the 1 oxygen it still owed (<em>measured</em> 2026-10-27).</p>
+<p>Without it, production is refused outright: <em>&quot;no_life_support: This station has no life
+support yet. Build a life support facility (faction_build) before adding facilities that
+draw life support.&quot;</em> (<em>measured</em> 2026-10-27, building an <a href="../facilities/production/h2_fuel_combustor.html">H2 Fuel Combustor</a>).</p>
 <p>There is no other level-1 life-support facility a player station can build. The
 recycler upgrades to <a href="../facilities/infrastructure/climate_control_array.html">Climate Control Array</a> (life support 20), <a href="../facilities/infrastructure/biosphere_ring.html">Biosphere Ring</a> (35)
 and <a href="../facilities/infrastructure/full_habitat_dome.html">Full Habitat Dome</a> (60).</p>
+<p><strong>Upgrade, don't stack.</strong> When you need more life support, upgrade toward the
+<a href="../facilities/infrastructure/full_habitat_dome.html">Full Habitat Dome</a> rather than building more recyclers. One station that stacked
+recyclers spends roughly twice the consumables of a few domes for the same life support
+(<em>player-reported</em>). The upgrades cost more credits up front, but upkeep never stops, so
+the domes come out ahead over time.</p>
 
-            <div class="so-far" data-step="6" title="Open station upkeep">Station so far: 12 upkeep items, 21 units/cycle · power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="3" title="Open station upkeep">Station so far: 9 upkeep items, 12 units/cycle · power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-7">
-            <h3>Step 7: <span class="opt-name" data-step="7" data-opt="stellar_collector_grid"><a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a></span><span class="opt-name" data-step="7" data-opt="fuel_cell_generator" hidden><a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a></span><span class="opt-name" data-step="7" data-opt="bunker_fed_reactor" hidden><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a></span><span class="opt-name" data-step="7" data-opt="scrap_reactor" hidden><a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a></span><span class="opt-name" data-step="7" data-opt="dark_matter_reactor" hidden><a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a></span> <small class="text-muted">Power</small></h3>
+        <section class="step-card" id="step-4">
+            <h3>Step 4: Power - <span class="opt-name" data-step="4" data-opt="stellar_collector_grid"><a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a> <code class="fac-id">(stellar_collector_grid)</code></span><span class="opt-name" data-step="4" data-opt="fuel_cell_generator" hidden><a href="../facilities/infrastructure/fuel_cell_generator.html">Fuel Cell Generator</a> <code class="fac-id">(fuel_cell_generator)</code></span><span class="opt-name" data-step="4" data-opt="bunker_fed_reactor" hidden><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a> <code class="fac-id">(bunker_fed_reactor)</code></span><span class="opt-name" data-step="4" data-opt="scrap_reactor" hidden><a href="../facilities/infrastructure/scrap_reactor.html">Scrap Reactor</a> <code class="fac-id">(scrap_reactor)</code></span><span class="opt-name" data-step="4" data-opt="dark_matter_reactor" hidden><a href="../facilities/infrastructure/dark_matter_reactor.html">Dark Matter Reactor</a> <code class="fac-id">(dark_matter_reactor)</code></span></h3>
             <div class="opt-choices" role="group" aria-label="Choose the facility for this step">
-                <button type="button" class="opt-choice" data-step="7" data-opt="stellar_collector_grid" aria-pressed="true"><span class="opt-title">Stellar Collector Grid <em>recommended</em></span><span class="opt-meta">900,000 cr · upkeep 2/cycle · power &#43;20</span></button>
-                <button type="button" class="opt-choice" data-step="7" data-opt="fuel_cell_generator" aria-pressed="false"><span class="opt-title">Fuel Cell Generator</span><span class="opt-meta">500,000 cr · upkeep 3/cycle · power &#43;12</span></button>
-                <button type="button" class="opt-choice" data-step="7" data-opt="bunker_fed_reactor" aria-pressed="false"><span class="opt-title">Bunker-Fed Reactor</span><span class="opt-meta">500,000 cr · upkeep 55/cycle · power &#43;12</span></button>
-                <button type="button" class="opt-choice" data-step="7" data-opt="scrap_reactor" aria-pressed="false"><span class="opt-title">Scrap Reactor</span><span class="opt-meta">80,000 cr · upkeep 4/cycle · power &#43;10</span></button>
-                <button type="button" class="opt-choice" data-step="7" data-opt="dark_matter_reactor" aria-pressed="false"><span class="opt-title">Dark Matter Reactor</span><span class="opt-meta">3,000,000 cr · upkeep 3/cycle · power &#43;48</span></button>
+                <button type="button" class="opt-choice" data-step="4" data-opt="stellar_collector_grid" aria-pressed="true"><span class="opt-title">Stellar Collector Grid <em>recommended</em></span><span class="opt-meta">900,000 cr · upkeep 2/cycle · power &#43;20</span></button>
+                <button type="button" class="opt-choice" data-step="4" data-opt="fuel_cell_generator" aria-pressed="false"><span class="opt-title">Fuel Cell Generator</span><span class="opt-meta">500,000 cr · upkeep 3/cycle · power &#43;12</span></button>
+                <button type="button" class="opt-choice" data-step="4" data-opt="bunker_fed_reactor" aria-pressed="false"><span class="opt-title">Bunker-Fed Reactor</span><span class="opt-meta">500,000 cr · upkeep 55/cycle · power &#43;12</span></button>
+                <button type="button" class="opt-choice" data-step="4" data-opt="scrap_reactor" aria-pressed="false"><span class="opt-title">Scrap Reactor</span><span class="opt-meta">80,000 cr · upkeep 4/cycle · power &#43;10</span></button>
+                <button type="button" class="opt-choice" data-step="4" data-opt="dark_matter_reactor" aria-pressed="false"><span class="opt-title">Dark Matter Reactor</span><span class="opt-meta">3,000,000 cr · upkeep 3/cycle · power &#43;48</span></button>
             </div>
-            <div class="opt-panel" data-step="7" data-opt="stellar_collector_grid">
+            <div class="opt-panel" data-step="4" data-opt="stellar_collector_grid">
             <p class="step-gives">power &#43;20</p>
             <p class="step-build"><b>Build:</b> 900,000 cr + 1,200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 250 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2</td></tr></table></div>
             </div>
-            <div class="opt-panel" data-step="7" data-opt="fuel_cell_generator" hidden>
+            <div class="opt-panel" data-step="4" data-opt="fuel_cell_generator" hidden>
             <p class="step-gives">power &#43;12</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/component/power_cell.html">Power Cell</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 200 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr></table></div>
             </div>
-            <div class="opt-panel" data-step="7" data-opt="bunker_fed_reactor" hidden>
+            <div class="opt-panel" data-step="4" data-opt="bunker_fed_reactor" hidden>
             <p class="step-gives">power &#43;12</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/component/power_cell.html">Power Cell</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 200 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/fuel/fuel.html">Fuel</a></td><td class="num">55</td></tr></table></div>
             </div>
-            <div class="opt-panel" data-step="7" data-opt="scrap_reactor" hidden>
+            <div class="opt-panel" data-step="4" data-opt="scrap_reactor" hidden>
             <p class="step-gives">power &#43;10</p>
             <p class="step-build"><b>Build:</b> 80,000 cr + 30 <a href="../items/component/salvage_metal.html">Salvage Metal</a> + 40 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 120 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/component/salvage_metal.html">Salvage Metal</a></td><td class="num">2</td></tr></table></div>
             </div>
-            <div class="opt-panel" data-step="7" data-opt="dark_matter_reactor" hidden>
+            <div class="opt-panel" data-step="4" data-opt="dark_matter_reactor" hidden>
             <p class="step-gives">power &#43;48</p>
             <p class="step-build"><b>Build:</b> 3,000,000 cr + 1,000 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 200 <a href="../items/component/dark_matter_cell.html">Dark Matter Cell</a> + 8,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 400 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/dark_matter_cell.html">Dark Matter Cell</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr></table></div>
@@ -324,89 +311,280 @@ so power, with life support, is what unlocks production lines at the station.
 on top of any of these. In a system with a star the collector grid is
 the simplest to keep fed: 2 <a href="../items/refined/circuit_board.html">Circuit Board</a> per cycle and nothing else. The Bunker-Fed
 Reactor burns <a href="../items/fuel/fuel.html">Fuel</a> instead: 55 per cycle.</p>
+<p><strong>Size power for your defenses, not your production.</strong> Production facilities draw
+little unless every one of them runs at once, and players report never getting near the
+power limit that way. In combat, production stops and the defenses get all the power.
+So build only enough to run your defense facilities at peak (<em>player-reported</em>). One
+experienced builder would rebuild all their power as Bunker-Fed Reactors if
+infrastructure could be dismantled. It can: see <a href="#moving-a-facility">Moving a facility</a>.</p>
 <p>We built the grid at Conjunction Junction on 2026-10-26; the build reply again gave
 750 corporation_management XP to every member and showed rent 0. Once it finished,
 <code>get_base</code> gained a <code>power</code> block (absent until then) showing <code>supply: 20</code>, matching the
 catalog, and the grid counted toward station health alongside the Locker Bay
 (<code>satisfied_count 2 / total_service_infra 2</code>) (<em>measured</em>).</p>
 
-            <div class="so-far" data-step="7" title="Open station upkeep">Station so far: 12 upkeep items, 23 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="4" title="Open station upkeep">Station so far: 9 upkeep items, 14 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <div class="step-break"><p><strong>From here on the order is flexible.</strong> With storage, crafting, fuel, a market and
-production support in place, build the remaining services as you need them. Our
+        <section class="step-card" id="step-5">
+            <h3>Step 5: Refuel service - <a href="../facilities/service/refueling_dock.html">Refueling Dock</a> <code class="fac-id">(refueling_dock)</code></h3>
+            <p class="step-gives">service: refuel</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 2,000 <a href="../items/consumable/fuel_cell.html">Fuel Cell</a> + 800 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr></table></div>
+            <p>Right after life support and power, because everyone needs fuel: your own miners and
+haulers working out of the station, and every pilot passing through. Waiting for those
+two first pays off here: the dock's tank starts empty, and the way to fill it, an
+<a href="../facilities/production/h2_fuel_combustor.html">H2 Fuel Combustor</a>, is a production facility that needs both. The dock brings its <strong>own 5,000-unit tank</strong>:
+<code>get_base</code> <code>max_fuel</code> went from 200 to 5,000 when ours was built, with no tank expansion
+(<em>measured</em> 2026-10-26). Faction members draw from the shared tank for free; everyone
+else pays your station price (set with <code>station set_refuel_price</code>).</p>
+<p>⚠ <strong>Stock its upkeep before it finishes:</strong> <a href="../items/consumable/fuel_cell.html">Fuel Cell</a> and <a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a> every
+cycle. Ours finished with no fuel cells in faction storage, and <code>get_base</code> showed
+<code>satisfied_count 3 / total_service_infra 4</code>, condition <code>operational</code> (&quot;signs of deferred
+maintenance&quot;) and <strong>no <code>refuel</code> in <code>services</code></strong>: an unpaid dock is built but sells
+nothing. After we deposited 1,000 fuel cells the station was back to <code>thriving</code>, 4/4,
+with <code>refuel</code> listed, within 69 ticks (<em>measured</em>).</p>
+<p>⚠ <strong>Then fill the tank.</strong> The dock starts empty, and a refuel answers <em>&quot;station_fuel_empty:
+This station's fuel reserves are depleted&quot;</em> (<em>measured</em>). The way to fill it is an
+<a href="../facilities/production/h2_fuel_combustor.html">H2 Fuel Combustor</a>: crafting <code>manufacture_fuel_basic</code> there turns 10
+<a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a> into 100 fuel per run (about 1 s a run, 8 cr labor), and the output
+goes straight into the station's tank, not into faction storage, whatever the craft
+reply says. Each completed run adds its 100 fuel as it finishes, so the tank climbs
+steadily while the job runs. Faction storage and the treasury cover the job when the crafter's own
+can't (<em>measured</em> 2026-10-27). Until the combustor is up,
+a CRFT member can top the tank up from their own ship (<code>faction_deposit_items</code>,
+<code>item_id=fuel</code>).</p>
+<p>Until a refuel service exists, ships docked at your station can't refuel at all; the
+server's message (<code>no_fuel_source … insufficient credits for station refueling</code>) is
+misleading, because credits are not the problem (<em>measured</em>).</p>
+
+            <div class="so-far" data-step="5" title="Open station upkeep">Station so far: 11 upkeep items, 17 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-6">
+            <h3>Step 6: Market - <a href="../facilities/service/trade_concourse.html">Trade Concourse</a> <code class="fac-id">(trade_concourse)</code></h3>
+            <p class="step-gives">service: market</p>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/refined/circuit_board.html">Circuit Board</a> · 100 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr></table></div>
+            <p>The rest of a full station is its <strong>services</strong>. A mature station lists eleven:
+<code>crafting</code>, <code>marine_training</code>, <code>market</code>, <code>medical</code>, <code>missions</code>, <code>personnel</code>, <code>refuel</code>,
+<code>repair</code>, <code>salvage_yard</code>, <code>shipyard</code> and <code>storage</code> (<em>player-reported</em>). Each has a level-1
+facility a player station can build.</p>
+<p>The market comes after power, life support and fuel, because it starts the station
+earning: crossroads
+traffic trades here, and you set the listing fee they pay with
+<code>station set_market_fee</code>. The catalog lists its upkeep as one <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> a
+cycle, but players have found the authenticators go <strong>per trade</strong>, possibly on top of
+the per-cycle charge, so a busy market eats them much faster than any other upkeep
+(<em>player-reported</em>). Line up a steady source before you build, sized to your trade
+volume rather than to the cycle.</p>
+
+            <div class="so-far" data-step="6" title="Open station upkeep">Station so far: 12 upkeep items, 18 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <div class="step-break"><p><strong>From here on the order is flexible.</strong> With storage, crafting, production support,
+fuel and a market in place, build the remaining services as you need them. Our
 suggestion is shipyard, repair and salvage yard first, then missions, medical, personnel
-and marine training.</p>
+and marine training, and more fuel tank once the dock's 5,000 runs short.</p>
 </div>
-        <section class="step-card" id="step-8">
-            <h3>Step 8: <a href="../facilities/service/outfitting_bay.html">Outfitting Bay</a> <small class="text-muted">Shipyard</small></h3>
+        <section class="step-card" id="step-7">
+            <h3>Step 7: Shipyard - <a href="../facilities/service/outfitting_bay.html">Outfitting Bay</a> <code class="fac-id">(outfitting_bay)</code></h3>
             <p class="step-gives">service: shipyard</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 800 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 4,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 300 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr></table></div>
             <p>The most expensive level-1 service to build: thousands of <a href="../items/refined/steel_plate.html">Steel Plate</a> plus
 <a href="../items/refined/circuit_board.html">Circuit Board</a>, and the longest build time. Upkeep includes <a href="../items/refined/titanium_alloy.html">Titanium Alloy</a>.
 It upgrades to <a href="../facilities/service/fabrication_yard.html">Fabrication Yard</a>, <a href="../facilities/service/assembly_complex.html">Assembly Complex</a> and <a href="../facilities/service/grand_shipworks.html">Grand Shipworks</a>.</p>
+<p>We built the Outfitting Bay on 2026-11-01 and upgraded it to a <a href="../facilities/service/fabrication_yard.html">Fabrication Yard</a> the
+next day (14,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> for the upgrade). An upgrade is its own action:
+<code>faction_build fabrication_yard</code> is refused with <em>&quot;this is an upgrade — use 'upgrade'
+action instead&quot;</em>, and <code>upgrade</code> needs both <code>facility_id</code> and <code>facility_type</code>
+(<em>measured</em>). The level-2 yard <strong>builds two hulls at once</strong>; further commissions queue as
+<code>PENDING</code> (<em>measured</em> 2026-11-08).</p>
+<p><strong>Building ships here.</strong> Empire designs are exclusive: a station can build another
+empire's class only with a <strong>ship license</strong>, bought once per class by the faction
+(<code>buy_ship_license</code>; T1 1M, T2 5M, T3 10M, T4 20M, T5 50M). We licensed the outerrim
+Congregation (1,900 cargo) for 1M. A <strong>faction-funded commission</strong> then draws every
+material from faction storage, the treasury pays the labor plus a 10% royalty on the
+materials' value to the design's empire (about 650–820 cr per Congregation), and the
+finished hull is delivered to whoever placed the order (<em>measured</em>). Anyone can
+commission a class; supply the materials, because at the cash price the yard has to
+buy them itself, and a material that isn't on the market stalls the build for good
+(<em>player-reported</em>).</p>
 
-            <div class="so-far" data-step="8" title="Open station upkeep">Station so far: 13 upkeep items, 26 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="7" title="Open station upkeep">Station so far: 13 upkeep items, 21 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-9">
-            <h3>Step 9: <a href="../facilities/service/repair_slip.html">Repair Slip</a> <small class="text-muted">Repair</small></h3>
+        <section class="step-card" id="step-8">
+            <h3>Step 8: Repair - <a href="../facilities/service/repair_slip.html">Repair Slip</a> <code class="fac-id">(repair_slip)</code></h3>
             <p class="step-gives">service: repair</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 400 <a href="../items/consumable/repair_kit.html">Repair Kit</a> + 1,200 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 120 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table></div>
             <p>Outside pilots pay your <code>station set_repair_price</code> per hull point. Upkeep is
 <a href="../items/consumable/repair_kit.html">Repair Kit</a> and <a href="../items/refined/steel_plate.html">Steel Plate</a>.</p>
 
-            <div class="so-far" data-step="9" title="Open station upkeep">Station so far: 14 upkeep items, 28 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="8" title="Open station upkeep">Station so far: 14 upkeep items, 23 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-10">
-            <h3>Step 10: <a href="../facilities/service/reclamation_dock.html">Reclamation Dock</a> <small class="text-muted">Salvage yard</small></h3>
+        <section class="step-card" id="step-9">
+            <h3>Step 9: Salvage yard - <a href="../facilities/service/reclamation_dock.html">Reclamation Dock</a> <code class="fac-id">(reclamation_dock)</code></h3>
             <p class="step-gives">service: salvage_yard</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table></div>
             <p>Breaks down what pilots drag in from debris fields. Upkeep includes a <a href="../items/consumable/fuel_cell.html">Fuel Cell</a>,
 like the refueling dock.</p>
 
-            <div class="so-far" data-step="10" title="Open station upkeep">Station so far: 14 upkeep items, 30 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="9" title="Open station upkeep">Station so far: 14 upkeep items, 25 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-11">
-            <h3>Step 11: <a href="../facilities/service/contract_terminal.html">Contract Terminal</a> <small class="text-muted">Missions</small></h3>
+        <section class="step-card" id="step-10">
+            <h3>Step 10: Missions - <a href="../facilities/service/contract_terminal.html">Contract Terminal</a> <code class="fac-id">(contract_terminal)</code></h3>
             <p class="step-gives">service: missions</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 200 <a href="../items/refined/circuit_board.html">Circuit Board</a> · 50 ticks</p>
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr></table></div>
             <p>A job board for the faction or anyone passing through. Cheap to build and to keep:
 <a href="../items/refined/circuit_board.html">Circuit Board</a> and <a href="../items/refined/copper_wiring.html">Copper Wiring</a>.</p>
 
-            <div class="so-far" data-step="11" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="10" title="Open station upkeep">Station so far: 15 upkeep items, 27 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-12">
-            <h3>Step 12: <a href="../facilities/service/first_aid_ward.html">First Aid Ward</a> <small class="text-muted">Medical</small></h3>
+        <section class="step-card" id="step-11">
+            <h3>Step 11: Medical - <a href="../facilities/service/first_aid_ward.html">First Aid Ward</a> <code class="fac-id">(first_aid_ward)</code></h3>
             <p class="step-gives">service: medical</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 250 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 200 <a href="../items/consumable/medical_supplies.html">Medical Supplies</a> + 400 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
-            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
-            <p>The catalog lists <strong>no upkeep</strong> for this one. The build needs <a href="../items/consumable/medical_supplies.html">Medical Supplies</a>.
-It upgrades to <a href="../facilities/service/trauma_clinic.html">Trauma Clinic</a>, <a href="../facilities/service/surgical_center.html">Surgical Center</a> and <a href="../facilities/service/regenerative_medical_complex.html">Regenerative Medical Complex</a>.</p>
+            <div class="upkeep"><p class="pool"><b>Service pool:</b> <a href="../items/consumable/medical_supplies.html">Medical Supplies</a> ≈1.6/cycle <span class="basis">estimate: pool 32, refills 8/cycle, 5 units per item (catalog); not counted in the totals</span></p></div>
+            <p>It <strong>does</strong> have upkeep, listed in a different place from the usual upkeep: a service
+pool fed by <a href="../items/consumable/medical_supplies.html">Medical Supplies</a> (catalog <code>service_pool_supply_item</code>). Running out
+hurts the station's operational status, and the pool may refill on a different cycle
+from the regular consumables (<em>player-reported</em>). The catalog gives the pool 32 units,
+refilling 8 per cycle at 5 units per supply. Our reading is about 1.6 medical_supplies a
+cycle, <em>not yet measured</em>. The build also needs <a href="../items/consumable/medical_supplies.html">Medical Supplies</a>. It upgrades to
+<a href="../facilities/service/trauma_clinic.html">Trauma Clinic</a>, <a href="../facilities/service/surgical_center.html">Surgical Center</a> and <a href="../facilities/service/regenerative_medical_complex.html">Regenerative Medical Complex</a>, each with a
+four-times-larger pool.</p>
 
-            <div class="so-far" data-step="12" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="11" title="Open station upkeep">Station so far: 15 upkeep items, 27 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-13">
-            <h3>Step 13: <a href="../facilities/service/crew_registry.html">Crew Registry</a> <small class="text-muted">Personnel</small></h3>
+        <section class="step-card" id="step-12">
+            <h3>Step 12: Personnel - <a href="../facilities/service/crew_registry.html">Crew Registry</a> <code class="fac-id">(crew_registry)</code></h3>
             <p class="step-gives">service: personnel</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 500 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
-            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
-            <p>No upkeep listed. It upgrades to <a href="../facilities/service/personnel_bureau.html">Personnel Bureau</a>, <a href="../facilities/service/sector_labor_exchange.html">Sector Labor Exchange</a> and
-<a href="../facilities/service/fleet_personnel_command.html">Fleet Personnel Command</a>.</p>
+            <div class="upkeep"><p class="pool"><b>Service pool:</b> <a href="../items/consumable/protein_rations.html">Protein Rations</a> ≈1/cycle <span class="basis">estimate: pool 32, refills 8/cycle, 8 units per item (catalog); not counted in the totals</span></p></div>
+            <p>Upkeep is a service pool fed by <a href="../items/consumable/protein_rations.html">Protein Rations</a>, listed apart from the usual upkeep;
+running out hurts operational status (<em>player-reported</em>). The catalog pool is 32 units,
+refilling 8 per cycle at 8 units per ration: about 1 protein_rations a cycle by our
+reading, <em>not yet measured</em>. It upgrades to <a href="../facilities/service/personnel_bureau.html">Personnel Bureau</a>,
+<a href="../facilities/service/sector_labor_exchange.html">Sector Labor Exchange</a> and <a href="../facilities/service/fleet_personnel_command.html">Fleet Personnel Command</a>.</p>
 
-            <div class="so-far" data-step="13" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="12" title="Open station upkeep">Station so far: 15 upkeep items, 27 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
-        <section class="step-card" id="step-14">
-            <h3>Step 14: <a href="../facilities/service/security_training_post.html">Security Training Post</a> <small class="text-muted">Marine training</small></h3>
+        <section class="step-card" id="step-13">
+            <h3>Step 13: Marine training - <a href="../facilities/service/security_training_post.html">Security Training Post</a> <code class="fac-id">(security_training_post)</code></h3>
             <p class="step-gives">service: marine_training</p>
             <p class="step-build"><b>Build:</b> 500,000 cr + 150 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 700 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
-            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
-            <p>No upkeep listed. It upgrades to <a href="../facilities/service/marine_training_barracks.html">Marine Training Barracks</a>, <a href="../facilities/service/fleet_marine_academy.html">Fleet Marine Academy</a>
-and <a href="../facilities/service/expeditionary_warfare_command.html">Expeditionary Warfare Command</a>.</p>
+            <div class="upkeep"><p class="pool"><b>Service pool:</b> <a href="../items/consumable/protein_rations.html">Protein Rations</a> ≈1/cycle <span class="basis">estimate: pool 8, refills 2/cycle, 2 units per item (catalog); not counted in the totals</span></p></div>
+            <p>Upkeep is a service pool fed by <a href="../items/consumable/protein_rations.html">Protein Rations</a>, listed apart from the usual upkeep;
+running out hurts operational status (<em>player-reported</em>). The catalog pool is 8 units,
+refilling 2 per cycle at 2 units per ration: about 1 protein_rations a cycle by our
+reading, <em>not yet measured</em>. The upgrades use rations faster (2 units each).
+It upgrades to <a href="../facilities/service/marine_training_barracks.html">Marine Training Barracks</a>, <a href="../facilities/service/fleet_marine_academy.html">Fleet Marine Academy</a> and
+<a href="../facilities/service/expeditionary_warfare_command.html">Expeditionary Warfare Command</a>.</p>
+
+            <div class="so-far" data-step="13" title="Open station upkeep">Station so far: 15 upkeep items, 27 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-14">
+            <h3>Step 14: Fuel storage - <a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a> <code class="fac-id">(fuel_tank_expansion)</code></h3>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 1,500 <a href="../items/refined/ceramite_plating.html">Ceramite Plating</a> + 800 <a href="../items/component/fuel_tank.html">Fuel Tank</a> + 8,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 100 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr></table></div>
+            <p>Late in the build: the refueling dock's own 5,000-unit tank is enough to get a station
+started. Add expansions when that runs short. Each expansion adds 50,000 to the
+station's shared tank, and you can build several. Fill it from fuel-production
+facilities or by depositing a docked ship's fuel (storage deposit, <code>item_id=fuel</code>). With
+<code>station set_auto_buy_fuel</code> on, visiting pilots can sell fuel into the tank too, paid
+from the treasury.</p>
+<p>Fuel production needs tank capacity, and the refueling dock's tank counts: you do not
+need an expansion first. ⚠ <strong>Server bug (developer-confirmed, being fixed):</strong> for up to
+about 17 minutes after the dock finishes, the station does not count its tank yet.
+During that window, building a fuel producer or depositing fuel wrongly answers
+<em>&quot;no_fuel_bunker: This station needs fuel tank capacity … Use 'faction_build' with
+facility_type='fuel_tank_expansion' first.&quot;</em> We hit exactly that with an
+<a href="../facilities/production/h2_fuel_combustor.html">H2 Fuel Combustor</a> (<em>measured</em> 2026-10-26). Wait and retry; don't build an expansion
+because of it. Fuel production also draws life support and power.</p>
+<p>⚠ <strong>Don't build a <a href="../facilities/faction/faction_fuel_bunker.html">Faction Fuel Bunker</a> here.</strong> At your own station the server refuses
+it: <em>&quot;a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
+would just sit unused. Build a Fuel Tank Expansion … instead&quot;</em> (<em>measured</em> 2026-10-26).</p>
 
             <div class="so-far" data-step="14" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <div class="step-break"><p><strong>Faction facilities.</strong> These serve the faction rather than visitors: a shared ship
+pool, more members, and named storage buckets.</p>
+</div>
+        <section class="step-card" id="step-15">
+            <h3>Step 15: Ship garage - <a href="../facilities/faction/faction_ship_garage.html">Faction Ship Garage</a> <code class="fac-id">(faction_ship_garage)</code></h3>
+            <p class="step-build"><b>Build:</b> 600,000 cr + 150 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 300 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>A shared pool of up to 20 hulls at the station. Put a ship in with
+<code>faction_deposit_items</code> and its ship ID (the reply's action is <code>faction_garage_store</code>);
+any member docked there takes it with <code>switch_ship</code>, which <strong>transfers ownership</strong> to
+them and parks their old ship at the station (<em>measured</em>). This is how we hand freshly
+built Congregations to haulers. For a pilot outside the faction, the owner can gift the
+parked hull instead: <code>send_gift &lt;username&gt; &lt;ship_id&gt;</code> while docked where it is
+(<code>gift_ship</code>, <em>measured</em> 2026-11-08).</p>
+
+            <div class="so-far" data-step="15" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-16">
+            <h3>Step 16: Recruitment - <a href="../facilities/faction/hiring_board.html">Hiring Board</a> <code class="fac-id">(hiring_board)</code></h3>
+            <p class="step-build"><b>Build:</b> 75,000 cr + 25 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 75 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 20 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>Without a recruitment facility a faction is capped at <strong>20 members</strong>: invites still go
+out, but accepting one answers <em>&quot;faction_full: This faction has reached its maximum of 20
+members&quot;</em>. The Hiring Board raises the cap to 50 (the upgrades: 100, 200 and more).
+Members already above the cap keep their seats; we had 38 (<em>measured</em> 2026-11-08). We
+built ours from a dismantled package, with no other materials (see
+<a href="#moving-a-facility">Moving a facility</a>).</p>
+
+            <div class="so-far" data-step="16" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-17">
+            <h3>Step 17: Storage buckets - <a href="../facilities/faction/storage_extension.html">Storage Extension</a> <code class="fac-id">(storage_extension)</code></h3>
+            <p class="step-build"><b>Build:</b> 500,000 cr + 150 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 400 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>Adds a named bucket to faction storage (ours holds up to 100,000 of each item, up to
+1,000 packages). We use it to keep a repair reserve apart from working stock, since
+builds and upgrades can take their materials from a named bucket.</p>
+
+            <div class="so-far" data-step="17" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <div class="step-break"><p><strong>Defense.</strong> No one had attacked us; we built defenses before anyone did. A wrecked
+station has to be repaired before it works again, at about 30% of each facility's build
+cost in credits and in that facility's materials, which must be at the station
+(<em>player-reported</em>).</p>
+</div>
+        <section class="step-card" id="step-18">
+            <h3>Step 18: Point defense - <a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a> <code class="fac-id">(point_defense_battery)</code></h3>
+            <p class="step-gives">draws power 2</p>
+            <p class="step-build"><b>Build:</b> 180,000 cr + 60 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 400 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 4 <a href="../items/component/targeting_computer.html">Targeting Computer</a> · 80 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td><td class="num">1</td></tr></table></div>
+            <p>The cheapest gun, and it upgrades twice for reach (<a href="../facilities/defense/station_defense_turret.html">Station Defense Turret</a>, then
+<a href="../facilities/defense/heavy_defense_battery.html">Heavy Defense Battery</a>). After ours finished, <code>get_base</code> showed <code>weapon_dps</code> 30
+(<em>measured</em> 2026-11-06). ⚠ <strong>Every gun needs ammunition</strong> in faction storage: this one
+fires <a href="../items/ammo/ferrous_slug_case.html">Ferrous Slug Case</a> (hand recipe: 3 <a href="../items/ore/iron_ore.html">Iron Ore</a> + 2 <a href="../items/refined/steel_plate.html">Steel Plate</a> → 5). Its
+degraded text describes empty magazines, so a gun built without ammo likely does
+nothing in a fight.</p>
+
+            <div class="so-far" data-step="18" title="Open station upkeep">Station so far: 16 upkeep items, 33 units/cycle · power 20 / 2 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-19">
+            <h3>Step 19: Armor plating - <a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a> <code class="fac-id">(reinforced_plating)</code></h3>
+            <p class="step-build"><b>Build:</b> 700,000 cr + 240 <a href="../items/component/armor_plate.html">Armor Plate</a> + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 180 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/armor_plate.html">Armor Plate</a></td><td class="num">1</td></tr></table></div>
+            <p>Armor cuts each hit to the hull by its amount, and the plating repairs itself after
+combat. No power draw. Ours raised <code>get_base</code> <strong>hull from 60,000 to 85,000 and armor
+from 15 to 60</strong> (<em>measured</em> 2026-11-08). Upkeep and repairs use <a href="../items/component/armor_plate.html">Armor Plate</a>.</p>
+
+            <div class="so-far" data-step="19" title="Open station upkeep">Station so far: 17 upkeep items, 34 units/cycle · power 20 / 2 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-20">
+            <h3>Step 20: Fire control - <a href="../facilities/defense/fire_control_center.html">Fire Control Center</a> <code class="fac-id">(fire_control_center)</code></h3>
+            <p class="step-build"><b>Build:</b> 1,200,000 cr + 300 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 900 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 80 <a href="../items/refined/superconductor.html">Superconductor</a> + 60 <a href="../items/component/targeting_computer.html">Targeting Computer</a> · 220 ticks</p>
+            <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2</td></tr></table></div>
+            <p>Improves the guns' accuracy (<em>player-reported</em>); <code>get_base</code> shows no new number for
+it. Upkeep is <a href="../items/refined/circuit_board.html">Circuit Board</a>.</p>
+
+            <div class="so-far" data-step="20" title="Open station upkeep">Station so far: 17 upkeep items, 36 units/cycle · power 20 / 2 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         </div>
         <div class="guide-body"><h2 id="reading-your-station">Reading your station</h2>
@@ -458,18 +636,42 @@ server does tell you, all <em>measured</em> at Conjunction Junction and Grand Ex
 </tr>
 </tbody>
 </table>
+<p><strong>Only some facilities count toward condition.</strong> With 24 faction facilities built,
+<code>get_base</code> reads <code>total_service_infra 8</code> (<em>measured</em> 2026-11-08): the services, power, life
+support, fuel storage and the defense facilities count; production lines, the garage, the
+office and storage buckets don't. A starving production line slows itself down without
+moving the station's condition.</p>
 <p><strong>What the server doesn't tell you:</strong> for a <em>service</em> facility (the Locker Bay, the Faction
 Workshop) there is no &quot;starved&quot; list, only <code>maintenance_satisfied: false</code>. To know what to haul,
 compare the facility's <code>maintenance_per_cycle</code> (the upkeep tables in the steps above) against
 <code>view_faction_storage</code> at the station.</p>
-<p><strong>Two clocks (<em>player-reported</em>, being measured):</strong> facility <strong>rent</strong> bills every <strong>100 ticks</strong>
-(about 17 minutes), but facilities <strong>consume their upkeep</strong> on a separate maintenance cycle of
-about <strong>3,000 ticks</strong> (about 8.3 hours). Until we have measured that cycle, this page gives
-upkeep <strong>per cycle</strong> only; per-day figures will come back once the length is confirmed. Life support may run on its own 100-tick cycle:
-Grand Exchange reports <code>life_support.maintenance_cycle_ticks: 100</code>.</p>
-<p><strong>What happens when it runs dry (<em>measured</em>):</strong> the Locker Bay went <code>maintenance_satisfied: false</code> with <code>maintenance_level</code> 0.4, the station dropped from <code>thriving</code> to <code>critical</code>
-(<em>&quot;Critical infrastructure failure. Emergency lighting only.&quot;</em>), and <code>get_base</code> listed <strong>no
-services at all</strong>, so personal storage stopped working.</p>
+<p><strong>Two clocks:</strong> facility <strong>rent</strong> bills every <strong>100 ticks</strong> (about 17 minutes;
+<em>player-reported</em>), but facilities <strong>consume their upkeep</strong> on a separate maintenance cycle
+of about <strong>3,000 ticks</strong> (about 8.3 hours). We measured that at Conjunction Junction: the
+Locker Bay, Faction Workshop and Refueling Dock each used one cycle's upkeep roughly every
+3,000 ticks, each on its own phase, counted from its build (<em>measured</em> 2026-10-27). A 100-tick
+cycle would have used about 30 times as much. Don't be misled by <code>get_base</code>: the
+<code>life_support</code> block reports <code>maintenance_cycle_ticks: 100</code> (<em>measured</em>), which does not match
+what the other facilities consume. Whether life support itself burns its upkeep every 100
+ticks is <em>being measured</em> from our recycler's water ice. Until the cycle is pinned down
+precisely, this page gives upkeep <strong>per cycle</strong> only.</p>
+<p><strong>What happens when it runs dry:</strong> the effect is graduated, not a switch.</p>
+<ul>
+<li><strong>The facility</strong> drops into a reduced operating mode rather than stopping: it keeps running,
+but slower (for example at half speed). Its description switches from the <em>satisfied</em> text
+to the <em>degraded</em> text, and <code>maintenance_level</code> falls below 1 (<em>player-reported</em>). For example, the catalog text
+for the Climate Control Array reads <em>&quot;Thermal regulators hold steady.
+Water purification runs ahead of consumption, building a healthy reserve.&quot;</em> when satisfied,
+and <em>&quot;Temperature swings between sections and water purification lags behind demand.&quot;</em>
+when degraded (<em>doc-quoted</em>).</li>
+<li><strong>The station's <code>condition</code></strong> steps down through its levels with the share of facilities
+unsatisfied. One unpaid Refueling Dock out of four gave <code>satisfied_count 3 / total_service_infra 4</code> and condition <code>operational</code> (<em>measured</em>).</li>
+<li><strong>On a very young station</strong> that share is large. Early on, the Locker Bay went
+<code>maintenance_satisfied: false</code> with <code>maintenance_level</code> 0.4, the station dropped from
+<code>thriving</code> to <code>critical</code> (<em>&quot;Critical infrastructure failure. Emergency lighting only.&quot;</em>),
+and <code>get_base</code> listed <strong>no services at all</strong>, so personal storage stopped working
+(<em>measured</em>).</li>
+</ul>
 <h2 id="station-administration">Station administration</h2>
 <p>Run these while docked at your own station. <code>info</code> is open to any member; every other
 action needs the <strong>ManageBases</strong> permission. Outposts support only <code>info</code>, <code>set_name</code> and
@@ -632,6 +834,35 @@ value makes a station private (<em>measured</em>).</p>
 </ul>
 <p>The <code>faction_*</code> facilities you rent space for at NPC stations (fuel bunkers and similar) are
 <strong>not</strong> on the list.</p>
+<h2 id="moving-a-facility">Moving a facility</h2>
+<p><code>facility action=faction_dismantle</code> takes a facility apart so you can rebuild it somewhere
+else. We first ran it on 2026-10-27, on an <a href="../facilities/production/iron_refinery.html">Iron Refinery</a> that CRFT rented at Grand
+Exchange Station (<em>measured</em>):</p>
+<ul>
+<li><strong>The facility goes offline at once</strong> and vanishes when the dismantle finishes. Any repair
+in progress is cancelled, and repair costs already spent are not refunded.</li>
+<li><strong>It takes a few minutes</strong>: 231 ticks for the refinery.</li>
+<li><strong>All the build materials come back.</strong> The refinery returned 250 <a href="../items/component/control_node.html">Control Node</a> and
+2,510 <a href="../items/refined/copper_piping.html">Copper Piping</a>, exactly its catalog recipe, packed into 28 labeled packages.</li>
+<li><strong>Packages land in the faction storage at that station.</strong> Haul them like any cargo, unpack
+them at the destination, and rebuild from the recovered materials.</li>
+<li>Items left in faction storage can still be viewed and withdrawn after the storage facility
+itself is dismantled.</li>
+<li>Rent pauses while a facility is dismantling (from the rent note).</li>
+</ul>
+<p><strong>Rebuilding from packages (<em>measured</em>).</strong> You don't have to unpack: pass the package IDs
+straight to the build, <code>facility faction_build &lt;type&gt; --package_ids &lt;id&gt;[,&lt;id&gt;…]</code>. Each
+package must hold exactly what the build still needs of an item, or the build is refused up
+front. We rebuilt the iron refinery at Conjunction Junction this way on 2026-10-28, and on
+2026-11-08 built a Hiring Board from its single package with no other materials. Each package
+takes <strong>100 cargo</strong>, and dismantling costs one <a href="../items/component/cargo_container.html">Cargo Container</a> per package
+(<em>doc-quoted</em>). Moving four facilities' packages (Fiber Draw Tower 41, Polymer Extruder 40,
+Intel Terminal 3, Hiring Board 1) from Grand Exchange took three Congregation trips of up
+to 19 packages each.</p>
+<p>The reply does not say whether the credit part of the build cost (89,000 for the refinery)
+comes back. Expect to pay it again when you rebuild. Rented <code>faction_*</code> facilities at NPC
+stations cannot be rebuilt at your own station. Check that the facility is on the
+<a href="#what-you-can-build-here">buildable list</a> before dismantling it to move it.</p>
 <h2 id="where-the-official-docs-are-wrong">Where the official docs are wrong</h2>
 <ul>
 <li><strong>What a station comes with.</strong> The factions guide says market, refuel, repair, shipyard,
@@ -644,12 +875,23 @@ the factions guide lists per item type (100k → 500k). The station's 500k is pe
 (<em>player-reported</em>).</li>
 <li><strong>Fuel storage.</strong> The <a href="../facilities/faction/faction_fuel_bunker.html">Faction Fuel Bunker</a> is refused at your own station; the server
 points you to the <a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a> instead (<em>measured</em>).</li>
+<li><strong>&quot;Build a fuel tank expansion first&quot; right after the dock finishes.</strong> For up to about
+17 minutes after a <a href="../facilities/service/refueling_dock.html">Refueling Dock</a> completes, fuel producers and fuel deposits are refused
+with <code>no_fuel_bunker</code>, naming the <a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a>. It is a server timing bug
+(developer-confirmed); the dock's own tank is enough, so retry later (<em>measured</em>).</li>
+<li><strong><code>fuel_depot</code> is not yours to build.</strong> It is the empire-station fuel facility; at your own
+station the refuel facility is the <a href="../facilities/service/refueling_dock.html">Refueling Dock</a> (developer-confirmed).</li>
 </ul>
 <h2 id="not-yet-measured">Not yet measured</h2>
 <ul>
 <li>Real upkeep consumption per cycle (catalog figures are shown above until we have it).</li>
 <li>How fast a <code>critical</code> station recovers once its upkeep is stocked.</li>
-<li>Defense: guns, ammo and shields.</li>
+<li>Defense in a real fight: how much ammunition a fight uses, and what fire control changes.</li>
+<li>Shields, batteries and extra power (<a href="../facilities/defense/shield_projector.html">Shield Projector</a>, <a href="../facilities/infrastructure/battery_bank.html">Battery Bank</a>,
+<a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>): not built yet; all three need <a href="../items/component/power_cell.html">Power Cell</a> in quantity.</li>
+<li>Whether dismantling refunds any credits.</li>
+<li>Exactly how <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> upkeep scales with trades.</li>
+<li>How service pools (<a href="../items/consumable/medical_supplies.html">Medical Supplies</a>, <a href="../items/consumable/protein_rations.html">Protein Rations</a>) draw down, and on what cycle.</li>
 </ul>
 </div>
         </article>
@@ -657,7 +899,7 @@ points you to the <a href="../facilities/infrastructure/fuel_tank_expansion.html
     <aside class="guide-sidebar guide-drawer" id="upkeep-drawer" aria-label="Station upkeep">
         <button class="drawer-close" type="button" aria-label="Close">×</button>
         <h3>Station upkeep / cycle</h3>
-        <div class="text-muted">follows the step you are reading; highlighted rows are new or raised by that step. Catalog values; 1 maintenance cycle = 3,000 ticks (≈8.3 h) · player-reported 2026-10-26, not yet measured (rent bills every 100 ticks; upkeep is a separate, longer cycle)</div>
+        <div class="text-muted">follows the step you are reading; highlighted rows are new or raised by that step. Catalog values; 1 maintenance cycle = 3,000 ticks (≈8.3 h) · measured ~3,000 at Conjunction Junction 2026-10-27 from three facilities&#39; storage drops; approximate (rent bills every 100 ticks)</div>
         <div class="upkeep-at" data-step="0" hidden>
             <p class="at-step">After Step 0: Found the station</p>
             <p class="no-upkeep">No upkeep yet</p>
@@ -666,106 +908,148 @@ points you to the <a href="../facilities/infrastructure/fuel_tank_expansion.html
             <details><summary>Build materials</summary><table></table></details>
         </div>
         <div class="upkeep-at" data-step="1" hidden>
-            <p class="at-step">After Step 1: Locker Bay</p>
+            <p class="at-step">After Step 1: Personal storage</p>
             <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr class="added"><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table>
             <p>power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 5,500,000</p>
             <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1,600</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="2" hidden>
-            <p class="at-step">After Step 2: Faction Workshop</p>
+            <p class="at-step">After Step 2: Crafting</p>
             <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr class="added"><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table>
             <p>power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 6,000,000</p>
             <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">2,400</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="3" hidden>
-            <p class="at-step">After Step 3: Refueling Dock</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr class="added"><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr></table>
-            <p>power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></p>
-            <p><b>Build credits:</b> 6,500,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">400</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">3,200</td></tr></table></details>
+            <p class="at-step">After Step 3: Life Support</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr class="added"><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr class="added"><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 6,600,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">3,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="4" hidden>
-            <p class="at-step">After Step 4: Fuel Tank Expansion</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">6</td></tr></table>
-            <p>power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></p>
-            <p><b>Build credits:</b> 7,000,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">400</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">11,200</td></tr></table></details>
+            <p class="at-step">After Step 4: Power</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 7,500,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1,600</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="5" hidden>
-            <p class="at-step">After Step 5: Trade Concourse</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">6</td></tr><tr class="added"><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr></table>
-            <p>power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></p>
-            <p><b>Build credits:</b> 7,500,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">11,200</td></tr></table></details>
+            <p class="at-step">After Step 5: Refuel service</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr class="added"><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 8,000,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1,600</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">6,400</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="6" hidden>
-            <p class="at-step">After Step 6: Atmospheric Recycler</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr class="added"><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr class="added"><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">6</td></tr><tr class="added"><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
-            <p>power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
-            <p><b>Build credits:</b> 8,100,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">12,400</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <p class="at-step">After Step 6: Market</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 8,500,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">6,400</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="7" hidden>
-            <p class="at-step">After Step 7: Stellar Collector Grid</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">6</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p class="at-step">After Step 7: Shipyard</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 9,000,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">14,400</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2,800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10,400</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="8" hidden>
-            <p class="at-step">After Step 8: Outfitting Bay</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">8</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p class="at-step">After Step 8: Repair</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 9,500,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2,800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">18,400</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2,800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">11,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="9" hidden>
-            <p class="at-step">After Step 9: Repair Slip</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">9</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p class="at-step">After Step 9: Salvage yard</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 10,000,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">2,800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">19,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,000</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">13,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="10" hidden>
-            <p class="at-step">After Step 10: Reclamation Dock</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p class="at-step">After Step 10: Missions</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr class="added"><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 10,500,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,000</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">21,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,200</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">13,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="11" hidden>
-            <p class="at-step">After Step 11: Contract Terminal</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr class="added"><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p class="at-step">After Step 11: Medical</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 11,000,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,200</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">21,600</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,450</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">14,000</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="12" hidden>
-            <p class="at-step">After Step 12: First Aid Ward</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p class="at-step">After Step 12: Personnel</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 11,500,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,450</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">22,000</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,650</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">14,500</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
         <div class="upkeep-at" data-step="13" hidden>
-            <p class="at-step">After Step 13: Crew Registry</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p class="at-step">After Step 13: Marine training</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">5</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 12,000,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,650</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">22,500</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">15,200</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
-        <div class="upkeep-at" data-step="14">
-            <p class="at-step">After Step 14: Security Training Post</p>
-            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+        <div class="upkeep-at" data-step="14" hidden>
+            <p class="at-step">After Step 14: Fuel storage</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
             <p><b>Build credits:</b> 12,500,000</p>
             <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,800</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,200</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
+        <div class="upkeep-at" data-step="15" hidden>
+            <p class="at-step">After Step 15: Ship garage</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 13,100,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,950</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,500</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
+        <div class="upkeep-at" data-step="16" hidden>
+            <p class="at-step">After Step 16: Recruitment</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 13,175,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,975</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,575</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
+        <div class="upkeep-at" data-step="17" hidden>
+            <p class="at-step">After Step 17: Storage buckets</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 13,675,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,125</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,975</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
+        <div class="upkeep-at" data-step="18" hidden>
+            <p class="at-step">After Step 18: Point defense</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr class="added"><td><a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 2 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 13,855,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,185</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">24,375</td></tr><tr><td><a href="../items/component/targeting_computer.html">Targeting Computer</a></td><td class="num">4</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
+        <div class="upkeep-at" data-step="19" hidden>
+            <p class="at-step">After Step 19: Armor plating</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr class="added"><td><a href="../items/component/armor_plate.html">Armor Plate</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 2 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 14,555,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/component/armor_plate.html">Armor Plate</a></td><td class="num">240</td></tr><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,185</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">26,375</td></tr><tr><td><a href="../items/component/targeting_computer.html">Targeting Computer</a></td><td class="num">4</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
+        <div class="upkeep-at" data-step="20">
+            <p class="at-step">After Step 20: Fire control</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/armor_plate.html">Armor Plate</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr class="added"><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">6</td></tr><tr><td><a href="../items/refined/coolant_fluid.html">Coolant Fluid</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 2 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 15,755,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/component/armor_plate.html">Armor Plate</a></td><td class="num">240</td></tr><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,485</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">27,275</td></tr><tr><td><a href="../items/refined/superconductor.html">Superconductor</a></td><td class="num">80</td></tr><tr><td><a href="../items/component/targeting_computer.html">Targeting Computer</a></td><td class="num">64</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
     </aside>
     <button class="drawer-tab" type="button" aria-controls="upkeep-drawer" aria-expanded="false">Station upkeep</button>
-    <script>window.GUIDE_PLAN = {"slug":"player-stations","per_day":false,"cycles_per_day":2.88,"items":{"catalytic_scrubber_cartridge":{"name":"Catalytic Scrubber Cartridge","href":"../items/component/catalytic_scrubber_cartridge.html"},"ceramite_plating":{"name":"Ceramite Plating","href":"../items/refined/ceramite_plating.html"},"circuit_board":{"name":"Circuit Board","href":"../items/refined/circuit_board.html"},"copper_wiring":{"name":"Copper Wiring","href":"../items/refined/copper_wiring.html"},"dark_matter_cell":{"name":"Dark Matter Cell","href":"../items/component/dark_matter_cell.html"},"flex_polymer":{"name":"Flex Polymer","href":"../items/refined/flex_polymer.html"},"focused_crystal":{"name":"Focused Crystal","href":"../items/refined/focused_crystal.html"},"fuel":{"name":"Fuel","href":"../items/fuel/fuel.html"},"fuel_cell":{"name":"Fuel Cell","href":"../items/consumable/fuel_cell.html"},"fuel_tank":{"name":"Fuel Tank","href":"../items/component/fuel_tank.html"},"liquid_hydrogen":{"name":"Liquid Hydrogen","href":"../items/refined/liquid_hydrogen.html"},"medical_supplies":{"name":"Medical Supplies","href":"../items/consumable/medical_supplies.html"},"oxygen_gas":{"name":"Oxygen Gas","href":"../items/refined/oxygen_gas.html"},"power_cell":{"name":"Power Cell","href":"../items/component/power_cell.html"},"purified_water":{"name":"Purified Water","href":"../items/refined/purified_water.html"},"repair_kit":{"name":"Repair Kit","href":"../items/consumable/repair_kit.html"},"salvage_metal":{"name":"Salvage Metal","href":"../items/component/salvage_metal.html"},"steel_plate":{"name":"Steel Plate","href":"../items/refined/steel_plate.html"},"sunspindle":{"name":"Sunspindle","href":"../items/refined/sunspindle.html"},"titanium_alloy":{"name":"Titanium Alloy","href":"../items/refined/titanium_alloy.html"},"trade_authenticator":{"name":"Trade Authenticator","href":"../items/component/trade_authenticator.html"},"water_ice":{"name":"Water Ice","href":"../items/ore/water_ice.html"},"water_recycler":{"name":"Water Recycler","href":"../items/component/water_recycler.html"}},"steps":[{"num":0,"options":[{"id":"","label":"Found the station","credits":5000000,"materials":{},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":1,"options":[{"id":"locker_bay","label":"Locker Bay","credits":500000,"materials":{"steel_plate":1600},"upkeep":{"flex_polymer":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":2,"options":[{"id":"faction_workshop","label":"Faction Workshop","credits":500000,"materials":{"circuit_board":400,"steel_plate":800},"upkeep":{"circuit_board":1,"focused_crystal":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":3,"options":[{"id":"refueling_dock","label":"Refueling Dock","credits":500000,"materials":{"fuel_cell":2000,"steel_plate":800},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":4,"options":[{"id":"fuel_tank_expansion","label":"Fuel Tank Expansion","credits":500000,"materials":{"ceramite_plating":1500,"fuel_tank":800,"steel_plate":8000},"upkeep":{"steel_plate":5},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":5,"options":[{"id":"trade_concourse","label":"Trade Concourse","credits":500000,"materials":{"circuit_board":400},"upkeep":{"trade_authenticator":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":6,"options":[{"id":"atmospheric_recycler","label":"Atmospheric Recycler","credits":600000,"materials":{"steel_plate":1200,"water_recycler":200},"upkeep":{"catalytic_scrubber_cartridge":1,"oxygen_gas":2,"purified_water":1,"sunspindle":1,"water_ice":3},"power_supply":0,"power_draw":0,"life_support_supply":12,"life_support_draw":0}]},{"num":7,"options":[{"id":"stellar_collector_grid","label":"Stellar Collector Grid","credits":900000,"materials":{"circuit_board":1200,"steel_plate":2000},"upkeep":{"circuit_board":2},"power_supply":20,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"fuel_cell_generator","label":"Fuel Cell Generator","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"bunker_fed_reactor","label":"Bunker-Fed Reactor","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel":55},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"scrap_reactor","label":"Scrap Reactor","credits":80000,"materials":{"salvage_metal":30,"steel_plate":40},"upkeep":{"fuel_cell":2,"salvage_metal":2},"power_supply":10,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"dark_matter_reactor","label":"Dark Matter Reactor","credits":3000000,"materials":{"circuit_board":1000,"dark_matter_cell":200,"steel_plate":8000},"upkeep":{"dark_matter_cell":1,"fuel_cell":2},"power_supply":48,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":8,"options":[{"id":"outfitting_bay","label":"Outfitting Bay","credits":500000,"materials":{"circuit_board":800,"steel_plate":4000},"upkeep":{"steel_plate":2,"titanium_alloy":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":9,"options":[{"id":"repair_slip","label":"Repair Slip","credits":500000,"materials":{"repair_kit":400,"steel_plate":1200},"upkeep":{"repair_kit":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":10,"options":[{"id":"reclamation_dock","label":"Reclamation Dock","credits":500000,"materials":{"circuit_board":200,"steel_plate":2000},"upkeep":{"fuel_cell":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":11,"options":[{"id":"contract_terminal","label":"Contract Terminal","credits":500000,"materials":{"circuit_board":200},"upkeep":{"circuit_board":1,"copper_wiring":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":12,"options":[{"id":"first_aid_ward","label":"First Aid Ward","credits":500000,"materials":{"circuit_board":250,"medical_supplies":200,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":13,"options":[{"id":"crew_registry","label":"Crew Registry","credits":500000,"materials":{"circuit_board":200,"steel_plate":500},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":14,"options":[{"id":"security_training_post","label":"Security Training Post","credits":500000,"materials":{"circuit_board":150,"steel_plate":700},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]}]};</script>
+    <script>window.GUIDE_PLAN = {"slug":"player-stations","per_day":false,"cycles_per_day":2.88,"items":{"armor_plate":{"name":"Armor Plate","href":"../items/component/armor_plate.html"},"catalytic_scrubber_cartridge":{"name":"Catalytic Scrubber Cartridge","href":"../items/component/catalytic_scrubber_cartridge.html"},"ceramite_plating":{"name":"Ceramite Plating","href":"../items/refined/ceramite_plating.html"},"circuit_board":{"name":"Circuit Board","href":"../items/refined/circuit_board.html"},"coolant_fluid":{"name":"Coolant Fluid","href":"../items/refined/coolant_fluid.html"},"copper_wiring":{"name":"Copper Wiring","href":"../items/refined/copper_wiring.html"},"dark_matter_cell":{"name":"Dark Matter Cell","href":"../items/component/dark_matter_cell.html"},"flex_polymer":{"name":"Flex Polymer","href":"../items/refined/flex_polymer.html"},"focused_crystal":{"name":"Focused Crystal","href":"../items/refined/focused_crystal.html"},"fuel":{"name":"Fuel","href":"../items/fuel/fuel.html"},"fuel_cell":{"name":"Fuel Cell","href":"../items/consumable/fuel_cell.html"},"fuel_tank":{"name":"Fuel Tank","href":"../items/component/fuel_tank.html"},"liquid_hydrogen":{"name":"Liquid Hydrogen","href":"../items/refined/liquid_hydrogen.html"},"medical_supplies":{"name":"Medical Supplies","href":"../items/consumable/medical_supplies.html"},"oxygen_gas":{"name":"Oxygen Gas","href":"../items/refined/oxygen_gas.html"},"power_cell":{"name":"Power Cell","href":"../items/component/power_cell.html"},"purified_water":{"name":"Purified Water","href":"../items/refined/purified_water.html"},"repair_kit":{"name":"Repair Kit","href":"../items/consumable/repair_kit.html"},"salvage_metal":{"name":"Salvage Metal","href":"../items/component/salvage_metal.html"},"steel_plate":{"name":"Steel Plate","href":"../items/refined/steel_plate.html"},"sunspindle":{"name":"Sunspindle","href":"../items/refined/sunspindle.html"},"superconductor":{"name":"Superconductor","href":"../items/refined/superconductor.html"},"targeting_computer":{"name":"Targeting Computer","href":"../items/component/targeting_computer.html"},"titanium_alloy":{"name":"Titanium Alloy","href":"../items/refined/titanium_alloy.html"},"trade_authenticator":{"name":"Trade Authenticator","href":"../items/component/trade_authenticator.html"},"water_ice":{"name":"Water Ice","href":"../items/ore/water_ice.html"},"water_recycler":{"name":"Water Recycler","href":"../items/component/water_recycler.html"}},"steps":[{"num":0,"options":[{"id":"","label":"Found the station","credits":5000000,"materials":{},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":1,"options":[{"id":"locker_bay","label":"Locker Bay","credits":500000,"materials":{"steel_plate":1600},"upkeep":{"flex_polymer":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":2,"options":[{"id":"faction_workshop","label":"Faction Workshop","credits":500000,"materials":{"circuit_board":400,"steel_plate":800},"upkeep":{"circuit_board":1,"focused_crystal":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":3,"options":[{"id":"atmospheric_recycler","label":"Atmospheric Recycler","credits":600000,"materials":{"steel_plate":1200,"water_recycler":200},"upkeep":{"catalytic_scrubber_cartridge":1,"oxygen_gas":2,"purified_water":1,"sunspindle":1,"water_ice":3},"power_supply":0,"power_draw":0,"life_support_supply":12,"life_support_draw":0}]},{"num":4,"options":[{"id":"stellar_collector_grid","label":"Stellar Collector Grid","credits":900000,"materials":{"circuit_board":1200,"steel_plate":2000},"upkeep":{"circuit_board":2},"power_supply":20,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"fuel_cell_generator","label":"Fuel Cell Generator","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"bunker_fed_reactor","label":"Bunker-Fed Reactor","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel":55},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"scrap_reactor","label":"Scrap Reactor","credits":80000,"materials":{"salvage_metal":30,"steel_plate":40},"upkeep":{"fuel_cell":2,"salvage_metal":2},"power_supply":10,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"dark_matter_reactor","label":"Dark Matter Reactor","credits":3000000,"materials":{"circuit_board":1000,"dark_matter_cell":200,"steel_plate":8000},"upkeep":{"dark_matter_cell":1,"fuel_cell":2},"power_supply":48,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":5,"options":[{"id":"refueling_dock","label":"Refueling Dock","credits":500000,"materials":{"fuel_cell":2000,"steel_plate":800},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":6,"options":[{"id":"trade_concourse","label":"Trade Concourse","credits":500000,"materials":{"circuit_board":400},"upkeep":{"trade_authenticator":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":7,"options":[{"id":"outfitting_bay","label":"Outfitting Bay","credits":500000,"materials":{"circuit_board":800,"steel_plate":4000},"upkeep":{"steel_plate":2,"titanium_alloy":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":8,"options":[{"id":"repair_slip","label":"Repair Slip","credits":500000,"materials":{"repair_kit":400,"steel_plate":1200},"upkeep":{"repair_kit":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":9,"options":[{"id":"reclamation_dock","label":"Reclamation Dock","credits":500000,"materials":{"circuit_board":200,"steel_plate":2000},"upkeep":{"fuel_cell":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":10,"options":[{"id":"contract_terminal","label":"Contract Terminal","credits":500000,"materials":{"circuit_board":200},"upkeep":{"circuit_board":1,"copper_wiring":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":11,"options":[{"id":"first_aid_ward","label":"First Aid Ward","credits":500000,"materials":{"circuit_board":250,"medical_supplies":200,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":12,"options":[{"id":"crew_registry","label":"Crew Registry","credits":500000,"materials":{"circuit_board":200,"steel_plate":500},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":13,"options":[{"id":"security_training_post","label":"Security Training Post","credits":500000,"materials":{"circuit_board":150,"steel_plate":700},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":14,"options":[{"id":"fuel_tank_expansion","label":"Fuel Tank Expansion","credits":500000,"materials":{"ceramite_plating":1500,"fuel_tank":800,"steel_plate":8000},"upkeep":{"steel_plate":5},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":15,"options":[{"id":"faction_ship_garage","label":"Faction Ship Garage","credits":600000,"materials":{"circuit_board":150,"steel_plate":300},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":16,"options":[{"id":"hiring_board","label":"Hiring Board","credits":75000,"materials":{"circuit_board":25,"steel_plate":75},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":17,"options":[{"id":"storage_extension","label":"Storage Extension","credits":500000,"materials":{"circuit_board":150,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":18,"options":[{"id":"point_defense_battery","label":"Point Defense Battery","credits":180000,"materials":{"circuit_board":60,"steel_plate":400,"targeting_computer":4},"upkeep":{"coolant_fluid":1},"power_supply":0,"power_draw":2,"life_support_supply":0,"life_support_draw":0}]},{"num":19,"options":[{"id":"reinforced_plating","label":"Reinforced Plating","credits":700000,"materials":{"armor_plate":240,"steel_plate":2000},"upkeep":{"armor_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":20,"options":[{"id":"fire_control_center","label":"Fire Control Center","credits":1200000,"materials":{"circuit_board":300,"steel_plate":900,"superconductor":80,"targeting_computer":60},"upkeep":{"circuit_board":2},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]}]};</script>
     <script>
     (function() {
         var drawer = document.getElementById('upkeep-drawer');

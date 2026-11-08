@@ -45,6 +45,7 @@ type renderer struct {
 
 type linkView struct {
 	Name, Href string // Href empty → plain text
+	ID         string // catalog id, shown after facility names in step headings
 }
 
 type qtyView struct {
@@ -132,13 +133,13 @@ type tocEntry struct {
 }
 
 type pageView struct {
-	Cycle   string // e.g. "1 maintenance cycle = 3,000 ticks (≈8.3 h, 2.9/day) · player-reported"
-	Unit    string // "cycle" or "day": what the upkeep panel totals are per
-	Header  htmltpl.HTML
-	Title   string
-	Summary string
-	TOC     []tocEntry
-	Intro   htmltpl.HTML
+	Cycle     string // e.g. "1 maintenance cycle = 3,000 ticks (≈8.3 h, 2.9/day) · player-reported"
+	Unit      string // "cycle" or "day": what the upkeep panel totals are per
+	Header    htmltpl.HTML
+	Title     string
+	Summary   string
+	TOC       []tocEntry
+	Intro     htmltpl.HTML
 	Steps     []stepView
 	Snapshots []snapView
 	Body      htmltpl.HTML
@@ -194,7 +195,7 @@ func (r *renderer) md(g *guide, src string) (htmltpl.HTML, error) {
 
 func (r *renderer) link(id string) linkView {
 	href, _ := r.links.Href(id)
-	return linkView{Name: r.links.Name(id), Href: href}
+	return linkView{Name: r.links.Name(id), Href: href, ID: id}
 }
 
 // qtys renders an item→quantity map sorted by display name.
@@ -239,7 +240,8 @@ func (r *renderer) planOptionFor(id, label string, extraCredits int, items map[s
 	}
 	for _, m := range []map[string]int{c.Materials, c.UpkeepPerCycle} {
 		for item := range m {
-			items[item] = linkJSON(r.link(item))
+			l := r.link(item)
+			items[item] = linkJSON{Name: l.Name, Href: l.Href}
 		}
 	}
 	return planOption{ID: id, Label: label, Credits: c.Credits, Materials: c.Materials, Upkeep: c.UpkeepPerCycle,
@@ -395,8 +397,9 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 			}
 		}
 		pv.Steps = append(pv.Steps, sv)
+		// Steps lead with their job ("Life Support"), not the facility that does it.
 		label := s.Title
-		if sv.Facility != nil {
+		if label == "" && sv.Facility != nil {
 			label = sv.Facility.Name
 		}
 		extra := 0
@@ -491,6 +494,7 @@ const pageStyle = `<style>
         .guide-main ul, .guide-main ol { padding-left: 1.4em; }
         .guide-main li { margin: .35em 0; }
         .guide-main .breadcrumb { font-size: 14px; margin-bottom: 1em; }
+        .fac-id { font-size: .7em; font-weight: 400; color: hsl(var(--muted-foreground)); }
         .guide-title { font-size: 2.35rem; line-height: 1.2; margin: 0 0 .4em; }
         .guide-lede { font-size: 1.1em; color: hsl(var(--muted-foreground)); margin-bottom: 2em !important; }
         .guide-main h2 { font-size: 1.75rem; line-height: 1.3; margin: 3.2em 0 .9em; padding-top: 1.2em; border-top: 1px solid hsl(var(--border)); }
@@ -733,6 +737,7 @@ const pageFoot = themeScript + `
 `
 
 var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{if .Href}}<a href="{{.Href}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}{{end}}
+{{define "facility"}}{{template "link" .}} <code class="fac-id">({{.ID}})</code>{{end}}
 {{define "upkeep"}}<table><tr><th>Upkeep</th><th class="num">/cycle</th>{{if .}}{{if (index . 0).PerDay}}<th class="num">/day</th>{{end}}{{end}}</tr>{{range .}}<tr{{if .Added}} class="added"{{end}}><td>{{template "link" .Item}}</td><td class="num">{{.PerCycle}}</td>{{if .PerDay}}<td class="num">{{.PerDay}}</td>{{end}}</tr>{{end}}</table>{{end}}
 {{define "pool"}}<p class="pool"><b>Service pool:</b> {{template "link" .Item}} {{.PerCycle}}/cycle <span class="basis">estimate: pool {{.Capacity}}, refills {{.Refill}}/cycle, {{.UnitsPer}} units per item (catalog); not counted in the totals</span></p>{{end}}
 {{define "grid"}}power {{if .PowerDeficit}}<span class="deficit">⚠ {{.Power}}</span>{{else}}{{.Power}}{{end}} · life support {{if .LifeSupportDeficit}}<span class="deficit">⚠ {{.LifeSupport}}</span>{{else}}{{.LifeSupport}}{{end}} <span class="text-muted">(supply / draw)</span>{{end}}
@@ -762,7 +767,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
         <div class="step-break">{{.Break}}</div>
 {{- end}}
         <section class="step-card" id="step-{{.Num}}">
-            <h3>Step {{.Num}}: {{if .Options}}{{range .Options}}<span class="opt-name" data-step="{{$s.Num}}" data-opt="{{.ID}}"{{if not .Default}} hidden{{end}}>{{template "link" .Facility}}</span>{{end}}{{else if .Facility}}{{template "link" .Facility}}{{else}}{{.Title}}{{end}}{{if and .Facility (ne .Title .Facility.Name)}} <small class="text-muted">{{.Title}}</small>{{end}}</h3>
+            <h3>Step {{.Num}}: {{if and .Facility (ne .Title .Facility.Name)}}{{.Title}} - {{end}}{{if .Options}}{{range .Options}}<span class="opt-name" data-step="{{$s.Num}}" data-opt="{{.ID}}"{{if not .Default}} hidden{{end}}>{{template "facility" .Facility}}</span>{{end}}{{else if .Facility}}{{template "facility" .Facility}}{{else}}{{.Title}}{{end}}</h3>
 {{- if .Options}}
             <div class="opt-choices" role="group" aria-label="Choose the facility for this step">
 {{- range .Options}}
