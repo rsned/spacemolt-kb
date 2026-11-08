@@ -44,6 +44,9 @@ type stepSpec struct {
 	// BreakBefore is markdown shown as a divider before this step's card,
 	// e.g. where a strict build order gives way to a flexible one.
 	BreakBefore string `yaml:"break_before"`
+	// DefaultLabel replaces "recommended" on the default option's button,
+	// e.g. "our pick" where the default fits our station, not every station.
+	DefaultLabel string `yaml:"default_label"`
 }
 
 // fact is a hand-stated figure for a non-facility step, with its basis

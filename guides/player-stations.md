@@ -99,14 +99,16 @@ steps:
       the domes come out ahead over time.
   - title: Power
     facility: stellar_collector_grid
+    default_label: our pick
     alternatives: [fuel_cell_generator, bunker_fed_reactor, scrap_reactor, dark_matter_reactor]
     notes: |
       Service facilities list **no power draw** in the catalog, but production facilities do,
       so power, with life support, is what unlocks production lines at the station.
       [[capacitor_bank]], [[buffer_array]] and [[cryo_capacitor_vault]] add battery storage
-      on top of any of these. In a system with a star the collector grid is
-      the simplest to keep fed: 2 [[circuit_board]] per cycle and nothing else. The Bunker-Fed
-      Reactor burns [[fuel]] instead: 55 per cycle.
+      on top of any of these. We chose the collector grid because we had circuit boards to
+      spare, and its upkeep is 2 [[circuit_board]] per cycle and nothing else. For many
+      builders the Bunker-Fed Reactor is the easier starting choice: it is cheaper to build
+      and burns only [[fuel]], 55 per cycle.
 
       **Size power for your defenses, not your production.** Production facilities draw
       little unless every one of them runs at once, and players report never getting near the
@@ -125,8 +127,8 @@ steps:
     notes: |
       Right after life support and power, because everyone needs fuel: your own miners and
       haulers working out of the station, and every pilot passing through. Waiting for those
-      two first pays off here: the dock's tank starts empty, and the way to fill it, an
-      [[h2_fuel_combustor]], is a production facility that needs both. The dock brings its **own 5,000-unit tank**:
+      two first pays off here: the dock's tank starts empty, and the way to fill it, a fuel
+      production facility, needs both. The dock brings its **own 5,000-unit tank**:
       `get_base` `max_fuel` went from 200 to 5,000 when ours was built, with no tank expansion
       (*measured* 2026-10-26). Faction members draw from the shared tank for free; everyone
       else pays your station price (set with `station set_refuel_price`).
@@ -139,13 +141,24 @@ steps:
       with `refuel` listed, within 69 ticks (*measured*).
 
       ⚠ **Then fill the tank.** The dock starts empty, and a refuel answers *"station_fuel_empty:
-      This station's fuel reserves are depleted"* (*measured*). The way to fill it is an
-      [[h2_fuel_combustor]]: crafting `manufacture_fuel_basic` there turns 10
+      This station's fuel reserves are depleted"* (*measured*). You fill it with a fuel
+      production facility, and there are many to choose from. The catalog has four level-1
+      lines, each upgrading through three more levels, so pick the one whose input you can
+      supply most easily:
+
+      | Level 1 | Input per run | Fuel per run | Upgrades to |
+      |---|---|---|---|
+      | [[h2_fuel_combustor]] | 10 [[liquid_hydrogen]] | 100 | [[h2_fuel_plant]], [[h2_fuel_complex]], [[h2_fuel_hub]] |
+      | [[peroxide_reaction_cell]] | 2 [[liquid_hydrogen]] + 2 [[liquid_oxygen]] | 200 | [[h2o2_combustion_plant]], [[bipropellant_fuel_complex]], [[h2o2_synthesis_hub]] |
+      | [[catalytic_fuel_refinery]] | 1 [[platinum_catalyst]] + 4 [[liquid_hydrogen]] | 200 | [[catalytic_fuel_plant]], [[catalytic_fuel_complex]], [[catalytic_fuel_hub]] |
+      | [[plasma_fuel_combustor]] | 4 [[plasma_gas]] | 500 | [[plasma_fuel_plant]], [[plasma_fuel_complex]], [[plasma_synthesis_reactor]] |
+
+      We chose the [[h2_fuel_combustor]]: crafting `manufacture_fuel_basic` there turns 10
       [[liquid_hydrogen]] into 100 fuel per run (about 1 s a run, 8 cr labor), and the output
       goes straight into the station's tank, not into faction storage, whatever the craft
       reply says. Each completed run adds its 100 fuel as it finishes, so the tank climbs
       steadily while the job runs. Faction storage and the treasury cover the job when the crafter's own
-      can't (*measured* 2026-10-27). Until the combustor is up,
+      can't (*measured* 2026-10-27). Until your fuel facility is up,
       a CRFT member can top the tank up from their own ship (`faction_deposit_items`,
       `item_id=fuel`).
 
@@ -154,14 +167,18 @@ steps:
       misleading, because credits are not the problem (*measured*).
   - title: Market
     facility: trade_concourse
+    break_before: |
+      **From here on the order is flexible.** With storage, crafting, production support
+      and fuel in place, build the remaining services as you need them. Our suggestion is
+      the market, shipyard, repair and salvage yard first, then missions, medical, personnel
+      and marine training, and more fuel tank once the dock's 5,000 runs short.
     notes: |
       The rest of a full station is its **services**. A mature station lists eleven:
       `crafting`, `marine_training`, `market`, `medical`, `missions`, `personnel`, `refuel`,
       `repair`, `salvage_yard`, `shipyard` and `storage` (*player-reported*). Each has a level-1
       facility a player station can build.
 
-      The market comes after power, life support and fuel, because it starts the station
-      earning: crossroads
+      Build the market early among these, because it starts the station earning: crossroads
       traffic trades here, and you set the listing fee they pay with
       `station set_market_fee`. The catalog lists its upkeep as one [[trade_authenticator]] a
       cycle, but players have found the authenticators go **per trade**, possibly on top of
@@ -170,11 +187,6 @@ steps:
       volume rather than to the cycle.
   - title: Shipyard
     facility: outfitting_bay
-    break_before: |
-      **From here on the order is flexible.** With storage, crafting, production support,
-      fuel and a market in place, build the remaining services as you need them. Our
-      suggestion is shipyard, repair and salvage yard first, then missions, medical, personnel
-      and marine training, and more fuel tank once the dock's 5,000 runs short.
     notes: |
       The most expensive level-1 service to build: thousands of [[steel_plate]] plus
       [[circuit_board]], and the longest build time. Upkeep includes [[titanium_alloy]].
@@ -192,11 +204,15 @@ steps:
       (`buy_ship_license`; T1 1M, T2 5M, T3 10M, T4 20M, T5 50M). We licensed the outerrim
       Congregation (1,900 cargo) for 1M. A **faction-funded commission** then draws every
       material from faction storage, the treasury pays the labor plus a 10% royalty on the
-      materials' value to the design's empire (about 650–820 cr per Congregation), and the
-      finished hull is delivered to whoever placed the order (*measured*). Anyone can
-      commission a class; supply the materials, because at the cash price the yard has to
-      buy them itself, and a material that isn't on the market stalls the build for good
-      (*player-reported*).
+      materials' value at current market rates to the design's empire (about 650–820 cr per
+      Congregation), and the finished hull is delivered to whoever placed the order
+      (*measured*).
+
+      Compared to empire stations, where anyone can commission any class they have the skills
+      to fly, player stations are limited to classes unlocked by faction achievements and
+      licenses. (And at an empire station, paying cash for a commission can still stall
+      forever, because the shipyard has to source the materials itself and can't progress
+      without them (*player-reported*).)
   - title: Repair
     facility: repair_slip
     notes: |
@@ -215,6 +231,8 @@ steps:
   - title: Medical
     facility: first_aid_ward
     notes: |
+      Medical heals injured personnel and marines.
+
       It **does** have upkeep, listed in a different place from the usual upkeep: a service
       pool fed by [[medical_supplies]] (catalog `service_pool_supply_item`). Running out
       hurts the station's operational status, and the pool may refill on a different cycle
@@ -290,31 +308,6 @@ steps:
       Adds a named bucket to faction storage (ours holds up to 100,000 of each item, up to
       1,000 packages). We use it to keep a repair reserve apart from working stock, since
       builds and upgrades can take their materials from a named bucket.
-  - title: Point defense
-    facility: point_defense_battery
-    break_before: |
-      **Defense.** No one had attacked our station yet; we built defenses ahead of an attack, not in response to one. A wrecked
-      station has to be repaired before it works again, at about 30% of each facility's build
-      cost in credits and in that facility's materials, which must be at the station
-      (*player-reported*).
-    notes: |
-      The cheapest gun, and it upgrades twice for reach ([[station_defense_turret]], then
-      [[heavy_defense_battery]]). After ours finished, `get_base` showed `weapon_dps` 30
-      (*measured* 2026-11-06). ⚠ **Every gun needs ammunition** in faction storage: this one
-      fires [[ferrous_slug_case]] (hand recipe: 3 [[iron_ore]] + 2 [[steel_plate]] → 5). Its
-      degraded text describes empty magazines, so a gun built without ammo likely does
-      nothing in a fight.
-  - title: Armor plating
-    facility: reinforced_plating
-    notes: |
-      Armor cuts each hit to the hull by its amount, and the plating repairs itself after
-      combat. No power draw. Ours raised `get_base` **hull from 60,000 to 85,000 and armor
-      from 15 to 60** (*measured* 2026-11-08). Upkeep and repairs use [[armor_plate]].
-  - title: Fire control
-    facility: fire_control_center
-    notes: |
-      Improves the guns' accuracy (*player-reported*); `get_base` shows no new number for
-      it. Upkeep is [[circuit_board]].
 ---
 ## Reading your station
 
@@ -475,7 +468,7 @@ target than its neighbours, and keep a repair reserve on site.
   heavy battery. All three are hand recipes.
 - Shields and guns draw power in combat, so stored charge matters. Production stops in a
   fight and the defenses get the power (*player-reported*).
-- The [[shield_projector]], [[battery_bank]] / [[capacitor_bank]] and [[bunker_fed_reactor]]
+- The [[shield_projector]], [[capacitor_bank]] and [[bunker_fed_reactor]]
   all need [[power_cell]] to build and some to run. We make cells at the station in an
   [[argon_cell_lab]] and a [[neon_cell_lab]].
 - **Generator ships.** Since v0.669.0 a ship with a field generator docked at a station can
@@ -513,6 +506,60 @@ What carries it is everything behind the guns: 6 [[bunker_fed_reactor]], 5
 for life support, and its own ammunition lines. Power and life support, not credits, are what
 cap how many defenses a station can run.
 
+Each defense facility below, in the order we suggest building them. Build and upkeep
+figures are from the catalog; upkeep is per cycle.
+
+### Point defense
+
+[[point_defense_battery]] · **Build:** 180,000 cr + 400 [[steel_plate]] + 60
+[[circuit_board]] + 4 [[targeting_computer]] · 80 ticks · **Upkeep:** 1 [[coolant_fluid]] ·
+**Power:** draws 2
+
+The cheapest gun, and it upgrades twice for reach ([[station_defense_turret]], then
+[[heavy_defense_battery]]). After ours finished, `get_base` showed `weapon_dps` 30
+(*measured* 2026-11-06). ⚠ **Every gun needs ammunition** in faction storage: this one
+fires [[ferrous_slug_case]] (hand recipe: 3 [[iron_ore]] + 2 [[steel_plate]] → 5). Its
+degraded text describes empty magazines, so a gun built without ammo likely does
+nothing in a fight.
+
+### Shields
+
+[[shield_projector]] · **Build:** 900,000 cr + 1,200 [[steel_plate]] + 200
+[[superconductor]] + 300 [[power_cell]] · 200 ticks · **Upkeep:** 4 [[power_cell]], 2
+[[coolant_fluid]] · **Power:** draws 10
+
+Each projector adds **18,000 station shield** on top of the base 12,000, and projectors
+stack. It draws the most power of any level-1 defense, so check your power supply first.
+When the cells run out the projector goes cold and the shield drops back to the base
+value. It upgrades to [[shield_bastion]]. *Not yet built at Conjunction Junction.*
+
+### Battery
+
+[[capacitor_bank]] · **Build:** 500,000 cr + 1,000 [[steel_plate]] + 600 [[power_cell]] ·
+120 ticks · **Upkeep:** 1 [[power_cell]]
+
+Stores charge (30 capacity) so shields and guns keep firing when a fight draws more than
+your generators supply. [[battery_bank]] has the same stats but is not buildable at a
+player station; build the Capacitor Bank. It upgrades to [[buffer_array]] (75) and
+[[cryo_capacitor_vault]]. *Not yet built at Conjunction Junction.*
+
+### Armor plating
+
+[[reinforced_plating]] · **Build:** 700,000 cr + 2,000 [[steel_plate]] + 240
+[[armor_plate]] · 180 ticks · **Upkeep:** 1 [[armor_plate]] · **Power:** none
+
+Armor cuts each hit to the hull by its amount, and the plating repairs itself after
+combat. Ours raised `get_base` **hull from 60,000 to 85,000 and armor from 15 to 60**
+(*measured* 2026-11-08). Repairs also use [[armor_plate]].
+
+### Fire control
+
+[[fire_control_center]] · **Build:** 1,200,000 cr + 900 [[steel_plate]] + 300
+[[circuit_board]] + 80 [[superconductor]] + 60 [[targeting_computer]] · 220 ticks ·
+**Upkeep:** 2 [[circuit_board]] · **Power:** none
+
+Improves the guns' accuracy (*player-reported*); `get_base` shows no new number for it.
+
 **Not yet measured:** how much ammunition a fight uses; what fire control changes in
 numbers; shield and battery behaviour under fire; how fast a wrecked station repairs.
 
@@ -535,11 +582,41 @@ upkeep lists are long: the Dockside Diner alone takes seven different items a cy
 ([[algae_wafer]], [[crimson_iron_rations]], [[purified_water]], [[frontier_hash]],
 [[station_seltzer]], [[sustagel_bowl]], [[vat_protein_loaf]]). Line up the supply first.
 
-For scale: Ironlight Crossroads, with 6 dining and 6 leisure points from seven venues, shows
-a lifetime `tourism_revenue` of **17,002,924 cr** on its public listing (2026-11-08).
+### Passenger area: Transit Lounge
+
+[[transit_lounge]] · **Build:** 500,000 cr + 250 [[steel_plate]] + 100 [[circuit_board]] +
+100 [[flex_polymer]] · 60 ticks · **Upkeep:** none listed · **Holds:** 20 passengers ·
+needs faction storage
+
+The starting passenger area, and what brings visitors to your venues. Faction ships drop
+connecting passengers here (`unload_passenger target=lounge`) and other members fly them
+onward (`load_passenger` picks them up alongside the platform queue). Fares and fare
+deadlines carry over, and whoever completes the delivery collects the full fare. While
+they wait, layover passengers spend a little at the station's dining and leisure venues.
+The departures board warns the faction when a passenger is about to miss a connection;
+one whose fare deadline runs out mid-layover walks out to the public pickup queue and the
+fare is lost (catalog description, *doc-quoted*).
+
+It upgrades to [[transit_terminal]] (2,500,000 cr, 60 passengers, +180 ticks on each
+connecting passenger's fare deadline) and [[transit_concourse]] (9,000,000 cr, 150
+passengers, +360 ticks). The Obsidian Well runs a Transit Concourse. *Not yet built at
+Conjunction Junction.*
+
+**The reference build: The Obsidian Well** (Busy Being Dead, Arneb). It runs **one of
+every venue** a player station can build: all eight dining venues and all five leisure
+venues, every one with its upkeep met. Its public listing
+(`/api/stations/cca9e51e6eaf8dada77f698ccc4a09c7`, 2026-11-08) shows **22 dining and 16
+leisure points** and a lifetime `tourism_revenue` of **72,628,846 cr**, condition
+`thriving`.
+
+Those points are less than the venues' catalog points added up (36 dining, 24 leisure), so
+venues don't simply add their points together. The 22 dining points equal the three best
+dining venues (10 + 7 + 5), but the leisure total doesn't follow the same pattern, so the
+rule is still unknown.
 
 **Not yet measured:** where tourism revenue comes from and whether it reaches the treasury;
-how `tourism_upkeep` scales with visitors; what dining and leisure points do beyond revenue.
+how `tourism_upkeep` scales with visitors; how a station's venues combine into its dining
+and leisure points; what those points do beyond revenue.
 
 ## Where the official docs are wrong
 

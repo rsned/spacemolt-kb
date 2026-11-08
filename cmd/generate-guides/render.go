@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -62,6 +63,7 @@ type qtyView struct {
 type optionView struct {
 	ID          string
 	Default     bool
+	Badge       string // label on the default option's button
 	Facility    linkView
 	Gives       string
 	Credits     string
@@ -391,7 +393,9 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 				Upkeep: r.qtys(s.Measured.UpkeepPerCycle, true)}
 		}
 		if len(s.Alternatives) > 0 {
-			sv.Options = append(sv.Options, r.option(s.Facility, true, sv.Measured))
+			def := r.option(s.Facility, true, sv.Measured)
+			def.Badge = cmp.Or(s.DefaultLabel, "recommended")
+			sv.Options = append(sv.Options, def)
 			for _, id := range s.Alternatives {
 				sv.Options = append(sv.Options, r.option(id, false, nil))
 			}
@@ -771,7 +775,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- if .Options}}
             <div class="opt-choices" role="group" aria-label="Choose the facility for this step">
 {{- range .Options}}
-                <button type="button" class="opt-choice" data-step="{{$s.Num}}" data-opt="{{.ID}}" aria-pressed="{{if .Default}}true{{else}}false{{end}}"><span class="opt-title">{{.Facility.Name}}{{if .Default}} <em>recommended</em>{{end}}</span><span class="opt-meta">{{.Credits}} cr · upkeep {{.UpkeepTotal}}{{if .Gives}} · {{.Gives}}{{end}}</span></button>
+                <button type="button" class="opt-choice" data-step="{{$s.Num}}" data-opt="{{.ID}}" aria-pressed="{{if .Default}}true{{else}}false{{end}}"><span class="opt-title">{{.Facility.Name}}{{if .Badge}} <em>{{.Badge}}</em>{{end}}</span><span class="opt-meta">{{.Credits}} cr · upkeep {{.UpkeepTotal}}{{if .Gives}} · {{.Gives}}{{end}}</span></button>
 {{- end}}
             </div>
 {{- range .Options}}
