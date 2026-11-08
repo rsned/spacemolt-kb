@@ -160,7 +160,13 @@ func (r renderer) code(f *Field) string {
 			tag += ",omitempty"
 		}
 		tag += "\"`"
-		return "    " + span("n", pad(GoName(f.Name), r.nameW)) + " " + span("t", pad(t, r.typeW)) + " " + span("s", tag)
+		line := "    " + span("n", pad(GoName(f.Name), r.nameW)) + " " + span("t", pad(t, r.typeW)) + " " + span("s", tag)
+		if f.Type.Nullable {
+			// Go types can't say a slice, map or value may be null; the
+			// TypeScript form shows it as "| null".
+			line += " " + span("c", "// nullable")
+		}
+		return line
 	}
 	q := ""
 	if !f.Required {

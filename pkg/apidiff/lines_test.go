@@ -168,3 +168,12 @@ func TestStructLinesEnumAddedToField(t *testing.T) {
 		t.Errorf("enum addition should show a del/add pair and a named block:\n%s", dump(ts))
 	}
 }
+
+func TestStructLinesGoNullableMarker(t *testing.T) {
+	d := onlyDiff(t, step(t, `{"R":{"type":"object","required":["route"],"properties":{"route":{"type":["array","null"],"items":{"type":"string"}}}}}`,
+		`{"R":{"type":"object","required":["route"],"properties":{"route":{"type":"array","items":{"type":"string"}}}}}`))
+	lines := StructLines(d, "go")
+	if !find(lines, LineDel, "Route []string `json:\"route\"` // nullable") || !find(lines, LineAdd, "Route []string `json:\"route\"`") {
+		t.Errorf("nullability change not visible in Go:\n%s", dump(lines))
+	}
+}
