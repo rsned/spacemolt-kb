@@ -293,7 +293,7 @@ steps:
   - title: Point defense
     facility: point_defense_battery
     break_before: |
-      **Defense.** No one had attacked us; we built defenses before anyone did. A wrecked
+      **Defense.** No one had attacked our station yet; we built defenses ahead of an attack, not in response to one. A wrecked
       station has to be repaired before it works again, at about 30% of each facility's build
       cost in credits and in that facility's materials, which must be at the station
       (*player-reported*).
