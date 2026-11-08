@@ -166,6 +166,8 @@
             <a href="#station-administration">Station administration</a>
             <a href="#what-you-can-build-here">What you can build here</a>
             <a href="#moving-a-facility">Moving a facility</a>
+            <a href="#defense">Defense</a>
+            <a href="#tourism">Tourism</a>
             <a href="#where-the-official-docs-are-wrong">Where the official docs are wrong</a>
             <a href="#not-yet-measured">Not yet measured</a>
         </nav>
@@ -863,6 +865,66 @@ to 19 packages each.</p>
 comes back. Expect to pay it again when you rebuild. Rented <code>faction_*</code> facilities at NPC
 stations cannot be rebuilt at your own station. Check that the facility is on the
 <a href="#what-you-can-build-here">buildable list</a> before dismantling it to move it.</p>
+<h2 id="defense">Defense</h2>
+<p><em>Placeholder: we are building this now and will fill it in as we measure.</em></p>
+<p><strong>Why bother before an attack.</strong> A wrecked station has to be repaired before it works again,
+at about 30% of each facility's original build cost, in credits and in that facility's own
+build materials, which must already be at the station (<em>player-reported</em>). Until then every
+service, life support and power is down. So defense is two jobs: make the station a harder
+target than its neighbours, and keep a repair reserve on site.</p>
+<p><strong>What Conjunction Junction has (2026-11-08, <em>measured</em>):</strong> a <a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a>
+(<code>weapon_dps</code> 30), <a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a> (hull 85,000, armor 60) and a
+<a href="../facilities/defense/fire_control_center.html">Fire Control Center</a>; shield 12,000, the base value. Battery capacity is still 0.</p>
+<p><strong>What we know so far:</strong></p>
+<ul>
+<li>Guns fire ammunition from faction storage: <a href="../items/ammo/ferrous_slug_case.html">Ferrous Slug Case</a> for the point defense
+battery, <a href="../items/ammo/armor_piercing_rounds_box.html">Armor Piercing Rounds Box</a> for the turret, <a href="../items/ammo/fragmentation_rounds_box.html">Fragmentation Rounds Box</a> for the
+heavy battery. All three are hand recipes.</li>
+<li>Shields and guns draw power in combat, so stored charge matters. Production stops in a
+fight and the defenses get the power (<em>player-reported</em>).</li>
+<li>The <a href="../facilities/defense/shield_projector.html">Shield Projector</a>, <a href="../facilities/infrastructure/battery_bank.html">Battery Bank</a> / <a href="../facilities/infrastructure/capacitor_bank.html">Capacitor Bank</a> and <a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>
+all need <a href="../items/component/power_cell.html">Power Cell</a> to build and some to run. We make cells at the station in an
+<a href="../facilities/production/argon_cell_lab.html">Argon Cell Lab</a> and a <a href="../facilities/production/neon_cell_lab.html">Neon Cell Lab</a>.</li>
+<li><strong>Generator ships.</strong> Since v0.669.0 a ship with a field generator docked at a station can
+feed its power grid (<code>generator</code>), burning 1 ship fuel a tick for up to 360 ticks per link,
+which charges batteries and powers shields and guns. The outerrim <strong>Jump Start</strong> (T2,
+1,200 fuel) is built for it, with a +100% generator output bonus (<em>doc-quoted</em>).</li>
+</ul>
+<p><strong>Not yet measured:</strong> how much ammunition a fight uses; what fire control changes in
+numbers; shield and battery behaviour under fire; how fast a wrecked station repairs.</p>
+<h2 id="tourism">Tourism</h2>
+<p><em>Placeholder: we have not built any venues yet.</em></p>
+<p>Food and leisure venues are infrastructure a player station can build. Each one adds
+<strong>dining points</strong> or <strong>leisure points</strong> to the station, and <code>get_base</code> reports those along
+with a lifetime <strong><code>tourism_revenue</code></strong> in credits (the play_as client prints them as a
+<code>Tourism:</code> line). Stations we have docked at reported dining and leisure points from 2 to 10.</p>
+<table>
+<thead>
+<tr>
+<th>Venue type</th>
+<th>Level 1 (150,000 cr)</th>
+<th>Higher levels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dining</td>
+<td><a href="../facilities/infrastructure/dockside_diner.html">Dockside Diner</a>, <a href="../facilities/infrastructure/slice_deck.html">Slice Deck</a>, <a href="../facilities/infrastructure/sunrise_griddle.html">Sunrise Griddle</a> (2 points each)</td>
+<td><a href="../facilities/infrastructure/grazer_grill.html">Grazer Grill</a>, <a href="../facilities/infrastructure/stellar_bistro.html">Stellar Bistro</a> (4), <a href="../facilities/infrastructure/the_tide_line.html">The Tide-Line</a> (5), <a href="../facilities/infrastructure/the_golden_table.html">The Golden Table</a> (7), <a href="../facilities/infrastructure/the_leviathan_table.html">The Leviathan Table</a> (10)</td>
+</tr>
+<tr>
+<td>Leisure</td>
+<td><a href="../facilities/infrastructure/frontier_cantina.html">Frontier Cantina</a>, <a href="../facilities/infrastructure/rec_lounge.html">Rec Lounge</a> (2 points each)</td>
+<td><a href="../facilities/infrastructure/zero_g_lounge_bar.html">Zero-G Lounge &amp; Bar</a> (4), <a href="../facilities/infrastructure/orbital_spa_resort_deck.html">Orbital Spa &amp; Resort Deck</a> (7), <a href="../facilities/infrastructure/grand_hotel_resort.html">Grand Hotel &amp; Resort</a> (9)</td>
+</tr>
+</tbody>
+</table>
+<p>⚠ <strong>Venues eat food and drink.</strong> The catalog marks every venue <code>tourism_upkeep</code>, and the
+upkeep lists are long: the Dockside Diner alone takes seven different items a cycle
+(<a href="../items/consumable/algae_wafer.html">Algae Wafer</a>, <a href="../items/consumable/crimson_iron_rations.html">Crimson Iron Rations</a>, <a href="../items/refined/purified_water.html">Purified Water</a>, <a href="../items/consumable/frontier_hash.html">Frontier Hash</a>,
+<a href="../items/consumable/station_seltzer.html">Station Seltzer</a>, <a href="../items/consumable/sustagel_bowl.html">Sustagel Bowl</a>, <a href="../items/consumable/vat_protein_loaf.html">Vat Protein Loaf</a>). Line up the supply first.</p>
+<p><strong>Not yet measured:</strong> where tourism revenue comes from and whether it reaches the treasury;
+how <code>tourism_upkeep</code> scales with visitors; what dining and leisure points do beyond revenue.</p>
 <h2 id="where-the-official-docs-are-wrong">Where the official docs are wrong</h2>
 <ul>
 <li><strong>What a station comes with.</strong> The factions guide says market, refuel, repair, shipyard,
@@ -886,9 +948,7 @@ station the refuel facility is the <a href="../facilities/service/refueling_dock
 <ul>
 <li>Real upkeep consumption per cycle (catalog figures are shown above until we have it).</li>
 <li>How fast a <code>critical</code> station recovers once its upkeep is stocked.</li>
-<li>Defense in a real fight: how much ammunition a fight uses, and what fire control changes.</li>
-<li>Shields, batteries and extra power (<a href="../facilities/defense/shield_projector.html">Shield Projector</a>, <a href="../facilities/infrastructure/battery_bank.html">Battery Bank</a>,
-<a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>): not built yet; all three need <a href="../items/component/power_cell.html">Power Cell</a> in quantity.</li>
+<li>Defense and tourism: see their sections above.</li>
 <li>Whether dismantling refunds any credits.</li>
 <li>Exactly how <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> upkeep scales with trades.</li>
 <li>How service pools (<a href="../items/consumable/medical_supplies.html">Medical Supplies</a>, <a href="../items/consumable/protein_rations.html">Protein Rations</a>) draw down, and on what cycle.</li>

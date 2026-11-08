@@ -449,6 +449,59 @@ comes back. Expect to pay it again when you rebuild. Rented `faction_*` faciliti
 stations cannot be rebuilt at your own station. Check that the facility is on the
 [buildable list](#what-you-can-build-here) before dismantling it to move it.
 
+## Defense
+
+*Placeholder: we are building this now and will fill it in as we measure.*
+
+**Why bother before an attack.** A wrecked station has to be repaired before it works again,
+at about 30% of each facility's original build cost, in credits and in that facility's own
+build materials, which must already be at the station (*player-reported*). Until then every
+service, life support and power is down. So defense is two jobs: make the station a harder
+target than its neighbours, and keep a repair reserve on site.
+
+**What Conjunction Junction has (2026-11-08, *measured*):** a [[point_defense_battery]]
+(`weapon_dps` 30), [[reinforced_plating]] (hull 85,000, armor 60) and a
+[[fire_control_center]]; shield 12,000, the base value. Battery capacity is still 0.
+
+**What we know so far:**
+- Guns fire ammunition from faction storage: [[ferrous_slug_case]] for the point defense
+  battery, [[armor_piercing_rounds_box]] for the turret, [[fragmentation_rounds_box]] for the
+  heavy battery. All three are hand recipes.
+- Shields and guns draw power in combat, so stored charge matters. Production stops in a
+  fight and the defenses get the power (*player-reported*).
+- The [[shield_projector]], [[battery_bank]] / [[capacitor_bank]] and [[bunker_fed_reactor]]
+  all need [[power_cell]] to build and some to run. We make cells at the station in an
+  [[argon_cell_lab]] and a [[neon_cell_lab]].
+- **Generator ships.** Since v0.669.0 a ship with a field generator docked at a station can
+  feed its power grid (`generator`), burning 1 ship fuel a tick for up to 360 ticks per link,
+  which charges batteries and powers shields and guns. The outerrim **Jump Start** (T2,
+  1,200 fuel) is built for it, with a +100% generator output bonus (*doc-quoted*).
+
+**Not yet measured:** how much ammunition a fight uses; what fire control changes in
+numbers; shield and battery behaviour under fire; how fast a wrecked station repairs.
+
+## Tourism
+
+*Placeholder: we have not built any venues yet.*
+
+Food and leisure venues are infrastructure a player station can build. Each one adds
+**dining points** or **leisure points** to the station, and `get_base` reports those along
+with a lifetime **`tourism_revenue`** in credits (the play_as client prints them as a
+`Tourism:` line). Stations we have docked at reported dining and leisure points from 2 to 10.
+
+| Venue type | Level 1 (150,000 cr) | Higher levels |
+|---|---|---|
+| Dining | [[dockside_diner]], [[slice_deck]], [[sunrise_griddle]] (2 points each) | [[grazer_grill]], [[stellar_bistro]] (4), [[the_tide_line]] (5), [[the_golden_table]] (7), [[the_leviathan_table]] (10) |
+| Leisure | [[frontier_cantina]], [[rec_lounge]] (2 points each) | [[zero_g_lounge_bar]] (4), [[orbital_spa_resort_deck]] (7), [[grand_hotel_resort]] (9) |
+
+⚠ **Venues eat food and drink.** The catalog marks every venue `tourism_upkeep`, and the
+upkeep lists are long: the Dockside Diner alone takes seven different items a cycle
+([[algae_wafer]], [[crimson_iron_rations]], [[purified_water]], [[frontier_hash]],
+[[station_seltzer]], [[sustagel_bowl]], [[vat_protein_loaf]]). Line up the supply first.
+
+**Not yet measured:** where tourism revenue comes from and whether it reaches the treasury;
+how `tourism_upkeep` scales with visitors; what dining and leisure points do beyond revenue.
+
 ## Where the official docs are wrong
 
 - **What a station comes with.** The factions guide says market, refuel, repair, shipyard,
@@ -472,9 +525,7 @@ stations cannot be rebuilt at your own station. Check that the facility is on th
 
 - Real upkeep consumption per cycle (catalog figures are shown above until we have it).
 - How fast a `critical` station recovers once its upkeep is stocked.
-- Defense in a real fight: how much ammunition a fight uses, and what fire control changes.
-- Shields, batteries and extra power ([[shield_projector]], [[battery_bank]],
-  [[bunker_fed_reactor]]): not built yet; all three need [[power_cell]] in quantity.
+- Defense and tourism: see their sections above.
 - Whether dismantling refunds any credits.
 - Exactly how [[trade_authenticator]] upkeep scales with trades.
 - How service pools ([[medical_supplies]], [[protein_rations]]) draw down, and on what cycle.
