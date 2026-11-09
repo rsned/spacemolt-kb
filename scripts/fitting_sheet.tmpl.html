@@ -666,8 +666,11 @@ function compute() {
     spow: acc(0), srng: acc(0),
     res: Object.fromEntries(DTYPES.map(d => [d, {typed:0}])),
     adaptive: false,
-    // Pools the module text describes as "add and cap at 75%".
+    // flat/adaptive, phase dodge and anti-missile take the STRONGEST fitted
+    // module only (v0.677.2); the *N counts say how many were fitted, so the
+    // sheet can name the redundant ones. reflect and web still pool.
     flat: 0, react: 0, dodge: 0, reflect: 0, amis: 0, web: 0,
+    flatN: 0, dodgeN: 0, amisN: 0,
     dpt: 0, edptLo: 0, edptHi: 0, reach: 0, alpha: 0,
     byType: {}, weapons: [],
     rounds: new Map(),   // round id -> round, for the loaded-ammo effects row
@@ -695,8 +698,11 @@ function compute() {
       // adaptive_resistance_N token and again as damage_reduction -- and the
       // catalog text confirms they are one number ("35% flat/adaptive damage
       // reduction"). Take the larger of the two, never the sum.
+      // Since v0.677.2 flat and adaptive no longer stack ACROSS modules either:
+      // only the strongest one counts (still capped at 75%).
       const dr = d.dred || 0;
-      r.flat += Math.max(dr * (dr <= 1 ? 100 : 1), m.adapt || 0);
+      const fl = Math.max(dr * (dr <= 1 ? 100 : 1), m.adapt || 0);
+      if (fl) { r.flat = Math.max(r.flat, fl); r.flatN++; }
       r.cloak.add = Math.max(r.cloak.add, d.cloak||0);   // a rating, not a pool
       // Typed and flat/adaptive are SEPARATE buckets (v0.564.1), so an adaptive
       // module is no longer shadowed by a hardener covering the same type -- the
@@ -710,9 +716,10 @@ function compute() {
       // answers whichever type is incoming, so it joins the typed bucket on
       // every one of them rather than forming a pool of its own.
       r.react += d.react || 0;
-      r.dodge += d.dodge || 0;
+      // Phase dodge and flak anti-missile: strongest module only (v0.677.2).
+      if (d.dodge) { r.dodge = Math.max(r.dodge, d.dodge); r.dodgeN++; }
       r.reflect += d.reflect || 0;
-      r.amis += d.amis || 0;
+      if (d.amis) { r.amis = Math.max(r.amis, d.amis); r.amisN++; }
     }
     const u = m.u;
     if (u) {
@@ -756,8 +763,9 @@ function compute() {
 /* --------------------------------------------------------------- ring math */
 /* Damage resistance, per the stacking rule the devs documented in v0.564.1: the
    server applies shield skill, then TYPED resistance, then FLAT/ADAPTIVE
-   resistance, truncating to an integer at each stage. Bonuses ADD inside a
-   bucket and each bucket stops at 75%, so the two buckets compose
+   resistance, truncating to an integer at each stage. Typed hardeners ADD within
+   their damage type; flat/adaptive takes only the strongest module (v0.677.2).
+   Each bucket stops at 75%, so the two buckets compose
    multiplicatively -- a fit can read past 75% overall yet never reaches
    immunity. Shield skill is a pilot skill and is left out here like every other
    skill on this sheet. Truncation is per-stage on the damage integer, so the
@@ -1042,14 +1050,16 @@ function renderStats(r) {
   const s = r.ship;
   const out = [];
 
-  // One row per "add and cap at 75%" pool, reporting what the cap threw away the
-  // same way the speed cap does.
-  const capRow = (label, raw, unit, gloss) => {
+  // One row per capped pool, reporting what the cap threw away the same way the
+  // speed cap does. n = modules fitted for a strongest-only effect; any past the
+  // first add nothing and are named as redundant.
+  const capRow = (label, raw, unit, gloss, n = 0) => {
     if (!raw) return "";
     const p = pool(raw);
     return row(label, `${num(p.val)}${unit}`
       + `<span class="brk">${gloss}</span>`
-      + (p.capped ? `<span class="cap">${num(raw)}${unit} CAPPED AT ${RES_CAP}${unit}</span>` : ""));
+      + (p.capped ? `<span class="cap">${num(raw)}${unit} CAPPED AT ${RES_CAP}${unit}</span>` : "")
+      + (n > 1 ? `<span class="cap">STRONGEST ONLY · ${n - 1} REDUNDANT</span>` : ""));
   };
 
   // -- defense ------------------------------------------------------------
@@ -1074,6 +1084,8 @@ function renderStats(r) {
   const capMsgs = [];
   if (stages[0].flatRaw > stages[0].flat)
     capMsgs.push(`FLAT/ADAPTIVE ${num(stages[0].flatRaw)}% CAPPED AT ${RES_CAP}%`);
+  if (r.flatN > 1)
+    capMsgs.push(`FLAT/ADAPTIVE: STRONGEST OF ${r.flatN} MODULES ONLY`);
   const overTyped = stages.filter(c => c.typedRaw > c.typed);
   if (overTyped.length)
     capMsgs.push(overTyped.map(c => `${c.dt.toUpperCase()} ${num(c.typedRaw)}%`).join(", ")
@@ -1084,15 +1096,16 @@ function renderStats(r) {
   // The other pools the module text caps at 75%. Each is its own damage stage,
   // so they are listed rather than folded into the resistance figures.
   const pools = capRow("FLAT / ADAPTIVE", r.flat, "%",
-                       "second damage stage, after typed resistance")
-              + capRow("PHASE DODGE", r.dodge, "%", "enemy hit chance")
+                       "second damage stage, after typed resistance", r.flatN)
+              + capRow("PHASE DODGE", r.dodge, "%", "enemy hit chance", r.dodgeN)
               + capRow("ENERGY REFLECT", r.reflect, "%", "returned to the attacker as EM");
-  // Anti-missile is a rating, not a percentage -- the text says the ratings add
-  // and the resulting damage reduction caps at 75%, without giving the curve, so
-  // the sheet shows the sum and stops there rather than inventing one.
+  // Anti-missile is a rating, not a percentage. Since v0.677.2 only the
+  // strongest flak module counts; the catalog still gives no curve from rating
+  // to damage reduction, so the sheet shows the rating rather than inventing one.
   const amisRow = r.amis
     ? row("ANTI-MISSILE", `${num(r.amis)}`
-        + `<span class="brk">pooled rating — incoming missile damage reduction caps at ${RES_CAP}%</span>`)
+        + `<span class="brk">strongest rating — incoming missile damage reduction caps at ${RES_CAP}%</span>`
+        + (r.amisN > 1 ? `<span class="cap">STRONGEST ONLY · ${r.amisN - 1} REDUNDANT</span>` : ""))
     : "";
   const defenseSection = section("DEFENSE", tbl(def + pools + amisRow) +
     `<div class="resgrid" style="margin-top:8px">${resCells}</div>${resNote}`);
@@ -1317,17 +1330,19 @@ async function render() {
     + `Accuracy is not modelled here, but it costs a heavy fit more per miss than a light one. `
     + `<b>RESISTANCES</b> follow the order the devs published in v0.564.1 and repeat in the `
     + `module text: shield skill, then <b>typed</b> resistance, then <b>flat/adaptive</b>. `
-    + `Bonuses add inside a bucket, each bucket stops at ${RES_CAP}%, and the two buckets then `
-    + `multiply — so a fit can read past ${RES_CAP}% overall but never reaches immunity. A cell `
+    + `Since v0.677.2 only <b>typed</b> hardeners add (within their damage type); `
+    + `<b>flat/adaptive</b> takes your single strongest module. Each bucket stops at `
+    + `${RES_CAP}%, and the two buckets then multiply — so a fit can read past ${RES_CAP}% overall but never reaches immunity. A cell `
     + `showing two figures reads typed × flat; an <i>a</i> marker means an adaptive module `
     + `supplies the flat bucket, which covers every damage type. A <b>reactive</b> hardener `
     + `answers whichever type is incoming, so it joins the typed bucket on all six. `
-    + `<b>POOLED EFFECTS</b> — flat/adaptive, phase dodge, energy reflect and the `
-    + `escape-speed penalty — each add across copies and stop at ${RES_CAP}%, as their own `
-    + `descriptions state; anything past the cap is shown as wasted, the way speed is. `
-    + `<b>ANTI-MISSILE</b> is the one exception: the ratings pool, but the catalog does not `
-    + `give the curve from rating to damage reduction, so the sheet shows the sum and the `
-    + `documented ${RES_CAP}% ceiling rather than inventing a percentage. `
+    + `<b>STRONGEST ONLY</b> (v0.677.2) — flat/adaptive, phase dodge and flak anti-missile `
+    + `do not stack: extra modules of the same kind add nothing and are flagged redundant. `
+    + `<b>POOLED EFFECTS</b> — energy reflect and the escape-speed penalty — still add `
+    + `across copies and stop at ${RES_CAP}%; anything past the cap is shown as wasted, the `
+    + `way speed is. <b>ANTI-MISSILE</b> is a rating: the catalog does not give the curve `
+    + `from rating to damage reduction, so the sheet shows the rating and the documented `
+    + `${RES_CAP}% ceiling rather than inventing a percentage. `
     + `<b>BYPASS</b> is the share of the target's typed resistance a weapon ignores. `
     + `<b>CLOAK</b> takes the strongest fitted rating rather than summing. `
     + `<b>SHIELD TRACES</b> = (2 + tier &minus; 1) × total/base shields, `

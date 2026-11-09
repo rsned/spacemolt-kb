@@ -400,14 +400,14 @@ def catalog_module(rec, ammo):
 # arrives without them however fresh the DB is, so these are overlaid onto EVERY
 # module from the catalog, not only the ones the DB has never met.
 #
-# Each entry is catalog field -> (stat group, key). The pooled ones all follow
-# the "add and cap at 75%" rule the module descriptions spell out.
+# Each entry is catalog field -> (stat group, key). Since v0.677.2 phase dodge
+# and anti-missile take the strongest fitted module only; reflect and web pool.
 CAT_EXTRA = {
     "reactive_resistance": ("d", "react"),   # adds into the typed bucket
     "webify_strength": ("u", "web"),         # escape-speed penalty, own pool
 }
 CAT_EXTRA_EFFECTS = {
-    "phase_dodge_pct": ("d", "dodge"),       # enemy hit chance, own pool
+    "phase_dodge_pct": ("d", "dodge"),       # enemy hit chance, strongest only
     "reflect_energy_pct": ("d", "reflect"),  # returned as EM, own pool
     "anti_missile_pct": ("d", "amis"),       # a rating, not a percentage
     "ignore_resistance_pct": ("w", "ignres"),  # cuts the target's typed total
