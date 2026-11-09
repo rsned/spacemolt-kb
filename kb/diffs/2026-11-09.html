@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — November 9, 2026 vs November 8, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../nav.js" defer></script>
+    </header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-11-08.html">&larr; 2026-11-08</a></span>
+    <a href="index.html">All Reports</a>
+    <span>&nbsp;</span>
+</div>
+<h2>Game Data Changes &mdash; November 9, 2026 vs November 8, 2026</h2>
+<div class="diff-summary">9 additions, 0 deletions, 38 modifications across 4 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a></li>
+<li><a href="#items">Items</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~11</span></li>
+<li><a href="#ships">Ships</a> <span class="diff-add">+9</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~22</span></li>
+<li><a href="#skills">Skills</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~1</span></li>
+<li><a href="#facilities">Facilities</a></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~4</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~11</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/defense/adaptive_shield_i.html">adaptive_shield_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 60 maximum shield points and 10% flat/adaptive damage reduction. Flat and adaptive reductions add and cap at 75%, applied after typed resistance.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 60 maximum shield points and 10% flat/adaptive damage reduction. Flat and adaptive reductions do not stack: only the strongest such module counts, applied after typed resistance.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/adaptive_shield_ii.html">adaptive_shield_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 120 maximum shield points and 20% flat/adaptive damage reduction. Flat and adaptive reductions add and cap at 75%, applied after typed resistance.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 120 maximum shield points and 20% flat/adaptive damage reduction. Flat and adaptive reductions do not stack: only the strongest such module counts, applied after typed resistance.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/adaptive_shield_iii.html">adaptive_shield_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 200 maximum shield points and 35% flat/adaptive damage reduction. Flat and adaptive reductions add and cap at 75%, applied after typed resistance.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 200 maximum shield points and 35% flat/adaptive damage reduction. Flat and adaptive reductions do not stack: only the strongest such module counts, applied after typed resistance.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/assault_boarding_lock.html">assault_boarding_lock</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Reinforced clamps, breaching charges, and synchronized assault staging for faster latching and more effective marine entry.&#34;</span> &rarr; <span class="diff-add">&#34;Reinforced clamps, breaching charges, and synchronized assault staging for faster latching and more effective marine entry. Adds 18 latch strength; latch strength from fitted modules caps at 50.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/boarding_clamp.html">boarding_clamp</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A magnetic docking collar and pressure-rated transfer tube that lets an ordinary ship attempt boarding at point-blank range.&#34;</span> &rarr; <span class="diff-add">&#34;A magnetic docking collar and pressure-rated transfer tube that lets an ordinary ship attempt boarding at point-blank range. Adds 8 latch strength; latch strength from fitted modules caps at 50.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/damage_control_system.html">damage_control_system</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 10% flat damage reduction. Flat and adaptive reductions add and cap at 75%, applied after typed resistance.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 10% flat damage reduction. Flat and adaptive reductions do not stack: only the strongest such module counts, applied after typed resistance.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_i.html">flak_cannon_i</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 15 kinetic damage with +100% damage to drones. Provides 25 points of anti-missile defense; fitted ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 15 kinetic damage with +100% damage to drones. Provides 25 points of anti-missile defense; anti-missile ratings do not stack, so only the strongest fitted flak cannon counts. Fires every tick at reach 3.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_ii.html">flak_cannon_ii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 28 kinetic damage with +150% damage to drones. Provides 45 points of anti-missile defense; fitted ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 28 kinetic damage with +150% damage to drones. Provides 45 points of anti-missile defense; anti-missile ratings do not stack, so only the strongest fitted flak cannon counts. Fires every tick at reach 3.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/weapon/flak_cannon_iii.html">flak_cannon_iii</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Deals 40 kinetic damage with +200% damage to drones. Provides 65 points of anti-missile defense; fitted ratings add but incoming missile damage reduction caps at 75%. Fires every tick at reach 3.&#34;</span> &rarr; <span class="diff-add">&#34;Deals 40 kinetic damage with +200% damage to drones. Provides 65 points of anti-missile defense; anti-missile ratings do not stack, so only the strongest fitted flak cannon counts. Fires every tick at reach 3.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/quantum_shield_iv.html">quantum_shield_iv</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 250 maximum shield points and 35% flat/adaptive damage reduction. Flat and adaptive reductions add and cap at 75%, applied after typed resistance.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 250 maximum shield points and 35% flat/adaptive damage reduction. Flat and adaptive reductions do not stack: only the strongest such module counts, applied after typed resistance.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/defense/voidborn_phase_armor.html">voidborn_phase_armor</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Adds 30 armor and 80 maximum hull points, and reduces enemy hit chance by 25%. Phase-dodge percentages add and cap at 75%.&#34;</span> &rarr; <span class="diff-add">&#34;Adds 30 armor and 80 maximum hull points, and reduces enemy hit chance by 25%. Phase dodge does not stack: only the strongest such module counts.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+9</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~22</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Dark Pool <span class="text-muted">(dark_pool)</span></li><li class="diff-add">+ Filibuster <span class="text-muted">(filibuster)</span></li><li class="diff-add">+ No Take-Backs <span class="text-muted">(no_take_backs)</span></li><li class="diff-add">+ Poiesis <span class="text-muted">(poiesis)</span></li><li class="diff-add">+ Praxis <span class="text-muted">(praxis)</span></li><li class="diff-add">+ Rhetorical Question <span class="text-muted">(rhetorical_question)</span></li><li class="diff-add">+ Some Assembly Required <span class="text-muted">(some_assembly_required)</span></li><li class="diff-add">+ Subcontract <span class="text-muted">(subcontract)</span></li><li class="diff-add">+ Whetstone <span class="text-muted">(whetstone)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../ships/Combat/asset_forfeiture.html">asset_forfeiture</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">heavy_torpedo</td><td class="diff-unchanged">heavy_torpedo</td></tr><tr><td class="diff-empty"></td><td class="diff-add">hull_reinforcement_i</td></tr><tr><td class="diff-unchanged">mass_driver</td><td class="diff-unchanged">mass_driver</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr><tr><td class="diff-unchanged">reactive_armor_hardener</td><td class="diff-unchanged">reactive_armor_hardener</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/blind_spot.html">blind_spot</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">blood_reaver</td><td class="diff-unchanged">blood_reaver</td></tr><tr><td class="diff-empty"></td><td class="diff-add">crew_armory</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">heavy_pulse_laser</td><td class="diff-unchanged">heavy_pulse_laser</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">security_bulkheads</td></tr><tr><td class="diff-unchanged">shield_booster_iv</td><td class="diff-unchanged">shield_booster_iv</td></tr><tr><td class="diff-unchanged">solarian_aegis</td><td class="diff-unchanged">solarian_aegis</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_iii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/casting_vote.html">casting_vote</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">armor_plate_ii</td><td class="diff-unchanged">armor_plate_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">assault_barracks</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">cargo_expander_ii</td><td class="diff-unchanged">cargo_expander_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">crew_armory</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-empty"></td><td class="diff-add">hull_reinforcement_ii</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-unchanged">pulse_laser_ii</td><td class="diff-unchanged">pulse_laser_ii</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/dead_reckoning.html">dead_reckoning</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">jury_rigged_cannon</td><td class="diff-unchanged">jury_rigged_cannon</td></tr><tr><td class="diff-unchanged">jury_rigged_cannon</td><td class="diff-unchanged">jury_rigged_cannon</td></tr><tr><td class="diff-unchanged">mass_driver</td><td class="diff-unchanged">mass_driver</td></tr><tr><td class="diff-unchanged">outer_rim_scrap_armor</td><td class="diff-unchanged">outer_rim_scrap_armor</td></tr><tr><td class="diff-unchanged">reactive_armor_hardener</td><td class="diff-unchanged">reactive_armor_hardener</td></tr><tr><td class="diff-unchanged">scrapgun</td><td class="diff-unchanged">scrapgun</td></tr><tr><td class="diff-unchanged">scrapgun</td><td class="diff-unchanged">scrapgun</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_i</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/eminent_domain.html">eminent_domain</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">heavy_torpedo</td><td class="diff-unchanged">heavy_torpedo</td></tr><tr><td class="diff-empty"></td><td class="diff-add">hull_reinforcement_i</td></tr><tr><td class="diff-unchanged">mass_driver</td><td class="diff-unchanged">mass_driver</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr><tr><td class="diff-unchanged">reactive_armor_hardener</td><td class="diff-unchanged">reactive_armor_hardener</td></tr><tr><td class="diff-unchanged">siege_railgun</td><td class="diff-unchanged">siege_railgun</td></tr><tr><td class="diff-unchanged">siege_railgun</td><td class="diff-unchanged">siege_railgun</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/eviction_notice.html">eviction_notice</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">assault_barracks</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/fait_accompli.html">fait_accompli</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">autocannon_ii</td></tr><tr><td class="diff-unchanged">blood_reaver</td><td class="diff-unchanged">blood_reaver</td></tr><tr><td class="diff-unchanged">crimson_berserker_plating</td><td class="diff-unchanged">crimson_berserker_plating</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-del">heavy_torpedo</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">mass_driver</td><td class="diff-unchanged">mass_driver</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-unchanged">reactive_armor_hardener</td><td class="diff-unchanged">reactive_armor_hardener</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/flight_risk.html">flight_risk</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">afterburner_ii</td><td class="diff-unchanged">afterburner_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">security_bulkheads</td></tr><tr><td class="diff-unchanged">shield_booster_ii</td><td class="diff-unchanged">shield_booster_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/foreclosure.html">foreclosure</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">armor_plate_ii</td><td class="diff-unchanged">armor_plate_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">assault_barracks</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-del">damage_control_system</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">kinetic_hull_hardener</td><td class="diff-unchanged">kinetic_hull_hardener</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/four_on_the_floor.html">four_on_the_floor</a></div>
+<div class="diff-field"><span class="diff-field-name">lore:</span> <span class="diff-del">&#34;The Broadaxe was a balanced warship. The crew that rebuilt this one did not want balance. They wanted everything the hull could carry pointed in one direction and firing at once, and they were willing to give up the rest of the ship to get it.\nThey got it. Six heavy mounts feed off a power plant that has nothing else to run, slaved to a salvage co-processor that does one job and does it the instant a target crosses the line. The fuel tank holds enough to limp from one ambush to the next and not a drop more. The armor is decorative. The hull folds the moment anything fires back.\nSo nothing fires back. The trick is not surviving the fight. The trick is making sure the target never understands there is one. It waits at the narrow place — the gate everyone has to pass, the lane there is no way around — and it does not move, because moving is the one thing it is genuinely bad at. The target comes to it. The target always comes to it. By the time the sensors resolve six torpedo signatures it is already over.\nDrag it into open space and chase a real ship with it and you will watch it die slow and confused, out of fuel, out of range, out of luck. Leave it parked on the throat of a system and it is the most lethal thing for its size that anyone has ever been stupid enough to fly toward.&#34;</span> &rarr; <span class="diff-add">&#34;The Broadaxe was a balanced warship. The crew that rebuilt this one did not want balance. They wanted everything the hull could carry pointed in one direction and firing at once, and they were willing to give up the rest of the ship to get it.\nThey got it. Six heavy mounts feed off a power plant that has nothing else to run, slaved to targeting that does one job and does it the instant a target crosses the line. The bolted-in bladders carry it out to the ambush and home again, and not a drop more. The armor is decorative. The hull folds the moment anything fires back.\nSo nothing fires back. The trick is not surviving the fight. The trick is making sure the target never understands there is one. It waits at the narrow place — the gate everyone has to pass, the lane there is no way around — and it does not move, because moving is the one thing it is genuinely bad at. The target comes to it. The target always comes to it. By the time the sensors resolve six torpedo signatures it is already over.\nDrag it into open space and chase a real ship with it and you will watch it die slow and confused, out of fuel, out of range, out of luck. Leave it parked on the throat of a system and it is the most lethal thing for its size that anyone has ever been stupid enough to fly toward.&#34;</span></div><div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">armor_plate_i</td><td class="diff-unchanged">armor_plate_i</td></tr><tr><td class="diff-del">cpu_co_processor</td><td class="diff-empty"></td></tr><tr><td class="diff-empty"></td><td class="diff-add">expanded_fuel_tank</td></tr><tr><td class="diff-unchanged">heavy_torpedo</td><td class="diff-unchanged">heavy_torpedo</td></tr><tr><td class="diff-unchanged">heavy_torpedo</td><td class="diff-unchanged">heavy_torpedo</td></tr><tr><td class="diff-del">heavy_torpedo</td><td class="diff-empty"></td></tr><tr><td class="diff-del">heavy_torpedo</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">jury_rigged_cannon</td><td class="diff-unchanged">jury_rigged_cannon</td></tr><tr><td class="diff-empty"></td><td class="diff-add">jury_rigged_cannon</td></tr><tr><td class="diff-empty"></td><td class="diff-add">jury_rigged_cannon</td></tr><tr><td class="diff-unchanged">railgun_i</td><td class="diff-unchanged">railgun_i</td></tr></tbody></table></div><div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A Broadaxe frame with every system gutted to feed the guns. Six heavy mounts on a hull that holds barely four jumps of fuel. It cannot chase and it cannot run. It does not need to. Whatever comes within range of the chokepoint it sits on stops being a problem.&#34;</span> &rarr; <span class="diff-add">&#34;A Broadaxe frame with every system gutted to feed the guns. Six heavy mounts on a hull whose last spare space went to fuel bladders, enough to reach a chokepoint and get home. It cannot chase and it cannot run. It does not need to. Whatever comes within range of the chokepoint it sits on stops being a problem.&#34;</span></div><div class="diff-field"><span class="diff-field-name">cpu_capacity:</span> <span class="diff-del">45</span> &rarr; <span class="diff-add">46</span></div>
+<div class="diff-item-id"><a href="../ships/Combat/known_quantity.html">known_quantity</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">focused_beam_iii</td><td class="diff-unchanged">focused_beam_iii</td></tr><tr><td class="diff-unchanged">heavy_pulse_laser</td><td class="diff-unchanged">heavy_pulse_laser</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-del">pulse_laser_ii</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">pulse_laser_iii</td><td class="diff-unchanged">pulse_laser_iii</td></tr><tr><td class="diff-unchanged">shield_booster_iv</td><td class="diff-unchanged">shield_booster_iv</td></tr><tr><td class="diff-unchanged">solar_lance</td><td class="diff-unchanged">solar_lance</td></tr><tr><td class="diff-unchanged">solarian_aegis</td><td class="diff-unchanged">solarian_aegis</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Commercial/last_call.html">last_call</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">hull_reinforcement_i</td></tr><tr><td class="diff-unchanged">refueling_pump</td><td class="diff-unchanged">refueling_pump</td></tr><tr><td class="diff-empty"></td><td class="diff-add">security_bulkheads</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Commercial/liquidation.html">liquidation</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">armor_plate_ii</td><td class="diff-unchanged">armor_plate_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">assault_barracks</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">cargo_expander_iii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">crew_armory</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-empty"></td><td class="diff-add">security_bulkheads</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/margin_call.html">margin_call</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">armor_plate_ii</td><td class="diff-unchanged">armor_plate_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">assault_barracks</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">crew_armory</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr><tr><td class="diff-unchanged">ship_scanner_ii</td><td class="diff-unchanged">ship_scanner_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/mineral_rights.html">mineral_rights</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">armor_plate_ii</td><td class="diff-unchanged">armor_plate_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">autocannon_ii</td></tr><tr><td class="diff-unchanged">mining_laser_ii</td><td class="diff-unchanged">mining_laser_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/no_appeal.html">no_appeal</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">blood_reaver</td><td class="diff-unchanged">blood_reaver</td></tr><tr><td class="diff-unchanged">crimson_berserker_plating</td><td class="diff-unchanged">crimson_berserker_plating</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/no_exit.html">no_exit</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">focused_beam_iii</td><td class="diff-unchanged">focused_beam_iii</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-unchanged">pulse_laser_iii</td><td class="diff-unchanged">pulse_laser_iii</td></tr><tr><td class="diff-unchanged">shield_booster_iv</td><td class="diff-unchanged">shield_booster_iv</td></tr><tr><td class="diff-unchanged">solar_lance</td><td class="diff-unchanged">solar_lance</td></tr><tr><td class="diff-unchanged">solarian_aegis</td><td class="diff-unchanged">solarian_aegis</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_iii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/off_the_books.html">off_the_books</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">assault_barracks</td></tr><tr><td class="diff-empty"></td><td class="diff-add">crew_armory</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">focused_beam_iii</td><td class="diff-unchanged">focused_beam_iii</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">security_bulkheads</td></tr><tr><td class="diff-unchanged">solar_lance</td><td class="diff-unchanged">solar_lance</td></tr><tr><td class="diff-unchanged">solarian_aegis</td><td class="diff-unchanged">solarian_aegis</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_iii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat/running_tab.html">running_tab</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">armor_plate_iii</td><td class="diff-unchanged">armor_plate_iii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">assault_barracks</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">autocannon_ii</td><td class="diff-unchanged">autocannon_ii</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">railgun_ii</td><td class="diff-unchanged">railgun_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Industrial/severance_package.html">severance_package</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-empty"></td><td class="diff-add">autocannon_i</td></tr><tr><td class="diff-unchanged">blood_reaver</td><td class="diff-unchanged">blood_reaver</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-del">missile_launcher_ii</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">reactive_armor_hardener</td><td class="diff-unchanged">reactive_armor_hardener</td></tr><tr><td class="diff-unchanged">scrapgun</td><td class="diff-unchanged">scrapgun</td></tr><tr><td class="diff-unchanged">scrapgun</td><td class="diff-unchanged">scrapgun</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_ii</td></tr><tr><td class="diff-unchanged">tractor_beam</td><td class="diff-unchanged">tractor_beam</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Commercial/shell_company.html">shell_company</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">afterburner_ii</td><td class="diff-unchanged">afterburner_ii</td></tr><tr><td class="diff-unchanged">cargo_expander_ii</td><td class="diff-unchanged">cargo_expander_ii</td></tr><tr><td class="diff-unchanged">cargo_expander_iii</td><td class="diff-unchanged">cargo_expander_iii</td></tr><tr><td class="diff-unchanged">cargo_expander_iii</td><td class="diff-unchanged">cargo_expander_iii</td></tr><tr><td class="diff-unchanged">fuel_optimizer</td><td class="diff-unchanged">fuel_optimizer</td></tr><tr><td class="diff-unchanged">pulse_laser_ii</td><td class="diff-unchanged">pulse_laser_ii</td></tr><tr><td class="diff-unchanged">pulse_laser_ii</td><td class="diff-unchanged">pulse_laser_ii</td></tr><tr><td class="diff-unchanged">shield_booster_ii</td><td class="diff-unchanged">shield_booster_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">shield_booster_ii</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../ships/Combat%20Support/standing_order.html">standing_order</a></div>
+<div class="diff-field"><span class="diff-field-name">default_modules:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">blood_reaver</td><td class="diff-unchanged">blood_reaver</td></tr><tr><td class="diff-unchanged">damage_control_system</td><td class="diff-unchanged">damage_control_system</td></tr><tr><td class="diff-unchanged">darksteel_armor</td><td class="diff-unchanged">darksteel_armor</td></tr><tr><td class="diff-unchanged">heavy_pulse_laser</td><td class="diff-unchanged">heavy_pulse_laser</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-unchanged">missile_launcher_ii</td><td class="diff-unchanged">missile_launcher_ii</td></tr><tr><td class="diff-empty"></td><td class="diff-add">security_bulkheads</td></tr><tr><td class="diff-unchanged">shield_booster_iv</td><td class="diff-unchanged">shield_booster_iv</td></tr><tr><td class="diff-unchanged">solarian_aegis</td><td class="diff-unchanged">solarian_aegis</td></tr><tr><td class="diff-empty"></td><td class="diff-add">tracking_computer_ii</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~1</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../skills/tactics.html">tactics</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Combat awareness and maneuvering. Each level increases accuracy, evasion, combat speed, fitted target-painter strength, and resistance to electronic disruption by 1%.&#34;</span> &rarr; <span class="diff-add">&#34;Combat awareness and maneuvering. Each level increases accuracy, evasion, combat speed, fitted target-painter strength, and resistance to electronic disruption by 1%. Evasion from this skill caps at 25%.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~4</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/first_step/index.html">first_step</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">5</span></div>
+<div class="diff-item-id"><a href="../systems/horizon/index.html">horizon</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">3</span> &rarr; <span class="diff-add">4</span></div>
+<div class="diff-item-id"><a href="../systems/okab/index.html">okab</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id"><a href="../systems/saclateni/index.html">saclateni</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">4</span> &rarr; <span class="diff-add">5</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+    if (toggle) toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
+</script>
+</body>
+</html>
