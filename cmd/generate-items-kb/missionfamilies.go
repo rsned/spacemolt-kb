@@ -478,3 +478,81 @@ func (f *MissionFamily) breakdown() {
 		f.Breakdown = rows
 	}
 }
+
+// Station-group headings that are not station names.
+const (
+	manyStationsHeading = "Offered at many stations"
+	noStationHeading    = "Station not recorded"
+)
+
+// StationGroup is one heading of one-off missions on a category page.
+type StationGroup struct {
+	Heading  string
+	Many     bool // the "Offered at many stations" group, which shows counts
+	Missions []*Mission
+}
+
+// StationCount is how many distinct stations offer m.
+func (m *Mission) StationCount() int {
+	n, _ := distinctStations([]*Mission{m})
+	return n
+}
+
+// OnlyAt names the station the server marks m exclusive to, or "".
+func (m *Mission) OnlyAt() string {
+	if m.ExclusiveBaseID == "" {
+		return ""
+	}
+	return m.ExclusiveBaseName
+}
+
+// groupOneOffsByStation files one-offs under the station that offers them:
+// missions offered at several stations first, then one group per station by
+// name, then missions whose offering station was never recorded.
+func groupOneOffsByStation(oneOffs []*Mission) []StationGroup {
+	var many, none []*Mission
+	byStation := map[string][]*Mission{}
+	for _, m := range oneOffs {
+		switch n, only := distinctStations([]*Mission{m}); {
+		case n == 0:
+			none = append(none, m)
+		case n > 1:
+			many = append(many, m)
+		default:
+			byStation[only] = append(byStation[only], m)
+		}
+	}
+	var out []StationGroup
+	if len(many) > 0 {
+		out = append(out, StationGroup{Heading: manyStationsHeading, Many: true, Missions: many})
+	}
+	for _, name := range slices.Sorted(maps.Keys(byStation)) {
+		out = append(out, StationGroup{Heading: name, Missions: byStation[name]})
+	}
+	if len(none) > 0 {
+		out = append(out, StationGroup{Heading: noStationHeading, Missions: none})
+	}
+	for i := range out {
+		slices.SortFunc(out[i].Missions, compareMissions)
+	}
+	return out
+}
+
+// chainOnlyAt names the station a chain is exclusive to: the server-marked
+// station of any step, else the one station every step shares, else "".
+func chainOnlyAt(c MissionChain) string {
+	for _, s := range c.Steps {
+		if at := s.Mission.OnlyAt(); at != "" {
+			return at
+		}
+	}
+	shared := ""
+	for _, s := range c.Steps {
+		n, only := distinctStations([]*Mission{s.Mission})
+		if n != 1 || (shared != "" && only != shared) {
+			return ""
+		}
+		shared = only
+	}
+	return shared
+}

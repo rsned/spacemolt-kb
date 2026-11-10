@@ -36,6 +36,8 @@ type MissionChainStep struct {
 // MissionChain is a run of missions linked by chain_next, in chain order.
 type MissionChain struct {
 	Steps []MissionChainStep
+	// OnlyAt names the station the chain is exclusive to, or "".
+	OnlyAt string
 }
 
 // Head is the first mission in the chain; chains are sorted by its difficulty.
@@ -134,7 +136,9 @@ func chainsForType(chains []MissionChain, typ string) []MissionChain {
 				TypeName: m.Type,
 			}
 		}
-		out = append(out, MissionChain{Steps: steps})
+		mc := MissionChain{Steps: steps}
+		mc.OnlyAt = chainOnlyAt(mc)
+		out = append(out, mc)
 	}
 	slices.SortFunc(out, compareChains)
 	return out

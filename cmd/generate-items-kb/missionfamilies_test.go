@@ -213,3 +213,72 @@ func TestFamilyNoLocations(t *testing.T) {
 		t.Fatalf("Stations=%d OnlyAt=%q", f.Stations, f.OnlyAt)
 	}
 }
+
+func TestGroupOneOffsByStationOrder(t *testing.T) {
+	var many []string
+	for i := range 50 {
+		many = append(many, fmt.Sprintf("base_%02d", i))
+	}
+	ms := []*Mission{
+		fm("haul", "First Haul", "mining", false, many...),
+		fm("gas", "Gas Futures", "mining", false, "grand_exchange_station"),
+		fm("water", "Water Rights", "mining", false, "grand_exchange_station"),
+		fm("scrape", "Scraping By", "mining", false, "frontier_station"),
+		fm("ghost", "Ghost Job", "mining", false),
+	}
+	groups := groupOneOffsByStation(ms)
+	var got []string
+	for _, g := range groups {
+		got = append(got, g.Heading)
+	}
+	want := []string{"Offered at many stations", "Frontier Station", "Grand Exchange Station", "Station not recorded"}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("headings = %q, want %q", got, want)
+	}
+	if !groups[0].Many || groups[0].Missions[0].StationCount() != 50 {
+		t.Fatalf("many group = %+v", groups[0])
+	}
+	if len(groups[2].Missions) != 2 {
+		t.Fatalf("grand exchange group has %d missions", len(groups[2].Missions))
+	}
+}
+
+func TestGroupOneOffsUnknownBaseFallsBackToTitleCase(t *testing.T) {
+	m := &Mission{ID: "x", Title: "X", Locations: []MissionLocation{{BaseID: "b495c6003fc83e18f6d8cecbe6929133"}}}
+	groups := groupOneOffsByStation([]*Mission{m})
+	if len(groups) != 1 || groups[0].Heading != titleCase("b495c6003fc83e18f6d8cecbe6929133") || groups[0].Heading == "" {
+		t.Fatalf("groups = %+v", groups)
+	}
+}
+
+func chainOf(ms ...*Mission) MissionChain {
+	var c MissionChain
+	for _, m := range ms {
+		c.Steps = append(c.Steps, MissionChainStep{Mission: m})
+	}
+	return c
+}
+
+func TestChainOnlyAtExclusiveStep(t *testing.T) {
+	b := fm("b", "B", "smuggling", false, "treasure_cache_trading_post", "sable_port")
+	b.ExclusiveBaseID, b.ExclusiveBaseName = "treasure_cache_trading_post", "Treasure Cache Trading Post"
+	c := chainOf(fm("a", "A", "smuggling", false, "x", "y"), b, fm("c", "C", "smuggling", false))
+	if got := chainOnlyAt(c); got != "Treasure Cache Trading Post" {
+		t.Fatalf("chainOnlyAt = %q", got)
+	}
+	if b.OnlyAt() != "Treasure Cache Trading Post" {
+		t.Fatalf("Mission.OnlyAt = %q", b.OnlyAt())
+	}
+}
+
+func TestChainOnlyAtSharedSingleStation(t *testing.T) {
+	s := "starfall_salvage_station"
+	c := chainOf(fm("a", "A", "mining", false, s), fm("b", "B", "mining", false, s))
+	if got := chainOnlyAt(c); got != "Starfall Salvage Station" {
+		t.Fatalf("chainOnlyAt = %q", got)
+	}
+	d := chainOf(fm("a", "A", "mining", false, s), fm("b", "B", "mining", false, s, "frontier_station"))
+	if got := chainOnlyAt(d); got != "" {
+		t.Fatalf("chainOnlyAt = %q, want empty", got)
+	}
+}
