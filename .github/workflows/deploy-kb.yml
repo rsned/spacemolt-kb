@@ -45,3 +45,7 @@ jobs:
           path: kb/
       - id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          # A full KB sync can run past the default 10 minutes (three
+          # timeouts in a row on 2026-11-10), so allow 20.
+          timeout: 1200000
