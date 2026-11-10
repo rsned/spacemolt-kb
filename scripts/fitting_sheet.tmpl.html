@@ -314,6 +314,7 @@ html[data-theme="light"] .dt-void{color:#5850b0;border-color:#7a72c9}
       <small>SPACEMOLT FLEET REGISTRY &middot; OUTFITTING &amp; STATUS</small></div>
     <div class="controls">
       <label class="ctl"><span>SHIP</span><select id="ship"></select></label>
+      <label class="ctl"><span>PILOT EMPIRE</span><select id="empire"></select></label>
       <label class="ctl"><span>ENGINEERING LEVEL</span>
         <div class="engwrap">
           <input type="range" id="engRange" min="0" max="100" step="1" value="0">
@@ -403,6 +404,18 @@ const PLAN_MAX_ASPECT = 2.9;
    the 338 hulls can reach the cap, so the sheet would otherwise promise speed
    that does not exist and hide the wasted slots. */
 const SPEED_CAP = 6;
+
+/* Pilot empire bonuses (v0.686.0). They come from the pilot's citizenship, not
+   the hull, and are percentages of the fitted total -- assumed to apply after
+   modules, as the patch note gives no order. Solarian "weapons" is read as
+   weapon damage and "mining" as mining power (the sheet's HARVEST POWER). */
+const EMPIRES = {
+  solarian:  {name: "Solarian",  shield: 3, dmg: 3, cargo: 3, speed: 3, hpow: 3},
+  voidborn:  {name: "Voidborn",  shield: 12},
+  crimson:   {name: "Crimson",   dmg: 8},
+  nebula:    {name: "Nebula",    cargo: 10},
+  outer_rim: {name: "Outer Rim", speed: 10, speedNote: "in-system travel"},
+};
 const PANEL_W = 800;
 
 const BY_SLOT = {weapon:[], defense:[], utility:[]};
@@ -472,6 +485,7 @@ function stockFit(s) {
 const state = {
   ship: SHIPS.annihilator ? "annihilator" : Object.keys(SHIPS)[0],
   eng: 0,
+  emp: "",           // pilot empire id from EMPIRES; "" for none
   fit: {weapon:[], defense:[], utility:[]},
   stock: {missing:[], overflow:[], retired:[]},
   ammo: {},          // ammo type -> round id; "" means deliberately cleared
@@ -501,6 +515,7 @@ const PREFIX_SLOT = {w:"weapon", d:"defense", u:"utility"};
 function encodeState() {
   const s = SHIPS[state.ship], parts = ["ship=" + state.ship];
   if (state.eng) parts.push("eng=" + state.eng);
+  if (state.emp) parts.push("emp=" + state.emp);
   if (!isStock()) {
     if ((s.dm || []).length) parts.push("stock=0");
     for (const [slot, pre] of Object.entries(SLOT_PREFIX))
@@ -537,6 +552,9 @@ function decodeState(query) {
     const n = Math.round(+p.get("eng"));
     state.eng = Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0;
   }
+
+  const emp = p.get("emp");
+  if (emp !== null) state.emp = EMPIRES[emp] ? emp : "";
 
   const fit = {weapon:[], defense:[], utility:[]};
   const retired = [];
@@ -593,18 +611,23 @@ const fmtSnap = d => /^\d{8}$/.test(d) ? d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.sli
 
 /* An accumulator per stat: base value plus everything modules added or took
    away, kept apart so the sheet can show `550 (450+100)` rather than just 550. */
-const acc = base => ({base: base||0, add: 0, sub: 0});
-const total = a => a.base + a.add - a.sub;
+const acc = base => ({base: base||0, add: 0, sub: 0, pct: 0});
+const total = a => (a.base + a.add - a.sub) * (1 + a.pct / 100);
+
+/* The "+12% Voidborn" note for a stat the pilot's empire boosts. */
+const empNote = a => a.pct
+  ? ` <span class="plus">+${a.pct}% ${esc(EMPIRES[state.emp].name)}</span>` : "";
 
 /* Render one value: bold total when modified, breakdown after it, penalty red. */
 function val(a, unit, opts={}) {
   const u = unit ? `<span class="brk">${esc(unit)}</span>` : "";
   const t = total(a);
-  if (!a.add && !a.sub)
+  if (!a.add && !a.sub && !a.pct)
     return `<span class="${t?'':'nil'}">${num(t)}</span>${u}`;
   let brk = num(a.base);
   if (a.add) brk += ` <span class="plus">+${num(a.add)}</span>`;
   if (a.sub) brk += ` <span class="pen">&minus;${num(a.sub)}</span>`;
+  brk += empNote(a);
   return `<b>${num(t)}</b>${u}<span class="brk">(${brk})</span>`;
 }
 
@@ -757,6 +780,15 @@ function compute() {
   }
   r.cpuUsed = Math.round(r.cpuRaw * engMul());
   r.pwrUsed = Math.round(r.pwrRaw * engMul());
+
+  // Pilot empire: percentage bonuses on the fitted totals.
+  const e = EMPIRES[state.emp] || {};
+  r.shield.pct = e.shield || 0;  r.cargo.pct = e.cargo || 0;
+  r.speed.pct = e.speed || 0;    r.hpow.pct = e.hpow || 0;
+  r.dmgPct = e.dmg || 0;
+  r.dmgMul = 1 + r.dmgPct / 100;
+  r.dpt *= r.dmgMul; r.edptLo *= r.dmgMul; r.edptHi *= r.dmgMul; r.alpha *= r.dmgMul;
+  for (const dt in r.byType) r.byType[dt] *= r.dmgMul;
   return r;
 }
 
@@ -1116,10 +1148,10 @@ function renderStats(r) {
       `<span class="dt dt-${dt}">${dt.toUpperCase()} ${num(v)}</span>`).join("");
     const wrows = r.weapons.map(m => {
       const w = m.w, mag = w.mag || 0, cd = w.cd || 0;
-      const a = roundFor(w), dpt = w.dpt || 0;
+      const a = roundFor(w), k = r.dmgMul, dpt = (w.dpt || 0) * k;
       // A weapon whose type has no catalogued rounds has a degenerate span,
       // so collapse lo == hi rather than printing "30-30".
-      const span = w.edpt || [dpt, dpt];
+      const span = (w.edpt || [w.dpt || 0, w.dpt || 0]).map(v => v * k);
       const effCell = a ? num(dpt * (1 + a.dm))
         : span[0] === span[1] ? num(span[0])
         : `${num(span[0])}–${num(span[1])}`;
@@ -1129,12 +1161,12 @@ function renderStats(r) {
         : w.ammo && !AMMO[w.ammo] ? `<em class="salv">salvage in hold</em>`
         : w.ammo ? `<em class="salv">none loaded</em>` : "—";
       return `<tr>
-        <td>${esc(m.name)}</td><td>${num(w.dmg||0)}</td><td>${num(cd)}</td>
+        <td>${esc(m.name)}</td><td>${num((w.dmg||0) * k)}</td><td>${num(cd)}</td>
         <td>${num(dpt)}</td>
         <td>${effCell}</td>
         <td>${ammoCell}</td>
         <td>${mag ? num(mag) : "—"}</td>
-        <td>${mag ? num((w.dmg||0)*mag) : "—"}</td>
+        <td>${mag ? num((w.dmg||0)*k*mag) : "—"}</td>
         <td>${mag && cd ? num(mag*cd) : "—"}</td>
         <td>${w.ignres ? num(w.ignres)+"%" : "—"}</td>
         <td>${num(w.reach||w.rng||0)}</td>
@@ -1148,7 +1180,8 @@ function renderStats(r) {
       .map(a => `<div class="ammofx"><b>${esc(a.name)}</b>${a.fx.map(esc).join(" &middot; ")}</div>`)
       .join("");
     out.push(section("OFFENSE",
-      tbl(row("DAMAGE / TICK", `<b>${num(r.dpt)}</b>`)
+      tbl(row("DAMAGE / TICK", `<b>${num(r.dpt)}</b>`
+            + (r.dmgPct ? `<span class="brk">includes <span class="plus">+${r.dmgPct}% ${esc(EMPIRES[state.emp].name)}</span> weapon damage, as do every damage figure and the weapon table</span>` : ""))
         + row("EFFECTIVE DPT", r.edptLo === r.edptHi
             ? `<b>${num(r.edptLo)}</b>` + (r.rounds.size
                 ? `<span class="brk">with the rounds loaded below the slots</span>` : "")
@@ -1183,11 +1216,14 @@ function renderStats(r) {
     let brk = num(r.speed.base);
     if (r.speed.add) brk += ` <span class="plus">+${num(r.speed.add)}</span>`;
     if (r.speed.sub) brk += ` <span class="pen">&minus;${num(r.speed.sub)}</span>`;
+    brk += empNote(r.speed);
     speedCell = `<b>${num(speed)}</b><span class="brk">(${brk} = ${num(rawSpeed)})</span>`
       + `<span class="cap">CAPPED AT ${SPEED_CAP} · ${num(rawSpeed - SPEED_CAP)} WASTED</span>`;
   } else {
     speedCell = val(r.speed);
   }
+  const spNote = (EMPIRES[state.emp] || {}).speedNote;
+  if (spNote && r.speed.pct) speedCell += `<span class="brk">empire bonus applies to ${spNote}</span>`;
   let mob = row("SPEED", speedCell)
           + row("FUEL CAPACITY", val(r.fuel));
   if (total(r.feff)) mob += row("FUEL EFFICIENCY", val(r.feff, "%"));
@@ -1319,6 +1355,11 @@ async function render() {
     + `own figure — both measured against the server, not inferred. Per-slot figures `
     + `therefore need not sum to the total; the server behaves the same way. `
     + `At level 100 modules cost nothing. `
+    + `<b>PILOT EMPIRE</b> (v0.686.0) bonuses come from the pilot's citizenship, not the hull, `
+    + `and are applied here as a percentage of the fitted total: Solarian +3% shield, weapon `
+    + `damage, cargo, speed and mining power; Voidborn +12% max shield; Crimson +8% weapon `
+    + `damage; Nebula +10% cargo; Outer Rim +10% in-system travel speed. The patch note does `
+    + `not say whether they apply before or after modules, so after is assumed. `
     + `<b>SPEED</b> stops at ${SPEED_CAP} however many modules are fitted; anything past it `
     + `is shown as wasted rather than added. `
     + `<b>DAMAGE / TICK</b> assumes continuous fire and every shot landing: the catalog `
@@ -1366,6 +1407,9 @@ function init() {
     loadStock();                    // slots differ per hull; open on stock
     render();
   };
+  el("empire").innerHTML = `<option value="">None</option>` + Object.entries(EMPIRES)
+    .map(([id, e]) => `<option value="${id}">${esc(e.name)}</option>`).join("");
+  el("empire").onchange = e => { state.emp = e.target.value; render(); };
   el("btnStock").onclick = () => { loadStock(); render(); };
   el("themeBtn").onclick = () => {
     const cur = THEMES.indexOf(theme);
@@ -1409,6 +1453,7 @@ function init() {
 
   decodeState(location.search.slice(1));
   el("ship").value = state.ship;
+  el("empire").value = state.emp;
   el("engRange").value = el("engNum").value = state.eng;
   render();
 }
