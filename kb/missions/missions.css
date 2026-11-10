@@ -272,3 +272,99 @@ th.sortable:hover {
   border-bottom: 1px dotted hsl(var(--border));
   cursor: help;
 }
+
+/* --- Template families and station-grouped one-offs --- */
+
+.item-cat-card .cat-breakdown {
+  font-size: var(--text-label);
+  color: hsl(var(--muted-foreground));
+}
+
+.only-at {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  margin-left: 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  color: hsl(var(--smui-orange));
+  background: hsl(var(--smui-orange) / 0.15);
+}
+
+.chain-table tr.chain-only-at td {
+  padding-bottom: 0.2rem;
+  border-bottom: none;
+}
+
+.station-group h4 {
+  margin: 1.4rem 0 0.4rem;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.family-card {
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--card));
+  padding: 0.8rem 1rem;
+  margin: 0.7rem 0;
+}
+
+.family-head b {
+  font-size: 15px;
+  color: hsl(var(--foreground));
+}
+
+.family-formula {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12.5px;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.family-stats {
+  margin-top: 0.4rem;
+  font-size: var(--text-ui);
+  color: hsl(var(--muted-foreground));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+}
+
+.family-stats b {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.family-goods {
+  margin-top: 0.35rem;
+}
+
+.family-goods span {
+  display: inline-block;
+  font-size: 12px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  padding: 0 8px;
+  margin: 2px 4px 2px 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.family-card details summary {
+  cursor: pointer;
+  margin-top: 0.5rem;
+  font-size: var(--text-ui);
+  color: hsl(var(--muted-foreground));
+}
+
+.family-breakdown {
+  margin-top: 0.4rem;
+  width: 100%;
+  font-size: var(--text-ui);
+}

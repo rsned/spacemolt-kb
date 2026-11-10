@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bytes"
 	"cmp"
 	"database/sql"
 	"encoding/json"
@@ -107,15 +108,42 @@ type MissionCategoryInfo struct {
 	Count       int
 	Missions    []*Mission // every mission of this type, for detail pages
 
-	// Listing sections: hand-authored chains first, then hand-authored
-	// missions that belong to no chain, then the procedural bulk.
-	Chains     []MissionChain
-	Standalone []*Mission
-	Procedural []*Mission
+	// Listing sections, in page order: chains, one-offs grouped by offering
+	// station, one-offs posted by player factions, then template families.
+	Chains         []MissionChain
+	OneOffGroups   []StationGroup
+	FactionOneOffs []*Mission
+	Families       []*MissionFamily
 }
 
 // ChainCount reports how many chains the category lists.
 func (c MissionCategoryInfo) ChainCount() int { return len(c.Chains) }
+
+// OneOffCount counts server and player-faction one-offs together.
+func (c MissionCategoryInfo) OneOffCount() int {
+	n := len(c.FactionOneOffs)
+	for _, g := range c.OneOffGroups {
+		n += len(g.Missions)
+	}
+	return n
+}
+
+// FamilyCount reports how many template families the category lists.
+func (c MissionCategoryInfo) FamilyCount() int { return len(c.Families) }
+
+// VariantCount is the number of missions folded into the families.
+func (c MissionCategoryInfo) VariantCount() int {
+	n := 0
+	for _, f := range c.Families {
+		n += len(f.Variants)
+	}
+	return n
+}
+
+// FactionGroup wraps the player-faction one-offs for the shared table template.
+func (c MissionCategoryInfo) FactionGroup() StationGroup {
+	return StationGroup{Heading: "Posted by player factions", Missions: c.FactionOneOffs}
+}
 
 // chainHref returns a relative link from a mission detail page in fromType
 // to the detail page for toID within toType. Pages live at
@@ -449,77 +477,26 @@ func writeMissionPages(outDir string, missions []*Mission) error {
 		}
 	}
 
-	// Group by mission type.
-	byType := make(map[string][]*Mission)
-	for _, m := range missions {
-		typ := m.Type
-		if typ == "" {
-			typ = "uncategorized"
-		}
-		byType[typ] = append(byType[typ], m)
+	categories := buildMissionCategories(missions)
+	top, err := renderTopPage(categories)
+	if err != nil {
+		return err
 	}
-	for _, list := range byType {
-		slices.SortFunc(list, func(a, b *Mission) int {
-			if c := cmp.Compare(a.Difficulty, b.Difficulty); c != 0 {
-				return c
-			}
-			return cmp.Compare(a.Title, b.Title)
-		})
-	}
-
-	// Chains are global: a run of chain_next links crosses mission types
-	// freely, so build them once over every mission and then select per type.
-	chains := buildMissionChains(missions)
-	chained := chainMemberIDs(chains)
-
-	categories := make([]MissionCategoryInfo, 0, len(byType))
-	for typ, list := range byType {
-		standalone, procedural := partitionMissions(list, chained)
-		categories = append(categories, MissionCategoryInfo{
-			Name:        typ,
-			Description: missionTypeDescriptions[typ],
-			Count:       len(list),
-			Missions:    list,
-			Chains:      chainsForType(chains, typ),
-			Standalone:  standalone,
-			Procedural:  procedural,
-		})
-	}
-	slices.SortFunc(categories, func(a, b MissionCategoryInfo) int {
-		return cmp.Compare(a.Name, b.Name)
-	})
-
-	funcs := htmltpl.FuncMap{
-		"titleCase":          titleCase,
-		"fmtValue":           fmtValue,
-		"difficulty":         difficultyBadge,
-		"lower":              strings.ToLower,
-		"inc":                func(i int) int { return i + 1 },
-		"missionTitleFromID": missionTitleFromID,
-		"totalCount": func(cats []MissionCategoryInfo) int {
-			n := 0
-			for _, c := range cats {
-				n += c.Count
-			}
-			return n
-		},
-	}
-
-	topTmpl := htmltpl.Must(htmltpl.New("top").Funcs(funcs).Parse(htmlMissionsTopTemplate))
-	catTmpl := htmltpl.Must(htmltpl.New("cat").Funcs(funcs).Parse(missionTableTemplate))
-	catTmpl = htmltpl.Must(catTmpl.Parse(htmlMissionsCategoryTemplate))
-	detTmpl := htmltpl.Must(htmltpl.New("det").Funcs(funcs).Parse(htmlMissionDetailTemplate))
-
-	if err := writeTemplate(filepath.Join(outDir, "index.html"), topTmpl, categories); err != nil {
+	if err := os.WriteFile(filepath.Join(outDir, "index.html"), top, 0o644); err != nil {
 		return err
 	}
 
+	detTmpl := htmltpl.Must(htmltpl.New("det").Funcs(missionTemplateFuncs()).Parse(htmlMissionDetailTemplate))
 	for _, cat := range categories {
 		catDir := filepath.Join(outDir, cat.Name)
 		if err := os.MkdirAll(catDir, 0o755); err != nil {
 			return err
 		}
-		if err := writeTemplate(filepath.Join(catDir, "index.html"), catTmpl, cat); err != nil {
+		page, err := renderCategoryPage(cat)
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(filepath.Join(catDir, "index.html"), page, 0o644); err != nil {
 			return err
 		}
 		for _, m := range cat.Missions {
@@ -531,6 +508,84 @@ func writeMissionPages(outDir string, missions []*Mission) error {
 	}
 
 	return nil
+}
+
+// buildMissionCategories groups missions by type and splits each type into
+// chains, station-grouped one-offs, player-faction one-offs and families.
+func buildMissionCategories(missions []*Mission) []MissionCategoryInfo {
+	byType := make(map[string][]*Mission)
+	for _, m := range missions {
+		typ := m.Type
+		if typ == "" {
+			typ = "uncategorized"
+		}
+		byType[typ] = append(byType[typ], m)
+	}
+	for _, list := range byType {
+		slices.SortFunc(list, compareMissions)
+	}
+
+	// Chains are global: a run of chain_next links crosses mission types
+	// freely, so build them once over every mission and then select per type.
+	chains := buildMissionChains(missions)
+	chained := chainMemberIDs(chains)
+
+	categories := make([]MissionCategoryInfo, 0, len(byType))
+	for typ, list := range byType {
+		families, oneOffs, factionOneOffs := partitionFamilies(list, chained)
+		categories = append(categories, MissionCategoryInfo{
+			Name:           typ,
+			Description:    missionTypeDescriptions[typ],
+			Count:          len(list),
+			Missions:       list,
+			Chains:         chainsForType(chains, typ),
+			OneOffGroups:   groupOneOffsByStation(oneOffs),
+			FactionOneOffs: factionOneOffs,
+			Families:       families,
+		})
+	}
+	slices.SortFunc(categories, func(a, b MissionCategoryInfo) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	return categories
+}
+
+// missionTemplateFuncs is the function map shared by every mission template.
+func missionTemplateFuncs() htmltpl.FuncMap {
+	return htmltpl.FuncMap{
+		"titleCase":          titleCase,
+		"fmtValue":           fmtValue,
+		"difficulty":         difficultyBadge,
+		"lower":              strings.ToLower,
+		"inc":                func(i int) int { return i + 1 },
+		"missionTitleFromID": missionTitleFromID,
+		"join":               strings.Join,
+		"totalCount": func(cats []MissionCategoryInfo) int {
+			n := 0
+			for _, c := range cats {
+				n += c.Count
+			}
+			return n
+		},
+	}
+}
+
+// renderTopPage renders kb/missions/index.html.
+func renderTopPage(categories []MissionCategoryInfo) ([]byte, error) {
+	tmpl := htmltpl.Must(htmltpl.New("top").Funcs(missionTemplateFuncs()).Parse(htmlMissionsTopTemplate))
+	var b bytes.Buffer
+	err := tmpl.Execute(&b, categories)
+	return b.Bytes(), err
+}
+
+// renderCategoryPage renders kb/missions/<type>/index.html.
+func renderCategoryPage(cat MissionCategoryInfo) ([]byte, error) {
+	tmpl := htmltpl.Must(htmltpl.New("cat").Funcs(missionTemplateFuncs()).Parse(missionTableTemplate))
+	tmpl = htmltpl.Must(tmpl.Parse(familyCardTemplate))
+	tmpl = htmltpl.Must(tmpl.Parse(htmlMissionsCategoryTemplate))
+	var b bytes.Buffer
+	err := tmpl.Execute(&b, cat)
+	return b.Bytes(), err
 }
 
 func difficultyBadge(d int) htmltpl.HTML {
@@ -561,6 +616,7 @@ var htmlMissionsTopTemplate = `<!DOCTYPE html>
 {{- range .}}
             <a href="{{.Name}}/" class="item-cat-card">
                 <div class="cat-count">{{.Count}} missions</div>
+                <div class="cat-breakdown">{{.ChainCount}} chains · {{.OneOffCount}} one-offs · {{.FamilyCount}} families ({{.VariantCount}} variants)</div>
                 <div class="cat-name">{{titleCase .Name}}</div>
                 <div class="cat-desc">{{.Description}}</div>
             </a>
@@ -580,6 +636,9 @@ var missionTableTemplate = `
                         <tr>
                             <th class="sortable">Title</th>
                             <th class="sortable">Difficulty</th>
+{{- if .Many}}
+                            <th class="sortable">Stations</th>
+{{- end}}
                             <th class="sortable">Giver</th>
                             <th class="sortable">Faction</th>
                             <th class="sortable">Credits</th>
@@ -588,10 +647,13 @@ var missionTableTemplate = `
                         </tr>
                     </thead>
                     <tbody>
-{{- range .}}
+{{- range .Missions}}
                         <tr>
-                            <td><a href="{{.ID}}.html">{{.Title}}</a></td>
+                            <td><a href="{{.ID}}.html">{{.Title}}</a>{{with .OnlyAt}} <span class="only-at">ONLY AT {{.}}</span>{{end}}</td>
                             <td data-sort="{{.Difficulty}}">{{difficulty .Difficulty}}</td>
+{{- if $.Many}}
+                            <td data-sort="{{.StationCount}}">{{.StationCount}}</td>
+{{- end}}
                             <td>{{if .GiverName}}{{.GiverName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
                             <td>{{if .FactionName}}{{.FactionName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
                             <td data-sort="{{.RewardsCredits}}" class="value">{{fmtValue .RewardsCredits}}</td>
@@ -601,6 +663,38 @@ var missionTableTemplate = `
 {{- end}}
                     </tbody>
                 </table>
+            </div>
+{{end}}
+`
+
+var familyCardTemplate = `
+{{define "familyCard"}}
+            <div class="family-card">
+                <div class="family-head"><b>{{.Name}}</b> <span class="text-muted">{{.Variants | len}} variants</span>{{with .OnlyAt}} <span class="only-at">ONLY AT {{.}}</span>{{end}}</div>
+                {{with .Pattern}}<code class="family-formula">{{.}}</code>{{end}}
+                <div class="family-stats">
+                    {{with .Rewards.Parts}}<span>Reward <b>{{join . " · "}}</b></span>{{end}}
+                    <span>Difficulty {{.Difficulty}}</span>
+                    <span>{{if .Stations}}Offered at {{.Stations}} station{{if gt .Stations 1}}s{{end}}{{else}}Stations not recorded{{end}}</span>
+                    {{with .Goods}}<span>{{len .}}{{if $.GoodsMore}}+{{end}} goods</span>{{end}}
+                </div>
+                {{with .Goods}}<div class="family-goods">{{range .}}<span>{{.}}</span>{{end}}{{if $.GoodsMore}}<span>+{{$.GoodsMore}}</span>{{end}}</div>{{end}}
+                {{if gt (len .Breakdown) 1}}
+                <details>
+                    <summary>Breakdown by {{.BreakdownBy}}</summary>
+                    <table class="family-breakdown">
+                        <thead><tr><th>{{titleCase .BreakdownBy}}</th><th>Variants</th><th>Stations</th><th>Rewards</th></tr></thead>
+                        <tbody>
+{{- range .Breakdown}}
+                            <tr><td>{{.Label}}</td><td>{{.Variants}}</td><td>{{.Stations}}</td><td>{{join .Rewards.Parts " · "}}</td></tr>
+{{- end}}
+{{- if .BreakdownMore}}
+                            <tr><td colspan="4" class="text-muted">and {{.BreakdownMore}} more</td></tr>
+{{- end}}
+                        </tbody>
+                    </table>
+                </details>
+                {{end}}
             </div>
 {{end}}
 `
@@ -640,6 +734,9 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
                     </thead>
 {{- range .Chains}}
                     <tbody class="mission-chain">
+{{- with .OnlyAt}}
+                        <tr class="chain-only-at"><td colspan="7"><span class="only-at">ONLY AT {{.}}</span></td></tr>
+{{- end}}
 {{- range $i, $step := .Steps}}
                         <tr{{if $step.Foreign}} class="chain-foreign"{{end}}>
                             <td class="chain-step-col">{{inc $i}}</td>
@@ -658,19 +755,34 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
         </section>
 {{end}}
 
-{{if .Standalone}}
+{{if .OneOffGroups}}
         <section class="mission-section">
-            <h3>Standalone Missions <span class="text-muted">{{len .Standalone}}</span></h3>
-            <p class="text-muted section-note">Hand-authored missions that belong to no chain.</p>
-            {{template "missionTable" .Standalone}}
+            <h3>One-off Missions <span class="text-muted">{{len .OneOffGroups}} stations</span></h3>
+            <p class="text-muted section-note">Hand-written missions outside any chain, grouped by the station that offers them.</p>
+{{- range .OneOffGroups}}
+            <div class="station-group">
+                <h4>{{.Heading}} <span class="text-muted">{{len .Missions}}</span></h4>
+                {{template "missionTable" .}}
+            </div>
+{{- end}}
         </section>
 {{end}}
 
-{{if .Procedural}}
+{{if .FactionOneOffs}}
         <section class="mission-section">
-            <h3>Procedural Missions <span class="text-muted">{{len .Procedural}}</span></h3>
-            <p class="text-muted section-note">Generated contracts that repopulate as the galaxy runs.</p>
-            {{template "missionTable" .Procedural}}
+            <h3>Posted by player factions <span class="text-muted">{{len .FactionOneOffs}}</span></h3>
+            <p class="text-muted section-note">One-off contracts posted by player factions rather than the server.</p>
+            {{template "missionTable" .FactionGroup}}
+        </section>
+{{end}}
+
+{{if .Families}}
+        <section class="mission-section">
+            <h3>Template Families <span class="text-muted">{{.FamilyCount}} formulas, {{.VariantCount}} variants</span></h3>
+            <p class="text-muted section-note">Generated contracts that repopulate as the galaxy runs, one card per formula. Each variant still has its own page.</p>
+{{- range .Families}}
+            {{template "familyCard" .}}
+{{- end}}
         </section>
 {{end}}
     </main>

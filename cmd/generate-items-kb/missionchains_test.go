@@ -126,31 +126,6 @@ func TestChainsForTypeExcludesUnrelatedChains(t *testing.T) {
 	}
 }
 
-func TestPartitionMissionsSplitsStandaloneFromProcedural(t *testing.T) {
-	all := chainFixture()
-	chains := buildMissionChains(all)
-	var smuggling []*Mission
-	for _, m := range all {
-		if m.Type == "smuggling" {
-			smuggling = append(smuggling, m)
-		}
-	}
-	standalone, procedural := partitionMissions(smuggling, chainMemberIDs(chains))
-
-	// Chained smuggling missions are excluded; the dangling head and the
-	// unlinked mission remain, sorted by difficulty.
-	eq(t, missionTitles(standalone), []string{"Dangling Head", "Lone Wolf"}, "standalone")
-	eq(t, missionTitles(procedural), []string{"Proc B", "Proc A"}, "procedural")
-}
-
-func missionTitles(ms []*Mission) []string {
-	out := make([]string, len(ms))
-	for i, m := range ms {
-		out[i] = m.Title
-	}
-	return out
-}
-
 func TestMissionTitleFromID(t *testing.T) {
 	cases := []struct{ id, want string }{
 		{"bid_and_ask", "Bid and Ask"},

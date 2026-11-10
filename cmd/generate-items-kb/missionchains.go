@@ -144,25 +144,6 @@ func chainsForType(chains []MissionChain, typ string) []MissionChain {
 	return out
 }
 
-// partitionMissions splits a category's missions into the hand-authored ones
-// that are not part of any chain and the procedurally generated bulk, each
-// sorted by difficulty then title.
-func partitionMissions(missions []*Mission, chained map[string]bool) (standalone, procedural []*Mission) {
-	for _, m := range missions {
-		switch {
-		case m.Procedural:
-			procedural = append(procedural, m)
-		case chained[m.ID]:
-			// rendered in the chain section
-		default:
-			standalone = append(standalone, m)
-		}
-	}
-	slices.SortFunc(standalone, compareMissions)
-	slices.SortFunc(procedural, compareMissions)
-	return standalone, procedural
-}
-
 // compareMissions orders missions by difficulty, then title.
 func compareMissions(a, b *Mission) int {
 	if c := cmp.Compare(a.Difficulty, b.Difficulty); c != 0 {
