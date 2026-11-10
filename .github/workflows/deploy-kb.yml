@@ -17,6 +17,9 @@ on:
       - scripts/build-fitting-plans.sh
       - scripts/build-ship-footprints.sh
       - scripts/build-search-index.sh
+      - .github/workflows/deploy-kb.yml
+  # Manual redeploy, e.g. after a Pages sync timeout.
+  workflow_dispatch:
 
 jobs:
   deploy:
