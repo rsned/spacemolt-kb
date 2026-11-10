@@ -281,19 +281,17 @@ var htmlStationIndexTemplate = `<!DOCTYPE html>
 </head>
 <body>
 ` + siteHeaderSub + `
-    <main class="container page-content">
+    <main class="container page-content kbm">
         <div class="breadcrumb"><a href="../">Missions</a> / By Station</div>
         <h2>Missions by Station</h2>
         <p class="text-muted mt-1">Every story mission a station hands out — chains with a leg there and one-off missions — on one page per station. Generated template missions and player-faction posts are not listed.</p>
 {{- range .}}
-        <section class="mission-section station-index">
-            <h3>{{.Empire}} <span class="text-muted">{{len .Stations}}</span></h3>
-            <ul class="station-list">
+        <div class="kbm-label">{{.Empire}} <span class="text-muted">{{len .Stations}}</span></div>
+        <div class="kbm-index">
 {{- range .Stations}}
-                <li><a href="{{.BaseID}}.html">{{.Name}}</a> <span class="text-muted">{{len .Chains}} chain{{if ne (len .Chains) 1}}s{{end}} · {{len .OneOffs}} one-off{{if ne (len .OneOffs) 1}}s{{end}}</span></li>
+            <a href="{{.BaseID}}.html"><span class="n">{{plural (len .Chains) "chain" "chains"}} · {{plural (len .OneOffs) "one-off" "one-offs"}}</span><span class="t">{{.Name}}</span></a>
 {{- end}}
-            </ul>
-        </section>
+        </div>
 {{- end}}
     </main>
 ` + themeScript + `
@@ -312,9 +310,9 @@ var htmlStationPageTemplate = `<!DOCTYPE html>
 </head>
 <body>
 ` + siteHeaderSub + `
-    <main class="container page-content">
+    <main class="container page-content kbm">
         <div class="breadcrumb"><a href="../">Missions</a> / <a href="index.html">By Station</a> / {{.Name}}</div>
-        <h2>{{.Name}} <span class="text-muted">{{.Empire}} · {{len .Chains}} chains · {{len .OneOffs}} one-offs</span></h2>
+        <h2>{{.Name}} <span class="text-muted">{{.Empire}} · {{plural (len .Chains) "chain" "chains"}} · {{plural (len .OneOffs) "one-off" "one-offs"}}</span></h2>
 {{- $p := .}}
 {{if .Chains}}
         <section class="mission-section">
@@ -323,7 +321,7 @@ var htmlStationPageTemplate = `<!DOCTYPE html>
 {{- range .Chains}}
             <div class="station-chain">
                 <div class="station-chain-note text-muted">{{.Note}}</div>
-                <table class="chain-table">
+                <table class="kbm-rows chain-table kbm-chain">
                     <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-cr"><col class="c-where"></colgroup>
                     <tbody>
 {{- range .Rows}}
@@ -337,7 +335,7 @@ var htmlStationPageTemplate = `<!DOCTYPE html>
                             <td><span class="chain-type-icon" title="{{titleCase .Step.Mission.Type}} mission">{{$p.TypeIcon .Step.Mission.Type}}</span> <a href="{{.Href}}">{{.Step.Mission.Title}}</a></td>
                             <td>{{difficulty .Step.Mission.Difficulty}}</td>
                             <td class="value">{{fmtValue .Step.Mission.RewardsCredits}}</td>
-                            <td>{{if .Here}}<span class="text-muted">here</span>{{else}}{{.Where}}{{end}}</td>
+                            <td class="where">{{if .Here}}here{{else}}{{.Where}}{{end}}</td>
                         </tr>
 {{- end}}
 {{- end}}
@@ -350,25 +348,23 @@ var htmlStationPageTemplate = `<!DOCTYPE html>
 {{if .OneOffs}}
         <section class="mission-section">
             <h3>One-off missions here <span class="text-muted">{{len .OneOffs}}</span></h3>
-            <div class="table-container">
-                <table class="sortable">
-                    <thead><tr><th class="sortable">Mission</th><th class="sortable">Type</th><th class="sortable">Difficulty</th><th class="sortable">Credits</th></tr></thead>
-                    <tbody>
+            <table class="kbm-rows">
+                <colgroup><col><col class="c-type"><col class="c-diff"><col class="c-cr"></colgroup>
+                <tbody>
 {{- range .OneOffs}}
-                        <tr>
-                            <td><a href="{{.Href}}">{{.M.Title}}</a>{{if .Others}} <span class="text-muted">· also at {{.Others}} other station{{if ne .Others 1}}s{{end}}</span>{{end}}</td>
-                            <td data-sort="{{.M.Type}}">{{$p.TypeIcon .M.Type}} {{.M.Type}}</td>
-                            <td data-sort="{{.M.Difficulty}}">{{difficulty .M.Difficulty}}</td>
-                            <td data-sort="{{.M.RewardsCredits}}" class="value">{{fmtValue .M.RewardsCredits}}</td>
-                        </tr>
+                    <tr>
+                        <td><a href="{{.Href}}">{{.M.Title}}</a>{{if .Others}} <span class="text-muted">· also at {{plural .Others "other station" "other stations"}}</span>{{end}}</td>
+                        <td class="giver">{{$p.TypeIcon .M.Type}} {{.M.Type}}</td>
+                        <td>{{difficulty .M.Difficulty}}</td>
+                        <td class="value">{{fmtValue .M.RewardsCredits}}</td>
+                    </tr>
 {{- end}}
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </section>
 {{end}}
     </main>
-` + sortScript + themeScript + `
+` + themeScript + `
 </body>
 </html>
 `

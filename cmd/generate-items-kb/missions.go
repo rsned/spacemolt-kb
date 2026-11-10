@@ -13,6 +13,8 @@ import (
 	"slices"
 	"sort"
 	"strings"
+
+	humanize "github.com/dustin/go-humanize"
 )
 
 // Mission is a mission template loaded from mission_templates.
@@ -148,6 +150,42 @@ func (c MissionCategoryInfo) VariantCount() int {
 		n += len(f.Variants)
 	}
 	return n
+}
+
+// MostlyTemplates reports whether generated variants outnumber the category's
+// story missions (chains plus one-offs); the landing page lists those apart.
+func (c MissionCategoryInfo) MostlyTemplates() bool {
+	return c.VariantCount() > c.ChainCount()+c.OneOffCount()
+}
+
+// Summary is the landing-page count line, e.g. "4 chains · 1 one-off · 1 family",
+// leaving out any kind the category has none of.
+func (c MissionCategoryInfo) Summary() string {
+	var parts []string
+	for _, p := range []struct {
+		n         int
+		one, many string
+	}{
+		{c.ChainCount(), "chain", "chains"},
+		{c.OneOffCount(), "one-off", "one-offs"},
+		{c.FamilyCount(), "family", "families"},
+	} {
+		if p.n > 0 {
+			parts = append(parts, plural(p.n, p.one, p.many))
+		}
+	}
+	return strings.Join(parts, " · ")
+}
+
+// Icon is the category's mission-type glyph.
+func (c MissionCategoryInfo) Icon() string { return missionTypeIcons[c.Name] }
+
+// plural formats n with the singular or plural noun, e.g. "1 chain", "3 chains".
+func plural(n int, one, many string) string {
+	if n == 1 {
+		return "1 " + one
+	}
+	return humanize.Comma(int64(n)) + " " + many
 }
 
 // FactionGroup wraps the player-faction one-offs for the shared table template.
@@ -597,6 +635,14 @@ func missionTemplateFuncs() htmltpl.FuncMap {
 		"inc":                func(i int) int { return i + 1 },
 		"missionTitleFromID": missionTitleFromID,
 		"join":               strings.Join,
+		"plural":             plural,
+		"storyCategories": func(cats []MissionCategoryInfo) []MissionCategoryInfo {
+			return slices.DeleteFunc(slices.Clone(cats), MissionCategoryInfo.MostlyTemplates)
+		},
+		"templateCategories": func(cats []MissionCategoryInfo) []MissionCategoryInfo {
+			return slices.DeleteFunc(slices.Clone(cats), func(c MissionCategoryInfo) bool { return !c.MostlyTemplates() })
+		},
+		"comma": func(n int) string { return humanize.Comma(int64(n)) },
 		"totalCount": func(cats []MissionCategoryInfo) int {
 			n := 0
 			for _, c := range cats {
@@ -646,92 +692,85 @@ var htmlMissionsTopTemplate = `<!DOCTYPE html>
 </head>
 <body>
 ` + siteHeader + `
-    <main class="container page-content">
-        <h2>Missions</h2>
-        <p class="text-muted mt-1">{{totalCount .}} missions across {{len .}} categories.</p>
-        <p class="mt-1"><a href="stations/index.html">&#x1F6F0; Missions by Station &mdash; every story chain and one-off a station hands out, on one page &rarr;</a></p>
-        <div class="item-categories">
-{{- range .}}
-            <a href="{{.Name}}/" class="item-cat-card">
-                <div class="cat-count">{{.Count}} missions</div>
-                <div class="cat-breakdown">{{.ChainCount}} chains · {{.OneOffCount}} one-offs · {{.FamilyCount}} families ({{.VariantCount}} variants)</div>
-                <div class="cat-name">{{titleCase .Name}}</div>
-                <div class="cat-desc">{{.Description}}</div>
-            </a>
-{{- end}}
+    <main class="container page-content kbm">
+        <h2>Missions <span class="text-muted">{{comma (totalCount .)}} missions across {{len .}} categories</span></h2>
+        <p class="kbm-lead"><a href="stations/index.html">&#x1F6F0; Missions by Station &mdash; every story chain and one-off a station hands out, on one page &rarr;</a></p>
+{{- with storyCategories .}}
+        <div class="kbm-label">Story-heavy</div>
+        <div class="kbm-index">
+{{- range .}}{{template "categoryRow" .}}{{end}}
         </div>
+{{- end}}
+{{- with templateCategories .}}
+        <div class="kbm-label">Mostly templates</div>
+        <div class="kbm-index">
+{{- range .}}{{template "categoryRow" .}}{{end}}
+        </div>
+{{- end}}
     </main>
 ` + themeScript + `
 </body>
 </html>
+{{define "categoryRow"}}
+            <a href="{{.Name}}/"><span class="n">{{.Summary}}</span><span class="t">{{.Icon}} {{titleCase .Name}}</span><span class="d">{{with .Description}}{{.}} {{end}}{{comma .Count}} mission{{if ne .Count 1}}s{{end}}{{if .VariantCount}}, {{plural .VariantCount "template variant" "template variants"}}{{end}}.</span></a>
+{{- end}}
 `
 
 var missionTableTemplate = `
 {{define "missionTable"}}
-            <div class="table-container">
-                <table class="sortable">
-                    <thead>
-                        <tr>
-                            <th class="sortable">Title</th>
-                            <th class="sortable">Difficulty</th>
-{{- if .Many}}
-                            <th class="sortable">Stations</th>
-{{- end}}
-                            <th class="sortable">Giver</th>
-                            <th class="sortable">Faction</th>
-                            <th class="sortable">Credits</th>
-                            <th class="sortable">Objectives</th>
-                            <th class="sortable">Chain</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <table class="kbm-rows">
+                <colgroup><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                <tbody>
 {{- range .Missions}}
-                        <tr>
-                            <td><a href="{{.ID}}.html">{{.Title}}</a>{{with .OnlyAt}} <span class="only-at">ONLY AT {{.}}</span>{{end}}</td>
-                            <td data-sort="{{.Difficulty}}">{{difficulty .Difficulty}}</td>
-{{- if $.Many}}
-                            <td data-sort="{{.StationCount}}">{{.StationCount}}</td>
+                    <tr>
+                        <td><a href="{{.ID}}.html">{{.Title}}</a>{{with .OnlyAt}} <span class="only-at">ONLY AT {{.}}</span>{{end}}</td>
+                        <td>{{difficulty .Difficulty}}</td>
+                        <td class="giver">{{if $.Many}}{{.StationCount}} stations{{else if .GiverName}}{{.GiverName}}{{else if .FactionName}}{{.FactionName}}{{else}}—{{end}}</td>
+                        <td class="value">{{fmtValue .RewardsCredits}}</td>
+                    </tr>
 {{- end}}
-                            <td>{{if .GiverName}}{{.GiverName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-                            <td>{{if .FactionName}}{{.FactionName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-                            <td data-sort="{{.RewardsCredits}}" class="value">{{fmtValue .RewardsCredits}}</td>
-                            <td data-sort="{{len .Objectives}}">{{len .Objectives}}</td>
-                            <td>{{if .ChainNext}}{{if .ChainNextHref}}<a href="{{.ChainNextHref}}" title="Chains into {{.ChainNextTitle}}">{{.ChainNextTitle}}</a>{{else}}<span class="chain-undiscovered" title="Not yet discovered — mission id {{.ChainNext}}">{{missionTitleFromID .ChainNext}}</span>{{end}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-                        </tr>
-{{- end}}
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
 {{end}}
 `
 
 var familyCardTemplate = `
+{{define "breakdownRow"}}
+                        <tr class="bd-row"><td>{{.Label}}</td><td class="value">{{comma .Variants}}</td><td class="value">{{.Stations}}</td><td class="value rew">{{join .Rewards.Parts " · "}}</td></tr>
+{{- end}}
 {{define "familyCard"}}
             <div class="family-card">
-                <div class="family-head"><b>{{.Name}}</b> <span class="text-muted">{{.Variants | len}} variants</span>{{with .OnlyAt}} <span class="only-at">ONLY AT {{.}}</span>{{end}}</div>
+                <div class="family-head"><b>{{.Name}}</b> <span class="text-muted">{{comma (len .Variants)}} variants</span>{{with .OnlyAt}} <span class="only-at">ONLY AT {{.}}</span>{{end}}</div>
                 {{with .Pattern}}<code class="family-formula">{{.}}</code>{{end}}
                 <div class="family-stats">
-                    {{with .Rewards.Parts}}<span>Reward <b>{{join . " · "}}</b></span>{{end}}
-                    <span>Difficulty {{.Difficulty}}</span>
-                    <span>{{if .Stations}}Offered at {{.Stations}} station{{if gt .Stations 1}}s{{end}}{{else}}Stations not recorded{{end}}</span>
-                    {{with .Goods}}<span>{{$.GoodsTotal}} good{{if gt $.GoodsTotal 1}}s{{end}}</span>{{end}}
+                    {{with .Rewards.Parts}}<span><b>Reward</b> {{join . " · "}}</span>{{end}}
+                    <span><b>Difficulty</b> {{.Difficulty}}</span>
+                    <span>{{if .Stations}}<b>Offered at</b> {{plural .Stations "station" "stations"}}{{else}}Stations not recorded{{end}}</span>
+                    {{with .Goods}}<span>{{plural $.GoodsTotal "good" "goods"}}</span>{{end}}
                 </div>
-                {{with .Goods}}<div class="family-goods">{{range .}}<span>{{.}}</span>{{end}}{{if $.GoodsMore}}<span>+{{$.GoodsMore}}</span>{{end}}</div>{{end}}
+                {{with .Goods}}<div class="family-goods">{{range .}}<span>{{.}}</span>{{end}}{{if $.GoodsMore}}<span>+{{$.GoodsMore}} more</span>{{end}}</div>{{end}}
                 {{if gt (len .Breakdown) 1}}
+                <table class="kbm-rows family-breakdown">
+                    <colgroup><col><col class="c-num"><col class="c-num"><col class="c-rew"></colgroup>
+                    <thead><tr><th>{{titleCase .BreakdownBy}}</th><th class="r">Variants</th><th class="r">Stations</th><th class="r">Rewards</th></tr></thead>
+                    <tbody>
+{{- range .BreakdownTop}}{{template "breakdownRow" .}}{{end}}
+                    </tbody>
+                </table>
+                {{if .BreakdownHidden}}
                 <details>
-                    <summary>Breakdown by {{.BreakdownBy}}</summary>
-                    <table class="family-breakdown">
-                        <thead><tr><th>{{titleCase .BreakdownBy}}</th><th>Variants</th><th>Stations</th><th>Rewards</th></tr></thead>
+                    <summary>… {{.BreakdownHidden}} more {{.BreakdownBy}}s</summary>
+                    <table class="kbm-rows family-breakdown">
+                        <colgroup><col><col class="c-num"><col class="c-num"><col class="c-rew"></colgroup>
                         <tbody>
-{{- range .Breakdown}}
-                            <tr><td>{{.Label}}</td><td>{{.Variants}}</td><td>{{.Stations}}</td><td>{{join .Rewards.Parts " · "}}</td></tr>
-{{- end}}
+{{- range .BreakdownRest}}{{template "breakdownRow" .}}{{end}}
 {{- if .BreakdownMore}}
-                            <tr><td colspan="4" class="text-muted">and {{.BreakdownMore}} more</td></tr>
+                            <tr><td colspan="4" class="text-muted">and {{.BreakdownMore}} more not listed</td></tr>
 {{- end}}
                         </tbody>
                     </table>
                 </details>
+                {{end}}
                 {{end}}
             </div>
 {{end}}
@@ -748,9 +787,9 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
 </head>
 <body>
 ` + siteHeaderSub + `
-    <main class="container page-content">
+    <main class="container page-content kbm">
         <div class="breadcrumb"><a href="../">Missions</a> / {{titleCase .Name}}</div>
-        <h2>{{titleCase .Name}} <span class="text-muted">{{.Count}} missions</span></h2>
+        <h2>{{.Icon}} {{titleCase .Name}} <span class="text-muted">{{comma .Count}} missions{{with .Summary}} · {{.}}{{end}}</span></h2>
         {{if .Description}}<p class="text-muted mt-1">{{.Description}}</p>{{end}}
 
 {{if .Chains}}
@@ -760,45 +799,30 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
 {{- range .ChainGroups}}
             <div class="station-group">
                 <h4>{{.Heading}} <span class="text-muted">{{len .Chains}}</span></h4>
-            <div class="table-container">
-                <table class="chain-table">
-                    <thead>
-                        <tr>
-                            <th class="chain-step-col">#</th>
-                            <th>Title</th>
-                            <th>Difficulty</th>
-                            <th>Giver</th>
-                            <th>Faction</th>
-                            <th>Credits</th>
-                            <th>Objectives</th>
-                        </tr>
-                    </thead>
 {{- range .Chains}}
-                    <tbody class="mission-chain">
-
+                <table class="kbm-rows chain-table kbm-chain">
+                    <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                    <tbody>
 {{- range $i, $step := .Steps}}
 {{- if $step.Undiscovered}}
                         <tr class="chain-undiscovered-row">
                             <td class="chain-step-col">{{inc $i}}</td>
                             <td><span class="chain-undiscovered" title="Not yet discovered — mission id {{$step.Mission.ID}}">{{$step.Mission.Title}}</span></td>
-                            <td colspan="5" class="text-muted">not yet scanned or logged</td>
+                            <td colspan="3" class="text-muted">not yet scanned or logged</td>
                         </tr>
 {{- else}}
                         <tr{{if $step.Foreign}} class="chain-foreign"{{end}}>
                             <td class="chain-step-col">{{inc $i}}</td>
-                            <td><a href="{{$step.Href}}">{{$step.Mission.Title}}</a>{{if $step.Foreign}} <span class="chain-type-icon" title="{{titleCase $step.TypeName}} mission">{{$step.TypeIcon}}</span>{{end}}</td>
+                            <td>{{if $step.Foreign}}<span class="chain-type-icon" title="{{titleCase $step.TypeName}} mission">{{$step.TypeIcon}}</span> {{end}}<a href="{{$step.Href}}">{{$step.Mission.Title}}</a></td>
                             <td>{{difficulty $step.Mission.Difficulty}}</td>
-                            <td>{{if $step.Mission.GiverName}}{{$step.Mission.GiverName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-                            <td>{{if $step.Mission.FactionName}}{{$step.Mission.FactionName}}{{else}}<span class="text-muted">—</span>{{end}}</td>
+                            <td class="giver">{{if $step.Mission.GiverName}}{{$step.Mission.GiverName}}{{else}}—{{end}}</td>
                             <td class="value">{{fmtValue $step.Mission.RewardsCredits}}</td>
-                            <td>{{len $step.Mission.Objectives}}</td>
                         </tr>
 {{- end}}
 {{- end}}
                     </tbody>
-{{- end}}
                 </table>
-            </div>
+{{- end}}
             </div>
 {{- end}}
         </section>
@@ -827,15 +851,15 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
 
 {{if .Families}}
         <section class="mission-section">
-            <h3>Template Families <span class="text-muted">{{.FamilyCount}} formulas, {{.VariantCount}} variants</span></h3>
-            <p class="text-muted section-note">Generated contracts that repopulate as the galaxy runs, one card per formula. Each variant still has its own page.</p>
+            <h3>Template Families <span class="text-muted">{{plural .FamilyCount "formula" "formulas"}}, {{comma .VariantCount}} variants</span></h3>
+            <p class="text-muted section-note">Generated contracts that repopulate as the galaxy runs, one entry per formula. Each variant still has its own page.</p>
 {{- range .Families}}
             {{template "familyCard" .}}
 {{- end}}
         </section>
 {{end}}
     </main>
-` + sortScript + themeScript + `
+` + themeScript + `
 </body>
 </html>
 `

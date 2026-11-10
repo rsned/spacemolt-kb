@@ -33,9 +33,9 @@
         <div class="nav-scrim"></div>
         <script src="../../nav.js" defer></script>
     </header>
-    <main class="container page-content">
+    <main class="container page-content kbm">
         <div class="breadcrumb"><a href="../">Missions</a> / Equipment</div>
-        <h2>Equipment <span class="text-muted">6 missions</span></h2>
+        <h2>🛠️ Equipment <span class="text-muted">6 missions · 2 chains · 3 one-offs</span></h2>
         <p class="text-muted mt-1">Starter and onboarding missions that teach ship systems and basic gameplay.</p>
 
 
@@ -44,70 +44,51 @@
             <p class="text-muted section-note">Hand-authored storylines in chain order, ordered by the difficulty of the mission that starts them. A chain may run through other mission types; those steps are dimmed and marked with their own icon.</p>
             <div class="station-group">
                 <h4>Starts at Grand Exchange Station <span class="text-muted">2</span></h4>
-            <div class="table-container">
-                <table class="chain-table">
-                    <thead>
-                        <tr>
-                            <th class="chain-step-col">#</th>
-                            <th>Title</th>
-                            <th>Difficulty</th>
-                            <th>Giver</th>
-                            <th>Faction</th>
-                            <th>Credits</th>
-                            <th>Objectives</th>
-                        </tr>
-                    </thead>
-                    <tbody class="mission-chain">
+                <table class="kbm-rows chain-table kbm-chain">
+                    <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                    <tbody>
                         <tr>
                             <td class="chain-step-col">1</td>
                             <td><a href="cargo_optimization.html">Cargo Optimization</a></td>
                             <td><span class="difficulty" title="Difficulty 1">★</span></td>
-                            <td>Fleet Optimization Advisor Chen</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Fleet Optimization Advisor Chen</td>
                             <td class="value">1,500 cr</td>
-                            <td>1</td>
                         </tr>
                         <tr>
                             <td class="chain-step-col">2</td>
                             <td><a href="insurance_policy.html">Insurance Policy</a></td>
                             <td><span class="difficulty" title="Difficulty 2">★★</span></td>
-                            <td>Fleet Optimization Advisor Chen</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Fleet Optimization Advisor Chen</td>
                             <td class="value">2,000 cr</td>
-                            <td>1</td>
                         </tr>
                     </tbody>
-                    <tbody class="mission-chain">
+                </table>
+                <table class="kbm-rows chain-table kbm-chain">
+                    <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                    <tbody>
                         <tr>
                             <td class="chain-step-col">1</td>
                             <td><a href="commodity_diversification.html">Commodity Diversification</a></td>
                             <td><span class="difficulty" title="Difficulty 2">★★</span></td>
-                            <td>Equipment Specialist Ryker</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Equipment Specialist Ryker</td>
                             <td class="value">2,000 cr</td>
-                            <td>1</td>
                         </tr>
                         <tr class="chain-foreign">
                             <td class="chain-step-col">2</td>
-                            <td><a href="../mining/gas_futures.html">Gas Futures</a> <span class="chain-type-icon" title="Mining mission">⛏️</span></td>
+                            <td><span class="chain-type-icon" title="Mining mission">⛏️</span> <a href="../mining/gas_futures.html">Gas Futures</a></td>
                             <td><span class="difficulty" title="Difficulty 2">★★</span></td>
-                            <td>Equipment Specialist Ryker</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Equipment Specialist Ryker</td>
                             <td class="value">2,500 cr</td>
-                            <td>2</td>
                         </tr>
                         <tr class="chain-foreign">
                             <td class="chain-step-col">3</td>
-                            <td><a href="../mining/rare_gas_market.html">Rare Gas Market</a> <span class="chain-type-icon" title="Mining mission">⛏️</span></td>
+                            <td><span class="chain-type-icon" title="Mining mission">⛏️</span> <a href="../mining/rare_gas_market.html">Rare Gas Market</a></td>
                             <td><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                            <td>Equipment Specialist Ryker</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Equipment Specialist Ryker</td>
                             <td class="value">3,500 cr</td>
-                            <td>1</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
             </div>
         </section>
 
@@ -119,75 +100,39 @@
             <div class="station-group">
                 <h4>Offered at many stations <span class="text-muted">2</span></h4>
                 
-            <div class="table-container">
-                <table class="sortable">
-                    <thead>
-                        <tr>
-                            <th class="sortable">Title</th>
-                            <th class="sortable">Difficulty</th>
-                            <th class="sortable">Stations</th>
-                            <th class="sortable">Giver</th>
-                            <th class="sortable">Faction</th>
-                            <th class="sortable">Credits</th>
-                            <th class="sortable">Objectives</th>
-                            <th class="sortable">Chain</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><a href="first_haul.html">First Haul</a></td>
-                            <td data-sort="1"><span class="difficulty" title="Difficulty 1">★</span></td>
-                            <td data-sort="50">50</td>
-                            <td>Yard Foreman Dak</td>
-                            <td><span class="text-muted">—</span></td>
-                            <td data-sort="500" class="value">500 cr</td>
-                            <td data-sort="1">1</td>
-                            <td><span class="text-muted">—</span></td>
-                        </tr>
-                        <tr>
-                            <td><a href="a_lucrative_sideline.html">A Lucrative Sideline</a></td>
-                            <td data-sort="2"><span class="difficulty" title="Difficulty 2">★★</span></td>
-                            <td data-sort="7">7</td>
-                            <td>Korrin Vex</td>
-                            <td><span class="text-muted">—</span></td>
-                            <td data-sort="1000" class="value">1,000 cr</td>
-                            <td data-sort="1">1</td>
-                            <td><span class="text-muted">—</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table class="kbm-rows">
+                <colgroup><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                <tbody>
+                    <tr>
+                        <td><a href="first_haul.html">First Haul</a></td>
+                        <td><span class="difficulty" title="Difficulty 1">★</span></td>
+                        <td class="giver">50 stations</td>
+                        <td class="value">500 cr</td>
+                    </tr>
+                    <tr>
+                        <td><a href="a_lucrative_sideline.html">A Lucrative Sideline</a></td>
+                        <td><span class="difficulty" title="Difficulty 2">★★</span></td>
+                        <td class="giver">7 stations</td>
+                        <td class="value">1,000 cr</td>
+                    </tr>
+                </tbody>
+            </table>
 
             </div>
             <div class="station-group">
                 <h4>Starfall Salvage Station <span class="text-muted">1</span></h4>
                 
-            <div class="table-container">
-                <table class="sortable">
-                    <thead>
-                        <tr>
-                            <th class="sortable">Title</th>
-                            <th class="sortable">Difficulty</th>
-                            <th class="sortable">Giver</th>
-                            <th class="sortable">Faction</th>
-                            <th class="sortable">Credits</th>
-                            <th class="sortable">Objectives</th>
-                            <th class="sortable">Chain</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><a href="replacement_survey_lens.html">Replacement Survey Lens</a> <span class="only-at">ONLY AT Starfall Salvage Station</span></td>
-                            <td data-sort="1"><span class="difficulty" title="Difficulty 1">★</span></td>
-                            <td>Sinter</td>
-                            <td><span class="text-muted">—</span></td>
-                            <td data-sort="0" class="value">0 cr</td>
-                            <td data-sort="1">1</td>
-                            <td><span class="text-muted">—</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table class="kbm-rows">
+                <colgroup><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                <tbody>
+                    <tr>
+                        <td><a href="replacement_survey_lens.html">Replacement Survey Lens</a> <span class="only-at">ONLY AT Starfall Salvage Station</span></td>
+                        <td><span class="difficulty" title="Difficulty 1">★</span></td>
+                        <td class="giver">Sinter</td>
+                        <td class="value">0 cr</td>
+                    </tr>
+                </tbody>
+            </table>
 
             </div>
         </section>
@@ -198,32 +143,6 @@
 
     </main>
     <script>
-    document.querySelectorAll("table.sortable").forEach(function(table) {
-      var headers = table.querySelectorAll("th.sortable");
-      var sortCol = -1, sortAsc = true;
-      headers.forEach(function(th) {
-        var idx = th.cellIndex;
-        th.addEventListener("click", function() {
-          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
-          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
-          var arrow = document.createElement("span");
-          arrow.className = "sort-arrow";
-          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
-          th.appendChild(arrow);
-          var tbody = table.querySelector("tbody");
-          var rows = Array.from(tbody.querySelectorAll("tr"));
-          rows.sort(function(a, b) {
-            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
-            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
-            var an = parseFloat(at), bn = parseFloat(bt);
-            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
-            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
-          });
-          rows.forEach(function(r) { tbody.appendChild(r); });
-        });
-      });
-    });
-    </script>    <script>
     (function() {
         var toggle = document.getElementById('theme-toggle');
         var root = document.documentElement;

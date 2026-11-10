@@ -33,9 +33,9 @@
         <div class="nav-scrim"></div>
         <script src="../../nav.js" defer></script>
     </header>
-    <main class="container page-content">
+    <main class="container page-content kbm">
         <div class="breadcrumb"><a href="../">Missions</a> / Crafting</div>
-        <h2>Crafting <span class="text-muted">5 missions</span></h2>
+        <h2>🔨 Crafting <span class="text-muted">5 missions · 1 chain · 2 one-offs</span></h2>
         <p class="text-muted mt-1">Production runs and workshop assignments that put your recipes to use.</p>
 
 
@@ -44,50 +44,32 @@
             <p class="text-muted section-note">Hand-authored storylines in chain order, ordered by the difficulty of the mission that starts them. A chain may run through other mission types; those steps are dimmed and marked with their own icon.</p>
             <div class="station-group">
                 <h4>Starts at Grand Exchange Station <span class="text-muted">1</span></h4>
-            <div class="table-container">
-                <table class="chain-table">
-                    <thead>
-                        <tr>
-                            <th class="chain-step-col">#</th>
-                            <th>Title</th>
-                            <th>Difficulty</th>
-                            <th>Giver</th>
-                            <th>Faction</th>
-                            <th>Credits</th>
-                            <th>Objectives</th>
-                        </tr>
-                    </thead>
-                    <tbody class="mission-chain">
+                <table class="kbm-rows chain-table kbm-chain">
+                    <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                    <tbody>
                         <tr>
                             <td class="chain-step-col">1</td>
                             <td><a href="first_commission.html">First Commission</a></td>
                             <td><span class="difficulty" title="Difficulty 1">★</span></td>
-                            <td>Production Coordinator Ames</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Production Coordinator Ames</td>
                             <td class="value">1,500 cr</td>
-                            <td>2</td>
                         </tr>
                         <tr>
                             <td class="chain-step-col">2</td>
                             <td><a href="wiring_the_exchange.html">Wiring the Exchange</a></td>
                             <td><span class="difficulty" title="Difficulty 2">★★</span></td>
-                            <td>Production Coordinator Ames</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Production Coordinator Ames</td>
                             <td class="value">2,500 cr</td>
-                            <td>1</td>
                         </tr>
                         <tr>
                             <td class="chain-step-col">3</td>
                             <td><a href="premium_product.html">Premium Product</a></td>
                             <td><span class="difficulty" title="Difficulty 3">★★★</span></td>
-                            <td>Production Coordinator Ames</td>
-                            <td><span class="text-muted">—</span></td>
+                            <td class="giver">Production Coordinator Ames</td>
                             <td class="value">3,500 cr</td>
-                            <td>1</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
             </div>
         </section>
 
@@ -99,44 +81,23 @@
             <div class="station-group">
                 <h4>Offered at many stations <span class="text-muted">2</span></h4>
                 
-            <div class="table-container">
-                <table class="sortable">
-                    <thead>
-                        <tr>
-                            <th class="sortable">Title</th>
-                            <th class="sortable">Difficulty</th>
-                            <th class="sortable">Stations</th>
-                            <th class="sortable">Giver</th>
-                            <th class="sortable">Faction</th>
-                            <th class="sortable">Credits</th>
-                            <th class="sortable">Objectives</th>
-                            <th class="sortable">Chain</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><a href="workshop_production_run.html">Workshop Production Run</a></td>
-                            <td data-sort="2"><span class="difficulty" title="Difficulty 2">★★</span></td>
-                            <td data-sort="50">50</td>
-                            <td>Station Foreman Kemal</td>
-                            <td><span class="text-muted">—</span></td>
-                            <td data-sort="3500" class="value">3,500 cr</td>
-                            <td data-sort="1">1</td>
-                            <td><span class="text-muted">—</span></td>
-                        </tr>
-                        <tr>
-                            <td><a href="the_deep_core_initiative.html">The Deep Core Initiative</a></td>
-                            <td data-sort="6"><span class="difficulty" title="Difficulty 6">★★★★★★</span></td>
-                            <td data-sort="20">20</td>
-                            <td>Foreman Voss</td>
-                            <td><span class="text-muted">—</span></td>
-                            <td data-sort="10000" class="value">10,000 cr</td>
-                            <td data-sort="1">1</td>
-                            <td><span class="text-muted">—</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table class="kbm-rows">
+                <colgroup><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                <tbody>
+                    <tr>
+                        <td><a href="workshop_production_run.html">Workshop Production Run</a></td>
+                        <td><span class="difficulty" title="Difficulty 2">★★</span></td>
+                        <td class="giver">50 stations</td>
+                        <td class="value">3,500 cr</td>
+                    </tr>
+                    <tr>
+                        <td><a href="the_deep_core_initiative.html">The Deep Core Initiative</a></td>
+                        <td><span class="difficulty" title="Difficulty 6">★★★★★★</span></td>
+                        <td class="giver">20 stations</td>
+                        <td class="value">10,000 cr</td>
+                    </tr>
+                </tbody>
+            </table>
 
             </div>
         </section>
@@ -147,32 +108,6 @@
 
     </main>
     <script>
-    document.querySelectorAll("table.sortable").forEach(function(table) {
-      var headers = table.querySelectorAll("th.sortable");
-      var sortCol = -1, sortAsc = true;
-      headers.forEach(function(th) {
-        var idx = th.cellIndex;
-        th.addEventListener("click", function() {
-          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
-          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
-          var arrow = document.createElement("span");
-          arrow.className = "sort-arrow";
-          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
-          th.appendChild(arrow);
-          var tbody = table.querySelector("tbody");
-          var rows = Array.from(tbody.querySelectorAll("tr"));
-          rows.sort(function(a, b) {
-            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
-            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
-            var an = parseFloat(at), bn = parseFloat(bt);
-            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
-            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
-          });
-          rows.forEach(function(r) { tbody.appendChild(r); });
-        });
-      });
-    });
-    </script>    <script>
     (function() {
         var toggle = document.getElementById('theme-toggle');
         var root = document.documentElement;

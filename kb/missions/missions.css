@@ -1,50 +1,5 @@
 /* Missions section styles — extends items.css patterns */
 
-.item-categories {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1px;
-  background: hsl(var(--border));
-  border: 1px solid hsl(var(--border));
-  margin-top: 1.5rem;
-}
-
-.item-cat-card {
-  background: hsl(var(--card));
-  padding: 1.25rem 1.25rem 1rem;
-  text-decoration: none;
-  color: inherit;
-  transition: background-color 0.15s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.item-cat-card:hover {
-  background: hsl(var(--accent));
-  text-decoration: none;
-}
-
-.item-cat-card .cat-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  text-transform: capitalize;
-}
-
-.item-cat-card .cat-count {
-  font-size: var(--text-label);
-  color: hsl(var(--muted-foreground));
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.item-cat-card .cat-desc {
-  font-size: var(--text-label);
-  color: hsl(var(--muted-foreground));
-  line-height: 1.7;
-}
-
 .breadcrumb {
   font-size: var(--text-label);
   color: hsl(var(--muted-foreground));
@@ -217,18 +172,6 @@ th.sortable:hover {
   font-size: var(--text-ui);
 }
 
-/* Each chain is its own tbody inside one table, so columns stay aligned
-   across chains while the gap between groups reads as the chain break. */
-.chain-table tbody.mission-chain::before {
-  content: "";
-  display: table-row;
-  height: 1.1rem;
-}
-
-.chain-table tbody.mission-chain + tbody.mission-chain {
-  border-top: 1px solid hsl(var(--border));
-}
-
 .chain-table .chain-step-col {
   width: 2.5rem;
   text-align: right;
@@ -274,11 +217,6 @@ th.sortable:hover {
 }
 
 /* --- Template families and station-grouped one-offs --- */
-
-.item-cat-card .cat-breakdown {
-  font-size: var(--text-label);
-  color: hsl(var(--muted-foreground));
-}
 
 .only-at {
   display: inline-block;
@@ -364,39 +302,115 @@ th.sortable:hover {
   font-size: var(--text-ui);
 }
 
-/* --- Missions by station --- */
-
-.station-list {
-  list-style: none;
-  padding: 0;
-  margin: 0.4rem 0 0;
-  columns: 2 22rem;
-}
-
-.station-list li {
-  padding: 0.2rem 0;
-  break-inside: avoid;
-}
-
-.station-chain {
-  margin: 0.9rem 0 1.2rem;
-}
-
-.station-chain-note {
-  font-size: var(--text-label);
-  margin-bottom: 0.2rem;
-}
-
 .chain-table tr.leg-elsewhere td {
   opacity: 0.45;
 }
 
-/* Each chain is its own table; fix the columns so they line up across chains. */
-.station-chain .chain-table {
-  table-layout: fixed;
-  width: 100%;
+/* --- Compact mission listing style (landing, category and station pages) ---
+   Scoped to main.kbm: system type, hairline rows, small uppercase labels and
+   right-aligned numbers. Mission detail pages keep the site style. */
+
+.kbm {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
 }
-.station-chain col.c-step { width: 3rem; }
-.station-chain col.c-diff { width: 7rem; }
-.station-chain col.c-cr { width: 8rem; }
-.station-chain col.c-where { width: 15rem; }
+
+.kbm h2 { font-size: 20px; font-weight: 600; }
+.kbm h2 .text-muted { font-size: 13px; font-weight: 400; margin-left: 0.3rem; }
+
+.kbm .breadcrumb { letter-spacing: 0.06em; font-size: 11px; }
+
+.kbm .mission-section { margin-top: 2rem; }
+.kbm .mission-section h3 { font-size: 16px; font-weight: 600; padding-bottom: 0.3rem; }
+.kbm .mission-section h3 .text-muted { font-size: 13px; font-weight: 400; }
+.kbm .mission-section .section-note { font-size: 12.5px; margin: 0.3rem 0 0.6rem; }
+
+.kbm .station-group h4,
+.kbm-label {
+  margin: 1.2rem 0 0.3rem;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.kbm-label .text-muted { font-weight: 400; letter-spacing: 0; }
+
+.kbm-lead { margin: 0.6rem 0 0.4rem; }
+.kbm-lead a { text-decoration: none; }
+
+/* Index lists: name left, counts right, one hairline per row. */
+.kbm-index a {
+  display: block;
+  padding: 0.4rem 0.25rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.6);
+  color: inherit;
+  text-decoration: none;
+}
+
+.kbm-index a:hover { background: hsl(var(--accent)); text-decoration: none; }
+.kbm-index .t { font-weight: 600; color: hsl(var(--primary)); text-transform: none; }
+.kbm-index .n { float: right; margin-left: 1rem; font-size: 12.5px; color: hsl(var(--muted-foreground)); }
+.kbm-index .d { display: block; font-size: 12.5px; color: hsl(var(--muted-foreground)); }
+
+/* Compact row tables with fixed columns, so separate chain tables line up. */
+.kbm table { font-size: 14px; }
+.kbm td, .kbm th { padding: 4px 8px; border-bottom: 1px solid hsl(var(--border) / 0.6); vertical-align: top; }
+.kbm th { font-size: 11px; letter-spacing: 0.06em; }
+.kbm th.r { text-align: right; }
+.kbm tr:hover td { background: none; }
+
+.kbm-rows { table-layout: fixed; width: 100%; }
+.kbm-rows col.c-step { width: 2.5rem; }
+.kbm-rows col.c-diff { width: 7.5rem; }
+.kbm-rows col.c-giver { width: 12rem; }
+.kbm-rows col.c-cr { width: 7rem; }
+.kbm-rows col.c-where { width: 14rem; }
+.kbm-rows col.c-type { width: 10rem; }
+.kbm-rows col.c-num { width: 5.5rem; }
+.kbm-rows col.c-rew { width: 40%; }
+.kbm-rows td { overflow-wrap: anywhere; }
+
+.kbm td.giver, .kbm td.where { color: hsl(var(--muted-foreground)); font-size: 13px; }
+.kbm .difficulty { font-size: 12px; letter-spacing: 0; }
+
+.kbm-chain { margin: 0.2rem 0 0.9rem; }
+.kbm .chain-table .chain-step-col { width: auto; }
+
+/* Legs from another category, or offered at another station: dimmed. */
+.kbm .chain-table tr.chain-foreign td { opacity: 0.5; color: inherit; }
+.chain-table tr.leg-elsewhere td { opacity: 0.45; }
+.kbm .chain-undiscovered-row td { opacity: 0.5; font-style: italic; }
+
+.station-chain { margin: 0.9rem 0 1.2rem; }
+.station-chain-note { font-size: var(--text-label); margin-bottom: 0.2rem; }
+
+/* Template families: plain sections instead of boxed cards. */
+.kbm .family-card {
+  border: 0;
+  border-top: 1px solid hsl(var(--border));
+  border-radius: 0;
+  background: none;
+  padding: 0.6rem 0 0.2rem;
+  margin: 1rem 0;
+}
+
+.kbm .family-formula { background: none; padding: 0; font-family: var(--font-sans); opacity: 0.85; }
+.kbm .family-stats { font-size: 12.5px; gap: 0.2rem 1.2rem; }
+.kbm .family-goods span { border: 0; padding: 0; margin-right: 0.7rem; }
+.kbm .family-breakdown { margin-top: 0.4rem; font-size: 13px; }
+.kbm .family-card details summary { font-size: 12.5px; margin: 0.3rem 0 0 0.25rem; }
+
+@media (max-width: 640px) {
+  .kbm-rows { table-layout: auto; }
+  .kbm-rows col { width: auto !important; }
+  .kbm td.giver { display: none; }
+  .kbm .family-breakdown td:nth-child(3), .kbm .family-breakdown th:nth-child(3) { display: none; }
+  .kbm-index .n { float: none; display: block; margin: 0; }
+}
+
+.kbm td.rew { white-space: normal; }
+.kbm .station-group h4 .text-muted,
+.kbm-label .text-muted { margin-left: 0.35rem; }

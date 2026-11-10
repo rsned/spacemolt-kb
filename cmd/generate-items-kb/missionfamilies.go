@@ -43,6 +43,26 @@ type MissionFamily struct {
 	BreakdownMore int
 }
 
+// familyBreakdownVisible is how many breakdown rows show before the expander.
+const familyBreakdownVisible = 5
+
+// BreakdownTop is the part of the breakdown shown up front.
+func (f *MissionFamily) BreakdownTop() []FamilyBreakdownRow {
+	return f.Breakdown[:min(len(f.Breakdown), familyBreakdownVisible)]
+}
+
+// BreakdownRest is the part of the breakdown behind the expander.
+func (f *MissionFamily) BreakdownRest() []FamilyBreakdownRow {
+	if len(f.Breakdown) <= familyBreakdownVisible {
+		return nil
+	}
+	return f.Breakdown[familyBreakdownVisible:]
+}
+
+// BreakdownHidden counts the rows behind the expander, including those cut by
+// the row cap.
+func (f *MissionFamily) BreakdownHidden() int { return len(f.BreakdownRest()) + f.BreakdownMore }
+
 // familyKey groups a mission by the title text before its first colon. A
 // prefix-less procedural mission takes oddJobsName; a prefix-less hand-written
 // one keys on its exact title.
