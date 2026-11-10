@@ -67,7 +67,7 @@ type pageData struct {
 
 	Items []itemRow // index
 
-	Name, ItemHref, BuildHref string // item page
+	Name, ItemHref string // item page
 	NoUsable                  bool
 	Recipes                   []recipeView
 }
@@ -198,7 +198,7 @@ func renderPublic(outDir string, w prodcost.World, costs map[string]*prodcost.It
 		index.Items = append(index.Items, row)
 
 		pd := pageData{Title: name(id) + " Production Cost", Header: header, Base: "../", Ages: ages, Name: name(id),
-			BuildHref: "../build-costs/" + id + ".html", NoUsable: ic.NoUsableRoute}
+			NoUsable: ic.NoUsableRoute}
 		if it, ok := w.Items[id]; ok && it.Category != "" {
 			pd.ItemHref = "../items/" + strings.ReplaceAll(it.Category, " ", "_") + "/" + id + ".html"
 		}

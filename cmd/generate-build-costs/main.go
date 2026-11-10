@@ -1,5 +1,11 @@
 // Command generate-build-costs renders the KB build-cost matrix: the live-market
 // cost, feasibility, and margin of building every item and ship at every station.
+//
+// DEPRECATED (2026-11-10): the build-cost pages are no longer published. The
+// code is kept, but its kb/build-costs output is gitignored (only the BoM
+// explorer files there are tracked) and the command is out of the regen chain.
+// Its one live product is the frozen kb/did_you_know/stations_to_build.html,
+// which carries a deprecation banner and links to the unpublished pages.
 package main
 
 import (
@@ -33,6 +39,7 @@ func main() {
 	stationCoverOut := flag.String("station-cover-out", "kb/did_you_know/stations_to_build.html", "output path for the station-cover did-you-know page; empty disables it")
 	facilitiesOut := flag.String("facilities-out", "kb/build-costs/facilities", "output dir for facility build-cost pages; empty disables")
 	flag.Parse()
+	log.Print("generate-build-costs is DEPRECATED: build-cost pages are no longer published; kb/build-costs output is gitignored")
 
 	craftDB, err := openRO(*craftPath)
 	must(err, "open crafting")

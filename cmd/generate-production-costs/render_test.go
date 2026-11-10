@@ -116,10 +116,14 @@ func TestRenderPublicItemPage(t *testing.T) {
 	}
 	page := readOut(t, dir, "plasma_injector.html")
 	for _, want := range []string{"make_plasma_injector", "make_plasma_injector_alt", "has an unpriced input",
-		"../items/component/plasma_injector.html", "../build-costs/plasma_injector.html"} {
+		"../items/component/plasma_injector.html"} {
 		if !strings.Contains(page, want) {
 			t.Errorf("item page missing %q", want)
 		}
+	}
+	// Build-cost pages are deprecated and no longer published (2026-11-10).
+	if strings.Contains(page, "build-costs/") {
+		t.Error("item page still links to the unpublished build-cost pages")
 	}
 }
 

@@ -130,3 +130,10 @@ pkg/tectonics/testdata/vis/
 
 # Private output (market prices, opportunities)
 /private/
+
+# Build-cost pages are DEPRECATED and unpublished (2026-11-10). generate-build-costs
+# still writes them locally; only the BoM explorer files in that folder ship.
+kb/build-costs/*
+!kb/build-costs/explorer.html
+!kb/build-costs/bom-explorer.js
+!kb/build-costs/recipe-graph.json

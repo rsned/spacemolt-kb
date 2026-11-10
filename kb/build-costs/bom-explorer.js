@@ -1031,7 +1031,7 @@ function initExplorer() {
       els.status.textContent = leafKind(data, state.target) === 'ore'
         ? displayName(data, state.target) +
           ' is a raw material — the explorer stops at ores and raw materials, ' +
-          'the same place the static build-cost pages stop, so there is nothing to expand.'
+          'so there is nothing to expand.'
         : displayName(data, state.target) +
           ' — no recipe produces this; it is a drop.';
       els.result.hidden = true;

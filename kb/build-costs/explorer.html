@@ -66,7 +66,7 @@ th:first-child,td:first-child{text-align:left}
 <body>
 <button type="button" class="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme" onclick="(function(){var r=document.documentElement,t=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',t);try{localStorage.setItem('smkb-theme',t);}catch(e){}})()">◐</button>
 
-<p><a href="./">← Build Cost Matrix</a></p>
+<p><a href="../index.html">← Knowledge Base</a></p>
 <h1>Bill of Materials Explorer</h1>
 
 <div class="controls">
@@ -108,11 +108,10 @@ th:first-child,td:first-child{text-align:left}
   </div>
 
   <p class="note">
-    Quantities round up to whole batches at every tier, so totals can exceed the
-    per-unit figures on the static build-cost pages — you cannot craft a partial
-    batch. Surplus shows what the rounding over-produces. This page carries no
-    prices; the build cost by station for the selected output is its own page
-    in this same directory, not the catalog page an item's node here links to.
+    Quantities round up to whole batches at every tier, so totals can exceed a
+    simple per-unit figure — you cannot craft a partial batch. Surplus shows
+    what the rounding over-produces. This page carries no prices; an item's
+    node links to its catalog page.
   </p>
 
   <section class="json-out">

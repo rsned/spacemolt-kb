@@ -107,6 +107,10 @@
       "divider": true
     },
     {
+      "path": "build-costs/explorer.html",
+      "label": "BoM Explorer"
+    },
+    {
       "path": "did_you_know/index.html",
       "label": "Did You Know?"
     },

@@ -21,6 +21,21 @@ type Item struct {
 	Divider bool
 	// Children are the section's special pages, shown indented beneath it.
 	Children []Child
+	// Page overrides the link target, by path from the kb root, for an entry
+	// whose page is not its folder's index.html (the BoM explorer).
+	Page string
+}
+
+// Path is the page the drawer entry links to, from the kb root.
+func (it Item) Path() string {
+	switch {
+	case it.Page != "":
+		return it.Page
+	case it.Slug == "":
+		return "index.html" // explicit, so Home also works when browsing from file://
+	default:
+		return it.Slug + "/index.html"
+	}
 }
 
 // Child is a page nested under a section, by its path from the kb root.
@@ -56,6 +71,7 @@ var Items = []Item{
 	{Slug: "players", Label: "Players"},
 	{Slug: "passengers", Label: "Passengers"},
 	{Slug: "production-costs", Label: "Production Costs", Divider: true},
+	{Slug: "build-costs", Label: "BoM Explorer", Page: "build-costs/explorer.html"},
 	{Slug: "did_you_know", Label: "Did You Know?"},
 	{Slug: "guides", Label: "Guides"},
 	{Slug: "diffs", Label: "Change Log"},
@@ -125,11 +141,7 @@ func NavScript() string {
 	}
 	entries := make([]entry, 0, len(Items))
 	for _, it := range Items {
-		path := "index.html" // explicit, so Home also works when browsing from file://
-		if it.Slug != "" {
-			path = it.Slug + "/index.html"
-		}
-		e := entry{Path: path, Label: it.Label, Divider: it.Divider}
+		e := entry{Path: it.Path(), Label: it.Label, Divider: it.Divider}
 		for _, c := range it.Children {
 			e.Children = append(e.Children, child(c))
 		}

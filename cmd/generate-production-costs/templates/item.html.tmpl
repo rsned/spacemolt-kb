@@ -1,7 +1,7 @@
 {{template "head" .}}
 <p><a href="./">&larr; Production Costs</a></p>
 <h1>{{.Name}}</h1>
-<p>{{if .ItemHref}}<a href="{{.ItemHref}}">Item page</a> &middot; {{end}}<a href="{{.BuildHref}}">Build cost</a></p>
+{{if .ItemHref}}<p><a href="{{.ItemHref}}">Item page</a></p>{{end}}
 {{if .NoUsable}}<p class="note">no usable route</p>{{end}}
 {{range .Recipes}}
 <h2>{{.ID}}{{if .Name}} <small>{{.Name}}</small>{{end}}</h2>

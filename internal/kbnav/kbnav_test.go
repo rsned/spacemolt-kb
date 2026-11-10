@@ -48,10 +48,7 @@ func TestHeaderIsAFixedShell(t *testing.T) {
 func TestNavScriptListsEveryItem(t *testing.T) {
 	js := NavScript()
 	for _, it := range Items {
-		path := "index.html"
-		if it.Slug != "" {
-			path = it.Slug + "/index.html"
-		}
+		path := it.Path()
 		if !strings.Contains(js, `"path": "`+path+`"`) || !strings.Contains(js, `"label": "`+it.Label+`"`) {
 			t.Errorf("nav.js missing %q (%s)", it.Label, path)
 		}
@@ -129,6 +126,24 @@ func TestDividerFollowsHomeCards(t *testing.T) {
 		if slug != "guides" && strings.Contains(string(home), `<a href="`+slug+`/index.html" class="cat"`) {
 			t.Errorf("%s has a home page card but is below the divider", slug)
 		}
+	}
+}
+
+// TestItemPagesExist: every drawer entry, including one whose Page overrides
+// the section index (the BoM explorer), must point at a page that exists.
+func TestItemPagesExist(t *testing.T) {
+	kb := locateKBDir(t)
+	for _, it := range Items {
+		if _, err := os.Stat(filepath.Join(kb, it.Path())); err != nil {
+			t.Errorf("%q: %v", it.Label, err)
+		}
+	}
+	explorer := Item{Slug: "build-costs", Label: "BoM Explorer", Page: "build-costs/explorer.html"}
+	if explorer.Path() != "build-costs/explorer.html" {
+		t.Errorf("Page override ignored: %q", explorer.Path())
+	}
+	if (Item{Slug: "systems"}).Path() != "systems/index.html" || (Item{}).Path() != "index.html" {
+		t.Error("default paths changed")
 	}
 }
 
