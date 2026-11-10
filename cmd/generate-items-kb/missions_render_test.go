@@ -70,8 +70,8 @@ func TestCategoryPageSectionsOrderAndBadges(t *testing.T) {
 		}
 		last = i
 	}
-	if !strings.Contains(s, "ONLY AT Treasure Cache Trading Post") {
-		t.Error("missing chain ONLY AT badge")
+	if !strings.Contains(s, "Starts at Treasure Cache Trading Post") {
+		t.Error("missing chain start-station heading")
 	}
 	if !strings.Contains(s, "Traders&#39; Rest &amp; Resort") {
 		t.Error("station heading not escaped")
@@ -111,5 +111,30 @@ func TestOneOffHeadingCountsMissions(t *testing.T) {
 	if !strings.Contains(s, `One-off Missions <span class="text-muted">3 missions</span>`) {
 		i := strings.Index(s, "One-off Missions")
 		t.Fatalf("heading = %q", s[i:i+80])
+	}
+}
+
+// A one-off whose chain_next has not been scraped is a chain opener: it is
+// listed under the chains with a placeholder leg that is not a link.
+func TestChainOpenerWithUnscrapedNextRendersPlaceholder(t *testing.T) {
+	m := fm("prismatic_prospecting", "Prismatic Prospecting", "mining", false, "grand_exchange_station")
+	m.ChainNext = "nebula_extractor_problem"
+	out, err := renderCategoryPage(buildMissionCategories([]*Mission{m})[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(out)
+	chains, oneOffs := s, ""
+	if i := strings.Index(s, "One-off Missions"); i >= 0 {
+		chains, oneOffs = s[:i], s[i:]
+	}
+	if !strings.Contains(chains, "Prismatic Prospecting") || strings.Contains(oneOffs, "Prismatic Prospecting") {
+		t.Fatal("opener not listed under chains")
+	}
+	if !strings.Contains(chains, "Nebula Extractor Problem") {
+		t.Fatal("placeholder leg missing")
+	}
+	if strings.Contains(s, `href="nebula_extractor_problem.html"`) {
+		t.Fatal("placeholder leg is a link")
 	}
 }

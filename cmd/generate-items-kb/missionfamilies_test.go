@@ -259,27 +259,29 @@ func chainOf(ms ...*Mission) MissionChain {
 	return c
 }
 
-func TestChainOnlyAtExclusiveStep(t *testing.T) {
-	b := fm("b", "B", "smuggling", false, "treasure_cache_trading_post", "sable_port")
-	b.ExclusiveBaseID, b.ExclusiveBaseName = "treasure_cache_trading_post", "Treasure Cache Trading Post"
-	c := chainOf(fm("a", "A", "smuggling", false, "x", "y"), b, fm("c", "C", "smuggling", false))
-	if got := chainOnlyAt(c); got != "Treasure Cache Trading Post" {
-		t.Fatalf("chainOnlyAt = %q", got)
+func TestGroupChainsByStartStation(t *testing.T) {
+	ge, cc := "grand_exchange_station", "confederacy_central_command"
+	chains := []MissionChain{
+		// later legs elsewhere do not matter, only the opener's station
+		chainOf(fm("first_cargo", "First Cargo", "mining", false, ge), fm("lanes", "Scouting the Lanes", "exploration", false, cc)),
+		chainOf(fm("welcome", "Welcome to Sol Central", "mining", false, cc), fm("sirius", "Sirius Expedition", "exploration", false, cc)),
+		chainOf(fm("gold", "Scouting the Gold Run", "exploration", false, ge), fm("std", "The Gold Standard", "mining", false, ge)),
+		chainOf(fm("haul", "First Haul", "mining", false, ge, cc), fm("h2", "Second Haul", "mining", false)),
+		chainOf(fm("ghost", "Ghost Lead", "mining", false), fm("g2", "Ghost Tail", "mining", false, ge)),
 	}
-	if b.OnlyAt() != "Treasure Cache Trading Post" {
-		t.Fatalf("Mission.OnlyAt = %q", b.OnlyAt())
+	groups := groupChainsByStart(chains)
+	var got []string
+	for _, g := range groups {
+		got = append(got, fmt.Sprintf("%s:%d", g.Heading, len(g.Chains)))
 	}
-}
-
-func TestChainOnlyAtSharedSingleStation(t *testing.T) {
-	s := "starfall_salvage_station"
-	c := chainOf(fm("a", "A", "mining", false, s), fm("b", "B", "mining", false, s))
-	if got := chainOnlyAt(c); got != "Starfall Salvage Station" {
-		t.Fatalf("chainOnlyAt = %q", got)
+	want := []string{"Starts at many stations:1", "Starts at Confederacy Central Command:1",
+		"Starts at Grand Exchange Station:2", "Station not recorded:1"}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("groups = %q, want %q", got, want)
 	}
-	d := chainOf(fm("a", "A", "mining", false, s), fm("b", "B", "mining", false, s, "frontier_station"))
-	if got := chainOnlyAt(d); got != "" {
-		t.Fatalf("chainOnlyAt = %q, want empty", got)
+	// input order (difficulty) is kept inside a group
+	if groups[2].Chains[0].Head().ID != "first_cargo" || groups[2].Chains[1].Head().ID != "gold" {
+		t.Fatalf("grand exchange order = %s, %s", groups[2].Chains[0].Head().ID, groups[2].Chains[1].Head().ID)
 	}
 }
 

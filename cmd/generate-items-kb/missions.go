@@ -111,6 +111,7 @@ type MissionCategoryInfo struct {
 	// Listing sections, in page order: chains, one-offs grouped by offering
 	// station, one-offs posted by player factions, then template families.
 	Chains         []MissionChain
+	ChainGroups    []ChainGroup
 	OneOffGroups   []StationGroup
 	FactionOneOffs []*Mission
 	Families       []*MissionFamily
@@ -557,12 +558,14 @@ func buildMissionCategories(missions []*Mission) []MissionCategoryInfo {
 	categories := make([]MissionCategoryInfo, 0, len(byType))
 	for typ, list := range byType {
 		families, oneOffs, factionOneOffs := partitionFamilies(list, chained)
+		typeChains := chainsForType(chains, typ)
 		categories = append(categories, MissionCategoryInfo{
 			Name:           typ,
 			Description:    missionTypeDescriptions[typ],
 			Count:          len(list),
 			Missions:       list,
-			Chains:         chainsForType(chains, typ),
+			Chains:         typeChains,
+			ChainGroups:    groupChainsByStart(typeChains),
 			OneOffGroups:   groupOneOffsByStation(oneOffs),
 			FactionOneOffs: factionOneOffs,
 			Families:       families,
@@ -743,6 +746,9 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
         <section class="mission-section">
             <h3>Mission Chains <span class="text-muted">{{.ChainCount}}</span></h3>
             <p class="text-muted section-note">Hand-authored storylines in chain order, ordered by the difficulty of the mission that starts them. A chain may run through other mission types; those steps are dimmed and marked with their own icon.</p>
+{{- range .ChainGroups}}
+            <div class="station-group">
+                <h4>{{.Heading}} <span class="text-muted">{{len .Chains}}</span></h4>
             <div class="table-container">
                 <table class="chain-table">
                     <thead>
@@ -758,10 +764,15 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
                     </thead>
 {{- range .Chains}}
                     <tbody class="mission-chain">
-{{- with .OnlyAt}}
-                        <tr class="chain-only-at"><td colspan="7"><span class="only-at">ONLY AT {{.}}</span></td></tr>
-{{- end}}
+
 {{- range $i, $step := .Steps}}
+{{- if $step.Undiscovered}}
+                        <tr class="chain-undiscovered-row">
+                            <td class="chain-step-col">{{inc $i}}</td>
+                            <td><span class="chain-undiscovered" title="Not yet discovered — mission id {{$step.Mission.ID}}">{{$step.Mission.Title}}</span></td>
+                            <td colspan="5" class="text-muted">not yet scanned or logged</td>
+                        </tr>
+{{- else}}
                         <tr{{if $step.Foreign}} class="chain-foreign"{{end}}>
                             <td class="chain-step-col">{{inc $i}}</td>
                             <td><a href="{{$step.Href}}">{{$step.Mission.Title}}</a>{{if $step.Foreign}} <span class="chain-type-icon" title="{{titleCase $step.TypeName}} mission">{{$step.TypeIcon}}</span>{{end}}</td>
@@ -772,10 +783,13 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
                             <td>{{len $step.Mission.Objectives}}</td>
                         </tr>
 {{- end}}
+{{- end}}
                     </tbody>
 {{- end}}
                 </table>
             </div>
+            </div>
+{{- end}}
         </section>
 {{end}}
 

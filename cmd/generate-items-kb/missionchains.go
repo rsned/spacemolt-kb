@@ -26,18 +26,20 @@ var missionTypeIcons = map[string]string{
 // which chains routinely do — the mining opener "First Cargo" runs into
 // exploration missions, for example.
 type MissionChainStep struct {
-	Mission  *Mission
-	Foreign  bool
-	Href     string
-	TypeIcon string
-	TypeName string
+	Mission *Mission
+	// Undiscovered marks a placeholder for a chain_next mission that has not
+	// been scraped yet: Mission carries only its id and a title rebuilt from
+	// it, and the row is rendered without a link or details.
+	Undiscovered bool
+	Foreign      bool
+	Href         string
+	TypeIcon     string
+	TypeName     string
 }
 
 // MissionChain is a run of missions linked by chain_next, in chain order.
 type MissionChain struct {
 	Steps []MissionChainStep
-	// OnlyAt names the station the chain is exclusive to, or "".
-	OnlyAt string
 }
 
 // Head is the first mission in the chain; chains are sorted by its difficulty.
@@ -50,9 +52,10 @@ func (c MissionChain) HeadDifficulty() int { return c.Head().Difficulty }
 func (c MissionChain) Length() int { return len(c.Steps) }
 
 // buildMissionChains walks chain_next from every head — a mission nothing else
-// chains into — and returns each resulting run. Only runs of two or more known
-// missions count: a head whose continuation has not been scraped yet has
-// nothing to draw, and belongs with the standalone missions.
+// chains into — and returns each resulting run of two or more steps. When the
+// last known step names a chain_next that has not been scraped yet, the run
+// ends in an Undiscovered placeholder for it, so a head whose continuation is
+// unknown still renders as a chain opener rather than a one-off.
 //
 // Chains are a DAG, not a forest: two routes can converge on a shared tail
 // (both Nebula consultations run into "Nebula Impossible List"). Each route is
@@ -76,9 +79,17 @@ func buildMissionChains(missions []*Mission) []MissionChain {
 		}
 		var steps []MissionChainStep
 		seen := make(map[string]bool)
+		last := m
 		for cur := m; cur != nil && !seen[cur.ID]; cur = byID[cur.ChainNext] {
 			seen[cur.ID] = true
 			steps = append(steps, MissionChainStep{Mission: cur})
+			last = cur
+		}
+		if next := last.ChainNext; next != "" && byID[next] == nil {
+			steps = append(steps, MissionChainStep{
+				Mission:      &Mission{ID: next, Title: missionTitleFromID(next), Type: last.Type},
+				Undiscovered: true,
+			})
 		}
 		if len(steps) < 2 {
 			continue
@@ -129,16 +140,17 @@ func chainsForType(chains []MissionChain, typ string) []MissionChain {
 		for i, s := range c.Steps {
 			m := s.Mission
 			steps[i] = MissionChainStep{
-				Mission:  m,
-				Foreign:  m.Type != typ,
-				Href:     chainHref(typ, m.Type, m.ID),
-				TypeIcon: missionTypeIcons[m.Type],
-				TypeName: m.Type,
+				Mission:      m,
+				Undiscovered: s.Undiscovered,
+				Foreign:      m.Type != typ,
+				TypeIcon:     missionTypeIcons[m.Type],
+				TypeName:     m.Type,
+			}
+			if !s.Undiscovered {
+				steps[i].Href = chainHref(typ, m.Type, m.ID)
 			}
 		}
-		mc := MissionChain{Steps: steps}
-		mc.OnlyAt = chainOnlyAt(mc)
-		out = append(out, mc)
+		out = append(out, MissionChain{Steps: steps})
 	}
 	slices.SortFunc(out, compareChains)
 	return out

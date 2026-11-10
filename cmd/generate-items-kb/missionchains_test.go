@@ -54,14 +54,15 @@ func eq(t *testing.T, got, want []string, what string) {
 
 func TestBuildMissionChainsFollowsChainOrder(t *testing.T) {
 	chains := buildMissionChains(chainFixture())
-	// Four chains: smuggling trio, mining->exploration pair, and the two
-	// merging exploration routes. Single missions are not chains.
-	if len(chains) != 4 {
+	// Five chains: smuggling trio, mining->exploration pair, the two merging
+	// exploration routes, and the dangling head with a placeholder for its
+	// unscraped continuation. Single missions with no chain_next are not chains.
+	if len(chains) != 5 {
 		var got []string
 		for _, c := range chains {
 			got = append(got, c.Head().Title)
 		}
-		t.Fatalf("built %d chains (heads %v), want 4", len(chains), got)
+		t.Fatalf("built %d chains (heads %v), want 5", len(chains), got)
 	}
 	byHead := map[string]MissionChain{}
 	for _, c := range chains {
@@ -71,6 +72,12 @@ func TestBuildMissionChainsFollowsChainOrder(t *testing.T) {
 		[]string{"No Questions Asked", "Across the Line", "An Introduction"}, "smuggling chain")
 	eq(t, chainTitles(byHead["first_cargo"]),
 		[]string{"First Cargo", "Scouting the Lanes"}, "cross-type chain")
+	// An unscraped continuation becomes a placeholder leg named from its id.
+	d := byHead["dangling_head"]
+	eq(t, chainTitles(d), []string{"Dangling Head", "Never Scraped"}, "dangling chain")
+	if d.Steps[0].Undiscovered || !d.Steps[1].Undiscovered {
+		t.Fatalf("Undiscovered flags = %v, %v", d.Steps[0].Undiscovered, d.Steps[1].Undiscovered)
+	}
 }
 
 func TestBuildMissionChainsRepeatsSharedTail(t *testing.T) {

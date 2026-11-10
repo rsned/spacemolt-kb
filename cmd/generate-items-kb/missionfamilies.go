@@ -545,23 +545,46 @@ func groupOneOffsByStation(oneOffs []*Mission) []StationGroup {
 	return out
 }
 
-// chainOnlyAt names the station a chain is exclusive to: the server-marked
-// station of any step, else the one station every step shares, else "".
-func chainOnlyAt(c MissionChain) string {
-	for _, s := range c.Steps {
-		if at := s.Mission.OnlyAt(); at != "" {
-			return at
+// ChainGroup is one "Starts at <station>" heading of chains on a category page.
+type ChainGroup struct {
+	Heading string
+	Chains  []MissionChain
+}
+
+// groupChainsByStart files chains under the station that offers their first
+// mission; later legs may be offered anywhere. Chains whose opener is offered
+// at several stations come first, then one group per station by name, then
+// chains whose opener's station was never recorded. Each group keeps the
+// input (difficulty) order.
+func groupChainsByStart(chains []MissionChain) []ChainGroup {
+	var many, none []MissionChain
+	byStation := map[string][]MissionChain{}
+	for _, c := range chains {
+		head := c.Head()
+		if at := head.OnlyAt(); at != "" {
+			byStation[at] = append(byStation[at], c)
+			continue
+		}
+		switch n, only := distinctStations([]*Mission{head}); {
+		case n == 0:
+			none = append(none, c)
+		case n > 1:
+			many = append(many, c)
+		default:
+			byStation[only] = append(byStation[only], c)
 		}
 	}
-	shared := ""
-	for _, s := range c.Steps {
-		n, only := distinctStations([]*Mission{s.Mission})
-		if n != 1 || (shared != "" && only != shared) {
-			return ""
-		}
-		shared = only
+	var out []ChainGroup
+	if len(many) > 0 {
+		out = append(out, ChainGroup{Heading: "Starts at many stations", Chains: many})
 	}
-	return shared
+	for _, name := range slices.Sorted(maps.Keys(byStation)) {
+		out = append(out, ChainGroup{Heading: "Starts at " + name, Chains: byStation[name]})
+	}
+	if len(none) > 0 {
+		out = append(out, ChainGroup{Heading: noStationHeading, Chains: none})
+	}
+	return out
 }
 
 // GoodsTotal is how many distinct goods the family's variants name.
