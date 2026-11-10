@@ -949,7 +949,11 @@ func generateAllMissions(items map[string]*Item) {
 		log.Printf("warning: enrich mission location names: %v", err)
 	}
 
-	if err := writeMissionPages(missionOutDir, missions); err != nil {
+	empires, err := loadStationEmpires(knowledgeDB)
+	if err != nil {
+		log.Printf("warning: load station empires: %v (station index will show Unknown)", err)
+	}
+	if err := writeMissionPages(missionOutDir, missions, empires); err != nil {
 		log.Fatalf("write mission pages: %v", err)
 	}
 	fmt.Printf("Generated %d mission pages in %s/\n", len(missions), missionOutDir)

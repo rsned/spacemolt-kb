@@ -489,7 +489,7 @@ func decodeStringList(s string) []string {
 }
 
 // writeMissionPages generates all mission HTML pages.
-func writeMissionPages(outDir string, missions []*Mission) error {
+func writeMissionPages(outDir string, missions []*Mission, stationEmpires map[string]string) error {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return fmt.Errorf("create mission output dir: %w", err)
 	}
@@ -508,6 +508,16 @@ func writeMissionPages(outDir string, missions []*Mission) error {
 		return err
 	}
 	if err := os.WriteFile(filepath.Join(outDir, "index.html"), top, 0o644); err != nil {
+		return err
+	}
+
+	var storyOneOffs []*Mission
+	for _, c := range categories {
+		for _, g := range c.OneOffGroups {
+			storyOneOffs = append(storyOneOffs, g.Missions...)
+		}
+	}
+	if err := writeStationPages(outDir, buildStationPages(buildMissionChains(missions), storyOneOffs, stationEmpires)); err != nil {
 		return err
 	}
 
@@ -639,6 +649,7 @@ var htmlMissionsTopTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Missions</h2>
         <p class="text-muted mt-1">{{totalCount .}} missions across {{len .}} categories.</p>
+        <p class="mt-1"><a href="stations/index.html">Story missions by station →</a> <span class="text-muted">every chain and one-off a station hands out, on one page</span></p>
         <div class="item-categories">
 {{- range .}}
             <a href="{{.Name}}/" class="item-cat-card">
@@ -974,3 +985,31 @@ var htmlMissionDetailTemplate = `<!DOCTYPE html>
 </body>
 </html>
 `
+
+// loadStationEmpires maps every station (pois and player bases) to the
+// empire label its system shows on the KB, via formatEmpire.
+func loadStationEmpires(db *sql.DB) (map[string]string, error) {
+	rows, err := db.Query(`
+		SELECT p.id, COALESCE(s.empire,''), s.last_updated_tick, s.police_level, s.is_stronghold
+		FROM pois p JOIN systems s ON s.id = p.system_id
+		UNION ALL
+		SELECT b.id, COALESCE(s.empire,''), s.last_updated_tick, s.police_level, s.is_stronghold
+		FROM bases b JOIN pois p ON p.id = b.poi_id JOIN systems s ON s.id = p.system_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	out := map[string]string{}
+	for rows.Next() {
+		var id, empire string
+		var tick, police int
+		var stronghold bool
+		if err := rows.Scan(&id, &empire, &tick, &police, &stronghold); err != nil {
+			return nil, err
+		}
+		if _, ok := out[id]; !ok {
+			out[id] = formatEmpire(empire, tick, police, stronghold)
+		}
+	}
+	return out, rows.Err()
+}

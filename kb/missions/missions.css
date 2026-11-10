@@ -363,3 +363,40 @@ th.sortable:hover {
   width: 100%;
   font-size: var(--text-ui);
 }
+
+/* --- Missions by station --- */
+
+.station-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+  columns: 2 22rem;
+}
+
+.station-list li {
+  padding: 0.2rem 0;
+  break-inside: avoid;
+}
+
+.station-chain {
+  margin: 0.9rem 0 1.2rem;
+}
+
+.station-chain-note {
+  font-size: var(--text-label);
+  margin-bottom: 0.2rem;
+}
+
+.chain-table tr.leg-elsewhere td {
+  opacity: 0.45;
+}
+
+/* Each chain is its own table; fix the columns so they line up across chains. */
+.station-chain .chain-table {
+  table-layout: fixed;
+  width: 100%;
+}
+.station-chain col.c-step { width: 3rem; }
+.station-chain col.c-diff { width: 7rem; }
+.station-chain col.c-cr { width: 8rem; }
+.station-chain col.c-where { width: 15rem; }
