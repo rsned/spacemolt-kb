@@ -649,7 +649,7 @@ var htmlMissionsTopTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Missions</h2>
         <p class="text-muted mt-1">{{totalCount .}} missions across {{len .}} categories.</p>
-        <p class="mt-1"><a href="stations/index.html">Story missions by station →</a> <span class="text-muted">every chain and one-off a station hands out, on one page</span></p>
+        <p class="mt-1"><a href="stations/index.html">&#x1F6F0; Missions by Station &mdash; every story chain and one-off a station hands out, on one page &rarr;</a></p>
         <div class="item-categories">
 {{- range .}}
             <a href="{{.Name}}/" class="item-cat-card">
