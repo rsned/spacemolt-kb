@@ -28,7 +28,7 @@ func TestCategoryPageCollapsesFamilies(t *testing.T) {
 	if n := strings.Count(s, `class="family-card"`); n != 1 {
 		t.Fatalf("family cards = %d, want 1", n)
 	}
-	for _, want := range []string{"Trade Run", "20–40 trading XP"} {
+	for _, want := range []string{"Trade Run", "20–40 trading XP", "2000 goods"} {
 		if !strings.Contains(s, want) {
 			t.Errorf("page lacks %q", want)
 		}

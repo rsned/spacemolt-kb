@@ -556,3 +556,6 @@ func chainOnlyAt(c MissionChain) string {
 	}
 	return shared
 }
+
+// GoodsTotal is how many distinct goods the family's variants name.
+func (f *MissionFamily) GoodsTotal() int { return len(f.Goods) + f.GoodsMore }

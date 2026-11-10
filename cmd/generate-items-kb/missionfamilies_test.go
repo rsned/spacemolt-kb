@@ -282,3 +282,14 @@ func TestChainOnlyAtSharedSingleStation(t *testing.T) {
 		t.Fatalf("chainOnlyAt = %q, want empty", got)
 	}
 }
+
+func TestFamilyGoodsTotalCountsAllGoods(t *testing.T) {
+	var vs []*Mission
+	for i := range 7 {
+		vs = append(vs, variant(fmt.Sprintf("v%d", i), 1, nil, "deliver_item", fmt.Sprintf("good_%d", i), "x", 1))
+	}
+	f := summarized(vs...)
+	if f.GoodsTotal() != 7 || len(f.Goods) != 4 || f.GoodsMore != 3 {
+		t.Fatalf("total=%d chips=%d more=%d", f.GoodsTotal(), len(f.Goods), f.GoodsMore)
+	}
+}

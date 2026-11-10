@@ -371,6 +371,21 @@ func enrichMissionLocationNames(db *sql.DB, missions []*Mission) error {
 		_ = poiRows.Close()
 	}
 
+	// Player-built stations are in bases but not pois; fill only the gaps so
+	// the pois names that pages already show stay unchanged.
+	baseRows, err := db.Query(`SELECT id, name FROM bases`)
+	if err == nil {
+		for baseRows.Next() {
+			var id, name string
+			if err := baseRows.Scan(&id, &name); err == nil && name != "" {
+				if _, ok := baseNames[id]; !ok {
+					baseNames[id] = name
+				}
+			}
+		}
+		_ = baseRows.Close()
+	}
+
 	sysRows, err := db.Query(`SELECT id, name FROM systems`)
 	if err == nil {
 		for sysRows.Next() {
@@ -676,7 +691,7 @@ var familyCardTemplate = `
                     {{with .Rewards.Parts}}<span>Reward <b>{{join . " · "}}</b></span>{{end}}
                     <span>Difficulty {{.Difficulty}}</span>
                     <span>{{if .Stations}}Offered at {{.Stations}} station{{if gt .Stations 1}}s{{end}}{{else}}Stations not recorded{{end}}</span>
-                    {{with .Goods}}<span>{{len .}}{{if $.GoodsMore}}+{{end}} goods</span>{{end}}
+                    {{with .Goods}}<span>{{$.GoodsTotal}} good{{if gt $.GoodsTotal 1}}s{{end}}</span>{{end}}
                 </div>
                 {{with .Goods}}<div class="family-goods">{{range .}}<span>{{.}}</span>{{end}}{{if $.GoodsMore}}<span>+{{$.GoodsMore}}</span>{{end}}</div>{{end}}
                 {{if gt (len .Breakdown) 1}}
