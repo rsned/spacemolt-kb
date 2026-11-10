@@ -212,3 +212,30 @@ func TestChainOpenerWithUnscrapedNextRendersPlaceholder(t *testing.T) {
 		t.Fatal("placeholder leg is a link")
 	}
 }
+
+// A mission reached from two chains lists both incoming missions.
+func TestLinkMissionChainsKeepsEveryIncoming(t *testing.T) {
+	a := fm("a", "Consulting the Voidborn", "exploration", false)
+	a.ChainNext = "m"
+	b := fm("b", "Consulting the Outer Rim", "exploration", false)
+	b.ChainNext = "m"
+	m := fm("m", "Impossible List", "delivery", false)
+	linkMissionChains([]*Mission{a, b, m})
+	if len(m.ChainPrevs) != 2 || m.ChainPrevs[0].Title != "Consulting the Outer Rim" ||
+		m.ChainPrevs[1].Href != "../exploration/a.html" || !m.ChainPrevs[1].Foreign {
+		t.Fatalf("prevs = %+v", m.ChainPrevs)
+	}
+	if a.ChainNextHref != "../delivery/m.html" {
+		t.Errorf("next href = %q", a.ChainNextHref)
+	}
+	out, err := renderMissionDetail(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(out)
+	for _, want := range []string{`href="../exploration/a.html"`, `href="../exploration/b.html"`} {
+		if strings.Count(s, want) < 2 {
+			t.Errorf("detail page should link %s in the nav and in Chains From", want)
+		}
+	}
+}

@@ -13,6 +13,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"sync"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -35,17 +36,14 @@ type Mission struct {
 	ChainNext      string
 	ChainNextTitle string
 	ChainNextHref  string
-	ChainPrev      string
-	ChainPrevTitle string
-	ChainPrevHref  string
+	// ChainPrevs lists every mission whose chain_next is this one, by title.
+	// Two routes can converge on one mission, so there may be several.
+	ChainPrevs []ChainLink
 	// Set when a chain link leaves this mission's own type, so the detail
 	// page can dim it and show the other category's icon.
 	ChainNextForeign bool
 	ChainNextIcon    string
 	ChainNextType    string
-	ChainPrevForeign bool
-	ChainPrevIcon    string
-	ChainPrevType    string
 	Procedural       bool
 	// ExclusiveBaseID is set when the server marks the mission as offered
 	// only at one station; ExclusiveBaseName is its resolved display name.
@@ -193,6 +191,59 @@ func (c MissionCategoryInfo) FactionGroup() StationGroup {
 	return StationGroup{Heading: "Posted by player factions", Missions: c.FactionOneOffs}
 }
 
+// ChainLink is a link to a neighbouring mission in a chain, seen from a
+// mission's detail page.
+type ChainLink struct {
+	ID      string
+	Title   string
+	Href    string
+	Foreign bool // the other mission is of a different type
+	Icon    string
+	Type    string
+}
+
+// linkMissionChains resolves each mission's chain_next to a title and link,
+// and records the reverse link on the target. A target reached from more than
+// one mission keeps all of them, sorted by title.
+func linkMissionChains(missions []*Mission) {
+	byID := make(map[string]*Mission, len(missions))
+	for _, m := range missions {
+		byID[m.ID] = m
+	}
+	for _, m := range missions {
+		next, ok := byID[m.ChainNext]
+		if m.ChainNext == "" || !ok {
+			continue
+		}
+		m.ChainNextTitle = next.Title
+		m.ChainNextHref = chainHref(m.Type, next.Type, next.ID)
+		m.ChainNextForeign = next.Type != m.Type
+		m.ChainNextIcon = missionTypeIcons[next.Type]
+		m.ChainNextType = next.Type
+		next.ChainPrevs = append(next.ChainPrevs, ChainLink{
+			ID: m.ID, Title: m.Title, Href: chainHref(next.Type, m.Type, m.ID),
+			Foreign: m.Type != next.Type, Icon: missionTypeIcons[m.Type], Type: m.Type,
+		})
+	}
+	for _, m := range missions {
+		slices.SortFunc(m.ChainPrevs, func(a, b ChainLink) int {
+			return cmp.Or(cmp.Compare(a.Title, b.Title), cmp.Compare(a.ID, b.ID))
+		})
+	}
+}
+
+// missionDetailTemplate is parsed once and shared by every detail page.
+var missionDetailTemplate = sync.OnceValue(func() *htmltpl.Template {
+	return htmltpl.Must(htmltpl.New("det").Funcs(missionTemplateFuncs()).Parse(htmlMissionDetailTemplate))
+})
+
+// renderMissionDetail renders kb/missions/<type>/<id>.html.
+func renderMissionDetail(m *Mission) ([]byte, error) {
+	var b bytes.Buffer
+	err := missionDetailTemplate().Execute(&b, m)
+	return b.Bytes(), err
+}
+
 // chainHref returns a relative link from a mission detail page in fromType
 // to the detail page for toID within toType. Pages live at
 // kb/missions/<type>/<id>.html, so same-type links are local and cross-type
@@ -283,28 +334,7 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 		return nil, err
 	}
 
-	// Resolve chain_next titles and hrefs, plus build reverse chain_prev
-	// links on the target missions.
-	for _, m := range missions {
-		if m.ChainNext == "" {
-			continue
-		}
-		next, ok := missionMap[m.ChainNext]
-		if !ok {
-			continue
-		}
-		m.ChainNextTitle = next.Title
-		m.ChainNextHref = chainHref(m.Type, next.Type, next.ID)
-		m.ChainNextForeign = next.Type != m.Type
-		m.ChainNextIcon = missionTypeIcons[next.Type]
-		m.ChainNextType = next.Type
-		next.ChainPrev = m.ID
-		next.ChainPrevTitle = m.Title
-		next.ChainPrevHref = chainHref(next.Type, m.Type, m.ID)
-		next.ChainPrevForeign = m.Type != next.Type
-		next.ChainPrevIcon = missionTypeIcons[m.Type]
-		next.ChainPrevType = m.Type
-	}
+	linkMissionChains(missions)
 
 	// Load objectives.
 	objRows, err := db.Query(`
@@ -559,7 +589,7 @@ func writeMissionPages(outDir string, missions []*Mission, stationEmpires map[st
 		return err
 	}
 
-	detTmpl := htmltpl.Must(htmltpl.New("det").Funcs(missionTemplateFuncs()).Parse(htmlMissionDetailTemplate))
+	detTmpl := missionDetailTemplate()
 	for _, cat := range categories {
 		catDir := filepath.Join(outDir, cat.Name)
 		if err := os.MkdirAll(catDir, 0o755); err != nil {
@@ -878,9 +908,9 @@ var htmlMissionDetailTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <div class="breadcrumb"><a href="../">Missions</a> / <a href="./">{{titleCase .Type}}</a> / {{.Title}}</div>
 
-        {{if or .ChainPrevHref .ChainNextHref}}
+        {{if or .ChainPrevs .ChainNextHref}}
         <nav class="chain-nav">
-            {{if .ChainPrevHref}}<a class="chain-prev{{if .ChainPrevForeign}} chain-foreign-link{{end}}" href="{{.ChainPrevHref}}"{{if .ChainPrevForeign}} title="{{titleCase .ChainPrevType}} mission"{{end}}>&lt; Prev: {{.ChainPrevTitle}}{{if .ChainPrevForeign}} {{.ChainPrevIcon}}{{end}}</a>{{else}}<span></span>{{end}}
+            {{if .ChainPrevs}}<span class="chain-prevs">{{range .ChainPrevs}}<a class="chain-prev{{if .Foreign}} chain-foreign-link{{end}}" href="{{.Href}}"{{if .Foreign}} title="{{titleCase .Type}} mission"{{end}}>&lt; Prev: {{.Title}}{{if .Foreign}} {{.Icon}}{{end}}</a>{{end}}</span>{{else}}<span></span>{{end}}
             {{if .ChainNextHref}}<a class="chain-next{{if .ChainNextForeign}} chain-foreign-link{{end}}" href="{{.ChainNextHref}}"{{if .ChainNextForeign}} title="{{titleCase .ChainNextType}} mission"{{end}}>Next: {{.ChainNextTitle}}{{if .ChainNextForeign}} {{.ChainNextIcon}}{{end}} &gt;</a>{{else}}<span></span>{{end}}
         </nav>
         {{end}}
@@ -909,7 +939,7 @@ var htmlMissionDetailTemplate = `<!DOCTYPE html>
                     <tr><td class="kv-label">Repeatable</td><td>{{if .Repeatable}}Yes{{else}}No{{end}}</td></tr>
                     {{if gt .ExpiresInTicks 0}}<tr><td class="kv-label">Expires In</td><td>{{.ExpiresInTicks}} ticks</td></tr>{{end}}
                     {{if .ChainNext}}<tr><td class="kv-label">Chains To</td><td>{{if .ChainNextHref}}<a href="{{.ChainNextHref}}">{{.ChainNextTitle}}</a>{{else}}<span class="chain-undiscovered" title="Not yet discovered — mission id {{.ChainNext}}">{{missionTitleFromID .ChainNext}}</span>{{end}}</td></tr>{{end}}
-                    {{if .ChainPrev}}<tr><td class="kv-label">Chains From</td><td><a href="{{.ChainPrevHref}}">{{.ChainPrevTitle}}</a></td></tr>{{end}}
+                    {{with .ChainPrevs}}<tr><td class="kv-label">Chains From</td><td>{{range $i, $p := .}}{{if $i}}<br>{{end}}<a href="{{$p.Href}}">{{$p.Title}}</a>{{end}}{{if gt (len .) 1}} <span class="text-muted">· {{len .}} routes lead here</span>{{end}}</td></tr>{{end}}
                 </tbody>
             </table>
         </section>

@@ -47,13 +47,13 @@ func TestStationPagesChainLegsHereAndElsewhere(t *testing.T) {
 	if got := rowSummary(g.Chains[0]); fmt.Sprint(got) != fmt.Sprint([]string{"*a", "-b", "*c"}) {
 		t.Fatalf("rows = %v", got)
 	}
-	if g.Chains[0].Note != "Starts here" || g.Chains[0].Rows[1].Where != "Confederacy Central Command" {
+	if g.Chains[0].Note != "A — starts here" || g.Chains[0].Rows[1].Where != "Confederacy Central Command" {
 		t.Fatalf("note=%q where=%q", g.Chains[0].Note, g.Chains[0].Rows[1].Where)
 	}
 	if g.Chains[0].Rows[0].Href != "../delivery/a.html" {
 		t.Fatalf("href = %q", g.Chains[0].Rows[0].Href)
 	}
-	if n := stationByID(pages, cc).Chains[0].Note; n != "Leg 2 is here" {
+	if n := stationByID(pages, cc).Chains[0].Note; n != "A — leg 2 is here" {
 		t.Fatalf("cc note = %q", n)
 	}
 }
@@ -179,7 +179,7 @@ func TestStationPageRenders(t *testing.T) {
 	s := string(out)
 	for _, want := range []string{
 		"Traders&#39; Rest &amp; Resort", `href="../delivery/a.html"`, `class="leg-elsewhere"`,
-		"Starts here", "Chains with a leg here", "One-off missions here", `href="../mining/g.html"`,
+		"First Links — starts here", "Chains with a leg here", "One-off missions here", `href="../mining/g.html"`,
 	} {
 		if !strings.Contains(s, want) {
 			t.Errorf("station page lacks %q", want)
@@ -217,6 +217,48 @@ func TestStationPagesChainOpeningWithFoldedLegs(t *testing.T) {
 	}
 	if got := rowSummary(h.Chains[1]); fmt.Sprint(got) != fmt.Sprint([]string{"...3", "*f3"}) {
 		t.Fatalf("rows = %v", got)
+	}
+	if _, err := renderStationPage(*h); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Two chains that converge before this station's leg and share everything
+// from there on show as one block: one row naming each route's start, then
+// the shared legs numbered for both routes.
+func TestStationPagesMergeRoutesSharingTail(t *testing.T) {
+	s1 := fm("s1", "Solarian", "exploration", false, "cc")
+	s1.ChainNext = "s2"
+	s2 := fm("s2", "Voidborn", "exploration", false, "nexus")
+	s2.ChainNext = "m"
+	o1 := fm("o1", "Outer Rim", "exploration", false, "ge")
+	o1.ChainNext = "m"
+	m := fm("m", "Shopping List", "delivery", false, "here")
+	m.ChainNext = "t"
+	tl := fm("t", "Field Test", "exploration", false, "far")
+	pages := buildStationPages(buildMissionChains([]*Mission{s1, s2, o1, m, tl}), nil, nil)
+
+	h := stationByID(pages, "here")
+	if len(h.Chains) != 1 {
+		t.Fatalf("chains = %d, want 1 merged", len(h.Chains))
+	}
+	c := h.Chains[0]
+	if c.Note != "Outer Rim or Solarian — leg 2 or 3 is here · 2 routes lead here" {
+		t.Errorf("note = %q", c.Note)
+	}
+	if len(c.Rows) != 3 || len(c.Rows[0].Routes) != 2 {
+		t.Fatalf("rows = %+v", c.Rows)
+	}
+	r := c.Rows[0].Routes
+	if r[0].Head.ID != "o1" || r[0].Before != 1 || r[0].Where != "Ge" || r[1].Head.ID != "s1" || r[1].Before != 2 {
+		t.Errorf("routes = %+v", r)
+	}
+	if c.Rows[1].Label != "2/3" || !c.Rows[1].Here || c.Rows[2].Label != "3/4" {
+		t.Errorf("labels = %q, %q", c.Rows[1].Label, c.Rows[2].Label)
+	}
+	// A station on only one route keeps that route's full chain.
+	if got := stationByID(pages, "ge").Chains; len(got) != 1 || got[0].Rows[0].Routes != nil {
+		t.Errorf("ge chains = %+v", got)
 	}
 	if _, err := renderStationPage(*h); err != nil {
 		t.Fatal(err)

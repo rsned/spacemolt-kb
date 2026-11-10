@@ -32,14 +32,56 @@ type StationChainRow struct {
 	Where     string // where an elsewhere leg is offered
 	Href      string // detail page, relative to kb/missions/stations/
 	Collapsed int
+	// Label is the leg number as shown: "4", "2…" for a folded run, or "4/5"
+	// for a leg shared by routes that reach it at different depths.
+	Label string
+	// Routes is set on the single row standing in for the differing opening
+	// legs of chains merged because they share every leg from this station on.
+	Routes []StationRoute
+}
+
+// StationRoute is one way into a merged chain: where it starts and how many
+// legs come before the first one offered at this station.
+type StationRoute struct {
+	Head   *Mission
+	Href   string
+	Where  string
+	Before int
+}
+
+// BeforeText describes the merged routes' opening legs, e.g. "3 or 4 legs".
+func (r StationChainRow) BeforeText() string {
+	var ns []int
+	for _, rt := range r.Routes {
+		ns = append(ns, rt.Before)
+	}
+	parts := numberList(ns)
+	noun := "legs"
+	if len(parts) == 1 && parts[0] == "1" {
+		noun = "leg"
+	}
+	return orList(parts) + " " + noun
+}
+
+// orList joins items as "a", "a or b", "a, b or c".
+func orList(items []string) string {
+	if len(items) <= 1 {
+		return strings.Join(items, "")
+	}
+	return strings.Join(items[:len(items)-1], ", ") + " or " + items[len(items)-1]
 }
 
 // StationChain is a chain as shown on one station's page.
 type StationChain struct {
-	Note       string // "Starts here" or "Leg N is here"
+	Note       string // "<first mission> — starts here" or "… — leg N is here"
 	StartsHere bool
 	Head       *Mission // the chain's first mission; Rows[0] may be a folded row
 	Rows       []StationChainRow
+
+	firstHere int    // step index of the first leg offered here
+	hereRow   int    // index in Rows of that leg
+	tail      string // mission ids from the first leg here to the end
+	headWhere string // where the first leg is offered
 }
 
 // StationOneOff is a story one-off offered at a station.
@@ -115,6 +157,7 @@ func buildStationPages(chains []MissionChain, oneOffs []*Mission, empires map[st
 
 	out := make([]StationMissions, 0, len(pages))
 	for _, p := range pages {
+		p.Chains = mergeSharedTails(p.Chains)
 		slices.SortFunc(p.Chains, func(a, b StationChain) int {
 			if a.StartsHere != b.StartsHere {
 				if a.StartsHere {
@@ -138,18 +181,18 @@ func buildStationPages(chains []MissionChain, oneOffs []*Mission, empires map[st
 // stationChain lays out chain c for station id, folding runs of
 // stationCollapseRun or more consecutive discovered legs offered elsewhere.
 func stationChain(c MissionChain, stationsByLeg []map[string]string, id string) StationChain {
-	sc := StationChain{Head: c.Head()}
+	sc := StationChain{Head: c.Head(), firstHere: -1}
 	var run []StationChainRow
 	flush := func() {
 		if len(run) >= stationCollapseRun {
-			sc.Rows = append(sc.Rows, StationChainRow{Index: run[0].Index, Collapsed: len(run)})
+			sc.Rows = append(sc.Rows, StationChainRow{Index: run[0].Index, Collapsed: len(run), Label: run[0].Label + "…"})
 		} else {
 			sc.Rows = append(sc.Rows, run...)
 		}
 		run = nil
 	}
 	for i, s := range c.Steps {
-		row := StationChainRow{Index: i + 1, Step: s}
+		row := StationChainRow{Index: i + 1, Step: s, Label: strconv.Itoa(i + 1)}
 		if !s.Undiscovered {
 			row.Href = stationHref(s.Mission)
 			_, row.Here = stationsByLeg[i][id]
@@ -157,30 +200,124 @@ func stationChain(c MissionChain, stationsByLeg []map[string]string, id string) 
 		if row.Here && sc.Note == "" {
 			sc.StartsHere = i == 0
 			if sc.StartsHere {
-				sc.Note = "Starts here"
+				sc.Note = sc.Head.Title + " — starts here"
 			} else {
-				sc.Note = "Leg " + strconv.Itoa(i+1) + " is here"
+				sc.Note = sc.Head.Title + " — leg " + strconv.Itoa(i+1) + " is here"
 			}
 		}
 		if row.Here || s.Undiscovered {
 			flush()
+			if row.Here && sc.firstHere < 0 {
+				sc.firstHere, sc.hereRow = i, len(sc.Rows)
+			}
 			sc.Rows = append(sc.Rows, row)
 			continue
 		}
-		switch n := len(stationsByLeg[i]); {
-		case n == 0:
-			row.Where = "station not recorded"
-		case n > 1:
-			row.Where = "many stations"
-		default:
-			for _, name := range stationsByLeg[i] {
-				row.Where = name
-			}
-		}
+		row.Where = legWhere(stationsByLeg[i])
 		run = append(run, row)
 	}
 	flush()
+	if len(stationsByLeg) > 0 {
+		sc.headWhere = legWhere(stationsByLeg[0])
+	}
+	if sc.firstHere >= 0 {
+		ids := make([]string, 0, len(c.Steps)-sc.firstHere)
+		for _, s := range c.Steps[sc.firstHere:] {
+			ids = append(ids, s.Mission.ID)
+		}
+		sc.tail = strings.Join(ids, ">")
+	}
 	return sc
+}
+
+// legWhere names where a leg is offered, for a leg not offered here.
+func legWhere(stations map[string]string) string {
+	switch len(stations) {
+	case 0:
+		return "station not recorded"
+	case 1:
+		for _, name := range stations {
+			return name
+		}
+	}
+	return "many stations"
+}
+
+// mergeSharedTails folds chains that reach this station by different routes
+// but share every leg from the first one here to the end. The merged chain
+// opens with one row naming each route's start, then the shared legs, each
+// numbered for every route ("4/5"). Chains starting here never merge: a chain
+// head has no incoming route, so no other chain can share its whole length.
+func mergeSharedTails(chains []StationChain) []StationChain {
+	groups := map[string][]StationChain{}
+	var order []string
+	for _, c := range chains {
+		key := c.tail
+		if c.firstHere <= 0 {
+			key = "\x00" + strconv.Itoa(len(order)) // never merged
+		}
+		if _, ok := groups[key]; !ok {
+			order = append(order, key)
+		}
+		groups[key] = append(groups[key], c)
+	}
+	out := make([]StationChain, 0, len(order))
+	for _, key := range order {
+		g := groups[key]
+		if len(g) == 1 {
+			out = append(out, g[0])
+			continue
+		}
+		out = append(out, mergeRoutes(g))
+	}
+	return out
+}
+
+// mergeRoutes builds the single block for chains sharing a tail.
+func mergeRoutes(g []StationChain) StationChain {
+	routes := make([]StationRoute, len(g))
+	var legs []int
+	for i, c := range g {
+		routes[i] = StationRoute{Head: c.Head, Href: stationHref(c.Head), Where: c.headWhere, Before: c.firstHere}
+		legs = append(legs, c.firstHere+1)
+	}
+	slices.SortFunc(routes, func(a, b StationRoute) int {
+		return cmp.Or(cmp.Compare(a.Head.Title, b.Head.Title), cmp.Compare(a.Head.ID, b.Head.ID))
+	})
+	heads := make([]string, len(routes))
+	for i, r := range routes {
+		heads[i] = r.Head.Title
+	}
+
+	m := StationChain{
+		Note:      orList(heads) + " — leg " + orList(numberList(legs)) + " is here · " + strconv.Itoa(len(g)) + " routes lead here",
+		Head:      routes[0].Head,
+		firstHere: -1,
+		Rows:      []StationChainRow{{Label: "1…", Routes: routes}},
+	}
+	tail := g[0].Rows[g[0].hereRow:]
+	for j, row := range tail {
+		var nums []int
+		for _, c := range g {
+			nums = append(nums, c.Rows[c.hereRow+j].Index)
+		}
+		row.Label = strings.Join(numberList(nums), "/")
+		if row.Collapsed > 0 {
+			row.Label += "…"
+		}
+		m.Rows = append(m.Rows, row)
+	}
+	return m
+}
+
+// numberList sorts and de-duplicates ns and formats them as strings.
+func numberList(ns []int) []string {
+	ns = slices.Compact(slices.Sorted(slices.Values(ns)))
+	out := make([]string, len(ns))
+	for i, n := range ns {
+		out[i] = strconv.Itoa(n)
+	}
+	return out
 }
 
 // StationEmpireGroup is one empire heading on the station index.
@@ -325,13 +462,15 @@ var htmlStationPageTemplate = `<!DOCTYPE html>
                     <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-cr"><col class="c-where"></colgroup>
                     <tbody>
 {{- range .Rows}}
-{{- if .Collapsed}}
-                        <tr class="leg-elsewhere"><td class="chain-step-col">{{.Index}}…</td><td colspan="4">… {{.Collapsed}} more legs elsewhere</td></tr>
+{{- if .Routes}}
+                        <tr class="leg-elsewhere route-row"><td class="chain-step-col">{{.Label}}</td><td colspan="4">… {{.BeforeText}} elsewhere first, starting with {{range $i, $r := .Routes}}{{if $i}} or {{end}}<a href="{{$r.Href}}">{{$r.Head.Title}}</a> <span class="text-muted">({{$r.Where}})</span>{{end}}</td></tr>
+{{- else if .Collapsed}}
+                        <tr class="leg-elsewhere"><td class="chain-step-col">{{.Label}}</td><td colspan="4">… {{.Collapsed}} more legs elsewhere</td></tr>
 {{- else if .Step.Undiscovered}}
-                        <tr class="chain-undiscovered-row"><td class="chain-step-col">{{.Index}}</td><td><span class="chain-undiscovered" title="Not yet discovered — mission id {{.Step.Mission.ID}}">{{.Step.Mission.Title}}</span></td><td colspan="3" class="text-muted">not yet scanned or logged</td></tr>
+                        <tr class="chain-undiscovered-row"><td class="chain-step-col">{{.Label}}</td><td><span class="chain-undiscovered" title="Not yet discovered — mission id {{.Step.Mission.ID}}">{{.Step.Mission.Title}}</span></td><td colspan="3" class="text-muted">not yet scanned or logged</td></tr>
 {{- else}}
                         <tr{{if not .Here}} class="leg-elsewhere"{{end}}>
-                            <td class="chain-step-col">{{.Index}}</td>
+                            <td class="chain-step-col">{{.Label}}</td>
                             <td><span class="chain-type-icon" title="{{titleCase .Step.Mission.Type}} mission">{{$p.TypeIcon .Step.Mission.Type}}</span> <a href="{{.Href}}">{{.Step.Mission.Title}}</a></td>
                             <td>{{difficulty .Step.Mission.Difficulty}}</td>
                             <td class="value">{{fmtValue .Step.Mission.RewardsCredits}}</td>
