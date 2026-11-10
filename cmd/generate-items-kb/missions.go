@@ -44,14 +44,18 @@ type Mission struct {
 	ChainPrevIcon    string
 	ChainPrevType    string
 	Procedural       bool
-	Repeatable       bool
-	ExpiresInTicks   int
-	RewardsCredits   int
-	RewardsSkillXP   []MissionReward
-	RewardsItems     []MissionItemReward
-	ProvidedItems    []MissionItemReward
-	Requirements     map[string]any
-	RequiredModules  []string
+	// ExclusiveBaseID is set when the server marks the mission as offered
+	// only at one station; ExclusiveBaseName is its resolved display name.
+	ExclusiveBaseID   string
+	ExclusiveBaseName string
+	Repeatable        bool
+	ExpiresInTicks    int
+	RewardsCredits    int
+	RewardsSkillXP    []MissionReward
+	RewardsItems      []MissionItemReward
+	ProvidedItems     []MissionItemReward
+	Requirements      map[string]any
+	RequiredModules   []string
 
 	Objectives []MissionObjective
 	Locations  []MissionLocation
@@ -154,7 +158,8 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 		       COALESCE(requirements,'{}'),
 		       COALESCE(required_modules,'[]'),
 		       COALESCE(provided_items,'{}'),
-		       COALESCE(procedural,0)
+		       COALESCE(procedural,0),
+		       COALESCE(exclusive_base_id,'')
 		FROM mission_templates
 		ORDER BY type, title
 	`)
@@ -182,6 +187,7 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 			&rewardsXPJSON, &rewardsItemsJSON,
 			&requirementsJSON, &requiredModulesJSON, &providedItemsJSON,
 			&procedural,
+			&m.ExclusiveBaseID,
 		); err != nil {
 			return nil, fmt.Errorf("scan mission: %w", err)
 		}
@@ -349,6 +355,13 @@ func enrichMissionLocationNames(db *sql.DB, missions []*Mission) error {
 	}
 
 	for _, m := range missions {
+		if m.ExclusiveBaseID != "" {
+			if n, ok := baseNames[m.ExclusiveBaseID]; ok {
+				m.ExclusiveBaseName = n
+			} else {
+				m.ExclusiveBaseName = titleCase(m.ExclusiveBaseID)
+			}
+		}
 		for i := range m.Locations {
 			if n, ok := baseNames[m.Locations[i].BaseID]; ok {
 				m.Locations[i].BaseName = n
