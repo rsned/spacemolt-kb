@@ -367,23 +367,23 @@ func familyPattern(ms []*Mission) string {
 		verb = titleCase(objs[0].Type)
 	}
 	parts := []string{verb}
-	if q, present, vary := varies(func(o *MissionObjective) string {
-		if o.Quantity <= 0 {
-			return ""
-		}
-		return humanize.Comma(int64(o.Quantity))
-	}); present {
-		if vary {
-			q = "<N>"
-		}
-		parts = append(parts, q)
-	}
 	item, hasItem, itemVaries := varies(func(o *MissionObjective) string {
 		if o.ItemID == "" {
 			return ""
 		}
 		return objItemName(o)
 	})
+	if q, present, vary := varies(func(o *MissionObjective) string {
+		if o.Quantity <= 0 {
+			return ""
+		}
+		return humanize.Comma(int64(o.Quantity))
+	}); present && hasItem {
+		if vary {
+			q = "<N>"
+		}
+		parts = append(parts, q)
+	}
 	if hasItem {
 		if itemVaries {
 			item = "<good>"
@@ -412,8 +412,9 @@ func familyPattern(ms []*Mission) string {
 	return strings.Join(parts, " ")
 }
 
-// breakdown groups the variants by the first dimension that varies — good,
-// title, destination, offering station — into at most familyBreakdownRows rows.
+// breakdown groups the variants by title for Odd jobs, otherwise by the first
+// dimension that varies — good, destination, offering station — into at most
+// familyBreakdownRows rows.
 func (f *MissionFamily) breakdown() {
 	type dim struct {
 		name  string
@@ -426,7 +427,6 @@ func (f *MissionFamily) breakdown() {
 			}
 			return ""
 		}},
-		{"title", func(m *Mission) string { return m.Title }},
 		{"destination", func(m *Mission) string {
 			if o := primaryObjective(m); o != nil && o.TargetBaseID != "" {
 				return objTargetName(o)
@@ -441,7 +441,14 @@ func (f *MissionFamily) breakdown() {
 		}},
 	}
 	chosen := dims[len(dims)-1]
+	if f.Name == oddJobsFamilyName {
+		// Odd jobs is the one family whose titles are the point.
+		chosen = dim{"title", func(m *Mission) string { return m.Title }}
+	}
 	for _, d := range dims[:len(dims)-1] {
+		if chosen.name == "title" {
+			break
+		}
 		labels := map[string]bool{}
 		for _, m := range f.Variants {
 			labels[d.label(m)] = true

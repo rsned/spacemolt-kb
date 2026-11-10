@@ -95,3 +95,21 @@ func TestTopIndexShowsBreakdownCounts(t *testing.T) {
 		}
 	}
 }
+
+// The one-offs heading counts missions; the "many stations" group is not a station.
+func TestOneOffHeadingCountsMissions(t *testing.T) {
+	ms := []*Mission{
+		fm("a", "Alpha", "combat", false, "s1", "s2"),
+		fm("b", "Bravo", "combat", false, "s1"),
+		fm("c", "Charlie", "combat", false, "s1"),
+	}
+	out, err := renderCategoryPage(buildMissionCategories(ms)[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(out)
+	if !strings.Contains(s, `One-off Missions <span class="text-muted">3 missions</span>`) {
+		i := strings.Index(s, "One-off Missions")
+		t.Fatalf("heading = %q", s[i:i+80])
+	}
+}

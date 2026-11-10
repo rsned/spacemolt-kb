@@ -128,6 +128,15 @@ func (c MissionCategoryInfo) OneOffCount() int {
 	return n
 }
 
+// StationOneOffCount counts the server one-offs listed under station headings.
+func (c MissionCategoryInfo) StationOneOffCount() int {
+	n := 0
+	for _, g := range c.OneOffGroups {
+		n += len(g.Missions)
+	}
+	return n
+}
+
 // FamilyCount reports how many template families the category lists.
 func (c MissionCategoryInfo) FamilyCount() int { return len(c.Families) }
 
@@ -772,7 +781,7 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
 
 {{if .OneOffGroups}}
         <section class="mission-section">
-            <h3>One-off Missions <span class="text-muted">{{len .OneOffGroups}} stations</span></h3>
+            <h3>One-off Missions <span class="text-muted">{{.StationOneOffCount}} mission{{if ne .StationOneOffCount 1}}s{{end}}</span></h3>
             <p class="text-muted section-note">Hand-written missions outside any chain, grouped by the station that offers them.</p>
 {{- range .OneOffGroups}}
             <div class="station-group">

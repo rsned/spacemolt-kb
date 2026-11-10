@@ -293,3 +293,53 @@ func TestFamilyGoodsTotalCountsAllGoods(t *testing.T) {
 		t.Fatalf("total=%d chips=%d more=%d", f.GoodsTotal(), len(f.Goods), f.GoodsMore)
 	}
 }
+
+// Wreck Recovery: no goods, a unique title per variant, a varying target —
+// the breakdown must group by destination, not list every title.
+func TestFamilyBreakdownSkipsTitleOutsideOddJobs(t *testing.T) {
+	var vs []*Mission
+	for i := range 6 {
+		m := fm(fmt.Sprintf("w%d", i), fmt.Sprintf("Wreck Recovery: Wreck %d", i), "salvage_recovery", true, "s1")
+		m.Objectives = []MissionObjective{{Type: "dock_at_base", Quantity: 1, TargetBaseID: fmt.Sprintf("yard_%d", i%2)}}
+		vs = append(vs, m)
+	}
+	f := &MissionFamily{Name: "Wreck Recovery", Type: "salvage_recovery", Variants: vs}
+	f.summarize()
+	if f.BreakdownBy != "destination" || len(f.Breakdown) != 2 {
+		t.Fatalf("by=%q rows=%d", f.BreakdownBy, len(f.Breakdown))
+	}
+	if f.Pattern != "Dock at <station>" {
+		t.Fatalf("Pattern = %q", f.Pattern)
+	}
+}
+
+// Real odd jobs carry item objectives; they must still break down by title.
+func TestFamilyBreakdownOddJobsWithItemsUsesTitle(t *testing.T) {
+	var vs []*Mission
+	for i := range 3 {
+		for _, title := range []string{"Please hold", "The chair inspection"} {
+			m := fm(fmt.Sprintf("%s%d", title, i), title, "delivery", true)
+			m.Objectives = []MissionObjective{{Type: "deliver_item", ItemID: fmt.Sprintf("odd_%s_%d", title, i), Quantity: 1, TargetBaseID: "x"}}
+			vs = append(vs, m)
+		}
+	}
+	f := &MissionFamily{Name: oddJobsFamilyName, Type: "delivery", Variants: vs}
+	f.summarize()
+	if f.BreakdownBy != "title" || len(f.Breakdown) != 2 {
+		t.Fatalf("by=%q rows=%d", f.BreakdownBy, len(f.Breakdown))
+	}
+}
+
+func TestFamilyPatternOmitsQuantityWithoutItem(t *testing.T) {
+	var vs []*Mission
+	for i := range 3 {
+		m := fm(fmt.Sprintf("h%d", i), "HEXC recon: Hex Star", "exploration", false)
+		m.Objectives = []MissionObjective{{Type: "visit_system", Quantity: 1, SystemName: "Dheneb"}}
+		vs = append(vs, m)
+	}
+	f := &MissionFamily{Name: "HEXC recon", Type: "exploration", Variants: vs}
+	f.summarize()
+	if f.Pattern != "Visit Dheneb" {
+		t.Fatalf("Pattern = %q", f.Pattern)
+	}
+}
