@@ -66,7 +66,9 @@ var Items = []Item{
 	{Slug: "wildlife", Label: "Wildlife", Children: []Child{
 		{"wildlife/combat.html", "Wildlife Combat"},
 	}},
-	{Slug: "missions", Label: "Missions"},
+	{Slug: "missions", Label: "Missions", Children: []Child{
+		{"missions/stations/index.html", "Missions by Station"},
+	}},
 	{Slug: "factions", Label: "Factions"},
 	{Slug: "players", Label: "Players"},
 	{Slug: "passengers", Label: "Passengers"},

@@ -87,7 +87,13 @@
     },
     {
       "path": "missions/index.html",
-      "label": "Missions"
+      "label": "Missions",
+      "children": [
+        {
+          "path": "missions/stations/index.html",
+          "label": "Missions by Station"
+        }
+      ]
     },
     {
       "path": "factions/index.html",
