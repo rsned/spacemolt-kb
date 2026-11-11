@@ -418,3 +418,18 @@ th.sortable:hover {
 /* A mission reached by several routes has one Prev link per route. */
 .chain-nav .chain-prevs { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
 .kbm .route-row a { color: inherit; }
+
+/* Branching chains: one mission unlocks several next legs. The branches sit
+   indented under a rail, each labelled "Branch k of n"; legs keep numbering. */
+.chain-fork-row td { opacity: 0.75; font-size: 12.5px; border-bottom: 0; }
+.chain-branches { margin: 0 0 0.6rem 1.6rem; padding-left: 0.6rem; border-left: 2px solid hsl(var(--border)); }
+.chain-branch-label {
+  margin: 0.5rem 0 0.15rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+.chain-branches .kbm-chain { margin-bottom: 0.3rem; }
+@media (max-width: 640px) { .chain-branches { margin-left: 0.6rem; } }

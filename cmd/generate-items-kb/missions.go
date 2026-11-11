@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	htmltpl "html/template"
+	"log"
 	"os"
 	"path/filepath"
 	"slices"
@@ -39,6 +40,10 @@ type Mission struct {
 	// ChainPrevs lists every mission whose chain_next is this one, by title.
 	// Two routes can converge on one mission, so there may be several.
 	ChainPrevs []ChainLink
+	// Unlocks lists every mission that names this one as a prerequisite
+	// (mission_prerequisites, recorded from complete_mission unlocks). Two or
+	// more next legs make this mission a branch point in its chain.
+	Unlocks []ChainLink
 	// Set when a chain link leaves this mission's own type, so the detail
 	// page can dim it and show the other category's icon.
 	ChainNextForeign bool
@@ -229,7 +234,45 @@ func linkMissionChains(missions []*Mission) {
 		slices.SortFunc(m.ChainPrevs, func(a, b ChainLink) int {
 			return cmp.Or(cmp.Compare(a.Title, b.Title), cmp.Compare(a.ID, b.ID))
 		})
+		for i, u := range m.Unlocks {
+			if to, ok := byID[u.ID]; ok {
+				m.Unlocks[i] = ChainLink{
+					ID: to.ID, Title: to.Title, Href: chainHref(m.Type, to.Type, to.ID),
+					Foreign: to.Type != m.Type, Icon: missionTypeIcons[to.Type], Type: to.Type,
+				}
+			}
+		}
+		slices.SortFunc(m.Unlocks, func(a, b ChainLink) int {
+			return cmp.Or(cmp.Compare(a.Title, b.Title), cmp.Compare(a.ID, b.ID))
+		})
 	}
+}
+
+// loadMissionUnlocks attaches each prerequisite edge to the mission it
+// requires: that mission unlocks the other. An unlocked mission not scraped
+// yet keeps the title the unlock record carries.
+func loadMissionUnlocks(db *sql.DB, byID map[string]*Mission) error {
+	rows, err := db.Query(`SELECT mission_id, COALESCE(mission_title,''), requires_mission_id
+		FROM mission_prerequisites ORDER BY requires_mission_id, mission_id`)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = rows.Close() }()
+	for rows.Next() {
+		var id, title, requires string
+		if err := rows.Scan(&id, &title, &requires); err != nil {
+			return err
+		}
+		m, ok := byID[requires]
+		if !ok || id == requires {
+			continue
+		}
+		if title == "" {
+			title = missionTitleFromID(id)
+		}
+		m.Unlocks = append(m.Unlocks, ChainLink{ID: id, Title: title})
+	}
+	return rows.Err()
 }
 
 // missionDetailTemplate is parsed once and shared by every detail page.
@@ -334,6 +377,9 @@ func loadMissions(db *sql.DB) ([]*Mission, error) {
 		return nil, err
 	}
 
+	if err := loadMissionUnlocks(db, missionMap); err != nil {
+		log.Printf("warning: mission unlocks unavailable: %v", err)
+	}
 	linkMissionChains(missions)
 
 	// Load objectives.
@@ -666,6 +712,7 @@ func missionTemplateFuncs() htmltpl.FuncMap {
 		"missionTitleFromID": missionTitleFromID,
 		"join":               strings.Join,
 		"plural":             plural,
+		"typeIcon":           func(typ string) string { return missionTypeIcons[typ] },
 		"storyCategories": func(cats []MissionCategoryInfo) []MissionCategoryInfo {
 			return slices.DeleteFunc(slices.Clone(cats), MissionCategoryInfo.MostlyTemplates)
 		},
@@ -695,6 +742,7 @@ func renderTopPage(categories []MissionCategoryInfo) ([]byte, error) {
 func renderCategoryPage(cat MissionCategoryInfo) ([]byte, error) {
 	tmpl := htmltpl.Must(htmltpl.New("cat").Funcs(missionTemplateFuncs()).Parse(missionTableTemplate))
 	tmpl = htmltpl.Must(tmpl.Parse(familyCardTemplate))
+	tmpl = htmltpl.Must(tmpl.Parse(chainBodyTemplate))
 	tmpl = htmltpl.Must(tmpl.Parse(htmlMissionsCategoryTemplate))
 	var b bytes.Buffer
 	err := tmpl.Execute(&b, cat)
@@ -764,6 +812,44 @@ var missionTableTemplate = `
 {{end}}
 `
 
+var chainBodyTemplate = `
+{{define "chainBody"}}
+                <table class="kbm-rows chain-table kbm-chain">
+                    <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
+                    <tbody>
+{{- range $i, $step := .Steps}}
+{{- if $step.Undiscovered}}
+                        <tr class="chain-undiscovered-row">
+                            <td class="chain-step-col">{{$.LegNumber $i}}</td>
+                            <td><span class="chain-undiscovered" title="Not yet discovered — mission id {{$step.Mission.ID}}">{{$step.Mission.Title}}</span></td>
+                            <td colspan="3" class="text-muted">not yet scanned or logged</td>
+                        </tr>
+{{- else}}
+                        <tr{{if $step.Foreign}} class="chain-foreign"{{end}}>
+                            <td class="chain-step-col">{{$.LegNumber $i}}</td>
+                            <td>{{if $step.Foreign}}<span class="chain-type-icon" title="{{titleCase $step.TypeName}} mission">{{$step.TypeIcon}}</span> {{end}}<a href="{{$step.Href}}">{{$step.Mission.Title}}</a></td>
+                            <td>{{difficulty $step.Mission.Difficulty}}</td>
+                            <td class="giver">{{if $step.Mission.GiverName}}{{$step.Mission.GiverName}}{{else}}—{{end}}</td>
+                            <td class="value">{{fmtValue $step.Mission.RewardsCredits}}</td>
+                        </tr>
+{{- end}}
+{{- end}}
+{{- if .Branches}}
+                        <tr class="chain-fork-row"><td class="chain-step-col">&#8627;</td><td colspan="4">unlocks {{len .Branches}} branches</td></tr>
+{{- end}}
+                    </tbody>
+                </table>
+{{- if .Branches}}
+                <div class="chain-branches">
+{{- range $bi, $b := .Branches}}
+                    <div class="chain-branch-label">Branch {{inc $bi}} of {{len $.Branches}}</div>
+                    {{template "chainBody" $b}}
+{{- end}}
+                </div>
+{{- end}}
+{{end}}
+`
+
 var familyCardTemplate = `
 {{define "breakdownRow"}}
                         <tr class="bd-row"><td>{{.Label}}</td><td class="value">{{comma .Variants}}</td><td class="value">{{.Stations}}</td><td class="value rew">{{join .Rewards.Parts " · "}}</td></tr>
@@ -830,28 +916,7 @@ var htmlMissionsCategoryTemplate = `<!DOCTYPE html>
             <div class="station-group">
                 <h4>{{.Heading}} <span class="text-muted">{{len .Chains}}</span></h4>
 {{- range .Chains}}
-                <table class="kbm-rows chain-table kbm-chain">
-                    <colgroup><col class="c-step"><col><col class="c-diff"><col class="c-giver"><col class="c-cr"></colgroup>
-                    <tbody>
-{{- range $i, $step := .Steps}}
-{{- if $step.Undiscovered}}
-                        <tr class="chain-undiscovered-row">
-                            <td class="chain-step-col">{{inc $i}}</td>
-                            <td><span class="chain-undiscovered" title="Not yet discovered — mission id {{$step.Mission.ID}}">{{$step.Mission.Title}}</span></td>
-                            <td colspan="3" class="text-muted">not yet scanned or logged</td>
-                        </tr>
-{{- else}}
-                        <tr{{if $step.Foreign}} class="chain-foreign"{{end}}>
-                            <td class="chain-step-col">{{inc $i}}</td>
-                            <td>{{if $step.Foreign}}<span class="chain-type-icon" title="{{titleCase $step.TypeName}} mission">{{$step.TypeIcon}}</span> {{end}}<a href="{{$step.Href}}">{{$step.Mission.Title}}</a></td>
-                            <td>{{difficulty $step.Mission.Difficulty}}</td>
-                            <td class="giver">{{if $step.Mission.GiverName}}{{$step.Mission.GiverName}}{{else}}—{{end}}</td>
-                            <td class="value">{{fmtValue $step.Mission.RewardsCredits}}</td>
-                        </tr>
-{{- end}}
-{{- end}}
-                    </tbody>
-                </table>
+                {{template "chainBody" .}}
 {{- end}}
             </div>
 {{- end}}
@@ -939,7 +1004,7 @@ var htmlMissionDetailTemplate = `<!DOCTYPE html>
                     <tr><td class="kv-label">Repeatable</td><td>{{if .Repeatable}}Yes{{else}}No{{end}}</td></tr>
                     {{if gt .ExpiresInTicks 0}}<tr><td class="kv-label">Expires In</td><td>{{.ExpiresInTicks}} ticks</td></tr>{{end}}
                     {{if .ChainNext}}<tr><td class="kv-label">Chains To</td><td>{{if .ChainNextHref}}<a href="{{.ChainNextHref}}">{{.ChainNextTitle}}</a>{{else}}<span class="chain-undiscovered" title="Not yet discovered — mission id {{.ChainNext}}">{{missionTitleFromID .ChainNext}}</span>{{end}}</td></tr>{{end}}
-                    {{with .ChainPrevs}}<tr><td class="kv-label">Chains From</td><td>{{range $i, $p := .}}{{if $i}}<br>{{end}}<a href="{{$p.Href}}">{{$p.Title}}</a>{{end}}{{if gt (len .) 1}} <span class="text-muted">· {{len .}} routes lead here</span>{{end}}</td></tr>{{end}}
+                    {{with .ChainPrevs}}<tr><td class="kv-label">Chains From</td><td>{{range $i, $p := .}}{{if $i}}<br>{{end}}<a href="{{$p.Href}}">{{$p.Title}}</a>{{end}}{{if gt (len .) 1}} <span class="text-muted">· {{len .}} routes lead here</span>{{end}}</td></tr>{{end}}{{with .Unlocks}}<tr><td class="kv-label">Unlocks</td><td>{{range $i, $u := .}}{{if $i}}<br>{{end}}{{if $u.Href}}<a href="{{$u.Href}}">{{$u.Title}}</a>{{if $u.Foreign}} <span class="chain-type-icon" title="{{titleCase $u.Type}} mission">{{$u.Icon}}</span>{{end}}{{else}}<span class="chain-undiscovered" title="Not yet discovered — mission id {{$u.ID}}">{{$u.Title}}</span>{{end}}{{end}}</td></tr>{{end}}
                 </tbody>
             </table>
         </section>
