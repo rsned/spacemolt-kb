@@ -110,11 +110,19 @@ func writeRoutesJSON(path string, reports map[string]hyperjump.OriginReport) err
 // per-origin reports indexed by system id plus an id->name lookup. A system has
 // a station if it contains any POI of type "station".
 func buildJumpReports(systems []*System) (map[string]hyperjump.OriginReport, map[string]string, []hyperjump.System) {
+	// Every system with a position, real or estimated (uncharted frontier
+	// systems carry screenshot/trilaterated estimates, good to a few units), so
+	// rim systems' charts show the frontier where it would appear in game.
+	// Systems with no position at all are left out.
+	return jumpReportsFor(systems, func(s *System) bool { return !s.PositionUnknown })
+}
+
+// jumpReportsFor runs the hyperjump analysis over the systems include accepts.
+func jumpReportsFor(systems []*System, include func(*System) bool) (map[string]hyperjump.OriginReport, map[string]string, []hyperjump.System) {
 	hsys := make([]hyperjump.System, 0, len(systems))
 	names := make(map[string]string, len(systems))
 	for _, s := range systems {
-		// Uncharted systems have estimated positions at best; keep them out.
-		if s.Uncharted {
+		if !include(s) {
 			continue
 		}
 		hasStation := false

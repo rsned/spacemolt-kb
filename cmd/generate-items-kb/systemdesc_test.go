@@ -81,14 +81,10 @@ func TestLoadFrontierEstimates(t *testing.T) {
 	}
 }
 
-// Uncharted systems stay out of hyperjump route maths and star records:
+// Uncharted systems stay out of star records (persisted to the database):
 // their positions are estimates at best.
-func TestUnchartedSkippedByRoutesAndStars(t *testing.T) {
+func TestUnchartedSkippedByStars(t *testing.T) {
 	sys := []*System{{ID: "sol", Name: "Sol"}, {ID: "bristle", Name: "Bristle", Uncharted: true, PositionApprox: true}}
-	_, names, hsys := buildJumpReports(sys)
-	if len(hsys) != 1 || names["bristle"] != "" {
-		t.Errorf("hyperjump systems = %d, names = %v", len(hsys), names)
-	}
 	if recs := starRecords(sys); len(recs) != 1 {
 		t.Errorf("star records = %d", len(recs))
 	}

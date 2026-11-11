@@ -2327,7 +2327,10 @@ func writeSystemPages(outDir string, systems []*System) error {
 			return err
 		}
 
-		if err := writeJumpPage(jumpTmpl, sysDir, sys, jumpReports, jumpNames, jumpSystems); err != nil {
+		if sys.PositionUnknown {
+			// No position, no headings: the page would only describe Sol.
+			_ = os.Remove(filepath.Join(sysDir, "jumps.html"))
+		} else if err := writeJumpPage(jumpTmpl, sysDir, sys, jumpReports, jumpNames, jumpSystems); err != nil {
 			return err
 		}
 	}
@@ -2375,6 +2378,10 @@ func writeOneSystemPage(outDir string, target *System, allSystems []*System) err
 		return err
 	}
 
+	if target.PositionUnknown {
+		_ = os.Remove(filepath.Join(sysDir, "jumps.html"))
+		return nil
+	}
 	jumpReports, jumpNames, jumpSystems := buildJumpReports(allSystems)
 	return writeJumpPage(jumpTmpl, sysDir, target, jumpReports, jumpNames, jumpSystems)
 }
@@ -3625,7 +3632,9 @@ var systemDetailTemplate = `<!DOCTYPE html>
         </div>
 {{- end}}
 
+{{- if not .PositionUnknown}}
         <div class="card mt-2"><a href="jumps.html" class="jumpmap-link">Pathfinder Jump Routes →</a></div>
+{{- end}}
 
 {{- if .POIs}}
         <div class="card mt-2" style="padding:0">

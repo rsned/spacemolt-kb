@@ -386,3 +386,33 @@ func TestJumpPageTravelColumn(t *testing.T) {
 		t.Errorf("missing 'ticks (mm:ss)' value in rows")
 	}
 }
+
+// An uncharted rim system's page is built from its own (estimated) position,
+// not from (0,0): with every other system on one side, most headings are void.
+func TestFrontierJumpPageUsesOwnPosition(t *testing.T) {
+	systems := []*System{
+		{ID: "a", Name: "A", PositionX: 0, PositionY: 0},
+		{ID: "b", Name: "B", PositionX: 300, PositionY: 100},
+		{ID: "c", Name: "C", PositionX: -200, PositionY: 250},
+		{ID: "d", Name: "D", PositionX: 150, PositionY: -300},
+		{ID: "rim", Name: "Rim", PositionX: -6000, PositionY: 4000, Uncharted: true, PositionApprox: true},
+	}
+	reports, names, hsys := buildJumpReports(systems)
+	data := buildJumpPageData(systems[4], reports, names, hsys)
+	void := 0
+	for _, r := range data.Sweep {
+		if r.Void {
+			void += r.Width
+		}
+	}
+	if void < 180 {
+		t.Fatalf("void headings = %d of 360, want at least half", void)
+	}
+	// Charted systems' charts include the positioned frontier system; one with
+	// no position is left out.
+	systems = append(systems, &System{ID: "lost", Name: "Lost", Uncharted: true, PositionUnknown: true})
+	_, cnames, _ := buildJumpReports(systems)
+	if cnames["rim"] != "Rim" || cnames["lost"] != "" {
+		t.Errorf("route names = %v", cnames)
+	}
+}
