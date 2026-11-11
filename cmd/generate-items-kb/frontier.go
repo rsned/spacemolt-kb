@@ -1,35 +1,18 @@
 package main
 
-import (
-	"encoding/json"
-	"os"
-)
+import "github.com/rsned/spacemolt-kb/internal/frontier"
 
 // frontierPositionsPath holds estimated positions for uncharted frontier
 // systems, relative to the kb repo root the generator runs from.
-const frontierPositionsPath = "data/frontier_positions.json"
+const frontierPositionsPath = frontier.EstimatesPath
 
 // frontierEstimate is one hand-estimated system position.
-type frontierEstimate struct {
-	X      float64 `json:"x"`
-	Y      float64 `json:"y"`
-	Source string  `json:"source"`
-}
+type frontierEstimate = frontier.Estimate
 
 // loadFrontierEstimates reads the estimates file; a missing or unreadable file
 // yields nil.
 func loadFrontierEstimates(path string) map[string]frontierEstimate {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil
-	}
-	var f struct {
-		Systems map[string]frontierEstimate `json:"systems"`
-	}
-	if json.Unmarshal(data, &f) != nil {
-		return nil
-	}
-	return f.Systems
+	return frontier.LoadEstimates(path)
 }
 
 // applyFrontierPositions gives uncharted systems a usable position. Neither

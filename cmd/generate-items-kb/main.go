@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+	"github.com/rsned/spacemolt-kb/internal/frontier"
 	"github.com/rsned/spacemolt-kb/internal/kbnav"
 	"github.com/rsned/spacemolt-kb/internal/kblegacy"
 	"github.com/rsned/spacemolt-kb/internal/kbpoi"
@@ -384,7 +385,7 @@ var empireColors = map[string]string{
 }
 
 // frontierColor matches the pink the in-game map uses for uncharted systems.
-const frontierColor = "#F472B6"
+const frontierColor = frontier.Color
 
 // frontierGroup gathers the uncharted frontier systems into a Systems-index
 // group listed after the five empires. ok is false when there are none.
@@ -1864,25 +1865,7 @@ func mapSystemDescriptions(catalogDir string) map[string]string {
 
 // mapChartedSystems returns the IDs of every system in the newest get_map.json
 // scrape, or nil when it cannot be read.
-func mapChartedSystems(catalogDir string) map[string]bool {
-	data, err := os.ReadFile(filepath.Join(catalogDir, "get_map.json"))
-	if err != nil {
-		return nil
-	}
-	var m struct {
-		Systems []struct {
-			ID string `json:"system_id"`
-		} `json:"systems"`
-	}
-	if err := json.Unmarshal(data, &m); err != nil || len(m.Systems) == 0 {
-		return nil
-	}
-	out := make(map[string]bool, len(m.Systems))
-	for _, sys := range m.Systems {
-		out[sys.ID] = true
-	}
-	return out
-}
+func mapChartedSystems(catalogDir string) map[string]bool { return frontier.ChartedIDs(catalogDir) }
 
 // markUncharted flags every system missing from the charted set. With no map
 // scrape (charted is empty) nothing is flagged.

@@ -13,6 +13,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
+	"github.com/rsned/spacemolt-kb/internal/frontier"
 	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 )
 
@@ -43,6 +44,8 @@ func main() {
 		log.Fatalf("load systems: %v", err)
 	}
 
+	systems, frontierIDs := placeFrontier(systems, frontier.ChartedIDs(catalogDir), frontier.LoadEstimates(frontier.EstimatesPath))
+
 	pois, err := loadPOIs(db)
 	if err != nil {
 		log.Printf("warning: failed to load POIs: %v", err)
@@ -56,7 +59,7 @@ func main() {
 	}
 
 	// Generate the galaxy map page.
-	if err := writeGalaxyMapPage(outDir, systems, pois); err != nil {
+	if err := writeGalaxyMapPage(outDir, systems, pois, frontierIDs); err != nil {
 		log.Fatalf("write galaxy map page: %v", err)
 	}
 
@@ -147,7 +150,7 @@ func loadPOIs(db *sql.DB) (map[string][]POI, error) {
 	return poiMap, nil
 }
 
-func writeGalaxyMapPage(outDir string, systems []*System, pois map[string][]POI) error {
+func writeGalaxyMapPage(outDir string, systems []*System, pois map[string][]POI, frontierIDs map[string]bool) error {
 	// Separate explored and unexplored systems.
 	var explored, unexplored []*System
 	for _, s := range systems {
@@ -199,6 +202,14 @@ func writeGalaxyMapPage(outDir string, systems []*System, pois map[string][]POI)
 			ShowEmpireBlobs: true,
 			ShowConnections: true,
 			LinkPrefix:      "",
+			// Uncharted frontier systems: pink, as on the in-game map, at
+			// estimated positions (data/frontier_positions.json).
+			HighlightClasses: func(id string) []string {
+				if frontierIDs[id] {
+					return []string{"galaxy-sys-frontier"}
+				}
+				return nil
+			},
 		})),
 	}
 
@@ -245,6 +256,7 @@ var galaxyMapTemplate = `<!DOCTYPE html>
         .galaxy-map-svg { width: 100%; max-width: 2000px; height: auto; }
         .galaxy-sys-dot { cursor: pointer; transition: r 0.2s; }
         .galaxy-sys-dot:hover { r: 6; }
+        .galaxy-sys-frontier { fill: #F472B6; }
         .galaxy-sys-label { font-family: system-ui, -apple-system, sans-serif; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
         .back-link { color: var(--link, #63b3ed); text-decoration: none; }
         .back-link:hover { text-decoration: underline; }
