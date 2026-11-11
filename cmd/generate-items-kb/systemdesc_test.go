@@ -20,3 +20,19 @@ func TestMapSystemDescriptions(t *testing.T) {
 		t.Fatal("missing get_map.json should yield nil")
 	}
 }
+
+// A system agents have visited but the map scrape leaves out is uncharted
+// (v0.687: uncharted frontier systems are excluded from maps and search).
+func TestMarkUncharted(t *testing.T) {
+	a, b := &System{ID: "sol"}, &System{ID: "beyond"}
+	markUncharted([]*System{a, b}, map[string]bool{"sol": true})
+	if a.Uncharted || !b.Uncharted {
+		t.Fatalf("sol=%v beyond=%v", a.Uncharted, b.Uncharted)
+	}
+	// With no map scrape at all, nothing can be judged uncharted.
+	c := &System{ID: "beyond"}
+	markUncharted([]*System{c}, nil)
+	if c.Uncharted {
+		t.Fatal("marked uncharted without a map")
+	}
+}

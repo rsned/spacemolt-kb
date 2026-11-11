@@ -280,6 +280,10 @@ type System struct {
 	Connections     []SystemConnection
 	POIs            []SystemPOI
 	Bases           []SystemBase
+	// Uncharted is set for a system agents have visited that the map scrape
+	// leaves out: since v0.687 uncharted frontier systems are excluded from the
+	// in-game map and search. The KB still publishes them, tagged.
+	Uncharted bool
 }
 
 // SystemConnection is a jump gate connection to another system.
@@ -1830,6 +1834,39 @@ func mapSystemDescriptions(catalogDir string) map[string]string {
 	return out
 }
 
+// mapChartedSystems returns the IDs of every system in the newest get_map.json
+// scrape, or nil when it cannot be read.
+func mapChartedSystems(catalogDir string) map[string]bool {
+	data, err := os.ReadFile(filepath.Join(catalogDir, "get_map.json"))
+	if err != nil {
+		return nil
+	}
+	var m struct {
+		Systems []struct {
+			ID string `json:"system_id"`
+		} `json:"systems"`
+	}
+	if err := json.Unmarshal(data, &m); err != nil || len(m.Systems) == 0 {
+		return nil
+	}
+	out := make(map[string]bool, len(m.Systems))
+	for _, sys := range m.Systems {
+		out[sys.ID] = true
+	}
+	return out
+}
+
+// markUncharted flags every system missing from the charted set. With no map
+// scrape (charted is empty) nothing is flagged.
+func markUncharted(systems []*System, charted map[string]bool) {
+	if len(charted) == 0 {
+		return
+	}
+	for _, s := range systems {
+		s.Uncharted = !charted[s.ID]
+	}
+}
+
 func loadSystems(db *sql.DB) ([]*System, error) {
 	rows, err := db.Query(`SELECT id, name, position_x, position_y, police_level, COALESCE(empire,''), COALESCE(description,''), is_stronghold, COALESCE(security_status,''), last_updated_tick FROM systems ORDER BY name`)
 	if err != nil {
@@ -1855,6 +1892,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+	markUncharted(systems, mapChartedSystems(findLatestCatalogDir("../spacemolt/data/game-api")))
 	if desc := mapSystemDescriptions(findLatestCatalogDir("../spacemolt/data/game-api")); len(desc) > 0 {
 		for _, s := range systems {
 			if d, ok := desc[s.ID]; ok {
@@ -3436,7 +3474,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
             <tbody>
 {{- range .Systems}}
             <tr>
-              <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}</td>
+              <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}{{if .Uncharted}} <span class="badge badge-yellow" style="font-size:0.65em;" title="Uncharted frontier system: left off the in-game map and search">Uncharted</span>{{end}}</td>
               <td>{{if ne .LastUpdatedTick 0}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
               <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
               <td style="text-align:right" data-sort="{{len .POIs}}">{{len .POIs}}</td>
@@ -3459,7 +3497,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
         <tbody>
 {{- range .Systems}}
         <tr>
-          <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}</td>
+          <td>{{if eq .LastUpdatedTick 0}}<a href="{{.ID}}/" class="system-unexplored">{{.Name}}</a> <span class="badge badge-muted" style="font-size:0.65em;">Unexplored</span>{{else}}<a href="{{.ID}}/">{{.Name}}</a>{{end}}{{if .Uncharted}} <span class="badge badge-yellow" style="font-size:0.65em;" title="Uncharted frontier system: left off the in-game map and search">Uncharted</span>{{end}}</td>
           <td>{{if eq (formatEmpire .Empire .LastUpdatedTick .PoliceLevel .IsStronghold) "Unknown"}}<span class="text-muted">Unknown</span>{{else}}{{formatEmpire .Empire .LastUpdatedTick .PoliceLevel .IsStronghold}}{{end}}</td>
           <td>{{if ne .LastUpdatedTick 0}}<span class="{{securityClass .PoliceLevel}}">{{.PoliceLevel}} {{securityLabel .PoliceLevel}}</span>{{else}}<span class="text-muted">Unknown</span>{{end}}</td>
           <td style="text-align:right" data-sort="{{len .Connections}}">{{len .Connections}}</td>
@@ -3498,7 +3536,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
         <div class="sys-header">
             <div>
                 <span class="label">System</span>
-                <h2 class="sys-name">{{.Name}}</h2>
+                <h2 class="sys-name">{{.Name}}{{if .Uncharted}} <span class="badge badge-yellow" title="Uncharted frontier system: left off the in-game map and search">Uncharted</span>{{end}}</h2>
             </div>
             <div class="sys-meta">
                 <div class="sys-meta-item">
