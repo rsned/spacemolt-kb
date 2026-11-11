@@ -284,6 +284,11 @@ type System struct {
 	// leaves out: since v0.687 uncharted frontier systems are excluded from the
 	// in-game map and search. The KB still publishes them, tagged.
 	Uncharted bool
+	// PositionApprox: the position is a screenshot estimate from
+	// data/frontier_positions.json. PositionUnknown: no position at all (an
+	// uncharted system with no estimate); kept off every map.
+	PositionApprox  bool
+	PositionUnknown bool
 }
 
 // SystemConnection is a jump gate connection to another system.
@@ -305,6 +310,10 @@ type SystemPOI struct {
 	Hidden      bool
 	RevealDifficulty int
 	Resources   []POIResource
+	// WormholeTo / WormholeFrom name the system at the other end of an active
+	// wormhole entrance / exit (see linkWormholes).
+	WormholeTo   *WormholeEnd
+	WormholeFrom *WormholeEnd
 }
 
 // POIResource is a resource found at a POI.
@@ -372,6 +381,25 @@ var empireColors = map[string]string{
 	"crimson":  "#DC143C",
 	"nebula":   "#00CED1",
 	"outerrim": "#2E8B57",
+}
+
+// frontierColor matches the pink the in-game map uses for uncharted systems.
+const frontierColor = "#F472B6"
+
+// frontierGroup gathers the uncharted frontier systems into a Systems-index
+// group listed after the five empires. ok is false when there are none.
+func frontierGroup(systems []*System) (EmpireGroup, bool) {
+	var fs []*System
+	for _, s := range systems {
+		if s.Uncharted {
+			fs = append(fs, s)
+		}
+	}
+	if len(fs) == 0 {
+		return EmpireGroup{}, false
+	}
+	slices.SortFunc(fs, func(a, b *System) int { return cmp.Compare(a.Name, b.Name) })
+	return EmpireGroup{Name: "Frontier", ID: "frontier", Color: frontierColor, Systems: fs}, true
 }
 
 // empireOrder defines the display order for empires.
@@ -1893,6 +1921,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 		return nil, err
 	}
 	markUncharted(systems, mapChartedSystems(findLatestCatalogDir("../spacemolt/data/game-api")))
+	applyFrontierPositions(systems, loadFrontierEstimates(frontierPositionsPath))
 	if desc := mapSystemDescriptions(findLatestCatalogDir("../spacemolt/data/game-api")); len(desc) > 0 {
 		for _, s := range systems {
 			if d, ok := desc[s.ID]; ok {
@@ -2074,6 +2103,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 		return nil, err
 	}
 
+	linkWormholes(systems)
 	return systems, nil
 }
 
@@ -2214,6 +2244,18 @@ func writeSystemPages(outDir string, systems []*System) error {
 		}
 		eg.MapSVG = htmltpl.HTML(renderEmpireMap(eg, sysLookup))
 		empires = append(empires, eg)
+	}
+	if fg, ok := frontierGroup(systems); ok {
+		mapped := fg
+		mapped.Systems = withPosition(fg.Systems)
+		placed := make(map[string]*System, len(sysLookup))
+		for id, s := range sysLookup {
+			if !s.PositionUnknown {
+				placed[id] = s
+			}
+		}
+		fg.MapSVG = htmltpl.HTML(renderEmpireMap(mapped, placed))
+		empires = append(empires, fg)
 	}
 
 	// Calculate exploration statistics.
@@ -3549,7 +3591,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
                 </div>
                 <div class="sys-meta-item">
                     <span class="label">Position</span>
-                    <span class="stat">{{fmtCoord .PositionX}}, {{fmtCoord .PositionY}}</span>
+                    <span class="stat">{{if .PositionUnknown}}not charted{{else}}{{if .PositionApprox}}<span title="Estimated from an in-game map screenshot: uncharted systems are left off get_map">&asymp; </span>{{end}}{{fmtCoord .PositionX}}, {{fmtCoord .PositionY}}{{end}}</span>
                 </div>
 {{- if .IsStronghold}}
                 <div class="sys-meta-item">
@@ -3601,7 +3643,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
               <td style="text-align:right;white-space:nowrap">{{poiPos .}}</td>
               <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{if .Hidden}}{{.RevealDifficulty}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-              <td>{{if .Description}}{{.Description}}{{else if $.LastUpdatedTick}}<span class="text-muted">—</span>{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
+              <td>{{with .WormholeTo}}<a href="../{{.ID}}/">&rarr; {{.Name}}</a> <span class="badge badge-muted" title="Wormholes only run one way">one-way</span><br>{{end}}{{with .WormholeFrom}}<span class="text-muted">exit from</span> <a href="../{{.ID}}/">{{.Name}}</a><br>{{end}}{{if .Description}}{{.Description}}{{else if $.LastUpdatedTick}}<span class="text-muted">—</span>{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
             </tr>
 {{- end}}
             </tbody>

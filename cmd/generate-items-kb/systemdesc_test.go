@@ -36,3 +36,60 @@ func TestMarkUncharted(t *testing.T) {
 		t.Fatal("marked uncharted without a map")
 	}
 }
+
+// Uncharted systems are gathered into a Frontier group listed after the empires.
+func TestFrontierGroup(t *testing.T) {
+	sys := []*System{{ID: "sol", Name: "Sol"}, {ID: "bristle", Name: "Bristle", Uncharted: true},
+		{ID: "ash_pearl", Name: "Ash Pearl", Uncharted: true}}
+	g, ok := frontierGroup(sys)
+	if !ok || g.Name != "Frontier" || g.ID != "frontier" || len(g.Systems) != 2 || g.Systems[0].ID != "ash_pearl" {
+		t.Fatalf("group = %+v ok=%v", g, ok)
+	}
+	if _, ok := frontierGroup(sys[:1]); ok {
+		t.Fatal("no uncharted systems should mean no Frontier group")
+	}
+}
+
+// An uncharted system at (0,0) takes its estimated position, flagged
+// approximate; with no estimate it is flagged as having no position. Charted
+// systems (Sol really is at the origin) are untouched.
+func TestApplyFrontierPositions(t *testing.T) {
+	sol := &System{ID: "sol"}
+	ln := &System{ID: "long_night", Uncharted: true}
+	cl := &System{ID: "cold_lens", Uncharted: true}
+	applyFrontierPositions([]*System{sol, ln, cl}, map[string]frontierEstimate{
+		"long_night": {X: -6334, Y: 4615}, "sol": {X: 9, Y: 9},
+	})
+	if sol.PositionX != 0 || sol.PositionApprox || sol.PositionUnknown {
+		t.Errorf("sol = %+v", sol)
+	}
+	if ln.PositionX != -6334 || ln.PositionY != 4615 || !ln.PositionApprox || ln.PositionUnknown {
+		t.Errorf("long_night = %+v", ln)
+	}
+	if !cl.PositionUnknown || cl.PositionApprox {
+		t.Errorf("cold_lens = %+v", cl)
+	}
+}
+
+func TestLoadFrontierEstimates(t *testing.T) {
+	est := loadFrontierEstimates("../../data/frontier_positions.json")
+	if e, ok := est["bristle"]; !ok || e.X != -5054 || e.Y != 5493 {
+		t.Fatalf("bristle = %+v (ok=%v)", e, ok)
+	}
+	if loadFrontierEstimates("/nonexistent.json") != nil {
+		t.Error("missing file should give nil")
+	}
+}
+
+// Uncharted systems stay out of hyperjump route maths and star records:
+// their positions are estimates at best.
+func TestUnchartedSkippedByRoutesAndStars(t *testing.T) {
+	sys := []*System{{ID: "sol", Name: "Sol"}, {ID: "bristle", Name: "Bristle", Uncharted: true, PositionApprox: true}}
+	_, names, hsys := buildJumpReports(sys)
+	if len(hsys) != 1 || names["bristle"] != "" {
+		t.Errorf("hyperjump systems = %d, names = %v", len(hsys), names)
+	}
+	if recs := starRecords(sys); len(recs) != 1 {
+		t.Errorf("star records = %d", len(recs))
+	}
+}

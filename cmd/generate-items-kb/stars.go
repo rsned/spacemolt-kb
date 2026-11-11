@@ -74,6 +74,10 @@ func sunClass(pois []SystemPOI) string {
 func starRecords(systems []*System) []StarRecord {
 	recs := make([]StarRecord, 0, len(systems))
 	for _, s := range systems {
+		// Uncharted systems have estimated positions at best; keep them out.
+		if s.Uncharted {
+			continue
+		}
 		recs = append(recs, StarRecord{
 			ID: s.ID, Name: s.Name, X: s.PositionX, Y: s.PositionY,
 			Class: sunClass(s.POIs), Suns: sunComponents(s.POIs),

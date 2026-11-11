@@ -113,6 +113,10 @@ func buildJumpReports(systems []*System) (map[string]hyperjump.OriginReport, map
 	hsys := make([]hyperjump.System, 0, len(systems))
 	names := make(map[string]string, len(systems))
 	for _, s := range systems {
+		// Uncharted systems have estimated positions at best; keep them out.
+		if s.Uncharted {
+			continue
+		}
 		hasStation := false
 		for _, p := range s.POIs {
 			if p.Type == "station" {
