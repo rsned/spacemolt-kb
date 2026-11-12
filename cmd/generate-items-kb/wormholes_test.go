@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+	"time"
+)
 
 func TestLinkWormholesPairsBothIDSchemes(t *testing.T) {
 	sac := &System{ID: "saclateni", Name: "Saclateni", POIs: []SystemPOI{
@@ -50,5 +54,27 @@ func TestHumanAge(t *testing.T) {
 		if got := humanAge(ticks); got != want {
 			t.Errorf("humanAge(%d) = %q, want %q", ticks, got, want)
 		}
+	}
+}
+
+func TestDropExpiredWormholes(t *testing.T) {
+	now := time.Date(2026, 11, 12, 20, 0, 0, 0, time.UTC)
+	const nowTick = 1_000_000
+	sys := &System{ID: "s", POIs: []SystemPOI{
+		{ID: "star", Type: "sun"},
+		{ID: "old_collapsed", Type: "wormhole_collapsed", ExpiresAt: "2026-11-08T14:58:32Z"},       // expired 4+ days ago
+		{ID: "recent_collapsed", Type: "wormhole_collapsed", ExpiresAt: "2026-11-11T20:59:48Z"},    // expired yesterday
+		{ID: "unknown_old", Type: "wormhole_collapsed", LastUpdatedTick: nowTick - 3*86400/10 - 1}, // seen just over 3 days ago
+		{ID: "unknown_recent", Type: "wormhole_collapsed", LastUpdatedTick: nowTick - 100},
+		{ID: "live_entrance", Type: "wormhole_entrance", LastUpdatedTick: nowTick - 3*86400}, // no expiry known: kept
+		{ID: "expired_entrance", Type: "wormhole_entrance", ExpiresAt: "2026-11-01T00:00:00Z"},
+	}}
+	dropExpiredWormholes([]*System{sys}, now, nowTick)
+	var kept []string
+	for _, p := range sys.POIs {
+		kept = append(kept, p.ID)
+	}
+	if got, want := strings.Join(kept, ","), "star,recent_collapsed,unknown_recent,live_entrance"; got != want {
+		t.Errorf("kept = %s, want %s", got, want)
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"strconv"
 	"strings"
+	"time"
 )
 
 // WormholeEnd names the system at the other end of a wormhole.
@@ -85,5 +86,35 @@ func linkWormholes(systems []*System) {
 		}
 		in.sys.POIs[in.i].WormholeTo = &WormholeEnd{ID: out.sys.ID, Name: out.sys.Name, SeenAgo: age(in.sys.POIs[in.i])}
 		out.sys.POIs[out.i].WormholeFrom = &WormholeEnd{ID: in.sys.ID, Name: in.sys.Name, SeenAgo: age(out.sys.POIs[out.i])}
+	}
+}
+
+// wormholeGrace is how long an expired wormhole stays listed after it expires.
+const wormholeGrace = 3 * 24 * time.Hour
+
+// dropExpiredWormholes removes wormholes more than wormholeGrace past expiry:
+// they are not drawn, listed or counted. Expiry comes from expires_at when the
+// game gave one. A collapsed wormhole without one falls back to when an agent
+// last saw it, which can only be after it expired, so it is never dropped
+// early. An active wormhole without an expiry is kept.
+func dropExpiredWormholes(systems []*System, now time.Time, nowTick int) {
+	graceTicks := int(wormholeGrace.Seconds()) / secondsPerTick
+	expired := func(p SystemPOI) bool {
+		if !strings.HasPrefix(p.Type, "wormhole") {
+			return false
+		}
+		if t, err := time.Parse(time.RFC3339Nano, p.ExpiresAt); err == nil {
+			return now.Sub(t) > wormholeGrace
+		}
+		return p.Type == "wormhole_collapsed" && nowTick-p.LastUpdatedTick > graceTicks
+	}
+	for _, s := range systems {
+		kept := s.POIs[:0]
+		for _, p := range s.POIs {
+			if !expired(p) {
+				kept = append(kept, p)
+			}
+		}
+		s.POIs = kept
 	}
 }

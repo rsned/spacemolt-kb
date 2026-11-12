@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/rsned/spacemolt-kb/internal/frontier"
@@ -318,6 +319,8 @@ type SystemPOI struct {
 	// LastUpdatedTick is when an agent last recorded this POI. Wormholes are
 	// temporary, so their links show this as an age.
 	LastUpdatedTick int
+	// ExpiresAt is when a wormhole expires (RFC 3339), when the game said.
+	ExpiresAt string
 }
 
 // POIResource is a resource found at a POI.
@@ -1953,7 +1956,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 
 	// Load POIs.
-	poiRows, err := db.Query(`SELECT p.system_id, p.id, p.name, p.type, COALESCE(p.class,''), COALESCE(p.description,''), p.position_x, p.position_y, p.hidden, p.reveal_difficulty, COALESCE(p.last_updated_tick,0) FROM pois p WHERE ` + kbpoi.Live + ` ORDER BY p.system_id, p.name`)
+	poiRows, err := db.Query(`SELECT p.system_id, p.id, p.name, p.type, COALESCE(p.class,''), COALESCE(p.description,''), p.position_x, p.position_y, p.hidden, p.reveal_difficulty, COALESCE(p.last_updated_tick,0), COALESCE(p.expires_at,'') FROM pois p WHERE ` + kbpoi.Live + ` ORDER BY p.system_id, p.name`)
 	if err != nil {
 		return nil, err
 	}
@@ -1962,7 +1965,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	for poiRows.Next() {
 		var systemID string
 		var poi SystemPOI
-		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY, &poi.Hidden, &poi.RevealDifficulty, &poi.LastUpdatedTick); err != nil {
+		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY, &poi.Hidden, &poi.RevealDifficulty, &poi.LastUpdatedTick, &poi.ExpiresAt); err != nil {
 			return nil, err
 		}
 		if s, ok := systemMap[systemID]; ok {
@@ -2089,6 +2092,13 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 		return nil, err
 	}
 
+	nowTick := 0
+	for _, s := range systems {
+		for _, p := range s.POIs {
+			nowTick = max(nowTick, p.LastUpdatedTick)
+		}
+	}
+	dropExpiredWormholes(systems, time.Now().UTC(), nowTick)
 	linkWormholes(systems)
 	return systems, nil
 }
