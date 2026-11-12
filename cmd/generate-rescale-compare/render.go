@@ -9,29 +9,8 @@ import (
 	"strings"
 
 	"github.com/rsned/spacemolt-kb/internal/kbnav"
+	"github.com/rsned/spacemolt-kb/pkg/systemmap"
 )
-
-// bodyColor is the dot color per POI type.
-var bodyColor = map[string]string{
-	"sun":           "#ffd27a",
-	"planet":        "#7fb3ff",
-	"station":       "#7ee0a6",
-	"asteroid_belt": "#b9a68a",
-	"gas_cloud":     "#c79bff",
-	"ice_field":     "#a8e6ff",
-	"nebula":        "#d9a3ff",
-	"relic":         "#ff9f7f",
-}
-
-// scaleBar picks a round bar length for a half whose outermost body is at r AU.
-func scaleBar(r float64) float64 {
-	for _, b := range []float64{0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50} {
-		if b >= r/5 {
-			return b
-		}
-	}
-	return 100
-}
 
 // sciShort formats a small ratio as "1.7e-2": one decimal, exponent unpadded.
 func sciShort(v float64) string {
@@ -53,58 +32,55 @@ func fmtAU(v float64) string {
 	}
 }
 
-// half draws one side of the split canvas: orbit rings, one dot per body and a
-// scale bar, scaled to fit its own system.
-// fit is the radius (AU) the half is scaled to: its own outermost body, or
-// on the same-scale view the larger of the two sides.
-func half(b *strings.Builder, bodies []Body, x0, w, h, fit float64, label string) {
-	r := fit
-	if r == 0 {
-		r = 1
+// mapPOIs converts a layout's bodies for the system map renderer. IDs come from
+// names (the map seeds planet and belt textures from them), so the same body
+// looks the same on both sides.
+func mapPOIs(bodies []Body) []systemmap.POI {
+	out := make([]systemmap.POI, 0, len(bodies))
+	for _, b := range bodies {
+		out = append(out, systemmap.POI{
+			ID: strings.Map(func(r rune) rune {
+				if r >= 'a' && r <= 'z' || r >= '0' && r <= '9' {
+					return r
+				}
+				return '_'
+			}, strings.ToLower(b.Name)),
+			Name: b.Name, Type: b.Type, Class: b.Class, PositionX: b.X, PositionY: b.Y,
+		})
 	}
-	s := (math.Min(w, h)/2 - 22) / (r * 1.06)
-	cx, cy := x0+w/2, h/2+8
-	fmt.Fprintf(b, `<text x="%.0f" y="20" class="rc-label">%s</text>`, x0+12, htmltpl.HTMLEscapeString(label))
-	fmt.Fprintf(b, `<text x="%.0f" y="20" class="rc-note" text-anchor="end">outermost %s AU</text>`, x0+w-12, fmtAU(extent(bodies)))
-	for _, p := range bodies {
-		if d := math.Hypot(p.X, p.Y); d > 0 {
-			fmt.Fprintf(b, `<circle cx="%.1f" cy="%.1f" r="%.1f" class="rc-orbit"/>`, cx, cy, d*s)
-		}
-	}
-	for _, p := range bodies {
-		rad := 3.5
-		if p.Type == "sun" {
-			rad = 7
-		}
-		col := bodyColor[p.Type]
-		if col == "" {
-			col = "#cccccc"
-		}
-		fmt.Fprintf(b, `<circle cx="%.1f" cy="%.1f" r="%.1f" fill="%s"><title>%s · (%s, %s) · %s AU from the star</title></circle>`,
-			cx+p.X*s, cy+p.Y*s, rad, col, htmltpl.HTMLEscapeString(p.Name), fmtAU(p.X), fmtAU(p.Y), fmtAU(math.Hypot(p.X, p.Y)))
-	}
-	bar := scaleBar(r)
-	fmt.Fprintf(b, `<line x1="%.0f" y1="%.0f" x2="%.1f" y2="%.0f" class="rc-bar"/><text x="%.1f" y="%.0f" class="rc-note">%s AU</text>`,
-		x0+14, h-10, x0+14+bar*s, h-10, x0+18+bar*s, h-6, fmtAU(bar))
+	return out
 }
 
-// splitSVG is the before/after canvas, split down the middle. With same set,
-// both halves share one scale (the larger system) so the size change shows;
-// otherwise each half is scaled to fit its own system.
+// halfMap renders one side as a full system map (true-size star with haze,
+// planets by type, belt and ice particles, labels, linear ruler) without the
+// gate ring or legend. fit > 0 forces a shared scale; prefix keeps its SVG ids
+// apart from the other maps on the page.
+func halfMap(id, name string, bodies []Body, fit float64, prefix string) string {
+	sys := &systemmap.System{ID: id, Name: name, POIs: mapPOIs(bodies)}
+	svg := systemmap.RenderSystemMapWith(sys, nil, true, systemmap.MapOptions{Linear: true, FitAU: fit, NoGates: true, NoLegend: true})
+	return systemmap.PrefixSVGIDs(svg, prefix)
+}
+
+// splitSVG is the before/after pair, split down the middle. With same set,
+// both sides share one scale (the larger layout) so the size change shows;
+// otherwise each side is scaled to fit its own system.
 func splitSVG(s System, same bool) htmltpl.HTML {
-	const w, h = 880.0, 440.0
-	var b strings.Builder
-	fmt.Fprintf(&b, `<svg class="rc-canvas" viewBox="0 0 %.0f %.0f" role="img" aria-label="%s before and after the v0.698 rescale">`, w, h, htmltpl.HTMLEscapeString(s.Name))
-	fb, fa := extent(s.Before), extent(s.After)
+	fit, view := 0.0, "own"
 	if same {
-		fb = math.Max(fb, fa)
-		fa = fb
+		fit, view = math.Max(extent(s.Before), extent(s.After)), "same"
 	}
-	half(&b, s.Before, 0, w/2, h, fb, "BEFORE · v0.697 and earlier")
-	fmt.Fprintf(&b, `<line x1="%.0f" y1="0" x2="%.0f" y2="%.0f" class="rc-split"/>`, w/2, w/2, h)
-	half(&b, s.After, w/2, w/2, h, fa, "AFTER · v0.698 real scale")
-	b.WriteString(`</svg>`)
-	return htmltpl.HTML(b.String()) //nolint:gosec // built from escaped values above
+	var b strings.Builder
+	b.WriteString(`<div class="rc-pair">`)
+	for _, side := range []struct {
+		label, tag string
+		bodies     []Body
+	}{{"BEFORE · v0.697 and earlier", "b", s.Before}, {"AFTER · v0.698 real scale", "a", s.After}} {
+		fmt.Fprintf(&b, `<div class="rc-half"><div class="rc-cap"><span>%s</span><span class="rc-out">outermost %s AU</span></div>%s</div>`,
+			htmltpl.HTMLEscapeString(side.label), fmtAU(extent(side.bodies)),
+			halfMap(s.ID, s.Name, side.bodies, fit, side.tag+"-"+view+"-"))
+	}
+	b.WriteString(`</div>`)
+	return htmltpl.HTML(b.String()) //nolint:gosec // generated SVG, names escaped by the renderer
 }
 
 var funcs = htmltpl.FuncMap{
@@ -197,12 +173,16 @@ var detailTmpl = htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(pageHead 
 
 const css = `/* The Great Rescale compare pages (generate-rescale-compare). */
 .rc-intro { font-size: 13px; margin: 0.4rem 0 0.8rem; }
-.rc-canvas { width: 100%; background: #0b0f17; border-radius: 6px; display: block; }
-.rc-label { fill: #cfd8e3; font-size: 13px; font-weight: 600; }
-.rc-note { fill: #9fb0c2; font-size: 11px; }
-.rc-orbit { fill: none; stroke: #ffffff1c; }
-.rc-split { stroke: #ffffff44; stroke-dasharray: 4 4; }
-.rc-bar { stroke: #cfd8e3; }
+.rc-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #1a1e2a; border-radius: 6px; overflow: hidden; }
+.rc-half { min-width: 0; }
+.rc-half + .rc-half { border-left: 1px dashed #ffffff44; }
+.rc-half svg { width: 100%; height: auto; display: block; background: #1a1e2a; }
+.rc-cap { display: flex; justify-content: space-between; padding: 0.5rem 0.75rem 0; font-size: 12.5px; font-weight: 600; color: #cfd8e3; }
+.rc-cap .rc-out { font-weight: 400; color: #9fb0c2; }
+@media (max-width: 640px) {
+  .rc-pair { grid-template-columns: 1fr; }
+  .rc-half + .rc-half { border-left: 0; border-top: 1px dashed #ffffff44; }
+}
 .rc-table { margin-top: 0.8rem; }
 .rc-views > input { position: absolute; opacity: 0; }
 .rc-views > label { display: inline-block; padding: 0.25rem 0.7rem; margin: 0 0.3rem 0.5rem 0; font-size: 12.5px;

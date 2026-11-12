@@ -94,8 +94,11 @@ func TestWritePages(t *testing.T) {
 		}
 	}
 	page, _ := os.ReadFile(filepath.Join(dir, "sol.html"))
-	if n := strings.Count(string(page), `class="rc-canvas"`); n != 2 {
-		t.Errorf("canvases = %d, want own-scale and same-scale", n)
+	if n := strings.Count(string(page), `class="rc-pair"`); n != 2 {
+		t.Errorf("before/after pairs = %d, want own-scale and same-scale", n)
+	}
+	if !strings.Contains(string(page), `id="b-own-`) || !strings.Contains(string(page), `id="a-same-`) {
+		t.Error("each map's ids should carry its own prefix")
 	}
 	for _, want := range []string{`id="rc-same"`, "Same scale", "BEFORE", "AFTER", "Earth"} {
 		if !strings.Contains(string(page), want) {
@@ -107,45 +110,19 @@ func TestWritePages(t *testing.T) {
 	}
 }
 
-// On the same-scale view both halves use the larger system's scale, so the
-// smaller side's outermost orbit is drawn proportionally smaller.
+// On the same-scale view both sides use the larger system's scale.
 func TestSplitSVGSameScale(t *testing.T) {
-	s := System{Name: "S",
-		Before: []Body{{Name: "Star", Type: "sun"}, {Name: "P", Type: "planet", X: 1}},
-		After:  []Body{{Name: "Star", Type: "sun"}, {Name: "P", Type: "planet", X: 10}}}
+	s := System{ID: "s", Name: "S",
+		Before: []Body{{Name: "Star", Type: "sun", Class: "G2V"}, {Name: "P", Type: "planet", Class: "terran", X: 1}},
+		After:  []Body{{Name: "Star", Type: "sun", Class: "G2V"}, {Name: "P", Type: "planet", Class: "terran", X: 10}}}
 	own, same := string(splitSVG(s, false)), string(splitSVG(s, true))
 	if own == same {
 		t.Fatal("same-scale view is identical to own-scale view")
 	}
 	if !strings.Contains(same, "outermost 1.00 AU") || !strings.Contains(same, "outermost 10.0 AU") {
-		t.Error("halves should still label their own outermost body")
+		t.Error("sides should still label their own outermost body")
 	}
-}
-
-func TestIsRescanned(t *testing.T) {
-	const old, fresh = RescaleTick - 10, RescaleTick + 10
-	row := func(typ string, tick int, hidden bool) poiRow {
-		return poiRow{Body: Body{Name: typ, Type: typ}, tick: tick, hidden: hidden}
-	}
-	cases := []struct {
-		name string
-		rows []poiRow
-		want bool
-	}{
-		{"all fresh", []poiRow{row("sun", fresh, false), row("planet", fresh, false)}, true},
-		{"stale collapsed wormhole ignored", []poiRow{row("sun", fresh, false), row("planet", fresh, false), row("wormhole_collapsed", old, false)}, true},
-		{"stale hidden belt ignored", []poiRow{row("sun", fresh, false), row("planet", fresh, false), row("asteroid_belt", old, true)}, true},
-		{"stale planet blocks", []poiRow{row("sun", fresh, false), row("planet", old, false)}, false},
-		{"no planets: visible belt must be fresh", []poiRow{row("sun", fresh, false), row("asteroid_belt", old, false)}, false},
-		{"no planets: all visible fresh", []poiRow{row("sun", fresh, false), row("asteroid_belt", fresh, false), row("wormhole_collapsed", old, false)}, true},
-	}
-	for _, c := range cases {
-		if got := isRescanned(c.rows); got != c.want {
-			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
-		}
-	}
-	a := afterFromRows("S", []poiRow{row("sun", fresh, false), row("planet", fresh, false), row("wormhole_collapsed", old, false)})
-	if len(a.Bodies) != 2 {
-		t.Errorf("stale records should be left off the after side: %d bodies", len(a.Bodies))
+	if !strings.Contains(own, "star-core") || !strings.Contains(own, "linear scale") {
+		t.Error("sides should be full system maps: true-size star, linear ruler")
 	}
 }

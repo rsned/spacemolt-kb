@@ -51,6 +51,21 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 // RenderSystemMapScaled renders the map on the log distance scale, or on a
 // plain linear scale when linear is set (the alternate view).
 func RenderSystemMapScaled(sys *System, allSystems map[string]*System, standalone, linear bool) string {
+	return RenderSystemMapWith(sys, allSystems, standalone, MapOptions{Linear: linear})
+}
+
+// MapOptions tunes RenderSystemMapWith for maps embedded outside a system
+// page, such as the Great Rescale before/after compare.
+type MapOptions struct {
+	Linear   bool    // plain linear scale instead of log
+	FitAU    float64 // linear only: >0 scales so this distance fills the map (same-scale views)
+	NoGates  bool    // omit the jump-gate ring (markers need connections anyway)
+	NoLegend bool    // omit the type legend
+}
+
+// RenderSystemMapWith renders the system map with the given options.
+func RenderSystemMapWith(sys *System, allSystems map[string]*System, standalone bool, o MapOptions) string {
+	linear := o.Linear
 	const (
 		cx     = 400.0
 		cy     = 300.0
@@ -72,6 +87,9 @@ func RenderSystemMapScaled(sys *System, allSystems map[string]*System, standalon
 	if explored {
 		if linear {
 			rad = newLinearRadial(sys.POIs, maxSVG)
+			if o.FitAU > 0 && o.FitAU >= rad.rmax {
+				rad.lin, rad.rmax = maxSVG/o.FitAU, o.FitAU
+			}
 		} else {
 			rad = newRadial(sys.POIs, maxSVG)
 		}
@@ -109,6 +127,9 @@ func RenderSystemMapScaled(sys *System, allSystems map[string]*System, standalon
 
 	// Compute viewBox so outermost orbit fills 80% of width, with cropping.
 	maxOrbitR := gateRadius + 5 // include gate ring
+	if o.NoGates {
+		maxOrbitR = maxSVG + 45 // the outermost orbit plus room for its labels
+	}
 	if explored {
 		for _, poi := range sys.POIs {
 			if poi.Type == "sun" {
@@ -179,7 +200,9 @@ func RenderSystemMapScaled(sys *System, allSystems map[string]*System, standalon
 	}
 
 	// Jump gate ring (dashed, just inside the gate markers).
-	b.WriteString(fmt.Sprintf(`<circle cx="%.0f" cy="%.0f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.6" stroke-dasharray="8,6"/>`, cx, cy, gateRadius+5))
+	if !o.NoGates {
+		b.WriteString(fmt.Sprintf(`<circle cx="%.0f" cy="%.0f" r="%.0f" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.6" stroke-dasharray="8,6"/>`, cx, cy, gateRadius+5))
+	}
 
 	// Jump gate markers.
 	for _, conn := range sys.Connections {
@@ -525,11 +548,13 @@ func RenderSystemMapScaled(sys *System, allSystems map[string]*System, standalon
 
 		// Legend: collect unique POI types present in this system.
 		// Keep the legend above the distance ruler when one is drawn.
-		reserve := 0.0
-		if len(rad.ticks()) > 0 {
-			reserve = 30
+		if !o.NoLegend {
+			reserve := 0.0
+			if len(rad.ticks()) > 0 {
+				reserve = 30
+			}
+			b.WriteString(renderLegend(sys.POIs, vbX, vbY, vbW, vbH, reserve))
 		}
-		b.WriteString(renderLegend(sys.POIs, vbX, vbY, vbW, vbH, reserve))
 	} else {
 		// Unexplored: star + fog of war.
 		b.WriteString(`<defs>`)

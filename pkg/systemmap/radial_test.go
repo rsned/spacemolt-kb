@@ -132,3 +132,21 @@ func TestLogRulerExtendsToNextDecade(t *testing.T) {
 		t.Errorf("linear rulerEnd = %v", lin.rulerEnd())
 	}
 }
+
+func TestRenderSystemMapWithOptions(t *testing.T) {
+	sys := &System{ID: "s", Name: "S", POIs: []POI{{ID: "st", Name: "Star", Type: "sun", Class: "G2V"},
+		{ID: "a", Name: "A", Type: "planet", Class: "terran", PositionX: 1},
+		{ID: "b", Name: "Belt", Type: "asteroid_belt", PositionX: 3}}}
+	full := RenderSystemMapScaled(sys, nil, true, true)
+	bare := RenderSystemMapWith(sys, nil, true, MapOptions{Linear: true, NoGates: true, NoLegend: true})
+	if !strings.Contains(full, `stroke-dasharray="8,6"`) || strings.Contains(bare, `stroke-dasharray="8,6"`) {
+		t.Error("NoGates should drop the gate ring")
+	}
+	if strings.Contains(bare, ">Asteroid Belt<") {
+		t.Error("NoLegend should drop the legend")
+	}
+	same := RenderSystemMapWith(sys, nil, true, MapOptions{Linear: true, NoGates: true, NoLegend: true, FitAU: 30})
+	if same == bare || !strings.Contains(same, ">30</text>") {
+		t.Error("FitAU should rescale the map and extend the ruler to the fit distance")
+	}
+}
