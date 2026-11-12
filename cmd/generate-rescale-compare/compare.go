@@ -8,8 +8,7 @@ import (
 )
 
 // RescaleTick is the first tick after the v0.698.0 rescale went live
-// (2026-11-12 03:20 UTC, 7:20 pm PST). A system counts as rescanned once
-// every body it has was recorded at or after it.
+// (2026-11-12 03:20 UTC, 7:20 pm PST). See isRescanned for what counts.
 const RescaleTick = 2381475
 
 // BodyRow is one body's distance from its star, before and after.
@@ -54,11 +53,70 @@ func starClass(bs []Body) string {
 	return ""
 }
 
-// afterLayout is a system's current bodies plus whether all were recorded
-// after the rescale.
+// afterLayout is a system's bodies recorded since the rescale, plus whether
+// it counts as rescanned.
 type afterLayout struct {
 	Layout
 	rescanned bool
+}
+
+// poiRow is one recorded body with what isRescanned needs.
+type poiRow struct {
+	Body
+	tick   int
+	hidden bool
+}
+
+// isRescanned reports whether a system's layout is post-rescale. Some records
+// never refresh on a rescan -- collapsed wormholes are gone, hidden belts and
+// nebulae refresh only when revealed -- so requiring every record would leave
+// most systems "awaiting" forever. A system counts once its star(s) and planets
+// were all recorded since the rescale; one with no planets falls back to every
+// visible body that is not a collapsed wormhole.
+func isRescanned(rows []poiRow) bool {
+	core, other := []poiRow{}, []poiRow{}
+	for _, r := range rows {
+		switch {
+		case r.Type == "sun" || r.Type == "planet":
+			core = append(core, r)
+		case r.Type != "wormhole_collapsed" && !r.hidden:
+			other = append(other, r)
+		}
+	}
+	check := core
+	if !hasType(core, "planet") {
+		check = append(core, other...)
+	}
+	if len(check) == 0 {
+		return false
+	}
+	for _, r := range check {
+		if r.tick < RescaleTick {
+			return false
+		}
+	}
+	return true
+}
+
+func hasType(rows []poiRow, typ string) bool {
+	for _, r := range rows {
+		if r.Type == typ {
+			return true
+		}
+	}
+	return false
+}
+
+// afterFromRows keeps only bodies recorded since the rescale (an older record
+// still has its pre-rescale position) and judges the system.
+func afterFromRows(name string, rows []poiRow) afterLayout {
+	a := afterLayout{Layout: Layout{Name: name}, rescanned: isRescanned(rows)}
+	for _, r := range rows {
+		if r.tick >= RescaleTick {
+			a.Bodies = append(a.Bodies, r.Body)
+		}
+	}
+	return a
 }
 
 // loadAfter reads every system's current bodies from the knowledge DB.
@@ -77,29 +135,29 @@ func loadAfter(db *sql.DB) (map[string]afterLayout, error) {
 	}
 	_ = rows.Close()
 
-	out := map[string]afterLayout{}
-	rows, err = db.Query(`SELECT system_id, name, type, COALESCE(class,''), position_x, position_y, COALESCE(last_updated_tick,0)
-		FROM pois ORDER BY system_id, name`)
+	bySys := map[string][]poiRow{}
+	rows, err = db.Query(`SELECT system_id, name, type, COALESCE(class,''), position_x, position_y,
+		COALESCE(last_updated_tick,0), COALESCE(hidden,0) FROM pois ORDER BY system_id, name`)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = rows.Close() }()
 	for rows.Next() {
 		var sid string
-		var b Body
-		var tick int
-		if err := rows.Scan(&sid, &b.Name, &b.Type, &b.Class, &b.X, &b.Y, &tick); err != nil {
+		var r poiRow
+		if err := rows.Scan(&sid, &r.Name, &r.Type, &r.Class, &r.X, &r.Y, &r.tick, &r.hidden); err != nil {
 			return nil, err
 		}
-		a, ok := out[sid]
-		if !ok {
-			a = afterLayout{Layout: Layout{Name: names[sid]}, rescanned: true}
-		}
-		a.Bodies = append(a.Bodies, b)
-		a.rescanned = a.rescanned && tick >= RescaleTick
-		out[sid] = a
+		bySys[sid] = append(bySys[sid], r)
 	}
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	out := make(map[string]afterLayout, len(bySys))
+	for sid, rs := range bySys {
+		out[sid] = afterFromRows(names[sid], rs)
+	}
+	return out, nil
 }
 
 // compareSystems pairs every baseline system with its current layout, matching

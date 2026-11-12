@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nekkar - The Great Rescale - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../missions/missions.css">
+    <link rel="stylesheet" href="rescale.css">
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../../nav.js" defer></script>
+    </header>
+    <main class="container page-content kbm">
+        <div class="breadcrumb"><a href="../index.html">Did You Know?</a> / <a href="index.html">The Great Rescale</a> / Nekkar</div>
+        <h2>Nekkar <span class="text-muted">M2V · outermost body 7.10 → 2.89 AU</span></h2>
+        <p class="rc-intro"><a href="../../systems/nekkar/">Current Nekkar system page →</a></p>
+        <div class="rc-views">
+            <input type="radio" name="rc-scale" id="rc-own" checked><label for="rc-own">Own scale</label>
+            <input type="radio" name="rc-scale" id="rc-same"><label for="rc-same">Same scale</label>
+            <div class="rc-view rc-view-own"><svg class="rc-canvas" viewBox="0 0 880 440" role="img" aria-label="Nekkar before and after the v0.698 rescale"><text x="12" y="20" class="rc-label">BEFORE · v0.697 and earlier</text><text x="428" y="20" class="rc-note" text-anchor="end">outermost 7.10 AU</text><circle cx="220.0" cy="228.0" r="27.5" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="29.1" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="52.9" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="79.0" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="104.7" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="107.4" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="130.6" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="161.3" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Nekkar Star · (0, 0) · 0 AU from the star</title></circle><circle cx="246.3" cy="235.9" r="3.5" fill="#7fb3ff"><title>Nekkar I · (1.00, 0.30) · 1.04 AU from the star</title></circle><circle cx="248.9" cy="230.6" r="3.5" fill="#7ee0a6"><title>Woodstock · (1.10, 0.10) · 1.10 AU from the star</title></circle><circle cx="172.6" cy="204.3" r="3.5" fill="#7fb3ff"><title>Nekkar II · (-1.800, -0.900) · 2.01 AU from the star</title></circle><circle cx="151.6" cy="267.5" r="3.5" fill="#7fb3ff"><title>Nekkar III · (-2.600, 1.50) · 3.00 AU from the star</title></circle><circle cx="241.0" cy="125.4" r="3.5" fill="#7fb3ff"><title>Nekkar IV · (0.80, -3.900) · 3.98 AU from the star</title></circle><circle cx="312.1" cy="172.8" r="3.5" fill="#b9a68a"><title>Nekkar Belt · (3.50, -2.100) · 4.08 AU from the star</title></circle><circle cx="275.2" cy="346.4" r="3.5" fill="#7fb3ff"><title>Nekkar V · (2.10, 4.50) · 4.97 AU from the star</title></circle><circle cx="154.2" cy="375.3" r="3.5" fill="#b9a68a"><title>Dull Spark Scatter · (-2.500, 5.60) · 6.13 AU from the star</title></circle><circle cx="217.4" cy="414.8" r="3.5" fill="#a8e6ff"><title>Nekkar Frozen Drift · (-0.100, 7.10) · 7.10 AU from the star</title></circle><line x1="14" y1="430" x2="66.6" y2="430" class="rc-bar"/><text x="70.6" y="434" class="rc-note">2.00 AU</text><line x1="440" y1="0" x2="440" y2="440" class="rc-split"/><text x="452" y="20" class="rc-label">AFTER · v0.698 real scale</text><text x="868" y="20" class="rc-note" text-anchor="end">outermost 2.89 AU</text><circle cx="660.0" cy="228.0" r="32.5" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="17.2" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="4.2" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="8.1" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="10.9" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="16.2" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="26.4" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="4.2" class="rc-orbit"/><circle cx="646.3" cy="257.5" r="3.5" fill="#b9a68a"><title>Dull Spark Scatter · (-0.212, 0.46) · 0.50 AU from the star</title></circle><circle cx="675.2" cy="219.9" r="3.5" fill="#b9a68a"><title>Nekkar Belt · (0.24, -0.125) · 0.27 AU from the star</title></circle><circle cx="656.1" cy="414.8" r="3.5" fill="#a8e6ff"><title>Nekkar Frozen Drift · (-0.060, 2.89) · 2.89 AU from the star</title></circle><circle cx="663.3" cy="230.6" r="3.5" fill="#7fb3ff"><title>Nekkar I · (0.051, 0.040) · 0.065 AU from the star</title></circle><circle cx="653.4" cy="223.3" r="3.5" fill="#7fb3ff"><title>Nekkar II · (-0.102, -0.073) · 0.13 AU from the star</title></circle><circle cx="650.0" cy="232.4" r="3.5" fill="#7fb3ff"><title>Nekkar III · (-0.154, 0.068) · 0.17 AU from the star</title></circle><circle cx="663.9" cy="212.3" r="3.5" fill="#7fb3ff"><title>Nekkar IV · (0.061, -0.242) · 0.25 AU from the star</title></circle><circle cx="660.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Nekkar Star · (0, 0) · 0 AU from the star</title></circle><circle cx="670.7" cy="252.1" r="3.5" fill="#7fb3ff"><title>Nekkar V · (0.17, 0.37) · 0.41 AU from the star</title></circle><circle cx="664.2" cy="228.7" r="3.5" fill="#7ee0a6"><title>Woodstock · (0.064, 0.011) · 0.065 AU from the star</title></circle><line x1="454" y1="430" x2="518.6" y2="430" class="rc-bar"/><text x="522.6" y="434" class="rc-note">1.00 AU</text></svg>
+                <p class="text-muted rc-intro">Each half is scaled to fit its own system; compare sizes with the scale bars. Hover a dot for its position.</p></div>
+            <div class="rc-view rc-view-same"><svg class="rc-canvas" viewBox="0 0 880 440" role="img" aria-label="Nekkar before and after the v0.698 rescale"><text x="12" y="20" class="rc-label">BEFORE · v0.697 and earlier</text><text x="428" y="20" class="rc-note" text-anchor="end">outermost 7.10 AU</text><circle cx="220.0" cy="228.0" r="27.5" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="29.1" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="52.9" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="79.0" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="104.7" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="107.4" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="130.6" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="161.3" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Nekkar Star · (0, 0) · 0 AU from the star</title></circle><circle cx="246.3" cy="235.9" r="3.5" fill="#7fb3ff"><title>Nekkar I · (1.00, 0.30) · 1.04 AU from the star</title></circle><circle cx="248.9" cy="230.6" r="3.5" fill="#7ee0a6"><title>Woodstock · (1.10, 0.10) · 1.10 AU from the star</title></circle><circle cx="172.6" cy="204.3" r="3.5" fill="#7fb3ff"><title>Nekkar II · (-1.800, -0.900) · 2.01 AU from the star</title></circle><circle cx="151.6" cy="267.5" r="3.5" fill="#7fb3ff"><title>Nekkar III · (-2.600, 1.50) · 3.00 AU from the star</title></circle><circle cx="241.0" cy="125.4" r="3.5" fill="#7fb3ff"><title>Nekkar IV · (0.80, -3.900) · 3.98 AU from the star</title></circle><circle cx="312.1" cy="172.8" r="3.5" fill="#b9a68a"><title>Nekkar Belt · (3.50, -2.100) · 4.08 AU from the star</title></circle><circle cx="275.2" cy="346.4" r="3.5" fill="#7fb3ff"><title>Nekkar V · (2.10, 4.50) · 4.97 AU from the star</title></circle><circle cx="154.2" cy="375.3" r="3.5" fill="#b9a68a"><title>Dull Spark Scatter · (-2.500, 5.60) · 6.13 AU from the star</title></circle><circle cx="217.4" cy="414.8" r="3.5" fill="#a8e6ff"><title>Nekkar Frozen Drift · (-0.100, 7.10) · 7.10 AU from the star</title></circle><line x1="14" y1="430" x2="66.6" y2="430" class="rc-bar"/><text x="70.6" y="434" class="rc-note">2.00 AU</text><line x1="440" y1="0" x2="440" y2="440" class="rc-split"/><text x="452" y="20" class="rc-label">AFTER · v0.698 real scale</text><text x="868" y="20" class="rc-note" text-anchor="end">outermost 2.89 AU</text><circle cx="660.0" cy="228.0" r="13.2" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="7.0" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="76.0" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="1.7" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="3.3" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="4.4" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="6.6" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="10.7" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="1.7" class="rc-orbit"/><circle cx="654.4" cy="240.0" r="3.5" fill="#b9a68a"><title>Dull Spark Scatter · (-0.212, 0.46) · 0.50 AU from the star</title></circle><circle cx="666.2" cy="224.7" r="3.5" fill="#b9a68a"><title>Nekkar Belt · (0.24, -0.125) · 0.27 AU from the star</title></circle><circle cx="658.4" cy="304.0" r="3.5" fill="#a8e6ff"><title>Nekkar Frozen Drift · (-0.060, 2.89) · 2.89 AU from the star</title></circle><circle cx="661.3" cy="229.1" r="3.5" fill="#7fb3ff"><title>Nekkar I · (0.051, 0.040) · 0.065 AU from the star</title></circle><circle cx="657.3" cy="226.1" r="3.5" fill="#7fb3ff"><title>Nekkar II · (-0.102, -0.073) · 0.13 AU from the star</title></circle><circle cx="655.9" cy="229.8" r="3.5" fill="#7fb3ff"><title>Nekkar III · (-0.154, 0.068) · 0.17 AU from the star</title></circle><circle cx="661.6" cy="221.6" r="3.5" fill="#7fb3ff"><title>Nekkar IV · (0.061, -0.242) · 0.25 AU from the star</title></circle><circle cx="660.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Nekkar Star · (0, 0) · 0 AU from the star</title></circle><circle cx="664.4" cy="237.8" r="3.5" fill="#7fb3ff"><title>Nekkar V · (0.17, 0.37) · 0.41 AU from the star</title></circle><circle cx="661.7" cy="228.3" r="3.5" fill="#7ee0a6"><title>Woodstock · (0.064, 0.011) · 0.065 AU from the star</title></circle><line x1="454" y1="430" x2="506.6" y2="430" class="rc-bar"/><text x="510.6" y="434" class="rc-note">2.00 AU</text></svg>
+                <p class="text-muted rc-intro">Both halves share one scale, set by the larger layout, so the change in size shows directly. Hover a dot for its position.</p></div>
+        </div>
+        <table class="kbm-rows rc-table">
+            <colgroup><col><col class="c-num"><col class="c-num"><col class="c-num"></colgroup>
+            <thead><tr><th>Body</th><th class="r">Before (AU)</th><th class="r">After (AU)</th><th class="r">Change</th></tr></thead>
+            <tbody>
+                <tr><td>Nekkar Star</td><td class="value">0</td><td class="value">0</td><td class="value"></td></tr>
+                <tr><td>Nekkar I</td><td class="value">1.04</td><td class="value">0.065</td><td class="value">×6.2e-2</td></tr>
+                <tr><td>Woodstock</td><td class="value">1.10</td><td class="value">0.065</td><td class="value">×5.9e-2</td></tr>
+                <tr><td>Nekkar II</td><td class="value">2.01</td><td class="value">0.13</td><td class="value">×6.2e-2</td></tr>
+                <tr><td>Nekkar III</td><td class="value">3.00</td><td class="value">0.17</td><td class="value">×5.6e-2</td></tr>
+                <tr><td>Nekkar IV</td><td class="value">3.98</td><td class="value">0.25</td><td class="value">×6.3e-2</td></tr>
+                <tr><td>Nekkar Belt</td><td class="value">4.08</td><td class="value">0.27</td><td class="value">×6.5e-2</td></tr>
+                <tr><td>Nekkar V</td><td class="value">4.97</td><td class="value">0.41</td><td class="value">×8.2e-2</td></tr>
+                <tr><td>Dull Spark Scatter</td><td class="value">6.13</td><td class="value">0.50</td><td class="value">×8.2e-2</td></tr>
+                <tr><td>Nekkar Frozen Drift</td><td class="value">7.10</td><td class="value">2.89</td><td class="value">×0.4</td></tr>
+            </tbody>
+        </table>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        if (toggle) toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

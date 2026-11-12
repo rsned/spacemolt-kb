@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Light - The Great Rescale - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../missions/missions.css">
+    <link rel="stylesheet" href="rescale.css">
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../../nav.js" defer></script>
+    </header>
+    <main class="container page-content kbm">
+        <div class="breadcrumb"><a href="../index.html">Did You Know?</a> / <a href="index.html">The Great Rescale</a> / Last Light</div>
+        <h2>Last Light <span class="text-muted">G3V · outermost body 5.60 → 2.42 AU</span></h2>
+        <p class="rc-intro"><a href="../../systems/last_light/">Current Last Light system page →</a></p>
+        <div class="rc-views">
+            <input type="radio" name="rc-scale" id="rc-own" checked><label for="rc-own">Own scale</label>
+            <input type="radio" name="rc-scale" id="rc-same"><label for="rc-same">Same scale</label>
+            <div class="rc-view rc-view-own"><svg class="rc-canvas" viewBox="0 0 880 440" role="img" aria-label="Last Light before and after the v0.698 rescale"><text x="12" y="20" class="rc-label">BEFORE · v0.697 and earlier</text><text x="428" y="20" class="rc-note" text-anchor="end">outermost 5.60 AU</text><circle cx="220.0" cy="228.0" r="33.4" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="66.7" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="67.5" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="100.1" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="134.2" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="134.5" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Eventide · (0, 0) · 0 AU from the star</title></circle><circle cx="220.0" cy="194.6" r="3.5" fill="#7fb3ff"><title>Last Light I · (0, -1.000) · 1.00 AU from the star</title></circle><circle cx="286.7" cy="228.0" r="3.5" fill="#7fb3ff"><title>Last Light II · (2.00, 0) · 2.00 AU from the star</title></circle><circle cx="286.7" cy="238.0" r="3.5" fill="#7ee0a6"><title>Ramen&#39;s Rest · (2.00, 0.30) · 2.02 AU from the star</title></circle><circle cx="139.9" cy="167.9" r="3.5" fill="#7fb3ff"><title>Last Light III · (-2.400, -1.800) · 3.00 AU from the star</title></circle><circle cx="330.1" cy="151.2" r="3.5" fill="#b9a68a"><title>Last Light Mineral Fields · (3.30, -2.300) · 4.02 AU from the star</title></circle><circle cx="336.8" cy="161.3" r="3.5" fill="#7fb3ff"><title>Last Light IV · (3.50, -2.000) · 4.03 AU from the star</title></circle><circle cx="159.9" cy="51.1" r="3.5" fill="#c79bff"><title>Last Light Nebula · (-1.800, -5.300) · 5.60 AU from the star</title></circle><line x1="14" y1="430" x2="80.7" y2="430" class="rc-bar"/><text x="84.7" y="434" class="rc-note">2.00 AU</text><line x1="440" y1="0" x2="440" y2="440" class="rc-split"/><text x="452" y="20" class="rc-label">AFTER · v0.698 real scale</text><text x="868" y="20" class="rc-note" text-anchor="end">outermost 2.42 AU</text><circle cx="660.0" cy="228.0" r="50.5" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="68.2" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="92.1" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="134.3" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="133.4" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="68.3" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Eventide · (0, 0) · 0 AU from the star</title></circle><circle cx="662.5" cy="177.5" r="3.5" fill="#7fb3ff"><title>Last Light I · (0.033, -0.655) · 0.66 AU from the star</title></circle><circle cx="728.2" cy="228.9" r="3.5" fill="#7fb3ff"><title>Last Light II · (0.89, 0.012) · 0.89 AU from the star</title></circle><circle cx="587.5" cy="171.2" r="3.5" fill="#7fb3ff"><title>Last Light III · (-0.941, -0.738) · 1.20 AU from the star</title></circle><circle cx="775.9" cy="160.2" r="3.5" fill="#7fb3ff"><title>Last Light IV · (1.50, -0.880) · 1.74 AU from the star</title></circle><circle cx="769.8" cy="152.3" r="3.5" fill="#b9a68a"><title>Last Light Mineral Fields · (1.42, -0.983) · 1.73 AU from the star</title></circle><circle cx="599.2" cy="51.4" r="3.5" fill="#c79bff"><title>Last Light Nebula · (-0.789, -2.292) · 2.42 AU from the star</title></circle><circle cx="728.2" cy="230.5" r="3.5" fill="#7ee0a6"><title>Ramen&#39;s Rest · (0.89, 0.032) · 0.89 AU from the star</title></circle><line x1="454" y1="430" x2="492.5" y2="430" class="rc-bar"/><text x="496.5" y="434" class="rc-note">0.50 AU</text></svg>
+                <p class="text-muted rc-intro">Each half is scaled to fit its own system; compare sizes with the scale bars. Hover a dot for its position.</p></div>
+            <div class="rc-view rc-view-same"><svg class="rc-canvas" viewBox="0 0 880 440" role="img" aria-label="Last Light before and after the v0.698 rescale"><text x="12" y="20" class="rc-label">BEFORE · v0.697 and earlier</text><text x="428" y="20" class="rc-note" text-anchor="end">outermost 5.60 AU</text><circle cx="220.0" cy="228.0" r="33.4" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="66.7" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="67.5" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="100.1" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="134.2" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="134.5" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Eventide · (0, 0) · 0 AU from the star</title></circle><circle cx="220.0" cy="194.6" r="3.5" fill="#7fb3ff"><title>Last Light I · (0, -1.000) · 1.00 AU from the star</title></circle><circle cx="286.7" cy="228.0" r="3.5" fill="#7fb3ff"><title>Last Light II · (2.00, 0) · 2.00 AU from the star</title></circle><circle cx="286.7" cy="238.0" r="3.5" fill="#7ee0a6"><title>Ramen&#39;s Rest · (2.00, 0.30) · 2.02 AU from the star</title></circle><circle cx="139.9" cy="167.9" r="3.5" fill="#7fb3ff"><title>Last Light III · (-2.400, -1.800) · 3.00 AU from the star</title></circle><circle cx="330.1" cy="151.2" r="3.5" fill="#b9a68a"><title>Last Light Mineral Fields · (3.30, -2.300) · 4.02 AU from the star</title></circle><circle cx="336.8" cy="161.3" r="3.5" fill="#7fb3ff"><title>Last Light IV · (3.50, -2.000) · 4.03 AU from the star</title></circle><circle cx="159.9" cy="51.1" r="3.5" fill="#c79bff"><title>Last Light Nebula · (-1.800, -5.300) · 5.60 AU from the star</title></circle><line x1="14" y1="430" x2="80.7" y2="430" class="rc-bar"/><text x="84.7" y="434" class="rc-note">2.00 AU</text><line x1="440" y1="0" x2="440" y2="440" class="rc-split"/><text x="452" y="20" class="rc-label">AFTER · v0.698 real scale</text><text x="868" y="20" class="rc-note" text-anchor="end">outermost 2.42 AU</text><circle cx="660.0" cy="228.0" r="21.9" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="29.6" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="39.9" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="58.2" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="57.8" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="80.9" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="29.6" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Eventide · (0, 0) · 0 AU from the star</title></circle><circle cx="661.1" cy="206.1" r="3.5" fill="#7fb3ff"><title>Last Light I · (0.033, -0.655) · 0.66 AU from the star</title></circle><circle cx="689.6" cy="228.4" r="3.5" fill="#7fb3ff"><title>Last Light II · (0.89, 0.012) · 0.89 AU from the star</title></circle><circle cx="628.6" cy="203.4" r="3.5" fill="#7fb3ff"><title>Last Light III · (-0.941, -0.738) · 1.20 AU from the star</title></circle><circle cx="710.2" cy="198.6" r="3.5" fill="#7fb3ff"><title>Last Light IV · (1.50, -0.880) · 1.74 AU from the star</title></circle><circle cx="707.6" cy="195.2" r="3.5" fill="#b9a68a"><title>Last Light Mineral Fields · (1.42, -0.983) · 1.73 AU from the star</title></circle><circle cx="633.7" cy="151.5" r="3.5" fill="#c79bff"><title>Last Light Nebula · (-0.789, -2.292) · 2.42 AU from the star</title></circle><circle cx="689.5" cy="229.1" r="3.5" fill="#7ee0a6"><title>Ramen&#39;s Rest · (0.89, 0.032) · 0.89 AU from the star</title></circle><line x1="454" y1="430" x2="520.7" y2="430" class="rc-bar"/><text x="524.7" y="434" class="rc-note">2.00 AU</text></svg>
+                <p class="text-muted rc-intro">Both halves share one scale, set by the larger layout, so the change in size shows directly. Hover a dot for its position.</p></div>
+        </div>
+        <table class="kbm-rows rc-table">
+            <colgroup><col><col class="c-num"><col class="c-num"><col class="c-num"></colgroup>
+            <thead><tr><th>Body</th><th class="r">Before (AU)</th><th class="r">After (AU)</th><th class="r">Change</th></tr></thead>
+            <tbody>
+                <tr><td>Eventide</td><td class="value">0</td><td class="value">0</td><td class="value"></td></tr>
+                <tr><td>Last Light I</td><td class="value">1.00</td><td class="value">0.66</td><td class="value">×0.7</td></tr>
+                <tr><td>Last Light II</td><td class="value">2.00</td><td class="value">0.89</td><td class="value">×0.4</td></tr>
+                <tr><td>Ramen&#39;s Rest</td><td class="value">2.02</td><td class="value">0.89</td><td class="value">×0.4</td></tr>
+                <tr><td>Last Light III</td><td class="value">3.00</td><td class="value">1.20</td><td class="value">×0.4</td></tr>
+                <tr><td>Last Light Mineral Fields</td><td class="value">4.02</td><td class="value">1.73</td><td class="value">×0.4</td></tr>
+                <tr><td>Last Light IV</td><td class="value">4.03</td><td class="value">1.74</td><td class="value">×0.4</td></tr>
+                <tr><td>Last Light Nebula</td><td class="value">5.60</td><td class="value">2.42</td><td class="value">×0.4</td></tr>
+            </tbody>
+        </table>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        if (toggle) toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

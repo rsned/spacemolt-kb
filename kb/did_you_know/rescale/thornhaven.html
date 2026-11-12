@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thornhaven - The Great Rescale - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../missions/missions.css">
+    <link rel="stylesheet" href="rescale.css">
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../../nav.js" defer></script>
+    </header>
+    <main class="container page-content kbm">
+        <div class="breadcrumb"><a href="../index.html">Did You Know?</a> / <a href="index.html">The Great Rescale</a> / Thornhaven</div>
+        <h2>Thornhaven <span class="text-muted">M2V · outermost body 7.29 → 0.30 AU</span></h2>
+        <p class="rc-intro"><a href="../../systems/thornhaven/">Current Thornhaven system page →</a></p>
+        <div class="rc-views">
+            <input type="radio" name="rc-scale" id="rc-own" checked><label for="rc-own">Own scale</label>
+            <input type="radio" name="rc-scale" id="rc-same"><label for="rc-same">Same scale</label>
+            <div class="rc-view rc-view-own"><svg class="rc-canvas" viewBox="0 0 880 440" role="img" aria-label="Thornhaven before and after the v0.698 rescale"><text x="12" y="20" class="rc-label">BEFORE · v0.697 and earlier</text><text x="428" y="20" class="rc-note" text-anchor="end">outermost 7.29 AU</text><circle cx="220.0" cy="228.0" r="26.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="51.9" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="114.6" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Thornhaven Star · (0, 0) · 0 AU from the star</title></circle><circle cx="212.3" cy="253.6" r="3.5" fill="#7fb3ff"><title>Thornhaven I · (-0.300, 1.00) · 1.04 AU from the star</title></circle><circle cx="237.9" cy="276.7" r="3.5" fill="#7fb3ff"><title>Thornhaven II · (0.70, 1.90) · 2.02 AU from the star</title></circle><circle cx="117.5" cy="176.8" r="3.5" fill="#d9a3ff"><title>Dimming Pocket · (-4.000, -2.000) · 4.47 AU from the star</title></circle><circle cx="386.6" cy="312.6" r="3.5" fill="#cccccc"><title>Collapsed Wormhole · (6.50, 3.30) · 7.29 AU from the star</title></circle><line x1="14" y1="430" x2="65.2" y2="430" class="rc-bar"/><text x="69.2" y="434" class="rc-note">2.00 AU</text><line x1="440" y1="0" x2="440" y2="440" class="rc-split"/><text x="452" y="20" class="rc-label">AFTER · v0.698 real scale</text><text x="868" y="20" class="rc-note" text-anchor="end">outermost 0.30 AU</text><circle cx="660.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="40.2" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="83.3" class="rc-orbit"/><circle cx="492.7" cy="145.0" r="3.5" fill="#d9a3ff"><title>Dimming Pocket · (-0.269, -0.133) · 0.30 AU from the star</title></circle><circle cx="648.4" cy="266.5" r="3.5" fill="#7fb3ff"><title>Thornhaven I · (-0.019, 0.062) · 0.065 AU from the star</title></circle><circle cx="687.0" cy="306.8" r="3.5" fill="#7fb3ff"><title>Thornhaven II · (0.043, 0.13) · 0.13 AU from the star</title></circle><circle cx="660.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Thornhaven Star · (0, 0) · 0 AU from the star</title></circle><line x1="454" y1="430" x2="516.3" y2="430" class="rc-bar"/><text x="520.3" y="434" class="rc-note">0.10 AU</text></svg>
+                <p class="text-muted rc-intro">Each half is scaled to fit its own system; compare sizes with the scale bars. Hover a dot for its position.</p></div>
+            <div class="rc-view rc-view-same"><svg class="rc-canvas" viewBox="0 0 880 440" role="img" aria-label="Thornhaven before and after the v0.698 rescale"><text x="12" y="20" class="rc-label">BEFORE · v0.697 and earlier</text><text x="428" y="20" class="rc-note" text-anchor="end">outermost 7.29 AU</text><circle cx="220.0" cy="228.0" r="26.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="51.9" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="114.6" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="186.8" class="rc-orbit"/><circle cx="220.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Thornhaven Star · (0, 0) · 0 AU from the star</title></circle><circle cx="212.3" cy="253.6" r="3.5" fill="#7fb3ff"><title>Thornhaven I · (-0.300, 1.00) · 1.04 AU from the star</title></circle><circle cx="237.9" cy="276.7" r="3.5" fill="#7fb3ff"><title>Thornhaven II · (0.70, 1.90) · 2.02 AU from the star</title></circle><circle cx="117.5" cy="176.8" r="3.5" fill="#d9a3ff"><title>Dimming Pocket · (-4.000, -2.000) · 4.47 AU from the star</title></circle><circle cx="386.6" cy="312.6" r="3.5" fill="#cccccc"><title>Collapsed Wormhole · (6.50, 3.30) · 7.29 AU from the star</title></circle><line x1="14" y1="430" x2="65.2" y2="430" class="rc-bar"/><text x="69.2" y="434" class="rc-note">2.00 AU</text><line x1="440" y1="0" x2="440" y2="440" class="rc-split"/><text x="452" y="20" class="rc-label">AFTER · v0.698 real scale</text><text x="868" y="20" class="rc-note" text-anchor="end">outermost 0.30 AU</text><circle cx="660.0" cy="228.0" r="7.7" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="1.7" class="rc-orbit"/><circle cx="660.0" cy="228.0" r="3.4" class="rc-orbit"/><circle cx="653.1" cy="224.6" r="3.5" fill="#d9a3ff"><title>Dimming Pocket · (-0.269, -0.133) · 0.30 AU from the star</title></circle><circle cx="659.5" cy="229.6" r="3.5" fill="#7fb3ff"><title>Thornhaven I · (-0.019, 0.062) · 0.065 AU from the star</title></circle><circle cx="661.1" cy="231.2" r="3.5" fill="#7fb3ff"><title>Thornhaven II · (0.043, 0.13) · 0.13 AU from the star</title></circle><circle cx="660.0" cy="228.0" r="7.0" fill="#ffd27a"><title>Thornhaven Star · (0, 0) · 0 AU from the star</title></circle><line x1="454" y1="430" x2="505.2" y2="430" class="rc-bar"/><text x="509.2" y="434" class="rc-note">2.00 AU</text></svg>
+                <p class="text-muted rc-intro">Both halves share one scale, set by the larger layout, so the change in size shows directly. Hover a dot for its position.</p></div>
+        </div>
+        <table class="kbm-rows rc-table">
+            <colgroup><col><col class="c-num"><col class="c-num"><col class="c-num"></colgroup>
+            <thead><tr><th>Body</th><th class="r">Before (AU)</th><th class="r">After (AU)</th><th class="r">Change</th></tr></thead>
+            <tbody>
+                <tr><td>Thornhaven Star</td><td class="value">0</td><td class="value">0</td><td class="value"></td></tr>
+                <tr><td>Thornhaven I</td><td class="value">1.04</td><td class="value">0.065</td><td class="value">×6.2e-2</td></tr>
+                <tr><td>Thornhaven II</td><td class="value">2.02</td><td class="value">0.13</td><td class="value">×6.6e-2</td></tr>
+                <tr><td>Dimming Pocket</td><td class="value">4.47</td><td class="value">0.30</td><td class="value">×6.7e-2</td></tr>
+                <tr class="leg-elsewhere"><td>Collapsed Wormhole</td><td class="value">7.29</td><td class="value">—</td><td class="value">gone</td></tr>
+            </tbody>
+        </table>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        if (toggle) toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

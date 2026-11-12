@@ -121,3 +121,31 @@ func TestSplitSVGSameScale(t *testing.T) {
 		t.Error("halves should still label their own outermost body")
 	}
 }
+
+func TestIsRescanned(t *testing.T) {
+	const old, fresh = RescaleTick - 10, RescaleTick + 10
+	row := func(typ string, tick int, hidden bool) poiRow {
+		return poiRow{Body: Body{Name: typ, Type: typ}, tick: tick, hidden: hidden}
+	}
+	cases := []struct {
+		name string
+		rows []poiRow
+		want bool
+	}{
+		{"all fresh", []poiRow{row("sun", fresh, false), row("planet", fresh, false)}, true},
+		{"stale collapsed wormhole ignored", []poiRow{row("sun", fresh, false), row("planet", fresh, false), row("wormhole_collapsed", old, false)}, true},
+		{"stale hidden belt ignored", []poiRow{row("sun", fresh, false), row("planet", fresh, false), row("asteroid_belt", old, true)}, true},
+		{"stale planet blocks", []poiRow{row("sun", fresh, false), row("planet", old, false)}, false},
+		{"no planets: visible belt must be fresh", []poiRow{row("sun", fresh, false), row("asteroid_belt", old, false)}, false},
+		{"no planets: all visible fresh", []poiRow{row("sun", fresh, false), row("asteroid_belt", fresh, false), row("wormhole_collapsed", old, false)}, true},
+	}
+	for _, c := range cases {
+		if got := isRescanned(c.rows); got != c.want {
+			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		}
+	}
+	a := afterFromRows("S", []poiRow{row("sun", fresh, false), row("planet", fresh, false), row("wormhole_collapsed", old, false)})
+	if len(a.Bodies) != 2 {
+		t.Errorf("stale records should be left off the after side: %d bodies", len(a.Bodies))
+	}
+}
