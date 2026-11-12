@@ -315,6 +315,9 @@ type SystemPOI struct {
 	// wormhole entrance / exit (see linkWormholes).
 	WormholeTo   *WormholeEnd
 	WormholeFrom *WormholeEnd
+	// LastUpdatedTick is when an agent last recorded this POI. Wormholes are
+	// temporary, so their links show this as an age.
+	LastUpdatedTick int
 }
 
 // POIResource is a resource found at a POI.
@@ -1950,7 +1953,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 
 	// Load POIs.
-	poiRows, err := db.Query(`SELECT p.system_id, p.id, p.name, p.type, COALESCE(p.class,''), COALESCE(p.description,''), p.position_x, p.position_y, p.hidden, p.reveal_difficulty FROM pois p WHERE ` + kbpoi.Live + ` ORDER BY p.system_id, p.name`)
+	poiRows, err := db.Query(`SELECT p.system_id, p.id, p.name, p.type, COALESCE(p.class,''), COALESCE(p.description,''), p.position_x, p.position_y, p.hidden, p.reveal_difficulty, COALESCE(p.last_updated_tick,0) FROM pois p WHERE ` + kbpoi.Live + ` ORDER BY p.system_id, p.name`)
 	if err != nil {
 		return nil, err
 	}
@@ -1959,7 +1962,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	for poiRows.Next() {
 		var systemID string
 		var poi SystemPOI
-		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY, &poi.Hidden, &poi.RevealDifficulty); err != nil {
+		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY, &poi.Hidden, &poi.RevealDifficulty, &poi.LastUpdatedTick); err != nil {
 			return nil, err
 		}
 		if s, ok := systemMap[systemID]; ok {
@@ -3635,7 +3638,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
               <td style="text-align:right;white-space:nowrap">{{poiPos .}}</td>
               <td>{{if .Hidden}}<span class="badge badge-yellow">Yes</span>{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{if .Hidden}}{{.RevealDifficulty}}{{else}}<span class="text-muted">—</span>{{end}}</td>
-              <td>{{with .WormholeTo}}<a href="../{{.ID}}/">&rarr; {{.Name}}</a> <span class="badge badge-muted" title="Wormholes only run one way">one-way</span><br>{{end}}{{with .WormholeFrom}}<span class="text-muted">exit from</span> <a href="../{{.ID}}/">{{.Name}}</a><br>{{end}}{{if .Description}}{{.Description}}{{else if $.LastUpdatedTick}}<span class="text-muted">—</span>{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
+              <td>{{with .WormholeTo}}<a href="../{{.ID}}/">&rarr; {{.Name}}</a> <span class="badge badge-muted" title="Wormholes only run one way">one-way</span> <span class="text-muted" title="Wormholes are temporary; this is when an agent last saw it">· seen {{.SeenAgo}}{{if ne .SeenAgo "just now"}} ago{{end}}</span><br>{{end}}{{with .WormholeFrom}}<span class="text-muted">exit from</span> <a href="../{{.ID}}/">{{.Name}}</a> <span class="text-muted" title="Wormholes are temporary; this is when an agent last saw it">· seen {{.SeenAgo}}{{if ne .SeenAgo "just now"}} ago{{end}}</span><br>{{end}}{{if .Description}}{{.Description}}{{else if $.LastUpdatedTick}}<span class="text-muted">—</span>{{else}}<span class="text-muted">Unexplored</span>{{end}}</td>
             </tr>
 {{- end}}
             </tbody>

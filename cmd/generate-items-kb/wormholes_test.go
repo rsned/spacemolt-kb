@@ -4,10 +4,10 @@ import "testing"
 
 func TestLinkWormholesPairsBothIDSchemes(t *testing.T) {
 	sac := &System{ID: "saclateni", Name: "Saclateni", POIs: []SystemPOI{
-		{ID: "wh_entrance_72e87d7c", Type: "wormhole_entrance"},
+		{ID: "wh_entrance_72e87d7c", Type: "wormhole_entrance", LastUpdatedTick: 1000 - 360*3},
 	}}
 	okab := &System{ID: "okab", Name: "Okab", POIs: []SystemPOI{
-		{ID: "wh_exit_72e87d7c", Type: "wormhole_exit"},
+		{ID: "wh_exit_72e87d7c", Type: "wormhole_exit", LastUpdatedTick: 1000},
 	}}
 	alz := &System{ID: "alzirr", Name: "Alzirr", POIs: []SystemPOI{
 		{ID: "leap_of_faith", Type: "wormhole_entrance"},
@@ -22,8 +22,11 @@ func TestLinkWormholesPairsBothIDSchemes(t *testing.T) {
 	}}
 	linkWormholes([]*System{sac, okab, alz, pra, lone})
 
-	if got := sac.POIs[0].WormholeTo; got == nil || got.ID != "okab" || got.Name != "Okab" {
-		t.Errorf("saclateni entrance -> %+v", got)
+	if got := sac.POIs[0].WormholeTo; got == nil || got.ID != "okab" || got.Name != "Okab" || got.SeenAgo != "3h" {
+		t.Errorf("saclateni entrance -> %+v (age measured from the newest POI tick, 10 s/tick)", got)
+	}
+	if got := okab.POIs[0].WormholeFrom; got == nil || got.SeenAgo != "just now" {
+		t.Errorf("okab exit seen = %+v", got)
 	}
 	if got := okab.POIs[0].WormholeFrom; got == nil || got.ID != "saclateni" {
 		t.Errorf("okab exit <- %+v", got)
@@ -39,5 +42,13 @@ func TestLinkWormholesPairsBothIDSchemes(t *testing.T) {
 	}
 	if lone.POIs[0].WormholeTo != nil {
 		t.Error("an entrance with no recorded exit must stay unlinked")
+	}
+}
+
+func TestHumanAge(t *testing.T) {
+	for ticks, want := range map[int]string{0: "just now", 5: "just now", 6: "1m", 359: "59m", 360: "1h", 360 * 47: "47h", 360 * 48: "2d", 360 * 24 * 9: "9d"} {
+		if got := humanAge(ticks); got != want {
+			t.Errorf("humanAge(%d) = %q, want %q", ticks, got, want)
+		}
 	}
 }
