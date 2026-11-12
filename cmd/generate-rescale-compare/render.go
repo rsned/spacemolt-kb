@@ -5,6 +5,7 @@ import (
 	"fmt"
 	htmltpl "html/template"
 	"math"
+	"strconv"
 	"strings"
 
 	"github.com/rsned/spacemolt-kb/internal/kbnav"
@@ -32,6 +33,13 @@ func scaleBar(r float64) float64 {
 	return 100
 }
 
+// sciShort formats a small ratio as "1.7e-2": one decimal, exponent unpadded.
+func sciShort(v float64) string {
+	m, e, _ := strings.Cut(fmt.Sprintf("%.1e", v), "e")
+	exp, _ := strconv.Atoi(e)
+	return m + "e" + strconv.Itoa(exp)
+}
+
 func fmtAU(v float64) string {
 	switch {
 	case v == 0:
@@ -47,15 +55,17 @@ func fmtAU(v float64) string {
 
 // half draws one side of the split canvas: orbit rings, one dot per body and a
 // scale bar, scaled to fit its own system.
-func half(b *strings.Builder, bodies []Body, x0, w, h float64, label string) {
-	r := extent(bodies)
+// fit is the radius (AU) the half is scaled to: its own outermost body, or
+// on the same-scale view the larger of the two sides.
+func half(b *strings.Builder, bodies []Body, x0, w, h, fit float64, label string) {
+	r := fit
 	if r == 0 {
 		r = 1
 	}
 	s := (math.Min(w, h)/2 - 22) / (r * 1.06)
 	cx, cy := x0+w/2, h/2+8
 	fmt.Fprintf(b, `<text x="%.0f" y="20" class="rc-label">%s</text>`, x0+12, htmltpl.HTMLEscapeString(label))
-	fmt.Fprintf(b, `<text x="%.0f" y="20" class="rc-note" text-anchor="end">outermost %s AU</text>`, x0+w-12, fmtAU(r))
+	fmt.Fprintf(b, `<text x="%.0f" y="20" class="rc-note" text-anchor="end">outermost %s AU</text>`, x0+w-12, fmtAU(extent(bodies)))
 	for _, p := range bodies {
 		if d := math.Hypot(p.X, p.Y); d > 0 {
 			fmt.Fprintf(b, `<circle cx="%.1f" cy="%.1f" r="%.1f" class="rc-orbit"/>`, cx, cy, d*s)
@@ -78,14 +88,21 @@ func half(b *strings.Builder, bodies []Body, x0, w, h float64, label string) {
 		x0+14, h-10, x0+14+bar*s, h-10, x0+18+bar*s, h-6, fmtAU(bar))
 }
 
-// splitSVG is the before/after canvas, split down the middle.
-func splitSVG(s System) htmltpl.HTML {
+// splitSVG is the before/after canvas, split down the middle. With same set,
+// both halves share one scale (the larger system) so the size change shows;
+// otherwise each half is scaled to fit its own system.
+func splitSVG(s System, same bool) htmltpl.HTML {
 	const w, h = 880.0, 440.0
 	var b strings.Builder
 	fmt.Fprintf(&b, `<svg class="rc-canvas" viewBox="0 0 %.0f %.0f" role="img" aria-label="%s before and after the v0.698 rescale">`, w, h, htmltpl.HTMLEscapeString(s.Name))
-	half(&b, s.Before, 0, w/2, h, "BEFORE · v0.697 and earlier")
+	fb, fa := extent(s.Before), extent(s.After)
+	if same {
+		fb = math.Max(fb, fa)
+		fa = fb
+	}
+	half(&b, s.Before, 0, w/2, h, fb, "BEFORE · v0.697 and earlier")
 	fmt.Fprintf(&b, `<line x1="%.0f" y1="0" x2="%.0f" y2="%.0f" class="rc-split"/>`, w/2, w/2, h)
-	half(&b, s.After, w/2, w/2, h, "AFTER · v0.698 real scale")
+	half(&b, s.After, w/2, w/2, h, fa, "AFTER · v0.698 real scale")
 	b.WriteString(`</svg>`)
 	return htmltpl.HTML(b.String()) //nolint:gosec // built from escaped values above
 }
@@ -103,6 +120,9 @@ var funcs = htmltpl.FuncMap{
 			// Before-side positions are rounded to 0.1 AU, so a smaller
 			// move is rounding, not a change.
 			return ""
+		}
+		if r.Ratio() < 0.1 {
+			return "×" + sciShort(r.Ratio())
 		}
 		return fmt.Sprintf("×%.1f", r.Ratio())
 	},
@@ -157,8 +177,14 @@ var detailTmpl = htmltpl.Must(htmltpl.New("detail").Funcs(funcs).Parse(pageHead 
         <div class="breadcrumb"><a href="../index.html">Did You Know?</a> / <a href="index.html">The Great Rescale</a> / {{.S.Name}}</div>
         <h2>{{.S.Name}} <span class="text-muted">{{with .S.Class}}{{.}} · {{end}}outermost body {{au .S.BeforeExtent}} → {{au .S.AfterExtent}} AU</span></h2>
         <p class="rc-intro"><a href="../../systems/{{.S.ID}}/">Current {{.S.Name}} system page →</a></p>
-        {{splitSVG .S}}
-        <p class="text-muted rc-intro">Each half is scaled to fit its own system; compare sizes with the scale bars. Hover a dot for its position.</p>
+        <div class="rc-views">
+            <input type="radio" name="rc-scale" id="rc-own" checked><label for="rc-own">Own scale</label>
+            <input type="radio" name="rc-scale" id="rc-same"><label for="rc-same">Same scale</label>
+            <div class="rc-view rc-view-own">{{splitSVG .S false}}
+                <p class="text-muted rc-intro">Each half is scaled to fit its own system; compare sizes with the scale bars. Hover a dot for its position.</p></div>
+            <div class="rc-view rc-view-same">{{splitSVG .S true}}
+                <p class="text-muted rc-intro">Both halves share one scale, set by the larger layout, so the change in size shows directly. Hover a dot for its position.</p></div>
+        </div>
         <table class="kbm-rows rc-table">
             <colgroup><col><col class="c-num"><col class="c-num"><col class="c-num"></colgroup>
             <thead><tr><th>Body</th><th class="r">Before (AU)</th><th class="r">After (AU)</th><th class="r">Change</th></tr></thead>
@@ -178,6 +204,13 @@ const css = `/* The Great Rescale compare pages (generate-rescale-compare). */
 .rc-split { stroke: #ffffff44; stroke-dasharray: 4 4; }
 .rc-bar { stroke: #cfd8e3; }
 .rc-table { margin-top: 0.8rem; }
+.rc-views > input { position: absolute; opacity: 0; }
+.rc-views > label { display: inline-block; padding: 0.25rem 0.7rem; margin: 0 0.3rem 0.5rem 0; font-size: 12.5px;
+  border: 1px solid hsl(var(--border)); border-radius: 999px; cursor: pointer; color: hsl(var(--muted-foreground)); }
+.rc-views > input:checked + label { color: hsl(var(--foreground)); border-color: hsl(var(--primary)); background: hsl(var(--accent)); }
+.rc-views > input:focus-visible + label { outline: 2px solid hsl(var(--primary)); }
+.rc-view { display: none; }
+#rc-own:checked ~ .rc-view-own, #rc-same:checked ~ .rc-view-same { display: block; }
 .rc-table th.r { text-align: right; }
 .rc-pending { padding: 0.4rem 0.25rem; border-bottom: 1px solid hsl(var(--border) / 0.6); color: hsl(var(--muted-foreground)); }
 .rc-pending .n { float: right; font-size: 12.5px; }

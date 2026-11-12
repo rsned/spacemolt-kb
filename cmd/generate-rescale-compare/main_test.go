@@ -66,6 +66,9 @@ func TestCompareSystems(t *testing.T) {
 	if got := funcs["ratio"].(func(BodyRow) string)(BodyRow{Name: "Mercury", Type: "planet", Before: 0.41, After: 0.39, HasB: true, HasA: true}); got != "" {
 		t.Errorf("rounding-sized move shows %q", got)
 	}
+	if got := funcs["ratio"].(func(BodyRow) string)(BodyRow{Name: "Crucible Vents", Type: "gas_cloud", Before: 5.74, After: 0.099, HasB: true, HasA: true}); got != "×1.7e-2" {
+		t.Errorf("big shrink shows %q, want ×1.7e-2", got)
+	}
 }
 
 func TestWritePages(t *testing.T) {
@@ -91,12 +94,30 @@ func TestWritePages(t *testing.T) {
 		}
 	}
 	page, _ := os.ReadFile(filepath.Join(dir, "sol.html"))
-	for _, want := range []string{`class="rc-canvas"`, "BEFORE", "AFTER", "Earth"} {
+	if n := strings.Count(string(page), `class="rc-canvas"`); n != 2 {
+		t.Errorf("canvases = %d, want own-scale and same-scale", n)
+	}
+	for _, want := range []string{`id="rc-same"`, "Same scale", "BEFORE", "AFTER", "Earth"} {
 		if !strings.Contains(string(page), want) {
 			t.Errorf("detail page lacks %q", want)
 		}
 	}
 	if _, err := os.Stat(filepath.Join(dir, "x.html")); !os.IsNotExist(err) {
 		t.Error("unrescanned system got a page")
+	}
+}
+
+// On the same-scale view both halves use the larger system's scale, so the
+// smaller side's outermost orbit is drawn proportionally smaller.
+func TestSplitSVGSameScale(t *testing.T) {
+	s := System{Name: "S",
+		Before: []Body{{Name: "Star", Type: "sun"}, {Name: "P", Type: "planet", X: 1}},
+		After:  []Body{{Name: "Star", Type: "sun"}, {Name: "P", Type: "planet", X: 10}}}
+	own, same := string(splitSVG(s, false)), string(splitSVG(s, true))
+	if own == same {
+		t.Fatal("same-scale view is identical to own-scale view")
+	}
+	if !strings.Contains(same, "outermost 1.00 AU") || !strings.Contains(same, "outermost 10.0 AU") {
+		t.Error("halves should still label their own outermost body")
 	}
 }

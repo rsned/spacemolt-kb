@@ -7,6 +7,13 @@
 .rc-split { stroke: #ffffff44; stroke-dasharray: 4 4; }
 .rc-bar { stroke: #cfd8e3; }
 .rc-table { margin-top: 0.8rem; }
+.rc-views > input { position: absolute; opacity: 0; }
+.rc-views > label { display: inline-block; padding: 0.25rem 0.7rem; margin: 0 0.3rem 0.5rem 0; font-size: 12.5px;
+  border: 1px solid hsl(var(--border)); border-radius: 999px; cursor: pointer; color: hsl(var(--muted-foreground)); }
+.rc-views > input:checked + label { color: hsl(var(--foreground)); border-color: hsl(var(--primary)); background: hsl(var(--accent)); }
+.rc-views > input:focus-visible + label { outline: 2px solid hsl(var(--primary)); }
+.rc-view { display: none; }
+#rc-own:checked ~ .rc-view-own, #rc-same:checked ~ .rc-view-same { display: block; }
 .rc-table th.r { text-align: right; }
 .rc-pending { padding: 0.4rem 0.25rem; border-bottom: 1px solid hsl(var(--border) / 0.6); color: hsl(var(--muted-foreground)); }
 .rc-pending .n { float: right; font-size: 12.5px; }
