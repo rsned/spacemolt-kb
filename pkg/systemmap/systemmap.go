@@ -84,11 +84,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 	if explored {
 		for _, poi := range sys.POIs {
 			if poi.Type == "sun" && poi.Class != "" {
-				_, _, luminosity, err := ParseStarClass(poi.Class)
-				if err != nil {
-					continue
-				}
-				starRadius := GetStarSize(luminosity)
+				starRadius := starCorePx(poi.Class, scale)
 
 				// Find nearest orbit
 				var minOrbitR float64 = -1
@@ -354,7 +350,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			case "sun":
 				if poi.Class != "" {
 					// Use classified star rendering
-					b.WriteString(renderStar(poi, px, py))
+					b.WriteString(renderStar(poi, px, py, scale))
 					// Label is handled by renderStar
 				} else {
 					// Use default sun rendering

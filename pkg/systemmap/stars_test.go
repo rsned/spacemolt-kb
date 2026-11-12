@@ -1,6 +1,11 @@
 package systemmap
 
-import "testing"
+import (
+	"regexp"
+	"strconv"
+	"strings"
+	"testing"
+)
 
 func TestGetStarColor(t *testing.T) {
 	tests := []struct {
@@ -28,11 +33,11 @@ func TestGetStarColor(t *testing.T) {
 
 func TestGetStarColorRefined(t *testing.T) {
 	tests := []struct {
-		name           string
-		spectral       string
-		subtype        int
-		wantBlended    bool
-		expectedColor  string // Optional specific color check
+		name          string
+		spectral      string
+		subtype       int
+		wantBlended   bool
+		expectedColor string // Optional specific color check
 	}{
 		{"G5 is pure G", "G", 5, false, "#fff4a0"},
 		{"G-1 uses base color", "G", -1, false, "#fff4a0"},
@@ -137,5 +142,53 @@ func TestParseStarClass(t *testing.T) {
 				t.Errorf("ParseStarClass(%q) luminosity = %q, want %q", tt.class, gotLuminosity, tt.wantLuminosity)
 			}
 		})
+	}
+}
+
+func TestStarRadiusAU(t *testing.T) {
+	near := func(got, want float64) bool { return got > want*0.7 && got < want*1.3 }
+	for _, tt := range []struct {
+		class string
+		want  float64 // AU
+	}{
+		{"G2V", 0.00465}, // the Sun
+		{"M2V", 0.002},   // red dwarf, ~0.45 R☉
+		{"K2III", 0.09},  // K giant, ~20 R☉
+		{"M2III", 0.28},  // M giant, ~60 R☉
+		{"M2Ib", 3.3},    // red supergiant, ~700 R☉
+		{"DA", 0.000056}, // white dwarf, ~0.012 R☉
+	} {
+		if got := StarRadiusAU(tt.class); !near(got, tt.want) {
+			t.Errorf("StarRadiusAU(%q) = %.5g AU, want ≈ %.5g", tt.class, got, tt.want)
+		}
+	}
+	if got := StarRadiusAU("garbage"); got != 0.00465 {
+		t.Errorf("unparsable class = %v, want the Sun's radius", got)
+	}
+}
+
+// Stars are drawn at true size against the map scale, never below a visible
+// minimum, with a soft-edged core and a haze well beyond it.
+func TestRenderStarTrueSize(t *testing.T) {
+	poi := POI{ID: "s", Name: "Star", Type: "sun", Class: "M2Ib"}
+	big := renderStar(poi, 0, 0, 3) // supergiant on a 83 AU map: ~3 px/AU
+	tiny := renderStar(POI{ID: "d", Type: "sun", Class: "M3V"}, 0, 0, 3)
+	core := func(svg string) float64 {
+		m := regexp.MustCompile(`class="star-core"[^>]*r="([\d.]+)"|r="([\d.]+)"[^>]*class="star-core"`).FindStringSubmatch(svg)
+		if m == nil {
+			t.Fatalf("no star-core in %s", svg)
+		}
+		v := m[1] + m[2]
+		f, _ := strconv.ParseFloat(v, 64)
+		return f
+	}
+	if c := core(big); c < 8 || c > 12 {
+		t.Errorf("supergiant core = %.1f px, want ≈ 3.3 AU × 3 px/AU ≈ 10", c)
+	}
+	if c := core(tiny); c != minStarPx {
+		t.Errorf("red dwarf core = %.1f px, want the %v px minimum", c, minStarPx)
+	}
+	if !strings.Contains(big, `id="star-core-s"`) || !strings.Contains(big, `stop-opacity="0"`) {
+		t.Error("core should fade at its edge (soft gradient), not be a solid disc")
 	}
 }

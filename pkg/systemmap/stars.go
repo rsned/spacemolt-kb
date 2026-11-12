@@ -3,6 +3,7 @@ package systemmap
 import (
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -215,6 +216,7 @@ func GetLuminosityMultiplier(luminosity string) float64 {
 //   - Without subtype (defaults to 5): "G V"
 //   - White dwarf types: "DA", "DB", "DC", "DO", "DQ", "DZ", "DX", "DAP", "DAV", etc.
 //   - Wolf–Rayet types: "WR", "WN", "WC", "WO", with optional subtype and 'h' (e.g. "WN6h")
+//
 // Returns spectral type (OBAFGKMLTY, white dwarf, or Wolf–Rayet type), subtype (-1 if unknown), luminosity class, and error.
 func ParseStarClass(class string) (string, int, string, error) {
 	class = strings.TrimSpace(class)
@@ -361,51 +363,105 @@ func parseHexColor(hex string) (r, g, b float64) {
 	return r * 255, g * 255, b * 255
 }
 
-// renderStar generates SVG for a star POI with color and size based on classification.
-func renderStar(poi POI, cx, cy float64) string {
-	var b strings.Builder
+// solarRadiusAU is one solar radius in AU.
+const solarRadiusAU = 0.00465
 
-	// Parse classification
-	spectral, subtype, luminosity, err := ParseStarClass(poi.Class)
-	var color string
-	var size float64
+// minStarPx keeps a star visible on maps where its true size is under a pixel
+// (a red dwarf is ~0.002 AU across).
+const minStarPx = 3.0
 
+// Typical stellar radii in solar radii by spectral type, for main-sequence
+// stars and for giants and supergiants. Real stars vary widely; these are
+// representative values so each star is drawn at a believable size.
+var (
+	dwarfRadius      = map[string]float64{"O": 10, "B": 4, "A": 1.8, "F": 1.3, "G": 1.0, "K": 0.8, "M": 0.45}
+	giantRadius      = map[string]float64{"O": 15, "B": 8, "A": 4, "F": 6, "G": 10, "K": 20, "M": 60}
+	supergiantRadius = map[string]float64{"O": 20, "B": 40, "A": 70, "F": 100, "G": 200, "K": 400, "M": 700}
+)
+
+// StarRadiusAU estimates a star's true radius in AU from its MK class. An
+// unparsable class gets the Sun's radius.
+func StarRadiusAU(class string) float64 {
+	spectral, subtype, lum, err := ParseStarClass(class)
 	if err != nil {
-		// Malformed class, use default rendering
-		color = "#EBCB8B"
-		size = 10
-	} else {
-		// Check if this is a white dwarf (starts with "D")
-		isWhiteDwarf := strings.HasPrefix(spectral, "D")
-
-		if isWhiteDwarf {
-			// White dwarfs use their specific color and fixed size
-			color = GetStarColor(spectral) // Use base color, no subtype refinement for white dwarfs
-			size = 6 // White dwarfs are always luminosity VII size
-		} else {
-			color = GetStarColorRefined(spectral, subtype)
-			size = GetStarSize(luminosity)
-
-			// Brown dwarfs (L/T/Y) are always small, regardless of luminosity
-			if spectral == "L" || spectral == "T" || spectral == "Y" {
-				size = 8
+		return solarRadiusAU
+	}
+	var rsun float64
+	switch {
+	case strings.HasPrefix(spectral, "D"): // white dwarf, Earth-sized
+		rsun = 0.012
+	case strings.HasPrefix(spectral, "W"): // Wolf-Rayet: hot and compact
+		rsun = 2
+	case spectral == "L" || spectral == "T" || spectral == "Y": // brown dwarfs
+		rsun = 0.1
+	default:
+		switch lum {
+		case "III":
+			rsun = giantRadius[spectral]
+		case "II":
+			rsun = giantRadius[spectral] * 3
+		case "Ib", "I":
+			rsun = supergiantRadius[spectral]
+		case "Iab", "Ia", "Ia+", "0":
+			rsun = supergiantRadius[spectral] * 1.5
+		case "IV":
+			rsun = dwarfRadius[spectral] * 2
+		default: // V, VI and anything else on the main sequence
+			rsun = dwarfRadius[spectral]
+			if spectral == "M" && subtype >= 0 {
+				rsun = math.Max(0.12, 0.6-0.053*float64(subtype)) // M0 ~0.6, M9 ~0.12
 			}
 		}
 	}
+	if rsun == 0 {
+		rsun = 1
+	}
+	return rsun * solarRadiusAU
+}
+
+// starCorePx is a star's drawn radius on a map at scale pixels per AU: its true
+// size, but never below minStarPx.
+func starCorePx(class string, scale float64) float64 {
+	return math.Max(minStarPx, StarRadiusAU(class)*scale)
+}
+
+// renderStar generates SVG for a star POI, drawn at true size for the map
+// scale (pixels per AU). The core fades at its rim and a haze extends well
+// beyond it, so there is no hard edge.
+func renderStar(poi POI, cx, cy, scale float64) string {
+	var b strings.Builder
+
+	// Color from the classification; size is the star's true radius at this
+	// map scale (starCorePx), never below minStarPx.
+	color := "#EBCB8B" // malformed class: default yellow
+	if spectral, subtype, _, err := ParseStarClass(poi.Class); err == nil {
+		if strings.HasPrefix(spectral, "D") {
+			color = GetStarColor(spectral) // white dwarfs: base color, no subtype refinement
+		} else {
+			color = GetStarColorRefined(spectral, subtype)
+		}
+	}
+	size := starCorePx(poi.Class, scale)
+	haze := math.Max(size*2.6, size+12)
 
 	// Create gradient ID unique to this POI
 	gradientID := fmt.Sprintf("star-glow-%s", poi.ID)
+	coreID := fmt.Sprintf("star-core-%s", poi.ID)
 
 	b.WriteString(fmt.Sprintf(`<g class="poi-marker"><title>%s</title>`, poiTitle(poi)))
 
 	// Selection circle (dashed)
 	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/>`, cx, cy, size+4))
 
-	// Outer glow gradient
-	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="url(#%s)"/>`, cx, cy, size*2.4, gradientID))
+	// Soft-edged core: solid most of the way out, fading at the rim.
+	b.WriteString(fmt.Sprintf(`<defs><radialGradient id="%s"><stop offset="0%%" stop-color="#ffffff" stop-opacity="0.9"/><stop offset="35%%" stop-color="%s" stop-opacity="1"/><stop offset="80%%" stop-color="%s" stop-opacity="0.85"/><stop offset="100%%" stop-color="%s" stop-opacity="0"/></radialGradient></defs>`,
+		coreID, color, color, color))
+
+	// Haze extending well beyond the star.
+	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="url(#%s)" opacity="0.8"/>`, cx, cy, haze, gradientID))
 
 	// Core star
-	b.WriteString(fmt.Sprintf(`<circle cx="%.1f" cy="%.1f" r="%.1f" fill="%s"/>`, cx, cy, size, color))
+	b.WriteString(fmt.Sprintf(`<circle class="star-core" cx="%.1f" cy="%.1f" r="%.1f" fill="url(#%s)"/>`, cx, cy, size, coreID))
 
 	b.WriteString(`</g>`)
 
