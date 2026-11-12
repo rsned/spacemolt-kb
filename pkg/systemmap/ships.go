@@ -109,7 +109,7 @@ func renderShipSymbols() string {
 // generateShipRoutes produces the complete SVG block for ambient ship traffic
 // in a system: symbol definitions (if not already emitted) and animated ship
 // groups traveling between POI pairs.
-func generateShipRoutes(sys *System, allSystems map[string]*System, scale, cx, cy, gateRadius, vbX, vbW, visTop, visBottom float64) string {
+func generateShipRoutes(sys *System, allSystems map[string]*System, rad radial, cx, cy, gateRadius, vbX, vbW, visTop, visBottom float64) string {
 	if len(sys.Connections) == 0 {
 		return "" // no gates, no traffic
 	}
@@ -136,8 +136,7 @@ func generateShipRoutes(sys *System, allSystems map[string]*System, scale, cx, c
 	var stations, resources []poiPos
 	var sunPos *poiPos
 	for _, poi := range sys.POIs {
-		px := cx + poi.PositionX*scale
-		py := cy - poi.PositionY*scale
+		px, py := rad.Point(cx, cy, poi.PositionX, poi.PositionY)
 		switch poi.Type {
 		case "station":
 			stations = append(stations, poiPos{x: px, y: py})

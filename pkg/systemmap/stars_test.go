@@ -171,8 +171,9 @@ func TestStarRadiusAU(t *testing.T) {
 // minimum, with a soft-edged core and a haze well beyond it.
 func TestRenderStarTrueSize(t *testing.T) {
 	poi := POI{ID: "s", Name: "Star", Type: "sun", Class: "M2Ib"}
-	big := renderStar(poi, 0, 0, 3) // supergiant on a 83 AU map: ~3 px/AU
-	tiny := renderStar(POI{ID: "d", Type: "sun", Class: "M3V"}, 0, 0, 3)
+	lin3 := func(au float64) float64 { return au * 3 } // ~3 px/AU, as on an 83 AU map
+	big := renderStar(poi, 0, 0, lin3)
+	tiny := renderStar(POI{ID: "d", Type: "sun", Class: "M3V"}, 0, 0, lin3)
 	core := func(svg string) float64 {
 		m := regexp.MustCompile(`class="star-core"[^>]*r="([\d.]+)"|r="([\d.]+)"[^>]*class="star-core"`).FindStringSubmatch(svg)
 		if m == nil {

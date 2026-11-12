@@ -2137,7 +2137,19 @@ func systemTemplateFuncs(sysLookup map[string]*System) htmltpl.FuncMap {
 			for k, v := range sysLookup {
 				allMap[k] = toMapSystem(v)
 			}
-			return htmltpl.HTML(systemmap.RenderSystemMap(toMapSystem(sys), allMap, false))
+			ms := toMapSystem(sys)
+			logMap := systemmap.RenderSystemMap(ms, allMap, false)
+			if len(sys.POIs) == 0 {
+				return htmltpl.HTML(logMap) //nolint:gosec // generated SVG
+			}
+			// The linear view is the alternate; its ids are prefixed so the
+			// hidden copy's gradients cannot shadow the visible one's.
+			linMap := systemmap.PrefixSVGIDs(systemmap.RenderSystemMapScaled(ms, allMap, false, true), "lin-")
+			return htmltpl.HTML(`<div class="map-views">` + //nolint:gosec // generated SVG
+				`<input type="radio" name="map-scale" id="map-scale-log" checked><label for="map-scale-log">Log scale</label>` +
+				`<input type="radio" name="map-scale" id="map-scale-lin"><label for="map-scale-lin">Linear scale</label>` +
+				`<div class="map-view map-view-log">` + logMap + `</div>` +
+				`<div class="map-view map-view-lin">` + linMap + `</div></div>`)
 		},
 		"isKnownEmpire": func(empire string) bool {
 			for _, e := range empireOrder {

@@ -419,16 +419,16 @@ func StarRadiusAU(class string) float64 {
 	return rsun * solarRadiusAU
 }
 
-// starCorePx is a star's drawn radius on a map at scale pixels per AU: its true
-// size, but never below minStarPx.
-func starCorePx(class string, scale float64) float64 {
-	return math.Max(minStarPx, StarRadiusAU(class)*scale)
+// starCorePx is a star's drawn radius on a map whose distance mapping is
+// auToPx: its true size, but never below minStarPx.
+func starCorePx(class string, auToPx func(float64) float64) float64 {
+	return math.Max(minStarPx, auToPx(StarRadiusAU(class)))
 }
 
 // renderStar generates SVG for a star POI, drawn at true size for the map
 // scale (pixels per AU). The core fades at its rim and a haze extends well
 // beyond it, so there is no hard edge.
-func renderStar(poi POI, cx, cy, scale float64) string {
+func renderStar(poi POI, cx, cy float64, auToPx func(float64) float64) string {
 	var b strings.Builder
 
 	// Color from the classification; size is the star's true radius at this
@@ -441,7 +441,7 @@ func renderStar(poi POI, cx, cy, scale float64) string {
 			color = GetStarColorRefined(spectral, subtype)
 		}
 	}
-	size := starCorePx(poi.Class, scale)
+	size := starCorePx(poi.Class, auToPx)
 	haze := math.Max(size*2.6, size+12)
 
 	// Create gradient ID unique to this POI

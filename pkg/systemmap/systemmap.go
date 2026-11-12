@@ -45,6 +45,12 @@ type POI struct {
 // When standalone is true, the SVG is emitted bare (no wrapper div) with an
 // xmlns attribute and an embedded <style> block so it is self-contained.
 func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool) string {
+	return RenderSystemMapScaled(sys, allSystems, standalone, false)
+}
+
+// RenderSystemMapScaled renders the map on the log distance scale, or on a
+// plain linear scale when linear is set (the alternate view).
+func RenderSystemMapScaled(sys *System, allSystems map[string]*System, standalone, linear bool) string {
 	const (
 		cx     = 400.0
 		cy     = 300.0
@@ -60,23 +66,18 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 	// Determine if explored (has POI data).
 	explored := len(sys.POIs) > 0
 
-	// Compute scale and gate radius.
-	var scale, gateRadius float64
+	// Distance mapping (log scale, see radial) and gate radius.
+	var rad radial
+	var gateRadius float64
 	if explored {
-		var maxR float64
-		for _, poi := range sys.POIs {
-			r := math.Hypot(poi.PositionX, poi.PositionY)
-			if r > maxR {
-				maxR = r
-			}
+		if linear {
+			rad = newLinearRadial(sys.POIs, maxSVG)
+		} else {
+			rad = newRadial(sys.POIs, maxSVG)
 		}
-		if maxR < 1 {
-			maxR = 1 // avoid division by zero for systems with only a sun at origin
-		}
-		scale = maxSVG / maxR
 		gateRadius = maxSVG + 30
 	} else {
-		scale = 100 // arbitrary; fog covers everything
+		rad = radial{lin: 100} // arbitrary; fog covers everything
 		gateRadius = 230
 	}
 
@@ -84,13 +85,13 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 	if explored {
 		for _, poi := range sys.POIs {
 			if poi.Type == "sun" && poi.Class != "" {
-				starRadius := starCorePx(poi.Class, scale)
+				starRadius := starCorePx(poi.Class, rad.Px)
 
 				// Find nearest orbit
 				var minOrbitR float64 = -1
 				for _, otherPoi := range sys.POIs {
 					if otherPoi.Type != "sun" {
-						r := math.Hypot(otherPoi.PositionX, otherPoi.PositionY) * scale
+						r := rad.Px(math.Hypot(otherPoi.PositionX, otherPoi.PositionY))
 						if minOrbitR < 0 || r < minOrbitR {
 							minOrbitR = r
 						}
@@ -113,20 +114,20 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			if poi.Type == "sun" {
 				continue
 			}
-			r := math.Hypot(poi.PositionX, poi.PositionY) * scale
+			r := rad.Px(math.Hypot(poi.PositionX, poi.PositionY))
 			if r > maxOrbitR {
 				maxOrbitR = r
 			}
 		}
 	}
-	fillRatio := 0.8 // orbit fills 80% of viewBox (10% padding per side)
-	if standalone {
-		fillRatio = 0.9 // orbit fills 90% of viewBox (5% padding per side)
-	}
+	fillRatio := 0.9 // orbit (and gate ring) fills 90% of viewBox: 5% padding per side
 	vbH := 2 * maxOrbitR / fillRatio
 	vbW := vbH
 	vbX := cx - vbW/2
 	vbY := cy - vbH/2
+	// The ruler may run on to the next power of ten if it stays inside the
+	// drawing area.
+	rad.rulerLimit = vbW/2 - 14
 
 	// Use "meet" so the full viewBox is always visible regardless of
 	// the container's aspect ratio — prevents cropping the legend,
@@ -146,38 +147,30 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, vbX, cy, vbX+vbW, cy))
 		b.WriteString(fmt.Sprintf(`<line x1="%.0f" y1="%.0f" x2="%.0f" y2="%.0f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx, vbY, cx, vbY+vbH))
 
-		// Tick marks at whole-number game coordinate intervals.
-		tickLen := 4.0 // half-length of each tick mark
-		minGame := int(math.Floor((vbX - cx) / scale))
-		maxGame := int(math.Ceil((vbX + vbW - cx) / scale))
-		for n := minGame; n <= maxGame; n++ {
-			if n == 0 {
-				continue
+		// Tick marks along both axes at the ruler's distances (1-9 x each power
+		// of ten, log scale), longer at each power of ten.
+		for _, t := range rad.ticks() {
+			tickLen := 2.5
+			if t.major {
+				tickLen = 4.5
 			}
-			// X-axis tick (vertical line at game X = n).
-			sx := cx + float64(n)*scale
-			b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, sx, cy-tickLen, sx, cy+tickLen))
-			// Y-axis tick (horizontal line at game Y = n; SVG Y is inverted).
-			sy := cy - float64(n)*scale
-			b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx-tickLen, sy, cx+tickLen, sy))
+			for _, sgn := range []float64{1, -1} {
+				sx := cx + sgn*t.px
+				b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, sx, cy-tickLen, sx, cy+tickLen))
+				sy := cy - sgn*t.px
+				b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/>`, cx-tickLen, sy, cx+tickLen, sy))
+			}
 		}
 
-		// Scale indicator in top-left corner: "1 AU" bar.
-		scaleX := vbX + 20
-		scaleY := vbY + 25
-		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="1" opacity="0.9"/>`, scaleX, scaleY, scaleX+scale, scaleY))
-		// End caps.
-		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="1" opacity="0.9"/>`, scaleX, scaleY-3, scaleX, scaleY+3))
-		b.WriteString(fmt.Sprintf(`<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#8b95ab" stroke-width="1" opacity="0.9"/>`, scaleX+scale, scaleY-3, scaleX+scale, scaleY+3))
-		// Label.
-		b.WriteString(fmt.Sprintf(`<text x="%.1f" y="%.1f" text-anchor="middle" fill="#8b95ab" font-size="10" font-family="sans-serif">1 AU</text>`, scaleX+scale/2, scaleY-6))
+		// Distance ruler under the map (replaces the linear "1 AU" bar).
+		b.WriteString(rad.rulerSVG(cx, cy, vbY+vbH-16))
 
 		// Orbital rings for each non-sun POI.
 		for _, poi := range sys.POIs {
 			if poi.Type == "sun" {
 				continue
 			}
-			r := math.Hypot(poi.PositionX, poi.PositionY) * scale
+			r := rad.Px(math.Hypot(poi.PositionX, poi.PositionY))
 			if r < 1 {
 				continue
 			}
@@ -225,8 +218,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			if poi.Type != "black_hole" {
 				continue
 			}
-			bhSX := cx + poi.PositionX*scale
-			bhSY := cy - poi.PositionY*scale
+			bhSX, bhSY := rad.Point(cx, cy, poi.PositionX, poi.PositionY)
 
 			// Find the nearest star to draw the accretion stream.
 			var nearest *POI
@@ -244,6 +236,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 
 			entry := &bhStreamEntry{bx: bhSX, by: bhSY}
 			if nearest != nil {
+				nx, ny := rad.Point(cx, cy, nearest.PositionX, nearest.PositionY)
 				spectral, subtype, luminosity, err := ParseStarClass(nearest.Class)
 				starColor := "#EBCB8B"
 				starSize := 10.0
@@ -252,8 +245,8 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 					starSize = GetStarSize(luminosity)
 				}
 				entry.stream = &blackHoleStreamInfo{
-					sx:        cx + nearest.PositionX*scale,
-					sy:        cy - nearest.PositionY*scale,
+					sx:        nx,
+					sy:        ny,
 					starColor: starColor,
 					starSize:  starSize,
 				}
@@ -269,6 +262,8 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			b.WriteString(`<style>`)
 			b.WriteString(`.map-label { font: 11px sans-serif; fill: #ffffff; }`)
 			b.WriteString(`.gate-label { font: 10px sans-serif; fill: #81a1c1; }`)
+			b.WriteString(`.map-ruler-label { font: bold 9px sans-serif; fill: #ebcb8b; }`)
+			b.WriteString(`.map-ruler-note { font: 8px sans-serif; fill: #8b95ab; }`)
 			b.WriteString(`</style>`)
 		}
 		b.WriteString(`<radialGradient id="sun-glow">`)
@@ -339,9 +334,8 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		var labels []labelInfo
 
 		for _, poi := range sys.POIs {
-			px := cx + poi.PositionX*scale
-			py := cy - poi.PositionY*scale
-			r := math.Hypot(poi.PositionX, poi.PositionY) * scale
+			px, py := rad.Point(cx, cy, poi.PositionX, poi.PositionY)
+			r := rad.Px(math.Hypot(poi.PositionX, poi.PositionY))
 
 			// Label direction: game y >= 0 (SVG y <= center) -> above; game y < 0 -> below.
 			labelAbove := poi.PositionY >= 0
@@ -350,7 +344,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			case "sun":
 				if poi.Class != "" {
 					// Use classified star rendering
-					b.WriteString(renderStar(poi, px, py, scale))
+					b.WriteString(renderStar(poi, px, py, rad.Px))
 					// Label is handled by renderStar
 				} else {
 					// Use default sun rendering
@@ -502,7 +496,7 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		}
 
 		// Ambient ship traffic (rendered over orbital rings, under labels).
-		b.WriteString(generateShipRoutes(sys, allSystems, scale, cx, cy, gateRadius, vbX, vbW, visTop, visBottom))
+		b.WriteString(generateShipRoutes(sys, allSystems, rad, cx, cy, gateRadius, vbX, vbW, visTop, visBottom))
 
 		// De-overlap labels: push overlapping labels in their stacking direction.
 		const labelH = 12.0
@@ -530,7 +524,12 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 		}
 
 		// Legend: collect unique POI types present in this system.
-		b.WriteString(renderLegend(sys.POIs, vbX, vbY, vbW, vbH))
+		// Keep the legend above the distance ruler when one is drawn.
+		reserve := 0.0
+		if len(rad.ticks()) > 0 {
+			reserve = 30
+		}
+		b.WriteString(renderLegend(sys.POIs, vbX, vbY, vbW, vbH, reserve))
 	} else {
 		// Unexplored: star + fog of war.
 		b.WriteString(`<defs>`)
@@ -538,6 +537,8 @@ func RenderSystemMap(sys *System, allSystems map[string]*System, standalone bool
 			b.WriteString(`<style>`)
 			b.WriteString(`.map-label { font: 11px sans-serif; fill: #ffffff; }`)
 			b.WriteString(`.gate-label { font: 10px sans-serif; fill: #81a1c1; }`)
+			b.WriteString(`.map-ruler-label { font: bold 9px sans-serif; fill: #ebcb8b; }`)
+			b.WriteString(`.map-ruler-note { font: 8px sans-serif; fill: #8b95ab; }`)
 			b.WriteString(`</style>`)
 		}
 		b.WriteString(`<radialGradient id="sun-glow">`)
@@ -755,7 +756,8 @@ var legendTypes = []legendEntry{
 
 // renderLegend draws a legend box in the bottom-right corner of the map showing
 // only the POI types present in the current system.
-func renderLegend(pois []POI, vbX, vbY, vbW, vbH float64) string {
+// bottomReserve keeps it clear of anything drawn along the bottom edge.
+func renderLegend(pois []POI, vbX, vbY, vbW, vbH, bottomReserve float64) string {
 	// Collect present types.
 	present := make(map[string]bool)
 	for _, poi := range pois {
@@ -801,7 +803,7 @@ func renderLegend(pois []POI, vbX, vbY, vbW, vbH float64) string {
 
 	// Position: bottom-right of viewBox.
 	boxX := vbX + vbW - marginR - boxW
-	boxY := vbY + vbH - marginB - boxH
+	boxY := vbY + vbH - marginB - boxH - bottomReserve
 
 	var b strings.Builder
 
