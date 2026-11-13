@@ -18,10 +18,10 @@ type factionGroup struct {
 // factionDisplay maps catalog faction keys to display names. Ships with no
 // faction are grouped under "Unaligned".
 var factionDisplay = map[string]string{
-	"crimson":  "Crimson Fleet",
-	"nebula":   "Nebula Federation",
+	"crimson":  "Crimson Pact",
+	"nebula":   "Nebula Trade Federation",
 	"solarian": "Solarian Confederacy",
-	"outerrim": "Outer Rim",
+	"outerrim": "Outer Rim Explorers",
 	"voidborn": "Voidborn Collective",
 	"pirate":   "Pirate",
 	"":         "Unaligned",

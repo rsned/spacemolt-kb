@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Data Changes — November 11, 2026 vs November 10, 2026</title>
+<link rel="stylesheet" href="../smui.css">
+<style>
+.diff-nav { display: flex; justify-content: space-between; padding: 1rem 0; font-size: var(--text-ui); }
+.diff-nav a { color: hsl(var(--primary)); }
+.diff-summary { padding: 1rem 0; color: hsl(var(--muted-foreground)); font-size: var(--text-ui); }
+.catalog-section { border: 1px solid hsl(var(--border)); margin: 1.5rem 0; }
+.catalog-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
+.catalog-header h3 { font-size: var(--text-ui); font-weight: 600; margin: 0; }
+.catalog-counts { display: flex; gap: 1rem; font-size: var(--text-label); letter-spacing: 0.5px; }
+.catalog-body { padding: 1rem; }
+.catalog-body h4 { font-size: var(--text-label); text-transform: uppercase; letter-spacing: 1.5px; color: hsl(var(--muted-foreground)); margin: 1rem 0 0.5rem; }
+.catalog-body h4:first-child { margin-top: 0; }
+.diff-add { color: hsl(var(--smui-green)); }
+.diff-del { color: hsl(var(--smui-red)); }
+.diff-mod { color: hsl(var(--smui-yellow)); }
+.diff-list { list-style: none; padding: 0; }
+.diff-list li { padding: 0.2rem 0; font-size: var(--text-ui); }
+.diff-list a, .diff-item-id a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.diff-list a:hover, .diff-item-id a:hover { color: hsl(var(--primary)); }
+.diff-field { padding-left: 1.5rem; font-size: var(--text-ui); margin-bottom: 0.5rem; }
+.diff-field-name { color: hsl(var(--muted-foreground)); }
+.diff-item-id { font-weight: 600; margin-top: 0.5rem; }
+.no-changes { color: hsl(var(--muted-foreground)); font-style: italic; }
+.diff-compare { width: 100%; margin: 0.25rem 0 0.5rem 1.5rem; border-collapse: collapse; font-size: var(--text-ui); table-layout: fixed; }
+.diff-compare th { text-align: left; padding: 0.25rem 0.5rem; color: hsl(var(--muted-foreground)); font-weight: 600; font-size: var(--text-label); border-bottom: 1px solid hsl(var(--border)); }
+.diff-compare td { padding: 0.2rem 0.5rem; vertical-align: top; border-bottom: 1px solid hsl(var(--border) / 0.3); }
+.diff-compare .diff-unchanged { color: hsl(var(--foreground)); }
+.diff-compare .diff-empty { }
+.diff-toc { padding: 0.5rem 0; font-size: var(--text-ui); list-style: none; margin: 0; }
+.diff-toc li { padding: 0.15rem 0; }
+.diff-toc a { color: hsl(var(--primary)); }
+</style>
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../nav.js" defer></script>
+    </header>
+<main class="container">
+<div class="diff-nav">
+    <span><a href="2026-11-10.html">&larr; 2026-11-10</a></span>
+    <a href="index.html">All Reports</a>
+    <span><a href="2026-11-12.html">2026-11-12 &rarr;</a></span>
+</div>
+<h2>Game Data Changes &mdash; November 11, 2026 vs November 10, 2026</h2>
+<div class="diff-summary">54 additions, 0 deletions, 19 modifications across 4 catalogs.
+</div>
+<ul class="diff-toc">
+<li><a href="#recipes">Recipes</a> <span class="diff-add">+18</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~0</span></li>
+<li><a href="#items">Items</a> <span class="diff-add">+18</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~4</span></li>
+<li><a href="#ships">Ships</a></li>
+<li><a href="#skills">Skills</a></li>
+<li><a href="#facilities">Facilities</a> <span class="diff-add">+18</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~9</span></li>
+<li><a href="#map">Map</a> <span class="diff-add">+0</span> <span class="diff-del">&minus;0</span> <span class="diff-mod">~6</span></li>
+</ul>
+
+<div class="catalog-section" id="recipes">
+<div class="catalog-header">
+    <h3>Recipes</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+18</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~0</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Build Damped Mining Head I <span class="text-muted">(build_damped_mining_head_i)</span></li><li class="diff-add">+ Build Damped Mining Head II <span class="text-muted">(build_damped_mining_head_ii)</span></li><li class="diff-add">+ Build Damped Mining Head III <span class="text-muted">(build_damped_mining_head_iii)</span></li><li class="diff-add">+ Build Dust Skirt I <span class="text-muted">(build_dust_skirt_i)</span></li><li class="diff-add">+ Build Dust Skirt II <span class="text-muted">(build_dust_skirt_ii)</span></li><li class="diff-add">+ Build Dust Skirt III <span class="text-muted">(build_dust_skirt_iii)</span></li><li class="diff-add">+ Build Radiation Baffles I <span class="text-muted">(build_radiation_baffles_i)</span></li><li class="diff-add">+ Build Radiation Baffles II <span class="text-muted">(build_radiation_baffles_ii)</span></li><li class="diff-add">+ Build Radiation Baffles III <span class="text-muted">(build_radiation_baffles_iii)</span></li><li class="diff-add">+ Build Shear Bracing I <span class="text-muted">(build_shear_bracing_i)</span></li><li class="diff-add">+ Build Shear Bracing II <span class="text-muted">(build_shear_bracing_ii)</span></li><li class="diff-add">+ Build Shear Bracing III <span class="text-muted">(build_shear_bracing_iii)</span></li><li class="diff-add">+ Build Signal Scrubber I <span class="text-muted">(build_signal_scrubber_i)</span></li><li class="diff-add">+ Build Signal Scrubber II <span class="text-muted">(build_signal_scrubber_ii)</span></li><li class="diff-add">+ Build Signal Scrubber III <span class="text-muted">(build_signal_scrubber_iii)</span></li><li class="diff-add">+ Mix Glassweave Sealant <span class="text-muted">(mix_glassweave_sealant)</span></li><li class="diff-add">+ Mix Hazard Sealant <span class="text-muted">(mix_hazard_sealant)</span></li><li class="diff-add">+ Mix Heavy Hazard Sealant <span class="text-muted">(mix_heavy_hazard_sealant)</span></li></ul>
+
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="items">
+<div class="catalog-header">
+    <h3>Items</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+18</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~4</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Damped Mining Head I <span class="text-muted">(damped_mining_head_i)</span></li><li class="diff-add">+ Damped Mining Head II <span class="text-muted">(damped_mining_head_ii)</span></li><li class="diff-add">+ Damped Mining Head III <span class="text-muted">(damped_mining_head_iii)</span></li><li class="diff-add">+ Dust Skirt I <span class="text-muted">(dust_skirt_i)</span></li><li class="diff-add">+ Dust Skirt II <span class="text-muted">(dust_skirt_ii)</span></li><li class="diff-add">+ Dust Skirt III <span class="text-muted">(dust_skirt_iii)</span></li><li class="diff-add">+ Glassweave Sealant <span class="text-muted">(glassweave_sealant)</span></li><li class="diff-add">+ Hazard Sealant <span class="text-muted">(hazard_sealant)</span></li><li class="diff-add">+ Heavy Hazard Sealant <span class="text-muted">(heavy_hazard_sealant)</span></li><li class="diff-add">+ Radiation Baffles I <span class="text-muted">(radiation_baffles_i)</span></li><li class="diff-add">+ Radiation Baffles II <span class="text-muted">(radiation_baffles_ii)</span></li><li class="diff-add">+ Radiation Baffles III <span class="text-muted">(radiation_baffles_iii)</span></li><li class="diff-add">+ Shear Bracing I <span class="text-muted">(shear_bracing_i)</span></li><li class="diff-add">+ Shear Bracing II <span class="text-muted">(shear_bracing_ii)</span></li><li class="diff-add">+ Shear Bracing III <span class="text-muted">(shear_bracing_iii)</span></li><li class="diff-add">+ Signal Scrubber I <span class="text-muted">(signal_scrubber_i)</span></li><li class="diff-add">+ Signal Scrubber II <span class="text-muted">(signal_scrubber_ii)</span></li><li class="diff-add">+ Signal Scrubber III <span class="text-muted">(signal_scrubber_iii)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../items/utility/advanced_tow_rig.html">advanced_tow_rig</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;High-efficiency tow system for wreckage or one of your own smaller ships. Only 30% speed reduction while towing.&#34;</span> &rarr; <span class="diff-add">&#34;High-efficiency tow system for wreckage or one of your own smaller ships. Only 30% speed reduction while towing. With several tow-capable modules fitted, the one with the smallest penalty applies.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/basic_tow_rig.html">basic_tow_rig</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Attaches to ship wreckage — or one of your own smaller ships — for towing. Reduces ship speed by 50% while towing.&#34;</span> &rarr; <span class="diff-add">&#34;Attaches to ship wreckage — or one of your own smaller ships — for towing. Reduces ship speed by 50% while towing. With several tow-capable modules fitted, the one with the smallest penalty applies.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/ore/legacy_ore.html">legacy_ore</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Pre-spacefaring Earth artifacts fused with asteroid material over millennia.&#34;</span> &rarr; <span class="diff-add">&#34;Alloys from the first slow ships to leave Earth, fused into asteroid rock and sealed in vacuum for centuries.&#34;</span></div>
+<div class="diff-item-id"><a href="../items/utility/tractor_beam.html">tractor_beam</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;Short-range tackle and towing beam that slows a target, disrupts warp, and stabilizes towed ships.&#34;</span> &rarr; <span class="diff-add">&#34;Short-range tackle and towing beam that slows a target, disrupts warp, and stabilizes towed ships. Reduces ship speed by 40% while towing. With several tow-capable modules fitted, the one with the smallest penalty applies.&#34;</span></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="ships">
+<div class="catalog-header">
+    <h3>Ships</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="skills">
+<div class="catalog-header">
+    <h3>Skills</h3>
+    <div class="catalog-counts">
+        
+        <span class="no-changes">unchanged</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+<p class="no-changes">No changes</p>
+
+</div>
+</div>
+
+<div class="catalog-section" id="facilities">
+<div class="catalog-header">
+    <h3>Facilities</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+18</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~9</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+<h4>Additions</h4>
+<ul class="diff-list"><li class="diff-add">+ Damped Mining Head I Head Shop <span class="text-muted">(damped_mining_head_i_head_shop)</span></li><li class="diff-add">+ Damped Mining Head II Damping Line <span class="text-muted">(damped_mining_head_ii_damping_line)</span></li><li class="diff-add">+ Damped Mining Head III Crystal Head Works <span class="text-muted">(damped_mining_head_iii_crystal_head_works)</span></li><li class="diff-add">+ Dust Skirt I Screen Loom <span class="text-muted">(dust_skirt_i_screen_loom)</span></li><li class="diff-add">+ Dust Skirt II Screen Line <span class="text-muted">(dust_skirt_ii_screen_line)</span></li><li class="diff-add">+ Dust Skirt III Glass Screen Works <span class="text-muted">(dust_skirt_iii_glass_screen_works)</span></li><li class="diff-add">+ Glassweave Sealant Mixer <span class="text-muted">(glassweave_sealant_mixer)</span></li><li class="diff-add">+ Hazard Sealant Mixer <span class="text-muted">(hazard_sealant_mixer)</span></li><li class="diff-add">+ Heavy Hazard Sealant Mixer <span class="text-muted">(heavy_hazard_sealant_mixer)</span></li><li class="diff-add">+ Radiation Baffle I Lead-Lining Press <span class="text-muted">(radiation_baffle_i_lead_lining_press)</span></li><li class="diff-add">+ Radiation Baffle II Lead-Lining Line <span class="text-muted">(radiation_baffle_ii_lead_lining_line)</span></li><li class="diff-add">+ Radiation Baffle III Neutronium Baffle Works <span class="text-muted">(radiation_baffle_iii_neutronium_baffle_works)</span></li><li class="diff-add">+ Shear Bracing I Brace Forge <span class="text-muted">(shear_bracing_i_brace_forge)</span></li><li class="diff-add">+ Shear Bracing II Bracing Line <span class="text-muted">(shear_bracing_ii_bracing_line)</span></li><li class="diff-add">+ Shear Bracing III Horizon Brace Works <span class="text-muted">(shear_bracing_iii_horizon_brace_works)</span></li><li class="diff-add">+ Signal Scrubber I Filter Bench <span class="text-muted">(signal_scrubber_i_filter_bench)</span></li><li class="diff-add">+ Signal Scrubber II Filter Line <span class="text-muted">(signal_scrubber_ii_filter_line)</span></li><li class="diff-add">+ Signal Scrubber III Glass Optics Works <span class="text-muted">(signal_scrubber_iii_glass_optics_works)</span></li></ul>
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../facilities/service/commerce_hub.html">commerce_hub</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 3</td><td class="diff-unchanged">item_id: circuit_board, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: flex_polymer, quantity: 1</td><td class="diff-unchanged">item_id: flex_polymer, quantity: 1</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 3</td><td class="diff-add">item_id: ghost_rounds, quantity: 2</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: honeyglobe, quantity: 1</td><td class="diff-unchanged">item_id: honeyglobe, quantity: 1</td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 3</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: ionized_neon, quantity: 2</td><td class="diff-unchanged">item_id: ionized_neon, quantity: 2</td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 3</td><td class="diff-add">item_id: nerve_burn, quantity: 2</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 3</td><td class="diff-add">item_id: pirate_moonshine, quantity: 2</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 3</td><td class="diff-add">item_id: red_mist, quantity: 2</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 3</td><td class="diff-add">item_id: starshine, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: trade_authenticator, quantity: 1</td><td class="diff-unchanged">item_id: trade_authenticator, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 3</td><td class="diff-add">item_id: void_dust, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/frontier_exchange.html">frontier_exchange</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 2</td><td class="diff-unchanged">item_id: circuit_board, quantity: 2</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 5</td><td class="diff-add">item_id: ghost_rounds, quantity: 3</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 5</td><td class="diff-add">item_id: nerve_burn, quantity: 3</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 5</td><td class="diff-add">item_id: pirate_moonshine, quantity: 3</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 5</td><td class="diff-add">item_id: red_mist, quantity: 3</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 5</td><td class="diff-add">item_id: starshine, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 5</td><td class="diff-add">item_id: void_dust, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/grand_solarian_exchange.html">grand_solarian_exchange</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 5</td><td class="diff-unchanged">item_id: circuit_board, quantity: 5</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 5</td><td class="diff-add">item_id: ghost_rounds, quantity: 3</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 5</td><td class="diff-add">item_id: nerve_burn, quantity: 3</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 5</td><td class="diff-add">item_id: pirate_moonshine, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 2</td><td class="diff-unchanged">item_id: power_cell, quantity: 2</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 5</td><td class="diff-add">item_id: red_mist, quantity: 3</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 5</td><td class="diff-add">item_id: starshine, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 5</td><td class="diff-add">item_id: void_dust, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/haven_grand_bazaar.html">haven_grand_bazaar</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 3</td><td class="diff-unchanged">item_id: circuit_board, quantity: 3</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 5</td><td class="diff-add">item_id: ghost_rounds, quantity: 3</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 5</td><td class="diff-add">item_id: nerve_burn, quantity: 3</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 5</td><td class="diff-add">item_id: pirate_moonshine, quantity: 3</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 5</td><td class="diff-add">item_id: red_mist, quantity: 3</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 5</td><td class="diff-add">item_id: starshine, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 5</td><td class="diff-add">item_id: void_dust, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/market_terminal.html">market_terminal</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td><td class="diff-unchanged">item_id: circuit_board, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: copper_wiring, quantity: 1</td><td class="diff-unchanged">item_id: copper_wiring, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: ghost_rounds, quantity: 1</td><td class="diff-unchanged">item_id: ghost_rounds, quantity: 1</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 1</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: nerve_burn, quantity: 1</td><td class="diff-unchanged">item_id: nerve_burn, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: pirate_moonshine, quantity: 1</td><td class="diff-unchanged">item_id: pirate_moonshine, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: red_mist, quantity: 1</td><td class="diff-unchanged">item_id: red_mist, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: starshine, quantity: 1</td><td class="diff-unchanged">item_id: starshine, quantity: 1</td></tr><tr><td class="diff-unchanged">item_id: void_dust, quantity: 1</td><td class="diff-unchanged">item_id: void_dust, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/trade_exchange.html">trade_exchange</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 2</td><td class="diff-unchanged">item_id: circuit_board, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: copper_wiring, quantity: 1</td><td class="diff-unchanged">item_id: copper_wiring, quantity: 1</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 2</td><td class="diff-add">item_id: ghost_rounds, quantity: 1</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 2</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: ionized_neon, quantity: 1</td><td class="diff-unchanged">item_id: ionized_neon, quantity: 1</td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 2</td><td class="diff-add">item_id: nerve_burn, quantity: 1</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 2</td><td class="diff-add">item_id: pirate_moonshine, quantity: 1</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 2</td><td class="diff-add">item_id: red_mist, quantity: 1</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 2</td><td class="diff-add">item_id: starshine, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 2</td><td class="diff-add">item_id: void_dust, quantity: 1</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/trade_nexus.html">trade_nexus</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 4</td><td class="diff-unchanged">item_id: circuit_board, quantity: 4</td></tr><tr><td class="diff-unchanged">item_id: flex_polymer, quantity: 2</td><td class="diff-unchanged">item_id: flex_polymer, quantity: 2</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 4</td><td class="diff-add">item_id: ghost_rounds, quantity: 2</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 4</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 4</td><td class="diff-empty"></td></tr><tr><td class="diff-unchanged">item_id: ionized_neon, quantity: 3</td><td class="diff-unchanged">item_id: ionized_neon, quantity: 3</td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 4</td><td class="diff-add">item_id: nerve_burn, quantity: 2</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 4</td><td class="diff-add">item_id: pirate_moonshine, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: power_cell, quantity: 1</td><td class="diff-unchanged">item_id: power_cell, quantity: 1</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 4</td><td class="diff-add">item_id: red_mist, quantity: 2</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 4</td><td class="diff-add">item_id: starshine, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: trade_authenticator, quantity: 1</td><td class="diff-unchanged">item_id: trade_authenticator, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 4</td><td class="diff-add">item_id: void_dust, quantity: 2</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/void_nexus_exchange.html">void_nexus_exchange</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 3</td><td class="diff-unchanged">item_id: circuit_board, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: focused_crystal, quantity: 1</td><td class="diff-unchanged">item_id: focused_crystal, quantity: 1</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 5</td><td class="diff-add">item_id: ghost_rounds, quantity: 3</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 5</td><td class="diff-add">item_id: nerve_burn, quantity: 3</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 5</td><td class="diff-add">item_id: pirate_moonshine, quantity: 3</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 5</td><td class="diff-add">item_id: red_mist, quantity: 3</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 5</td><td class="diff-add">item_id: starshine, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 5</td><td class="diff-add">item_id: void_dust, quantity: 3</td></tr></tbody></table></div>
+<div class="diff-item-id"><a href="../facilities/service/war_market.html">war_market</a></div>
+<div class="diff-field"><span class="diff-field-name">maintenance_inputs:</span><table class="diff-compare"><thead><tr><th>Previous</th><th>Current</th></tr></thead><tbody><tr><td class="diff-unchanged">item_id: circuit_board, quantity: 4</td><td class="diff-unchanged">item_id: circuit_board, quantity: 4</td></tr><tr><td class="diff-del">item_id: ghost_rounds, quantity: 5</td><td class="diff-add">item_id: ghost_rounds, quantity: 3</td></tr><tr><td class="diff-del">item_id: gutter_flux, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: hot_cell, quantity: 5</td><td class="diff-empty"></td></tr><tr><td class="diff-del">item_id: nerve_burn, quantity: 5</td><td class="diff-add">item_id: nerve_burn, quantity: 3</td></tr><tr><td class="diff-del">item_id: pirate_moonshine, quantity: 5</td><td class="diff-add">item_id: pirate_moonshine, quantity: 3</td></tr><tr><td class="diff-del">item_id: red_mist, quantity: 5</td><td class="diff-add">item_id: red_mist, quantity: 3</td></tr><tr><td class="diff-del">item_id: starshine, quantity: 5</td><td class="diff-add">item_id: starshine, quantity: 3</td></tr><tr><td class="diff-unchanged">item_id: titanium_alloy, quantity: 2</td><td class="diff-unchanged">item_id: titanium_alloy, quantity: 2</td></tr><tr><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td><td class="diff-unchanged">item_id: trade_cipher, quantity: 1</td></tr><tr><td class="diff-del">item_id: void_dust, quantity: 5</td><td class="diff-add">item_id: void_dust, quantity: 3</td></tr></tbody></table></div>
+
+
+</div>
+</div>
+
+<div class="catalog-section" id="map">
+<div class="catalog-header">
+    <h3>Map</h3>
+    <div class="catalog-counts">
+        
+        <span class="diff-add">+0</span>
+        <span class="diff-del">&minus;0</span>
+        <span class="diff-mod">~6</span>
+        
+    </div>
+</div>
+<div class="catalog-body">
+
+
+
+<h4>Modified</h4>
+<div class="diff-item-id"><a href="../systems/arneb/index.html">arneb</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/deep_range/index.html">deep_range</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/frontier/index.html">frontier</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">6</span> &rarr; <span class="diff-add">7</span></div>
+<div class="diff-item-id"><a href="../systems/hassaleh/index.html">hassaleh</a></div>
+<div class="diff-field"><span class="diff-field-name">description:</span> <span class="diff-del">&#34;A distant halo of icy debris defines Hassaleh&#39;s outer system, remaining frozen and undisturbed beyond the reach of its luminous central star.&#34;</span> &rarr; <span class="diff-add">&#34;A distant halo of icy debris defines Hassaleh&#39;s outer system, its ice kept frozen and undisturbed under dark crusts, even in the glare of its luminous central star.&#34;</span></div>
+<div class="diff-item-id"><a href="../systems/last_light/index.html">last_light</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">8</span> &rarr; <span class="diff-add">9</span></div>
+<div class="diff-item-id"><a href="../systems/lhs_1140/index.html">lhs_1140</a></div>
+<div class="diff-field"><span class="diff-field-name">poi_count:</span> <span class="diff-del">10</span> &rarr; <span class="diff-add">9</span></div>
+
+
+</div>
+</div>
+
+</main>
+<script>
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+    if (toggle) toggle.addEventListener('click', function() {
+        root.classList.toggle('dark');
+        localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+})();
+</script>
+</body>
+</html>
