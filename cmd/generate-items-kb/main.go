@@ -321,6 +321,10 @@ type SystemPOI struct {
 	LastUpdatedTick int
 	// ExpiresAt is when a wormhole expires (RFC 3339), when the game said.
 	ExpiresAt string
+	// HazardType (radiation, scar_dust, tidal_shear, ion_storm, ...) and
+	// HazardSeverity are set when an agent found the POI hazardous.
+	HazardType     string
+	HazardSeverity int
 }
 
 // POIResource is a resource found at a POI.
@@ -1956,7 +1960,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	}
 
 	// Load POIs.
-	poiRows, err := db.Query(`SELECT p.system_id, p.id, p.name, p.type, COALESCE(p.class,''), COALESCE(p.description,''), p.position_x, p.position_y, p.hidden, p.reveal_difficulty, COALESCE(p.last_updated_tick,0), COALESCE(p.expires_at,'') FROM pois p WHERE ` + kbpoi.Live + ` ORDER BY p.system_id, p.name`)
+	poiRows, err := db.Query(`SELECT p.system_id, p.id, p.name, p.type, COALESCE(p.class,''), COALESCE(p.description,''), p.position_x, p.position_y, p.hidden, p.reveal_difficulty, COALESCE(p.last_updated_tick,0), COALESCE(p.expires_at,''), COALESCE(p.hazard_type,''), COALESCE(p.hazard_severity,0) FROM pois p WHERE ` + kbpoi.Live + ` ORDER BY p.system_id, p.name`)
 	if err != nil {
 		return nil, err
 	}
@@ -1965,7 +1969,7 @@ func loadSystems(db *sql.DB) ([]*System, error) {
 	for poiRows.Next() {
 		var systemID string
 		var poi SystemPOI
-		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY, &poi.Hidden, &poi.RevealDifficulty, &poi.LastUpdatedTick, &poi.ExpiresAt); err != nil {
+		if err := poiRows.Scan(&systemID, &poi.ID, &poi.Name, &poi.Type, &poi.Class, &poi.Description, &poi.PositionX, &poi.PositionY, &poi.Hidden, &poi.RevealDifficulty, &poi.LastUpdatedTick, &poi.ExpiresAt, &poi.HazardType, &poi.HazardSeverity); err != nil {
 			return nil, err
 		}
 		if s, ok := systemMap[systemID]; ok {
@@ -2120,6 +2124,7 @@ func systemTemplateFuncs(sysLookup map[string]*System) htmltpl.FuncMap {
 		"condenseFacilities": condenseFacilities,
 		"conditionBadge":     conditionBadge,
 		"titleCaseID":   titleCaseID,
+		"hazardBadge":    hazardBadge,
 		"sortPOIsByDist": func(pois []SystemPOI) []SystemPOI {
 			sorted := make([]SystemPOI, len(pois))
 			copy(sorted, pois)
@@ -2700,6 +2705,18 @@ func conditionBadge(condition string) string {
 		return "badge-orange"
 	default:
 		return ""
+	}
+}
+
+// hazardBadge picks the badge colour for a POI hazard severity (1 mild … 4+).
+func hazardBadge(severity int) string {
+	switch {
+	case severity >= 3:
+		return "badge-red"
+	case severity == 2:
+		return "badge-orange"
+	default:
+		return "badge-yellow"
 	}
 }
 
@@ -3647,7 +3664,7 @@ var systemDetailTemplate = `<!DOCTYPE html>
 {{- range sortPOIsByDist .POIs}}
             <tr>
               <td style="text-align:center;font-size:16px">{{poiIcon .Type}}</td>
-              <td>{{- if poiDetailLink .}}<a href="{{poiDetailLink .}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}</td>
+              <td>{{- if poiDetailLink .}}<a href="{{poiDetailLink .}}">{{.Name}}</a>{{else}}{{.Name}}{{end}}{{if .HazardType}} <span class="badge {{hazardBadge .HazardSeverity}}" style="white-space:nowrap" title="Hazard: {{titleCase .HazardType}}, severity {{.HazardSeverity}}">&#x26A0; {{titleCase .HazardType}} {{.HazardSeverity}}</span>{{end}}</td>
               <td>{{titleCase .Type}}</td>
               <td>{{if .Class}}{{.Class}}{{else}}<span class="text-muted">—</span>{{end}}</td>
               <td style="text-align:right">{{poiDist .}}</td>
