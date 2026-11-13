@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"strconv"
 	"testing"
 )
 
@@ -73,5 +74,97 @@ func TestIntersect(t *testing.T) {
 	}
 	if _, ok := intersect(Point{0, 0}, 0, Point{0, 5}, 0); ok {
 		t.Error("parallel rays reported a crossing")
+	}
+}
+
+func TestAnalyze(t *testing.T) {
+	pos := map[string]Point{"a": {0, 0}, "b": {1000, 0}}
+	stars := []Star{
+		{System: "a", At: Point{0, 0}, Lo: 2400, Hi: 3700},
+		{System: "b", At: Point{1000, 0}, Lo: 2400, Hi: 3700},
+		{System: "far", At: Point{0, -9000}, Lo: 5200, Hi: 6000},
+		{System: "hot", Class: "WR", At: Point{0, 9000}, Lo: 20000, Hi: 210000},
+	}
+	obs := []Observation{
+		{System: "a", Stars: []Sighting{
+			{Bearing: 0, Temperature: 3000},   // b, clear
+			{Bearing: 45, Temperature: 7000},  // nothing: unknown
+			{Bearing: 270, Temperature: 6000}, // an ordinary star 9000 away: doubtful
+			{Bearing: 90, Temperature: 60000}, // a Wolf-Rayet 9000 away: fine
+		}},
+		{System: "b", Stars: []Sighting{{Bearing: 135, Temperature: 7000}}},
+		{System: "nowhere", Stars: []Sighting{{Bearing: 0, Temperature: 3000}}},
+	}
+	rs, xs := analyze(obs, pos, stars, Limits{Tol: 5, ClearErr: 3, ClearDist: 5000, FitErr: 3.5, Sigma: 2, MinCross: 10})
+	got := map[string]string{}
+	for _, r := range rs {
+		got[r.Obs+"/"+fmtF(r.S.Bearing)] = r.Status
+	}
+	want := map[string]string{"a/0": "match", "a/45": "unknown", "a/270": "doubtful", "a/90": "match", "b/135": "unknown"}
+	for k, v := range want {
+		if got[k] != v {
+			t.Errorf("%s status = %q, want %q", k, got[k], v)
+		}
+	}
+	if len(rs) != 5 {
+		t.Errorf("%d readings, want 5 (the system with no position is skipped)", len(rs))
+	}
+	if len(xs) != 1 || math.Abs(xs[0].At.X-500) > 1e-6 || math.Abs(xs[0].At.Y-500) > 1e-6 {
+		t.Fatalf("fits = %+v, want one at (500,500)", xs)
+	}
+	if xs[0].Major <= 0 {
+		t.Errorf("fit has no error ellipse: %+v", xs[0])
+	}
+}
+
+func fmtF(f float64) string { return strconv.FormatFloat(f, 'f', -1, 64) }
+
+func TestAnalyzeOneStarPerSighting(t *testing.T) {
+	pos := map[string]Point{"o": {0, 0}}
+	stars := []Star{{System: "s", At: Point{1000, 140}, Lo: 20000, Hi: 210000}} // bearing ≈ 8°
+	obs := []Observation{{System: "o", Stars: []Sighting{{Bearing: 10, Temperature: 60000}, {Bearing: 5, Temperature: 60000}}}}
+	rs, _ := analyze(obs, pos, stars, Limits{Tol: 6, ClearErr: 3})
+	matched := 0
+	for _, r := range rs {
+		if r.Match != nil {
+			matched++
+		}
+	}
+	if matched != 1 {
+		t.Errorf("%d sightings matched the one star, want 1", matched)
+	}
+	if rs[0].Status != "match" || rs[1].Status != "unknown" {
+		t.Errorf("statuses = %s, %s; want the closer bearing (10°, 2° off) to win", rs[0].Status, rs[1].Status)
+	}
+}
+
+func TestAnalyzePrefersPlausible(t *testing.T) {
+	pos := map[string]Point{"o": {0, 0}}
+	stars := []Star{
+		{System: "near", At: Point{300, 10}, Lo: 6000, Hi: 7500}, // ≈1.9° off, 300 away
+		{System: "far", At: Point{9000, 0}, Lo: 6000, Hi: 7500},  // 0° off, too far for a cool star
+	}
+	obs := []Observation{{System: "o", Stars: []Sighting{{Bearing: 0, Temperature: 6000}}}}
+	rs, _ := analyze(obs, pos, stars, Limits{Tol: 6, ClearErr: 3, ClearDist: 2000})
+	if rs[0].Match == nil || rs[0].Match.Star.System != "near" || rs[0].Status != "match" {
+		t.Errorf("got %+v (%s), want a clear match to near", rs[0].Match, rs[0].Status)
+	}
+}
+
+func TestTooFar(t *testing.T) {
+	lim := Limits{ClearDist: 2000, DwarfDist: 2500}
+	cases := []struct {
+		class string
+		d     float64
+		want  bool
+	}{
+		{"WR", 9000, false}, {"O7I", 9000, false},
+		{"DA", 2000, false}, {"DA", 8000, true},
+		{"G2V", 1500, false}, {"G2V", 8000, true},
+	}
+	for _, c := range cases {
+		if got := lim.tooFar(Match{Star: Star{Class: c.class}, Distance: c.d}); got != c.want {
+			t.Errorf("tooFar(%s at %v) = %v, want %v", c.class, c.d, got, c.want)
+		}
 	}
 }

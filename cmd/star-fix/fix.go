@@ -70,6 +70,18 @@ func parseTempRange(s string) (lo, hi float64) {
 func matchSighting(obs Point, obsID string, s Sighting, stars []Star, tol float64) (Match, bool) {
 	var best Match
 	found := false
+	for _, m := range candidates(obs, obsID, s, stars, tol) {
+		if !found || m.Distance < best.Distance {
+			best, found = m, true
+		}
+	}
+	return best, found
+}
+
+// candidates lists every known star that could be the sighting: within tol
+// degrees and with the reading inside its class's temperature range.
+func candidates(obs Point, obsID string, s Sighting, stars []Star, tol float64) []Match {
+	var out []Match
 	for _, st := range stars {
 		if st.System == obsID || s.Temperature < st.Lo || s.Temperature > st.Hi {
 			continue
@@ -78,15 +90,11 @@ func matchSighting(obs Point, obsID string, s Sighting, stars []Star, tol float6
 		if d == 0 {
 			continue
 		}
-		e := angleDiff(bearing(obs, st.At), s.Bearing)
-		if e > tol {
-			continue
-		}
-		if !found || d < best.Distance {
-			best, found = Match{Star: st, Err: e, Distance: d}, true
+		if e := angleDiff(bearing(obs, st.At), s.Bearing); e <= tol {
+			out = append(out, Match{Star: st, Err: e, Distance: d})
 		}
 	}
-	return best, found
+	return out
 }
 
 // intersect crosses two bearing lines and reports where they meet, if they
