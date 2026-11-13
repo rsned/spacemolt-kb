@@ -8,7 +8,8 @@ const catalogDir = "../spacemolt/data/game-api/latest"
 // placeFrontier puts uncharted frontier systems where they belong. The
 // database holds them at (0,0) -- Sol's spot -- because neither get_map nor
 // get_system reports a position for them. Those with an estimate take it;
-// those without are dropped, along with every connection to them. It returns
+// those with neither an estimate nor a stored position are dropped, along with
+// every connection to them. It returns
 // the kept systems and the set of frontier system IDs (for the pink dots).
 // With no map scrape (charted empty) nothing is treated as frontier.
 func placeFrontier(systems []*System, charted map[string]bool, est map[string]frontier.Estimate) ([]*System, map[string]bool) {
@@ -23,12 +24,12 @@ func placeFrontier(systems []*System, charted map[string]bool, est map[string]fr
 			kept = append(kept, s)
 			continue
 		}
-		e, ok := est[s.ID]
-		if !ok {
-			dropped[s.ID] = true
+		if e, ok := est[s.ID]; ok {
+			s.PositionX, s.PositionY = e.X, e.Y
+		} else if s.PositionX == 0 && s.PositionY == 0 {
+			dropped[s.ID] = true // no estimate and no position: it would sit on Sol
 			continue
 		}
-		s.PositionX, s.PositionY = e.X, e.Y
 		ids[s.ID] = true
 		kept = append(kept, s)
 	}

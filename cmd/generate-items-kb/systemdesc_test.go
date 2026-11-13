@@ -69,6 +69,14 @@ func TestApplyFrontierPositions(t *testing.T) {
 	if !cl.PositionUnknown || cl.PositionApprox {
 		t.Errorf("cold_lens = %+v", cl)
 	}
+
+	// After the estimates are backfilled into the database the position is
+	// no longer (0,0), but it is still an estimate: keep the marker.
+	bf := &System{ID: "bristle", Uncharted: true, PositionX: -5054, PositionY: 5493}
+	applyFrontierPositions([]*System{bf}, map[string]frontierEstimate{"bristle": {X: -5054, Y: 5493}})
+	if !bf.PositionApprox || bf.PositionUnknown {
+		t.Errorf("backfilled bristle = %+v, want approximate", bf)
+	}
 }
 
 func TestLoadFrontierEstimates(t *testing.T) {

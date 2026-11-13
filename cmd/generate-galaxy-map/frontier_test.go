@@ -18,6 +18,10 @@ func TestPlaceFrontier(t *testing.T) {
 	if len(sol.Connections) != 0 || len(ln.Connections) != 1 {
 		t.Errorf("connections to the dropped system survive: sol=%v ln=%v", sol.Connections, ln.Connections)
 	}
+	placed := &System{ID: "backfilled", PositionX: -10, PositionY: 20}
+	if kept, ids := placeFrontier([]*System{placed}, map[string]bool{"sol": true}, nil); len(kept) != 1 || !ids["backfilled"] {
+		t.Errorf("an uncharted system with a stored position should be kept: %v %v", kept, ids)
+	}
 	if kept, ids := placeFrontier([]*System{sol, lost}, nil, nil); len(kept) != 2 || len(ids) != 0 {
 		t.Error("with no map nothing should change")
 	}

@@ -17,17 +17,18 @@ func loadFrontierEstimates(path string) map[string]frontierEstimate {
 
 // applyFrontierPositions gives uncharted systems a usable position. Neither
 // get_map nor get_system reports one for them, so the database holds (0,0) --
-// Sol's spot. An estimate, when there is one, is used and flagged approximate;
-// otherwise the system is flagged as having no position and kept off maps.
-// Charted systems are never touched.
+// Sol's spot -- unless the estimates were backfilled into it. An uncharted
+// system with an estimate takes it and is flagged approximate either way;
+// one with no estimate and no position is flagged as having none and kept
+// off the maps. Charted systems are never touched.
 func applyFrontierPositions(systems []*System, est map[string]frontierEstimate) {
 	for _, s := range systems {
-		if !s.Uncharted || s.PositionX != 0 || s.PositionY != 0 {
+		if !s.Uncharted {
 			continue
 		}
 		if e, ok := est[s.ID]; ok {
 			s.PositionX, s.PositionY, s.PositionApprox = e.X, e.Y, true
-		} else {
+		} else if s.PositionX == 0 && s.PositionY == 0 {
 			s.PositionUnknown = true
 		}
 	}
