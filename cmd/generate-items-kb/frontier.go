@@ -33,14 +33,3 @@ func applyFrontierPositions(systems []*System, est map[string]frontierEstimate) 
 		}
 	}
 }
-
-// withPosition returns the systems that can be placed on a map.
-func withPosition(systems []*System) []*System {
-	out := make([]*System, 0, len(systems))
-	for _, s := range systems {
-		if !s.PositionUnknown {
-			out = append(out, s)
-		}
-	}
-	return out
-}

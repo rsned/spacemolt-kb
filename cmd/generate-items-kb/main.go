@@ -2254,15 +2254,9 @@ func writeSystemPages(outDir string, systems []*System) error {
 		empires = append(empires, eg)
 	}
 	if fg, ok := frontierGroup(systems); ok {
-		mapped := fg
-		mapped.Systems = withPosition(fg.Systems)
-		placed := make(map[string]*System, len(sysLookup))
-		for id, s := range sysLookup {
-			if !s.PositionUnknown {
-				placed[id] = s
-			}
-		}
-		fg.MapSVG = htmltpl.HTML(renderEmpireMap(mapped, placed))
+		// Frontier regions lie far apart: draw a galaxy overview with a
+		// zoomed callout per region rather than one fitted mini-map.
+		fg.MapSVG = htmltpl.HTML(renderFrontierCallouts(systems)) //nolint:gosec // generated SVG, names escaped
 		empires = append(empires, fg)
 	}
 
