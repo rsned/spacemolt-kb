@@ -30,6 +30,54 @@ type Reading struct {
 // readings agree on. Observations
 // from a system with no known position are skipped.
 func analyze(obs []Observation, pos map[string]Point, stars []Star, lim Limits) ([]Reading, []Fit) {
+	rs := matchAll(obs, pos, stars, lim)
+	// The telescope reads each star at one fixed temperature (Menkib is
+	// always 36,000 K). Lock a star to its reading once two clear matches
+	// agree on it, then match again so other temperatures cannot claim it.
+	if locked := lockTemps(rs); len(locked) > 0 {
+		ls := slices.Clone(stars)
+		for i := range ls {
+			ls[i].Locked = locked[ls[i].System]
+		}
+		rs = matchAll(obs, pos, ls, lim)
+	}
+	return rs, groupStars(rs, lim)
+}
+
+// lockTemps returns, for each clearly matched star, the temperature most of
+// its clear matches agree on: at least two of them, and more than all other
+// temperatures together (a stray reading of some other star at its bearing
+// must not block the lock).
+func lockTemps(rs []Reading) map[string]float64 {
+	counts := map[string]map[float64]int{}
+	for _, r := range rs {
+		if r.Status != "match" {
+			continue
+		}
+		sys := r.Match.Star.System
+		if counts[sys] == nil {
+			counts[sys] = map[float64]int{}
+		}
+		counts[sys][r.S.Temperature]++
+	}
+	out := map[string]float64{}
+	for sys, c := range counts {
+		total := 0
+		for _, n := range c {
+			total += n
+		}
+		for t, n := range c {
+			if n >= 2 && 2*n > total {
+				out[sys] = t
+			}
+		}
+	}
+	return out
+}
+
+// matchAll matches every sighting of every observation, one star per
+// sighting within a reading.
+func matchAll(obs []Observation, pos map[string]Point, stars []Star, lim Limits) []Reading {
 	var rs []Reading
 	for _, o := range obs {
 		at, ok := pos[o.System]
@@ -72,7 +120,7 @@ func analyze(obs []Observation, pos map[string]Point, stars []Star, lim Limits) 
 			rs = append(rs, r)
 		}
 	}
-	return rs, groupStars(rs, lim)
+	return rs
 }
 
 // tooFar reports a match too far away for the telescope to have seen it.

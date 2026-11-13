@@ -42,6 +42,15 @@ type jsMember struct {
 	D   float64 `json:"d"`
 }
 
+type jsJump struct {
+	From    string  `json:"from"`
+	Heading float64 `json:"h"`
+	Tol     float64 `json:"tol"`
+	D       float64 `json:"d"`
+	Blocker string  `json:"blk,omitempty"`
+	BlockAt float64 `json:"blkd,omitempty"`
+}
+
 type jsFit struct {
 	Temp    float64    `json:"t"`
 	X       float64    `json:"x"`
@@ -52,6 +61,7 @@ type jsFit struct {
 	Minor   float64    `json:"min"`
 	Angle   float64    `json:"ang"`
 	Members []jsMember `json:"m"`
+	Jumps   []jsJump   `json:"j"`
 }
 
 func writeHTML(path string, systems []System, obs []Observation, rs []Reading, fits []Fit, lim Limits) error {
@@ -85,6 +95,13 @@ func writeHTML(path string, systems []System, obs []Observation, rs []Reading, f
 		for _, m := range f.Members {
 			j.Members = append(j.Members, jsMember{Obs: m.Obs, B: m.S.Bearing, Br: m.S.Brightness,
 				D: math.Round(math.Hypot(f.At.X-m.From.X, f.At.Y-m.From.Y))})
+		}
+		for _, jp := range jumpChecks(f, systems) {
+			jj := jsJump{From: jp.From, Heading: math.Round(jp.Heading*100) / 100, Tol: math.Round(jp.Tol*100) / 100, D: math.Round(jp.Distance)}
+			if !jp.Clear {
+				jj.Blocker, jj.BlockAt = names[jp.Blocker], math.Round(jp.BlockAt)
+			}
+			j.Jumps = append(j.Jumps, jj)
 		}
 		js.Fits = append(js.Fits, j)
 	}
@@ -139,7 +156,7 @@ tr[data-i]{cursor:pointer}tr[data-i]:hover{background:#1a2333}
 </div>
 <div id="wrap"><canvas id="c"></canvas><div id="tip"></div></div>
 <section>
-<h2>Fitted unknown stars</h2><table id="xt"><thead><tr><th>Temp</th><th class="r">Position</th><th class="r">From centre</th><th class="r">±1σ</th><th class="r">Worst miss</th><th>Readings</th></tr></thead><tbody></tbody></table>
+<h2>Fitted unknown stars</h2><table id="xt"><thead><tr><th>Temp</th><th class="r">Position</th><th class="r">From centre</th><th class="r">±1σ</th><th class="r">Worst miss</th><th>Readings</th><th>Pathfinder</th></tr></thead><tbody></tbody></table>
 <h2>Unclear readings</h2><table id="rt"><thead><tr><th>From</th><th class="r">Bearing</th><th class="r">Temp</th><th class="r">Bright</th><th>Status</th><th>Best match</th></tr></thead><tbody></tbody></table>
 </section>
 <script>
@@ -234,7 +251,7 @@ window.addEventListener('resize', () => { size(); draw(); });
 // tables
 const name = id => (D.systems.find(s => s.id === id) || {name: id}).name;
 const xt = document.querySelector('#xt tbody');
-if (!D.fits.length) xt.innerHTML = '<tr><td colspan="6" class="sub">None yet: an unknown star needs agreeing readings from two systems.</td></tr>';
+if (!D.fits.length) xt.innerHTML = '<tr><td colspan="7" class="sub">None yet: an unknown star needs agreeing readings from two systems.</td></tr>';
 for (const f of D.fits) xt.insertAdjacentHTML('beforeend', '<tr><td>' + f.t + ' K</td><td class="r">(' + f.x + ', ' + f.y + ')</td><td class="r">' + f.r + '</td><td class="r">' + f.maj + ' × ' + f.min + '</td><td class="r">' + f.err + '°</td><td>' + f.m.map(m => name(m.obs) + ' ' + m.b + '° b' + m.br).join(', ') + '</td></tr>');
 const rt = document.querySelector('#rt tbody');
 unclear.forEach((r, i) => rt.insertAdjacentHTML('beforeend', '<tr data-i="' + i + '"><td>' + name(r.obs) + '</td><td class="r">' + r.b + '°</td><td class="r">' + r.t + ' K</td><td class="r">' + r.br + '</td><td class="' + r.st + '">' + r.st + '</td><td>' + (r.m ? r.m + ' (' + r.mc + '), ' + r.err + '° off, ' + r.d + ' away' : '—') + '</td></tr>'));

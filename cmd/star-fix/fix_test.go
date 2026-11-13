@@ -168,3 +168,22 @@ func TestTooFar(t *testing.T) {
 		}
 	}
 }
+
+func TestAnalyzeTemperatureLock(t *testing.T) {
+	// Menkib-like: an O star (range >30000 K) read at 36000 K from two
+	// systems. A 60000 K reading at its bearing is some other star.
+	pos := map[string]Point{"a": {0, 0}, "b": {0, 1000}, "c": {1000, 1000}}
+	stars := []Star{{System: "o", Class: "O7I", At: Point{1000, 0}, Lo: 30000, Hi: math.Inf(1)}}
+	obs := []Observation{
+		{System: "a", Stars: []Sighting{{Bearing: bearing(Point{0, 0}, Point{1000, 0}), Temperature: 36000}}},
+		{System: "b", Stars: []Sighting{{Bearing: bearing(Point{0, 1000}, Point{1000, 0}), Temperature: 36000}}},
+		{System: "c", Stars: []Sighting{{Bearing: 270, Temperature: 60000}}},
+	}
+	rs, _ := analyze(obs, pos, stars, Limits{Tol: 6, ClearErr: 3})
+	if rs[0].Status != "match" || rs[1].Status != "match" {
+		t.Fatalf("36000 K readings: %s, %s; want both matched", rs[0].Status, rs[1].Status)
+	}
+	if rs[2].Status != "unknown" {
+		t.Errorf("60000 K reading at the locked star's bearing: %s, want unknown", rs[2].Status)
+	}
+}

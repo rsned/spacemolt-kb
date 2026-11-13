@@ -16,6 +16,9 @@ type Star struct {
 	Class  string
 	At     Point
 	Lo, Hi float64 // kelvin; Hi is +Inf for an open-ended range
+	// Locked is the one temperature the telescope reads for this star, once
+	// learned from its clear matches (0: not known yet).
+	Locked float64
 }
 
 // Sighting is one star_sightings entry from get_location with a telescope fitted.
@@ -83,7 +86,8 @@ func matchSighting(obs Point, obsID string, s Sighting, stars []Star, tol float6
 func candidates(obs Point, obsID string, s Sighting, stars []Star, tol float64) []Match {
 	var out []Match
 	for _, st := range stars {
-		if st.System == obsID || s.Temperature < st.Lo || s.Temperature > st.Hi {
+		if st.System == obsID || s.Temperature < st.Lo || s.Temperature > st.Hi ||
+			(st.Locked != 0 && s.Temperature != st.Locked) {
 			continue
 		}
 		d := math.Hypot(st.At.X-obs.X, st.At.Y-obs.Y)

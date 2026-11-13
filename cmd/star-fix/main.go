@@ -77,7 +77,7 @@ func main() {
 		}
 	}
 	rs, fits := analyze(f.Observations, pos, stars, lim)
-	report(f.Observations, pos, rs, fits, lim)
+	report(f.Observations, pos, rs, fits, systems, lim)
 	if *htmlPath != "" {
 		if err := writeHTML(*htmlPath, systems, f.Observations, rs, fits, lim); err != nil {
 			log.Fatal(err)
@@ -87,7 +87,7 @@ func main() {
 }
 
 // report prints each observation's readings and the crossings.
-func report(obs []Observation, pos map[string]Point, rs []Reading, fits []Fit, lim Limits) {
+func report(obs []Observation, pos map[string]Point, rs []Reading, fits []Fit, systems []System, lim Limits) {
 	i := 0
 	for _, o := range obs {
 		at, ok := pos[o.System]
@@ -116,8 +116,12 @@ func report(obs []Observation, pos map[string]Point, rs []Reading, fits []Fit, l
 	for _, f := range fits {
 		fmt.Printf("Unknown %.0f K star at (%.0f, %.0f), %.0f from the centre: %d readings, worst %.1f° off, ±%.0f × ±%.0f\n",
 			f.Temp, f.At.X, f.At.Y, math.Hypot(f.At.X, f.At.Y), len(f.Members), f.MaxErr, f.Major, f.Minor)
-		for _, m := range f.Members {
-			fmt.Printf("    %s %.0f° b%d (%.0f away)\n", m.Obs, m.S.Bearing, m.S.Brightness, math.Hypot(f.At.X-m.From.X, f.At.Y-m.From.Y))
+		for _, j := range jumpChecks(f, systems) {
+			path := "path clear"
+			if !j.Clear {
+				path = fmt.Sprintf("blocked by %s after %.0f", j.Blocker, j.BlockAt)
+			}
+			fmt.Printf("    %-12s pathfinder %6.2f° ±%.2f°, %5.0f away: %s\n", j.From, j.Heading, j.Tol, j.Distance, path)
 		}
 	}
 }
