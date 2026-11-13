@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontier - Hostiles - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+    <style>
+    .hz-summary { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+    .hz-summary > div { padding: 0.6rem 0.9rem; border: 1px solid hsl(var(--border)); border-radius: 6px; min-width: 7rem; }
+    .hz-summary .num { font-size: 20px; font-weight: 600; }
+    .hz-summary .label { font-size: var(--text-label); color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 1px; }
+    td.r, th.r { text-align: right; white-space: nowrap; }
+    .hz-section { margin-top: 1.5rem; }
+    .hz-pick { margin: 1.5rem 0 0.5rem; }
+    .hz-empty { padding: 1rem; border: 1px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../nav.js" defer></script>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="index.html">Hostiles</a> / Frontier</div>
+        <h2>Frontier</h2>
+        <p class="text-muted mt-1">Repeaters: hostile units met in the uncharted frontier systems beyond the charted map. They fight in groups and so far deal energy damage.</p>
+        <div class="hz-summary">
+            <div><div class="num">3</div><div class="label">Types</div></div>
+            <div><div class="num"><span class="text-muted">—</span></div><div class="label">Units seen</div></div>
+            <div><div class="num"><span class="text-muted">—</span></div><div class="label">Systems</div></div>
+            <div><div class="num">1</div><div class="label">Battles logged</div></div>
+        </div>
+
+        <div class="section-label">Types, most dangerous first</div>
+        <table>
+            <thead><tr><th>Type</th><th class="r">Max hull</th><th class="r">Max shield</th><th class="r">Units seen</th><th class="r">Systems</th><th class="r">Battles</th><th class="r">Hardest hit</th></tr></thead>
+            <tbody>
+                <tr><td><a href="#repeater-monolith" class="hz-jump" data-slug="repeater-monolith">Repeater Monolith</a></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r">1</td><td class="r">305</td></tr>
+                <tr><td><a href="#repeater-pane" class="hz-jump" data-slug="repeater-pane">Repeater Pane</a></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r">1</td><td class="r">24</td></tr>
+                <tr><td><a href="#repeater-spire" class="hz-jump" data-slug="repeater-spire">Repeater Spire</a></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td><td class="r">1</td><td class="r">23</td></tr>
+            </tbody>
+        </table>
+        <p class="text-muted" style="font-size: 12.5px">Ordered by max hull + shield; types whose hull and shield are not captured yet follow by their hardest hit. "—" means not recorded yet.</p>
+
+        <div class="hz-pick"><label for="hz-type" class="section-label">Type </label>
+            <select id="hz-type">
+                <option value="repeater-monolith">Repeater Monolith</option>
+                <option value="repeater-pane">Repeater Pane</option>
+                <option value="repeater-spire">Repeater Spire</option>
+            </select>
+        </div>
+        <section id="repeater-monolith" class="hz-type">
+            <h3>Repeater Monolith</h3>
+            <p class="text-muted">Known from battle logs only.</p>
+
+            <div class="hz-section section-label">Sightings by system</div>
+            <div class="hz-empty">No sightings recorded yet.</div>
+
+            <div class="hz-section section-label">Weapons</div>
+            <table>
+                <thead><tr><th>Weapon</th><th>Damage type</th><th>Shot</th><th class="r">Hit rate</th><th class="r">Damage per hit</th><th class="r">Total damage</th><th class="r">Battles</th></tr></thead>
+                <tbody>
+                    <tr><td>Heavy Pulse Laser</td><td>Energy</td><td>Beam</td><td class="r">75% <span class="text-muted">(24/32)</span></td><td class="r">78–305</td><td class="r">4,120</td><td class="r">1</td></tr>
+                </tbody>
+            </table>
+        </section>
+        <section id="repeater-pane" class="hz-type" hidden>
+            <h3>Repeater Pane</h3>
+            <p class="text-muted">Known from battle logs only.</p>
+
+            <div class="hz-section section-label">Sightings by system</div>
+            <div class="hz-empty">No sightings recorded yet.</div>
+
+            <div class="hz-section section-label">Weapons</div>
+            <table>
+                <thead><tr><th>Weapon</th><th>Damage type</th><th>Shot</th><th class="r">Hit rate</th><th class="r">Damage per hit</th><th class="r">Total damage</th><th class="r">Battles</th></tr></thead>
+                <tbody>
+                    <tr><td>Pulse Laser II</td><td>Energy</td><td>Beam</td><td class="r">100% <span class="text-muted">(10/10)</span></td><td class="r">12–24</td><td class="r">204</td><td class="r">1</td></tr>
+                    <tr><td><span class="text-muted">(effect)</span></td><td>Em</td><td>Beam</td><td class="r">100% <span class="text-muted">(1/1)</span></td><td class="r">0–0</td><td class="r">0</td><td class="r">1</td></tr>
+                </tbody>
+            </table>
+        </section>
+        <section id="repeater-spire" class="hz-type" hidden>
+            <h3>Repeater Spire</h3>
+            <p class="text-muted">Known from battle logs only.</p>
+
+            <div class="hz-section section-label">Sightings by system</div>
+            <div class="hz-empty">No sightings recorded yet.</div>
+
+            <div class="hz-section section-label">Weapons</div>
+            <table>
+                <thead><tr><th>Weapon</th><th>Damage type</th><th>Shot</th><th class="r">Hit rate</th><th class="r">Damage per hit</th><th class="r">Total damage</th><th class="r">Battles</th></tr></thead>
+                <tbody>
+                    <tr><td>Focused Beam II</td><td>Energy</td><td>Beam</td><td class="r">66% <span class="text-muted">(8/12)</span></td><td class="r">17–23</td><td class="r">160</td><td class="r">1</td></tr>
+                </tbody>
+            </table>
+        </section>
+        <script>
+        document.querySelectorAll('.hz-jump').forEach(function(a) {
+            a.addEventListener('click', function(e) { e.preventDefault(); var s = document.getElementById('hz-type'); s.value = a.dataset.slug; s.dispatchEvent(new Event('change')); document.getElementById(a.dataset.slug).scrollIntoView(); });
+        });
+        </script>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        if (toggle) toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+        
+        var sel = document.getElementById('hz-type');
+        if (!sel) return;
+        function show(slug) {
+            document.querySelectorAll('.hz-type').forEach(function(s) { s.hidden = (s.id !== slug); });
+            sel.value = slug;
+        }
+        sel.addEventListener('change', function() { show(sel.value); history.replaceState(null, '', '#' + sel.value); });
+        var h = location.hash.slice(1);
+        if (h && document.getElementById(h)) show(h);
+    })();
+    </script>
+</body>
+</html>

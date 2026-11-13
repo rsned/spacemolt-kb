@@ -82,8 +82,8 @@ func TestNavScriptListsChildren(t *testing.T) {
 			}
 		}
 	}
-	if n != 9 {
-		t.Errorf("got %d sub-entries, want 9", n)
+	if n != 11 {
+		t.Errorf("got %d sub-entries, want 11", n)
 	}
 	if !strings.Contains(js, `"path": "recipes/where.html"`) {
 		t.Error("Where Can I Make This? missing from the drawer")

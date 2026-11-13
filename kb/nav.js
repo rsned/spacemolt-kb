@@ -86,6 +86,20 @@
       ]
     },
     {
+      "path": "hostiles/index.html",
+      "label": "Hostiles",
+      "children": [
+        {
+          "path": "hostiles/frontier.html",
+          "label": "Frontier"
+        },
+        {
+          "path": "hostiles/pirates.html",
+          "label": "Pirates"
+        }
+      ]
+    },
+    {
       "path": "missions/index.html",
       "label": "Missions",
       "children": [
