@@ -12,7 +12,7 @@ import (
 // generation timestamp so relative-time output is deterministic per run.
 func templateFuncs(genTime time.Time) htmltpl.FuncMap {
 	return htmltpl.FuncMap{
-		"rel": func(utc string) string { return relativeTime(genTime, utc) },
+		"activity": func(utc string) string { return activity(genTime, utc) },
 		"shortDate": func(utc string) string {
 			t, err := time.Parse(time.RFC3339, utc)
 			if err != nil {
@@ -456,7 +456,7 @@ var playerDetailTmpl = `<!DOCTYPE html>
 {{- end}}
                 {{if .ClanTag}}<dt>Clan</dt><dd>{{.ClanTag}}</dd>{{end}}
                 <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
-                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+                <dt>Activity</dt><dd>{{activity .LastSeenUTC}}</dd>
             </dl>
             <div class="infobox-id">{{.ID}}</div>
         </aside>
@@ -470,7 +470,7 @@ var playerDetailTmpl = `<!DOCTYPE html>
             <dl class="infobox-data">
                 {{if .ClanTag}}<dt>Clan</dt><dd>{{.ClanTag}}</dd>{{end}}
                 <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
-                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+                <dt>Activity</dt><dd>{{activity .LastSeenUTC}}</dd>
             </dl>
             <div class="infobox-id">{{.ID}}</div>
         </aside>
@@ -491,7 +491,7 @@ var playerDetailTmpl = `<!DOCTYPE html>
             <dl class="infobox-data">
                 {{if .ClanTag}}<dt>Clan</dt><dd>{{.ClanTag}}</dd>{{end}}
                 <dt>First seen</dt><dd>{{shortDate .FirstSeenUTC}}</dd>
-                <dt>Last seen</dt><dd>{{rel .LastSeenUTC}}</dd>
+                <dt>Activity</dt><dd>{{activity .LastSeenUTC}}</dd>
             </dl>
             <div class="infobox-id">{{.ID}}</div>
         </aside>

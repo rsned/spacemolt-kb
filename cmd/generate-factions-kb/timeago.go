@@ -1,30 +1,22 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
-// relativeTime renders utc (RFC3339) as a short human delta from now:
-// "just now", "30m ago", "2h ago", "2d ago". Future or unparseable times
-// return "just now" / "—" respectively so templates never error.
-func relativeTime(now time.Time, utc string) string {
-	if utc == "" {
-		return "—"
-	}
+// activeWindow is how recently a player must have been seen to count as
+// active.
+const activeWindow = 30 * 24 * time.Hour
+
+// activity renders a player's last sighting (RFC3339) as "Active recently"
+// (seen within the last 30 days) or "Inactive". An exact age would change on
+// every regen and churn thousands of player pages; this only changes when a
+// player crosses the line. Unparseable or empty times return "—".
+func activity(now time.Time, utc string) string {
 	ts, err := time.Parse(time.RFC3339, utc)
 	if err != nil {
 		return "—"
 	}
-	d := now.Sub(ts)
-	switch {
-	case d < time.Minute:
-		return "just now"
-	case d < time.Hour:
-		return fmt.Sprintf("%dm ago", int(d.Minutes()))
-	case d < 24*time.Hour:
-		return fmt.Sprintf("%dh ago", int(d.Hours()))
-	default:
-		return fmt.Sprintf("%dd ago", int(d.Hours())/24)
+	if now.Sub(ts) < activeWindow {
+		return "Active recently"
 	}
+	return "Inactive"
 }
