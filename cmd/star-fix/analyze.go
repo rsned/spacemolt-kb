@@ -37,7 +37,7 @@ func analyze(obs []Observation, pos map[string]Point, stars []Star, lim Limits) 
 	if locked := lockTemps(rs); len(locked) > 0 {
 		ls := slices.Clone(stars)
 		for i := range ls {
-			ls[i].Locked = locked[ls[i].System]
+			ls[i].Locked = locked[ls[i].key()]
 		}
 		rs = matchAll(obs, pos, ls, lim)
 	}
@@ -54,7 +54,7 @@ func lockTemps(rs []Reading) map[string]float64 {
 		if r.Status != "match" {
 			continue
 		}
-		sys := r.Match.Star.System
+		sys := r.Match.Star.key()
 		if counts[sys] == nil {
 			counts[sys] = map[float64]int{}
 		}
@@ -104,9 +104,9 @@ func matchAll(obs []Observation, pos map[string]Point, stars []Star, lim Limits)
 		got := make([]*Match, len(o.Stars))
 		used := map[string]bool{}
 		for _, c := range cs {
-			if got[c.i] == nil && !used[c.m.Star.System] {
+			if got[c.i] == nil && !used[c.m.Star.key()] {
 				m := c.m
-				got[c.i], used[c.m.Star.System] = &m, true
+				got[c.i], used[c.m.Star.key()] = &m, true
 			}
 		}
 		for i, s := range o.Stars {

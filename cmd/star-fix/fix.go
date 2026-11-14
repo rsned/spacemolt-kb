@@ -21,6 +21,9 @@ type Star struct {
 	Locked float64
 }
 
+// key names one star: a binary system has two, told apart by class.
+func (s Star) key() string { return s.System + "/" + s.Class }
+
 // Sighting is one star_sightings entry from get_location with a telescope fitted.
 type Sighting struct {
 	Bearing     float64 `json:"bearing"`

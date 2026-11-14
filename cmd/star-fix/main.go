@@ -85,8 +85,10 @@ func main() {
 	var stars []Star
 	for _, s := range systems {
 		pos[s.ID] = s.At
-		if s.Star.Hi > 0 {
-			stars = append(stars, s.Star)
+		for _, st := range s.Stars {
+			if st.Hi > 0 {
+				stars = append(stars, st)
+			}
 		}
 	}
 	addTransitObservers(f.Observations, pos)
@@ -145,13 +147,13 @@ type System struct {
 	ID, Name  string
 	At        Point
 	Estimated bool // position from the frontier estimates file
-	Star      Star // Hi == 0 when the star's class is unknown
+	Stars     []Star // one per star (two for a binary); none when unknown
 }
 
 // load reads every positioned system (frontier estimates win over the DB's
 // 0,0) with its star's class temperature range.
 func load(db *sql.DB, est map[string]frontier.Estimate) ([]System, error) {
-	star := map[string]Star{}
+	star := map[string][]Star{}
 	rows, err := db.Query(`SELECT p.system_id, m.star_class, COALESCE(m.temp_range,'')
 		FROM pois p JOIN poi_metadata_stars m ON m.poi_id = p.id`)
 	if err != nil {
@@ -163,7 +165,7 @@ func load(db *sql.DB, est map[string]frontier.Estimate) ([]System, error) {
 			return nil, err
 		}
 		lo, hi := parseTempRange(tr)
-		star[sys] = Star{System: sys, Class: class, Lo: lo, Hi: hi}
+		star[sys] = append(star[sys], Star{System: sys, Class: class, Lo: lo, Hi: hi})
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -189,9 +191,9 @@ func load(db *sql.DB, est map[string]frontier.Estimate) ([]System, error) {
 		default:
 			continue
 		}
-		if st, ok := star[id]; ok {
+		for _, st := range star[id] {
 			st.At = s.At
-			s.Star = st
+			s.Stars = append(s.Stars, st)
 		}
 		out = append(out, s)
 	}

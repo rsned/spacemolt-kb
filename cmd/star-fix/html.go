@@ -6,6 +6,7 @@ import (
 	htmltpl "html/template"
 	"math"
 	"os"
+	"strings"
 )
 
 // The plot is one self-contained page: the data as JSON, drawn on a canvas
@@ -76,7 +77,7 @@ func writeHTML(path string, systems []System, obs []Observation, rs []Reading, f
 	names := map[string]string{}
 	for _, s := range systems {
 		names[s.ID] = s.Name
-		js.Systems = append(js.Systems, jsSystem{ID: s.ID, Name: s.Name, X: s.At.X, Y: s.At.Y, Est: s.Estimated, Class: s.Star.Class})
+		js.Systems = append(js.Systems, jsSystem{ID: s.ID, Name: s.Name, X: s.At.X, Y: s.At.Y, Est: s.Estimated, Class: starClasses(s.Stars)})
 	}
 	for _, o := range obs {
 		js.Observers = append(js.Observers, o.System)
@@ -262,3 +263,12 @@ rt.querySelectorAll('tr').forEach(tr => {
 size(); fitReadings();
 </script></body></html>
 `))
+
+// starClasses lists a system's star classes, "F5V+K1V" for a binary.
+func starClasses(stars []Star) string {
+	cs := make([]string, 0, len(stars))
+	for _, st := range stars {
+		cs = append(cs, st.Class)
+	}
+	return strings.Join(cs, "+")
+}

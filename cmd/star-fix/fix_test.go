@@ -215,3 +215,23 @@ func TestAddTransitObservers(t *testing.T) {
 		t.Error("a system observer's position must not change")
 	}
 }
+
+// A binary system has two stars at one position; one reading can see both
+// (Four Ways: F5V and K1V, read at 7,000 K and 5,000 K on the same bearing).
+func TestAnalyzeBinarySystem(t *testing.T) {
+	pos := map[string]Point{"o": {0, 0}}
+	stars := []Star{
+		{System: "four_ways", Class: "F5V", At: Point{0, -453}, Lo: 6000, Hi: 7500},
+		{System: "four_ways", Class: "K1V", At: Point{0, -453}, Lo: 3700, Hi: 5200},
+	}
+	obs := []Observation{{System: "o", Stars: []Sighting{{Bearing: 270, Temperature: 7000}, {Bearing: 270, Temperature: 5000}}}}
+	rs, _ := analyze(obs, pos, stars, Limits{Tol: 6, ClearErr: 3, ClearDist: 2000})
+	for _, r := range rs {
+		if r.Match == nil || r.Match.Star.System != "four_ways" {
+			t.Errorf("%v K reading = %+v, want a Four Ways star", r.S.Temperature, r.Match)
+		}
+	}
+	if rs[0].Match != nil && rs[1].Match != nil && rs[0].Match.Star.Class == rs[1].Match.Star.Class {
+		t.Error("both readings matched the same star")
+	}
+}
