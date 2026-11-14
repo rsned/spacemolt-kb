@@ -78,10 +78,10 @@
     padding: 0;
     margin: .5rem 0 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
     gap: .25rem 1.5rem;
 }
-.member-list li { margin: 0; }
+.member-list li { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .detail-page .member-list a { font-size: 17px; }
 
 /* Detail pages: bump the readable text up from the 13px UI base. */
