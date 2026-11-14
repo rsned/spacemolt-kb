@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasture Jump Routes - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../system.css">
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../../nav.js" defer></script>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Systems</a> / <a href="./">Pasture</a> / Jump Routes</div>
+
+        <div class="sys-header">
+            <div>
+                <span class="label">Pathfinder Jump Routes</span>
+                <h2 class="sys-name">Pasture</h2>
+            </div>
+        </div>
+
+        <p class="text-muted">Direct hyper-jumps fly a heading from this system until the ray passes within 100 GU of a system's center. A closer system on that line is reached first, interrupting the path.</p>
+
+        <div class="jumpmap-graphics">
+            <figure class="jumpmap-figure">
+                <svg class="jumpmap-arrows" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ah-direct" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#f5f7fa"/></marker><marker id="ah-blocked" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7a8290"/></marker></defs><line x1="419.0" y1="240.0" x2="425.0" y2="240.0" stroke="#33384a" stroke-width="1"/><line x1="240.0" y1="419.0" x2="240.0" y2="425.0" stroke="#33384a" stroke-width="1"/><line x1="61.0" y1="240.0" x2="55.0" y2="240.0" stroke="#33384a" stroke-width="1"/><line x1="240.0" y1="61.0" x2="240.0" y2="55.0" stroke="#33384a" stroke-width="1"/><line class="jump-arrow blocked" x1="270.0" y1="240.9" x2="414.9" y2="245.5" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Bluerift — 1.80° — 6574 GU</title></line><text class="jump-label blocked" x="424.9" y="245.8" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Bluerift 1.80°</text><line class="jump-arrow blocked" x1="270.0" y1="241.5" x2="414.8" y2="249.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Barnard 44 — 2.94° — 11436 GU</title></line><line x1="414.8" y1="249.0" x2="439.7" y2="250.2" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="439.7" y="250.2" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Barnard 44 2.94°</text><line class="jump-arrow blocked" x1="269.9" y1="241.7" x2="414.7" y2="250.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Barnardstar — 3.34° — 9139 GU</title></line><line x1="414.7" y1="250.2" x2="454.6" y2="252.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="454.6" y="252.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Barnardstar 3.34°</text><line class="jump-arrow blocked" x1="269.9" y1="242.1" x2="414.6" y2="252.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Ironhearth — 3.97° — 12899 GU</title></line><line x1="414.6" y1="252.1" x2="469.4" y2="255.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="469.4" y="255.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Ironhearth 3.97°</text><line class="jump-arrow blocked" x1="269.9" y1="242.1" x2="414.6" y2="252.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>The Experiment — 4.04° — 4470 GU</title></line><line x1="414.6" y1="252.3" x2="484.4" y2="257.2" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="484.4" y="257.2" text-anchor="start" dominant-baseline="middle" fill="#7a8290">The Experiment 4.04°</text><line class="jump-arrow blocked" x1="269.9" y1="242.2" x2="414.5" y2="253.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>The Anvil — 4.30° — 12557 GU</title></line><line x1="414.5" y1="253.1" x2="499.3" y2="259.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="499.3" y="259.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">The Anvil 4.30°</text><line class="jump-arrow blocked" x1="269.8" y1="243.0" x2="414.1" y2="257.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Goldcrest — 5.83° — 6913 GU</title></line><line x1="414.1" y1="257.8" x2="513.6" y2="267.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="513.6" y="267.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Goldcrest 5.83°</text><line class="jump-arrow blocked" x1="269.8" y1="243.5" x2="413.8" y2="260.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Alzirr — 6.62° — 13535 GU</title></line><line x1="413.8" y1="260.2" x2="528.1" y2="273.4" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="528.1" y="273.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Alzirr 6.62°</text><line class="jump-arrow blocked" x1="269.8" y1="243.6" x2="413.7" y2="261.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Iron Reach — 6.92° — 12185 GU</title></line><line x1="413.7" y1="261.1" x2="542.8" y2="276.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="542.8" y="276.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Iron Reach 6.92°</text><line class="jump-arrow blocked" x1="269.8" y1="243.7" x2="413.7" y2="261.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Krynn — 7.00° — 12584 GU</title></line><line x1="413.7" y1="261.3" x2="557.6" y2="279.0" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="557.6" y="279.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Krynn 7.00°</text><line class="jump-arrow blocked" x1="269.7" y1="243.9" x2="413.5" y2="262.6" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Blood Forge — 7.43° — 12862 GU</title></line><line x1="413.5" y1="262.6" x2="572.2" y2="283.3" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="572.2" y="283.3" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Blood Forge 7.43°</text><line class="jump-arrow blocked" x1="269.7" y1="244.0" x2="413.4" y2="263.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Antares — 7.64° — 6012 GU</title></line><line x1="413.4" y1="263.3" x2="586.9" y2="286.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="586.9" y="286.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Antares 7.64°</text><line class="jump-arrow direct" x1="269.7" y1="244.5" x2="413.0" y2="266.4" stroke="#f5f7fa" stroke-width="2" marker-end="url(#ah-direct)"><title>Nexus Prime — 8.68° — 3530 GU</title></line><text class="jump-label direct" x="422.9" y="267.9" text-anchor="start" dominant-baseline="middle" fill="#f5f7fa">Nexus Prime 8.68°</text><line class="jump-arrow blocked" x1="269.6" y1="244.6" x2="412.9" y2="266.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>GSC-0013 — 8.79° — 11440 GU</title></line><line x1="412.9" y1="266.8" x2="600.7" y2="295.8" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="600.7" y="295.8" text-anchor="start" dominant-baseline="middle" fill="#7a8290">GSC-0013 8.79°</text><line class="jump-arrow blocked" x1="269.6" y1="245.0" x2="412.5" y2="269.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>The Crucible — 9.61° — 12274 GU</title></line><line x1="412.5" y1="269.2" x2="437.2" y2="273.4" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="437.2" y="273.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">The Crucible 9.61°</text><line class="jump-arrow blocked" x1="269.6" y1="245.2" x2="412.4" y2="270.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>LHS 1140 — 9.91° — 6616 GU</title></line><line x1="412.4" y1="270.1" x2="451.8" y2="277.0" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="451.8" y="277.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">LHS 1140 9.91°</text><line class="jump-arrow blocked" x1="269.5" y1="245.3" x2="412.2" y2="270.9" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Synchrony — 10.18° — 4274 GU</title></line><line x1="412.2" y1="270.9" x2="466.4" y2="280.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="466.4" y="280.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Synchrony 10.18°</text><line class="jump-arrow blocked" x1="269.4" y1="245.9" x2="411.6" y2="274.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>The Rampart — 11.34° — 11750 GU</title></line><line x1="411.6" y1="274.4" x2="480.2" y2="288.2" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="480.2" y="288.2" text-anchor="start" dominant-baseline="middle" fill="#7a8290">The Rampart 11.34°</text><line class="jump-arrow blocked" x1="269.2" y1="246.9" x2="410.3" y2="280.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Node Alpha — 13.25° — 3733 GU</title></line><line x1="410.3" y1="280.1" x2="493.1" y2="299.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="493.1" y="299.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Node Alpha 13.25°</text><line class="jump-arrow blocked" x1="269.2" y1="247.0" x2="410.2" y2="280.6" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Dawnbreak — 13.42° — 11524 GU</title></line><line x1="410.2" y1="280.6" x2="507.5" y2="303.8" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="507.5" y="303.8" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Dawnbreak 13.42°</text><line class="jump-arrow blocked" x1="269.0" y1="247.5" x2="409.5" y2="283.7" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Mebsuta — 14.46° — 8787 GU</title></line><line x1="409.5" y1="283.7" x2="520.8" y2="312.4" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="520.8" y="312.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Mebsuta 14.46°</text><line class="jump-arrow blocked" x1="268.9" y1="248.1" x2="408.6" y2="287.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>BD+20 2457 — 15.57° — 10583 GU</title></line><text class="jump-label blocked" x="418.2" y="289.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">BD+20 2457 15.57°</text><line class="jump-arrow blocked" x1="268.9" y1="248.1" x2="408.5" y2="287.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Kornephoros — 15.71° — 11720 GU</title></line><line x1="408.5" y1="287.4" x2="432.5" y2="294.1" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="432.5" y="294.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Kornephoros 15.71°</text><line class="jump-arrow blocked" x1="268.7" y1="248.7" x2="407.4" y2="291.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>40 Eridani — 16.94° — 10176 GU</title></line><line x1="407.4" y1="291.0" x2="445.7" y2="302.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="445.7" y="302.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">40 Eridani 16.94°</text><line class="jump-arrow blocked" x1="268.7" y1="248.9" x2="407.2" y2="291.7" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Arneb — 17.19° — 11268 GU</title></line><line x1="407.2" y1="291.7" x2="459.7" y2="308.0" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="459.7" y="308.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Arneb 17.19°</text><line class="jump-arrow blocked" x1="268.6" y1="249.1" x2="406.7" y2="293.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>GSC-0019 — 17.67° — 10832 GU</title></line><line x1="406.7" y1="293.1" x2="473.4" y2="314.4" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="473.4" y="314.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">GSC-0019 17.67°</text><line class="jump-arrow blocked" x1="268.6" y1="249.1" x2="406.7" y2="293.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Node Beta — 17.74° — 3669 GU</title></line><line x1="406.7" y1="293.3" x2="530.5" y2="332.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="530.5" y="332.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Node Beta 17.74°</text><line class="jump-arrow blocked" x1="268.5" y1="249.4" x2="406.2" y2="294.7" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Node Gamma — 18.20° — 3957 GU</title></line><line x1="406.2" y1="294.7" x2="544.0" y2="339.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="544.0" y="339.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Node Gamma 18.20°</text><line class="jump-arrow blocked" x1="268.4" y1="249.6" x2="405.9" y2="295.7" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Thuban — 18.57° — 11280 GU</title></line><line x1="405.9" y1="295.7" x2="557.5" y2="346.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="557.5" y="346.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Thuban 18.57°</text><line class="jump-arrow blocked" x1="268.2" y1="250.2" x2="404.6" y2="299.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Crosshaven — 19.81° — 10673 GU</title></line><line x1="404.6" y1="299.3" x2="484.6" y2="328.1" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="484.6" y="328.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Crosshaven 19.81°</text><line class="jump-arrow blocked" x1="268.2" y1="250.2" x2="404.5" y2="299.6" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Alpheratz — 19.91° — 10420 GU</title></line><line x1="404.5" y1="299.6" x2="498.6" y2="333.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="498.6" y="333.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Alpheratz 19.91°</text><line class="jump-arrow blocked" x1="268.2" y1="250.3" x2="404.3" y2="300.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Diphda — 20.13° — 10867 GU</title></line><line x1="404.3" y1="300.2" x2="568.6" y2="360.4" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="568.6" y="360.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Diphda 20.13°</text><line class="jump-arrow blocked" x1="267.9" y1="251.1" x2="402.5" y2="304.9" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Lilii Borea — 21.77° — 10142 GU</title></line><text class="jump-label blocked" x="411.8" y="308.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Lilii Borea 21.77°</text><line class="jump-arrow blocked" x1="267.7" y1="251.4" x2="401.8" y2="306.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Tiaki — 22.42° — 11142 GU</title></line><line x1="401.8" y1="306.8" x2="424.9" y2="316.3" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="424.9" y="316.3" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Tiaki 22.42°</text><line class="jump-arrow blocked" x1="267.7" y1="251.5" x2="401.5" y2="307.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>GSC-0034 — 22.62° — 10592 GU</title></line><line x1="401.5" y1="307.3" x2="507.7" y2="351.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="507.7" y="351.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">GSC-0034 22.62°</text><line class="jump-arrow blocked" x1="267.6" y1="251.7" x2="401.1" y2="308.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Saiph — 22.98° — 10173 GU</title></line><line x1="401.1" y1="308.3" x2="437.9" y2="324.0" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="437.9" y="324.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Saiph 22.98°</text><line class="jump-arrow blocked" x1="267.1" y1="252.8" x2="398.2" y2="314.9" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>GSC-0010 — 25.33° — 10475 GU</title></line><line x1="398.2" y1="314.9" x2="447.9" y2="338.4" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="447.9" y="338.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">GSC-0010 25.33°</text><line class="jump-arrow blocked" x1="265.6" y1="255.6" x2="389.4" y2="331.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>GSC-0008 — 31.36° — 9428 GU</title></line><text class="jump-label blocked" x="398.0" y="336.3" text-anchor="start" dominant-baseline="middle" fill="#7a8290">GSC-0008 31.36°</text><line class="jump-arrow blocked" x1="264.7" y1="257.0" x2="384.0" y2="339.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Fomalhaut — 34.62° — 8375 GU</title></line><line x1="384.0" y1="339.4" x2="404.6" y2="353.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="404.6" y="353.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Fomalhaut 34.62°</text><line class="jump-arrow blocked" x1="262.0" y1="260.4" x2="368.5" y2="358.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Gliese 581 — 42.73° — 5946 GU</title></line><text class="jump-label blocked" x="375.9" y="365.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Gliese 581 42.73°</text><line class="jump-arrow blocked" x1="247.0" y1="210.8" x2="280.8" y2="69.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Betelgeuse — 283.47° — 4847 GU</title></line><text class="jump-label blocked" x="283.1" y="60.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Betelgeuse 283.47°</text><line class="jump-arrow blocked" x1="247.2" y1="210.9" x2="282.1" y2="70.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Sandrift — 283.94° — 2269 GU</title></line><line x1="282.1" y1="70.2" x2="288.2" y2="45.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="288.2" y="45.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Sandrift 283.94°</text><line class="jump-arrow blocked" x1="251.7" y1="212.4" x2="308.3" y2="78.9" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>GSC-0026 — 292.96° — 8187 GU</title></line><text class="jump-label blocked" x="312.2" y="69.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">GSC-0026 292.96°</text><line class="jump-arrow blocked" x1="252.3" y1="212.6" x2="311.6" y2="80.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Libertas — 294.16° — 7599 GU</title></line><line x1="311.6" y1="80.3" x2="321.9" y2="57.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="321.9" y="57.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Libertas 294.16°</text><line class="jump-arrow blocked" x1="254.1" y1="213.5" x2="322.0" y2="85.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Winterhold — 297.96° — 5726 GU</title></line><line x1="322.0" y1="85.4" x2="340.8" y2="50.1" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="340.8" y="50.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Winterhold 297.96°</text><line class="jump-arrow blocked" x1="257.6" y1="215.7" x2="342.5" y2="98.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Longshore — 305.84° — 10238 GU</title></line><text class="jump-label blocked" x="348.3" y="90.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Longshore 305.84°</text><line class="jump-arrow blocked" x1="257.6" y1="215.7" x2="342.7" y2="98.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Xamidimura — 305.94° — 9121 GU</title></line><line x1="342.7" y1="98.3" x2="357.4" y2="78.1" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="357.4" y="78.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Xamidimura 305.94°</text><line class="jump-arrow blocked" x1="258.3" y1="216.2" x2="346.6" y2="101.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>HD 10647 — 307.54° — 10438 GU</title></line><line x1="346.6" y1="101.2" x2="371.0" y2="69.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="371.0" y="69.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">HD 10647 307.54°</text><line class="jump-arrow blocked" x1="259.2" y1="217.0" x2="352.3" y2="105.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Blackthorn — 309.91° — 7974 GU</title></line><line x1="352.3" y1="105.8" x2="387.6" y2="63.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="387.6" y="63.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Blackthorn 309.91°</text><line class="jump-arrow blocked" x1="259.7" y1="217.4" x2="355.0" y2="108.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Deep Range — 311.08° — 7220 GU</title></line><line x1="355.0" y1="108.1" x2="401.0" y2="55.3" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="401.0" y="55.3" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Deep Range 311.08°</text><line class="jump-arrow blocked" x1="260.1" y1="217.7" x2="357.4" y2="110.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Frontier — 312.11° — 6696 GU</title></line><text class="jump-label blocked" x="364.1" y="102.8" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Frontier 312.11°</text><line class="jump-arrow blocked" x1="260.5" y1="218.1" x2="359.7" y2="112.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Last Light — 313.16° — 5613 GU</title></line><line x1="359.7" y1="112.4" x2="376.8" y2="94.1" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="376.8" y="94.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Last Light 313.16°</text><line class="jump-arrow blocked" x1="261.3" y1="218.9" x2="364.3" y2="116.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Unknown Edge — 315.25° — 6086 GU</title></line><line x1="364.3" y1="116.8" x2="392.7" y2="88.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="392.7" y="88.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Unknown Edge 315.25°</text><line class="jump-arrow blocked" x1="261.7" y1="219.3" x2="366.4" y2="119.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Distant Light — 316.24° — 6319 GU</title></line><line x1="366.4" y1="119.0" x2="406.1" y2="80.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="406.1" y="80.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Distant Light 316.24°</text><line class="jump-arrow blocked" x1="262.0" y1="219.6" x2="368.4" y2="121.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>First Step — 317.19° — 7027 GU</title></line><line x1="368.4" y1="121.1" x2="419.7" y2="73.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="419.7" y="73.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">First Step 317.19°</text><line class="jump-arrow blocked" x1="262.7" y1="220.4" x2="372.4" y2="125.5" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Zosma — 319.15° — 8487 GU</title></line><text class="jump-label blocked" x="379.9" y="119.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Zosma 319.15°</text><line class="jump-arrow blocked" x1="262.9" y1="220.7" x2="373.8" y2="127.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Void Gate — 319.87° — 7152 GU</title></line><line x1="373.8" y1="127.2" x2="392.9" y2="111.1" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="392.9" y="111.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Void Gate 319.87°</text><line class="jump-arrow blocked" x1="263.4" y1="221.3" x2="376.6" y2="130.6" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Alhena — 321.32° — 13420 GU</title></line><line x1="376.6" y1="130.6" x2="407.8" y2="105.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="407.8" y="105.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Alhena 321.32°</text><line class="jump-arrow blocked" x1="263.6" y1="221.5" x2="377.8" y2="132.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Cloverfield — 321.94° — 8485 GU</title></line><line x1="377.8" y1="132.1" x2="444.7" y2="79.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="444.7" y="79.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Cloverfield 321.94°</text><line class="jump-arrow blocked" x1="264.0" y1="222.0" x2="380.2" y2="135.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Starfall — 323.23° — 6780 GU</title></line><line x1="380.2" y1="135.2" x2="424.2" y2="102.3" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="424.2" y="102.3" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Starfall 323.23°</text><line class="jump-arrow blocked" x1="264.3" y1="222.4" x2="381.6" y2="137.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Sulafat — 323.99° — 7224 GU</title></line><line x1="381.6" y1="137.1" x2="438.2" y2="95.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="438.2" y="95.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Sulafat 323.99°</text><line class="jump-arrow blocked" x1="264.5" y1="222.7" x2="383.0" y2="139.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>The Levy — 324.81° — 10476 GU</title></line><line x1="383.0" y1="139.2" x2="464.8" y2="81.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="464.8" y="81.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">The Levy 324.81°</text><line class="jump-arrow blocked" x1="264.5" y1="222.7" x2="383.1" y2="139.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Factory Belt — 324.84° — 11487 GU</title></line><line x1="383.1" y1="139.2" x2="477.1" y2="73.0" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="477.1" y="73.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Factory Belt 324.84°</text><line class="jump-arrow blocked" x1="264.6" y1="222.9" x2="383.7" y2="140.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Trader&#39;s Rest — 325.22° — 11180 GU</title></line><text class="jump-label blocked" x="391.9" y="134.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Trader&#39;s Rest 325.22°</text><line class="jump-arrow blocked" x1="264.7" y1="222.9" x2="384.0" y2="140.5" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Kurhah — 325.36° — 9023 GU</title></line><line x1="384.0" y1="140.5" x2="490.9" y2="66.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="490.9" y="66.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Kurhah 325.36°</text><line class="jump-arrow blocked" x1="265.1" y1="223.6" x2="386.7" y2="144.6" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Treasure Cache — 326.95° — 11963 GU</title></line><line x1="386.7" y1="144.6" x2="407.6" y2="130.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="407.6" y="130.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Treasure Cache 326.95°</text><line class="jump-arrow blocked" x1="265.4" y1="224.0" x2="388.0" y2="146.5" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Wealth Lane — 327.72° — 10457 GU</title></line><line x1="388.0" y1="146.5" x2="421.8" y2="125.2" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="421.8" y="125.2" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Wealth Lane 327.72°</text><line class="jump-arrow blocked" x1="265.4" y1="224.0" x2="388.1" y2="146.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Haven — 327.84° — 11210 GU</title></line><line x1="388.1" y1="146.8" x2="510.9" y2="69.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="510.9" y="69.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Haven 327.84°</text><line class="jump-arrow blocked" x1="265.6" y1="224.4" x2="389.6" y2="149.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Oakridge — 328.74° — 6145 GU</title></line><line x1="389.6" y1="149.2" x2="462.2" y2="105.1" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="462.2" y="105.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Oakridge 328.74°</text><line class="jump-arrow direct" x1="265.7" y1="224.6" x2="390.0" y2="149.9" stroke="#f5f7fa" stroke-width="2" marker-end="url(#ah-direct)"><title>Saltwind — 329.02° — 3241 GU</title></line><line x1="390.0" y1="149.9" x2="527.2" y2="67.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label direct" x="527.2" y="67.6" text-anchor="start" dominant-baseline="middle" fill="#f5f7fa">Saltwind 329.02°</text><line class="jump-arrow blocked" x1="266.0" y1="225.0" x2="391.4" y2="152.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Market Prime — 329.90° — 11263 GU</title></line><line x1="391.4" y1="152.2" x2="439.0" y2="124.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="439.0" y="124.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Market Prime 329.90°</text><line class="jump-arrow blocked" x1="266.1" y1="225.3" x2="392.5" y2="154.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Gold Run — 330.63° — 10935 GU</title></line><line x1="392.5" y1="154.2" x2="453.5" y2="119.8" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="453.5" y="119.8" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Gold Run 330.63°</text><line class="jump-arrow blocked" x1="266.3" y1="225.6" x2="393.6" y2="156.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Cargo Lanes — 331.37° — 11111 GU</title></line><text class="jump-label blocked" x="402.4" y="151.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Cargo Lanes 331.37°</text><line class="jump-arrow blocked" x1="266.9" y1="226.6" x2="396.7" y2="162.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Alula — 333.54° — 11594 GU</title></line><line x1="396.7" y1="162.0" x2="419.1" y2="150.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="419.1" y="150.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Alula 333.54°</text><line class="jump-arrow blocked" x1="267.7" y1="228.5" x2="401.6" y2="173.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Sheratan — 337.47° — 14632 GU</title></line><text class="jump-label blocked" x="410.9" y="169.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Sheratan 337.47°</text><line class="jump-arrow blocked" x1="267.9" y1="228.9" x2="402.5" y2="175.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Segin — 338.21° — 10903 GU</title></line><line x1="402.5" y1="175.0" x2="439.6" y2="160.2" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="439.6" y="160.2" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Segin 338.21°</text><line class="jump-arrow blocked" x1="268.4" y1="230.5" x2="405.9" y2="184.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Zaniah — 341.47° — 9299 GU</title></line><line x1="405.9" y1="184.4" x2="429.6" y2="176.4" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="429.6" y="176.4" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Zaniah 341.47°</text><line class="jump-arrow blocked" x1="268.4" y1="230.5" x2="405.9" y2="184.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Nekkar — 341.49° — 11165 GU</title></line><line x1="405.9" y1="184.4" x2="458.1" y2="167.0" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="458.1" y="167.0" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Nekkar 341.49°</text><line class="jump-arrow blocked" x1="268.5" y1="230.5" x2="406.0" y2="184.6" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Kitalpha — 341.55° — 5415 GU</title></line><line x1="406.0" y1="184.6" x2="472.4" y2="162.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="472.4" y="162.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Kitalpha 341.55°</text><line class="jump-arrow blocked" x1="268.5" y1="230.8" x2="406.5" y2="186.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Algol — 342.06° — 4019 GU</title></line><line x1="406.5" y1="186.1" x2="487.4" y2="159.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="487.4" y="159.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Algol 342.06°</text><line class="jump-arrow blocked" x1="268.9" y1="231.9" x2="408.5" y2="192.8" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Silvermark — 344.36° — 11583 GU</title></line><text class="jump-label blocked" x="418.2" y="190.1" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Silvermark 344.36°</text><line class="jump-arrow direct" x1="269.2" y1="233.1" x2="410.4" y2="200.0" stroke="#f5f7fa" stroke-width="2" marker-end="url(#ah-direct)"><title>Chalawan — 346.77° — 2367 GU</title></line><line x1="410.4" y1="200.0" x2="449.3" y2="190.8" stroke="#33384a" stroke-width="0.5"/><text class="jump-label direct" x="449.3" y="190.8" text-anchor="start" dominant-baseline="middle" fill="#f5f7fa">Chalawan 346.77°</text><line class="jump-arrow blocked" x1="269.3" y1="233.3" x2="410.6" y2="201.1" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Alpha Centauri — 347.17° — 7782 GU</title></line><line x1="410.6" y1="201.1" x2="508.1" y2="178.9" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="508.1" y="178.9" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Alpha Centauri 347.17°</text><line class="jump-arrow blocked" x1="269.4" y1="234.2" x2="411.7" y2="206.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Sol — 348.92° — 7632 GU</title></line><line x1="411.7" y1="206.4" x2="436.3" y2="201.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="436.3" y="201.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Sol 348.92°</text><line class="jump-arrow blocked" x1="269.5" y1="234.3" x2="411.9" y2="207.0" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Ross 248 — 349.13° — 9944 GU</title></line><line x1="411.9" y1="207.0" x2="465.9" y2="196.6" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="465.9" y="196.6" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Ross 248 349.13°</text><line class="jump-arrow blocked" x1="269.5" y1="234.6" x2="412.1" y2="208.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Sirius — 349.59° — 6922 GU</title></line><line x1="412.1" y1="208.4" x2="481.0" y2="195.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="481.0" y="195.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Sirius 349.59°</text><line class="jump-arrow blocked" x1="269.6" y1="234.9" x2="412.4" y2="210.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Aspidiske — 350.18° — 8492 GU</title></line><line x1="412.4" y1="210.2" x2="496.2" y2="195.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="496.2" y="195.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Aspidiske 350.18°</text><line class="jump-arrow blocked" x1="269.6" y1="235.1" x2="412.6" y2="211.2" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Fuyue — 350.52° — 9487 GU</title></line><text class="jump-label blocked" x="422.5" y="209.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Fuyue 350.52°</text><line class="jump-arrow direct" x1="269.7" y1="235.5" x2="413.1" y2="214.0" stroke="#f5f7fa" stroke-width="2" marker-end="url(#ah-direct)"><title>GSC-0040 — 351.47° — 1532 GU</title></line><line x1="413.1" y1="214.0" x2="526.8" y2="197.0" stroke="#33384a" stroke-width="0.5"/><text class="jump-label direct" x="526.8" y="197.0" text-anchor="start" dominant-baseline="middle" fill="#f5f7fa">GSC-0040 351.47°</text><line class="jump-arrow blocked" x1="269.7" y1="235.9" x2="413.4" y2="216.3" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Barnard&#39;s Star — 352.21° — 8142 GU</title></line><line x1="413.4" y1="216.3" x2="542.2" y2="198.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="542.2" y="198.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Barnard&#39;s Star 352.21°</text><line class="jump-arrow blocked" x1="269.7" y1="236.1" x2="413.5" y2="217.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Nova Terra — 352.59° — 6747 GU</title></line><line x1="413.5" y1="217.4" x2="557.3" y2="198.8" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="557.3" y="198.8" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Nova Terra 352.59°</text><line class="jump-arrow blocked" x1="269.8" y1="236.2" x2="413.6" y2="217.9" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Bellatrix — 352.75° — 13732 GU</title></line><line x1="413.6" y1="217.9" x2="572.3" y2="197.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="572.3" y="197.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Bellatrix 352.75°</text><line class="jump-arrow blocked" x1="269.9" y1="237.0" x2="414.1" y2="222.5" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Proxima Centauri — 354.27° — 7752 GU</title></line><line x1="414.1" y1="222.5" x2="453.9" y2="218.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="453.9" y="218.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Proxima Centauri 354.27°</text><line class="jump-arrow blocked" x1="269.9" y1="237.0" x2="414.1" y2="222.6" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Dheneb — 354.31° — 8170 GU</title></line><line x1="414.1" y1="222.6" x2="513.6" y2="212.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="513.6" y="212.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Dheneb 354.31°</text><line class="jump-arrow blocked" x1="269.9" y1="237.2" x2="414.3" y2="223.9" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Procyon — 354.71° — 7410 GU</title></line><line x1="414.3" y1="223.9" x2="588.5" y2="207.7" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="588.5" y="207.7" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Procyon 354.71°</text><line class="jump-arrow blocked" x1="269.9" y1="237.4" x2="414.3" y2="224.7" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Ascella — 354.99° — 9175 GU</title></line><line x1="414.3" y1="224.7" x2="439.2" y2="222.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="439.2" y="222.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Ascella 354.99°</text><line class="jump-arrow blocked" x1="269.9" y1="237.7" x2="414.5" y2="226.7" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Sargas — 355.64° — 11504 GU</title></line><line x1="414.5" y1="226.7" x2="469.3" y2="222.5" stroke="#33384a" stroke-width="0.5"/><text class="jump-label blocked" x="469.3" y="222.5" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Sargas 355.64°</text><line class="jump-arrow blocked" x1="270.0" y1="239.2" x2="414.9" y2="235.4" stroke="#7a8290" stroke-width="1" marker-end="url(#ah-blocked)"><title>Garnet — 358.50° — 5014 GU</title></line><text class="jump-label blocked" x="424.9" y="235.2" text-anchor="start" dominant-baseline="middle" fill="#7a8290">Garnet 358.50°</text><circle cx="240" cy="240" r="10" fill="#ffd27f"/><circle cx="240" cy="240" r="16" fill="none" stroke="#ffd27f" stroke-opacity="0.4"/></svg>
+                <figcaption>Headings to station systems — <span class="jm-direct">white = direct</span>, <span class="jm-blocked">gray = interrupted</span></figcaption>
+            </figure>
+            <figure class="jumpmap-figure">
+                <svg class="jumpmap-wheel" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg"><circle class="wheel-covered" cx="240" cy="240" r="175" fill="#2b3856"/><polygon class="wheel-gap" points="240.0,240.0 74.3,296.3 73.3,293.4 72.4,290.4 71.6,287.5 70.8,284.6 70.0,281.6 69.3,278.6 68.7,275.6 68.1,272.6 67.5,269.6 67.0,266.6 66.6,263.6 66.2,260.6 65.9,257.5 65.6,254.5 65.4,251.4 65.2,248.4 65.1,245.3 65.0,242.3 65.0,239.2 65.0,236.2 65.1,233.1 65.3,230.1 65.5,227.0 65.7,224.0 66.0,220.9 66.4,217.9 66.8,214.9 67.3,211.9 67.8,208.9 68.4,205.9 69.0,202.9 69.7,199.9 70.4,196.9 71.2,194.0 72.0,191.0 72.9,188.1 73.8,185.2 74.8,182.3 75.8,179.4 76.9,176.6 78.0,173.7 79.2,170.9 80.4,168.1 81.7,165.4 83.0,162.6 84.4,159.9 85.8,157.2 87.3,154.5 88.8,151.8 90.4,149.2 92.0,146.6 93.7,144.0 95.3,141.5 96.2,140.3" fill="#ffcf4d"/><text class="wheel-label" x="58.2" y="301.7" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">161.25°</text><text class="wheel-label" x="82.2" y="130.6" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">214.72°</text><polygon class="wheel-gap" points="240.0,240.0 228.5,414.6 225.4,414.4 222.4,414.1 219.4,413.8 216.3,413.4 213.3,413.0 210.3,412.5 207.3,411.9 204.3,411.3 201.3,410.7 198.3,410.0 195.4,409.2 192.4,408.4 189.5,407.6 186.6,406.6 183.7,405.7 180.8,404.7 177.9,403.6 175.1,402.5 174.4,402.2" fill="#ffcf4d"/><text class="wheel-label" x="227.4" y="431.6" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">93.78°</text><text class="wheel-label" x="168.0" y="418.0" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">112.02°</text><polygon class="wheel-gap" points="240.0,240.0 293.2,406.7 290.3,407.6 287.4,408.5 284.4,409.3 281.5,410.0 278.5,410.7 275.5,411.4 272.5,412.0 269.9,412.4" fill="#ffcf4d"/><text class="wheel-label" x="298.4" y="422.9" text-anchor="start" dominant-baseline="middle" fill="#9aa3b8" font-size="10">72.30°</text><text class="wheel-label" x="272.9" y="429.2" text-anchor="start" dominant-baseline="middle" fill="#9aa3b8" font-size="10">80.15°</text><polygon class="wheel-gap" points="240.0,240.0 160.8,84.0 163.5,82.6 166.3,81.3 169.1,80.0 171.9,78.8 174.7,77.6 177.5,76.5 177.6,76.5" fill="#ffcf4d"/><text class="wheel-label" x="153.1" y="68.8" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">243.09°</text><text class="wheel-label" x="171.5" y="60.6" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">249.11°</text><polygon class="wheel-gap" points="240.0,240.0 198.5,70.0 201.5,69.3 204.5,68.6 207.5,68.0 210.5,67.5 212.6,67.2" fill="#ffcf4d"/><text class="wheel-label" x="202.2" y="51.8" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">258.65°</text><polygon class="wheel-gap" points="240.0,240.0 96.5,340.1 95.3,338.5" fill="#ffcf4d"/><text class="wheel-label" x="81.9" y="348.9" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">145.43°</text><polygon class="wheel-gap" points="240.0,240.0 349.1,376.8 348.0,377.7" fill="#ffcf4d"/><text class="wheel-label" x="359.1" y="390.6" text-anchor="start" dominant-baseline="middle" fill="#9aa3b8" font-size="10">51.66°</text><polygon class="wheel-gap" points="240.0,240.0 132.5,101.9 133.1,101.5" fill="#ffcf4d"/><text class="wheel-label" x="122.4" y="88.3" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">232.21°</text><line x1="415.0" y1="240.0" x2="423.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="415.0" x2="240.0" y2="423.0" stroke="#55607a" stroke-width="1"/><line x1="65.0" y1="240.0" x2="57.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="65.0" x2="240.0" y2="57.0" stroke="#55607a" stroke-width="1"/><text class="wheel-center" x="240" y="232" text-anchor="middle" dominant-baseline="middle" fill="#cdd3e0" font-size="18">74.5% blocked</text><text class="wheel-sub" x="240" y="254" text-anchor="middle" dominant-baseline="middle" fill="#ffcf4d" font-size="13">25.5% open · 8 gaps</text></svg>
+                <figcaption>74.5% of headings blocked · 8 void escape gaps</figcaption>
+            </figure>
+        </div>
+
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Direct Connections (34)</div>
+          <table class="sortable">
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th><th style="text-align:right">Margin</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../flicker/">Flicker</a></td>
+              <td style="text-align:right" data-sort="130.7858">131°</td>
+              <td style="text-align:right" data-sort="404.1435">404</td>
+              <td style="text-align:right">41 (6:50)</td>
+              <td style="text-align:right">14.326°</td>
+            </tr>
+            <tr>
+              <td><a href="../slow_water/">Slow Water</a></td>
+              <td style="text-align:right" data-sort="281.4658">281°</td>
+              <td style="text-align:right" data-sort="648.9507">649</td>
+              <td style="text-align:right">65 (10:50)</td>
+              <td style="text-align:right">8.864°</td>
+            </tr>
+            <tr>
+              <td><a href="../faded_corona/">Faded Corona</a></td>
+              <td style="text-align:right" data-sort="223.4089">223°</td>
+              <td style="text-align:right" data-sort="662.1072">662</td>
+              <td style="text-align:right">67 (11:10)</td>
+              <td style="text-align:right">8.687°</td>
+            </tr>
+            <tr>
+              <td><a href="../sparkfall/">Sparkfall</a></td>
+              <td style="text-align:right" data-sort="153.5040">154°</td>
+              <td style="text-align:right" data-sort="741.9279">742</td>
+              <td style="text-align:right">75 (12:30)</td>
+              <td style="text-align:right">7.746°</td>
+            </tr>
+            <tr>
+              <td><a href="../yellow_stead/">Yellow Stead</a></td>
+              <td style="text-align:right" data-sort="37.4762">37°</td>
+              <td style="text-align:right" data-sort="945.0529">945</td>
+              <td style="text-align:right">95 (15:50)</td>
+              <td style="text-align:right">6.074°</td>
+            </tr>
+            <tr>
+              <td><a href="../blue_static/">Blue Static</a></td>
+              <td style="text-align:right" data-sort="87.8811">88°</td>
+              <td style="text-align:right" data-sort="973.6658">974</td>
+              <td style="text-align:right">98 (16:20)</td>
+              <td style="text-align:right">5.895°</td>
+            </tr>
+            <tr>
+              <td><a href="../giausar/">Giausar</a></td>
+              <td style="text-align:right" data-sort="357.9643">358°</td>
+              <td style="text-align:right" data-sort="986.5702">987</td>
+              <td style="text-align:right">99 (16:30)</td>
+              <td style="text-align:right">5.818°</td>
+            </tr>
+            <tr>
+              <td><a href="../crush_vector/">Crush Vector</a></td>
+              <td style="text-align:right" data-sort="237.7100">238°</td>
+              <td style="text-align:right" data-sort="1067.0070">1067</td>
+              <td style="text-align:right">107 (17:50)</td>
+              <td style="text-align:right">5.378°</td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0028/">GSC-0028</a></td>
+              <td style="text-align:right" data-sort="319.2343">319°</td>
+              <td style="text-align:right" data-sort="1089.0964">1089</td>
+              <td style="text-align:right">109 (18:10)</td>
+              <td style="text-align:right">5.268°</td>
+            </tr>
+            <tr>
+              <td><a href="../greenrust/">Greenrust</a></td>
+              <td style="text-align:right" data-sort="270.2515">270°</td>
+              <td style="text-align:right" data-sort="1139.0110">1139</td>
+              <td style="text-align:right">114 (19:00)</td>
+              <td style="text-align:right">2.350°</td>
+            </tr>
+            <tr>
+              <td><a href="../aldebaran/">Aldebaran</a></td>
+              <td style="text-align:right" data-sort="338.5468">339°</td>
+              <td style="text-align:right" data-sort="1251.7211">1252</td>
+              <td style="text-align:right">126 (21:00)</td>
+              <td style="text-align:right">4.582°</td>
+            </tr>
+            <tr>
+              <td><a href="../duskfield/">Duskfield</a></td>
+              <td style="text-align:right" data-sort="14.6516">15°</td>
+              <td style="text-align:right" data-sort="1399.8854">1400</td>
+              <td style="text-align:right">140 (23:20)</td>
+              <td style="text-align:right">4.096°</td>
+            </tr>
+            <tr>
+              <td><a href="../fulu/">Fulu</a></td>
+              <td style="text-align:right" data-sort="291.6894">292°</td>
+              <td style="text-align:right" data-sort="1442.9879">1443</td>
+              <td style="text-align:right">145 (24:10)</td>
+              <td style="text-align:right">1.359°</td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0040/">GSC-0040</a></td>
+              <td style="text-align:right" data-sort="351.4691">351.5°</td>
+              <td style="text-align:right" data-sort="1531.9321">1532</td>
+              <td style="text-align:right">154 (25:40)</td>
+              <td style="text-align:right">0.180°</td>
+            </tr>
+            <tr>
+              <td><a href="../wayfork/">Wayfork</a></td>
+              <td style="text-align:right" data-sort="252.7017">253°</td>
+              <td style="text-align:right" data-sort="1594.1016">1594</td>
+              <td style="text-align:right">160 (26:40)</td>
+              <td style="text-align:right">3.597°</td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0006/">GSC-0006</a></td>
+              <td style="text-align:right" data-sort="299.2682">299°</td>
+              <td style="text-align:right" data-sort="1613.4201">1613</td>
+              <td style="text-align:right">162 (27:00)</td>
+              <td style="text-align:right">3.553°</td>
+            </tr>
+            <tr>
+              <td><a href="../saltpan/">Saltpan</a></td>
+              <td style="text-align:right" data-sort="61.4769">61°</td>
+              <td style="text-align:right" data-sort="1780.0551">1780</td>
+              <td style="text-align:right">179 (29:50)</td>
+              <td style="text-align:right">3.220°</td>
+            </tr>
+            <tr>
+              <td><a href="../acrab/">Acrab</a></td>
+              <td style="text-align:right" data-sort="30.8334">30.8°</td>
+              <td style="text-align:right" data-sort="1799.5596">1800</td>
+              <td style="text-align:right">180 (30:00)</td>
+              <td style="text-align:right">0.569°</td>
+            </tr>
+            <tr>
+              <td><a href="../last_fuel/">Last Fuel</a></td>
+              <td style="text-align:right" data-sort="265.1994">265.20°</td>
+              <td style="text-align:right" data-sort="1804.3295">1804</td>
+              <td style="text-align:right">181 (30:10)</td>
+              <td style="text-align:right">0.015°</td>
+            </tr>
+            <tr>
+              <td><a href="../atria/">Atria</a></td>
+              <td style="text-align:right" data-sort="22.3079">22°</td>
+              <td style="text-align:right" data-sort="1989.3918">1989</td>
+              <td style="text-align:right">199 (33:10)</td>
+              <td style="text-align:right">2.881°</td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0042/">GSC-0042</a></td>
+              <td style="text-align:right" data-sort="309.9708">310°</td>
+              <td style="text-align:right" data-sort="2007.0194">2007</td>
+              <td style="text-align:right">201 (33:30)</td>
+              <td style="text-align:right">2.856°</td>
+            </tr>
+            <tr>
+              <td><a href="../marfik/">Marfik</a></td>
+              <td style="text-align:right" data-sort="27.0329">27.0°</td>
+              <td style="text-align:right" data-sort="2141.6150">2142</td>
+              <td style="text-align:right">215 (35:50)</td>
+              <td style="text-align:right">0.615°</td>
+            </tr>
+            <tr>
+              <td><a href="../ash_pearl/">Ash Pearl</a></td>
+              <td style="text-align:right" data-sort="56.1156">56°</td>
+              <td style="text-align:right" data-sort="2207.9968">2208</td>
+              <td style="text-align:right">221 (36:50)</td>
+              <td style="text-align:right">2.141°</td>
+            </tr>
+            <tr>
+              <td><a href="../chalawan/">Chalawan</a></td>
+              <td style="text-align:right" data-sort="346.7714">346.8°</td>
+              <td style="text-align:right" data-sort="2366.9470">2367</td>
+              <td style="text-align:right">237 (39:30)</td>
+              <td style="text-align:right">0.955°</td>
+            </tr>
+            <tr>
+              <td><a href="../yildun/">Yildun</a></td>
+              <td style="text-align:right" data-sort="325.6492">326°</td>
+              <td style="text-align:right" data-sort="2441.8051">2442</td>
+              <td style="text-align:right">245 (40:50)</td>
+              <td style="text-align:right">1.147°</td>
+            </tr>
+            <tr>
+              <td><a href="../facing_away/">Facing Away</a></td>
+              <td style="text-align:right" data-sort="67.4893">67°</td>
+              <td style="text-align:right" data-sort="2745.1588">2745</td>
+              <td style="text-align:right">275 (45:50)</td>
+              <td style="text-align:right">2.088°</td>
+            </tr>
+            <tr>
+              <td><a href="../saltwind/">Saltwind</a></td>
+              <td style="text-align:right" data-sort="329.0240">329°</td>
+              <td style="text-align:right" data-sort="3240.9531">3241</td>
+              <td style="text-align:right">325 (54:10)</td>
+              <td style="text-align:right">1.028°</td>
+            </tr>
+            <tr>
+              <td><a href="../dschubba/">Dschubba</a></td>
+              <td style="text-align:right" data-sort="313.5573">313.6°</td>
+              <td style="text-align:right" data-sort="3304.3968">3304</td>
+              <td style="text-align:right">331 (55:10)</td>
+              <td style="text-align:right">0.409°</td>
+            </tr>
+            <tr>
+              <td><a href="../long_night/">Long Night</a></td>
+              <td style="text-align:right" data-sort="69.8359">69.8°</td>
+              <td style="text-align:right" data-sort="3353.5414">3354</td>
+              <td style="text-align:right">336 (56:00)</td>
+              <td style="text-align:right">0.259°</td>
+            </tr>
+            <tr>
+              <td><a href="../nexus_prime/">Nexus Prime</a></td>
+              <td style="text-align:right" data-sort="8.6832">8.7°</td>
+              <td style="text-align:right" data-sort="3530.4658">3530</td>
+              <td style="text-align:right">354 (59:00)</td>
+              <td style="text-align:right">0.838°</td>
+            </tr>
+            <tr>
+              <td><a href="../still_point/">Still Point</a></td>
+              <td style="text-align:right" data-sort="64.9128">64.9°</td>
+              <td style="text-align:right" data-sort="3641.5299">3642</td>
+              <td style="text-align:right">365 (60:50)</td>
+              <td style="text-align:right">0.215°</td>
+            </tr>
+            <tr>
+              <td><a href="../far_wick/">Far Wick</a></td>
+              <td style="text-align:right" data-sort="50.2744">50°</td>
+              <td style="text-align:right" data-sort="4953.7517">4954</td>
+              <td style="text-align:right">496 (82:40)</td>
+              <td style="text-align:right">1.157°</td>
+            </tr>
+            <tr>
+              <td><a href="../ironhollow/">Ironhollow</a></td>
+              <td style="text-align:right" data-sort="6.3697">6.4°</td>
+              <td style="text-align:right" data-sort="5066.9961">5067</td>
+              <td style="text-align:right">507 (84:30)</td>
+              <td style="text-align:right">0.690°</td>
+            </tr>
+            <tr>
+              <td><a href="../downhill/">Downhill</a></td>
+              <td style="text-align:right" data-sort="48.8655">48.87°</td>
+              <td style="text-align:right" data-sort="7331.6992">7332</td>
+              <td style="text-align:right">734 (122:20)</td>
+              <td style="text-align:right">0.087°</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Station Destinations (98)</div>
+          <table class="sortable">
+            <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th><th>Status</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><a href="../gsc_0040/">GSC-0040</a></td>
+              <td style="text-align:right" data-sort="351.4691">351.47°</td>
+              <td style="text-align:right" data-sort="1531.9321">1532</td>
+              <td style="text-align:right">154 (25:40)</td>
+              <td><span class="badge badge-frost">direct</span></td>
+            </tr>
+            <tr>
+              <td><a href="../sandrift/">Sandrift</a></td>
+              <td style="text-align:right" data-sort="283.9370">283.94°</td>
+              <td style="text-align:right" data-sort="2269.1355">2269</td>
+              <td style="text-align:right">227 (37:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../chalawan/">Chalawan</a></td>
+              <td style="text-align:right" data-sort="346.7714">346.77°</td>
+              <td style="text-align:right" data-sort="2366.9470">2367</td>
+              <td style="text-align:right">237 (39:30)</td>
+              <td><span class="badge badge-frost">direct</span></td>
+            </tr>
+            <tr>
+              <td><a href="../saltwind/">Saltwind</a></td>
+              <td style="text-align:right" data-sort="329.0240">329.02°</td>
+              <td style="text-align:right" data-sort="3240.9531">3241</td>
+              <td style="text-align:right">325 (54:10)</td>
+              <td><span class="badge badge-frost">direct</span></td>
+            </tr>
+            <tr>
+              <td><a href="../nexus_prime/">Nexus Prime</a></td>
+              <td style="text-align:right" data-sort="8.6832">8.68°</td>
+              <td style="text-align:right" data-sort="3530.4658">3530</td>
+              <td style="text-align:right">354 (59:00)</td>
+              <td><span class="badge badge-frost">direct</span></td>
+            </tr>
+            <tr>
+              <td><a href="../node_beta/">Node Beta</a></td>
+              <td style="text-align:right" data-sort="17.7396">17.74°</td>
+              <td style="text-align:right" data-sort="3669.0637">3669</td>
+              <td style="text-align:right">367 (61:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../node_alpha/">Node Alpha</a></td>
+              <td style="text-align:right" data-sort="13.2487">13.25°</td>
+              <td style="text-align:right" data-sort="3733.2374">3733</td>
+              <td style="text-align:right">374 (62:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../node_gamma/">Node Gamma</a></td>
+              <td style="text-align:right" data-sort="18.1990">18.20°</td>
+              <td style="text-align:right" data-sort="3957.0891">3957</td>
+              <td style="text-align:right">396 (66:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../algol/">Algol</a></td>
+              <td style="text-align:right" data-sort="342.0561">342.06°</td>
+              <td style="text-align:right" data-sort="4019.1165">4019</td>
+              <td style="text-align:right">402 (67:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../synchrony/">Synchrony</a></td>
+              <td style="text-align:right" data-sort="10.1752">10.18°</td>
+              <td style="text-align:right" data-sort="4274.2638">4274</td>
+              <td style="text-align:right">428 (71:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../the_experiment/">The Experiment</a></td>
+              <td style="text-align:right" data-sort="4.0355">4.04°</td>
+              <td style="text-align:right" data-sort="4469.9041">4470</td>
+              <td style="text-align:right">447 (74:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../betelgeuse/">Betelgeuse</a></td>
+              <td style="text-align:right" data-sort="283.4659">283.47°</td>
+              <td style="text-align:right" data-sort="4846.6122">4847</td>
+              <td style="text-align:right">485 (80:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../garnet/">Garnet</a></td>
+              <td style="text-align:right" data-sort="358.5014">358.50°</td>
+              <td style="text-align:right" data-sort="5014.1441">5014</td>
+              <td style="text-align:right">502 (83:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../kitalpha/">Kitalpha</a></td>
+              <td style="text-align:right" data-sort="341.5515">341.55°</td>
+              <td style="text-align:right" data-sort="5414.9647">5415</td>
+              <td style="text-align:right">542 (90:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../last_light/">Last Light</a></td>
+              <td style="text-align:right" data-sort="313.1616">313.16°</td>
+              <td style="text-align:right" data-sort="5613.0195">5613</td>
+              <td style="text-align:right">562 (93:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../winterhold/">Winterhold</a></td>
+              <td style="text-align:right" data-sort="297.9595">297.96°</td>
+              <td style="text-align:right" data-sort="5726.2461">5726</td>
+              <td style="text-align:right">573 (95:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gliese_581/">Gliese 581</a></td>
+              <td style="text-align:right" data-sort="42.7323">42.73°</td>
+              <td style="text-align:right" data-sort="5946.3846">5946</td>
+              <td style="text-align:right">595 (99:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../antares/">Antares</a></td>
+              <td style="text-align:right" data-sort="7.6413">7.64°</td>
+              <td style="text-align:right" data-sort="6012.4298">6012</td>
+              <td style="text-align:right">602 (100:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../unknown_edge/">Unknown Edge</a></td>
+              <td style="text-align:right" data-sort="315.2499">315.25°</td>
+              <td style="text-align:right" data-sort="6085.6367">6086</td>
+              <td style="text-align:right">609 (101:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../oakridge/">Oakridge</a></td>
+              <td style="text-align:right" data-sort="328.7361">328.74°</td>
+              <td style="text-align:right" data-sort="6145.1237">6145</td>
+              <td style="text-align:right">615 (102:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../distant_light/">Distant Light</a></td>
+              <td style="text-align:right" data-sort="316.2435">316.24°</td>
+              <td style="text-align:right" data-sort="6319.2761">6319</td>
+              <td style="text-align:right">632 (105:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../bluerift/">Bluerift</a></td>
+              <td style="text-align:right" data-sort="1.8048">1.80°</td>
+              <td style="text-align:right" data-sort="6573.8913">6574</td>
+              <td style="text-align:right">658 (109:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../lhs_1140/">LHS 1140</a></td>
+              <td style="text-align:right" data-sort="9.9112">9.91°</td>
+              <td style="text-align:right" data-sort="6616.0776">6616</td>
+              <td style="text-align:right">662 (110:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../frontier/">Frontier</a></td>
+              <td style="text-align:right" data-sort="312.1125">312.11°</td>
+              <td style="text-align:right" data-sort="6695.6097">6696</td>
+              <td style="text-align:right">670 (111:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../nova_terra/">Nova Terra</a></td>
+              <td style="text-align:right" data-sort="352.5937">352.59°</td>
+              <td style="text-align:right" data-sort="6746.7851">6747</td>
+              <td style="text-align:right">675 (112:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../starfall/">Starfall</a></td>
+              <td style="text-align:right" data-sort="323.2285">323.23°</td>
+              <td style="text-align:right" data-sort="6780.2661">6780</td>
+              <td style="text-align:right">679 (113:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../goldcrest/">Goldcrest</a></td>
+              <td style="text-align:right" data-sort="5.8257">5.83°</td>
+              <td style="text-align:right" data-sort="6912.7783">6913</td>
+              <td style="text-align:right">692 (115:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../sirius/">Sirius</a></td>
+              <td style="text-align:right" data-sort="349.5872">349.59°</td>
+              <td style="text-align:right" data-sort="6922.3420">6922</td>
+              <td style="text-align:right">693 (115:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../first_step/">First Step</a></td>
+              <td style="text-align:right" data-sort="317.1921">317.19°</td>
+              <td style="text-align:right" data-sort="7026.8324">7027</td>
+              <td style="text-align:right">703 (117:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../void_gate/">Void Gate</a></td>
+              <td style="text-align:right" data-sort="319.8678">319.87°</td>
+              <td style="text-align:right" data-sort="7151.9534">7152</td>
+              <td style="text-align:right">716 (119:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../deep_range/">Deep Range</a></td>
+              <td style="text-align:right" data-sort="311.0773">311.08°</td>
+              <td style="text-align:right" data-sort="7220.1404">7220</td>
+              <td style="text-align:right">723 (120:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../sulafat/">Sulafat</a></td>
+              <td style="text-align:right" data-sort="323.9859">323.99°</td>
+              <td style="text-align:right" data-sort="7224.2224">7224</td>
+              <td style="text-align:right">723 (120:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../procyon/">Procyon</a></td>
+              <td style="text-align:right" data-sort="354.7072">354.71°</td>
+              <td style="text-align:right" data-sort="7410.3213">7410</td>
+              <td style="text-align:right">742 (123:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../libertas/">Libertas</a></td>
+              <td style="text-align:right" data-sort="294.1649">294.16°</td>
+              <td style="text-align:right" data-sort="7599.0402">7599</td>
+              <td style="text-align:right">760 (126:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../sol/">Sol</a></td>
+              <td style="text-align:right" data-sort="348.9183">348.92°</td>
+              <td style="text-align:right" data-sort="7632.3122">7632</td>
+              <td style="text-align:right">764 (127:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../proxima_centauri/">Proxima Centauri</a></td>
+              <td style="text-align:right" data-sort="354.2705">354.27°</td>
+              <td style="text-align:right" data-sort="7751.7824">7752</td>
+              <td style="text-align:right">776 (129:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../alpha_centauri/">Alpha Centauri</a></td>
+              <td style="text-align:right" data-sort="347.1666">347.17°</td>
+              <td style="text-align:right" data-sort="7781.5531">7782</td>
+              <td style="text-align:right">779 (129:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../blackthorn/">Blackthorn</a></td>
+              <td style="text-align:right" data-sort="309.9055">309.91°</td>
+              <td style="text-align:right" data-sort="7973.8726">7974</td>
+              <td style="text-align:right">798 (133:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../barnards_star/">Barnard&#39;s Star</a></td>
+              <td style="text-align:right" data-sort="352.2148">352.21°</td>
+              <td style="text-align:right" data-sort="8142.1668">8142</td>
+              <td style="text-align:right">815 (135:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../dheneb/">Dheneb</a></td>
+              <td style="text-align:right" data-sort="354.3051">354.31°</td>
+              <td style="text-align:right" data-sort="8169.7373">8170</td>
+              <td style="text-align:right">817 (136:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0026/">GSC-0026</a></td>
+              <td style="text-align:right" data-sort="292.9582">292.96°</td>
+              <td style="text-align:right" data-sort="8187.3694">8187</td>
+              <td style="text-align:right">819 (136:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../fomalhaut/">Fomalhaut</a></td>
+              <td style="text-align:right" data-sort="34.6181">34.62°</td>
+              <td style="text-align:right" data-sort="8374.8211">8375</td>
+              <td style="text-align:right">838 (139:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../cloverfield/">Cloverfield</a></td>
+              <td style="text-align:right" data-sort="321.9353">321.94°</td>
+              <td style="text-align:right" data-sort="8485.3022">8485</td>
+              <td style="text-align:right">849 (141:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../zosma/">Zosma</a></td>
+              <td style="text-align:right" data-sort="319.1522">319.15°</td>
+              <td style="text-align:right" data-sort="8487.0481">8487</td>
+              <td style="text-align:right">849 (141:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../aspidiske/">Aspidiske</a></td>
+              <td style="text-align:right" data-sort="350.1811">350.18°</td>
+              <td style="text-align:right" data-sort="8491.9610">8492</td>
+              <td style="text-align:right">850 (141:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../mebsuta/">Mebsuta</a></td>
+              <td style="text-align:right" data-sort="14.4597">14.46°</td>
+              <td style="text-align:right" data-sort="8787.1687">8787</td>
+              <td style="text-align:right">879 (146:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../kurhah/">Kurhah</a></td>
+              <td style="text-align:right" data-sort="325.3600">325.36°</td>
+              <td style="text-align:right" data-sort="9023.1488">9023</td>
+              <td style="text-align:right">903 (150:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../xamidimura/">Xamidimura</a></td>
+              <td style="text-align:right" data-sort="305.9371">305.94°</td>
+              <td style="text-align:right" data-sort="9121.2405">9121</td>
+              <td style="text-align:right">913 (152:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../barnardstar/">Barnardstar</a></td>
+              <td style="text-align:right" data-sort="3.3416">3.34°</td>
+              <td style="text-align:right" data-sort="9138.5054">9139</td>
+              <td style="text-align:right">914 (152:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../ascella/">Ascella</a></td>
+              <td style="text-align:right" data-sort="354.9929">354.99°</td>
+              <td style="text-align:right" data-sort="9174.8768">9175</td>
+              <td style="text-align:right">918 (153:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../zaniah/">Zaniah</a></td>
+              <td style="text-align:right" data-sort="341.4680">341.47°</td>
+              <td style="text-align:right" data-sort="9299.4003">9299</td>
+              <td style="text-align:right">930 (155:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0008/">GSC-0008</a></td>
+              <td style="text-align:right" data-sort="31.3564">31.36°</td>
+              <td style="text-align:right" data-sort="9428.2485">9428</td>
+              <td style="text-align:right">943 (157:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../fuyue/">Fuyue</a></td>
+              <td style="text-align:right" data-sort="350.5212">350.52°</td>
+              <td style="text-align:right" data-sort="9486.8854">9487</td>
+              <td style="text-align:right">949 (158:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../ross_248/">Ross 248</a></td>
+              <td style="text-align:right" data-sort="349.1296">349.13°</td>
+              <td style="text-align:right" data-sort="9944.3103">9944</td>
+              <td style="text-align:right">995 (165:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../lilii_borea/">Lilii Borea</a></td>
+              <td style="text-align:right" data-sort="21.7662">21.77°</td>
+              <td style="text-align:right" data-sort="10141.6902">10142</td>
+              <td style="text-align:right">1015 (169:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../saiph/">Saiph</a></td>
+              <td style="text-align:right" data-sort="22.9836">22.98°</td>
+              <td style="text-align:right" data-sort="10173.2948">10173</td>
+              <td style="text-align:right">1018 (169:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../40_eridani/">40 Eridani</a></td>
+              <td style="text-align:right" data-sort="16.9436">16.94°</td>
+              <td style="text-align:right" data-sort="10175.5902">10176</td>
+              <td style="text-align:right">1018 (169:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../longshore/">Longshore</a></td>
+              <td style="text-align:right" data-sort="305.8444">305.84°</td>
+              <td style="text-align:right" data-sort="10238.2309">10238</td>
+              <td style="text-align:right">1024 (170:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../alpheratz/">Alpheratz</a></td>
+              <td style="text-align:right" data-sort="19.9134">19.91°</td>
+              <td style="text-align:right" data-sort="10420.2202">10420</td>
+              <td style="text-align:right">1043 (173:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../hd_10647/">HD 10647</a></td>
+              <td style="text-align:right" data-sort="307.5390">307.54°</td>
+              <td style="text-align:right" data-sort="10438.2962">10438</td>
+              <td style="text-align:right">1044 (174:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../wealth_lane/">Wealth Lane</a></td>
+              <td style="text-align:right" data-sort="327.7201">327.72°</td>
+              <td style="text-align:right" data-sort="10456.7251">10457</td>
+              <td style="text-align:right">1046 (174:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0010/">GSC-0010</a></td>
+              <td style="text-align:right" data-sort="25.3300">25.33°</td>
+              <td style="text-align:right" data-sort="10475.2429">10475</td>
+              <td style="text-align:right">1048 (174:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../the_levy/">The Levy</a></td>
+              <td style="text-align:right" data-sort="324.8136">324.81°</td>
+              <td style="text-align:right" data-sort="10475.9439">10476</td>
+              <td style="text-align:right">1048 (174:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../bd20_2457/">BD&#43;20 2457</a></td>
+              <td style="text-align:right" data-sort="15.5718">15.57°</td>
+              <td style="text-align:right" data-sort="10583.1892">10583</td>
+              <td style="text-align:right">1059 (176:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0034/">GSC-0034</a></td>
+              <td style="text-align:right" data-sort="22.6229">22.62°</td>
+              <td style="text-align:right" data-sort="10591.5595">10592</td>
+              <td style="text-align:right">1060 (176:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../crosshaven/">Crosshaven</a></td>
+              <td style="text-align:right" data-sort="19.8095">19.81°</td>
+              <td style="text-align:right" data-sort="10672.7798">10673</td>
+              <td style="text-align:right">1068 (178:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0019/">GSC-0019</a></td>
+              <td style="text-align:right" data-sort="17.6698">17.67°</td>
+              <td style="text-align:right" data-sort="10831.9516">10832</td>
+              <td style="text-align:right">1084 (180:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../diphda/">Diphda</a></td>
+              <td style="text-align:right" data-sort="20.1290">20.13°</td>
+              <td style="text-align:right" data-sort="10866.8303">10867</td>
+              <td style="text-align:right">1087 (181:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../segin/">Segin</a></td>
+              <td style="text-align:right" data-sort="338.2103">338.21°</td>
+              <td style="text-align:right" data-sort="10903.2661">10903</td>
+              <td style="text-align:right">1091 (181:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gold_run/">Gold Run</a></td>
+              <td style="text-align:right" data-sort="330.6281">330.63°</td>
+              <td style="text-align:right" data-sort="10934.8044">10935</td>
+              <td style="text-align:right">1094 (182:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../cargo_lanes/">Cargo Lanes</a></td>
+              <td style="text-align:right" data-sort="331.3733">331.37°</td>
+              <td style="text-align:right" data-sort="11110.9914">11111</td>
+              <td style="text-align:right">1112 (185:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../tiaki/">Tiaki</a></td>
+              <td style="text-align:right" data-sort="22.4242">22.42°</td>
+              <td style="text-align:right" data-sort="11141.6119">11142</td>
+              <td style="text-align:right">1115 (185:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../nekkar/">Nekkar</a></td>
+              <td style="text-align:right" data-sort="341.4885">341.49°</td>
+              <td style="text-align:right" data-sort="11164.5453">11165</td>
+              <td style="text-align:right">1117 (186:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../traders_rest/">Trader&#39;s Rest</a></td>
+              <td style="text-align:right" data-sort="325.2158">325.22°</td>
+              <td style="text-align:right" data-sort="11180.2538">11180</td>
+              <td style="text-align:right">1119 (186:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../haven/">Haven</a></td>
+              <td style="text-align:right" data-sort="327.8397">327.84°</td>
+              <td style="text-align:right" data-sort="11210.0486">11210</td>
+              <td style="text-align:right">1122 (187:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../market_prime/">Market Prime</a></td>
+              <td style="text-align:right" data-sort="329.8979">329.90°</td>
+              <td style="text-align:right" data-sort="11263.0771">11263</td>
+              <td style="text-align:right">1127 (187:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../arneb/">Arneb</a></td>
+              <td style="text-align:right" data-sort="17.1897">17.19°</td>
+              <td style="text-align:right" data-sort="11268.0534">11268</td>
+              <td style="text-align:right">1127 (187:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../thuban/">Thuban</a></td>
+              <td style="text-align:right" data-sort="18.5747">18.57°</td>
+              <td style="text-align:right" data-sort="11280.4455">11280</td>
+              <td style="text-align:right">1129 (188:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../barnard_44/">Barnard 44</a></td>
+              <td style="text-align:right" data-sort="2.9352">2.94°</td>
+              <td style="text-align:right" data-sort="11435.8381">11436</td>
+              <td style="text-align:right">1144 (190:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../gsc_0013/">GSC-0013</a></td>
+              <td style="text-align:right" data-sort="8.7948">8.79°</td>
+              <td style="text-align:right" data-sort="11439.6194">11440</td>
+              <td style="text-align:right">1144 (190:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../factory_belt/">Factory Belt</a></td>
+              <td style="text-align:right" data-sort="324.8405">324.84°</td>
+              <td style="text-align:right" data-sort="11487.1886">11487</td>
+              <td style="text-align:right">1149 (191:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../sargas/">Sargas</a></td>
+              <td style="text-align:right" data-sort="355.6440">355.64°</td>
+              <td style="text-align:right" data-sort="11504.0618">11504</td>
+              <td style="text-align:right">1151 (191:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../dawnbreak/">Dawnbreak</a></td>
+              <td style="text-align:right" data-sort="13.4161">13.42°</td>
+              <td style="text-align:right" data-sort="11524.0389">11524</td>
+              <td style="text-align:right">1153 (192:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../silvermark/">Silvermark</a></td>
+              <td style="text-align:right" data-sort="344.3646">344.36°</td>
+              <td style="text-align:right" data-sort="11582.8054">11583</td>
+              <td style="text-align:right">1159 (193:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../alula/">Alula</a></td>
+              <td style="text-align:right" data-sort="333.5440">333.54°</td>
+              <td style="text-align:right" data-sort="11594.0716">11594</td>
+              <td style="text-align:right">1160 (193:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../kornephoros/">Kornephoros</a></td>
+              <td style="text-align:right" data-sort="15.7069">15.71°</td>
+              <td style="text-align:right" data-sort="11720.0335">11720</td>
+              <td style="text-align:right">1173 (195:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../the_rampart/">The Rampart</a></td>
+              <td style="text-align:right" data-sort="11.3389">11.34°</td>
+              <td style="text-align:right" data-sort="11749.7234">11750</td>
+              <td style="text-align:right">1175 (195:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../treasure_cache/">Treasure Cache</a></td>
+              <td style="text-align:right" data-sort="326.9500">326.95°</td>
+              <td style="text-align:right" data-sort="11962.9730">11963</td>
+              <td style="text-align:right">1197 (199:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../iron_reach/">Iron Reach</a></td>
+              <td style="text-align:right" data-sort="6.9171">6.92°</td>
+              <td style="text-align:right" data-sort="12185.2385">12185</td>
+              <td style="text-align:right">1219 (203:10)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../the_crucible/">The Crucible</a></td>
+              <td style="text-align:right" data-sort="9.6119">9.61°</td>
+              <td style="text-align:right" data-sort="12274.4146">12274</td>
+              <td style="text-align:right">1228 (204:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../the_anvil/">The Anvil</a></td>
+              <td style="text-align:right" data-sort="4.2992">4.30°</td>
+              <td style="text-align:right" data-sort="12556.6209">12557</td>
+              <td style="text-align:right">1256 (209:20)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../krynn/">Krynn</a></td>
+              <td style="text-align:right" data-sort="6.9974">7.00°</td>
+              <td style="text-align:right" data-sort="12583.7272">12584</td>
+              <td style="text-align:right">1259 (209:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../blood_forge/">Blood Forge</a></td>
+              <td style="text-align:right" data-sort="7.4349">7.43°</td>
+              <td style="text-align:right" data-sort="12861.9873">12862</td>
+              <td style="text-align:right">1287 (214:30)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../ironhearth/">Ironhearth</a></td>
+              <td style="text-align:right" data-sort="3.9702">3.97°</td>
+              <td style="text-align:right" data-sort="12898.6323">12899</td>
+              <td style="text-align:right">1290 (215:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../alhena/">Alhena</a></td>
+              <td style="text-align:right" data-sort="321.3212">321.32°</td>
+              <td style="text-align:right" data-sort="13420.1545">13420</td>
+              <td style="text-align:right">1343 (223:50)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../alzirr/">Alzirr</a></td>
+              <td style="text-align:right" data-sort="6.6199">6.62°</td>
+              <td style="text-align:right" data-sort="13535.0028">13535</td>
+              <td style="text-align:right">1354 (225:40)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../bellatrix/">Bellatrix</a></td>
+              <td style="text-align:right" data-sort="352.7529">352.75°</td>
+              <td style="text-align:right" data-sort="13731.9310">13732</td>
+              <td style="text-align:right">1374 (229:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            <tr>
+              <td><a href="../sheratan/">Sheratan</a></td>
+              <td style="text-align:right" data-sort="337.4725">337.47°</td>
+              <td style="text-align:right" data-sort="14631.5973">14632</td>
+              <td style="text-align:right">1464 (244:00)</td>
+              <td><span class="badge badge-yellow">interrupted</span></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Heading Sweep — All Directions (58 ranges)</div>
+          <p class="text-muted" style="padding:0 12px">Where a jump lands for every whole-degree heading, collapsed into contiguous ranges. "(void)" ranges intersect no system.</p>
+          <table class="sortable">
+            <thead><tr><th class="sortable">Headings</th><th class="sortable" style="text-align:right">Span</th><th class="sortable">Lands At</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th></tr></thead>
+            <tbody>
+            <tr>
+              <td data-sort="0">0°–3°</td>
+              <td style="text-align:right">4°</td>
+              <td><a href="../giausar/">Giausar</a></td>
+              <td style="text-align:right" data-sort="985.2">985</td>
+              <td style="text-align:right">99 (16:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="4">4°–5°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../groombridge_34/">Groombridge 34</a></td>
+              <td style="text-align:right" data-sort="2414.6">2415</td>
+              <td style="text-align:right">242 (40:20)</td>
+            </tr>
+            <tr>
+              <td data-sort="6">6°–7°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../ironhollow/">Ironhollow</a></td>
+              <td style="text-align:right" data-sort="5066.9">5067</td>
+              <td style="text-align:right">507 (84:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="8">8°–9°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../nexus_prime/">Nexus Prime</a> <span class="badge badge-frost">station</span></td>
+              <td style="text-align:right" data-sort="3530.2">3530</td>
+              <td style="text-align:right">354 (59:00)</td>
+            </tr>
+            <tr>
+              <td data-sort="10">10°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../regor/">Regor</a></td>
+              <td style="text-align:right" data-sort="2364.5">2364</td>
+              <td style="text-align:right">237 (39:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="11">11°–18°</td>
+              <td style="text-align:right">8°</td>
+              <td><a href="../duskfield/">Duskfield</a></td>
+              <td style="text-align:right" data-sort="1399.8">1400</td>
+              <td style="text-align:right">140 (23:20)</td>
+            </tr>
+            <tr>
+              <td data-sort="19">19°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../node_beta/">Node Beta</a> <span class="badge badge-frost">station</span></td>
+              <td style="text-align:right" data-sort="3668.2">3668</td>
+              <td style="text-align:right">367 (61:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="20">20°–25°</td>
+              <td style="text-align:right">6°</td>
+              <td><a href="../atria/">Atria</a></td>
+              <td style="text-align:right" data-sort="1989.4">1989</td>
+              <td style="text-align:right">199 (33:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="26">26°–27°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../marfik/">Marfik</a></td>
+              <td style="text-align:right" data-sort="2141.3">2141</td>
+              <td style="text-align:right">215 (35:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="28">28°–31°</td>
+              <td style="text-align:right">4°</td>
+              <td><a href="../acrab/">Acrab</a></td>
+              <td style="text-align:right" data-sort="1798.6">1799</td>
+              <td style="text-align:right">180 (30:00)</td>
+            </tr>
+            <tr>
+              <td data-sort="32">32°–43°</td>
+              <td style="text-align:right">12°</td>
+              <td><a href="../yellow_stead/">Yellow Stead</a></td>
+              <td style="text-align:right" data-sort="945.0">945</td>
+              <td style="text-align:right">95 (15:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="44">44°–45°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../nightveil/">Nightveil</a></td>
+              <td style="text-align:right" data-sort="2015.0">2015</td>
+              <td style="text-align:right">202 (33:40)</td>
+            </tr>
+            <tr>
+              <td data-sort="46">46°–47°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../gsc_0049/">GSC-0049</a></td>
+              <td style="text-align:right" data-sort="2263.8">2264</td>
+              <td style="text-align:right">227 (37:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="48">48°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../denebola/">Denebola</a></td>
+              <td style="text-align:right" data-sort="2558.7">2559</td>
+              <td style="text-align:right">256 (42:40)</td>
+            </tr>
+            <tr>
+              <td data-sort="49">49°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../downhill/">Downhill</a></td>
+              <td style="text-align:right" data-sort="7331.7">7332</td>
+              <td style="text-align:right">734 (122:20)</td>
+            </tr>
+            <tr>
+              <td data-sort="50">50°–51°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../far_wick/">Far Wick</a></td>
+              <td style="text-align:right" data-sort="4953.7">4954</td>
+              <td style="text-align:right">496 (82:40)</td>
+            </tr>
+            <tr>
+              <td data-sort="52">52°–53°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../short_lane/">Short Lane</a></td>
+              <td style="text-align:right" data-sort="3424.0">3424</td>
+              <td style="text-align:right">343 (57:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="54">54°–58°</td>
+              <td style="text-align:right">5°</td>
+              <td><a href="../ash_pearl/">Ash Pearl</a></td>
+              <td style="text-align:right" data-sort="2208.0">2208</td>
+              <td style="text-align:right">221 (36:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="59">59°–64°</td>
+              <td style="text-align:right">6°</td>
+              <td><a href="../saltpan/">Saltpan</a></td>
+              <td style="text-align:right" data-sort="1780.0">1780</td>
+              <td style="text-align:right">178 (29:40)</td>
+            </tr>
+            <tr>
+              <td data-sort="65">65°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../still_point/">Still Point</a></td>
+              <td style="text-align:right" data-sort="3641.5">3642</td>
+              <td style="text-align:right">365 (60:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="66">66°–69°</td>
+              <td style="text-align:right">4°</td>
+              <td><a href="../facing_away/">Facing Away</a></td>
+              <td style="text-align:right" data-sort="2745.1">2745</td>
+              <td style="text-align:right">275 (45:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="70">70°–71°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../long_night/">Long Night</a></td>
+              <td style="text-align:right" data-sort="3353.5">3354</td>
+              <td style="text-align:right">336 (56:00)</td>
+            </tr>
+            <tr>
+              <td data-sort="72">72°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../patient_span/">Patient Span</a></td>
+              <td style="text-align:right" data-sort="3811.3">3811</td>
+              <td style="text-align:right">382 (63:40)</td>
+            </tr>
+            <tr>
+              <td data-sort="73">73°–80°</td>
+              <td style="text-align:right">8°</td>
+              <td><span class="text-muted">(void)</span></td>
+              <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td data-sort="81">81°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../whaleroad/">Whaleroad</a></td>
+              <td style="text-align:right" data-sort="1629.2">1629</td>
+              <td style="text-align:right">163 (27:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="82">82°–93°</td>
+              <td style="text-align:right">12°</td>
+              <td><a href="../blue_static/">Blue Static</a></td>
+              <td style="text-align:right" data-sort="973.6">974</td>
+              <td style="text-align:right">98 (16:20)</td>
+            </tr>
+            <tr>
+              <td data-sort="94">94°–112°</td>
+              <td style="text-align:right">19°</td>
+              <td><span class="text-muted">(void)</span></td>
+              <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td data-sort="113">113°–116°</td>
+              <td style="text-align:right">4°</td>
+              <td><a href="../hard_weather/">Hard Weather</a></td>
+              <td style="text-align:right" data-sort="798.5">799</td>
+              <td style="text-align:right">80 (13:20)</td>
+            </tr>
+            <tr>
+              <td data-sort="117">117°–145°</td>
+              <td style="text-align:right">29°</td>
+              <td><a href="../flicker/">Flicker</a></td>
+              <td style="text-align:right" data-sort="404.1">404</td>
+              <td style="text-align:right">41 (6:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="146">146°–161°</td>
+              <td style="text-align:right">16°</td>
+              <td><a href="../sparkfall/">Sparkfall</a></td>
+              <td style="text-align:right" data-sort="741.9">742</td>
+              <td style="text-align:right">75 (12:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="162">162°–214°</td>
+              <td style="text-align:right">53°</td>
+              <td><span class="text-muted">(void)</span></td>
+              <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td data-sort="215">215°–232°</td>
+              <td style="text-align:right">18°</td>
+              <td><a href="../faded_corona/">Faded Corona</a></td>
+              <td style="text-align:right" data-sort="662.1">662</td>
+              <td style="text-align:right">67 (11:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="233">233°–243°</td>
+              <td style="text-align:right">11°</td>
+              <td><a href="../crush_vector/">Crush Vector</a></td>
+              <td style="text-align:right" data-sort="1067.0">1067</td>
+              <td style="text-align:right">107 (17:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="244">244°–249°</td>
+              <td style="text-align:right">6°</td>
+              <td><span class="text-muted">(void)</span></td>
+              <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td data-sort="250">250°–256°</td>
+              <td style="text-align:right">7°</td>
+              <td><a href="../wayfork/">Wayfork</a></td>
+              <td style="text-align:right" data-sort="1594.1">1594</td>
+              <td style="text-align:right">160 (26:40)</td>
+            </tr>
+            <tr>
+              <td data-sort="257">257°–261°</td>
+              <td style="text-align:right">5°</td>
+              <td><span class="text-muted">(void)</span></td>
+              <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td data-sort="262">262°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../bite_mark/">Bite Mark</a></td>
+              <td style="text-align:right" data-sort="3781.0">3781</td>
+              <td style="text-align:right">379 (63:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="263">263°–265°</td>
+              <td style="text-align:right">3°</td>
+              <td><a href="../last_fuel/">Last Fuel</a></td>
+              <td style="text-align:right" data-sort="1803.9">1804</td>
+              <td style="text-align:right">181 (30:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="266">266°–272°</td>
+              <td style="text-align:right">7°</td>
+              <td><a href="../greenrust/">Greenrust</a></td>
+              <td style="text-align:right" data-sort="1138.7">1139</td>
+              <td style="text-align:right">114 (19:00)</td>
+            </tr>
+            <tr>
+              <td data-sort="273">273°–290°</td>
+              <td style="text-align:right">18°</td>
+              <td><a href="../slow_water/">Slow Water</a></td>
+              <td style="text-align:right" data-sort="648.9">649</td>
+              <td style="text-align:right">65 (10:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="291">291°–295°</td>
+              <td style="text-align:right">5°</td>
+              <td><a href="../fulu/">Fulu</a></td>
+              <td style="text-align:right" data-sort="1442.6">1443</td>
+              <td style="text-align:right">145 (24:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="296">296°–302°</td>
+              <td style="text-align:right">7°</td>
+              <td><a href="../gsc_0006/">GSC-0006</a></td>
+              <td style="text-align:right" data-sort="1613.4">1613</td>
+              <td style="text-align:right">162 (27:00)</td>
+            </tr>
+            <tr>
+              <td data-sort="303">303°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../mirfak/">Mirfak</a></td>
+              <td style="text-align:right" data-sort="5902.5">5903</td>
+              <td style="text-align:right">591 (98:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="304">304°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../wezen/">Wezen</a></td>
+              <td style="text-align:right" data-sort="4665.0">4665</td>
+              <td style="text-align:right">467 (77:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="305">305°–307°</td>
+              <td style="text-align:right">3°</td>
+              <td><a href="../springdale/">Springdale</a></td>
+              <td style="text-align:right" data-sort="2366.5">2367</td>
+              <td style="text-align:right">237 (39:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="308">308°–312°</td>
+              <td style="text-align:right">5°</td>
+              <td><a href="../gsc_0042/">GSC-0042</a></td>
+              <td style="text-align:right" data-sort="2007.0">2007</td>
+              <td style="text-align:right">201 (33:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="313">313°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../dschubba/">Dschubba</a></td>
+              <td style="text-align:right" data-sort="3304.2">3304</td>
+              <td style="text-align:right">331 (55:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="314">314°–324°</td>
+              <td style="text-align:right">11°</td>
+              <td><a href="../gsc_0028/">GSC-0028</a></td>
+              <td style="text-align:right" data-sort="1089.1">1089</td>
+              <td style="text-align:right">109 (18:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="325">325°–327°</td>
+              <td style="text-align:right">3°</td>
+              <td><a href="../yildun/">Yildun</a></td>
+              <td style="text-align:right" data-sort="2441.8">2442</td>
+              <td style="text-align:right">245 (40:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="328">328°–330°</td>
+              <td style="text-align:right">3°</td>
+              <td><a href="../saltwind/">Saltwind</a> <span class="badge badge-frost">station</span></td>
+              <td style="text-align:right" data-sort="3241.0">3241</td>
+              <td style="text-align:right">325 (54:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="331">331°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../tania/">Tania</a></td>
+              <td style="text-align:right" data-sort="3343.3">3343</td>
+              <td style="text-align:right">335 (55:50)</td>
+            </tr>
+            <tr>
+              <td data-sort="332">332°–333°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../rasalhague/">Rasalhague</a></td>
+              <td style="text-align:right" data-sort="2648.7">2649</td>
+              <td style="text-align:right">265 (44:10)</td>
+            </tr>
+            <tr>
+              <td data-sort="334">334°–343°</td>
+              <td style="text-align:right">10°</td>
+              <td><a href="../aldebaran/">Aldebaran</a></td>
+              <td style="text-align:right" data-sort="1251.7">1252</td>
+              <td style="text-align:right">126 (21:00)</td>
+            </tr>
+            <tr>
+              <td data-sort="344">344°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../clearwater/">Clearwater</a></td>
+              <td style="text-align:right" data-sort="3119.9">3120</td>
+              <td style="text-align:right">312 (52:00)</td>
+            </tr>
+            <tr>
+              <td data-sort="345">345°–347°</td>
+              <td style="text-align:right">3°</td>
+              <td><a href="../chalawan/">Chalawan</a> <span class="badge badge-frost">station</span></td>
+              <td style="text-align:right" data-sort="2366.7">2367</td>
+              <td style="text-align:right">237 (39:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="348">348°–351°</td>
+              <td style="text-align:right">4°</td>
+              <td><a href="../gsc_0040/">GSC-0040</a> <span class="badge badge-frost">station</span></td>
+              <td style="text-align:right" data-sort="1530.5">1531</td>
+              <td style="text-align:right">154 (25:40)</td>
+            </tr>
+            <tr>
+              <td data-sort="352">352°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../sadalsuud/">Sadalsuud</a></td>
+              <td style="text-align:right" data-sort="1285.7">1286</td>
+              <td style="text-align:right">129 (21:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="353">353°–359°</td>
+              <td style="text-align:right">7°</td>
+              <td><a href="../giausar/">Giausar</a></td>
+              <td style="text-align:right" data-sort="986.0">986</td>
+              <td style="text-align:right">99 (16:30)</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card mt-2">
+          <div class="section-label">Interrupted Paths</div>
+          <p class="text-muted">The full listing of interrupted (non-station) jump paths will be added in a later phase.</p>
+        </div>
+    </main>
+    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+    </script>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

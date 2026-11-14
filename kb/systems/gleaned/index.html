@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gleaned - Systems - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../system.css">
+    <link rel="stylesheet" href="../../items/items.css">
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../../nav.js" defer></script>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Systems</a> / Gleaned</div>
+
+        <div class="sys-header">
+            <div>
+                <span class="label">System</span>
+                <h2 class="sys-name">Gleaned <span class="badge badge-yellow" title="Uncharted frontier system: left off the in-game map and search">Uncharted</span></h2>
+            </div>
+            <div class="sys-meta">
+                <div class="sys-meta-item">
+                    <span class="label">Security</span>
+                    <span class="stat security-low"><span class="text-muted">Unknown</span></span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Empire</span>
+                    <span class="stat"><span class="text-muted">Unknown</span></span>
+                </div>
+                <div class="sys-meta-item">
+                    <span class="label">Position</span>
+                    <span class="stat"><span title="Estimated from an in-game map screenshot: uncharted systems are left off get_map">&asymp; </span>-5330.0, -6292.0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="map-views"><input type="radio" name="map-scale" id="map-scale-log" checked><label for="map-scale-log">Log scale</label><input type="radio" name="map-scale" id="map-scale-lin"><label for="map-scale-lin">Linear scale</label><div class="map-view map-view-log"><div class="sys-map"><svg preserveAspectRatio="xMidYMid meet" viewBox="83.3 -16.7 633.3 633.3" xmlns="http://www.w3.org/2000/svg"><line x1="83" y1="300" x2="717" y2="300" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="400" y1="-17" x2="400" y2="617" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><circle cx="400" cy="300" r="285" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.6" stroke-dasharray="8,6"/><defs><radialGradient id="sun-glow"><stop offset="0%" stop-color="#EBCB8B" stop-opacity="1"/><stop offset="40%" stop-color="#D08770" stop-opacity="0.45"/><stop offset="100%" stop-color="#D08770" stop-opacity="0"/></radialGradient><radialGradient id="wormhole-glow"><stop offset="0%" stop-color="#1a0a00" stop-opacity="1"/><stop offset="35%" stop-color="#BF360C" stop-opacity="0.9"/><stop offset="60%" stop-color="#D84315" stop-opacity="0.5"/><stop offset="100%" stop-color="#D08770" stop-opacity="0"/></radialGradient><radialGradient id="collapsed-wormhole-glow"><stop offset="0%" stop-color="#1a1a00" stop-opacity="1"/><stop offset="35%" stop-color="#F9A825" stop-opacity="0.7"/><stop offset="60%" stop-color="#FDD835" stop-opacity="0.35"/><stop offset="100%" stop-color="#FDD835" stop-opacity="0"/></radialGradient><radialGradient id="star-glow-gleaned_star">
+<stop offset="0%" stop-color="#ffcf6e" stop-opacity="1"/>
+<stop offset="40%" stop-color="#ffcf6e" stop-opacity="0.45"/>
+<stop offset="100%" stop-color="#ffcf6e" stop-opacity="0"/>
+</radialGradient></defs><g class="poi-marker"><title>Gleaned Star — A steady orange star in a sky with almost nothing else to look at: no companion, no belt glimmer, no gas.</title><circle cx="400.0" cy="300.0" r="7.0" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/><defs><radialGradient id="star-core-gleaned_star"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/><stop offset="35%" stop-color="#ffcf6e" stop-opacity="1"/><stop offset="80%" stop-color="#ffcf6e" stop-opacity="0.85"/><stop offset="100%" stop-color="#ffcf6e" stop-opacity="0"/></radialGradient></defs><circle cx="400.0" cy="300.0" r="15.0" fill="url(#star-glow-gleaned_star)" opacity="0.8"/><circle class="star-core" cx="400.0" cy="300.0" r="3.0" fill="url(#star-core-gleaned_star)"/></g><text x="400.0" y="311.0" text-anchor="middle" class="map-label">Gleaned Star</text><rect x="648.7" y="578.7" width="58.0" height="28.0" rx="4" fill="#000" fill-opacity="0.6" stroke="#8b95ab" stroke-width="0.5" stroke-opacity="0.5"/><circle cx="664.7" cy="592.7" r="5" fill="#EBCB8B"/><text x="678.7" y="596.7" font-size="9" font-family="sans-serif" fill="#d8dee9">Star</text></svg></div></div><div class="map-view map-view-lin"><div class="sys-map"><svg preserveAspectRatio="xMidYMid meet" viewBox="83.3 -16.7 633.3 633.3" xmlns="http://www.w3.org/2000/svg"><line x1="83" y1="300" x2="717" y2="300" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><line x1="400" y1="-17" x2="400" y2="617" stroke="#8b95ab" stroke-width="0.5" opacity="0.9"/><circle cx="400" cy="300" r="285" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.6" stroke-dasharray="8,6"/><defs><radialGradient id="lin-sun-glow"><stop offset="0%" stop-color="#EBCB8B" stop-opacity="1"/><stop offset="40%" stop-color="#D08770" stop-opacity="0.45"/><stop offset="100%" stop-color="#D08770" stop-opacity="0"/></radialGradient><radialGradient id="lin-wormhole-glow"><stop offset="0%" stop-color="#1a0a00" stop-opacity="1"/><stop offset="35%" stop-color="#BF360C" stop-opacity="0.9"/><stop offset="60%" stop-color="#D84315" stop-opacity="0.5"/><stop offset="100%" stop-color="#D08770" stop-opacity="0"/></radialGradient><radialGradient id="lin-collapsed-wormhole-glow"><stop offset="0%" stop-color="#1a1a00" stop-opacity="1"/><stop offset="35%" stop-color="#F9A825" stop-opacity="0.7"/><stop offset="60%" stop-color="#FDD835" stop-opacity="0.35"/><stop offset="100%" stop-color="#FDD835" stop-opacity="0"/></radialGradient><radialGradient id="lin-star-glow-gleaned_star">
+<stop offset="0%" stop-color="#ffcf6e" stop-opacity="1"/>
+<stop offset="40%" stop-color="#ffcf6e" stop-opacity="0.45"/>
+<stop offset="100%" stop-color="#ffcf6e" stop-opacity="0"/>
+</radialGradient></defs><g class="poi-marker"><title>Gleaned Star — A steady orange star in a sky with almost nothing else to look at: no companion, no belt glimmer, no gas.</title><circle cx="400.0" cy="300.0" r="7.0" fill="none" stroke="#8b95ab" stroke-width="0.5" opacity="0.75" stroke-dasharray="3,3"/><defs><radialGradient id="lin-star-core-gleaned_star"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/><stop offset="35%" stop-color="#ffcf6e" stop-opacity="1"/><stop offset="80%" stop-color="#ffcf6e" stop-opacity="0.85"/><stop offset="100%" stop-color="#ffcf6e" stop-opacity="0"/></radialGradient></defs><circle cx="400.0" cy="300.0" r="15.0" fill="url(#lin-star-glow-gleaned_star)" opacity="0.8"/><circle class="star-core" cx="400.0" cy="300.0" r="3.0" fill="url(#lin-star-core-gleaned_star)"/></g><text x="400.0" y="311.0" text-anchor="middle" class="map-label">Gleaned Star</text><rect x="648.7" y="578.7" width="58.0" height="28.0" rx="4" fill="#000" fill-opacity="0.6" stroke="#8b95ab" stroke-width="0.5" stroke-opacity="0.5"/><circle cx="664.7" cy="592.7" r="5" fill="#EBCB8B"/><text x="678.7" y="596.7" font-size="9" font-family="sans-serif" fill="#d8dee9">Star</text></svg></div></div></div>
+        <div class="card mt-2"><a href="jumps.html" class="jumpmap-link">Pathfinder Jump Routes →</a></div>
+        <div class="card mt-2" style="padding:0">
+          <div class="section-label">Points of Interest (1)</div>
+          <table>
+            <thead><tr><th></th><th>Name</th><th>Type</th><th>Class</th><th style="text-align:right">Distance From Sun (AU)</th><th style="text-align:right;white-space:nowrap">Position</th><th>Hidden</th><th style="text-align:right">Reveal Difficulty</th><th>Description</th></tr></thead>
+            <tbody>
+            <tr>
+              <td style="text-align:center;font-size:16px">☀</td>
+              <td>Gleaned Star</td>
+              <td>Sun</td>
+              <td>K5V</td>
+              <td style="text-align:right">0.0</td>
+              <td style="text-align:right;white-space:nowrap">(0.0, 0.0)</td>
+              <td><span class="text-muted">—</span></td>
+              <td style="text-align:right"><span class="text-muted">—</span></td>
+              <td>A steady orange star in a sky with almost nothing else to look at: no companion, no belt glimmer, no gas.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="text-muted mt-3" style="font-size:0.85em">Last Updated Tick: —</p>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

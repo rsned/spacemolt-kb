@@ -51,13 +51,13 @@
                 <figcaption>Headings to station systems — <span class="jm-direct">white = direct</span>, <span class="jm-blocked">gray = interrupted</span></figcaption>
             </figure>
             <figure class="jumpmap-figure">
-                <svg class="jumpmap-wheel" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg"><circle class="wheel-covered" cx="240" cy="240" r="175" fill="#2b3856"/><polygon class="wheel-gap" points="240.0,240.0 65.6,255.1 65.4,252.0 65.2,249.0 65.2,248.9" fill="#ffcf4d"/><text class="wheel-label" x="48.5" y="253.2" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">176.07°</text><polygon class="wheel-gap" points="240.0,240.0 68.7,204.2 69.4,201.2 69.7,199.7" fill="#ffcf4d"/><text class="wheel-label" x="52.6" y="198.3" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">192.55°</text><polygon class="wheel-gap" points="240.0,240.0 66.6,263.4 66.4,262.2" fill="#ffcf4d"/><text class="wheel-label" x="49.6" y="265.0" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">172.53°</text><polygon class="wheel-gap" points="240.0,240.0 157.7,85.6 158.4,85.2" fill="#ffcf4d"/><text class="wheel-label" x="150.0" y="70.4" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">242.06°</text><line x1="415.0" y1="240.0" x2="423.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="415.0" x2="240.0" y2="423.0" stroke="#55607a" stroke-width="1"/><line x1="65.0" y1="240.0" x2="57.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="65.0" x2="240.0" y2="57.0" stroke="#55607a" stroke-width="1"/><text class="wheel-center" x="240" y="232" text-anchor="middle" dominant-baseline="middle" fill="#cdd3e0" font-size="18">98.8% blocked</text><text class="wheel-sub" x="240" y="254" text-anchor="middle" dominant-baseline="middle" fill="#ffcf4d" font-size="13">1.2% open · 4 gaps</text></svg>
-                <figcaption>98.8% of headings blocked · 4 void escape gaps</figcaption>
+                <svg class="jumpmap-wheel" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg"><circle class="wheel-covered" cx="240" cy="240" r="175" fill="#2b3856"/><polygon class="wheel-gap" points="240.0,240.0 65.6,255.1 65.4,252.0 65.4,252.0" fill="#ffcf4d"/><text class="wheel-label" x="48.6" y="254.8" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">175.57°</text><polygon class="wheel-gap" points="240.0,240.0 69.1,202.5 69.7,199.7" fill="#ffcf4d"/><text class="wheel-label" x="52.8" y="197.3" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">192.84°</text><line x1="415.0" y1="240.0" x2="423.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="415.0" x2="240.0" y2="423.0" stroke="#55607a" stroke-width="1"/><line x1="65.0" y1="240.0" x2="57.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="65.0" x2="240.0" y2="57.0" stroke="#55607a" stroke-width="1"/><text class="wheel-center" x="240" y="232" text-anchor="middle" dominant-baseline="middle" fill="#cdd3e0" font-size="18">99.5% blocked</text><text class="wheel-sub" x="240" y="254" text-anchor="middle" dominant-baseline="middle" fill="#ffcf4d" font-size="13">0.5% open · 2 gaps</text></svg>
+                <figcaption>99.5% of headings blocked · 2 void escape gaps</figcaption>
             </figure>
         </div>
 
         <div class="card mt-2" style="padding:0">
-          <div class="section-label">Direct Connections (41)</div>
+          <div class="section-label">Direct Connections (42)</div>
           <table class="sortable">
             <thead><tr><th class="sortable">System</th><th class="sortable" style="text-align:right">Heading</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th><th style="text-align:right">Margin</th></tr></thead>
             <tbody>
@@ -340,6 +340,13 @@
               <td style="text-align:right" data-sort="6019.1698">6019</td>
               <td style="text-align:right">602 (100:20)</td>
               <td style="text-align:right">0.042°</td>
+            </tr>
+            <tr>
+              <td><a href="../crush_vector/">Crush Vector</a></td>
+              <td style="text-align:right" data-sort="176.9888">176.99°</td>
+              <td style="text-align:right" data-sort="6260.9782">6261</td>
+              <td style="text-align:right">627 (104:30)</td>
+              <td style="text-align:right">0.080°</td>
             </tr>
             <tr>
               <td><a href="../gliese_667/">Gliese 667</a></td>
@@ -1048,7 +1055,7 @@
         </div>
 
         <div class="card mt-2" style="padding:0">
-          <div class="section-label">Heading Sweep — All Directions (70 ranges)</div>
+          <div class="section-label">Heading Sweep — All Directions (72 ranges)</div>
           <p class="text-muted" style="padding:0 12px">Where a jump lands for every whole-degree heading, collapsed into contiguous ranges. "(void)" ranges intersect no system.</p>
           <table class="sortable">
             <thead><tr><th class="sortable">Headings</th><th class="sortable" style="text-align:right">Span</th><th class="sortable">Lands At</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th></tr></thead>
@@ -1243,11 +1250,18 @@
               <td style="text-align:right">489 (81:30)</td>
             </tr>
             <tr>
-              <td data-sort="176">176°–177°</td>
-              <td style="text-align:right">2°</td>
+              <td data-sort="176">176°</td>
+              <td style="text-align:right">1°</td>
               <td><span class="text-muted">(void)</span></td>
               <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
               <td style="text-align:right"><span class="text-muted">—</span></td>
+            </tr>
+            <tr>
+              <td data-sort="177">177°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../crush_vector/">Crush Vector</a></td>
+              <td style="text-align:right" data-sort="6261.0">6261</td>
+              <td style="text-align:right">627 (104:30)</td>
             </tr>
             <tr>
               <td data-sort="178">178°–183°</td>
@@ -1285,8 +1299,15 @@
               <td style="text-align:right">410 (68:20)</td>
             </tr>
             <tr>
-              <td data-sort="192">192°–193°</td>
-              <td style="text-align:right">2°</td>
+              <td data-sort="192">192°</td>
+              <td style="text-align:right">1°</td>
+              <td><a href="../moth_run/">Moth Run</a></td>
+              <td style="text-align:right" data-sort="5900.8">5901</td>
+              <td style="text-align:right">591 (98:30)</td>
+            </tr>
+            <tr>
+              <td data-sort="193">193°</td>
+              <td style="text-align:right">1°</td>
               <td><span class="text-muted">(void)</span></td>
               <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
               <td style="text-align:right"><span class="text-muted">—</span></td>
@@ -1371,9 +1392,9 @@
             <tr>
               <td data-sort="242">242°</td>
               <td style="text-align:right">1°</td>
-              <td><span class="text-muted">(void)</span></td>
-              <td style="text-align:right" data-sort="0.0"><span class="text-muted">—</span></td>
-              <td style="text-align:right"><span class="text-muted">—</span></td>
+              <td><a href="../gleaned/">Gleaned</a></td>
+              <td style="text-align:right" data-sort="7417.6">7418</td>
+              <td style="text-align:right">742 (123:40)</td>
             </tr>
             <tr>
               <td data-sort="243">243°</td>

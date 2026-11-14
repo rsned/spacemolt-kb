@@ -200,10 +200,12 @@ function draw() {
   }
   unclear.forEach((r, i) => {
     const on = hi === -1 || hi === i;
-    ray(r, (r.st === 'unknown' ? C.unk : C.dbt) + (on ? 'cc' : '33'), r.st === 'unknown' ? [] : [6, 5], hi === i ? 2.5 : 1.3);
+    // Doubtful rays draw at half the alpha of unknown ones so the unexplained readings stand out.
+    const alpha = r.st === 'unknown' ? (on ? 'cc' : '33') : (on ? '66' : '1a');
+    ray(r, (r.st === 'unknown' ? C.unk : C.dbt) + alpha, r.st === 'unknown' ? [] : [6, 5], hi === i ? 2.5 : 1.3);
     if (r.st === 'doubtful' && on) {
       const [a, b] = px(r.x, r.y), [c, d] = px(r.ma[0], r.ma[1]);
-      ctx.strokeStyle = C.dbt + '55'; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = C.dbt + '2a'; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); ctx.setLineDash([]);
     }
   });
   for (const f of D.fits) {
