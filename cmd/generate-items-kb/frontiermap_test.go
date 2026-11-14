@@ -106,3 +106,25 @@ func TestWedgePanelLabelsOneLineApart(t *testing.T) {
 		t.Fatal("label placement did not finish")
 	}
 }
+
+func TestFrontierSightedSystems(t *testing.T) {
+	all := frontierFixture()
+	est := map[string]frontierEstimate{
+		"ash_pearl":  {X: -6259, Y: 3300},                    // has a row: not sighted
+		"far_beacon": {X: 6000, Y: 5500, Name: "Far Beacon"}, // map-only
+		"dull_edge":  {X: -7000, Y: -1000},                   // map-only, no name
+	}
+	sighted := sightedSystems(all, est)
+	if len(sighted) != 2 || sighted[0].Name != "Dull Edge" || sighted[1].Name != "Far Beacon" || !sighted[0].Sighted {
+		t.Fatalf("sighted = %+v", sighted)
+	}
+	svg := renderFrontierCallouts(append(all, sighted...))
+	if strings.Contains(svg, `href="far_beacon/"`) {
+		t.Error("a sighted system has no page and must not be linked")
+	}
+	for _, want := range []string{`class="fc-sighted"`, "Far Beacon", "seen on other maps"} {
+		if !strings.Contains(svg, want) {
+			t.Errorf("compass map lacks %q", want)
+		}
+	}
+}

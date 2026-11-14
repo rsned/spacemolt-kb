@@ -21,6 +21,9 @@ type Estimate struct {
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
 	Source string  `json:"source"`
+	// Name is the display name of a system known only from another
+	// player's map (no database row yet); empty otherwise.
+	Name string `json:"name,omitempty"`
 }
 
 // LoadEstimates reads an estimates file; a missing or unreadable file yields nil.

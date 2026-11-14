@@ -1,6 +1,11 @@
 package main
 
-import "github.com/rsned/spacemolt-kb/internal/frontier"
+import (
+	"cmp"
+	"slices"
+
+	"github.com/rsned/spacemolt-kb/internal/frontier"
+)
 
 // frontierPositionsPath holds estimated positions for uncharted frontier
 // systems, relative to the kb repo root the generator runs from.
@@ -32,4 +37,28 @@ func applyFrontierPositions(systems []*System, est map[string]frontierEstimate) 
 			s.PositionUnknown = true
 		}
 	}
+}
+
+// sightedSystems makes a Sighted system for every estimate with no database
+// row: a frontier system seen only on another player's map. Its name comes
+// from the estimate, else from its ID. Sorted by ID for stable output.
+func sightedSystems(systems []*System, est map[string]frontierEstimate) []*System {
+	known := make(map[string]bool, len(systems))
+	for _, s := range systems {
+		known[s.ID] = true
+	}
+	var out []*System
+	for id, e := range est {
+		if known[id] {
+			continue
+		}
+		name := e.Name
+		if name == "" {
+			name = titleCase(id)
+		}
+		out = append(out, &System{ID: id, Name: name, PositionX: e.X, PositionY: e.Y,
+			Uncharted: true, PositionApprox: true, Sighted: true})
+	}
+	slices.SortFunc(out, func(a, b *System) int { return cmp.Compare(a.ID, b.ID) })
+	return out
 }

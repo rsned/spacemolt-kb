@@ -291,6 +291,10 @@ type System struct {
 	// uncharted system with no estimate); kept off every map.
 	PositionApprox  bool
 	PositionUnknown bool
+	// Sighted: known only from another player's map screenshot, with no
+	// database row or scan of our own. Drawn on the frontier compass map,
+	// never given a page or used in routes.
+	Sighted bool
 }
 
 // SystemConnection is a jump gate connection to another system.
@@ -2261,7 +2265,8 @@ func writeSystemPages(outDir string, systems []*System) error {
 	if fg, ok := frontierGroup(systems); ok {
 		// Frontier regions lie far apart: draw a galaxy overview with a
 		// zoomed callout per region rather than one fitted mini-map.
-		fg.MapSVG = htmltpl.HTML(renderFrontierCallouts(systems)) //nolint:gosec // generated SVG, names escaped
+		withSighted := append(slices.Clone(systems), sightedSystems(systems, loadFrontierEstimates(frontierPositionsPath))...)
+		fg.MapSVG = htmltpl.HTML(renderFrontierCallouts(withSighted)) //nolint:gosec // generated SVG, names escaped
 		empires = append(empires, fg)
 	}
 

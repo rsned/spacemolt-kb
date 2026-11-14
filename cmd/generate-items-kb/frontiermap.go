@@ -58,6 +58,24 @@ func frontierWedges(all []*System) (wedges [8][]*System, inner []*System) {
 	return wedges, inner
 }
 
+// writeFrontierDot draws one frontier system: a filled, linked dot, or for a
+// system seen only on another player's map a hollow dot with a dimmer label
+// and no link (it has no page).
+func writeFrontierDot(b *strings.Builder, s *System, x, y, lx, ly float64, class string) {
+	name := htmltpl.HTMLEscapeString(s.Name)
+	if s.Sighted {
+		fmt.Fprintf(b, `<g class="fc-sighted"><circle cx="%.1f" cy="%.1f" r="3" fill="none" stroke="%s" stroke-width="1.3"><title>%s (seen on another player's map, not yet scanned)</title></circle><text x="%.1f" y="%.1f" fill="#8b95ab" font-size="10" font-style="italic">%s</text></g>`,
+			x, y, frontier.Color, name, lx, ly, name)
+		return
+	}
+	cls := ""
+	if class != "" {
+		cls = ` class="` + class + `"`
+	}
+	fmt.Fprintf(b, `<a href="%s/"%s><circle cx="%.1f" cy="%.1f" r="3.5" fill="%s"><title>%s</title></circle><text x="%.1f" y="%.1f" fill="#d8dee9" font-size="10">%s</text></a>`,
+		s.ID, cls, x, y, frontier.Color, name, lx, ly, name)
+}
+
 // renderFrontierCallouts draws the compass grid.
 func renderFrontierCallouts(all []*System) string {
 	wedges, inner := frontierWedges(all)
@@ -105,8 +123,7 @@ func renderFrontierCallouts(all []*System) string {
 	}
 	for _, s := range inner {
 		x, y := ov(s.PositionX, s.PositionY)
-		fmt.Fprintf(&b, `<a href="%s/" class="fc-inner"><circle cx="%.1f" cy="%.1f" r="3.5" fill="%s"><title>%s</title></circle><text x="%.1f" y="%.1f" fill="#d8dee9" font-size="10">%s</text></a>`,
-			s.ID, x, y, frontier.Color, htmltpl.HTMLEscapeString(s.Name), x+6, y+3.5, htmltpl.HTMLEscapeString(s.Name))
+		writeFrontierDot(&b, s, x, y, x+6, y+3.5, "fc-inner")
 	}
 	fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" fill="#9fb0c2" font-size="11" text-anchor="middle">charted galaxy · dashed ring = old rim</text>`, gx, cy0+cellH-6)
 
@@ -118,6 +135,9 @@ func renderFrontierCallouts(all []*System) string {
 		count := "no scans yet"
 		if n > 0 {
 			count = fmt.Sprintf("%d system%s", n, map[bool]string{true: "", false: "s"}[n == 1])
+			if k := countSighted(sys); k > 0 {
+				count += fmt.Sprintf(", %d seen on other maps", k)
+			}
 		}
 		fmt.Fprintf(&b, `<text x="%.1f" y="%.1f" fill="%s" font-size="12" font-weight="700">%s <tspan fill="#9fb0c2" font-weight="400">· %s</tspan></text>`,
 			px+10, py+18, frontier.Color, compassNames[i], count)
@@ -229,7 +249,17 @@ func writeWedgePanel(b *strings.Builder, sys []*System, px, py, pw, ph float64) 
 		}
 		taken = append(taken, l)
 		lx, ly := l.x0, l.y1-2.5
-		fmt.Fprintf(b, `<a href="%s/"><circle cx="%.1f" cy="%.1f" r="3.5" fill="%s"><title>%s</title></circle><text x="%.1f" y="%.1f" fill="#d8dee9" font-size="10" text-anchor="%s">%s</text></a>`,
-			s.ID, x, y, frontier.Color, htmltpl.HTMLEscapeString(s.Name), lx, ly, "start", htmltpl.HTMLEscapeString(s.Name))
+		writeFrontierDot(b, s, x, y, lx, ly, "")
 	}
+}
+
+// countSighted counts the systems known only from other players' maps.
+func countSighted(sys []*System) int {
+	n := 0
+	for _, s := range sys {
+		if s.Sighted {
+			n++
+		}
+	}
+	return n
 }
