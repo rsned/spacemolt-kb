@@ -99,10 +99,11 @@ func Render(explored, unexplored []*System, systemMap map[string]*System, opt Op
 		exploredSet[s.ID] = true
 	}
 
-	// Compute bounding box of explored systems.
+	// Compute the bounding box of every system drawn, so far-flung
+	// unexplored (frontier) systems stay on the canvas.
 	minX, minY := explored[0].PositionX, explored[0].PositionY
 	maxX, maxY := minX, minY
-	for _, s := range explored[1:] {
+	for _, s := range append(explored[1:len(explored):len(explored)], unexplored...) {
 		if s.PositionX < minX {
 			minX = s.PositionX
 		}

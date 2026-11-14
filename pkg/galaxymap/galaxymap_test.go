@@ -1,6 +1,8 @@
 package galaxymap
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -335,5 +337,22 @@ func TestGroupBlobsNilLeavesOutputUnchanged(t *testing.T) {
 
 	if with != without {
 		t.Errorf("nil GroupBlobs must not change output")
+	}
+}
+
+// Frontier systems lie far outside the explored core; the map must grow to
+// keep every unexplored dot on the canvas.
+func TestRenderFitsUnexploredSystems(t *testing.T) {
+	explored := []*System{{ID: "a", Name: "A"}, {ID: "b", Name: "B", PositionX: 1000, PositionY: 1000}}
+	unexplored := []*System{{ID: "far", Name: "Far", PositionX: 9000, PositionY: -8000}}
+	svg := Render(explored, unexplored, nil, Options{})
+	m := regexp.MustCompile(`cx="([-\d.]+)" cy="([-\d.]+)"[^>]*><title>Far`).FindStringSubmatch(svg)
+	if m == nil {
+		t.Fatal("unexplored dot missing")
+	}
+	x, _ := strconv.ParseFloat(m[1], 64)
+	y, _ := strconv.ParseFloat(m[2], 64)
+	if x < 0 || x > 2000 || y < 0 || y > 2000 {
+		t.Errorf("unexplored dot at (%v, %v), off the 2000×2000 canvas", x, y)
 	}
 }

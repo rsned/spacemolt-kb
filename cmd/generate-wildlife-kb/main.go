@@ -23,6 +23,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
+	"github.com/rsned/spacemolt-kb/internal/frontier"
 	"github.com/rsned/spacemolt-kb/internal/kbnav"
 	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 	"github.com/rsned/spacemolt-kb/pkg/wildlife"
@@ -34,6 +35,7 @@ func main() {
 	codexPath := flag.String("codex", "data/wildlife/codex.json", "hand-recorded official scan descriptions, used when the DB has none")
 	combatPath := flag.String("combat-stats", "data/wildlife/combat_stats.json", "per-species combat observations from exported battle logs (scripts/wildlife_combat_stats.py)")
 	statsPath := flag.String("battle-stats", "data/wildlife/battle_stats.json", "per-species battle records from the bulk data feed (scripts/wildlife_battle_stats.py)")
+	frontierPath := flag.String("frontier", frontier.EstimatesPath, "estimated positions of uncharted frontier systems")
 	outDir := flag.String("out", "kb/wildlife", "output directory")
 	flag.Parse()
 
@@ -47,6 +49,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("load wildlife: %v", err)
 	}
+	// Frontier systems take their estimated positions; any still at (0,0) are dropped.
+	guide.MapSystems = frontier.PlaceMapSystems(guide.MapSystems, guide.MapByID, frontier.LoadEstimates(*frontierPath))
 	codex, err := wildlife.LoadCodex(*codexPath)
 	if err != nil {
 		log.Fatalf("load codex: %v", err)

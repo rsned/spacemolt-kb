@@ -16,6 +16,7 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 
+	"github.com/rsned/spacemolt-kb/internal/frontier"
 	"github.com/rsned/spacemolt-kb/internal/kbpoi"
 	"github.com/rsned/spacemolt-kb/pkg/galaxymap"
 	"github.com/rsned/spacemolt-kb/pkg/resourcediff"
@@ -433,6 +434,7 @@ func writeResourcePagesWithDeltas(outDir string, db *sql.DB, deltas *resourceDel
 	if err != nil {
 		return fmt.Errorf("load systems for map: %w", err)
 	}
+	mapSystems = frontier.PlaceMapSystems(mapSystems, mapByID, loadFrontierEstimates(frontierPositionsPath))
 	classes := systemResourceClasses(groups)
 
 	var explored, unexplored []*galaxymap.System
