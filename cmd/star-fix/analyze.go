@@ -15,6 +15,7 @@ type Limits struct {
 	FitErr    float64 // degrees: how far a reading may miss a fitted star and still count
 	Sigma     float64 // degrees: assumed bearing error, for the fit's error ellipse
 	MinCross  float64 // degrees: two lines crossing at less than this place nothing
+	MissDist  float64 // map units: a hot fitted star this close to an observer that saw nothing there is refuted (0: off)
 }
 
 // Reading is one sighting with what it was matched to.

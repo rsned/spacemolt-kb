@@ -28,8 +28,10 @@ type Fit struct {
 // unclear readings (same temperature, one per system) whose bearings all
 // pass within FitErr of one least-squares point ahead of every observer,
 // then removes them and looks again. Two-reading sets need lines crossing at
-// MinCross degrees or more, or the point is meaningless.
+// MinCross degrees or more, or the point is meaningless. A candidate that an
+// observer nearby should have seen but did not is refuted (see missed).
 func groupStars(rs []Reading, lim Limits) []Fit {
+	seen := sightingsByObserver(rs)
 	var pool []Reading
 	for _, r := range rs {
 		if r.Status != "match" {
@@ -50,7 +52,7 @@ func groupStars(rs []Reading, lim Limits) []Fit {
 					continue
 				}
 				f, ok := grow(seed, a.S.Temperature, pool, lim)
-				if !ok {
+				if !ok || missed(f, seen, lim) {
 					continue
 				}
 				if best == nil || len(f.Members) > len(best.Members) ||
@@ -69,6 +71,50 @@ func groupStars(rs []Reading, lim Limits) []Fit {
 	}
 	slices.SortStableFunc(fits, func(a, b Fit) int { return cmp.Compare(len(b.Members), len(a.Members)) })
 	return fits
+}
+
+// observer is everything one observing system read, matched or not.
+type observer struct {
+	From  Point
+	Stars []Sighting
+}
+
+func sightingsByObserver(rs []Reading) map[string]*observer {
+	out := map[string]*observer{}
+	for _, r := range rs {
+		o := out[r.Obs]
+		if o == nil {
+			o = &observer{From: r.From}
+			out[r.Obs] = o
+		}
+		o.Stars = append(o.Stars, r.S)
+	}
+	return out
+}
+
+// missed reports whether a hot fitted star lies within MissDist of some
+// observer that has no reading of its temperature within FitErr of its
+// bearing. Hot stars that close read brightness 5 or more, and every reading
+// list goes down to brightness 2, so such a star cannot have been overlooked.
+// This is what rejects the phantom where two far bundles of nearly parallel
+// lines, each really seeing a different star, happen to cross.
+func missed(f Fit, seen map[string]*observer, lim Limits) bool {
+	if lim.MissDist <= 0 || f.Temp < hotK {
+		return false
+	}
+	for _, o := range seen {
+		d := math.Hypot(f.At.X-o.From.X, f.At.Y-o.From.Y)
+		if d < minStarDist || d > lim.MissDist {
+			continue
+		}
+		b := bearing(o.From, f.At)
+		if !slices.ContainsFunc(o.Stars, func(s Sighting) bool {
+			return s.Temperature == f.Temp && angleDiff(b, s.Bearing) <= lim.FitErr
+		}) {
+			return true
+		}
+	}
+	return false
 }
 
 // grow gathers the readings that agree with a point, refits, and repeats a

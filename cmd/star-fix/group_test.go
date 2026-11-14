@@ -87,3 +87,40 @@ func TestGroupStarsVisibility(t *testing.T) {
 		t.Errorf("star on top of an observer: %d fits, want 0", len(fits))
 	}
 }
+
+func TestGroupStarsRefutedByNearbyObserver(t *testing.T) {
+	// Two far bundles of nearly parallel lines, each really seeing its own
+	// star, cross at a phantom point. A nearby observer sees both real stars
+	// and nothing at the phantom, which must refute it.
+	s1, s2 := Point{-1000, 0}, Point{1000, -1000}
+	near := Point{0, -500}
+	rs := []Reading{
+		ray("s1", Point{-1200, 6000}, s1, 60000, 0),
+		ray("s2", Point{-800, 6000}, s1, 60000, 0),
+		ray("s3", Point{-1000, 6500}, s1, 60000, 0),
+		ray("e1", Point{7000, -1100}, s2, 60000, 0),
+		ray("e2", Point{7000, -900}, s2, 60000, 0),
+		ray("e3", Point{7500, -1000}, s2, 60000, 0),
+		ray("n", near, s1, 60000, 0.5),
+		ray("n", near, s2, 60000, -0.5),
+	}
+	lim := Limits{FitErr: 3.5, Sigma: 2, MinCross: 10, ClearDist: 2000, MissDist: 2000}
+	fits := groupStars(rs, lim)
+	if len(fits) != 2 {
+		t.Fatalf("%d fits, want 2: %+v", len(fits), fits)
+	}
+	for _, want := range []Point{s1, s2} {
+		ok := false
+		for _, f := range fits {
+			ok = ok || math.Hypot(f.At.X-want.X, f.At.Y-want.Y) < 60
+		}
+		if !ok {
+			t.Errorf("no fit near %+v: %+v / %+v", want, fits[0].At, fits[1].At)
+		}
+	}
+	// With the check off, the phantom wins.
+	lim.MissDist = 0
+	if f := groupStars(rs, lim); len(f) == 0 || math.Hypot(f[0].At.X+1000, f[0].At.Y+1000) > 60 {
+		t.Errorf("without MissDist expected the phantom at (-1000,-1000) first, got %+v", f)
+	}
+}

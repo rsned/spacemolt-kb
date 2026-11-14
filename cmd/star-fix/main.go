@@ -58,6 +58,7 @@ func main() {
 	flag.Float64Var(&lim.DwarfDist, "dwarf-dist", 2500, "a match to a white dwarf farther than this is doubtful (0: off)")
 	flag.Float64Var(&lim.FitErr, "fit-err", 3.5, "how far a reading may miss a fitted star, degrees")
 	flag.Float64Var(&lim.Sigma, "sigma", 2, "assumed bearing error for the error ellipse, degrees")
+	flag.Float64Var(&lim.MissDist, "miss-dist", 2000, "a hot fitted star this close to an observer with no reading toward it is refuted (0: off)")
 	flag.Float64Var(&lim.MinCross, "min-cross", 10, "two lines crossing at less than this many degrees place nothing")
 	flag.Parse()
 
@@ -146,7 +147,7 @@ func report(obs []Observation, pos map[string]Point, rs []Reading, fits []Fit, s
 type System struct {
 	ID, Name  string
 	At        Point
-	Estimated bool // position from the frontier estimates file
+	Estimated bool   // position from the frontier estimates file
 	Stars     []Star // one per star (two for a binary); none when unknown
 }
 
