@@ -187,3 +187,18 @@ func TestAnalyzeTemperatureLock(t *testing.T) {
 		t.Errorf("60000 K reading at the locked star's bearing: %s, want unknown", rs[2].Status)
 	}
 }
+
+// The telescope reports temperatures in whole thousands, so a G8V star
+// (5,200–6,000 K) can read 5,000 K: Short Haul seen from Alhena.
+func TestMatchSightingRoundedTemperature(t *testing.T) {
+	stars := []Star{{System: "g8", At: Point{100, -580}, Lo: 5200, Hi: 6000}} // ≈280°
+	if _, ok := matchSighting(Point{}, "here", Sighting{Bearing: 280, Temperature: 5000}, stars, 6); !ok {
+		t.Error("a 5,000 K reading should match a 5,200–6,000 K star")
+	}
+	if _, ok := matchSighting(Point{}, "here", Sighting{Bearing: 280, Temperature: 4000}, stars, 6); ok {
+		t.Error("a 4,000 K reading must not match a 5,200–6,000 K star")
+	}
+	if _, ok := matchSighting(Point{}, "here", Sighting{Bearing: 280, Temperature: 7000}, stars, 6); ok {
+		t.Error("a 7,000 K reading must not match a 5,200–6,000 K star")
+	}
+}

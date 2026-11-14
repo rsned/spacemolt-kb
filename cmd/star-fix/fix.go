@@ -81,12 +81,18 @@ func matchSighting(obs Point, obsID string, s Sighting, stars []Star, tol float6
 	return best, found
 }
 
+// tempSlack is how far a reading may sit outside a class's temperature
+// range: the telescope reports whole thousands of kelvin, so a 5,200 K star
+// can read 5,000 K.
+const tempSlack = 500
+
 // candidates lists every known star that could be the sighting: within tol
-// degrees and with the reading inside its class's temperature range.
+// degrees and with the reading inside its class's temperature range, give or
+// take the telescope's rounding.
 func candidates(obs Point, obsID string, s Sighting, stars []Star, tol float64) []Match {
 	var out []Match
 	for _, st := range stars {
-		if st.System == obsID || s.Temperature < st.Lo || s.Temperature > st.Hi ||
+		if st.System == obsID || s.Temperature < st.Lo-tempSlack || s.Temperature > st.Hi+tempSlack ||
 			(st.Locked != 0 && s.Temperature != st.Locked) {
 			continue
 		}
