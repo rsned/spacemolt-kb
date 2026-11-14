@@ -27,11 +27,24 @@ import (
 	"github.com/rsned/spacemolt-kb/internal/frontier"
 )
 
-// Observation is the star_sightings list seen from one system.
+// Observation is the star_sightings list seen from one system, or from a
+// point in space mid-transit: then System is just a label and At is the
+// transit position get_location reported.
 type Observation struct {
 	System string     `json:"system"`
+	At     *Point     `json:"at,omitempty"`
 	Seen   string     `json:"seen"`
 	Stars  []Sighting `json:"stars"`
+}
+
+// addTransitObservers puts each mid-transit observation's own position into
+// pos under its label.
+func addTransitObservers(obs []Observation, pos map[string]Point) {
+	for _, o := range obs {
+		if o.At != nil {
+			pos[o.System] = *o.At
+		}
+	}
 }
 
 func main() {
@@ -76,6 +89,7 @@ func main() {
 			stars = append(stars, s.Star)
 		}
 	}
+	addTransitObservers(f.Observations, pos)
 	rs, fits := analyze(f.Observations, pos, stars, lim)
 	report(f.Observations, pos, rs, fits, systems, lim)
 	if *htmlPath != "" {

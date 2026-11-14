@@ -202,3 +202,16 @@ func TestMatchSightingRoundedTemperature(t *testing.T) {
 		t.Error("a 7,000 K reading must not match a 5,200–6,000 K star")
 	}
 }
+
+// Readings taken mid-transit carry their own position instead of a system's.
+func TestAddTransitObservers(t *testing.T) {
+	pos := map[string]Point{"alhena": {2987, -6920}}
+	obs := []Observation{{System: "alhena"}, {System: "transit_alhena_1", At: &Point{2695, -7545}}}
+	addTransitObservers(obs, pos)
+	if p, ok := pos["transit_alhena_1"]; !ok || p != (Point{2695, -7545}) {
+		t.Errorf("transit observer at %+v %v, want (2695,-7545)", p, ok)
+	}
+	if pos["alhena"] != (Point{2987, -6920}) {
+		t.Error("a system observer's position must not change")
+	}
+}
