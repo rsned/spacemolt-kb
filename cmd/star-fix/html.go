@@ -6,6 +6,7 @@ import (
 	htmltpl "html/template"
 	"math"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -34,6 +35,7 @@ type jsReading struct {
 	MatchAt    *[2]float64 `json:"ma,omitempty"`
 	Err        float64     `json:"err,omitempty"`
 	Dist       float64     `json:"d,omitempty"`
+	Fit        int         `json:"f,omitempty"` // 1-based index of the fitted star this reading places
 }
 
 type jsMember struct {
@@ -82,8 +84,9 @@ func writeHTML(path string, systems []System, obs []Observation, rs []Reading, f
 	for _, o := range obs {
 		js.Observers = append(js.Observers, o.System)
 	}
-	for _, r := range rs {
-		j := jsReading{Obs: r.Obs, X: r.From.X, Y: r.From.Y, Bearing: r.S.Bearing, Temp: r.S.Temperature, Brightness: r.S.Brightness, Status: r.Status}
+	inFit := fitOf(rs, fits)
+	for i, r := range rs {
+		j := jsReading{Fit: inFit[i], Obs: r.Obs, X: r.From.X, Y: r.From.Y, Bearing: r.S.Bearing, Temp: r.S.Temperature, Brightness: r.S.Brightness, Status: r.Status}
 		if m := r.Match; m != nil {
 			j.Match, j.MatchClass, j.Err, j.Dist = names[m.Star.System], m.Star.Class, round1(m.Err), math.Round(m.Distance)
 			j.MatchAt = &[2]float64{m.Star.At.X, m.Star.At.Y}
@@ -117,6 +120,22 @@ func writeHTML(path string, systems []System, obs []Observation, rs []Reading, f
 	return os.WriteFile(path, b.Bytes(), 0o644)
 }
 
+// fitOf maps each reading that is a member of a fitted star to that fit's
+// 1-based index, so the page can draw readings already explained by a fit
+// faintly and keep only the unexplained ones bright.
+func fitOf(rs []Reading, fits []Fit) map[int]int {
+	out := map[int]int{}
+	for i, r := range rs {
+		for k, f := range fits {
+			if slices.ContainsFunc(f.Members, func(m Reading) bool { return m.Obs == r.Obs && m.S == r.S }) {
+				out[i] = k + 1
+				break
+			}
+		}
+	}
+	return out
+}
+
 func round1(f float64) float64 { return math.Round(f*10) / 10 }
 
 var pageTmpl = htmltpl.Must(htmltpl.New("page").Parse(`<!DOCTYPE html>
@@ -143,14 +162,17 @@ table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}
 th{color:var(--muted);font-weight:500}
 td.r,th.r{text-align:right}
-.unknown{color:var(--unk)}.doubtful{color:var(--dbt)}.match{color:var(--ok)}
+.unknown{color:var(--unk);font-weight:600}.doubtful{color:var(--dbt)}.match{color:var(--ok)}.fitted{color:var(--unk);opacity:.6}
+tr.faint td{opacity:.55}
 tr[data-i]{cursor:pointer}tr[data-i]:hover{background:#1a2333}
 </style></head><body>
 <header><h1>Telescope sightings</h1>
-<div class="sub">Every charted system, with the bearing line of each reading no known star clearly explains. Where lines of the same temperature agree, a fitted star is marked with its error ellipse (2σ, assuming <span id="xe"></span>° bearing error); a long ellipse means the direction is known but the distance is not. Drag to pan, scroll or pinch to zoom.</div></header>
+<div class="sub">Every charted system, with the bearing line of each reading no known star clearly explains. Readings still unexplained draw bright; ones a fitted star already accounts for draw faint. Where lines of the same temperature agree, a fitted star is marked with its error ellipse (2σ, assuming <span id="xe"></span>° bearing error); a long ellipse means the direction is known but the distance is not. Drag to pan, scroll or pinch to zoom.</div></header>
 <div class="bar">
-<span><span class="key" style="border-color:var(--unk)"></span>unknown</span>
+<span><span class="key" style="border-color:var(--unk)"></span>unexplained</span>
+<span><span class="key" style="border-color:#f472b64d"></span>placed by a fitted star</span>
 <span><span class="key" style="border-color:var(--dbt);border-top-style:dashed"></span>doubtful match</span>
+<label><input type="checkbox" id="showExplained" checked> explained readings</label>
 <label><input type="checkbox" id="showMatch"> clear matches</label>
 <label><input type="checkbox" id="showLabels" checked> labels</label>
 <button id="fit">Fit galaxy</button><button id="focus">Zoom to readings</button>
@@ -164,10 +186,13 @@ tr[data-i]{cursor:pointer}tr[data-i]:hover{background:#1a2333}
 const D = {{.Data}};
 const cv = document.getElementById('c'), ctx = cv.getContext('2d'), tip = document.getElementById('tip');
 document.getElementById('xe').textContent = '±' + D.limits.Sigma;
-const showMatch = document.getElementById('showMatch'), showLabels = document.getElementById('showLabels');
+const showMatch = document.getElementById('showMatch'), showLabels = document.getElementById('showLabels'), showExplained = document.getElementById('showExplained');
 let view = {cx: 0, cy: 0, s: 0.05}, hi = -1;
 const obsSet = new Set(D.observers);
-const unclear = D.readings.filter(r => r.st !== 'match');
+for (const r of D.readings) if (r.f) r.st = 'fitted';
+// Unexplained first, then doubtful, then fitted.
+const rank = {unknown: 0, doubtful: 1, fitted: 2};
+const unclear = D.readings.filter(r => r.st !== 'match').sort((a, b) => rank[a.st] - rank[b.st]);
 function size() { const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1; cv.width = r.width * d; cv.height = r.height * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
 function W() { return cv.width / (devicePixelRatio || 1); } function H() { return cv.height / (devicePixelRatio || 1); }
 function px(x, y) { return [W() / 2 + (x - view.cx) * view.s, H() / 2 + (y - view.cy) * view.s]; }
@@ -198,11 +223,14 @@ function draw() {
     const [a, b] = px(r.x, r.y), [c, d] = px(r.ma[0], r.ma[1]);
     ctx.strokeStyle = C.ok + '66'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke();
   }
-  unclear.forEach((r, i) => {
-    const on = hi === -1 || hi === i;
-    // Doubtful rays draw at half the alpha of unknown ones so the unexplained readings stand out.
-    const alpha = r.st === 'unknown' ? (on ? 'cc' : '33') : (on ? '66' : '1a');
-    ray(r, (r.st === 'unknown' ? C.unk : C.dbt) + alpha, r.st === 'unknown' ? [] : [6, 5], hi === i ? 2.5 : 1.3);
+  // Draw faint lines first so the bright unexplained ones sit on top.
+  [...unclear.keys()].reverse().forEach(i => {
+    const r = unclear[i], on = hi === -1 || hi === i;
+    if (r.st !== 'unknown' && !showExplained.checked && hi !== i) return;
+    // Unexplained readings draw bright, doubtful ones (a known star, but an unlikely one) at half strength,
+    // and readings a fitted star already accounts for stay faint.
+    const alpha = hi === i ? 'ee' : r.st === 'unknown' ? (on ? 'cc' : '33') : r.st === 'doubtful' ? (on ? '66' : '1a') : (on ? '30' : '12');
+    ray(r, (r.st === 'doubtful' ? C.dbt : C.unk) + alpha, r.st === 'doubtful' ? [6, 5] : [], hi === i ? 2.5 : r.st === 'unknown' ? 1.4 : 1);
     if (r.st === 'doubtful' && on) {
       const [a, b] = px(r.x, r.y), [c, d] = px(r.ma[0], r.ma[1]);
       ctx.strokeStyle = C.dbt + '2a'; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); ctx.setLineDash([]);
@@ -248,7 +276,7 @@ cv.addEventListener('wheel', e => {
 cv.addEventListener('touchstart', e => { if (e.touches.length === 2) pinch = {d: Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY), s: view.s}; }, {passive: true});
 cv.addEventListener('touchmove', e => { if (pinch && e.touches.length === 2) { view.s = pinch.s * Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY) / pinch.d; draw(); } }, {passive: true});
 cv.addEventListener('touchend', () => { pinch = null; });
-showMatch.onchange = draw; showLabels.onchange = draw;
+showMatch.onchange = draw; showLabels.onchange = draw; showExplained.onchange = draw;
 document.getElementById('fit').onclick = fitGalaxy; document.getElementById('focus').onclick = fitReadings;
 window.addEventListener('resize', () => { size(); draw(); });
 // tables
@@ -257,7 +285,8 @@ const xt = document.querySelector('#xt tbody');
 if (!D.fits.length) xt.innerHTML = '<tr><td colspan="7" class="sub">None yet: an unknown star needs agreeing readings from two systems.</td></tr>';
 for (const f of D.fits) xt.insertAdjacentHTML('beforeend', '<tr><td>' + f.t + ' K</td><td class="r">(' + f.x + ', ' + f.y + ')</td><td class="r">' + f.r + '</td><td class="r">' + f.maj + ' × ' + f.min + '</td><td class="r">' + f.err + '°</td><td>' + f.m.map(m => name(m.obs) + ' ' + m.b + '° b' + m.br).join(', ') + '</td></tr>');
 const rt = document.querySelector('#rt tbody');
-unclear.forEach((r, i) => rt.insertAdjacentHTML('beforeend', '<tr data-i="' + i + '"><td>' + name(r.obs) + '</td><td class="r">' + r.b + '°</td><td class="r">' + r.t + ' K</td><td class="r">' + r.br + '</td><td class="' + r.st + '">' + r.st + '</td><td>' + (r.m ? r.m + ' (' + r.mc + '), ' + r.err + '° off, ' + r.d + ' away' : '—') + '</td></tr>'));
+const fitName = r => { const f = D.fits[r.f - 1]; return 'fitted ' + f.t + ' K star at (' + f.x + ', ' + f.y + ')'; };
+unclear.forEach((r, i) => rt.insertAdjacentHTML('beforeend', '<tr data-i="' + i + '"' + (r.st === 'fitted' ? ' class="faint"' : '') + '><td>' + name(r.obs) + '</td><td class="r">' + r.b + '°</td><td class="r">' + r.t + ' K</td><td class="r">' + r.br + '</td><td class="' + r.st + '">' + r.st + '</td><td>' + (r.st === 'fitted' ? fitName(r) : r.m ? r.m + ' (' + r.mc + '), ' + r.err + '° off, ' + r.d + ' away' : '—') + '</td></tr>'));
 rt.querySelectorAll('tr').forEach(tr => {
   tr.onmouseenter = () => { hi = +tr.dataset.i; draw(); };
   tr.onmouseleave = () => { hi = -1; draw(); };
