@@ -3509,6 +3509,7 @@ var systemIndexTemplate = `<!DOCTYPE html>
     <main class="container page-content">
         <h2>Systems</h2>
         <p class="text-muted mt-1">{{len .Systems}} star systems in the galaxy.</p>
+        <p class="mt-2"><a href="distance.html">&#x1F4CF; Distance Calculator &mdash; GU between two systems, and every system within range &rarr;</a></p>
 
         <div class="summary-cards">
             <div class="summary-card">
