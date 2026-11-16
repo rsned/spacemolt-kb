@@ -45,7 +45,9 @@ type Child struct{ Path, Label string }
 // change the nav, edit this list and run `go run ./cmd/generate-nav`.
 var Items = []Item{
 	{Slug: "", Label: "Home"},
-	{Slug: "systems", Label: "Systems"},
+	{Slug: "systems", Label: "Systems", Children: []Child{
+		{"systems/distance.html", "Distance Calculator"},
+	}},
 	{Slug: "items", Label: "Items", Children: []Child{
 		{"items/tiers/index.html", "Module Tier Comparison"},
 	}},

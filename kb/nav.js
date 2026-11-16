@@ -13,7 +13,13 @@
     },
     {
       "path": "systems/index.html",
-      "label": "Systems"
+      "label": "Systems",
+      "children": [
+        {
+          "path": "systems/distance.html",
+          "label": "Distance Calculator"
+        }
+      ]
     },
     {
       "path": "items/index.html",

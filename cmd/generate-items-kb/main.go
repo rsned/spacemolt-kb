@@ -2319,6 +2319,9 @@ func writeSystemPages(outDir string, systems []*System) error {
 	if err := writeStarsJS(filepath.Join(outDir, "stars.js"), systems); err != nil {
 		return err
 	}
+	if err := writeDistancePage(outDir, systems); err != nil {
+		return err
+	}
 
 	// Individual system pages (in subdirectories).
 	for _, sys := range systems {
