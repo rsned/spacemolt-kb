@@ -51,8 +51,8 @@
                 <figcaption>Headings to station systems — <span class="jm-direct">white = direct</span>, <span class="jm-blocked">gray = interrupted</span></figcaption>
             </figure>
             <figure class="jumpmap-figure">
-                <svg class="jumpmap-wheel" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg"><circle class="wheel-covered" cx="240" cy="240" r="175" fill="#2b3856"/><polygon class="wheel-gap" points="240.0,240.0 357.7,110.5 358.6,111.3" fill="#ffcf4d"/><text class="wheel-label" x="369.6" y="98.4" text-anchor="start" dominant-baseline="middle" fill="#9aa3b8" font-size="10">312.47°</text><polygon class="wheel-gap" points="240.0,240.0 88.8,151.9 88.8,151.8" fill="#ffcf4d"/><text class="wheel-label" x="74.1" y="143.3" text-anchor="end" dominant-baseline="middle" fill="#9aa3b8" font-size="10">210.25°</text><line x1="415.0" y1="240.0" x2="423.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="415.0" x2="240.0" y2="423.0" stroke="#55607a" stroke-width="1"/><line x1="65.0" y1="240.0" x2="57.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="65.0" x2="240.0" y2="57.0" stroke="#55607a" stroke-width="1"/><text class="wheel-center" x="240" y="232" text-anchor="middle" dominant-baseline="middle" fill="#cdd3e0" font-size="18">99.9% blocked</text><text class="wheel-sub" x="240" y="254" text-anchor="middle" dominant-baseline="middle" fill="#ffcf4d" font-size="13">0.1% open · 2 gaps</text></svg>
-                <figcaption>99.9% of headings blocked · 2 void escape gaps</figcaption>
+                <svg class="jumpmap-wheel" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg"><circle class="wheel-covered" cx="240" cy="240" r="175" fill="#2b3856"/><polygon class="wheel-gap" points="240.0,240.0 357.7,110.5 358.6,111.3" fill="#ffcf4d"/><text class="wheel-label" x="369.6" y="98.4" text-anchor="start" dominant-baseline="middle" fill="#9aa3b8" font-size="10">312.47°</text><line x1="415.0" y1="240.0" x2="423.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="415.0" x2="240.0" y2="423.0" stroke="#55607a" stroke-width="1"/><line x1="65.0" y1="240.0" x2="57.0" y2="240.0" stroke="#55607a" stroke-width="1"/><line x1="240.0" y1="65.0" x2="240.0" y2="57.0" stroke="#55607a" stroke-width="1"/><text class="wheel-center" x="240" y="232" text-anchor="middle" dominant-baseline="middle" fill="#cdd3e0" font-size="18">99.9% blocked</text><text class="wheel-sub" x="240" y="254" text-anchor="middle" dominant-baseline="middle" fill="#ffcf4d" font-size="13">0.1% open · 1 gaps</text></svg>
+                <figcaption>99.9% of headings blocked · 1 void escape gaps</figcaption>
             </figure>
         </div>
 
@@ -370,6 +370,13 @@
               <td style="text-align:right">0.433°</td>
             </tr>
             <tr>
+              <td><a href="../porchlight/">Porchlight</a></td>
+              <td style="text-align:right" data-sort="211.3639">211.4°</td>
+              <td style="text-align:right" data-sort="4803.3695">4803</td>
+              <td style="text-align:right">481 (80:10)</td>
+              <td style="text-align:right">0.717°</td>
+            </tr>
+            <tr>
               <td><a href="../sadr/">Sadr</a></td>
               <td style="text-align:right" data-sort="354.5108">354.5°</td>
               <td style="text-align:right" data-sort="5078.6262">5079</td>
@@ -396,13 +403,6 @@
               <td style="text-align:right" data-sort="6491.0120">6491</td>
               <td style="text-align:right">650 (108:20)</td>
               <td style="text-align:right">0.883°</td>
-            </tr>
-            <tr>
-              <td><a href="../gleaned/">Gleaned</a></td>
-              <td style="text-align:right" data-sort="211.4050">211.4°</td>
-              <td style="text-align:right" data-sort="6628.5368">6629</td>
-              <td style="text-align:right">663 (110:30)</td>
-              <td style="text-align:right">0.424°</td>
             </tr>
             </tbody>
           </table>
@@ -1111,7 +1111,7 @@
         </div>
 
         <div class="card mt-2" style="padding:0">
-          <div class="section-label">Heading Sweep — All Directions (74 ranges)</div>
+          <div class="section-label">Heading Sweep — All Directions (73 ranges)</div>
           <p class="text-muted" style="padding:0 12px">Where a jump lands for every whole-degree heading, collapsed into contiguous ranges. "(void)" ranges intersect no system.</p>
           <table class="sortable">
             <thead><tr><th class="sortable">Headings</th><th class="sortable" style="text-align:right">Span</th><th class="sortable">Lands At</th><th class="sortable" style="text-align:right">Distance</th><th style="text-align:right">Travel (ticks)</th></tr></thead>
@@ -1432,18 +1432,11 @@
               <td style="text-align:right">540 (90:00)</td>
             </tr>
             <tr>
-              <td data-sort="211">211°</td>
-              <td style="text-align:right">1°</td>
-              <td><a href="../gleaned/">Gleaned</a></td>
-              <td style="text-align:right" data-sort="6628.4">6628</td>
-              <td style="text-align:right">663 (110:30)</td>
-            </tr>
-            <tr>
-              <td data-sort="212">212°</td>
-              <td style="text-align:right">1°</td>
-              <td><a href="../whitecap/">Whitecap</a></td>
-              <td style="text-align:right" data-sort="6083.2">6083</td>
-              <td style="text-align:right">609 (101:30)</td>
+              <td data-sort="211">211°–212°</td>
+              <td style="text-align:right">2°</td>
+              <td><a href="../porchlight/">Porchlight</a></td>
+              <td style="text-align:right" data-sort="4803.3">4803</td>
+              <td style="text-align:right">481 (80:10)</td>
             </tr>
             <tr>
               <td data-sort="213">213°–215°</td>
