@@ -953,6 +953,7 @@ func populateBuiltByFacility(items map[string]*Item, facilities map[string]*Faci
 func populateMaterialCategories(facilities map[string]*Facility, items map[string]*Item) {
 	for _, fac := range facilities {
 		populateMaterialRefs(fac.BuildMaterials, items)
+		sortMaterialRefsByName(fac.BuildMaterials)
 		populateMaterialRefs(fac.MaintenancePerCycle, items)
 		if fac.Recipe != nil {
 			populateMaterialRefs(fac.Recipe.Inputs, items)
@@ -976,6 +977,18 @@ func populateMaterialRefs(refs []MaterialRef, items map[string]*Item) {
 			refs[i].Name = refs[i].ItemID
 		}
 	}
+}
+
+// sortMaterialRefsByName orders refs alphabetically by display name, case
+// insensitively, with the item id breaking ties. Run it after
+// populateMaterialRefs so every ref has a name.
+func sortMaterialRefsByName(refs []MaterialRef) {
+	slices.SortStableFunc(refs, func(a, b MaterialRef) int {
+		return cmp.Or(
+			cmp.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name)),
+			cmp.Compare(a.ItemID, b.ItemID),
+		)
+	})
 }
 
 // buildUpgradeChains populates the UpgradeChain field for all facilities.

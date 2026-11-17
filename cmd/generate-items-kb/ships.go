@@ -20,6 +20,13 @@ import (
 var legacySet kblegacy.Set
 
 // Ship holds a ship class from the catalog JSON.
+// shipBuildMaterial is one line of a ship's build materials.
+type shipBuildMaterial struct {
+	ItemID       string `json:"item_id"`
+	Quantity     int    `json:"quantity"`
+	ItemCategory string `json:"-"`
+}
+
 type Ship struct {
 	ID                string   `json:"id"`
 	Name              string   `json:"name"`
@@ -48,11 +55,7 @@ type Ship struct {
 	Lore              string   `json:"lore"`
 	FlavorTags        []string `json:"flavor_tags"`
 	DefaultModules    []string `json:"default_modules"`
-	BuildMaterials    []struct {
-		ItemID       string `json:"item_id"`
-		Quantity     int    `json:"quantity"`
-		ItemCategory string `json:"-"`
-	} `json:"build_materials"`
+	BuildMaterials    []shipBuildMaterial `json:"build_materials"`
 	PassiveRecipes   []string `json:"passive_recipes"`
 	BasedOn          string   `json:"based_on"`
 	NPCRole          string   `json:"npc_role"`
@@ -177,13 +180,18 @@ func writeShipPages(outDir string, ships []*Ship, recipeNames map[string]string,
 		}
 	}
 
-	// Populate item categories for build materials.
+	// Populate item categories for build materials, and list them
+	// alphabetically: the page shows each as titleCase(ItemID), which sorts the
+	// same as the id, and the catalog's own order shuffles between scrapes.
 	for _, ship := range ships {
 		for i := range ship.BuildMaterials {
 			if item, ok := items[ship.BuildMaterials[i].ItemID]; ok {
 				ship.BuildMaterials[i].ItemCategory = item.Category
 			}
 		}
+		slices.SortStableFunc(ship.BuildMaterials, func(a, b shipBuildMaterial) int {
+			return cmp.Compare(a.ItemID, b.ItemID)
+		})
 	}
 
 	// Group: category -> class -> faction -> ships.
