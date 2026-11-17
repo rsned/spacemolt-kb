@@ -48,9 +48,9 @@
         <h2>Frontier</h2>
         <p class="text-muted mt-1">Repeaters: hostile units met in the uncharted frontier systems beyond the charted map. They fight in groups and so far deal energy damage.</p>
         <div class="hz-summary">
-            <div><div class="num">3</div><div class="label">Types</div></div>
-            <div><div class="num">14</div><div class="label">Units seen</div></div>
-            <div><div class="num">4</div><div class="label">Systems</div></div>
+            <div><div class="num">4</div><div class="label">Types</div></div>
+            <div><div class="num">109</div><div class="label">Units seen</div></div>
+            <div><div class="num">32</div><div class="label">Systems</div></div>
             <div><div class="num">2</div><div class="label">Battles logged</div></div>
         </div>
 
@@ -59,8 +59,9 @@
             <thead><tr><th>Type</th><th class="r">Max hull</th><th class="r">Max shield</th><th class="r">Units seen</th><th class="r">Systems</th><th class="r">Battles</th><th class="r">Hardest hit</th></tr></thead>
             <tbody>
                 <tr><td><a href="#repeater-monolith" class="hz-jump" data-slug="repeater-monolith">Repeater Monolith</a></td><td class="r">6,400</td><td class="r">9,600</td><td class="r">2</td><td class="r">1</td><td class="r">2</td><td class="r">45</td></tr>
-                <tr><td><a href="#repeater-spire" class="hz-jump" data-slug="repeater-spire">Repeater Spire</a></td><td class="r">1,600</td><td class="r">2,400</td><td class="r">4</td><td class="r">4</td><td class="r">2</td><td class="r">25</td></tr>
-                <tr><td><a href="#repeater-pane" class="hz-jump" data-slug="repeater-pane">Repeater Pane</a></td><td class="r">400</td><td class="r">600</td><td class="r">8</td><td class="r">4</td><td class="r">2</td><td class="r">18</td></tr>
+                <tr><td><a href="#repeater-spire" class="hz-jump" data-slug="repeater-spire">Repeater Spire</a></td><td class="r">1,600</td><td class="r">2,400</td><td class="r">26</td><td class="r">18</td><td class="r">2</td><td class="r">25</td></tr>
+                <tr><td><a href="#repeater-pane" class="hz-jump" data-slug="repeater-pane">Repeater Pane</a></td><td class="r">400</td><td class="r">600</td><td class="r">61</td><td class="r">26</td><td class="r">2</td><td class="r">18</td></tr>
+                <tr><td><a href="#repeater-sliver" class="hz-jump" data-slug="repeater-sliver">Repeater Sliver</a></td><td class="r">100</td><td class="r">150</td><td class="r">20</td><td class="r">14</td><td class="r"><span class="text-muted">—</span></td><td class="r"><span class="text-muted">—</span></td></tr>
             </tbody>
         </table>
         <p class="text-muted" style="font-size: 12.5px">Ordered by max hull + shield; types whose hull and shield are not captured yet follow by their hardest hit. "—" means not recorded yet.</p>
@@ -70,6 +71,7 @@
                 <option value="repeater-monolith">Repeater Monolith</option>
                 <option value="repeater-spire">Repeater Spire</option>
                 <option value="repeater-pane">Repeater Pane</option>
+                <option value="repeater-sliver">Repeater Sliver</option>
             </select>
         </div>
         <section id="repeater-monolith" class="hz-type">
@@ -94,16 +96,30 @@
         </section>
         <section id="repeater-spire" class="hz-type" hidden>
             <h3>Repeater Spire</h3>
-            <p class="text-muted">First seen 2026-11-12 22:14, last seen 2026-11-13 03:12.</p>
+            <p class="text-muted">First seen 2026-11-12 22:14, last seen 2026-11-15 17:24.</p>
 
             <div class="hz-section section-label">Sightings by system</div>
             <table>
                 <thead><tr><th>System</th><th class="r">Units</th><th class="r">Most at once</th><th class="r">Sightings</th><th class="r">In battle</th><th class="r">First seen</th><th class="r">Last seen</th></tr></thead>
                 <tbody>
-                    <tr><td><a href="../systems/quiet_floor/">Quiet Floor</a></td><td class="r">1</td><td class="r">1</td><td class="r">3</td><td class="r">0%</td><td class="r">2026-11-13 01:47</td><td class="r">2026-11-13 02:18</td></tr>
+                    <tr><td><a href="../systems/lantern_low/">Lantern Low</a></td><td class="r">2</td><td class="r">1</td><td class="r">9</td><td class="r">0%</td><td class="r">2026-11-14 01:27</td><td class="r">2026-11-15 00:57</td></tr>
+                    <tr><td><a href="../systems/quiet_floor/">Quiet Floor</a></td><td class="r">2</td><td class="r">1</td><td class="r">6</td><td class="r">0%</td><td class="r">2026-11-13 01:47</td><td class="r">2026-11-15 00:31</td></tr>
+                    <tr><td><a href="../systems/whitecap/">Whitecap</a></td><td class="r">3</td><td class="r">1</td><td class="r">6</td><td class="r">0%</td><td class="r">2026-11-13 01:42</td><td class="r">2026-11-15 01:13</td></tr>
+                    <tr><td><a href="../systems/brushfield/">Brushfield</a></td><td class="r">2</td><td class="r">1</td><td class="r">5</td><td class="r">0%</td><td class="r">2026-11-14 19:42</td><td class="r">2026-11-14 23:51</td></tr>
+                    <tr><td><a href="../systems/clear_burn/">Clear Burn</a></td><td class="r">2</td><td class="r">1</td><td class="r">5</td><td class="r">0%</td><td class="r">2026-11-14 20:15</td><td class="r">2026-11-15 01:18</td></tr>
+                    <tr><td><a href="../systems/narrows/">Narrows</a></td><td class="r">1</td><td class="r">1</td><td class="r">5</td><td class="r">0%</td><td class="r">2026-11-14 23:29</td><td class="r">2026-11-15 00:38</td></tr>
+                    <tr><td><a href="../systems/faint_reach/">Faint Reach</a></td><td class="r">2</td><td class="r">1</td><td class="r">3</td><td class="r">0%</td><td class="r">2026-11-14 01:40</td><td class="r">2026-11-14 23:27</td></tr>
+                    <tr><td><a href="../systems/gloaming/">Gloaming</a></td><td class="r">2</td><td class="r">1</td><td class="r">3</td><td class="r">0%</td><td class="r">2026-11-13 03:05</td><td class="r">2026-11-15 17:24</td></tr>
+                    <tr><td><a href="../systems/grey_hollow/">Grey Hollow</a></td><td class="r">1</td><td class="r">1</td><td class="r">3</td><td class="r">0%</td><td class="r">2026-11-15 00:35</td><td class="r">2026-11-15 00:35</td></tr>
                     <tr><td><a href="../systems/sallow/">Sallow</a></td><td class="r">1</td><td class="r">1</td><td class="r">3</td><td class="r">0%</td><td class="r">2026-11-13 02:23</td><td class="r">2026-11-13 02:23</td></tr>
-                    <tr><td><a href="../systems/gloaming/">Gloaming</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-13 03:05</td><td class="r">2026-11-13 03:05</td></tr>
-                    <tr><td><a href="../systems/whitecap/">Whitecap</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 01:42</td><td class="r">2026-11-13 01:42</td></tr>
+                    <tr><td><a href="../systems/bare_shelf/">Bare Shelf</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-15 00:17</td><td class="r">2026-11-15 00:17</td></tr>
+                    <tr><td><a href="../systems/fourfold/">Fourfold</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 23:11</td><td class="r">2026-11-14 23:11</td></tr>
+                    <tr><td><a href="../systems/slag_run/">Slag Run</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 20:47</td><td class="r">2026-11-14 20:47</td></tr>
+                    <tr><td><a href="../systems/fossil_light/">Fossil Light</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-14 00:54</td><td class="r">2026-11-14 00:54</td></tr>
+                    <tr><td><a href="../systems/overburden/">Overburden</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-14 02:27</td><td class="r">2026-11-14 02:27</td></tr>
+                    <tr><td><a href="../systems/quiet_chill/">Quiet Chill</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-14 01:03</td><td class="r">2026-11-14 01:03</td></tr>
+                    <tr><td><a href="../systems/quiet_yellow/">Quiet Yellow</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-14 02:36</td><td class="r">2026-11-14 02:36</td></tr>
+                    <tr><td><a href="../systems/wandering_needle/">Wandering Needle</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-14 00:05</td><td class="r">2026-11-14 00:05</td></tr>
                 </tbody>
             </table>
 
@@ -118,16 +134,38 @@
         </section>
         <section id="repeater-pane" class="hz-type" hidden>
             <h3>Repeater Pane</h3>
-            <p class="text-muted">First seen 2026-11-12 22:14, last seen 2026-11-13 03:12.</p>
+            <p class="text-muted">First seen 2026-11-12 22:14, last seen 2026-11-15 17:24.</p>
 
             <div class="hz-section section-label">Sightings by system</div>
             <table>
                 <thead><tr><th>System</th><th class="r">Units</th><th class="r">Most at once</th><th class="r">Sightings</th><th class="r">In battle</th><th class="r">First seen</th><th class="r">Last seen</th></tr></thead>
                 <tbody>
-                    <tr><td><a href="../systems/quiet_floor/">Quiet Floor</a></td><td class="r">2</td><td class="r">2</td><td class="r">6</td><td class="r">0%</td><td class="r">2026-11-13 01:47</td><td class="r">2026-11-13 02:18</td></tr>
+                    <tr><td><a href="../systems/lantern_low/">Lantern Low</a></td><td class="r">4</td><td class="r">2</td><td class="r">18</td><td class="r">0%</td><td class="r">2026-11-14 01:27</td><td class="r">2026-11-15 00:57</td></tr>
+                    <tr><td><a href="../systems/quiet_floor/">Quiet Floor</a></td><td class="r">4</td><td class="r">2</td><td class="r">12</td><td class="r">0%</td><td class="r">2026-11-13 01:47</td><td class="r">2026-11-15 00:31</td></tr>
+                    <tr><td><a href="../systems/whitecap/">Whitecap</a></td><td class="r">6</td><td class="r">2</td><td class="r">12</td><td class="r">0%</td><td class="r">2026-11-13 01:42</td><td class="r">2026-11-15 01:13</td></tr>
+                    <tr><td><a href="../systems/brushfield/">Brushfield</a></td><td class="r">4</td><td class="r">2</td><td class="r">10</td><td class="r">0%</td><td class="r">2026-11-14 19:42</td><td class="r">2026-11-14 23:51</td></tr>
+                    <tr><td><a href="../systems/clear_burn/">Clear Burn</a></td><td class="r">4</td><td class="r">2</td><td class="r">10</td><td class="r">0%</td><td class="r">2026-11-14 20:15</td><td class="r">2026-11-15 01:18</td></tr>
+                    <tr><td><a href="../systems/narrows/">Narrows</a></td><td class="r">2</td><td class="r">2</td><td class="r">10</td><td class="r">0%</td><td class="r">2026-11-14 23:29</td><td class="r">2026-11-15 00:38</td></tr>
+                    <tr><td><a href="../systems/faint_reach/">Faint Reach</a></td><td class="r">4</td><td class="r">2</td><td class="r">6</td><td class="r">0%</td><td class="r">2026-11-14 01:40</td><td class="r">2026-11-14 23:27</td></tr>
+                    <tr><td><a href="../systems/gloaming/">Gloaming</a></td><td class="r">4</td><td class="r">2</td><td class="r">6</td><td class="r">0%</td><td class="r">2026-11-13 03:05</td><td class="r">2026-11-15 17:24</td></tr>
+                    <tr><td><a href="../systems/grey_hollow/">Grey Hollow</a></td><td class="r">2</td><td class="r">2</td><td class="r">6</td><td class="r">0%</td><td class="r">2026-11-15 00:35</td><td class="r">2026-11-15 00:35</td></tr>
                     <tr><td><a href="../systems/sallow/">Sallow</a></td><td class="r">2</td><td class="r">2</td><td class="r">6</td><td class="r">0%</td><td class="r">2026-11-13 02:23</td><td class="r">2026-11-13 02:23</td></tr>
-                    <tr><td><a href="../systems/gloaming/">Gloaming</a></td><td class="r">2</td><td class="r">2</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-13 03:05</td><td class="r">2026-11-13 03:05</td></tr>
-                    <tr><td><a href="../systems/whitecap/">Whitecap</a></td><td class="r">2</td><td class="r">2</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-13 01:42</td><td class="r">2026-11-13 01:42</td></tr>
+                    <tr><td><a href="../systems/ashen_reach/">Ashen Reach</a></td><td class="r">1</td><td class="r">1</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-14 01:55</td><td class="r">2026-11-14 02:00</td></tr>
+                    <tr><td><a href="../systems/bare_shelf/">Bare Shelf</a></td><td class="r">2</td><td class="r">2</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-15 00:17</td><td class="r">2026-11-15 00:17</td></tr>
+                    <tr><td><a href="../systems/crosscut/">Crosscut</a></td><td class="r">1</td><td class="r">1</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-14 22:07</td><td class="r">2026-11-14 23:00</td></tr>
+                    <tr><td><a href="../systems/fourfold/">Fourfold</a></td><td class="r">2</td><td class="r">2</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-14 23:11</td><td class="r">2026-11-14 23:11</td></tr>
+                    <tr><td><a href="../systems/slag_run/">Slag Run</a></td><td class="r">2</td><td class="r">2</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-14 20:47</td><td class="r">2026-11-14 20:47</td></tr>
+                    <tr><td><a href="../systems/short_haul/">Short Haul</a></td><td class="r">2</td><td class="r">1</td><td class="r">3</td><td class="r">0%</td><td class="r">2026-11-13 23:28</td><td class="r">2026-11-14 22:15</td></tr>
+                    <tr><td><a href="../systems/eight_wide/">Eight Wide</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-15 02:23</td><td class="r">2026-11-15 02:23</td></tr>
+                    <tr><td><a href="../systems/fossil_light/">Fossil Light</a></td><td class="r">2</td><td class="r">2</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 00:54</td><td class="r">2026-11-14 00:54</td></tr>
+                    <tr><td><a href="../systems/last_fuel/">Last Fuel</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-15 03:25</td><td class="r">2026-11-15 03:25</td></tr>
+                    <tr><td><a href="../systems/moth_run/">Moth Run</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-15 02:15</td><td class="r">2026-11-15 02:15</td></tr>
+                    <tr><td><a href="../systems/overburden/">Overburden</a></td><td class="r">2</td><td class="r">2</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 02:27</td><td class="r">2026-11-14 02:27</td></tr>
+                    <tr><td><a href="../systems/quiet_chill/">Quiet Chill</a></td><td class="r">2</td><td class="r">2</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 01:03</td><td class="r">2026-11-14 01:03</td></tr>
+                    <tr><td><a href="../systems/quiet_yellow/">Quiet Yellow</a></td><td class="r">2</td><td class="r">2</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 02:36</td><td class="r">2026-11-14 02:36</td></tr>
+                    <tr><td><a href="../systems/wandering_needle/">Wandering Needle</a></td><td class="r">2</td><td class="r">2</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 00:05</td><td class="r">2026-11-14 00:05</td></tr>
+                    <tr><td><a href="../systems/deadwater/">Deadwater</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 23:11</td><td class="r">2026-11-13 23:11</td></tr>
+                    <tr><td><a href="../systems/knotwork/">Knotwork</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 23:04</td><td class="r">2026-11-13 23:04</td></tr>
                 </tbody>
             </table>
 
@@ -139,6 +177,34 @@
                     <tr><td><span class="text-muted">(effect)</span></td><td>Em</td><td>Beam</td><td class="r">100% <span class="text-muted">(1/1)</span></td><td class="r">0–0</td><td class="r">0</td><td class="r">1</td></tr>
                 </tbody>
             </table>
+        </section>
+        <section id="repeater-sliver" class="hz-type" hidden>
+            <h3>Repeater Sliver</h3>
+            <p class="text-muted">First seen 2026-11-13 17:17, last seen 2026-11-15 03:25.</p>
+
+            <div class="hz-section section-label">Sightings by system</div>
+            <table>
+                <thead><tr><th>System</th><th class="r">Units</th><th class="r">Most at once</th><th class="r">Sightings</th><th class="r">In battle</th><th class="r">First seen</th><th class="r">Last seen</th></tr></thead>
+                <tbody>
+                    <tr><td><a href="../systems/short_haul/">Short Haul</a></td><td class="r">3</td><td class="r">2</td><td class="r">5</td><td class="r">0%</td><td class="r">2026-11-13 23:28</td><td class="r">2026-11-14 22:15</td></tr>
+                    <tr><td><a href="../systems/ashen_reach/">Ashen Reach</a></td><td class="r">1</td><td class="r">1</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-14 01:55</td><td class="r">2026-11-14 02:00</td></tr>
+                    <tr><td><a href="../systems/crosscut/">Crosscut</a></td><td class="r">1</td><td class="r">1</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-14 22:07</td><td class="r">2026-11-14 23:00</td></tr>
+                    <tr><td><a href="../systems/eight_wide/">Eight Wide</a></td><td class="r">2</td><td class="r">2</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-15 02:23</td><td class="r">2026-11-15 02:23</td></tr>
+                    <tr><td><a href="../systems/last_fuel/">Last Fuel</a></td><td class="r">2</td><td class="r">2</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-15 03:25</td><td class="r">2026-11-15 03:25</td></tr>
+                    <tr><td><a href="../systems/moth_run/">Moth Run</a></td><td class="r">2</td><td class="r">2</td><td class="r">4</td><td class="r">0%</td><td class="r">2026-11-15 02:15</td><td class="r">2026-11-15 02:15</td></tr>
+                    <tr><td><a href="../systems/deadwater/">Deadwater</a></td><td class="r">2</td><td class="r">2</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-13 23:11</td><td class="r">2026-11-13 23:11</td></tr>
+                    <tr><td><a href="../systems/empty_tally/">Empty Tally</a></td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0%</td><td class="r">2026-11-14 18:03</td><td class="r">2026-11-14 18:03</td></tr>
+                    <tr><td><a href="../systems/anvil_reach/">Anvil Reach</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 19:38</td><td class="r">2026-11-13 19:38</td></tr>
+                    <tr><td><a href="../systems/knot/">Knot</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 22:37</td><td class="r">2026-11-13 22:37</td></tr>
+                    <tr><td><a href="../systems/knotwork/">Knotwork</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 23:04</td><td class="r">2026-11-13 23:04</td></tr>
+                    <tr><td><a href="../systems/nobody_home/">Nobody Home</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 17:17</td><td class="r">2026-11-13 17:17</td></tr>
+                    <tr><td><a href="../systems/plumb_mark/">Plumb Mark</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 21:57</td><td class="r">2026-11-13 21:57</td></tr>
+                    <tr><td><a href="../systems/top_off/">Top Off</a></td><td class="r">1</td><td class="r">1</td><td class="r">1</td><td class="r">0%</td><td class="r">2026-11-13 20:13</td><td class="r">2026-11-13 20:13</td></tr>
+                </tbody>
+            </table>
+
+            <div class="hz-section section-label">Weapons</div>
+            <div class="hz-empty">No battles logged yet.</div>
         </section>
         <script>
         document.querySelectorAll('.hz-jump').forEach(function(a) {
