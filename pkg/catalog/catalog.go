@@ -88,7 +88,31 @@ type Recipe struct {
 	Outputs       []Material `json:"outputs"`
 	CraftingTime  float64    `json:"crafting_time"`
 	HandCraftable bool       `json:"hand_craftable"`
+	FacilityOnly  bool       `json:"facility_only"`
 	ProducedBy    []string   `json:"produced_by_facility_ids"`
+}
+
+// UnmarshalJSON decodes a recipe and fills HandCraftable when the catalog
+// omits it. Server v0.729.0 dropped hand_craftable; the rule it documents is
+// that a recipe can be hand-crafted at the Station Workshop when facility_only
+// is false and its category is not "Ship Passive". Older snapshots that carry
+// an explicit hand_craftable keep their value.
+func (r *Recipe) UnmarshalJSON(b []byte) error {
+	type plain Recipe
+	var aux struct {
+		plain
+		Hand *bool `json:"hand_craftable"`
+	}
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+	*r = Recipe(aux.plain)
+	if aux.Hand != nil {
+		r.HandCraftable = *aux.Hand
+	} else {
+		r.HandCraftable = !r.FacilityOnly && r.Category != "Ship Passive"
+	}
+	return nil
 }
 
 // StringList decodes a JSON string, an array of strings or null. The live

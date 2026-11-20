@@ -507,7 +507,7 @@ func groupByStation(facs []PublicFacility, recipes map[string]*Recipe) []WhereSt
 // appear in neither table.
 func splitNoFacilityRecipes(recipes map[string]*Recipe, covered map[string]bool) (facilityOnly, noFacilityNeeded []NoFacilityRecipe) {
 	for id, r := range recipes {
-		if covered[id] {
+		if covered[id] || r.Category == "Ship Passive" {
 			continue
 		}
 		e := NoFacilityRecipe{

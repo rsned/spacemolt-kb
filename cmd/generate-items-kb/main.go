@@ -209,6 +209,13 @@ type Recipe struct {
 	Outputs      []RecipeItem
 }
 
+// HandCraftable reports whether the recipe can be crafted at the Station
+// Workshop: per server v0.729.0, facility_only must be false and the category
+// must not be "Ship Passive" (those run automatically on capable ships).
+func (r Recipe) HandCraftable() bool {
+	return !r.FacilityOnly && r.Category != "Ship Passive"
+}
+
 // RecipeItem is an item reference within a recipe (input or output).
 type RecipeItem struct {
 	ItemID       string
@@ -438,24 +445,44 @@ type SystemsIndexData struct {
 	ExplorationPct    float64
 }
 
+// recipeCategoryDescriptions is keyed by the work-describing recipe categories
+// introduced in server v0.729.0 (the old Refining/Components/Modules/Facility
+// Only names no longer exist). A category missing here renders without a blurb.
 var recipeCategoryDescriptions = map[string]string{
-	"Components":          "Intermediate parts and assemblies used to build ships, modules, and equipment.",
-	"Consumables":         "Ammunition, repair kits, fuel cells, mines, and other single-use items.",
-	"Defense":             "Shield generators, armor hardeners, and defensive module construction.",
-	"Drones":              "Autonomous combat, mining, repair, and electronic warfare drones.",
-	"Electronic Warfare":  "ECM jammers and electronic countermeasure systems.",
-	"Equipment":           "Specialized tools and survey equipment.",
-	"Gas Processing":      "Compression and refinement of harvested nebula gases.",
-	"Ice Refining":        "Processing of ice deposits into fuel and industrial materials.",
-	"Legendary":           "Extremely rare and powerful items requiring exotic components.",
-	"Mining":              "Mining laser and extraction equipment construction.",
-	"Modules":             "Ship module fabrication including drone bays and specialized systems.",
-	"Production":          "Beverages, luxury goods, and other manufactured products.",
-	"Refining":            "Smelting ores into refined metals, alloys, and processed materials.",
-	"Shipbuilding":        "Hull frames, superstructures, and complete ship assembly.",
-	"Stealth":             "Cloaking devices and stealth system construction.",
-	"Utility":             "Tow rigs, afterburners, salvage tools, and support modules.",
-	"Weapons":             "Lasers, autocannons, missile launchers, and weapon system fabrication.",
+	"Ammunition Loading":           "Kinetic rounds, missiles, torpedoes, mines and EM charges.",
+	"Armor & Shield Manufacturing": "Armor plates, hull and shield hardeners, repairers and shield modules.",
+	"Beam Weapon Tuning":           "Energy weapons: focused beams, ion cannons, EMP and disruptor arrays.",
+	"Brewing & Distilling":         "Ales, wines, spirits and fizzes brewed and distilled from harvested stock.",
+	"Chemical Synthesis":           "Plasma cells, coolants, aerogels, propellants and other synthesized chemistry.",
+	"Cloak & Jammer Rigging":       "Cloaking devices, ECM jammers, webifiers, disruptors and target painters.",
+	"Cooking":                      "Galley dishes cooked from wildlife drops, crops and cultured foods.",
+	"Crystal Growing & Glasswork":  "Grown crystals, lenses, prisms, seam glass and optical sensor parts.",
+	"Drone Building":               "Combat, mining, salvage and scout drones, drone bays and drone parts.",
+	"Electronics Assembly":         "Circuitry, power cells, superconductors, AI cores and trade ciphers.",
+	"Engine & Hold Fitting":        "Afterburners, cargo expanders, tow rigs and refueling gear.",
+	"Exotic Containment":           "Dark matter, void cores, micro-singularities and antimatter warheads.",
+	"Field Kit Assembly":           "Single-use field kits: repair welds, shield boosters, probes and obscurants.",
+	"Fold Engineering":             "Jump cores, warp stabilizers, phase matrices and quantum processors.",
+	"Fuel Blending":                "Ship fuel and fuel cells from gases, plasma and ice products.",
+	"Gas Separation":               "Purifying, compressing and liquefying harvested nebula gases.",
+	"Gunsmithing":                  "Railguns, autocannons, mass drivers, flak cannons and launchers.",
+	"Habitat Outfitting":           "Structural frames, cabins, barracks, boarding clamps and shielding.",
+	"Hydroponic Farming":           "Crops and cultures grown aboard: driftkale, honeyglobe, algae, vat curd.",
+	"Ice Melting":                  "Processing harvested ice into water, gases and fuel feedstock.",
+	"Machining":                    "Machined parts, thrusters, seals, armor plate and station defenses.",
+	"Mining Gear Fabrication":      "Mining lasers, ice and gas harvesters, extractors and survey probes.",
+	"Nuclear Enrichment":           "Uranium, thorium and plutonium processing, reactor fuel and nuclear ordnance.",
+	"Packing & Crating":            "Wrapping and unwrapping hazardous cargo such as fuel rods and enriched uranium.",
+	"Pharmaceutical Compounding":   "Combat stimulants, regenerative compounds and bioactive extracts.",
+	"Plasma & Void Forging":        "Plasma cannons and repeaters, void lances, null cannons and void mines.",
+	"Reactor & Hull Fitting":       "Reactor upgrades, hull bracing, radiation baffles and remote repairers.",
+	"Refinery Module Fitting":      "Compact onboard refineries, smelters and processors for ships.",
+	"Rendering":                    "Rendering wildlife drops (bladders, glands, carapaces) into materials.",
+	"Scrap Reclamation":            "Reclaiming metal, circuits and power cells from salvage and scrap.",
+	"Sensor Calibration":           "Scanners, tracking computers, co-processors, telescopes and detectors.",
+	"Ship Passive":                 "Onboard processes that run automatically on capable ships; not hand-crafted.",
+	"Shipbuilding":                 "Hull frames, superstructures, reactor cores and complete ship assembly.",
+	"Smelting":                     "Smelting ores into refined metals, wire, plate and alloys.",
 }
 
 // loadBoMFromDB loads BoM results from the database and attaches them to items, ships, and facilities.
@@ -3405,7 +3432,7 @@ var recipeCatTemplate = `<!DOCTYPE html>
           <td><a href="{{.ID}}.html">{{.Name}}</a>{{if .Hidden}} <span class="badge badge-hidden" title="Hidden">H</span>{{end}}</td>
           <td>{{- range .Outputs}}{{if .ItemCategory}}<a href="../../items/{{.ItemCategory}}/{{.ItemID}}.html" class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</a>{{else}}<span class="recipe-item">{{if .HasImage}}<img src="../../items/images/{{.ItemID}}.png" alt="{{.ItemName}}" class="recipe-thumb">{{end}}{{.ItemName}}{{if gt .Quantity 1}} &times;{{.Quantity}}{{end}}</span>{{end}}{{end}}</td>
           <td class="recipe-inputs">{{- range $i, $inp := .Inputs}}{{if $i}}, {{end}}{{if $inp.ItemCategory}}<a href="../../items/{{$inp.ItemCategory}}/{{$inp.ItemID}}.html">{{$inp.ItemName}}</a>{{else}}{{$inp.ItemName}}{{end}}&nbsp;&times;{{$inp.Quantity}}{{end}}</td>
-          <td data-sort="{{if .FacilityOnly}}1{{else}}0{{end}}">{{if .FacilityOnly}}<span class="badge badge-frost" title="Requires a production facility">Facility Only</span>{{else}}<span class="badge badge-green" title="Can be crafted by hand, no facility required">Hand Craftable</span>{{end}}</td>
+          <td data-sort="{{if .FacilityOnly}}1{{else if .HandCraftable}}0{{else}}2{{end}}">{{if .FacilityOnly}}<span class="badge badge-frost" title="Requires a production facility">Facility Only</span>{{else if .HandCraftable}}<span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span>{{else}}<span class="badge badge-frost" title="Runs automatically on ships with this capability; cannot be hand-crafted">Ship Passive</span>{{end}}</td>
           <td class="time" data-sort="{{.CraftingTime}}">{{.CraftingTime}}s</td>
         </tr>
 {{- end}}
@@ -3469,7 +3496,7 @@ var recipeDetailTemplate = `<!DOCTYPE html>
           <table>
             <tr><td class="kv-label">Category</td><td><a href="./">{{.Category}}</a></td></tr>
             <tr><td class="kv-label">Crafting Time</td><td>{{.CraftingTime}}s</td></tr>
-            <tr><td class="kv-label">Craft At</td><td>{{if .FacilityOnly}}<span class="badge badge-frost" title="Requires a production facility">Facility Only</span>{{else}}<span class="badge badge-green" title="Can be crafted by hand, no facility required">Hand Craftable</span>{{end}}</td></tr>
+            <tr><td class="kv-label">Craft At</td><td>{{if .FacilityOnly}}<span class="badge badge-frost" title="Requires a production facility">Facility Only</span>{{else if .HandCraftable}}<span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span>{{else}}<span class="badge badge-frost" title="Runs automatically on ships with this capability; cannot be hand-crafted">Ship Passive</span>{{end}}</td></tr>
 {{- if gt .FuelOutput 0}}
             <tr><td class="kv-label">Fuel Output</td><td>{{.FuelOutput}}</td></tr>
 {{- end}}
