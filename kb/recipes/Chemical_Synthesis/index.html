@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Synthesis - Recipes - Spacemolt KB</title>
+    <link rel="stylesheet" href="../../smui.css">
+    <link rel="stylesheet" href="../../recipes/recipes.css">
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../../nav.js" defer></script>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="../">Recipes</a> / Chemical Synthesis</div>
+        <h2>Chemical Synthesis</h2>
+        <p class="text-muted mt-1">Plasma cells, coolants, aerogels, propellants and other synthesized chemistry.</p>
+        <div class="card mt-3" style="padding:0">
+        <table class="sortable">
+        <thead>
+        <tr><th class="sortable">Recipe</th><th class="sortable">Output</th><th>Inputs</th><th class="sortable">Craft At</th><th class="sortable" style="text-align:right">Time</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td><a href="assemble_incendiary_missiles.html">Assemble Incendiary Missiles</a></td>
+          <td><a href="../../items/ammo/incendiary_missiles.html" class="recipe-item">Incendiary Missiles &times;4</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/circuit_board.html">Circuit Board</a>&nbsp;&times;1, <a href="../../items/refined/ion_solution.html">Ion Solution</a>&nbsp;&times;1, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;1</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="12.6">12.6s</td>
+        </tr>
+        <tr>
+          <td><a href="assemble_plasma_mines.html">Assemble Plasma Mines</a></td>
+          <td><a href="../../items/ammo/plasma_mines.html" class="recipe-item">Plasma Mines &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;1, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;2, <a href="../../items/component/warhead_assembly.html">Warhead Assembly</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="22.27">22.27s</td>
+        </tr>
+        <tr>
+          <td><a href="assemble_plasma_torpedoes.html">Assemble Plasma Torpedoes</a></td>
+          <td><a href="../../items/ammo/plasma_torpedoes.html" class="recipe-item">Plasma Torpedoes &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;2, <a href="../../items/refined/durasteel_plate.html">Durasteel Plate</a>&nbsp;&times;2, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;1, <a href="../../items/component/warhead_assembly.html">Warhead Assembly</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="29.7">29.7s</td>
+        </tr>
+        <tr>
+          <td><a href="basic_silicon_refinement.html">Basic Silicon Refinement</a></td>
+          <td><a href="../../items/refined/flex_polymer.html" class="recipe-item">Flex Polymer</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/nickel_ore.html">Nickel Ore</a>&nbsp;&times;4, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;8</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="0.4">0.4s</td>
+        </tr>
+        <tr>
+          <td><a href="bond_iridium_silicate_composite.html">Bond Iridium Silicate Composite</a></td>
+          <td><a href="../../items/refined/silicate_composite.html" class="recipe-item">Silicate Composite</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/iridium_ore.html">Iridium Ore</a>&nbsp;&times;1, <a href="../../items/ore/nickel_ore.html">Nickel Ore</a>&nbsp;&times;2, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="3">3s</td>
+        </tr>
+        <tr>
+          <td><a href="build_ion_emitter_gas_method.html">Build Ion Emitter (Gas Method)</a></td>
+          <td><a href="../../items/component/ion_emitter.html" class="recipe-item">Ion Emitter</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ion_solution.html">Ion Solution</a>&nbsp;&times;3, <a href="../../items/component/power_cell.html">Power Cell</a>&nbsp;&times;1, <a href="../../items/refined/superconductor.html">Superconductor</a>&nbsp;&times;1</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="27">27s</td>
+        </tr>
+        <tr>
+          <td><a href="build_ion_thruster.html">Build Ion Thruster</a></td>
+          <td><a href="../../items/component/thruster_nozzle.html" class="recipe-item">Thruster Nozzle &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ion_solution.html">Ion Solution</a>&nbsp;&times;2, <a href="../../items/component/power_cell.html">Power Cell</a>&nbsp;&times;1, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;1</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="21.3">21.3s</td>
+        </tr>
+        <tr>
+          <td><a href="build_overcharge_cell.html">Build Overcharge Cell</a></td>
+          <td><a href="../../items/consumable/overcharge_cell.html" class="recipe-item">Overcharge Cell &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/component/power_core.html">Power Core</a>&nbsp;&times;1, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;1</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="105">105s</td>
+        </tr>
+        <tr>
+          <td><a href="build_plasma_injector.html">Build Plasma Injector</a></td>
+          <td><a href="../../items/component/plasma_injector.html" class="recipe-item">Plasma Injector</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;2, <a href="../../items/refined/copper_wiring.html">Copper Wiring</a>&nbsp;&times;3, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="19.5">19.5s</td>
+        </tr>
+        <tr>
+          <td><a href="build_weapon_overload_capacitor.html">Build Weapon Overload Capacitor</a></td>
+          <td><a href="../../items/consumable/weapon_overload_capacitor.html" class="recipe-item">Weapon Overload Capacitor &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/component/power_cell.html">Power Cell</a>&nbsp;&times;2, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;1</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="27.3">27.3s</td>
+        </tr>
+        <tr>
+          <td><a href="cast_alumina_ceramite.html">Cast Alumina Ceramite</a></td>
+          <td><a href="../../items/refined/ceramite_plating.html" class="recipe-item">Ceramite Plating &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/aluminum_sheet.html">Aluminum Sheet</a>&nbsp;&times;5, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;3, <a href="../../items/ore/titanium_ore.html">Titanium Ore</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="9">9s</td>
+        </tr>
+        <tr>
+          <td><a href="cast_titanium_foam.html">Cast Titanium Foam</a></td>
+          <td><a href="../../items/refined/titanium_foam.html" class="recipe-item">Titanium Foam</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/purified_argon.html">Purified Argon</a>&nbsp;&times;1, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;2</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="3">3s</td>
+        </tr>
+        <tr>
+          <td><a href="charge_plasma_cell.html">Charge Plasma Cell</a></td>
+          <td><a href="../../items/refined/plasma_cell.html" class="recipe-item">Plasma Cell &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/plasma_gas.html">Plasma Gas</a>&nbsp;&times;6, <a href="../../items/refined/power_battery.html">Power Battery</a>&nbsp;&times;2</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="10.5">10.5s</td>
+        </tr>
+        <tr>
+          <td><a href="chlorine_circuit_etching.html">Chlorine Circuit Etching</a></td>
+          <td><a href="../../items/refined/circuit_board.html" class="recipe-item">Circuit Board &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/chlorine_compound.html">Chlorine Compound</a>&nbsp;&times;1, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="9">9s</td>
+        </tr>
+        <tr>
+          <td><a href="compress_synthetic_diamond.html">Compress Synthetic Diamond</a></td>
+          <td><a href="../../items/refined/synthetic_diamond.html" class="recipe-item">Synthetic Diamond</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/carbon_ore.html">Carbon Ore</a>&nbsp;&times;30</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="1.95">1.95s</td>
+        </tr>
+        <tr>
+          <td><a href="cook_gutter_flux.html">Cook Gutter Flux</a></td>
+          <td><a href="../../items/contraband/gutter_flux.html" class="recipe-item">Gutter Flux &times;8</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/chlorine_compound.html">Chlorine Compound</a>&nbsp;&times;8, <a href="../../items/ore/chlorine_gas.html">Chlorine Gas</a>&nbsp;&times;12</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="14.4">14.4s</td>
+        </tr>
+        <tr>
+          <td><a href="crack_hot_cells.html">Crack Hot Cells</a></td>
+          <td><a href="../../items/contraband/hot_cell.html" class="recipe-item">Hot Cell &times;4</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/copper_wiring.html">Copper Wiring</a>&nbsp;&times;4, <a href="../../items/ore/plasma_gas.html">Plasma Gas</a>&nbsp;&times;6</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="12">12s</td>
+        </tr>
+        <tr>
+          <td><a href="create_ceramite_plating.html">Create Ceramite Plating</a></td>
+          <td><a href="../../items/refined/ceramite_plating.html" class="recipe-item">Ceramite Plating &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;4, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;2, <a href="../../items/ore/titanium_ore.html">Titanium Ore</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="4.5">4.5s</td>
+        </tr>
+        <tr>
+          <td><a href="exfoliate_graphene.html">Exfoliate Graphene</a></td>
+          <td><a href="../../items/refined/graphene_sheet.html" class="recipe-item">Graphene Sheet</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/carbon_ore.html">Carbon Ore</a>&nbsp;&times;6</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="0.51">0.51s</td>
+        </tr>
+        <tr>
+          <td><a href="extrude_nanoplastic.html">Extrude Nanoplastic</a></td>
+          <td><a href="../../items/refined/nanoplastic_composite.html" class="recipe-item">Nanoplastic Composite &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/carbon_ore.html">Carbon Ore</a>&nbsp;&times;2, <a href="../../items/refined/flex_polymer.html">Flex Polymer</a>&nbsp;&times;4</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="1.89">1.89s</td>
+        </tr>
+        <tr>
+          <td><a href="fabricate_overclock_chip.html">Fabricate Overclock Chip</a></td>
+          <td><a href="../../items/consumable/overclock_chip.html" class="recipe-item">Overclock Chip &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/circuit_board.html">Circuit Board</a>&nbsp;&times;2, <a href="../../items/refined/fluorine_etchant.html">Fluorine Etchant</a>&nbsp;&times;1, <a href="../../items/ore/gold_ore.html">Gold Ore</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="10.35">10.35s</td>
+        </tr>
+        <tr>
+          <td><a href="fire_lithium_ceramic.html">Fire Lithium Ceramic</a></td>
+          <td><a href="../../items/refined/thermal_ceramic.html" class="recipe-item">Thermal Ceramic</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/aluminum_sheet.html">Aluminum Sheet</a>&nbsp;&times;2, <a href="../../items/ore/lithium_ore.html">Lithium Ore</a>&nbsp;&times;4</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="2">2s</td>
+        </tr>
+        <tr>
+          <td><a href="fire_thermal_ceramic.html">Fire Thermal Ceramic</a></td>
+          <td><a href="../../items/refined/thermal_ceramic.html" class="recipe-item">Thermal Ceramic</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/aluminum_ore.html">Aluminum Ore</a>&nbsp;&times;4, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="0.81">0.81s</td>
+        </tr>
+        <tr>
+          <td><a href="fluorine_nano_etch_circuits.html">Fluorine Nano-Etch Circuits</a></td>
+          <td><a href="../../items/refined/circuit_board.html" class="recipe-item">Circuit Board &times;5</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/fluorine_etchant.html">Fluorine Etchant</a>&nbsp;&times;1, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="15">15s</td>
+        </tr>
+        <tr>
+          <td><a href="forge_coronid_composite.html">Forge Coronid Composite</a></td>
+          <td><a href="../../items/refined/solarian_composite.html" class="recipe-item">Solarian Composite</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/sol_nacre.html">Sol Nacre</a>&nbsp;&times;1, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="6">6s</td>
+        </tr>
+        <tr>
+          <td><a href="forge_solarian_composite.html">Forge Solarian Composite</a></td>
+          <td><a href="../../items/refined/solarian_composite.html" class="recipe-item">Solarian Composite</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/sol_alloy_ore.html">Sol Alloy Ore</a>&nbsp;&times;3, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="14.25">14.25s</td>
+        </tr>
+        <tr>
+          <td><a href="load_red_mist.html">Load Red Mist</a></td>
+          <td><a href="../../items/contraband/red_mist.html" class="recipe-item">Red Mist &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/contraband/gutter_flux.html">Gutter Flux</a>&nbsp;&times;1, <a href="../../items/refined/pharmaceutical_culture.html">Pharmaceutical Culture</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="9">9s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_corrosive_plasma_cells.html">Manufacture Corrosive Plasma Cells</a></td>
+          <td><a href="../../items/ammo/corrosive_plasma_cell_pack.html" class="recipe-item">Corrosive Plasma Cell Pack &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/chlorine_compound.html">Chlorine Compound</a>&nbsp;&times;1, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="11.25">11.25s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_dispersal_plasma_cells.html">Manufacture Dispersal Plasma Cells</a></td>
+          <td><a href="../../items/ammo/dispersal_plasma_cell_pack.html" class="recipe-item">Dispersal Plasma Cell Pack &times;4</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;1, <a href="../../items/refined/ion_solution.html">Ion Solution</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="10.2">10.2s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_focused_plasma_cells.html">Manufacture Focused Plasma Cells</a></td>
+          <td><a href="../../items/ammo/focused_plasma_cell_pack.html" class="recipe-item">Focused Plasma Cell Pack &times;4</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;1, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="33.9">33.9s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_incendiary_rounds.html">Manufacture Incendiary Rounds</a></td>
+          <td><a href="../../items/ammo/incendiary_rounds_box.html" class="recipe-item">Incendiary Rounds Box &times;4</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;1, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;1</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="15.9">15.9s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_overcharged_plasma_cells.html">Manufacture Overcharged Plasma Cells</a></td>
+          <td><a href="../../items/ammo/overcharged_plasma_cell_pack.html" class="recipe-item">Overcharged Plasma Cell Pack &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;1, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;2, <a href="../../items/refined/superconductor.html">Superconductor</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="43.42">43.42s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_plasma_cells.html">Manufacture Plasma Cells</a></td>
+          <td><a href="../../items/ammo/plasma_cell_pack.html" class="recipe-item">Plasma Cell Pack &times;5</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;1, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="18.38">18.38s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_standard_plasma_charges.html">Manufacture Standard Plasma Charges</a></td>
+          <td><a href="../../items/ammo/standard_plasma_charge_pack.html" class="recipe-item">Standard Plasma Charge Pack &times;5</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/copper_wiring.html">Copper Wiring</a>&nbsp;&times;1, <a href="../../items/ore/plasma_gas.html">Plasma Gas</a>&nbsp;&times;5</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="7.5">7.5s</td>
+        </tr>
+        <tr>
+          <td><a href="manufacture_stellar_plasma_cells.html">Manufacture Stellar Plasma Cells</a></td>
+          <td><a href="../../items/ammo/stellar_plasma_cell_pack.html" class="recipe-item">Stellar Plasma Cell Pack &times;4</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/liquid_oxygen.html">Liquid Oxygen</a>&nbsp;&times;2, <a href="../../items/refined/refined_plasma_core.html">Refined Plasma Core</a>&nbsp;&times;2, <a href="../../items/refined/rhodium_coating.html">Rhodium Coating</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="45">45s</td>
+        </tr>
+        <tr>
+          <td><a href="mix_glassweave_sealant.html">Mix Glassweave Sealant</a></td>
+          <td><a href="../../items/consumable/glassweave_sealant.html" class="recipe-item">Glassweave Sealant &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/annealed_seam_glass.html">Annealed Seam Glass</a>&nbsp;&times;4, <a href="../../items/refined/metallic_aerogel.html">Metallic Aerogel</a>&nbsp;&times;10, <a href="../../items/component/repair_nanite_container.html">Repair Nanite Container</a>&nbsp;&times;2, <a href="../../items/refined/void_nanite_suspension.html">Void Nanite Suspension</a>&nbsp;&times;10</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="20">20s</td>
+        </tr>
+        <tr>
+          <td><a href="mix_hazard_sealant.html">Mix Hazard Sealant</a></td>
+          <td><a href="../../items/consumable/hazard_sealant.html" class="recipe-item">Hazard Sealant &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ceramite_plating.html">Ceramite Plating</a>&nbsp;&times;4, <a href="../../items/refined/flex_polymer.html">Flex Polymer</a>&nbsp;&times;10, <a href="../../items/component/lead_sheet.html">Lead Sheet</a>&nbsp;&times;20, <a href="../../items/refined/nanoplastic_composite.html">Nanoplastic Composite</a>&nbsp;&times;6, <a href="../../items/refined/synthetic_compound.html">Synthetic Compound</a>&nbsp;&times;10</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="4">4s</td>
+        </tr>
+        <tr>
+          <td><a href="mix_heavy_hazard_sealant.html">Mix Heavy Hazard Sealant</a></td>
+          <td><a href="../../items/consumable/heavy_hazard_sealant.html" class="recipe-item">Heavy Hazard Sealant &times;2</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/metallic_aerogel.html">Metallic Aerogel</a>&nbsp;&times;6, <a href="../../items/refined/nanoplastic_composite.html">Nanoplastic Composite</a>&nbsp;&times;10, <a href="../../items/component/radiation_hardened_circuit.html">Radiation-Hardened Circuit</a>&nbsp;&times;4, <a href="../../items/refined/thermal_ceramic.html">Thermal Ceramic</a>&nbsp;&times;10, <a href="../../items/refined/void_nanite_suspension.html">Void Nanite Suspension</a>&nbsp;&times;6</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="10">10s</td>
+        </tr>
+        <tr>
+          <td><a href="plasma_flux_titanium_alloy.html">Plasma-Flux Titanium Alloy</a></td>
+          <td><a href="../../items/refined/titanium_alloy.html" class="recipe-item">Titanium Alloy</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/plasma_residue.html">Plasma Residue</a>&nbsp;&times;1, <a href="../../items/refined/steel_plate.html">Steel Plate</a>&nbsp;&times;1, <a href="../../items/ore/titanium_ore.html">Titanium Ore</a>&nbsp;&times;1</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="1.5">1.5s</td>
+        </tr>
+        <tr>
+          <td><a href="refine_platinum_catalyst.html">Refine Platinum Catalyst</a></td>
+          <td><a href="../../items/refined/platinum_catalyst.html" class="recipe-item">Platinum Catalyst</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/platinum_ore.html">Platinum Ore</a>&nbsp;&times;10</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="9">9s</td>
+        </tr>
+        <tr>
+          <td><a href="refine_void_dust.html">Refine Void Dust</a></td>
+          <td><a href="../../items/contraband/void_dust.html" class="recipe-item">Void Dust</a></td>
+          <td class="recipe-inputs"><a href="../../items/contraband/gutter_flux.html">Gutter Flux</a>&nbsp;&times;2, <a href="../../items/ore/nebula_gas.html">Nebula Gas</a>&nbsp;&times;3</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="6.75">6.75s</td>
+        </tr>
+        <tr>
+          <td><a href="roll_memory_metal_sheet.html">Roll Memory Metal Sheet</a></td>
+          <td><a href="../../items/refined/memory_metal_sheet.html" class="recipe-item">Memory Metal Sheet</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/electrum_ingot.html">Electrum Ingot</a>&nbsp;&times;1, <a href="../../items/refined/flex_polymer.html">Flex Polymer</a>&nbsp;&times;2, <a href="../../items/refined/titanium_alloy.html">Titanium Alloy</a>&nbsp;&times;2</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="5.25">5.25s</td>
+        </tr>
+        <tr>
+          <td><a href="sinter_iridium_composite.html">Sinter Iridium Composite</a></td>
+          <td><a href="../../items/refined/silicate_composite.html" class="recipe-item">Silicate Composite</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/refractory_sinter.html">Refractory Sinter</a>&nbsp;&times;1, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;2</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="6">6s</td>
+        </tr>
+        <tr>
+          <td><a href="sinter_silicate_composite.html">Sinter Silicate Composite</a></td>
+          <td><a href="../../items/refined/silicate_composite.html" class="recipe-item">Silicate Composite</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/nickel_ore.html">Nickel Ore</a>&nbsp;&times;2, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;4</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="1.35">1.35s</td>
+        </tr>
+        <tr>
+          <td><a href="spin_metallic_aerogel.html">Spin Metallic Aerogel</a></td>
+          <td><a href="../../items/refined/metallic_aerogel.html" class="recipe-item">Metallic Aerogel</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/aluminum_sheet.html">Aluminum Sheet</a>&nbsp;&times;4, <a href="../../items/refined/graphene_sheet.html">Graphene Sheet</a>&nbsp;&times;2, <a href="../../items/refined/silicate_composite.html">Silicate Composite</a>&nbsp;&times;1</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="3.75">3.75s</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_afterburner_fuel.html">Synthesize Afterburner Fuel</a></td>
+          <td><a href="../../items/consumable/afterburner_fuel.html" class="recipe-item">Afterburner Fuel &times;5</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/ion_solution.html">Ion Solution</a>&nbsp;&times;1, <a href="../../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a>&nbsp;&times;3</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="7.5">7.5s</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_coolant_fluid.html">Synthesize Coolant Fluid</a></td>
+          <td><a href="../../items/refined/coolant_fluid.html" class="recipe-item">Coolant Fluid &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/liquid_nitrogen.html">Liquid Nitrogen</a>&nbsp;&times;3, <a href="../../items/refined/purified_water.html">Purified Water</a>&nbsp;&times;2</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="2.02">2.02s</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_helium_coolant.html">Synthesize Helium Coolant</a></td>
+          <td><a href="../../items/refined/coolant_fluid.html" class="recipe-item">Coolant Fluid &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/refined/helium_3.html">Helium-3</a>&nbsp;&times;1, <a href="../../items/refined/purified_water.html">Purified Water</a>&nbsp;&times;2</td>
+          <td data-sort="0"><span class="badge badge-green" title="Can be crafted by hand at the Station Workshop">Hand Craftable</span></td>
+          <td class="time" data-sort="2">2s</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_nerve_burn.html">Synthesize Nerve Burn</a></td>
+          <td><a href="../../items/contraband/nerve_burn.html" class="recipe-item">Nerve Burn</a></td>
+          <td class="recipe-inputs"><a href="../../items/contraband/gutter_flux.html">Gutter Flux</a>&nbsp;&times;2, <a href="../../items/ore/plasma_gas.html">Plasma Gas</a>&nbsp;&times;3</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="7.5">7.5s</td>
+        </tr>
+        <tr>
+          <td><a href="synthesize_polymer.html">Synthesize Polymer</a></td>
+          <td><a href="../../items/refined/flex_polymer.html" class="recipe-item">Flex Polymer &times;3</a></td>
+          <td class="recipe-inputs"><a href="../../items/ore/nickel_ore.html">Nickel Ore</a>&nbsp;&times;2, <a href="../../items/ore/silicon_ore.html">Silicon Ore</a>&nbsp;&times;3</td>
+          <td data-sort="1"><span class="badge badge-frost" title="Requires a production facility">Facility Only</span></td>
+          <td class="time" data-sort="1.21">1.21s</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+    </main>
+    <script>
+    document.querySelectorAll("table.sortable").forEach(function(table) {
+      var headers = table.querySelectorAll("th.sortable");
+      var sortCol = -1, sortAsc = true;
+      headers.forEach(function(th) {
+        var idx = th.cellIndex;
+        th.addEventListener("click", function() {
+          if (sortCol === idx) { sortAsc = !sortAsc; } else { sortCol = idx; sortAsc = true; }
+          table.querySelectorAll("th .sort-arrow").forEach(function(a) { a.remove(); });
+          var arrow = document.createElement("span");
+          arrow.className = "sort-arrow";
+          arrow.textContent = sortAsc ? "\u25B2" : "\u25BC";
+          th.appendChild(arrow);
+          var tbody = table.querySelector("tbody");
+          var rows = Array.from(tbody.querySelectorAll("tr"));
+          rows.sort(function(a, b) {
+            var at = a.cells[idx].getAttribute("data-sort") || a.cells[idx].textContent.trim();
+            var bt = b.cells[idx].getAttribute("data-sort") || b.cells[idx].textContent.trim();
+            var an = parseFloat(at), bn = parseFloat(bt);
+            if (!isNaN(an) && !isNaN(bn)) return sortAsc ? an - bn : bn - an;
+            return sortAsc ? at.localeCompare(bt) : bt.localeCompare(at);
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    });
+    </script>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

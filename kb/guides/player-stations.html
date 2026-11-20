@@ -158,7 +158,9 @@
             <a class="sub" href="#step-14">Step 14: Fuel storage</a>
             <a class="sub" href="#step-15">Step 15: Ship garage</a>
             <a class="sub" href="#step-16">Step 16: Recruitment</a>
-            <a class="sub" href="#step-17">Step 17: Storage buckets</a>
+            <a class="sub" href="#step-17">Step 17: Intel</a>
+            <a class="sub" href="#step-18">Step 18: Faction missions</a>
+            <a class="sub" href="#step-19">Step 19: Storage buckets</a>
             <a href="#reading-your-station">Reading your station</a>
             <a href="#station-administration">Station administration</a>
             <a href="#what-you-can-build-here">What you can build here</a>
@@ -178,8 +180,11 @@ and a market other pilots can use if your station sits on a crossroads.</p>
 <p>The official guides leave the important parts out: what a new station actually comes with,
 what each facility consumes to keep running, and in what order to build. This guide records
 what we measured while founding <strong>Conjunction Junction</strong> in Cloverfield on 2026-10-25, and
-while running it since (last updated 2026-11-08: 24 faction facilities, condition
-<code>thriving</code>, 8 of 8 counted facilities satisfied).
+while running it since. A second station, in Beid (founded 2026-11-16), confirmed the build
+order. Last updated 2026-11-19: 47 faction facilities, 248 dps of guns, a 48,000 shield, and
+about 90,000 cr a day of tourism from a single lounge. Condition is <code>operational</code>, 12 of 15
+counted facilities satisfied, because we let circuit boards run out (see
+<a href="#step-4">Power</a>).
 Build costs and upkeep below come from the game catalog. Our own observations are labelled
 <em>measured</em>, other players' reports <em>player-reported</em>, and the official docs <em>doc-quoted</em>.</p>
 <blockquote>
@@ -201,7 +206,10 @@ one shortfall is most of the station, which is how ours hit <code>critical</code
 <code>found_station</code> is not what we used). The station anchors at <strong>its own new point of
 interest</strong> next to where you are, and your ship is docked there automatically (<em>measured</em>).</p>
 <p>The station's built-in faction storage satisfies the &quot;Faction Storage is required before
-any other faction facility&quot; rule: <code>faction_build</code> works straight away (<em>measured</em>).</p>
+any other faction facility&quot; rule: <code>faction_build</code> works straight away (<em>measured</em>).
+Building a <a href="../facilities/faction/faction_lockbox.html">Faction Lockbox</a> on top is refused as already included (<em>measured</em> at
+Beid, 2026-11-16). Any faction officer can run <code>faction_build</code> at the station, not only
+the founder (<em>measured</em>).</p>
 
             <div class="so-far" data-step="0" title="Open station upkeep">Station so far: 0 upkeep items, 0 units/cycle · power 0 / 0 · life support 0 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
@@ -228,7 +236,17 @@ same shortfall costs a step of condition, not the whole station. Deposit a few d
             <div class="upkeep"><table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr></table></div>
             <p>Build this second, so the faction can craft at the station straight away. Crafting by
 hand is slow next to real production lines, but it means build materials and upkeep
-items can be made on site until those lines come online.</p>
+items can be made on site until those lines come online. Hand crafting has no labor fee.</p>
+<p><strong>Without it, nothing crafts at all, production lines included.</strong> The workshop is what
+gives the station its <code>crafting</code> service. At Beid, before it was built, every craft was
+refused with <em>&quot;no_service: This station does not offer crafting service&quot;</em>, even with
+the <a href="../facilities/production/h2_fuel_combustor.html">H2 Fuel Combustor</a> named by <code>--facility_id</code> (<em>measured</em> 2026-11-16). The same
+goes for a workshop short of upkeep: on 2026-11-18 Conjunction Junction's <code>services</code>
+list lost <code>crafting</code> while the workshop's circuit boards had run out (<em>measured</em>).</p>
+<p>Hand crafts queue <strong>per member</strong>: each member who orders hand crafts gets one Station
+Workshop queue, so one big hand-craft order delays everything else that member orders.
+Spread hand crafting across members (<em>measured</em> 2026-11-12, 98 queued jobs on one
+member).</p>
 <p>⚠ Upkeep consumes one <a href="../items/refined/focused_crystal.html">Focused Crystal</a> a cycle, and each is made from 4
 <a href="../items/ore/energy_crystal.html">Energy Crystal</a> + 1 <a href="../items/ore/palladium_ore.html">Palladium Ore</a>, so <strong>4 energy crystals every cycle</strong>. Decide
 where those come from before building it.</p>
@@ -266,7 +284,14 @@ and <a href="../facilities/infrastructure/full_habitat_dome.html">Full Habitat D
 <a href="../facilities/infrastructure/full_habitat_dome.html">Full Habitat Dome</a> rather than building more recyclers. One station that stacked
 recyclers spends roughly twice the consumables of a few domes for the same life support
 (<em>player-reported</em>). The upgrades cost more credits up front, but upkeep never stops, so
-the domes come out ahead over time.</p>
+the domes come out ahead over time. (We stacked anyway: a second recycler on 2026-11-09,
+because the <a href="../facilities/infrastructure/climate_control_array.html">Climate Control Array</a> needed 300 <a href="../items/component/water_recycler.html">Water Recycler</a> we didn't have. Life
+support is now 24 supply against 13 demand, and upkeep is exactly double: 2 scrubbers,
+4 oxygen, 2 purified water, 2 sunspindle and 6 water ice a cycle.)</p>
+<p>Each production line draws 1 life support. Defense and service facilities draw none:
+demand went from 10 to 11 with a scrubber line and from 11 to 13 with two more lines,
+and didn't move for any of the defense facilities or reactors (<em>measured</em> 2026-11-09 to
+11-13).</p>
 
             <div class="so-far" data-step="3" title="Open station upkeep">Station so far: 9 upkeep items, 12 units/cycle · power 0 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
@@ -322,6 +347,22 @@ infrastructure could be dismantled. It can: see <a href="#moving-a-facility">Mov
 <code>get_base</code> gained a <code>power</code> block (absent until then) showing <code>supply: 20</code>, matching the
 catalog, and the grid counted toward station health alongside the Locker Bay
 (<code>satisfied_count 2 / total_service_infra 2</code>) (<em>measured</em>).</p>
+<p>Power at Conjunction Junction grew from 20 to <strong>76</strong>: a second grid (40), then three
+<a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a>s at 12 each (2026-11-09 and 11-13). Power sources stack.</p>
+<p>⚠ <strong>Our power failure (2026-11-15 to now, <em>measured</em>).</strong> Circuit boards are the grids'
+only upkeep, but they are also an input to our power cells, targeting computers and every
+build. Production used them up, and faction storage reached 0. Each time it did, both
+grids starved and supply fell from 76 to <strong>36</strong>, the three reactors alone. It has stayed
+at 36 since 2026-11-18 20:30. The Faction Workshop, which also takes a circuit board a
+cycle, starved with them. <code>get_base</code> names the cause:
+<code>power.fuel_inputs</code> lists what the plants burn, and <code>power.remediation</code> reads <em>&quot;A power
+plant is starved of fuel. Deposit at least one of each of these into this station's
+faction storage; the plant comes back online at the next facility cycle.&quot;</em> The reactors
+kept running throughout because their fuel comes from the station tank, which our
+combustor keeps full. That is the case for the Bunker-Fed Reactor above: an upkeep you
+make in a dedicated line is safer than one your production lines also consume. If an
+upkeep item is also a production input, keep a reserve of it where production can't take
+it (see <a href="#step-19">Storage buckets</a>).</p>
 
             <div class="so-far" data-step="4" title="Open station upkeep">Station so far: 9 upkeep items, 14 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
@@ -444,6 +485,13 @@ material from faction storage, the treasury pays the labor plus a 10% royalty on
 materials' value at current market rates to the design's empire (about 650–820 cr per
 Congregation), and the finished hull is delivered to whoever placed the order
 (<em>measured</em>).</p>
+<p><strong>Bigger hulls need a bigger yard.</strong> Each ship in the catalog has a <code>shipyard_tier</code>,
+which we read as the yard level needed to build it (<em>not yet tested</em>). The Tier-4 bulk
+haulers (the Frankenhauler, for example, is <code>shipyard_tier</code> 3) would then need the
+level-3 <a href="../facilities/service/assembly_complex.html">Assembly Complex</a>: 4,500,000 cr + 36,000
+<a href="../items/refined/steel_plate.html">Steel Plate</a> + 7,200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 1,200 <a href="../items/component/power_cell.html">Power Cell</a> on top of the
+fabrication yard, plus a 20M Tier-4 license for another empire's design (catalog
+2026-11-19).</p>
 <p>Compared to empire stations, where anyone can commission any class they have the skills
 to fly, player stations are limited to classes unlocked by faction achievements and
 licenses. (And at an empire station, paying cash for a commission can still stall
@@ -544,6 +592,12 @@ During that window, building a fuel producer or depositing fuel wrongly answers
 facility_type='fuel_tank_expansion' first.&quot;</em> We hit exactly that with an
 <a href="../facilities/production/h2_fuel_combustor.html">H2 Fuel Combustor</a> (<em>measured</em> 2026-10-26). Wait and retry; don't build an expansion
 because of it. Fuel production also draws life support and power.</p>
+<p>Conjunction Junction has one expansion (tank 55,000). <strong>Reactors drink from it.</strong> Once
+the first <a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a> was running, the tank fell from 21,293 to 8,605 in about
+14 hours against a combustor making 500 an hour (<em>measured</em> 2026-11-09). We raised the
+combustor to 2,000 fuel an hour, and with three reactors the tank has stayed within a
+few hundred of full since (<em>measured</em> 2026-11-10 to 11-19). Size your fuel production for
+the reactors, the refuel service and your own ships together.</p>
 <p>⚠ <strong>Don't build a <a href="../facilities/faction/faction_fuel_bunker.html">Faction Fuel Bunker</a> here.</strong> At your own station the server refuses
 it: <em>&quot;a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
 would just sit unused. Build a Fuel Tank Expansion … instead&quot;</em> (<em>measured</em> 2026-10-26).</p>
@@ -576,19 +630,44 @@ out, but accepting one answers <em>&quot;faction_full: This faction has reached 
 members&quot;</em>. The Hiring Board raises the cap to 50 (the upgrades: 100, 200 and more).
 Members already above the cap keep their seats; we had 38 (<em>measured</em> 2026-11-08). We
 built ours from a dismantled package, with no other materials (see
-<a href="#moving-a-facility">Moving a facility</a>).</p>
+<a href="#moving-a-facility">Moving a facility</a>), and upgraded it to a <a href="../facilities/faction/recruitment_desk.html">Recruitment Desk</a> on
+2026-11-13; the upgrade reply reported <code>capacity: 100</code> (<em>measured</em>).</p>
 
             <div class="so-far" data-step="16" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         <section class="step-card" id="step-17">
-            <h3>Step 17: Storage buckets - <a href="../facilities/faction/storage_extension.html">Storage Extension</a> <code class="fac-id">(storage_extension)</code></h3>
+            <h3>Step 17: Intel - <a href="../facilities/faction/intel_terminal.html">Intel Terminal</a> <code class="fac-id">(intel_terminal)</code></h3>
+            <p class="step-build"><b>Build:</b> 150,000 cr + 200 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 100 <a href="../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a> · 40 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>Faction intelligence. We rebuilt ours from packages moved from Grand Exchange
+(2026-11-12) and upgraded it to an <a href="../facilities/faction/intel_center.html">Intel Center</a> two days later. At level 2 it
+collects verified system and point-of-interest data automatically from what members
+read as they fly (<em>measured</em>).</p>
+
+            <div class="so-far" data-step="17" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-18">
+            <h3>Step 18: Faction missions - <a href="../facilities/faction/notice_board.html">Notice Board</a> <code class="fac-id">(notice_board)</code></h3>
+            <p class="step-build"><b>Build:</b> 50,000 cr + 20 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 50 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 15 ticks</p>
+            <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
+            <p>A faction job board (service <code>faction_missions</code>). Cheap: 50,000 cr + 50 <a href="../items/refined/steel_plate.html">Steel Plate</a> +
+20 <a href="../items/refined/circuit_board.html">Circuit Board</a>. Ours, built 2026-11-18, reported <code>capacity: 3</code> (<em>measured</em>).</p>
+
+            <div class="so-far" data-step="18" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+        </section>
+        <section class="step-card" id="step-19">
+            <h3>Step 19: Storage buckets - <a href="../facilities/faction/storage_extension.html">Storage Extension</a> <code class="fac-id">(storage_extension)</code></h3>
             <p class="step-build"><b>Build:</b> 500,000 cr + 150 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 400 <a href="../items/refined/steel_plate.html">Steel Plate</a> · 80 ticks</p>
             <div class="upkeep"><p class="no-upkeep">No upkeep</p></div>
             <p>Adds a named bucket to faction storage (ours holds up to 100,000 of each item, up to
 1,000 packages). We use it to keep a repair reserve apart from working stock, since
-builds and upgrades can take their materials from a named bucket.</p>
+builds and upgrades can take their materials from a named bucket. Faction crafting can
+also pull from a bucket and deliver into one (<code>deliver_to=&quot;faction:&lt;name&gt;&quot;</code>,
+<em>doc-quoted</em>). <em>Not yet tested:</em> whether facility upkeep draws from a bucket. Until it
+is, treat a bucket as a reserve you move into the main pool by hand, not one the
+facilities use themselves.</p>
 
-            <div class="so-far" data-step="17" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
+            <div class="so-far" data-step="19" title="Open station upkeep">Station so far: 15 upkeep items, 32 units/cycle · power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></div>
         </section>
         </div>
         <div class="guide-body"><h2 id="reading-your-station">Reading your station</h2>
@@ -638,13 +717,28 @@ server does tell you, all <em>measured</em> at Conjunction Junction and Grand Ex
 <td><code>facility list</code></td>
 <td><code>labor_per_cycle</code> per facility; <code>faction_rent</code> (0 at your own station)</td>
 </tr>
+<tr>
+<td>Which input is a power plant short of?</td>
+<td><code>get_base</code></td>
+<td><code>power.fuel_inputs</code> (what the plants burn, per cycle) and <code>power.remediation</code> (only present when one is starved)</td>
+</tr>
+<tr>
+<td>Which services are actually up?</td>
+<td><code>get_base</code></td>
+<td><code>services</code>: a service drops off the list while its facility is unpaid (<code>crafting</code> vanished while the workshop's circuit boards were out on 2026-11-18; <code>market</code> was missing on 2026-11-12 while one facility was unsatisfied)</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Only some facilities count toward condition.</strong> With 24 faction facilities built,
-<code>get_base</code> reads <code>total_service_infra 8</code> (<em>measured</em> 2026-11-08): the services, power, life
-support, fuel storage and the defense facilities count; production lines, the garage, the
-office and storage buckets don't. A starving production line slows itself down without
-moving the station's condition.</p>
+<p><strong>Only some facilities count toward condition:</strong> the ones in the catalog's <strong><code>service</code></strong> and
+<strong><code>infrastructure</code></strong> categories. With 47 faction facilities built, <code>get_base</code> reads
+<code>total_service_infra 15</code> (<em>measured</em> 2026-11-18). Those 15 are 6 services (locker bay, workshop,
+refueling dock, trade concourse, fabrication yard, reclamation dock) and 9 infrastructure (2
+grids, 3 reactors, 2 recyclers, the fuel tank expansion, and the Rec Lounge, a tourism venue).
+Defense, production and <code>faction</code> facilities (garage, office, recruitment, intel, transit
+lounge, storage buckets) don't count. Building 7 defense facilities on 2026-11-09 left the
+count unchanged, while each reactor, recycler or service added one (<em>measured</em>). (Earlier
+versions of this guide said defenses count; they don't.) A starving production line slows
+itself down without moving the station's condition. A starving venue does move it.</p>
 <p><strong>What the server doesn't tell you:</strong> for a <em>service</em> facility (the Locker Bay, the Faction
 Workshop) there is no &quot;starved&quot; list, only <code>maintenance_satisfied: false</code>. To know what to haul,
 compare the facility's <code>maintenance_per_cycle</code> (the upkeep tables in the steps above) against
@@ -654,11 +748,14 @@ compare the facility's <code>maintenance_per_cycle</code> (the upkeep tables in 
 of about <strong>3,000 ticks</strong> (about 8.3 hours). We measured that at Conjunction Junction: the
 Locker Bay, Faction Workshop and Refueling Dock each used one cycle's upkeep roughly every
 3,000 ticks, each on its own phase, counted from its build (<em>measured</em> 2026-10-27). A 100-tick
-cycle would have used about 30 times as much. Don't be misled by <code>get_base</code>: the
-<code>life_support</code> block reports <code>maintenance_cycle_ticks: 100</code> (<em>measured</em>), which does not match
-what the other facilities consume. Whether life support itself burns its upkeep every 100
-ticks is <em>being measured</em> from our recycler's water ice. Until the cycle is pinned down
-precisely, this page gives upkeep <strong>per cycle</strong> only.</p>
+cycle would have used about 30 times as much.</p>
+<p><code>get_base</code> now confirms it. Its <code>life_support.maintenance</code> and <code>power.fuel_inputs</code> lists give
+each input a <code>quantity_per_cycle</code> and an <code>average_burn_per_cycle</code> measured over the
+100-tick reporting cycle, and the burn is always <strong>one thirtieth</strong> of the quantity: 6 water ice
+a cycle shows a burn of 0.2, and 2 scrubbers show 0.067 (<em>measured</em> 2026-11-18). So the
+<code>maintenance_cycle_ticks: 100</code> there is the reporting step, not the upkeep cycle: a full
+cycle's upkeep is used every 30 × 100 = 3,000 ticks, life support included. That is about
+<strong>2.9 cycles a day</strong>, so a day's upkeep is about three times the per-cycle figures on this page.</p>
 <p><strong>What happens when it runs dry:</strong> the effect is graduated, not a switch.</p>
 <ul>
 <li><strong>The facility</strong> drops into a reduced operating mode rather than stopping: it keeps running,
@@ -817,12 +914,32 @@ action needs the <strong>ManageBases</strong> permission. Outposts support only 
 <td><code>{&quot;action&quot;:&quot;remove_faction&quot;,&quot;faction&quot;:&quot;6686e…&quot;}</code></td>
 <td>Remove that faction's access.</td>
 </tr>
+<tr>
+<td><code>set_toll</code></td>
+<td><em>not yet tried</em></td>
+<td>—</td>
+<td>—</td>
+<td>Listed in the server's valid actions since at least 2026-11-16; parameters unknown.</td>
+</tr>
+<tr>
+<td><code>set_gate_access</code></td>
+<td><em>not yet tried</em></td>
+<td>—</td>
+<td>—</td>
+<td>Listed alongside <code>set_toll</code>; parameters unknown.</td>
+</tr>
 </tbody>
 </table>
 <blockquote>
 <p>A missing value is <strong>not refused</strong>: the server reads it as false or 0. <code>set_public</code> with no
 value makes a station private (<em>measured</em>).</p>
 </blockquote>
+<p><strong>What we charge</strong> (<code>get_base</code>, 2026-11-18): market fee 1% (<code>market_fee_bps: 100</code>), refuel 3 cr
+a unit, repair 1 cr a hull point. We keep prices low so crossroads traffic stops here.</p>
+<p><strong>Renting out your production lines.</strong> <code>facility set_access public --facility_id &lt;id&gt;</code> opens
+one of your faction's production facilities to other players: <em>&quot;Facility is now public —
+other players may rent your…&quot;</em> (<em>measured</em> 2026-11-09). We have opened seven this way,
+including the alloy foundry, polymer extruder, fiber draw tower and scrubber line.</p>
 <h2 id="what-you-can-build-here">What you can build here</h2>
 <p>The facility catalog marks every facility a player station can build with
 <strong><code>player_station_buildable: true</code></strong>: 63 of the catalog's 2,907 facilities (catalog read
@@ -857,26 +974,104 @@ itself is dismantled.</li>
 <p><strong>Rebuilding from packages (<em>measured</em>).</strong> You don't have to unpack: pass the package IDs
 straight to the build, <code>facility faction_build &lt;type&gt; --package_ids &lt;id&gt;[,&lt;id&gt;…]</code>. Each
 package must hold exactly what the build still needs of an item, or the build is refused up
-front. We rebuilt the iron refinery at Conjunction Junction this way on 2026-10-28, and on
-2026-11-08 built a Hiring Board from its single package with no other materials. Each package
+front. A long list of ids can come from a file: <code>--package_ids @packages.json</code>, a JSON array
+of <code>package:&lt;id&gt;</code> strings. <strong>Don't unpack first.</strong> <code>craft unpack_package</code> puts each package
+into a hand-craft job that waits behind every other hand craft that member has queued (an ETA
+of about 1,240 ticks for us), and <code>faction_build</code> without <code>--package_ids</code> reports &quot;0 in
+packages&quot; even with the packages sitting in faction storage. <code>craft cancel --job_ids=…</code> gives
+escrowed packages back intact (<em>measured</em> 2026-11-12). We rebuilt the iron refinery at
+Conjunction Junction this way on 2026-10-28, on 2026-11-08 built a Hiring Board from its
+single package with no other materials, and on 2026-11-12 rebuilt the Intel Terminal, Fiber
+Draw Tower and Polymer Extruder. Each package
 takes <strong>100 cargo</strong>, and dismantling costs one <a href="../items/component/cargo_container.html">Cargo Container</a> per package
 (<em>doc-quoted</em>). Moving four facilities' packages (Fiber Draw Tower 41, Polymer Extruder 40,
 Intel Terminal 3, Hiring Board 1) from Grand Exchange took three Congregation trips of up
 to 19 packages each.</p>
-<p>The reply does not say whether the credit part of the build cost (89,000 for the refinery)
-comes back. Expect to pay it again when you rebuild. Rented <code>faction_*</code> facilities at NPC
+<p><strong>The credit part of the build cost does not come back: you pay it again on the rebuild.</strong>
+The refinery's 89,000 was charged again on 2026-10-28, and on 2026-11-12 the Intel Terminal
+(150,000), Fiber Draw Tower (127,000) and Polymer Extruder (110,000) were each charged their
+full fee from the treasury (<em>measured</em>). Moving a facility saves its materials, not its
+credits. Rented <code>faction_*</code> facilities at NPC
 stations cannot be rebuilt at your own station. Check that the facility is on the
 <a href="#what-you-can-build-here">buildable list</a> before dismantling it to move it.</p>
 <h2 id="defense">Defense</h2>
-<p><em>Placeholder: we are building this now and will fill it in as we measure.</em></p>
 <p><strong>Why bother before an attack.</strong> A wrecked station has to be repaired before it works again,
 at about 30% of each facility's original build cost, in credits and in that facility's own
 build materials, which must already be at the station (<em>player-reported</em>). Until then every
 service, life support and power is down. So defense is two jobs: make the station a harder
 target than its neighbours, and keep a repair reserve on site.</p>
-<p><strong>What Conjunction Junction has (2026-11-08, <em>measured</em>):</strong> a <a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a>
-(<code>weapon_dps</code> 30), <a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a> (hull 85,000, armor 60) and a
-<a href="../facilities/defense/fire_control_center.html">Fire Control Center</a>; shield 12,000, the base value. Battery capacity is still 0.</p>
+<p><strong>What Conjunction Junction has (2026-11-19, <em>measured</em>):</strong> 12 defense facilities, about
+9.9M cr of them at catalog prices. Hull 110,000, shield 48,000, armor 105, <code>weapon_dps</code> 248,
+reach 3. Nobody has attacked it yet: hourly readings since 2026-11-09 never show hull or
+shield below maximum.</p>
+<table>
+<thead>
+<tr>
+<th>Count</th>
+<th>Facility</th>
+<th>Level</th>
+<th>Built</th>
+<th>What it added (<code>get_base</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5×</td>
+<td><a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a></td>
+<td>L1</td>
+<td>2026-11-06, 11-09</td>
+<td>30 dps each, reach 1</td>
+</tr>
+<tr>
+<td>1×</td>
+<td><a href="../facilities/defense/heavy_defense_battery.html">Heavy Defense Battery</a></td>
+<td>L3</td>
+<td>upgraded from a sixth battery, 11-09 and 11-12</td>
+<td>47 dps, reach 3</td>
+</tr>
+<tr>
+<td>1×</td>
+<td><a href="../facilities/defense/siege_lance.html">Siege Lance</a></td>
+<td>L3</td>
+<td>2026-11-13, built directly</td>
+<td>52 dps, reach 3</td>
+</tr>
+<tr>
+<td>2×</td>
+<td><a href="../facilities/defense/shield_projector.html">Shield Projector</a></td>
+<td>L1</td>
+<td>2026-11-09</td>
+<td>shield 12,000 → 48,000</td>
+</tr>
+<tr>
+<td>2×</td>
+<td><a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a></td>
+<td>L1</td>
+<td>2026-11-08, 11-09</td>
+<td>hull 60,000 → 110,000, armor 15 → 105</td>
+</tr>
+<tr>
+<td>1×</td>
+<td><a href="../facilities/defense/fire_control_center.html">Fire Control Center</a></td>
+<td>L1</td>
+<td>2026-11-08</td>
+<td>no visible number</td>
+</tr>
+</tbody>
+</table>
+<p>How <code>weapon_dps</code> got there: 30 (one battery) → 180 (six) → 177 (one upgraded to a turret,
+27.5 dps) → 150 while that turret was upgrading again → 196 (heavy battery done) → <strong>248</strong>
+(siege lance). A gun's dps is its catalog damage divided by its cooldown: 30/1, 55/2, 140/3,
+420/8.</p>
+<p><strong>Ammunition on hand</strong> (faction storage, 2026-11-19): 4,600 <a href="../items/ammo/ferrous_slug_case.html">Ferrous Slug Case</a> for the
+batteries, 7,526 <a href="../items/ammo/fragmentation_rounds_box.html">Fragmentation Rounds Box</a> for the heavy battery, and only <strong>26</strong>
+<a href="../items/ammo/focused_plasma_cell_pack.html">Focused Plasma Cell Pack</a> for the siege lance. Coolant for upkeep: 3,218.</p>
+<p><strong>Power in a fight.</strong> Our defenses list a combined draw of 52 (two shields at 10, the lance
+14, the heavy battery 8, five batteries at 2), and our 13 production lines 1 each. <code>get_base</code>
+has read a draw of 0 to 4 the whole time, so defenses seem to draw only in combat
+(<em>hypothesis</em>: not yet seen under attack). With all power plants fed, 76 covers all of it. With
+the grids starved, as now, 36 does not: an upkeep failure in power can cost you your shields
+in a fight.</p>
 <p><strong>What we know so far:</strong></p>
 <ul>
 <li><strong>Defense facilities stack.</strong> Every defense facility can be built more than once, and
@@ -1058,6 +1253,23 @@ figures are from the catalog; upkeep is per cycle.</p>
 fires <a href="../items/ammo/ferrous_slug_case.html">Ferrous Slug Case</a> (hand recipe: 3 <a href="../items/ore/iron_ore.html">Iron Ore</a> + 2 <a href="../items/refined/steel_plate.html">Steel Plate</a> → 5). Its
 degraded text describes empty magazines, so a gun built without ammo likely does
 nothing in a fight.</p>
+<p><strong>Upgrading a gun.</strong> <code>facility upgrade --facility_id &lt;id&gt; --facility_type station_defense_turret</code>; the target type is required (<em>&quot;Must specify 'facility_type' to
+upgrade to&quot;</em>). The upgrade replaces the facility under a new id, and while it builds the old
+gun's damage and reach are gone (<em>measured</em>). Until v0.677.5 a loaded battery could not be
+upgraded at all (<em>&quot;loaded station weapons cannot be upgraded; dismantle the battery…&quot;</em>); the
+developer confirmed it as a bug and said not to dismantle (<em>measured</em> 2026-11-09). Note the
+L2 <a href="../facilities/defense/station_defense_turret.html">Station Defense Turret</a> does <strong>less</strong> damage per second than the L1 battery (27.5
+against 30): upgrade for reach, and go on to the <a href="../facilities/defense/heavy_defense_battery.html">Heavy Defense Battery</a> (L3, 47 dps,
+reach 3, 1,400,000 cr + 2,600 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 200 <a href="../items/component/armor_plate.html">Armor Plate</a> + 30
+<a href="../items/component/targeting_computer.html">Targeting Computer</a> + 160 <a href="../items/refined/superconductor.html">Superconductor</a>).</p>
+<h3 id="siege-lance">Siege lance</h3>
+<p><a href="../facilities/defense/siege_lance.html">Siege Lance</a> · <strong>Build:</strong> 2,600,000 cr + 3,200 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 400
+<a href="../items/refined/superconductor.html">Superconductor</a> + 40 <a href="../items/component/targeting_computer.html">Targeting Computer</a> + 30 <a href="../items/component/dark_matter_cell.html">Dark Matter Cell</a> · 400 ticks ·
+<strong>Upkeep:</strong> 5 <a href="../items/refined/coolant_fluid.html">Coolant Fluid</a> · <strong>Power:</strong> draws 14</p>
+<p>The biggest gun: 420 damage with a cooldown of 8, reach 3. It is a level-3 facility with <strong>no
+lower level</strong>, built straight away with <code>faction_build siege_lance</code> (<em>measured</em>
+2026-11-13), so it reaches 3 without the battery → turret → heavy battery upgrades. It added
+52 dps to ours. It fires <a href="../items/ammo/focused_plasma_cell_pack.html">Focused Plasma Cell Pack</a>.</p>
 <h3 id="shields">Shields</h3>
 <p><a href="../facilities/defense/shield_projector.html">Shield Projector</a> · <strong>Build:</strong> 900,000 cr + 1,200 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 200
 <a href="../items/refined/superconductor.html">Superconductor</a> + 300 <a href="../items/component/power_cell.html">Power Cell</a> · 200 ticks · <strong>Upkeep:</strong> 4 <a href="../items/component/power_cell.html">Power Cell</a>, 2
@@ -1065,7 +1277,8 @@ nothing in a fight.</p>
 <p>Each projector adds <strong>18,000 station shield</strong> on top of the base 12,000, and projectors
 stack. It draws the most power of any level-1 defense, so check your power supply first.
 When the cells run out the projector goes cold and the shield drops back to the base
-value. It upgrades to <a href="../facilities/defense/shield_bastion.html">Shield Bastion</a>. <em>Not yet built at Conjunction Junction.</em></p>
+value. It upgrades to <a href="../facilities/defense/shield_bastion.html">Shield Bastion</a>. Our two took the shield from 12,000 to 48,000
+(<em>measured</em> 2026-11-09).</p>
 <h3 id="battery">Battery</h3>
 <p><a href="../facilities/infrastructure/capacitor_bank.html">Capacitor Bank</a> · <strong>Build:</strong> 500,000 cr + 1,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 600 <a href="../items/component/power_cell.html">Power Cell</a> ·
 120 ticks · <strong>Upkeep:</strong> 1 <a href="../items/component/power_cell.html">Power Cell</a></p>
@@ -1077,17 +1290,87 @@ player station; build the Capacitor Bank. It upgrades to <a href="../facilities/
 <p><a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a> · <strong>Build:</strong> 700,000 cr + 2,000 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 240
 <a href="../items/component/armor_plate.html">Armor Plate</a> · 180 ticks · <strong>Upkeep:</strong> 1 <a href="../items/component/armor_plate.html">Armor Plate</a> · <strong>Power:</strong> none</p>
 <p>Armor cuts each hit to the hull by its amount, and the plating repairs itself after
-combat. Ours raised <code>get_base</code> <strong>hull from 60,000 to 85,000 and armor from 15 to 60</strong>
-(<em>measured</em> 2026-11-08). Repairs also use <a href="../items/component/armor_plate.html">Armor Plate</a>.</p>
+combat. The first raised <code>get_base</code> <strong>hull from 60,000 to 85,000 and armor from 15 to 60</strong>,
+and the second to 110,000 and 105 (<em>measured</em> 2026-11-08 and 11-09). Repairs also use
+<a href="../items/component/armor_plate.html">Armor Plate</a>.</p>
 <h3 id="fire-control">Fire control</h3>
 <p><a href="../facilities/defense/fire_control_center.html">Fire Control Center</a> · <strong>Build:</strong> 1,200,000 cr + 900 <a href="../items/refined/steel_plate.html">Steel Plate</a> + 300
 <a href="../items/refined/circuit_board.html">Circuit Board</a> + 80 <a href="../items/refined/superconductor.html">Superconductor</a> + 60 <a href="../items/component/targeting_computer.html">Targeting Computer</a> · 220 ticks ·
 <strong>Upkeep:</strong> 2 <a href="../items/refined/circuit_board.html">Circuit Board</a> · <strong>Power:</strong> none</p>
 <p>Improves the guns' accuracy (<em>player-reported</em>); <code>get_base</code> shows no new number for it.</p>
 <p><strong>Not yet measured:</strong> how much ammunition a fight uses; what fire control changes in
-numbers; shield and battery behaviour under fire; how fast a wrecked station repairs.</p>
+numbers; whether defenses draw power only in combat; shield and battery behaviour under fire;
+how fast a wrecked station repairs. We still have no battery storage (<a href="../facilities/infrastructure/capacitor_bank.html">Capacitor Bank</a>).</p>
 <h2 id="tourism">Tourism</h2>
-<p><em>Placeholder: we have not built any venues yet.</em></p>
+<p><strong>What one venue earns (<em>measured</em>).</strong> Conjunction Junction has a single venue, a
+<a href="../facilities/infrastructure/rec_lounge.html">Rec Lounge</a> (2 leisure points, 0 dining), built 2026-11-08 together with a
+<a href="../facilities/faction/transit_lounge.html">Transit Lounge</a>. From the hourly <code>tourism_revenue</code> readings:</p>
+<table>
+<thead>
+<tr>
+<th>Day (UTC)</th>
+<th>Tourism revenue</th>
+<th>Leisure points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-11-10</td>
+<td>93,283</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-11</td>
+<td>98,017</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-12</td>
+<td>101,111</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-14</td>
+<td>90,368</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-15</td>
+<td>95,512</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-16</td>
+<td>91,921</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-17</td>
+<td>91,005</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-18</td>
+<td>70,521</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2026-11-19, first 22 h</td>
+<td>43,216</td>
+<td><strong>1</strong></td>
+</tr>
+</tbody>
+</table>
+<p>(2026-11-13 is left out: readings were missing for part of the day.) About
+<strong>90,000–100,000 cr a day</strong> from a 150,000 cr venue, against upkeep of 2
+<a href="../items/refined/purified_water.html">Purified Water</a>, 1 <a href="../items/consumable/crimson_iron_rations.html">Crimson Iron Rations</a>, 1 <a href="../items/consumable/biogas_fizz.html">Biogas Fizz</a> and 1 <a href="../items/consumable/station_seltzer.html">Station Seltzer</a> a
+cycle, about 8,000–9,000 cr a day at market prices. It paid for itself in under two days.
+The lifetime counter passed 994,000 on 2026-11-19.</p>
+<p>⚠ <strong>A starved venue loses points, and income with them.</strong> Around 01:00 UTC on 2026-11-19
+leisure points fell from 2 to 1, and hourly revenue fell from about 4,000 to about 1,700 cr.
+Faction storage then held no <a href="../items/consumable/biogas_fizz.html">Biogas Fizz</a> or <a href="../items/consumable/station_seltzer.html">Station Seltzer</a> (<em>measured</em>). The Rec
+Lounge is in the <code>infrastructure</code> category, so it also counts toward station condition.
+Stock venue upkeep like any other.</p>
 <p>Food and leisure venues are infrastructure a player station can build. Each one adds
 <strong>dining points</strong> or <strong>leisure points</strong> to the station, and <code>get_base</code> reports those along
 with a lifetime <strong><code>tourism_revenue</code></strong> in credits (the play_as client prints them as a
@@ -1131,8 +1414,9 @@ one whose fare deadline runs out mid-layover walks out to the public pickup queu
 fare is lost (catalog description, <em>doc-quoted</em>).</p>
 <p>It upgrades to <a href="../facilities/faction/transit_terminal.html">Transit Terminal</a> (2,500,000 cr, 60 passengers, +180 ticks on each
 connecting passenger's fare deadline) and <a href="../facilities/faction/transit_concourse.html">Transit Concourse</a> (9,000,000 cr, 150
-passengers, +360 ticks). The Obsidian Well runs a Transit Concourse. <em>Not yet built at
-Conjunction Junction.</em></p>
+passengers, +360 ticks). The Obsidian Well runs a Transit Concourse. Conjunction Junction
+has had the level-1 lounge since 2026-11-08. It is in the <code>faction</code> category, so it doesn't
+count toward condition. We haven't yet routed passengers through it on purpose.</p>
 <p><strong>The reference build: The Obsidian Well</strong> (Busy Being Dead, Arneb). It runs <strong>one of
 every venue</strong> a player station can build: all eight dining venues and all five leisure
 venues, every one with its upkeep met. Its public listing
@@ -1144,8 +1428,9 @@ venues don't simply add their points together. The 22 dining points equal the th
 dining venues (10 + 7 + 5), but the leisure total doesn't follow the same pattern, so the
 rule is still unknown.</p>
 <p><strong>Not yet measured:</strong> where tourism revenue comes from and whether it reaches the treasury;
-how <code>tourism_upkeep</code> scales with visitors; how a station's venues combine into its dining
-and leisure points; what those points do beyond revenue.</p>
+whether a second venue adds revenue in proportion to its points; how <code>tourism_upkeep</code> scales
+with visitors; how a station's venues combine into its dining and leisure points; what those
+points do beyond revenue.</p>
 <h2 id="where-the-official-docs-are-wrong">Where the official docs are wrong</h2>
 <ul>
 <li><strong>What a station comes with.</strong> The factions guide says market, refuel, repair, shipyard,
@@ -1167,11 +1452,13 @@ station the refuel facility is the <a href="../facilities/service/refueling_dock
 </ul>
 <h2 id="not-yet-measured">Not yet measured</h2>
 <ul>
-<li>Real upkeep consumption per cycle (catalog figures are shown above until we have it).</li>
+<li>Real upkeep consumption per cycle (catalog figures are shown above until we have it; the
+cycle length itself is settled at about 3,000 ticks).</li>
 <li>How fast a <code>critical</code> station recovers once its upkeep is stocked.</li>
 <li>Defense and tourism: see their sections above.</li>
-<li>Whether dismantling refunds any credits.</li>
 <li>Exactly how <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> upkeep scales with trades.</li>
+<li>What <code>set_toll</code> and <code>set_gate_access</code> do.</li>
+<li>Whether facility upkeep can draw from a storage bucket.</li>
 <li>How service pools (<a href="../items/consumable/medical_supplies.html">Medical Supplies</a>, <a href="../items/consumable/protein_rations.html">Protein Rations</a>) draw down, and on what cycle.</li>
 </ul>
 </div>
@@ -1300,16 +1587,30 @@ station the refuel facility is the <a href="../facilities/service/refueling_dock
             <p><b>Build credits:</b> 13,175,000</p>
             <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">3,975</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,575</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
-        <div class="upkeep-at" data-step="17">
-            <p class="at-step">After Step 17: Storage buckets</p>
+        <div class="upkeep-at" data-step="17" hidden>
+            <p class="at-step">After Step 17: Intel</p>
             <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
             <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
-            <p><b>Build credits:</b> 13,675,000</p>
-            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,125</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,975</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+            <p><b>Build credits:</b> 13,325,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,175</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td><td class="num">100</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,575</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
+        <div class="upkeep-at" data-step="18" hidden>
+            <p class="at-step">After Step 18: Faction missions</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 13,375,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,195</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td><td class="num">100</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">23,625</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
+        </div>
+        <div class="upkeep-at" data-step="19">
+            <p class="at-step">After Step 19: Storage buckets</p>
+            <table><tr><th>Upkeep</th><th class="num">/cycle</th></tr><tr><td><a href="../items/component/catalytic_scrubber_cartridge.html">Catalytic Scrubber Cartridge</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4</td></tr><tr><td><a href="../items/refined/copper_wiring.html">Copper Wiring</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/flex_polymer.html">Flex Polymer</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/focused_crystal.html">Focused Crystal</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">3</td></tr><tr><td><a href="../items/refined/liquid_hydrogen.html">Liquid Hydrogen</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/oxygen_gas.html">Oxygen Gas</a></td><td class="num">2</td></tr><tr><td><a href="../items/refined/purified_water.html">Purified Water</a></td><td class="num">1</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">10</td></tr><tr><td><a href="../items/refined/sunspindle.html">Sunspindle</a></td><td class="num">1</td></tr><tr><td><a href="../items/refined/titanium_alloy.html">Titanium Alloy</a></td><td class="num">1</td></tr><tr><td><a href="../items/component/trade_authenticator.html">Trade Authenticator</a></td><td class="num">1</td></tr><tr><td><a href="../items/ore/water_ice.html">Water Ice</a></td><td class="num">3</td></tr></table>
+            <p>power 20 / 0 · life support 12 / 0 <span class="text-muted">(supply / draw)</span></p>
+            <p><b>Build credits:</b> 13,875,000</p>
+            <details><summary>Build materials</summary><table><tr><td><a href="../items/refined/ceramite_plating.html">Ceramite Plating</a></td><td class="num">1,500</td></tr><tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="num">4,345</td></tr><tr><td><a href="../items/consumable/fuel_cell.html">Fuel Cell</a></td><td class="num">2,000</td></tr><tr><td><a href="../items/component/fuel_tank.html">Fuel Tank</a></td><td class="num">800</td></tr><tr><td><a href="../items/consumable/medical_supplies.html">Medical Supplies</a></td><td class="num">200</td></tr><tr><td><a href="../items/refined/optical_fiber_bundle.html">Optical Fiber Bundle</a></td><td class="num">100</td></tr><tr><td><a href="../items/consumable/repair_kit.html">Repair Kit</a></td><td class="num">400</td></tr><tr><td><a href="../items/refined/steel_plate.html">Steel Plate</a></td><td class="num">24,025</td></tr><tr><td><a href="../items/component/water_recycler.html">Water Recycler</a></td><td class="num">200</td></tr></table></details>
         </div>
     </aside>
     <button class="drawer-tab" type="button" aria-controls="upkeep-drawer" aria-expanded="false">Station upkeep</button>
-    <script>window.GUIDE_PLAN = {"slug":"player-stations","per_day":false,"cycles_per_day":2.88,"items":{"catalytic_scrubber_cartridge":{"name":"Catalytic Scrubber Cartridge","href":"../items/component/catalytic_scrubber_cartridge.html"},"ceramite_plating":{"name":"Ceramite Plating","href":"../items/refined/ceramite_plating.html"},"circuit_board":{"name":"Circuit Board","href":"../items/refined/circuit_board.html"},"copper_wiring":{"name":"Copper Wiring","href":"../items/refined/copper_wiring.html"},"dark_matter_cell":{"name":"Dark Matter Cell","href":"../items/component/dark_matter_cell.html"},"flex_polymer":{"name":"Flex Polymer","href":"../items/refined/flex_polymer.html"},"focused_crystal":{"name":"Focused Crystal","href":"../items/refined/focused_crystal.html"},"fuel":{"name":"Fuel","href":"../items/fuel/fuel.html"},"fuel_cell":{"name":"Fuel Cell","href":"../items/consumable/fuel_cell.html"},"fuel_tank":{"name":"Fuel Tank","href":"../items/component/fuel_tank.html"},"liquid_hydrogen":{"name":"Liquid Hydrogen","href":"../items/refined/liquid_hydrogen.html"},"medical_supplies":{"name":"Medical Supplies","href":"../items/consumable/medical_supplies.html"},"oxygen_gas":{"name":"Oxygen Gas","href":"../items/refined/oxygen_gas.html"},"power_cell":{"name":"Power Cell","href":"../items/component/power_cell.html"},"purified_water":{"name":"Purified Water","href":"../items/refined/purified_water.html"},"repair_kit":{"name":"Repair Kit","href":"../items/consumable/repair_kit.html"},"salvage_metal":{"name":"Salvage Metal","href":"../items/component/salvage_metal.html"},"steel_plate":{"name":"Steel Plate","href":"../items/refined/steel_plate.html"},"sunspindle":{"name":"Sunspindle","href":"../items/refined/sunspindle.html"},"titanium_alloy":{"name":"Titanium Alloy","href":"../items/refined/titanium_alloy.html"},"trade_authenticator":{"name":"Trade Authenticator","href":"../items/component/trade_authenticator.html"},"water_ice":{"name":"Water Ice","href":"../items/ore/water_ice.html"},"water_recycler":{"name":"Water Recycler","href":"../items/component/water_recycler.html"}},"steps":[{"num":0,"options":[{"id":"","label":"Found the station","credits":5000000,"materials":{},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":1,"options":[{"id":"locker_bay","label":"Locker Bay","credits":500000,"materials":{"steel_plate":1600},"upkeep":{"flex_polymer":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":2,"options":[{"id":"faction_workshop","label":"Faction Workshop","credits":500000,"materials":{"circuit_board":400,"steel_plate":800},"upkeep":{"circuit_board":1,"focused_crystal":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":3,"options":[{"id":"atmospheric_recycler","label":"Atmospheric Recycler","credits":600000,"materials":{"steel_plate":1200,"water_recycler":200},"upkeep":{"catalytic_scrubber_cartridge":1,"oxygen_gas":2,"purified_water":1,"sunspindle":1,"water_ice":3},"power_supply":0,"power_draw":0,"life_support_supply":12,"life_support_draw":0}]},{"num":4,"options":[{"id":"stellar_collector_grid","label":"Stellar Collector Grid","credits":900000,"materials":{"circuit_board":1200,"steel_plate":2000},"upkeep":{"circuit_board":2},"power_supply":20,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"fuel_cell_generator","label":"Fuel Cell Generator","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"bunker_fed_reactor","label":"Bunker-Fed Reactor","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel":55},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"scrap_reactor","label":"Scrap Reactor","credits":80000,"materials":{"salvage_metal":30,"steel_plate":40},"upkeep":{"fuel_cell":2,"salvage_metal":2},"power_supply":10,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"dark_matter_reactor","label":"Dark Matter Reactor","credits":3000000,"materials":{"circuit_board":1000,"dark_matter_cell":200,"steel_plate":8000},"upkeep":{"dark_matter_cell":1,"fuel_cell":2},"power_supply":48,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":5,"options":[{"id":"refueling_dock","label":"Refueling Dock","credits":500000,"materials":{"fuel_cell":2000,"steel_plate":800},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":6,"options":[{"id":"trade_concourse","label":"Trade Concourse","credits":500000,"materials":{"circuit_board":400},"upkeep":{"trade_authenticator":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":7,"options":[{"id":"outfitting_bay","label":"Outfitting Bay","credits":500000,"materials":{"circuit_board":800,"steel_plate":4000},"upkeep":{"steel_plate":2,"titanium_alloy":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":8,"options":[{"id":"repair_slip","label":"Repair Slip","credits":500000,"materials":{"repair_kit":400,"steel_plate":1200},"upkeep":{"repair_kit":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":9,"options":[{"id":"reclamation_dock","label":"Reclamation Dock","credits":500000,"materials":{"circuit_board":200,"steel_plate":2000},"upkeep":{"fuel_cell":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":10,"options":[{"id":"contract_terminal","label":"Contract Terminal","credits":500000,"materials":{"circuit_board":200},"upkeep":{"circuit_board":1,"copper_wiring":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":11,"options":[{"id":"first_aid_ward","label":"First Aid Ward","credits":500000,"materials":{"circuit_board":250,"medical_supplies":200,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":12,"options":[{"id":"crew_registry","label":"Crew Registry","credits":500000,"materials":{"circuit_board":200,"steel_plate":500},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":13,"options":[{"id":"security_training_post","label":"Security Training Post","credits":500000,"materials":{"circuit_board":150,"steel_plate":700},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":14,"options":[{"id":"fuel_tank_expansion","label":"Fuel Tank Expansion","credits":500000,"materials":{"ceramite_plating":1500,"fuel_tank":800,"steel_plate":8000},"upkeep":{"steel_plate":5},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":15,"options":[{"id":"faction_ship_garage","label":"Faction Ship Garage","credits":600000,"materials":{"circuit_board":150,"steel_plate":300},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":16,"options":[{"id":"hiring_board","label":"Hiring Board","credits":75000,"materials":{"circuit_board":25,"steel_plate":75},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":17,"options":[{"id":"storage_extension","label":"Storage Extension","credits":500000,"materials":{"circuit_board":150,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]}]};</script>
+    <script>window.GUIDE_PLAN = {"slug":"player-stations","per_day":false,"cycles_per_day":2.88,"items":{"catalytic_scrubber_cartridge":{"name":"Catalytic Scrubber Cartridge","href":"../items/component/catalytic_scrubber_cartridge.html"},"ceramite_plating":{"name":"Ceramite Plating","href":"../items/refined/ceramite_plating.html"},"circuit_board":{"name":"Circuit Board","href":"../items/refined/circuit_board.html"},"copper_wiring":{"name":"Copper Wiring","href":"../items/refined/copper_wiring.html"},"dark_matter_cell":{"name":"Dark Matter Cell","href":"../items/component/dark_matter_cell.html"},"flex_polymer":{"name":"Flex Polymer","href":"../items/refined/flex_polymer.html"},"focused_crystal":{"name":"Focused Crystal","href":"../items/refined/focused_crystal.html"},"fuel":{"name":"Fuel","href":"../items/fuel/fuel.html"},"fuel_cell":{"name":"Fuel Cell","href":"../items/consumable/fuel_cell.html"},"fuel_tank":{"name":"Fuel Tank","href":"../items/component/fuel_tank.html"},"liquid_hydrogen":{"name":"Liquid Hydrogen","href":"../items/refined/liquid_hydrogen.html"},"medical_supplies":{"name":"Medical Supplies","href":"../items/consumable/medical_supplies.html"},"optical_fiber_bundle":{"name":"Optical Fiber Bundle","href":"../items/refined/optical_fiber_bundle.html"},"oxygen_gas":{"name":"Oxygen Gas","href":"../items/refined/oxygen_gas.html"},"power_cell":{"name":"Power Cell","href":"../items/component/power_cell.html"},"purified_water":{"name":"Purified Water","href":"../items/refined/purified_water.html"},"repair_kit":{"name":"Repair Kit","href":"../items/consumable/repair_kit.html"},"salvage_metal":{"name":"Salvage Metal","href":"../items/component/salvage_metal.html"},"steel_plate":{"name":"Steel Plate","href":"../items/refined/steel_plate.html"},"sunspindle":{"name":"Sunspindle","href":"../items/refined/sunspindle.html"},"titanium_alloy":{"name":"Titanium Alloy","href":"../items/refined/titanium_alloy.html"},"trade_authenticator":{"name":"Trade Authenticator","href":"../items/component/trade_authenticator.html"},"water_ice":{"name":"Water Ice","href":"../items/ore/water_ice.html"},"water_recycler":{"name":"Water Recycler","href":"../items/component/water_recycler.html"}},"steps":[{"num":0,"options":[{"id":"","label":"Found the station","credits":5000000,"materials":{},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":1,"options":[{"id":"locker_bay","label":"Locker Bay","credits":500000,"materials":{"steel_plate":1600},"upkeep":{"flex_polymer":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":2,"options":[{"id":"faction_workshop","label":"Faction Workshop","credits":500000,"materials":{"circuit_board":400,"steel_plate":800},"upkeep":{"circuit_board":1,"focused_crystal":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":3,"options":[{"id":"atmospheric_recycler","label":"Atmospheric Recycler","credits":600000,"materials":{"steel_plate":1200,"water_recycler":200},"upkeep":{"catalytic_scrubber_cartridge":1,"oxygen_gas":2,"purified_water":1,"sunspindle":1,"water_ice":3},"power_supply":0,"power_draw":0,"life_support_supply":12,"life_support_draw":0}]},{"num":4,"options":[{"id":"stellar_collector_grid","label":"Stellar Collector Grid","credits":900000,"materials":{"circuit_board":1200,"steel_plate":2000},"upkeep":{"circuit_board":2},"power_supply":20,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"fuel_cell_generator","label":"Fuel Cell Generator","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"bunker_fed_reactor","label":"Bunker-Fed Reactor","credits":500000,"materials":{"power_cell":400,"steel_plate":2000},"upkeep":{"fuel":55},"power_supply":12,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"scrap_reactor","label":"Scrap Reactor","credits":80000,"materials":{"salvage_metal":30,"steel_plate":40},"upkeep":{"fuel_cell":2,"salvage_metal":2},"power_supply":10,"power_draw":0,"life_support_supply":0,"life_support_draw":0},{"id":"dark_matter_reactor","label":"Dark Matter Reactor","credits":3000000,"materials":{"circuit_board":1000,"dark_matter_cell":200,"steel_plate":8000},"upkeep":{"dark_matter_cell":1,"fuel_cell":2},"power_supply":48,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":5,"options":[{"id":"refueling_dock","label":"Refueling Dock","credits":500000,"materials":{"fuel_cell":2000,"steel_plate":800},"upkeep":{"fuel_cell":2,"liquid_hydrogen":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":6,"options":[{"id":"trade_concourse","label":"Trade Concourse","credits":500000,"materials":{"circuit_board":400},"upkeep":{"trade_authenticator":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":7,"options":[{"id":"outfitting_bay","label":"Outfitting Bay","credits":500000,"materials":{"circuit_board":800,"steel_plate":4000},"upkeep":{"steel_plate":2,"titanium_alloy":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":8,"options":[{"id":"repair_slip","label":"Repair Slip","credits":500000,"materials":{"repair_kit":400,"steel_plate":1200},"upkeep":{"repair_kit":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":9,"options":[{"id":"reclamation_dock","label":"Reclamation Dock","credits":500000,"materials":{"circuit_board":200,"steel_plate":2000},"upkeep":{"fuel_cell":1,"steel_plate":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":10,"options":[{"id":"contract_terminal","label":"Contract Terminal","credits":500000,"materials":{"circuit_board":200},"upkeep":{"circuit_board":1,"copper_wiring":1},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":11,"options":[{"id":"first_aid_ward","label":"First Aid Ward","credits":500000,"materials":{"circuit_board":250,"medical_supplies":200,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":12,"options":[{"id":"crew_registry","label":"Crew Registry","credits":500000,"materials":{"circuit_board":200,"steel_plate":500},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":13,"options":[{"id":"security_training_post","label":"Security Training Post","credits":500000,"materials":{"circuit_board":150,"steel_plate":700},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":14,"options":[{"id":"fuel_tank_expansion","label":"Fuel Tank Expansion","credits":500000,"materials":{"ceramite_plating":1500,"fuel_tank":800,"steel_plate":8000},"upkeep":{"steel_plate":5},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":15,"options":[{"id":"faction_ship_garage","label":"Faction Ship Garage","credits":600000,"materials":{"circuit_board":150,"steel_plate":300},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":16,"options":[{"id":"hiring_board","label":"Hiring Board","credits":75000,"materials":{"circuit_board":25,"steel_plate":75},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":17,"options":[{"id":"intel_terminal","label":"Intel Terminal","credits":150000,"materials":{"circuit_board":200,"optical_fiber_bundle":100},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":18,"options":[{"id":"notice_board","label":"Notice Board","credits":50000,"materials":{"circuit_board":20,"steel_plate":50},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]},{"num":19,"options":[{"id":"storage_extension","label":"Storage Extension","credits":500000,"materials":{"circuit_board":150,"steel_plate":400},"upkeep":{},"power_supply":0,"power_draw":0,"life_support_supply":0,"life_support_draw":0}]}]};</script>
     <script>
     (function() {
         var drawer = document.getElementById('upkeep-drawer');

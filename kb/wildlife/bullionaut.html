@@ -91,7 +91,7 @@
     </header>
     <main class="container page-content">
         <p class="text-muted" style="font-size:0.85em"><a href="index.html">Wildlife</a> &rsaquo; Grazers</p>
-        <h2>Bullionaut <span class="badge badge-green" style="font-size:0.6em; vertical-align:middle;">grazer</span></h2>
+        <h2>Bullionaut <span class="badge badge-green" style="font-size:0.6em; vertical-align:middle;">grazer</span> <span class="badge badge-green" style="font-size:0.6em; vertical-align:middle;">ranchable</span></h2>
         <code>bullionaut</code>
         <div class="hero placeholder" title="Hero image not yet available">
             <div class="glyph">&#x1F41A;</div>
@@ -100,7 +100,8 @@
         </div>
         <div class="card" style="padding:12px 16px">
             <div class="section-label">Codex entry</div>
-            <p class="empty">Not read yet. Since v0.571.0 scanning any creature of this species returns its entry (the <code>description</code> field); the server does not keep it, so record it in <code>data/wildlife/codex.json</code> or let the knowledge DB capture it.</p>
+            <p class="codex">A slow, chambered drifter the size of a lifepod, spiraling a pearled shell it grows one lustrous layer at a time from the platinum and palladium it strains together out of the richest belts. Ranchers prize the noble matte that lines each new chamber — the animal does the smelting a refinery would otherwise sweat over. It needs both metals in the ground to thrive, and it never hurries anywhere.</p>
+            <div class="codex-src">Official species entry returned by scanning a creature.</div>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -109,20 +110,21 @@
                 <tr><td class="kv-label">Class</td><td><span class="badge badge-green">grazer</span></td></tr>
                 <tr><td class="kv-label">Hull (HP)</td><td>130</td></tr>
                 <tr><td class="kv-label">Shield</td><td><span class="text-muted">none</span></td></tr>
-                <tr><td class="kv-label">Danger</td><td><span class="text-muted">not yet scanned</span></td></tr>
+                <tr><td class="kv-label">Danger</td><td>harmless prey</td></tr>
                 <tr><td class="kv-label">Battle record</td><td><span class="text-muted">no battles in the public feed</span></td></tr>
                 <tr><td class="kv-label">Attack</td><td><span class="badge">kinetic</span> 5 base dmg/shot (3 shots observed) &middot; hit chance 0.08&ndash;0.60 <span class="text-muted">(1 exported battle)</span></td></tr>
                 <tr><td class="kv-label">Habitats</td><td>asteroid belt</td></tr>
-                <tr><td class="kv-label">Ranchable</td><td>No</td></tr>
-                <tr><td class="kv-label">Population (est.)</td><td>~11 across 5 systems</td></tr>
+                <tr><td class="kv-label">Ranchable</td><td>Yes</td></tr>
+                <tr><td class="kv-label">Scan traits</td><td>harmless prey, ranchable stock</td></tr>
+                <tr><td class="kv-label">Population (est.)</td><td>~31 across 7 systems</td></tr>
                 <tr><td class="kv-label">First seen</td><td>2026-08-29 08:45 UTC</td></tr>
-                <tr><td class="kv-label">Last seen</td><td>2026-11-16 18:13 UTC</td></tr>
+                <tr><td class="kv-label">Last seen</td><td>2026-11-20 15:01 UTC</td></tr>
             </table>
         </div>
 
         <div class="card mt-2" style="padding:0">
             <div class="section-label">Attacks</div>
-            <p class="empty" style="padding:12px 16px">No attacks recorded; it has never been seen to fight.</p>
+            <p class="empty" style="padding:12px 16px">No attacks recorded; scanned as &ldquo;harmless prey&rdquo;.</p>
         </div>
 
         <div class="card mt-2" style="padding:0">
@@ -166,6 +168,17 @@
                         <td title="tick 1741365">2026-08-29</td>
                     </tr>
                     <tr>
+                        <td><a href="../systems/constant_radius/index.html">Constant Radius</a> <code style="font-size:0.85em">constant_radius</code></td>
+                        <td class="num">9</td>
+                        <td><span class="abund-moderate">moderate</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Refractory Line (9)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">4</td>
+                        <td title="tick 2441297">2026-11-19</td>
+                    </tr>
+                    <tr>
                         <td><a href="../systems/hd_20794/index.html">HD 20794</a> <code style="font-size:0.85em">hd_20794</code></td>
                         <td class="num">1</td>
                         <td><span class="abund-scarce">scarce</span></td>
@@ -173,8 +186,8 @@
                         <td>HD 20794 Belt (1)</td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
-                        <td class="num">2</td>
-                        <td title="tick 2420462">2026-11-16</td>
+                        <td class="num">7</td>
+                        <td title="tick 2441319">2026-11-19</td>
                     </tr>
                     <tr>
                         <td><a href="../systems/harborlight/index.html">Harborlight</a> <code style="font-size:0.85em">harborlight</code></td>
@@ -188,15 +201,26 @@
                         <td title="tick 2353364">2026-11-08</td>
                     </tr>
                     <tr>
-                        <td><a href="../systems/windmere/index.html">Windmere</a> <code style="font-size:0.85em">windmere</code></td>
-                        <td class="num">1</td>
-                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><a href="../systems/sterile_lumen/index.html">Sterile Lumen</a> <code style="font-size:0.85em">sterile_lumen</code></td>
+                        <td class="num">11</td>
+                        <td><span class="abund-moderate">moderate</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">system survey only</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td><span class="text-muted">&mdash;</span></td>
                         <td class="num">2</td>
-                        <td title="tick 2371957">2026-11-11</td>
+                        <td title="tick 2441484">2026-11-19</td>
+                    </tr>
+                    <tr>
+                        <td><a href="../systems/windmere/index.html">Windmere</a> <code style="font-size:0.85em">windmere</code></td>
+                        <td class="num">1</td>
+                        <td><span class="abund-scarce">scarce</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td>Windmere War Metal Outcrop (1)</td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td><span class="text-muted">&mdash;</span></td>
+                        <td class="num">13</td>
+                        <td title="tick 2454599">2026-11-20</td>
                     </tr>
                 </tbody>
             </table>
