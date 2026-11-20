@@ -11,8 +11,11 @@ intro: |
   The official guides leave the important parts out: what a new station actually comes with,
   what each facility consumes to keep running, and in what order to build. This guide records
   what we measured while founding **Conjunction Junction** in Cloverfield on 2026-10-25, and
-  while running it since (last updated 2026-11-08: 24 faction facilities, condition
-  `thriving`, 8 of 8 counted facilities satisfied).
+  while running it since. A second station, in Beid (founded 2026-11-16), confirmed the build
+  order. Last updated 2026-11-19: 47 faction facilities, 248 dps of guns, a 48,000 shield, and
+  about 90,000 cr a day of tourism from a single lounge. Condition is `operational`, 12 of 15
+  counted facilities satisfied, because we let circuit boards run out (see
+  [Power](#step-4)).
   Build costs and upkeep below come from the game catalog. Our own observations are labelled
   *measured*, other players' reports *player-reported*, and the official docs *doc-quoted*.
 
@@ -40,6 +43,9 @@ steps:
 
       The station's built-in faction storage satisfies the "Faction Storage is required before
       any other faction facility" rule: `faction_build` works straight away (*measured*).
+      Building a [[faction_lockbox]] on top is refused as already included (*measured* at
+      Beid, 2026-11-16). Any faction officer can run `faction_build` at the station, not only
+      the founder (*measured*).
   - title: Personal storage
     facility: locker_bay
     notes: |
@@ -58,7 +64,19 @@ steps:
     notes: |
       Build this second, so the faction can craft at the station straight away. Crafting by
       hand is slow next to real production lines, but it means build materials and upkeep
-      items can be made on site until those lines come online.
+      items can be made on site until those lines come online. Hand crafting has no labor fee.
+
+      **Without it, nothing crafts at all, production lines included.** The workshop is what
+      gives the station its `crafting` service. At Beid, before it was built, every craft was
+      refused with *"no_service: This station does not offer crafting service"*, even with
+      the [[h2_fuel_combustor]] named by `--facility_id` (*measured* 2026-11-16). The same
+      goes for a workshop short of upkeep: on 2026-11-18 Conjunction Junction's `services`
+      list lost `crafting` while the workshop's circuit boards had run out (*measured*).
+
+      Hand crafts queue **per member**: each member who orders hand crafts gets one Station
+      Workshop queue, so one big hand-craft order delays everything else that member orders.
+      Spread hand crafting across members (*measured* 2026-11-12, 98 queued jobs on one
+      member).
 
       ⚠ Upkeep consumes one [[focused_crystal]] a cycle, and each is made from 4
       [[energy_crystal]] + 1 [[palladium_ore]], so **4 energy crystals every cycle**. Decide
@@ -96,7 +114,15 @@ steps:
       [[full_habitat_dome]] rather than building more recyclers. One station that stacked
       recyclers spends roughly twice the consumables of a few domes for the same life support
       (*player-reported*). The upgrades cost more credits up front, but upkeep never stops, so
-      the domes come out ahead over time.
+      the domes come out ahead over time. (We stacked anyway: a second recycler on 2026-11-09,
+      because the [[climate_control_array]] needed 300 [[water_recycler]] we didn't have. Life
+      support is now 24 supply against 13 demand, and upkeep is exactly double: 2 scrubbers,
+      4 oxygen, 2 purified water, 2 sunspindle and 6 water ice a cycle.)
+
+      Each production line draws 1 life support. Defense and service facilities draw none:
+      demand went from 10 to 11 with a scrubber line and from 11 to 13 with two more lines,
+      and didn't move for any of the defense facilities or reactors (*measured* 2026-11-09 to
+      11-13).
   - title: Power
     facility: stellar_collector_grid
     default_label: our pick
@@ -122,6 +148,24 @@ steps:
       `get_base` gained a `power` block (absent until then) showing `supply: 20`, matching the
       catalog, and the grid counted toward station health alongside the Locker Bay
       (`satisfied_count 2 / total_service_infra 2`) (*measured*).
+
+      Power at Conjunction Junction grew from 20 to **76**: a second grid (40), then three
+      [[bunker_fed_reactor]]s at 12 each (2026-11-09 and 11-13). Power sources stack.
+
+      ⚠ **Our power failure (2026-11-15 to now, *measured*).** Circuit boards are the grids'
+      only upkeep, but they are also an input to our power cells, targeting computers and every
+      build. Production used them up, and faction storage reached 0. Each time it did, both
+      grids starved and supply fell from 76 to **36**, the three reactors alone. It has stayed
+      at 36 since 2026-11-18 20:30. The Faction Workshop, which also takes a circuit board a
+      cycle, starved with them. `get_base` names the cause:
+      `power.fuel_inputs` lists what the plants burn, and `power.remediation` reads *"A power
+      plant is starved of fuel. Deposit at least one of each of these into this station's
+      faction storage; the plant comes back online at the next facility cycle."* The reactors
+      kept running throughout because their fuel comes from the station tank, which our
+      combustor keeps full. That is the case for the Bunker-Fed Reactor above: an upkeep you
+      make in a dedicated line is safer than one your production lines also consume. If an
+      upkeep item is also a production input, keep a reserve of it where production can't take
+      it (see [Storage buckets](#step-19)).
   - title: Refuel service
     facility: refueling_dock
     notes: |
@@ -208,6 +252,14 @@ steps:
       Congregation), and the finished hull is delivered to whoever placed the order
       (*measured*).
 
+      **Bigger hulls need a bigger yard.** Each ship in the catalog has a `shipyard_tier`,
+      which we read as the yard level needed to build it (*not yet tested*). The Tier-4 bulk
+      haulers (the Frankenhauler, for example, is `shipyard_tier` 3) would then need the
+      level-3 [[assembly_complex]]: 4,500,000 cr + 36,000
+      [[steel_plate]] + 7,200 [[circuit_board]] + 1,200 [[power_cell]] on top of the
+      fabrication yard, plus a 20M Tier-4 license for another empire's design (catalog
+      2026-11-19).
+
       Compared to empire stations, where anyone can commission any class they have the skills
       to fly, player stations are limited to classes unlocked by faction achievements and
       licenses. (And at an empire station, paying cash for a commission can still stall
@@ -277,6 +329,13 @@ steps:
       [[h2_fuel_combustor]] (*measured* 2026-10-26). Wait and retry; don't build an expansion
       because of it. Fuel production also draws life support and power.
 
+      Conjunction Junction has one expansion (tank 55,000). **Reactors drink from it.** Once
+      the first [[bunker_fed_reactor]] was running, the tank fell from 21,293 to 8,605 in about
+      14 hours against a combustor making 500 an hour (*measured* 2026-11-09). We raised the
+      combustor to 2,000 fuel an hour, and with three reactors the tank has stayed within a
+      few hundred of full since (*measured* 2026-11-10 to 11-19). Size your fuel production for
+      the reactors, the refuel service and your own ships together.
+
       ⚠ **Don't build a [[faction_fuel_bunker]] here.** At your own station the server refuses
       it: *"a private Faction Fuel Bunker doesn't make sense on your own station — its fuel
       would just sit unused. Build a Fuel Tank Expansion … instead"* (*measured* 2026-10-26).
@@ -301,13 +360,30 @@ steps:
       members"*. The Hiring Board raises the cap to 50 (the upgrades: 100, 200 and more).
       Members already above the cap keep their seats; we had 38 (*measured* 2026-11-08). We
       built ours from a dismantled package, with no other materials (see
-      [Moving a facility](#moving-a-facility)).
+      [Moving a facility](#moving-a-facility)), and upgraded it to a [[recruitment_desk]] on
+      2026-11-13; the upgrade reply reported `capacity: 100` (*measured*).
+  - title: Intel
+    facility: intel_terminal
+    notes: |
+      Faction intelligence. We rebuilt ours from packages moved from Grand Exchange
+      (2026-11-12) and upgraded it to an [[intel_center]] two days later. At level 2 it
+      collects verified system and point-of-interest data automatically from what members
+      read as they fly (*measured*).
+  - title: Faction missions
+    facility: notice_board
+    notes: |
+      A faction job board (service `faction_missions`). Cheap: 50,000 cr + 50 [[steel_plate]] +
+      20 [[circuit_board]]. Ours, built 2026-11-18, reported `capacity: 3` (*measured*).
   - title: Storage buckets
     facility: storage_extension
     notes: |
       Adds a named bucket to faction storage (ours holds up to 100,000 of each item, up to
       1,000 packages). We use it to keep a repair reserve apart from working stock, since
-      builds and upgrades can take their materials from a named bucket.
+      builds and upgrades can take their materials from a named bucket. Faction crafting can
+      also pull from a bucket and deliver into one (`deliver_to="faction:<name>"`,
+      *doc-quoted*). *Not yet tested:* whether facility upkeep draws from a bucket. Until it
+      is, treat a bucket as a reserve you move into the main pool by hand, not one the
+      facilities use themselves.
 ---
 ## Reading your station
 
@@ -323,12 +399,19 @@ server does tell you, all *measured* at Conjunction Junction and Grand Exchange 
 | Is there enough power? | `get_base` or `facility list` | `power.supply` vs `power.current_draw`, `battery_stored` / `battery_capacity`, `efficiency`. `get_base` shows the `power` block only once a power source exists |
 | What is a build still waiting on? | `facility list` | `construction.pending[].status` (`waiting_for_materials`) and `materials[].quantity_missing` |
 | What does it cost the treasury? | `facility list` | `labor_per_cycle` per facility; `faction_rent` (0 at your own station) |
+| Which input is a power plant short of? | `get_base` | `power.fuel_inputs` (what the plants burn, per cycle) and `power.remediation` (only present when one is starved) |
+| Which services are actually up? | `get_base` | `services`: a service drops off the list while its facility is unpaid (`crafting` vanished while the workshop's circuit boards were out on 2026-11-18; `market` was missing on 2026-11-12 while one facility was unsatisfied) |
 
-**Only some facilities count toward condition.** With 24 faction facilities built,
-`get_base` reads `total_service_infra 8` (*measured* 2026-11-08): the services, power, life
-support, fuel storage and the defense facilities count; production lines, the garage, the
-office and storage buckets don't. A starving production line slows itself down without
-moving the station's condition.
+**Only some facilities count toward condition:** the ones in the catalog's **`service`** and
+**`infrastructure`** categories. With 47 faction facilities built, `get_base` reads
+`total_service_infra 15` (*measured* 2026-11-18). Those 15 are 6 services (locker bay, workshop,
+refueling dock, trade concourse, fabrication yard, reclamation dock) and 9 infrastructure (2
+grids, 3 reactors, 2 recyclers, the fuel tank expansion, and the Rec Lounge, a tourism venue).
+Defense, production and `faction` facilities (garage, office, recruitment, intel, transit
+lounge, storage buckets) don't count. Building 7 defense facilities on 2026-11-09 left the
+count unchanged, while each reactor, recycler or service added one (*measured*). (Earlier
+versions of this guide said defenses count; they don't.) A starving production line slows
+itself down without moving the station's condition. A starving venue does move it.
 
 **What the server doesn't tell you:** for a *service* facility (the Locker Bay, the Faction
 Workshop) there is no "starved" list, only `maintenance_satisfied: false`. To know what to haul,
@@ -340,11 +423,15 @@ compare the facility's `maintenance_per_cycle` (the upkeep tables in the steps a
 of about **3,000 ticks** (about 8.3 hours). We measured that at Conjunction Junction: the
 Locker Bay, Faction Workshop and Refueling Dock each used one cycle's upkeep roughly every
 3,000 ticks, each on its own phase, counted from its build (*measured* 2026-10-27). A 100-tick
-cycle would have used about 30 times as much. Don't be misled by `get_base`: the
-`life_support` block reports `maintenance_cycle_ticks: 100` (*measured*), which does not match
-what the other facilities consume. Whether life support itself burns its upkeep every 100
-ticks is *being measured* from our recycler's water ice. Until the cycle is pinned down
-precisely, this page gives upkeep **per cycle** only.
+cycle would have used about 30 times as much.
+
+`get_base` now confirms it. Its `life_support.maintenance` and `power.fuel_inputs` lists give
+each input a `quantity_per_cycle` and an `average_burn_per_cycle` measured over the
+100-tick reporting cycle, and the burn is always **one thirtieth** of the quantity: 6 water ice
+a cycle shows a burn of 0.2, and 2 scrubbers show 0.067 (*measured* 2026-11-18). So the
+`maintenance_cycle_ticks: 100` there is the reporting step, not the upkeep cycle: a full
+cycle's upkeep is used every 30 × 100 = 3,000 ticks, life support included. That is about
+**2.9 cycles a day**, so a day's upkeep is about three times the per-cycle figures on this page.
 
 **What happens when it runs dry:** the effect is graduated, not a switch.
 - **The facility** drops into a reduced operating mode rather than stopping: it keeps running,
@@ -389,9 +476,19 @@ action needs the **ManageBases** permission. Outposts support only `info`, `set_
 | `unban` | `player` | `station action=unban player=<username>` | `{"action":"unban","player":"<username>"}` | Lift a ban. |
 | `allow_faction` | `faction` (id) | `station action=allow_faction faction=6686e24354619eadffc738b607425457` | `{"action":"allow_faction","faction":"6686e…"}` | Let a whole faction dock while private (example id: Explorers Guild, a CRFT ally). |
 | `remove_faction` | `faction` (id) | `station action=remove_faction faction=6686e24354619eadffc738b607425457` | `{"action":"remove_faction","faction":"6686e…"}` | Remove that faction's access. |
+| `set_toll` | *not yet tried* | — | — | Listed in the server's valid actions since at least 2026-11-16; parameters unknown. |
+| `set_gate_access` | *not yet tried* | — | — | Listed alongside `set_toll`; parameters unknown. |
 
 > A missing value is **not refused**: the server reads it as false or 0. `set_public` with no
 > value makes a station private (*measured*).
+
+**What we charge** (`get_base`, 2026-11-18): market fee 1% (`market_fee_bps: 100`), refuel 3 cr
+a unit, repair 1 cr a hull point. We keep prices low so crossroads traffic stops here.
+
+**Renting out your production lines.** `facility set_access public --facility_id <id>` opens
+one of your faction's production facilities to other players: *"Facility is now public —
+other players may rent your…"* (*measured* 2026-11-09). We have opened seven this way,
+including the alloy foundry, polymer extruder, fiber draw tower and scrubber line.
 
 ## What you can build here
 
@@ -430,21 +527,29 @@ Exchange Station (*measured*):
 **Rebuilding from packages (*measured*).** You don't have to unpack: pass the package IDs
 straight to the build, `facility faction_build <type> --package_ids <id>[,<id>…]`. Each
 package must hold exactly what the build still needs of an item, or the build is refused up
-front. We rebuilt the iron refinery at Conjunction Junction this way on 2026-10-28, and on
-2026-11-08 built a Hiring Board from its single package with no other materials. Each package
+front. A long list of ids can come from a file: `--package_ids @packages.json`, a JSON array
+of `package:<id>` strings. **Don't unpack first.** `craft unpack_package` puts each package
+into a hand-craft job that waits behind every other hand craft that member has queued (an ETA
+of about 1,240 ticks for us), and `faction_build` without `--package_ids` reports "0 in
+packages" even with the packages sitting in faction storage. `craft cancel --job_ids=…` gives
+escrowed packages back intact (*measured* 2026-11-12). We rebuilt the iron refinery at
+Conjunction Junction this way on 2026-10-28, on 2026-11-08 built a Hiring Board from its
+single package with no other materials, and on 2026-11-12 rebuilt the Intel Terminal, Fiber
+Draw Tower and Polymer Extruder. Each package
 takes **100 cargo**, and dismantling costs one [[cargo_container]] per package
 (*doc-quoted*). Moving four facilities' packages (Fiber Draw Tower 41, Polymer Extruder 40,
 Intel Terminal 3, Hiring Board 1) from Grand Exchange took three Congregation trips of up
 to 19 packages each.
 
-The reply does not say whether the credit part of the build cost (89,000 for the refinery)
-comes back. Expect to pay it again when you rebuild. Rented `faction_*` facilities at NPC
+**The credit part of the build cost does not come back: you pay it again on the rebuild.**
+The refinery's 89,000 was charged again on 2026-10-28, and on 2026-11-12 the Intel Terminal
+(150,000), Fiber Draw Tower (127,000) and Polymer Extruder (110,000) were each charged their
+full fee from the treasury (*measured*). Moving a facility saves its materials, not its
+credits. Rented `faction_*` facilities at NPC
 stations cannot be rebuilt at your own station. Check that the facility is on the
 [buildable list](#what-you-can-build-here) before dismantling it to move it.
 
 ## Defense
-
-*Placeholder: we are building this now and will fill it in as we measure.*
 
 **Why bother before an attack.** A wrecked station has to be repaired before it works again,
 at about 30% of each facility's original build cost, in credits and in that facility's own
@@ -452,9 +557,35 @@ build materials, which must already be at the station (*player-reported*). Until
 service, life support and power is down. So defense is two jobs: make the station a harder
 target than its neighbours, and keep a repair reserve on site.
 
-**What Conjunction Junction has (2026-11-08, *measured*):** a [[point_defense_battery]]
-(`weapon_dps` 30), [[reinforced_plating]] (hull 85,000, armor 60) and a
-[[fire_control_center]]; shield 12,000, the base value. Battery capacity is still 0.
+**What Conjunction Junction has (2026-11-19, *measured*):** 12 defense facilities, about
+9.9M cr of them at catalog prices. Hull 110,000, shield 48,000, armor 105, `weapon_dps` 248,
+reach 3. Nobody has attacked it yet: hourly readings since 2026-11-09 never show hull or
+shield below maximum.
+
+| Count | Facility | Level | Built | What it added (`get_base`) |
+|---|---|---|---|---|
+| 5× | [[point_defense_battery]] | L1 | 2026-11-06, 11-09 | 30 dps each, reach 1 |
+| 1× | [[heavy_defense_battery]] | L3 | upgraded from a sixth battery, 11-09 and 11-12 | 47 dps, reach 3 |
+| 1× | [[siege_lance]] | L3 | 2026-11-13, built directly | 52 dps, reach 3 |
+| 2× | [[shield_projector]] | L1 | 2026-11-09 | shield 12,000 → 48,000 |
+| 2× | [[reinforced_plating]] | L1 | 2026-11-08, 11-09 | hull 60,000 → 110,000, armor 15 → 105 |
+| 1× | [[fire_control_center]] | L1 | 2026-11-08 | no visible number |
+
+How `weapon_dps` got there: 30 (one battery) → 180 (six) → 177 (one upgraded to a turret,
+27.5 dps) → 150 while that turret was upgrading again → 196 (heavy battery done) → **248**
+(siege lance). A gun's dps is its catalog damage divided by its cooldown: 30/1, 55/2, 140/3,
+420/8.
+
+**Ammunition on hand** (faction storage, 2026-11-19): 4,600 [[ferrous_slug_case]] for the
+batteries, 7,526 [[fragmentation_rounds_box]] for the heavy battery, and only **26**
+[[focused_plasma_cell_pack]] for the siege lance. Coolant for upkeep: 3,218.
+
+**Power in a fight.** Our defenses list a combined draw of 52 (two shields at 10, the lance
+14, the heavy battery 8, five batteries at 2), and our 13 production lines 1 each. `get_base`
+has read a draw of 0 to 4 the whole time, so defenses seem to draw only in combat
+(*hypothesis*: not yet seen under attack). With all power plants fed, 76 covers all of it. With
+the grids starved, as now, 36 does not: an upkeep failure in power can cost you your shields
+in a fight.
 
 **What we know so far:**
 - **Defense facilities stack.** Every defense facility can be built more than once, and
@@ -522,6 +653,28 @@ fires [[ferrous_slug_case]] (hand recipe: 3 [[iron_ore]] + 2 [[steel_plate]] →
 degraded text describes empty magazines, so a gun built without ammo likely does
 nothing in a fight.
 
+**Upgrading a gun.** `facility upgrade --facility_id <id> --facility_type
+station_defense_turret`; the target type is required (*"Must specify 'facility_type' to
+upgrade to"*). The upgrade replaces the facility under a new id, and while it builds the old
+gun's damage and reach are gone (*measured*). Until v0.677.5 a loaded battery could not be
+upgraded at all (*"loaded station weapons cannot be upgraded; dismantle the battery…"*); the
+developer confirmed it as a bug and said not to dismantle (*measured* 2026-11-09). Note the
+L2 [[station_defense_turret]] does **less** damage per second than the L1 battery (27.5
+against 30): upgrade for reach, and go on to the [[heavy_defense_battery]] (L3, 47 dps,
+reach 3, 1,400,000 cr + 2,600 [[steel_plate]] + 200 [[armor_plate]] + 30
+[[targeting_computer]] + 160 [[superconductor]]).
+
+### Siege lance
+
+[[siege_lance]] · **Build:** 2,600,000 cr + 3,200 [[steel_plate]] + 400
+[[superconductor]] + 40 [[targeting_computer]] + 30 [[dark_matter_cell]] · 400 ticks ·
+**Upkeep:** 5 [[coolant_fluid]] · **Power:** draws 14
+
+The biggest gun: 420 damage with a cooldown of 8, reach 3. It is a level-3 facility with **no
+lower level**, built straight away with `faction_build siege_lance` (*measured*
+2026-11-13), so it reaches 3 without the battery → turret → heavy battery upgrades. It added
+52 dps to ours. It fires [[focused_plasma_cell_pack]].
+
 ### Shields
 
 [[shield_projector]] · **Build:** 900,000 cr + 1,200 [[steel_plate]] + 200
@@ -531,7 +684,8 @@ nothing in a fight.
 Each projector adds **18,000 station shield** on top of the base 12,000, and projectors
 stack. It draws the most power of any level-1 defense, so check your power supply first.
 When the cells run out the projector goes cold and the shield drops back to the base
-value. It upgrades to [[shield_bastion]]. *Not yet built at Conjunction Junction.*
+value. It upgrades to [[shield_bastion]]. Our two took the shield from 12,000 to 48,000
+(*measured* 2026-11-09).
 
 ### Battery
 
@@ -549,8 +703,9 @@ player station; build the Capacitor Bank. It upgrades to [[buffer_array]] (75) a
 [[armor_plate]] · 180 ticks · **Upkeep:** 1 [[armor_plate]] · **Power:** none
 
 Armor cuts each hit to the hull by its amount, and the plating repairs itself after
-combat. Ours raised `get_base` **hull from 60,000 to 85,000 and armor from 15 to 60**
-(*measured* 2026-11-08). Repairs also use [[armor_plate]].
+combat. The first raised `get_base` **hull from 60,000 to 85,000 and armor from 15 to 60**,
+and the second to 110,000 and 105 (*measured* 2026-11-08 and 11-09). Repairs also use
+[[armor_plate]].
 
 ### Fire control
 
@@ -561,11 +716,38 @@ combat. Ours raised `get_base` **hull from 60,000 to 85,000 and armor from 15 to
 Improves the guns' accuracy (*player-reported*); `get_base` shows no new number for it.
 
 **Not yet measured:** how much ammunition a fight uses; what fire control changes in
-numbers; shield and battery behaviour under fire; how fast a wrecked station repairs.
+numbers; whether defenses draw power only in combat; shield and battery behaviour under fire;
+how fast a wrecked station repairs. We still have no battery storage ([[capacitor_bank]]).
 
 ## Tourism
 
-*Placeholder: we have not built any venues yet.*
+**What one venue earns (*measured*).** Conjunction Junction has a single venue, a
+[[rec_lounge]] (2 leisure points, 0 dining), built 2026-11-08 together with a
+[[transit_lounge]]. From the hourly `tourism_revenue` readings:
+
+| Day (UTC) | Tourism revenue | Leisure points |
+|---|---|---|
+| 2026-11-10 | 93,283 | 2 |
+| 2026-11-11 | 98,017 | 2 |
+| 2026-11-12 | 101,111 | 2 |
+| 2026-11-14 | 90,368 | 2 |
+| 2026-11-15 | 95,512 | 2 |
+| 2026-11-16 | 91,921 | 2 |
+| 2026-11-17 | 91,005 | 2 |
+| 2026-11-18 | 70,521 | 2 |
+| 2026-11-19, first 22 h | 43,216 | **1** |
+
+(2026-11-13 is left out: readings were missing for part of the day.) About
+**90,000–100,000 cr a day** from a 150,000 cr venue, against upkeep of 2
+[[purified_water]], 1 [[crimson_iron_rations]], 1 [[biogas_fizz]] and 1 [[station_seltzer]] a
+cycle, about 8,000–9,000 cr a day at market prices. It paid for itself in under two days.
+The lifetime counter passed 994,000 on 2026-11-19.
+
+⚠ **A starved venue loses points, and income with them.** Around 01:00 UTC on 2026-11-19
+leisure points fell from 2 to 1, and hourly revenue fell from about 4,000 to about 1,700 cr.
+Faction storage then held no [[biogas_fizz]] or [[station_seltzer]] (*measured*). The Rec
+Lounge is in the `infrastructure` category, so it also counts toward station condition.
+Stock venue upkeep like any other.
 
 Food and leisure venues are infrastructure a player station can build. Each one adds
 **dining points** or **leisure points** to the station, and `get_base` reports those along
@@ -599,8 +781,9 @@ fare is lost (catalog description, *doc-quoted*).
 
 It upgrades to [[transit_terminal]] (2,500,000 cr, 60 passengers, +180 ticks on each
 connecting passenger's fare deadline) and [[transit_concourse]] (9,000,000 cr, 150
-passengers, +360 ticks). The Obsidian Well runs a Transit Concourse. *Not yet built at
-Conjunction Junction.*
+passengers, +360 ticks). The Obsidian Well runs a Transit Concourse. Conjunction Junction
+has had the level-1 lounge since 2026-11-08. It is in the `faction` category, so it doesn't
+count toward condition. We haven't yet routed passengers through it on purpose.
 
 **The reference build: The Obsidian Well** (Busy Being Dead, Arneb). It runs **one of
 every venue** a player station can build: all eight dining venues and all five leisure
@@ -615,8 +798,9 @@ dining venues (10 + 7 + 5), but the leisure total doesn't follow the same patter
 rule is still unknown.
 
 **Not yet measured:** where tourism revenue comes from and whether it reaches the treasury;
-how `tourism_upkeep` scales with visitors; how a station's venues combine into its dining
-and leisure points; what those points do beyond revenue.
+whether a second venue adds revenue in proportion to its points; how `tourism_upkeep` scales
+with visitors; how a station's venues combine into its dining and leisure points; what those
+points do beyond revenue.
 
 ## Where the official docs are wrong
 
@@ -639,9 +823,11 @@ and leisure points; what those points do beyond revenue.
 
 ## Not yet measured
 
-- Real upkeep consumption per cycle (catalog figures are shown above until we have it).
+- Real upkeep consumption per cycle (catalog figures are shown above until we have it; the
+  cycle length itself is settled at about 3,000 ticks).
 - How fast a `critical` station recovers once its upkeep is stocked.
 - Defense and tourism: see their sections above.
-- Whether dismantling refunds any credits.
 - Exactly how [[trade_authenticator]] upkeep scales with trades.
+- What `set_toll` and `set_gate_access` do.
+- Whether facility upkeep can draw from a storage bucket.
 - How service pools ([[medical_supplies]], [[protein_rations]]) draw down, and on what cycle.
