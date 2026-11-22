@@ -28,6 +28,9 @@ type Mechanics struct {
 	MinShieldPct int // lowest shield seen, as % of max; -1 = never seen
 	HitsTaken    int // weapon volleys that hit it
 
+	ShieldRegen    int // most common shield regen per tick; 0 = none logged
+	ShieldRegenPct int // ShieldRegen as % of max shield
+
 	HitByRange []RangeHit // its own hit chance by zone distance
 
 	Destroyed int // units of this type killed
@@ -42,6 +45,17 @@ type Reflection struct {
 	Pct        int // best-fitting share, floor(landed × Pct / 100)
 	Matches    int // reflections the share reproduces exactly
 	Samples    int // reflections paired with a landed volley
+
+	// Triggers counts the hits on this type by the damage they carried
+	// (energy when any weapon in the volley was energy), and how many of
+	// them drew a reflection.
+	Triggers []Trigger
+}
+
+// Trigger is one damage type's hits on a type and the reflections they drew.
+type Trigger struct {
+	DamageType      string
+	Hits, Reflected int
 }
 
 // Resist is a damage-type resistance read off the player's hits.
@@ -66,6 +80,7 @@ type rawEntry struct {
 	Tick      int           `json:"tick"`
 	Snapshots []rawSnapshot `json:"snapshots"`
 	Attacks   []rawAttack   `json:"attacks"`
+	Regen     []rawRegen    `json:"regen"`
 	ZoneMoves []struct {
 		PlayerID string `json:"player_id"`
 		Reason   string `json:"reason"`
@@ -85,17 +100,26 @@ type rawSnapshot struct {
 }
 
 type rawAttack struct {
-	AttackerID    string            `json:"attacker_id"`
-	TargetID      string            `json:"target_id"`
-	HitChance     float64           `json:"hit_chance"`
-	HitSuccess    bool              `json:"hit_success"`
-	DamageType    string            `json:"damage_type"`
-	ZoneDistance  int               `json:"zone_distance"`
-	Splash        bool              `json:"splash"`
-	RawDamage     int               `json:"raw_damage"`
-	LandedDamage  int               `json:"landed_damage"`
-	TypeResistPct int               `json:"type_resist_pct"`
-	Weapons       []json.RawMessage `json:"weapons"`
+	AttackerID    string      `json:"attacker_id"`
+	TargetID      string      `json:"target_id"`
+	HitChance     float64     `json:"hit_chance"`
+	HitSuccess    bool        `json:"hit_success"`
+	DamageType    string      `json:"damage_type"`
+	ZoneDistance  int         `json:"zone_distance"`
+	Splash        bool        `json:"splash"`
+	RawDamage     int         `json:"raw_damage"`
+	LandedDamage  int         `json:"landed_damage"`
+	TypeResistPct int         `json:"type_resist_pct"`
+	Weapons       []rawWeapon `json:"weapons"`
+}
+
+type rawWeapon struct {
+	DamageType string `json:"damage_type"`
+}
+
+type rawRegen struct {
+	PlayerID    string `json:"player_id"`
+	ShieldRegen int    `json:"shield_regen"`
 }
 
 // hostileTypeOf maps a battle participant to its hostile type id, or "" when
@@ -114,7 +138,10 @@ type mechAcc struct {
 	minShield                                                           float64
 	shieldSeen                                                          bool
 	reflType                                                            string
-	refl                                                                [][2]int // {raw reflected, landed}
+	refl                                                                [][2]int          // {raw reflected, landed}
+	trig                                                                map[string][2]int // damage type → {hits, reflected}
+	regen                                                               map[int]int       // shield regen per tick → count
+	maxShield                                                           int
 	resist                                                              map[string]map[int]int
 	hit                                                                 map[int][]float64
 }
@@ -130,7 +157,8 @@ func loadMechanics(dir string) (map[string]*Mechanics, int, error) {
 	get := func(t string) *mechAcc {
 		a := acc[t]
 		if a == nil {
-			a = &mechAcc{minShield: 1, resist: map[string]map[int]int{}, hit: map[int][]float64{}}
+			a = &mechAcc{minShield: 1, resist: map[string]map[int]int{}, hit: map[int][]float64{},
+				trig: map[string][2]int{}, regen: map[int]int{}}
 			acc[t] = a
 		}
 		return a
@@ -187,7 +215,13 @@ func addLog(entries []rawEntry, get func(string) *mechAcc) {
 			}
 			if s.MaxShield > 0 {
 				a.shieldSeen = true
+				a.maxShield = s.MaxShield
 				a.minShield = min(a.minShield, float64(s.Shield)/float64(s.MaxShield))
+			}
+		}
+		for _, g := range e.Regen {
+			if t := typeOf[g.PlayerID]; t != "" && g.ShieldRegen > 0 {
+				get(t).regen[g.ShieldRegen]++
 			}
 		}
 		for _, z := range e.ZoneMoves {
@@ -233,6 +267,13 @@ func addLog(entries []rawEntry, get func(string) *mechAcc) {
 			case target != "" && attacker == "" && at.HitSuccess && !at.Splash && len(at.Weapons) > 0:
 				a := get(target)
 				a.hitsTaken++
+				key := volleyType(at)
+				tr := a.trig[key]
+				tr[0]++
+				if reflected(e.Attacks, at.TargetID, at.AttackerID) {
+					tr[1]++
+				}
+				a.trig[key] = tr
 				if a.resist[at.DamageType] == nil {
 					a.resist[at.DamageType] = map[int]int{}
 				}
@@ -253,6 +294,21 @@ func (a *mechAcc) summarize() *Mechanics {
 	}
 	if a.reflType != "" {
 		m.Reflect = fitReflection(a.reflType, a.refl)
+		for dt, tr := range a.trig {
+			m.Reflect.Triggers = append(m.Reflect.Triggers, Trigger{DamageType: dt, Hits: tr[0], Reflected: tr[1]})
+		}
+		slices.SortFunc(m.Reflect.Triggers, func(x, y Trigger) int {
+			return cmp.Or(cmp.Compare(y.Reflected, x.Reflected), cmp.Compare(y.Hits, x.Hits), cmp.Compare(x.DamageType, y.DamageType))
+		})
+	}
+	best := 0
+	for r, n := range a.regen {
+		if n > best || (n == best && r < m.ShieldRegen) {
+			best, m.ShieldRegen = n, r
+		}
+	}
+	if m.ShieldRegen > 0 && a.maxShield > 0 {
+		m.ShieldRegenPct = int(100*float64(m.ShieldRegen)/float64(a.maxShield) + 0.5)
 	}
 	for dt, byPct := range a.resist {
 		r := Resist{DamageType: dt}
@@ -301,4 +357,26 @@ func (r Reflection) MatchPct() int {
 		return 0
 	}
 	return 100 * r.Matches / r.Samples
+}
+
+// volleyType is the damage a volley carried for reflection purposes: energy
+// when any of its weapons was energy, else the volley's own type.
+func volleyType(at rawAttack) string {
+	for _, w := range at.Weapons {
+		if w.DamageType == "energy" {
+			return "energy"
+		}
+	}
+	return at.DamageType
+}
+
+// reflected reports whether unit sent a weaponless attack back at attacker in
+// the same tick.
+func reflected(attacks []rawAttack, unit, attacker string) bool {
+	for _, a := range attacks {
+		if a.AttackerID == unit && a.TargetID == attacker && len(a.Weapons) == 0 && !a.Splash {
+			return true
+		}
+	}
+	return false
 }

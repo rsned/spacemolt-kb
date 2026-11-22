@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ const spireLog = `[{"entries":[
    {"player_id":"repeater_aa","ship_class":"spire","zone":"outer","shield":2400,"max_shield":2400}],
   "zone_moves":[{"player_id":"repeater_aa","reason":"retreat"}],
   "attacks":[
-   {"attacker_id":"p1","target_id":"repeater_aa","hit_success":true,"damage_type":"energy","raw_damage":94,"landed_damage":47,"type_resist_pct":50,"weapons":[{}]},
+   {"attacker_id":"p1","target_id":"repeater_aa","hit_success":true,"damage_type":"energy","raw_damage":94,"landed_damage":47,"type_resist_pct":50,"weapons":[{"damage_type":"energy"}]},
    {"attacker_id":"repeater_aa","target_id":"p1","hit_success":true,"damage_type":"em","raw_damage":14,"weapons":null},
    {"attacker_id":"repeater_aa","target_id":"p1","hit_chance":0.6,"hit_success":true,"damage_type":"energy","zone_distance":3,"raw_damage":100,"weapons":[{}]}]},
  {"tick":2,
@@ -23,8 +24,10 @@ const spireLog = `[{"entries":[
    {"player_id":"p1","ship_class":"axiomata","zone":"engaged","shield":800,"max_shield":950},
    {"player_id":"repeater_aa","ship_class":"spire","zone":"outer","shield":2400,"max_shield":2400}],
   "attacks":[
-   {"attacker_id":"p1","target_id":"repeater_aa","hit_success":true,"damage_type":"energy","landed_damage":285,"type_resist_pct":50,"weapons":[{}]},
-   {"attacker_id":"repeater_aa","target_id":"p1","hit_success":true,"damage_type":"em","raw_damage":85,"weapons":null}],
+   {"attacker_id":"p1","target_id":"repeater_aa","hit_success":true,"damage_type":"energy","landed_damage":285,"type_resist_pct":50,"weapons":[{"damage_type":"energy"}]},
+   {"attacker_id":"repeater_aa","target_id":"p1","hit_success":true,"damage_type":"em","raw_damage":85,"weapons":null},
+   {"attacker_id":"p2","target_id":"repeater_aa","hit_success":true,"damage_type":"thermal","landed_damage":500,"type_resist_pct":50,"weapons":[{"damage_type":"thermal"}]}],
+  "regen":[{"player_id":"repeater_aa","shield_regen":96}],
   "kills":[{"killer_id":"p1","victim_id":"repeater_aa"}]}
 ]}]`
 
@@ -47,10 +50,16 @@ func TestLoadMechanics(t *testing.T) {
 	if m.Reflect == nil || m.Reflect.Pct != 30 || m.Reflect.Matches != 2 || m.Reflect.DamageType != "em" {
 		t.Errorf("reflect = %+v, want 30%% em, 2 matches", m.Reflect)
 	}
-	if len(m.Resists) != 1 || m.Resists[0] != (Resist{DamageType: "energy", Pct: 50, Hits: 2}) {
-		t.Errorf("resists = %+v", m.Resists)
+	if want := []Trigger{{"energy", 2, 2}, {"thermal", 1, 0}}; m.Reflect != nil && !slices.Equal(m.Reflect.Triggers, want) {
+		t.Errorf("triggers = %+v, want %+v", m.Reflect.Triggers, want)
 	}
-	if m.Retreats != 1 || m.OuterPct != 100 || m.MinShieldPct != 100 || m.HitsTaken != 2 || m.Destroyed != 1 || m.Logs != 1 {
+	if want := []Resist{{"energy", 50, 2}, {"thermal", 50, 1}}; !slices.Equal(m.Resists, want) {
+		t.Errorf("resists = %+v, want %+v", m.Resists, want)
+	}
+	if m.ShieldRegen != 96 || m.ShieldRegenPct != 4 {
+		t.Errorf("shield regen = %d (%d%%), want 96 (4%%)", m.ShieldRegen, m.ShieldRegenPct)
+	}
+	if m.Retreats != 1 || m.OuterPct != 100 || m.MinShieldPct != 100 || m.HitsTaken != 3 || m.Destroyed != 1 || m.Logs != 1 {
 		t.Errorf("mechanics = %+v", m)
 	}
 	if len(m.HitByRange) != 1 || m.HitByRange[0] != (RangeHit{Distance: 3, Volleys: 1, MeanPct: 60}) {

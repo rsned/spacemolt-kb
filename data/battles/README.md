@@ -104,9 +104,13 @@ expected here (unlike Haven). The `bandwidth_used` 250 against a
 
 Unmodified `get_battle_log` pages (`<id>.raw.json`) for every battle with a
 Frontier repeater in it. `generate-hostiles-kb` reads them all each run to
-work out each type's resistances, damage reflection (the weaponless `em`
-attack: a fixed share of the damage the attacker's volley landed — Sliver
-10%, Pane 20%, Spire 30%), movement, shield floor and hit chance by range.
+work out each type's resistances (energy and thermal share one value —
+Sliver 25%, Pane 40%, Spire 50%; kinetic and void 0%), damage reflection
+(the weaponless `em` attack: a fixed share of the pre-resist `landed_damage`
+— Sliver 10%, Pane 20%, Spire 30% — drawn only by energy volleys so far),
+movement, shield regen (4% of max per tick) and hit chance by range.
+33 of the logs are LT1428's Combat Drone fleet (Opus Magna: Plasma Cannon IV,
+Flak Cannon III, Null Cannon), the source of the thermal/kinetic/void data.
 The knowledge DB only keeps per-weapon totals, so these can't come from there.
 
 Add new battles with one login (the battle ids are in `hostile_attacks`):

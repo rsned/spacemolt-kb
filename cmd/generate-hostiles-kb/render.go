@@ -190,14 +190,15 @@ var listTmpl = htmltpl.Must(htmltpl.New("list").Funcs(funcs).Parse(pageHead + `
             <table>
                 <tbody>
 {{- with .Reflect}}
-                    <tr><th>Reflects damage</th><td><b>{{.Pct}}%</b> of the damage each of your volleys lands on it comes straight back as {{dtype .DamageType}}, always hitting <span class="text-muted">(fits {{.Matches}} of {{.Samples}} reflections exactly{{if lt .MatchPct 100}}; the rest are small hits that round differently{{end}})</span></td></tr>
+                    <tr><th>Reflects damage</th><td><b>{{.Pct}}%</b> of the damage each of your volleys lands on it, taken before its resist, comes straight back as {{dtype .DamageType}} and always hits <span class="text-muted">(fits {{.Matches}} of {{.Samples}} reflections exactly{{if lt .MatchPct 100}}; the rest are small hits that round differently{{end}})</span>
+                    <br>Triggered by: {{range $i, $g := .Triggers}}{{if $i}} · {{end}}{{dtype .DamageType}} <b>{{.Reflected}}</b> of {{.Hits}} {{plural .Hits "hit" "hits"}}{{end}}</td></tr>
 {{- end}}
 {{- range .Resists}}
                     <tr><th>{{dtype .DamageType}} resist</th><td><b>{{.Pct}}%</b> <span class="text-muted">({{.Hits}} {{plural .Hits "hit" "hits"}})</span></td></tr>
 {{- end}}
                     <tr><th>Movement</th><td>{{if gt .Retreats .Advances}}Keeps its distance: retreats {{.Retreats}} {{plural .Retreats "time" "times"}}, advances {{.Advances}}{{else if .Advances}}Closes in: advances {{.Advances}} {{plural .Advances "time" "times"}}, retreats {{.Retreats}}{{else}}Holds position{{end}}; {{.OuterPct}}% of the time in the outer zone</td></tr>
-{{- if and (ge .MinShieldPct 0) .HitsTaken}}
-                    <tr><th>Lowest shield</th><td>{{.MinShieldPct}}% of max across {{.HitsTaken}} {{plural .HitsTaken "hit" "hits"}} taken{{if ge .MinShieldPct 95}} <span class="text-muted">&mdash; its shield stays full under fire, so only the damage that gets through to the hull wears it down</span>{{end}}</td></tr>
+{{- if .ShieldRegen}}
+                    <tr><th>Shield regen</th><td><b>{{.ShieldRegen}}</b> per tick <span class="text-muted">({{.ShieldRegenPct}}% of max)</span>; lowest shield seen {{.MinShieldPct}}%</td></tr>
 {{- end}}
 {{- if .HitByRange}}
                     <tr><th>Its hit chance</th><td>{{range $i, $r := .HitByRange}}{{if $i}} · {{end}}{{if eq .Distance 0}}same zone{{else}}{{.Distance}} {{plural .Distance "zone" "zones"}} apart{{end}} <b>{{.MeanPct}}%</b> <span class="text-muted">({{.Volleys}})</span>{{end}}</td></tr>
