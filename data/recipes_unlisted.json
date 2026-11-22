@@ -1,0 +1,65 @@
+{
+  "_comment": "Recipes that missions unlock and the public catalog does not list (catalog id lookups return not_found). Captured by hand from the unlocking character's `craft <recipe> --dry_run=true` quote. time_per_run is the quote's effective_time_per_run, which already includes that character's skill speed-up, so it is not the base crafting time. Which mission unlocks each recipe comes from the knowledge DB's mission_completions.recipes_unlocked, not from this file.",
+  "recipes": [
+    {
+      "id": "assemble_lane_anchor",
+      "name": "Assemble Lane Anchor",
+      "inputs": [
+        {"item_id": "seam_glass", "name": "Seam Glass", "quantity": 50},
+        {"item_id": "fold_knot", "name": "Fold Knot", "quantity": 1},
+        {"item_id": "mirror_facet", "name": "Mirror Facet", "quantity": 10},
+        {"item_id": "darksteel_plating", "name": "Darksteel Plating", "quantity": 40}
+      ],
+      "outputs": [{"item_id": "lane_anchor", "name": "Lane Anchor", "quantity": 1}],
+      "time_per_run": 8.62,
+      "venue": "Station Workshop (hand-craft)",
+      "captured": "2026-11-21",
+      "captured_by": "craftsman-1",
+      "note": "Holds one end of a jump gate's fold; a gate needs one at each end. Dismantling a gate returns each fully built end's Lane Anchor."
+    },
+    {
+      "id": "assemble_fold_lattice",
+      "name": "Assemble Fold Lattice",
+      "inputs": [
+        {"item_id": "seam_glass", "name": "Seam Glass", "quantity": 10},
+        {"item_id": "echo_cell", "name": "Echo Cell", "quantity": 2},
+        {"item_id": "phase_matrix", "name": "Phase Matrix", "quantity": 10}
+      ],
+      "outputs": [{"item_id": "fold_lattice", "name": "Fold Lattice", "quantity": 1}],
+      "time_per_run": 2.59,
+      "venue": "Station Workshop (hand-craft)",
+      "captured": "2026-11-21",
+      "captured_by": "craftsman-1",
+      "note": "Gives the fold something to stand on; a gate needs a lot of it."
+    },
+    {
+      "id": "assemble_gate_regulator",
+      "name": "Assemble Gate Regulator",
+      "inputs": [
+        {"item_id": "echo_cell", "name": "Echo Cell", "quantity": 4},
+        {"item_id": "solarian_composite", "name": "Solarian Composite", "quantity": 10},
+        {"item_id": "prismatic_lens", "name": "Prismatic Lens", "quantity": 5}
+      ],
+      "outputs": [{"item_id": "gate_regulator", "name": "Gate Regulator", "quantity": 1}],
+      "time_per_run": 3.45,
+      "venue": "Station Workshop (hand-craft)",
+      "captured": "2026-11-21",
+      "captured_by": "craftsman-1",
+      "note": "Keeps a gate's fold from drifting."
+    },
+    {
+      "id": "assemble_fold_shim",
+      "name": "Assemble Fold Shim",
+      "inputs": [
+        {"item_id": "annealed_seam_glass", "name": "Annealed Seam Glass", "quantity": 2},
+        {"item_id": "circuit_board", "name": "Circuit Board", "quantity": 2}
+      ],
+      "outputs": [{"item_id": "fold_shim", "name": "Fold Shim", "quantity": 1}],
+      "time_per_run": 2.59,
+      "venue": "Station Workshop (hand-craft)",
+      "captured": "2026-11-21",
+      "captured_by": "craftsman-1",
+      "note": "The wear part a jump gate replaces: the fold wears through its shims, so a standing gate needs a steady supply."
+    }
+  ]
+}

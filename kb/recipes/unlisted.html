@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlisted Recipes - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../recipes/recipes.css">
+    <style>
+    .ul-recipe { margin-top: 1.5rem; }
+    .ul-recipe h3 { margin-bottom: 0.25rem; }
+    .ul-meta { font-size: 13px; color: hsl(var(--muted-foreground)); }
+    .ul-badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 4px; border: 1px solid hsl(var(--border)); margin-left: 6px; vertical-align: middle; }
+    .ul-missing { padding: 0.75rem 1rem; border: 1px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../nav.js" defer></script>
+    </header>
+    <main class="container page-content">
+        <div class="breadcrumb"><a href="index.html">Recipes</a> / Unlisted</div>
+        <h2>Unlisted Recipes</h2>
+        <p class="text-muted mt-1">Recipes that a mission teaches and the public catalog does not list. Looking one up in the catalog returns "not found", so the details below come from the unlocking pilot's own crafting quote. Times are that pilot's skill-adjusted time per run, not the base time.</p>
+        <section class="ul-recipe" id="assemble_fold_lattice">
+            <h3>Assemble Fold Lattice</h3>
+            <div class="ul-meta">Unlocked by completing <a href="../missions/exploration/the_method.html">The Method</a></div>
+            <p class="mt-1">Gives the fold something to stand on; a gate needs a lot of it.</p>
+            <div class="mt-1"><b>Makes</b> 1 × Fold Lattice <span class="text-muted">(not in catalog)</span></div>
+            <table>
+                <thead><tr><th>Input</th><th class="r">Qty</th></tr></thead>
+                <tbody>
+                    <tr><td><a href="../items/ore/seam_glass.html">Seam Glass</a></td><td class="r">10</td></tr>
+                    <tr><td>Echo Cell <span class="text-muted">(not in catalog)</span></td><td class="r">2</td></tr>
+                    <tr><td><a href="../items/refined/phase_matrix.html">Phase Matrix</a></td><td class="r">10</td></tr>
+                </tbody>
+            </table>
+            <div class="ul-meta">Station Workshop (hand-craft) · 2.6 ticks per run (skill-adjusted) · quoted 2026-11-21 by craftsman-1</div>
+        </section>
+        <section class="ul-recipe" id="assemble_fold_shim">
+            <h3>Assemble Fold Shim<a class="ul-badge" href="Fold_Engineering/assemble_fold_shim.html">also in catalog</a></h3>
+            <div class="ul-meta">Unlocked by completing <a href="../missions/exploration/the_method.html">The Method</a></div>
+            <p class="mt-1">The wear part a jump gate replaces: the fold wears through its shims, so a standing gate needs a steady supply.</p>
+            <div class="mt-1"><b>Makes</b> 1 × <a href="../items/component/fold_shim.html">Fold Shim</a></div>
+            <table>
+                <thead><tr><th>Input</th><th class="r">Qty</th></tr></thead>
+                <tbody>
+                    <tr><td><a href="../items/refined/annealed_seam_glass.html">Annealed Seam Glass</a></td><td class="r">2</td></tr>
+                    <tr><td><a href="../items/refined/circuit_board.html">Circuit Board</a></td><td class="r">2</td></tr>
+                </tbody>
+            </table>
+            <div class="ul-meta">Station Workshop (hand-craft) · 2.6 ticks per run (skill-adjusted) · quoted 2026-11-21 by craftsman-1</div>
+        </section>
+        <section class="ul-recipe" id="assemble_gate_regulator">
+            <h3>Assemble Gate Regulator</h3>
+            <div class="ul-meta">Unlocked by completing <a href="../missions/exploration/the_method.html">The Method</a></div>
+            <p class="mt-1">Keeps a gate&#39;s fold from drifting.</p>
+            <div class="mt-1"><b>Makes</b> 1 × Gate Regulator <span class="text-muted">(not in catalog)</span></div>
+            <table>
+                <thead><tr><th>Input</th><th class="r">Qty</th></tr></thead>
+                <tbody>
+                    <tr><td>Echo Cell <span class="text-muted">(not in catalog)</span></td><td class="r">4</td></tr>
+                    <tr><td><a href="../items/refined/solarian_composite.html">Solarian Composite</a></td><td class="r">10</td></tr>
+                    <tr><td><a href="../items/refined/prismatic_lens.html">Prismatic Lens</a></td><td class="r">5</td></tr>
+                </tbody>
+            </table>
+            <div class="ul-meta">Station Workshop (hand-craft) · 3.5 ticks per run (skill-adjusted) · quoted 2026-11-21 by craftsman-1</div>
+        </section>
+        <section class="ul-recipe" id="assemble_lane_anchor">
+            <h3>Assemble Lane Anchor</h3>
+            <div class="ul-meta">Unlocked by completing <a href="../missions/exploration/the_method.html">The Method</a></div>
+            <p class="mt-1">Holds one end of a jump gate&#39;s fold; a gate needs one at each end. Dismantling a gate returns each fully built end&#39;s Lane Anchor.</p>
+            <div class="mt-1"><b>Makes</b> 1 × Lane Anchor <span class="text-muted">(not in catalog)</span></div>
+            <table>
+                <thead><tr><th>Input</th><th class="r">Qty</th></tr></thead>
+                <tbody>
+                    <tr><td><a href="../items/ore/seam_glass.html">Seam Glass</a></td><td class="r">50</td></tr>
+                    <tr><td><a href="../items/component/fold_knot.html">Fold Knot</a></td><td class="r">1</td></tr>
+                    <tr><td>Mirror Facet <span class="text-muted">(not in catalog)</span></td><td class="r">10</td></tr>
+                    <tr><td><a href="../items/refined/darksteel_plating.html">Darksteel Plating</a></td><td class="r">40</td></tr>
+                </tbody>
+            </table>
+            <div class="ul-meta">Station Workshop (hand-craft) · 8.6 ticks per run (skill-adjusted) · quoted 2026-11-21 by craftsman-1</div>
+        </section>
+        <section class="ul-recipe" id="assemble_lane_anchor_prototype">
+            <h3>Assemble Lane Anchor Prototype</h3>
+            <div class="ul-meta">Unlocked by completing <a href="../missions/delivery/taking_the_machine_apart.html">Taking the Machine Apart</a></div>
+            <div class="ul-missing">Unlocked in-game, but its inputs and outputs have not been captured yet. Run <code>craft assemble_lane_anchor_prototype --dry_run=true</code> as a pilot who has it and add the quote to <code>data/recipes_unlisted.json</code>.</div>
+        </section>
+    </main>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var stored = localStorage.getItem('theme');
+        if (stored === 'dark') root.classList.add('dark');
+        toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

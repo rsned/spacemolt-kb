@@ -665,7 +665,7 @@ func main() {
 	systemOnly := flag.String("system", "", "regenerate only this system's page (by system ID)")
 	systemsAll := flag.Bool("systems-only", false, "regenerate only the systems section (all system pages + jump routes)")
 	resourcesOnly := flag.Bool("resources-only", false, "regenerate only the resources index page")
-	whereOnly := flag.Bool("where-only", false, "regenerate only the where-to-craft page (kb/recipes/where.html)")
+	whereOnly := flag.Bool("where-only", false, "regenerate only the where-to-craft and unlisted-recipes pages (kb/recipes/where.html, unlisted.html)")
 	marketDBPath := flag.String("market-db", "../spacemolt/data/market.db", "market DB for market-aware BoM recipe selection (empty to disable)")
 	flag.Parse()
 
@@ -997,6 +997,7 @@ func main() {
 	// MUST run after writeRecipePages: that call cleans every .html out of
 	// kb/recipes/ before writing, which would delete where.html.
 	generateWherePage(recipes)
+	generateUnlistedPage(recipes, items)
 }
 
 // generateAllMissions loads mission templates from the knowledge database and
@@ -1075,6 +1076,11 @@ func generateWhereOnly(craftingDBPath string) {
 		log.Fatalf("load recipes: %v", err)
 	}
 	generateWherePage(recipes)
+	items, err := loadItems(db)
+	if err != nil {
+		log.Fatalf("load items: %v", err)
+	}
+	generateUnlistedPage(recipes, items)
 }
 
 // generateAllSystems loads all systems and generates all system/planet/resource pages.
@@ -3391,6 +3397,7 @@ var recipeTopTemplate = `<!DOCTYPE html>
         <h2>Recipes</h2>
         <p class="text-muted mt-1">{{len .}} categories of crafting recipes.</p>
         <p class="mt-2"><a href="where.html">&#x1F3ED; Where Can I Make This? &mdash; public facilities by recipe and by station &rarr;</a></p>
+        <p class="mt-1"><a href="unlisted.html">&#x1F512; Unlisted Recipes &mdash; mission-unlocked recipes the catalog doesn't show &rarr;</a></p>
         <div class="item-categories">
 {{- range .}}
             <a href="{{.DirName}}/" class="item-cat-card">
