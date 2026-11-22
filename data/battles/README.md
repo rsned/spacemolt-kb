@@ -99,3 +99,17 @@ linked to this ship, not in this fight — so their absence from the log is
 expected here (unlike Haven). The `bandwidth_used` 250 against a
 `bandwidth_total` of 0 is that stranded-deployed state showing through.
 
+
+## `hostiles/` — repeater battle logs for the Hostiles pages
+
+Unmodified `get_battle_log` pages (`<id>.raw.json`) for every battle with a
+Frontier repeater in it. `generate-hostiles-kb` reads them all each run to
+work out each type's resistances, damage reflection (the weaponless `em`
+attack: a fixed share of the damage the attacker's volley landed — Sliver
+10%, Pane 20%, Spire 30%), movement, shield floor and hit chance by range.
+The knowledge DB only keeps per-weapon totals, so these can't come from there.
+
+Add new battles with one login (the battle ids are in `hostile_attacks`):
+
+    bin/battle-export --agent battle_bot1 --out-dir /tmp/hx --battle <id>,<id>,...
+    cp /tmp/hx/*.raw.json data/battles/hostiles/

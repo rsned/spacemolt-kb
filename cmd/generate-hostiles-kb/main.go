@@ -19,6 +19,7 @@ import (
 func main() {
 	dbPath := flag.String("db", "../spacemolt-knowledge.db", "knowledge database")
 	outDir := flag.String("out", "kb/hostiles", "output directory")
+	logDir := flag.String("logs", "data/battles/hostiles", "raw battle logs (battle-export --raw-out) to derive combat mechanics from")
 	flag.Parse()
 
 	db, err := sql.Open("sqlite", "file:"+*dbPath+"?mode=ro")
@@ -30,6 +31,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	mech, logs, err := loadMechanics(*logDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	attachMechanics(types, mech)
+	fmt.Printf("battle logs: %d from %s\n", logs, *logDir)
 	if err := writePages(*outDir, types); err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +50,7 @@ func writePages(outDir string, types []*HostileType) error {
 		return err
 	}
 	frontier := Page{Title: "Frontier",
-		Intro: "Repeaters: hostile units met in the uncharted frontier systems beyond the charted map. They fight in groups and so far deal energy damage.",
+		Intro: "Repeaters: hostile units met in the uncharted frontier systems beyond the charted map. They fight in groups, deal energy damage, keep their distance, and reflect part of the damage you land on them back at you as EM.",
 		Empty: "No repeaters recorded yet.",
 		Types: ofKind(types, "repeater")}
 	pirates := Page{Title: "Pirates",

@@ -23,6 +23,23 @@ type HostileType struct {
 	HardestHit float64
 	FirstSeen  string
 	LastSeen   string
+	Mech       *Mechanics // from raw battle logs; nil when none
+}
+
+// attachMechanics hangs each type's log-derived mechanics on it and names
+// the weaponless rows the reflection they are.
+func attachMechanics(ts []*HostileType, mech map[string]*Mechanics) {
+	for _, t := range ts {
+		t.Mech = mech[t.ID]
+		if t.Mech == nil || t.Mech.Reflect == nil {
+			continue
+		}
+		for i, w := range t.Weapons {
+			if w.Name == "" && w.DamageType == t.Mech.Reflect.DamageType {
+				t.Weapons[i].Name, t.Weapons[i].ShotKind = "Reflection", "reflected"
+			}
+		}
+	}
 }
 
 // Slug is the section anchor.

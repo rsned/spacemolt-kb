@@ -66,6 +66,16 @@ var funcs = htmltpl.FuncMap{
 		}
 		return s
 	},
+	"plural": plural,
+	"dtype": func(s string) string { // damage type label: em → EM, energy → Energy
+		if s == "em" {
+			return "EM"
+		}
+		if s == "" {
+			return ""
+		}
+		return strings.ToUpper(s[:1]) + s[1:]
+	},
 	"title": func(s string) string {
 		if s == "" {
 			return ""
@@ -175,13 +185,35 @@ var listTmpl = htmltpl.Must(htmltpl.New("list").Funcs(funcs).Parse(pageHead + `
             <div class="hz-empty">No sightings recorded yet.</div>
 {{- end}}
 
+{{- with .Mech}}
+            <div class="hz-section section-label">Combat behaviour <span class="text-muted" style="text-transform:none;letter-spacing:0">from {{.Logs}} battle {{plural .Logs "log" "logs"}}</span></div>
+            <table>
+                <tbody>
+{{- with .Reflect}}
+                    <tr><th>Reflects damage</th><td><b>{{.Pct}}%</b> of the damage each of your volleys lands on it comes straight back as {{dtype .DamageType}}, always hitting <span class="text-muted">(fits {{.Matches}} of {{.Samples}} reflections exactly{{if lt .MatchPct 100}}; the rest are small hits that round differently{{end}})</span></td></tr>
+{{- end}}
+{{- range .Resists}}
+                    <tr><th>{{dtype .DamageType}} resist</th><td><b>{{.Pct}}%</b> <span class="text-muted">({{.Hits}} {{plural .Hits "hit" "hits"}})</span></td></tr>
+{{- end}}
+                    <tr><th>Movement</th><td>{{if gt .Retreats .Advances}}Keeps its distance: retreats {{.Retreats}} {{plural .Retreats "time" "times"}}, advances {{.Advances}}{{else if .Advances}}Closes in: advances {{.Advances}} {{plural .Advances "time" "times"}}, retreats {{.Retreats}}{{else}}Holds position{{end}}; {{.OuterPct}}% of the time in the outer zone</td></tr>
+{{- if and (ge .MinShieldPct 0) .HitsTaken}}
+                    <tr><th>Lowest shield</th><td>{{.MinShieldPct}}% of max across {{.HitsTaken}} {{plural .HitsTaken "hit" "hits"}} taken{{if ge .MinShieldPct 95}} <span class="text-muted">&mdash; its shield stays full under fire, so only the damage that gets through to the hull wears it down</span>{{end}}</td></tr>
+{{- end}}
+{{- if .HitByRange}}
+                    <tr><th>Its hit chance</th><td>{{range $i, $r := .HitByRange}}{{if $i}} · {{end}}{{if eq .Distance 0}}same zone{{else}}{{.Distance}} {{plural .Distance "zone" "zones"}} apart{{end}} <b>{{.MeanPct}}%</b> <span class="text-muted">({{.Volleys}})</span>{{end}}</td></tr>
+{{- end}}
+                    <tr><th>Destroyed</th><td>{{.Destroyed}} {{plural .Destroyed "unit" "units"}}{{if .Kills}}; it destroyed {{.Kills}} {{plural .Kills "ship" "ships"}}{{end}}</td></tr>
+                </tbody>
+            </table>
+{{- end}}
+
             <div class="hz-section section-label">Weapons</div>
 {{- if .Weapons}}
             <table>
                 <thead><tr><th>Weapon</th><th>Damage type</th><th>Shot</th><th class="r">Hit rate</th><th class="r">Damage per hit</th><th class="r">Total damage</th><th class="r">Battles</th></tr></thead>
                 <tbody>
 {{- range .Weapons}}
-                    <tr><td>{{if .Name}}{{.Name}}{{else}}<span class="text-muted">(effect)</span>{{end}}</td><td>{{title .DamageType}}</td><td>{{title .ShotKind}}</td><td class="r">{{.HitPct}}% <span class="text-muted">({{.Hits}}/{{.Shots}})</span></td><td class="r">{{dmg .Min}}–{{dmg .Max}}</td><td class="r">{{dmg .Total}}</td><td class="r">{{.Battles}}</td></tr>
+                    <tr><td>{{if .Name}}{{.Name}}{{else}}<span class="text-muted">(effect)</span>{{end}}</td><td>{{dtype .DamageType}}</td><td>{{title .ShotKind}}</td><td class="r">{{.HitPct}}% <span class="text-muted">({{.Hits}}/{{.Shots}})</span></td><td class="r">{{dmg .Min}}–{{dmg .Max}}</td><td class="r">{{dmg .Total}}</td><td class="r">{{.Battles}}</td></tr>
 {{- end}}
                 </tbody>
             </table>
