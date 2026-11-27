@@ -162,6 +162,7 @@
             <a class="sub" href="#step-18">Step 18: Faction missions</a>
             <a class="sub" href="#step-19">Step 19: Storage buckets</a>
             <a href="#reading-your-station">Reading your station</a>
+            <a href="#running-costs">Running costs</a>
             <a href="#station-administration">Station administration</a>
             <a href="#what-you-can-build-here">What you can build here</a>
             <a href="#moving-a-facility">Moving a facility</a>
@@ -195,6 +196,14 @@ operating mode (for example running at half speed) and its description switches 
 facilities left unsatisfied (<em>measured</em>: one unpaid dock out of four took us from
 <code>thriving</code> to <code>operational</code>). On a young station with only one or two facilities, that
 one shortfall is most of the station, which is how ours hit <code>critical</code> (<em>measured</em>).</p>
+</blockquote>
+<blockquote>
+<p>⚠ <strong>The second rule: budget for labor.</strong> Besides its upkeep items, almost every facility
+charges the faction treasury a flat <strong>labor fee every 100 ticks</strong>, about 86 times a day.
+Rent is 0 at your own station, but labor is not. Our two stations (37 billing facilities)
+cost <strong>about 177,000 cr a day</strong> in labor alone, and it drained a 1,000,000 cr treasury in
+under a week (<em>measured</em> 2026-11-27). See <a href="#running-costs">Running costs</a> before you build
+defenses or a shipyard.</p>
 </blockquote>
 </div>
         <h2 id="build-order">Build order</h2>
@@ -743,8 +752,8 @@ itself down without moving the station's condition. A starving venue does move i
 Workshop) there is no &quot;starved&quot; list, only <code>maintenance_satisfied: false</code>. To know what to haul,
 compare the facility's <code>maintenance_per_cycle</code> (the upkeep tables in the steps above) against
 <code>view_faction_storage</code> at the station.</p>
-<p><strong>Two clocks:</strong> facility <strong>rent</strong> bills every <strong>100 ticks</strong> (about 17 minutes;
-<em>player-reported</em>), but facilities <strong>consume their upkeep</strong> on a separate maintenance cycle
+<p><strong>Two clocks:</strong> facility <strong>rent and labor</strong> bill every <strong>100 ticks</strong> (about 17 minutes;
+labor <em>measured</em> 2026-11-27, see <a href="#running-costs">Running costs</a>), but facilities <strong>consume their upkeep</strong> on a separate maintenance cycle
 of about <strong>3,000 ticks</strong> (about 8.3 hours). We measured that at Conjunction Junction: the
 Locker Bay, Faction Workshop and Refueling Dock each used one cycle's upkeep roughly every
 3,000 ticks, each on its own phase, counted from its build (<em>measured</em> 2026-10-27). A 100-tick
@@ -773,6 +782,176 @@ unsatisfied. One unpaid Refueling Dock out of four gave <code>satisfied_count 3 
 and <code>get_base</code> listed <strong>no services at all</strong>, so personal storage stopped working
 (<em>measured</em>).</li>
 </ul>
+<h2 id="running-costs">Running costs</h2>
+<p><strong>Labor is the big one.</strong> Every facility that bills labor charges a fixed number of credits
+to the faction treasury on the <strong>100-tick</strong> rent clock (16 min 40 s, about <strong>86 charges a
+day</strong>), not on the 3,000-tick upkeep cycle. Each charge appears in the faction action log
+(<code>get_action_log --category faction --faction_id &lt;id&gt;</code>) as a <code>faction.maintenance_paid</code>
+entry with <code>labor_cost</code> and, on the cycles where upkeep is consumed, <code>items</code>. The per-cycle
+figure is <code>labor_per_cycle</code> in <code>facility list</code> (<em>measured</em> 2026-11-27 over 20 cycles, 564
+entries).</p>
+<p>A facility's labor never pauses and doesn't depend on how busy it is. It is charged whether or
+not its upkeep items are stocked, and stocking them doesn't reduce it. It ends only when the
+facility is gone. Hand crafting has no labor fee; production jobs escrow their own, separately.</p>
+<p>Labor per facility, Conjunction Junction plus Beid (<em>measured</em> 2026-11-27):</p>
+<table>
+<thead>
+<tr>
+<th>Facility</th>
+<th>At CJ</th>
+<th>At Beid</th>
+<th>Labor per 100 ticks, each</th>
+<th>All copies per day</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../facilities/service/fabrication_yard.html">Fabrication Yard</a></td>
+<td>1</td>
+<td>0</td>
+<td>250</td>
+<td>21,600</td>
+</tr>
+<tr>
+<td><a href="../facilities/infrastructure/stellar_collector_grid.html">Stellar Collector Grid</a></td>
+<td>2</td>
+<td>1</td>
+<td>80</td>
+<td>20,736</td>
+</tr>
+<tr>
+<td><a href="../facilities/defense/shield_projector.html">Shield Projector</a></td>
+<td>2</td>
+<td>1</td>
+<td>60</td>
+<td>15,552</td>
+</tr>
+<tr>
+<td><a href="../facilities/defense/point_defense_battery.html">Point Defense Battery</a></td>
+<td>5</td>
+<td>3</td>
+<td>20</td>
+<td>13,824</td>
+</tr>
+<tr>
+<td><a href="../facilities/infrastructure/bunker_fed_reactor.html">Bunker-Fed Reactor</a></td>
+<td>3</td>
+<td>0</td>
+<td>50</td>
+<td>12,960</td>
+</tr>
+<tr>
+<td><a href="../facilities/defense/reinforced_plating.html">Reinforced Plating</a></td>
+<td>2</td>
+<td>1</td>
+<td>50</td>
+<td>12,960</td>
+</tr>
+<tr>
+<td><a href="../facilities/defense/siege_lance.html">Siege Lance</a></td>
+<td>1</td>
+<td>0</td>
+<td>140</td>
+<td>12,096</td>
+</tr>
+<tr>
+<td><a href="../facilities/infrastructure/atmospheric_recycler.html">Atmospheric Recycler</a></td>
+<td>2</td>
+<td>1</td>
+<td>40</td>
+<td>10,368</td>
+</tr>
+<tr>
+<td><a href="../facilities/service/refueling_dock.html">Refueling Dock</a></td>
+<td>1</td>
+<td>1</td>
+<td>60</td>
+<td>10,368</td>
+</tr>
+<tr>
+<td><a href="../facilities/service/faction_workshop.html">Faction Workshop</a></td>
+<td>1</td>
+<td>1</td>
+<td>60</td>
+<td>10,368</td>
+</tr>
+<tr>
+<td><a href="../facilities/service/trade_concourse.html">Trade Concourse</a></td>
+<td>1</td>
+<td>0</td>
+<td>100</td>
+<td>8,640</td>
+</tr>
+<tr>
+<td><a href="../facilities/defense/heavy_defense_battery.html">Heavy Defense Battery</a></td>
+<td>1</td>
+<td>0</td>
+<td>90</td>
+<td>7,776</td>
+</tr>
+<tr>
+<td><a href="../facilities/service/locker_bay.html">Locker Bay</a></td>
+<td>1</td>
+<td>1</td>
+<td>40</td>
+<td>6,912</td>
+</tr>
+<tr>
+<td><a href="../facilities/defense/fire_control_center.html">Fire Control Center</a></td>
+<td>1</td>
+<td>0</td>
+<td>70</td>
+<td>6,048</td>
+</tr>
+<tr>
+<td><a href="../facilities/service/reclamation_dock.html">Reclamation Dock</a></td>
+<td>1</td>
+<td>0</td>
+<td>60</td>
+<td>5,184</td>
+</tr>
+<tr>
+<td><a href="../facilities/infrastructure/fuel_tank_expansion.html">Fuel Tank Expansion</a></td>
+<td>1</td>
+<td>0</td>
+<td>10</td>
+<td>864</td>
+</tr>
+<tr>
+<td>Rec Lounge</td>
+<td>1</td>
+<td>0</td>
+<td>3–12 (varies)</td>
+<td>~260</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td>27</td>
+<td>10</td>
+<td>2,043</td>
+<td><strong>~176,500</strong></td>
+</tr>
+</tbody>
+</table>
+<p>That is about <strong>137,600 cr a day at Conjunction Junction</strong> and <strong>38,900 at Beid</strong>. The
+other facilities we own (garage, office, recruitment, intel, transit lounge, storage buckets,
+production lines) logged no labor charge in that window.</p>
+<p><strong>What to take from it:</strong></p>
+<ul>
+<li>Multiply any <code>labor_per_cycle</code> by <strong>86.4</strong> to get its daily cost. A 20 cr gun is 1,728 cr a
+day; a 250 cr shipyard is 21,600.</li>
+<li><strong>Defense is a standing bill.</strong> The 17 defense facilities above (shields, guns, plating, fire control) cost about 68,000 cr a day
+together, nearly 40% of our labor, and they earn nothing.</li>
+<li>Tourism and station revenue did not cover it: income ran at about 60,000 cr a day against
+about 177,000 labor plus rent elsewhere (<em>measured</em> 2026-11-27).</li>
+<li>Keep the treasury funded for <strong>days</strong> of labor, not one cycle. Watch it with <code>faction_info</code>
+(<code>Treasury</code>), and the per-cycle drain in the faction action log.</li>
+</ul>
+<p><strong>When the treasury runs dry</strong> (<em>measured</em> 2026-11-27, 19:44–21:24Z): each cycle only some
+facilities got paid (6 to 20 of 37 entries instead of 37), and a few took odd partial amounts
+(10, 13, 31, 40, 69 cr) as the last credits went. Upkeep items kept being consumed with
+<code>labor_cost: 0</code> on those cycles. All 37 charges resumed on the first cycle after a deposit. We
+did not check whether unpaid labor degrades the facility the way missing upkeep does.</p>
 <h2 id="station-administration">Station administration</h2>
 <p>Run these while docked at your own station. <code>info</code> is open to any member; every other
 action needs the <strong>ManageBases</strong> permission. Outposts support only <code>info</code>, <code>set_name</code> and
@@ -1459,6 +1638,7 @@ cycle length itself is settled at about 3,000 ticks).</li>
 <li>Exactly how <a href="../items/component/trade_authenticator.html">Trade Authenticator</a> upkeep scales with trades.</li>
 <li>What <code>set_toll</code> and <code>set_gate_access</code> do.</li>
 <li>Whether facility upkeep can draw from a storage bucket.</li>
+<li>Whether unpaid labor (an empty treasury) degrades a facility or the station's condition.</li>
 <li>How service pools (<a href="../items/consumable/medical_supplies.html">Medical Supplies</a>, <a href="../items/consumable/protein_rations.html">Protein Rations</a>) draw down, and on what cycle.</li>
 </ul>
 </div>

@@ -26,6 +26,13 @@ intro: |
   > facilities left unsatisfied (*measured*: one unpaid dock out of four took us from
   > `thriving` to `operational`). On a young station with only one or two facilities, that
   > one shortfall is most of the station, which is how ours hit `critical` (*measured*).
+
+  > ⚠ **The second rule: budget for labor.** Besides its upkeep items, almost every facility
+  > charges the faction treasury a flat **labor fee every 100 ticks**, about 86 times a day.
+  > Rent is 0 at your own station, but labor is not. Our two stations (37 billing facilities)
+  > cost **about 177,000 cr a day** in labor alone, and it drained a 1,000,000 cr treasury in
+  > under a week (*measured* 2026-11-27). See [Running costs](#running-costs) before you build
+  > defenses or a shipyard.
 steps:
   - title: Found the station
     facts:
@@ -418,8 +425,8 @@ Workshop) there is no "starved" list, only `maintenance_satisfied: false`. To kn
 compare the facility's `maintenance_per_cycle` (the upkeep tables in the steps above) against
 `view_faction_storage` at the station.
 
-**Two clocks:** facility **rent** bills every **100 ticks** (about 17 minutes;
-*player-reported*), but facilities **consume their upkeep** on a separate maintenance cycle
+**Two clocks:** facility **rent and labor** bill every **100 ticks** (about 17 minutes;
+labor *measured* 2026-11-27, see [Running costs](#running-costs)), but facilities **consume their upkeep** on a separate maintenance cycle
 of about **3,000 ticks** (about 8.3 hours). We measured that at Conjunction Junction: the
 Locker Bay, Faction Workshop and Refueling Dock each used one cycle's upkeep roughly every
 3,000 ticks, each on its own phase, counted from its build (*measured* 2026-10-27). A 100-tick
@@ -449,6 +456,63 @@ cycle's upkeep is used every 30 × 100 = 3,000 ticks, life support included. Tha
   `thriving` to `critical` (*"Critical infrastructure failure. Emergency lighting only."*),
   and `get_base` listed **no services at all**, so personal storage stopped working
   (*measured*).
+
+## Running costs
+
+**Labor is the big one.** Every facility that bills labor charges a fixed number of credits
+to the faction treasury on the **100-tick** rent clock (16 min 40 s, about **86 charges a
+day**), not on the 3,000-tick upkeep cycle. Each charge appears in the faction action log
+(`get_action_log --category faction --faction_id <id>`) as a `faction.maintenance_paid`
+entry with `labor_cost` and, on the cycles where upkeep is consumed, `items`. The per-cycle
+figure is `labor_per_cycle` in `facility list` (*measured* 2026-11-27 over 20 cycles, 564
+entries).
+
+A facility's labor never pauses and doesn't depend on how busy it is. It is charged whether or
+not its upkeep items are stocked, and stocking them doesn't reduce it. It ends only when the
+facility is gone. Hand crafting has no labor fee; production jobs escrow their own, separately.
+
+Labor per facility, Conjunction Junction plus Beid (*measured* 2026-11-27):
+
+| Facility | At CJ | At Beid | Labor per 100 ticks, each | All copies per day |
+|---|---|---|---|---|
+| [[fabrication_yard]] | 1 | 0 | 250 | 21,600 |
+| [[stellar_collector_grid]] | 2 | 1 | 80 | 20,736 |
+| [[shield_projector]] | 2 | 1 | 60 | 15,552 |
+| [[point_defense_battery]] | 5 | 3 | 20 | 13,824 |
+| [[bunker_fed_reactor]] | 3 | 0 | 50 | 12,960 |
+| [[reinforced_plating]] | 2 | 1 | 50 | 12,960 |
+| [[siege_lance]] | 1 | 0 | 140 | 12,096 |
+| [[atmospheric_recycler]] | 2 | 1 | 40 | 10,368 |
+| [[refueling_dock]] | 1 | 1 | 60 | 10,368 |
+| [[faction_workshop]] | 1 | 1 | 60 | 10,368 |
+| [[trade_concourse]] | 1 | 0 | 100 | 8,640 |
+| [[heavy_defense_battery]] | 1 | 0 | 90 | 7,776 |
+| [[locker_bay]] | 1 | 1 | 40 | 6,912 |
+| [[fire_control_center]] | 1 | 0 | 70 | 6,048 |
+| [[reclamation_dock]] | 1 | 0 | 60 | 5,184 |
+| [[fuel_tank_expansion]] | 1 | 0 | 10 | 864 |
+| Rec Lounge | 1 | 0 | 3–12 (varies) | ~260 |
+| **Total** | 27 | 10 | 2,043 | **~176,500** |
+
+That is about **137,600 cr a day at Conjunction Junction** and **38,900 at Beid**. The
+other facilities we own (garage, office, recruitment, intel, transit lounge, storage buckets,
+production lines) logged no labor charge in that window.
+
+**What to take from it:**
+- Multiply any `labor_per_cycle` by **86.4** to get its daily cost. A 20 cr gun is 1,728 cr a
+  day; a 250 cr shipyard is 21,600.
+- **Defense is a standing bill.** The 17 defense facilities above (shields, guns, plating, fire control) cost about 68,000 cr a day
+  together, nearly 40% of our labor, and they earn nothing.
+- Tourism and station revenue did not cover it: income ran at about 60,000 cr a day against
+  about 177,000 labor plus rent elsewhere (*measured* 2026-11-27).
+- Keep the treasury funded for **days** of labor, not one cycle. Watch it with `faction_info`
+  (`Treasury`), and the per-cycle drain in the faction action log.
+
+**When the treasury runs dry** (*measured* 2026-11-27, 19:44–21:24Z): each cycle only some
+facilities got paid (6 to 20 of 37 entries instead of 37), and a few took odd partial amounts
+(10, 13, 31, 40, 69 cr) as the last credits went. Upkeep items kept being consumed with
+`labor_cost: 0` on those cycles. All 37 charges resumed on the first cycle after a deposit. We
+did not check whether unpaid labor degrades the facility the way missing upkeep does.
 
 ## Station administration
 
@@ -830,4 +894,5 @@ points do beyond revenue.
 - Exactly how [[trade_authenticator]] upkeep scales with trades.
 - What `set_toll` and `set_gate_access` do.
 - Whether facility upkeep can draw from a storage bucket.
+- Whether unpaid labor (an empty treasury) degrades a facility or the station's condition.
 - How service pools ([[medical_supplies]], [[protein_rations]]) draw down, and on what cycle.
