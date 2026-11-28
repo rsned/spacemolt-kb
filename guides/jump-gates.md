@@ -54,10 +54,15 @@ steps:
         dismantling a gate returns each fully built end's Lane Anchor.
       - **Lane Anchor Prototype:** a test build with a fifth of the [[seam_glass]] and mirror
         facets and a quarter of the [[darksteel_plating]]. It still needs a full fold knot.
-      - **Fold Lattice:** "a lot of it". How many a gate takes is not yet measured. Each one
-        uses [[seam_glass]], echo cells and [[phase_matrix]].
-      - **Gate Regulator:** keeps the fold from drifting. Uses echo cells,
-        [[solarian_composite]] and [[prismatic_lens]].
+      - **Fold Lattice:** "a lot of it": 40 per end, 80 per gate (see *Found the site*). Each
+        one uses [[seam_glass]], echo cells and [[phase_matrix]].
+      - **Gate Regulator:** keeps the fold from drifting. 10 per end, 20 per gate. Uses echo
+        cells, [[solarian_composite]] and [[prismatic_lens]].
+
+      Put together, the gate parts for a whole gate (2 Lane Anchors, 80 Fold Lattice, 20 Gate
+      Regulators) come to about **900 seam glass, 240 echo cells, 20 mirror facets and 2 fold
+      knots**, plus 80 darksteel plating, 800 phase matrix, 200 solarian composite and 100
+      prismatic lens (computed from the recipes above and the phase lists).
       - **Fold Shim:** the wear part. The fold wears through its shims, so a standing gate needs
         a steady supply of [[annealed_seam_glass]] and [[circuit_board]].
 
@@ -112,7 +117,9 @@ steps:
       - {label: Site defenses, value: "an outpost: 12,000 hull · 0 shield · no weapons, at founding", basis: "measured (get_base)"}
       - {label: Phases, value: "4 per site", basis: "measured (station info)"}
       - {label: "Phase 1: Base platform", value: "500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)", basis: "measured (station info)"}
-      - {label: "Phases 2 to 4: labor", value: "6,000 cr × 150 cycles · 25,000 × 150 · 18,000 × 200", basis: "player-reported"}
+      - {label: "Phase 2: Infrastructure", value: "300 circuit board · 60 control node · 150 coolant loop · 2 station reactor · 150 cycles · 6,000 cr labor per cycle (0.9M)", basis: "player-reported (station info)"}
+      - {label: "Phase 3: Gate frame", value: "90 docking ring · 20 Fold Lattice · 220 reinforced frame · 150 cycles · 25,000 cr labor per cycle (3.75M)", basis: "player-reported (station info)"}
+      - {label: "Phase 4", value: "20 Fold Lattice · 10 Gate Regulator · 1 Lane Anchor · 60 quantum control core · 1 quantum entangler · 200 cycles · 18,000 cr labor per cycle (3.6M)", basis: "player-reported (station info); phase name not yet reported"}
       - {label: Labor per end, value: "about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M", basis: "computed from the phase figures"}
       - {label: One pair at a time, value: "a faction can build only one gate pair at once", basis: "player-reported (build_failed error)"}
       - {label: Survival, value: "a fresh site in a lawless system was destroyed by another player 1 h 48 min after founding, before any materials went in", basis: "measured 2026-11-28 (base_destroyed)"}
@@ -148,6 +155,14 @@ steps:
       300 [[structural_frame]], runs 100 cycles and pays **37,000 cr of labor per cycle**:
       3.7M cr for the phase, about 3.2M cr a day while it builds, and that is for one end.
       Have the treasury ready before materials go in.
+
+      **Phase 2, Infrastructure,** takes 300 [[circuit_board]], 60 [[control_node]], 150
+      [[coolant_loop]] and 2 [[station_reactor]]. **Phase 3, Gate frame,** takes 90
+      [[docking_ring]], 20 **Fold Lattice** and 220 [[reinforced_frame]]. **Phase 4** takes the
+      gate parts: 20 more **Fold Lattice**, 10 **Gate Regulator**, the end's one **Lane Anchor**,
+      60 [[quantum_control_core]] and 1 [[quantum_entangler]] (*player-reported*, from
+      `station info` at another builder's site). So each end takes **40 Fold Lattice, 10 Gate
+      Regulators and 1 Lane Anchor**; a whole gate twice that.
 
       Labor for the later phases is lower: **6,000**, **25,000** and **18,000 cr per cycle** for
       phases 2, 3 and 4, which run 150, 150 and 200 cycles (*player-reported*). Phase by phase that
@@ -190,8 +205,7 @@ steps:
 
 ## Not yet measured
 
-- How many Fold Lattice and Gate Regulators one gate takes.
-- What phases 2 to 4 need in materials.
+- The name of phase 4.
 - Whether a cycle with no materials in storage still charges labor.
 - Whether a destroyed site leaves a wreck, returns anything, or frees the faction's one gate pair.
 - Whether a site's hull can be repaired or raised during construction.

@@ -201,10 +201,16 @@ skills; yours will differ.</p>
 dismantling a gate returns each fully built end's Lane Anchor.</li>
 <li><strong>Lane Anchor Prototype:</strong> a test build with a fifth of the <a href="../items/ore/seam_glass.html">Seam Glass</a> and mirror
 facets and a quarter of the <a href="../items/refined/darksteel_plating.html">Darksteel Plating</a>. It still needs a full fold knot.</li>
-<li><strong>Fold Lattice:</strong> &quot;a lot of it&quot;. How many a gate takes is not yet measured. Each one
-uses <a href="../items/ore/seam_glass.html">Seam Glass</a>, echo cells and <a href="../items/refined/phase_matrix.html">Phase Matrix</a>.</li>
-<li><strong>Gate Regulator:</strong> keeps the fold from drifting. Uses echo cells,
-<a href="../items/refined/solarian_composite.html">Solarian Composite</a> and <a href="../items/refined/prismatic_lens.html">Prismatic Lens</a>.</li>
+<li><strong>Fold Lattice:</strong> &quot;a lot of it&quot;: 40 per end, 80 per gate (see <em>Found the site</em>). Each
+one uses <a href="../items/ore/seam_glass.html">Seam Glass</a>, echo cells and <a href="../items/refined/phase_matrix.html">Phase Matrix</a>.</li>
+<li><strong>Gate Regulator:</strong> keeps the fold from drifting. 10 per end, 20 per gate. Uses echo
+cells, <a href="../items/refined/solarian_composite.html">Solarian Composite</a> and <a href="../items/refined/prismatic_lens.html">Prismatic Lens</a>.</li>
+</ul>
+<p>Put together, the gate parts for a whole gate (2 Lane Anchors, 80 Fold Lattice, 20 Gate
+Regulators) come to about <strong>900 seam glass, 240 echo cells, 20 mirror facets and 2 fold
+knots</strong>, plus 80 darksteel plating, 800 phase matrix, 200 solarian composite and 100
+prismatic lens (computed from the recipes above and the phase lists).</p>
+<ul>
 <li><strong>Fold Shim:</strong> the wear part. The fold wears through its shims, so a standing gate needs
 a steady supply of <a href="../items/refined/annealed_seam_glass.html">Annealed Seam Glass</a> and <a href="../items/refined/circuit_board.html">Circuit Board</a>.</li>
 </ul>
@@ -248,7 +254,7 @@ Only slivers, panes and spires simply respawn; only Monoliths multiply.</p>
         </section>
         <section class="step-card" id="step-4">
             <h3>Step 4: Found the site</h3>
-            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>Phases</dt><dd><b>4 per site</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phase 1: Base platform</dt><dd><b>500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phases 2 to 4: labor</dt><dd><b>6,000 cr × 150 cycles · 25,000 × 150 · 18,000 × 200</b><span class="basis">player-reported</span></dd></div><div class="fact"><dt>Labor per end</dt><dd><b>about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M</b><span class="basis">computed from the phase figures</span></dd></div><div class="fact"><dt>One pair at a time</dt><dd><b>a faction can build only one gate pair at once</b><span class="basis">player-reported (build_failed error)</span></dd></div><div class="fact"><dt>Survival</dt><dd><b>a fresh site in a lawless system was destroyed by another player 1 h 48 min after founding, before any materials went in</b><span class="basis">measured 2026-11-28 (base_destroyed)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
+            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>Phases</dt><dd><b>4 per site</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phase 1: Base platform</dt><dd><b>500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phase 2: Infrastructure</dt><dd><b>300 circuit board · 60 control node · 150 coolant loop · 2 station reactor · 150 cycles · 6,000 cr labor per cycle (0.9M)</b><span class="basis">player-reported (station info)</span></dd></div><div class="fact"><dt>Phase 3: Gate frame</dt><dd><b>90 docking ring · 20 Fold Lattice · 220 reinforced frame · 150 cycles · 25,000 cr labor per cycle (3.75M)</b><span class="basis">player-reported (station info)</span></dd></div><div class="fact"><dt>Phase 4</dt><dd><b>20 Fold Lattice · 10 Gate Regulator · 1 Lane Anchor · 60 quantum control core · 1 quantum entangler · 200 cycles · 18,000 cr labor per cycle (3.6M)</b><span class="basis">player-reported (station info); phase name not yet reported</span></dd></div><div class="fact"><dt>Labor per end</dt><dd><b>about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M</b><span class="basis">computed from the phase figures</span></dd></div><div class="fact"><dt>One pair at a time</dt><dd><b>a faction can build only one gate pair at once</b><span class="basis">player-reported (build_failed error)</span></dd></div><div class="fact"><dt>Survival</dt><dd><b>a fresh site in a lawless system was destroyed by another player 1 h 48 min after founding, before any materials went in</b><span class="basis">measured 2026-11-28 (base_destroyed)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
             <p>Found one end from the system it will stand in, naming the system the <strong>other</strong> end
 will stand in as <code>far_system</code>. The field is <code>far_system</code>: <code>system_id</code> is rejected with
 <code>invalid_payload</code> (<em>measured</em>). The site anchors at <strong>its own new point of interest</strong>
@@ -275,6 +281,13 @@ is guarded.</p>
 300 <a href="../items/component/structural_frame.html">Structural Frame</a>, runs 100 cycles and pays <strong>37,000 cr of labor per cycle</strong>:
 3.7M cr for the phase, about 3.2M cr a day while it builds, and that is for one end.
 Have the treasury ready before materials go in.</p>
+<p><strong>Phase 2, Infrastructure,</strong> takes 300 <a href="../items/refined/circuit_board.html">Circuit Board</a>, 60 <a href="../items/component/control_node.html">Control Node</a>, 150
+<a href="../items/component/coolant_loop.html">Coolant Loop</a> and 2 <a href="../items/component/station_reactor.html">Station Reactor</a>. <strong>Phase 3, Gate frame,</strong> takes 90
+<a href="../items/component/docking_ring.html">Docking Ring</a>, 20 <strong>Fold Lattice</strong> and 220 <a href="../items/component/reinforced_frame.html">Reinforced Frame</a>. <strong>Phase 4</strong> takes the
+gate parts: 20 more <strong>Fold Lattice</strong>, 10 <strong>Gate Regulator</strong>, the end's one <strong>Lane Anchor</strong>,
+60 <a href="../items/component/quantum_control_core.html">Quantum Control Core</a> and 1 <a href="../items/component/quantum_entangler.html">Quantum Entangler</a> (<em>player-reported</em>, from
+<code>station info</code> at another builder's site). So each end takes <strong>40 Fold Lattice, 10 Gate
+Regulators and 1 Lane Anchor</strong>; a whole gate twice that.</p>
 <p>Labor for the later phases is lower: <strong>6,000</strong>, <strong>25,000</strong> and <strong>18,000 cr per cycle</strong> for
 phases 2, 3 and 4, which run 150, 150 and 200 cycles (<em>player-reported</em>). Phase by phase that
 is 3.7M, 0.9M, 3.75M and 3.6M: <strong>about 11.95M cr of labor per end</strong> over 600 cycles, about
@@ -309,8 +322,7 @@ its text now explains how they come about.</p>
         </div>
         <div class="guide-body"><h2 id="not-yet-measured">Not yet measured</h2>
 <ul>
-<li>How many Fold Lattice and Gate Regulators one gate takes.</li>
-<li>What phases 2 to 4 need in materials.</li>
+<li>The name of phase 4.</li>
 <li>Whether a cycle with no materials in storage still charges labor.</li>
 <li>Whether a destroyed site leaves a wreck, returns anything, or frees the faction's one gate pair.</li>
 <li>Whether a site's hull can be repaired or raised during construction.</li>
