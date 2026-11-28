@@ -115,6 +115,7 @@ steps:
       - {label: "Phases 2 to 4: labor", value: "6,000 cr × 150 cycles · 25,000 × 150 · 18,000 × 200", basis: "player-reported"}
       - {label: Labor per end, value: "about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M", basis: "computed from the phase figures"}
       - {label: One pair at a time, value: "a faction can build only one gate pair at once", basis: "player-reported (build_failed error)"}
+      - {label: Survival, value: "a fresh site in a lawless system was destroyed by another player 1 h 48 min after founding, before any materials went in", basis: "measured 2026-11-28 (base_destroyed)"}
       - {label: Visibility, value: "listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off", basis: "measured"}
       - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
     notes: |
@@ -134,6 +135,14 @@ steps:
       storage, each paying labor from the treasury while it builds. `station info` at the site shows
       a `gate` block: the phase number and name, `phases_total` (4), `phase_cycles`,
       `phase_labor_per_cycle` and `phase_materials_left` (*measured*).
+
+      **Guard the site from the moment it exists.** It shows up in `get_system` for everyone
+      in the system, it has no shield and no weapons, and in a lawless system nobody else
+      will defend it. A site has been destroyed less than two hours after founding
+      (*measured*): the 2,500,000 cr fee was lost with it. Found the site with an escort
+      already in the system, or pick an end where you can keep ships on station for the
+      whole build, about a week. Hold the construction materials elsewhere until the site
+      is guarded.
 
       **Phase 1, Base platform,** takes 500 [[hull_plating]], 300 [[reinforced_bulkhead]] and
       300 [[structural_frame]], runs 100 cycles and pays **37,000 cr of labor per cycle**:
@@ -184,7 +193,8 @@ steps:
 - How many Fold Lattice and Gate Regulators one gate takes.
 - What phases 2 to 4 need in materials.
 - Whether a cycle with no materials in storage still charges labor.
-- Labor per cycle while a site builds, and how long a site takes to finish.
+- Whether a destroyed site leaves a wreck, returns anything, or frees the faction's one gate pair.
+- Whether a site's hull can be repaired or raised during construction.
 - Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.
 - What crossing a gate costs, who may cross (the public access setting), and how fast it is.
 - How often an entangler in gate storage turns incoherent.
