@@ -5,7 +5,7 @@ intro: |
   A **jump gate** is a fold in space held open between two systems: a **Lane Anchor** at each
   end holds the fold, a lot of **Fold Lattice** gives it something to stand on, and **Gate
   Regulators** keep it from drifting. Players build them. The first gate in the galaxy was
-  built by another player, and more are under construction now, ours among them.
+  built by another player (*player-reported*), and more are under construction now.
 
   The recipes are not in the public catalog yet. The numbers below come from our own recipe
   capture after finishing the chain that grants them. As elsewhere in the KB, our own
@@ -26,7 +26,7 @@ steps:
     facts:
       - {label: Given by, value: "Sinter, Starfall Salvage Station", basis: "measured"}
       - {label: Chain ends, value: "Taking the Machine Apart → Bench Test → The Method", basis: "measured"}
-      - {label: Unlocks, value: "Lane Anchor, Lane Anchor Prototype, Fold Lattice, Gate Regulator, Fold Shim", basis: "measured 2026-11-21 (recipe capture)"}
+      - {label: Unlocks, value: "Lane Anchor, Lane Anchor Prototype, Fold Lattice, Gate Regulator, Fold Shim", basis: "measured 2026-11-21 (recipe capture); time per run is skill-adjusted"}
     notes: |
       The recipes are granted when you complete **The Method**, the last mission of Sinter's
       chain. Its completion text sums the build up: "A Lane Anchor at each end, holding the
@@ -39,13 +39,15 @@ steps:
       up; the fold knot is the hinge every Lane Anchor is built around.
   - title: The parts
     facts:
-      - {label: Lane Anchor, value: "50 seam glass · 1 fold knot · 10 mirror facet · 40 darksteel plating · 8.62 s", basis: "measured 2026-11-21 (recipe capture)"}
-      - {label: Lane Anchor Prototype, value: "10 seam glass · 1 fold knot · 2 mirror facet · 10 darksteel plating · 1.72 s", basis: "measured 2026-11-21 (recipe capture)"}
-      - {label: Fold Lattice, value: "10 seam glass · 2 echo cell · 10 phase matrix · 2.59 s", basis: "measured 2026-11-21 (recipe capture)"}
-      - {label: Gate Regulator, value: "4 echo cell · 10 solarian composite · 5 prismatic lens · 3.45 s", basis: "measured 2026-11-21 (recipe capture)"}
-      - {label: Fold Shim, value: "2 annealed seam glass · 2 circuit board · 2.59 s", basis: "measured 2026-11-21 (recipe capture)"}
+      - {label: Lane Anchor, value: "50 seam glass · 1 fold knot · 10 mirror facet · 40 darksteel plating · 8.62 ticks", basis: "measured 2026-11-21 (recipe capture); time per run is skill-adjusted"}
+      - {label: Lane Anchor Prototype, value: "10 seam glass · 1 fold knot · 2 mirror facet · 10 darksteel plating · 1.72 ticks", basis: "measured 2026-11-21 (recipe capture); time per run is skill-adjusted"}
+      - {label: Fold Lattice, value: "10 seam glass · 2 echo cell · 10 phase matrix · 2.59 ticks", basis: "measured 2026-11-21 (recipe capture); time per run is skill-adjusted"}
+      - {label: Gate Regulator, value: "4 echo cell · 10 solarian composite · 5 prismatic lens · 3.45 ticks", basis: "measured 2026-11-21 (recipe capture); time per run is skill-adjusted"}
+      - {label: Fold Shim, value: "2 annealed seam glass · 2 circuit board · 2.59 ticks", basis: "measured 2026-11-21 (recipe capture); time per run is skill-adjusted"}
     notes: |
-      All five are hand-crafted in a station workshop. Hand crafting charges no labor fee.
+      All five are hand-crafted in a station workshop. Hand crafting charges no labor fee. The
+      times above are ticks per run for the crafter who captured them, already sped up by their
+      skills; yours will differ.
 
       - **Lane Anchor:** one at each end of the gate, so two per gate. Each takes a whole
         [[fold_knot]], which is the scarcest input in the whole build. Per the recipe note,
@@ -67,13 +69,13 @@ steps:
     facts:
       - {label: Repeater Sliver, value: "100 hull / 150 shield · drops 1 mirror facet (plus seam glass or trade crystal, by site)", basis: "measured (wreck reads)"}
       - {label: Repeater Pane, value: "400 / 600 · drops 1 echo cell + 2 mirror facets", basis: "measured (wreck reads)"}
-      - {label: Repeater Spire, value: "1,600 / 2,400 · drops 2 echo cells + 4 mirror facets, rarely a fold knot", basis: "measured (wreck reads); fold knot in 1 of 4 spire kills so far"}
+      - {label: Repeater Spire, value: "1,600 / 2,400 · drops 2 echo cells + 4 mirror facets, sometimes a fold knot", basis: "measured (wreck reads); too few kills to give a rate"}
       - {label: Seam glass, value: "about 17,700 across 10 systems", basis: "player-reported"}
     notes: |
       **Repeaters** are Frontier hostiles, crystalline machines found in small groups out past
       charted space. Echo cells, mirror facets and fold knots all come from their wrecks: loot
-      the wreck after each kill. The [[fold_knot]] is a rare **spire** drop, so a gate's two
-      anchors mean a lot of spires.
+      the wreck after each kill. The [[fold_knot]] is an uncommon **spire** drop (too few kills
+      yet to give a rate), so a gate's two anchors mean a lot of spires.
 
       Repeaters **reflect damage**. Every hit on a pane sends back a flat amount (about 15)
       as EM damage; a spire sends back a share of the *energy* damage it takes. Kinetic weapons
@@ -82,11 +84,10 @@ steps:
 
       **[[seam_glass]]** is mined, not crafted. It sits in **nebula shells guarded by
       repeaters**: in the deposits we know, every shell of any size had a group sitting on
-      it. Deposits run from a few hundred to several thousand units. We are not publishing
-      where they are; look for nebulae with repeaters on them in frontier systems.
+      it. Deposit sizes vary widely. We are not publishing where they are; look for nebulae with repeaters on them in frontier systems.
 
       **Working a guarded shell.** Repeaters respawn, so clearing a shell once is not enough.
-      What works is a **heavily tanked miner** that can sit on the shell and take the
+      The approach that fits is a **heavily tanked miner** that can sit on the shell and take the
       reflected and direct damage, plus an **escort** that kills each repeater as it respawns.
       Each round of kills also pays out echo cells and mirror facets, so the mining trip and the
       repeater hunt are the same trip. Frontier systems are mostly off the lanes, so both ships
@@ -100,15 +101,16 @@ steps:
       Monoliths are not a harder spire: today they are **undefeatable**. Every kill spawns two
       more, so the fight only grows, and a ship in that fight cannot flee it. One player fought
       Monoliths continuously for eight hours, destroyed 354, and was lost (*player-reported*).
-      A Monolith has also destroyed a survey ship of ours (*measured*).
 
       Treat any system where a Monolith has been seen as closed, even if it holds seam glass.
       Only slivers, panes and spires simply respawn; only Monoliths multiply.
   - title: Found the site
     facts:
-      - {label: Command, value: "build_gate_site {\"name\": \"…\", \"far_system\": \"<system id>\"}", basis: "measured 2026-11-28"}
-      - {label: Founding fee, value: "2,500,000 cr", credits: 2500000, basis: "measured 2026-11-28"}
-      - {label: Public access, value: "off at founding", basis: "measured 2026-11-28"}
+      - {label: Command, value: "build_gate_site {\"name\": \"…\", \"far_system\": \"<system id>\"}", basis: "measured"}
+      - {label: Founding fee, value: "2,500,000 cr", credits: 2500000, basis: "measured"}
+      - {label: Public access, value: "off at founding", basis: "measured"}
+      - {label: Site defenses, value: "an outpost: 12,000 hull · 0 shield · no weapons, at founding", basis: "measured (get_base)"}
+      - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
     notes: |
       Found one end from the system it will stand in, naming the system the **other** end
       will stand in as `far_system`. The field is `far_system`: `system_id` is rejected with
@@ -131,7 +133,8 @@ steps:
       [[annealed_seam_glass]] and [[circuit_board]] for as long as it stands (from the recipe
       and mission text; the rate is not yet measured).
 
-      **Entanglers.** [[quantum_entangler]]s sit in a gate's storage as upkeep. Sometimes one
+      **Entanglers.** [[quantum_entangler]]s sit in a gate's storage as upkeep (*player-reported*;
+      the mission text agrees). Sometimes one
       goes wrong: the logs call it **incoherent**. [[incoherent_entangler]]s have been found in
       gate storage, including one in an unfinished gate's storage on its inaccessible side
       (*player-reported*). First Step Memorial Station's mission *It Hums* asks for one, and
