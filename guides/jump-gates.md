@@ -122,7 +122,7 @@ steps:
       - {label: "Phase 4", value: "20 Fold Lattice · 10 Gate Regulator · 1 Lane Anchor · 60 quantum control core · 1 quantum entangler · 200 cycles · 18,000 cr labor per cycle (3.6M)", basis: "player-reported (station info); phase name not yet reported"}
       - {label: Labor per end, value: "about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M", basis: "computed from the phase figures"}
       - {label: One pair at a time, value: "a faction can build only one gate pair at once", basis: "player-reported (build_failed error)"}
-      - {label: Survival, value: "a fresh site in a lawless system was destroyed by another player 1 h 48 min after founding, before any materials went in", basis: "measured 2026-11-28 (base_destroyed)"}
+      - {label: Under attack, value: "a fresh site in a lawless system was attacked by another player 1 h 48 min after founding and reported destroyed (base_destroyed); station info afterward still showed the site at phase 1 with its gate block intact", basis: "measured 2026-11-28"}
       - {label: Visibility, value: "listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off", basis: "measured"}
       - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
     notes: |
@@ -145,11 +145,14 @@ steps:
 
       **Guard the site from the moment it exists.** It shows up in `get_system` for everyone
       in the system, it has no shield and no weapons, and in a lawless system nobody else
-      will defend it. A site has been destroyed less than two hours after founding
-      (*measured*): the 2,500,000 cr fee was lost with it. Found the site with an escort
-      already in the system, or pick an end where you can keep ships on station for the
-      whole build, about a week. Hold the construction materials elsewhere until the site
-      is guarded.
+      will defend it. A site was attacked less than two hours after founding and the server
+      sent `base_destroyed` (*measured*). The site itself survived: `station info` afterward
+      still showed it at phase 1 with its gate block unchanged. What the attack did take
+      (the outpost's hull, its storage, its services) is not yet measured. Found the site
+      with an escort already in the system, or pick an end where you can keep ships on
+      station for the whole build, about a week. Hold the construction materials elsewhere
+      until the site is guarded: what a destroyed outpost does to faction storage deposited
+      there is unknown.
 
       **Phase 1, Base platform,** takes 500 [[hull_plating]], 300 [[reinforced_bulkhead]] and
       300 [[structural_frame]], runs 100 cycles and pays **37,000 cr of labor per cycle**:
@@ -207,7 +210,7 @@ steps:
 
 - The name of phase 4.
 - Whether a cycle with no materials in storage still charges labor.
-- Whether a destroyed site leaves a wreck, returns anything, or frees the faction's one gate pair.
+- What `base_destroyed` does to a gate site: its hull, its storage, and whether construction keeps running.
 - Whether a site's hull can be repaired or raised during construction.
 - Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.
 - What crossing a gate costs, who may cross (the public access setting), and how fast it is.
