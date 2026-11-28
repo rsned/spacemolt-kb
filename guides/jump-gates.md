@@ -110,6 +110,7 @@ steps:
       - {label: Founding fee, value: "2,500,000 cr", credits: 2500000, basis: "measured"}
       - {label: Public access, value: "off at founding", basis: "measured"}
       - {label: Site defenses, value: "an outpost: 12,000 hull · 0 shield · no weapons, at founding", basis: "measured (get_base)"}
+      - {label: Visibility, value: "listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off", basis: "measured"}
       - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
     notes: |
       Found one end from the system it will stand in, naming the system the **other** end
