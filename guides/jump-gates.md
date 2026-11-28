@@ -123,6 +123,7 @@ steps:
       - {label: Labor per end, value: "about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M", basis: "computed from the phase figures"}
       - {label: One pair at a time, value: "a faction can build only one gate pair at once", basis: "player-reported (build_failed error)"}
       - {label: Under attack, value: "a fresh site in a lawless system was attacked by another player 1 h 48 min after founding and reported destroyed (base_destroyed); station info afterward still showed the site at phase 1 with its gate block intact", basis: "measured 2026-11-28"}
+      - {label: After the attack, value: "outpost wrecked: hull 2,280 of 12,000; repair target 6,000 hull; the Faction Lockbox needs 60 steel plate + 15 circuit board in faction storage at the site", basis: "measured 2026-11-28 (get_base)"}
       - {label: Visibility, value: "listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off", basis: "measured"}
       - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
     notes: |
@@ -147,8 +148,12 @@ steps:
       in the system, it has no shield and no weapons, and in a lawless system nobody else
       will defend it. A site was attacked less than two hours after founding and the server
       sent `base_destroyed` (*measured*). The site itself survived: `station info` afterward
-      still showed it at phase 1 with its gate block unchanged. What the attack did take
-      (the outpost's hull, its storage, its services) is not yet measured. Found the site
+      still showed it at phase 1 with its gate block unchanged. "Destroyed" means
+      **wrecked**: `get_base` shows `wrecked: true`, hull down to 2,280 of 12,000, and a
+      `repairs` block. The repair brings the hull back to 6,000 and fixes the damaged
+      Faction Lockbox, which needs 60 [[steel_plate]] and 15 [[circuit_board]]. Deposit
+      them into the founding faction's storage at the site; a fully supplied repair starts
+      on the next station repair cycle (server text, *measured*). Found the site
       with an escort already in the system, or pick an end where you can keep ships on
       station for the whole build, about a week. Hold the construction materials elsewhere
       until the site is guarded: what a destroyed outpost does to faction storage deposited
@@ -210,7 +215,8 @@ steps:
 
 - The name of phase 4.
 - Whether a cycle with no materials in storage still charges labor.
-- What `base_destroyed` does to a gate site: its hull, its storage, and whether construction keeps running.
+- Whether a wrecked site keeps building, and what happens to faction storage already deposited there.
+- How long a station repair cycle is, and how fast a repaired outpost regains hull above 6,000.
 - Whether a site's hull can be repaired or raised during construction.
 - Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.
 - What crossing a gate costs, who may cross (the public access setting), and how fast it is.
