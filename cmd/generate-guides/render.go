@@ -146,6 +146,9 @@ type pageView struct {
 	Snapshots []snapView
 	Body      htmltpl.HTML
 	Plan      htmltpl.JS // every step's options and contributions, for the page script
+	// Upkeep is set when any step names a facility. A guide of facts and
+	// notes only (no facilities) gets no station upkeep chrome.
+	Upkeep bool
 }
 
 // planJSON is what the page script needs to redo the running totals when the
@@ -364,6 +367,11 @@ func (r *renderer) page(g *guide, totals []stationplan.Totals) (pageView, error)
 	}
 	if pv.Body, err = r.md(g, g.body); err != nil {
 		return pv, err
+	}
+	for _, s := range g.Steps {
+		if s.Facility != "" || len(s.Alternatives) > 0 {
+			pv.Upkeep = true
+		}
 	}
 	for i, s := range g.Steps {
 		t := totals[i]
@@ -806,7 +814,9 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
 {{- end}}
 {{- end}}
             {{.Notes}}
+{{- if $.Upkeep}}
             <div class="so-far" data-step="{{.Num}}" title="Open station upkeep">Station so far: {{.SoFarItems}} upkeep items, {{.SoFar}} · {{template "grid" .Grid}}</div>
+{{- end}}
         </section>
 {{- end}}
         </div>
@@ -814,7 +824,7 @@ var guideTemplate = htmltpl.Must(htmltpl.New("guide").Parse(`{{define "link"}}{{
         <div class="guide-body">{{.Body}}</div>
         </article>
     </main>
-{{- if .Steps}}
+{{- if and .Steps .Upkeep}}
     <aside class="guide-sidebar guide-drawer" id="upkeep-drawer" aria-label="Station upkeep">
         <button class="drawer-close" type="button" aria-label="Close">×</button>
         <h3>Station upkeep / {{.Unit}}</h3>

@@ -1,0 +1,428 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jump Gates - Spacemolt KB</title>
+    <link rel="stylesheet" href="../smui.css">
+    <link rel="stylesheet" href="../system.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+        html { scroll-behavior: smooth; scroll-padding-top: 24px; overflow-x: clip; }
+        .guide-shell { display: grid; grid-template-columns: 260px minmax(0, 72rem); gap: 56px; padding: 32px 48px 96px 24px; align-items: start; }
+        .guide-toc { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; font-size: 14px; line-height: 1.4; border-left: 1px solid hsl(var(--border)); }
+        .guide-toc .toc-title, .guide-toc .toc-group { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin: 0 0 12px 16px; }
+        .guide-toc .toc-group { margin: 18px 0 6px 16px; }
+        .guide-toc a { display: block; padding: 6px 12px 6px 16px; margin-left: -1px; border-left: 2px solid transparent; color: hsl(var(--muted-foreground)); text-decoration: none; }
+        .guide-toc a.sub { padding-left: 28px; }
+        .guide-toc a:hover { color: hsl(var(--foreground)); }
+        .guide-toc a.active { color: hsl(var(--foreground)); border-left-color: hsl(var(--smui-yellow)); font-weight: 600; }
+
+        .guide-main { min-width: 0; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 18px; line-height: 1.75; overflow-wrap: anywhere; }
+        .guide-main h1, .guide-main h2, .guide-main h3, .guide-main code, .guide-main .num, .guide-main .facts b, .guide-main .breadcrumb { font-family: var(--font-sans); }
+        .guide-main p, .guide-main ul, .guide-main ol, .guide-main blockquote, .guide-main table, .guide-main dl, .guide-main details { margin: 0 0 1.15em; }
+        .guide-main ul, .guide-main ol { padding-left: 1.4em; }
+        .guide-main li { margin: .35em 0; }
+        .guide-main .breadcrumb { font-size: 14px; margin-bottom: 1em; }
+        .fac-id { font-size: .7em; font-weight: 400; color: hsl(var(--muted-foreground)); }
+        .guide-title { font-size: 2.35rem; line-height: 1.2; margin: 0 0 .4em; }
+        .guide-lede { font-size: 1.1em; color: hsl(var(--muted-foreground)); margin-bottom: 2em !important; }
+        .guide-main h2 { font-size: 1.75rem; line-height: 1.3; margin: 3.2em 0 .9em; padding-top: 1.2em; border-top: 1px solid hsl(var(--border)); }
+        .guide-main h3 { font-size: 1.3rem; line-height: 1.35; margin: 2em 0 .6em; }
+        .guide-main blockquote { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--card)); padding: 18px 22px; border-radius: 0 8px 8px 0; }
+        .guide-main blockquote p:last-child { margin-bottom: 0; }
+        .guide-main code { font-size: .88em; padding: .1em .35em; border-radius: 4px; background: hsl(var(--muted)); }
+
+        .step-card { border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 28px 32px; margin: 0 0 40px; background: hsl(var(--card)); }
+        .step-card h3 { margin: 0 0 .25em; font-size: 1.45rem; }
+        .step-card h3 small { display: block; font-size: .7em; font-weight: 400; margin-top: .2em; }
+        .step-gives { color: hsl(var(--muted-foreground)); font-size: .9em; margin-bottom: 1.4em !important; }
+        .step-build { background: hsl(var(--muted) / .5); padding: 10px 14px; border-radius: 8px; }
+        .facts { margin: 1.2em 0 1.6em; border-top: 1px solid hsl(var(--border)); }
+        .fact { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 20px; padding: 12px 0; border-bottom: 1px solid hsl(var(--border)); }
+        .fact dt { color: hsl(var(--muted-foreground)); font-size: .9em; white-space: nowrap; }
+        .fact dd b { font-weight: 600; }
+        .upkeep .pool { margin: .5em 0 0; }
+        .upkeep .pool .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
+        .fact .basis { display: block; font-size: .82em; color: hsl(var(--muted-foreground)); margin-top: 2px; line-height: 1.5; }
+        .upkeep, .measured { border-left: 4px solid hsl(var(--smui-yellow)); background: hsl(var(--smui-yellow) / .06); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 0 0 1.4em; }
+        .measured { border-left-color: hsl(var(--smui-green)); background: hsl(var(--smui-green) / .06); font-size: .9em; }
+        .upkeep table, .measured table { width: 100%; margin: 0; border-collapse: collapse; font-size: 16px; }
+        .upkeep th, .measured th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: hsl(var(--muted-foreground)); font-weight: 500; }
+        .upkeep td, .upkeep th, .measured td, .measured th { padding: 6px 0; text-align: left; }
+        .upkeep tr + tr td, .measured tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
+        .no-upkeep { color: hsl(var(--muted-foreground)); font-style: italic; margin: 0 !important; }
+        .num { text-align: right !important; font-variant-numeric: tabular-nums; width: 5.5rem; }
+        .step-break { margin: 2.4em 0 1.6em; padding: 1em 0 0; border-top: 2px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); }
+        .step-break p { margin: 0 0 .5em; }
+        .opt-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 10px; margin: 1.2em 0 1.4em; }
+        .opt-choice { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px 14px; border-radius: 10px; cursor: pointer;
+            border: 1px solid hsl(var(--border)); background: hsl(var(--background)); color: hsl(var(--foreground)); font: inherit; line-height: 1.4; }
+        .opt-choice:hover { border-color: hsl(var(--smui-yellow) / .7); }
+        .opt-choice[aria-pressed="true"] { border: 2px solid hsl(var(--smui-yellow)); padding: 11px 13px; background: hsl(var(--smui-yellow) / .08); }
+        .opt-title { font-weight: 600; font-size: .95em; }
+        .opt-title em { font-style: normal; font-weight: 500; font-size: .75em; text-transform: uppercase; letter-spacing: .05em; color: hsl(var(--muted-foreground)); margin-left: 4px; }
+        .opt-meta { font-size: .8em; color: hsl(var(--muted-foreground)); }
+        .so-far { border-top: 1px dashed hsl(var(--border)); margin-top: 1.6em; padding-top: 14px; font-size: .82em; color: hsl(var(--muted-foreground)); cursor: pointer; }
+        .so-far:hover { color: hsl(var(--foreground)); }
+        .deficit { color: hsl(var(--smui-red)); font-weight: 600; }
+
+        .guide-body table { width: 100%; border-collapse: collapse; font-size: .9em; line-height: 1.55; }
+        .guide-body th { text-align: left; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: hsl(var(--muted-foreground)); font-weight: 500; padding: 10px 12px; border-bottom: 2px solid hsl(var(--border)); }
+        .guide-body td { padding: 12px; vertical-align: top; border-bottom: 1px solid hsl(var(--border)); }
+        .guide-body td:first-child { min-width: 9rem; }
+        .guide-body .table-scroll { overflow-x: auto; }
+
+        .guide-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 360px; max-width: 92vw; overflow-y: auto; z-index: 40; font-size: 14px; line-height: 1.5;
+            border-left: 1px solid hsl(var(--border)); padding: 28px 24px 80px; background: hsl(var(--card)); box-shadow: -12px 0 40px rgb(0 0 0 / .18);
+            transform: translateX(105%); transition: transform .25s ease; }
+        body.drawer-open .guide-drawer { transform: none; }
+        .guide-drawer h3 { font-size: 16px; margin: 0 0 6px; }
+        .guide-drawer > .text-muted { font-size: 13px; margin-bottom: 14px; }
+        .guide-drawer table { width: 100%; border-collapse: collapse; margin: 0 0 14px; }
+        .guide-drawer td, .guide-drawer th { padding: 5px 0; text-align: left; vertical-align: top; }
+        .guide-drawer tr + tr td { border-top: 1px solid hsl(var(--border) / .6); }
+        .guide-drawer .num { width: 3.5rem; }
+        .guide-drawer p { margin: 0 0 10px; }
+        .guide-drawer .at-step { font-weight: 600; font-size: 15px; margin: 4px 0 10px; padding: 6px 10px; border-radius: 6px; background: hsl(var(--muted) / .6); }
+        .guide-drawer tr.added td { background: hsl(var(--smui-yellow) / .16); }
+        .guide-drawer tr.added td:first-child { box-shadow: inset 3px 0 0 hsl(var(--smui-yellow)); padding-left: 8px; }
+        .drawer-close { position: absolute; top: 14px; right: 14px; border: 0; background: none; font-size: 22px; cursor: pointer; color: hsl(var(--muted-foreground)); }
+        .drawer-tab { position: fixed; right: 0; top: 50%; z-index: 45; transform: translateY(-50%); writing-mode: vertical-rl; border: 1px solid hsl(var(--border)); border-right: 0;
+            border-radius: 10px 0 0 10px; background: hsl(var(--smui-yellow)); color: #111; padding: 16px 9px; cursor: pointer; font: 600 12px var(--font-sans);
+            letter-spacing: .06em; text-transform: uppercase; box-shadow: -4px 4px 16px rgb(0 0 0 / .15); transition: right .25s ease; }
+        body.drawer-open .drawer-tab { right: min(360px, 92vw); }
+        body.nav-open .drawer-tab { visibility: hidden; }
+
+        @media (max-width: 1000px) { .guide-shell { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; } }
+        @media (max-width: 800px) {
+            .guide-shell { grid-template-columns: 1fr; padding: 16px; }
+            .guide-toc { position: static; max-height: none; }
+            .guide-title { font-size: 1.75rem; overflow-wrap: normal; }
+            .fact { grid-template-columns: 1fr; gap: 2px; }
+            .step-card { padding: 20px 18px; }
+            .guide-body table { display: block; overflow-x: auto; }
+        }
+</style>
+</head>
+<body>
+    <header class="site-header">
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="site-nav" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1><a href="../" style="color:inherit;text-decoration:none">Spacemolt KB</a></h1>
+        <div class="site-tools">
+            <div class="kbs">
+                <input id="kb-search" type="search" placeholder="Search the KB…  /"
+                    autocomplete="off" spellcheck="false" role="combobox"
+                    aria-expanded="false" aria-controls="kb-search-results"
+                    aria-label="Search the knowledge base" data-kb-root="../">
+                <div class="kbs-results" id="kb-search-results" role="listbox" hidden></div>
+            </div>
+            <script src="../search.js" defer></script>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <nav class="site-nav" id="site-nav" aria-label="Site sections">
+            <div class="site-nav-head">Spacemolt KB<button class="nav-close" type="button" aria-label="Close navigation">×</button></div>
+        </nav>
+        <div class="nav-scrim"></div>
+        <script src="../nav.js" defer></script>
+    </header>
+    <main class="guide-shell">
+        <nav class="guide-toc" aria-label="On this page">
+            <div class="toc-title">On this page</div>
+            <a href="#top">Introduction</a>
+            <div class="toc-group">Build order</div>
+            <a class="sub" href="#step-0">Step 0: Earn the recipes</a>
+            <a class="sub" href="#step-1">Step 1: The parts</a>
+            <a class="sub" href="#step-2">Step 2: The rare inputs</a>
+            <a class="sub" href="#step-3">Step 3: Monoliths</a>
+            <a class="sub" href="#step-4">Step 4: Found the site</a>
+            <a class="sub" href="#step-5">Step 5: Running a gate</a>
+            <a href="#not-yet-measured">Not yet measured</a>
+        </nav>
+        <article class="guide-main">
+        <div class="breadcrumb"><a href="index.html">Guides</a> / Jump Gates</div>
+        <h1 class="guide-title" id="top">Jump Gates</h1>
+        <p class="guide-lede">What a jump gate is, how the recipes are earned, what the parts take, where the rare inputs come from, and how a gate site is founded. Much is still unmeasured.</p>
+        <div class="guide-intro"><p>A <strong>jump gate</strong> is a fold in space held open between two systems: a <strong>Lane Anchor</strong> at each
+end holds the fold, a lot of <strong>Fold Lattice</strong> gives it something to stand on, and <strong>Gate
+Regulators</strong> keep it from drifting. Players build them. The first gate in the galaxy was
+built by another player, and more are under construction now, ours among them.</p>
+<p>The recipes are not in the public catalog yet. The numbers below come from our own recipe
+capture after finishing the chain that grants them. As elsewhere in the KB, our own
+observations are labelled <em>measured</em>, other players' reports <em>player-reported</em>, and the
+official docs <em>doc-quoted</em>. This guide is young: everything we have not measured is listed
+as such at the bottom, and the guide grows as we learn.</p>
+<blockquote>
+<p>⚠ <strong>Monoliths.</strong> The rare inputs come from Frontier <strong>Repeaters</strong>. The largest kind, the
+<strong>Repeater Monolith</strong>, cannot be beaten today: every kill spawns two more, and a fight
+with them cannot be fled. One pilot fought Monoliths for eight hours, destroyed 354 of
+them, and was lost (<em>player-reported</em>). Stay out of any system where you have seen one.</p>
+</blockquote>
+<blockquote>
+<p>⚠ <strong>A gate costs money for as long as it stands.</strong> Building it pays labor from your
+faction treasury every facility cycle, and an open gate needs upkeep at both ends. Budget
+for it the way you would for a station (see the <a href="player-stations.html">station guide</a>).</p>
+</blockquote>
+</div>
+        <h2 id="build-order">Build order</h2>
+        <div class="guide-steps">
+        <section class="step-card" id="step-0">
+            <h3>Step 0: Earn the recipes</h3>
+            <dl class="facts"><div class="fact"><dt>Given by</dt><dd><b>Sinter, Starfall Salvage Station</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Chain ends</dt><dd><b>Taking the Machine Apart → Bench Test → The Method</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Unlocks</dt><dd><b>Lane Anchor, Lane Anchor Prototype, Fold Lattice, Gate Regulator, Fold Shim</b><span class="basis">measured 2026-11-21 (recipe capture)</span></dd></div></dl>
+            <p>The recipes are granted when you complete <strong>The Method</strong>, the last mission of Sinter's
+chain. Its completion text sums the build up: &quot;A Lane Anchor at each end, holding the
+fold. Fold Lattice, a lot of it, to give the fold something to stand on. Gate Regulators
+to keep it from drifting. The fold wears through its shims, and the shims are seam glass,
+so whoever builds a gate had better plan to keep feeding it. Every empire's materials and
+a lot of the frontier's.&quot;</p>
+<p>Earlier in the chain, <em>Taking the Machine Apart</em> is where the first <a href="../items/component/fold_knot.html">Fold Knot</a> turns
+up; the fold knot is the hinge every Lane Anchor is built around.</p>
+
+        </section>
+        <section class="step-card" id="step-1">
+            <h3>Step 1: The parts</h3>
+            <dl class="facts"><div class="fact"><dt>Lane Anchor</dt><dd><b>50 seam glass · 1 fold knot · 10 mirror facet · 40 darksteel plating · 8.62 s</b><span class="basis">measured 2026-11-21 (recipe capture)</span></dd></div><div class="fact"><dt>Lane Anchor Prototype</dt><dd><b>10 seam glass · 1 fold knot · 2 mirror facet · 10 darksteel plating · 1.72 s</b><span class="basis">measured 2026-11-21 (recipe capture)</span></dd></div><div class="fact"><dt>Fold Lattice</dt><dd><b>10 seam glass · 2 echo cell · 10 phase matrix · 2.59 s</b><span class="basis">measured 2026-11-21 (recipe capture)</span></dd></div><div class="fact"><dt>Gate Regulator</dt><dd><b>4 echo cell · 10 solarian composite · 5 prismatic lens · 3.45 s</b><span class="basis">measured 2026-11-21 (recipe capture)</span></dd></div><div class="fact"><dt>Fold Shim</dt><dd><b>2 annealed seam glass · 2 circuit board · 2.59 s</b><span class="basis">measured 2026-11-21 (recipe capture)</span></dd></div></dl>
+            <p>All five are hand-crafted in a station workshop. Hand crafting charges no labor fee.</p>
+<ul>
+<li><strong>Lane Anchor:</strong> one at each end of the gate, so two per gate. Each takes a whole
+<a href="../items/component/fold_knot.html">Fold Knot</a>, which is the scarcest input in the whole build. Per the recipe note,
+dismantling a gate returns each fully built end's Lane Anchor.</li>
+<li><strong>Lane Anchor Prototype:</strong> a test build with a fifth of the <a href="../items/ore/seam_glass.html">Seam Glass</a> and mirror
+facets and a quarter of the <a href="../items/refined/darksteel_plating.html">Darksteel Plating</a>. It still needs a full fold knot.</li>
+<li><strong>Fold Lattice:</strong> &quot;a lot of it&quot;. How many a gate takes is not yet measured. Each one
+uses <a href="../items/ore/seam_glass.html">Seam Glass</a>, echo cells and <a href="../items/refined/phase_matrix.html">Phase Matrix</a>.</li>
+<li><strong>Gate Regulator:</strong> keeps the fold from drifting. Uses echo cells,
+<a href="../items/refined/solarian_composite.html">Solarian Composite</a> and <a href="../items/refined/prismatic_lens.html">Prismatic Lens</a>.</li>
+<li><strong>Fold Shim:</strong> the wear part. The fold wears through its shims, so a standing gate needs
+a steady supply of <a href="../items/refined/annealed_seam_glass.html">Annealed Seam Glass</a> and <a href="../items/refined/circuit_board.html">Circuit Board</a>.</li>
+</ul>
+<p>The common inputs (<a href="../items/refined/darksteel_plating.html">Darksteel Plating</a>, <a href="../items/refined/phase_matrix.html">Phase Matrix</a>, <a href="../items/refined/solarian_composite.html">Solarian Composite</a>,
+<a href="../items/refined/prismatic_lens.html">Prismatic Lens</a>, <a href="../items/refined/circuit_board.html">Circuit Board</a>) are ordinary refined goods. The hard ones are
+<a href="../items/ore/seam_glass.html">Seam Glass</a>, echo cells, mirror facets and above all the <a href="../items/component/fold_knot.html">Fold Knot</a>: see the next
+step.</p>
+
+        </section>
+        <section class="step-card" id="step-2">
+            <h3>Step 2: The rare inputs</h3>
+            <dl class="facts"><div class="fact"><dt>Repeater Sliver</dt><dd><b>100 hull / 150 shield · drops 1 mirror facet (plus seam glass or trade crystal, by site)</b><span class="basis">measured (wreck reads)</span></dd></div><div class="fact"><dt>Repeater Pane</dt><dd><b>400 / 600 · drops 1 echo cell &#43; 2 mirror facets</b><span class="basis">measured (wreck reads)</span></dd></div><div class="fact"><dt>Repeater Spire</dt><dd><b>1,600 / 2,400 · drops 2 echo cells &#43; 4 mirror facets, rarely a fold knot</b><span class="basis">measured (wreck reads); fold knot in 1 of 4 spire kills so far</span></dd></div><div class="fact"><dt>Seam glass</dt><dd><b>about 17,700 across 10 systems</b><span class="basis">player-reported</span></dd></div></dl>
+            <p><strong>Repeaters</strong> are Frontier hostiles, crystalline machines found in small groups out past
+charted space. Echo cells, mirror facets and fold knots all come from their wrecks: loot
+the wreck after each kill. The <a href="../items/component/fold_knot.html">Fold Knot</a> is a rare <strong>spire</strong> drop, so a gate's two
+anchors mean a lot of spires.</p>
+<p>Repeaters <strong>reflect damage</strong>. Every hit on a pane sends back a flat amount (about 15)
+as EM damage; a spire sends back a share of the <em>energy</em> damage it takes. Kinetic weapons
+are the better choice against spires, and the reflected damage counts against your ship
+even though the repeater never &quot;fires&quot;.</p>
+<p><strong><a href="../items/ore/seam_glass.html">Seam Glass</a></strong> is mined, not crafted. It sits in <strong>nebula shells guarded by
+repeaters</strong>: in the deposits we know, every shell of any size had a group sitting on
+it. Deposits run from a few hundred to several thousand units. We are not publishing
+where they are; look for nebulae with repeaters on them in frontier systems.</p>
+<p><strong>Working a guarded shell.</strong> Repeaters respawn, so clearing a shell once is not enough.
+What works is a <strong>heavily tanked miner</strong> that can sit on the shell and take the
+reflected and direct damage, plus an <strong>escort</strong> that kills each repeater as it respawns.
+Each round of kills also pays out echo cells and mirror facets, so the mining trip and the
+repeater hunt are the same trip. Frontier systems are mostly off the lanes, so both ships
+usually need a pathfinder drive.</p>
+
+        </section>
+        <section class="step-card" id="step-3">
+            <h3>Step 3: Monoliths</h3>
+            <dl class="facts"><div class="fact"><dt>Repeater Monolith</dt><dd><b>6,400 hull / 9,600 shield</b><span class="basis">measured (sighting)</span></dd></div><div class="fact"><dt>On a kill</dt><dd><b>spawns two more</b><span class="basis">player-reported</span></dd></div><div class="fact"><dt>Escape</dt><dd><b>none: the fight cannot be fled</b><span class="basis">player-reported</span></dd></div></dl>
+            <p>Monoliths are not a harder spire: today they are <strong>undefeatable</strong>. Every kill spawns two
+more, so the fight only grows, and a ship in that fight cannot flee it. One player fought
+Monoliths continuously for eight hours, destroyed 354, and was lost (<em>player-reported</em>).
+A Monolith has also destroyed a survey ship of ours (<em>measured</em>).</p>
+<p>Treat any system where a Monolith has been seen as closed, even if it holds seam glass.
+Only slivers, panes and spires simply respawn; only Monoliths multiply.</p>
+
+        </section>
+        <section class="step-card" id="step-4">
+            <h3>Step 4: Found the site</h3>
+            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured 2026-11-28</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured 2026-11-28</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured 2026-11-28</span></dd></div></dl>
+            <p>Found one end from the system it will stand in, naming the system the <strong>other</strong> end
+will stand in as <code>far_system</code>. The field is <code>far_system</code>: <code>system_id</code> is rejected with
+<code>invalid_payload</code> (<em>measured</em>). The site anchors at <strong>its own new point of interest</strong>
+and your ship is docked there.</p>
+<p>From the server's reply (<em>measured</em>):</p>
+<blockquote>
+<p>Deposit construction materials into faction storage here; each facility cycle builds a
+share of the current phase and pays labor from your faction treasury. Use 'station' info
+to see the phase and what it still needs. Found the far end the same way, naming this
+system as its far_system. The gate opens when both ends are built and both hold upkeep.</p>
+</blockquote>
+<p>So a gate is two construction sites, one at each end, each fed from its own faction
+storage, each paying labor from the treasury while it builds. Which phases a site goes
+through and what each needs is not yet measured.</p>
+
+        </section>
+        <section class="step-card" id="step-5">
+            <h3>Step 5: Running a gate</h3>
+            <p><strong>Shims.</strong> The fold wears through its Fold Shims, so a gate keeps eating
+<a href="../items/refined/annealed_seam_glass.html">Annealed Seam Glass</a> and <a href="../items/refined/circuit_board.html">Circuit Board</a> for as long as it stands (from the recipe
+and mission text; the rate is not yet measured).</p>
+<p><strong>Entanglers.</strong> <a href="../items/component/quantum_entangler.html">Quantum Entangler</a>s sit in a gate's storage as upkeep. Sometimes one
+goes wrong: the logs call it <strong>incoherent</strong>. <a href="../items/component/incoherent_entangler.html">Incoherent Entangler</a>s have been found in
+gate storage, including one in an unfinished gate's storage on its inaccessible side
+(<em>player-reported</em>). First Step Memorial Station's mission <em>It Hums</em> asks for one, and
+its text now explains how they come about.</p>
+
+        </section>
+        </div>
+        <div class="guide-body"><h2 id="not-yet-measured">Not yet measured</h2>
+<ul>
+<li>How many Fold Lattice and Gate Regulators one gate takes.</li>
+<li>The construction phases of a gate site and what each phase needs.</li>
+<li>Labor per cycle while a site builds, and how long a site takes to finish.</li>
+<li>Upkeep for an open gate: entanglers, shims, anything else, and how often.</li>
+<li>What crossing a gate costs, who may cross (the public access setting), and how fast it is.</li>
+<li>How often an entangler in gate storage turns incoherent.</li>
+<li>Whether any repeater besides the spire drops a fold knot.</li>
+</ul>
+</div>
+        </article>
+    </main>
+    <script>
+    (function() {
+        var drawer = document.getElementById('upkeep-drawer');
+        var tab = document.querySelector('.drawer-tab');
+        function setOpen(open) {
+            document.body.classList.toggle('drawer-open', open);
+            if (tab) tab.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        if (drawer) {
+            tab.addEventListener('click', function() { setOpen(!document.body.classList.contains('drawer-open')); });
+            drawer.querySelector('.drawer-close').addEventListener('click', function() { setOpen(false); });
+            document.querySelectorAll('.so-far').forEach(function(el) { el.addEventListener('click', function() { setOpen(true); }); });
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') setOpen(false); });
+        }
+        var links = Array.prototype.slice.call(document.querySelectorAll('.guide-toc a'));
+        var targets = links.map(function(a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+        
+        
+        var snaps = Array.prototype.slice.call(document.querySelectorAll('.upkeep-at'));
+        var cards = snaps.map(function(s) { return document.getElementById('step-' + s.getAttribute('data-step')); });
+        var matsOpen = false;
+        if (drawer) drawer.addEventListener('toggle', function(e) {
+            if (e.target.tagName !== 'DETAILS') return;
+            matsOpen = e.target.open;
+            snaps.forEach(function(s) { var d = s.querySelector('details'); if (d && d.open !== matsOpen) d.open = matsOpen; });
+        }, true);
+        function spy() {
+            var current = 0;
+            targets.forEach(function(t, i) { if (t && t.getBoundingClientRect().top < 120) current = i; });
+            links.forEach(function(a, i) { a.classList.toggle('active', i === current); });
+            var step = 0, line = window.innerHeight * 0.4;
+            cards.forEach(function(c, i) { if (c && c.getBoundingClientRect().top < line) step = i; });
+            snaps.forEach(function(s, i) { s.hidden = i !== step; });
+        }
+        window.addEventListener('scroll', spy, {passive: true});
+        spy();
+
+        var plan = window.GUIDE_PLAN;
+        if (!plan) return;
+        var key = 'guide-choice:' + plan.slug, picks = {};
+        try { picks = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) { picks = {}; }
+        var snapHTML = snaps.map(function(s) { return s.innerHTML; });
+        var soFar = Array.prototype.slice.call(document.querySelectorAll('.so-far[data-step]'));
+        var soFarHTML = soFar.map(function(el) { return el.innerHTML; });
+
+        function chosen(st) {
+            for (var i = 0; i < st.options.length; i++) if (st.options[i].id === picks[st.num]) return st.options[i];
+            return st.options[0];
+        }
+        function esc(v) { return String(v).replace(/[&<>"]/g, function(c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
+        function num(n) { return n.toLocaleString('en-US'); }
+        function day(q) { var f = q * plan.cycles_per_day; return f < 100 ? f.toFixed(1) : num(Math.round(f)); }
+        function name(id) { return (plan.items[id] || {name: id}).name; }
+        function link(id) { var it = plan.items[id] || {name: id}; return it.href ? '<a href="' + esc(it.href) + '">' + esc(it.name) + '</a>' : esc(it.name); }
+        function byName(m) { return Object.keys(m).sort(function(a, b) { return name(a) < name(b) ? -1 : name(a) > name(b) ? 1 : 0; }); }
+        function pair(supply, draw) { var v = supply + ' / ' + draw; return draw > supply ? '<span class="deficit">⚠ ' + v + '</span>' : v; }
+        function grid(t) { return 'power ' + pair(t.ps, t.pd) + ' · life support ' + pair(t.ls, t.ld) + ' <span class="text-muted">(supply / draw)</span>'; }
+        function add(t, o) {
+            var u = {credits: t.credits + o.credits, mats: Object.assign({}, t.mats), up: Object.assign({}, t.up),
+                ps: t.ps + o.power_supply, pd: t.pd + o.power_draw, ls: t.ls + o.life_support_supply, ld: t.ld + o.life_support_draw};
+            Object.keys(o.materials).forEach(function(k) { u.mats[k] = (u.mats[k] || 0) + o.materials[k]; });
+            Object.keys(o.upkeep).forEach(function(k) { u.up[k] = (u.up[k] || 0) + o.upkeep[k]; });
+            return u;
+        }
+        var empty = {credits: 0, mats: {}, up: {}, ps: 0, pd: 0, ls: 0, ld: 0};
+        function upkeepTable(t, prev) {
+            var ids = byName(t.up);
+            if (!ids.length) return '<p class="no-upkeep">No upkeep yet</p>';
+            var h = '<table><tr><th>Upkeep</th><th class="num">/cycle</th>' + (plan.per_day ? '<th class="num">/day</th>' : '') + '</tr>';
+            ids.forEach(function(id) {
+                h += '<tr' + (t.up[id] > (prev.up[id] || 0) ? ' class="added"' : '') + '><td>' + link(id) + '</td><td class="num">' + num(t.up[id]) + '</td>' +
+                    (plan.per_day ? '<td class="num">' + day(t.up[id]) + '</td>' : '') + '</tr>';
+            });
+            return h + '</table>';
+        }
+        function soFarText(t) {
+            var ids = Object.keys(t.up), units = 0;
+            ids.forEach(function(id) { units += t.up[id]; });
+            var total = plan.per_day ? day(units) + ' units/day' : num(units) + ' units/cycle';
+            return 'Station so far: ' + ids.length + ' upkeep items, ' + total + ' · ' + grid(t);
+        }
+        function render() {
+            var isDefault = plan.steps.every(function(st) { return chosen(st) === st.options[0]; });
+            document.querySelectorAll('.opt-choice').forEach(function(b) {
+                var st = plan.steps[+b.getAttribute('data-step')];
+                b.setAttribute('aria-pressed', chosen(st).id === b.getAttribute('data-opt') ? 'true' : 'false');
+            });
+            document.querySelectorAll('.opt-panel, .opt-name').forEach(function(el) {
+                var st = plan.steps[+el.getAttribute('data-step')];
+                el.hidden = chosen(st).id !== el.getAttribute('data-opt');
+            });
+            plan.steps.forEach(function(st) {
+                var a = st.options.length > 1 && document.querySelector('.guide-toc a[href="#step-' + st.num + '"]');
+                if (a) a.textContent = 'Step ' + st.num + ': ' + chosen(st).label;
+            });
+            var cur = empty, all = plan.steps.map(function(st) { cur = add(cur, chosen(st)); return cur; });
+            snaps.forEach(function(s, i) {
+                if (isDefault) { s.innerHTML = snapHTML[i]; } else {
+                    var n = +s.getAttribute('data-step'), t = all[n], prev = n ? all[n - 1] : empty, mats = '';
+                    byName(t.mats).forEach(function(id) { mats += '<tr><td>' + link(id) + '</td><td class="num">' + num(t.mats[id]) + '</td></tr>'; });
+                    s.innerHTML = '<p class="at-step">After Step ' + n + ': ' + esc(chosen(plan.steps[n]).label) + '</p>' + upkeepTable(t, prev) +
+                        '<p>' + grid(t) + '</p><p><b>Build credits:</b> ' + num(t.credits) + '</p>' +
+                        '<details><summary>Build materials</summary><table>' + mats + '</table></details>';
+                }
+                var d = s.querySelector('details');
+                if (d) d.open = matsOpen;
+            });
+            soFar.forEach(function(el, i) {
+                el.innerHTML = isDefault ? soFarHTML[i] : soFarText(all[+el.getAttribute('data-step')]);
+            });
+        }
+        document.querySelectorAll('.opt-choice').forEach(function(b) {
+            b.addEventListener('click', function() {
+                var st = plan.steps[+b.getAttribute('data-step')], id = b.getAttribute('data-opt');
+                if (id === st.options[0].id) delete picks[st.num]; else picks[st.num] = id;
+                try { localStorage.setItem(key, JSON.stringify(picks)); } catch (e) {   }
+                render();
+            });
+        });
+        render();
+    })();
+    </script>
+    <script>
+    (function() {
+        var toggle = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark') root.classList.add('dark');
+        if (toggle) toggle.addEventListener('click', function() {
+            root.classList.toggle('dark');
+            localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+        });
+    })();
+    </script>
+</body>
+</html>

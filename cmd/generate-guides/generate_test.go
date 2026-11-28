@@ -470,3 +470,35 @@ func TestGenerate_StepLeadsWithTitle(t *testing.T) {
 		t.Errorf("heading should name the facility and its id: %s", h3)
 	}
 }
+
+// A guide whose steps name no facility (facts and notes only, e.g. the jump
+// gates guide) gets no station upkeep chrome: no per-step "Station so far"
+// line and no upkeep drawer, which would only show zeros.
+func TestGenerate_NoFacilityStepsNoUpkeepChrome(t *testing.T) {
+	guides := t.TempDir()
+	md := "---\ntitle: Notes Only\nsummary: No facilities here.\nsteps:\n" +
+		"  - title: First\n    facts:\n      - {label: Fee, value: \"1 cr\", basis: \"measured\"}\n    notes: |\n      Just notes.\n" +
+		"  - title: Second\n    notes: |\n      More notes.\n---\n\nBody.\n"
+	if err := os.WriteFile(filepath.Join(guides, "notes-only.md"), []byte(md), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out := t.TempDir()
+	if _, err := generate(guides, testSnapshots(t), out); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(out, "notes-only.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	html := string(b)
+	for _, unwanted := range []string{`class="so-far"`, `id="upkeep-drawer"`, `class="drawer-tab"`, `title="Open station upkeep"`} {
+		if strings.Contains(html, unwanted) {
+			t.Errorf("facility-less guide still renders %q", unwanted)
+		}
+	}
+	for _, want := range []string{"Step 0: First", "Step 1: Second", "<dt>Fee</dt>"} {
+		if !strings.Contains(html, want) {
+			t.Errorf("guide missing %q", want)
+		}
+	}
+}
