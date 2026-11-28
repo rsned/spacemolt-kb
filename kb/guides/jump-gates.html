@@ -248,7 +248,7 @@ Only slivers, panes and spires simply respawn; only Monoliths multiply.</p>
         </section>
         <section class="step-card" id="step-4">
             <h3>Step 4: Found the site</h3>
-            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
+            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>One pair at a time</dt><dd><b>a faction can build only one gate pair at once</b><span class="basis">player-reported (build_failed error)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
             <p>Found one end from the system it will stand in, naming the system the <strong>other</strong> end
 will stand in as <code>far_system</code>. The field is <code>far_system</code>: <code>system_id</code> is rejected with
 <code>invalid_payload</code> (<em>measured</em>). The site anchors at <strong>its own new point of interest</strong>
@@ -261,8 +261,12 @@ to see the phase and what it still needs. Found the far end the same way, naming
 system as its far_system. The gate opens when both ends are built and both hold upkeep.</p>
 </blockquote>
 <p>So a gate is two construction sites, one at each end, each fed from its own faction
-storage, each paying labor from the treasury while it builds. Which phases a site goes
-through and what each needs is not yet measured.</p>
+storage, each paying labor from the treasury while it builds. A site goes through at least
+three phases (<em>player-reported</em>); what each phase needs is not yet measured.</p>
+<p><strong>One pair at a time.</strong> While your faction has a gate under construction, founding another
+site fails with <code>build_failed: your faction is already building a gate (&lt;name&gt;) — finish that pair before starting another</code> (<em>player-reported</em>, seen during phases 2 and 3). Pick
+the far system before you pay the 2.5M founding fee: the far end has to be the system you
+named, and no second pair can start until this one is finished.</p>
 
         </section>
         <section class="step-card" id="step-5">
@@ -288,7 +292,7 @@ its text now explains how they come about.</p>
         <div class="guide-body"><h2 id="not-yet-measured">Not yet measured</h2>
 <ul>
 <li>How many Fold Lattice and Gate Regulators one gate takes.</li>
-<li>The construction phases of a gate site and what each phase needs.</li>
+<li>How many construction phases a gate site has (at least three) and what each phase needs.</li>
 <li>Labor per cycle while a site builds, and how long a site takes to finish.</li>
 <li>Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.</li>
 <li>What crossing a gate costs, who may cross (the public access setting), and how fast it is.</li>

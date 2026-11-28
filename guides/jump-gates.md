@@ -110,6 +110,7 @@ steps:
       - {label: Founding fee, value: "2,500,000 cr", credits: 2500000, basis: "measured"}
       - {label: Public access, value: "off at founding", basis: "measured"}
       - {label: Site defenses, value: "an outpost: 12,000 hull · 0 shield · no weapons, at founding", basis: "measured (get_base)"}
+      - {label: One pair at a time, value: "a faction can build only one gate pair at once", basis: "player-reported (build_failed error)"}
       - {label: Visibility, value: "listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off", basis: "measured"}
       - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
     notes: |
@@ -126,8 +127,14 @@ steps:
       > system as its far_system. The gate opens when both ends are built and both hold upkeep.
 
       So a gate is two construction sites, one at each end, each fed from its own faction
-      storage, each paying labor from the treasury while it builds. Which phases a site goes
-      through and what each needs is not yet measured.
+      storage, each paying labor from the treasury while it builds. A site goes through at least
+      three phases (*player-reported*); what each phase needs is not yet measured.
+
+      **One pair at a time.** While your faction has a gate under construction, founding another
+      site fails with `build_failed: your faction is already building a gate (<name>) — finish
+      that pair before starting another` (*player-reported*, seen during phases 2 and 3). Pick
+      the far system before you pay the 2.5M founding fee: the far end has to be the system you
+      named, and no second pair can start until this one is finished.
   - title: Running a gate
     facts:
       - {label: Fuel cells, value: "5 / cycle (432 / day)", basis: "player-reported (one open gate end)"}
@@ -158,7 +165,7 @@ steps:
 ## Not yet measured
 
 - How many Fold Lattice and Gate Regulators one gate takes.
-- The construction phases of a gate site and what each phase needs.
+- How many construction phases a gate site has (at least three) and what each phase needs.
 - Labor per cycle while a site builds, and how long a site takes to finish.
 - Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.
 - What crossing a gate costs, who may cross (the public access setting), and how fast it is.
