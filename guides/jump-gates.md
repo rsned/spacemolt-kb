@@ -112,6 +112,7 @@ steps:
       - {label: Site defenses, value: "an outpost: 12,000 hull · 0 shield · no weapons, at founding", basis: "measured (get_base)"}
       - {label: Phases, value: "4 per site", basis: "measured (station info)"}
       - {label: "Phase 1: Base platform", value: "500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)", basis: "measured (station info)"}
+      - {label: "Phases 2 to 4: labor", value: "6,000 · 25,000 · 18,000 cr per cycle", basis: "player-reported"}
       - {label: One pair at a time, value: "a faction can build only one gate pair at once", basis: "player-reported (build_failed error)"}
       - {label: Visibility, value: "listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off", basis: "measured"}
       - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
@@ -136,7 +137,12 @@ steps:
       **Phase 1, Base platform,** takes 500 [[hull_plating]], 300 [[reinforced_bulkhead]] and
       300 [[structural_frame]], runs 100 cycles and pays **37,000 cr of labor per cycle**:
       3.7M cr for the phase, about 3.2M cr a day while it builds, and that is for one end.
-      Have the treasury ready before materials go in. The gate block also carries a `toll` (0
+      Have the treasury ready before materials go in.
+
+      Labor for the later phases is lower: **6,000**, **25,000** and **18,000 cr per cycle** for
+      phases 2, 3 and 4 (*player-reported*). If every phase runs 100 cycles like phase 1, one
+      end costs about 8.6M cr in labor and a whole gate about 17M cr, before materials and the
+      two 2.5M founding fees. Only phase 1's cycle count is measured. The gate block also carries a `toll` (0
       at founding) and a `faction_only` flag.
 
       **One pair at a time.** While your faction has a gate under construction, founding another
@@ -174,7 +180,7 @@ steps:
 ## Not yet measured
 
 - How many Fold Lattice and Gate Regulators one gate takes.
-- What phases 2 to 4 need, in materials, cycles and labor.
+- What phases 2 to 4 need in materials, and how many cycles each runs.
 - Whether a cycle with no materials in storage still charges labor.
 - Labor per cycle while a site builds, and how long a site takes to finish.
 - Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.
