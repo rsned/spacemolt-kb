@@ -267,9 +267,15 @@ through and what each needs is not yet measured.</p>
         </section>
         <section class="step-card" id="step-5">
             <h3>Step 5: Running a gate</h3>
-            <p><strong>Shims.</strong> The fold wears through its Fold Shims, so a gate keeps eating
-<a href="../items/refined/annealed_seam_glass.html">Annealed Seam Glass</a> and <a href="../items/refined/circuit_board.html">Circuit Board</a> for as long as it stands (from the recipe
-and mission text; the rate is not yet measured).</p>
+            <dl class="facts"><div class="fact"><dt>Fuel cells</dt><dd><b>5 / cycle (432 / day)</b><span class="basis">player-reported (one open gate end)</span></dd></div><div class="fact"><dt>Circuit boards</dt><dd><b>0.5 / cycle (43.2 / day)</b><span class="basis">player-reported (one open gate end)</span></dd></div><div class="fact"><dt>Coolant loops</dt><dd><b>0.2 / cycle (17.3 / day)</b><span class="basis">player-reported (one open gate end)</span></dd></div><div class="fact"><dt>Fold Shims</dt><dd><b>0.1 / cycle (8.6 / day)</b><span class="basis">player-reported (one open gate end)</span></dd></div><div class="fact"><dt>Quantum entanglers</dt><dd><b>1 per 200 cycles</b><span class="basis">player-reported (one open gate end)</span></dd></div><div class="fact"><dt>Labor</dt><dd><b>600 cr / cycle from the treasury (about 51,840 cr / day)</b><span class="basis">player-reported (one open gate end)</span></dd></div></dl>
+            <p>These rates come from another player's upkeep panel for one end of an open gate, a facility
+cycle being about 100 ticks (86.4 a day). Their panel notes the rates are read from an API
+change, not reported by the game, so treat them as a guide. Upkeep is drawn from the
+faction storage at that end, and the gate opens only while <strong>both</strong> ends hold upkeep, so
+budget for two ends: roughly 864 <a href="../items/consumable/fuel_cell.html">Fuel Cell</a>s, 86 <a href="../items/refined/circuit_board.html">Circuit Board</a>s, 35
+<a href="../items/component/coolant_loop.html">Coolant Loop</a>s, 17 Fold Shims and about 104,000 cr of labor a day for the pair.</p>
+<p><strong>Shims.</strong> The fold wears through its Fold Shims, so a gate keeps eating
+<a href="../items/refined/annealed_seam_glass.html">Annealed Seam Glass</a> and <a href="../items/refined/circuit_board.html">Circuit Board</a> for as long as it stands.</p>
 <p><strong>Entanglers.</strong> <a href="../items/component/quantum_entangler.html">Quantum Entangler</a>s sit in a gate's storage as upkeep (<em>player-reported</em>;
 the mission text agrees). Sometimes one
 goes wrong: the logs call it <strong>incoherent</strong>. <a href="../items/component/incoherent_entangler.html">Incoherent Entangler</a>s have been found in
@@ -284,7 +290,7 @@ its text now explains how they come about.</p>
 <li>How many Fold Lattice and Gate Regulators one gate takes.</li>
 <li>The construction phases of a gate site and what each phase needs.</li>
 <li>Labor per cycle while a site builds, and how long a site takes to finish.</li>
-<li>Upkeep for an open gate: entanglers, shims, anything else, and how often.</li>
+<li>Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.</li>
 <li>What crossing a gate costs, who may cross (the public access setting), and how fast it is.</li>
 <li>How often an entangler in gate storage turns incoherent.</li>
 <li>Whether any repeater besides the spire drops a fold knot.</li>

@@ -129,10 +129,23 @@ steps:
       storage, each paying labor from the treasury while it builds. Which phases a site goes
       through and what each needs is not yet measured.
   - title: Running a gate
+    facts:
+      - {label: Fuel cells, value: "5 / cycle (432 / day)", basis: "player-reported (one open gate end)"}
+      - {label: Circuit boards, value: "0.5 / cycle (43.2 / day)", basis: "player-reported (one open gate end)"}
+      - {label: Coolant loops, value: "0.2 / cycle (17.3 / day)", basis: "player-reported (one open gate end)"}
+      - {label: Fold Shims, value: "0.1 / cycle (8.6 / day)", basis: "player-reported (one open gate end)"}
+      - {label: Quantum entanglers, value: "1 per 200 cycles", basis: "player-reported (one open gate end)"}
+      - {label: Labor, value: "600 cr / cycle from the treasury (about 51,840 cr / day)", credits: 600, basis: "player-reported (one open gate end)"}
     notes: |
+      These rates come from another player's upkeep panel for one end of an open gate, a facility
+      cycle being about 100 ticks (86.4 a day). Their panel notes the rates are read from an API
+      change, not reported by the game, so treat them as a guide. Upkeep is drawn from the
+      faction storage at that end, and the gate opens only while **both** ends hold upkeep, so
+      budget for two ends: roughly 864 [[fuel_cell]]s, 86 [[circuit_board]]s, 35
+      [[coolant_loop]]s, 17 Fold Shims and about 104,000 cr of labor a day for the pair.
+
       **Shims.** The fold wears through its Fold Shims, so a gate keeps eating
-      [[annealed_seam_glass]] and [[circuit_board]] for as long as it stands (from the recipe
-      and mission text; the rate is not yet measured).
+      [[annealed_seam_glass]] and [[circuit_board]] for as long as it stands.
 
       **Entanglers.** [[quantum_entangler]]s sit in a gate's storage as upkeep (*player-reported*;
       the mission text agrees). Sometimes one
@@ -147,7 +160,7 @@ steps:
 - How many Fold Lattice and Gate Regulators one gate takes.
 - The construction phases of a gate site and what each phase needs.
 - Labor per cycle while a site builds, and how long a site takes to finish.
-- Upkeep for an open gate: entanglers, shims, anything else, and how often.
+- Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.
 - What crossing a gate costs, who may cross (the public access setting), and how fast it is.
 - How often an entangler in gate storage turns incoherent.
 - Whether any repeater besides the spire drops a fold knot.
