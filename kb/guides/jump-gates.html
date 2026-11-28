@@ -248,7 +248,7 @@ Only slivers, panes and spires simply respawn; only Monoliths multiply.</p>
         </section>
         <section class="step-card" id="step-4">
             <h3>Step 4: Found the site</h3>
-            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>One pair at a time</dt><dd><b>a faction can build only one gate pair at once</b><span class="basis">player-reported (build_failed error)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
+            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>Phases</dt><dd><b>4 per site</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phase 1: Base platform</dt><dd><b>500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>One pair at a time</dt><dd><b>a faction can build only one gate pair at once</b><span class="basis">player-reported (build_failed error)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
             <p>Found one end from the system it will stand in, naming the system the <strong>other</strong> end
 will stand in as <code>far_system</code>. The field is <code>far_system</code>: <code>system_id</code> is rejected with
 <code>invalid_payload</code> (<em>measured</em>). The site anchors at <strong>its own new point of interest</strong>
@@ -261,8 +261,14 @@ to see the phase and what it still needs. Found the far end the same way, naming
 system as its far_system. The gate opens when both ends are built and both hold upkeep.</p>
 </blockquote>
 <p>So a gate is two construction sites, one at each end, each fed from its own faction
-storage, each paying labor from the treasury while it builds. A site goes through at least
-three phases (<em>player-reported</em>); what each phase needs is not yet measured.</p>
+storage, each paying labor from the treasury while it builds. <code>station info</code> at the site shows
+a <code>gate</code> block: the phase number and name, <code>phases_total</code> (4), <code>phase_cycles</code>,
+<code>phase_labor_per_cycle</code> and <code>phase_materials_left</code> (<em>measured</em>).</p>
+<p><strong>Phase 1, Base platform,</strong> takes 500 <a href="../items/component/hull_plating.html">Hull Plating</a>, 300 <a href="../items/component/reinforced_bulkhead.html">Reinforced Bulkhead</a> and
+300 <a href="../items/component/structural_frame.html">Structural Frame</a>, runs 100 cycles and pays <strong>37,000 cr of labor per cycle</strong>:
+3.7M cr for the phase, about 3.2M cr a day while it builds, and that is for one end.
+Have the treasury ready before materials go in. The gate block also carries a <code>toll</code> (0
+at founding) and a <code>faction_only</code> flag.</p>
 <p><strong>One pair at a time.</strong> While your faction has a gate under construction, founding another
 site fails with <code>build_failed: your faction is already building a gate (&lt;name&gt;) — finish that pair before starting another</code> (<em>player-reported</em>, seen during phases 2 and 3). Pick
 the far system before you pay the 2.5M founding fee: the far end has to be the system you
@@ -292,7 +298,8 @@ its text now explains how they come about.</p>
         <div class="guide-body"><h2 id="not-yet-measured">Not yet measured</h2>
 <ul>
 <li>How many Fold Lattice and Gate Regulators one gate takes.</li>
-<li>How many construction phases a gate site has (at least three) and what each phase needs.</li>
+<li>What phases 2 to 4 need, in materials, cycles and labor.</li>
+<li>Whether a cycle with no materials in storage still charges labor.</li>
 <li>Labor per cycle while a site builds, and how long a site takes to finish.</li>
 <li>Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.</li>
 <li>What crossing a gate costs, who may cross (the public access setting), and how fast it is.</li>
