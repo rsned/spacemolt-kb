@@ -112,7 +112,8 @@ steps:
       - {label: Site defenses, value: "an outpost: 12,000 hull · 0 shield · no weapons, at founding", basis: "measured (get_base)"}
       - {label: Phases, value: "4 per site", basis: "measured (station info)"}
       - {label: "Phase 1: Base platform", value: "500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)", basis: "measured (station info)"}
-      - {label: "Phases 2 to 4: labor", value: "6,000 · 25,000 · 18,000 cr per cycle", basis: "player-reported"}
+      - {label: "Phases 2 to 4: labor", value: "6,000 cr × 150 cycles · 25,000 × 150 · 18,000 × 200", basis: "player-reported"}
+      - {label: Labor per end, value: "about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M", basis: "computed from the phase figures"}
       - {label: One pair at a time, value: "a faction can build only one gate pair at once", basis: "player-reported (build_failed error)"}
       - {label: Visibility, value: "listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off", basis: "measured"}
       - {label: Achievement, value: "The Gatekeeper (industry, 40 points): found one end of a jump gate", basis: "measured"}
@@ -140,9 +141,10 @@ steps:
       Have the treasury ready before materials go in.
 
       Labor for the later phases is lower: **6,000**, **25,000** and **18,000 cr per cycle** for
-      phases 2, 3 and 4 (*player-reported*). If every phase runs 100 cycles like phase 1, one
-      end costs about 8.6M cr in labor and a whole gate about 17M cr, before materials and the
-      two 2.5M founding fees. Only phase 1's cycle count is measured. The gate block also carries a `toll` (0
+      phases 2, 3 and 4, which run 150, 150 and 200 cycles (*player-reported*). Phase by phase that
+      is 3.7M, 0.9M, 3.75M and 3.6M: **about 11.95M cr of labor per end** over 600 cycles, about
+      seven days if materials never run short, and **about 23.9M cr for the whole gate**, before
+      materials and the two 2.5M founding fees. The gate block also carries a `toll` (0
       at founding) and a `faction_only` flag.
 
       **One pair at a time.** While your faction has a gate under construction, founding another
@@ -180,7 +182,7 @@ steps:
 ## Not yet measured
 
 - How many Fold Lattice and Gate Regulators one gate takes.
-- What phases 2 to 4 need in materials, and how many cycles each runs.
+- What phases 2 to 4 need in materials.
 - Whether a cycle with no materials in storage still charges labor.
 - Labor per cycle while a site builds, and how long a site takes to finish.
 - Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.

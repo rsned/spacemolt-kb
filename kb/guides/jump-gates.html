@@ -248,7 +248,7 @@ Only slivers, panes and spires simply respawn; only Monoliths multiply.</p>
         </section>
         <section class="step-card" id="step-4">
             <h3>Step 4: Found the site</h3>
-            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>Phases</dt><dd><b>4 per site</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phase 1: Base platform</dt><dd><b>500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phases 2 to 4: labor</dt><dd><b>6,000 · 25,000 · 18,000 cr per cycle</b><span class="basis">player-reported</span></dd></div><div class="fact"><dt>One pair at a time</dt><dd><b>a faction can build only one gate pair at once</b><span class="basis">player-reported (build_failed error)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
+            <dl class="facts"><div class="fact"><dt>Command</dt><dd><b>build_gate_site {&#34;name&#34;: &#34;…&#34;, &#34;far_system&#34;: &#34;&lt;system id&gt;&#34;}</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Founding fee</dt><dd><b>2,500,000 cr</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Public access</dt><dd><b>off at founding</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Site defenses</dt><dd><b>an outpost: 12,000 hull · 0 shield · no weapons, at founding</b><span class="basis">measured (get_base)</span></dd></div><div class="fact"><dt>Phases</dt><dd><b>4 per site</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phase 1: Base platform</dt><dd><b>500 hull plating · 300 reinforced bulkhead · 300 structural frame · 100 cycles · 37,000 cr labor per cycle (3.7M for the phase)</b><span class="basis">measured (station info)</span></dd></div><div class="fact"><dt>Phases 2 to 4: labor</dt><dd><b>6,000 cr × 150 cycles · 25,000 × 150 · 18,000 × 200</b><span class="basis">player-reported</span></dd></div><div class="fact"><dt>Labor per end</dt><dd><b>about 11.95M cr over 600 cycles (about 7 days); a whole gate about 23.9M</b><span class="basis">computed from the phase figures</span></dd></div><div class="fact"><dt>One pair at a time</dt><dd><b>a faction can build only one gate pair at once</b><span class="basis">player-reported (build_failed error)</span></dd></div><div class="fact"><dt>Visibility</dt><dd><b>listed in get_system as a station POI (base type outpost) for anyone in the system, even with public access off</b><span class="basis">measured</span></dd></div><div class="fact"><dt>Achievement</dt><dd><b>The Gatekeeper (industry, 40 points): found one end of a jump gate</b><span class="basis">measured</span></dd></div></dl>
             <p>Found one end from the system it will stand in, naming the system the <strong>other</strong> end
 will stand in as <code>far_system</code>. The field is <code>far_system</code>: <code>system_id</code> is rejected with
 <code>invalid_payload</code> (<em>measured</em>). The site anchors at <strong>its own new point of interest</strong>
@@ -269,9 +269,10 @@ a <code>gate</code> block: the phase number and name, <code>phases_total</code> 
 3.7M cr for the phase, about 3.2M cr a day while it builds, and that is for one end.
 Have the treasury ready before materials go in.</p>
 <p>Labor for the later phases is lower: <strong>6,000</strong>, <strong>25,000</strong> and <strong>18,000 cr per cycle</strong> for
-phases 2, 3 and 4 (<em>player-reported</em>). If every phase runs 100 cycles like phase 1, one
-end costs about 8.6M cr in labor and a whole gate about 17M cr, before materials and the
-two 2.5M founding fees. Only phase 1's cycle count is measured. The gate block also carries a <code>toll</code> (0
+phases 2, 3 and 4, which run 150, 150 and 200 cycles (<em>player-reported</em>). Phase by phase that
+is 3.7M, 0.9M, 3.75M and 3.6M: <strong>about 11.95M cr of labor per end</strong> over 600 cycles, about
+seven days if materials never run short, and <strong>about 23.9M cr for the whole gate</strong>, before
+materials and the two 2.5M founding fees. The gate block also carries a <code>toll</code> (0
 at founding) and a <code>faction_only</code> flag.</p>
 <p><strong>One pair at a time.</strong> While your faction has a gate under construction, founding another
 site fails with <code>build_failed: your faction is already building a gate (&lt;name&gt;) — finish that pair before starting another</code> (<em>player-reported</em>, seen during phases 2 and 3). Pick
@@ -302,7 +303,7 @@ its text now explains how they come about.</p>
         <div class="guide-body"><h2 id="not-yet-measured">Not yet measured</h2>
 <ul>
 <li>How many Fold Lattice and Gate Regulators one gate takes.</li>
-<li>What phases 2 to 4 need in materials, and how many cycles each runs.</li>
+<li>What phases 2 to 4 need in materials.</li>
 <li>Whether a cycle with no materials in storage still charges labor.</li>
 <li>Labor per cycle while a site builds, and how long a site takes to finish.</li>
 <li>Our own measurement of open-gate upkeep (the rates above are player-reported), and what happens when a gate end runs out.</li>
